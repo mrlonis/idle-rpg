@@ -1,32 +1,98 @@
 {
   "name": "idle-rpg",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
   "private": true,
-  "packageManager": "npm@11.17.0",
+  "scripts": {
+    "build": "ng build",
+    "lint": "npm run lint:angular && npm run lint:playwright && npm run lint:scripts",
+    "lint:angular": "ng lint",
+    "lint:fix": "npm run lint:angular -- --fix && npm run lint:playwright -- --fix && npm run lint:scripts -- --fix",
+    "lint:playwright": "eslint -c ./tests/eslint.config.js ./tests",
+    "lint:scripts": "eslint -c ./scripts/eslint.config.js ./scripts",
+    "lint-staged": "lint-staged",
+    "ng": "ng",
+    "playwright:install": "playwright install --with-deps",
+    "prepare": "husky",
+    "prettier": "prettier --write . --ignore-unknown",
+    "prettier:test": "prettier --check . --ignore-unknown",
+    "start": "ng serve",
+    "sync:agent-instructions": "tsx scripts/sync-agent-instructions.ts",
+    "sync:agent-instructions:check": "tsx scripts/sync-agent-instructions.ts --check",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:scripts",
+    "test:e2e": "npm run playwright:install && playwright test --config=./tests/playwright.config.ts",
+    "test:scripts": "vitest run --config scripts/vitest.config.ts",
+    "test:unit": "ng test --no-watch",
+    "watch": "ng build --watch --configuration development"
+  },
+  "lint-staged": {
+    ".vscode/settings.json": [
+      "sort-json --indent 2 --depth 4",
+      "prettier --write"
+    ],
+    "package.json": [
+      "sort-package-json",
+      "prettier --write"
+    ],
+    "scripts/**/*.ts": [
+      "eslint -c ./scripts/eslint.config.js --fix"
+    ],
+    "src/**/*.{html,ts}": [
+      "ng-lint-staged lint:angular --fix --"
+    ],
+    "tests/**/*.ts": [
+      "eslint -c ./tests/eslint.config.js --fix"
+    ],
+    "!({.vscode/settings.json,package.json,scripts/**/*.ts,src/**/*.{html,ts},tests/**/*.ts})": [
+      "prettier --write --ignore-unknown"
+    ]
+  },
   "dependencies": {
-    "@angular/common": "^22.0.0",
-    "@angular/compiler": "^22.0.0",
-    "@angular/core": "^22.0.0",
-    "@angular/forms": "^22.0.0",
-    "@angular/platform-browser": "^22.0.0",
-    "@angular/router": "^22.0.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "@angular/cdk": "^22",
+    "@angular/common": "^22",
+    "@angular/compiler": "^22",
+    "@angular/core": "^22",
+    "@angular/forms": "^22",
+    "@angular/material": "^22",
+    "@angular/platform-browser": "^22",
+    "@angular/router": "^22",
+    "rxjs": "^7",
+    "tslib": "^2"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.8",
-    "@angular/cli": "^22.0.8",
-    "@angular/compiler-cli": "^22.0.0",
-    "jsdom": "^28.0.0",
-    "prettier": "^3.8.1",
-    "typescript": "~6.0.2",
-    "vitest": "^4.0.8"
+    "@angular/build": "^22",
+    "@angular/cli": "^22",
+    "@angular/compiler-cli": "^22",
+    "@eslint/js": "^9",
+    "@playwright/test": "^1",
+    "@types/node": "^26",
+    "@vitest/coverage-v8": "^4",
+    "angular-eslint": "^22",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10",
+    "eslint-import-resolver-typescript": "^4",
+    "eslint-plugin-import": "^2",
+    "eslint-plugin-playwright": "^2",
+    "eslint-plugin-prettier": "^5",
+    "husky": "^9",
+    "jsdom": "^30",
+    "lint-staged": "^17",
+    "ng-lint-staged": "^12",
+    "prettier": "^3",
+    "sort-json": "^2",
+    "sort-package-json": "^4",
+    "tsx": "^4",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8",
+    "vitest": "^4"
+  },
+  "packageManager": "npm@11.17.0",
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.2": true,
+    "fsevents@2.3.3": true,
+    "lmdb@3.5.4": true,
+    "msgpackr-extract@3.0.4": true,
+    "unrs-resolver@1.12.2": true
   }
 }
