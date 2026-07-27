@@ -60,3 +60,38 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `providedIn: 'root'` option for singleton services
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
+
+## AI Instruction Source of Truth
+
+- Do not manually edit generated AI instruction files such as `.claude/CLAUDE.md`, `.gemini/GEMINI.md`, `.github/copilot-instructions.md`, `.junie/guidelines.md`, `.windsurf/rules/guidelines.md`, or `.cursor/rules/cursor.mdc`.
+- Edit only `AGENTS.md`.
+- After editing, run:
+  - `npm run sync:agent-instructions`
+  - `npm run sync:agent-instructions:check`
+
+## Linting Guidelines
+
+- Run linting for every change set; linting is required for all changes, not optional.
+- Use the lint command that matches the files you changed:
+  - Angular app files: `npm run lint:angular`
+  - Playwright files: `npm run lint:playwright`
+  - Mixed changes (Angular + Playwright) or full-repo linting: `npm run lint`
+- For scoped linting, pass extra arguments through the matching script (for example: `npm run lint:angular -- <args>` or `npm run lint:playwright -- <args>`).
+- Treat lint failures as real issues to fix in code rather than bypass.
+- Never disable ESLint rules to make code pass linting.
+  - Do not disable rules in root/shared ESLint config files.
+  - Do not disable rules at the file level.
+  - Do not disable rules inline (for example with `eslint-disable` comments).
+
+## Testing Guidelines
+
+- This project uses `vitest` (v4) for unit testing. Write and update unit tests using Vitest APIs and patterns.
+- When running tests, prefer scoped commands that target only the changed project or spec file.
+- Example:
+  - To run tests for just the `/src/app/app.spec.ts` file: `npm run test:unit -- --include src/app/app.spec.ts`
+- Place tests close to the code they verify, and keep test setup focused on behavior rather than implementation details.
+- Prefer clear Arrange-Act-Assert structure with descriptive test names that document expected behavior.
+- Cover happy paths, edge cases, and error handling for components, services, and utility functions.
+- Keep tests deterministic: avoid time, network, and global state coupling unless explicitly mocked.
+- Mock only what is necessary, and prefer lightweight fakes/stubs over deep or brittle mocks.
+- Ensure tests are fast and isolated so they can run reliably in CI.
