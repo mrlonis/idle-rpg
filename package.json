@@ -18,8 +18,9 @@
     "start": "ng serve",
     "sync:agent-instructions": "tsx scripts/sync-agent-instructions.ts",
     "sync:agent-instructions:check": "tsx scripts/sync-agent-instructions.ts --check",
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:scripts",
     "test:e2e": "npm run playwright:install && playwright test --config=./tests/playwright.config.ts",
+    "test:scripts": "vitest run --config scripts/vitest.config.ts",
     "test:unit": "ng test --no-watch",
     "watch": "ng build --watch --configuration development"
   },
