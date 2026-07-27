@@ -33,18 +33,18 @@ jobs:
       - name: Test
         run: npm run test
 
-      - name: Upload example-angular-app TypeScript coverage to Codacy
+      - name: Upload idle-rpg TypeScript coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage/example-angular-app/lcov.info
+          coverage-reports: coverage/idle-rpg/lcov.info
           language: 'TypeScript'
 
-      - name: Upload example-angular-app HTML coverage to Codacy
+      - name: Upload idle-rpg HTML coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage/example-angular-app/lcov.info
+          coverage-reports: coverage/idle-rpg/lcov.info
           language: 'HTML'
 
       - name: Upload scripts TypeScript coverage to Codacy
