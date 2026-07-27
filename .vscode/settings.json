@@ -1,0 +1,20 @@
+{
+  "cSpell.words": ["iframe", "Resizer"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.options": {
+    "cache": true,
+    "fix": true
+  },
+  "eslint.validate": ["html", "javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true
+}
