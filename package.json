@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "android": "npm run build && npm run cap:sync && npm run cap:open:android",
     "build": "ng build",
     "cap": "cap",
+    "cap:open:android": "npm run cap -- open android",
     "cap:open:ios": "npm run cap -- open ios",
     "cap:sync": "npm run cap -- sync",
     "ios": "npm run build && npm run cap:sync && npm run cap:open:ios",
@@ -59,6 +61,7 @@
     "@angular/material": "^22",
     "@angular/platform-browser": "^22",
     "@angular/router": "^22",
+    "@capacitor/android": "^8",
     "@capacitor/core": "^8",
     "@capacitor/ios": "^8",
     "@capacitor/preferences": "^8",
