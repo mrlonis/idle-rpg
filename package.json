@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "build": "ng build",
+    "cap": "cap",
+    "cap:open:ios": "npm run cap -- open ios",
+    "cap:sync": "npm run cap -- sync",
+    "ios": "npm run build && npm run cap:sync && npm run cap:open:ios",
     "lint": "npm run lint:angular && npm run lint:playwright && npm run lint:scripts",
     "lint:angular": "ng lint",
     "lint:fix": "npm run lint:angular -- --fix && npm run lint:playwright -- --fix && npm run lint:scripts -- --fix",
@@ -55,6 +59,8 @@
     "@angular/material": "^22",
     "@angular/platform-browser": "^22",
     "@angular/router": "^22",
+    "@capacitor/core": "^8",
+    "@capacitor/ios": "^8",
     "rxjs": "^7",
     "tslib": "^2"
   },
@@ -62,6 +68,7 @@
     "@angular/build": "^22",
     "@angular/cli": "^22",
     "@angular/compiler-cli": "^22",
+    "@capacitor/cli": "^8",
     "@eslint/js": "^9",
     "@playwright/test": "^1",
     "@types/node": "^26",
