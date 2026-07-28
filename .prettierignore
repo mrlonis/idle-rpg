@@ -1,0 +1,13 @@
+# Prettier reads the root .gitignore by default, but not nested ones. The native
+# projects carry their own (android/.gitignore, ios/.gitignore), so the files
+# `cap sync` copies into them are invisible to git yet still get format-checked.
+# Re-declare them here. See AGENTS.md: these are generated, never hand-edited.
+
+# Web assets copied by `cap sync` (bundle filenames are content-hashed per build)
+android/app/src/main/assets/public/
+ios/App/App/public/
+
+# Config generated from capacitor.config.ts by `cap sync`
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+ios/App/App/capacitor.config.json
