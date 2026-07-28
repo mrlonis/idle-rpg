@@ -1,4 +1,169 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+# Project
+
+A 2D incremental idle RPG for mobile (iOS-first, Android secondary): gacha pulls, idle
+progression, team building, stage climbing. Solo dev project.
+
+Stack: TypeScript, Angular 22 (zoneless), Angular Material, Capacitor 8. No backend.
+
+---
+
+## Design constraints (do not violate)
+
+These are product decisions, not preferences. Do not propose changes to them and do not
+write code that assumes otherwise.
+
+- **Completely free. No IAP, no ads, no monetization of any kind, ever.** Do not add
+  purchase flows, ad SDKs, receipt validation, "premium currency you can buy", or
+  paywalls. There is no way to whale.
+- **No server, no accounts, no network calls.** The game runs fully offline. Do not add
+  HTTP clients, auth, telemetry, or remote config. `@angular/common/http` should not
+  appear in this project.
+- **No PvP, no leaderboards, no social comparison** in v1. Power is measured against the
+  game's own content, not other players.
+- **No anti-cheat.** A player editing their own save affects only their own run. Do not
+  add obfuscation, checksums-as-security, or tamper detection.
+
+Balance philosophy: this is a **time economy**, not a money economy. Commercial gacha
+tuning (0.6% rates, 90-pull pity, manufactured scarcity) exists to sell a bridge across a
+gap it creates. There is no bridge to sell here, so generosity is free. When suggesting
+rates or pacing, err generous. Pity and duplicate-conversion are mandatory — an unlucky
+player has no escape valve, so bad luck must be bounded.
+
+---
+
+## Architecture
+
+```
+src/
+  core/   Pure TypeScript. The entire game simulation.
+  data/   Content as plain data: characters, enemies, stages, upgrades, banners.
+  ui/     Angular components and services that wrap core/.
+```
+
+### The `core/` boundary is the most important rule in this repo
+
+`core/` MUST NOT import from:
+
+- `@angular/*` (including signals — signals are an Angular concept)
+- `@capacitor/*`
+- `@ionic/*`
+- `src/ui/*`
+- any DOM API (`window`, `document`, `localStorage`, `navigator`)
+
+`core/` must run headless in Node. This is what makes balance testable by simulating
+thousands of hours instead of playing them. Enforced by ESLint `no-restricted-imports`;
+do not disable that rule.
+
+`data/` is plain data only — no logic, no imports from `core/` or `ui/`.
+
+`ui/` may import from `core/` and `data/`. Never the reverse.
+
+### Core is pure and deterministic
+
+- Expose pure functions: `tick(state, dtMs) => state`, `pull(state, bannerId) => { state, results }`,
+  `simulateBattle(team, stage, seed) => BattleResult`.
+- Return new state; do not mutate arguments in place.
+- **Never call `Math.random()`.** Use the seeded PRNG (mulberry32). Seed and call counter
+  live in the save.
+- **Never call `Date.now()` or `new Date()` inside `core/`.** Time is a parameter passed
+  in from `ui/`. Core has no clock.
+- Derive a sub-stream for combat so replaying a battle does not shift the pull sequence:
+  `hash(seed, 'battle:' + stageId + ':' + battleCount)`. Pulls advance `state.rng.calls`;
+  combat does not.
+
+Keep the simulation **server-ready but do not build a server.** Determinism is for
+reproducible bugs and replayable balance runs.
+
+---
+
+## Simulation and change detection
+
+The app is zoneless. The sim clock and the render clock are separate.
+
+- Sim ticks ~10Hz inside `runOutsideAngular`.
+- UI samples state into a signal at ~6Hz.
+- Components read `computed()` values off that snapshot. Never push every state mutation
+  into the view layer.
+- Do not drive combat off the render tick. Battles resolve instantly and headlessly into
+  an event log; the UI animates the log afterward. This is what makes 2x/4x/skip and
+  offline resolution free.
+
+---
+
+## Saves
+
+- `@capacitor/preferences` is the persistence layer. **Do not use `localStorage`** — on
+  iOS, WKWebView local storage lives in a cache-class container that the OS can purge
+  under storage pressure, which loses player saves.
+- Every save carries a `version`. Bumping `SAVE_VERSION` without adding the matching
+  migration is a bug.
+- Migrations are pure `(old) => (new)` steps, chained. **Never delete an old migration.**
+- Loading must not throw on recoverable damage. Clamp and default (`NaN` gold becomes 0,
+  unknown character IDs are dropped) rather than rejecting. A thrown error costs the
+  player their entire run. Write to a backup slot before overwriting the primary.
+- Persist on `visibilitychange`. `beforeunload` is unreliable in a WebView and iOS can
+  suspend without warning.
+- Keep fixture saves for each historical version in `src/core/save/fixtures/`, with a test
+  that migrates every fixture to current.
+
+---
+
+## Offline progression
+
+**Never replay offline time step by step.** Twelve hours at 10Hz is 432,000 iterations on
+resume and will hang the device. Three cases:
+
+1. **Continuous, fixed rate** (gold, stamina, XP) → closed form: `rate * elapsedSec`.
+2. **Continuous, rate changes mid-window** (auto-progression advancing stages) →
+   _segmented_ closed form. Solve time-to-clear per stage and loop over segments (~single
+   digits of iterations), never per tick.
+3. **Discrete drops** → expected value with deterministic rounding, carrying the
+   fractional remainder in the save. **Do not roll RNG for offline loot** — it invites
+   force-quit rerolling, and expected value reads as fair to players.
+
+Clamp elapsed to `[0, CAP_MS]` where the cap is 8–12h. A negative delta means the device
+clock moved backwards; clamp to zero rather than punishing. Do not add clock-tamper
+defenses — there is nothing to protect.
+
+---
+
+## Mobile / Capacitor
+
+- `ios/` and `android/` are **committed source, not build artifacts.** Capacitor generates
+  them once and never regenerates. Edit them; do not delete and re-add.
+- `cap sync` copies web assets and updates native plugin deps. It does not touch signing,
+  build settings, or capabilities.
+- Prefer `capacitor.config.ts` over per-platform Xcode/Android Studio settings when the
+  option exists in both.
+- Do not edit `android/app/src/main/assets/public/` or `ios/App/App/public/` — generated.
+- Build order matters: `ng build` → `cap sync` → open. Syncing before building ships stale
+  assets.
+- Android needs a system back-button handler (`@capacitor/app`) that pops modals and
+  navigates up, exiting only from the root. iOS has no equivalent.
+- Safe-area handling is `env(safe-area-inset-*)` CSS on both platforms (Capacitor 8 moved
+  Android edge-to-edge to the same mechanism).
+- Keep `browserslist` explicit and aligned with Capacitor 8's floors (iOS 15+, API 24+).
+  Angular's default target can emit syntax that old Android System WebView cannot parse,
+  which fails at parse time and renders a blank screen with no visible error.
+- Never ship a build with `server.url` set in `capacitor.config.ts`. That is dev-only, and
+  it triggers App Store rejection under Guideline 4.2.
+
+---
+
+## Content and balance
+
+- Balance numbers live in `data/`, not hardcoded in `core/` logic.
+- Depth comes from a modest number of systems that interact, not from volume of
+  hand-authored content.
+- Characters are **sidegrades with distinct niches**, not a strict power ladder. Two
+  players should clear the same stage with different teams.
+- Team composition matters through **enemy design** (a healer that must be burst, a wide
+  wave that punishes single-target, a debuff that needs a cleanse), not through flat
+  synergy bonuses like "+10% if two Fire units" — those just create a new optimal team.
+- Check the scaling curve against float64's safe range (9e15) before committing to it. Add
+  `break_infinity.js` only if the curve actually demands it.
+
+---
 
 ## TypeScript Best Practices
 
@@ -40,6 +205,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
+- Signals belong in `ui/` only. Game state lives in plain objects owned by `core/`.
 
 ## Templates
 
@@ -89,3 +255,17 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Keep tests deterministic: avoid time, network, and global state coupling unless explicitly mocked.
 - Mock only what is necessary, and prefer lightweight fakes/stubs over deep or brittle mocks.
 - Ensure tests are fast and isolated so they can run reliably in CI.
+
+### Testing `core/`
+
+- `core/` specs run in `environment: 'node'` with no Angular TestBed. If a core spec needs
+  a TestBed, the boundary has been violated.
+- Determinism makes exact assertions possible. Prefer them over tolerance ranges where the
+  seed is fixed.
+- The highest-value invariant in the project: **closed-form offline resume must match
+  stepwise accrual.** Assert relative error, not `toBeCloseTo` (which is absolute decimal
+  places and will fail once numbers get large).
+- Slow statistical balance sweeps belong in a separate vitest project (`*.balance.ts`) with
+  a long timeout, not in the fast unit suite that runs on save.
+- When evaluating balance, look at the **5th percentile** player, not the mean. In a paid
+  game the unlucky tail buys its way out; here they cannot, so they are the design target.
