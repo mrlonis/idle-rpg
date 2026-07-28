@@ -65,6 +65,7 @@
     "@capacitor/core": "^8",
     "@capacitor/ios": "^8",
     "@capacitor/preferences": "^8",
+    "break_infinity.js": "^2",
     "rxjs": "^7",
     "tslib": "^2"
   },
