@@ -62,10 +62,11 @@ or `new Date()`. Each rule carries a message explaining the alternative. Do not 
 seeded mulberry32 PRNG whose seed and call count live in the save, and takes time as a
 parameter because it has no clock.
 
-`core/` tests run as their own Vitest project in a true `environment: 'node'`
-([`src/core/vitest.config.ts`](src/core/vitest.config.ts)) rather than through the Angular
-builder, which runs specs under jsdom. Under jsdom a core module that reached for `document`
-would pass its tests and only fail where the balance sweeps actually run.
+`core/` specs run through the normal `npm run test:unit` alongside the Angular specs. Each
+one carries a `// @vitest-environment node` docblock so it runs headless instead of under
+the builder's jsdom default, and [`src/core/environment.spec.ts`](src/core/environment.spec.ts)
+fails if that ever stops working. The lint rules above are the real enforcement; the Node
+environment is defence in depth.
 
 ---
 
@@ -81,14 +82,13 @@ would pass its tests and only fail where the balance sweeps actually run.
 
 ### Test
 
-| Command                      | Description                                              |
-| ---------------------------- | -------------------------------------------------------- |
-| `npm test`                   | Everything: core, unit, e2e, then scripts. What CI runs. |
-| `npm run test:core`          | `core/` simulation tests, in a Node environment.         |
-| `npm run test:unit`          | Angular/Vitest unit tests, single run with coverage.     |
-| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.               |
-| `npm run test:scripts`       | Vitest tests for `scripts/`.                             |
-| `npm run playwright:install` | Install Playwright browsers and their system deps.       |
+| Command                      | Description                                        |
+| ---------------------------- | -------------------------------------------------- |
+| `npm test`                   | Everything: unit, e2e, then scripts. What CI runs. |
+| `npm run test:unit`          | Unit tests — `core/` and Angular — with coverage.  |
+| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.         |
+| `npm run test:scripts`       | Vitest tests for `scripts/`.                       |
+| `npm run playwright:install` | Install Playwright browsers and their system deps. |
 
 Prefer scoping test runs to what you changed:
 

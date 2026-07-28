@@ -1,3 +1,7 @@
+// @vitest-environment node
+// core/ must run headless: no Angular TestBed, no DOM. This overrides the Angular unit-test
+// builder's jsdom default so a stray DOM reference fails here rather than only in the
+// balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { Decimal, isUsable, num, ONE, parseOr, serialize, tryParse, ZERO } from './numeric';
 

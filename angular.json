@@ -73,8 +73,7 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "coverage": true,
-            "coverageReporters": ["html", "lcov", "text", "text-summary"],
-            "exclude": ["src/core/**/*.spec.ts"]
+            "coverageReporters": ["html", "lcov", "text", "text-summary"]
           }
         },
         "lint": {

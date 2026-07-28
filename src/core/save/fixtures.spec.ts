@@ -1,6 +1,9 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// @vitest-environment node
+// core/ must run headless: no Angular TestBed, no DOM. This overrides the Angular unit-test
+// builder's jsdom default so a stray DOM reference fails here rather than only in the
+// balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
+import v1 from './fixtures/v1.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -11,30 +14,23 @@ import { SAVE_VERSION } from './version';
  *
  * This is the test that makes the save layer trustworthy. It catches the migration written
  * three months ago and never exercised since — the one that breaks silently and costs a
- * returning player their run. Add a fixture whenever `SAVE_VERSION` is bumped; the
- * coverage assertion below fails if you forget.
+ * returning player their run.
+ *
+ * Fixtures are imported statically rather than scanned off disk: the spec then has no
+ * dependency on the working directory or on the test runner's module resolution, and it
+ * type-checks. Registering a new fixture is two lines, and the coverage assertion below
+ * fails if you bump `SAVE_VERSION` and forget.
  */
-const FIXTURE_DIR = join(import.meta.dirname, 'fixtures');
+const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([[1, v1]]);
+
 const OPTIONS: RepairOptions = { fallbackSeed: 1, nowMs: 4_000_000_000_000 };
-
-function fixtureFiles(): string[] {
-  return readdirSync(FIXTURE_DIR)
-    .filter((name) => name.endsWith('.json'))
-    .sort();
-}
-
-function readFixture(name: string): unknown {
-  return JSON.parse(readFileSync(join(FIXTURE_DIR, name), 'utf8'));
-}
+const entries = [...FIXTURES.entries()];
 
 describe('save fixtures', () => {
-  const files = fixtureFiles();
-
-  it('has a fixture for every version up to current', () => {
-    const present = new Set(files.map((name) => name.replace(/^v(\d+)\.json$/, '$1')));
+  it('has a fixture registered for every version up to current', () => {
     const missing: number[] = [];
     for (let version = 1; version <= SAVE_VERSION; version++) {
-      if (!present.has(String(version))) {
+      if (!FIXTURES.has(version)) {
         missing.push(version);
       }
     }
@@ -42,16 +38,16 @@ describe('save fixtures', () => {
     expect(missing).toEqual([]);
   });
 
-  it.each(files)('%s migrates to current without issues', (name) => {
-    const result = loadSave(readFixture(name), OPTIONS);
+  it.each(entries)('v%i migrates to current without issues', (_version, fixture) => {
+    const result = loadSave(fixture, OPTIONS);
 
     expect(result.fatal).toBeUndefined();
     expect(result.issues).toEqual([]);
     expect(result.state.version).toBe(SAVE_VERSION);
   });
 
-  it.each(files)('%s produces a usable state', (name) => {
-    const { state } = loadSave(readFixture(name), OPTIONS);
+  it.each(entries)('v%i produces a usable state', (_version, fixture) => {
+    const { state } = loadSave(fixture, OPTIONS);
 
     expect(state.gold.mantissa).not.toBeNaN();
     expect(state.goldPerSec.mantissa).not.toBeNaN();
@@ -65,7 +61,7 @@ describe('v1 fixture contents', () => {
   it('loads its recorded values exactly', () => {
     // Pinned so a change in parsing or serialisation shows up as a failing assertion
     // rather than as a quietly different save.
-    const { state } = loadSave(readFixture('v1.json'), OPTIONS);
+    const { state } = loadSave(v1, OPTIONS);
 
     expect(state.gold.eq('1.2345e+18')).toBe(true);
     expect(state.goldPerSec.eq('250')).toBe(true);
@@ -74,7 +70,7 @@ describe('v1 fixture contents', () => {
   });
 
   it('preserves a gold value past float64 exact-integer range', () => {
-    const { state } = loadSave(readFixture('v1.json'), OPTIONS);
+    const { state } = loadSave(v1, OPTIONS);
 
     expect(state.gold.toNumber()).toBeGreaterThan(Number.MAX_SAFE_INTEGER);
   });
