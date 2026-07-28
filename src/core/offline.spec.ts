@@ -1,0 +1,192 @@
+import { describe, expect, it } from 'vitest';
+import { num } from './numeric';
+import { accrueDiscrete, OFFLINE_CAP_MS, resume } from './offline';
+import { newGame, type GameState } from './state';
+import { tick } from './tick';
+
+const SEED = 0xc0ffee;
+const T0 = 1_700_000_000_000;
+
+function stateWithRate(goldPerSec: string): GameState {
+  return { ...newGame({ seed: SEED, nowMs: T0 }), goldPerSec: num(goldPerSec) };
+}
+
+/** Relative error, which stays meaningful once values grow past what decimal places can express. */
+function relativeError(actual: string, expected: string): number {
+  const a = num(actual);
+  const e = num(expected);
+  if (e.eq(0)) {
+    return a.eq(0) ? 0 : Infinity;
+  }
+  return Math.abs(a.sub(e).div(e).toNumber());
+}
+
+describe('resume', () => {
+  it('pays out rate * elapsed for a window under the cap', () => {
+    const state = stateWithRate('250');
+
+    const { state: resumed, report } = resume(state, T0 + 60_000);
+
+    expect(report.elapsedMs).toBe(60_000);
+    expect(report.wasCapped).toBe(false);
+    expect(report.gold.toString()).toBe('15000');
+    expect(resumed.gold.toString()).toBe('15000');
+  });
+
+  it('advances lastTickAt to the resume time', () => {
+    const state = stateWithRate('1');
+
+    const { state: resumed } = resume(state, T0 + 5_000);
+
+    expect(resumed.lastTickAt).toBe(T0 + 5_000);
+  });
+
+  it('clamps the payout at OFFLINE_CAP_MS and flags it', () => {
+    const state = stateWithRate('1');
+    const away = OFFLINE_CAP_MS + 6 * 60 * 60 * 1000;
+
+    const { report } = resume(state, T0 + away);
+
+    expect(report.rawElapsedMs).toBe(away);
+    expect(report.elapsedMs).toBe(OFFLINE_CAP_MS);
+    expect(report.wasCapped).toBe(true);
+    expect(report.gold.toString()).toBe(String(OFFLINE_CAP_MS / 1000));
+  });
+
+  it('pays nothing when the device clock moved backwards, without going negative', () => {
+    const state = { ...stateWithRate('100'), gold: num('500') };
+
+    const { state: resumed, report } = resume(state, T0 - 60_000);
+
+    expect(report.elapsedMs).toBe(0);
+    expect(report.gold.toString()).toBe('0');
+    expect(resumed.gold.toString()).toBe('500');
+  });
+
+  it('treats a damaged lastTickAt as a zero-length window', () => {
+    const state = { ...stateWithRate('100'), lastTickAt: Number.NaN };
+
+    const { report } = resume(state, T0);
+
+    expect(report.elapsedMs).toBe(0);
+    expect(report.gold.toString()).toBe('0');
+  });
+
+  it('does not mutate the state it is given', () => {
+    const state = stateWithRate('10');
+
+    resume(state, T0 + 10_000);
+
+    expect(state.gold.toString()).toBe('0');
+    expect(state.lastTickAt).toBe(T0);
+  });
+});
+
+describe('closed-form resume vs stepwise accrual', () => {
+  // The highest-value invariant in the project: the offline shortcut and the live sim loop
+  // must agree. If these ever diverge, players are silently paid a different rate for time
+  // spent away than for time spent watching, and every balance number derived from one is
+  // wrong for the other.
+  it.each([
+    { label: '1 minute at 10Hz', durationMs: 60_000, dtMs: 100, rate: '250' },
+    { label: '1 hour at 10Hz', durationMs: 60 * 60 * 1000, dtMs: 100, rate: '1e6' },
+    { label: '10 hours at 10Hz (the cap)', durationMs: OFFLINE_CAP_MS, dtMs: 100, rate: '1' },
+    { label: '1 hour at 6Hz', durationMs: 60 * 60 * 1000, dtMs: 160, rate: '1e18' },
+  ])('matches within 1e-12 relative error: $label', ({ durationMs, dtMs, rate }) => {
+    const start = stateWithRate(rate);
+
+    const { report } = resume(start, T0 + durationMs);
+
+    let stepwise = start;
+    for (let elapsed = 0; elapsed < durationMs; elapsed += dtMs) {
+      stepwise = tick(stepwise, Math.min(dtMs, durationMs - elapsed));
+    }
+
+    expect(relativeError(report.gold.toString(), stepwise.gold.toString())).toBeLessThan(1e-12);
+  });
+
+  it('agrees at magnitudes far past float64 exact-integer range', () => {
+    // 1e30 is roughly where a 1.15x-per-stage curve lands by stage 500, and is 14 orders of
+    // magnitude past 2^53. Plain `number` cannot represent consecutive integers here.
+    const start = stateWithRate('1e30');
+    const durationMs = 60 * 60 * 1000;
+
+    const { report } = resume(start, T0 + durationMs);
+
+    let stepwise = start;
+    for (let elapsed = 0; elapsed < durationMs; elapsed += 100) {
+      stepwise = tick(stepwise, 100);
+    }
+
+    expect(relativeError(report.gold.toString(), stepwise.gold.toString())).toBeLessThan(1e-12);
+    expect(report.gold.toNumber()).toBeGreaterThan(Number.MAX_SAFE_INTEGER);
+  });
+});
+
+describe('accrueDiscrete', () => {
+  it('awards whole units and carries the remainder', () => {
+    const result = accrueDiscrete(0, 3.7);
+
+    expect(result.whole).toBe(3);
+    expect(result.carry).toBeCloseTo(0.7, 10);
+  });
+
+  it('completes a whole unit from carried fractions', () => {
+    expect(accrueDiscrete(0.6, 0.5).whole).toBe(1);
+  });
+
+  it('accrues across many short sessions instead of rounding each one away', () => {
+    // Without the carry, ten sessions of 0.9 expected drops would floor to zero every time
+    // and the player would be paid nothing for nine drops' worth of play.
+    let carry = 0;
+    let total = 0;
+    for (let session = 0; session < 10; session++) {
+      const result = accrueDiscrete(carry, 0.9);
+      total += result.whole;
+      carry = result.carry;
+    }
+
+    // 10 x 0.9 = 9 in exact arithmetic. Binary floating point accumulates just under that,
+    // so the tenth unit is still sitting in `carry` rather than lost — it is awarded on the
+    // next session. The contract is that nothing evaporates, not that boundaries are exact.
+    expect(total + carry).toBeCloseTo(9, 9);
+    expect(total).toBeGreaterThanOrEqual(8);
+    expect(total).toBeLessThanOrEqual(9);
+  });
+
+  it('never awards more than was earned', () => {
+    let carry = 0;
+    let total = 0;
+    for (let session = 1; session <= 200; session++) {
+      const result = accrueDiscrete(carry, 0.37);
+      total += result.whole;
+      carry = result.carry;
+      expect(total).toBeLessThanOrEqual(session * 0.37 + 1e-9);
+    }
+  });
+
+  it('keeps the carry in [0, 1)', () => {
+    let carry = 0;
+    for (let session = 0; session < 100; session++) {
+      carry = accrueDiscrete(carry, 1.618).carry;
+      expect(carry).toBeGreaterThanOrEqual(0);
+      expect(carry).toBeLessThan(1);
+    }
+  });
+
+  it('never rolls RNG: the same inputs always give the same payout', () => {
+    const first = accrueDiscrete(0.25, 12.5);
+    const second = accrueDiscrete(0.25, 12.5);
+
+    expect(first).toEqual(second);
+  });
+
+  it.each([
+    { label: 'negative carry', carry: -5, expected: 2, whole: 2 },
+    { label: 'NaN carry', carry: Number.NaN, expected: 2, whole: 2 },
+    { label: 'negative expected', carry: 0, expected: -3, whole: 0 },
+    { label: 'infinite expected', carry: 0, expected: Infinity, whole: 0 },
+  ])('clamps damaged input: $label', ({ carry, expected, whole }) => {
+    expect(accrueDiscrete(carry, expected).whole).toBe(whole);
+  });
+});

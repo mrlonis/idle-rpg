@@ -4,7 +4,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["vitest/globals"]
+    /* `node` is for spec files only. `tsconfig.app.json` sets `"types": []`, so application
+       and `core/` source still cannot reach Node built-ins — only tests can, which is what
+       lets the save fixtures be read from disk. */
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
 }

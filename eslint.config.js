@@ -7,6 +7,7 @@ const importPlugin = require('eslint-plugin-import');
 const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
 const eslintConfigPrettier = require('eslint-config-prettier');
 const path = require('node:path');
+const coreBoundary = require('./src/core/eslint.config.js');
 
 module.exports = defineConfig([
   globalIgnores([
@@ -127,6 +128,8 @@ module.exports = defineConfig([
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
     },
   },
+  // The core/ boundary. Placed after the shared TypeScript config so its restrictions win.
+  ...coreBoundary,
   eslintPluginPrettierRecommended,
   eslintConfigPrettier,
 ]);
