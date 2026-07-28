@@ -61,6 +61,7 @@
     "@angular/router": "^22",
     "@capacitor/core": "^8",
     "@capacitor/ios": "^8",
+    "@capacitor/preferences": "^8",
     "rxjs": "^7",
     "tslib": "^2"
   },
