@@ -52,11 +52,15 @@ reverse. `core/` may not import Angular, Capacitor, `src/ui/*`, or any DOM API â
 run headless in Node. That constraint is what lets balance be tested by simulating thousands
 of hours headlessly instead of playing them.
 
-The boundary is enforced mechanically, not by convention. [`src/core/eslint.config.js`](src/core/eslint.config.js)
-is spread into the root ESLint config and fails the build on a restricted import
-(`@angular/*`, `@capacitor/*`, `@ionic/*`, `ui/`, `data/`), a DOM global (`window`,
-`document`, `localStorage`, `navigator`, `fetch`), or a call to `Math.random()`, `Date.now()`
-or `new Date()`. Each rule carries a message explaining the alternative. Do not disable them.
+The boundary is enforced mechanically, not by convention. A `src/core/**/*.ts` block in
+[`eslint.config.js`](eslint.config.js) fails the build on a restricted import (`@angular/*`,
+`@capacitor/*`, `@ionic/*`, `ui/`, `data/`), a DOM global (`window`, `document`,
+`localStorage`, `navigator`, `fetch`), or a call to `Math.random()`, `Date.now()` or
+`new Date()`. Each rule carries a message explaining the alternative. Do not disable them.
+
+ESLint flat config is additive, so `core/` files match both that block and the general
+`**/*.ts` block and receive every rule from both â€” the boundary restrictions come **on top
+of** the full TypeScript, Angular, import and Prettier rule set, not instead of it.
 
 `core/` is pure and deterministic: it returns new state rather than mutating, draws from a
 seeded mulberry32 PRNG whose seed and call count live in the save, and takes time as a
