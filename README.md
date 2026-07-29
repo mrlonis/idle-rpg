@@ -27,6 +27,41 @@ npm start
 ```
 
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
+You should see a gold counter ticking upward — refresh and it resumes where it left off.
+
+---
+
+## Roadmap
+
+Ordered so there is **always something playable**. Each step layers onto the previous
+skeleton without changing its shape. [AGENTS.md](AGENTS.md) carries the full detail and the
+design rationale for each.
+
+| #   | Milestone                              | Status                                     |
+| --- | -------------------------------------- | ------------------------------------------ |
+| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                            |
+| 2   | Auto-battle vs. a single stage         | ⬜ Next — introduces `data/`               |
+| 3   | Gacha: seeded rolls, visible pity      | ⬜                                         |
+| 4   | Team composition affecting combat math | ⬜                                         |
+| 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented needs combat |
+| 6   | Run on a physical iPhone               | ⬜                                         |
+| 7   | Prestige layer, then content           | ⬜                                         |
+
+**What milestone 1 shipped.** A gold counter that accrues at 10Hz, samples into the UI at
+~6Hz, persists through `@capacitor/preferences`, and settles offline earnings in closed form
+on resume. Underneath that: `Numeric` (a `break_infinity` wrapper so the backing numeric type
+is a one-file swap), a seeded mulberry32 PRNG with O(1) resume and derived sub-streams ready
+for combat, and a versioned save layer with a migration chain, fixtures, and repair that
+clamps damage rather than throwing.
+
+**Milestone 5 is partly done** because the pieces that do not need combat are already built
+and tested: the fixed-rate closed form, the offline cap, the backwards-clock guard, and
+expected-value drop accrual with a carried remainder. The segmented solver — for
+auto-progression advancing stages mid-window — needs `timeToClear(stage)`, so it waits on
+milestone 2.
+
+Deliberately deferred: native foreground/background handling (`@capacitor/app`), routing,
+and Angular Material. All three are cheap to add later and add debugging surface now.
 
 ---
 
@@ -43,9 +78,9 @@ ios/      Committed Capacitor iOS project — source, not a build artifact.
 android/  Committed Capacitor Android project — source, not a build artifact.
 ```
 
-> **Note:** `data/` and `ui/` do not exist yet — game content and the Angular game UI land
-> there as they are built. `core/` holds the simulation foundation: numbers, RNG, tick,
-> offline resume, and the save/migration layer.
+> **Note:** `data/` does not exist yet — game content lands there with the first stage and
+> enemy stat blocks (milestone 2). `core/` holds the simulation foundation and `ui/` the
+> Angular services that wrap it; `src/app/` is the bootstrap shell.
 
 **The dependency rule is one-way.** `ui/` may import from `core/` and `data/`; never the
 reverse. `core/` may not import Angular, Capacitor, `src/ui/*`, or any DOM API — it has to

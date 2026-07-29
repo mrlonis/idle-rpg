@@ -58,5 +58,5 @@ node_modules/
 .github/instructions/codacy.instructions.md
 
 # Claude
-.claude/
+.claude/*
 !.claude/CLAUDE.md

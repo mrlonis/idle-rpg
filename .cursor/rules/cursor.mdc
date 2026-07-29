@@ -37,6 +37,88 @@ player has no escape valve, so bad luck must be bounded.
 
 ---
 
+## Milestones
+
+The ordering exists so there is **always something playable**. Each milestone layers onto
+the previous skeleton without changing its shape. Do not skip ahead: a later milestone
+built on an unverified earlier one is where the hard-to-find bugs live.
+
+Before starting work, check where the project actually is. Do not assume this list is
+current — verify against the code.
+
+### 1. Tick loop, one resource, save/load — **COMPLETE**
+
+A number counts up on screen and survives a refresh. This proves the whole architecture
+end to end: `core/` purity, the sim/render split, and the save path.
+
+Shipped: `core/numeric.ts` (`Numeric` over `break_infinity`), `core/rng.ts` (seeded
+mulberry32 with O(1) resume and derived sub-streams), `core/state.ts`, `core/tick.ts`,
+`core/save/` (versioned saves, migration chain, non-throwing repair, fixtures),
+`core/offline.ts`, `ui/game-loop.service.ts`, `ui/save.service.ts`,
+`ui/format-numeric.ts`.
+
+### 2. Auto-battle against a single stage — **NEXT**
+
+`simulateBattle(team, stage, seed) => BattleResult` resolving instantly and headlessly into
+an event log; the UI animates the log afterwards. Do not drive combat off the render tick —
+that decision is what makes 2x/4x/skip and offline resolution free.
+
+Use an ATB gauge (`gauge += spd` per tick, act at threshold) rather than fixed rounds, so
+SPD is a real stat with real tradeoffs. Draw from a derived RNG stream
+(`deriveSeed(seed, 'battle:<stageId>:<battleCount>')`) so replaying a battle is reproducible
+and never shifts the pull sequence.
+
+This milestone introduces `data/` (stage and enemy stat blocks).
+
+### 3. Gacha: a few characters, seeded rolls, visible pity
+
+`pull(state, bannerId, count) => { state, results }`. Pity lives in `GameState`, is global
+rather than per-banner, and is visible in the UI at all times. Pulls advance
+`state.rng.calls`; combat never does.
+
+Starting numbers to tune by simulation, deliberately far more generous than commercial
+tuning: base top-rarity 2.5%, soft pity from pull 30 ramping ~+6%/pull, hard pity at 50,
+duplicates convert to shards, roughly one ten-pull per day of normal play.
+
+### 4. Team composition affecting combat math
+
+Composition matters through **enemy design**, not flat synergy bonuses — see
+"Content and balance". Characters are keys to locks, not rungs on a ladder.
+
+### 5. Offline catch-up — **PARTIALLY COMPLETE**
+
+Done and tested: the continuous fixed-rate closed form, the `[0, CAP_MS]` clamp, the
+backwards-clock guard, and `accrueDiscrete()` for expected-value drops with a carried
+remainder.
+
+Still outstanding, both blocked on combat existing:
+
+- The **segmented** closed form for auto-progression advancing stages mid-window. Needs
+  `timeToClear(state, stage)`.
+- A drop source to feed `accrueDiscrete()`, plus the `dropCarry` field in `GameState` (add
+  it via the first real migration, so the migration chain gets exercised for real).
+
+### 6. Run it on a physical iPhone
+
+Do this while the app is still small, so the signing and provisioning pain lands early
+rather than next to a deadline. `npm run ios` builds, syncs, and opens Xcode.
+
+### 7. Prestige layer, then content
+
+Only after 1–6 are solid.
+
+### Deliberately deferred
+
+- **Foreground/background handling via `@capacitor/app`.** The `visibilitychange` handling
+  in `ui/game-loop.service.ts` covers the current need. Adding the native lifecycle plugin
+  before combat exists means debugging two unfamiliar things at once.
+- **Routing.** `app.routes.ts` is intentionally empty; the game is one screen until there
+  is a second screen worth navigating to.
+- **Angular Material.** Installed but unused. Do not pull it in until a real control needs
+  it — a counter and a button do not.
+
+---
+
 ## Architecture
 
 ```
@@ -66,16 +148,23 @@ do not disable that rule.
 
 ### Core is pure and deterministic
 
-- Expose pure functions: `tick(state, dtMs) => state`, `pull(state, bannerId) => { state, results }`,
-  `simulateBattle(team, stage, seed) => BattleResult`.
+- Expose pure functions. Shipped: `tick(state, dtMs) => state`,
+  `resume(state, nowMs) => { state, report }`. Planned:
+  `simulateBattle(team, stage, seed) => BattleResult` (milestone 2),
+  `pull(state, bannerId, count) => { state, results }` (milestone 3).
 - Return new state; do not mutate arguments in place.
-- **Never call `Math.random()`.** Use the seeded PRNG (mulberry32). Seed and call counter
-  live in the save.
+- **Never call `Math.random()`.** Use the seeded PRNG in `core/rng.ts`. Seed and call
+  counter live in the save.
 - **Never call `Date.now()` or `new Date()` inside `core/`.** Time is a parameter passed
   in from `ui/`. Core has no clock.
-- Derive a sub-stream for combat so replaying a battle does not shift the pull sequence:
-  `hash(seed, 'battle:' + stageId + ':' + battleCount)`. Pulls advance `state.rng.calls`;
-  combat does not.
+- Derive a sub-stream for combat so replaying a battle does not shift the pull sequence.
+  **This is already built — do not write your own.** `core/rng.ts` exports:
+  - `resumeStream(state.rng)` — the main stream, resumed at `calls` in O(1). Draw from this
+    for pulls, then write `stream.commit()` back into state so `calls` advances.
+  - `deriveSeed(seed, label)` and `derivedStream(seed, label)` — independent sub-streams.
+    Use `deriveSeed(state.rng.seed, \`battle:${stageId}:${battleCount}\`)` for combat.
+
+  Pulls advance `state.rng.calls`; combat never does.
 
 Keep the simulation **server-ready but do not build a server.** Determinism is for
 reproducible bugs and replayable balance runs.
