@@ -127,6 +127,102 @@ module.exports = defineConfig([
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
     },
   },
+  // The core/ boundary, enforced mechanically.
+  //
+  // core/ must run headless in Node: that is what lets balance be tested by simulating
+  // thousands of hours instead of playing them. This is the enforcement AGENTS.md refers
+  // to; do not disable these rules.
+  //
+  // Flat config is additive, so files under src/core/ match both this block and the
+  // '**/*.ts' block above and receive every rule from both — these restrictions are on top
+  // of the full TypeScript/Angular/import rule set, not instead of it.
+  {
+    files: ['src/core/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@angular/*', '@angular/**'],
+              message:
+                'core/ must not import Angular. Signals are an Angular concept; game state lives in plain objects owned by core/.',
+            },
+            {
+              group: ['@capacitor/*', '@capacitor/**'],
+              message:
+                'core/ must not import Capacitor. Persistence and native access belong in ui/.',
+            },
+            {
+              group: ['@ionic/*', '@ionic/**'],
+              message: 'core/ must not import Ionic.',
+            },
+            {
+              group: ['**/ui', '**/ui/**', '**/app', '**/app/**'],
+              message:
+                'core/ must not import from ui/. The dependency runs one way: ui/ imports core/, never the reverse.',
+            },
+            {
+              group: ['**/data', '**/data/**'],
+              message:
+                'core/ must not import from data/. Content is passed in as arguments so the simulation can be driven with test fixtures.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'window',
+          message: 'core/ must run headless in Node. Pass what you need in as a parameter.',
+        },
+        {
+          name: 'document',
+          message: 'core/ must run headless in Node. Pass what you need in as a parameter.',
+        },
+        {
+          name: 'localStorage',
+          message:
+            'core/ must not persist anything. Saves are owned by ui/ via @capacitor/preferences.',
+        },
+        {
+          name: 'sessionStorage',
+          message: 'core/ must not persist anything.',
+        },
+        {
+          name: 'navigator',
+          message: 'core/ must run headless in Node.',
+        },
+        {
+          name: 'fetch',
+          message: 'The game is fully offline. core/ must not make network calls.',
+        },
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'Math',
+          property: 'random',
+          message:
+            'core/ must use the seeded PRNG (see core/rng.ts) so runs are reproducible. Math.random() breaks replayable balance runs and bug reports.',
+        },
+        {
+          object: 'Date',
+          property: 'now',
+          message:
+            'core/ has no clock. Time is a parameter passed in from ui/ (see `nowMs`), which is what makes offline resume testable.',
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'NewExpression[callee.name="Date"]',
+          message:
+            'core/ has no clock. Time is a parameter passed in from ui/ (see `nowMs`), which is what makes offline resume testable.',
+        },
+      ],
+    },
+  },
   eslintPluginPrettierRecommended,
   eslintConfigPrettier,
 ]);

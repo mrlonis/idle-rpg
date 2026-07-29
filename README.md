@@ -43,18 +43,34 @@ ios/      Committed Capacitor iOS project — source, not a build artifact.
 android/  Committed Capacitor Android project — source, not a build artifact.
 ```
 
-> **Note:** `src/` currently holds only the Angular shell in `src/app/`. The `core/`,
-> `data/`, and `ui/` split above is the target structure that game code lands in.
+> **Note:** `data/` and `ui/` do not exist yet — game content and the Angular game UI land
+> there as they are built. `core/` holds the simulation foundation: numbers, RNG, tick,
+> offline resume, and the save/migration layer.
 
 **The dependency rule is one-way.** `ui/` may import from `core/` and `data/`; never the
 reverse. `core/` may not import Angular, Capacitor, `src/ui/*`, or any DOM API — it has to
 run headless in Node. That constraint is what lets balance be tested by simulating thousands
-of hours headlessly instead of playing them. The boundary is meant to be enforced
-mechanically by an ESLint `no-restricted-imports` rule, which still needs to be added to
-[`eslint.config.js`](eslint.config.js) alongside the first `core/` code.
+of hours headlessly instead of playing them.
 
-`core/` is also pure and deterministic: no `Math.random()` (a seeded mulberry32 PRNG lives
-in the save) and no `Date.now()` (time is passed in as a parameter).
+The boundary is enforced mechanically, not by convention. A `src/core/**/*.ts` block in
+[`eslint.config.js`](eslint.config.js) fails the build on a restricted import (`@angular/*`,
+`@capacitor/*`, `@ionic/*`, `ui/`, `data/`), a DOM global (`window`, `document`,
+`localStorage`, `navigator`, `fetch`), or a call to `Math.random()`, `Date.now()` or
+`new Date()`. Each rule carries a message explaining the alternative. Do not disable them.
+
+ESLint flat config is additive, so `core/` files match both that block and the general
+`**/*.ts` block and receive every rule from both — the boundary restrictions come **on top
+of** the full TypeScript, Angular, import and Prettier rule set, not instead of it.
+
+`core/` is pure and deterministic: it returns new state rather than mutating, draws from a
+seeded mulberry32 PRNG whose seed and call count live in the save, and takes time as a
+parameter because it has no clock.
+
+`core/` specs run through the normal `npm run test:unit` alongside the Angular specs. Each
+one carries a `// @vitest-environment node` docblock so it runs headless instead of under
+the builder's jsdom default, and [`src/core/environment.spec.ts`](src/core/environment.spec.ts)
+fails if that ever stops working. The lint rules above are the real enforcement; the Node
+environment is defence in depth.
 
 ---
 
@@ -70,13 +86,13 @@ in the save) and no `Date.now()` (time is passed in as a parameter).
 
 ### Test
 
-| Command                      | Description                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `npm test`                   | Everything: unit, e2e, then scripts. What CI runs.   |
-| `npm run test:unit`          | Angular/Vitest unit tests, single run with coverage. |
-| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.           |
-| `npm run test:scripts`       | Vitest tests for `scripts/`.                         |
-| `npm run playwright:install` | Install Playwright browsers and their system deps.   |
+| Command                      | Description                                        |
+| ---------------------------- | -------------------------------------------------- |
+| `npm test`                   | Everything: unit, e2e, then scripts. What CI runs. |
+| `npm run test:unit`          | Unit tests — `core/` and Angular — with coverage.  |
+| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.         |
+| `npm run test:scripts`       | Vitest tests for `scripts/`.                       |
+| `npm run playwright:install` | Install Playwright browsers and their system deps. |
 
 Prefer scoping test runs to what you changed:
 

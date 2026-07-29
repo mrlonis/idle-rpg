@@ -1,0 +1,55 @@
+import { type Numeric, ONE, ZERO } from './numeric';
+import { type RngState } from './rng';
+import { SAVE_VERSION } from './save/version';
+
+/**
+ * The complete runtime game state.
+ *
+ * Every field is `readonly`: core functions return a new state rather than mutating the
+ * one they were given. That purity is what lets the UI hold a state object directly as a
+ * snapshot without defensive copying.
+ */
+export interface GameState {
+  /** Save schema version. Present from the first commit so migrations always have a floor. */
+  readonly version: number;
+  readonly gold: Numeric;
+  readonly goldPerSec: Numeric;
+  /**
+   * Epoch milliseconds at the last save or resume, used to size the offline window.
+   *
+   * Core never reads a clock, so this is only ever written from a `nowMs` passed in by the
+   * UI — see {@link stampSaveTime} and `resume`.
+   */
+  readonly lastTickAt: number;
+  readonly rng: RngState;
+}
+
+export interface NewGameOptions {
+  /**
+   * The run's RNG seed. Supplied by the caller because core must not call `Math.random()`;
+   * the UI generates it once at new-game time and it lives in the save from then on.
+   */
+  readonly seed: number;
+  /** Epoch milliseconds at creation, supplied by the caller because core has no clock. */
+  readonly nowMs: number;
+}
+
+export function newGame({ seed, nowMs }: NewGameOptions): GameState {
+  return {
+    version: SAVE_VERSION,
+    gold: ZERO,
+    goldPerSec: ONE,
+    lastTickAt: nowMs,
+    rng: { seed: seed >>> 0, calls: 0 },
+  };
+}
+
+/**
+ * Stamps the current wall-clock time onto the state ahead of persisting it.
+ *
+ * Kept separate from `tick` so that core stays clockless: `tick` advances the simulation by
+ * a duration it is handed, and only the persistence boundary knows what time it is.
+ */
+export function stampSaveTime(state: GameState, nowMs: number): GameState {
+  return { ...state, lastTickAt: nowMs };
+}
