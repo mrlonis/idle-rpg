@@ -74,6 +74,7 @@
     "@angular/build": "^22",
     "@angular/cli": "^22",
     "@angular/compiler-cli": "^22",
+    "@axe-core/playwright": "^4",
     "@capacitor/assets": "^3",
     "@capacitor/cli": "^8",
     "@eslint/js": "^9",
