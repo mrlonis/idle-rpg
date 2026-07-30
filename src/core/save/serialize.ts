@@ -33,6 +33,8 @@ export function toSaveData(state: GameState): CurrentSaveData {
     goldPerSec: serializeNumeric(state.goldPerSec),
     lastTickAt: state.lastTickAt,
     rng: { seed: state.rng.seed, calls: state.rng.calls },
+    stage: state.stage,
+    battleCount: state.battleCount,
   };
 }
 
@@ -119,8 +121,44 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
     calls = rawCalls;
   }
 
+  // Both progression counters are bounded integers, which is exactly why they are stored as
+  // indices rather than ids: they can be repaired here without core/ knowing what stages the
+  // shipped content actually contains. The caller clamps `stage` to the stages it has.
+  const stage = readCounter(record['stage'], 'stage', 1, note);
+  const battleCount = readCounter(record['battleCount'], 'battleCount', 0, note);
+
   return {
-    state: { version: SAVE_VERSION, gold, goldPerSec, lastTickAt, rng: { seed, calls } },
+    state: {
+      version: SAVE_VERSION,
+      gold,
+      goldPerSec,
+      lastTickAt,
+      rng: { seed, calls },
+      stage,
+      battleCount,
+    },
     issues,
   };
+}
+
+/**
+ * Reads an integer counter that must be at least `floor`, defaulting to `floor` when it is
+ * damaged. Shared by the progression fields, which have identical failure modes and would
+ * otherwise be two copies of the same eight lines.
+ */
+function readCounter(
+  raw: unknown,
+  field: string,
+  floor: number,
+  note: (field: string, problem: string, recovered: string) => void,
+): number {
+  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < floor) {
+    note(
+      field,
+      `not an integer of at least ${floor} (${JSON.stringify(raw) ?? 'undefined'})`,
+      String(floor),
+    );
+    return floor;
+  }
+  return raw;
 }

@@ -25,6 +25,8 @@ describe('toSaveData', () => {
       goldPerSec: '1',
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
+      stage: 1,
+      battleCount: 0,
     });
   });
 

@@ -13,16 +13,28 @@ export type RawSave = Record<string, unknown>;
 export type Migration = (save: RawSave) => RawSave;
 
 /**
+ * v1 → v2: combat arrives, and with it the two fields that track where a run is in it.
+ *
+ * A save written before combat existed has no stage, so it starts at the first one. Gold and
+ * the RNG position carry over untouched — a returning player's counter does not reset because
+ * the game gained a feature.
+ */
+const migrateV1ToV2: Migration = (save) => ({
+  ...save,
+  version: 2,
+  stage: 1,
+  battleCount: 0,
+});
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
- * Empty at v1 because there is no history yet. The first entry lands the day `SAVE_VERSION`
- * becomes 2 — for example, when combat adds a stage field:
- *
- * ```ts
- * [1, (s) => ({ ...s, version: 2, stage: 1 })],
- * ```
+ * **Never delete or edit an entry once it ships.** A player can return after any number of
+ * releases and their save has to walk the whole chain from wherever it was written.
  */
-export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([]);
+export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
+  [1, migrateV1ToV2],
+]);
 
 export class UnknownSaveVersionError extends Error {
   constructor(readonly foundVersion: unknown) {
