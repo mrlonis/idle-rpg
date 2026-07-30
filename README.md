@@ -27,7 +27,8 @@ npm start
 ```
 
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
-You should see a gold counter ticking upward — refresh and it resumes where it left off.
+You should see a gold counter ticking upward and the party auto-battling its way up the stage
+ladder — refresh and it resumes where it left off.
 
 ---
 
@@ -37,15 +38,15 @@ Ordered so there is **always something playable**. Each step layers onto the pre
 skeleton without changing its shape. [AGENTS.md](AGENTS.md) carries the full detail and the
 design rationale for each.
 
-| #   | Milestone                              | Status                                     |
-| --- | -------------------------------------- | ------------------------------------------ |
-| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                            |
-| 2   | Auto-battle vs. a single stage         | ⬜ Next — introduces `data/`               |
-| 3   | Gacha: seeded rolls, visible pity      | ⬜                                         |
-| 4   | Team composition affecting combat math | ⬜                                         |
-| 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented needs combat |
-| 6   | Run on a physical iPhone               | ⬜                                         |
-| 7   | Prestige layer, then content           | ⬜                                         |
+| #   | Milestone                              | Status                                           |
+| --- | -------------------------------------- | ------------------------------------------------ |
+| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                  |
+| 2   | Auto-battle up a stage ladder          | ✅ **Complete** — introduced `data/`             |
+| 3   | Gacha: seeded rolls, visible pity      | ⬜ Next                                          |
+| 4   | Team composition affecting combat math | ⬜                                               |
+| 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented solver outstanding |
+| 6   | Run on a physical iPhone               | ⬜                                               |
+| 7   | Prestige layer, then content           | ⬜                                               |
 
 **What milestone 1 shipped.** A gold counter that accrues at 10Hz, samples into the UI at
 ~6Hz, persists through `@capacitor/preferences`, and settles offline earnings in closed form
@@ -54,11 +55,34 @@ is a one-file swap), a seeded mulberry32 PRNG with O(1) resume and derived sub-s
 for combat, and a versioned save layer with a migration chain, fixtures, and repair that
 clamps damage rather than throwing.
 
-**Milestone 5 is partly done** because the pieces that do not need combat are already built
-and tested: the fixed-rate closed form, the offline cap, the backwards-clock guard, and
-expected-value drop accrual with a carried remainder. The segmented solver — for
-auto-progression advancing stages mid-window — needs `timeToClear(stage)`, so it waits on
-milestone 2.
+**What milestone 2 shipped.** A party of three that fights its way up eight stages on its own.
+`simulateBattle(team, stage, seed)` resolves a whole fight synchronously and headlessly into an
+event log, and the UI narrates that log afterwards at 1x, 2x or 4x. Combat is deliberately not
+driven by the render tick, which is what makes the speed control a single multiplication in the
+animator rather than a second combat implementation — and what will make offline resolution and
+skipping cheap when they arrive.
+
+Turn order is an ATB gauge (`gauge += spd` per tick, act at 1000) rather than fixed rounds, so
+SPD buys turns instead of just going first. The loop jumps straight to the tick of the next
+action instead of stepping tick by tick — the same closed-form instinct as offline resume, and
+[`clock.spec.ts`](src/core/battle/clock.spec.ts) pins the jump against a brute-force per-tick
+count. Damage is `atk² / (atk + def)`: strictly positive, so a battle always terminates, and
+diminishing in DEF, so defence never becomes the only stat. Crits are the only RNG consumer, at
+exactly one draw per attack, from a sub-stream derived via
+`deriveSeed(seed, 'battle:<stageId>:<battleCount>')` — so replaying a battle is reproducible
+and never shifts the gacha sequence.
+
+Combat also drove the save layer's **first real migration**: v2 adds `stage` and `battleCount`,
+and a pre-combat v1 save keeps its gold and RNG position and simply joins the ladder at stage 1.
+
+**Milestone 5 is partly done.** The pieces that never needed combat are built and tested: the
+fixed-rate closed form, the offline cap, the backwards-clock guard, and expected-value drop
+accrual with a carried remainder. What is left is the segmented solver for auto-progression
+advancing stages mid-window, which needs `timeToClear(stage)`.
+
+That leaves one **known gap**: battles pay gold on a clear, but offline resume pays only the
+flat `goldPerSec`, so an away window earns nothing for the stage the party would have been
+grinding. Closing it is precisely what milestone 5's segmented solver is for.
 
 Deliberately deferred: native foreground/background handling (`@capacitor/app`), routing,
 and Angular Material. All three are cheap to add later and add debugging surface now.
@@ -78,9 +102,11 @@ ios/      Committed Capacitor iOS project — source, not a build artifact.
 android/  Committed Capacitor Android project — source, not a build artifact.
 ```
 
-> **Note:** `data/` does not exist yet — game content lands there with the first stage and
-> enemy stat blocks (milestone 2). `core/` holds the simulation foundation and `ui/` the
-> Angular services that wrap it; `src/app/` is the bootstrap shell.
+`data/` holds characters, enemies and stages as **plain data** — numbers and strings, never
+`Numeric` instances, so every stat block is JSON-expressible and could be loaded from a file
+without touching the simulation. Converting it into the types combat works in is
+[`core/battle/content.ts`](src/core/battle/content.ts)'s job. `core/` holds the simulation and
+`ui/` the Angular services and components that wrap it; `src/app/` is the bootstrap shell.
 
 **The dependency rule is one-way.** `ui/` may import from `core/` and `data/`; never the
 reverse. `core/` may not import Angular, Capacitor, `src/ui/*`, or any DOM API — it has to
@@ -210,6 +236,12 @@ Every save carries a `version`. Bumping `SAVE_VERSION` without adding the matchi
 is a bug, migrations are pure `(old) => (new)` steps, and old migrations are never deleted.
 Loading clamps and defaults on recoverable damage rather than throwing — a thrown error
 costs the player their entire run.
+
+The current version is **2**: v1 was the gold counter, and v2 added `stage` and `battleCount`
+when combat landed. Every historical version keeps a fixture in
+[`src/core/save/fixtures/`](src/core/save/fixtures/), and
+[`fixtures.spec.ts`](src/core/save/fixtures.spec.ts) migrates all of them to current on every
+run — that is the test that catches the migration written months ago and never exercised since.
 
 ---
 

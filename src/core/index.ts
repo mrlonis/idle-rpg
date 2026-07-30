@@ -13,6 +13,30 @@
  * breaks the numbers.
  */
 export {
+  ATB_THRESHOLD,
+  BATTLE_TICK_MS,
+  MAX_BATTLE_TICKS,
+  ticksToMs,
+  ticksUntilReady,
+} from './battle/clock';
+export { ticksPerAction, toCombatant, toCombatStats, toGoldReward } from './battle/content';
+export { baseDamage, rollAttack, type AttackRoll } from './battle/damage';
+export { applyBattleResult } from './battle/progress';
+export { battleSeed, simulateBattle } from './battle/simulate';
+export {
+  type BattleEvent,
+  type BattleOutcome,
+  type BattleResult,
+  type BattleReward,
+  type Combatant,
+  type CombatantData,
+  type CombatantSnapshot,
+  type CombatStats,
+  type Side,
+  type StageData,
+  type StatBlockData,
+} from './battle/types';
+export {
   Decimal,
   isUsable,
   num,
@@ -41,7 +65,12 @@ export {
   type Migration,
   type RawSave,
 } from './save/migrate';
-export { type AnySaveData, type CurrentSaveData, type SaveDataV1 } from './save/schema';
+export {
+  type AnySaveData,
+  type CurrentSaveData,
+  type SaveDataV1,
+  type SaveDataV2,
+} from './save/schema';
 export {
   fromSaveData,
   toSaveData,

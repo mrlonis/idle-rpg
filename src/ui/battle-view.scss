@@ -1,0 +1,191 @@
+// Contrast is checked, not eyeballed. Every ratio quoted below is against the surface the
+// element actually sits on, and every colour-coded distinction (ally vs foe, alive vs down) is
+// also carried by text, so nothing here depends on being able to tell green from red.
+$surface: #1e1e2a;
+$border: #33334a;
+$muted: #a0a0b0; // 6.4:1 on $surface
+$text: #f2f2f7; // 15.1:1 on $surface
+$track: #2f2f42;
+$ally: #4ade80; // 7.5:1 on $track — well past the 3:1 WCAG AA minimum for non-text
+$foe: #f87171; // 4.7:1 on $track
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.battle {
+  padding: 1rem;
+  border: 1px solid $border;
+  border-radius: 0.75rem;
+  background: $surface;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.battle__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.battle__stage {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.battle__stage-name {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  color: $text;
+}
+
+.speeds {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.speeds__button {
+  min-width: 2.75rem;
+  // 44px minimum touch target. Below this, a control is a coin toss on a phone.
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  background: $track;
+  color: $text;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.speeds__button--active {
+  // Not colour alone: the button also reports aria-pressed, so the state is available whether
+  // or not the shift in weight and border is visible.
+  border-color: $ally;
+  color: $ally;
+}
+
+.speeds__button:focus-visible {
+  outline: 2px solid $text;
+  outline-offset: 2px;
+}
+
+.battle__sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+// One column below the point where two rosters of names stop fitting side by side.
+@media (max-width: 26rem) {
+  .battle__sides {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roster__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.roster__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fighter {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.125rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.fighter__name {
+  font-weight: 600;
+}
+
+.fighter__hp {
+  color: $muted;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+}
+
+.fighter--down .fighter__name {
+  // A second, non-colour signal that a combatant is out, alongside the HP reading of 0.
+  text-decoration: line-through;
+  color: $muted;
+}
+
+.bar {
+  grid-column: 1 / -1;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: $track;
+  overflow: hidden;
+}
+
+.bar__fill {
+  height: 100%;
+  background: $ally;
+  transition: width 120ms linear;
+}
+
+.bar__fill--foe {
+  background: $foe;
+}
+
+.battle__outcome {
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  font-size: 0.8125rem;
+  color: $muted;
+  // Fixed height so the panel does not resize as lines arrive, which would shunt the whole
+  // page up and down several times a second.
+  min-height: 7.5rem;
+}
+
+.battle__pending {
+  margin: 0;
+  color: $muted;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar__fill {
+    transition: none;
+  }
+}

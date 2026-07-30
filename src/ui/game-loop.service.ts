@@ -143,6 +143,25 @@ export class GameLoopService {
   }
 
   /**
+   * Applies a pure `core/` transform to the authoritative run.
+   *
+   * This service owns the single mutable reference to the state, so anything that changes it —
+   * a resolved battle now, a gacha pull later — hands in a function rather than keeping a copy
+   * of its own. Two owners of the same state is how a run silently loses a battle's rewards to
+   * the next autosave.
+   *
+   * The snapshot is republished immediately instead of waiting for the next ~6Hz sample:
+   * discrete events are what the player is actually watching for, unlike a counter ticking.
+   */
+  apply(update: (state: GameState) => GameState): void {
+    if (this.state === null) {
+      return;
+    }
+    this.state = update(this.state);
+    this.snapshot.set(this.state);
+  }
+
+  /**
    * Persists the run, unless the save on disk could not be read.
    *
    * `lastTickAt` is already current — {@link advance} and {@link settle} maintain it — so

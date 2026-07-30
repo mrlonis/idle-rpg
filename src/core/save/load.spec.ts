@@ -72,12 +72,16 @@ describe('loadSave', () => {
         goldPerSec: 'broken',
         lastTickAt: T0 - 1000,
         rng: { seed: 5, calls: 3 },
+        stage: 6,
+        battleCount: 214,
       },
       OPTIONS,
     );
 
     expect(result.state.gold.eq('4e+10')).toBe(true);
     expect(result.state.rng).toEqual({ seed: 5, calls: 3 });
+    expect(result.state.stage).toBe(6);
+    expect(result.state.battleCount).toBe(214);
     expect(result.issues.map((issue) => issue.field)).toEqual(['goldPerSec']);
   });
 });

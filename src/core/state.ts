@@ -22,6 +22,22 @@ export interface GameState {
    */
   readonly lastTickAt: number;
   readonly rng: RngState;
+  /**
+   * The stage the party is currently fighting, 1-based.
+   *
+   * An index rather than a stage id: `core/` cannot import `data/`, so it has no way to check
+   * an id against the authored stages, whereas a bounded integer can be repaired on load
+   * without knowing what content exists. The caller clamps it to the stages it actually has.
+   */
+  readonly stage: number;
+  /**
+   * Battles resolved over the life of the run.
+   *
+   * Part of the battle RNG label, so retrying a stage is a new fight rather than a replay of
+   * the same loss. Combat draws from a derived sub-stream, so this counter is the only thing
+   * that advances per battle — `rng.calls` belongs to pulls and is untouched by combat.
+   */
+  readonly battleCount: number;
 }
 
 export interface NewGameOptions {
@@ -41,6 +57,8 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     goldPerSec: ONE,
     lastTickAt: nowMs,
     rng: { seed: seed >>> 0, calls: 0 },
+    stage: 1,
+    battleCount: 0,
   };
 }
 
