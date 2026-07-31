@@ -25,53 +25,7 @@ $foe: #f87171; // 4.7:1 on $track
   gap: 0.875rem;
 }
 
-.battle__title {
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: $muted;
-}
-
-.fight {
-  width: 100%;
-  // 44px is the floor for a touch target; this is the primary control, so it gets more.
-  min-height: 3.25rem;
-  padding: 0 1rem;
-  border: 1px solid $ally;
-  border-radius: 0.625rem;
-  // #143024 against the #4ade80 text is 8.4:1, and against the panel it reads as a filled
-  // control rather than an outline.
-  background: #143024;
-  color: $ally;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.fight:focus-visible {
-  outline: 2px solid $text;
-  outline-offset: 2px;
-}
-
-.fight--busy {
-  // Not colour alone: the label changes to "Fighting Stage N…" and aria-disabled is set, so the
-  // state is carried by text and by semantics as well as by the muted palette.
-  border-color: $border;
-  background: $track;
-  color: $muted;
-  cursor: default;
-}
-
-.board {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.board__header {
+.battle__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -79,7 +33,7 @@ $foe: #f87171; // 4.7:1 on $track
   flex-wrap: wrap;
 }
 
-.board__stage {
+.battle__stage {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -88,7 +42,7 @@ $foe: #f87171; // 4.7:1 on $track
   color: $muted;
 }
 
-.board__stage-name {
+.battle__stage-name {
   display: block;
   margin-top: 0.125rem;
   font-size: 1.125rem;
@@ -130,7 +84,7 @@ $foe: #f87171; // 4.7:1 on $track
   outline-offset: 2px;
 }
 
-.board__sides {
+.battle__sides {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -138,7 +92,7 @@ $foe: #f87171; // 4.7:1 on $track
 
 // One column below the point where two rosters of names stop fitting side by side.
 @media (max-width: 26rem) {
-  .board__sides {
+  .battle__sides {
     grid-template-columns: 1fr;
   }
 }
@@ -202,12 +156,50 @@ $foe: #f87171; // 4.7:1 on $track
   background: $foe;
 }
 
-.board__outcome {
+.battle__outcome {
   margin: 0;
   min-height: 1.25rem;
   font-size: 0.9375rem;
   font-weight: 600;
   text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions__fight,
+.actions__close {
+  // 44px touch-target floor on both, so neither is a coin toss on a phone.
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actions__fight {
+  // Takes the remaining width: going again is the expected next move, Close is the way out.
+  flex: 1;
+  border: 1px solid $ally;
+  // #143024 behind the #4ade80 label is 8.4:1.
+  background: #143024;
+  color: $ally;
+}
+
+.actions__close {
+  border: 1px solid $border;
+  background: $track;
+  color: $text;
+}
+
+.actions__fight:focus-visible,
+.actions__close:focus-visible {
+  outline: 2px solid $text;
+  outline-offset: 2px;
 }
 
 .log {
@@ -222,12 +214,6 @@ $foe: #f87171; // 4.7:1 on $track
   // Fixed height so the panel does not resize as lines arrive, which would shunt the whole
   // page up and down several times a second.
   min-height: 7.5rem;
-}
-
-.battle__hint {
-  margin: 0;
-  color: $muted;
-  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

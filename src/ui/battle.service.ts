@@ -113,6 +113,16 @@ export class BattleService {
   /** True while a battle is being narrated. The Fight control is inert for exactly this long. */
   readonly isFighting = signal(false);
 
+  /**
+   * True while the battle screen is the screen.
+   *
+   * Opened by {@link fight} and closed by {@link close}, so the screen's lifetime is the battle
+   * session rather than a separate thing to keep in step. Deliberately not a route: everything
+   * the battle screen shows lives in memory and cannot survive a reload, so it is a mode the
+   * player is in, not a place they can link to.
+   */
+  readonly isOpen = signal(false);
+
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
 
   /** Monotonic counter over battles narrated this session. Only identity matters, not the value. */
@@ -210,6 +220,7 @@ export class BattleService {
     this.playbackMs = 0;
     this.lastAt = nowMs;
     this.isFighting.set(true);
+    this.isOpen.set(true);
 
     // The timer only runs while there is a fight to narrate. Between battles nothing is
     // scheduled at all, which is the honest shape of a game that waits for the player.
@@ -218,6 +229,25 @@ export class BattleService {
     // to about 1Hz, and the step clamp already keeps that from skipping the fight, so the only
     // effect of letting it run is that the battle finishes rather than stalling half-played.
     this.stepId ??= setInterval(() => this.advance(Date.now()), ANIMATION_STEP_MS);
+  }
+
+  /**
+   * Leaves the battle screen and clears the board behind it.
+   *
+   * Refuses while a fight is still playing. A battle is seconds long and can be sped up, so
+   * there is nothing to escape from — and without the guard, closing mid-fight would silently
+   * discard a battle the player was about to be paid for.
+   */
+  close(): void {
+    if (this.isFighting()) {
+      return;
+    }
+    this.isOpen.set(false);
+    this.result.set(null);
+    this.stage.set(null);
+    this.outcome.set(null);
+    this.recentEvents.set([]);
+    this.liveHp.set(new Map());
   }
 
   stop(): void {

@@ -62,6 +62,12 @@ fight synchronously and headlessly into an event log, and the UI narrates that l
 control a single multiplication in the animator rather than a second combat implementation — and
 what will make offline resolution and skipping cheap when they arrive.
 
+The game is **two screens**: home (gold, income, and the way into a fight) and the battle, which
+replaces home for the length of a fight. A battle has no exit until it ends; when it settles, the
+player can fight the next stage without leaving or close and return home. The swap is a signal
+rather than a route — a battle is a mode, not a location, since nothing it shows survives a
+reload.
+
 **Clearing a stage is what switches the idle game on.** A run starts at zero gold per second and
 earns nothing while idle; the first clear takes it to 0.5/s and every stage after that is a
 permanent raise, up to 16/s at the top of the ladder. The one-off gold for a clear is the smaller

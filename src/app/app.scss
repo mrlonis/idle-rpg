@@ -20,64 +20,6 @@
   box-sizing: border-box;
 }
 
-.resource {
-  text-align: center;
-}
-
-.resource__label {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  // #a0a0b0 on #12121a is 7.3:1 — comfortably past the 4.5:1 WCAG AA minimum.
-  color: #a0a0b0;
-}
-
-.resource__value {
-  margin: 0.25rem 0 0;
-  font-size: clamp(2.5rem, 12vw, 4rem);
-  font-weight: 700;
-  line-height: 1.1;
-  // Without tabular figures the number jitters horizontally as digits change, which at 6Hz
-  // reads as the whole display vibrating.
-  font-variant-numeric: tabular-nums;
-}
-
-.resource__rate {
-  margin: 0.25rem 0 0;
-  font-size: 1rem;
-  color: #a0a0b0;
-  font-variant-numeric: tabular-nums;
-}
-
-.notice {
-  margin: 0;
-  max-width: 32rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  background: #1e1e2a;
-  border: 1px solid #33334a;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.notice--error {
-  // #ffb4a8 on #2a1a1a is 8.1:1. Colour is not the only signal — the copy states the problem
-  // outright, so this still reads correctly for colour-blind players.
-  background: #2a1a1a;
-  border-color: #5a2a2a;
-  color: #ffb4a8;
-}
-
-.notice__detail {
-  display: block;
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  color: #a0a0b0;
-}
-
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

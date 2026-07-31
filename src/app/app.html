@@ -1,40 +1,9 @@
-@if (isReady()) {
-  <main class="game">
-    @if (loadFailure(); as failure) {
-      <p class="notice notice--error" role="alert">
-        Your save could not be read, so this is a fresh run. The old save has not been overwritten.
-        <span class="notice__detail">{{ failure }}</span>
-      </p>
-    } @else if (saveIssues().length > 0) {
-      <p class="notice" role="status">
-        Your save was recovered — {{ saveIssues().length }} field(s) were repaired.
-      </p>
-    }
-
-    @if (offlineSummary(); as summary) {
-      <p class="notice" role="status">
-        While you were away for {{ summary.duration }}, you earned {{ summary.gold }} gold.
-        @if (summary.wasCapped) {
-          <span class="notice__detail">Offline earnings are capped — come back sooner!</span>
-        }
-      </p>
-    }
-
-    <section class="resource" aria-labelledby="gold-label">
-      <h1 id="gold-label" class="resource__label">Gold</h1>
-      <!--
-        Deliberately not an aria-live region. This updates ~6 times a second, and announcing
-        every change would flood a screen reader into uselessness. The heading names the
-        value, so it is reachable on demand without being shouted continuously.
-      -->
-      <p class="resource__value">{{ gold() }}</p>
-      <p class="resource__rate">{{ rate() }}</p>
-    </section>
-
-    <app-battle-view />
-  </main>
-} @else {
-  <main class="game">
+<main class="game">
+  @if (!isReady()) {
     <p role="status">Loading your run…</p>
-  </main>
-}
+  } @else if (isBattleOpen()) {
+    <app-battle-view />
+  } @else {
+    <app-home-view />
+  }
+</main>

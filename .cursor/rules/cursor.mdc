@@ -69,6 +69,12 @@ resolves one battle, narrates it, holds the finished board on screen, and stops.
 of auto-battle is built here — see "Later: the two auto-battles" below, and do not add either
 to this milestone.
 
+**Home and battle are two screens, and the battle replaces the home screen rather than sitting
+under it.** `App` is the shell: it starts the run, owns the single `main` landmark, and swaps on
+`BattleService.isOpen`. A fight has no exit until it ends — a battle is seconds long and can be
+sped up, and leaving early would discard rewards the player is moments from collecting. When it
+settles, two controls appear: fight the next stage without leaving, or close and return home.
+
 **Clearing a stage raises idle income permanently, and that is the real reward.** A run starts
 at `goldPerSec: 0` and earns nothing at all until the first stage falls, which is what makes
 the first battle the only thing worth doing. The rate climbs 0.5/s to 16/s across the ladder,
@@ -93,7 +99,9 @@ Shipped:
   retry is a new fight rather than a bit-for-bit replay of the same loss.
 - `data/` — `enemies.ts`, `characters.ts`, `stages.ts`. Eight stages, cleared end to end by
   the starter party; `data/stages.spec.ts` proves it by simulating the ladder.
-- `ui/battle.service.ts`, `ui/battle-view.ts` — `fight()` resolves, then narrates.
+- `ui/battle.service.ts` — `fight()` resolves then narrates, `close()` leaves.
+- `ui/home-view.ts`, `ui/battle-view.ts` — the two screens; `app/app.ts` is the shell that
+  swaps between them.
 - Save v2: `stage` and `battleCount` in `GameState`, via the first real migration.
 
 Two decisions worth not re-litigating:
@@ -188,8 +196,14 @@ watching" is the same question in all three places.
   in `ui/game-loop.service.ts` covers the current need. Revisit it when the offline path pays
   out battle rewards (milestone 5) rather than before — that is when the difference between a
   web `visibilitychange` and a real iOS lifecycle event starts to matter.
-- **Routing.** `app.routes.ts` is intentionally empty; the game is one screen until there
-  is a second screen worth navigating to.
+- **Routing.** `app.routes.ts` is still intentionally empty, now for a sharper reason than
+  "there is only one screen". There are two — home and battle — and `App` swaps between them
+  with a signal. The battle screen is a **mode, not a location**: everything it shows lives in
+  memory, so a `/battle` URL could never be reloaded or shared, and adding one would mean
+  adding a guard to redirect it home. Reach for the router when a screen arrives that genuinely
+  survives a reload (roster, banner, settings). Note that routing is also what would give
+  Android's hardware back button somewhere to go — that question arrives with `@capacitor/app`,
+  not before.
 - **Angular Material.** Installed but unused. Do not pull it in until a real control needs
   it — a counter and a button do not.
 

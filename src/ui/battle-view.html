@@ -1,101 +1,102 @@
-<section class="battle" aria-labelledby="battle-heading">
-  <h2 id="battle-heading" class="battle__title">Battle</h2>
-
-  <!--
-    aria-disabled rather than the disabled attribute: a battle can start while this button has
-    focus, and a genuinely disabled control drops out of the tab order and throws focus back to
-    the body mid-fight. This stays focusable and announces its state; the handler ignores the
-    press, as does the service.
-  -->
-  <button
-    type="button"
-    class="fight"
-    [class.fight--busy]="isFighting()"
-    [attr.aria-disabled]="isFighting()"
-    (click)="fight()"
-  >
-    {{ fightLabel() }}
-  </button>
-
-  @if (hasBattle() && stage(); as current) {
-    <div class="board">
-      <header class="board__header">
-        <h3 class="board__stage">
-          Stage {{ current.number }}
-          <span class="board__stage-name">{{ current.name }}</span>
-        </h3>
-        <div class="speeds" role="group" aria-label="Playback speed">
-          @for (speed of speeds; track speed) {
-            <button
-              type="button"
-              class="speeds__button"
-              [class.speeds__button--active]="speed === playbackSpeed()"
-              [attr.aria-pressed]="speed === playbackSpeed()"
-              (click)="setSpeed(speed)"
-            >
-              {{ speed }}&times;
-            </button>
-          }
-        </div>
-      </header>
-
-      <div class="board__sides">
-        <section class="roster" aria-labelledby="party-heading">
-          <h4 id="party-heading" class="roster__label">Your party</h4>
-          <ul class="roster__list">
-            @for (fighter of party(); track fighter.viewKey) {
-              <li class="fighter" [class.fighter--down]="fighter.isDown">
-                <span class="fighter__name">{{ fighter.name }}</span>
-                <span class="fighter__hp">{{ hpText(fighter) }}</span>
-                <!--
-                  aria-hidden because the HP text immediately above states the same value exactly.
-                  Marking this up as a progressbar as well would make a screen reader announce
-                  every hit twice.
-                -->
-                <div class="bar" aria-hidden="true">
-                  <div class="bar__fill" [style.width.%]="fighter.fraction * 100"></div>
-                </div>
-              </li>
-            }
-          </ul>
-        </section>
-
-        <section class="roster" aria-labelledby="foes-heading">
-          <h4 id="foes-heading" class="roster__label">Enemies</h4>
-          <ul class="roster__list">
-            @for (fighter of foes(); track fighter.viewKey) {
-              <li class="fighter" [class.fighter--down]="fighter.isDown">
-                <span class="fighter__name">{{ fighter.name }}</span>
-                <span class="fighter__hp">{{ hpText(fighter) }}</span>
-                <div class="bar" aria-hidden="true">
-                  <div
-                    class="bar__fill bar__fill--foe"
-                    [style.width.%]="fighter.fraction * 100"
-                  ></div>
-                </div>
-              </li>
-            }
-          </ul>
-        </section>
+@if (stage(); as current) {
+  <section class="battle" aria-labelledby="battle-heading">
+    <header class="battle__header">
+      <h1 id="battle-heading" class="battle__stage">
+        Stage {{ current.number }}
+        <span class="battle__stage-name">{{ current.name }}</span>
+      </h1>
+      <div class="speeds" role="group" aria-label="Playback speed">
+        @for (speed of speeds; track speed) {
+          <button
+            type="button"
+            class="speeds__button"
+            [class.speeds__button--active]="speed === playbackSpeed()"
+            [attr.aria-pressed]="speed === playbackSpeed()"
+            (click)="setSpeed(speed)"
+          >
+            {{ speed }}&times;
+          </button>
+        }
       </div>
+    </header>
 
-      <!--
-        A live region that changes once per battle. Safe to announce, unlike the log below it,
-        which updates several times a second and is left for a screen reader to read on demand.
-      -->
-      <p class="board__outcome" role="status">
-        @if (outcomeText(); as text) {
-          {{ text }}
-        }
-      </p>
+    <div class="battle__sides">
+      <section class="roster" aria-labelledby="party-heading">
+        <h2 id="party-heading" class="roster__label">Your party</h2>
+        <ul class="roster__list">
+          @for (fighter of party(); track fighter.viewKey) {
+            <li class="fighter" [class.fighter--down]="fighter.isDown">
+              <span class="fighter__name">{{ fighter.name }}</span>
+              <span class="fighter__hp">{{ hpText(fighter) }}</span>
+              <!--
+                aria-hidden because the HP text immediately above states the same value exactly.
+                Marking this up as a progressbar as well would make a screen reader announce
+                every hit twice.
+              -->
+              <div class="bar" aria-hidden="true">
+                <div class="bar__fill" [style.width.%]="fighter.fraction * 100"></div>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
 
-      <ol class="log">
-        @for (line of logLines(); track $index) {
-          <li class="log__line">{{ line }}</li>
-        }
-      </ol>
+      <section class="roster" aria-labelledby="foes-heading">
+        <h2 id="foes-heading" class="roster__label">Enemies</h2>
+        <ul class="roster__list">
+          @for (fighter of foes(); track fighter.viewKey) {
+            <li class="fighter" [class.fighter--down]="fighter.isDown">
+              <span class="fighter__name">{{ fighter.name }}</span>
+              <span class="fighter__hp">{{ hpText(fighter) }}</span>
+              <div class="bar" aria-hidden="true">
+                <div
+                  class="bar__fill bar__fill--foe"
+                  [style.width.%]="fighter.fraction * 100"
+                ></div>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
     </div>
-  } @else {
-    <p class="battle__hint">{{ hint() }}</p>
-  }
-</section>
+
+    <!--
+      A live region that changes once per battle. Safe to announce, unlike the log below it,
+      which updates several times a second and is left for a screen reader to read on demand.
+    -->
+    <p class="battle__outcome" role="status">
+      @if (outcomeText(); as text) {
+        {{ text }}
+      }
+    </p>
+
+    <ol class="log">
+      @for (line of logLines(); track $index) {
+        <li class="log__line">{{ line }}</li>
+      }
+    </ol>
+
+    <!--
+      Only once the fight is over. There is deliberately no way out mid-battle: a fight is
+      seconds long and can be sped up, and leaving early would discard a battle the player is
+      about to be paid for.
+    -->
+    @if (isSettled()) {
+      <div class="actions">
+        <button type="button" class="actions__fight" (click)="fight()">{{ fightLabel() }}</button>
+        <!--
+          The accessible name contains the visible label, so voice control still matches on
+          "Close" while a screen reader gets the destination too.
+        -->
+        <button
+          type="button"
+          class="actions__close"
+          aria-label="Close the battle and return home"
+          (click)="close()"
+        >
+          Close
+        </button>
+      </div>
+    }
+  </section>
+}

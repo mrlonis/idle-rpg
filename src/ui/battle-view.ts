@@ -12,9 +12,10 @@ import { GameLoopService } from './game-loop.service';
 /**
  * The battle screen.
  *
- * Almost purely a view onto `BattleService`: the fight it shows has already been resolved in
- * full, and everything here reads signals the animator publishes as it walks the event log —
- * which is why changing playback speed needs no cooperation from this component at all.
+ * A screen in its own right: it replaces the home view for the length of a fight, rather than
+ * sitting under it. Almost purely a view onto `BattleService` — the fight it shows has already
+ * been resolved in full, and everything here reads signals the animator publishes as it walks
+ * the event log, which is why changing playback speed needs no cooperation from this component.
  *
  * It reaches past the animator for exactly one thing, the run's idle income, because that is
  * what a victory is really paying out and it belongs in the same sentence as the gold.
@@ -33,18 +34,22 @@ export class BattleView {
   protected readonly stage = this.battles.stage;
   protected readonly party = this.battles.party;
   protected readonly foes = this.battles.foes;
-  protected readonly isFighting = this.battles.isFighting;
-  protected readonly hasBattle = computed(() => this.battles.result() !== null);
 
-  /** Label for the Fight control. Names the stage so the tap is never a leap in the dark. */
+  /**
+   * True once the fight is over and the board is final.
+   *
+   * Gates the only two controls that leave this screen. Before it, there is no way out on
+   * purpose — a battle lasts seconds, can be sped up, and abandoning one halfway would throw
+   * away rewards the player is moments from collecting.
+   */
+  protected readonly isSettled = computed(
+    () => !this.battles.isFighting() && this.battles.outcome() !== null,
+  );
+
+  /** Names the stage the next fight enters: the one ahead after a win, the same one after a loss. */
   protected readonly fightLabel = computed(() => {
     const next = this.battles.nextStage();
-    if (next === null) {
-      return 'Preparing…';
-    }
-    return this.isFighting()
-      ? `Fighting Stage ${next.number}…`
-      : `Fight Stage ${next.number} — ${next.name}`;
+    return next === null ? 'Fight again' : `Fight Stage ${next.number} — ${next.name}`;
   });
 
   /**
@@ -71,24 +76,6 @@ export class BattleView {
       : `Victory! +${formatNumeric(gold)} gold · ${earnings}`;
   });
 
-  /**
-   * What to say when no battle is on screen.
-   *
-   * A run that has never won earns nothing at all, so the first message has to explain why the
-   * counter is not moving. Once income is flowing that sentence is simply untrue, and leaving it
-   * up would teach the player to ignore this line.
-   */
-  protected readonly hint = computed(() =>
-    this.game.goldPerSec().lte(0)
-      ? 'Your party is idle, and idle earns nothing. Win a stage to start banking gold while you are away.'
-      : 'Your party is resting. Every stage you clear raises your idle income for good.',
-  );
-
-  protected fight(): void {
-    // The clock lives here, as it does everywhere else in `ui/`.
-    this.battles.fight(Date.now());
-  }
-
   /** The visible tail of the battle log, already narrated. */
   protected readonly logLines = computed(() => {
     const names = this.battles.names();
@@ -97,6 +84,15 @@ export class BattleView {
       .map((event) => narrate(event, names))
       .filter((line): line is string => line !== null);
   });
+
+  protected fight(): void {
+    // The clock lives here, as it does everywhere else in `ui/`.
+    this.battles.fight(Date.now());
+  }
+
+  protected close(): void {
+    this.battles.close();
+  }
 
   protected setSpeed(speed: PlaybackSpeed): void {
     this.battles.setSpeed(speed);

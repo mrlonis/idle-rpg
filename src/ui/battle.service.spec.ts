@@ -71,13 +71,14 @@ describe('BattleService', () => {
   });
 
   describe('before anything is fought', () => {
-    it('shows no battle', () => {
+    it('shows no battle, and the battle screen is closed', () => {
       const { battles } = build();
 
       expect(battles.result()).toBeNull();
       expect(battles.stage()).toBeNull();
       expect(battles.combatants()).toEqual([]);
       expect(battles.isFighting()).toBe(false);
+      expect(battles.isOpen()).toBe(false);
     });
 
     it('never starts a fight on its own, however long it is left alone', () => {
@@ -109,13 +110,14 @@ describe('BattleService', () => {
   });
 
   describe('starting a fight', () => {
-    it('resolves the battle and begins narrating it', () => {
+    it('resolves the battle, opens the screen, and begins narrating it', () => {
       const { battles } = build();
 
       battles.fight(T0);
 
       expect(battles.result()).not.toBeNull();
       expect(battles.isFighting()).toBe(true);
+      expect(battles.isOpen()).toBe(true);
       expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
     });
 
@@ -289,6 +291,15 @@ describe('BattleService', () => {
       expect(loop.applied).toHaveLength(1);
     });
 
+    it('stays on the battle screen so the player can read the result', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.isFighting()).toBe(false);
+    });
+
     it('keeps rows from one battle from being mistaken for rows in the next', () => {
       // Slot keys repeat every battle, so the view needs a battle-scoped identity or the HP bar
       // animates from the previous fight's value.
@@ -300,6 +311,67 @@ describe('BattleService', () => {
 
       expect(battles.combatants().map((c) => c.viewKey)).not.toEqual(firstKeys);
       expect(battles.combatants().map((c) => c.key)).toContain('ally-0');
+    });
+  });
+
+  describe('closing the battle screen', () => {
+    it('returns to home and clears the board behind it', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+      battles.close();
+
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.result()).toBeNull();
+      expect(battles.stage()).toBeNull();
+      expect(battles.outcome()).toBeNull();
+      expect(battles.combatants()).toEqual([]);
+      expect(battles.recentEvents()).toEqual([]);
+    });
+
+    it('refuses while a fight is still playing', () => {
+      // Leaving mid-battle would discard a fight the player is moments from being paid for. A
+      // battle is seconds long and can be sped up, so there is nothing to escape from.
+      const { battles } = build();
+
+      battles.fight(T0);
+      run(battles, 500);
+      battles.close();
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.result()).not.toBeNull();
+    });
+
+    it('keeps everything the run earned', () => {
+      // Closing is a navigation, not an undo. The result was banked when the animation finished.
+      const { loop, battles } = build();
+
+      fightToTheEnd(battles);
+      const banked = loop.current;
+      battles.close();
+
+      expect(loop.current).toBe(banked);
+      expect(loop.current?.stage).toBe(2);
+      expect(loop.current?.goldPerSec.eq(STAGES[0].goldPerSec)).toBe(true);
+    });
+
+    it('lets the player go straight back in', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+      battles.close();
+      battles.fight(T0);
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2 });
+    });
+
+    it('is harmless when nothing is open', () => {
+      const { battles } = build();
+
+      battles.close();
+
+      expect(battles.isOpen()).toBe(false);
     });
   });
 
