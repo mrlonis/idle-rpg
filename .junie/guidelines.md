@@ -410,6 +410,23 @@ defenses — there is nothing to protect.
   - `npm run sync:agent-instructions`
   - `npm run sync:agent-instructions:check`
 
+## Long-running processes
+
+**Never end a turn with a process you started still running.** Whoever starts one stops it.
+Leaving a dev server alive means the human has to hunt down a PID and kill it by hand, and a
+stale server on port 4200 silently serves the next session a build nobody asked for.
+
+- This covers `npm start`, `npm run watch`, `ng serve`, any preview/dev-server tooling, and
+  anything launched with a background flag.
+- Start it, verify what you needed to verify, stop it — in the same turn. Do not keep it up
+  "in case it is useful later"; restarting takes seconds.
+- Before finishing, confirm nothing is left: `lsof -iTCP:4200 -sTCP:LISTEN`. Stop it through
+  the tooling that started it where possible, and kill the process directly otherwise.
+- Reporting "the dev server is still up" at the end of a turn is the bug, not a courtesy.
+
+One-shot commands that exit on their own — `ng build`, `ng test --no-watch`, `ng lint` — are
+not long-running and need none of this.
+
 ## Linting Guidelines
 
 - Run linting for every change set; linting is required for all changes, not optional.
