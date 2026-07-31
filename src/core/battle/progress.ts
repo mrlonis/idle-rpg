@@ -18,6 +18,10 @@ import { type BattleResult } from './types';
  *   party narrowly fails becomes a permanent wall for reasons the player cannot see.
  * - A victory advances the stage, stopping at the last one authored, which then repeats.
  * - Rewards are whatever the result carries, which is nothing on a loss.
+ * - Idle income only ever goes **up**. A clear raises the rate to what the stage grants, and a
+ *   stage granting less than the run already earns changes nothing. That guard costs one
+ *   comparison and means neither replaying an early stage nor loading a save from a build with
+ *   a different curve can ever cut a player's income.
  *
  * `stageCount` is passed in because `core/` cannot import `data/` — content reaches the
  * simulation as arguments, which is also what lets this be tested without shipped stages.
@@ -36,6 +40,9 @@ export function applyBattleResult(
   return {
     ...state,
     gold: state.gold.add(result.reward.gold),
+    goldPerSec: result.reward.goldPerSec.gt(state.goldPerSec)
+      ? result.reward.goldPerSec
+      : state.goldPerSec,
     stage,
     battleCount: state.battleCount + 1,
   };

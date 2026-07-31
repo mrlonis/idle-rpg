@@ -1,4 +1,4 @@
-import { ONE, parseOr, serialize as serializeNumeric, tryParse, ZERO } from '../numeric';
+import { parseOr, serialize as serializeNumeric, tryParse, ZERO } from '../numeric';
 import { type GameState } from '../state';
 import { type CurrentSaveData } from './schema';
 import { SAVE_VERSION } from './version';
@@ -67,9 +67,12 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
     gold = ZERO;
   }
 
-  let goldPerSec = parseOr(record['goldPerSec'], ONE);
+  // Defaults to zero, matching a fresh run: idle income is earned by clearing stages, so
+  // inventing a rate for a damaged save would hand out progress that was never made. It also
+  // self-heals — the next clear raises the rate to whatever the stage grants.
+  let goldPerSec = parseOr(record['goldPerSec'], ZERO);
   if (tryParse(record['goldPerSec']) === undefined) {
-    note('goldPerSec', `unparseable (${JSON.stringify(record['goldPerSec']) ?? 'undefined'})`, '1');
+    note('goldPerSec', `unparseable (${JSON.stringify(record['goldPerSec']) ?? 'undefined'})`, '0');
   }
   if (goldPerSec.lt(ZERO)) {
     note('goldPerSec', `negative (${goldPerSec.toString()})`, '0');

@@ -27,8 +27,8 @@ npm start
 ```
 
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
-You should see a gold counter ticking upward and the party auto-battling its way up the stage
-ladder — refresh and it resumes where it left off.
+You should see a gold counter at zero and a Fight button: win the first stage and the counter
+starts ticking. Refresh and the run resumes where it left off.
 
 ---
 
@@ -41,7 +41,7 @@ design rationale for each.
 | #   | Milestone                              | Status                                           |
 | --- | -------------------------------------- | ------------------------------------------------ |
 | 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                  |
-| 2   | Auto-battle up a stage ladder          | ✅ **Complete** — introduced `data/`             |
+| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`             |
 | 3   | Gacha: seeded rolls, visible pity      | ⬜ Next                                          |
 | 4   | Team composition affecting combat math | ⬜                                               |
 | 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented solver outstanding |
@@ -55,12 +55,28 @@ is a one-file swap), a seeded mulberry32 PRNG with O(1) resume and derived sub-s
 for combat, and a versioned save layer with a migration chain, fixtures, and repair that
 clamps damage rather than throwing.
 
-**What milestone 2 shipped.** A party of three that fights its way up eight stages on its own.
-`simulateBattle(team, stage, seed)` resolves a whole fight synchronously and headlessly into an
-event log, and the UI narrates that log afterwards at 1x, 2x or 4x. Combat is deliberately not
-driven by the render tick, which is what makes the speed control a single multiplication in the
-animator rather than a second combat implementation — and what will make offline resolution and
-skipping cheap when they arrive.
+**What milestone 2 shipped.** A party of three that fights up an eight-stage ladder, one battle
+at a time, whenever the player taps Fight. `simulateBattle(team, stage, seed)` resolves a whole
+fight synchronously and headlessly into an event log, and the UI narrates that log afterwards at
+1x, 2x or 4x. Combat is deliberately not driven by the render tick, which is what makes the speed
+control a single multiplication in the animator rather than a second combat implementation — and
+what will make offline resolution and skipping cheap when they arrive.
+
+The game is **two screens**: home (gold, income, and the way into a fight) and the battle, which
+replaces home for the length of a fight. A battle has no exit until it ends; when it settles, the
+player can fight the next stage without leaving or close and return home. The swap is a signal
+rather than a route — a battle is a mode, not a location, since nothing it shows survives a
+reload.
+
+**Clearing a stage is what switches the idle game on.** A run starts at zero gold per second and
+earns nothing while idle; the first clear takes it to 0.5/s and every stage after that is a
+permanent raise, up to 16/s at the top of the ladder. The one-off gold for a clear is the smaller
+half of the deal, tuned to roughly 40 seconds of the income it unlocks — the rate is the
+progression, the lump is the bonus.
+
+Nothing fights on its own. The two features "auto-battle" could mean — the party sparring
+ambiently behind the idle screen, and an unlockable that re-enters stages until the party loses —
+are both later work, and [AGENTS.md](AGENTS.md) records what each one implies.
 
 Turn order is an ATB gauge (`gauge += spd` per tick, act at 1000) rather than fixed rounds, so
 SPD buys turns instead of just going first. The loop jumps straight to the tick of the next
@@ -77,12 +93,12 @@ and a pre-combat v1 save keeps its gold and RNG position and simply joins the la
 
 **Milestone 5 is partly done.** The pieces that never needed combat are built and tested: the
 fixed-rate closed form, the offline cap, the backwards-clock guard, and expected-value drop
-accrual with a carried remainder. What is left is the segmented solver for auto-progression
-advancing stages mid-window, which needs `timeToClear(stage)`.
+accrual with a carried remainder. What is left is a drop source to feed `accrueDiscrete()`.
 
-That leaves one **known gap**: battles pay gold on a clear, but offline resume pays only the
-flat `goldPerSec`, so an away window earns nothing for the stage the party would have been
-grinding. Closing it is precisely what milestone 5's segmented solver is for.
+The segmented solver — for an away window in which the earning rate changes — is deliberately
+still unbuilt. Because the player starts every battle, no stage is ever cleared while they are
+away, so `goldPerSec` is constant across any offline window and the fixed-rate closed form is
+exactly right. That changes the day an unattended auto-battle lands, and not before.
 
 Deliberately deferred: native foreground/background handling (`@capacitor/app`), routing,
 and Angular Material. All three are cheap to add later and add debugging surface now.

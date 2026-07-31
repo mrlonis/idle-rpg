@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { num, ZERO } from '../numeric';
 import { newGame, type GameState } from '../state';
+import { tick } from '../tick';
 import { applyBattleResult } from './progress';
 import { type BattleOutcome, type BattleResult } from './types';
 
@@ -15,7 +16,7 @@ function run(overrides: Partial<GameState> = {}): GameState {
   return { ...newGame({ seed: 0xc0ffee, nowMs: T0 }), ...overrides };
 }
 
-function outcome(kind: BattleOutcome, gold = '0'): BattleResult {
+function outcome(kind: BattleOutcome, gold = '0', goldPerSec = '0'): BattleResult {
   return {
     stageId: 'test-stage',
     outcome: kind,
@@ -24,7 +25,10 @@ function outcome(kind: BattleOutcome, gold = '0'): BattleResult {
     roster: [],
     final: [],
     events: [{ kind: 'end', tick: 100, outcome: kind }],
-    reward: { gold: kind === 'victory' ? num(gold) : ZERO },
+    reward:
+      kind === 'victory'
+        ? { gold: num(gold), goldPerSec: num(goldPerSec) }
+        : { gold: ZERO, goldPerSec: ZERO },
   };
 }
 
@@ -84,6 +88,48 @@ describe('applyBattleResult', () => {
       expect(applyBattleResult(state, outcome('victory'), stageCount).stage).toBe(1);
     },
   );
+
+  describe('idle income', () => {
+    it('raises the rate to what the cleared stage grants', () => {
+      // The real reward. A run starts at zero income, so the first clear is what switches the
+      // idle game on at all.
+      const state = run({ goldPerSec: ZERO });
+
+      const next = applyBattleResult(state, outcome('victory', '25', '0.5'), STAGE_COUNT);
+
+      expect(next.goldPerSec.eq('0.5')).toBe(true);
+    });
+
+    it.each<BattleOutcome>(['defeat', 'stalemate'])('leaves the rate alone on a %s', (kind) => {
+      const state = run({ goldPerSec: num('4') });
+
+      expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).goldPerSec.eq(4)).toBe(true);
+    });
+
+    it('never lowers a rate the run already had', () => {
+      // Re-clearing an earlier stage, or loading a save written against a different curve, must
+      // not cut a player's income.
+      const state = run({ goldPerSec: num('16') });
+
+      const next = applyBattleResult(state, outcome('victory', '25', '0.5'), STAGE_COUNT);
+
+      expect(next.goldPerSec.eq(16)).toBe(true);
+    });
+
+    it('is what makes an idle run pay at all', () => {
+      // Ties the reward to the thing it feeds: `tick` multiplies by this rate, so a run that has
+      // never won a battle accrues literally nothing.
+      const untouched = run({ goldPerSec: ZERO });
+
+      expect(tick(untouched, 60_000).gold.eq(0)).toBe(true);
+      expect(
+        tick(
+          applyBattleResult(untouched, outcome('victory', '0', '0.5'), STAGE_COUNT),
+          60_000,
+        ).gold.eq(30),
+      ).toBe(true);
+    });
+  });
 
   it('leaves the pull RNG position alone', () => {
     // Combat draws from a derived sub-stream. If a battle advanced `rng.calls`, fighting would

@@ -82,6 +82,27 @@ describe('stage content', () => {
     }
   });
 
+  it('raises idle income at every step, so no clear is ever a sidestep', () => {
+    // The rate is the real reward, and `applyBattleResult` only ever raises it. A stage granting
+    // no more than the one before it would read to the player as a stage that paid nothing.
+    const rates = stages.map((stage) => Number(stage.goldPerSec));
+
+    expect(rates[0]).toBeGreaterThan(0);
+    for (let i = 1; i < rates.length; i++) {
+      expect(rates[i], stages[i].id).toBeGreaterThan(rates[i - 1]);
+    }
+  });
+
+  it('keeps each one-off lump in proportion to the income it unlocks', () => {
+    // The lump should read as a bonus and the rate as the progression. Letting `goldReward` drift
+    // to minutes of idle income would invert that and make clears feel like the whole game.
+    for (const stage of stages) {
+      const secondsOfIncome = Number(stage.goldReward) / Number(stage.goldPerSec);
+      expect(secondsOfIncome, stage.id).toBeGreaterThan(20);
+      expect(secondsOfIncome, stage.id).toBeLessThan(60);
+    }
+  });
+
   it('keeps the reward curve well inside float64, so the curve is not the reason for Decimal', () => {
     // AGENTS.md asks for this to be checked rather than assumed. At ~1.6x per stage the top of
     // the ladder is in the hundreds; `Numeric` is a hedge against future curves, not this one.

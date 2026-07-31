@@ -22,7 +22,7 @@ describe('toSaveData', () => {
     expect(toSaveData(state)).toEqual({
       version: SAVE_VERSION,
       gold: '1.5e+25',
-      goldPerSec: '1',
+      goldPerSec: '0',
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
       stage: 1,
@@ -94,8 +94,11 @@ describe('fromSaveData repair', () => {
     expect(issues.map((issue) => issue.problem).join()).toMatch(/negative/);
   });
 
-  it('defaults a damaged goldPerSec to 1 rather than stalling progression', () => {
-    expect(fromSaveData({ goldPerSec: 'garbage' }, OPTIONS).state.goldPerSec.toString()).toBe('1');
+  it('defaults a damaged goldPerSec to zero, matching a fresh run', () => {
+    // Idle income is earned by clearing stages, so inventing a rate would hand out progression
+    // that was never made. It self-heals: the next clear raises the rate to what the stage
+    // grants, and `applyBattleResult` only ever raises it.
+    expect(fromSaveData({ goldPerSec: 'garbage' }, OPTIONS).state.goldPerSec.toString()).toBe('0');
   });
 
   it('clamps a negative goldPerSec to zero', () => {

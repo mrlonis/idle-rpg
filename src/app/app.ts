@@ -1,12 +1,23 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { BattleView } from '../ui/battle-view';
 import { BattleService } from '../ui/battle.service';
-import { formatDuration, formatNumeric, formatRate } from '../ui/format-numeric';
 import { GameLoopService } from '../ui/game-loop.service';
+import { HomeView } from '../ui/home-view';
 
+/**
+ * The application shell.
+ *
+ * Owns three things and nothing else: starting the run, the single `main` landmark, and which
+ * of the two screens is showing. Everything a screen displays belongs to that screen.
+ *
+ * The swap is a signal rather than a route. `app.routes.ts` stays empty deliberately — the
+ * battle screen's entire content lives in memory and cannot survive a reload, so it is a mode
+ * the player is in rather than a place they can link to. When a screen arrives that genuinely
+ * deserves a URL, this is a small change to make.
+ */
 @Component({
   selector: 'app-root',
-  imports: [BattleView],
+  imports: [BattleView, HomeView],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -15,30 +26,10 @@ export class App implements OnInit {
   private readonly battles = inject(BattleService);
 
   protected readonly isReady = this.game.isReady;
-  protected readonly loadFailure = this.game.loadFailure;
-  protected readonly saveIssues = this.game.saveIssues;
-
-  protected readonly gold = computed(() => formatNumeric(this.game.gold()));
-  protected readonly rate = computed(() => formatRate(this.game.goldPerSec()));
-
-  /** Only worth showing when the player was away long enough to have earned something. */
-  protected readonly offlineSummary = computed(() => {
-    const report = this.game.offlineReport();
-    if (report === null || report.gold.lte(0)) {
-      return null;
-    }
-    return {
-      duration: formatDuration(report.elapsedMs),
-      gold: formatNumeric(report.gold),
-      wasCapped: report.wasCapped,
-    };
-  });
+  protected readonly isBattleOpen = this.battles.isOpen;
 
   ngOnInit(): void {
     // The clock lives here: core takes time as a parameter and never reads one itself.
     void this.game.start(Date.now());
-    // Safe to start before the run has finished loading — the animator idles until there is a
-    // state to fight from, rather than needing to be sequenced after an async load.
-    this.battles.start();
   }
 }

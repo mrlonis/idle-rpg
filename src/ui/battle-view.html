@@ -1,9 +1,10 @@
-@if (isReady() && stage(); as current) {
+@if (stage(); as current) {
   <section class="battle" aria-labelledby="battle-heading">
     <header class="battle__header">
-      <h2 id="battle-heading" class="battle__stage">
-        Stage {{ current.number }} <span class="battle__stage-name">{{ current.name }}</span>
-      </h2>
+      <h1 id="battle-heading" class="battle__stage">
+        Stage {{ current.number }}
+        <span class="battle__stage-name">{{ current.name }}</span>
+      </h1>
       <div class="speeds" role="group" aria-label="Playback speed">
         @for (speed of speeds; track speed) {
           <button
@@ -21,7 +22,7 @@
 
     <div class="battle__sides">
       <section class="roster" aria-labelledby="party-heading">
-        <h3 id="party-heading" class="roster__label">Your party</h3>
+        <h2 id="party-heading" class="roster__label">Your party</h2>
         <ul class="roster__list">
           @for (fighter of party(); track fighter.viewKey) {
             <li class="fighter" [class.fighter--down]="fighter.isDown">
@@ -41,7 +42,7 @@
       </section>
 
       <section class="roster" aria-labelledby="foes-heading">
-        <h3 id="foes-heading" class="roster__label">Enemies</h3>
+        <h2 id="foes-heading" class="roster__label">Enemies</h2>
         <ul class="roster__list">
           @for (fighter of foes(); track fighter.viewKey) {
             <li class="fighter" [class.fighter--down]="fighter.isDown">
@@ -74,7 +75,28 @@
         <li class="log__line">{{ line }}</li>
       }
     </ol>
+
+    <!--
+      Only once the fight is over. There is deliberately no way out mid-battle: a fight is
+      seconds long and can be sped up, and leaving early would discard a battle the player is
+      about to be paid for.
+    -->
+    @if (isSettled()) {
+      <div class="actions">
+        <button type="button" class="actions__fight" (click)="fight()">{{ fightLabel() }}</button>
+        <!--
+          The accessible name contains the visible label, so voice control still matches on
+          "Close" while a screen reader gets the destination too.
+        -->
+        <button
+          type="button"
+          class="actions__close"
+          aria-label="Close the battle and return home"
+          (click)="close()"
+        >
+          Close
+        </button>
+      </div>
+    }
   </section>
-} @else {
-  <p class="battle__pending" role="status">Sizing up the first encounter…</p>
 }

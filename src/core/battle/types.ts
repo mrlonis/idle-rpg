@@ -50,7 +50,17 @@ export interface StageData {
   readonly name: string;
   /** The opposing side, in slot order. Repeating a combatant gives multiple copies. */
   readonly enemies: readonly CombatantData[];
+  /** One-off gold for the clear. */
   readonly goldReward: number | string;
+  /**
+   * Idle income the run is raised to by clearing this stage, in gold per second.
+   *
+   * The real prize. A run starts at zero and earns nothing while idle, so the first stage is
+   * what switches the idle game on, and every stage after it is a permanent raise. The one-off
+   * `goldReward` is the smaller half of the deal on purpose — a rate compounds with time away,
+   * a lump sum does not.
+   */
+  readonly goldPerSec: number | string;
 }
 
 /** A stat block after parsing and clamping, as the simulation uses it. */
@@ -124,7 +134,10 @@ export type BattleEvent =
 
 /** What clearing a stage pays. Zero on anything but a victory. */
 export interface BattleReward {
+  /** One-off gold banked for the clear. */
   readonly gold: Numeric;
+  /** Idle income the run is raised to. Never lowers an existing rate — see `applyBattleResult`. */
+  readonly goldPerSec: Numeric;
 }
 
 /**

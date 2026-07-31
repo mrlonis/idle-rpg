@@ -164,6 +164,44 @@ $foe: #f87171; // 4.7:1 on $track
   text-align: center;
 }
 
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions__fight,
+.actions__close {
+  // 44px touch-target floor on both, so neither is a coin toss on a phone.
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actions__fight {
+  // Takes the remaining width: going again is the expected next move, Close is the way out.
+  flex: 1;
+  border: 1px solid $ally;
+  // #143024 behind the #4ade80 label is 8.4:1.
+  background: #143024;
+  color: $ally;
+}
+
+.actions__close {
+  border: 1px solid $border;
+  background: $track;
+  color: $text;
+}
+
+.actions__fight:focus-visible,
+.actions__close:focus-visible {
+  outline: 2px solid $text;
+  outline-offset: 2px;
+}
+
 .log {
   margin: 0;
   padding: 0;
@@ -176,12 +214,6 @@ $foe: #f87171; // 4.7:1 on $track
   // Fixed height so the panel does not resize as lines arrive, which would shunt the whole
   // page up and down several times a second.
   min-height: 7.5rem;
-}
-
-.battle__pending {
-  margin: 0;
-  color: $muted;
-  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

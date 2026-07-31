@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import { type GameState, newGame, num } from '../core';
@@ -13,21 +14,27 @@ const T0 = 1_700_000_000_000;
  * and a real sim loop would test those instead of playback.
  */
 class FakeGameLoop {
-  current: GameState | null = null;
+  readonly snapshot = signal<GameState | null>(null);
   readonly applied: GameState[] = [];
 
+  get current(): GameState | null {
+    return this.snapshot();
+  }
+
   apply(update: (state: GameState) => GameState): void {
-    if (this.current === null) {
+    const state = this.snapshot();
+    if (state === null) {
       return;
     }
-    this.current = update(this.current);
-    this.applied.push(this.current);
+    const next = update(state);
+    this.snapshot.set(next);
+    this.applied.push(next);
   }
 }
 
 function build(state: GameState | null = newGame({ seed: 0xc0ffee, nowMs: T0 })) {
   const loop = new FakeGameLoop();
-  loop.current = state;
+  loop.snapshot.set(state);
 
   // Reset up front rather than only in `afterEach`, so a test can stand up two independent
   // animators — comparing playback speeds needs two of them narrating the same battle.
@@ -47,231 +54,382 @@ function run(battles: BattleService, ms: number, stepMs = 100): void {
   }
 }
 
+/** Starts a fight and plays it to the end. */
+function fightToTheEnd(battles: BattleService): void {
+  battles.fight(T0);
+  run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+}
+
 /**
  * The animator's own timer is never started in these specs. `advance` is driven directly, so
  * playback is deterministic rather than dependent on how long the test took to run — the same
- * reason `advance` is a public method in the first place.
+ * reason `advance` and `fight` both take the clock as a parameter.
  */
 describe('BattleService', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
   });
 
-  it('shows nothing before the first battle is resolved', () => {
-    const { battles } = build();
+  describe('before anything is fought', () => {
+    it('shows no battle, and the battle screen is closed', () => {
+      const { battles } = build();
 
-    expect(battles.result()).toBeNull();
-    expect(battles.stage()).toBeNull();
-    expect(battles.combatants()).toEqual([]);
-  });
-
-  it('idles harmlessly until the run has loaded', () => {
-    const { battles } = build(null);
-
-    run(battles, 5_000);
-
-    expect(battles.result()).toBeNull();
-  });
-
-  it('resolves the first battle on the first step', () => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-
-    expect(battles.result()).not.toBeNull();
-    expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
-  });
-
-  it('applies the result to the run immediately, not when the animation ends', () => {
-    // The alternative loses a won battle to any autosave, reload or backgrounding that lands
-    // mid-animation. The run is always consistent with what has been saved.
-    const { loop, battles } = build();
-
-    battles.advance(T0 + 100);
-
-    expect(loop.applied).toHaveLength(1);
-    expect(loop.current?.battleCount).toBe(1);
-    expect(battles.outcome()).toBeNull();
-  });
-
-  it('opens with everyone at full HP and the outcome withheld', () => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-
-    const combatants = battles.combatants();
-    expect(combatants.length).toBeGreaterThan(0);
-    for (const combatant of combatants) {
-      expect(combatant.fraction, combatant.name).toBe(1);
-      expect(combatant.isDown, combatant.name).toBe(false);
-    }
-    expect(battles.outcome()).toBeNull();
-  });
-
-  it('narrates the log gradually rather than all at once', () => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    const atStart = battles.recentEvents().length;
-    run(battles, 1_000);
-    const afterASecond = battles.recentEvents().length;
-
-    expect(atStart).toBe(0);
-    expect(afterASecond).toBeGreaterThan(0);
-    expect(battles.outcome()).toBeNull();
-  });
-
-  it('reveals the outcome only once the whole log has played', () => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    const total = battles.result()?.durationMs ?? 0;
-
-    run(battles, total - 200);
-    expect(battles.outcome()).toBeNull();
-
-    run(battles, 400);
-    expect(battles.outcome()).toBe('victory');
-  });
-
-  it('gets further through the same fight at 4x', () => {
-    // The claim the whole sim/render split is for: playback speed is a multiplication in
-    // `advance`, not a second combat implementation. Both runs narrate a bit-for-bit identical
-    // battle — the fast one is simply further into it after the same amount of real time.
-    const slow = narrateOpening(1);
-    const fast = narrateOpening(4, slow.windowMs);
-
-    expect(fast.totalMs).toBe(slow.totalMs);
-    expect(fast.events).toBe(slow.events);
-    // Neither has finished, so neither has rolled into the next battle — which would reset HP to
-    // full and invert the comparison.
-    expect(fast.battles.outcome()).toBeNull();
-    expect(fast.remaining).toBeLessThan(slow.remaining);
-  });
-
-  it('takes a speed change mid-fight without restarting the fight', () => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    const opening = battles.result();
-    run(battles, 500);
-    battles.setSpeed(4);
-    run(battles, 500);
-
-    expect(battles.result()).toBe(opening);
-    expect(battles.playbackSpeed()).toBe(4);
-  });
-
-  it('moves on to the next battle after an intermission', () => {
-    const { loop, battles } = build();
-
-    battles.advance(T0 + 100);
-    const first = battles.result();
-    const length = battles.result()?.durationMs ?? 0;
-
-    run(battles, length + 3_000);
-
-    expect(battles.result()).not.toBe(first);
-    expect(loop.applied.length).toBeGreaterThan(1);
-  });
-
-  it('climbs the ladder as battles are won', () => {
-    const { loop, battles } = build();
-
-    // Long enough to clear several stages at speed.
-    battles.setSpeed(4);
-    run(battles, 240_000);
-
-    expect(loop.current?.stage).toBeGreaterThan(1);
-    expect((loop.current?.stage ?? 0) <= STAGES.length).toBe(true);
-  });
-
-  it('keeps rows from one battle from being mistaken for rows in the next', () => {
-    // Slot keys repeat every battle, so the view needs a battle-scoped identity or the HP bar
-    // animates from the previous fight's value.
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    const firstKeys = battles.combatants().map((c) => c.viewKey);
-    run(battles, (battles.result()?.durationMs ?? 0) + 3_000);
-    const secondKeys = battles.combatants().map((c) => c.viewKey);
-
-    expect(firstKeys).not.toEqual(secondKeys);
-    expect(battles.combatants().map((c) => c.key)).toContain('ally-0');
-  });
-
-  it('does not blast through a fight after a long gap', () => {
-    // A backgrounded tab throttles the timer and returning delivers one enormous delta. Without
-    // the step clamp the whole log would drain at once and the player would miss the battle.
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    battles.advance(T0 + 100 + 10 * 60 * 1000);
-
-    expect(battles.outcome()).toBeNull();
-  });
-
-  it.each([0, -1_000, Number.NaN])('ignores a step of %p', (delta) => {
-    const { battles } = build();
-
-    battles.advance(T0 + 100);
-    const before = battles.recentEvents().length;
-    battles.advance(T0 + 100 + delta);
-
-    expect(battles.recentEvents().length).toBe(before);
-  });
-
-  it('resumes an existing run on the stage it left off', () => {
-    const { battles } = build({
-      ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
-      stage: 3,
-      battleCount: 42,
-      gold: num('5000'),
+      expect(battles.result()).toBeNull();
+      expect(battles.stage()).toBeNull();
+      expect(battles.combatants()).toEqual([]);
+      expect(battles.isFighting()).toBe(false);
+      expect(battles.isOpen()).toBe(false);
     });
 
-    battles.advance(T0 + 100);
+    it('never starts a fight on its own, however long it is left alone', () => {
+      // The heart of this milestone: nothing happens without the player. An animator that
+      // begins a battle on a timer is what the previous shape got wrong.
+      const { loop, battles } = build();
 
-    expect(battles.stage()).toEqual({ name: STAGES[2].name, number: 3 });
+      run(battles, 600_000);
+
+      expect(battles.result()).toBeNull();
+      expect(battles.isFighting()).toBe(false);
+      expect(loop.applied).toEqual([]);
+    });
+
+    it('names the stage the player would enter', () => {
+      const { battles } = build();
+
+      expect(battles.nextStage()).toEqual({ name: STAGES[0].name, number: 1 });
+    });
+
+    it('idles harmlessly until the run has loaded', () => {
+      const { battles } = build(null);
+
+      battles.fight(T0);
+      run(battles, 5_000);
+
+      expect(battles.result()).toBeNull();
+    });
   });
 
-  it('pulls a stage number past the shipped content back into range', () => {
-    const { battles } = build({ ...newGame({ seed: 1, nowMs: T0 }), stage: 999 });
+  describe('starting a fight', () => {
+    it('resolves the battle, opens the screen, and begins narrating it', () => {
+      const { battles } = build();
 
-    battles.advance(T0 + 100);
+      battles.fight(T0);
 
-    expect(battles.stage()?.number).toBe(STAGES.length);
+      expect(battles.result()).not.toBeNull();
+      expect(battles.isFighting()).toBe(true);
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
+    });
+
+    it('opens with everyone at full HP and the outcome withheld', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+
+      const combatants = battles.combatants();
+      expect(combatants.length).toBeGreaterThan(0);
+      for (const combatant of combatants) {
+        expect(combatant.fraction, combatant.name).toBe(1);
+        expect(combatant.isDown, combatant.name).toBe(false);
+      }
+      expect(battles.outcome()).toBeNull();
+    });
+
+    it('ignores a second tap while a battle is already playing', () => {
+      // A double tap must not start two fights or abandon the one on screen halfway through.
+      const { battles } = build();
+
+      battles.fight(T0);
+      const opening = battles.result();
+      run(battles, 500);
+      battles.fight(T0 + 500);
+
+      expect(battles.result()).toBe(opening);
+    });
   });
 
-  it('splits the roster into party and foes', () => {
-    const { battles } = build();
+  describe('while the fight plays', () => {
+    it('touches nothing in the run until the animation finishes', () => {
+      // Applying up front would spoil every battle: gold and the income rate would both jump the
+      // instant the player tapped, announcing the outcome before the first blow landed.
+      const { loop, battles } = build();
 
-    battles.advance(T0 + 100);
+      battles.fight(T0);
+      run(battles, (battles.result()?.durationMs ?? 0) - 200);
 
-    expect(battles.party().every((c) => c.side === 'ally')).toBe(true);
-    expect(battles.foes().every((c) => c.side === 'enemy')).toBe(true);
-    expect(battles.party().length + battles.foes().length).toBe(battles.combatants().length);
+      expect(battles.outcome()).toBeNull();
+      expect(loop.applied).toEqual([]);
+      expect(loop.current?.battleCount).toBe(0);
+    });
+
+    it('narrates the log gradually rather than all at once', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+      const atStart = battles.recentEvents().length;
+      run(battles, 1_000);
+
+      expect(atStart).toBe(0);
+      expect(battles.recentEvents().length).toBeGreaterThan(0);
+      expect(battles.outcome()).toBeNull();
+    });
+
+    it('does not blast through a fight after a long gap', () => {
+      // A backgrounded tab throttles the timer and returning delivers one enormous delta. Without
+      // the step clamp the whole log would drain at once and the player would miss the battle.
+      const { battles } = build();
+
+      battles.fight(T0);
+      battles.advance(T0 + 10 * 60 * 1000);
+
+      expect(battles.outcome()).toBeNull();
+      expect(battles.isFighting()).toBe(true);
+    });
+
+    it.each([0, -1_000, Number.NaN])('ignores a step of %p', (delta) => {
+      const { battles } = build();
+
+      battles.fight(T0);
+      run(battles, 500);
+      const before = battles.recentEvents().length;
+      battles.advance(T0 + 500 + delta);
+
+      expect(battles.recentEvents().length).toBe(before);
+    });
   });
 
-  it('names every combatant in the log', () => {
-    const { battles } = build();
+  describe('playback speed', () => {
+    it('gets further through the same fight at 4x', () => {
+      // The claim the whole sim/render split is for: playback speed is a multiplication in
+      // `advance`, not a second combat implementation. Both runs narrate a bit-for-bit identical
+      // battle — the fast one is simply further into it after the same amount of real time.
+      const slow = narrateOpening(1);
+      const fast = narrateOpening(4, slow.windowMs);
 
-    battles.advance(T0 + 100);
-    const names = battles.names();
+      expect(fast.totalMs).toBe(slow.totalMs);
+      expect(fast.events).toBe(slow.events);
+      expect(fast.battles.outcome()).toBeNull();
+      expect(fast.remaining).toBeLessThan(slow.remaining);
+    });
 
-    for (const combatant of battles.combatants()) {
-      expect(names.get(combatant.key), combatant.key).toBe(combatant.name);
-    }
+    it('takes a speed change mid-fight without restarting the fight', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+      const opening = battles.result();
+      run(battles, 500);
+      battles.setSpeed(4);
+      run(battles, 500);
+
+      expect(battles.result()).toBe(opening);
+      expect(battles.playbackSpeed()).toBe(4);
+    });
   });
 
-  it('stops stepping once stopped', () => {
-    const { battles } = build();
+  describe('when the fight ends', () => {
+    it('banks the result and the outcome together', () => {
+      const { loop, battles } = build();
 
-    battles.advance(T0 + 100);
-    const before = battles.recentEvents().length;
-    battles.stop();
-    battles.stop();
+      fightToTheEnd(battles);
 
-    expect(battles.recentEvents().length).toBe(before);
+      expect(battles.outcome()).toBe('victory');
+      expect(loop.applied).toHaveLength(1);
+      expect(loop.current?.battleCount).toBe(1);
+    });
+
+    it('returns to idle and stays there', () => {
+      const { loop, battles } = build();
+
+      fightToTheEnd(battles);
+      const afterFirst = battles.result();
+      run(battles, 600_000);
+
+      expect(battles.isFighting()).toBe(false);
+      // No second battle starts on its own, no matter how long the player leaves it.
+      expect(battles.result()).toBe(afterFirst);
+      expect(loop.applied).toHaveLength(1);
+    });
+
+    it('holds the final board on screen so the player can read it', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+
+      expect(battles.combatants().length).toBeGreaterThan(0);
+      expect(battles.foes().every((foe) => foe.isDown)).toBe(true);
+    });
+
+    it('raises idle income on a win, from a standing start of zero', () => {
+      const { loop, battles } = build();
+
+      expect(loop.current?.goldPerSec.eq(0)).toBe(true);
+      fightToTheEnd(battles);
+
+      expect(loop.current?.goldPerSec.eq(STAGES[0].goldPerSec)).toBe(true);
+      expect(loop.current?.gold.eq(STAGES[0].goldReward)).toBe(true);
+    });
+
+    it('points the next fight at the following stage after a win', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+
+      expect(battles.nextStage()).toEqual({ name: STAGES[1].name, number: 2 });
+      // The board still names the stage that was just fought.
+      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
+    });
+
+    it('lets the player go again, on the next stage', () => {
+      const { loop, battles } = build();
+
+      fightToTheEnd(battles);
+      const first = battles.result();
+      battles.fight(T0);
+
+      expect(battles.result()).not.toBe(first);
+      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2 });
+      expect(loop.applied).toHaveLength(1);
+    });
+
+    it('stays on the battle screen so the player can read the result', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.isFighting()).toBe(false);
+    });
+
+    it('keeps rows from one battle from being mistaken for rows in the next', () => {
+      // Slot keys repeat every battle, so the view needs a battle-scoped identity or the HP bar
+      // animates from the previous fight's value.
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+      const firstKeys = battles.combatants().map((c) => c.viewKey);
+      battles.fight(T0);
+
+      expect(battles.combatants().map((c) => c.viewKey)).not.toEqual(firstKeys);
+      expect(battles.combatants().map((c) => c.key)).toContain('ally-0');
+    });
+  });
+
+  describe('closing the battle screen', () => {
+    it('returns to home and clears the board behind it', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+      battles.close();
+
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.result()).toBeNull();
+      expect(battles.stage()).toBeNull();
+      expect(battles.outcome()).toBeNull();
+      expect(battles.combatants()).toEqual([]);
+      expect(battles.recentEvents()).toEqual([]);
+    });
+
+    it('refuses while a fight is still playing', () => {
+      // Leaving mid-battle would discard a fight the player is moments from being paid for. A
+      // battle is seconds long and can be sped up, so there is nothing to escape from.
+      const { battles } = build();
+
+      battles.fight(T0);
+      run(battles, 500);
+      battles.close();
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.result()).not.toBeNull();
+    });
+
+    it('keeps everything the run earned', () => {
+      // Closing is a navigation, not an undo. The result was banked when the animation finished.
+      const { loop, battles } = build();
+
+      fightToTheEnd(battles);
+      const banked = loop.current;
+      battles.close();
+
+      expect(loop.current).toBe(banked);
+      expect(loop.current?.stage).toBe(2);
+      expect(loop.current?.goldPerSec.eq(STAGES[0].goldPerSec)).toBe(true);
+    });
+
+    it('lets the player go straight back in', () => {
+      const { battles } = build();
+
+      fightToTheEnd(battles);
+      battles.close();
+      battles.fight(T0);
+
+      expect(battles.isOpen()).toBe(true);
+      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2 });
+    });
+
+    it('is harmless when nothing is open', () => {
+      const { battles } = build();
+
+      battles.close();
+
+      expect(battles.isOpen()).toBe(false);
+    });
+  });
+
+  describe('resuming a run', () => {
+    it('fights the stage the run left off on', () => {
+      const { battles } = build({
+        ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
+        stage: 3,
+        battleCount: 42,
+        gold: num('5000'),
+      });
+
+      battles.fight(T0);
+
+      expect(battles.stage()).toEqual({ name: STAGES[2].name, number: 3 });
+    });
+
+    it('pulls a stage number past the shipped content back into range', () => {
+      const { battles } = build({ ...newGame({ seed: 1, nowMs: T0 }), stage: 999 });
+
+      expect(battles.nextStage()?.number).toBe(STAGES.length);
+      battles.fight(T0);
+      expect(battles.stage()?.number).toBe(STAGES.length);
+    });
+
+    it('never lowers an income a returning player already had', () => {
+      const { loop, battles } = build({
+        ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
+        goldPerSec: num('500'),
+      });
+
+      fightToTheEnd(battles);
+
+      expect(loop.current?.goldPerSec.eq(500)).toBe(true);
+    });
+  });
+
+  describe('the view model', () => {
+    it('splits the roster into party and foes', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+
+      expect(battles.party().every((c) => c.side === 'ally')).toBe(true);
+      expect(battles.foes().every((c) => c.side === 'enemy')).toBe(true);
+      expect(battles.party().length + battles.foes().length).toBe(battles.combatants().length);
+    });
+
+    it('names every combatant in the log', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+      const names = battles.names();
+
+      for (const combatant of battles.combatants()) {
+        expect(names.get(combatant.key), combatant.key).toBe(combatant.name);
+      }
+    });
   });
 });
 
@@ -281,7 +439,7 @@ function hpTotal(battles: BattleService): number {
 }
 
 /**
- * Narrates the opening battle at `speed` for a slice of real time, and reports how far it got.
+ * Fights the opening battle at `speed` for a slice of real time, and reports how far it got.
  *
  * The default window is an eighth of the fight, which is half of it at 4x — long enough for the
  * two speeds to be clearly apart, short enough that neither finishes.
@@ -289,7 +447,7 @@ function hpTotal(battles: BattleService): number {
 function narrateOpening(speed: PlaybackSpeed, windowMs?: number) {
   const { battles } = build();
   battles.setSpeed(speed);
-  battles.advance(T0 + 100);
+  battles.fight(T0);
 
   const totalMs = battles.result()?.durationMs ?? 0;
   const window = windowMs ?? Math.floor(totalMs / 8);

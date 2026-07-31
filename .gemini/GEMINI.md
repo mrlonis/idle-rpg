@@ -51,12 +51,29 @@ mulberry32 with O(1) resume and derived sub-streams), `core/state.ts`, `core/tic
 `core/offline.ts`, `ui/game-loop.service.ts`, `ui/save.service.ts`,
 `ui/format-numeric.ts`.
 
-### 2. Auto-battle against a stage ladder — **COMPLETE**
+### 2. Player-initiated battles up a stage ladder — **COMPLETE**
 
 `simulateBattle(team, stage, seed) => BattleResult` resolves instantly and headlessly into an
 event log; the UI animates the log afterwards. Combat is not driven by the render tick — that
 decision is what makes 2x/4x/skip and offline resolution free, and the 1x/2x/4x control that
 shipped with it is one multiplication in the animator, not a second combat path.
+
+**The player starts every battle, one at a time.** Nothing fights on its own. Tapping Fight
+resolves one battle, narrates it, holds the finished board on screen, and stops. Neither kind
+of auto-battle is built here — see "Later: the two auto-battles" below, and do not add either
+to this milestone.
+
+**Home and battle are two screens, and the battle replaces the home screen rather than sitting
+under it.** `App` is the shell: it starts the run, owns the single `main` landmark, and swaps on
+`BattleService.isOpen`. A fight has no exit until it ends — a battle is seconds long and can be
+sped up, and leaving early would discard rewards the player is moments from collecting. When it
+settles, two controls appear: fight the next stage without leaving, or close and return home.
+
+**Clearing a stage raises idle income permanently, and that is the real reward.** A run starts
+at `goldPerSec: 0` and earns nothing at all until the first stage falls, which is what makes
+the first battle the only thing worth doing. The rate climbs 0.5/s to 16/s across the ladder,
+and `applyBattleResult` only ever raises it. The one-off `goldReward` is the smaller half,
+tuned to roughly 40 seconds of the income it unlocks.
 
 Shipped:
 
@@ -76,14 +93,19 @@ Shipped:
   retry is a new fight rather than a bit-for-bit replay of the same loss.
 - `data/` — `enemies.ts`, `characters.ts`, `stages.ts`. Eight stages, cleared end to end by
   the starter party; `data/stages.spec.ts` proves it by simulating the ladder.
-- `ui/battle.service.ts`, `ui/battle-view.ts` — resolve, then narrate.
+- `ui/battle.service.ts` — `fight()` resolves then narrates, `close()` leaves.
+- `ui/home-view.ts`, `ui/battle-view.ts` — the two screens; `app/app.ts` is the shell that
+  swaps between them.
 - Save v2: `stage` and `battleCount` in `GameState`, via the first real migration.
 
 Two decisions worth not re-litigating:
 
-- **State is applied when the battle resolves, not when the animation ends.** Holding rewards
-  back until the log finishes playing loses a won battle to any autosave, reload or
-  backgrounding that lands mid-animation.
+- **The result is applied when the animation finishes, not when the battle resolves.**
+  Applying it up front spoils every fight: the gold counter and the income rate both jump the
+  instant the player taps, announcing the outcome before the first blow lands. The cost is that
+  a battle abandoned by a reload mid-animation pays nothing — acceptable precisely because the
+  player starts each fight and watches it, and going again is one tap. If an unattended loop is
+  ever added, revisit this: for a loop that runs while nobody is looking, the trade inverts.
 - **Targeting is the living opponent with the least HP, ties by slot.** Deliberately naive
   until enemy design gives it something to reason about; milestone 4 is where that lands.
 
@@ -112,19 +134,25 @@ Done and tested: the continuous fixed-rate closed form, the `[0, CAP_MS]` clamp,
 backwards-clock guard, and `accrueDiscrete()` for expected-value drops with a carried
 remainder.
 
-Still outstanding. Both were blocked on combat, which now exists:
+Still outstanding:
 
-- The **segmented** closed form for auto-progression advancing stages mid-window. Needs
-  `timeToClear(state, stage)`, which `BattleResult.durationMs` is the raw material for —
-  though a mean over several seeds, not one battle, since crits make any single fight
-  unrepresentative.
 - A drop source to feed `accrueDiscrete()`, plus the `dropCarry` field in `GameState`.
+- The **segmented** closed form for a rate that changes mid-window — but not yet; see below.
 
-**There is a known gap here, and it is this milestone's to close.** Battles award gold on a
-clear, but offline resume pays only the flat `goldPerSec` — so an away window currently earns
-nothing for the stage the party would have been grinding. That is exactly what the segmented
-solver is for. The migration chain no longer needs a first customer: save v2 exercised it for
-real when combat landed.
+**The segmented solver is not needed yet, and that is worth being precise about.** It exists to
+price an away window in which the rate _changes_ — auto-progression clearing stages while nobody
+is watching. Battles are player-initiated, so nothing clears a stage while the player is away:
+`goldPerSec` is constant across any offline window, and the fixed-rate closed form already
+shipped is exactly right. The gap opens when the unlockable auto-battle lands (see "Later: the
+two auto-battles"), because that is the first thing that advances stages unattended. Build the
+segmented solver then, against that feature, rather than speculatively now.
+
+`timeToClear(state, stage)` is still the missing piece when that day comes, and
+`BattleResult.durationMs` is its raw material — though a mean over several seeds, not one
+battle, since crits make any single fight unrepresentative.
+
+The migration chain no longer needs a first customer: save v2 exercised it for real when combat
+landed.
 
 ### 6. Run it on a physical iPhone
 
@@ -135,14 +163,41 @@ rather than next to a deadline. `npm run ios` builds, syncs, and opens Xcode.
 
 Only after 1–6 are solid.
 
+### Later: the two auto-battles
+
+"Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
+button the player presses. Do not build either of these into it.
+
+1. **Ambient sparring on the idle screen.** The party visibly fighting in the background while
+   the player watches their income tick up — presentation, not simulation. It should not award
+   anything, advance a stage, or touch `GameState`; if it did, it would be a second progression
+   path competing with the real one. The event log a battle already produces is the natural
+   thing to loop for it.
+2. **An unlockable that re-enters stages until the party loses.** Earned after a certain
+   stage. It keeps fighting on its own, and on a loss the player is dropped back to the idle
+   screen to either watch their earnings or start again. This one **does** award and advance,
+   which is why the note above about applying results at the end of the animation has to be
+   revisited when it lands: an unattended loop is exactly the case where a battle lost to an
+   autosave or a backgrounded app matters, and where skipping the animation entirely may be
+   the better answer.
+
+Both want milestone 5's offline work to exist first, since "what happens while nobody is
+watching" is the same question in all three places.
+
 ### Deliberately deferred
 
 - **Foreground/background handling via `@capacitor/app`.** The `visibilitychange` handling
   in `ui/game-loop.service.ts` covers the current need. Revisit it when the offline path pays
   out battle rewards (milestone 5) rather than before — that is when the difference between a
   web `visibilitychange` and a real iOS lifecycle event starts to matter.
-- **Routing.** `app.routes.ts` is intentionally empty; the game is one screen until there
-  is a second screen worth navigating to.
+- **Routing.** `app.routes.ts` is still intentionally empty, now for a sharper reason than
+  "there is only one screen". There are two — home and battle — and `App` swaps between them
+  with a signal. The battle screen is a **mode, not a location**: everything it shows lives in
+  memory, so a `/battle` URL could never be reloaded or shared, and adding one would mean
+  adding a guard to redirect it home. Reach for the router when a screen arrives that genuinely
+  survives a reload (roster, banner, settings). Note that routing is also what would give
+  Android's hardware back button somewhere to go — that question arrives with `@capacitor/app`,
+  not before.
 - **Angular Material.** Installed but unused. Do not pull it in until a real control needs
   it — a counter and a button do not.
 
@@ -354,6 +409,23 @@ defenses — there is nothing to protect.
 - After editing, run:
   - `npm run sync:agent-instructions`
   - `npm run sync:agent-instructions:check`
+
+## Long-running processes
+
+**Never end a turn with a process you started still running.** Whoever starts one stops it.
+Leaving a dev server alive means the human has to hunt down a PID and kill it by hand, and a
+stale server on port 4200 silently serves the next session a build nobody asked for.
+
+- This covers `npm start`, `npm run watch`, `ng serve`, any preview/dev-server tooling, and
+  anything launched with a background flag.
+- Start it, verify what you needed to verify, stop it — in the same turn. Do not keep it up
+  "in case it is useful later"; restarting takes seconds.
+- Before finishing, confirm nothing is left: `lsof -iTCP:4200 -sTCP:LISTEN`. Stop it through
+  the tooling that started it where possible, and kill the process directly otherwise.
+- Reporting "the dev server is still up" at the end of a turn is the bug, not a courtesy.
+
+One-shot commands that exit on their own — `ng build`, `ng test --no-watch`, `ng lint` — are
+not long-running and need none of this.
 
 ## Linting Guidelines
 

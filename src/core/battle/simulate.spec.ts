@@ -26,8 +26,12 @@ function unit(id: string, stats: Partial<StatBlockData> = {}): CombatantData {
   };
 }
 
-function stage(enemies: readonly CombatantData[], goldReward: number | string = 100): StageData {
-  return { id: 'test-stage', name: 'Test Stage', enemies, goldReward };
+function stage(
+  enemies: readonly CombatantData[],
+  goldReward: number | string = 100,
+  goldPerSec: number | string = 2,
+): StageData {
+  return { id: 'test-stage', name: 'Test Stage', enemies, goldReward, goldPerSec };
 }
 
 /** Every observable detail of a battle, as a comparable string. */
@@ -92,10 +96,16 @@ describe('simulateBattle', () => {
   it('pays the stage reward on a victory and nothing otherwise', () => {
     const strong = [unit('hero', { hp: 1000, atk: 100 })];
     const weak = [unit('hero', { hp: 10, atk: 1 })];
-    const opponent = stage([unit('titan', { hp: 100_000, atk: 500 })], 250);
+    const opponent = stage([unit('titan', { hp: 100_000, atk: 500 })], 250, 4);
 
-    expect(simulateBattle(strong, stage([unit('mook')], 250), 1).reward.gold.eq(250)).toBe(true);
-    expect(simulateBattle(weak, opponent, 1).reward.gold.eq(0)).toBe(true);
+    const won = simulateBattle(strong, stage([unit('mook')], 250, 4), 1).reward;
+    expect(won.gold.eq(250)).toBe(true);
+    // The idle income the clear unlocks — the larger half of what a stage is worth.
+    expect(won.goldPerSec.eq(4)).toBe(true);
+
+    const lost = simulateBattle(weak, opponent, 1).reward;
+    expect(lost.gold.eq(0)).toBe(true);
+    expect(lost.goldPerSec.eq(0)).toBe(true);
   });
 
   describe('determinism', () => {

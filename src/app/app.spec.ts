@@ -1,6 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { describe, expect, it } from 'vitest';
 import { type GameState, newGame, num, type OfflineReport, type RepairIssue } from '../core';
+import { BattleService, type StageHeading } from '../ui/battle.service';
 import { GameLoopService } from '../ui/game-loop.service';
 import { App } from './app';
 
@@ -9,11 +11,11 @@ const T0 = 1_700_000_000_000;
 /**
  * A stand-in for the real loop.
  *
- * The component's job is presentation: format what the service exposes and decide what to
- * show. Driving the real service here would pull in `requestAnimationFrame`, `Preferences`
- * and wall-clock time, and would end up testing the loop rather than the template.
+ * The shell's job is narrow — start the run, own the `main` landmark, pick a screen — so the
+ * fakes only need to expose what the two child screens read. Presentation of the screens
+ * themselves is covered by `home-view.spec.ts` and `battle.service.spec.ts`.
  */
-class FakeGameLoopService {
+class FakeGameLoop {
   readonly snapshot = signal<GameState | null>(null);
   readonly offlineReport = signal<OfflineReport | null>(null);
   readonly saveIssues = signal<readonly RepairIssue[]>([]);
@@ -21,7 +23,7 @@ class FakeGameLoopService {
 
   readonly isReady = signal(false);
   readonly gold = signal(num(0));
-  readonly goldPerSec = signal(num(1));
+  readonly goldPerSec = signal(num(0));
 
   readonly startCalls: number[] = [];
 
@@ -36,13 +38,44 @@ class FakeGameLoopService {
   }
 }
 
-async function render(configure?: (fake: FakeGameLoopService) => void) {
-  const fake = new FakeGameLoopService();
-  configure?.(fake);
+class FakeBattles {
+  readonly isOpen = signal(false);
+  readonly isFighting = signal(false);
+  readonly outcome = signal<string | null>(null);
+  readonly stage = signal<StageHeading | null>(null);
+  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1 });
+  readonly party = signal([]);
+  readonly foes = signal([]);
+  readonly recentEvents = signal([]);
+  readonly names = signal(new Map<string, string>());
+  readonly playbackSpeed = signal(1);
+  readonly result = signal(null);
 
+  fight(): void {
+    this.isOpen.set(true);
+  }
+
+  close(): void {
+    this.isOpen.set(false);
+  }
+
+  setSpeed(): void {
+    /* not exercised here */
+  }
+}
+
+async function render(configure?: (game: FakeGameLoop, battles: FakeBattles) => void) {
+  const game = new FakeGameLoop();
+  const battles = new FakeBattles();
+  configure?.(game, battles);
+
+  TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [App],
-    providers: [{ provide: GameLoopService, useValue: fake }],
+    providers: [
+      { provide: GameLoopService, useValue: game },
+      { provide: BattleService, useValue: battles },
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(App);
@@ -50,7 +83,7 @@ async function render(configure?: (fake: FakeGameLoopService) => void) {
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { fake, fixture, el: fixture.nativeElement as HTMLElement };
+  return { game, battles, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
 describe('App', () => {
@@ -63,139 +96,69 @@ describe('App', () => {
   it('starts the game loop with the current time', async () => {
     const before = Date.now();
 
-    const { fake } = await render();
+    const { game } = await render();
 
-    expect(fake.startCalls).toHaveLength(1);
-    expect(fake.startCalls[0]).toBeGreaterThanOrEqual(before);
+    expect(game.startCalls).toHaveLength(1);
+    expect(game.startCalls[0]).toBeGreaterThanOrEqual(before);
   });
 
   it('shows a loading state until the run is ready', async () => {
-    const { el } = await render((fake) => {
-      fake.start = () => Promise.resolve();
+    const { el } = await render((game) => {
+      game.start = () => Promise.resolve();
     });
 
     expect(el.textContent).toContain('Loading your run');
   });
 
-  it('renders gold formatted, not as a raw Decimal', async () => {
-    const { el } = await render((fake) => {
-      fake.isReady.set(true);
-      fake.gold.set(num('1234567'));
+  describe('choosing a screen', () => {
+    it('shows the home screen by default', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('app-home-view')).not.toBeNull();
+      expect(el.querySelector('app-battle-view')).toBeNull();
     });
 
-    // The whole reason formatNumeric exists: DecimalPipe cannot render a Decimal.
-    expect(el.querySelector('.resource__value')?.textContent?.trim()).toBe('1.23M');
-    expect(el.textContent).not.toContain('[object Object]');
-  });
+    it('replaces home with the battle screen rather than stacking them', async () => {
+      // The point of the swap: a fight is somewhere the player goes, not a panel that appears
+      // underneath what they were already looking at.
+      const { el, battles, fixture } = await render();
 
-  it('renders the rate with its unit', async () => {
-    const { el } = await render((fake) => {
-      fake.isReady.set(true);
-      fake.goldPerSec.set(num('250'));
+      battles.isOpen.set(true);
+      fixture.detectChanges();
+
+      expect(el.querySelector('app-battle-view')).not.toBeNull();
+      expect(el.querySelector('app-home-view')).toBeNull();
     });
 
-    expect(el.querySelector('.resource__rate')?.textContent?.trim()).toBe('250/s');
-  });
+    it('returns to home when the battle screen closes', async () => {
+      const { el, battles, fixture } = await render((_game, fake) => fake.isOpen.set(true));
 
-  it('renders values past float64 exact-integer range', async () => {
-    const { el } = await render((fake) => {
-      fake.isReady.set(true);
-      fake.gold.set(num('1.2345e+30'));
+      battles.close();
+      fixture.detectChanges();
+
+      expect(el.querySelector('app-home-view')).not.toBeNull();
+      expect(el.querySelector('app-battle-view')).toBeNull();
     });
 
-    expect(el.querySelector('.resource__value')?.textContent?.trim()).toBe('1.23No');
-  });
-
-  describe('offline summary', () => {
-    const report = (over: Partial<OfflineReport>): OfflineReport => ({
-      rawElapsedMs: 3_600_000,
-      elapsedMs: 3_600_000,
-      wasCapped: false,
-      gold: num('900'),
-      ...over,
-    });
-
-    it('reports what was earned while away', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.offlineReport.set(report({}));
+    it('shows neither screen before the run has loaded', async () => {
+      const { el } = await render((game, fake) => {
+        game.start = () => Promise.resolve();
+        fake.isOpen.set(true);
       });
 
-      expect(el.textContent).toContain('1 hour');
-      expect(el.textContent).toContain('900');
-    });
-
-    it('mentions the cap when the away window was clamped', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.offlineReport.set(report({ wasCapped: true }));
-      });
-
-      expect(el.textContent).toContain('capped');
-    });
-
-    it('stays hidden when nothing was earned', async () => {
-      // A fresh run, or a return after a few seconds, should not show an empty brag panel.
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.offlineReport.set(report({ gold: num(0), elapsedMs: 0 }));
-      });
-
-      expect(el.textContent).not.toContain('While you were away');
-    });
-  });
-
-  describe('save health', () => {
-    it('tells the player when a damaged save was recovered', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.saveIssues.set([{ field: 'gold', problem: 'unparseable', recovered: '0' }]);
-      });
-
-      expect(el.textContent).toContain('recovered');
-    });
-
-    it('warns, with an alert role, when the save could not be read at all', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.loadFailure.set('Save version 9 is newer than this build supports');
-      });
-
-      const alert = el.querySelector('[role="alert"]');
-      expect(alert).not.toBeNull();
-      // The player needs to know their old save is intact, or they will assume it is gone.
-      expect(alert?.textContent).toContain('has not been overwritten');
-    });
-
-    it('does not also show the recovery notice when the load failed outright', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-        fake.loadFailure.set('unreadable');
-        fake.saveIssues.set([{ field: 'gold', problem: 'x', recovered: '0' }]);
-      });
-
-      expect(el.textContent).not.toContain('was recovered');
+      expect(el.querySelector('app-battle-view')).toBeNull();
+      expect(el.querySelector('app-home-view')).toBeNull();
     });
   });
 
   describe('accessibility', () => {
-    it('labels the gold figure with a heading rather than announcing every change', async () => {
-      // An aria-live region here would fire ~6 times a second and make a screen reader
-      // unusable. The heading names the value so it stays reachable on demand.
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-      });
+    it('exposes exactly one main landmark, whichever screen is showing', async () => {
+      const { el, battles, fixture } = await render();
 
-      const section = el.querySelector('.resource');
-      expect(section?.getAttribute('aria-labelledby')).toBe('gold-label');
-      expect(el.querySelector('#gold-label')?.textContent).toContain('Gold');
-      expect(el.querySelector('.resource__value')?.getAttribute('aria-live')).toBeNull();
-    });
+      expect(el.querySelectorAll('main')).toHaveLength(1);
 
-    it('exposes exactly one main landmark', async () => {
-      const { el } = await render((fake) => {
-        fake.isReady.set(true);
-      });
+      battles.isOpen.set(true);
+      fixture.detectChanges();
 
       expect(el.querySelectorAll('main')).toHaveLength(1);
     });
@@ -203,10 +166,14 @@ describe('App', () => {
 });
 
 describe('newGame contract used by the UI', () => {
-  it('starts a run at zero gold with a positive rate', () => {
+  it('starts a run with no gold and no income until a stage is cleared', () => {
+    // The counter deliberately does not move on a fresh run. Idle income is switched on by
+    // winning the first battle, which is what makes fighting the only thing worth doing at the
+    // start rather than one option among several.
     const state = newGame({ seed: 1, nowMs: T0 });
 
     expect(state.gold.toString()).toBe('0');
-    expect(state.goldPerSec.gt(0)).toBe(true);
+    expect(state.goldPerSec.toString()).toBe('0');
+    expect(state.stage).toBe(1);
   });
 });
