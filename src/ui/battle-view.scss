@@ -25,7 +25,53 @@ $foe: #f87171; // 4.7:1 on $track
   gap: 0.875rem;
 }
 
-.battle__header {
+.battle__title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.fight {
+  width: 100%;
+  // 44px is the floor for a touch target; this is the primary control, so it gets more.
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  border: 1px solid $ally;
+  border-radius: 0.625rem;
+  // #143024 against the #4ade80 text is 8.4:1, and against the panel it reads as a filled
+  // control rather than an outline.
+  background: #143024;
+  color: $ally;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fight:focus-visible {
+  outline: 2px solid $text;
+  outline-offset: 2px;
+}
+
+.fight--busy {
+  // Not colour alone: the label changes to "Fighting Stage N…" and aria-disabled is set, so the
+  // state is carried by text and by semantics as well as by the muted palette.
+  border-color: $border;
+  background: $track;
+  color: $muted;
+  cursor: default;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.board__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,7 +79,7 @@ $foe: #f87171; // 4.7:1 on $track
   flex-wrap: wrap;
 }
 
-.battle__stage {
+.board__stage {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -42,7 +88,7 @@ $foe: #f87171; // 4.7:1 on $track
   color: $muted;
 }
 
-.battle__stage-name {
+.board__stage-name {
   display: block;
   margin-top: 0.125rem;
   font-size: 1.125rem;
@@ -84,7 +130,7 @@ $foe: #f87171; // 4.7:1 on $track
   outline-offset: 2px;
 }
 
-.battle__sides {
+.board__sides {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -92,7 +138,7 @@ $foe: #f87171; // 4.7:1 on $track
 
 // One column below the point where two rosters of names stop fitting side by side.
 @media (max-width: 26rem) {
-  .battle__sides {
+  .board__sides {
     grid-template-columns: 1fr;
   }
 }
@@ -156,7 +202,7 @@ $foe: #f87171; // 4.7:1 on $track
   background: $foe;
 }
 
-.battle__outcome {
+.board__outcome {
   margin: 0;
   min-height: 1.25rem;
   font-size: 0.9375rem;
@@ -178,7 +224,7 @@ $foe: #f87171; // 4.7:1 on $track
   min-height: 7.5rem;
 }
 
-.battle__pending {
+.battle__hint {
   margin: 0;
   color: $muted;
   text-align: center;

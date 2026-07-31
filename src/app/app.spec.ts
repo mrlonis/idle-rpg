@@ -203,10 +203,14 @@ describe('App', () => {
 });
 
 describe('newGame contract used by the UI', () => {
-  it('starts a run at zero gold with a positive rate', () => {
+  it('starts a run with no gold and no income until a stage is cleared', () => {
+    // The counter deliberately does not move on a fresh run. Idle income is switched on by
+    // winning the first battle, which is what makes fighting the only thing worth doing at the
+    // start rather than one option among several.
     const state = newGame({ seed: 1, nowMs: T0 });
 
     expect(state.gold.toString()).toBe('0');
-    expect(state.goldPerSec.gt(0)).toBe(true);
+    expect(state.goldPerSec.toString()).toBe('0');
+    expect(state.stage).toBe(1);
   });
 });

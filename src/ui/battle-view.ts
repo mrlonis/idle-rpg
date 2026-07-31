@@ -6,14 +6,18 @@ import {
   PLAYBACK_SPEEDS,
   type PlaybackSpeed,
 } from './battle.service';
-import { formatNumeric } from './format-numeric';
+import { formatNumeric, formatRate } from './format-numeric';
+import { GameLoopService } from './game-loop.service';
 
 /**
  * The battle screen.
  *
- * Purely a view onto `BattleService`. The fight it shows has already been resolved in full;
- * everything here reads signals the animator publishes as it walks the event log, which is why
- * changing playback speed needs no cooperation from this component at all.
+ * Almost purely a view onto `BattleService`: the fight it shows has already been resolved in
+ * full, and everything here reads signals the animator publishes as it walks the event log —
+ * which is why changing playback speed needs no cooperation from this component at all.
+ *
+ * It reaches past the animator for exactly one thing, the run's idle income, because that is
+ * what a victory is really paying out and it belongs in the same sentence as the gold.
  */
 @Component({
   selector: 'app-battle-view',
@@ -22,19 +26,32 @@ import { formatNumeric } from './format-numeric';
 })
 export class BattleView {
   private readonly battles = inject(BattleService);
+  private readonly game = inject(GameLoopService);
 
   protected readonly speeds = PLAYBACK_SPEEDS;
   protected readonly playbackSpeed = this.battles.playbackSpeed;
   protected readonly stage = this.battles.stage;
   protected readonly party = this.battles.party;
   protected readonly foes = this.battles.foes;
-  protected readonly isReady = computed(() => this.battles.result() !== null);
+  protected readonly isFighting = this.battles.isFighting;
+  protected readonly hasBattle = computed(() => this.battles.result() !== null);
+
+  /** Label for the Fight control. Names the stage so the tap is never a leap in the dark. */
+  protected readonly fightLabel = computed(() => {
+    const next = this.battles.nextStage();
+    if (next === null) {
+      return 'Preparing…';
+    }
+    return this.isFighting()
+      ? `Fighting Stage ${next.number}…`
+      : `Fight Stage ${next.number} — ${next.name}`;
+  });
 
   /**
    * The closing line, or `null` while the fight is still playing.
    *
-   * The reward is read off the result rather than off the run's gold, which has already moved
-   * on — the state was updated when the battle resolved, not when the animation reached the end.
+   * Safe to read the run's income here: the result is applied in the same pass that plays the
+   * closing event, so by the time this has anything to say the raise has already landed.
    */
   protected readonly outcomeText = computed(() => {
     const outcome = this.battles.outcome();
@@ -42,14 +59,35 @@ export class BattleView {
       return null;
     }
     if (outcome === 'defeat') {
-      return 'Defeated. Regrouping for another attempt…';
+      return 'Defeated. Your party regroups — try again when you are ready.';
     }
     if (outcome === 'stalemate') {
       return 'Stalemate — neither side could finish it.';
     }
     const gold = this.battles.result()?.reward.gold;
-    return gold === undefined ? 'Victory!' : `Victory! +${formatNumeric(gold)} gold`;
+    const earnings = `idle income now ${formatRate(this.game.goldPerSec())}`;
+    return gold === undefined
+      ? `Victory! ${earnings}`
+      : `Victory! +${formatNumeric(gold)} gold · ${earnings}`;
   });
+
+  /**
+   * What to say when no battle is on screen.
+   *
+   * A run that has never won earns nothing at all, so the first message has to explain why the
+   * counter is not moving. Once income is flowing that sentence is simply untrue, and leaving it
+   * up would teach the player to ignore this line.
+   */
+  protected readonly hint = computed(() =>
+    this.game.goldPerSec().lte(0)
+      ? 'Your party is idle, and idle earns nothing. Win a stage to start banking gold while you are away.'
+      : 'Your party is resting. Every stage you clear raises your idle income for good.',
+  );
+
+  protected fight(): void {
+    // The clock lives here, as it does everywhere else in `ui/`.
+    this.battles.fight(Date.now());
+  }
 
   /** The visible tail of the battle log, already narrated. */
   protected readonly logLines = computed(() => {

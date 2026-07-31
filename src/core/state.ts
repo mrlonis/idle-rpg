@@ -1,4 +1,4 @@
-import { type Numeric, ONE, ZERO } from './numeric';
+import { type Numeric, ZERO } from './numeric';
 import { type RngState } from './rng';
 import { SAVE_VERSION } from './save/version';
 
@@ -13,6 +13,14 @@ export interface GameState {
   /** Save schema version. Present from the first commit so migrations always have a floor. */
   readonly version: number;
   readonly gold: Numeric;
+  /**
+   * Idle income, in gold per second.
+   *
+   * Starts at **zero**. A new run earns nothing while idle, which makes the first battle the
+   * only thing worth doing; clearing a stage raises this permanently, and it never falls. The
+   * idle game is something the player switches on by fighting, not something running before
+   * they have done anything.
+   */
   readonly goldPerSec: Numeric;
   /**
    * Epoch milliseconds at the last save or resume, used to size the offline window.
@@ -54,7 +62,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
   return {
     version: SAVE_VERSION,
     gold: ZERO,
-    goldPerSec: ONE,
+    goldPerSec: ZERO,
     lastTickAt: nowMs,
     rng: { seed: seed >>> 0, calls: 0 },
     stage: 1,

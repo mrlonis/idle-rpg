@@ -1,6 +1,5 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { BattleView } from '../ui/battle-view';
-import { BattleService } from '../ui/battle.service';
 import { formatDuration, formatNumeric, formatRate } from '../ui/format-numeric';
 import { GameLoopService } from '../ui/game-loop.service';
 
@@ -12,7 +11,6 @@ import { GameLoopService } from '../ui/game-loop.service';
 })
 export class App implements OnInit {
   private readonly game = inject(GameLoopService);
-  private readonly battles = inject(BattleService);
 
   protected readonly isReady = this.game.isReady;
   protected readonly loadFailure = this.game.loadFailure;
@@ -37,8 +35,5 @@ export class App implements OnInit {
   ngOnInit(): void {
     // The clock lives here: core takes time as a parameter and never reads one itself.
     void this.game.start(Date.now());
-    // Safe to start before the run has finished loading — the animator idles until there is a
-    // state to fight from, rather than needing to be sequenced after an async load.
-    this.battles.start();
   }
 }

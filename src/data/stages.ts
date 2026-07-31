@@ -27,9 +27,21 @@ import { BANDIT, BOAR, GOLEM, SLIME, WARDEN, WISP } from './enemies';
  * loses outright on about 1 seed in 100, which is what a retry with a fresh battle seed is
  * for.
  *
- * `goldReward` climbs about 1.6x per stage. Deliberately modest: at stage 8 that is 650 a
- * clear, nowhere near float64's limits, so the curve does not need `break_infinity` to be
- * correct — it is there as a hedge, not because this demands it.
+ * ## The two rewards, and which one matters
+ *
+ * `goldPerSec` is the real prize: clearing a stage permanently raises idle income, from 0.5/s
+ * at stage 1 to 16/s at stage 8, roughly 1.5x a step. A run starts at **zero** income, so
+ * until the party wins its first fight the counter does not move at all — the first battle is
+ * what switches the idle game on, and every clear after it is a raise that keeps paying while
+ * the player is away.
+ *
+ * `goldReward` is the smaller half: a one-off lump for the clear, climbing about 1.6x a step.
+ * The two are deliberately kept in proportion — each stage's lump is roughly 40 seconds of the
+ * income it unlocks, so the lump reads as a bonus and the rate reads as the progression.
+ *
+ * Both curves are deliberately modest: at stage 8 that is 650 a clear and 16 a second, nowhere
+ * near float64's limits, so neither needs `break_infinity` to be correct — it is there as a
+ * hedge, not because this demands it.
  */
 export const STAGES = [
   {
@@ -37,12 +49,14 @@ export const STAGES = [
     name: 'Mossy Hollow',
     enemies: [SLIME, SLIME],
     goldReward: 25,
+    goldPerSec: 0.5,
   },
   {
     id: 'stage-2',
     name: 'Sunken Path',
     enemies: [SLIME, SLIME, SLIME],
     goldReward: 40,
+    goldPerSec: 1,
   },
   {
     // First speed check: two Wisps act nearly twice as often as anything the party has.
@@ -50,12 +64,14 @@ export const STAGES = [
     name: 'Wisplight Marsh',
     enemies: [WISP, WISP, SLIME],
     goldReward: 65,
+    goldPerSec: 1.5,
   },
   {
     id: 'stage-4',
     name: 'Bramble Run',
     enemies: [BOAR, SLIME, SLIME],
     goldReward: 100,
+    goldPerSec: 2.5,
   },
   {
     // First real damage check: Bandits hit hard enough and often enough to threaten Rin, and
@@ -64,6 +80,7 @@ export const STAGES = [
     name: 'Cutthroat Camp',
     enemies: [BANDIT, BANDIT, SLIME],
     goldReward: 160,
+    goldPerSec: 4,
   },
   {
     // The widest wave in the ladder: five bodies, two of them fast. Focusing the weakest
@@ -72,6 +89,7 @@ export const STAGES = [
     name: 'Thornwood Clearing',
     enemies: [BOAR, BOAR, WISP, WISP, SLIME],
     goldReward: 250,
+    goldPerSec: 6,
   },
   {
     // The DEF check. Almost nothing the party does lands for full value, and the Wisp means
@@ -80,6 +98,7 @@ export const STAGES = [
     name: 'Broken Causeway',
     enemies: [GOLEM, WISP],
     goldReward: 400,
+    goldPerSec: 10,
   },
   {
     // The gate, and the end of the authored ladder. Winnable but expensive: the party usually
@@ -88,5 +107,6 @@ export const STAGES = [
     name: 'The Warden’s Gate',
     enemies: [WARDEN, BANDIT],
     goldReward: 650,
+    goldPerSec: 16,
   },
 ] as const;

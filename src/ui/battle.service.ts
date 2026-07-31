@@ -6,7 +6,6 @@ import {
   type BattleEvent,
   type BattleOutcome,
   type BattleResult,
-  type GameState,
   type Numeric,
   type Side,
   simulateBattle,
@@ -31,9 +30,6 @@ const ANIMATION_STEP_MS = 100;
  */
 const MAX_STEP_MS = 1000;
 
-/** Pause between the end of one battle and the start of the next, in battle time. */
-const INTERMISSION_MS = 1500;
-
 /** Log entries kept for display. The full log lives on the result; this is what fits on screen. */
 const VISIBLE_LOG_LENGTH = 6;
 
@@ -41,6 +37,12 @@ const VISIBLE_LOG_LENGTH = 6;
 export const PLAYBACK_SPEEDS = [1, 2, 4] as const;
 
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
+
+/** A stage named for display: which number it is on the ladder, and what it is called. */
+export interface StageHeading {
+  readonly name: string;
+  readonly number: number;
+}
 
 /** A combatant as the view needs it: identity, live HP, and a ratio for the bar. */
 export interface BattleCombatantView {
@@ -66,20 +68,27 @@ export interface BattleCombatantView {
 /**
  * Resolves battles and narrates them.
  *
- * The division of labour is the whole point of this milestone. `simulateBattle` resolves a
- * fight **instantly and in full** into an event log, and the run's state is updated then and
- * there. This service afterwards walks that log against the wall clock so the player has
- * something to watch.
+ * The division of labour is the whole point of this milestone. {@link fight} resolves a whole
+ * fight **instantly and in full** into an event log, and this service then walks that log
+ * against the wall clock so the player has something to watch.
  *
  * Combat is therefore not driven by the render tick, which is what makes playback speed nearly
  * free — 2x is one multiplication in {@link advance}, not a second combat implementation. It is
  * also why offline resolution and skipping will be cheap when they arrive.
  *
- * **State is applied at simulation time, not at the end of the animation.** The alternative —
- * holding rewards back until the log finishes playing — means an autosave, a backgrounded app,
- * or a reload mid-fight silently loses a battle the player already won. The visible cost is
- * that gold moves a moment before the animation shows why, which is a fair trade for a run that
- * is always consistent with what has been saved.
+ * **Battles are started by the player, one at a time.** Nothing fights on its own: the animator
+ * is idle, and stays idle after a battle ends, until {@link fight} is called again. The two
+ * kinds of automation the name "auto-battle" suggests — the party visibly sparring behind the
+ * idle screen, and an unlockable that re-enters stages until the party loses — are later
+ * milestones and neither is built here.
+ *
+ * **The result is applied when the animation finishes, not when the battle resolves.** Applying
+ * it up front would spoil every fight: the gold counter and the income rate would both jump the
+ * instant the player tapped, announcing the outcome before the first blow landed. The cost is
+ * that a battle abandoned mid-animation — by a reload, not by backgrounding, which merely pauses
+ * — pays nothing. That is a fair trade here in a way it would not be for an unattended loop: the
+ * player is watching, a fight lasts seconds, the save stays exactly consistent with what was
+ * shown, and going again is one tap.
  */
 @Service()
 export class BattleService {
@@ -92,9 +101,8 @@ export class BattleService {
   /** The battle being narrated, or `null` before the first one has been resolved. */
   readonly result = signal<BattleResult | null>(null);
 
-  /** The stage the current battle is being fought on. Held separately from the run's `stage`,
-   * which has already advanced by the time the animation plays. */
-  readonly stage = signal<{ readonly name: string; readonly number: number } | null>(null);
+  /** The stage the battle on screen is being fought on. */
+  readonly stage = signal<StageHeading | null>(null);
 
   /** Events that have played so far, most recent last. Trimmed to what the view shows. */
   readonly recentEvents = signal<readonly BattleEvent[]>([]);
@@ -102,12 +110,14 @@ export class BattleService {
   /** Set when the closing event plays, so the outcome is not spoiled before the fight ends. */
   readonly outcome = signal<BattleOutcome | null>(null);
 
+  /** True while a battle is being narrated. The Fight control is inert for exactly this long. */
+  readonly isFighting = signal(false);
+
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
 
   /** Monotonic counter over battles narrated this session. Only identity matters, not the value. */
   private readonly battleId = signal(0);
 
-  private phase: 'waiting' | 'playing' | 'intermission' = 'waiting';
   private playbackMs = 0;
   private cursor = 0;
   private lastAt = 0;
@@ -139,6 +149,22 @@ export class BattleService {
   readonly party = computed(() => this.combatants().filter((c) => c.side === 'ally'));
   readonly foes = computed(() => this.combatants().filter((c) => c.side === 'enemy'));
 
+  /**
+   * The stage the next {@link fight} will enter, or `null` before the run has loaded.
+   *
+   * Read off the run rather than off the last battle, so after a win it names the stage ahead
+   * and after a loss it names the one to try again. Distinct from {@link stage}, which stays
+   * pointed at the fight currently on screen.
+   */
+  readonly nextStage = computed<StageHeading | null>(() => {
+    const snapshot = this.game.snapshot();
+    if (snapshot === null) {
+      return null;
+    }
+    const { stage, number } = stageFor(snapshot.stage);
+    return { name: stage.name, number };
+  });
+
   /** Maps a combatant key to its display name, for narrating the log. */
   readonly names = computed<ReadonlyMap<string, string>>(() => {
     const roster = this.result()?.roster ?? [];
@@ -149,18 +175,49 @@ export class BattleService {
     inject(DestroyRef).onDestroy(() => this.stop());
   }
 
-  /** Starts narrating battles. Safe to call before the run has loaded; it idles until it has. */
-  start(): void {
-    if (this.stepId !== undefined) {
+  /**
+   * Fights the stage the run is on, then narrates it.
+   *
+   * The whole battle is resolved here, synchronously. What follows is replay: the outcome is
+   * already decided and sitting in the log before the first frame of animation.
+   *
+   * Ignored while a battle is already playing, so a double tap cannot start two fights or
+   * abandon one halfway. `nowMs` is passed in for the same reason it is everywhere else — the
+   * clock lives at the edges, and a caller that supplies it can drive playback deterministically.
+   */
+  fight(nowMs: number): void {
+    const state = this.game.current;
+    if (state === null || this.isFighting()) {
       return;
     }
-    this.lastAt = Date.now();
+
+    const { stage, number } = stageFor(state.stage);
+    const result = simulateBattle(
+      STARTER_TEAM,
+      stage,
+      // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
+      // replaying a battle cannot shift the pull sequence.
+      battleSeed(state.rng.seed, stage.id, state.battleCount),
+    );
+
+    this.stage.set({ name: stage.name, number });
+    this.result.set(result);
+    this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
+    this.recentEvents.set([]);
+    this.outcome.set(null);
+    this.battleId.update((id) => id + 1);
+    this.cursor = 0;
+    this.playbackMs = 0;
+    this.lastAt = nowMs;
+    this.isFighting.set(true);
+
+    // The timer only runs while there is a fight to narrate. Between battles nothing is
+    // scheduled at all, which is the honest shape of a game that waits for the player.
+    //
     // Deliberately not gated on `document.visibilityState`. A backgrounded tab throttles this
-    // timer to about 1Hz, and the step clamp already keeps that from skipping a fight, so the
-    // only effect of letting it run is that a tab left open keeps playing — which this game has
-    // no reason to police. On the actual target the question does not arise: iOS suspends the
-    // WebView outright, so no timer fires at all and the away window is the offline path's job.
-    this.stepId = setInterval(() => this.advance(Date.now()), ANIMATION_STEP_MS);
+    // to about 1Hz, and the step clamp already keeps that from skipping the fight, so the only
+    // effect of letting it run is that the battle finishes rather than stalling half-played.
+    this.stepId ??= setInterval(() => this.advance(Date.now()), ANIMATION_STEP_MS);
   }
 
   stop(): void {
@@ -180,8 +237,7 @@ export class BattleService {
    * origin, which is what lets the speed change mid-fight without the playhead jumping.
    */
   advance(nowMs: number): void {
-    const state = this.game.current;
-    if (state === null) {
+    if (!this.isFighting()) {
       this.lastAt = nowMs;
       return;
     }
@@ -192,51 +248,14 @@ export class BattleService {
       return;
     }
     this.playbackMs += Math.min(delta, MAX_STEP_MS) * this.playbackSpeed();
-
-    switch (this.phase) {
-      case 'waiting':
-        this.begin(state);
-        return;
-      case 'playing':
-        this.play();
-        return;
-      case 'intermission':
-        if (this.playbackMs >= INTERMISSION_MS) {
-          this.begin(state);
-        }
-        return;
-    }
-  }
-
-  /** Resolves the next battle and applies it to the run, then queues it for narration. */
-  private begin(state: GameState): void {
-    const { stage, number } = stageFor(state.stage);
-    const result = simulateBattle(
-      STARTER_TEAM,
-      stage,
-      // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
-      // replaying a battle cannot shift the pull sequence.
-      battleSeed(state.rng.seed, stage.id, state.battleCount),
-    );
-
-    this.game.apply((current) => applyBattleResult(current, result, STAGES.length));
-
-    this.stage.set({ name: stage.name, number });
-    this.result.set(result);
-    this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
-    this.recentEvents.set([]);
-    this.outcome.set(null);
-    this.battleId.update((id) => id + 1);
-    this.cursor = 0;
-    this.playbackMs = 0;
-    this.phase = 'playing';
+    this.play();
   }
 
   /** Plays every event whose tick has now been reached. */
   private play(): void {
     const result = this.result();
     if (result === null) {
-      this.phase = 'waiting';
+      this.isFighting.set(false);
       return;
     }
 
@@ -266,9 +285,22 @@ export class BattleService {
     }
 
     if (this.cursor >= result.events.length) {
-      this.phase = 'intermission';
-      this.playbackMs = 0;
+      this.settle(result);
     }
+  }
+
+  /**
+   * Banks a fully narrated battle and returns to idle.
+   *
+   * This is the only place the run is written, and it happens in the same pass that plays the
+   * closing event — so the outcome the player reads and the gold, income and stage they are
+   * credited with land together, never one before the other.
+   */
+  private settle(result: BattleResult): void {
+    this.isFighting.set(false);
+    this.stop();
+    this.playbackMs = 0;
+    this.game.apply((state) => applyBattleResult(state, result, STAGES.length));
   }
 }
 

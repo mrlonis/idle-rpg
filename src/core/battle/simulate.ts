@@ -280,6 +280,9 @@ export function simulateBattle(
     roster,
     final: fighters.map(snapshot),
     events,
-    reward: { gold: outcome === 'victory' ? toGoldReward(stage.goldReward) : ZERO },
+    reward:
+      outcome === 'victory'
+        ? { gold: toGoldReward(stage.goldReward), goldPerSec: toGoldReward(stage.goldPerSec) }
+        : { gold: ZERO, goldPerSec: ZERO },
   };
 }
