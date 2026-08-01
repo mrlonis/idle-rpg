@@ -28,7 +28,11 @@ export {
   toRates,
 } from './battle/content';
 export { baseDamage, rollAttack, type AttackRoll } from './battle/damage';
-export { applyBattleResult, reconcileClearedStages } from './battle/progress';
+export {
+  applyBattleResult,
+  reconcileClearedStages,
+  type StageProgressData,
+} from './battle/progress';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export {
   type AuthoredAmount,

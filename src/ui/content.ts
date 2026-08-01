@@ -8,8 +8,9 @@ import {
   type GachaRulesData,
   type GrowthData,
   type LevelCurveData,
-  type Rates,
   type ShopOfferData,
+  type StageProgressData,
+  toAmount,
   toRates,
 } from '../core';
 import {
@@ -80,15 +81,16 @@ export const SHOP_OFFERS: readonly ShopOfferData[] = SPARK_SHOP;
 export const STAGE_COUNT = STAGES.length;
 
 /**
- * The idle rates each stage unlocks, parsed once, in ladder order.
+ * What each stage unlocks, parsed once, in ladder order.
  *
- * `reconcileClearedStages` needs these on every load to rebuild the income a returning run has
- * already earned. Parsing them per load would be the same answer computed from static content
- * every time the app opens.
+ * `reconcileClearedStages` needs these on every load to rebuild the income *and* the first-clear
+ * bonuses a returning run has already earned. Parsing them per load would be the same answer
+ * computed from static content every time the app opens.
  */
-export const STAGE_RATES: readonly Readonly<Partial<Rates>>[] = STAGES.map((stage) =>
-  toRates(stage.rates),
-);
+export const STAGE_PROGRESS: readonly StageProgressData[] = STAGES.map((stage) => ({
+  rates: toRates(stage.rates),
+  firstClearSummons: toAmount(stage.firstClearSummons),
+}));
 
 /** A character definition by id, for templates that hold only an id. */
 export function characterById(defId: string): CharacterData | undefined {

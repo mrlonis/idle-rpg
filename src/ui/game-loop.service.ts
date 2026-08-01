@@ -14,7 +14,7 @@ import {
   zeroRates,
 } from '../core';
 import { STARTER_CHARACTER_IDS } from '../data';
-import { CHARACTERS_BY_ID, STAGE_RATES } from './content';
+import { CHARACTERS_BY_ID, STAGE_PROGRESS } from './content';
 import { SaveService } from './save.service';
 
 /**
@@ -135,10 +135,11 @@ export class GameLoopService {
     // `reconcileClearedStages` rebuilds the idle income a run has already earned. The v2 → v3
     // migration moved gold across and started the other three rates at zero, which stranded
     // returning players on gold-only income with no way back except re-fighting the ladder. It
-    // also undercounted `clearedStages` at the top of the ladder. Both are recoverable from the
-    // gold rate the save did keep.
+    // also undercounted `clearedStages` at the top of the ladder, and paid none of the
+    // first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
+    // recoverable from the gold rate the save did keep.
     const repaired = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
-    this.state = reconcileClearedStages(repaired, STAGE_RATES);
+    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS);
     this.settle(nowMs);
 
     this.running = true;

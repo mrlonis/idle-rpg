@@ -1,5 +1,5 @@
 import { credit, raiseRates, type Rates } from '../currency';
-import { ZERO } from '../numeric';
+import { type Numeric, ZERO } from '../numeric';
 import { type GameState } from '../state';
 import { type BattleResult } from './types';
 
@@ -73,8 +73,17 @@ export function applyBattleResult(
   };
 }
 
+/** One stage's progression payload, as `reconcileClearedStages` needs it. */
+export interface StageProgressData {
+  /** The idle rates clearing this stage unlocks. */
+  readonly rates: Readonly<Partial<Rates>>;
+  /** Summon crystals paid the first time it falls, and never again. */
+  readonly firstClearSummons: Numeric;
+}
+
 /**
- * Restores the idle rates a run has already earned, and corrects an undercounted clear.
+ * Restores the idle rates and first-clear bonuses a run has already earned, and corrects an
+ * undercounted clear.
  *
  * ## Why this exists
  *
@@ -95,41 +104,67 @@ export function applyBattleResult(
  * exactly how far it got. That is enough to rebuild everything the migration dropped, without
  * asking the player to fight anything.
  *
- * This only ever **raises** — `clearedStages` never falls, no rate is ever cut, and a run that is
- * already consistent comes back untouched. That is what lets it run on every load, like
- * `grantStarters`, rather than being a one-shot fix that needs its own version gate.
+ * ## Crediting a stage means paying for it
  *
- * `stageRates` is passed in because `core/` cannot import `data/`.
+ * Marking a stage cleared without paying its first-clear bonus is worse than leaving it
+ * uncredited, because `applyBattleResult` will then never pay it either — the door closes
+ * silently and the crystals are gone for good. So this pays the bonus for **every stage it newly
+ * credits**, which for a v2 save that had beaten the ladder is the whole 3,000: exactly what a
+ * new player earns for climbing the same eight stages, which is the only fair place to land.
+ *
+ * Stages already counted in `clearedStages` are not re-paid. That is what keeps it idempotent —
+ * the second load credits nothing, so it owes nothing.
+ *
+ * This only ever **raises** — `clearedStages` never falls, no rate is ever cut, no crystals are
+ * ever taken, and a run that is already consistent comes back untouched. That is what lets it run
+ * on every load, like `grantStarters`, rather than being a one-shot fix that needs its own
+ * version gate.
+ *
+ * `stages` is passed in because `core/` cannot import `data/`.
  */
 export function reconcileClearedStages(
   state: GameState,
-  stageRates: readonly Readonly<Partial<Rates>>[],
+  stages: readonly StageProgressData[],
 ): GameState {
-  if (stageRates.length === 0) {
+  if (stages.length === 0) {
     return state;
   }
 
   // The highest stage whose gold rate this run already meets. Ascending rates make this the
   // count of stages cleared; a fresh run meets none of them and lands on zero.
   let earned = 0;
-  for (const [index, rates] of stageRates.entries()) {
-    const gold = rates.gold;
+  for (const [index, stage] of stages.entries()) {
+    const gold = stage.rates.gold;
     if (gold !== undefined && gold.gt(ZERO) && state.rates.gold.gte(gold)) {
       earned = index + 1;
     }
   }
 
-  const cleared = Math.min(Math.max(Math.floor(state.clearedStages), earned, 0), stageRates.length);
+  const before = Math.min(Math.max(Math.floor(state.clearedStages), 0), stages.length);
+  const cleared = Math.min(Math.max(before, earned), stages.length);
 
   let rates = state.rates;
   for (let stage = 0; stage < cleared; stage++) {
-    rates = raiseRates(rates, stageRates[stage]);
+    rates = raiseRates(rates, stages[stage].rates);
   }
 
-  if (cleared === state.clearedStages && rates === state.rates) {
+  // Only the stages this call is crediting for the first time. Anything already in
+  // `clearedStages` was either fought under this build and paid, or credited by an earlier run
+  // of this repair and paid then.
+  let owed = ZERO;
+  for (let stage = before; stage < cleared; stage++) {
+    owed = owed.add(stages[stage].firstClearSummons);
+  }
+
+  if (cleared === state.clearedStages && rates === state.rates && owed.lte(ZERO)) {
     // Nothing to repair. Returning the original reference keeps a clean load from publishing a
     // new snapshot and re-rendering every screen watching it.
     return state;
   }
-  return { ...state, clearedStages: cleared, rates };
+  return {
+    ...state,
+    clearedStages: cleared,
+    rates,
+    wallet: owed.gt(ZERO) ? credit(state.wallet, { summons: owed }) : state.wallet,
+  };
 }

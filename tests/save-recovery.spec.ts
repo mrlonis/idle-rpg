@@ -61,6 +61,28 @@ test.describe('recovering a pre-gacha save', () => {
     await expect(rateOf(page, 'Crystals')).toHaveText('50.4/hr');
   });
 
+  test('pays the first-clear bonuses the ladder had already earned', async ({ page }) => {
+    // Marking those stages cleared without paying them would close the door for good —
+    // `applyBattleResult` would never pay them either. A run that beat all eight is owed the
+    // whole 3,000, the same as a new player earns for climbing the same ladder.
+    await seedSave(page, v2AtTheTop);
+    await page.goto('');
+
+    const crystals = page.locator('.wallet__item').filter({ hasText: 'Crystals' });
+    await expect(crystals.locator('.wallet__amount')).toHaveText(/^3(\.0*)?K$/);
+  });
+
+  test('leaves enough crystals to actually pull', async ({ page }) => {
+    // The symptom underneath the symptom: a returning player with a fully cleared ladder could
+    // not afford a single ten-pull, because none of the bonuses had ever been paid.
+    await seedSave(page, v2AtTheTop);
+    await page.goto('');
+
+    await page.getByRole('link', { name: 'Summon' }).click();
+
+    await expect(page.getByRole('button', { name: /Pull ×10/ })).toBeEnabled();
+  });
+
   test('keeps the gold balance and the stage the run was on', async ({ page }) => {
     // Repair must not cost the player anything it was meant to give back.
     await seedSave(page, v2AtTheTop);

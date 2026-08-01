@@ -193,19 +193,33 @@ currencies land within about a third of each other in time-to-afford. Level cap 
 `critChance` is a probability; a growing `spd` would hit the clamp within eighty levels and turn
 the one stat that buys turns into a constant.
 
-**A migration cannot finish the job on its own, and the v2 → v3 one proved it.** It carried gold
-across and started xp, essence and summons at zero — leaving a returning player on gold-only
-income, with no way back except re-fighting stages they had already beaten. It also undercounted
-`clearedStages` at the top of the ladder, because `stage` stops climbing there. Neither was
-fixable inside the migration: both need to know what the stages grant, and `core/` cannot see
-`data/`. `reconcileClearedStages` is the repair, and it runs on **every** load next to
-`grantStarters` rather than behind a version gate — it only ever raises, so a healthy save passes
-through by reference and is not even republished.
+**A migration cannot finish the job on its own, and the v2 → v3 one proved it twice.** It carried
+gold across and started xp, essence and summons at zero, leaving a returning player on gold-only
+income with no way back except re-fighting stages they had already beaten. And it seeded
+`clearedStages` from `stage - 1`, which looked careful — "do not pay a bonus they already earned"
+— but was exactly backwards: the first-clear bonus **did not exist in v2**, so nothing had been
+earned, and marking those stages settled closed the door on all 3,000 crystals silently and
+permanently. Neither was fixable inside the migration, because both need to know what the stages
+grant and `core/` cannot see `data/`.
 
-The general rule that came out of it: **when a migration cannot express something because it
-cannot see content, the missing half belongs in an idempotent load-time repair, and the migration
-should say so in its doc comment.** A migration that quietly does half the job is worse than one
-that does none, because the half it did looks like success.
+`reconcileClearedStages` is the repair. It runs on **every** load next to `grantStarters` rather
+than behind a version gate, re-derives the clear count from the surviving gold rate, restores
+every rate those stages unlock, and **pays the first-clear bonus for each stage it credits**. It
+only ever raises, so a healthy save passes through by reference and is not even republished.
+
+Three rules came out of it, and they are worth more than the fix:
+
+- **When a migration cannot express something because it cannot see content, the missing half
+  belongs in an idempotent load-time repair** — and the migration's doc comment should say so. A
+  migration that quietly does half the job is worse than one that does none, because the half it
+  did looks like success.
+- **Crediting progress and paying for it are the same operation.** Anything that advances
+  `clearedStages` must settle what that stage owes in the same step. Marking a stage cleared
+  without paying it is strictly worse than leaving it uncredited, because the normal reward path
+  will then skip it forever and nothing will ever notice.
+- **A migration should default to crediting nothing.** Zero means "not yet settled", not "did not
+  happen". Guessing progress forward inside a migration is how the door got closed in the first
+  place; the repair can always infer more later, but it can never un-pay something.
 
 Shipped: `core/currency.ts`, `core/roster/` (`types`, `rarity`, `level`, `stats`, `roster`,
 `ascend`), `core/gacha/` (`pull`, `shop`), `data/` (`ascension`, `banners`, `levels`, 21

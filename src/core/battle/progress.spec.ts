@@ -7,7 +7,7 @@ import { type CurrencyAmounts, type Rates, zeroRates } from '../currency';
 import { num, ZERO } from '../numeric';
 import { newGame, type GameState } from '../state';
 import { tick } from '../tick';
-import { applyBattleResult, reconcileClearedStages } from './progress';
+import { applyBattleResult, reconcileClearedStages, type StageProgressData } from './progress';
 import { type BattleOutcome, type BattleResult } from './types';
 
 const T0 = 1_700_000_000_000;
@@ -323,13 +323,19 @@ describe('applyBattleResult', () => {
  * rate says exactly how far the run got.
  */
 describe('reconcileClearedStages', () => {
-  /** The shipped ladder's gold rates, with the other three scaled the way `stages.ts` does. */
-  const LADDER: readonly Readonly<Partial<Rates>>[] = [0.5, 1, 1.5, 2.5, 4, 6, 10, 16].map(
+  /** The shipped ladder's shape: ascending rates, and a first-clear bonus on every stage. */
+  const BONUSES = [200, 200, 250, 300, 350, 400, 500, 800];
+  const TOTAL_BONUS = BONUSES.reduce((sum, n) => sum + n, 0);
+
+  const LADDER: readonly StageProgressData[] = [0.5, 1, 1.5, 2.5, 4, 6, 10, 16].map(
     (gold, index) => ({
-      gold: num(gold),
-      xp: num(gold / 5),
-      essence: num((index + 1) / 1000),
-      summons: num((index + 1) / 2000),
+      rates: {
+        gold: num(gold),
+        xp: num(gold / 5),
+        essence: num((index + 1) / 1000),
+        summons: num((index + 1) / 2000),
+      },
+      firstClearSummons: num(BONUSES[index]),
     }),
   );
 
@@ -357,8 +363,54 @@ describe('reconcileClearedStages', () => {
   it('restores them to the highest cleared stage, not the first', () => {
     const fixed = reconcileClearedStages(migrated('16', 7), LADDER);
 
-    expect(fixed.rates.xp.eq(LADDER[7].xp ?? ZERO)).toBe(true);
-    expect(fixed.rates.essence.eq(LADDER[7].essence ?? ZERO)).toBe(true);
+    expect(fixed.rates.xp.eq(LADDER[7].rates.xp ?? ZERO)).toBe(true);
+    expect(fixed.rates.essence.eq(LADDER[7].rates.essence ?? ZERO)).toBe(true);
+  });
+
+  it('pays the first-clear bonus for every stage it credits', () => {
+    // Crediting a stage without paying it is worse than leaving it uncredited: `applyBattleResult`
+    // will never pay it either, so the crystals are gone for good and the player has no way to
+    // even notice. A v2 save that had beaten the ladder is owed the whole 3,000 — the same as a
+    // new player earns for climbing the same eight stages.
+    const fixed = reconcileClearedStages(migrated('16', 0), LADDER);
+
+    expect(fixed.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
+  });
+
+  it('pays only for the stages it newly credits', () => {
+    // A run already credited with five stages is owed the last three, not all eight.
+    const partly = migrated('16', 5);
+
+    const fixed = reconcileClearedStages(partly, LADDER);
+
+    expect(fixed.wallet.summons.eq(BONUSES[5] + BONUSES[6] + BONUSES[7])).toBe(true);
+  });
+
+  it('never pays the same bonus twice across loads', () => {
+    // The property that lets this run on every load. The second pass credits nothing, so it
+    // owes nothing.
+    const once = reconcileClearedStages(migrated('16', 0), LADDER);
+    const twice = reconcileClearedStages(once, LADDER);
+
+    expect(twice.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
+    expect(twice).toBe(once);
+  });
+
+  it('pays nothing to a run that has already been credited for everything', () => {
+    const complete = run({
+      clearedStages: 8,
+      rates: { ...zeroRates(), ...LADDER[7].rates },
+    });
+
+    expect(reconcileClearedStages(complete, LADDER).wallet.summons.eq(0)).toBe(true);
+  });
+
+  it('leaves a run able to afford a ten-pull, which is the point', () => {
+    // The reported symptom underneath the symptom: a returning player with a fully cleared ladder
+    // could not afford a single ten-pull, because none of the bonuses had ever been paid.
+    const fixed = reconcileClearedStages(migrated('16', 0), LADDER);
+
+    expect(fixed.wallet.summons.gte(1000)).toBe(true);
   });
 
   it('corrects a clear count the migration undercounted at the top of the ladder', () => {
@@ -371,7 +423,7 @@ describe('reconcileClearedStages', () => {
     const fixed = reconcileClearedStages(migrated('4', 0), LADDER);
 
     expect(fixed.clearedStages).toBe(5);
-    expect(fixed.rates.xp.eq(LADDER[4].xp ?? ZERO)).toBe(true);
+    expect(fixed.rates.xp.eq(LADDER[4].rates.xp ?? ZERO)).toBe(true);
   });
 
   it('leaves a fresh run completely alone', () => {
@@ -382,7 +434,7 @@ describe('reconcileClearedStages', () => {
 
   it('leaves an already-consistent run untouched, by reference', () => {
     // It runs on every load, so a clean save must not churn the snapshot and re-render the UI.
-    const healthy = run({ clearedStages: 8, rates: { ...zeroRates(), ...LADDER[7] } });
+    const healthy = run({ clearedStages: 8, rates: { ...zeroRates(), ...LADDER[7].rates } });
 
     expect(reconcileClearedStages(healthy, LADDER)).toBe(healthy);
   });
@@ -427,18 +479,23 @@ describe('reconcileClearedStages', () => {
 
     expect(broken.rates.xp.eq(0)).toBe(true);
     expect(broken.clearedStages).toBe(7);
+    expect(broken.wallet.summons.eq(0)).toBe(true);
   });
 
-  it('leaves the wallet, roster and RNG position alone', () => {
+  it('touches nothing but the rates, the clear count and the crystals it owes', () => {
     const broken = { ...migrated('16', 7), pullCount: 12, pity: 30 };
 
     const fixed = reconcileClearedStages(broken, LADDER);
 
-    expect(fixed.wallet).toBe(broken.wallet);
     expect(fixed.roster).toBe(broken.roster);
     expect(fixed.rng).toEqual(broken.rng);
     expect(fixed.pity).toBe(30);
     expect(fixed.pullCount).toBe(12);
+    // Only the crystal balance moves; the other four currencies are untouched.
+    expect(fixed.wallet.gold.eq(broken.wallet.gold)).toBe(true);
+    expect(fixed.wallet.xp.eq(broken.wallet.xp)).toBe(true);
+    expect(fixed.wallet.spark.eq(broken.wallet.spark)).toBe(true);
+    expect(fixed.wallet.summons.eq(BONUSES[7])).toBe(true);
   });
 
   it('leaves a repaired run with nothing left for a re-fight to give back', () => {

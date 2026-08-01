@@ -132,12 +132,16 @@ describe('v2 fixture contents', () => {
     expect(state.rates.gold.eq('250')).toBe(true);
   });
 
-  it('credits stages a pre-gacha save had demonstrably already cleared', () => {
-    // Seeded from `stage - 1` rather than zero. A v2 save on stage 5 cleared four stages, and
-    // starting the counter at zero would pay four first-clear bonuses a second time.
+  it('credits nothing on its own, leaving the clear count for the load-time repair', () => {
+    // Zero means "nothing credited yet", not "cleared nothing". The first-clear summon bonus did
+    // not exist in v2, so a returning player has been paid none of them however far they climbed
+    // — seeding the counter from `stage - 1` here would mark all of it settled and close the door
+    // on the whole 3,000 crystals. `reconcileClearedStages` re-derives the count from the gold
+    // rate and pays every bonus it credits.
     const { state } = loadSave(v2, OPTIONS);
 
-    expect(state.clearedStages).toBe(4);
+    expect(state.clearedStages).toBe(0);
+    expect(state.stage).toBe(5);
   });
 
   it('arrives with an empty roster, for the load path to seed', () => {
