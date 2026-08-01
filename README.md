@@ -304,11 +304,52 @@ is a bug, migrations are pure `(old) => (new)` steps, and old migrations are nev
 Loading clamps and defaults on recoverable damage rather than throwing — a thrown error
 costs the player their entire run.
 
-The current version is **2**: v1 was the gold counter, and v2 added `stage` and `battleCount`
-when combat landed. Every historical version keeps a fixture in
+The current version is **3**: v1 was the gold counter, v2 added `stage` and `battleCount` when
+combat landed, and v3 turned the single gold pair into a keyed wallet and rate table and added
+the roster, the active party and the pity counter. Every historical version keeps a fixture in
 [`src/core/save/fixtures/`](src/core/save/fixtures/), and
 [`fixtures.spec.ts`](src/core/save/fixtures.spec.ts) migrates all of them to current on every
 run — that is the test that catches the migration written months ago and never exercised since.
+
+**A migration only does what it can see.** `core/` cannot import `data/`, so a migration cannot
+know who the starter characters are or what a stage grants. Anything needing content belongs in
+an idempotent load-time repair instead — `grantStarters` seeds a missing roster, and
+`reconcileClearedStages` rebuilds the idle rates and first-clear bonuses a returning run had
+already earned. Both run on **every** load rather than behind a version gate, and both only ever
+raise, so a healthy save passes through untouched.
+[`tests/save-recovery.spec.ts`](tests/save-recovery.spec.ts) covers the whole path from a v2 save
+on disk to a working run.
+
+### Clearing your save during development
+
+There is deliberately **no reset button in the game yet** — a destructive, irreversible action
+belongs behind a settings menu, and there is no settings menu. Until there is, clear the save by
+hand.
+
+The catch is that you cannot do it from a tab running the game. The app holds the authoritative
+state in memory and writes it back on autosave and on `visibilitychange` — which fires as you
+reload — so clearing storage from the app's own tab is immediately undone by the app itself.
+Clearing browser site data has the same problem for the same reason.
+
+Instead, get a console on the same origin with **no app running**. `public/favicon.ico` is served
+as a static file, so it shares `localhost:4200`'s storage and boots no Angular:
+
+1. Navigate to `http://localhost:4200/favicon.ico`
+2. Open devtools there and run:
+
+```js
+localStorage.clear();
+```
+
+3. Navigate back to `http://localhost:4200/`
+
+Nothing was alive to write the save back, so you get a genuinely fresh run.
+
+The same trick is how you **edit** a save rather than delete it: read and write
+`CapacitorStorage.save` from that favicon tab and the change sticks. (Capacitor's Preferences web
+backend is `localStorage` under a `CapacitorStorage.` prefix.) Editing your own save is
+explicitly fine — see the no-anti-cheat design constraint in [`AGENTS.md`](AGENTS.md) — it just
+has to happen while the game is not running.
 
 ---
 

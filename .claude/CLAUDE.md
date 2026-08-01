@@ -307,6 +307,17 @@ watching" is the same question in all three places.
   it. Milestone 3 added five screens' worth of buttons, tabs, a progress bar, a table and a
   disclosure without it, all AXE-clean — so the bar for reaching for it is higher now, not
   lower.
+- **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
+  over", and nothing calls it. That is intentional: wiping a run is destructive and
+  irreversible, and it belongs **behind a settings menu**, not on the home screen where a
+  mis-tap can reach it. Build it when the settings screen arrives — and note the method has
+  never been executed by anything, including tests, so making it reachable means covering it.
+  Until then, `README.md` documents clearing the save by hand.
+
+  Worth knowing when that lands: **the running game overwrites external edits to the save.** It
+  holds the authoritative state in memory and persists on autosave and on `visibilitychange`, so
+  clearing storage from the app's own tab is undone by the app on the way out. A reset therefore
+  has to stop the loop and replace the in-memory state, not just empty the slots.
 
 Routing is **no longer deferred** — it shipped with milestone 3, for exactly the reason this
 list used to give for waiting: the roster and the banner are screens that survive a reload. See
