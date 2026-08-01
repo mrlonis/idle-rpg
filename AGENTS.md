@@ -187,6 +187,20 @@ currencies land within about a third of each other in time-to-afford. Level cap 
 `critChance` is a probability; a growing `spd` would hit the clamp within eighty levels and turn
 the one stat that buys turns into a constant.
 
+**A migration cannot finish the job on its own, and the v2 → v3 one proved it.** It carried gold
+across and started xp, essence and summons at zero — leaving a returning player on gold-only
+income, with no way back except re-fighting stages they had already beaten. It also undercounted
+`clearedStages` at the top of the ladder, because `stage` stops climbing there. Neither was
+fixable inside the migration: both need to know what the stages grant, and `core/` cannot see
+`data/`. `reconcileClearedStages` is the repair, and it runs on **every** load next to
+`grantStarters` rather than behind a version gate — it only ever raises, so a healthy save passes
+through by reference and is not even republished.
+
+The general rule that came out of it: **when a migration cannot express something because it
+cannot see content, the missing half belongs in an idempotent load-time repair, and the migration
+should say so in its doc comment.** A migration that quietly does half the job is worse than one
+that does none, because the half it did looks like success.
+
 Shipped: `core/currency.ts`, `core/roster/` (`types`, `rarity`, `level`, `stats`, `roster`,
 `ascend`), `core/gacha/` (`pull`, `shop`), `data/` (`ascension`, `banners`, `levels`, 21
 characters across 7 factions), `ui/` (`content`, `roster.service`, `gacha.service`, and the

@@ -6,6 +6,7 @@ import {
   grantStarters,
   type Numeric,
   type OfflineReport,
+  reconcileClearedStages,
   type RepairIssue,
   resume,
   stampSaveTime,
@@ -13,7 +14,7 @@ import {
   zeroRates,
 } from '../core';
 import { STARTER_CHARACTER_IDS } from '../data';
-import { CHARACTERS_BY_ID } from './content';
+import { CHARACTERS_BY_ID, STAGE_RATES } from './content';
 import { SaveService } from './save.service';
 
 /**
@@ -124,12 +125,20 @@ export class GameLoopService {
     this.saveIssues.set(loaded.issues);
     this.loadFailure.set(loaded.fatal);
 
-    // Seed the starting party. `core/` cannot see `data/`, so it has no way to know who the
-    // starters are; this is idempotent, so it is also the repair path for a save that arrives
-    // with an empty roster — a v2 save that predates characters, or one damaged badly enough
-    // that every entry was dropped. Either way the player lands with a party rather than a
-    // game they cannot play.
-    this.state = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
+    // Two idempotent repairs, both needing content that `core/` cannot see, and both running on
+    // every load rather than behind a version gate.
+    //
+    // `grantStarters` covers a save that arrives with an empty roster — a v2 save that predates
+    // characters, or one damaged badly enough that every entry was dropped — so the player lands
+    // with a party rather than a game they cannot play.
+    //
+    // `reconcileClearedStages` rebuilds the idle income a run has already earned. The v2 → v3
+    // migration moved gold across and started the other three rates at zero, which stranded
+    // returning players on gold-only income with no way back except re-fighting the ladder. It
+    // also undercounted `clearedStages` at the top of the ladder. Both are recoverable from the
+    // gold rate the save did keep.
+    const repaired = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
+    this.state = reconcileClearedStages(repaired, STAGE_RATES);
     this.settle(nowMs);
 
     this.running = true;

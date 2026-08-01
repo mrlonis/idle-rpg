@@ -42,6 +42,20 @@ const migrateV1ToV2: Migration = (save) => ({
  * `clearedStages` is seeded from `stage - 1` rather than from zero. A v2 save that reached
  * stage 5 demonstrably cleared four, and starting it at zero would hand out four first-clear
  * summon bonuses the player already earned once.
+ *
+ * **This migration is deliberately incomplete, and `reconcileClearedStages` finishes the job.**
+ * Two things it cannot get right on its own, both because `core/` cannot see `data/`:
+ *
+ * - The three new rates start at zero, but stages the player already cleared had unlocked them.
+ *   Shipping only this left returning players on gold-only income with no way back except
+ *   re-fighting the ladder — the bug that repair function exists for.
+ * - `stage - 1` is exact mid-ladder and one short at the top, because `stage` stops climbing
+ *   there. A player who had beaten everything was recorded as one stage short.
+ *
+ * Both are recoverable from the gold rate this migration does carry across, but only by
+ * something that knows what the stages grant. **Never edit this to try to fix them here** — a
+ * shipped migration must keep meaning exactly what it meant, and the repair runs on every load
+ * anyway.
  */
 const migrateV2ToV3: Migration = (save) => {
   const stage = typeof save['stage'] === 'number' ? save['stage'] : 1;

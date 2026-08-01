@@ -116,16 +116,22 @@ export function canAfford(wallet: Wallet, cost: CurrencyAmounts): boolean {
  * a build with a different reward curve, must never cut what a player already earns. That is
  * one comparison per currency and it removes a whole class of "my income went down" bug
  * report.
+ *
+ * **Returns the original object when nothing rose.** Callers use that identity to tell "this
+ * changed the run" from "this was a no-op" — `reconcileClearedStages` leans on it to leave a
+ * healthy save's snapshot alone rather than republishing it and re-rendering every screen on
+ * every load.
  */
 export function raiseRates(rates: Rates, offered: Readonly<Partial<Rates>>): Rates {
-  const next = { ...rates };
+  let next: Record<RateCurrencyId, Numeric> | undefined;
   for (const id of RATE_CURRENCY_IDS) {
     const rate = offered[id];
     if (rate?.gt(rates[id]) === true) {
+      next ??= { ...rates };
       next[id] = rate;
     }
   }
-  return next;
+  return next ?? rates;
 }
 
 /**

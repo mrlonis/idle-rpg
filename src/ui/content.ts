@@ -8,7 +8,9 @@ import {
   type GachaRulesData,
   type GrowthData,
   type LevelCurveData,
+  type Rates,
   type ShopOfferData,
+  toRates,
 } from '../core';
 import {
   ASCENSION_RULES,
@@ -76,6 +78,17 @@ export const SHOP_OFFERS: readonly ShopOfferData[] = SPARK_SHOP;
 
 /** How many stages are authored. `applyBattleResult` clamps progression against this. */
 export const STAGE_COUNT = STAGES.length;
+
+/**
+ * The idle rates each stage unlocks, parsed once, in ladder order.
+ *
+ * `reconcileClearedStages` needs these on every load to rebuild the income a returning run has
+ * already earned. Parsing them per load would be the same answer computed from static content
+ * every time the app opens.
+ */
+export const STAGE_RATES: readonly Readonly<Partial<Rates>>[] = STAGES.map((stage) =>
+  toRates(stage.rates),
+);
 
 /** A character definition by id, for templates that hold only an id. */
 export function characterById(defId: string): CharacterData | undefined {
