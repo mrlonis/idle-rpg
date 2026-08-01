@@ -88,7 +88,10 @@ describe('formatRate on the slow currencies', () => {
     expect(formatRate(num('16'))).toBe('16/s');
   });
 
-  it('says nothing rather than an hourly zero for a rate of zero', () => {
+  it('keeps a zero rate in per-second units rather than reporting "0/hr"', () => {
+    // Zero is below the per-hour threshold, so without the guard it would take that branch and
+    // multiply nothing by 3600. "0/hr" is not wrong so much as strange: it implies an hourly
+    // figure was worth computing for a currency that is not accruing at all.
     expect(formatRate(num(0))).toBe('0/s');
   });
 

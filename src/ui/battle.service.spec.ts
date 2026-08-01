@@ -408,7 +408,6 @@ describe('BattleService', () => {
   describe('resuming a run', () => {
     it('fights the stage the run left off on', () => {
       const { battles } = build({
-        ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
         ...withGold(newGame({ seed: 0xc0ffee, nowMs: T0 }), '5000'),
         stage: 3,
         battleCount: 42,
