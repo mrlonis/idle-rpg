@@ -1,14 +1,28 @@
 import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import {
+  type CurrencyId,
+  emptyWallet,
   type GameState,
+  grantStarters,
+  type Numeric,
   type OfflineReport,
   type RepairIssue,
   resume,
   stampSaveTime,
   tick,
-  ZERO,
+  zeroRates,
 } from '../core';
+import { STARTER_CHARACTER_IDS } from '../data';
+import { CHARACTERS_BY_ID } from './content';
 import { SaveService } from './save.service';
+
+/**
+ * Stable empties for the pre-load window, so `wallet()` and `rates()` never hand a template a
+ * null. Built once: a fresh object per read would make every `computed` downstream of them
+ * recompute on every sample, which at ~6Hz is the whole UI.
+ */
+const EMPTY_WALLET = emptyWallet();
+const ZERO_RATES = zeroRates();
 
 /** Simulation step. The sim advances in fixed 10Hz slices regardless of frame rate. */
 const SIM_STEP_MS = 100;
@@ -55,8 +69,25 @@ export class GameLoopService {
   readonly snapshot = signal<GameState | null>(null);
 
   readonly isReady = computed(() => this.snapshot() !== null);
-  readonly gold = computed(() => this.snapshot()?.gold ?? ZERO);
-  readonly goldPerSec = computed(() => this.snapshot()?.goldPerSec ?? ZERO);
+
+  /** Every currency the run holds, and what each earns per second. */
+  readonly wallet = computed(() => this.snapshot()?.wallet ?? EMPTY_WALLET);
+  readonly rates = computed(() => this.snapshot()?.rates ?? ZERO_RATES);
+
+  /** One currency's balance, for a template that only cares about one. */
+  balanceOf(id: CurrencyId): Numeric {
+    return this.wallet()[id];
+  }
+
+  readonly gold = computed(() => this.wallet().gold);
+  readonly goldPerSec = computed(() => this.rates().gold);
+  readonly summons = computed(() => this.wallet().summons);
+  readonly spark = computed(() => this.wallet().spark);
+
+  /** The roster, the party fighting from it, and the pity counter. */
+  readonly roster = computed(() => this.snapshot()?.roster ?? []);
+  readonly activeParty = computed(() => this.snapshot()?.activeParty ?? []);
+  readonly pity = computed(() => this.snapshot()?.pity ?? 0);
 
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
   readonly offlineReport = signal<OfflineReport | null>(null);
@@ -93,7 +124,12 @@ export class GameLoopService {
     this.saveIssues.set(loaded.issues);
     this.loadFailure.set(loaded.fatal);
 
-    this.state = loaded.state;
+    // Seed the starting party. `core/` cannot see `data/`, so it has no way to know who the
+    // starters are; this is idempotent, so it is also the repair path for a save that arrives
+    // with an empty roster — a v2 save that predates characters, or one damaged badly enough
+    // that every entry was dropped. Either way the player lands with a party rather than a
+    // game they cannot play.
+    this.state = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
     this.settle(nowMs);
 
     this.running = true;

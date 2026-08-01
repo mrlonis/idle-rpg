@@ -27,6 +27,42 @@ const migrateV1ToV2: Migration = (save) => ({
 });
 
 /**
+ * v2 → v3: the gacha release. Currencies become a keyed wallet, and characters become state.
+ *
+ * The two carried-over quantities are the interesting part. A v2 save's `gold` and
+ * `goldPerSec` move into the wallet and rate table under the `gold` key and keep their exact
+ * values — a returning player's balance and income are untouched by the schema growing around
+ * them. Everything genuinely new starts empty: no roster, no party, no pity.
+ *
+ * An empty roster is deliberate and is not a hole. `core/` cannot see `data/`, so a migration
+ * has no way to know who the starter characters are; `grantStarters` runs on load and is
+ * idempotent, so a v2 save arrives with the same starting party a fresh run gets, and a v3
+ * save that already has a roster is left alone.
+ *
+ * `clearedStages` is seeded from `stage - 1` rather than from zero. A v2 save that reached
+ * stage 5 demonstrably cleared four, and starting it at zero would hand out four first-clear
+ * summon bonuses the player already earned once.
+ */
+const migrateV2ToV3: Migration = (save) => {
+  const stage = typeof save['stage'] === 'number' ? save['stage'] : 1;
+  const gold = typeof save['gold'] === 'string' ? save['gold'] : '0';
+  const goldPerSec = typeof save['goldPerSec'] === 'string' ? save['goldPerSec'] : '0';
+  const { gold: _gold, goldPerSec: _goldPerSec, ...rest } = save;
+
+  return {
+    ...rest,
+    version: 3,
+    wallet: { gold, xp: '0', essence: '0', summons: '0', spark: '0' },
+    rates: { gold: goldPerSec, xp: '0', essence: '0', summons: '0' },
+    clearedStages: Math.max(Math.floor(stage) - 1, 0),
+    roster: [],
+    activeParty: [],
+    pity: 0,
+    pullCount: 0,
+  };
+};
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
  * **Never delete or edit an entry once it ships.** A player can return after any number of
@@ -34,6 +70,7 @@ const migrateV1ToV2: Migration = (save) => ({
  */
 export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
   [1, migrateV1ToV2],
+  [2, migrateV2ToV3],
 ]);
 
 export class UnknownSaveVersionError extends Error {

@@ -6,7 +6,7 @@ import {
   PLAYBACK_SPEEDS,
   type PlaybackSpeed,
 } from './battle.service';
-import { formatNumeric, formatRate } from './format-numeric';
+import { formatAmounts, formatNumeric, formatRate } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 
 /**
@@ -69,11 +69,10 @@ export class BattleView {
     if (outcome === 'stalemate') {
       return 'Stalemate — neither side could finish it.';
     }
-    const gold = this.battles.result()?.reward.gold;
-    const earnings = `idle income now ${formatRate(this.game.goldPerSec())}`;
-    return gold === undefined
-      ? `Victory! ${earnings}`
-      : `Victory! +${formatNumeric(gold)} gold · ${earnings}`;
+    const gained = this.battles.result()?.reward.gained ?? {};
+    const earnings = `idle income now ${formatRate(this.game.goldPerSec())} gold`;
+    const spoils = formatAmounts(gained);
+    return spoils === null ? `Victory! ${earnings}` : `Victory! +${spoils} · ${earnings}`;
   });
 
   /** The visible tail of the battle log, already narrated. */

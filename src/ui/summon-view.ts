@@ -1,0 +1,107 @@
+import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { type PullFailure } from '../core';
+import { MULTI_PULL_COUNT, PITY, TIER_WEIGHTS } from '../data';
+import { formatNumeric } from './format-numeric';
+import { GachaService } from './gacha.service';
+import { GameLoopService } from './game-loop.service';
+
+/** Why a pull could not be made, in words a player can act on. */
+const FAILURE_MESSAGES: Readonly<Record<PullFailure, string>> = {
+  'insufficient-currency': 'Not enough summon crystals yet. They accrue while you are away.',
+  'empty-pool': 'This banner has no characters in it.',
+  'unknown-banner': 'That banner is no longer available.',
+  'bad-count': 'That is not a number of pulls.',
+};
+
+/**
+ * The summon screen.
+ *
+ * ## The pity counter is the point of this screen, not a footnote
+ *
+ * The live rate, the pulls since the last ascended-tier character, and the exact pull the
+ * guarantee fires on are all on screen, all the time, before the player commits to anything. A
+ * commercial gacha hides these because uncertainty is what it is selling; there is nothing to
+ * sell here, so there is nothing to hide, and a player deciding whether to pull now or save
+ * should be able to read the answer rather than infer it.
+ */
+@Component({
+  selector: 'app-summon-view',
+  imports: [RouterLink],
+  templateUrl: './summon-view.html',
+  styleUrl: './summon-view.scss',
+})
+export class SummonView {
+  private readonly game = inject(GameLoopService);
+  private readonly gacha = inject(GachaService);
+
+  protected readonly multiCount = MULTI_PULL_COUNT;
+  protected readonly hardPity = PITY.hardPity;
+
+  protected readonly banner = this.gacha.banner;
+  protected readonly results = this.gacha.lastResults;
+
+  protected readonly crystals = computed(() => formatNumeric(this.game.summons()));
+  protected readonly singleCost = computed(() => formatNumeric(this.gacha.singleCost()));
+  protected readonly multiCost = computed(() => formatNumeric(this.gacha.multiCost()));
+
+  protected readonly canPullSingle = this.gacha.canPullSingle;
+  protected readonly canPullMulti = this.gacha.canPullMulti;
+
+  protected readonly pity = this.gacha.pity;
+  protected readonly pullsToGuarantee = this.gacha.pullsToGuarantee;
+  protected readonly inSoftPity = this.gacha.inSoftPity;
+
+  /** The live rate, as a percentage string. Read from the same function the draw uses. */
+  protected readonly currentChance = computed(() => formatPercent(this.gacha.currentChance()));
+  protected readonly baseChance = formatPercent(TIER_WEIGHTS.ascended);
+
+  /** How far along the pity cycle the player is, for the progress bar. */
+  protected readonly pityFraction = computed(() =>
+    Math.min(this.pity() / Math.max(this.hardPity, 1), 1),
+  );
+
+  protected readonly shortfall = computed(() => {
+    const missing = this.gacha.shortOfMulti();
+    return missing === null ? null : formatNumeric(missing);
+  });
+
+  protected readonly failureMessage = computed(() => {
+    const failure = this.gacha.failure();
+    return failure === null ? null : FAILURE_MESSAGES[failure];
+  });
+
+  /** The authored pre-pity odds, for the rates table. */
+  protected readonly rateRows = [
+    {
+      tier: 'Ascended tier',
+      chance: formatPercent(TIER_WEIGHTS.ascended),
+      note: 'Starts at Elite',
+    },
+    {
+      tier: 'Legendary tier',
+      chance: formatPercent(TIER_WEIGHTS.legendary),
+      note: 'Starts at Rare',
+    },
+    { tier: 'Common tier', chance: formatPercent(TIER_WEIGHTS.common), note: 'Starts at Rare' },
+  ] as const;
+
+  protected pullOnce(): void {
+    this.gacha.pullOnce();
+  }
+
+  protected pullMulti(): void {
+    this.gacha.pullMulti();
+  }
+
+  protected dismiss(): void {
+    this.gacha.clearResults();
+  }
+}
+
+/** A 0–1 probability as a percentage, trimmed so `2.50%` reads as `2.5%`. */
+function formatPercent(value: number): string {
+  const percent = Math.max(Math.min(value, 1), 0) * 100;
+  const text = percent >= 10 ? percent.toFixed(1) : percent.toFixed(2);
+  return `${text.replace(/\.?0+$/, '')}%`;
+}

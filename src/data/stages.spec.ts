@@ -75,39 +75,64 @@ describe('stage content', () => {
   });
 
   it('pays more for every stage further up the ladder', () => {
-    const rewards = stages.map((stage) => Number(stage.goldReward));
+    const rewards = stages.map((stage) => Number(stage.reward.gold));
 
     for (let i = 1; i < rewards.length; i++) {
       expect(rewards[i], stages[i].id).toBeGreaterThan(rewards[i - 1]);
     }
   });
 
-  it('raises idle income at every step, so no clear is ever a sidestep', () => {
-    // The rate is the real reward, and `applyBattleResult` only ever raises it. A stage granting
-    // no more than the one before it would read to the player as a stage that paid nothing.
-    const rates = stages.map((stage) => Number(stage.goldPerSec));
+  it.each(['gold', 'xp', 'essence', 'summons'] as const)(
+    'raises the %s rate at every step, so no clear is ever a sidestep',
+    (currency) => {
+      // The rate is the real reward, and `applyBattleResult` only ever raises it. A stage
+      // granting no more than the one before it would read to the player as a stage that paid
+      // nothing — and that has to hold on every currency, not just the visible one.
+      const rates = stages.map((stage) => Number(stage.rates[currency]));
 
-    expect(rates[0]).toBeGreaterThan(0);
-    for (let i = 1; i < rates.length; i++) {
-      expect(rates[i], stages[i].id).toBeGreaterThan(rates[i - 1]);
-    }
-  });
+      expect(rates[0]).toBeGreaterThan(0);
+      for (let i = 1; i < rates.length; i++) {
+        expect(rates[i], stages[i].id).toBeGreaterThan(rates[i - 1]);
+      }
+    },
+  );
 
   it('keeps each one-off lump in proportion to the income it unlocks', () => {
-    // The lump should read as a bonus and the rate as the progression. Letting `goldReward` drift
-    // to minutes of idle income would invert that and make clears feel like the whole game.
+    // The lump should read as a bonus and the rate as the progression. Letting the lump drift to
+    // minutes of idle income would invert that and make clears feel like the whole game.
     for (const stage of stages) {
-      const secondsOfIncome = Number(stage.goldReward) / Number(stage.goldPerSec);
+      const secondsOfIncome = Number(stage.reward.gold) / Number(stage.rates.gold);
       expect(secondsOfIncome, stage.id).toBeGreaterThan(20);
       expect(secondsOfIncome, stage.id).toBeLessThan(60);
     }
+  });
+
+  it('never pays summon crystals for a repeat clear', () => {
+    // Crystals come from the idle rate and from first clears, and from nowhere else. A repeatable
+    // crystal payout would make tap-farming the four-second opening stage the fastest way to
+    // pull, and the correct play in a game about climbing a ladder would be to never leave the
+    // bottom of it.
+    for (const stage of stages) {
+      expect(stage.reward.summons, stage.id).toBeUndefined();
+    }
+  });
+
+  it('pays a first-clear crystal bonus on every stage', () => {
+    // The one reward tied to progress rather than to patience. Across the ladder it totals thirty
+    // pulls, so fighting up it builds a real roster before the idle trickle has delivered much.
+    const total = stages.reduce((sum, stage) => sum + Number(stage.firstClearSummons ?? 0), 0);
+
+    for (const stage of stages) {
+      expect(Number(stage.firstClearSummons ?? 0), stage.id).toBeGreaterThan(0);
+    }
+    expect(total).toBeGreaterThanOrEqual(2000);
   });
 
   it('keeps the reward curve well inside float64, so the curve is not the reason for Decimal', () => {
     // AGENTS.md asks for this to be checked rather than assumed. At ~1.6x per stage the top of
     // the ladder is in the hundreds; `Numeric` is a hedge against future curves, not this one.
     for (const stage of stages) {
-      expect(Number(stage.goldReward), stage.id).toBeLessThan(Number.MAX_SAFE_INTEGER);
+      expect(Number(stage.reward.gold), stage.id).toBeLessThan(Number.MAX_SAFE_INTEGER);
     }
   });
 });

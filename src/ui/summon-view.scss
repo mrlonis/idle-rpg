@@ -1,0 +1,260 @@
+@use 'theme' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.head__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.head__unit {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.section__heading {
+  margin: 0 0 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: t.$muted;
+}
+
+.pity,
+.banner,
+.results {
+  @include t.card;
+  padding: 0.875rem 1rem;
+}
+
+.pity__rate {
+  margin: 0 0 0.625rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.pity__flag,
+.pity__base {
+  display: inline-block;
+  margin-left: 0.375rem;
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+// Soft pity is called out in words as well as colour — the badge text says what it is.
+.pity__flag {
+  background: t.$accent-bg;
+  color: t.$accent;
+}
+
+.pity__base {
+  background: t.$surface-raised;
+  color: t.$muted;
+}
+
+.pity__bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: t.$surface-raised;
+  overflow: hidden;
+}
+
+.pity__fill {
+  height: 100%;
+  background: t.$accent;
+  transition: width 200ms ease-out;
+}
+
+.pity__counts {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.banner__name {
+  margin: 0 0 0.25rem;
+  font-size: 1.0625rem;
+}
+
+.banner__description {
+  margin: 0 0 0.875rem;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+.rates {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.rates__caption {
+  margin-bottom: 0.375rem;
+  text-align: left;
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.rates th,
+.rates td {
+  padding: 0.3125rem 0.5rem 0.3125rem 0;
+  text-align: left;
+  border-bottom: 1px solid t.$border;
+}
+
+.rates thead th {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: t.$muted;
+  font-weight: 600;
+}
+
+.rates tbody th {
+  font-weight: 600;
+}
+
+.rates__chance {
+  @include t.numeric;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.pull {
+  @include t.button-quiet;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 3.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pull--multi {
+  @include t.button-primary;
+  flex-direction: column;
+  min-height: 3.5rem;
+  font-size: 1rem;
+}
+
+.pull__cost {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.notice {
+  @include t.card;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notice--error {
+  background: t.$danger-bg;
+  border-color: #5a2a2a;
+  color: t.$danger;
+}
+
+.results__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0 0 0.875rem;
+  padding: 0;
+  list-style: none;
+}
+
+.results__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.125rem 0.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  background: t.$surface-raised;
+}
+
+// An ascended-tier result is marked by a border as well as by its rarity text, so the
+// highlight never depends on colour alone.
+.results__item--top {
+  border: 1px solid t.$tier-ascended;
+}
+
+.results__name {
+  font-weight: 600;
+}
+
+.results__rarity {
+  font-size: 0.8125rem;
+  color: t.$muted;
+  text-align: right;
+}
+
+.results__note {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.results__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.results__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$accent;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  @include t.focus-ring;
+}
+
+.results__dismiss {
+  @include t.button-quiet;
+  font-size: 0.875rem;
+}

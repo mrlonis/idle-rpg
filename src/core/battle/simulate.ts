@@ -2,7 +2,7 @@ import { mulberry32 } from '../mulberry32';
 import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './clock';
-import { toCombatant, toGoldReward } from './content';
+import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
 import { rollAttack } from './damage';
 import {
   type BattleEvent,
@@ -282,7 +282,11 @@ export function simulateBattle(
     events,
     reward:
       outcome === 'victory'
-        ? { gold: toGoldReward(stage.goldReward), goldPerSec: toGoldReward(stage.goldPerSec) }
-        : { gold: ZERO, goldPerSec: ZERO },
+        ? {
+            gained: toCurrencyAmounts(stage.reward),
+            rates: toRates(stage.rates),
+            firstClearSummons: toAmount(stage.firstClearSummons),
+          }
+        : { gained: {}, rates: {}, firstClearSummons: ZERO },
   };
 }

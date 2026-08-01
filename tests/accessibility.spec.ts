@@ -66,4 +66,46 @@ test.describe('Accessibility', () => {
 
     await scan(page, testInfo, 'battle');
   });
+
+  /**
+   * The gacha screens are routes, so each is reachable directly and each gets its own scan.
+   *
+   * These carry the markup most likely to go wrong: a progress bar, a data table, toggle buttons
+   * whose visible label repeats down a list, and a disclosure. None of that is covered by a scan
+   * of another screen.
+   */
+  test('the summon screen has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/summon');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Summon' })).toBeVisible();
+    await expect(page.getByRole('progressbar')).toBeVisible();
+
+    await scan(page, testInfo, 'summon');
+  });
+
+  test('the roster screen has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/roster');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
+    // The starter party is fielded on a fresh run, so the toggles are in both states here.
+    await expect(page.getByRole('button', { name: /Remove .* from party/ }).first()).toBeVisible();
+
+    await scan(page, testInfo, 'roster');
+  });
+
+  test('a character sheet has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/roster/rin');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
+
+    await scan(page, testInfo, 'character');
+  });
+
+  test('the spark shop has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/shop');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Spark Shop' })).toBeVisible();
+
+    await scan(page, testInfo, 'shop');
+  });
 });

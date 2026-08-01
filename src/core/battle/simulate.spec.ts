@@ -3,6 +3,7 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
+import { ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { MAX_BATTLE_TICKS, ticksToMs } from './clock';
 import { battleSeed, simulateBattle } from './simulate';
@@ -31,7 +32,13 @@ function stage(
   goldReward: number | string = 100,
   goldPerSec: number | string = 2,
 ): StageData {
-  return { id: 'test-stage', name: 'Test Stage', enemies, goldReward, goldPerSec };
+  return {
+    id: 'test-stage',
+    name: 'Test Stage',
+    enemies,
+    reward: { gold: goldReward },
+    rates: { gold: goldPerSec },
+  };
 }
 
 /** Every observable detail of a battle, as a comparable string. */
@@ -39,7 +46,7 @@ function fingerprint(result: BattleResult): string {
   return JSON.stringify({
     outcome: result.outcome,
     ticks: result.ticks,
-    reward: result.reward.gold.toString(),
+    reward: (result.reward.gained.gold ?? ZERO).toString(),
     events: result.events.map((event) => {
       switch (event.kind) {
         case 'attack':
@@ -99,13 +106,14 @@ describe('simulateBattle', () => {
     const opponent = stage([unit('titan', { hp: 100_000, atk: 500 })], 250, 4);
 
     const won = simulateBattle(strong, stage([unit('mook')], 250, 4), 1).reward;
-    expect(won.gold.eq(250)).toBe(true);
+    expect(won.gained.gold?.eq(250)).toBe(true);
     // The idle income the clear unlocks — the larger half of what a stage is worth.
-    expect(won.goldPerSec.eq(4)).toBe(true);
+    expect(won.rates.gold?.eq(4)).toBe(true);
 
     const lost = simulateBattle(weak, opponent, 1).reward;
-    expect(lost.gold.eq(0)).toBe(true);
-    expect(lost.goldPerSec.eq(0)).toBe(true);
+    // Empty rather than zeroed: a loss pays nothing at all, so there is nothing to list.
+    expect(lost.gained).toEqual({});
+    expect(lost.rates).toEqual({});
   });
 
   describe('determinism', () => {

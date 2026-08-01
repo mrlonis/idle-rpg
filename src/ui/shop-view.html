@@ -1,0 +1,63 @@
+<header class="head">
+  <h1 class="head__title">Spark Shop</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ spark() }}</span>
+    <span class="head__unit">spark</span>
+  </p>
+</header>
+
+<p class="intro">
+  Spark comes from copies of a character already at Ascended ★★★★★ — a duplicate with nowhere left
+  to go. Spend it on exactly what you are short of.
+</p>
+
+@if (message(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<ul class="offers">
+  @for (row of offers(); track row.offer.id) {
+    <li class="offer">
+      <div class="offer__head">
+        <div class="offer__identity">
+          <h2 class="offer__name">{{ row.offer.name }}</h2>
+          <p class="offer__description">{{ row.offer.description }}</p>
+        </div>
+        <p class="offer__cost">
+          <span class="offer__amount">{{ row.cost }}</span>
+          <span class="offer__unit">spark</span>
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="offer__toggle"
+        [disabled]="!row.affordable || row.targets.length === 0"
+        [attr.aria-expanded]="openOffer() === row.offer.id"
+        [attr.aria-controls]="'targets-' + row.offer.id"
+        (click)="toggle(row.offer.id)"
+      >
+        @if (!row.affordable) {
+          Not enough spark
+        } @else if (row.targets.length === 0) {
+          Nothing eligible yet
+        } @else {
+          Choose a character ({{ row.targets.length }})
+        }
+      </button>
+
+      @if (openOffer() === row.offer.id) {
+        <ul class="targets" [id]="'targets-' + row.offer.id">
+          @for (target of row.targets; track target.id) {
+            <li>
+              <button type="button" class="targets__button" (click)="buy(row.offer, target)">
+                <span class="targets__name">{{ target.name }}</span>
+                <span class="targets__meta">{{ target.tier }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </li>
+  }
+</ul>

@@ -1,10 +1,13 @@
+import { provideLocationMocks } from '@angular/common/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { num, type OfflineReport, type RepairIssue } from '../core';
+import { emptyWallet, num, type OfflineReport, type RepairIssue, zeroRates } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
 import { GameLoopService } from './game-loop.service';
 import { HomeView } from './home-view';
+import { type RosterEntryView, RosterService } from './roster.service';
 
 /**
  * A stand-in for the real loop.
@@ -17,8 +20,43 @@ class FakeGameLoop {
   readonly offlineReport = signal<OfflineReport | null>(null);
   readonly saveIssues = signal<readonly RepairIssue[]>([]);
   readonly loadFailure = signal<string | undefined>(undefined);
+  readonly wallet = signal(emptyWallet());
+  readonly rates = signal(zeroRates());
   readonly gold = signal(num(0));
   readonly goldPerSec = signal(num(0));
+  readonly summons = signal(num(0));
+  readonly spark = signal(num(0));
+}
+
+/** One fielded character, which is all the home screen reads off the roster. */
+function member(name: string): RosterEntryView {
+  return {
+    defId: name.toLowerCase(),
+    name,
+    faction: 'elf',
+    factionName: 'Elves',
+    tier: 'common',
+    rarity: 0,
+    rarityLabel: 'Rare',
+    level: 1,
+    levelCap: 40,
+    atLevelCap: false,
+    isMaxRarity: false,
+    copies: 0,
+    inParty: true,
+    partySlot: 1,
+    nextLevelCost: null,
+    canLevel: false,
+    affordableLevel: 1,
+    ascensionCost: null,
+    fodderAvailable: 0,
+    canAscend: false,
+  };
+}
+
+/** Only the party, which is all the home screen asks of the roster. */
+class FakeRoster {
+  readonly party = signal<readonly RosterEntryView[]>([member('Rin')]);
 }
 
 /** Only the two things the home screen asks of the animator. */
@@ -31,17 +69,24 @@ class FakeBattles {
   }
 }
 
-async function render(configure?: (game: FakeGameLoop, battles: FakeBattles) => void) {
+async function render(
+  configure?: (game: FakeGameLoop, battles: FakeBattles, roster: FakeRoster) => void,
+) {
   const game = new FakeGameLoop();
   const battles = new FakeBattles();
-  configure?.(game, battles);
+  const roster = new FakeRoster();
+  configure?.(game, battles, roster);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [HomeView],
     providers: [
+      // The screen links to the roster now, so `routerLink` needs a router to resolve against.
+      provideRouter([]),
+      provideLocationMocks(),
       { provide: GameLoopService, useValue: game },
       { provide: BattleService, useValue: battles },
+      { provide: RosterService, useValue: roster },
     ],
   }).compileComponents();
 
@@ -50,7 +95,7 @@ async function render(configure?: (game: FakeGameLoop, battles: FakeBattles) => 
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { game, battles, fixture, el: fixture.nativeElement as HTMLElement };
+  return { game, battles, roster, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
 describe('HomeView', () => {
@@ -114,7 +159,7 @@ describe('HomeView', () => {
       const { el } = await render((game) => game.goldPerSec.set(num('1.5')));
 
       expect(el.querySelector('.hint')?.textContent).not.toContain('Win a stage');
-      expect(el.querySelector('.hint')?.textContent).toContain('raises your idle income');
+      expect(el.querySelector('.hint')?.textContent).toContain('raises all four idle rates');
     });
   });
 
@@ -123,7 +168,7 @@ describe('HomeView', () => {
       rawElapsedMs: 3_600_000,
       elapsedMs: 3_600_000,
       wasCapped: false,
-      gold: num('900'),
+      earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0) },
       ...over,
     });
 
@@ -143,10 +188,62 @@ describe('HomeView', () => {
     it('stays hidden when nothing was earned', async () => {
       // A fresh run, or a return after a few seconds, should not show an empty brag panel.
       const { el } = await render((game) =>
-        game.offlineReport.set(report({ gold: num(0), elapsedMs: 0 })),
+        game.offlineReport.set(
+          report({
+            earned: { gold: num(0), xp: num(0), essence: num(0), summons: num(0) },
+            elapsedMs: 0,
+          }),
+        ),
       );
 
       expect(el.textContent).not.toContain('While you were away');
+    });
+  });
+
+  describe('the wallet strip', () => {
+    it('lists every currency except gold, which has the hero treatment', async () => {
+      const { el } = await render((game) => {
+        game.wallet.set({
+          gold: num('100'),
+          xp: num('4200'),
+          essence: num('17'),
+          summons: num('350'),
+          spark: num('2'),
+        });
+      });
+
+      const labels = [...el.querySelectorAll('.wallet__label')].map((node) =>
+        node.textContent?.trim(),
+      );
+
+      expect(labels).toEqual(['XP', 'Essence', 'Crystals', 'Spark']);
+      expect(el.querySelector('.wallet__list')?.textContent).toContain('4.2K');
+    });
+
+    it('says where spark comes from rather than showing it a rate it does not have', async () => {
+      // Spark is minted by duplicate pulls and nothing else, so a "/s" next to it would be a lie.
+      const { el } = await render();
+
+      expect(el.querySelector('.wallet__list')?.textContent).toContain('from duplicate pulls');
+    });
+  });
+
+  describe('the party', () => {
+    it('names who is fighting', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('.party__list')?.textContent).toContain('Rin');
+    });
+
+    it('refuses to start a fight with nobody fielded', async () => {
+      // An empty party resolves as an immediate defeat, so the control says so instead of
+      // letting the player walk into it.
+      const { el, battles } = await render((_game, _battles, roster) => roster.party.set([]));
+
+      const button = el.querySelector<HTMLButtonElement>('.fight');
+      expect(button?.disabled).toBe(true);
+      expect(el.querySelector('.hint')?.textContent).toContain('party is empty');
+      expect(battles.fought).toEqual([]);
     });
   });
 

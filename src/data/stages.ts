@@ -17,61 +17,70 @@ import { BANDIT, BOAR, GOLEM, SLIME, WARDEN, WISP } from './enemies';
  *
  * ## Where the ladder is tuned to
  *
- * Simulated over 400 seeds per stage, the starter party clears all eight and settles on the
- * last one, which repeats. Battles run from about 4 seconds at the bottom to 28 at the top,
- * and the party finishes stage 1 untouched but stage 8 with roughly one member standing.
+ * Simulated over 400 seeds per stage, the starter party clears all eight at level 1 and settles
+ * on the last one, which repeats. Battles run from about 4 seconds at the bottom to 28 at the
+ * top, and the party finishes stage 1 untouched but stage 8 with roughly one member standing.
  *
- * Clearable end to end is deliberate. There is nothing to spend gold on yet, so a stage the
- * party simply cannot beat would be a permanent stop rather than a goal — the terminal state
- * of this milestone is farming the last stage, not staring at a wall. The final stage still
- * loses outright on about 1 seed in 100, which is what a retry with a fresh battle seed is
- * for.
+ * Clearable by the starting party is deliberate, and now doubly so: the gacha is what a player
+ * spends their crystals on, and crystals come from clearing this ladder. A stage the starter
+ * party could not beat would be a wall in front of the entire summon economy, not just in front
+ * of the next fight.
  *
- * ## The two rewards, and which one matters
+ * ## The four rates, and the one lump
  *
- * `goldPerSec` is the real prize: clearing a stage permanently raises idle income, from 0.5/s
- * at stage 1 to 16/s at stage 8, roughly 1.5x a step. A run starts at **zero** income, so
- * until the party wins its first fight the counter does not move at all — the first battle is
- * what switches the idle game on, and every clear after it is a raise that keeps paying while
- * the player is away.
+ * `rates` is the real prize. Clearing a stage permanently raises idle income on **every**
+ * currency, and a rate compounds with time away in a way a lump sum cannot. Gold runs 0.5/s to
+ * 16/s across the ladder; the others are scaled to sit where `levels.ts` needs them, with
+ * essence deliberately stingiest.
  *
- * `goldReward` is the smaller half: a one-off lump for the clear, climbing about 1.6x a step.
- * The two are deliberately kept in proportion — each stage's lump is roughly 40 seconds of the
- * income it unlocks, so the lump reads as a bonus and the rate reads as the progression.
+ * `reward` is the smaller half: a one-off lump paid on every clear, tuned to roughly forty
+ * seconds of the income the stage unlocks, so it reads as a bonus rather than as the
+ * progression.
  *
- * Both curves are deliberately modest: at stage 8 that is 650 a clear and 16 a second, nowhere
- * near float64's limits, so neither needs `break_infinity` to be correct — it is there as a
- * hedge, not because this demands it.
+ * **Summon crystals are deliberately absent from `reward`.** They accrue idly and on a first
+ * clear, and nowhere else. A repeatable crystal payout would make tap-farming the shortest
+ * stage the fastest way to pull — stage 1 resolves in about four seconds — and the correct
+ * play in a game about a party climbing a ladder would be to never leave the bottom of it.
+ * Tying crystals to the rate and to genuine progress removes that incentive completely rather
+ * than balancing against it.
+ *
+ * `firstClearSummons` totals 3,000 across the ladder — thirty pulls, three of them as
+ * ten-pulls — so a new player who fights their way up has a real roster before the idle trickle
+ * has delivered much of anything.
  */
 export const STAGES = [
   {
     id: 'stage-1',
     name: 'Mossy Hollow',
     enemies: [SLIME, SLIME],
-    goldReward: 25,
-    goldPerSec: 0.5,
+    reward: { gold: 25, xp: 4 },
+    rates: { gold: 0.5, xp: 0.1, essence: 0.0015, summons: 0.0015 },
+    firstClearSummons: 200,
   },
   {
     id: 'stage-2',
     name: 'Sunken Path',
     enemies: [SLIME, SLIME, SLIME],
-    goldReward: 40,
-    goldPerSec: 1,
+    reward: { gold: 40, xp: 8 },
+    rates: { gold: 1, xp: 0.2, essence: 0.003, summons: 0.0025 },
+    firstClearSummons: 200,
   },
   {
     // First speed check: two Wisps act nearly twice as often as anything the party has.
     id: 'stage-3',
     name: 'Wisplight Marsh',
     enemies: [WISP, WISP, SLIME],
-    goldReward: 65,
-    goldPerSec: 1.5,
+    reward: { gold: 65, xp: 12 },
+    rates: { gold: 1.5, xp: 0.3, essence: 0.005, summons: 0.0035 },
+    firstClearSummons: 250,
   },
   {
     id: 'stage-4',
     name: 'Bramble Run',
     enemies: [BOAR, SLIME, SLIME],
-    goldReward: 100,
-    goldPerSec: 2.5,
+    reward: { gold: 100, xp: 20, essence: 1 },
+    rates: { gold: 2.5, xp: 0.5, essence: 0.008, summons: 0.005 },
+    firstClearSummons: 300,
   },
   {
     // First real damage check: Bandits hit hard enough and often enough to threaten Rin, and
@@ -79,8 +88,9 @@ export const STAGES = [
     id: 'stage-5',
     name: 'Cutthroat Camp',
     enemies: [BANDIT, BANDIT, SLIME],
-    goldReward: 160,
-    goldPerSec: 4,
+    reward: { gold: 160, xp: 32, essence: 1 },
+    rates: { gold: 4, xp: 0.8, essence: 0.013, summons: 0.007 },
+    firstClearSummons: 350,
   },
   {
     // The widest wave in the ladder: five bodies, two of them fast. Focusing the weakest
@@ -88,8 +98,9 @@ export const STAGES = [
     id: 'stage-6',
     name: 'Thornwood Clearing',
     enemies: [BOAR, BOAR, WISP, WISP, SLIME],
-    goldReward: 250,
-    goldPerSec: 6,
+    reward: { gold: 250, xp: 48, essence: 2 },
+    rates: { gold: 6, xp: 1.2, essence: 0.02, summons: 0.009 },
+    firstClearSummons: 400,
   },
   {
     // The DEF check. Almost nothing the party does lands for full value, and the Wisp means
@@ -97,8 +108,9 @@ export const STAGES = [
     id: 'stage-7',
     name: 'Broken Causeway',
     enemies: [GOLEM, WISP],
-    goldReward: 400,
-    goldPerSec: 10,
+    reward: { gold: 400, xp: 80, essence: 3 },
+    rates: { gold: 10, xp: 2, essence: 0.032, summons: 0.011 },
+    firstClearSummons: 500,
   },
   {
     // The gate, and the end of the authored ladder. Winnable but expensive: the party usually
@@ -106,7 +118,8 @@ export const STAGES = [
     id: 'stage-8',
     name: 'The Warden’s Gate',
     enemies: [WARDEN, BANDIT],
-    goldReward: 650,
-    goldPerSec: 16,
+    reward: { gold: 650, xp: 120, essence: 5 },
+    rates: { gold: 16, xp: 3, essence: 0.05, summons: 0.014 },
+    firstClearSummons: 800,
   },
 ] as const;

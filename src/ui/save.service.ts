@@ -5,11 +5,29 @@ import {
   loadSaveText,
   type LoadResult,
   type RepairIssue,
+  type RepairOptions,
   toSaveData,
 } from '../core';
+import { CHARACTERS_BY_ID, LEVELS } from './content';
 
 const PRIMARY_KEY = 'save';
 const BACKUP_KEY = 'save.bak';
+
+/**
+ * What the repair pass needs to check a save against the content this build ships.
+ *
+ * A fresh seed per call is correct even though only one can ever be adopted: it is used solely
+ * when the save has no usable seed of its own, and the two load attempts below are alternatives
+ * rather than a sequence.
+ */
+function repairOptions(nowMs: number): RepairOptions {
+  return {
+    fallbackSeed: makeSeed(),
+    nowMs,
+    characters: CHARACTERS_BY_ID,
+    levelCurve: LEVELS,
+  };
+}
 
 /**
  * Persistence for the run.
@@ -32,7 +50,7 @@ export class SaveService {
    */
   async load(nowMs: number): Promise<LoadResult> {
     const primary = await this.read(PRIMARY_KEY);
-    const result = loadSaveText(primary, { fallbackSeed: makeSeed(), nowMs });
+    const result = loadSaveText(primary, repairOptions(nowMs));
 
     if (result.fatal === undefined) {
       return result;
@@ -43,7 +61,7 @@ export class SaveService {
     if (backup === null) {
       return result;
     }
-    const fromBackup = loadSaveText(backup, { fallbackSeed: makeSeed(), nowMs });
+    const fromBackup = loadSaveText(backup, repairOptions(nowMs));
     return fromBackup.fatal === undefined ? fromBackup : result;
   }
 

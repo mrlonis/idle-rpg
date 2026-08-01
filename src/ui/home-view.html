@@ -11,7 +11,7 @@
 
 @if (offlineSummary(); as summary) {
   <p class="notice" role="status">
-    While you were away for {{ summary.duration }}, you earned {{ summary.gold }} gold.
+    While you were away for {{ summary.duration }}, you earned {{ summary.earned }}.
     @if (summary.wasCapped) {
       <span class="notice__detail">Offline earnings are capped — come back sooner!</span>
     }
@@ -26,9 +26,41 @@
     value, so it is reachable on demand without being shouted continuously.
   -->
   <p class="resource__value">{{ gold() }}</p>
-  <p class="resource__rate">{{ rate() }}</p>
+  <p class="resource__rate">{{ goldRate() }}</p>
 </section>
 
-<button type="button" class="fight" (click)="fight()">{{ fightLabel() }}</button>
+<section class="wallet" aria-labelledby="wallet-label">
+  <h2 id="wallet-label" class="section__heading">Other currencies</h2>
+  <ul class="wallet__list">
+    @for (currency of currencies(); track currency.id) {
+      <li class="wallet__item">
+        <span class="wallet__label">{{ currency.label }}</span>
+        <span class="wallet__amount">{{ currency.amount }}</span>
+        <span class="wallet__rate">{{ currency.rate ?? 'from duplicate pulls' }}</span>
+      </li>
+    }
+  </ul>
+</section>
+
+<section class="party" aria-labelledby="party-label">
+  <h2 id="party-label" class="section__heading">Your party</h2>
+  @if (party().length === 0) {
+    <p class="party__empty">Nobody is fielded yet.</p>
+  } @else {
+    <ul class="party__list">
+      @for (member of party(); track member.defId) {
+        <li class="party__member">
+          <span class="party__name">{{ member.name }}</span>
+          <span class="party__detail">{{ member.rarityLabel }} · Level {{ member.level }}</span>
+        </li>
+      }
+    </ul>
+  }
+  <a class="party__link" routerLink="/roster">Manage roster</a>
+</section>
+
+<button type="button" class="fight" [disabled]="!canFight()" (click)="fight()">
+  {{ fightLabel() }}
+</button>
 
 <p class="hint">{{ hint() }}</p>

@@ -1,6 +1,14 @@
+import { type CurrencyAmounts, type CurrencyId, type Rates, RATE_CURRENCY_IDS } from '../currency';
 import { type Numeric, ONE, parseOr, ZERO } from '../numeric';
 import { ATB_THRESHOLD } from './clock';
-import { type Combatant, type CombatantData, type CombatStats, type StatBlockData } from './types';
+import {
+  type AuthoredAmount,
+  type AuthoredCurrencies,
+  type Combatant,
+  type CombatantData,
+  type CombatStats,
+  type StatBlockData,
+} from './types';
 
 /**
  * The boundary between authored content and the simulation.
@@ -50,9 +58,32 @@ export function toCombatant(raw: CombatantData): Combatant {
   return { id: raw.id, name: raw.name, stats: toCombatStats(raw.stats) };
 }
 
-/** Parses an authored gold reward, treating anything unusable as nothing. */
-export function toGoldReward(raw: number | string): Numeric {
-  return atLeast(parseOr(raw, ZERO), ZERO);
+/** Parses an authored quantity, treating anything unusable as nothing. */
+export function toAmount(raw: AuthoredAmount | undefined): Numeric {
+  return raw === undefined ? ZERO : atLeast(parseOr(raw, ZERO), ZERO);
+}
+
+/**
+ * Parses an authored per-currency block.
+ *
+ * Absent keys are left absent rather than defaulted to zero, so a payout carries only what a
+ * stage actually grants — which is what lets the "while you were away" panel list the two
+ * currencies that moved instead of five, three of them zero.
+ */
+export function toCurrencyAmounts(raw: AuthoredCurrencies): CurrencyAmounts {
+  const parsed: Partial<Record<CurrencyId, Numeric>> = {};
+  for (const id of RATE_CURRENCY_IDS) {
+    const value = raw[id];
+    if (value !== undefined) {
+      parsed[id] = toAmount(value);
+    }
+  }
+  return parsed;
+}
+
+/** Parses an authored rate block. Same shape, different destination. */
+export function toRates(raw: AuthoredCurrencies): Readonly<Partial<Rates>> {
+  return toCurrencyAmounts(raw);
 }
 
 /**

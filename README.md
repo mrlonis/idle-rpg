@@ -27,8 +27,10 @@ npm start
 ```
 
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
-You should see a gold counter at zero and a Fight button: win the first stage and the counter
-starts ticking. Refresh and the run resumes where it left off.
+You should see a gold counter at zero, your starting party of three, and a Fight button: win the
+first stage and the counter starts ticking — along with a first-clear payout of summon crystals.
+Spend those on the Summon tab, then level and ascend what you pull from the Roster. Refresh and
+the run resumes where it left off.
 
 ---
 
@@ -42,8 +44,8 @@ design rationale for each.
 | --- | -------------------------------------- | ------------------------------------------------ |
 | 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                  |
 | 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`             |
-| 3   | Gacha: seeded rolls, visible pity      | ⬜ Next                                          |
-| 4   | Team composition affecting combat math | ⬜                                               |
+| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing             |
+| 4   | Team composition affecting combat math | ⬜ Next                                          |
 | 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented solver outstanding |
 | 6   | Run on a physical iPhone               | ⬜                                               |
 | 7   | Prestige layer, then content           | ⬜                                               |
@@ -86,7 +88,7 @@ count. Damage is `atk² / (atk + def)`: strictly positive, so a battle always te
 diminishing in DEF, so defence never becomes the only stat. Crits are the only RNG consumer, at
 exactly one draw per attack, from a sub-stream derived via
 `deriveSeed(seed, 'battle:<stageId>:<battleCount>')` — so replaying a battle is reproducible
-and never shifts the gacha sequence.
+and never shifts the gacha sequence — which stopped being a hypothetical in milestone 3.
 
 Combat also drove the save layer's **first real migration**: v2 adds `stage` and `battleCount`,
 and a pre-combat v1 save keeps its gold and RNG position and simply joins the ladder at stage 1.
@@ -100,8 +102,57 @@ still unbuilt. Because the player starts every battle, no stage is ever cleared 
 away, so `goldPerSec` is constant across any offline window and the fixed-rate closed form is
 exactly right. That changes the day an unattended auto-battle lands, and not before.
 
-Deliberately deferred: native foreground/background handling (`@capacitor/app`), routing,
-and Angular Material. All three are cheap to add later and add debugging surface now.
+**What milestone 3 shipped.** A gacha, a roster, an ascension economy and character levelling —
+substantially the largest milestone so far.
+
+`pull(state, banner, count)` draws from the main RNG stream and consumes **exactly three draws
+per pull** whatever it produces, so `rng.calls` still describes where a run is in its sequence
+and resume stays O(1). Combat draws from a derived sub-stream and never advances it, so fighting
+between two pulls cannot shift what the next pull gives.
+
+**Pity is global, always on screen, and generous on purpose.** Base 2.5% for an ascended-tier
+character, soft pity from pull 30 at +6%/pull, guaranteed by 50 — and soft pity passes certainty
+around pull 47, so the cap is a floor rather than the mechanism. A paid gacha tunes to sell a
+bridge across a gap it manufactures; there is no bridge to sell here, so every reason to be
+stingy is a reason that does not apply.
+
+**Two rarity axes.** _Tier_ is which character you pulled (common / legendary / ascended) and
+never changes; _rarity_ is how far you have ascended them, `Rare` through `Ascended ★★★★★`. Tier
+is a **slope, not a head start**: base stat budgets are close, and the gap opens through
+per-level growth — ×1.2 at level 50, ×19.5 at level 1000. A common-tier character is a genuine
+early answer that genuinely falls off, because the math says so rather than because it was
+authored weak. Any character of any tier can reach ★5.
+
+**Duplicates are the progression, not a consolation prize.** Two ascension ladders: the mortal
+one (Humans, Dwarves, Elves, Undead, Monsters) spends _bodies_ — an ascended-tier unit costs 8 of
+its own Elite copies plus 180 Rare copies of same-faction fodder — while the celestial one
+(Angels, Demons) spends _luck_, at 14 of its own Elite copies and no fodder at all. Rungs are
+authored in ascended copies and players hold base ones, so every requirement is resolved
+recursively into base copies; [`data/ascension.spec.ts`](src/data/ascension.spec.ts) pins every
+derived total. **Only spare copies are ever consumed** — never a character you have levelled —
+so there is no way to destroy a week's investment by tapping the wrong row. Copies past ★5
+become spark and buy something in the shop instead.
+
+**Four currencies, none of them decorative.** Gold is broad and comfortable (gear will spend it
+later), XP is characters-only and slower, essence is charged only at breakthrough levels and is
+the real late bottleneck, and summon crystals buy pulls. Through level 140 all three levelling
+currencies land within about a third of each other in time-to-afford. Crystals accrue idly and
+on first clears and are deliberately **not** a repeatable battle reward — stage 1 resolves in
+four seconds, so paying crystals per clear would make tap-farming the bottom of the ladder the
+fastest way to pull.
+
+`GameState` now carries a keyed wallet and rate table rather than a field per currency, and
+**save v3** folds gold into it and adds the roster, the party and the pity counter. A v2 save
+keeps its gold and income, joins with its stages already credited, and gets the starter party
+back on load.
+
+**Routing arrived**, for exactly the reason the design notes said to wait for: a screen that
+survives a reload. Home, summon, roster and shop are routes — `/roster/rin` is somewhere you can
+come back to — while the battle stays a signal-swapped mode, because nothing it shows outlives a
+refresh. The tab bar hides during a fight, since a battle has no exit until it ends.
+
+Deliberately deferred: native foreground/background handling (`@capacitor/app`) and Angular
+Material. Both are cheap to add later and add debugging surface now.
 
 ---
 

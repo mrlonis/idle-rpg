@@ -1,0 +1,126 @@
+@if (entry(); as row) {
+  <header class="head">
+    <a class="head__back" routerLink="/roster">← Roster</a>
+    <h1 class="head__title">{{ row.name }}</h1>
+    <p class="head__meta">
+      <span class="tier tier--{{ row.tier }}">{{ row.tier }}</span>
+      <span>{{ row.factionName }}</span>
+      <span>{{ row.rarityLabel }}</span>
+    </p>
+  </header>
+
+  @if (message(); as text) {
+    <p class="notice notice--error" role="alert">{{ text }}</p>
+  }
+
+  <section class="card" aria-labelledby="stats-label">
+    <h2 id="stats-label" class="section__heading">Stats at level {{ row.level }}</h2>
+    <dl class="stats">
+      @for (stat of stats(); track stat.label) {
+        <div class="stats__pair">
+          <dt class="stats__key">{{ stat.label }}</dt>
+          <dd class="stats__value">{{ stat.value }}</dd>
+        </div>
+      }
+    </dl>
+    @if (multiplier(); as growth) {
+      <p class="card__footnote">
+        ×{{ growth }} on HP, ATK and DEF from level and ascension. SPD and crit never scale.
+      </p>
+    }
+  </section>
+
+  <section class="card" aria-labelledby="level-label">
+    <h2 id="level-label" class="section__heading">Level</h2>
+    <p class="level__current">
+      <strong>{{ row.level }}</strong> / {{ row.levelCap }}
+      @if (row.atLevelCap) {
+        <span class="level__flag">at cap — ascend to raise it</span>
+      }
+    </p>
+    <p class="level__wallet">You hold {{ walletSummary() }}</p>
+    @if (nextLevelCost(); as cost) {
+      <p class="level__cost">Next level costs {{ cost }}</p>
+    }
+    <div class="actions">
+      <button
+        type="button"
+        class="button"
+        [disabled]="row.atLevelCap || !row.canLevel"
+        (click)="levelOnce()"
+      >
+        Level up
+      </button>
+      <button
+        type="button"
+        class="button button--primary"
+        [disabled]="row.affordableLevel <= row.level"
+        (click)="levelMax()"
+      >
+        @if (row.affordableLevel > row.level) {
+          Level to {{ row.affordableLevel }}
+        } @else {
+          Level to max
+        }
+      </button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="ascend-label">
+    <h2 id="ascend-label" class="section__heading">Ascension</h2>
+
+    @if (row.isMaxRarity) {
+      <p class="ascend__done">Fully ascended. Further copies of {{ row.name }} convert to spark.</p>
+    } @else if (row.ascensionCost; as cost) {
+      <p class="ascend__intro">Next rung costs, in copies as they arrive from a banner:</p>
+      <ul class="ascend__costs">
+        <li class="ascend__cost" [class.ascend__cost--short]="row.copies < cost.self">
+          <span class="ascend__label">Copies of {{ row.name }}</span>
+          <span class="ascend__value">{{ row.copies }} / {{ cost.self }}</span>
+        </li>
+        @if (cost.faction > 0) {
+          <li class="ascend__cost" [class.ascend__cost--short]="row.fodderAvailable < cost.faction">
+            <span class="ascend__label">{{ row.factionName }} fodder</span>
+            <span class="ascend__value">{{ row.fodderAvailable }} / {{ cost.faction }}</span>
+          </li>
+        }
+      </ul>
+
+      @if (cost.faction > 0) {
+        @if (fodder().length > 0) {
+          <p class="ascend__pool-label">Available fodder — cheapest is spent first:</p>
+          <ul class="ascend__pool">
+            @for (option of fodder(); track option.defId) {
+              <li class="ascend__pool-item">
+                {{ option.name }} — {{ option.available }}
+                {{ option.available === 1 ? 'copy' : 'copies' }}
+                @if (option.valuePerCopy > 1) {
+                  <span class="ascend__weight">worth {{ option.valuePerCopy }} each</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ascend__pool-label">
+            No spare {{ row.factionName }} copies yet. Pull more of this faction to feed this
+            ascension — only spares are consumed, never a character you have levelled.
+          </p>
+        }
+      }
+
+      <button
+        type="button"
+        class="button button--primary button--wide"
+        [disabled]="!row.canAscend"
+        (click)="ascend()"
+      >
+        Ascend to next rarity
+      </button>
+    }
+  </section>
+} @else {
+  <p class="notice" role="status">
+    You do not own that character.
+    <a class="notice__link" routerLink="/roster">Back to roster</a>
+  </p>
+}

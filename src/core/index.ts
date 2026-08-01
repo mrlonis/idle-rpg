@@ -19,11 +19,20 @@ export {
   ticksToMs,
   ticksUntilReady,
 } from './battle/clock';
-export { ticksPerAction, toCombatant, toCombatStats, toGoldReward } from './battle/content';
+export {
+  ticksPerAction,
+  toAmount,
+  toCombatant,
+  toCombatStats,
+  toCurrencyAmounts,
+  toRates,
+} from './battle/content';
 export { baseDamage, rollAttack, type AttackRoll } from './battle/damage';
 export { applyBattleResult } from './battle/progress';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export {
+  type AuthoredAmount,
+  type AuthoredCurrencies,
   type BattleEvent,
   type BattleOutcome,
   type BattleResult,
@@ -36,6 +45,104 @@ export {
   type StageData,
   type StatBlockData,
 } from './battle/types';
+export {
+  accrue,
+  canAfford,
+  credit,
+  CURRENCY_IDS,
+  debit,
+  emptyWallet,
+  isEmpty,
+  parseRates,
+  parseWallet,
+  raiseRates,
+  RATE_CURRENCY_IDS,
+  serializeRates,
+  serializeWallet,
+  zeroRates,
+  type CurrencyAmounts,
+  type CurrencyId,
+  type RateCurrencyId,
+  type Rates,
+  type Wallet,
+} from './currency';
+export { ascendedChance, pull } from './gacha/pull';
+export {
+  isEligible,
+  offerTargets,
+  purchase,
+  type ShopFailure,
+  type ShopOfferData,
+  type ShopResult,
+} from './gacha/shop';
+export {
+  type BannerData,
+  type GachaRulesData,
+  type PityRulesData,
+  type PullFailure,
+  type PullOutcome,
+  type PullResult,
+} from './gacha/types';
+export {
+  ascend,
+  autoFodderPlan,
+  fodderPool,
+  fodderValue,
+  nextAscension,
+  pathFor,
+  type AscensionPlan,
+  type FactionLookup,
+  type FodderOption,
+} from './roster/ascend';
+export {
+  canLevelUp,
+  clampLevel,
+  cumulativeLevelCost,
+  levelCapFor,
+  levelCost,
+  maxAffordableLevel,
+  type CostTermData,
+  type LevelCurveData,
+} from './roster/level';
+export {
+  ascensionCost,
+  clampRarityIndex,
+  copyCost,
+  fodderBaseCopies,
+  fullAscensionCost,
+  rarityAt,
+  rarityIndex,
+  rarityLabel,
+  startRarityIndex,
+} from './roster/rarity';
+export {
+  findOwned,
+  grantCopies,
+  grantStarters,
+  levelUp,
+  levelUpToAffordable,
+  repairOwned,
+  setParty,
+  type CharacterLookup,
+  type RosterFailure,
+  type RosterResult,
+} from './roster/roster';
+export { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './roster/stats';
+export {
+  MAX_RARITY_INDEX,
+  RARITIES,
+  type AscensionLadder,
+  type AscensionPath,
+  type AscensionRequirement,
+  type AscensionRules,
+  type AscensionScope,
+  type CharacterData,
+  type CharacterTier,
+  type CopyCost,
+  type FactionData,
+  type OwnedCharacter,
+  type RarityId,
+} from './roster/types';
 export {
   Decimal,
   isUsable,
@@ -51,6 +158,7 @@ export {
   accrueDiscrete,
   EMPTY_OFFLINE_REPORT,
   OFFLINE_CAP_MS,
+  paidNothing,
   resume,
   type DiscreteAccrual,
   type OfflineReport,
@@ -70,6 +178,7 @@ export {
   type CurrentSaveData,
   type SaveDataV1,
   type SaveDataV2,
+  type SaveDataV3,
 } from './save/schema';
 export {
   fromSaveData,
@@ -79,5 +188,5 @@ export {
   type RepairResult,
 } from './save/serialize';
 export { SAVE_VERSION } from './save/version';
-export { newGame, stampSaveTime, type GameState, type NewGameOptions } from './state';
+export { newGame, PARTY_SIZE, stampSaveTime, type GameState, type NewGameOptions } from './state';
 export { tick } from './tick';

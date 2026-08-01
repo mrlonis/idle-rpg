@@ -1,3 +1,4 @@
+import { type CurrencyAmounts, type Rates } from '../currency';
 import { type Numeric } from '../numeric';
 
 /**
@@ -44,23 +45,43 @@ export interface CombatantData {
   readonly stats: StatBlockData;
 }
 
+/** A quantity as authored in `data/`, before it becomes a `Numeric`. */
+export type AuthoredAmount = number | string;
+
+/** Per-currency quantities as authored in `data/`. Absent keys mean zero. */
+export interface AuthoredCurrencies {
+  readonly gold?: AuthoredAmount;
+  readonly xp?: AuthoredAmount;
+  readonly essence?: AuthoredAmount;
+  readonly summons?: AuthoredAmount;
+}
+
 /** A stage as authored in `data/`: one encounter, plus what clearing it pays. */
 export interface StageData {
   readonly id: string;
   readonly name: string;
   /** The opposing side, in slot order. Repeating a combatant gives multiple copies. */
   readonly enemies: readonly CombatantData[];
-  /** One-off gold for the clear. */
-  readonly goldReward: number | string;
+  /** One-off payout for the clear, every time it is cleared. */
+  readonly reward: AuthoredCurrencies;
   /**
-   * Idle income the run is raised to by clearing this stage, in gold per second.
+   * Idle income the run is raised to by clearing this stage, per second.
    *
-   * The real prize. A run starts at zero and earns nothing while idle, so the first stage is
-   * what switches the idle game on, and every stage after it is a permanent raise. The one-off
-   * `goldReward` is the smaller half of the deal on purpose — a rate compounds with time away,
-   * a lump sum does not.
+   * The real prize. A run starts at zero on every currency and earns nothing while idle, so the
+   * first stage is what switches the idle game on, and every stage after it is a permanent
+   * raise. The one-off {@link reward} is the smaller half of the deal on purpose — a rate
+   * compounds with time away, a lump sum does not.
    */
-  readonly goldPerSec: number | string;
+  readonly rates: AuthoredCurrencies;
+  /**
+   * Extra summon crystals paid the **first** time this stage is cleared, and never again.
+   *
+   * The one reward in the game tied to progress rather than to patience. It exists so that
+   * pushing the ladder is worth something immediately, and it is deliberately additive to the
+   * idle crystal rate rather than a replacement for it: a player stuck on a stage keeps earning
+   * pulls, which is the opposite of how a paid game would tune this.
+   */
+  readonly firstClearSummons?: AuthoredAmount;
 }
 
 /** A stat block after parsing and clamping, as the simulation uses it. */
@@ -132,12 +153,22 @@ export type BattleEvent =
   | { readonly kind: 'defeat'; readonly tick: number; readonly combatant: string }
   | { readonly kind: 'end'; readonly tick: number; readonly outcome: BattleOutcome };
 
-/** What clearing a stage pays. Zero on anything but a victory. */
+/** What clearing a stage pays. Empty on anything but a victory. */
 export interface BattleReward {
-  /** One-off gold banked for the clear. */
-  readonly gold: Numeric;
-  /** Idle income the run is raised to. Never lowers an existing rate — see `applyBattleResult`. */
-  readonly goldPerSec: Numeric;
+  /** One-off amounts banked for the clear. */
+  readonly gained: CurrencyAmounts;
+  /**
+   * Idle income the run is raised to. Never lowers an existing rate — see `applyBattleResult`.
+   */
+  readonly rates: Readonly<Partial<Rates>>;
+  /**
+   * Summon crystals owed if this is the first time the stage has been cleared.
+   *
+   * Carried unconditionally on a victory and spent conditionally by `applyBattleResult`, which
+   * is the only place that can see `clearedStages`. The simulation resolves a fight; whether
+   * the run has been here before is not its business.
+   */
+  readonly firstClearSummons: Numeric;
 }
 
 /**

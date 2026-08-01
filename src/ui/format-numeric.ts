@@ -1,4 +1,19 @@
-import { type Numeric } from '../core';
+import { CURRENCY_IDS, type CurrencyAmounts, type CurrencyId, type Numeric } from '../core';
+
+/**
+ * What each currency is called on screen.
+ *
+ * Ids are what the save and the simulation speak; these are what the player reads. `summons`
+ * is displayed as "crystals" because that is the noun the summon screen uses for the thing
+ * being spent — the id names the purpose, the label names the object.
+ */
+export const CURRENCY_LABELS: Readonly<Record<CurrencyId, string>> = {
+  gold: 'gold',
+  xp: 'XP',
+  essence: 'essence',
+  summons: 'crystals',
+  spark: 'spark',
+};
 
 /**
  * Short-scale suffixes, one per power of 1000. Covers up to 1e36; past that the formatter
@@ -29,7 +44,16 @@ export function formatNumeric(value: Numeric, fractionDigits = 2): string {
   if (value.lt(1000)) {
     // Small numbers read better without a suffix, and whole values without a decimal point.
     const asNumber = value.toNumber();
-    return Number.isInteger(asNumber) ? String(asNumber) : asNumber.toFixed(fractionDigits);
+    if (Number.isInteger(asNumber)) {
+      return String(asNumber);
+    }
+    // Below the requested precision a fixed number of decimals rounds to a flat zero, which is
+    // the difference between "this earns a little" and "this earns nothing". Fall back to
+    // significant figures so a genuinely small quantity still reads as one.
+    const rounded = asNumber.toFixed(fractionDigits);
+    return trimTrailingZeros(
+      Number(rounded) === 0 ? asNumber.toPrecision(fractionDigits) : rounded,
+    );
   }
 
   const exponent = value.exponent;
@@ -48,11 +72,51 @@ function trimTrailingZeros(text: string): string {
 }
 
 /**
- * Formats a per-second rate. Kept separate from {@link formatNumeric} so the unit and the
- * quantity cannot drift apart across the UI.
+ * Below this, a rate is quoted per hour instead of per second.
+ *
+ * Summon crystals accrue at about 0.014/s at the top of the ladder and essence at 0.05/s. Per
+ * second those read as "0.01/s" and "0.05/s" — technically true and completely useless, since
+ * the number a player actually wants is "how long until I can pull". Per hour the same rates
+ * are "50/hr" and "180/hr", which answers it directly.
+ *
+ * The threshold sits just under gold's opening rate of 0.5/s, so the currency a player watches
+ * tick keeps its per-second reading and the two slow ones get a unit that suits them.
+ */
+const PER_HOUR_BELOW = 0.1;
+
+/**
+ * Formats a per-second rate, choosing the unit that makes it legible.
+ *
+ * Kept separate from {@link formatNumeric} so the unit and the quantity cannot drift apart
+ * across the UI.
  */
 export function formatRate(value: Numeric): string {
+  if (value.lte(0)) {
+    return '0/s';
+  }
+  if (value.lt(PER_HOUR_BELOW)) {
+    return `${formatNumeric(value.mul(3600))}/hr`;
+  }
   return `${formatNumeric(value)}/s`;
+}
+
+/**
+ * Renders a per-currency payout as a readable list: `250 gold · 48 XP · 2 essence`.
+ *
+ * Currencies that paid nothing are omitted rather than shown as zero. A stage that grants gold
+ * and XP should say so in four words, not in five clauses three of which are "0". Returns
+ * `null` when nothing was paid at all, so callers can drop the sentence entirely instead of
+ * printing an empty list.
+ */
+export function formatAmounts(amounts: CurrencyAmounts): string | null {
+  const parts: string[] = [];
+  for (const id of CURRENCY_IDS) {
+    const amount = amounts[id];
+    if (amount?.gt(0) === true) {
+      parts.push(`${formatNumeric(amount)} ${CURRENCY_LABELS[id]}`);
+    }
+  }
+  return parts.length === 0 ? null : parts.join(' · ');
 }
 
 /**

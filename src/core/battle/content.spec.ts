@@ -4,7 +4,7 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { ATB_THRESHOLD } from './clock';
-import { ticksPerAction, toCombatant, toCombatStats, toGoldReward } from './content';
+import { ticksPerAction, toAmount, toCombatant, toCombatStats } from './content';
 import { type StatBlockData } from './types';
 
 const SOUND: StatBlockData = {
@@ -83,14 +83,18 @@ describe('toCombatant', () => {
   });
 });
 
-describe('toGoldReward', () => {
+describe('toAmount', () => {
   it('parses numbers and strings', () => {
-    expect(toGoldReward(250).eq(250)).toBe(true);
-    expect(toGoldReward('1.5e+18').eq('1.5e+18')).toBe(true);
+    expect(toAmount(250).eq(250)).toBe(true);
+    expect(toAmount('1.5e+18').eq('1.5e+18')).toBe(true);
   });
 
-  it.each([-100, Number.NaN, Infinity])('treats an unusable reward of %p as nothing', (raw) => {
-    expect(toGoldReward(raw).eq(0)).toBe(true);
+  it.each([-100, Number.NaN, Infinity])('treats an unusable amount of %p as nothing', (raw) => {
+    expect(toAmount(raw).eq(0)).toBe(true);
+  });
+
+  it('treats an absent amount as nothing, so a stage can omit what it does not pay', () => {
+    expect(toAmount(undefined).eq(0)).toBe(true);
   });
 });
 

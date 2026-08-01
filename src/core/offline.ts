@@ -1,4 +1,5 @@
-import { type Numeric, ZERO } from './numeric';
+import { accrue, credit, isEmpty, type RateCurrencyId, zeroRates } from './currency';
+import { type Numeric } from './numeric';
 import { type GameState } from './state';
 
 /**
@@ -17,8 +18,13 @@ export interface OfflineReport {
   readonly elapsedMs: number;
   /** `true` when the player was away longer than the cap. Worth surfacing in the UI. */
   readonly wasCapped: boolean;
-  /** Gold earned over the paid window. */
-  readonly gold: Numeric;
+  /**
+   * What was earned over the paid window, per currency.
+   *
+   * Complete rather than partial — every rate-bearing currency is present, at zero if it earned
+   * nothing — so a caller never has to distinguish "earned nothing" from "was not paid at all".
+   */
+  readonly earned: Readonly<Record<RateCurrencyId, Numeric>>;
 }
 
 /**
@@ -26,8 +32,14 @@ export interface OfflineReport {
  * player.
  *
  * The elapsed window is never replayed tick by tick. Ten hours at 10Hz is 360,000
- * iterations on resume and would hang the device; gold accrues at a fixed rate, so the
- * exact answer is one multiplication.
+ * iterations on resume and would hang the device; every currency accrues at a fixed rate, so
+ * the exact answer is one multiplication per currency.
+ *
+ * **The rates are constant across any offline window**, which is what makes the closed form
+ * exactly right rather than merely close. Battles are player-initiated, so nothing clears a
+ * stage — and therefore nothing raises a rate — while the player is away. The day an
+ * unattended auto-battle lands, that stops being true and this needs the segmented solver;
+ * until then, building one would be pricing a window that cannot happen.
  *
  * Two clock guards, neither of them anti-cheat:
  * - A negative delta means the device clock moved backwards. Clamp to zero and pay out
@@ -42,21 +54,26 @@ export function resume(
   const safeElapsedMs = Number.isFinite(rawElapsedMs) ? Math.max(rawElapsedMs, 0) : 0;
   const elapsedMs = Math.min(safeElapsedMs, OFFLINE_CAP_MS);
 
-  const gold = state.goldPerSec.mul(elapsedMs / 1000);
+  const earned = accrue(state.rates, elapsedMs / 1000);
 
   return {
     state: {
       ...state,
-      gold: state.gold.add(gold),
+      wallet: credit(state.wallet, earned),
       lastTickAt: nowMs,
     },
     report: {
       rawElapsedMs,
       elapsedMs,
       wasCapped: safeElapsedMs > OFFLINE_CAP_MS,
-      gold,
+      earned,
     },
   };
+}
+
+/** `true` when a report paid out nothing worth showing the player. */
+export function paidNothing(report: OfflineReport): boolean {
+  return isEmpty(report.earned);
 }
 
 export interface DiscreteAccrual {
@@ -90,5 +107,5 @@ export const EMPTY_OFFLINE_REPORT: OfflineReport = {
   rawElapsedMs: 0,
   elapsedMs: 0,
   wasCapped: false,
-  gold: ZERO,
+  earned: zeroRates(),
 };

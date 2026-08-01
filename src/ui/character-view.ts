@@ -1,0 +1,126 @@
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { growthMultiplier, num, type RosterFailure, scaleStats } from '../core';
+import { characterById, GROWTH_RULES } from './content';
+import { formatAmounts, formatNumeric } from './format-numeric';
+import { GameLoopService } from './game-loop.service';
+import { RosterService } from './roster.service';
+
+/** Why an action was refused, in words a player can act on. */
+const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
+  'insufficient-currency': 'Not enough gold, XP or essence for that level.',
+  'level-capped': 'Already at the level cap for this rarity. Ascend to raise it.',
+  'insufficient-copies': 'Not enough copies of this character.',
+  'insufficient-fodder': 'Not enough same-faction copies to pay for this ascension.',
+  'max-rarity': 'Already fully ascended.',
+  'not-owned': 'You do not own this character.',
+  'wrong-faction': 'Fodder has to share this character’s faction.',
+  'fodder-is-self': 'A character cannot be fed to itself.',
+};
+
+/**
+ * One character's sheet: what it is, what it costs to improve, and the two ways to do it.
+ *
+ * ## Ascension shows its price in the copies a player actually holds
+ *
+ * The authored ladder quotes rungs in ascended copies — "2 copies of any same-faction character
+ * at Elite+". Nobody holds those; they hold base copies. So this screen shows the resolved
+ * price, both halves separately, next to what the player has: the `self` half can only ever be
+ * paid by this character, and the `faction` half by anyone sharing its faction, and confusing
+ * the two is what makes a gacha ascension screen unreadable.
+ */
+@Component({
+  selector: 'app-character-view',
+  imports: [RouterLink],
+  templateUrl: './character-view.html',
+  styleUrl: './character-view.scss',
+})
+export class CharacterView {
+  private readonly roster = inject(RosterService);
+  private readonly game = inject(GameLoopService);
+
+  /** From `/roster/:defId`, bound by the router rather than read off an `ActivatedRoute`. */
+  readonly defId = input.required<string>();
+
+  /** The last refusal, cleared as soon as anything succeeds. */
+  protected readonly message = signal<string | null>(null);
+
+  protected readonly entry = computed(() => this.roster.entry(this.defId()));
+  protected readonly definition = computed(() => characterById(this.defId()) ?? null);
+
+  /** Stats at the character's current level and rarity, which is what it actually fights with. */
+  protected readonly stats = computed(() => {
+    const character = this.definition();
+    const entry = this.entry();
+    if (character === null || entry === null) {
+      return null;
+    }
+    const scaled = scaleStats(
+      character.stats,
+      GROWTH_RULES,
+      character.tier,
+      entry.level,
+      entry.rarity,
+    );
+    return [
+      // `scaleStats` returns a JSON-safe stat block, so quantities arrive as exponential
+      // strings — the same shape `data/` authors and the same shape combat parses.
+      { label: 'HP', value: formatNumeric(num(scaled.hp)) },
+      { label: 'ATK', value: formatNumeric(num(scaled.atk)) },
+      { label: 'DEF', value: formatNumeric(num(scaled.def)) },
+      // Unscaled by design — SPD is a scheduling weight against a fixed ATB threshold and crit
+      // chance is a probability, so neither grows. See `core/roster/stats.ts`.
+      { label: 'SPD', value: String(scaled.spd) },
+      { label: 'Crit', value: `${Math.round(scaled.critChance * 100)}% ×${scaled.critMultiplier}` },
+    ];
+  });
+
+  /** The compounded multiplier on this character's quantities, as the sheet reports it. */
+  protected readonly multiplier = computed(() => {
+    const character = this.definition();
+    const entry = this.entry();
+    if (character === null || entry === null) {
+      return null;
+    }
+    return formatNumeric(
+      growthMultiplier(GROWTH_RULES, character.tier, entry.level, entry.rarity),
+      2,
+    );
+  });
+
+  protected readonly nextLevelCost = computed(() => {
+    const cost = this.entry()?.nextLevelCost;
+    return cost === null || cost === undefined ? null : formatAmounts(cost);
+  });
+
+  /** Faction-mates whose spares could pay the fodder half of the next rung. */
+  protected readonly fodder = computed(() => this.roster.fodderFor(this.defId()));
+
+  protected readonly walletSummary = computed(() => {
+    const wallet = this.game.wallet();
+    return `${formatNumeric(wallet.gold)} gold · ${formatNumeric(wallet.xp)} XP · ${formatNumeric(wallet.essence)} essence`;
+  });
+
+  protected levelOnce(): void {
+    this.report(this.roster.levelUpOnce(this.defId()));
+  }
+
+  protected levelMax(): void {
+    this.report(this.roster.levelUpMax(this.defId()));
+  }
+
+  protected ascend(): void {
+    this.report(this.roster.ascendOnce(this.defId()));
+  }
+
+  private report(result: { ok: boolean; reason?: RosterFailure }): void {
+    if (result.ok) {
+      this.message.set(null);
+      return;
+    }
+    this.message.set(
+      (result.reason !== undefined ? FAILURE_MESSAGES[result.reason] : undefined) ??
+        'That did not work.',
+    );
+  }
+}

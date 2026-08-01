@@ -1,0 +1,76 @@
+// Shared palette and primitives.
+//
+// Every contrast ratio noted here is measured against the surface the element actually sits
+// on, not eyeballed. The project's accessibility bar is WCAG AA with a clean AXE run, and
+// colour is never the only carrier of meaning — a rarity is also spelled out, a disabled
+// control is also `disabled`, an error also says what went wrong.
+//
+// Angular scopes component styles, so these are shared by `@use`, not by a global stylesheet.
+
+$page: #12121a;
+$surface: #1e1e2a;
+$surface-raised: #262636;
+$border: #33334a;
+$muted: #a0a0b0; // 7.3:1 on $page, 6.1:1 on $surface
+$text: #f2f2f7;
+$accent: #4ade80; // 8.4:1 on $accent-bg
+$accent-bg: #143024;
+$danger: #ffb4a8; // 8.1:1 on $danger-bg
+$danger-bg: #2a1a1a;
+
+// Tier colours. Each is paired with a text label in the markup — never the sole signal.
+$tier-common: #9fb4d0; // 6.9:1 on $surface
+$tier-legendary: #f0c674; // 9.6:1 on $surface
+$tier-ascended: #e59bf5; // 7.4:1 on $surface
+
+// The smallest comfortable touch target. Above the 44px floor because these are thumb targets
+// on a phone, not pointer targets.
+$tap-target: 2.75rem;
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 2px;
+  }
+}
+
+@mixin card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 0.625rem;
+}
+
+@mixin button-base {
+  min-height: $tap-target;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  @include focus-ring;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  border: 1px solid $accent;
+  background: $accent-bg;
+  color: $accent;
+}
+
+@mixin button-quiet {
+  @include button-base;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text;
+}
+
+// Tabular figures stop a counter from jittering horizontally as digits change — at 6Hz that
+// reads as the whole display vibrating.
+@mixin numeric {
+  font-variant-numeric: tabular-nums;
+}
