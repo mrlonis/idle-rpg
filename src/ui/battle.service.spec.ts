@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
-import { type GameState, newGame, num, startRarityIndex } from '../core';
-import { STAGES, STARTER_CHARACTER_IDS } from '../data';
+import { formationMembers, type GameState, newGame, num, startRarityIndex } from '../core';
+import { STAGES, STARTER_FORMATION } from '../data';
 import { BattleService, type PlaybackSpeed } from './battle.service';
 import { CHARACTERS_BY_ID } from './content';
 import { GameLoopService } from './game-loop.service';
@@ -29,13 +29,14 @@ const T0 = 1_700_000_000_000;
  * behaviour rather than a trap.
  */
 function withStarters(state: GameState): GameState {
-  const roster = STARTER_CHARACTER_IDS.map((defId) => ({
+  const starterIds = formationMembers(STARTER_FORMATION);
+  const roster = starterIds.map((defId) => ({
     defId,
     rarity: startRarityIndex(CHARACTERS_BY_ID.get(defId)?.tier ?? 'common'),
     level: 1,
     copies: 0,
   }));
-  return { ...state, roster, activeParty: [...STARTER_CHARACTER_IDS] };
+  return { ...state, roster, formation: STARTER_FORMATION };
 }
 
 /**
@@ -286,7 +287,7 @@ describe('BattleService', () => {
       fightToTheEnd(battles);
 
       expect(battles.combatants().length).toBeGreaterThan(0);
-      expect(battles.foes().every((foe) => foe.isDown)).toBe(true);
+      expect([...battles.foesFront(), ...battles.foesBack()].every((foe) => foe.isDown)).toBe(true);
     });
 
     it('raises idle income on a win, from a standing start of zero', () => {
@@ -436,14 +437,22 @@ describe('BattleService', () => {
   });
 
   describe('the view model', () => {
-    it('splits the roster into party and foes', () => {
+    it('splits the board into party and foe ranks', () => {
       const { battles } = build();
 
       battles.fight(T0);
 
-      expect(battles.party().every((c) => c.side === 'ally')).toBe(true);
-      expect(battles.foes().every((c) => c.side === 'enemy')).toBe(true);
-      expect(battles.party().length + battles.foes().length).toBe(battles.combatants().length);
+      const party = [...battles.partyFront(), ...battles.partyBack()];
+      const foes = [...battles.foesFront(), ...battles.foesBack()];
+      expect(battles.partyFront().every((c) => c.side === 'ally' && c.row === 'front')).toBe(true);
+      expect(battles.partyBack().every((c) => c.side === 'ally' && c.row === 'back')).toBe(true);
+      expect(battles.foesFront().every((c) => c.side === 'enemy' && c.row === 'front')).toBe(true);
+      expect(battles.foesBack().every((c) => c.side === 'enemy' && c.row === 'back')).toBe(true);
+      expect(battles.partyFront()).toHaveLength(STARTER_FORMATION.front.length);
+      expect(battles.partyBack()).toHaveLength(STARTER_FORMATION.back.length);
+      expect(battles.foesFront()).toHaveLength(STAGES[0].enemies.front.length);
+      expect(battles.foesBack()).toHaveLength(STAGES[0].enemies.back.length);
+      expect(party.length + foes.length).toBe(battles.combatants().length);
     });
 
     it('names every combatant in the log', () => {

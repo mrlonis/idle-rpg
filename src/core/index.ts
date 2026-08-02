@@ -20,21 +20,51 @@ export {
   ticksUntilReady,
 } from './battle/clock';
 export {
+  applyRowBonus,
+  MAX_ACCURACY,
+  MAX_PENETRATION,
+  matchupKey,
   ticksPerAction,
   toAmount,
   toCombatant,
+  toCombatRules,
   toCombatStats,
   toCurrencyAmounts,
   toRates,
+  toSkill,
 } from './battle/content';
-export { baseDamage, rollAttack, type AttackRoll } from './battle/damage';
+export {
+  attackStat,
+  baseDamage,
+  effectiveDefence,
+  factionMultiplier,
+  hitChance,
+  rollAttack,
+  statusChance,
+  type AttackRoll,
+} from './battle/damage';
 export {
   applyBattleResult,
   reconcileClearedStages,
   type StageProgressData,
 } from './battle/progress';
 export { battleSeed, simulateBattle } from './battle/simulate';
+export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
+  absorbDamage,
+  applyStatus,
+  cleanseStatuses,
+  effectiveStats,
+  isStunned,
+  nextExpiry,
+  partitionExpired,
+  shieldTotal,
+  statModifier,
+  toActiveStatus,
+} from './battle/status';
+export {
+  ROWS,
+  type ActiveStatus,
   type AuthoredAmount,
   type AuthoredCurrencies,
   type BattleEvent,
@@ -44,10 +74,26 @@ export {
   type Combatant,
   type CombatantData,
   type CombatantSnapshot,
+  type CombatRules,
+  type CombatRulesData,
   type CombatStats,
+  type DamageType,
+  type FactionMatchupData,
+  type FormationData,
+  type ModifiableStat,
+  type Row,
+  type RowBonusData,
   type Side,
+  type Skill,
+  type SkillConditionData,
+  type SkillCostData,
+  type SkillCostKind,
+  type SkillData,
+  type SkillEffectData,
+  type SkillTarget,
   type StageData,
   type StatBlockData,
+  type StatusData,
 } from './battle/types';
 export {
   accrue,
@@ -120,13 +166,16 @@ export {
   startRarityIndex,
 } from './roster/rarity';
 export {
+  benchMember,
   findOwned,
   grantCopies,
   grantStarters,
   levelUp,
   levelUpToAffordable,
+  placeInRow,
   repairOwned,
-  setParty,
+  setFormation,
+  withoutMember,
   type CharacterLookup,
   type RosterFailure,
   type RosterResult,
@@ -141,6 +190,7 @@ export {
   type AscensionRules,
   type AscensionScope,
   type CharacterData,
+  type CharacterRole,
   type CharacterTier,
   type CopyCost,
   type FactionData,
@@ -183,6 +233,7 @@ export {
   type SaveDataV1,
   type SaveDataV2,
   type SaveDataV3,
+  type SaveDataV4,
 } from './save/schema';
 export {
   fromSaveData,
@@ -192,5 +243,18 @@ export {
   type RepairResult,
 } from './save/serialize';
 export { SAVE_VERSION } from './save/version';
-export { newGame, PARTY_SIZE, stampSaveTime, type GameState, type NewGameOptions } from './state';
+export {
+  BACK_ROW_SIZE,
+  emptyFormation,
+  formationMembers,
+  formationSize,
+  FRONT_ROW_SIZE,
+  newGame,
+  PARTY_SIZE,
+  rowCapacity,
+  stampSaveTime,
+  type GameState,
+  type NewGameOptions,
+  type PartyFormation,
+} from './state';
 export { tick } from './tick';

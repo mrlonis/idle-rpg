@@ -82,12 +82,14 @@ describe('tier divergence', () => {
 });
 
 describe('scaleStats', () => {
-  it('scales the three quantities and nothing else', () => {
+  it('scales the five quantities and nothing else', () => {
     const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 100, 5);
 
     expect(num(scaled.hp).gt(num(TEST_ALPHA.stats.hp))).toBe(true);
-    expect(num(scaled.atk).gt(num(TEST_ALPHA.stats.atk))).toBe(true);
-    expect(num(scaled.def).gt(num(TEST_ALPHA.stats.def))).toBe(true);
+    expect(num(scaled.patk).gt(num(TEST_ALPHA.stats.patk))).toBe(true);
+    expect(num(scaled.matk).gt(num(TEST_ALPHA.stats.matk))).toBe(true);
+    expect(num(scaled.pdef).gt(num(TEST_ALPHA.stats.pdef))).toBe(true);
+    expect(num(scaled.mdef).gt(num(TEST_ALPHA.stats.mdef))).toBe(true);
   });
 
   it('never scales SPD, because it is a scheduling weight against a fixed threshold', () => {
@@ -110,7 +112,7 @@ describe('scaleStats', () => {
     const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 1, 0);
 
     expect(num(scaled.hp).eq(num(TEST_ALPHA.stats.hp))).toBe(true);
-    expect(num(scaled.atk).eq(num(TEST_ALPHA.stats.atk))).toBe(true);
+    expect(num(scaled.patk).eq(num(TEST_ALPHA.stats.patk))).toBe(true);
   });
 
   it('changes nothing at all under flat growth', () => {
@@ -162,7 +164,7 @@ describe('toBattleCombatant', () => {
     );
 
     expect(toCombatStats(invested.stats).hp.gt(toCombatStats(base.stats).hp)).toBe(true);
-    expect(toCombatStats(invested.stats).atk.gt(toCombatStats(base.stats).atk)).toBe(true);
+    expect(toCombatStats(invested.stats).patk.gt(toCombatStats(base.stats).patk)).toBe(true);
   });
 
   it('produces a combatant the simulation can parse without special-casing', () => {

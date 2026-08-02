@@ -3,6 +3,8 @@ import {
   type BannerData,
   type CharacterData,
   type CharacterLookup,
+  type CombatRules,
+  type CombatRulesData,
   type FactionData,
   type FactionLookup,
   type GachaRulesData,
@@ -11,12 +13,14 @@ import {
   type ShopOfferData,
   type StageProgressData,
   toAmount,
+  toCombatRules,
   toRates,
 } from '../core';
 import {
   ASCENSION_RULES,
   BANNERS,
   CHARACTERS,
+  COMBAT_RULES,
   ELITE_UPGRADE_CHANCE,
   FACTIONS,
   GROWTH,
@@ -59,6 +63,16 @@ export const LEVELS: LevelCurveData = LEVEL_CURVE;
 
 /** Per-tier and per-ascension stat growth. */
 export const GROWTH_RULES: GrowthData = GROWTH;
+
+/**
+ * The combat rules, parsed once.
+ *
+ * Every battle reads the faction matrix, and parsing the authored list into a map per fight
+ * would be the same answer recomputed from static content thousands of times over a balance
+ * sweep. The typed local is also what makes a malformed matchup a compile error rather than a
+ * silently neutral pairing.
+ */
+export const COMBAT: CombatRules = toCombatRules(COMBAT_RULES satisfies CombatRulesData);
 
 /** Every banner, keyed by id. */
 export const BANNERS_BY_ID: ReadonlyMap<string, BannerData> = new Map<string, BannerData>(

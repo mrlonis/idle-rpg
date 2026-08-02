@@ -3,22 +3,41 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
-import { ZERO } from '../numeric';
+import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { MAX_BATTLE_TICKS, ticksToMs } from './clock';
+import { PLAIN_COMBAT_RULES, TEST_COMBAT_RULES } from './fixtures';
 import { battleSeed, simulateBattle } from './simulate';
-import { type BattleResult, type CombatantData, type StageData, type StatBlockData } from './types';
+import {
+  type ActiveStatus,
+  type BattleResult,
+  type CombatantData,
+  type CombatRules,
+  type FormationData,
+  type SkillData,
+  type StageData,
+  type StatBlockData,
+} from './types';
 
 const SEED = 0xc0ffee;
 
-function unit(id: string, stats: Partial<StatBlockData> = {}): CombatantData {
+function unit(
+  id: string,
+  stats: Partial<StatBlockData> = {},
+  extra: Partial<Pick<CombatantData, 'faction' | 'basic' | 'skills'>> = {},
+): CombatantData {
   return {
     id,
     name: id,
+    faction: extra.faction ?? 'neutral',
+    basic: extra.basic,
+    skills: extra.skills,
     stats: {
       hp: 100,
-      atk: 20,
-      def: 5,
+      patk: 20,
+      matk: 20,
+      pdef: 5,
+      mdef: 5,
       spd: 100,
       critChance: 0,
       critMultiplier: 2,
@@ -27,8 +46,13 @@ function unit(id: string, stats: Partial<StatBlockData> = {}): CombatantData {
   };
 }
 
+/** A line-up in two ranks. Most specs only need a front rank, so the back one defaults to empty. */
+function line(front: readonly CombatantData[], back: readonly CombatantData[] = []): FormationData {
+  return { front, back };
+}
+
 function stage(
-  enemies: readonly CombatantData[],
+  enemies: FormationData,
   goldReward: number | string = 100,
   goldPerSec: number | string = 2,
 ): StageData {
@@ -41,31 +65,38 @@ function stage(
   };
 }
 
-/** Every observable detail of a battle, as a comparable string. */
+function fight(
+  party: FormationData,
+  encounter: StageData,
+  seed = SEED,
+  rules: CombatRules = PLAIN_COMBAT_RULES,
+): BattleResult {
+  return simulateBattle(party, encounter, seed, rules);
+}
+
+/**
+ * Every observable detail of a battle, as a comparable string.
+ *
+ * Serialised generically rather than case by case: the event union has grown to thirteen kinds,
+ * and a fingerprint that had to name each one would silently stop covering whichever kind was
+ * added last — which is exactly the kind of gap a determinism test cannot afford. `Numeric`
+ * values are recognised by their `mantissa` and serialised through `Decimal.toString`, because
+ * `JSON.stringify` would otherwise emit their internal `{ mantissa, exponent }` shape and two
+ * genuinely different damage numbers could round-trip to the same text.
+ */
 function fingerprint(result: BattleResult): string {
-  return JSON.stringify({
-    outcome: result.outcome,
-    ticks: result.ticks,
-    reward: (result.reward.gained.gold ?? ZERO).toString(),
-    events: result.events.map((event) => {
-      switch (event.kind) {
-        case 'attack':
-          return [
-            event.kind,
-            event.tick,
-            event.source,
-            event.target,
-            event.damage.toString(),
-            event.crit,
-            event.targetHp.toString(),
-          ];
-        case 'defeat':
-          return [event.kind, event.tick, event.combatant];
-        case 'end':
-          return [event.kind, event.tick, event.outcome];
-      }
-    }),
-  });
+  const quantity = (value: unknown): value is Numeric =>
+    typeof value === 'object' && value !== null && 'mantissa' in value;
+
+  return JSON.stringify(
+    {
+      outcome: result.outcome,
+      ticks: result.ticks,
+      reward: (result.reward.gained.gold ?? ZERO).toString(),
+      events: result.events,
+    },
+    (_key, value: unknown) => (quantity(value) ? value.toString() : (value as never)),
+  );
 }
 
 function attackTicks(result: BattleResult): number[] {
@@ -76,13 +107,136 @@ function attackTargets(result: BattleResult): string[] {
   return result.events.filter((event) => event.kind === 'attack').map((event) => event.target);
 }
 
-function hpByKey(snapshots: BattleResult['final']): Record<string, string> {
-  return Object.fromEntries(snapshots.map((s) => [s.key, s.hp.toString()]));
+/**
+ * The damage of the first landed attack in a battle.
+ *
+ * Zero when nothing connected, which is deliberately indistinguishable from a hit for nothing:
+ * every caller here sets the line-up up so that the opening swing lands, so a zero is a broken
+ * fixture rather than a case to branch on.
+ */
+function firstHit(result: BattleResult): Numeric {
+  const hit = result.events.find((event) => event.kind === 'attack');
+  return hit?.kind === 'attack' ? hit.damage : ZERO;
+}
+
+/** Every mutable thing the log is supposed to be able to reproduce, keyed by combatant. */
+interface Board {
+  readonly hp: Record<string, string>;
+  readonly mp: Record<string, number>;
+  readonly shield: Record<string, string>;
+  readonly statuses: Record<string, readonly string[]>;
+}
+
+function boardOf(snapshots: BattleResult['final']): Board {
+  return {
+    hp: Object.fromEntries(snapshots.map((c) => [c.key, c.hp.toString()])),
+    mp: Object.fromEntries(snapshots.map((c) => [c.key, c.mp])),
+    shield: Object.fromEntries(snapshots.map((c) => [c.key, c.shield.toString()])),
+    statuses: Object.fromEntries(
+      snapshots.map((c) => [c.key, c.statuses.map((status) => status.id)]),
+    ),
+  };
+}
+
+/**
+ * Walks the log the way `ui/battle.service.ts` does, and reports the board it lands on.
+ *
+ * Deliberately a second, independent implementation of the replay rather than a call into the
+ * UI's: `core/` cannot import `ui/`, and a spec that reused the animator's own code could only
+ * ever prove it agrees with itself.
+ */
+function replay(result: BattleResult): Board {
+  const hp = new Map(result.roster.map((c) => [c.key, c.hp]));
+  const mp = new Map(result.roster.map((c) => [c.key, c.mp]));
+  const held = new Map<string, ActiveStatus[]>(result.roster.map((c) => [c.key, []]));
+
+  const spend = (key: string, absorbed: Numeric): void => {
+    let remaining = absorbed;
+    const next: ActiveStatus[] = [];
+    for (const status of held.get(key) ?? []) {
+      const pool = status.kind === 'shield' ? (status.amount ?? ZERO) : undefined;
+      if (pool === undefined || remaining.lte(ZERO) || pool.lte(ZERO)) {
+        next.push(status);
+        continue;
+      }
+      const taken = pool.lt(remaining) ? pool : remaining;
+      remaining = remaining.sub(taken);
+      const left = pool.sub(taken);
+      if (left.gt(ZERO)) {
+        next.push({ ...status, amount: left });
+      }
+    }
+    held.set(key, next);
+  };
+
+  for (const event of result.events) {
+    switch (event.kind) {
+      case 'turn':
+        mp.set(event.combatant, event.mp);
+        break;
+      case 'cast':
+        mp.set(event.source, event.mp);
+        hp.set(event.source, event.hp);
+        break;
+      case 'attack':
+      case 'tick-damage':
+        hp.set(event.target, event.targetHp);
+        spend(event.target, event.absorbed);
+        break;
+      case 'heal':
+      case 'tick-heal':
+        hp.set(event.target, event.targetHp);
+        break;
+      case 'status':
+        held.set(event.target, [
+          ...(held.get(event.target) ?? []).filter((s) => s.id !== event.status.id),
+          event.status,
+        ]);
+        break;
+      case 'status-expired':
+        held.set(
+          event.target,
+          (held.get(event.target) ?? []).filter((s) => s.id !== event.statusId),
+        );
+        break;
+      case 'cleanse':
+        held.set(
+          event.target,
+          (held.get(event.target) ?? []).filter((s) => !event.removed.includes(s.id)),
+        );
+        break;
+      case 'defeat':
+        held.set(event.combatant, []);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const shield = (statuses: readonly ActiveStatus[]): Numeric =>
+    statuses.reduce(
+      (total, status) => (status.kind === 'shield' ? total.add(status.amount ?? ZERO) : total),
+      ZERO,
+    );
+
+  return {
+    hp: Object.fromEntries([...hp].map(([key, value]) => [key, value.toString()])),
+    mp: Object.fromEntries(mp),
+    shield: Object.fromEntries(
+      [...held].map(([key, statuses]) => [key, shield(statuses).toString()]),
+    ),
+    statuses: Object.fromEntries(
+      [...held].map(([key, statuses]) => [key, statuses.map((status) => status.id)]),
+    ),
+  };
 }
 
 describe('simulateBattle', () => {
   it('resolves a winnable fight into a victory', () => {
-    const result = simulateBattle([unit('hero', { hp: 1000, atk: 100 })], stage([unit('mook')]), 1);
+    const result = fight(
+      line([unit('hero', { hp: 1000, patk: 100 })]),
+      stage(line([unit('mook')])),
+    );
 
     expect(result.outcome).toBe('victory');
     expect(result.stageId).toBe('test-stage');
@@ -90,10 +244,9 @@ describe('simulateBattle', () => {
   });
 
   it('resolves an unwinnable fight into a defeat', () => {
-    const result = simulateBattle(
-      [unit('hero', { hp: 10, atk: 1 })],
-      stage([unit('titan', { hp: 100_000, atk: 500 })]),
-      1,
+    const result = fight(
+      line([unit('hero', { hp: 10, patk: 1 })]),
+      stage(line([unit('titan', { hp: 100_000, patk: 500 })])),
     );
 
     expect(result.outcome).toBe('defeat');
@@ -101,16 +254,16 @@ describe('simulateBattle', () => {
   });
 
   it('pays the stage reward on a victory and nothing otherwise', () => {
-    const strong = [unit('hero', { hp: 1000, atk: 100 })];
-    const weak = [unit('hero', { hp: 10, atk: 1 })];
-    const opponent = stage([unit('titan', { hp: 100_000, atk: 500 })], 250, 4);
+    const strong = line([unit('hero', { hp: 1000, patk: 100 })]);
+    const weak = line([unit('hero', { hp: 10, patk: 1 })]);
+    const opponent = stage(line([unit('titan', { hp: 100_000, patk: 500 })]), 250, 4);
 
-    const won = simulateBattle(strong, stage([unit('mook')], 250, 4), 1).reward;
+    const won = fight(strong, stage(line([unit('mook')]), 250, 4)).reward;
     expect(won.gained.gold?.eq(250)).toBe(true);
     // The idle income the clear unlocks — the larger half of what a stage is worth.
     expect(won.rates.gold?.eq(4)).toBe(true);
 
-    const lost = simulateBattle(weak, opponent, 1).reward;
+    const lost = fight(weak, opponent).reward;
     // Empty rather than zeroed: a loss pays nothing at all, so there is nothing to list.
     expect(lost.gained).toEqual({});
     expect(lost.rates).toEqual({});
@@ -118,23 +271,23 @@ describe('simulateBattle', () => {
 
   describe('determinism', () => {
     it('produces an identical battle from an identical seed', () => {
-      const team = [unit('rin', { spd: 118, critChance: 0.25 }), unit('bran', { spd: 70 })];
-      const encounter = stage([unit('slime', { critChance: 0.1 }), unit('slime')]);
+      const party = line(
+        [unit('rin', { spd: 118, critChance: 0.25 })],
+        [unit('bran', { spd: 70 })],
+      );
+      const encounter = stage(line([unit('slime', { critChance: 0.1 })], [unit('slime')]));
 
-      const first = simulateBattle(team, encounter, SEED);
-      const second = simulateBattle(team, encounter, SEED);
-
-      expect(fingerprint(second)).toBe(fingerprint(first));
+      expect(fingerprint(fight(party, encounter))).toBe(fingerprint(fight(party, encounter)));
     });
 
     it('produces a different battle from a different seed', () => {
-      // Crits are the only RNG consumer, so this is also what makes a retry a genuinely new
-      // fight rather than a replay of the same loss.
-      const team = [unit('rin', { hp: 400, atk: 60, critChance: 0.5 })];
-      const encounter = stage([unit('slime', { hp: 300, atk: 15, critChance: 0.5 })]);
+      // Hits, crits and status applications are the only RNG consumers, so this is also what
+      // makes a retry a genuinely new fight rather than a replay of the same loss.
+      const party = line([unit('rin', { hp: 400, patk: 60, critChance: 0.5 })]);
+      const encounter = stage(line([unit('slime', { hp: 300, patk: 15, critChance: 0.5 })]));
 
-      const first = simulateBattle(team, encounter, battleSeed(SEED, 'test-stage', 0));
-      const second = simulateBattle(team, encounter, battleSeed(SEED, 'test-stage', 1));
+      const first = fight(party, encounter, battleSeed(SEED, 'test-stage', 0));
+      const second = fight(party, encounter, battleSeed(SEED, 'test-stage', 1));
 
       expect(fingerprint(second)).not.toBe(fingerprint(first));
     });
@@ -142,24 +295,37 @@ describe('simulateBattle', () => {
     it('does not mutate the content it is handed', () => {
       // `data/` is shared, shipped content. A simulation that wrote to a stat block would
       // corrupt every later battle, and balance sweeps would drift as they ran.
-      const team = [unit('rin', { critChance: 0.3 })];
-      const encounter = stage([unit('slime'), unit('slime')]);
-      const before = JSON.stringify({ team, encounter });
+      const party = line([unit('rin', { critChance: 0.3 }, { skills: [POISON_DART] })]);
+      const encounter = stage(line([unit('slime'), unit('slime')]));
+      const before = JSON.stringify({ party, encounter });
 
-      simulateBattle(team, encounter, SEED);
+      fight(party, encounter);
 
-      expect(JSON.stringify({ team, encounter })).toBe(before);
+      expect(JSON.stringify({ party, encounter })).toBe(before);
     });
 
     it('is unaffected by a previous simulation', () => {
-      const team = [unit('rin', { critChance: 0.3 })];
-      const encounter = stage([unit('slime')]);
+      const party = line([unit('rin', { critChance: 0.3 })]);
+      const encounter = stage(line([unit('slime')]));
 
-      const first = simulateBattle(team, encounter, SEED);
-      simulateBattle(team, stage([unit('other', { hp: 5000 })]), 99);
-      const again = simulateBattle(team, encounter, SEED);
+      const first = fight(party, encounter);
+      fight(party, stage(line([unit('other', { hp: 5000 })])), 99);
 
-      expect(fingerprint(again)).toBe(fingerprint(first));
+      expect(fingerprint(fight(party, encounter))).toBe(fingerprint(first));
+    });
+
+    it('chooses targets without consulting the RNG', () => {
+      // Selection has to be a pure function of the battle state. If it drew, the tie-break in a
+      // five-body wave would move with the seed and no replay would be exact.
+      const party = line([unit('hero', { hp: 2000, patk: 40, critChance: 0 })]);
+      const encounter = stage(
+        line([unit('a', { hp: 90, patk: 0 }), unit('b', { hp: 60, patk: 0 })]),
+      );
+
+      const first = attackTargets(fight(party, encounter, 1));
+      const second = attackTargets(fight(party, encounter, 987_654));
+
+      expect(second).toEqual(first);
     });
   });
 
@@ -167,10 +333,9 @@ describe('simulateBattle', () => {
     it('gives a combatant at twice the speed twice the turns', () => {
       // The whole reason for an ATB gauge rather than fixed rounds. The fast ally acts at ticks
       // 5, 10 and 15; the slow enemy gets its single turn at tick 10.
-      const result = simulateBattle(
-        [unit('swift', { hp: 1000, atk: 10, def: 0, spd: 200 })],
-        stage([unit('slow', { hp: 25, atk: 0, def: 0, spd: 100 })]),
-        SEED,
+      const result = fight(
+        line([unit('swift', { hp: 1000, patk: 10, pdef: 0, spd: 200 })]),
+        stage(line([unit('slow', { hp: 25, patk: 0, pdef: 0, spd: 100 })])),
       );
 
       expect(result.outcome).toBe('victory');
@@ -178,69 +343,382 @@ describe('simulateBattle', () => {
     });
 
     it('breaks a gauge tie towards the party', () => {
-      const result = simulateBattle(
-        [unit('ally', { hp: 1000, atk: 10, def: 0, spd: 100 })],
-        stage([unit('foe', { hp: 1000, atk: 10, def: 0, spd: 100 })]),
-        SEED,
+      const result = fight(
+        line([unit('ally', { hp: 1000, patk: 10, pdef: 0, spd: 100 })]),
+        stage(line([unit('foe', { hp: 1000, patk: 10, pdef: 0, spd: 100 })])),
       );
 
-      const [first] = result.events;
+      const first = result.events.find((event) => event.kind === 'attack');
       expect(first).toMatchObject({ kind: 'attack', tick: 10, source: 'ally-0' });
     });
 
     it('lets the faster side strike first', () => {
-      const result = simulateBattle(
-        [unit('slowpoke', { hp: 1000, atk: 10, def: 0, spd: 50 })],
-        stage([unit('quick', { hp: 1000, atk: 10, def: 0, spd: 250 })]),
-        SEED,
+      const result = fight(
+        line([unit('slowpoke', { hp: 1000, patk: 10, pdef: 0, spd: 50 })]),
+        stage(line([unit('quick', { hp: 1000, patk: 10, pdef: 0, spd: 250 })])),
       );
 
-      expect(result.events[0]).toMatchObject({ source: 'enemy-0', tick: 4 });
+      expect(result.events.find((event) => event.kind === 'attack')).toMatchObject({
+        source: 'enemy-0',
+        tick: 4,
+      });
+    });
+
+    it('opens every turn with a marker carrying regenerated MP', () => {
+      // The animator's board moves only because an event said so, and a turn start is the one
+      // place MP goes up. Without this event it would have to model regeneration itself.
+      const result = fight(
+        line([unit('caster', { hp: 500, patk: 30, mp: 10, mpRegen: 4, spd: 100 })]),
+        stage(line([unit('mook', { hp: 400, patk: 5, spd: 1 })])),
+      );
+
+      const turns = result.events.filter(
+        (event) => event.kind === 'turn' && event.combatant === 'ally-0',
+      );
+      expect(turns.slice(0, 2)).toMatchObject([
+        { tick: 10, mp: 10 },
+        { tick: 20, mp: 10 },
+      ]);
     });
   });
 
-  describe('targeting', () => {
-    it('focuses the opponent with the least HP remaining', () => {
-      const result = simulateBattle(
-        [unit('hero', { hp: 1000, atk: 50, def: 0, spd: 100 })],
-        stage([
-          unit('healthy', { hp: 400, atk: 0, spd: 1 }),
-          unit('wounded', { hp: 60, atk: 0, spd: 1 }),
-        ]),
-        SEED,
+  describe('rows', () => {
+    it('sends an ordinary attack into the front rank, not at the weakest body', () => {
+      // The front row is a gate. A back-rank healer on 60 HP is unreachable while anything is
+      // standing in front of it, which is the entire mechanical content of a formation.
+      const result = fight(
+        line([unit('hero', { hp: 1000, patk: 50, pdef: 0, spd: 100 })]),
+        stage(
+          line(
+            [unit('wall', { hp: 400, patk: 0, spd: 1 })],
+            [unit('healer', { hp: 60, patk: 0, spd: 1 })],
+          ),
+        ),
       );
 
-      // The wounded enemy is in the second slot, so slot order alone would have picked the other
-      // one. It should be dead before the healthy one is touched at all.
-      expect(attackTargets(result).slice(0, 2)).toEqual(['enemy-1', 'enemy-1']);
+      expect(attackTargets(result).slice(0, 3)).toEqual(['enemy-0', 'enemy-0', 'enemy-0']);
+    });
+
+    it('falls through to the back rank once the front is empty', () => {
+      // Otherwise a party would stand there swinging at a rank nobody is in.
+      const result = fight(
+        line([unit('hero', { hp: 1000, patk: 100, pdef: 0, spd: 100 })]),
+        stage(
+          line(
+            [unit('wall', { hp: 50, patk: 0, spd: 1 })],
+            [unit('healer', { hp: 50, patk: 0, spd: 1 })],
+          ),
+        ),
+      );
+
+      expect(result.outcome).toBe('victory');
+      expect(attackTargets(result)).toEqual(['enemy-0', 'enemy-1']);
+    });
+
+    it('lets a bypass skill reach the back rank straight away', () => {
+      // What a sniper, a ranger or a mage is bought for, and the answer to a protected healer.
+      const result = fight(
+        line([unit('archer', { hp: 1000, patk: 50, pdef: 0, spd: 100 }, { skills: [SNIPE] })]),
+        stage(
+          line(
+            [unit('wall', { hp: 4000, patk: 0, spd: 1 })],
+            [unit('healer', { hp: 400, patk: 0, spd: 1 })],
+          ),
+        ),
+      );
+
+      expect(attackTargets(result)[0]).toBe('enemy-1');
+    });
+
+    it('numbers slots across both ranks, front first', () => {
+      const result = fight(
+        line([unit('a'), unit('b')], [unit('c')]),
+        stage(line([unit('x')], [unit('y'), unit('z')])),
+      );
+
+      expect(result.roster.map((c) => [c.key, c.row])).toEqual([
+        ['ally-0', 'front'],
+        ['ally-1', 'front'],
+        ['ally-2', 'back'],
+        ['enemy-0', 'front'],
+        ['enemy-1', 'back'],
+        ['enemy-2', 'back'],
+      ]);
+    });
+
+    it('applies the front rank’s defensive bonus and the back rank’s offensive one', () => {
+      const encounter = stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })]));
+      const front = fight(
+        line([unit('hero', { patk: 40, matk: 10, pdef: 20, spd: 100 })]),
+        encounter,
+        SEED,
+        TEST_COMBAT_RULES,
+      );
+      const back = fight(
+        line([], [unit('hero', { patk: 40, matk: 10, pdef: 20, spd: 100 })]),
+        encounter,
+        SEED,
+        TEST_COMBAT_RULES,
+      );
+
+      // The back rank's five percent lands on `patk`, which the basic attack reads, so the hit
+      // is strictly larger from behind. From the front the bonus went to the defences instead,
+      // and the swing is exactly what the stat block authored.
+      expect(firstHit(back).gt(firstHit(front))).toBe(true);
+    });
+
+    it('reaches the back rank when the front one is empty rather than refusing to act', () => {
+      // A formation with nobody in front is legal — a player mid-reshuffle is entitled to one —
+      // and the gate has to fall through rather than leaving both sides swinging at air.
+      const result = fight(
+        line([], [unit('hero', { hp: 1000, patk: 60, spd: 100 })]),
+        stage(line([], [unit('mook', { hp: 200, patk: 10, spd: 100 })])),
+      );
+
+      expect(result.outcome).toBe('victory');
+    });
+  });
+
+  describe('factions', () => {
+    it('applies the matchup multiplier to damage', () => {
+      const encounter = stage(
+        line([unit('victim', { hp: 5000, patk: 0, pdef: 0, spd: 1 }, { faction: 'weak' })]),
+      );
+      const plain = fight(
+        line([unit('hero', { patk: 50, pdef: 0 }, { faction: 'neutral' })]),
+        encounter,
+        SEED,
+        TEST_COMBAT_RULES,
+      );
+      const favoured = fight(
+        line([unit('hero', { patk: 50, pdef: 0 }, { faction: 'strong' })]),
+        encounter,
+        SEED,
+        TEST_COMBAT_RULES,
+      );
+
+      expect(firstHit(plain).eq(50)).toBe(true);
+      expect(firstHit(favoured).eq(100)).toBe(true);
+    });
+  });
+
+  describe('skills', () => {
+    it('prefers the highest-priority skill it can pay for and reports the cast', () => {
+      const result = fight(
+        line([
+          unit('mage', { hp: 1000, patk: 10, matk: 60, mp: 20, spd: 100 }, { skills: [FIREBALL] }),
+        ]),
+        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+      );
+
+      const cast = result.events.find((event) => event.kind === 'cast');
+      expect(cast).toMatchObject({ kind: 'cast', skillId: 'fireball', tick: 10, mp: 8 });
+    });
+
+    it('falls back to the basic attack once the pool is dry', () => {
+      const result = fight(
+        line([
+          unit(
+            'mage',
+            { hp: 1000, patk: 10, matk: 60, mp: 12, mpRegen: 0, spd: 100 },
+            { skills: [FIREBALL] },
+          ),
+        ]),
+        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+      );
+
+      expect(result.events.filter((event) => event.kind === 'cast')).toHaveLength(1);
+      expect(attackTicks(result).length).toBeGreaterThan(1);
+    });
+
+    it('holds a skill on cooldown even with the resources to cast it', () => {
+      const result = fight(
+        line([
+          unit(
+            'mage',
+            { hp: 1000, patk: 10, matk: 60, mp: 999, mpRegen: 99, spd: 100 },
+            { skills: [FIREBALL] },
+          ),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, patk: 0, spd: 1 })])),
+      );
+
+      const casts = result.events
+        .filter((event) => event.kind === 'cast')
+        .map((event) => event.tick);
+      // 30-tick cooldown against a 10-tick turn: every third turn, not every turn.
+      expect(casts.slice(0, 3)).toEqual([10, 40, 70]);
+    });
+
+    it('never lets an HP cost kill the caster', () => {
+      // An HP cost is a tempo trade, not a suicide button — and a combatant that could kill
+      // itself paying for a skill could also end a battle without either side landing a blow.
+      const result = fight(
+        line([unit('warlock', { hp: 30, patk: 10, matk: 60, spd: 100 }, { skills: [BLOOD_BOLT] })]),
+        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+      );
+
+      expect(result.events.filter((event) => event.kind === 'cast')).toEqual([]);
+    });
+
+    it('skips a heal nobody needs and casts it once somebody does', () => {
+      const result = fight(
+        line(
+          [unit('tank', { hp: 300, patk: 5, pdef: 0, spd: 60 })],
+          [
+            unit(
+              'medic',
+              { hp: 400, patk: 5, matk: 40, mp: 60, mpRegen: 2, spd: 100 },
+              { skills: [MEND] },
+            ),
+          ],
+        ),
+        stage(line([unit('mook', { hp: 4000, patk: 40, pdef: 0, spd: 100 })])),
+      );
+
+      const firstCast = result.events.find((event) => event.kind === 'cast');
+      const firstEnemyHit = result.events.find(
+        (event) => event.kind === 'attack' && event.source === 'enemy-0',
+      );
+      expect(firstCast).toBeDefined();
+      expect(firstEnemyHit).toBeDefined();
+      expect(firstCast?.tick).toBeGreaterThan(firstEnemyHit?.tick ?? 0);
+    });
+  });
+
+  describe('statuses', () => {
+    it('ticks a poison on its host’s own turn and stops when it expires', () => {
+      const result = fight(
+        line([unit('rogue', { hp: 1000, patk: 40, spd: 100 }, { skills: [POISON_DART] })]),
+        stage(line([unit('mook', { hp: 100_000, patk: 0, spd: 100 })])),
+      );
+
+      const ticks = result.events
+        .filter((event) => event.kind === 'tick-damage')
+        .map((event) => event.tick);
+      expect(ticks.length).toBeGreaterThan(0);
+      for (const tick of ticks) {
+        expect(tick % 10).toBe(0);
+      }
+      expect(
+        result.events.some(
+          (event) => event.kind === 'status-expired' && event.statusId === 'test-poison',
+        ),
+      ).toBe(true);
+    });
+
+    it('spends a turn to a stun and still consumes the gauge, so a lock cannot deadlock', () => {
+      const result = fight(
+        line([unit('hero', { hp: 5000, patk: 60, spd: 100 })]),
+        stage(
+          line([unit('binder', { hp: 900, patk: 5, spd: 100, effectHit: 1 }, { skills: [BIND] })]),
+        ),
+      );
+
+      const stunned = result.events.filter((event) => event.kind === 'stunned');
+      expect(stunned.length).toBeGreaterThan(0);
+      // The victim keeps arriving at the front of the queue rather than being frozen out of it.
+      expect(result.outcome).not.toBe('stalemate');
+    });
+
+    it('absorbs damage into a shield before HP, and reports both halves', () => {
+      const result = fight(
+        line([
+          unit(
+            'guard',
+            { hp: 1000, patk: 5, matk: 100, pdef: 0, spd: 200 },
+            { skills: [BARRIER_SKILL] },
+          ),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, patk: 40, pdef: 0, spd: 100 })])),
+      );
+
+      const absorbed = result.events.find(
+        (event) => event.kind === 'attack' && event.source === 'enemy-0' && event.absorbed.gt(ZERO),
+      );
+      expect(absorbed).toBeDefined();
+      if (absorbed?.kind === 'attack') {
+        expect(absorbed.damage.lt(absorbed.absorbed)).toBe(true);
+      }
+    });
+
+    it('names the statuses a cleanse removed rather than counting them', () => {
+      // A count cannot reproduce the board: an animator holding two debuffs and told "one was
+      // removed" has to guess which badge to drop, and disagrees with the simulation from then on.
+      const result = fight(
+        line([
+          unit('victim', { hp: 4000, patk: 5, spd: 100 }),
+          unit(
+            'cleric',
+            { hp: 4000, patk: 5, matk: 40, mp: 200, mpRegen: 10, spd: 100 },
+            { skills: [PURIFY] },
+          ),
+        ]),
+        stage(
+          line([
+            unit(
+              'hexer',
+              { hp: 100_000, patk: 5, matk: 30, spd: 100, effectHit: 1 },
+              { skills: [POISON_DART] },
+            ),
+          ]),
+        ),
+      );
+
+      const cleanse = result.events.find((event) => event.kind === 'cleanse');
+      expect(cleanse).toMatchObject({ kind: 'cleanse', removed: ['test-poison'] });
+    });
+
+    it('refreshes a status rather than stacking a second copy of it', () => {
+      // The target has to outlast the fight for its final statuses to be worth reading: a fallen
+      // combatant drops everything it was carrying, which is what keeps the log's replay honest
+      // about corpses.
+      const result = fight(
+        line([unit('rogue', { hp: 1000, patk: 40, spd: 200 }, { skills: [QUICK_DART] })]),
+        stage(line([unit('mook', { hp: 300_000, patk: 0, spd: 1 })])),
+      );
+
+      const applied = result.events.filter((event) => event.kind === 'status');
+      expect(applied.length).toBeGreaterThan(1);
+      expect(result.final.find((c) => c.key === 'enemy-0')?.statuses).toHaveLength(1);
     });
   });
 
   describe('the event log', () => {
     it('reproduces the final standings exactly when replayed', () => {
       // The log is the only thing the UI is given, so it has to be complete: replaying it must
-      // land on the same HP the simulation finished with, or the animation and the run disagree.
-      const result = simulateBattle(
-        [unit('rin', { hp: 400, atk: 60, critChance: 0.3 }), unit('bran', { hp: 900, atk: 30 })],
-        stage([unit('slime', { hp: 260, atk: 22 }), unit('slime', { hp: 260, atk: 22 })]),
-        SEED,
+      // land on the same board the simulation finished with, or the animation and the run
+      // disagree for the rest of the fight.
+      //
+      // **HP is not enough to check, and that is the whole reason this asserts four things.** A
+      // damage-over-time tick against a barrier drains the barrier and reaches no HP at all, so
+      // an event that carried only `targetHp` reported `0` and looked perfectly correct while the
+      // animator's shield stayed full — which is precisely the bug this used to miss.
+      const result = fight(
+        line(
+          [unit('bran', { hp: 900, patk: 30, matk: 80, spd: 90 }, { skills: [BARRIER_SKILL] })],
+          [unit('rin', { hp: 400, patk: 60, critChance: 0.3 }, { skills: [POISON_DART] })],
+        ),
+        stage(
+          line(
+            [unit('slime', { hp: 900, patk: 22 }, { skills: [POISON_DART] })],
+            [unit('shaman', { hp: 600, patk: 18, matk: 70, spd: 80 }, { skills: [BARRIER_SKILL] })],
+          ),
+        ),
       );
 
-      const replayed = Object.fromEntries(result.roster.map((c) => [c.key, c.hp.toString()]));
-      for (const event of result.events) {
-        if (event.kind === 'attack') {
-          replayed[event.target] = event.targetHp.toString();
-        }
-      }
+      const board = replay(result);
 
-      expect(replayed).toEqual(hpByKey(result.final));
+      expect(board.hp).toEqual(boardOf(result.final).hp);
+      expect(board.mp).toEqual(boardOf(result.final).mp);
+      expect(board.shield).toEqual(boardOf(result.final).shield);
+      expect(board.statuses).toEqual(boardOf(result.final).statuses);
     });
 
     it('records a defeat the moment a combatant reaches zero, and only once', () => {
-      const result = simulateBattle(
-        [unit('hero', { hp: 1000, atk: 100 })],
-        stage([unit('mook', { hp: 50, atk: 0 })]),
-        SEED,
+      const result = fight(
+        line([unit('hero', { hp: 1000, patk: 100 })]),
+        stage(line([unit('mook', { hp: 50, patk: 0 })])),
       );
 
       const defeats = result.events.filter((event) => event.kind === 'defeat');
@@ -249,10 +727,9 @@ describe('simulateBattle', () => {
     });
 
     it('never reports negative HP', () => {
-      const result = simulateBattle(
-        [unit('hero', { hp: 1000, atk: 5000 })],
-        stage([unit('mook', { hp: 10, atk: 0 })]),
-        SEED,
+      const result = fight(
+        line([unit('hero', { hp: 1000, patk: 5000 })]),
+        stage(line([unit('mook', { hp: 10, patk: 0 })])),
       );
 
       for (const event of result.events) {
@@ -263,19 +740,42 @@ describe('simulateBattle', () => {
     });
 
     it('closes with exactly one end event', () => {
-      const result = simulateBattle([unit('hero', { atk: 100 })], stage([unit('mook')]), SEED);
+      const result = fight(line([unit('hero', { patk: 100 })]), stage(line([unit('mook')])));
 
       expect(result.events.filter((event) => event.kind === 'end')).toHaveLength(1);
       expect(result.events.at(-1)?.kind).toBe('end');
     });
 
+    it('is ordered by tick throughout', () => {
+      const result = fight(
+        line(
+          [unit('rin', { hp: 400, patk: 60, spd: 118 }, { skills: [POISON_DART] })],
+          [unit('bran', { hp: 900, patk: 30, spd: 70 })],
+        ),
+        stage(
+          line(
+            [unit('slime', { hp: 400, patk: 22 })],
+            [unit('wisp', { hp: 200, patk: 18, spd: 148 })],
+          ),
+        ),
+      );
+
+      let last = -1;
+      for (const event of result.events) {
+        expect(event.tick).toBeGreaterThanOrEqual(last);
+        last = event.tick;
+      }
+    });
+
     it('stops acting once the battle is decided', () => {
       // A combatant killed earlier in the same tick must not still swing, and nothing may act
       // after the last enemy falls.
-      const result = simulateBattle(
-        [unit('a', { hp: 1000, atk: 100, spd: 100 }), unit('b', { hp: 1000, atk: 100, spd: 100 })],
-        stage([unit('mook', { hp: 30, atk: 0, spd: 100 })]),
-        SEED,
+      const result = fight(
+        line([
+          unit('a', { hp: 1000, patk: 100, spd: 100 }),
+          unit('b', { hp: 1000, patk: 100, spd: 100 }),
+        ]),
+        stage(line([unit('mook', { hp: 30, patk: 0, spd: 100 })])),
       );
 
       expect(result.events.filter((event) => event.kind === 'attack')).toHaveLength(1);
@@ -284,10 +784,9 @@ describe('simulateBattle', () => {
 
   describe('naming', () => {
     it('numbers repeated copies so the log stays readable', () => {
-      const result = simulateBattle(
-        [unit('hero', { atk: 100 })],
-        stage([unit('slime'), unit('slime'), unit('slime')]),
-        SEED,
+      const result = fight(
+        line([unit('hero', { patk: 100 })]),
+        stage(line([unit('slime'), unit('slime')], [unit('slime')])),
       );
 
       const enemies = result.roster.filter((c) => c.side === 'enemy');
@@ -296,7 +795,7 @@ describe('simulateBattle', () => {
     });
 
     it('leaves a single copy unnumbered', () => {
-      const result = simulateBattle([unit('hero', { atk: 100 })], stage([unit('slime')]), SEED);
+      const result = fight(line([unit('hero', { patk: 100 })]), stage(line([unit('slime')])));
 
       expect(result.roster.find((c) => c.side === 'enemy')?.name).toBe('slime');
     });
@@ -307,10 +806,9 @@ describe('simulateBattle', () => {
       // The damage formula guarantees a battle ends eventually, but "eventually" can be 1e24
       // turns. A synchronous function on the main thread needs a hard ceiling, and a balance
       // sweep needs one even more.
-      const result = simulateBattle(
-        [unit('pebble', { hp: 1000, atk: 1, def: '1e12', spd: 100 })],
-        stage([unit('mountain', { hp: '1e12', atk: 0, def: '1e12', spd: 100 })]),
-        SEED,
+      const result = fight(
+        line([unit('pebble', { hp: 1000, patk: 1, pdef: '1e12', spd: 100 })]),
+        stage(line([unit('mountain', { hp: '1e12', patk: 0, pdef: '1e12', spd: 100 })])),
       );
 
       expect(result.outcome).toBe('stalemate');
@@ -318,22 +816,33 @@ describe('simulateBattle', () => {
       expect(result.events.at(-1)).toMatchObject({ kind: 'end', outcome: 'stalemate' });
     });
 
+    it('still finishes against a combatant that dodges almost everything', () => {
+      // The hit-chance floor is the reason. Without it, a stacked dodge pool would make every
+      // fight against it a run to the tick cap.
+      const result = fight(
+        line([unit('hero', { hp: 5000, patk: 60, accuracy: 0 })]),
+        stage(line([unit('ghost', { hp: 200, patk: 0, dodge: 1, spd: 1 })])),
+      );
+
+      expect(result.outcome).toBe('victory');
+      expect(result.ticks).toBeLessThan(MAX_BATTLE_TICKS);
+    });
+
     it('resolves instantly when a side is empty', () => {
-      const noEnemies = simulateBattle([unit('hero')], stage([]), SEED);
-      const noParty = simulateBattle([], stage([unit('mook')]), SEED);
+      const noEnemies = fight(line([unit('hero')]), stage(line([])));
+      const noParty = fight(line([]), stage(line([unit('mook')])));
 
       expect(noEnemies.outcome).toBe('victory');
       expect(noEnemies.ticks).toBe(0);
       // A battle entered with nobody is a loss, not a walkover.
       expect(noParty.outcome).toBe('defeat');
-      expect(simulateBattle([], stage([]), SEED).outcome).toBe('defeat');
+      expect(fight(line([]), stage(line([]))).outcome).toBe('defeat');
     });
 
     it('prices the fight in game time', () => {
-      const result = simulateBattle(
-        [unit('swift', { hp: 1000, atk: 10, def: 0, spd: 200 })],
-        stage([unit('slow', { hp: 25, atk: 0, def: 0, spd: 100 })]),
-        SEED,
+      const result = fight(
+        line([unit('swift', { hp: 1000, patk: 10, pdef: 0, spd: 200 })]),
+        stage(line([unit('slow', { hp: 25, patk: 0, pdef: 0, spd: 100 })])),
       );
 
       expect(result.durationMs).toBe(ticksToMs(result.ticks));
@@ -346,8 +855,8 @@ describe('battleSeed', () => {
   it('derives a different seed per stage and per attempt', () => {
     const first = battleSeed(SEED, 'stage-1', 0);
 
-    expect(battleSeed(SEED, 'stage-1', 1)).not.toBe(first);
     expect(battleSeed(SEED, 'stage-2', 0)).not.toBe(first);
+    expect(battleSeed(SEED, 'stage-1', 1)).not.toBe(first);
     expect(battleSeed(SEED + 1, 'stage-1', 0)).not.toBe(first);
   });
 
@@ -356,16 +865,145 @@ describe('battleSeed', () => {
   });
 
   it('uses the shared derivation rather than a private scheme', () => {
-    // Pins the label format. Combat must draw from a sub-stream of the run seed so replaying a
-    // battle is reproducible and never shifts the pull sequence.
-    expect(battleSeed(SEED, 'stage-4', 12)).toBe(deriveSeed(SEED, 'battle:stage-4:12'));
+    // So that combat's sub-stream is provably independent of the pull stream, which is what
+    // stops a replayed battle from shifting the gacha sequence.
+    expect(battleSeed(SEED, 'stage-4', 2)).toBe(deriveSeed(SEED, 'battle:stage-4:2'));
   });
 
   it('returns a uint32', () => {
-    const seed = battleSeed(0xffffffff, 'stage-1', 999);
+    const seed = battleSeed(SEED, 'stage-1', 0);
 
     expect(Number.isInteger(seed)).toBe(true);
     expect(seed).toBeGreaterThanOrEqual(0);
     expect(seed).toBeLessThanOrEqual(0xffffffff);
   });
 });
+
+// ---------------------------------------------------------------------------------------
+// Fixture kits
+//
+// Authored here rather than pulled from `data/`: `core/` cannot see content, and a spec built
+// on the shipped skills would fail every time one was retuned — exactly the coupling the
+// layering rule exists to prevent.
+// ---------------------------------------------------------------------------------------
+
+const SNIPE: SkillData = {
+  id: 'snipe',
+  name: 'Snipe',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  priority: 5,
+};
+
+const FIREBALL: SkillData = {
+  id: 'fireball',
+  name: 'Fireball',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2 }],
+  cost: { kind: 'mp', amount: 12 },
+  cooldown: 30,
+  priority: 5,
+};
+
+const BLOOD_BOLT: SkillData = {
+  id: 'blood-bolt',
+  name: 'Blood Bolt',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2 }],
+  cost: { kind: 'hp', amount: 40 },
+  priority: 5,
+};
+
+const MEND: SkillData = {
+  id: 'test-mend',
+  name: 'Mend',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1 }],
+  cost: { kind: 'mp', amount: 8 },
+  condition: { kind: 'ally-hurt', fraction: 0.9 },
+  priority: 5,
+};
+
+const POISON_DART: SkillData = {
+  id: 'poison-dart',
+  name: 'Poison Dart',
+  target: 'enemy-front',
+  effects: [
+    {
+      kind: 'status',
+      status: {
+        kind: 'dot',
+        id: 'test-poison',
+        name: 'Poisoned',
+        hostile: true,
+        duration: 45,
+        damageType: 'physical',
+        power: 0.3,
+      },
+    },
+  ],
+  // Longer than the status it applies, so the spec can watch one expire rather than watching it
+  // be refreshed forever.
+  cooldown: 60,
+  priority: 5,
+};
+
+/**
+ * The same poison on a cooldown shorter than its own duration, so it is always running.
+ *
+ * The distinction from {@link POISON_DART} is the point of having both: that one is deliberately
+ * slower than the status it applies so a spec can watch one expire, and this one is deliberately
+ * faster so a spec can watch one be re-applied over a copy that has not.
+ */
+const QUICK_DART: SkillData = {
+  ...POISON_DART,
+  id: 'quick-dart',
+  name: 'Quick Dart',
+  cooldown: 20,
+};
+
+const BIND: SkillData = {
+  id: 'bind',
+  name: 'Bind',
+  target: 'enemy-front',
+  effects: [
+    {
+      kind: 'status',
+      status: { kind: 'stun', id: 'test-stun', name: 'Stunned', hostile: true, duration: 25 },
+    },
+  ],
+  cooldown: 40,
+  priority: 5,
+};
+
+const BARRIER_SKILL: SkillData = {
+  id: 'test-barrier',
+  name: 'Barrier',
+  target: 'self',
+  effects: [
+    {
+      kind: 'status',
+      status: {
+        kind: 'shield',
+        id: 'test-shield',
+        name: 'Barrier',
+        hostile: false,
+        duration: 200,
+        power: 2,
+      },
+    },
+  ],
+  cooldown: 400,
+  priority: 5,
+};
+
+const PURIFY: SkillData = {
+  id: 'purify',
+  name: 'Purify',
+  target: 'ally-afflicted',
+  effects: [{ kind: 'cleanse', count: 2 }],
+  cost: { kind: 'mp', amount: 6 },
+  cooldown: 20,
+  condition: { kind: 'ally-afflicted' },
+  priority: 5,
+};

@@ -3,23 +3,25 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
+import { formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v1 from './fixtures/v1.json';
 import v2 from './fixtures/v2.json';
 import v3 from './fixtures/v3.json';
+import v4 from './fixtures/v4.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
 
 /**
- * Every historical save version keeps a real fixture here, and this suite migrates all of
+ * Every save version keeps a representative fixture here, and this suite migrates all of
  * them to current.
  *
  * This is the test that makes the save layer trustworthy. It catches the migration written
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * Fixtures are imported statically rather than scanned off disk: the spec then has no
+ * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
  * type-checks. Registering a new fixture is two lines, and the coverage assertion below
  * fails if you bump `SAVE_VERSION` and forget.
@@ -28,6 +30,7 @@ const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
   [1, v1],
   [2, v2],
   [3, v3],
+  [4, v4],
 ]);
 
 const OPTIONS: RepairOptions = {
@@ -70,7 +73,7 @@ describe('save fixtures', () => {
     expect(state.clearedStages).toBeGreaterThanOrEqual(0);
     expect(state.battleCount).toBeGreaterThanOrEqual(0);
     expect(state.pity).toBeGreaterThanOrEqual(0);
-    expect(state.activeParty.length).toBeLessThanOrEqual(3);
+    expect(formationMembers(state.formation).length).toBeLessThanOrEqual(PARTY_SIZE);
   });
 });
 
@@ -150,7 +153,7 @@ describe('v2 fixture contents', () => {
     const { state } = loadSave(v2, OPTIONS);
 
     expect(state.roster).toEqual([]);
-    expect(state.activeParty).toEqual([]);
+    expect(state.formation).toEqual({ front: [], back: [] });
   });
 });
 
@@ -181,6 +184,6 @@ describe('v3 fixture contents', () => {
     // every one of that player's battles resolves.
     const { state } = loadSave(v3, OPTIONS);
 
-    expect(state.activeParty).toEqual(['gamma', 'alpha', 'beta']);
+    expect(state.formation).toEqual({ front: ['gamma', 'alpha'], back: ['beta'] });
   });
 });

@@ -87,8 +87,12 @@ test.describe('Accessibility', () => {
     await page.goto('/roster');
 
     await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
-    // The starter party is fielded on a fresh run, so the toggles are in both states here.
-    await expect(page.getByRole('button', { name: /Remove .* from party/ }).first()).toBeVisible();
+    // A fresh run fields three of five, so the placement control is scanned in both of its
+    // states — one row offering to move somebody who is standing, and the empty slots below.
+    await expect(page.getByRole('heading', { level: 2, name: 'Formation' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /^Move .* to the back row/ }).first(),
+    ).toBeVisible();
 
     await scan(page, testInfo, 'roster');
   });

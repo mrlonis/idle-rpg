@@ -21,42 +21,106 @@
     </header>
 
     <div class="battle__sides">
+      <!--
+        Each side is drawn as its two ranks, front first, because that is the order attacks
+        work through them. The rank headings are real text rather than a visual grouping: the
+        front row is a gate, and a screen reader user has as much need to know who is standing
+        in it as anyone.
+      -->
       <section class="roster" aria-labelledby="party-heading">
         <h2 id="party-heading" class="roster__label">Your party</h2>
-        <ul class="roster__list">
-          @for (fighter of party(); track fighter.viewKey) {
-            <li class="fighter" [class.fighter--down]="fighter.isDown">
-              <span class="fighter__name">{{ fighter.name }}</span>
-              <span class="fighter__hp">{{ hpText(fighter) }}</span>
-              <!--
-                aria-hidden because the HP text immediately above states the same value exactly.
-                Marking this up as a progressbar as well would make a screen reader announce
-                every hit twice.
-              -->
-              <div class="bar" aria-hidden="true">
-                <div class="bar__fill" [style.width.%]="fighter.fraction * 100"></div>
-              </div>
-            </li>
+        @for (rank of partyRanks(); track rank.row) {
+          <h3 class="roster__rank">{{ rank.label }}</h3>
+          @if (rank.fighters.length === 0) {
+            <p class="roster__empty">Empty</p>
           }
-        </ul>
+          <ul class="roster__list">
+            @for (fighter of rank.fighters; track fighter.viewKey) {
+              <li
+                class="fighter"
+                [class.fighter--down]="fighter.isDown"
+                [class.fighter--acting]="fighter.isActing"
+              >
+                <span class="fighter__name">{{ fighter.name }}</span>
+                <span class="fighter__hp">{{ hpText(fighter) }}</span>
+                <!--
+                  aria-hidden because the HP text immediately above states the same value
+                  exactly. Marking this up as a progressbar as well would make a screen reader
+                  announce every hit twice.
+                -->
+                <div class="bar" aria-hidden="true">
+                  <div class="bar__fill" [style.width.%]="fighter.fraction * 100"></div>
+                  <div class="bar__shield" [style.width.%]="shieldPercent(fighter)"></div>
+                </div>
+                @if (fighter.maxMp > 0) {
+                  <span class="fighter__mp">MP {{ fighter.mp }} / {{ fighter.maxMp }}</span>
+                  <div class="bar bar--mp" aria-hidden="true">
+                    <div
+                      class="bar__fill bar__fill--mp"
+                      [style.width.%]="fighter.mpFraction * 100"
+                    ></div>
+                  </div>
+                }
+                @if (fighter.statuses.length > 0) {
+                  <ul class="statuses">
+                    @for (status of fighter.statuses; track status.id) {
+                      <li class="status" [class.status--hostile]="status.hostile">
+                        {{ status.name }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        }
       </section>
 
       <section class="roster" aria-labelledby="foes-heading">
         <h2 id="foes-heading" class="roster__label">Enemies</h2>
-        <ul class="roster__list">
-          @for (fighter of foes(); track fighter.viewKey) {
-            <li class="fighter" [class.fighter--down]="fighter.isDown">
-              <span class="fighter__name">{{ fighter.name }}</span>
-              <span class="fighter__hp">{{ hpText(fighter) }}</span>
-              <div class="bar" aria-hidden="true">
-                <div
-                  class="bar__fill bar__fill--foe"
-                  [style.width.%]="fighter.fraction * 100"
-                ></div>
-              </div>
-            </li>
+        @for (rank of foeRanks(); track rank.row) {
+          <h3 class="roster__rank">{{ rank.label }}</h3>
+          @if (rank.fighters.length === 0) {
+            <p class="roster__empty">Empty</p>
           }
-        </ul>
+          <ul class="roster__list">
+            @for (fighter of rank.fighters; track fighter.viewKey) {
+              <li
+                class="fighter"
+                [class.fighter--down]="fighter.isDown"
+                [class.fighter--acting]="fighter.isActing"
+              >
+                <span class="fighter__name">{{ fighter.name }}</span>
+                <span class="fighter__hp">{{ hpText(fighter) }}</span>
+                <div class="bar" aria-hidden="true">
+                  <div
+                    class="bar__fill bar__fill--foe"
+                    [style.width.%]="fighter.fraction * 100"
+                  ></div>
+                  <div class="bar__shield" [style.width.%]="shieldPercent(fighter)"></div>
+                </div>
+                @if (fighter.maxMp > 0) {
+                  <span class="fighter__mp">MP {{ fighter.mp }} / {{ fighter.maxMp }}</span>
+                  <div class="bar bar--mp" aria-hidden="true">
+                    <div
+                      class="bar__fill bar__fill--mp"
+                      [style.width.%]="fighter.mpFraction * 100"
+                    ></div>
+                  </div>
+                }
+                @if (fighter.statuses.length > 0) {
+                  <ul class="statuses">
+                    @for (status of fighter.statuses; track status.id) {
+                      <li class="status" [class.status--hostile]="status.hostile">
+                        {{ status.name }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        }
       </section>
     </div>
 

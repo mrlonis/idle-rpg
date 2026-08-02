@@ -1,5 +1,6 @@
 import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import {
+  type ActiveStatus,
   applyBattleResult,
   BATTLE_TICK_MS,
   battleSeed,
@@ -7,11 +8,14 @@ import {
   type BattleOutcome,
   type BattleResult,
   type Numeric,
+  type Row,
   type Side,
   simulateBattle,
   type StageData,
+  ZERO,
 } from '../core';
 import { STAGES } from '../data';
+import { COMBAT } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -59,10 +63,21 @@ export interface BattleCombatantView {
   readonly viewKey: string;
   readonly name: string;
   readonly side: Side;
+  readonly row: Row;
+  readonly faction: string;
   readonly hp: Numeric;
   readonly maxHp: Numeric;
   /** Remaining HP as a 0–1 fraction, for a progress bar. */
   readonly fraction: number;
+  readonly maxMp: number;
+  readonly mp: number;
+  /** Remaining MP as a 0–1 fraction. Zero-pool combatants report 0 and hide the bar. */
+  readonly mpFraction: number;
+  /** Remaining absorb across every shield, for a bar segment over the HP bar. */
+  readonly shield: Numeric;
+  readonly statuses: readonly ActiveStatus[];
+  /** Set while this combatant is the one taking a turn, for a highlight. */
+  readonly isActing: boolean;
   readonly isDown: boolean;
 }
 
@@ -126,6 +141,9 @@ export class BattleService {
   readonly isOpen = signal(false);
 
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
+  private readonly liveMp = signal<ReadonlyMap<string, number>>(new Map());
+  private readonly liveStatuses = signal<ReadonlyMap<string, readonly ActiveStatus[]>>(new Map());
+  private readonly acting = signal<string | null>(null);
 
   /** Monotonic counter over battles narrated this session. Only identity matters, not the value. */
   private readonly battleId = signal(0);
@@ -142,24 +160,44 @@ export class BattleService {
       return [];
     }
     const hp = this.liveHp();
+    const mp = this.liveMp();
+    const statuses = this.liveStatuses();
+    const acting = this.acting();
     const battle = this.battleId();
+
     return result.roster.map((combatant) => {
       const current = hp.get(combatant.key) ?? combatant.maxHp;
+      const currentMp = mp.get(combatant.key) ?? combatant.maxMp;
+      const held = statuses.get(combatant.key) ?? [];
       return {
         key: combatant.key,
         viewKey: `${battle}:${combatant.key}`,
         name: combatant.name,
         side: combatant.side,
+        row: combatant.row,
+        faction: combatant.faction,
         hp: current,
         maxHp: combatant.maxHp,
         fraction: fractionOf(current, combatant.maxHp),
+        maxMp: combatant.maxMp,
+        mp: currentMp,
+        mpFraction: combatant.maxMp > 0 ? Math.min(currentMp / combatant.maxMp, 1) : 0,
+        shield: shieldOf(held),
+        statuses: held,
+        isActing: acting === combatant.key && current.gt(ZERO),
         isDown: current.lte(0),
       };
     });
   });
 
-  readonly party = computed(() => this.combatants().filter((c) => c.side === 'ally'));
-  readonly foes = computed(() => this.combatants().filter((c) => c.side === 'enemy'));
+  readonly partyFront = computed(() => this.rank('ally', 'front'));
+  readonly partyBack = computed(() => this.rank('ally', 'back'));
+  readonly foesFront = computed(() => this.rank('enemy', 'front'));
+  readonly foesBack = computed(() => this.rank('enemy', 'back'));
+
+  private rank(side: Side, row: Row): readonly BattleCombatantView[] {
+    return this.combatants().filter((view) => view.side === side && view.row === row);
+  }
 
   /**
    * The stage the next {@link fight} will enter, or `null` before the run has loaded.
@@ -205,19 +243,23 @@ export class BattleService {
 
     const { stage, number } = stageFor(state.stage);
     const result = simulateBattle(
-      // The party the player has chosen, with stats already scaled for level and rarity —
-      // which is the whole reason the roster exists. An empty party resolves as an immediate
-      // defeat rather than being quietly substituted for the starters.
-      this.roster.battleParty(),
+      // The formation the player has chosen, with stats already scaled for level and rarity —
+      // which is the whole reason the roster exists. An empty formation resolves as an
+      // immediate defeat rather than being quietly substituted for the starters.
+      this.roster.battleFormation(),
       stage,
       // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
       // replaying a battle cannot shift the pull sequence.
       battleSeed(state.rng.seed, stage.id, state.battleCount),
+      COMBAT,
     );
 
     this.stage.set({ name: stage.name, number });
     this.result.set(result);
     this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
+    this.liveMp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxMp])));
+    this.liveStatuses.set(new Map());
+    this.acting.set(null);
     this.recentEvents.set([]);
     this.outcome.set(null);
     this.battleId.update((id) => id + 1);
@@ -253,6 +295,9 @@ export class BattleService {
     this.outcome.set(null);
     this.recentEvents.set([]);
     this.liveHp.set(new Map());
+    this.liveMp.set(new Map());
+    this.liveStatuses.set(new Map());
+    this.acting.set(null);
   }
 
   stop(): void {
@@ -286,7 +331,15 @@ export class BattleService {
     this.play();
   }
 
-  /** Plays every event whose tick has now been reached. */
+  /**
+   * Plays every event whose tick has now been reached.
+   *
+   * The animator's whole job is to walk the log; it never recomputes anything the simulation
+   * already decided. Every mutable board value — HP, MP, statuses, whose turn it is — moves
+   * only because an event said so, which is why the log carries turn starts and status
+   * expiries at all. Anything the animator had to derive for itself would be a second
+   * implementation of combat, and the two would drift.
+   */
   private play(): void {
     const result = this.result();
     if (result === null) {
@@ -296,6 +349,25 @@ export class BattleService {
 
     const played: BattleEvent[] = [];
     let hp: Map<string, Numeric> | undefined;
+    let mp: Map<string, number> | undefined;
+    let statuses: Map<string, readonly ActiveStatus[]> | undefined;
+    let acting: string | null | undefined;
+
+    const setHp = (key: string, value: Numeric): void => {
+      hp ??= new Map(this.liveHp());
+      hp.set(key, value);
+    };
+    const setMp = (key: string, value: number): void => {
+      mp ??= new Map(this.liveMp());
+      mp.set(key, value);
+    };
+    const editStatuses = (
+      key: string,
+      change: (held: readonly ActiveStatus[]) => readonly ActiveStatus[],
+    ): void => {
+      statuses ??= new Map(this.liveStatuses());
+      statuses.set(key, change(statuses.get(key) ?? []));
+    };
 
     while (this.cursor < result.events.length) {
       const event = result.events[this.cursor];
@@ -303,19 +375,86 @@ export class BattleService {
         break;
       }
       this.cursor++;
-      played.push(event);
-      if (event.kind === 'attack') {
-        hp ??= new Map(this.liveHp());
-        hp.set(event.target, event.targetHp);
-      } else if (event.kind === 'end') {
-        this.outcome.set(event.outcome);
+      // Turn markers drive the highlight but would drown the log — a fight is far more turns
+      // than it is interesting moments.
+      if (event.kind !== 'turn') {
+        played.push(event);
+      }
+
+      switch (event.kind) {
+        case 'turn':
+          acting = event.combatant;
+          setMp(event.combatant, event.mp);
+          break;
+        case 'cast':
+          setMp(event.source, event.mp);
+          setHp(event.source, event.hp);
+          break;
+        case 'attack':
+          setHp(event.target, event.targetHp);
+          // A shield that absorbed part of the hit has shrunk by exactly that much. Replaying
+          // the split here is what keeps the shield segment on the bar honest.
+          if (event.absorbed.gt(ZERO)) {
+            editStatuses(event.target, (held) => spendShields(held, event.absorbed));
+          }
+          break;
+        case 'heal':
+        case 'tick-heal':
+          setHp(event.target, event.targetHp);
+          break;
+        case 'tick-damage':
+          setHp(event.target, event.targetHp);
+          // A poison ticking against a barrier drains the barrier, exactly as an attack does.
+          if (event.absorbed.gt(ZERO)) {
+            editStatuses(event.target, (held) => spendShields(held, event.absorbed));
+          }
+          break;
+        case 'status':
+          editStatuses(event.target, (held) => [
+            ...held.filter((status) => status.id !== event.status.id),
+            event.status,
+          ]);
+          break;
+        case 'status-expired':
+          editStatuses(event.target, (held) =>
+            held.filter((status) => status.id !== event.statusId),
+          );
+          break;
+        case 'cleanse':
+          editStatuses(event.target, (held) =>
+            held.filter((status) => !event.removed.includes(status.id)),
+          );
+          break;
+        case 'defeat':
+          editStatuses(event.combatant, () => []);
+          if (acting === event.combatant) {
+            acting = null;
+          }
+          break;
+        case 'end':
+          this.outcome.set(event.outcome);
+          acting = null;
+          break;
+        case 'miss':
+        case 'status-resisted':
+        case 'stunned':
+          break;
       }
     }
 
+    if (hp !== undefined) {
+      this.liveHp.set(hp);
+    }
+    if (mp !== undefined) {
+      this.liveMp.set(mp);
+    }
+    if (statuses !== undefined) {
+      this.liveStatuses.set(statuses);
+    }
+    if (acting !== undefined) {
+      this.acting.set(acting);
+    }
     if (played.length > 0) {
-      if (hp !== undefined) {
-        this.liveHp.set(hp);
-      }
       this.recentEvents.update((events) => [...events, ...played].slice(-VISIBLE_LOG_LENGTH));
     }
 
@@ -369,4 +508,45 @@ function fractionOf(hp: Numeric, maxHp: Numeric): number {
     return 0;
   }
   return Math.max(fraction, 0);
+}
+
+/** Remaining absorb across every shield a combatant is holding. */
+function shieldOf(statuses: readonly ActiveStatus[]): Numeric {
+  let total = ZERO;
+  for (const status of statuses) {
+    if (status.kind === 'shield' && status.amount !== undefined) {
+      total = total.add(status.amount);
+    }
+  }
+  return total;
+}
+
+/**
+ * Spends `absorbed` across a combatant's shields, oldest pool first.
+ *
+ * A deliberate mirror of `absorbDamage` in `core/battle/status.ts` — the same order, the same
+ * "drop a spent pool" rule — because the animator has to arrive at the same board the
+ * simulation did. It is not a second damage calculation: the amount was decided by the
+ * simulation and carried on the event, and this only decides which badge it came out of.
+ */
+function spendShields(
+  statuses: readonly ActiveStatus[],
+  absorbed: Numeric,
+): readonly ActiveStatus[] {
+  const next: ActiveStatus[] = [];
+  let remaining = absorbed;
+  for (const status of statuses) {
+    const pool = status.kind === 'shield' ? (status.amount ?? ZERO) : undefined;
+    if (pool === undefined || remaining.lte(ZERO) || pool.lte(ZERO)) {
+      next.push(status);
+      continue;
+    }
+    const taken = pool.lt(remaining) ? pool : remaining;
+    remaining = remaining.sub(taken);
+    const left = pool.sub(taken);
+    if (left.gt(ZERO)) {
+      next.push({ ...status, amount: left });
+    }
+  }
+  return next;
 }

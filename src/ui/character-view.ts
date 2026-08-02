@@ -1,6 +1,13 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { growthMultiplier, num, type RosterFailure, scaleStats } from '../core';
+import {
+  growthMultiplier,
+  num,
+  type RosterFailure,
+  scaleStats,
+  type SkillData,
+  type SkillTarget,
+} from '../core';
 import { characterById, GROWTH_RULES } from './content';
 import { formatAmounts, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
@@ -17,6 +24,38 @@ const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'wrong-faction': 'Fodder has to share this character’s faction.',
   'fodder-is-self': 'A character cannot be fed to itself.',
 };
+
+/**
+ * What each targeting rule means, in words rather than in jargon.
+ *
+ * The three single-target enemy rules are the ones worth spelling out, because they are the
+ * whole mechanical content of the formation: whether a skill goes through the front rank or
+ * around it is the difference between a character that can answer a protected healer and one
+ * that cannot.
+ */
+const TARGET_LABELS: Readonly<Record<SkillTarget, string>> = {
+  'enemy-front': 'Front row',
+  'enemy-back': 'Back row',
+  'enemy-lowest': 'Weakest foe',
+  'enemy-highest': 'Strongest foe',
+  'enemy-row-front': 'All front row',
+  'enemy-row-back': 'All back row',
+  'enemy-all': 'All foes',
+  'ally-lowest': 'Hurt ally',
+  'ally-afflicted': 'Afflicted ally',
+  'ally-all': 'All allies',
+  self: 'Self',
+};
+
+/** What a skill charges, phrased the way the kit is metered rather than as a raw number. */
+function skillCost(skill: SkillData): string {
+  const kind = skill.cost?.kind ?? 'none';
+  const amount = skill.cost?.amount ?? 0;
+  if (kind === 'none' || amount === 0) {
+    return 'No cost';
+  }
+  return kind === 'mp' ? `${amount} MP` : `${amount} HP`;
+}
 
 /**
  * One character's sheet: what it is, what it costs to improve, and the two ways to do it.
@@ -62,18 +101,65 @@ export class CharacterView {
       entry.level,
       entry.rarity,
     );
-    return [
+    const percent = (value: number | undefined): string => `${Math.round((value ?? 0) * 100)}%`;
+
+    // The five quantities first, because those are the ones that grow; then the scheduling
+    // weight and the probabilities, which do not. Anything sitting at its default is omitted
+    // rather than shown as a zero — a sheet listing "Armour pen 0%" for eighteen of twenty-three
+    // characters is a sheet nobody reads.
+    const rows = [
       // `scaleStats` returns a JSON-safe stat block, so quantities arrive as exponential
       // strings — the same shape `data/` authors and the same shape combat parses.
       { label: 'HP', value: formatNumeric(num(scaled.hp)) },
-      { label: 'ATK', value: formatNumeric(num(scaled.atk)) },
-      { label: 'DEF', value: formatNumeric(num(scaled.def)) },
-      // Unscaled by design — SPD is a scheduling weight against a fixed ATB threshold and crit
-      // chance is a probability, so neither grows. See `core/roster/stats.ts`.
+      { label: 'P.ATK', value: formatNumeric(num(scaled.patk)) },
+      { label: 'M.ATK', value: formatNumeric(num(scaled.matk)) },
+      { label: 'P.DEF', value: formatNumeric(num(scaled.pdef)) },
+      { label: 'M.DEF', value: formatNumeric(num(scaled.mdef)) },
+      // Unscaled by design — SPD is a scheduling weight against a fixed ATB threshold, MP is a
+      // budget measured against authored skill costs, and the rest are probabilities. See
+      // `core/roster/stats.ts`.
       { label: 'SPD', value: String(scaled.spd) },
-      { label: 'Crit', value: `${Math.round(scaled.critChance * 100)}% ×${scaled.critMultiplier}` },
+      { label: 'Crit', value: `${percent(scaled.critChance)} ×${scaled.critMultiplier}` },
     ];
+
+    const optional: readonly (readonly [string, number | undefined])[] = [
+      ['Lifesteal', scaled.lifesteal],
+      ['Armour pen', scaled.armorPen],
+      ['Magic pen', scaled.magicPen],
+      ['Dodge', scaled.dodge],
+      ['Tenacity', scaled.tenacity],
+      ['Effect hit', scaled.effectHit],
+    ];
+    for (const [label, value] of optional) {
+      if (value !== undefined && value > 0) {
+        rows.push({ label, value: percent(value) });
+      }
+    }
+    // Accuracy defaults to certainty rather than to nothing, so it is worth showing only when
+    // a character was authored above or below it.
+    if (scaled.accuracy !== undefined && scaled.accuracy !== 1) {
+      rows.push({ label: 'Accuracy', value: percent(scaled.accuracy) });
+    }
+    if (scaled.mp !== undefined && scaled.mp > 0) {
+      rows.push({ label: 'MP', value: `${scaled.mp} (+${scaled.mpRegen ?? 0}/turn)` });
+    }
+    return rows;
   });
+
+  /**
+   * The character's kit, basic attack excluded.
+   *
+   * Read off the definition rather than the roster entry because a kit is what a character
+   * *is* — levelling and ascending change the numbers behind it and never the list.
+   */
+  protected readonly skills = computed(() =>
+    (this.definition()?.skills ?? []).map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+      cost: skillCost(skill),
+      target: TARGET_LABELS[skill.target],
+    })),
+  );
 
   /** The compounded multiplier on this character's quantities, as the sheet reports it. */
   protected readonly multiplier = computed(() => {

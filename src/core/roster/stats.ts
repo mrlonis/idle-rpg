@@ -6,18 +6,24 @@ import { type CharacterData, type CharacterTier, type OwnedCharacter } from './t
 /**
  * How a character's stats follow from its tier, its level and its rarity.
  *
- * ## Only three stats scale, and that is deliberate
+ * ## Only the five quantities scale, and that is deliberate
  *
- * `hp`, `atk` and `def` are quantities and grow without bound. `spd`, `critChance` and
- * `critMultiplier` do **not** scale with anything.
+ * `hp`, `patk`, `matk`, `pdef` and `mdef` are quantities and grow without bound. Nothing else
+ * in the block scales with anything.
  *
  * That is not a simplification, it is a requirement. `spd` is ATB gauge per tick against a
  * threshold of 1000, and `content.ts` clamps it to `[1, ATB_THRESHOLD]` because the
  * simulation's termination argument depends on nobody banking two actions in one tick. A
  * `spd` that grew with level would hit the clamp within about eighty levels and then be
  * identical for every character in the game — turning the one stat that buys turns into a
- * flat constant. Crit chance is a probability and cannot exceed 1 for the same kind of
- * reason. Growth belongs to the quantities; the scheduling weights stay where they were
+ * flat constant.
+ *
+ * The same argument covers the rest of the block from the other end. `critChance`, `dodge`,
+ * `lifesteal`, `effectHit` and `tenacity` are probabilities and cannot exceed 1; `armorPen`
+ * and `magicPen` are capped below 1 so a defensive stat can never be erased outright; and
+ * `mp` is a **budget measured against authored skill costs**, so growing it would quietly
+ * delete the metering that makes a healer's pool run out. Growth belongs to the quantities;
+ * the scheduling weights, the probabilities and the resource budget stay where they were
  * authored, which is what keeps a fast fragile character fast and fragile at level 900.
  *
  * ## Why tiers diverge instead of starting apart
@@ -89,13 +95,16 @@ export function scaleStats(
   const scale = (raw: number | string): string => serialize(num(raw).mul(multiplier));
 
   return {
+    ...base,
     hp: scale(base.hp),
-    atk: scale(base.atk),
-    def: scale(base.def),
-    // Unscaled on purpose — see the note at the top of this file.
-    spd: base.spd,
-    critChance: base.critChance,
-    critMultiplier: base.critMultiplier,
+    patk: scale(base.patk),
+    matk: scale(base.matk),
+    pdef: scale(base.pdef),
+    mdef: scale(base.mdef),
+    // Everything else carries through untouched — see the note at the top of this file. The
+    // spread is what does it, so a stat added to the block later is unscaled by default, which
+    // is the safe direction: a scheduling weight or a probability that quietly started growing
+    // would be far harder to notice than one that did not.
   };
 }
 
@@ -103,7 +112,8 @@ export function scaleStats(
  * Resolves one owned character into the combatant the simulation fights with.
  *
  * The `id` carries through unchanged so battle events, the roster and the save all speak the
- * same character ids.
+ * same character ids, and so does the kit — a character's skills are what it *is*, not
+ * something levelling hands it.
  */
 export function toBattleCombatant(
   character: CharacterData,
@@ -113,6 +123,9 @@ export function toBattleCombatant(
   return {
     id: character.id,
     name: character.name,
+    faction: character.faction,
     stats: scaleStats(character.stats, growth, character.tier, owned.level, owned.rarity),
+    basic: character.basic,
+    skills: character.skills,
   };
 }

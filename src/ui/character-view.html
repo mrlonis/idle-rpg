@@ -25,10 +25,28 @@
     </dl>
     @if (multiplier(); as growth) {
       <p class="card__footnote">
-        ×{{ growth }} on HP, ATK and DEF from level and ascension. SPD and crit never scale.
+        ×{{ growth }} on HP, attack and defence from level and ascension. Speed, MP and every
+        percentage never scale.
       </p>
     }
   </section>
+
+  @if (skills().length > 0) {
+    <section class="card" aria-labelledby="skills-label">
+      <h2 id="skills-label" class="section__heading">Skills</h2>
+      <ul class="skills">
+        @for (skill of skills(); track skill.id) {
+          <li class="skills__row">
+            <span class="skills__name">{{ skill.name }}</span>
+            <span class="skills__meta">{{ skill.target }} · {{ skill.cost }}</span>
+          </li>
+        }
+      </ul>
+      <p class="card__footnote">
+        Every character also has a basic attack: physical, single target, into the front row.
+      </p>
+    </section>
+  }
 
   <section class="card" aria-labelledby="level-label">
     <h2 id="level-label" class="section__heading">Level</h2>

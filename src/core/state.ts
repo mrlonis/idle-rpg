@@ -4,13 +4,59 @@ import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
 
 /**
- * How many characters fight at once.
+ * How many characters stand in the front rank.
  *
- * Three, matching the party the game shipped with. Lives here rather than in `data/` because
- * it is a rule the save layer has to enforce when repairing a damaged party, and `core/`
- * cannot reach `data/` to ask.
+ * Two, against three behind them. The asymmetry is the point: the front row is a **gate**
+ * ordinary attacks have to work through, so making it the smaller rank keeps it a real cost
+ * rather than a free wall — a party that wants three bodies protecting its healer cannot have
+ * them.
+ *
+ * These live here rather than in `data/` because they are rules the save layer has to enforce
+ * when repairing a damaged formation, and `core/` cannot reach `data/` to ask.
  */
-export const PARTY_SIZE = 3;
+export const FRONT_ROW_SIZE = 2;
+
+/** How many characters stand behind the front rank. */
+export const BACK_ROW_SIZE = 3;
+
+/** How many characters fight at once, across both rows. */
+export const PARTY_SIZE = FRONT_ROW_SIZE + BACK_ROW_SIZE;
+
+/**
+ * The party that fights, as character ids in slot order within each rank.
+ *
+ * Two lists rather than one ordered list with the first two slots understood to be the front.
+ * A flat list cannot express "nobody in front, two in the back", which is a formation a player
+ * mid-reshuffle is entitled to have — and encoding a hole as an empty string is the kind of
+ * sentinel that survives into a save file and then into a bug report.
+ *
+ * Ids rather than roster indices, so reordering or repairing the roster cannot silently change
+ * who is fighting.
+ */
+export interface PartyFormation {
+  readonly front: readonly string[];
+  readonly back: readonly string[];
+}
+
+/** An empty formation. A run mid-reshuffle is allowed to have one; a battle reads it as a loss. */
+export function emptyFormation(): PartyFormation {
+  return { front: [], back: [] };
+}
+
+/** Everyone in the formation, front rank first. */
+export function formationMembers(formation: PartyFormation): readonly string[] {
+  return [...formation.front, ...formation.back];
+}
+
+/** How many characters the formation is currently fielding. */
+export function formationSize(formation: PartyFormation): number {
+  return formation.front.length + formation.back.length;
+}
+
+/** The most a rank can hold. */
+export function rowCapacity(row: 'front' | 'back'): number {
+  return row === 'front' ? FRONT_ROW_SIZE : BACK_ROW_SIZE;
+}
 
 /**
  * The complete runtime game state.
@@ -77,12 +123,13 @@ export interface GameState {
    */
   readonly roster: readonly OwnedCharacter[];
   /**
-   * The party that fights, as character ids in slot order, at most {@link PARTY_SIZE}.
+   * The party that fights, in two rows.
    *
-   * Ids rather than roster indices, so reordering or repairing the roster cannot silently
-   * change who is fighting.
+   * See {@link PartyFormation}. Which rank a character stands in is the player's decision and
+   * is not constrained by what the character is — a run whose pulls are all Elves and Angels
+   * can still put two of them in front, just badly.
    */
-  readonly activeParty: readonly string[];
+  readonly formation: PartyFormation;
   /**
    * Pulls made since the last ascended-tier character, driving the pity curve.
    *
@@ -118,7 +165,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     // characters are — the UI grants them with `grantStarters`, which also repairs a save that
     // somehow arrives with nobody in it.
     roster: [],
-    activeParty: [],
+    formation: emptyFormation(),
     pity: 0,
     pullCount: 0,
   };

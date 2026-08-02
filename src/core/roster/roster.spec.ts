@@ -4,7 +4,7 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
-import { newGame, PARTY_SIZE, type GameState } from '../state';
+import { formationMembers, newGame, PARTY_SIZE, type GameState } from '../state';
 import {
   owned,
   TEST_ALPHA,
@@ -21,8 +21,9 @@ import {
   grantStarters,
   levelUp,
   levelUpToAffordable,
+  placeInRow,
   repairOwned,
-  setParty,
+  setFormation,
 } from './roster';
 import { MAX_RARITY_INDEX } from './types';
 
@@ -111,91 +112,133 @@ describe('grantCopies', () => {
 
 describe('grantStarters', () => {
   it('seeds a fresh run and fields the party', () => {
-    const state = grantStarters(run(), ['alpha', 'beta', 'gamma'], TEST_CHARACTERS);
+    const state = grantStarters(
+      run(),
+      { front: ['alpha'], back: ['beta', 'gamma'] },
+      TEST_CHARACTERS,
+    );
 
     expect(state.roster.map((entry) => entry.defId)).toEqual(['alpha', 'beta', 'gamma']);
-    expect(state.activeParty).toEqual(['alpha', 'beta', 'gamma']);
+    expect(state.formation).toEqual({ front: ['alpha'], back: ['beta', 'gamma'] });
   });
 
   it('is idempotent, so it doubles as repair on every load', () => {
     // Called on every load rather than only at new-game time, because `core/` cannot see `data/`
     // and so a migration cannot seed a roster. A save that already has one must be left alone.
-    const once = grantStarters(run(), ['alpha', 'beta'], TEST_CHARACTERS);
-    const twice = grantStarters(once, ['alpha', 'beta'], TEST_CHARACTERS);
+    const starters = { front: ['alpha'], back: ['beta'] };
+    const once = grantStarters(run(), starters, TEST_CHARACTERS);
+    const twice = grantStarters(once, starters, TEST_CHARACTERS);
 
     expect(twice.roster).toEqual(once.roster);
-    expect(twice.activeParty).toEqual(once.activeParty);
+    expect(twice.formation).toEqual(once.formation);
   });
 
   it('leaves an existing party alone rather than re-fielding the starters', () => {
     const state = run({
       roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
-      activeParty: ['beta'],
+      formation: { front: [], back: ['beta'] },
     });
 
-    expect(grantStarters(state, ['alpha', 'beta'], TEST_CHARACTERS).activeParty).toEqual(['beta']);
+    expect(
+      grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS).formation,
+    ).toEqual({
+      front: [],
+      back: ['beta'],
+    });
   });
 
   it('rebuilds a party for a save whose roster survived but whose party did not', () => {
-    const state = run({ roster: [owned(TEST_ALPHA), owned(TEST_BETA)], activeParty: [] });
+    const state = run({
+      roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
+      formation: { front: [], back: [] },
+    });
 
-    expect(grantStarters(state, [], TEST_CHARACTERS).activeParty).toEqual(['alpha', 'beta']);
+    expect(
+      grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS).formation,
+    ).toEqual({
+      front: ['alpha'],
+      back: ['beta'],
+    });
   });
 
   it('never fields more than the party size', () => {
-    const state = run({
-      roster: [owned(TEST_ALPHA), owned(TEST_BETA), owned(TEST_GAMMA), owned(TEST_DELTA)],
-      activeParty: [],
-    });
+    const state = grantStarters(
+      run(),
+      {
+        front: ['alpha', 'beta', 'gamma'],
+        back: ['delta', 'epsilon', 'zeta'],
+      },
+      TEST_CHARACTERS,
+    );
 
-    expect(grantStarters(state, [], TEST_CHARACTERS).activeParty).toHaveLength(PARTY_SIZE);
+    expect(formationMembers(state.formation)).toHaveLength(PARTY_SIZE);
+    expect(state.formation.front).toEqual(['alpha', 'beta']);
+    expect(state.formation.back).toEqual(['delta', 'epsilon', 'zeta']);
   });
 
   it('skips a starter id this build no longer ships', () => {
-    const state = grantStarters(run(), ['alpha', 'ghost'], TEST_CHARACTERS);
+    const state = grantStarters(run(), { front: ['alpha', 'ghost'], back: [] }, TEST_CHARACTERS);
 
     expect(state.roster.map((entry) => entry.defId)).toEqual(['alpha']);
   });
 });
 
-describe('setParty', () => {
+describe('setFormation', () => {
   const stocked = (): GameState =>
     run({ roster: [owned(TEST_ALPHA), owned(TEST_BETA), owned(TEST_GAMMA), owned(TEST_DELTA)] });
 
   it('keeps the order it is given, because slot order decides turn-order ties', () => {
-    const result = setParty(stocked(), ['gamma', 'alpha', 'beta'], TEST_CHARACTERS);
+    const formation = { front: ['gamma', 'alpha'], back: ['beta'] };
+    const result = setFormation(stocked(), formation, TEST_CHARACTERS);
 
-    expect(result.ok && result.state.activeParty).toEqual(['gamma', 'alpha', 'beta']);
+    expect(result.ok && result.state.formation).toEqual(formation);
   });
 
   it('allows an empty party, since a player mid-reshuffle has done nothing wrong', () => {
-    const result = setParty(stocked(), [], TEST_CHARACTERS);
+    const result = setFormation(stocked(), { front: [], back: [] }, TEST_CHARACTERS);
 
-    expect(result.ok && result.state.activeParty).toEqual([]);
+    expect(result.ok && result.state.formation).toEqual({ front: [], back: [] });
   });
 
-  it('refuses a party larger than the party size', () => {
-    const result = setParty(stocked(), ['alpha', 'beta', 'gamma', 'delta'], TEST_CHARACTERS);
+  it('refuses a rank larger than its capacity', () => {
+    const result = setFormation(
+      stocked(),
+      { front: ['alpha', 'beta', 'gamma'], back: [] },
+      TEST_CHARACTERS,
+    );
 
-    expect(result).toEqual({ ok: false, reason: 'party-full' });
+    expect(result).toEqual({ ok: false, reason: 'row-full' });
   });
 
   it('refuses a repeated member', () => {
-    const result = setParty(stocked(), ['alpha', 'alpha'], TEST_CHARACTERS);
+    const result = setFormation(stocked(), { front: ['alpha'], back: ['alpha'] }, TEST_CHARACTERS);
 
     expect(result).toEqual({ ok: false, reason: 'duplicate-party-member' });
   });
 
   it('refuses a character the player does not own', () => {
-    const result = setParty(run(), ['alpha'], TEST_CHARACTERS);
+    const result = setFormation(run(), { front: ['alpha'], back: [] }, TEST_CHARACTERS);
 
     expect(result).toEqual({ ok: false, reason: 'not-owned' });
   });
 
   it('refuses a character this build does not ship', () => {
-    const result = setParty(stocked(), ['ghost'], TEST_CHARACTERS);
+    const result = setFormation(stocked(), { front: ['ghost'], back: [] }, TEST_CHARACTERS);
 
     expect(result).toEqual({ ok: false, reason: 'unknown-character' });
+  });
+});
+
+describe('placeInRow', () => {
+  it('moves a character between ranks rather than duplicating it', () => {
+    const state = run({
+      roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
+      formation: { front: ['alpha'], back: ['beta'] },
+    });
+
+    const result = placeInRow(state, 'alpha', 'back', TEST_CHARACTERS);
+
+    expect(result.ok && result.state.formation).toEqual({ front: [], back: ['beta', 'alpha'] });
   });
 });
 

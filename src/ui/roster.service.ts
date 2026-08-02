@@ -3,6 +3,7 @@ import {
   ascend,
   type AscensionPlan,
   autoFodderPlan,
+  benchMember,
   type CharacterData,
   type CombatantData,
   type CopyCost,
@@ -10,6 +11,8 @@ import {
   findOwned,
   fodderPool,
   type FodderOption,
+  type FormationData,
+  formationSize,
   levelCapFor,
   levelCost,
   levelUp,
@@ -18,12 +21,15 @@ import {
   maxAffordableLevel,
   nextAscension,
   type OwnedCharacter,
+  type PartyFormation,
+  placeInRow,
   rarityLabel,
   type RosterResult,
-  setParty,
+  type Row,
+  rowCapacity,
+  setFormation,
   toBattleCombatant,
 } from '../core';
-import { PARTY_SIZE } from '../core';
 import {
   ASCENSION,
   CHARACTERS_BY_ID,
@@ -47,6 +53,7 @@ export interface RosterEntryView {
   readonly faction: string;
   readonly factionName: string;
   readonly tier: CharacterData['tier'];
+  readonly role: CharacterData['role'];
   readonly rarity: number;
   readonly rarityLabel: string;
   readonly level: number;
@@ -56,7 +63,10 @@ export interface RosterEntryView {
   /** Spare base copies held as ascension material. */
   readonly copies: number;
   readonly inParty: boolean;
-  readonly partySlot: number | null;
+  /** Which rank this character is standing in, or `null` when benched. */
+  readonly row: Row | null;
+  /** Position within its rank, 1-based, or `null` when benched. */
+  readonly rowSlot: number | null;
   /** Cost of the next single level, or `null` at the cap. */
   readonly nextLevelCost: CurrencyAmounts | null;
   readonly canLevel: boolean;
@@ -95,39 +105,52 @@ export class RosterService {
       .sort(compareEntries);
   });
 
-  /** The party, in slot order, as roster rows. Missing members are simply absent. */
-  readonly party = computed<readonly RosterEntryView[]>(() => {
-    const byId = new Map(this.entries().map((entry) => [entry.defId, entry]));
-    return this.game
-      .activeParty()
-      .map((defId) => byId.get(defId))
-      .filter((entry): entry is RosterEntryView => entry !== undefined);
+  /** The front rank, in slot order, as roster rows. Missing members are simply absent. */
+  readonly frontRow = computed<readonly RosterEntryView[]>(() =>
+    this.rank(this.game.formation().front),
+  );
+
+  /** The back rank, in slot order. */
+  readonly backRow = computed<readonly RosterEntryView[]>(() =>
+    this.rank(this.game.formation().back),
+  );
+
+  /** Empty slots left in each rank, which is what the formation editor shows as gaps. */
+  readonly openSlots = computed<Readonly<Record<Row, number>>>(() => {
+    const formation = this.game.formation();
+    return {
+      front: Math.max(rowCapacity('front') - formation.front.length, 0),
+      back: Math.max(rowCapacity('back') - formation.back.length, 0),
+    };
   });
 
-  /** Empty party slots remaining. */
-  readonly openSlots = computed(() => Math.max(PARTY_SIZE - this.game.activeParty().length, 0));
+  /** How many characters are currently fielded, across both ranks. */
+  readonly fieldedCount = computed(() => formationSize(this.game.formation()));
 
   /**
-   * The party as combatants, with stats already scaled for level and rarity.
+   * The party as a formation of combatants, with stats already scaled for level and rarity.
    *
-   * This is what `BattleService` fights with. An empty party is handed through as an empty
-   * array rather than substituted for the starters: `simulateBattle` reads it as an immediate
-   * defeat, which is the honest outcome of sending nobody.
+   * This is what `BattleService` fights with. An empty formation is handed through empty rather
+   * than substituted for the starters: `simulateBattle` reads it as an immediate defeat, which
+   * is the honest outcome of sending nobody.
    */
-  readonly battleParty = computed<readonly CombatantData[]>(() => {
+  readonly battleFormation = computed<FormationData>(() => {
     const state = this.game.snapshot();
     if (state === null) {
-      return [];
+      return { front: [], back: [] };
     }
-    const combatants: CombatantData[] = [];
-    for (const defId of state.activeParty) {
-      const character = CHARACTERS_BY_ID.get(defId);
-      const owned = findOwned(state, defId);
-      if (character !== undefined && owned !== undefined) {
-        combatants.push(toBattleCombatant(character, owned, GROWTH_RULES));
+    const resolve = (ids: readonly string[]): CombatantData[] => {
+      const combatants: CombatantData[] = [];
+      for (const defId of ids) {
+        const character = CHARACTERS_BY_ID.get(defId);
+        const owned = findOwned(state, defId);
+        if (character !== undefined && owned !== undefined) {
+          combatants.push(toBattleCombatant(character, owned, GROWTH_RULES));
+        }
       }
-    }
-    return combatants;
+      return combatants;
+    };
+    return { front: resolve(state.formation.front), back: resolve(state.formation.back) };
   });
 
   /** One row by id, for the character sheet. */
@@ -174,23 +197,53 @@ export class RosterService {
     });
   }
 
-  /** Adds or removes a character from the party, preserving slot order. */
-  toggleParty(defId: string): RosterResult {
-    return this.mutate((state) => {
-      const current = state.activeParty;
-      const next = current.includes(defId)
-        ? current.filter((id) => id !== defId)
-        : [...current, defId];
-      if (next.length > PARTY_SIZE) {
-        return { ok: false, reason: 'party-full' };
-      }
-      return setParty(state, next, CHARACTERS_BY_ID);
-    });
+  /** Puts a character into a rank, taking it out of the other one first. */
+  placeIn(defId: string, row: Row): RosterResult {
+    return this.mutate((state) => placeInRow(state, defId, row, CHARACTERS_BY_ID));
   }
 
-  /** Sets the whole party at once, in slot order. */
-  setParty(defIds: readonly string[]): RosterResult {
-    return this.mutate((state) => setParty(state, defIds, CHARACTERS_BY_ID));
+  /** Takes a character out of the formation entirely. */
+  bench(defId: string): RosterResult {
+    return this.mutate((state) => benchMember(state, defId, CHARACTERS_BY_ID));
+  }
+
+  /**
+   * Cycles a character through front, back and benched.
+   *
+   * One control rather than three, because the formation editor is a list and a row of three
+   * buttons per character would be forty-odd controls on a screen that already has a table. The
+   * cycle skips a full rank rather than refusing, so a tap always does something.
+   */
+  cyclePlacement(defId: string): RosterResult {
+    const formation = this.game.formation();
+    if (formation.front.includes(defId)) {
+      return formation.back.length < rowCapacity('back')
+        ? this.placeIn(defId, 'back')
+        : this.bench(defId);
+    }
+    if (formation.back.includes(defId)) {
+      return this.bench(defId);
+    }
+    if (formation.front.length < rowCapacity('front')) {
+      return this.placeIn(defId, 'front');
+    }
+    if (formation.back.length < rowCapacity('back')) {
+      return this.placeIn(defId, 'back');
+    }
+    return { ok: false, reason: 'row-full' };
+  }
+
+  /** Sets the whole formation at once, rank by rank. */
+  setFormation(formation: PartyFormation): RosterResult {
+    return this.mutate((state) => setFormation(state, formation, CHARACTERS_BY_ID));
+  }
+
+  /** Joins one rank's ids to the roster rows they name, dropping anything unresolvable. */
+  private rank(ids: readonly string[]): readonly RosterEntryView[] {
+    const byId = new Map(this.entries().map((entry) => [entry.defId, entry]));
+    return ids
+      .map((defId) => byId.get(defId))
+      .filter((entry): entry is RosterEntryView => entry !== undefined);
   }
 
   /**
@@ -230,13 +283,18 @@ export class RosterService {
       0,
     );
 
-    const slot = state.activeParty.indexOf(owned.defId);
+    const front = state.formation.front.indexOf(owned.defId);
+    const back = state.formation.back.indexOf(owned.defId);
+    const row: Row | null = front >= 0 ? 'front' : back >= 0 ? 'back' : null;
+    const rowSlot = front >= 0 ? front + 1 : back >= 0 ? back + 1 : null;
+
     return {
       defId: owned.defId,
       name: character.name,
       faction: character.faction,
       factionName: factionName(character.faction),
       tier: character.tier,
+      role: character.role,
       rarity: owned.rarity,
       rarityLabel: rarityLabel(owned.rarity),
       level: owned.level,
@@ -244,8 +302,9 @@ export class RosterService {
       atLevelCap,
       isMaxRarity: owned.rarity >= MAX_RARITY_INDEX,
       copies: owned.copies,
-      inParty: slot >= 0,
-      partySlot: slot >= 0 ? slot + 1 : null,
+      inParty: row !== null,
+      row,
+      rowSlot,
       nextLevelCost: cost,
       canLevel: affordableLevel > owned.level,
       affordableLevel,
@@ -263,7 +322,7 @@ export class RosterService {
 type GameStateLike = Parameters<typeof levelUpToAffordable>[0];
 
 /**
- * Party first in slot order, then everyone else by rarity, then level, then name.
+ * Fielded characters first in formation order, then everyone else by rarity, level and name.
  *
  * Party members pinned to the top because the roster's most common use is checking on who is
  * actually fighting; below that, the characters a player has invested in are the ones they are
@@ -274,7 +333,9 @@ function compareEntries(a: RosterEntryView, b: RosterEntryView): number {
     return a.inParty ? -1 : 1;
   }
   if (a.inParty && b.inParty) {
-    return (a.partySlot ?? 0) - (b.partySlot ?? 0);
+    // Front rank first, then order within the rank — the same order the battle board draws.
+    const rank = (entry: RosterEntryView): number => (entry.row === 'front' ? 0 : 1);
+    return rank(a) - rank(b) || (a.rowSlot ?? 0) - (b.rowSlot ?? 0);
   }
   return b.rarity - a.rarity || b.level - a.level || a.name.localeCompare(b.name);
 }

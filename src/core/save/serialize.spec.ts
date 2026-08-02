@@ -39,7 +39,7 @@ describe('toSaveData', () => {
       clearedStages: 0,
       battleCount: 0,
       roster: [],
-      activeParty: [],
+      formation: { front: [], back: [] },
       pity: 0,
       pullCount: 0,
     });
@@ -53,11 +53,11 @@ describe('toSaveData', () => {
     const state: GameState = {
       ...newGame({ seed: 3, nowMs: T0 }),
       roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }],
-      activeParty: ['alpha'],
+      formation: { front: ['alpha'], back: [] },
     };
 
     expect(toSaveData(state).roster).toEqual([{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }]);
-    expect(toSaveData(state).activeParty).toEqual(['alpha']);
+    expect(toSaveData(state).formation).toEqual({ front: ['alpha'], back: [] });
   });
 });
 
@@ -77,7 +77,7 @@ describe('round-trip', () => {
       stage: 6,
       clearedStages: 5,
       roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2 }],
-      activeParty: ['gamma'],
+      formation: { front: ['gamma'], back: [] },
       pity: 22,
       pullCount: 631,
     };
@@ -96,7 +96,7 @@ describe('round-trip', () => {
     expect(state.lastTickAt).toBe(original.lastTickAt);
     expect(state.rng).toEqual(original.rng);
     expect(state.roster).toEqual(original.roster);
-    expect(state.activeParty).toEqual(original.activeParty);
+    expect(state.formation).toEqual(original.formation);
     expect(state.pity).toBe(22);
     expect(state.pullCount).toBe(631);
     expect(state.clearedStages).toBe(5);
@@ -125,7 +125,7 @@ describe('fromSaveData repair', () => {
       { rng: 'no' },
       { roster: 'not an array' },
       { roster: [null, 5, 'x'] },
-      { activeParty: 'nope' },
+      { formation: 'nope' },
     ]) {
       expect(() => fromSaveData(raw, OPTIONS)).not.toThrow();
     }
@@ -262,33 +262,35 @@ describe('fromSaveData repair', () => {
     });
   });
 
-  describe('the active party', () => {
+  describe('the formation', () => {
     it('drops members who are not owned', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
-          activeParty: ['alpha', 'beta', 'ghost'],
+          formation: { front: ['alpha', 'beta'], back: ['ghost'] },
         },
         OPTIONS,
       );
 
-      expect(state.activeParty).toEqual(['alpha']);
-      expect(issues.map((issue) => issue.field)).toContain('activeParty[]');
+      expect(state.formation).toEqual({ front: ['alpha'], back: [] });
+      expect(issues.map((issue) => issue.field)).toEqual(
+        expect.arrayContaining(['formation.front[]', 'formation.back[]']),
+      );
     });
 
-    it('drops a repeated member', () => {
+    it('drops a repeated member rather than letting it stand in both ranks', () => {
       const { state } = fromSaveData(
         {
           roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
-          activeParty: ['alpha', 'alpha'],
+          formation: { front: ['alpha'], back: ['alpha'] },
         },
         OPTIONS,
       );
 
-      expect(state.activeParty).toEqual(['alpha']);
+      expect(state.formation).toEqual({ front: ['alpha'], back: [] });
     });
 
-    it('trims a party larger than the party size', () => {
+    it('trims a rank larger than its capacity', () => {
       const roster = ['alpha', 'beta', 'gamma'].map((defId) => ({
         defId,
         rarity: defId === 'gamma' ? 2 : 0,
@@ -297,12 +299,12 @@ describe('fromSaveData repair', () => {
       }));
 
       const { state, issues } = fromSaveData(
-        { roster, activeParty: ['alpha', 'beta', 'gamma', 'alpha'] },
+        { roster, formation: { front: ['alpha', 'beta', 'gamma'], back: [] } },
         OPTIONS,
       );
 
-      expect(state.activeParty).toHaveLength(3);
-      expect(issues.map((issue) => issue.field)).toContain('activeParty[]');
+      expect(state.formation.front).toEqual(['alpha', 'beta']);
+      expect(issues.map((issue) => issue.field)).toContain('formation.front');
     });
   });
 

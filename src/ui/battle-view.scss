@@ -8,6 +8,10 @@ $text: #f2f2f7; // 15.1:1 on $surface
 $track: #2f2f42;
 $ally: #4ade80; // 7.5:1 on $track — well past the 3:1 WCAG AA minimum for non-text
 $foe: #f87171; // 4.7:1 on $track
+$mana: #7dd3fc; // 8.9:1 on $track
+$shield: #cbd5e1; // 9.6:1 on $track
+$boon: #93c5fd; // 5.9:1 on $surface
+$bane: #fca5a5; // 6.8:1 on $surface
 
 :host {
   display: block;
@@ -106,6 +110,22 @@ $foe: #f87171; // 4.7:1 on $track
   color: $muted;
 }
 
+.roster__rank {
+  margin: 0.625rem 0 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.roster__empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: $muted;
+  font-style: italic;
+}
+
 .roster__list {
   margin: 0;
   padding: 0;
@@ -138,12 +158,35 @@ $foe: #f87171; // 4.7:1 on $track
   color: $muted;
 }
 
+.fighter--acting .fighter__name {
+  // Whose turn it is. Carried by the leading marker as well as the weight, so it does not rely
+  // on noticing a font change on a name you were not already looking at.
+  &::before {
+    content: '▸ ';
+    color: $mana;
+  }
+}
+
+.fighter__mp {
+  grid-column: 1 / -1;
+  color: $muted;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+}
+
 .bar {
   grid-column: 1 / -1;
   height: 0.375rem;
   border-radius: 999px;
   background: $track;
   overflow: hidden;
+  // The shield segment sits beside the HP fill rather than over it, so the two together never
+  // exceed the track even when a barrier is worth more than the target's whole HP pool.
+  display: flex;
+}
+
+.bar--mp {
+  height: 0.25rem;
 }
 
 .bar__fill {
@@ -154,6 +197,40 @@ $foe: #f87171; // 4.7:1 on $track
 
 .bar__fill--foe {
   background: $foe;
+}
+
+.bar__fill--mp {
+  background: $mana;
+}
+
+.bar__shield {
+  height: 100%;
+  background: $shield;
+  transition: width 120ms linear;
+}
+
+.statuses {
+  grid-column: 1 / -1;
+  margin: 0.125rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.status {
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid $border;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  // The name is the signal. Colour is a second one, never the only one — every badge says what
+  // it is in words, so nothing here depends on telling blue from red.
+  color: $boon;
+}
+
+.status--hostile {
+  color: $bane;
 }
 
 .battle__outcome {

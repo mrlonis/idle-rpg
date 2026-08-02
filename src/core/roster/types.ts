@@ -134,15 +134,30 @@ export interface FactionData {
 }
 
 /**
+ * What a character is *for*, in one word.
+ *
+ * Display and authoring guidance rather than a rule: **nothing in the simulation reads this.**
+ * A role does not decide which rank a character may stand in, what it may target, or how much
+ * damage it takes — all of that follows from the stat block and the kit. It exists so the
+ * roster screen can say "healer" instead of making a player infer it from `matk` and a skill
+ * list, and so an author adding a character has a shape to aim at.
+ *
+ * Keeping it inert is the point. The moment a role gates a placement, an unlucky roster
+ * becomes a run that cannot legally form a party.
+ */
+export type CharacterRole =
+  'tank' | 'bruiser' | 'assassin' | 'ranger' | 'sniper' | 'mage' | 'healer' | 'support';
+
+/**
  * A playable character as authored in `data/`.
  *
- * Structurally a {@link CombatantData}, so a party can be handed straight to `simulateBattle`
- * once its stats have been resolved for level and rarity. The extra fields are what the
- * roster needs and combat does not care about.
+ * Structurally a {@link CombatantData} — faction, stat block and kit included — so a party can
+ * be handed straight to `simulateBattle` once its stats have been resolved for level and
+ * rarity. The extra fields are what the roster needs and combat does not care about.
  */
 export interface CharacterData extends CombatantData {
-  readonly faction: string;
   readonly tier: CharacterTier;
+  readonly role: CharacterRole;
   /** Stats at level 1, at the character's starting rarity. */
   readonly stats: StatBlockData;
 }

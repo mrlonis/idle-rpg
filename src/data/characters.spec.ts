@@ -7,12 +7,16 @@ import {
   type CharacterTier,
   type FactionData,
   growthMultiplier,
+  MAX_ACCURACY,
+  MAX_PENETRATION,
+  type SkillData,
   type StatBlockData,
   startRarityIndex,
 } from '../core';
 import { FACTIONS } from './ascension';
-import { CHARACTERS, STARTER_CHARACTER_IDS, STARTER_TEAM } from './characters';
+import { BRAN, CHARACTERS, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { GROWTH } from './levels';
+import { SKILLS } from './skills';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -23,26 +27,32 @@ import { GROWTH } from './levels';
  */
 const characters: readonly CharacterData[] = CHARACTERS;
 const factions: readonly FactionData[] = FACTIONS;
-const starters: readonly CharacterData[] = STARTER_TEAM;
+const skills: readonly SkillData[] = SKILLS;
+const starters: readonly CharacterData[] = [...STARTER_FORMATION.front, ...STARTER_FORMATION.back]
+  .map((id) => characters.find((character) => character.id === id))
+  .filter((character): character is CharacterData => character !== undefined);
 
 const TIERS: readonly CharacterTier[] = ['common', 'legendary', 'ascended'];
 
 /** A rough power budget. Deliberately crude — it is a smell test, not a balance model. */
 function budget(stats: StatBlockData): number {
-  return Number(stats.hp) / 10 + Number(stats.atk) + Number(stats.def);
+  return (
+    Number(stats.hp) / 10 +
+    Math.max(Number(stats.patk), Number(stats.matk)) +
+    Number(stats.pdef) +
+    Number(stats.mdef)
+  );
 }
 
 describe('the roster', () => {
-  it('authors one character per tier per faction', () => {
-    expect(characters).toHaveLength(factions.length * TIERS.length);
-
+  it('populates every faction at all three tiers', () => {
     for (const faction of factions) {
       for (const tier of TIERS) {
         const matching = characters.filter(
           (character) => character.faction === faction.id && character.tier === tier,
         );
 
-        expect(matching, `${faction.id} ${tier}`).toHaveLength(1);
+        expect(matching.length, `${faction.id} ${tier}`).toBeGreaterThanOrEqual(1);
       }
     }
   });
@@ -63,20 +73,73 @@ describe('the roster', () => {
     }
   });
 
+  it('offers a healer and a cleanse on the mortal ladder, not only the celestial one', () => {
+    // The failure this guards against is not a fight lost, it is a *category of answer* a player
+    // can never buy. Angels are the natural support and they ascend on copies of themselves
+    // alone, so a run whose banners are unkind would otherwise have no sustain at any price.
+    const mortalFactions = new Set(
+      factions.filter((faction) => faction.ascensionPath === 'mortal').map((faction) => faction.id),
+    );
+    const mortals = characters.filter((character) => mortalFactions.has(character.faction));
+
+    const heals = mortals.filter((character) =>
+      (character.skills ?? []).some((skill) =>
+        skill.effects.some((effect) => effect.kind === 'heal'),
+      ),
+    );
+    const cleanses = mortals.filter((character) =>
+      (character.skills ?? []).some((skill) =>
+        skill.effects.some((effect) => effect.kind === 'cleanse'),
+      ),
+    );
+
+    expect(heals.length).toBeGreaterThan(0);
+    expect(cleanses.length).toBeGreaterThan(0);
+    // And both have to be reachable early, or "available at any price" is still false in practice.
+    expect(heals.some((character) => character.tier === 'common')).toBe(true);
+    expect(cleanses.some((character) => character.tier === 'common')).toBe(true);
+  });
+
   it('keeps every stat inside the range the simulation can use', () => {
     for (const character of characters) {
-      const { hp, atk, def, spd, critChance, critMultiplier } = character.stats;
+      const stats = character.stats;
 
-      expect(Number(hp), character.id).toBeGreaterThan(0);
-      expect(Number(atk), character.id).toBeGreaterThan(0);
-      expect(Number(def), character.id).toBeGreaterThanOrEqual(0);
+      expect(Number(stats.hp), character.id).toBeGreaterThan(0);
+      expect(Number(stats.patk), character.id).toBeGreaterThan(0);
+      expect(Number(stats.matk), character.id).toBeGreaterThan(0);
+      expect(Number(stats.pdef), character.id).toBeGreaterThanOrEqual(0);
+      expect(Number(stats.mdef), character.id).toBeGreaterThanOrEqual(0);
       // SPD is ATB gauge per tick against a threshold of 1000; above it a combatant would bank
       // two actions in a single tick and break turn ordering.
-      expect(spd, character.id).toBeGreaterThanOrEqual(1);
-      expect(spd, character.id).toBeLessThanOrEqual(1000);
-      expect(critChance, character.id).toBeGreaterThanOrEqual(0);
-      expect(critChance, character.id).toBeLessThanOrEqual(1);
-      expect(critMultiplier, character.id).toBeGreaterThanOrEqual(1);
+      expect(stats.spd, character.id).toBeGreaterThanOrEqual(1);
+      expect(stats.spd, character.id).toBeLessThanOrEqual(1000);
+      expect(stats.critChance, character.id).toBeGreaterThanOrEqual(0);
+      expect(stats.critChance, character.id).toBeLessThanOrEqual(1);
+      expect(stats.critMultiplier, character.id).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('keeps every optional stat inside the bounds `content.ts` would clamp it to', () => {
+    // Authored content that needed clamping is a bug for this spec to catch rather than damage to
+    // repair: `content.ts` clamps because a *player's* save is untrusted, not because `data/` is.
+    for (const character of characters) {
+      const { lifesteal, effectHit, tenacity, armorPen, magicPen, dodge, accuracy, mp, mpRegen } =
+        character.stats;
+
+      for (const [label, value] of [
+        ['lifesteal', lifesteal],
+        ['effectHit', effectHit],
+        ['tenacity', tenacity],
+        ['dodge', dodge],
+      ] as const) {
+        expect(value ?? 0, `${character.id} ${label}`).toBeGreaterThanOrEqual(0);
+        expect(value ?? 0, `${character.id} ${label}`).toBeLessThanOrEqual(1);
+      }
+      expect(armorPen ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
+      expect(magicPen ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
+      expect(accuracy ?? 1, character.id).toBeLessThanOrEqual(MAX_ACCURACY);
+      expect(mp ?? 0, character.id).toBeGreaterThanOrEqual(0);
+      expect(mpRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -84,6 +147,82 @@ describe('the roster', () => {
     for (const character of characters) {
       expect(Number(character.stats.hp), character.id).toBeLessThan(Number.MAX_SAFE_INTEGER);
     }
+  });
+});
+
+describe('kits', () => {
+  it('gives every character at least one skill above its basic attack', () => {
+    // A character with no kit is a stat block, and a stat block cannot be the answer to a lock.
+    for (const character of characters) {
+      expect((character.skills ?? []).length, character.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('only ever points at skills the library actually authors', () => {
+    const known = new Set(skills.map((skill) => skill.id));
+
+    for (const character of characters) {
+      for (const skill of character.skills ?? []) {
+        expect(known.has(skill.id), `${character.id}/${skill.id}`).toBe(true);
+      }
+    }
+  });
+
+  it('funds every metered skill from the pool of the character carrying it', () => {
+    // A 24-MP skill on a 20-MP character is a skill that never fires, and nothing in the
+    // simulation would report it — the character would simply swing for the whole fight.
+    for (const character of characters) {
+      for (const skill of character.skills ?? []) {
+        if (skill.cost?.kind === 'mp') {
+          expect(character.stats.mp ?? 0, `${character.id}/${skill.id}`).toBeGreaterThanOrEqual(
+            skill.cost.amount ?? 0,
+          );
+        }
+        if (skill.cost?.kind === 'hp') {
+          // Strictly greater: an HP cost is never allowed to be lethal, so a skill priced at the
+          // caster's whole health pool could never be used either.
+          expect(Number(character.stats.hp), `${character.id}/${skill.id}`).toBeGreaterThan(
+            skill.cost.amount ?? 0,
+          );
+        }
+      }
+    }
+  });
+
+  it('gives every free skill a cooldown, so nothing is both unmetered and unlimited', () => {
+    for (const character of characters) {
+      for (const skill of character.skills ?? []) {
+        if ((skill.cost?.kind ?? 'none') === 'none') {
+          expect(skill.cooldown ?? 0, `${character.id}/${skill.id}`).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('puts every kit above the basic attack in the selection order', () => {
+    // The basic attack sits at priority 0 and is the floor rather than a candidate. A skill at or
+    // below it would never be chosen and would read as a bug in the simulation instead of in the
+    // content.
+    for (const character of characters) {
+      for (const skill of character.skills ?? []) {
+        expect(skill.priority ?? 1, `${character.id}/${skill.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('authors more than one way to reach an enemy back rank', () => {
+    // The front rank is a gate, and an encounter built around a protected healer is only fair if
+    // more than one character can answer it — otherwise the lock has exactly one key and the
+    // gacha decides whether the player owns it.
+    const reachers = characters.filter((character) =>
+      (character.skills ?? []).some(
+        (skill) => skill.target === 'enemy-back' || skill.target === 'enemy-row-back',
+      ),
+    );
+
+    expect(reachers.length).toBeGreaterThanOrEqual(3);
+    // At least one of them common tier, so the answer does not depend on a lucky banner.
+    expect(reachers.some((character) => character.tier === 'common')).toBe(true);
   });
 });
 
@@ -128,7 +267,15 @@ describe('characters are sidegrades within a tier', () => {
     // the middle of every axis and still be a real choice — what must never happen is one
     // character being at least as good as another on *every* axis, because then the worse one is
     // never worth fielding.
-    const axes: readonly (keyof StatBlockData)[] = ['hp', 'atk', 'def', 'spd', 'critChance'];
+    const axes: readonly (keyof StatBlockData)[] = [
+      'hp',
+      'patk',
+      'matk',
+      'pdef',
+      'mdef',
+      'spd',
+      'critChance',
+    ];
     const peers = characters.filter((character) => character.tier === tier);
     const dominated: string[] = [];
 
@@ -138,7 +285,7 @@ describe('characters are sidegrades within a tier', () => {
           continue;
         }
         const worseEverywhere = axes.every(
-          (axis) => Number(rival.stats[axis]) >= Number(candidate.stats[axis]),
+          (axis) => Number(rival.stats[axis] ?? 0) >= Number(candidate.stats[axis] ?? 0),
         );
         if (worseEverywhere) {
           dominated.push(`${candidate.id} is dominated by ${rival.id}`);
@@ -152,20 +299,31 @@ describe('characters are sidegrades within a tier', () => {
   it('expresses each faction’s axis more sharply as tier rises', () => {
     // Dwarves get more defensive, Elves faster, Monsters harder-hitting, Demons swingier. The
     // tier sharpens the niche in both directions rather than lifting every number.
+    //
+    // Read across the three canonical tiers rather than across every member: Humans and Dwarves
+    // now carry a fourth character each — the mortal healer and the mortal cleanse — and neither
+    // is on their faction's axis, which is exactly why they were added.
     const axisOf: Readonly<Record<string, keyof StatBlockData>> = {
-      dwarf: 'def',
+      dwarf: 'pdef',
       elf: 'spd',
-      monster: 'atk',
+      monster: 'patk',
       demon: 'critChance',
       undead: 'hp',
+      angel: 'mdef',
+    };
+    const canonical: Readonly<Record<string, readonly string[]>> = {
+      dwarf: ['bran', 'korrin', 'thraun'],
+      elf: ['rin', 'lysha', 'aelrindel'],
+      monster: ['gnash', 'ruk', 'vharok'],
+      demon: ['pyra', 'malakar', 'azrathoth'],
+      undead: ['mortlach', 'sable', 'nekros'],
+      angel: ['celia', 'ithuriel', 'seraphine'],
     };
 
     for (const [faction, axis] of Object.entries(axisOf)) {
-      const byTier = TIERS.map((tier) =>
-        characters.find((character) => character.faction === faction && character.tier === tier),
+      const values = canonical[faction].map((id) =>
+        Number(characters.find((character) => character.id === id)?.stats[axis] ?? 0),
       );
-
-      const values = byTier.map((character) => Number(character?.stats[axis] ?? 0));
 
       expect(values[1], `${faction} ${axis}`).toBeGreaterThan(values[0]);
       expect(values[2], `${faction} ${axis}`).toBeGreaterThan(values[1]);
@@ -173,14 +331,8 @@ describe('characters are sidegrades within a tier', () => {
   });
 });
 
-describe('the starter party', () => {
-  it('matches the id list the save layer seeds from', () => {
-    // Written out rather than derived with a `.map()`, because `data/` is plain data. This is
-    // the assertion that buys back what the `.map()` would have.
-    expect(STARTER_CHARACTER_IDS).toEqual(starters.map((character) => character.id));
-  });
-
-  it('fields three characters with distinct ids', () => {
+describe('the starting formation', () => {
+  it('names three characters that exist, with distinct ids', () => {
     expect(starters).toHaveLength(3);
     expect(new Set(starters.map((character) => character.id)).size).toBe(3);
   });
@@ -201,5 +353,13 @@ describe('the starter party', () => {
     for (const character of starters) {
       expect(characters, character.id).toContain(character);
     }
+  });
+
+  it('stands the wall and the generalist in front and the ranger behind', () => {
+    // Load-bearing in three separate ways: the front rank is what enemy attacks work through,
+    // Rin is the party's only answer to an enemy back rank, and at 430 HP she does not survive
+    // being reached.
+    expect([...STARTER_FORMATION.front]).toEqual([BRAN.id, MIRA.id]);
+    expect([...STARTER_FORMATION.back]).toEqual([RIN.id]);
   });
 });
