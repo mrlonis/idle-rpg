@@ -3,7 +3,8 @@
 A 2D incremental idle RPG for mobile (iOS-first, Android secondary): gacha pulls, idle
 progression, team building, stage climbing. Solo dev project.
 
-Stack: TypeScript, Angular 22 (zoneless), Angular Material, Capacitor 8. No backend.
+Stack: TypeScript, Angular 22 (zoneless), Capacitor 8. No backend, no UI framework — the
+screens are hand-written components over the palette in `src/ui/theme.scss`.
 
 ---
 
@@ -48,8 +49,10 @@ verify against the code.**
 
 Read it before starting a milestone, and specifically before:
 
-- reaching for **Angular Material**, **`@capacitor/app`**, or a **run reset** — each is
-  deliberately deferred, and the doc records the condition that has to be met first;
+- reaching for **`@capacitor/app`** or a **run reset** — each is deliberately deferred, and the
+  doc records the condition that has to be met first. **Angular Material is not deferred, it is
+  removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to be
+  the cause of the app's broken first appearance on a real phone. Do not reinstall it;
 - building anything that fights on its own — "auto-battle" means two separate features, and
   neither belongs in the milestone that introduced combat;
 - adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
@@ -186,7 +189,31 @@ defenses — there is nothing to protect.
 - Android needs a system back-button handler (`@capacitor/app`) that pops modals and
   navigates up, exiting only from the root. iOS has no equivalent.
 - Safe-area handling is `env(safe-area-inset-*)` CSS on both platforms (Capacitor 8 moved
-  Android edge-to-edge to the same mechanism).
+  Android edge-to-edge to the same mechanism). **Never write `padding: env(safe-area-inset-top)`**
+  — the one-value shorthand puts the _top_ inset on all four sides, which is a 59px gutter down
+  both edges of an iPhone. Name the side every time. This shipped, and cost milestone 6 a day.
+- **The document must not scroll; a container inside it does.** `html` and `body` are
+  `height: 100%; overflow: hidden`, the shell is a flex column, and `main` is the scroll
+  container. That removes iOS rubber-banding of the whole page and, with it, the reason to reach
+  for `position: fixed` — a fixed element lays out against the _visual_ viewport, so it keeps
+  filling the screen when the document does not, and any layout bug elsewhere then presents as a
+  broken tab bar.
+- **Set `backgroundColor` in `capacitor.config.ts`.** Left unset, `CAPBridgeViewController`
+  falls back to `UIColor.systemBackground` — white in light mode — and that is what shows before
+  the first paint and anywhere web content does not reach.
+- Capacitor 8 already disables pinch-zoom (`zoomEnabled` defaults to false, which installs the
+  pinch-blocking scroll delegate on iOS and turns off `setBuiltInZoomControls` on Android) and
+  already sets `scrollView.bounces = false`. **Do not subclass `CAPBridgeViewController` to do
+  either** — read `node_modules/@capacitor/ios/Capacitor/Capacitor/CAPBridgeViewController.swift`
+  before believing a native fix is needed for WebView chrome.
+- **Do not put `maximum-scale=1, user-scalable=no` in the viewport meta.** It is the reflex fix
+  for zoom in a shelled app and it is all cost here: AXE flags it under WCAG 1.4.4, and it buys
+  nothing over the native `zoomEnabled: false` above plus `touch-action: manipulation` for
+  double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real
+  values instead of zero.
+- **No webfonts.** The app is offline-only, so a `fonts.googleapis.com` stylesheet is a network
+  call on the critical rendering path that fails exactly when the player has no signal.
+  `src/styles.scss` uses the platform system stack.
 - Keep `browserslist` explicit and aligned with Capacitor 8's floors (iOS 15+, API 24+).
   Angular's default target can emit syntax that old Android System WebView cannot parse,
   which fails at parse time and renders a blank screen with no visible error.

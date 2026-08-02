@@ -291,6 +291,12 @@ $bane: #fca5a5; // 6.8:1 on $surface
   // Fixed height so the panel does not resize as lines arrive, which would shunt the whole
   // page up and down several times a second.
   min-height: 7.5rem;
+  // The one place selection is turned back on. `styles.scss` disables it document-wide because
+  // a long press on a game surface should not start a selection drag, but the log is real prose
+  // — a player reporting a balance oddity wants to be able to copy the lines that produced it.
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,34 +1,58 @@
 @use '../ui/theme' as t;
 
+// The shell fills the window exactly and never scrolls; `main` is the scroll container. Sizing
+// off the `html`/`body` height chain rather than `100dvh` is deliberate — with a non-scrolling
+// document the two agree, and the chain does not depend on how a given WebView resolves dynamic
+// viewport units while the iOS toolbars animate.
 :host {
-  display: block;
-  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+
+  // Capacitor 8 uses env(safe-area-inset-*) on both platforms; without these the app sits under
+  // the iPhone notch and the Android status bar.
+  //
+  // They belong on the shell rather than on `main` for two reasons. The horizontal pair is
+  // non-zero only in landscape, where it has to inset the tab bar as well. The top one must not
+  // live inside the scroll container, or it scrolls away on the first flick and content slides
+  // up under the notch.
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+
   background: t.$page;
   color: t.$text;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 .game {
-  // Capacitor 8 uses env(safe-area-inset-*) on both platforms; without this the value sits
-  // under the iPhone notch and the Android status bar. The bottom inset also has to clear the
-  // tab bar, which is fixed over the content.
-  padding: calc(1.5rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right))
-    calc(6rem + env(safe-area-inset-bottom)) calc(1.25rem + env(safe-area-inset-left));
+  flex: 1 1 auto;
+  // A flex item refuses to shrink below its content without this, which would push the scroll
+  // onto the document — the one thing this layout exists to prevent.
+  min-height: 0;
+  overflow-y: auto;
+  // Keeps a flick past the end of a list from chaining into whatever is behind it.
+  overscroll-behavior-y: contain;
+
+  padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   align-items: center;
-  min-height: 100dvh;
   box-sizing: border-box;
 }
 
+// A flex sibling rather than `position: fixed`. Fixed elements lay out against the *visual*
+// viewport, so they keep filling the screen when the document does not — which is how a layout
+// bug elsewhere gets to look like a broken tab bar. As a flex item the bar cannot disagree with
+// the content above it, and `main` no longer needs to guess the bar's height as bottom padding.
 .tabs {
-  position: fixed;
-  inset: auto 0 0 0;
+  flex: 0 0 auto;
   background: t.$surface;
   border-top: 1px solid t.$border;
+  // The bar's own background fills the home-indicator strip. Putting the inset here rather than
+  // on the shell is what keeps the strip surface-coloured instead of page-coloured.
   padding-bottom: env(safe-area-inset-bottom);
-  z-index: 10;
 }
 
 .tabs__list {
@@ -58,7 +82,7 @@
   font-weight: 600;
 
   @include t.focus-ring;
-  // Inset so the ring is not clipped by the fixed bar's edge.
+  // Inset so the ring is not clipped by the screen edge the bar sits against.
   &:focus-visible {
     outline-offset: -2px;
   }

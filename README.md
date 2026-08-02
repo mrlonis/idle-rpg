@@ -3,7 +3,8 @@
 A 2D incremental idle RPG for mobile — gacha pulls, idle progression, team building, and
 stage climbing. iOS-first, Android secondary. Solo dev project.
 
-**Stack:** TypeScript, Angular 22 (zoneless), Angular Material, Capacitor 8. No backend.
+**Stack:** TypeScript, Angular 22 (zoneless), Capacitor 8. No backend, and no UI framework —
+the screens are hand-written components over a shared palette.
 
 The game is **completely free and fully offline**: no in-app purchases, no ads, no
 accounts, no servers, no network calls. Balance is tuned as a _time economy_ rather than a
