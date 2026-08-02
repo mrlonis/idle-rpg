@@ -57,8 +57,15 @@
                 The name is the way straight to the character sheet, so levelling somebody up
                 is one tap from the idle screen rather than a trip through the roster. Same
                 target as the roster list's name, so both screens teach the same gesture.
+
+                `from` is how the sheet's back link finds its way here instead of to the roster,
+                which is a screen this player never passed through.
               -->
-              <a class="party__name" [routerLink]="['/roster', member.defId]">
+              <a
+                class="party__name"
+                [routerLink]="['/roster', member.defId]"
+                [queryParams]="{ from: screenId }"
+              >
                 {{ member.name }}
               </a>
               <span class="party__detail">

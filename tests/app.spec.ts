@@ -40,6 +40,41 @@ test.describe('App', () => {
     });
   });
 
+  /**
+   * The character sheet hangs off `/roster/:defId`, but the roster is not the only way in — the
+   * party on the home screen links straight to it. Its back link therefore reads the origin the
+   * link that opened it carried, rather than assuming everybody arrived through the roster.
+   */
+  test.describe('the way out of a character sheet', () => {
+    test('goes home when the party on the home screen opened it', async ({ page }) => {
+      await page.goto('');
+
+      await page.getByRole('link', { name: 'Rin' }).click();
+      await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
+
+      await page.getByRole('link', { name: '← Home' }).click();
+
+      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    });
+
+    test('goes to the roster when the roster opened it', async ({ page }) => {
+      await page.goto('/roster');
+
+      await page.getByRole('link', { name: 'Rin' }).click();
+      await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
+
+      await page.getByRole('link', { name: '← Roster' }).click();
+
+      await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
+    });
+
+    test('offers the roster to a sheet opened by URL, which names no origin', async ({ page }) => {
+      await page.goto('/roster/rin');
+
+      await expect(page.getByRole('link', { name: '← Roster' })).toBeVisible();
+    });
+  });
+
   test.describe('the tab bar', () => {
     test('navigates between screens and marks the current one', async ({ page }) => {
       await page.goto('');

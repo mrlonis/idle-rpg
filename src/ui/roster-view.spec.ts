@@ -185,6 +185,18 @@ describe('RosterView', () => {
         'Rin',
       ]);
     });
+
+    it('names itself on the way to a character sheet, so the sheet can send them back', async () => {
+      // The sheet is reachable from here and from the party on the home screen, and its back
+      // link reads this parameter to decide which one it returns to.
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ defId: 'rin', name: 'Rin', faction: 'elf' })]),
+      );
+
+      expect(el.querySelector('.roster__name')?.getAttribute('href')).toBe(
+        '/roster/rin?from=roster',
+      );
+    });
   });
 
   describe('the rarity label', () => {

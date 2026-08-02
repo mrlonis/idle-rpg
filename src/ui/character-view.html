@@ -1,6 +1,7 @@
 @if (entry(); as row) {
   <header class="head">
-    <a class="head__back" routerLink="/roster">← Roster</a>
+    <!-- Back to whichever screen opened this sheet, named so the tap is never a guess. -->
+    <a class="head__back" [routerLink]="back().path">← {{ back().label }}</a>
     <h1 class="head__title">{{ row.name }}</h1>
     <p class="head__meta">
       <span class="tier tier--{{ row.tier }}">{{ row.tier }}</span>
@@ -139,6 +140,6 @@
 } @else {
   <p class="notice" role="status">
     You do not own that character.
-    <a class="notice__link" routerLink="/roster">Back to roster</a>
+    <a class="notice__link" [routerLink]="back().path">Back to {{ back().label }}</a>
   </p>
 }

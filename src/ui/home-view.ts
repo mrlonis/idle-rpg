@@ -16,6 +16,7 @@ import {
   formatRate,
 } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { type ScreenId } from './navigation';
 import { RosterService } from './roster.service';
 
 /** One currency as the wallet strip shows it. */
@@ -58,6 +59,13 @@ export class HomeView {
 
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
+
+  /**
+   * What this screen calls itself on links out to a character sheet, so the sheet's back link
+   * comes back here rather than to the roster. Typed, so a screen that is not registered in
+   * `navigation.ts` is a compile error rather than a link that silently lands on the fallback.
+   */
+  protected readonly screenId: ScreenId = 'home';
 
   /**
    * The party, as the two ranks it fights in.

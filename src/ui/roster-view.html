@@ -60,7 +60,11 @@
           @for (entry of section.members; track entry.defId) {
             <li class="roster__row" [class.roster__row--fielded]="entry.inParty">
               <div class="roster__identity">
-                <a class="roster__name" [routerLink]="['/roster', entry.defId]">
+                <a
+                  class="roster__name"
+                  [routerLink]="['/roster', entry.defId]"
+                  [queryParams]="{ from: screenId }"
+                >
                   {{ entry.name }}
                 </a>
                 <p class="roster__meta">

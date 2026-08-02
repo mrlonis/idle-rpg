@@ -268,9 +268,11 @@ describe('HomeView', () => {
       expect(el.querySelector('.party__list')?.textContent).toContain('Rin');
     });
 
-    it('links each name to that character sheet', async () => {
+    it('links each name to that character sheet, saying the trip started here', async () => {
       // Levelling somebody up is the reason to tap a name here, and the character sheet is
-      // where that happens — going via the roster screen to reach it is a wasted step.
+      // where that happens — going via the roster screen to reach it is a wasted step. The
+      // `from` is what sends the sheet's back link here rather than to a roster screen this
+      // player never passed through.
       const { el } = await render((_game, _battles, roster) => {
         roster.frontRow.set([member('Rin', 'front', 1)]);
         roster.backRow.set([member('Wren', 'back', 1)]);
@@ -280,8 +282,8 @@ describe('HomeView', () => {
 
       expect(links.map((link) => link.textContent?.trim())).toEqual(['Rin', 'Wren']);
       expect(links.map((link) => link.getAttribute('href'))).toEqual([
-        '/roster/rin',
-        '/roster/wren',
+        '/roster/rin?from=home',
+        '/roster/wren?from=home',
       ]);
     });
 

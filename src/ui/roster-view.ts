@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BACK_ROW_SIZE, FRONT_ROW_SIZE, PARTY_SIZE, type RosterFailure, type Row } from '../core';
+import { type ScreenId } from './navigation';
 import { type RosterEntryView, RosterService } from './roster.service';
 
 /** Why a formation change was refused, in words a player can act on. */
@@ -59,6 +60,13 @@ export class RosterView {
   protected readonly partySize = PARTY_SIZE;
   protected readonly entries = this.roster.entries;
   protected readonly openSlots = this.roster.openSlots;
+
+  /**
+   * What this screen calls itself on links out to a character sheet. The roster is also where a
+   * sheet with no origin at all falls back to, but the link says so anyway: every link into a
+   * sheet naming its own screen is one rule, and a rule with an exception in it is not learnt.
+   */
+  protected readonly screenId: ScreenId = 'roster';
 
   /** The two ranks, front first, for the formation panel above the list. */
   protected readonly ranks = computed(() => [
