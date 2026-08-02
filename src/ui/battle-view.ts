@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { type BattleEvent } from '../core';
+import { type BattleEvent, ZERO } from '../core';
 import {
   type BattleCombatantView,
   BattleService,
@@ -32,8 +32,23 @@ export class BattleView {
   protected readonly speeds = PLAYBACK_SPEEDS;
   protected readonly playbackSpeed = this.battles.playbackSpeed;
   protected readonly stage = this.battles.stage;
-  protected readonly party = this.battles.party;
-  protected readonly foes = this.battles.foes;
+
+  /**
+   * Each side as its two ranks, front first.
+   *
+   * Assembled here rather than as four separate bindings so the template draws one rank block
+   * and repeats it, which is what keeps the two sides from drifting apart every time a row
+   * gains something to show.
+   */
+  protected readonly partyRanks = computed(() => [
+    { row: 'front' as const, label: 'Front row', fighters: this.battles.partyFront() },
+    { row: 'back' as const, label: 'Back row', fighters: this.battles.partyBack() },
+  ]);
+
+  protected readonly foeRanks = computed(() => [
+    { row: 'front' as const, label: 'Front row', fighters: this.battles.foesFront() },
+    { row: 'back' as const, label: 'Back row', fighters: this.battles.foesBack() },
+  ]);
 
   /**
    * True once the fight is over and the board is final.
@@ -108,26 +123,74 @@ export class BattleView {
   protected hpText(combatant: BattleCombatantView): string {
     return `${formatNumeric(combatant.hp.ceil(), 1)} / ${formatNumeric(combatant.maxHp.ceil(), 1)}`;
   }
+
+  /**
+   * The shield segment's width, as a percentage of the HP bar.
+   *
+   * Capped at whatever room is left beside the HP fill rather than allowed to overflow: a
+   * barrier can legitimately be worth more than the target's maximum HP, and a bar that grew
+   * past its track would push the layout around mid-fight.
+   */
+  protected shieldPercent(combatant: BattleCombatantView): number {
+    if (combatant.shield.lte(ZERO)) {
+      return 0;
+    }
+    const share = combatant.shield.div(combatant.maxHp).toNumber();
+    if (!Number.isFinite(share)) {
+      return 0;
+    }
+    return Math.min(share, 1 - combatant.fraction) * 100;
+  }
 }
 
 /**
  * Turns one event into a line of prose.
  *
- * The closing event is deliberately dropped: the outcome has its own announced line, and
- * repeating it in the log would mean a screen reader hears it twice.
+ * Two kinds of event are deliberately dropped. The closing event has its own announced line,
+ * and repeating it would mean a screen reader hears the outcome twice; turn markers never reach
+ * here at all, because the animator filters them out before publishing — a fight is many more
+ * turns than it is interesting moments.
  */
 function narrate(event: BattleEvent, names: ReadonlyMap<string, string>): string | null {
+  const who = (key: string): string => names.get(key) ?? key;
+
   switch (event.kind) {
+    case 'cast':
+      return `${who(event.source)} uses ${event.skillName}`;
     case 'attack': {
-      const source = names.get(event.source) ?? event.source;
-      const target = names.get(event.target) ?? event.target;
       const damage = formatNumeric(event.damage.round(), 1);
+      const absorbed = event.absorbed.gt(ZERO)
+        ? ` (${formatNumeric(event.absorbed.round(), 1)} absorbed)`
+        : '';
       return event.crit
-        ? `${source} lands a critical hit on ${target} for ${damage}`
-        : `${source} hits ${target} for ${damage}`;
+        ? `${who(event.source)} lands a critical hit on ${who(event.target)} for ${damage}${absorbed}`
+        : `${who(event.source)} hits ${who(event.target)} for ${damage}${absorbed}`;
     }
+    case 'miss':
+      return `${who(event.source)} misses ${who(event.target)}`;
+    case 'heal':
+      return event.source === event.target
+        ? `${who(event.source)} drains ${formatNumeric(event.amount.round(), 1)}`
+        : `${who(event.source)} heals ${who(event.target)} for ${formatNumeric(event.amount.round(), 1)}`;
+    case 'status':
+      return `${who(event.target)} is ${event.status.name}`;
+    case 'status-resisted':
+      return `${who(event.target)} resists ${event.statusName}`;
+    case 'status-expired':
+      return `${who(event.target)} is no longer ${event.statusName}`;
+    case 'cleanse':
+      return event.removed.length === 0
+        ? null
+        : `${who(event.source)} cleanses ${event.removed.length} from ${who(event.target)}`;
+    case 'tick-damage':
+      return `${who(event.target)} takes ${formatNumeric(event.damage.round(), 1)} from ${event.statusName}`;
+    case 'tick-heal':
+      return `${who(event.target)} recovers ${formatNumeric(event.amount.round(), 1)} from ${event.statusName}`;
+    case 'stunned':
+      return `${who(event.combatant)} is stunned and loses a turn`;
     case 'defeat':
-      return `${names.get(event.combatant) ?? event.combatant} is defeated`;
+      return `${who(event.combatant)} is defeated`;
+    case 'turn':
     case 'end':
       return null;
   }

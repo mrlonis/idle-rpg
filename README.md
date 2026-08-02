@@ -40,15 +40,15 @@ Ordered so there is **always something playable**. Each step layers onto the pre
 skeleton without changing its shape. [AGENTS.md](AGENTS.md) carries the full detail and the
 design rationale for each.
 
-| #   | Milestone                              | Status                                           |
-| --- | -------------------------------------- | ------------------------------------------------ |
-| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                  |
-| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`             |
-| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing             |
-| 4   | Team composition affecting combat math | ⬜ Next                                          |
-| 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented solver outstanding |
-| 6   | Run on a physical iPhone               | ⬜                                               |
-| 7   | Prestige layer, then content           | ⬜                                               |
+| #   | Milestone                              | Status                                          |
+| --- | -------------------------------------- | ----------------------------------------------- |
+| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                 |
+| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`            |
+| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing            |
+| 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations         |
+| 5   | Offline catch-up on resume             | 🟡 Next; continuous done, segmented outstanding |
+| 6   | Run on a physical iPhone               | ⬜                                              |
+| 7   | Prestige layer, then content           | ⬜                                              |
 
 **What milestone 1 shipped.** A gold counter that accrues at 10Hz, samples into the UI at
 ~6Hz, persists through `@capacitor/preferences`, and settles offline earnings in closed form
@@ -57,9 +57,9 @@ is a one-file swap), a seeded mulberry32 PRNG with O(1) resume and derived sub-s
 for combat, and a versioned save layer with a migration chain, fixtures, and repair that
 clamps damage rather than throwing.
 
-**What milestone 2 shipped.** A party of three that fights up an eight-stage ladder, one battle
-at a time, whenever the player taps Fight. `simulateBattle(team, stage, seed)` resolves a whole
-fight synchronously and headlessly into an event log, and the UI narrates that log afterwards at
+**What milestone 2 shipped.** A party of three that fights up a stage ladder, one battle
+at a time, whenever the player taps Fight. `simulateBattle` resolves a whole fight
+synchronously and headlessly into an event log, and the UI narrates that log afterwards at
 1x, 2x or 4x. Combat is deliberately not driven by the render tick, which is what makes the speed
 control a single multiplication in the animator rather than a second combat implementation — and
 what will make offline resolution and skipping cheap when they arrive.
@@ -72,7 +72,7 @@ reload.
 
 **Clearing a stage is what switches the idle game on.** A run starts at zero gold per second and
 earns nothing while idle; the first clear takes it to 0.5/s and every stage after that is a
-permanent raise, up to 16/s at the top of the ladder. The one-off gold for a clear is the smaller
+permanent raise, up to 25/s at the top of the ladder. The one-off gold for a clear is the smaller
 half of the deal, tuned to roughly 40 seconds of the income it unlocks — the rate is the
 progression, the lump is the bonus.
 
@@ -85,10 +85,11 @@ SPD buys turns instead of just going first. The loop jumps straight to the tick 
 action instead of stepping tick by tick — the same closed-form instinct as offline resume, and
 [`clock.spec.ts`](src/core/battle/clock.spec.ts) pins the jump against a brute-force per-tick
 count. Damage is `atk² / (atk + def)`: strictly positive, so a battle always terminates, and
-diminishing in DEF, so defence never becomes the only stat. Crits are the only RNG consumer, at
-exactly one draw per attack, from a sub-stream derived via
-`deriveSeed(seed, 'battle:<stageId>:<battleCount>')` — so replaying a battle is reproducible
-and never shifts the gacha sequence — which stopped being a hypothetical in milestone 3.
+diminishing in DEF, so defence never becomes the only stat. Randomness comes from a sub-stream
+derived via `deriveSeed(seed, 'battle:<stageId>:<battleCount>')`, and the number of draws an
+action spends never depends on how those draws came out — so replaying a battle is reproducible
+and never shifts the gacha sequence, which stopped being a hypothetical in milestone 3.
+Milestone 4 kept every one of those properties and split the formula across two defences.
 
 Combat also drove the save layer's **first real migration**: v2 adds `stage` and `battleCount`,
 and a pre-combat v1 save keeps its gold and RNG position and simply joins the ladder at stage 1.
@@ -150,6 +151,34 @@ back on load.
 survives a reload. Home, summon, roster and shop are routes — `/roster/rin` is somewhere you can
 come back to — while the battle stays a signal-swapped mode, because nothing it shows outlives a
 refresh. The tab bar hides during a fight, since a battle has no exit until it ends.
+
+**What milestone 4 shipped.** The party became a **formation**: five slots in two ranks, two in
+front and three behind. The front row is a _gate_ — an ordinary attack works through it before it
+can reach the back — so where a character stands is a decision rather than a seating chart. Front
+row buys +5% to both defences; back row buys +5% to whichever attack stat is already higher, and
+only that one, so a mage gets all of it on the spells it casts and none of it on the physical
+swing it makes in between. Placement is free: any character can stand anywhere, because
+role-locking would let an unlucky roster reach a state with no legal party.
+
+Combat grew a real vocabulary underneath it. Seventeen stats including split physical and magical
+attack and defence, MP, life-steal, penetration, tenacity and dodge — of which only the five
+quantities scale with level, for the same reason speed never has. Every combatant now carries a
+kit: skills metered by cooldown, by MP, or by the caster's own health, with conditions that stop
+a healer spending its pool on a party at full HP. Buffs, debuffs, poisons, shields, stuns and
+cleanses all land through one status layer that refreshes rather than stacks.
+
+Enemies got questions worth asking. A Marsh Acolyte behind two Boars cannot be reached by an
+ordinary attack at all, and that is the whole encounter: two parties differing in a single slot
+clear it almost always and almost never, depending on whether one of them can shoot over a front
+rank. Six new archetypes each name their own answer — a debuffer that wants a cleanse, a caster
+that punishes all-physical armour, a shielder that wants burst rather than chip, an armour gate
+that wants penetration, and something that dodges half of what you throw at it.
+
+Factions became a **matchup matrix**: a closed mortal cycle at +5%, Monsters trading reach for a
+bill, and celestials paying for a one-way advantage with the luck-only ascension ladder. The
+ladder is twelve stages; the three starting characters clear the opening run and stop dead at the
+healer lock, which is a wall about _who_ is fighting rather than about how many levels they have.
+**Save v4** replaces the flat party with the two ranks.
 
 Deliberately deferred: native foreground/background handling (`@capacitor/app`) and Angular
 Material. Both are cheap to add later and add debugging surface now.

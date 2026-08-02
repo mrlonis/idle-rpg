@@ -7,6 +7,32 @@
   <p class="notice notice--error" role="alert">{{ text }}</p>
 }
 
+<!--
+  The formation, drawn as the two ranks in the order attacks work through them. Empty slots are
+  rendered rather than implied, because "you have two more places to put somebody" is the whole
+  reason a new player summons.
+-->
+<section class="formation" aria-labelledby="formation-heading">
+  <h2 id="formation-heading" class="formation__title">Formation</h2>
+  @for (rank of ranks(); track rank.row) {
+    <div class="rank">
+      <h3 class="rank__label">{{ rank.label }}</h3>
+      <p class="rank__hint">{{ rank.hint }}</p>
+      <ul class="rank__slots">
+        @for (member of rank.members; track member.defId) {
+          <li class="slot slot--filled">
+            <span class="slot__name">{{ member.name }}</span>
+            <span class="slot__role">{{ member.role }}</span>
+          </li>
+        }
+        @for (gap of [].constructor(rank.capacity - rank.members.length); track $index) {
+          <li class="slot slot--empty">Empty</li>
+        }
+      </ul>
+    </div>
+  }
+</section>
+
 @if (entries().length === 0) {
   <p class="empty" role="status">
     You do not own any characters yet. That should not happen — try reloading.
@@ -22,6 +48,7 @@
           <p class="roster__meta">
             <span class="tier tier--{{ entry.tier }}">{{ entry.tier }}</span>
             <span>{{ entry.factionName }}</span>
+            <span>{{ entry.role }}</span>
             <span>{{ entry.rarityLabel }}</span>
           </p>
           <p class="roster__stats">
@@ -29,28 +56,26 @@
             @if (entry.copies > 0) {
               · {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
             }
-            @if (entry.inParty) {
-              · slot {{ entry.partySlot }}
-            }
+            · {{ placementLabel(entry.row, entry.rowSlot) }}
           </p>
         </div>
 
-        <button
-          type="button"
-          class="roster__toggle"
-          [class.roster__toggle--remove]="entry.inParty"
-          [attr.aria-pressed]="entry.inParty"
-          (click)="toggle(entry.defId)"
-        >
-          <!--
-            The accessible name spells out both the action and who it applies to, because the
-            visible label alone ("Field") repeats down the whole list.
-          -->
-          <span class="visually-hidden">
-            {{ entry.inParty ? 'Remove ' + entry.name + ' from party' : 'Field ' + entry.name }}
-          </span>
-          <span aria-hidden="true">{{ entry.inParty ? 'Fielded' : 'Field' }}</span>
-        </button>
+        @if (nextAction(entry.row, entry.name); as action) {
+          <button
+            type="button"
+            class="roster__toggle"
+            [class.roster__toggle--remove]="entry.inParty"
+            [attr.aria-pressed]="entry.inParty"
+            (click)="cycle(entry.defId)"
+          >
+            <!--
+              The accessible name spells out both the action and who it applies to, because the
+              visible label alone ("To back") repeats down the whole list.
+            -->
+            <span class="visually-hidden">{{ action.description }}</span>
+            <span aria-hidden="true">{{ action.label }}</span>
+          </button>
+        }
       </li>
     }
   </ul>

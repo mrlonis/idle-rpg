@@ -114,8 +114,10 @@ Two decisions worth not re-litigating:
   a battle abandoned by a reload mid-animation pays nothing — acceptable precisely because the
   player starts each fight and watches it, and going again is one tap. If an unattended loop is
   ever added, revisit this: for a loop that runs while nobody is looking, the trade inverts.
-- **Targeting is the living opponent with the least HP, ties by slot.** Deliberately naive
-  until enemy design gives it something to reason about; milestone 4 is where that lands.
+- **Targeting was the living opponent with the least HP, ties by slot.** Deliberately naive
+  until enemy design gave it something to reason about, which milestone 4 did: an ordinary
+  attack now goes through the **front rank** and only reaches the back one once the front is
+  empty, and reaching past it is a property of individual skills rather than of a stat.
 
 ### 3. Gacha, roster, ascension and levelling — **COMPLETE**
 
@@ -187,11 +189,14 @@ flat fields would have been ten lines in every encoder, decoder and repair pass.
 
 The design target is that no currency is decorative: through level 140 all three levelling
 currencies land within about a third of each other in time-to-afford. Level cap is 1000 at
-`ascended-5` and is aspirational — the ladder is eight stages long, and rates rise with content.
+`ascended-5` and is aspirational — the ladder is twelve stages long, and rates rise with
+content.
 
-**Only `hp`, `atk` and `def` scale.** `spd` is ATB gauge per tick against a fixed threshold and
-`critChance` is a probability; a growing `spd` would hit the clamp within eighty levels and turn
-the one stat that buys turns into a constant.
+**Only the quantities scale** — `hp`, and after milestone 4 the four attack and defence stats.
+`spd` is ATB gauge per tick against a fixed threshold and `critChance` is a probability; a
+growing `spd` would hit the clamp within eighty levels and turn the one stat that buys turns into
+a constant. Milestone 4 extended the same argument to `mp`, which is a budget measured against
+authored skill costs rather than a quantity.
 
 **A migration cannot finish the job on its own, and the v2 → v3 one proved it twice.** It carried
 gold across and started xp, essence and summons at zero, leaving a returning player on gold-only
@@ -233,19 +238,184 @@ somewhere a player can come back to. The battle screen is still a signal-swapped
 contents live only in memory — and the tab bar hides during a fight, because a battle has no
 exit until it ends and navigation that refused to work would be worse than none.
 
-### 4. Team composition affecting combat math — **NEXT**
+### 4. Team composition affecting combat math — **COMPLETE**
 
 Composition matters through **enemy design**, not flat synergy bonuses — see
 "Content and balance". Characters are keys to locks, not rungs on a ladder.
 
-Milestone 3 built the lock-picking set: 21 characters across 7 factions, each faction expressing
-one axis more sharply as tier rises. What it deliberately did **not** build is anything for those
-niches to answer. Targeting is still "the living opponent with the least HP", every combatant
-does one thing on its turn, and the only reason to field Thraun over Vharok is a stat line.
+Milestone 3 built the lock-picking set: characters across seven factions, each expressing one
+axis more sharply as tier rises. What it deliberately did **not** build was anything for those
+niches to answer. Targeting was "the living opponent with the least HP", every combatant did one
+thing on its turn, and the only reason to field Thraun over Vharok was a stat line.
 
-This milestone is where enemies get questions worth asking — a healer that has to be burst, a
-wide wave that punishes single-target, a debuff that needs a cleanse — and where the naive
-targeting from milestone 2 finally has something to reason about.
+#### The formation is the whole idea
+
+Five slots in two ranks: **two in front, three behind**. The asymmetry is deliberate — the front
+row is a _gate_ ordinary attacks have to work through, so making it the smaller rank keeps it a
+real cost rather than a free wall.
+
+- Front row: **+5% to both defences.**
+- Back row: **+5% to whichever offensive stat is already higher, and only that one.** Not a flat
+  attack bonus. Every basic attack in the game is physical, so a caster in the back gets all of
+  it on `matk` — which nothing but its skills read — and none of it on the swing it spends most
+  of its turns making. The bonus pays for standing where a character's damage actually comes
+  from, and a caster that has run out of MP quietly stops benefiting from where it is standing.
+
+**Placement is free.** Any character can stand in either rank. Role-locking was considered and
+rejected for one reason: it would let an unlucky roster reach a state where no legal party
+exists, and in a game with no way to buy characters that is a run with nowhere to go. A bad front
+row is a far better failure than no front row. `CharacterRole` exists and **nothing in the
+simulation reads it** — it is there so the roster screen can say "healer" instead of making a
+player infer it from `matk` and a skill list.
+
+#### The proof it works, as a number
+
+`data/stages.spec.ts` simulates two parties that differ in exactly one slot against stage 7 —
+two Boars guarding a Marsh Acolyte:
+
+- With **Rin**, whose Piercing Shot is free, comes off a short cooldown and targets the enemy
+  _back_ row, the party wins almost every time.
+- With **Gnash** in the same slot, who hits harder and can only hit what is in front of him, the
+  party wins almost never.
+
+Gnash is the better character on raw damage. Under milestone 2's targeting both parties would
+have spent the fight on the Boars and the Acolyte's presence would have changed nothing but the
+duration. That gap is the milestone.
+
+#### The stat block, and why most of it does not scale
+
+Seventeen stats: `hp`, `patk`, `matk`, `pdef`, `mdef`, `spd`, `critChance`, `critMultiplier`,
+`mp`, `mpRegen`, `lifesteal`, `effectHit`, `tenacity`, `armorPen`, `magicPen`, `dodge`,
+`accuracy`. Only the **five quantities** scale with level and rarity, and that is not a
+simplification:
+
+- `spd` is ATB gauge per tick against a fixed threshold and would hit its clamp within eighty
+  levels, turning the one stat that buys turns into a constant.
+- Every probability is bounded by 1 by definition.
+- Penetration is capped below 1 so a defensive stat can never be erased outright, and is a
+  **percentage** rather than a subtraction, so a shredder makes a wall feel like a body rather
+  than like an empty square.
+- `mp` is a **budget measured against authored skill costs**, so growing it would silently delete
+  the metering that makes a healer's pool run out.
+
+Two of those guards are termination arguments rather than balance opinions. Hit chance is
+`accuracy - dodge` **floored above zero**, because a combatant nobody can hit turns every fight
+against it into a run to the tick cap. And a `spd` moved by a haste or a slow is re-clamped for
+the same reason the authored one is.
+
+#### Skills, and the three ways to meter one
+
+Every combatant has a basic attack — physical, single target, into the front rank — plus a kit.
+Selection walks the kit by descending priority and takes the first skill whose **condition**
+holds, whose **cooldown** has elapsed, that it can **pay for**, and that has somebody to hit.
+
+- **`none`** — metered by cooldown alone, so each one has to be individually weaker.
+- **`mp`** — a finite pool regenerating per turn. Front-loads, then runs dry. This is what makes
+  a long fight different from a short one, and it is what **guarantees a fight against a healer
+  resolves** instead of grinding against a heal that never stops.
+- **`hp`** — pays in the caster's own life, and never lethally. The Undead's bargain: the largest
+  HP pools in the game and almost no armour to protect them, so health is the resource they have
+  to spare.
+
+Conditions are what stop a healer spending its pool on a party at full HP. Without them a
+priority list would have to say "always cast the biggest thing", and a support kit would be
+indexed on how often its cooldown came up rather than on whether it was needed.
+
+#### The locks
+
+Six new enemy archetypes, each naming the answer it wants:
+
+| Enemy         | The question                              | The answer                        |
+| ------------- | ----------------------------------------- | --------------------------------- |
+| Marsh Acolyte | can you reach a healer behind two bodies? | reach, or burst through the front |
+| Bog Hag       | can you survive a party-wide debuff?      | a cleanse                         |
+| Pyre Caster   | is any of your durability magical?        | `mdef`, a Ward, or killing it     |
+| Iron Bulwark  | can you out-damage a refreshed absorb?    | burst, not chip                   |
+| Rimeplate     | what do you do when both defences are up? | penetration, or Sunder            |
+| Fen Shade     | what do you do when it dodges half of it? | accuracy, or volume               |
+
+A shielder is a different problem from a healer rather than a bigger one: a barrier applied
+_before_ the damage arrives cannot be raced by chip damage at all.
+
+**Two new characters exist because of a bad-luck failure mode, not a gap in the fiction.** Wren
+(Human, healer) and Dorn Saltbeard (Dwarf, cleanse) put sustain and a cleanse on the **mortal**
+ladder. Angels are the natural support and they ascend on copies of themselves alone, so a run
+whose banners are unkind would otherwise have no sustain at any price — which is not a fight
+lost, it is a _category of answer_ the player can never buy. `characters.spec.ts` asserts both
+exist at common tier.
+
+#### Factions are a matchup matrix, not a synergy bonus
+
+The rule in "Content and balance" is about bonuses for **your own team's composition** — "+10% if
+two Fire units" — because those ask nothing of the encounter and only ever produce a new optimal
+team. This is the opposite shape: every multiplier is a statement about the _matchup_, so it
+rewards bringing the right answer to the fight in front of you. A Dwarf wall is not better in
+general; it is better against Elves and worse against Humans.
+
+- **human → dwarf → elf → undead → human**, +5% each. A closed cycle, so no mortal faction is
+  anybody's strict answer.
+- **Monsters** hit everything for +5% and take +5% back from the four other mortal factions — a
+  wildcard with a bill attached. Monster-on-monster is +10%, so the answer to an all-Monster wave
+  is Monsters of your own.
+- **Celestials** deal +10% to every mortal with nothing coming back. The one asymmetry, and a
+  deliberate one: it is paid for by the **luck-only** ascension ladder, which asks for copies of
+  the character itself at every rung and never accepts a faction-mate. Angel↔Demon is +5% both
+  ways, so the answer to a celestial wall is the celestial you also had to be lucky to own.
+
+The numbers are small on purpose. Five percent does not decide a fight; it decides a fight that
+was already close. The counterweight to the celestial advantage is **enemy design, not
+arithmetic** — no matchup multiplier lets a 380-HP Azrathoth stand in a front rank.
+
+#### Where the ladder is tuned to
+
+Twelve stages. **The three starting characters clear the opening ladder and stop dead at stage 7,
+the healer lock.** That boundary is the single most important number in `stages.ts`, and it is a
+wall about _who_ is fighting rather than about how many levels they have — which is exactly the
+right place for the early game to end. Two of the five formation slots start empty, and the
+first-clear crystals banked below the wall are the intended answer.
+
+A built party of five **common-tier** characters at level 80 clears the whole ladder, and stage
+12 still costs it a member. Common tier deliberately: the top of the ladder may demand
+investment, but it may not demand an ascended-tier pull, because there is no way to buy one.
+
+Shipped:
+
+- `core/battle/types.ts` — rows, formations, the seventeen-stat block, the skill and status
+  vocabulary, and a thirteen-kind event log.
+- `core/battle/status.ts` — buffs, debuffs, damage-over-time, shields and stuns. Quantities are
+  **snapshotted at application**, so a poison does not stop hurting when its caster dies; that
+  would make "kill the debuffer" the answer to every debuff, which is the same lock twice.
+  Statuses **refresh rather than stack**, because two casters of the same 0.72 defence debuff
+  would land 0.52 and a wide enough wave would delete a defensive stat by arithmetic nobody
+  authored.
+- `core/battle/skills.ts` — targeting and selection, both **completely deterministic**. Nothing
+  here draws RNG, so the whole of a fight's randomness is "did it hit, did it crit, did it stick".
+- `core/battle/damage.ts` — two defences, percentage penetration, an accuracy-versus-dodge hit
+  roll, and the faction matrix. **Exactly two draws per damage instance and one per status
+  clause, taken whatever happens** — including against a target the preceding clause just killed.
+- `core/battle/simulate.ts` — a turn is upkeep first, action second. A stunned combatant **still
+  consumes its turn**, which is what bounds a stun lock: a stun costs its victim turns rather
+  than freezing it out of the schedule, so a fight cannot deadlock behind one.
+- `data/combat.ts`, `data/statuses.ts`, `data/skills.ts`, plus re-authored characters, enemies
+  and a twelve-stage ladder.
+- Save v4: `formation` replaces `activeParty`, split in reading order by the migration.
+
+Three decisions worth not re-litigating:
+
+- **The rank sizes in the v3 → v4 migration are written out rather than imported from
+  `core/state`.** A migration is dated: it describes the shape that existed the day it shipped,
+  and a constant a later release is free to retune would silently change what that step means for
+  every save that has not run it yet.
+- **A cleanse event names the ids it removed, not how many.** The log's promise is that replaying
+  it reproduces the final standings, and a count cannot do that — an animator holding two debuffs
+  and told "one was removed" has to guess, and disagrees with the simulation from then on. The
+  same reasoning is why turn starts and status expiries are events at all.
+- **Reading a combatant's current speed does not build a stat block.** The scheduling loop asks
+  every living combatant for its speed twice per iteration, and a full effective stat block costs
+  four `Decimal` multiplications it immediately throws away. Doing that made a sweep of the whole
+  ladder take twenty seconds; `effectiveSpeed` makes it a rounding error. The sweep still belongs
+  in the fast suite — but it is now seconds rather than milliseconds, so the separate
+  `*.balance.ts` project described under "Testing `core/`" is closer than it was.
 
 ### 5. Offline catch-up — **PARTIALLY COMPLETE**
 
@@ -363,7 +533,7 @@ do not disable that rule.
 
 - Expose pure functions. Shipped: `tick(state, dtMs) => state`,
   `resume(state, nowMs) => { state, report }`,
-  `simulateBattle(team, stage, seed) => BattleResult`,
+  `simulateBattle(party, stage, seed, rules) => BattleResult`,
   `applyBattleResult(state, result, stageCount) => state`,
   `pull(state, banner, count, ...) => { state, results }`,
   `ascend(state, defId, plan, ...) => RosterResult`,
@@ -474,6 +644,11 @@ defenses — there is nothing to protect.
 - Team composition matters through **enemy design** (a healer that must be burst, a wide
   wave that punishes single-target, a debuff that needs a cleanse), not through flat
   synergy bonuses like "+10% if two Fire units" — those just create a new optimal team.
+  The faction matchup matrix added in milestone 4 is **not** that pattern and the distinction
+  is the whole of it: a synergy bonus rewards your own line-up and asks nothing of the
+  encounter, while a matchup multiplier is a statement about the fight in front of you. Keep
+  matchup edges small — five to ten percent — so they decide a fight that was already close
+  rather than carrying a party that brought the wrong answer.
 - Check the scaling curve against float64's safe range (9e15) before committing to it. Add
   `break_infinity.js` only if the curve actually demands it.
 
@@ -598,9 +773,13 @@ not long-running and need none of this.
   places and will fail once numbers get large).
 - Slow statistical balance sweeps belong in a separate vitest project (`*.balance.ts`) with
   a long timeout, not in the fast unit suite that runs on save. That project does not exist
-  yet because nothing has needed it: `data/stages.spec.ts` sweeps the whole ladder over 200
-  seeds a stage — 1,600 battles — in about 10ms, which is what a headless `core/` buys. Create
-  it when a sweep genuinely gets slow, not on principle.
+  yet, but it is closer than it was. Before milestone 4 a full sweep of the ladder was
+  milliseconds; skills, statuses and `Decimal` quantities made a battle roughly a millisecond
+  on its own, so `data/stages.spec.ts` now sweeps two parties across the twelve stages at 40
+  seeds each — plus a two-party comparison on the one stage that proves the milestone — and
+  costs a couple of seconds. Reach for the separate project when that stops
+  being tolerable — and before shrinking the sample, which buys speed by making the answer
+  less true.
 - When evaluating balance, look at the **5th percentile** player, not the mean. In a paid
   game the unlucky tail buys its way out; here they cannot, so they are the design target.
 

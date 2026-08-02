@@ -73,6 +73,26 @@ describe('migrate', () => {
     // The player downgraded. Their save is not corrupt and must not be overwritten.
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
+
+  it('splits a v3 active party into front and back ranks', () => {
+    const result = migrate({
+      version: 3,
+      wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+      rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
+      lastTickAt: 1,
+      rng: { seed: 1, calls: 0 },
+      stage: 1,
+      clearedStages: 0,
+      battleCount: 0,
+      roster: [],
+      activeParty: ['gamma', 'alpha', 'beta'],
+      pity: 0,
+      pullCount: 0,
+    });
+
+    expect(result['activeParty']).toBeUndefined();
+    expect(result['formation']).toEqual({ front: ['gamma', 'alpha'], back: ['beta'] });
+  });
 });
 
 describe('migration chaining', () => {

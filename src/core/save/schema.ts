@@ -57,8 +57,31 @@ export interface SaveDataV3 {
   pullCount: number;
 }
 
+/**
+ * v4 is the formation release: the flat `activeParty` becomes two ranks.
+ *
+ * The front row is a **gate** attacks work through before they can reach the back, so where a
+ * character stands is now a real decision and a flat list can no longer express it. Two lists
+ * rather than one list plus a "how many are in front" count, because the count cannot say
+ * "nobody in front, two behind" — a formation a player mid-reshuffle is entitled to have.
+ */
+export interface SaveDataV4 {
+  version: 4;
+  wallet: { gold: string; xp: string; essence: string; summons: string; spark: string };
+  rates: { gold: string; xp: string; essence: string; summons: string };
+  lastTickAt: number;
+  rng: { seed: number; calls: number };
+  stage: number;
+  clearedStages: number;
+  battleCount: number;
+  roster: { defId: string; rarity: number; level: number; copies: number }[];
+  formation: { front: string[]; back: string[] };
+  pity: number;
+  pullCount: number;
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV3;
+export type CurrentSaveData = SaveDataV4;
 
 /** Any historical save shape. Widen this union as versions are added. */
-export type AnySaveData = SaveDataV1 | SaveDataV2 | SaveDataV3;
+export type AnySaveData = SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4;

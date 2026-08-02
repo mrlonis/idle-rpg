@@ -1,9 +1,16 @@
 import { provideLocationMocks } from '@angular/common/testing';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { emptyWallet, num, type OfflineReport, type RepairIssue, zeroRates } from '../core';
+import {
+  emptyWallet,
+  num,
+  type OfflineReport,
+  type RepairIssue,
+  type Row,
+  zeroRates,
+} from '../core';
 import { BattleService, type StageHeading } from './battle.service';
 import { GameLoopService } from './game-loop.service';
 import { HomeView } from './home-view';
@@ -29,13 +36,14 @@ class FakeGameLoop {
 }
 
 /** One fielded character, which is all the home screen reads off the roster. */
-function member(name: string): RosterEntryView {
+function member(name: string, row: Row, rowSlot: number): RosterEntryView {
   return {
     defId: name.toLowerCase(),
     name,
     faction: 'elf',
     factionName: 'Elves',
     tier: 'common',
+    role: 'ranger',
     rarity: 0,
     rarityLabel: 'Rare',
     level: 1,
@@ -44,7 +52,8 @@ function member(name: string): RosterEntryView {
     isMaxRarity: false,
     copies: 0,
     inParty: true,
-    partySlot: 1,
+    row,
+    rowSlot,
     nextLevelCost: null,
     canLevel: false,
     affordableLevel: 1,
@@ -54,9 +63,12 @@ function member(name: string): RosterEntryView {
   };
 }
 
-/** Only the party, which is all the home screen asks of the roster. */
+/** Only the formation, which is all the home screen asks of the roster. */
 class FakeRoster {
-  readonly party = signal<readonly RosterEntryView[]>([member('Rin')]);
+  readonly frontRow = signal<readonly RosterEntryView[]>([member('Rin', 'front', 1)]);
+  readonly backRow = signal<readonly RosterEntryView[]>([]);
+  readonly fieldedCount = computed(() => this.frontRow().length + this.backRow().length);
+  readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 1, back: 3 });
 }
 
 /** Only the two things the home screen asks of the animator. */
@@ -238,11 +250,15 @@ describe('HomeView', () => {
     it('refuses to start a fight with nobody fielded', async () => {
       // An empty party resolves as an immediate defeat, so the control says so instead of
       // letting the player walk into it.
-      const { el, battles } = await render((_game, _battles, roster) => roster.party.set([]));
+      const { el, battles } = await render((_game, _battles, roster) => {
+        roster.frontRow.set([]);
+        roster.backRow.set([]);
+        roster.openSlots.set({ front: 2, back: 3 });
+      });
 
       const button = el.querySelector<HTMLButtonElement>('.fight');
       expect(button?.disabled).toBe(true);
-      expect(el.querySelector('.hint')?.textContent).toContain('party is empty');
+      expect(el.querySelector('.hint')?.textContent).toContain('formation is empty');
       expect(battles.fought).toEqual([]);
     });
   });

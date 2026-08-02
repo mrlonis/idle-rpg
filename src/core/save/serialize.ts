@@ -9,7 +9,7 @@ import {
 import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
-import { type GameState, PARTY_SIZE } from '../state';
+import { type GameState, type PartyFormation, rowCapacity } from '../state';
 import { type CurrentSaveData } from './schema';
 import { SAVE_VERSION } from './version';
 
@@ -63,7 +63,10 @@ export function toSaveData(state: GameState): CurrentSaveData {
       level: owned.level,
       copies: owned.copies,
     })),
-    activeParty: [...state.activeParty],
+    formation: {
+      front: [...state.formation.front],
+      back: [...state.formation.back],
+    },
     pity: state.pity,
     pullCount: state.pullCount,
   };
@@ -148,7 +151,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const pullCount = readCounter(record['pullCount'], 'pullCount', 0, note);
 
   const roster = readRoster(record['roster'], options, note);
-  const activeParty = readParty(record['activeParty'], roster, note);
+  const formation = readFormation(record['formation'], roster, note);
 
   return {
     state: {
@@ -161,7 +164,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       clearedStages,
       battleCount,
       roster,
-      activeParty,
+      formation,
       pity,
       pullCount,
     },
@@ -230,38 +233,65 @@ function readRoster(
   return roster;
 }
 
-/** Decodes the active party, keeping only owned characters and trimming to the party size. */
-function readParty(
+/**
+ * Decodes the formation, keeping only owned characters and trimming each rank to its capacity.
+ *
+ * The `placed` set is shared across both ranks rather than reset per rank, because a save that
+ * names the same character in front and behind would otherwise produce a fighter that acts
+ * twice — the one kind of damage here that a battle would happily run with and nobody would
+ * report as a bug.
+ */
+function readFormation(
   raw: unknown,
   roster: readonly OwnedCharacter[],
   note: (field: string, problem: string, recovered: string) => void,
-): readonly string[] {
+): PartyFormation {
   if (raw === undefined || raw === null) {
-    return [];
+    return { front: [], back: [] };
   }
-  if (!Array.isArray(raw)) {
-    note('activeParty', `not an array (${JSON.stringify(raw) ?? 'undefined'})`, 'empty party');
-    return [];
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    note('formation', `not an object (${JSON.stringify(raw) ?? 'undefined'})`, 'empty formation');
+    return { front: [], back: [] };
   }
 
   const owned = new Set(roster.map((entry) => entry.defId));
-  const party: string[] = [];
-  for (const id of raw) {
-    if (typeof id !== 'string' || !owned.has(id) || party.includes(id)) {
-      note(
-        'activeParty[]',
-        `not an owned character (${JSON.stringify(id) ?? 'undefined'})`,
-        'dropped',
-      );
-      continue;
+  const placed = new Set<string>();
+  const record = asRecord(raw);
+
+  const readRank = (row: 'front' | 'back'): string[] => {
+    const value = record[row];
+    if (value === undefined || value === null) {
+      return [];
     }
-    if (party.length >= PARTY_SIZE) {
-      note('activeParty', `more than ${PARTY_SIZE} members`, `trimmed to ${PARTY_SIZE}`);
-      break;
+    if (!Array.isArray(value)) {
+      note(`formation.${row}`, `not an array (${JSON.stringify(value) ?? 'undefined'})`, 'empty');
+      return [];
     }
-    party.push(id);
-  }
-  return party;
+
+    const rank: string[] = [];
+    const capacity = rowCapacity(row);
+    for (const id of value) {
+      if (typeof id !== 'string' || !owned.has(id) || placed.has(id)) {
+        note(
+          `formation.${row}[]`,
+          `not an unplaced owned character (${JSON.stringify(id) ?? 'undefined'})`,
+          'dropped',
+        );
+        continue;
+      }
+      if (rank.length >= capacity) {
+        note(`formation.${row}`, `more than ${capacity} members`, `trimmed to ${capacity}`);
+        break;
+      }
+      placed.add(id);
+      rank.push(id);
+    }
+    return rank;
+  };
+
+  const front = readRank('front');
+  const back = readRank('back');
+  return { front, back };
 }
 
 /**

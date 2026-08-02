@@ -14,6 +14,14 @@
  */
 export { ASCENSION_RULES, CELESTIAL_LADDER, FACTIONS, MORTAL_LADDER } from './ascension';
 export {
+  BASIC_ATTACK,
+  COMBAT_RULES,
+  FACTION_MATCHUPS,
+  MAX_PENETRATION,
+  MIN_HIT_CHANCE,
+  ROW_BONUSES,
+} from './combat';
+export {
   BANNERS,
   DEFAULT_BANNER_ID,
   ELITE_UPGRADE_CHANCE,
@@ -31,6 +39,7 @@ export {
   BRAN,
   CELIA,
   CHARACTERS,
+  DORN,
   GNASH,
   ITHURIEL,
   KORRIN,
@@ -45,11 +54,27 @@ export {
   SABLE,
   SEREN,
   SERAPHINE,
-  STARTER_CHARACTER_IDS,
-  STARTER_TEAM,
+  STARTER_FORMATION,
   THRAUN,
   VHAROK,
+  WREN,
 } from './characters';
-export { BANDIT, BOAR, GOLEM, SLIME, WARDEN, WISP } from './enemies';
+export {
+  ACOLYTE,
+  BANDIT,
+  BOAR,
+  BULWARK_ENEMY,
+  ENEMIES,
+  GOLEM,
+  HAG,
+  PYRE,
+  RIMEPLATE,
+  SHADE,
+  SLIME,
+  WARDEN,
+  WISP,
+} from './enemies';
 export { GROWTH, LEVEL_CURVE } from './levels';
+export { SKILLS } from './skills';
 export { STAGES } from './stages';
+export { STATUSES } from './statuses';

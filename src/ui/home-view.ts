@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CURRENCY_IDS, type CurrencyId, RATE_CURRENCY_IDS } from '../core';
+import { CURRENCY_IDS, type CurrencyId, FRONT_ROW_SIZE, RATE_CURRENCY_IDS } from '../core';
 import { BattleService } from './battle.service';
 import {
   CURRENCY_LABELS,
@@ -49,7 +49,18 @@ export class HomeView {
   protected readonly gold = computed(() => formatNumeric(this.game.gold()));
   protected readonly goldRate = computed(() => formatRate(this.game.goldPerSec()));
 
-  protected readonly party = this.roster.party;
+  /**
+   * The party, as the two ranks it fights in.
+   *
+   * Shown by rank rather than as one list because the rank is the decision: "who is standing in
+   * front" is the thing a player changes between attempts at a stage they just lost.
+   */
+  protected readonly partyRanks = computed(() => [
+    { row: 'front' as const, label: 'Front', members: this.roster.frontRow() },
+    { row: 'back' as const, label: 'Back', members: this.roster.backRow() },
+  ]);
+
+  protected readonly fieldedCount = this.roster.fieldedCount;
 
   /**
    * Every currency except gold, which has the hero treatment above.
@@ -77,7 +88,7 @@ export class HomeView {
   });
 
   /** A party of nobody loses instantly, so the control says so rather than letting it happen. */
-  protected readonly canFight = computed(() => this.party().length > 0);
+  protected readonly canFight = computed(() => this.fieldedCount() > 0);
 
   /**
    * What to say under the counter.
@@ -87,8 +98,11 @@ export class HomeView {
    * up would teach the player to ignore this line.
    */
   protected readonly hint = computed(() => {
-    if (this.party().length === 0) {
-      return 'Your party is empty. Pick up to three characters in the Roster before fighting.';
+    if (this.fieldedCount() === 0) {
+      return 'Your formation is empty. Place characters in the Roster before fighting.';
+    }
+    if (this.roster.openSlots().front === FRONT_ROW_SIZE) {
+      return 'Nobody is in your front row. Attacks reach the back row first when the front is empty.';
     }
     return this.game.goldPerSec().lte(0)
       ? 'Idle earns nothing yet. Win a stage to start banking gold, XP, essence and crystals while you are away.'

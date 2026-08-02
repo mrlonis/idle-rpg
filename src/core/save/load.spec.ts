@@ -91,7 +91,7 @@ describe('loadSave', () => {
         clearedStages: 5,
         battleCount: 214,
         roster: [],
-        activeParty: [],
+        formation: { front: [], back: [] },
         pity: 12,
         pullCount: 40,
       },

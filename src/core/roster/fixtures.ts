@@ -23,13 +23,29 @@ import {
  * never does, and two factions so "same faction" is a real constraint rather than a tautology.
  */
 
-/** Humans walk the fodder-hungry mortal ladder. */
+/**
+ * The mortal fixtures walk the fodder-hungry ladder.
+ *
+ * Kits are deliberately absent: every one of these falls back to whatever basic attack the
+ * rules supply, so a roster or save spec is never accidentally testing a skill. The battle
+ * specs build their own combatants precisely so that these can stay this plain.
+ */
 export const TEST_ALPHA: CharacterData = {
   id: 'alpha',
   name: 'Alpha',
   faction: 'test-mortal',
   tier: 'common',
-  stats: { hp: 100, atk: 10, def: 5, spd: 100, critChance: 0.1, critMultiplier: 1.5 },
+  role: 'bruiser',
+  stats: {
+    hp: 100,
+    patk: 10,
+    matk: 4,
+    pdef: 5,
+    mdef: 4,
+    spd: 100,
+    critChance: 0.1,
+    critMultiplier: 1.5,
+  },
 };
 
 export const TEST_BETA: CharacterData = {
@@ -37,7 +53,17 @@ export const TEST_BETA: CharacterData = {
   name: 'Beta',
   faction: 'test-mortal',
   tier: 'legendary',
-  stats: { hp: 120, atk: 12, def: 6, spd: 105, critChance: 0.12, critMultiplier: 1.6 },
+  role: 'bruiser',
+  stats: {
+    hp: 120,
+    patk: 12,
+    matk: 5,
+    pdef: 6,
+    mdef: 5,
+    spd: 105,
+    critChance: 0.12,
+    critMultiplier: 1.6,
+  },
 };
 
 export const TEST_GAMMA: CharacterData = {
@@ -45,7 +71,17 @@ export const TEST_GAMMA: CharacterData = {
   name: 'Gamma',
   faction: 'test-mortal',
   tier: 'ascended',
-  stats: { hp: 140, atk: 14, def: 7, spd: 110, critChance: 0.15, critMultiplier: 1.7 },
+  role: 'bruiser',
+  stats: {
+    hp: 140,
+    patk: 14,
+    matk: 6,
+    pdef: 7,
+    mdef: 6,
+    spd: 110,
+    critChance: 0.15,
+    critMultiplier: 1.7,
+  },
 };
 
 /** Celestials pay in their own copies and never ask for fodder. */
@@ -54,7 +90,17 @@ export const TEST_DELTA: CharacterData = {
   name: 'Delta',
   faction: 'test-celestial',
   tier: 'common',
-  stats: { hp: 110, atk: 11, def: 8, spd: 95, critChance: 0.05, critMultiplier: 1.4 },
+  role: 'mage',
+  stats: {
+    hp: 110,
+    patk: 11,
+    matk: 12,
+    pdef: 8,
+    mdef: 9,
+    spd: 95,
+    critChance: 0.05,
+    critMultiplier: 1.4,
+  },
 };
 
 export const TEST_EPSILON: CharacterData = {
@@ -62,7 +108,17 @@ export const TEST_EPSILON: CharacterData = {
   name: 'Epsilon',
   faction: 'test-celestial',
   tier: 'legendary',
-  stats: { hp: 115, atk: 13, def: 7, spd: 100, critChance: 0.2, critMultiplier: 1.8 },
+  role: 'mage',
+  stats: {
+    hp: 115,
+    patk: 13,
+    matk: 15,
+    pdef: 7,
+    mdef: 8,
+    spd: 100,
+    critChance: 0.2,
+    critMultiplier: 1.8,
+  },
 };
 
 export const TEST_ZETA: CharacterData = {
@@ -70,7 +126,17 @@ export const TEST_ZETA: CharacterData = {
   name: 'Zeta',
   faction: 'test-celestial',
   tier: 'ascended',
-  stats: { hp: 130, atk: 15, def: 6, spd: 108, critChance: 0.25, critMultiplier: 2 },
+  role: 'mage',
+  stats: {
+    hp: 130,
+    patk: 15,
+    matk: 18,
+    pdef: 6,
+    mdef: 7,
+    spd: 108,
+    critChance: 0.25,
+    critMultiplier: 2,
+  },
 };
 
 export const TEST_CHARACTER_LIST: readonly CharacterData[] = [

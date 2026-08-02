@@ -76,6 +76,36 @@ const migrateV2ToV3: Migration = (save) => {
 };
 
 /**
+ * v3 → v4: the party gains ranks.
+ *
+ * The old `activeParty` was a flat list of at most three; the new formation is two ranks of at
+ * most two and three. A returning player's party is split in reading order — the first two
+ * take the front, the rest fall in behind — which is the only mapping that preserves both
+ * membership and the slot order that breaks ties in turn order.
+ *
+ * **The rank sizes are written out rather than imported from `core/state`.** A migration is
+ * dated: it describes the shape that existed the day it shipped, and a constant that a later
+ * release is free to retune would silently change what this step means for every save that
+ * has not run it yet. That is exactly the hazard the note at the top of this file is about.
+ *
+ * Anything beyond membership is left to load-time repair. `grantStarters` runs on every load
+ * and is idempotent, so a v3 save whose party was empty — or one whose three members no longer
+ * fill five slots — arrives with a working formation without this step guessing at one.
+ */
+const migrateV3ToV4: Migration = (save) => {
+  const party = Array.isArray(save['activeParty'])
+    ? save['activeParty'].filter((id): id is string => typeof id === 'string')
+    : [];
+  const { activeParty: _activeParty, ...rest } = save;
+
+  return {
+    ...rest,
+    version: 4,
+    formation: { front: party.slice(0, 2), back: party.slice(2, 5) },
+  };
+};
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
  * **Never delete or edit an entry once it ships.** A player can return after any number of
@@ -84,6 +114,7 @@ const migrateV2ToV3: Migration = (save) => {
 export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
   [1, migrateV1ToV2],
   [2, migrateV2ToV3],
+  [3, migrateV3ToV4],
 ]);
 
 export class UnknownSaveVersionError extends Error {

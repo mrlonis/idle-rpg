@@ -1,5 +1,11 @@
 import { canAfford, debit } from '../currency';
-import { type GameState, PARTY_SIZE } from '../state';
+import {
+  formationMembers,
+  formationSize,
+  type GameState,
+  type PartyFormation,
+  rowCapacity,
+} from '../state';
 import {
   clampLevel,
   type LevelCurveData,
@@ -40,7 +46,7 @@ export type RosterFailure =
   | 'fodder-is-self'
   | 'level-capped'
   | 'insufficient-currency'
-  | 'party-full'
+  | 'row-full'
   | 'duplicate-party-member';
 
 export type RosterResult =
@@ -118,20 +124,25 @@ export function grantCopies(
 }
 
 /**
- * Seeds a run with its starting characters and fields them.
+ * Seeds a run with its starting characters and forms them up.
  *
- * Called by `ui/` on load rather than by `newGame`, because the starter ids are content and
+ * Called by `ui/` on load rather than by `newGame`, because the starters are content and
  * `core/` cannot read `data/`. It is idempotent, which is what lets it double as repair: a
  * save that arrives with an empty roster — damaged, or written before characters existed —
  * gets a working party back instead of a game with nobody in it.
+ *
+ * The starting **formation** is content too, and for the same reason: `core/` has no way to
+ * know that the Dwarf is the one who belongs in front. Taking a formation rather than a flat
+ * list of ids also keeps one source of truth — who a run starts with is exactly who is
+ * standing somewhere in it.
  */
 export function grantStarters(
   state: GameState,
-  starterIds: readonly string[],
+  starters: PartyFormation,
   characters: CharacterLookup,
 ): GameState {
   let next = state;
-  for (const id of starterIds) {
+  for (const id of formationMembers(starters)) {
     const character = characters.get(id);
     if (character === undefined || findOwned(next, id) !== undefined) {
       continue;
@@ -139,35 +150,44 @@ export function grantStarters(
     next = grantCopies(next, character, 1).state;
   }
 
-  if (next.activeParty.length === 0) {
+  if (formationSize(next.formation) === 0) {
+    const owned = (id: string): boolean => findOwned(next, id) !== undefined;
     next = {
       ...next,
-      activeParty: next.roster.slice(0, PARTY_SIZE).map((owned) => owned.defId),
+      formation: {
+        front: starters.front.filter(owned).slice(0, rowCapacity('front')),
+        back: starters.back.filter(owned).slice(0, rowCapacity('back')),
+      },
     };
   }
   return next;
 }
 
 /**
- * Sets the active party, in slot order.
+ * Sets the whole formation, rank by rank.
  *
- * Slot order is load-bearing — it breaks ties in ATB turn order — so this preserves the order
- * given rather than sorting. An empty party is allowed: a player mid-reshuffle has not done
- * anything wrong, and `simulateBattle` treats a party of nobody as an immediate defeat rather
- * than as an error.
+ * Order within a rank is load-bearing — it breaks ties in ATB turn order and in targeting —
+ * so this preserves the order given rather than sorting. An empty formation is allowed: a
+ * player mid-reshuffle has not done anything wrong, and `simulateBattle` treats a party of
+ * nobody as an immediate defeat rather than as an error.
  */
-export function setParty(
+export function setFormation(
   state: GameState,
-  defIds: readonly string[],
+  formation: PartyFormation,
   characters: CharacterLookup,
 ): RosterResult {
-  if (defIds.length > PARTY_SIZE) {
-    return fail('party-full');
+  if (
+    formation.front.length > rowCapacity('front') ||
+    formation.back.length > rowCapacity('back')
+  ) {
+    return fail('row-full');
   }
-  if (new Set(defIds).size !== defIds.length) {
+
+  const members = formationMembers(formation);
+  if (new Set(members).size !== members.length) {
     return fail('duplicate-party-member');
   }
-  for (const id of defIds) {
+  for (const id of members) {
     if (characters.get(id) === undefined) {
       return fail('unknown-character');
     }
@@ -175,7 +195,49 @@ export function setParty(
       return fail('not-owned');
     }
   }
-  return { ok: true, state: { ...state, activeParty: [...defIds] } };
+
+  return {
+    ok: true,
+    state: { ...state, formation: { front: [...formation.front], back: [...formation.back] } },
+  };
+}
+
+/** The formation with `defId` removed from whichever rank it was standing in. */
+export function withoutMember(formation: PartyFormation, defId: string): PartyFormation {
+  return {
+    front: formation.front.filter((id) => id !== defId),
+    back: formation.back.filter((id) => id !== defId),
+  };
+}
+
+/**
+ * Puts a character into a rank, taking it out of the other one first.
+ *
+ * Moving between ranks is therefore the same operation as joining, which is what stops a
+ * character from ever standing in both — the state that would let one fighter act twice.
+ */
+export function placeInRow(
+  state: GameState,
+  defId: string,
+  row: 'front' | 'back',
+  characters: CharacterLookup,
+): RosterResult {
+  const base = withoutMember(state.formation, defId);
+  const rank = [...base[row], defId];
+  return setFormation(
+    state,
+    row === 'front' ? { front: rank, back: base.back } : { front: base.front, back: rank },
+    characters,
+  );
+}
+
+/** Takes a character out of the formation. Benching somebody who is not fielded is a no-op. */
+export function benchMember(
+  state: GameState,
+  defId: string,
+  characters: CharacterLookup,
+): RosterResult {
+  return setFormation(state, withoutMember(state.formation, defId), characters);
 }
 
 /**

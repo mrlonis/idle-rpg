@@ -6,6 +6,7 @@ import {
   grantStarters,
   type Numeric,
   type OfflineReport,
+  type PartyFormation,
   reconcileClearedStages,
   type RepairIssue,
   resume,
@@ -13,7 +14,7 @@ import {
   tick,
   zeroRates,
 } from '../core';
-import { STARTER_CHARACTER_IDS } from '../data';
+import { STARTER_FORMATION } from '../data';
 import { CHARACTERS_BY_ID, STAGE_PROGRESS } from './content';
 import { SaveService } from './save.service';
 
@@ -87,7 +88,9 @@ export class GameLoopService {
 
   /** The roster, the party fighting from it, and the pity counter. */
   readonly roster = computed(() => this.snapshot()?.roster ?? []);
-  readonly activeParty = computed(() => this.snapshot()?.activeParty ?? []);
+  readonly formation = computed<PartyFormation>(
+    () => this.snapshot()?.formation ?? { front: [], back: [] },
+  );
   readonly pity = computed(() => this.snapshot()?.pity ?? 0);
 
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
@@ -138,7 +141,7 @@ export class GameLoopService {
     // also undercounted `clearedStages` at the top of the ladder, and paid none of the
     // first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
     // recoverable from the gold rate the save did keep.
-    const repaired = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
+    const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
     this.state = reconcileClearedStages(repaired, STAGE_PROGRESS);
     this.settle(nowMs);
 
