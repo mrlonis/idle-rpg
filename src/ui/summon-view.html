@@ -64,11 +64,19 @@
         </tr>
       </thead>
       <tbody>
+        <!--
+          Tier and rarity are separate axes, and this row names one of each: the tier it is a
+          row about, and the rarity that tier arrives at. Each takes the colour of its own
+          palette, and both are spelled out in words beside it.
+        -->
         @for (row of rateRows; track row.tier) {
           <tr>
-            <th scope="row">{{ row.tier }}</th>
+            <th scope="row" class="tier--{{ row.tier }}">{{ row.name }}</th>
             <td class="rates__chance">{{ row.chance }}</td>
-            <td>{{ row.note }}</td>
+            <td>
+              Starts at
+              <span class="rarity rarity--{{ row.startsAtFamily }}">{{ row.startsAt }}</span>
+            </td>
           </tr>
         }
       </tbody>

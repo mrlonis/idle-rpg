@@ -146,18 +146,6 @@
   text-transform: capitalize;
 }
 
-.tier--common {
-  color: t.$tier-common;
-}
-
-.tier--legendary {
-  color: t.$tier-legendary;
-}
-
-.tier--ascended {
-  color: t.$tier-ascended;
-}
-
 .roster__stats {
   margin: 0.1875rem 0 0;
   font-size: 0.75rem;
@@ -226,3 +214,4 @@
 }
 
 @include t.rarity-palette;
+@include t.tier-palette;

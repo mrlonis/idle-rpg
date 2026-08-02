@@ -94,6 +94,26 @@ $tap-target: 2.75rem;
 //
 // The class is applied alongside the rarity's own text, never instead of it: `Elite+` says
 // which rung it is whether or not the colour is perceivable.
+// The tier palette, for the three screens that name a tier. Same reasoning as the rarity block
+// below: component styles are scoped, and the chip on the roster and the rates table on the
+// summon screen have to agree about what a legendary looks like.
+//
+// Colour only — the chip's shape is the caller's business, because the summon screen's rates
+// table wants the colour without the pill around it.
+@mixin tier-palette {
+  .tier--common {
+    color: $tier-common;
+  }
+
+  .tier--legendary {
+    color: $tier-legendary;
+  }
+
+  .tier--ascended {
+    color: $tier-ascended;
+  }
+}
+
 @mixin rarity-palette {
   .rarity--rare {
     color: $rarity-rare;
