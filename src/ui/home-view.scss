@@ -185,3 +185,5 @@
   text-transform: uppercase;
   color: t.$muted;
 }
+
+@include t.rarity-palette;

@@ -18,6 +18,7 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     role: 'ranger',
     rarity: 0,
     rarityLabel: 'Rare',
+    rarityFamily: 'rare',
     level: 12,
     levelCap: 40,
     atLevelCap: false,
@@ -74,6 +75,33 @@ async function render(configure?: (roster: FakeRoster) => void) {
 }
 
 describe('RosterView', () => {
+  describe('the rarity label', () => {
+    it('carries its family as a class so the palette can colour it', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ rarityLabel: 'Mythic+', rarityFamily: 'mythic' })]),
+      );
+
+      const label = el.querySelector('.rarity');
+      expect(label?.textContent?.trim()).toBe('Mythic+');
+      expect(label?.classList.contains('rarity--mythic')).toBe(true);
+    });
+
+    it('spells the rung out in text, so the colour is never the only signal', async () => {
+      // A `+` rung shares its family's colour — the suffix in the label is what distinguishes
+      // Elite from Elite+, and it has to survive for anyone who cannot tell the hues apart.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          entry({ defId: 'a', rarityLabel: 'Elite', rarityFamily: 'elite' }),
+          entry({ defId: 'b', rarityLabel: 'Elite+', rarityFamily: 'elite' }),
+        ]),
+      );
+
+      const labels = [...el.querySelectorAll('.rarity')];
+      expect(labels.map((n) => n.textContent?.trim())).toEqual(['Elite', 'Elite+']);
+      expect(labels.every((n) => n.classList.contains('rarity--elite'))).toBe(true);
+    });
+  });
+
   describe('the ascension-ready signal', () => {
     it('marks the copies count when the next rung is payable', async () => {
       // The whole point: a player should be able to scan the list for who can be ascended

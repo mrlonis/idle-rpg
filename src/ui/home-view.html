@@ -62,7 +62,10 @@
                 {{ member.name }}
               </a>
               <span class="party__detail">
-                {{ member.rarityLabel }} · Level {{ member.level }}
+                <span class="rarity rarity--{{ member.rarityFamily }}">
+                  {{ member.rarityLabel }}
+                </span>
+                · Level {{ member.level }}
               </span>
             </li>
           }

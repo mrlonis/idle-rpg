@@ -6,6 +6,8 @@ import {
   pull,
   type PullFailure,
   type PullResult,
+  type RarityFamily,
+  rarityFamily,
   rarityLabel,
 } from '../core';
 import { DEFAULT_BANNER_ID, MULTI_PULL_COUNT, PITY } from '../data';
@@ -15,6 +17,8 @@ import { GameLoopService } from './game-loop.service';
 /** One pull, as the results panel shows it. */
 export interface PullResultView extends PullResult {
   readonly rarityLabel: string;
+  /** Which of the five colour families this rung belongs to. */
+  readonly rarityFamily: RarityFamily;
   /** `true` for an ascended-tier result — the thing pity is pointed at. */
   readonly isTop: boolean;
 }
@@ -121,6 +125,7 @@ export class GachaService {
       outcome.results.map((result) => ({
         ...result,
         rarityLabel: rarityLabel(result.rarity),
+        rarityFamily: rarityFamily(result.rarity),
         isTop: result.tier === 'ascended',
       })),
     );

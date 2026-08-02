@@ -23,6 +23,8 @@ import {
   type OwnedCharacter,
   type PartyFormation,
   placeInRow,
+  type RarityFamily,
+  rarityFamily,
   rarityLabel,
   type RosterResult,
   type Row,
@@ -56,6 +58,8 @@ export interface RosterEntryView {
   readonly role: CharacterData['role'];
   readonly rarity: number;
   readonly rarityLabel: string;
+  /** Which of the five colour families this rung belongs to. */
+  readonly rarityFamily: RarityFamily;
   readonly level: number;
   readonly levelCap: number;
   readonly atLevelCap: boolean;
@@ -297,6 +301,7 @@ export class RosterService {
       role: character.role,
       rarity: owned.rarity,
       rarityLabel: rarityLabel(owned.rarity),
+      rarityFamily: rarityFamily(owned.rarity),
       level: owned.level,
       levelCap,
       atLevelCap,

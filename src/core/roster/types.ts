@@ -55,6 +55,19 @@ export type RarityId = (typeof RARITIES)[number];
 export const MAX_RARITY_INDEX = RARITIES.length - 1;
 
 /**
+ * The five families the fourteen rungs group into, for anything that treats `rare` and
+ * `rare-plus` as the same kind of thing.
+ *
+ * A rung's suffix — `-plus`, or a star count — is a step *within* a family rather than a new
+ * one, which is why the ladder has fourteen entries and this has five. `rarity.spec.ts`
+ * asserts every entry in {@link RARITIES} strips to one of these, so adding a rung without
+ * deciding which family it belongs to is a failing test rather than a silent gap downstream.
+ */
+export const RARITY_FAMILIES = ['rare', 'elite', 'legendary', 'mythic', 'ascended'] as const;
+
+export type RarityFamily = (typeof RARITY_FAMILIES)[number];
+
+/**
  * How a character is pulled and how it grows.
  *
  * - `common` starts at `rare`, is the weakest per level, and carries the early game. It can

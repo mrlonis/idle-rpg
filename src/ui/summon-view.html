@@ -108,7 +108,9 @@
       @for (result of results(); track $index) {
         <li class="results__item" [class.results__item--top]="result.isTop">
           <span class="results__name">{{ result.name }}</span>
-          <span class="results__rarity">{{ result.rarityLabel }}</span>
+          <span class="results__rarity rarity rarity--{{ result.rarityFamily }}">
+            {{ result.rarityLabel }}
+          </span>
           <span class="results__note">
             @if (result.isNew) {
               New
