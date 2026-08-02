@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { newGame, num, SAVE_VERSION, stampSaveTime, toSaveData } from '../core';
+import { type GameState, newGame, num, SAVE_VERSION, stampSaveTime, toSaveData } from '../core';
+
+/** A run holding some gold, leaving every other currency at zero. */
+function withGold(state: GameState, gold: string): GameState {
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
+}
 
 /** In-memory stand-in for the native key/value store. */
 const store = new Map<string, string>();
@@ -31,13 +36,13 @@ describe('SaveService', () => {
   });
 
   it('round-trips a run', async () => {
-    const state = { ...newGame({ seed: 4242, nowMs: T0 }), gold: num('5e+20') };
+    const state = withGold(newGame({ seed: 4242, nowMs: T0 }), '5e+20');
 
     await service.save(state);
     const loaded = await service.load(T0);
 
     expect(loaded.fatal).toBeUndefined();
-    expect(loaded.state.gold.eq('5e+20')).toBe(true);
+    expect(loaded.state.wallet.gold.eq('5e+20')).toBe(true);
     expect(loaded.state.rng.seed).toBe(4242);
   });
 
@@ -45,7 +50,7 @@ describe('SaveService', () => {
     const loaded = await service.load(T0);
 
     expect(loaded.fatal).toBeUndefined();
-    expect(loaded.state.gold.toString()).toBe('0');
+    expect(loaded.state.wallet.gold.toString()).toBe('0');
   });
 
   it('stamps the save time so the offline window can be measured', async () => {
@@ -57,8 +62,8 @@ describe('SaveService', () => {
   });
 
   it('copies the previous save to the backup slot before overwriting', async () => {
-    const first = { ...newGame({ seed: 1, nowMs: T0 }), gold: num('111') };
-    const second = { ...newGame({ seed: 1, nowMs: T0 }), gold: num('222') };
+    const first = withGold(newGame({ seed: 1, nowMs: T0 }), '111');
+    const second = withGold(newGame({ seed: 1, nowMs: T0 }), '222');
 
     await service.save(first);
     await service.save(second);
@@ -69,14 +74,14 @@ describe('SaveService', () => {
 
   it('falls back to the backup when the primary slot is unreadable', async () => {
     // The exact scenario the backup exists for: a torn or corrupted primary write.
-    const good = { ...newGame({ seed: 7, nowMs: T0 }), gold: num('999') };
+    const good = withGold(newGame({ seed: 7, nowMs: T0 }), '999');
     store.set('save.bak', JSON.stringify(toSaveData(good)));
     store.set('save', '{ not json at all');
 
     const loaded = await service.load(T0);
 
     expect(loaded.fatal).toBeUndefined();
-    expect(loaded.state.gold.eq('999')).toBe(true);
+    expect(loaded.state.wallet.gold.eq('999')).toBe(true);
   });
 
   it('reports the failure when both slots are unusable', async () => {
@@ -86,13 +91,13 @@ describe('SaveService', () => {
     const loaded = await service.load(T0);
 
     expect(loaded.fatal).toBeDefined();
-    expect(loaded.state.gold.toString()).toBe('0');
+    expect(loaded.state.wallet.gold.toString()).toBe('0');
   });
 
   it('surfaces a future-versioned save as fatal rather than silently resetting', async () => {
     // The player downgraded the app. Their run is intact and becomes readable again on
     // update, so this must not be mistaken for corruption.
-    store.set('save', JSON.stringify({ version: SAVE_VERSION + 3, gold: '5' }));
+    store.set('save', JSON.stringify({ version: SAVE_VERSION + 3, wallet: { gold: '5' } }));
 
     const loaded = await service.load(T0);
 
@@ -100,13 +105,16 @@ describe('SaveService', () => {
   });
 
   it('recovers a damaged-but-migratable save and reports what it repaired', async () => {
-    store.set('save', JSON.stringify({ version: SAVE_VERSION, gold: 'garbage', rng: {} }));
+    store.set(
+      'save',
+      JSON.stringify({ version: SAVE_VERSION, wallet: { gold: 'garbage' }, rng: {} }),
+    );
 
     const loaded = await service.load(T0);
 
     expect(loaded.fatal).toBeUndefined();
     expect(loaded.issues.length).toBeGreaterThan(0);
-    expect(loaded.state.gold.toString()).toBe('0');
+    expect(loaded.state.wallet.gold.toString()).toBe('0');
   });
 
   it('clears both slots on request', async () => {

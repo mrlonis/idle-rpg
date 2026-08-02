@@ -4,6 +4,11 @@ import { type GameState, type LoadResult, newGame, num, type RepairIssue } from 
 import { GameLoopService } from './game-loop.service';
 import { SaveService } from './save.service';
 
+/** A run earning gold per second, leaving every other rate at zero. */
+function withGoldRate(state: GameState, rate: string): GameState {
+  return { ...state, rates: { ...state.rates, gold: num(rate) } };
+}
+
 const T0 = 1_700_000_000_000;
 
 class FakeSaveService {
@@ -79,8 +84,7 @@ describe('GameLoopService', () => {
     const { loop } = build((saves) => {
       saves.loadResult = {
         state: {
-          ...newGame({ seed: 1, nowMs: T0 }),
-          goldPerSec: num('250'),
+          ...withGoldRate(newGame({ seed: 1, nowMs: T0 }), '250'),
           lastTickAt: T0 - 3_600_000,
         },
         issues: [],
@@ -179,7 +183,7 @@ describe('GameLoopService time accounting', () => {
   function startedLoop(goldPerSec: string) {
     const saves = new FakeSaveService();
     saves.loadResult = {
-      state: { ...newGame({ seed: 1, nowMs: T0 }), goldPerSec: num(goldPerSec) },
+      state: withGoldRate(newGame({ seed: 1, nowMs: T0 }), goldPerSec),
       issues: [],
     };
     TestBed.configureTestingModule({
@@ -197,7 +201,7 @@ describe('GameLoopService time accounting', () => {
       loop.advance(100, T0 + i * 100);
     }
 
-    expect(stateOf(loop).gold.eq('10')).toBe(true);
+    expect(stateOf(loop).wallet.gold.eq('10')).toBe(true);
     loop.stop();
   });
 
@@ -226,13 +230,13 @@ describe('GameLoopService time accounting', () => {
     for (let i = 1; i <= 600; i++) {
       loop.advance(100, T0 + i * 100);
     }
-    const afterForeground = stateOf(loop).gold;
+    const afterForeground = stateOf(loop).wallet.gold;
 
     // Then the player switches away and returns 10 seconds later.
     loop.settle(T0 + 60_000 + 10_000);
 
     // 60s ticked + 10s away = 70 gold. A double-count would show ~130.
-    expect(stateOf(loop).gold.eq('70')).toBe(true);
+    expect(stateOf(loop).wallet.gold.eq('70')).toBe(true);
     expect(afterForeground.eq('60')).toBe(true);
     loop.stop();
   });
@@ -260,7 +264,7 @@ describe('GameLoopService time accounting', () => {
 
     loop.settle(T0 + 5_000);
 
-    expect(stateOf(loop).gold.eq('5')).toBe(true);
+    expect(stateOf(loop).wallet.gold.eq('5')).toBe(true);
     expect(loop.offlineReport()).toBeNull();
     loop.stop();
   });
@@ -273,7 +277,7 @@ describe('GameLoopService time accounting', () => {
       loop.advance(delta, T0);
     }
 
-    expect(stateOf(loop).gold.toString()).toBe('0');
+    expect(stateOf(loop).wallet.gold.toString()).toBe('0');
     loop.stop();
   });
 
@@ -284,7 +288,7 @@ describe('GameLoopService time accounting', () => {
     // A 10-second stall in one frame: capped at MAX_STEPS_PER_FRAME steps.
     loop.advance(10_000, T0 + 10_000);
 
-    expect(stateOf(loop).gold.eq('0.5')).toBe(true);
+    expect(stateOf(loop).wallet.gold.eq('0.5')).toBe(true);
     // Time is marked as covered, so a later resume does not re-pay the dropped backlog.
     expect(stateOf(loop).lastTickAt).toBe(T0 + 10_000);
     loop.stop();

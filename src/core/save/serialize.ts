@@ -1,5 +1,15 @@
-import { parseOr, serialize as serializeNumeric, tryParse, ZERO } from '../numeric';
-import { type GameState } from '../state';
+import {
+  parseRates,
+  parseWallet,
+  type Rates,
+  serializeRates,
+  serializeWallet,
+  type Wallet,
+} from '../currency';
+import { type LevelCurveData } from '../roster/level';
+import { type CharacterLookup, repairOwned } from '../roster/roster';
+import { type OwnedCharacter } from '../roster/types';
+import { type GameState, PARTY_SIZE } from '../state';
 import { type CurrentSaveData } from './schema';
 import { SAVE_VERSION } from './version';
 
@@ -18,6 +28,17 @@ export interface RepairOptions {
   readonly fallbackSeed: number;
   /** Epoch milliseconds, supplied by the caller because core has no clock. */
   readonly nowMs: number;
+  /**
+   * The characters this build actually ships, so a roster entry naming one that no longer
+   * exists can be dropped rather than carried forward as a character nothing can render.
+   *
+   * Required rather than optional: a save is untrusted input, and a repair pass that cannot
+   * check ids would silently pass damage through to the UI, where it becomes a crash instead
+   * of a reported issue.
+   */
+  readonly characters: CharacterLookup;
+  /** The level curve, so a level above its rarity's cap can be clamped. */
+  readonly levelCurve: LevelCurveData;
 }
 
 export interface RepairResult {
@@ -29,12 +50,22 @@ export interface RepairResult {
 export function toSaveData(state: GameState): CurrentSaveData {
   return {
     version: SAVE_VERSION,
-    gold: serializeNumeric(state.gold),
-    goldPerSec: serializeNumeric(state.goldPerSec),
+    wallet: serializeWallet(state.wallet),
+    rates: serializeRates(state.rates),
     lastTickAt: state.lastTickAt,
     rng: { seed: state.rng.seed, calls: state.rng.calls },
     stage: state.stage,
+    clearedStages: state.clearedStages,
     battleCount: state.battleCount,
+    roster: state.roster.map((owned) => ({
+      defId: owned.defId,
+      rarity: owned.rarity,
+      level: owned.level,
+      copies: owned.copies,
+    })),
+    activeParty: [...state.activeParty],
+    pity: state.pity,
+    pullCount: state.pullCount,
   };
 }
 
@@ -47,9 +78,10 @@ function asRecord(value: unknown): Record<string, unknown> {
  *
  * This never throws. A thrown error during load costs the player their entire run, so
  * every field degrades to a sane default instead: unparseable gold becomes 0, a negative
- * rate becomes 0, a missing seed adopts the caller's fallback. Every substitution is
- * reported in `issues` so the UI can tell the player their save was recovered, and so bug
- * reports say what was wrong rather than just "it broke".
+ * rate becomes 0, a missing seed adopts the caller's fallback, a character id this build no
+ * longer ships is dropped. Every substitution is reported in `issues` so the UI can tell the
+ * player their save was recovered, and so bug reports say what was wrong rather than just
+ * "it broke".
  */
 export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult {
   const issues: RepairIssue[] = [];
@@ -58,26 +90,8 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
     issues.push({ field, problem, recovered });
   };
 
-  let gold = parseOr(record['gold'], ZERO);
-  if (tryParse(record['gold']) === undefined) {
-    note('gold', `unparseable (${JSON.stringify(record['gold']) ?? 'undefined'})`, '0');
-  }
-  if (gold.lt(ZERO)) {
-    note('gold', `negative (${gold.toString()})`, '0');
-    gold = ZERO;
-  }
-
-  // Defaults to zero, matching a fresh run: idle income is earned by clearing stages, so
-  // inventing a rate for a damaged save would hand out progress that was never made. It also
-  // self-heals — the next clear raises the rate to whatever the stage grants.
-  let goldPerSec = parseOr(record['goldPerSec'], ZERO);
-  if (tryParse(record['goldPerSec']) === undefined) {
-    note('goldPerSec', `unparseable (${JSON.stringify(record['goldPerSec']) ?? 'undefined'})`, '0');
-  }
-  if (goldPerSec.lt(ZERO)) {
-    note('goldPerSec', `negative (${goldPerSec.toString()})`, '0');
-    goldPerSec = ZERO;
-  }
+  const wallet: Wallet = parseWallet(record['wallet'], note);
+  const rates: Rates = parseRates(record['rates'], note);
 
   const rawLastTick = record['lastTickAt'];
   let lastTickAt: number;
@@ -124,30 +138,136 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
     calls = rawCalls;
   }
 
-  // Both progression counters are bounded integers, which is exactly why they are stored as
-  // indices rather than ids: they can be repaired here without core/ knowing what stages the
-  // shipped content actually contains. The caller clamps `stage` to the stages it has.
+  // Bounded integers, which is exactly why they are stored as counters rather than ids: they
+  // can be repaired here without core/ knowing what content the build actually contains. The
+  // caller clamps `stage` to the stages it has.
   const stage = readCounter(record['stage'], 'stage', 1, note);
+  const clearedStages = readCounter(record['clearedStages'], 'clearedStages', 0, note);
   const battleCount = readCounter(record['battleCount'], 'battleCount', 0, note);
+  const pity = readCounter(record['pity'], 'pity', 0, note);
+  const pullCount = readCounter(record['pullCount'], 'pullCount', 0, note);
+
+  const roster = readRoster(record['roster'], options, note);
+  const activeParty = readParty(record['activeParty'], roster, note);
 
   return {
     state: {
       version: SAVE_VERSION,
-      gold,
-      goldPerSec,
+      wallet,
+      rates,
       lastTickAt,
       rng: { seed, calls },
       stage,
+      clearedStages,
       battleCount,
+      roster,
+      activeParty,
+      pity,
+      pullCount,
     },
     issues,
   };
 }
 
 /**
+ * Decodes the roster, dropping anything this build cannot render.
+ *
+ * Three kinds of damage are handled distinctly, because they mean different things: an entry
+ * naming a character that no longer ships is dropped outright, a second entry for a character
+ * already read is dropped as a duplicate, and an entry with a damaged rarity or level is kept
+ * and clamped. Only the last of those is recoverable, and keeping it is the difference between
+ * a player losing one character's progress and losing the character.
+ */
+function readRoster(
+  raw: unknown,
+  options: RepairOptions,
+  note: (field: string, problem: string, recovered: string) => void,
+): readonly OwnedCharacter[] {
+  if (raw === undefined || raw === null) {
+    return [];
+  }
+  if (!Array.isArray(raw)) {
+    note('roster', `not an array (${JSON.stringify(raw) ?? 'undefined'})`, 'empty roster');
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const roster: OwnedCharacter[] = [];
+  for (const entry of raw) {
+    const record = asRecord(entry);
+    const defId = record['defId'];
+    if (typeof defId !== 'string') {
+      note(
+        'roster[]',
+        `entry has no character id (${JSON.stringify(entry) ?? 'undefined'})`,
+        'dropped',
+      );
+      continue;
+    }
+    const character = options.characters.get(defId);
+    if (character === undefined) {
+      note('roster[]', `unknown character "${defId}"`, 'dropped');
+      continue;
+    }
+    if (seen.has(defId)) {
+      note('roster[]', `duplicate entry for "${defId}"`, 'dropped');
+      continue;
+    }
+    seen.add(defId);
+    roster.push(
+      repairOwned(
+        {
+          defId,
+          rarity: typeof record['rarity'] === 'number' ? record['rarity'] : 0,
+          level: typeof record['level'] === 'number' ? record['level'] : 1,
+          copies: typeof record['copies'] === 'number' ? record['copies'] : 0,
+        },
+        character,
+        options.levelCurve,
+      ),
+    );
+  }
+  return roster;
+}
+
+/** Decodes the active party, keeping only owned characters and trimming to the party size. */
+function readParty(
+  raw: unknown,
+  roster: readonly OwnedCharacter[],
+  note: (field: string, problem: string, recovered: string) => void,
+): readonly string[] {
+  if (raw === undefined || raw === null) {
+    return [];
+  }
+  if (!Array.isArray(raw)) {
+    note('activeParty', `not an array (${JSON.stringify(raw) ?? 'undefined'})`, 'empty party');
+    return [];
+  }
+
+  const owned = new Set(roster.map((entry) => entry.defId));
+  const party: string[] = [];
+  for (const id of raw) {
+    if (typeof id !== 'string' || !owned.has(id) || party.includes(id)) {
+      note(
+        'activeParty[]',
+        `not an owned character (${JSON.stringify(id) ?? 'undefined'})`,
+        'dropped',
+      );
+      continue;
+    }
+    if (party.length >= PARTY_SIZE) {
+      note('activeParty', `more than ${PARTY_SIZE} members`, `trimmed to ${PARTY_SIZE}`);
+      break;
+    }
+    party.push(id);
+  }
+  return party;
+}
+
+/**
  * Reads an integer counter that must be at least `floor`, defaulting to `floor` when it is
  * damaged. Shared by the progression fields, which have identical failure modes and would
- * otherwise be two copies of the same eight lines.
+ * otherwise be several copies of the same eight lines.
  */
 function readCounter(
   raw: unknown,

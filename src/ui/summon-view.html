@@ -1,0 +1,132 @@
+<header class="head">
+  <h1 class="head__title">Summon</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ crystals() }}</span>
+    <span class="head__unit">crystals</span>
+  </p>
+</header>
+
+<!--
+  The pity panel sits above the pull controls on purpose: it is the information a player needs
+  *before* deciding, not a receipt afterwards.
+-->
+<section class="pity" aria-labelledby="pity-label">
+  <h2 id="pity-label" class="section__heading">Pity</h2>
+
+  <p class="pity__rate">
+    Next pull: <strong>{{ currentChance() }}</strong> for an ascended-tier character
+    @if (inSoftPity()) {
+      <span class="pity__flag">soft pity active</span>
+    } @else {
+      <span class="pity__base">base rate {{ baseChance }}</span>
+    }
+  </p>
+
+  <!--
+    `progressbar` carries the numbers for assistive tech; the visible text below repeats them,
+    so the bar is never the only way to read this.
+  -->
+  <div
+    class="pity__bar"
+    role="progressbar"
+    [attr.aria-valuenow]="pity()"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="hardPity"
+    [attr.aria-label]="'Pulls since last ascended-tier character, out of ' + hardPity"
+  >
+    <div class="pity__fill" [style.width.%]="pityFraction() * 100"></div>
+  </div>
+
+  <p class="pity__counts">
+    {{ pity() }} {{ pity() === 1 ? 'pull' : 'pulls' }} since your last ascended-tier character ·
+    @if (pullsToGuarantee() > 0) {
+      guaranteed within {{ pullsToGuarantee() }}
+    } @else {
+      guaranteed on this pull
+    }
+  </p>
+</section>
+
+@if (banner(); as current) {
+  <section class="banner" aria-labelledby="banner-label">
+    <h2 id="banner-label" class="banner__name">{{ current.name }}</h2>
+    <p class="banner__description">{{ current.description }}</p>
+
+    <table class="rates">
+      <caption class="rates__caption">
+        Base rates, before pity
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Tier</th>
+          <th scope="col">Chance</th>
+          <th scope="col">Arrives at</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rateRows; track row.tier) {
+          <tr>
+            <th scope="row">{{ row.tier }}</th>
+            <td class="rates__chance">{{ row.chance }}</td>
+            <td>{{ row.note }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}
+
+<div class="actions">
+  <button
+    type="button"
+    class="pull pull--single"
+    [disabled]="!canPullSingle()"
+    (click)="pullOnce()"
+  >
+    Pull ×1
+    <span class="pull__cost">{{ singleCost() }} crystals</span>
+  </button>
+  <button type="button" class="pull pull--multi" [disabled]="!canPullMulti()" (click)="pullMulti()">
+    Pull ×{{ multiCount }}
+    <span class="pull__cost">{{ multiCost() }} crystals</span>
+  </button>
+</div>
+
+@if (failureMessage(); as message) {
+  <p class="notice notice--error" role="alert">{{ message }}</p>
+} @else if (shortfall(); as missing) {
+  <p class="notice" role="status">
+    {{ missing }} more crystals for a ×{{ multiCount }}. They accrue while you are away, and every
+    first-time stage clear pays a bonus.
+  </p>
+}
+
+@if (results().length > 0) {
+  <section class="results" aria-labelledby="results-label">
+    <h2 id="results-label" class="section__heading">Results</h2>
+    <ul class="results__list">
+      @for (result of results(); track $index) {
+        <li class="results__item" [class.results__item--top]="result.isTop">
+          <span class="results__name">{{ result.name }}</span>
+          <span class="results__rarity">{{ result.rarityLabel }}</span>
+          <span class="results__note">
+            @if (result.isNew) {
+              New
+            } @else if (result.spark > 0) {
+              Maxed — +{{ result.spark }} spark
+            } @else {
+              +{{ result.copies }} {{ result.copies === 1 ? 'copy' : 'copies' }}
+            }
+            @if (result.wasGuaranteed) {
+              · pity
+            }
+          </span>
+        </li>
+      }
+    </ul>
+    <div class="results__actions">
+      <a class="results__link" routerLink="/roster">Open roster</a>
+      <button type="button" class="results__dismiss" (click)="dismiss()">Dismiss</button>
+    </div>
+  </section>
+}

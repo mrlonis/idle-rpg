@@ -4,23 +4,35 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
-import { newGame } from '../state';
+import { newGame, type GameState } from '../state';
+import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import { loadSave, loadSaveText } from './load';
 import { type RepairOptions, toSaveData } from './serialize';
 import { SAVE_VERSION } from './version';
 
 const T0 = 1_700_000_000_000;
-const OPTIONS: RepairOptions = { fallbackSeed: 777, nowMs: T0 };
+const OPTIONS: RepairOptions = {
+  fallbackSeed: 777,
+  nowMs: T0,
+  characters: TEST_CHARACTERS,
+  levelCurve: TEST_LEVEL_CURVE,
+};
+
+/** A run holding some gold, leaving every other currency at zero. */
+function withGold(seed: number, gold: string): GameState {
+  const state = newGame({ seed, nowMs: T0 });
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
+}
 
 describe('loadSave', () => {
   it('round-trips a saved state', () => {
-    const original = { ...newGame({ seed: 12345, nowMs: T0 }), gold: num('5e+20') };
+    const original = withGold(12345, '5e+20');
 
     const result = loadSave(toSaveData(original), OPTIONS);
 
     expect(result.fatal).toBeUndefined();
     expect(result.issues).toEqual([]);
-    expect(result.state.gold.eq('5e+20')).toBe(true);
+    expect(result.state.wallet.gold.eq('5e+20')).toBe(true);
   });
 
   it.each([
@@ -31,12 +43,12 @@ describe('loadSave', () => {
     const result = loadSave(raw, OPTIONS);
 
     expect(result.fatal).toBeUndefined();
-    expect(result.state.gold.toString()).toBe('0');
+    expect(result.state.wallet.gold.toString()).toBe('0');
     expect(result.state.rng.seed).toBe(777);
   });
 
   it('never throws, whatever it is handed', () => {
-    for (const raw of ['nonsense', 42, [], { version: 'x' }, { version: 999 }, { gold: {} }]) {
+    for (const raw of ['nonsense', 42, [], { version: 'x' }, { version: 999 }, { wallet: {} }]) {
       expect(() => loadSave(raw, OPTIONS)).not.toThrow();
     }
   });
@@ -45,7 +57,7 @@ describe('loadSave', () => {
     const result = loadSave({ version: 0 }, OPTIONS);
 
     expect(result.fatal).toBeDefined();
-    expect(result.state.gold.toString()).toBe('0');
+    expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
   it('flags a future-versioned save as fatal so the caller does not overwrite it', () => {
@@ -57,42 +69,53 @@ describe('loadSave', () => {
   });
 
   it('recovers a damaged-but-migratable save instead of discarding it', () => {
-    const result = loadSave({ version: SAVE_VERSION, gold: 'garbage', rng: {} }, OPTIONS);
+    const result = loadSave(
+      { version: SAVE_VERSION, wallet: { gold: 'garbage' }, rng: {} },
+      OPTIONS,
+    );
 
     expect(result.fatal).toBeUndefined();
     expect(result.issues.length).toBeGreaterThan(0);
-    expect(result.state.gold.toString()).toBe('0');
+    expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
   it('keeps the undamaged fields of a partly damaged save', () => {
     const result = loadSave(
       {
         version: SAVE_VERSION,
-        gold: '4e+10',
-        goldPerSec: 'broken',
+        wallet: { gold: '4e+10', xp: '900', essence: '3', summons: '120', spark: '0' },
+        rates: { gold: '4', xp: 'broken', essence: '0.01', summons: '0.005' },
         lastTickAt: T0 - 1000,
         rng: { seed: 5, calls: 3 },
         stage: 6,
+        clearedStages: 5,
         battleCount: 214,
+        roster: [],
+        activeParty: [],
+        pity: 12,
+        pullCount: 40,
       },
       OPTIONS,
     );
 
-    expect(result.state.gold.eq('4e+10')).toBe(true);
+    expect(result.state.wallet.gold.eq('4e+10')).toBe(true);
+    expect(result.state.wallet.xp.eq('900')).toBe(true);
+    expect(result.state.rates.gold.eq('4')).toBe(true);
     expect(result.state.rng).toEqual({ seed: 5, calls: 3 });
     expect(result.state.stage).toBe(6);
     expect(result.state.battleCount).toBe(214);
-    expect(result.issues.map((issue) => issue.field)).toEqual(['goldPerSec']);
+    expect(result.state.pity).toBe(12);
+    expect(result.issues.map((issue) => issue.field)).toEqual(['rates.xp']);
   });
 });
 
 describe('loadSaveText', () => {
   it('parses and loads valid save text', () => {
-    const original = { ...newGame({ seed: 1, nowMs: T0 }), gold: num('42') };
+    const original = withGold(1, '42');
 
     const result = loadSaveText(JSON.stringify(toSaveData(original)), OPTIONS);
 
-    expect(result.state.gold.toString()).toBe('42');
+    expect(result.state.wallet.gold.toString()).toBe('42');
     expect(result.fatal).toBeUndefined();
   });
 
@@ -105,13 +128,13 @@ describe('loadSaveText', () => {
     const result = loadSaveText(text, OPTIONS);
 
     expect(result.fatal).toBeUndefined();
-    expect(result.state.gold.toString()).toBe('0');
+    expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
   it('reports malformed JSON as fatal rather than throwing', () => {
     const result = loadSaveText('{ not json', OPTIONS);
 
     expect(result.fatal).toMatch(/not valid JSON/);
-    expect(result.state.gold.toString()).toBe('0');
+    expect(result.state.wallet.gold.toString()).toBe('0');
   });
 });

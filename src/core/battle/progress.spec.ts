@@ -3,10 +3,11 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
+import { type CurrencyAmounts, type Rates, zeroRates } from '../currency';
 import { num, ZERO } from '../numeric';
 import { newGame, type GameState } from '../state';
 import { tick } from '../tick';
-import { applyBattleResult } from './progress';
+import { applyBattleResult, reconcileClearedStages, type StageProgressData } from './progress';
 import { type BattleOutcome, type BattleResult } from './types';
 
 const T0 = 1_700_000_000_000;
@@ -16,7 +17,23 @@ function run(overrides: Partial<GameState> = {}): GameState {
   return { ...newGame({ seed: 0xc0ffee, nowMs: T0 }), ...overrides };
 }
 
-function outcome(kind: BattleOutcome, gold = '0', goldPerSec = '0'): BattleResult {
+/** A state holding `gold`, leaving every other currency alone. */
+function withGold(state: GameState, gold: string): GameState {
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
+}
+
+/** A state earning `gold` per second, leaving every other rate at zero. */
+function withGoldRate(state: GameState, rate: string): GameState {
+  return { ...state, rates: { ...zeroRates(), gold: num(rate) } };
+}
+
+interface RewardSpec {
+  readonly gained?: CurrencyAmounts;
+  readonly rates?: Readonly<Partial<Rates>>;
+  readonly firstClearSummons?: string;
+}
+
+function outcome(kind: BattleOutcome, reward: RewardSpec = {}): BattleResult {
   return {
     stageId: 'test-stage',
     outcome: kind,
@@ -27,28 +44,48 @@ function outcome(kind: BattleOutcome, gold = '0', goldPerSec = '0'): BattleResul
     events: [{ kind: 'end', tick: 100, outcome: kind }],
     reward:
       kind === 'victory'
-        ? { gold: num(gold), goldPerSec: num(goldPerSec) }
-        : { gold: ZERO, goldPerSec: ZERO },
+        ? {
+            gained: reward.gained ?? {},
+            rates: reward.rates ?? {},
+            firstClearSummons: num(reward.firstClearSummons ?? '0'),
+          }
+        : { gained: {}, rates: {}, firstClearSummons: ZERO },
   };
 }
 
 describe('applyBattleResult', () => {
   it('advances the stage on a victory and banks the reward', () => {
-    const state = run({ stage: 3, gold: num('500') });
+    const state = withGold(run({ stage: 3 }), '500');
 
-    const next = applyBattleResult(state, outcome('victory', '160'), STAGE_COUNT);
+    const next = applyBattleResult(
+      state,
+      outcome('victory', { gained: { gold: num(160) } }),
+      STAGE_COUNT,
+    );
 
     expect(next.stage).toBe(4);
-    expect(next.gold.eq(660)).toBe(true);
+    expect(next.wallet.gold.eq(660)).toBe(true);
+  });
+
+  it('banks every currency a stage pays, not just gold', () => {
+    const next = applyBattleResult(
+      run(),
+      outcome('victory', { gained: { gold: num(650), xp: num(120), essence: num(5) } }),
+      STAGE_COUNT,
+    );
+
+    expect(next.wallet.gold.eq(650)).toBe(true);
+    expect(next.wallet.xp.eq(120)).toBe(true);
+    expect(next.wallet.essence.eq(5)).toBe(true);
   });
 
   it.each<BattleOutcome>(['defeat', 'stalemate'])('holds the stage on a %s', (kind) => {
-    const state = run({ stage: 3, gold: num('500') });
+    const state = withGold(run({ stage: 3 }), '500');
 
     const next = applyBattleResult(state, outcome(kind), STAGE_COUNT);
 
     expect(next.stage).toBe(3);
-    expect(next.gold.eq(500)).toBe(true);
+    expect(next.wallet.gold.eq(500)).toBe(true);
   });
 
   it.each<BattleOutcome>(['victory', 'defeat', 'stalemate'])(
@@ -66,10 +103,14 @@ describe('applyBattleResult', () => {
   it('stops at the last authored stage, which then repeats', () => {
     const state = run({ stage: STAGE_COUNT });
 
-    const next = applyBattleResult(state, outcome('victory', '650'), STAGE_COUNT);
+    const next = applyBattleResult(
+      state,
+      outcome('victory', { gained: { gold: num(650) } }),
+      STAGE_COUNT,
+    );
 
     expect(next.stage).toBe(STAGE_COUNT);
-    expect(next.gold.eq(650)).toBe(true);
+    expect(next.wallet.gold.eq(650)).toBe(true);
   });
 
   it('pulls a save from a content-richer build back into range', () => {
@@ -93,41 +134,153 @@ describe('applyBattleResult', () => {
     it('raises the rate to what the cleared stage grants', () => {
       // The real reward. A run starts at zero income, so the first clear is what switches the
       // idle game on at all.
-      const state = run({ goldPerSec: ZERO });
+      const next = applyBattleResult(
+        run(),
+        outcome('victory', { rates: { gold: num('0.5'), xp: num('0.1') } }),
+        STAGE_COUNT,
+      );
 
-      const next = applyBattleResult(state, outcome('victory', '25', '0.5'), STAGE_COUNT);
-
-      expect(next.goldPerSec.eq('0.5')).toBe(true);
+      expect(next.rates.gold.eq('0.5')).toBe(true);
+      expect(next.rates.xp.eq('0.1')).toBe(true);
     });
 
     it.each<BattleOutcome>(['defeat', 'stalemate'])('leaves the rate alone on a %s', (kind) => {
-      const state = run({ goldPerSec: num('4') });
+      const state = withGoldRate(run(), '4');
 
-      expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).goldPerSec.eq(4)).toBe(true);
+      expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).rates.gold.eq(4)).toBe(true);
+    });
+
+    it('raises nothing when the stage has been cleared before', () => {
+      // The idle increase is a one-time unlock per stage, not a per-victory bonus. Re-running a
+      // stage should not be reaching for the rate table at all.
+      const state = run({ stage: 3, clearedStages: 5 });
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { rates: { gold: num('99'), xp: num('99') } }),
+        STAGE_COUNT,
+      );
+
+      expect(next.rates.gold.eq(0)).toBe(true);
+      expect(next.rates.xp.eq(0)).toBe(true);
+    });
+
+    it('still pays the one-off lump on a re-fight', () => {
+      // Farming a stage you have already beaten is a legitimate way to spend an evening, and it
+      // should pay — just not with permanent income.
+      const state = run({ stage: 3, clearedStages: 5 });
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { gained: { gold: num(65), xp: num(12) }, rates: { gold: num('99') } }),
+        STAGE_COUNT,
+      );
+
+      expect(next.wallet.gold.eq(65)).toBe(true);
+      expect(next.wallet.xp.eq(12)).toBe(true);
+      expect(next.rates.gold.eq(0)).toBe(true);
     });
 
     it('never lowers a rate the run already had', () => {
       // Re-clearing an earlier stage, or loading a save written against a different curve, must
       // not cut a player's income.
-      const state = run({ goldPerSec: num('16') });
+      const state = withGoldRate(run(), '16');
 
-      const next = applyBattleResult(state, outcome('victory', '25', '0.5'), STAGE_COUNT);
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { rates: { gold: num('0.5') } }),
+        STAGE_COUNT,
+      );
 
-      expect(next.goldPerSec.eq(16)).toBe(true);
+      expect(next.rates.gold.eq(16)).toBe(true);
+    });
+
+    it('raises each currency independently', () => {
+      // A stage that pays less gold than the run already earns but more essence must still raise
+      // the essence rate — the guard is per currency, not all-or-nothing.
+      const state = { ...run(), rates: { ...zeroRates(), gold: num('16') } };
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { rates: { gold: num('0.5'), essence: num('0.05') } }),
+        STAGE_COUNT,
+      );
+
+      expect(next.rates.gold.eq(16)).toBe(true);
+      expect(next.rates.essence.eq('0.05')).toBe(true);
     });
 
     it('is what makes an idle run pay at all', () => {
       // Ties the reward to the thing it feeds: `tick` multiplies by this rate, so a run that has
       // never won a battle accrues literally nothing.
-      const untouched = run({ goldPerSec: ZERO });
+      const untouched = run();
 
-      expect(tick(untouched, 60_000).gold.eq(0)).toBe(true);
+      expect(tick(untouched, 60_000).wallet.gold.eq(0)).toBe(true);
       expect(
         tick(
-          applyBattleResult(untouched, outcome('victory', '0', '0.5'), STAGE_COUNT),
+          applyBattleResult(
+            untouched,
+            outcome('victory', { rates: { gold: num('0.5') } }),
+            STAGE_COUNT,
+          ),
           60_000,
-        ).gold.eq(30),
+        ).wallet.gold.eq(30),
       ).toBe(true);
+    });
+  });
+
+  describe('first-clear bonus', () => {
+    it('pays the summon bonus the first time a stage falls', () => {
+      const state = run({ stage: 3, clearedStages: 2 });
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { firstClearSummons: '250' }),
+        STAGE_COUNT,
+      );
+
+      expect(next.wallet.summons.eq(250)).toBe(true);
+      expect(next.clearedStages).toBe(3);
+    });
+
+    it('never pays it twice for the same stage', () => {
+      // The case `stage` alone cannot answer: at the top of the ladder `stage` stops climbing,
+      // so a player farming the last stage would re-earn its bonus on every single win.
+      const state = run({ stage: STAGE_COUNT, clearedStages: STAGE_COUNT });
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { firstClearSummons: '800' }),
+        STAGE_COUNT,
+      );
+
+      expect(next.wallet.summons.eq(0)).toBe(true);
+      expect(next.clearedStages).toBe(STAGE_COUNT);
+    });
+
+    it('credits the stage actually fought when the save came from a richer build', () => {
+      // The UI clamps `stage` to the content it has before simulating, so this has to clamp it
+      // the same way. Crediting stage 99 would park the counter above anything reachable and
+      // silently withhold every remaining first-clear bonus.
+      const state = run({ stage: 99, clearedStages: 3 });
+
+      const next = applyBattleResult(
+        state,
+        outcome('victory', { firstClearSummons: '800' }),
+        STAGE_COUNT,
+      );
+
+      expect(next.clearedStages).toBe(STAGE_COUNT);
+      expect(next.wallet.summons.eq(800)).toBe(true);
+    });
+
+    it('pays nothing on a loss and leaves the cleared count alone', () => {
+      const state = run({ stage: 5, clearedStages: 4 });
+
+      const next = applyBattleResult(state, outcome('defeat'), STAGE_COUNT);
+
+      expect(next.wallet.summons.eq(0)).toBe(true);
+      expect(next.clearedStages).toBe(4);
     });
   });
 
@@ -136,25 +289,232 @@ describe('applyBattleResult', () => {
     // shift the gacha sequence and a replayed battle would change which characters you pull.
     const state = run({ rng: { seed: 0xc0ffee, calls: 317 } });
 
-    expect(applyBattleResult(state, outcome('victory', '100'), STAGE_COUNT).rng).toEqual({
-      seed: 0xc0ffee,
-      calls: 317,
-    });
+    expect(
+      applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), STAGE_COUNT).rng,
+    ).toEqual({ seed: 0xc0ffee, calls: 317 });
   });
 
   it('does not mutate the state it is given', () => {
-    const state = run({ stage: 2, battleCount: 5, gold: num('10') });
+    const state = withGold(run({ stage: 2, battleCount: 5 }), '10');
 
-    applyBattleResult(state, outcome('victory', '100'), STAGE_COUNT);
+    applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), STAGE_COUNT);
 
     expect(state.stage).toBe(2);
     expect(state.battleCount).toBe(5);
-    expect(state.gold.eq(10)).toBe(true);
+    expect(state.wallet.gold.eq(10)).toBe(true);
   });
 
   it('leaves the clock alone, because core has none', () => {
     const state = run({ lastTickAt: T0 });
 
     expect(applyBattleResult(state, outcome('victory'), STAGE_COUNT).lastTickAt).toBe(T0);
+  });
+});
+
+/**
+ * The repair for the `v2 → v3` migration's hole.
+ *
+ * That migration carried `goldPerSec` across and started xp, essence and summons at zero, so a
+ * returning player watched their gold tick up while nothing else moved — with no way back except
+ * re-fighting the ladder. It also seeded `clearedStages` from `stage - 1`, which is one short at
+ * the top because `stage` stops climbing there.
+ *
+ * Both are recoverable without asking the player to fight anything, because the surviving gold
+ * rate says exactly how far the run got.
+ */
+describe('reconcileClearedStages', () => {
+  /** The shipped ladder's shape: ascending rates, and a first-clear bonus on every stage. */
+  const BONUSES = [200, 200, 250, 300, 350, 400, 500, 800];
+  const TOTAL_BONUS = BONUSES.reduce((sum, n) => sum + n, 0);
+
+  const LADDER: readonly StageProgressData[] = [0.5, 1, 1.5, 2.5, 4, 6, 10, 16].map(
+    (gold, index) => ({
+      rates: {
+        gold: num(gold),
+        xp: num(gold / 5),
+        essence: num((index + 1) / 1000),
+        summons: num((index + 1) / 2000),
+      },
+      firstClearSummons: num(BONUSES[index]),
+    }),
+  );
+
+  /** A save as the migration would have left it: gold intact, everything else zeroed. */
+  function migrated(goldRate: string, clearedStages: number): GameState {
+    return run({
+      rates: { ...zeroRates(), gold: num(goldRate) },
+      clearedStages,
+      stage: 8,
+    });
+  }
+
+  it('restores every rate a run had already earned', () => {
+    // The reported bug, exactly: gold accumulating and nothing else.
+    const broken = migrated('16', 7);
+
+    const fixed = reconcileClearedStages(broken, LADDER);
+
+    expect(fixed.rates.gold.eq(16)).toBe(true);
+    expect(fixed.rates.xp.gt(0)).toBe(true);
+    expect(fixed.rates.essence.gt(0)).toBe(true);
+    expect(fixed.rates.summons.gt(0)).toBe(true);
+  });
+
+  it('restores them to the highest cleared stage, not the first', () => {
+    const fixed = reconcileClearedStages(migrated('16', 7), LADDER);
+
+    expect(fixed.rates.xp.eq(LADDER[7].rates.xp ?? ZERO)).toBe(true);
+    expect(fixed.rates.essence.eq(LADDER[7].rates.essence ?? ZERO)).toBe(true);
+  });
+
+  it('pays the first-clear bonus for every stage it credits', () => {
+    // Crediting a stage without paying it is worse than leaving it uncredited: `applyBattleResult`
+    // will never pay it either, so the crystals are gone for good and the player has no way to
+    // even notice. A v2 save that had beaten the ladder is owed the whole 3,000 — the same as a
+    // new player earns for climbing the same eight stages.
+    const fixed = reconcileClearedStages(migrated('16', 0), LADDER);
+
+    expect(fixed.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
+  });
+
+  it('pays only for the stages it newly credits', () => {
+    // A run already credited with five stages is owed the last three, not all eight.
+    const partly = migrated('16', 5);
+
+    const fixed = reconcileClearedStages(partly, LADDER);
+
+    expect(fixed.wallet.summons.eq(BONUSES[5] + BONUSES[6] + BONUSES[7])).toBe(true);
+  });
+
+  it('never pays the same bonus twice across loads', () => {
+    // The property that lets this run on every load. The second pass credits nothing, so it
+    // owes nothing.
+    const once = reconcileClearedStages(migrated('16', 0), LADDER);
+    const twice = reconcileClearedStages(once, LADDER);
+
+    expect(twice.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
+    expect(twice).toBe(once);
+  });
+
+  it('pays nothing to a run that has already been credited for everything', () => {
+    const complete = run({
+      clearedStages: 8,
+      rates: { ...zeroRates(), ...LADDER[7].rates },
+    });
+
+    expect(reconcileClearedStages(complete, LADDER).wallet.summons.eq(0)).toBe(true);
+  });
+
+  it('leaves a run able to afford a ten-pull, which is the point', () => {
+    // The reported symptom underneath the symptom: a returning player with a fully cleared ladder
+    // could not afford a single ten-pull, because none of the bonuses had ever been paid.
+    const fixed = reconcileClearedStages(migrated('16', 0), LADDER);
+
+    expect(fixed.wallet.summons.gte(1000)).toBe(true);
+  });
+
+  it('corrects a clear count the migration undercounted at the top of the ladder', () => {
+    // `stage` stops at 8, so a player who beat everything was recorded as having beaten seven —
+    // which is why re-fighting the last stage counted as a first clear and paid its bonus again.
+    expect(reconcileClearedStages(migrated('16', 7), LADDER).clearedStages).toBe(8);
+  });
+
+  it('reads mid-ladder progress off the gold rate too', () => {
+    const fixed = reconcileClearedStages(migrated('4', 0), LADDER);
+
+    expect(fixed.clearedStages).toBe(5);
+    expect(fixed.rates.xp.eq(LADDER[4].rates.xp ?? ZERO)).toBe(true);
+  });
+
+  it('leaves a fresh run completely alone', () => {
+    const fresh = run();
+
+    expect(reconcileClearedStages(fresh, LADDER)).toBe(fresh);
+  });
+
+  it('leaves an already-consistent run untouched, by reference', () => {
+    // It runs on every load, so a clean save must not churn the snapshot and re-render the UI.
+    const healthy = run({ clearedStages: 8, rates: { ...zeroRates(), ...LADDER[7].rates } });
+
+    expect(reconcileClearedStages(healthy, LADDER)).toBe(healthy);
+  });
+
+  it('is idempotent', () => {
+    const once = reconcileClearedStages(migrated('16', 7), LADDER);
+    const twice = reconcileClearedStages(once, LADDER);
+
+    expect(twice).toBe(once);
+  });
+
+  it('never lowers a clear count that is ahead of the gold rate', () => {
+    // Only ever raises. A run whose rates were damaged some other way must not also lose credit
+    // for the stages it cleared.
+    const ahead = migrated('0.5', 6);
+
+    expect(reconcileClearedStages(ahead, LADDER).clearedStages).toBe(6);
+  });
+
+  it('never cuts a rate that is already above what the ladder grants', () => {
+    const generous = run({ clearedStages: 2, rates: { ...zeroRates(), gold: num('999') } });
+
+    expect(reconcileClearedStages(generous, LADDER).rates.gold.eq(999)).toBe(true);
+  });
+
+  it('does not credit stages beyond the content this build ships', () => {
+    const beyond = run({ clearedStages: 99, rates: { ...zeroRates(), gold: num('16') } });
+
+    expect(reconcileClearedStages(beyond, LADDER).clearedStages).toBe(LADDER.length);
+  });
+
+  it('does nothing when the build ships no stages at all', () => {
+    const state = migrated('16', 7);
+
+    expect(reconcileClearedStages(state, [])).toBe(state);
+  });
+
+  it('does not mutate the state it is given', () => {
+    const broken = migrated('16', 7);
+
+    reconcileClearedStages(broken, LADDER);
+
+    expect(broken.rates.xp.eq(0)).toBe(true);
+    expect(broken.clearedStages).toBe(7);
+    expect(broken.wallet.summons.eq(0)).toBe(true);
+  });
+
+  it('touches nothing but the rates, the clear count and the crystals it owes', () => {
+    const broken = { ...migrated('16', 7), pullCount: 12, pity: 30 };
+
+    const fixed = reconcileClearedStages(broken, LADDER);
+
+    expect(fixed.roster).toBe(broken.roster);
+    expect(fixed.rng).toEqual(broken.rng);
+    expect(fixed.pity).toBe(30);
+    expect(fixed.pullCount).toBe(12);
+    // Only the crystal balance moves; the other four currencies are untouched.
+    expect(fixed.wallet.gold.eq(broken.wallet.gold)).toBe(true);
+    expect(fixed.wallet.xp.eq(broken.wallet.xp)).toBe(true);
+    expect(fixed.wallet.spark.eq(broken.wallet.spark)).toBe(true);
+    expect(fixed.wallet.summons.eq(BONUSES[7])).toBe(true);
+  });
+
+  it('leaves a repaired run with nothing left for a re-fight to give back', () => {
+    // The end-to-end guarantee. After repair, re-fighting the last stage is worth its lump and
+    // nothing more — no rate change, no second first-clear bonus.
+    const fixed = reconcileClearedStages(migrated('16', 7), LADDER);
+
+    const after = applyBattleResult(
+      fixed,
+      outcome('victory', {
+        gained: { gold: num(650) },
+        rates: { gold: num('16'), xp: num('3') },
+        firstClearSummons: '800',
+      }),
+      LADDER.length,
+    );
+
+    expect(after.rates).toBe(fixed.rates);
+    expect(after.wallet.summons.eq(fixed.wallet.summons)).toBe(true);
+    expect(after.wallet.gold.eq(fixed.wallet.gold.add(650))).toBe(true);
   });
 });

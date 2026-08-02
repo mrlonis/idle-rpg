@@ -3,6 +3,7 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
+import { zeroRates } from './currency';
 import { num } from './numeric';
 import { accrueDiscrete, OFFLINE_CAP_MS, resume } from './offline';
 import { newGame, type GameState } from './state';
@@ -12,7 +13,15 @@ const SEED = 0xc0ffee;
 const T0 = 1_700_000_000_000;
 
 function stateWithRate(goldPerSec: string): GameState {
-  return { ...newGame({ seed: SEED, nowMs: T0 }), goldPerSec: num(goldPerSec) };
+  return {
+    ...newGame({ seed: SEED, nowMs: T0 }),
+    rates: { ...zeroRates(), gold: num(goldPerSec) },
+  };
+}
+
+/** Sets a starting gold balance without disturbing the rest of the wallet. */
+function withGold(state: GameState, gold: string): GameState {
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
 }
 
 /** Relative error, which stays meaningful once values grow past what decimal places can express. */
@@ -33,8 +42,8 @@ describe('resume', () => {
 
     expect(report.elapsedMs).toBe(60_000);
     expect(report.wasCapped).toBe(false);
-    expect(report.gold.toString()).toBe('15000');
-    expect(resumed.gold.toString()).toBe('15000');
+    expect(report.earned.gold.toString()).toBe('15000');
+    expect(resumed.wallet.gold.toString()).toBe('15000');
   });
 
   it('advances lastTickAt to the resume time', () => {
@@ -54,17 +63,17 @@ describe('resume', () => {
     expect(report.rawElapsedMs).toBe(away);
     expect(report.elapsedMs).toBe(OFFLINE_CAP_MS);
     expect(report.wasCapped).toBe(true);
-    expect(report.gold.toString()).toBe(String(OFFLINE_CAP_MS / 1000));
+    expect(report.earned.gold.toString()).toBe(String(OFFLINE_CAP_MS / 1000));
   });
 
   it('pays nothing when the device clock moved backwards, without going negative', () => {
-    const state = { ...stateWithRate('100'), gold: num('500') };
+    const state = withGold(stateWithRate('100'), '500');
 
     const { state: resumed, report } = resume(state, T0 - 60_000);
 
     expect(report.elapsedMs).toBe(0);
-    expect(report.gold.toString()).toBe('0');
-    expect(resumed.gold.toString()).toBe('500');
+    expect(report.earned.gold.toString()).toBe('0');
+    expect(resumed.wallet.gold.toString()).toBe('500');
   });
 
   it('treats a damaged lastTickAt as a zero-length window', () => {
@@ -73,7 +82,7 @@ describe('resume', () => {
     const { report } = resume(state, T0);
 
     expect(report.elapsedMs).toBe(0);
-    expect(report.gold.toString()).toBe('0');
+    expect(report.earned.gold.toString()).toBe('0');
   });
 
   it('does not mutate the state it is given', () => {
@@ -81,7 +90,7 @@ describe('resume', () => {
 
     resume(state, T0 + 10_000);
 
-    expect(state.gold.toString()).toBe('0');
+    expect(state.wallet.gold.toString()).toBe('0');
     expect(state.lastTickAt).toBe(T0);
   });
 });
@@ -106,7 +115,9 @@ describe('closed-form resume vs stepwise accrual', () => {
       stepwise = tick(stepwise, Math.min(dtMs, durationMs - elapsed));
     }
 
-    expect(relativeError(report.gold.toString(), stepwise.gold.toString())).toBeLessThan(1e-12);
+    expect(
+      relativeError(report.earned.gold.toString(), stepwise.wallet.gold.toString()),
+    ).toBeLessThan(1e-12);
   });
 
   it('agrees at magnitudes far past float64 exact-integer range', () => {
@@ -122,8 +133,10 @@ describe('closed-form resume vs stepwise accrual', () => {
       stepwise = tick(stepwise, 100);
     }
 
-    expect(relativeError(report.gold.toString(), stepwise.gold.toString())).toBeLessThan(1e-12);
-    expect(report.gold.toNumber()).toBeGreaterThan(Number.MAX_SAFE_INTEGER);
+    expect(
+      relativeError(report.earned.gold.toString(), stepwise.wallet.gold.toString()),
+    ).toBeLessThan(1e-12);
+    expect(report.earned.gold.toNumber()).toBeGreaterThan(Number.MAX_SAFE_INTEGER);
   });
 });
 

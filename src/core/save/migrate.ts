@@ -27,6 +27,55 @@ const migrateV1ToV2: Migration = (save) => ({
 });
 
 /**
+ * v2 → v3: the gacha release. Currencies become a keyed wallet, and characters become state.
+ *
+ * The two carried-over quantities are the interesting part. A v2 save's `gold` and
+ * `goldPerSec` move into the wallet and rate table under the `gold` key and keep their exact
+ * values — a returning player's balance and income are untouched by the schema growing around
+ * them. Everything genuinely new starts empty: no roster, no party, no pity.
+ *
+ * An empty roster is deliberate and is not a hole. `core/` cannot see `data/`, so a migration
+ * has no way to know who the starter characters are; `grantStarters` runs on load and is
+ * idempotent, so a v2 save arrives with the same starting party a fresh run gets, and a v3
+ * save that already has a roster is left alone.
+ *
+ * **`clearedStages` starts at zero, and that is not the same as "cleared nothing".** It means
+ * "nothing has been *credited* yet". The first-clear summon bonus did not exist in v2, so a
+ * returning player has not been paid a single one of them however far they climbed — seeding the
+ * counter from `stage - 1` would mark all of that as settled and close the door on the whole
+ * 3,000 crystals, silently and permanently.
+ *
+ * **This migration is deliberately incomplete, and `reconcileClearedStages` finishes the job.**
+ * It cannot do the rest here, because all of it needs to know what the stages grant and `core/`
+ * cannot see `data/`:
+ *
+ * - The three new rates start at zero, but stages the player already cleared had unlocked them.
+ * - The clear count has to be re-derived, and every bonus it credits has to be paid.
+ *
+ * Both are recoverable from the gold rate this migration does carry across, and the repair runs
+ * on every load. So the rule this file states at the top still holds: **do not edit this to try
+ * to compute progression here.** What belongs here is the shape change and the two quantities
+ * that survive it; what belongs in the repair is anything that needs content.
+ */
+const migrateV2ToV3: Migration = (save) => {
+  const gold = typeof save['gold'] === 'string' ? save['gold'] : '0';
+  const goldPerSec = typeof save['goldPerSec'] === 'string' ? save['goldPerSec'] : '0';
+  const { gold: _gold, goldPerSec: _goldPerSec, ...rest } = save;
+
+  return {
+    ...rest,
+    version: 3,
+    wallet: { gold, xp: '0', essence: '0', summons: '0', spark: '0' },
+    rates: { gold: goldPerSec, xp: '0', essence: '0', summons: '0' },
+    clearedStages: 0,
+    roster: [],
+    activeParty: [],
+    pity: 0,
+    pullCount: 0,
+  };
+};
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
  * **Never delete or edit an entry once it ships.** A player can return after any number of
@@ -34,6 +83,7 @@ const migrateV1ToV2: Migration = (save) => ({
  */
 export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
   [1, migrateV1ToV2],
+  [2, migrateV2ToV3],
 ]);
 
 export class UnknownSaveVersionError extends Error {

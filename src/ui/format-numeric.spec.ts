@@ -75,6 +75,34 @@ describe('formatNumeric', () => {
   });
 });
 
+describe('formatRate on the slow currencies', () => {
+  it('quotes a rate below 0.1/s per hour instead', () => {
+    // Essence and summon crystals accrue in hundredths of a unit per second. Per second they
+    // read as "0.01/s" — true, and completely useless for answering "how long until I can pull".
+    expect(formatRate(num('0.014'))).toBe('50.4/hr');
+    expect(formatRate(num('0.05'))).toBe('180/hr');
+  });
+
+  it('keeps gold per second, so the counter a player watches reads normally', () => {
+    expect(formatRate(num('0.5'))).toBe('0.5/s');
+    expect(formatRate(num('16'))).toBe('16/s');
+  });
+
+  it('keeps a zero rate in per-second units rather than reporting "0/hr"', () => {
+    // Zero is below the per-hour threshold, so without the guard it would take that branch and
+    // multiply nothing by 3600. "0/hr" is not wrong so much as strange: it implies an hourly
+    // figure was worth computing for a currency that is not accruing at all.
+    expect(formatRate(num(0))).toBe('0/s');
+  });
+
+  it('never rounds a genuinely small quantity to a flat zero', () => {
+    // The bug this guards: two decimal places turn 0.0015 into "0.00", which reads as "this
+    // earns nothing" when it earns something.
+    expect(formatNumeric(num('0.0015'))).not.toBe('0');
+    expect(formatNumeric(num('0.0015'))).toBe('0.0015');
+  });
+});
+
 describe('formatRate', () => {
   it('appends the unit', () => {
     expect(formatRate(num('250'))).toBe('250/s');

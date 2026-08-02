@@ -11,8 +11,9 @@ import {
   simulateBattle,
   type StageData,
 } from '../core';
-import { STAGES, STARTER_TEAM } from '../data';
+import { STAGES } from '../data';
 import { GameLoopService } from './game-loop.service';
+import { RosterService } from './roster.service';
 
 /**
  * How often the animator is stepped. This is a **presentation** clock: it decides how smoothly
@@ -93,6 +94,7 @@ export interface BattleCombatantView {
 @Service()
 export class BattleService {
   private readonly game = inject(GameLoopService);
+  private readonly roster = inject(RosterService);
 
   /** Playback rate. Applies mid-battle: the animator integrates elapsed time, so changing this
    * speeds up the remainder of the current fight rather than restarting it. */
@@ -203,7 +205,10 @@ export class BattleService {
 
     const { stage, number } = stageFor(state.stage);
     const result = simulateBattle(
-      STARTER_TEAM,
+      // The party the player has chosen, with stats already scaled for level and rarity —
+      // which is the whole reason the roster exists. An empty party resolves as an immediate
+      // defeat rather than being quietly substituted for the starters.
+      this.roster.battleParty(),
       stage,
       // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
       // replaying a battle cannot shift the pull sequence.

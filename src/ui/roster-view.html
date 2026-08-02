@@ -1,0 +1,57 @@
+<header class="head">
+  <h1 class="head__title">Roster</h1>
+  <p class="head__summary">{{ summary() }}</p>
+</header>
+
+@if (message(); as text) {
+  <p class="notice notice--error" role="alert">{{ text }}</p>
+}
+
+@if (entries().length === 0) {
+  <p class="empty" role="status">
+    You do not own any characters yet. That should not happen — try reloading.
+  </p>
+} @else {
+  <ul class="roster">
+    @for (entry of entries(); track entry.defId) {
+      <li class="roster__row" [class.roster__row--fielded]="entry.inParty">
+        <div class="roster__identity">
+          <a class="roster__name" [routerLink]="['/roster', entry.defId]">
+            {{ entry.name }}
+          </a>
+          <p class="roster__meta">
+            <span class="tier tier--{{ entry.tier }}">{{ entry.tier }}</span>
+            <span>{{ entry.factionName }}</span>
+            <span>{{ entry.rarityLabel }}</span>
+          </p>
+          <p class="roster__stats">
+            Level {{ entry.level }}/{{ entry.levelCap }}
+            @if (entry.copies > 0) {
+              · {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
+            }
+            @if (entry.inParty) {
+              · slot {{ entry.partySlot }}
+            }
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="roster__toggle"
+          [class.roster__toggle--remove]="entry.inParty"
+          [attr.aria-pressed]="entry.inParty"
+          (click)="toggle(entry.defId)"
+        >
+          <!--
+            The accessible name spells out both the action and who it applies to, because the
+            visible label alone ("Field") repeats down the whole list.
+          -->
+          <span class="visually-hidden">
+            {{ entry.inParty ? 'Remove ' + entry.name + ' from party' : 'Field ' + entry.name }}
+          </span>
+          <span aria-hidden="true">{{ entry.inParty ? 'Fielded' : 'Field' }}</span>
+        </button>
+      </li>
+    }
+  </ul>
+}

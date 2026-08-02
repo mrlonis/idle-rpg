@@ -1,12 +1,42 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
-import { type GameState, newGame, num } from '../core';
-import { STAGES } from '../data';
+import { type GameState, newGame, num, startRarityIndex } from '../core';
+import { STAGES, STARTER_CHARACTER_IDS } from '../data';
 import { BattleService, type PlaybackSpeed } from './battle.service';
+import { CHARACTERS_BY_ID } from './content';
 import { GameLoopService } from './game-loop.service';
+import { RosterService } from './roster.service';
+
+/** A run holding some gold, leaving every other currency at zero. */
+function withGold(state: GameState, gold: string): GameState {
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
+}
+
+/** A run earning gold per second, leaving every other rate at zero. */
+function withGoldRate(state: GameState, rate: string): GameState {
+  return { ...state, rates: { ...state.rates, gold: num(rate) } };
+}
 
 const T0 = 1_700_000_000_000;
+
+/**
+ * A run with the starter party owned and fielded.
+ *
+ * Battles are fought by the roster now, so a state without one sends nobody and loses instantly.
+ * Every spec below that expects a fight to happen needs a party in the state, which is exactly
+ * the coupling that makes `simulateBattle` treating an empty party as a defeat the honest
+ * behaviour rather than a trap.
+ */
+function withStarters(state: GameState): GameState {
+  const roster = STARTER_CHARACTER_IDS.map((defId) => ({
+    defId,
+    rarity: startRarityIndex(CHARACTERS_BY_ID.get(defId)?.tier ?? 'common'),
+    level: 1,
+    copies: 0,
+  }));
+  return { ...state, roster, activeParty: [...STARTER_CHARACTER_IDS] };
+}
 
 /**
  * Stands in for the game loop, holding the run and applying transforms exactly as the real one
@@ -34,13 +64,13 @@ class FakeGameLoop {
 
 function build(state: GameState | null = newGame({ seed: 0xc0ffee, nowMs: T0 })) {
   const loop = new FakeGameLoop();
-  loop.snapshot.set(state);
+  loop.snapshot.set(state === null ? null : withStarters(state));
 
   // Reset up front rather than only in `afterEach`, so a test can stand up two independent
   // animators — comparing playback speeds needs two of them narrating the same battle.
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [BattleService, { provide: GameLoopService, useValue: loop }],
+    providers: [BattleService, RosterService, { provide: GameLoopService, useValue: loop }],
   });
 
   return { loop, battles: TestBed.inject(BattleService) };
@@ -262,11 +292,11 @@ describe('BattleService', () => {
     it('raises idle income on a win, from a standing start of zero', () => {
       const { loop, battles } = build();
 
-      expect(loop.current?.goldPerSec.eq(0)).toBe(true);
+      expect(loop.current?.rates.gold.eq(0)).toBe(true);
       fightToTheEnd(battles);
 
-      expect(loop.current?.goldPerSec.eq(STAGES[0].goldPerSec)).toBe(true);
-      expect(loop.current?.gold.eq(STAGES[0].goldReward)).toBe(true);
+      expect(loop.current?.rates.gold.eq(STAGES[0].rates.gold)).toBe(true);
+      expect(loop.current?.wallet.gold.eq(STAGES[0].reward.gold)).toBe(true);
     });
 
     it('points the next fight at the following stage after a win', () => {
@@ -352,7 +382,7 @@ describe('BattleService', () => {
 
       expect(loop.current).toBe(banked);
       expect(loop.current?.stage).toBe(2);
-      expect(loop.current?.goldPerSec.eq(STAGES[0].goldPerSec)).toBe(true);
+      expect(loop.current?.rates.gold.eq(STAGES[0].rates.gold)).toBe(true);
     });
 
     it('lets the player go straight back in', () => {
@@ -378,10 +408,9 @@ describe('BattleService', () => {
   describe('resuming a run', () => {
     it('fights the stage the run left off on', () => {
       const { battles } = build({
-        ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
+        ...withGold(newGame({ seed: 0xc0ffee, nowMs: T0 }), '5000'),
         stage: 3,
         battleCount: 42,
-        gold: num('5000'),
       });
 
       battles.fight(T0);
@@ -398,14 +427,11 @@ describe('BattleService', () => {
     });
 
     it('never lowers an income a returning player already had', () => {
-      const { loop, battles } = build({
-        ...newGame({ seed: 0xc0ffee, nowMs: T0 }),
-        goldPerSec: num('500'),
-      });
+      const { loop, battles } = build(withGoldRate(newGame({ seed: 0xc0ffee, nowMs: T0 }), '500'));
 
       fightToTheEnd(battles);
 
-      expect(loop.current?.goldPerSec.eq(500)).toBe(true);
+      expect(loop.current?.rates.gold.eq(500)).toBe(true);
     });
   });
 

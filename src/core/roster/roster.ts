@@ -1,0 +1,266 @@
+import { canAfford, debit } from '../currency';
+import { type GameState, PARTY_SIZE } from '../state';
+import {
+  clampLevel,
+  type LevelCurveData,
+  levelCapFor,
+  levelCost,
+  maxAffordableLevel,
+} from './level';
+import { clampRarityIndex, startRarityIndex } from './rarity';
+import { MAX_RARITY_INDEX, type CharacterData, type OwnedCharacter } from './types';
+
+/**
+ * Owning, levelling and fielding characters.
+ *
+ * Content reaches these functions as a `ReadonlyMap` of definitions rather than by import:
+ * `core/` cannot see `data/`, and handing the lookup in is also what lets a balance sweep
+ * drive the roster from fixtures.
+ *
+ * ## Every operation reports why it failed
+ *
+ * These return a {@link RosterResult} rather than throwing or silently returning the state
+ * unchanged. A no-op that looks identical to success is the kind of thing that reaches a
+ * player as "the button does nothing", and the UI needs the reason to say something better
+ * than "that didn't work".
+ */
+
+/** Definitions, keyed by character id. Built by `ui/` from `data/`. */
+export type CharacterLookup = ReadonlyMap<string, CharacterData>;
+
+/** Why an operation could not be performed. */
+export type RosterFailure =
+  | 'unknown-character'
+  | 'not-owned'
+  | 'already-owned'
+  | 'max-rarity'
+  | 'insufficient-copies'
+  | 'insufficient-fodder'
+  | 'wrong-faction'
+  | 'fodder-is-self'
+  | 'level-capped'
+  | 'insufficient-currency'
+  | 'party-full'
+  | 'duplicate-party-member';
+
+export type RosterResult =
+  | { readonly ok: true; readonly state: GameState }
+  | { readonly ok: false; readonly reason: RosterFailure };
+
+const fail = (reason: RosterFailure): RosterResult => ({ ok: false, reason });
+
+/** The player's entry for a character, or `undefined` if they do not own it. */
+export function findOwned(state: GameState, defId: string): OwnedCharacter | undefined {
+  return state.roster.find((owned) => owned.defId === defId);
+}
+
+/** Replaces one roster entry, leaving order untouched. */
+function replaceOwned(state: GameState, next: OwnedCharacter): GameState {
+  return {
+    ...state,
+    roster: state.roster.map((owned) => (owned.defId === next.defId ? next : owned)),
+  };
+}
+
+/**
+ * Grants copies of a character.
+ *
+ * A character the player does not own is created at its tier's starting rarity, level 1, with
+ * any remaining copies banked as spares — so a ten-pull that lands three of the same new
+ * character produces one character and two spares rather than three entries.
+ *
+ * Copies of a character already at `ascended-5` are **not** banked: there is nothing left to
+ * ascend, so the caller converts them to spark instead. `overflow` reports how many landed
+ * that way, and the caller — {@link import('../gacha/pull').pull} — is what mints the spark,
+ * because the conversion rate is banner content and `core/roster/` has no business knowing it.
+ */
+export function grantCopies(
+  state: GameState,
+  character: CharacterData,
+  count: number,
+  rarityOverride?: number,
+): { readonly state: GameState; readonly overflow: number; readonly isNew: boolean } {
+  // `Math.max(NaN, 0)` is `NaN`, not 0, so a non-finite count has to be screened out before the
+  // clamp rather than by it — otherwise a damaged count creates a roster entry with `NaN` spares.
+  const copies = Number.isFinite(count) ? Math.max(Math.floor(count), 0) : 0;
+  if (copies === 0) {
+    return { state, overflow: 0, isNew: false };
+  }
+
+  const existing = findOwned(state, character.id);
+  if (existing === undefined) {
+    const start = startRarityIndex(character.tier);
+    const entry: OwnedCharacter = {
+      defId: character.id,
+      // Never below the tier's own starting rung: an override exists to let a lucky pull
+      // arrive higher up the ladder, never to place a character somewhere it could not
+      // legally be and whose ascension costs would then be computed from the wrong floor.
+      rarity:
+        rarityOverride === undefined ? start : Math.max(clampRarityIndex(rarityOverride), start),
+      level: 1,
+      copies: copies - 1,
+    };
+    return {
+      state: { ...state, roster: [...state.roster, entry] },
+      overflow: 0,
+      isNew: true,
+    };
+  }
+
+  if (existing.rarity >= MAX_RARITY_INDEX) {
+    return { state, overflow: copies, isNew: false };
+  }
+  return {
+    state: replaceOwned(state, { ...existing, copies: existing.copies + copies }),
+    overflow: 0,
+    isNew: false,
+  };
+}
+
+/**
+ * Seeds a run with its starting characters and fields them.
+ *
+ * Called by `ui/` on load rather than by `newGame`, because the starter ids are content and
+ * `core/` cannot read `data/`. It is idempotent, which is what lets it double as repair: a
+ * save that arrives with an empty roster — damaged, or written before characters existed —
+ * gets a working party back instead of a game with nobody in it.
+ */
+export function grantStarters(
+  state: GameState,
+  starterIds: readonly string[],
+  characters: CharacterLookup,
+): GameState {
+  let next = state;
+  for (const id of starterIds) {
+    const character = characters.get(id);
+    if (character === undefined || findOwned(next, id) !== undefined) {
+      continue;
+    }
+    next = grantCopies(next, character, 1).state;
+  }
+
+  if (next.activeParty.length === 0) {
+    next = {
+      ...next,
+      activeParty: next.roster.slice(0, PARTY_SIZE).map((owned) => owned.defId),
+    };
+  }
+  return next;
+}
+
+/**
+ * Sets the active party, in slot order.
+ *
+ * Slot order is load-bearing — it breaks ties in ATB turn order — so this preserves the order
+ * given rather than sorting. An empty party is allowed: a player mid-reshuffle has not done
+ * anything wrong, and `simulateBattle` treats a party of nobody as an immediate defeat rather
+ * than as an error.
+ */
+export function setParty(
+  state: GameState,
+  defIds: readonly string[],
+  characters: CharacterLookup,
+): RosterResult {
+  if (defIds.length > PARTY_SIZE) {
+    return fail('party-full');
+  }
+  if (new Set(defIds).size !== defIds.length) {
+    return fail('duplicate-party-member');
+  }
+  for (const id of defIds) {
+    if (characters.get(id) === undefined) {
+      return fail('unknown-character');
+    }
+    if (findOwned(state, id) === undefined) {
+      return fail('not-owned');
+    }
+  }
+  return { ok: true, state: { ...state, activeParty: [...defIds] } };
+}
+
+/**
+ * Levels a character up to `targetLevel`, spending gold, XP and essence.
+ *
+ * Charged level by level rather than by a closed form, because essence is only charged every
+ * tenth level — there is no formula to invert. The loop is bounded by the level cap, which is
+ * content, not by anything the player can inflate.
+ *
+ * Levelling past the rarity's cap is refused rather than clamped. Silently stopping early
+ * would spend the player's currency on fewer levels than they asked for, which is worse than
+ * telling them to ascend first.
+ */
+export function levelUp(
+  state: GameState,
+  defId: string,
+  targetLevel: number,
+  curve: LevelCurveData,
+): RosterResult {
+  const owned = findOwned(state, defId);
+  if (owned === undefined) {
+    return fail('not-owned');
+  }
+
+  const target = Math.floor(targetLevel);
+  if (target <= owned.level) {
+    return { ok: true, state };
+  }
+  if (target > levelCapFor(curve, owned.rarity)) {
+    return fail('level-capped');
+  }
+
+  let wallet = state.wallet;
+  for (let level = owned.level; level < target; level++) {
+    const cost = levelCost(curve, level);
+    if (!canAfford(wallet, cost)) {
+      return fail('insufficient-currency');
+    }
+    wallet = debit(wallet, cost);
+  }
+
+  return {
+    ok: true,
+    state: replaceOwned({ ...state, wallet }, { ...owned, level: target }),
+  };
+}
+
+/** Levels a character as far as the wallet and its rarity allow, in one call. */
+export function levelUpToAffordable(
+  state: GameState,
+  defId: string,
+  curve: LevelCurveData,
+): RosterResult {
+  const owned = findOwned(state, defId);
+  if (owned === undefined) {
+    return fail('not-owned');
+  }
+  const target = maxAffordableLevel(curve, state.wallet, owned.level, owned.rarity);
+  if (target <= owned.level) {
+    return fail(
+      owned.level >= levelCapFor(curve, owned.rarity) ? 'level-capped' : 'insufficient-currency',
+    );
+  }
+  return levelUp(state, defId, target, curve);
+}
+
+/**
+ * Repairs one roster entry against the content this build actually ships.
+ *
+ * Rarity is clamped into the ladder and never below the tier's starting rung — an
+ * `ascended`-tier character at `rare` would be a character that cannot legally exist and
+ * whose ascension costs would be computed from the wrong starting point. Level is clamped to
+ * the rarity's cap for the same reason.
+ */
+export function repairOwned(
+  owned: OwnedCharacter,
+  character: CharacterData,
+  curve: LevelCurveData,
+): OwnedCharacter {
+  const floor = startRarityIndex(character.tier);
+  const rarity = Math.max(clampRarityIndex(owned.rarity), floor);
+  return {
+    defId: owned.defId,
+    rarity,
+    level: clampLevel(curve, owned.level, rarity),
+    copies: Number.isFinite(owned.copies) ? Math.max(Math.floor(owned.copies), 0) : 0,
+  };
+}

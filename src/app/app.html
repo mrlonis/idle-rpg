@@ -1,9 +1,38 @@
-<main class="game">
-  @if (!isReady()) {
+@if (!isReady()) {
+  <main class="game">
     <p role="status">Loading your run…</p>
-  } @else if (isBattleOpen()) {
+  </main>
+} @else if (isBattleOpen()) {
+  <main class="game">
     <app-battle-view />
-  } @else {
-    <app-home-view />
-  }
-</main>
+  </main>
+} @else {
+  <main class="game">
+    <router-outlet />
+  </main>
+
+  <!--
+    Sibling of `main` rather than inside it, so the two landmarks stay distinct. Hidden during a
+    battle on purpose: a fight has no exit until it ends, and offering navigation that refuses to
+    work would be worse than not offering it.
+  -->
+  <nav class="tabs" aria-label="Main">
+    <ul class="tabs__list">
+      @for (tab of tabs; track tab.path) {
+        <li class="tabs__item">
+          <a
+            class="tabs__link"
+            [routerLink]="tab.path"
+            routerLinkActive="tabs__link--active"
+            [routerLinkActiveOptions]="{ exact: tab.exact }"
+            #active="routerLinkActive"
+            [attr.aria-current]="active.isActive ? 'page' : null"
+          >
+            <span class="tabs__icon" aria-hidden="true">{{ tab.icon }}</span>
+            <span class="tabs__label">{{ tab.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+}

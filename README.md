@@ -27,8 +27,10 @@ npm start
 ```
 
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
-You should see a gold counter at zero and a Fight button: win the first stage and the counter
-starts ticking. Refresh and the run resumes where it left off.
+You should see a gold counter at zero, your starting party of three, and a Fight button: win the
+first stage and the counter starts ticking — along with a first-clear payout of summon crystals.
+Spend those on the Summon tab, then level and ascend what you pull from the Roster. Refresh and
+the run resumes where it left off.
 
 ---
 
@@ -42,8 +44,8 @@ design rationale for each.
 | --- | -------------------------------------- | ------------------------------------------------ |
 | 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                  |
 | 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`             |
-| 3   | Gacha: seeded rolls, visible pity      | ⬜ Next                                          |
-| 4   | Team composition affecting combat math | ⬜                                               |
+| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing             |
+| 4   | Team composition affecting combat math | ⬜ Next                                          |
 | 5   | Offline catch-up on resume             | 🟡 Continuous done; segmented solver outstanding |
 | 6   | Run on a physical iPhone               | ⬜                                               |
 | 7   | Prestige layer, then content           | ⬜                                               |
@@ -86,7 +88,7 @@ count. Damage is `atk² / (atk + def)`: strictly positive, so a battle always te
 diminishing in DEF, so defence never becomes the only stat. Crits are the only RNG consumer, at
 exactly one draw per attack, from a sub-stream derived via
 `deriveSeed(seed, 'battle:<stageId>:<battleCount>')` — so replaying a battle is reproducible
-and never shifts the gacha sequence.
+and never shifts the gacha sequence — which stopped being a hypothetical in milestone 3.
 
 Combat also drove the save layer's **first real migration**: v2 adds `stage` and `battleCount`,
 and a pre-combat v1 save keeps its gold and RNG position and simply joins the ladder at stage 1.
@@ -100,8 +102,57 @@ still unbuilt. Because the player starts every battle, no stage is ever cleared 
 away, so `goldPerSec` is constant across any offline window and the fixed-rate closed form is
 exactly right. That changes the day an unattended auto-battle lands, and not before.
 
-Deliberately deferred: native foreground/background handling (`@capacitor/app`), routing,
-and Angular Material. All three are cheap to add later and add debugging surface now.
+**What milestone 3 shipped.** A gacha, a roster, an ascension economy and character levelling —
+substantially the largest milestone so far.
+
+`pull(state, banner, count)` draws from the main RNG stream and consumes **exactly three draws
+per pull** whatever it produces, so `rng.calls` still describes where a run is in its sequence
+and resume stays O(1). Combat draws from a derived sub-stream and never advances it, so fighting
+between two pulls cannot shift what the next pull gives.
+
+**Pity is global, always on screen, and generous on purpose.** Base 2.5% for an ascended-tier
+character, soft pity from pull 30 at +6%/pull, guaranteed by 50 — and soft pity passes certainty
+around pull 47, so the cap is a floor rather than the mechanism. A paid gacha tunes to sell a
+bridge across a gap it manufactures; there is no bridge to sell here, so every reason to be
+stingy is a reason that does not apply.
+
+**Two rarity axes.** _Tier_ is which character you pulled (common / legendary / ascended) and
+never changes; _rarity_ is how far you have ascended them, `Rare` through `Ascended ★★★★★`. Tier
+is a **slope, not a head start**: base stat budgets are close, and the gap opens through
+per-level growth — ×1.2 at level 50, ×19.5 at level 1000. A common-tier character is a genuine
+early answer that genuinely falls off, because the math says so rather than because it was
+authored weak. Any character of any tier can reach ★5.
+
+**Duplicates are the progression, not a consolation prize.** Two ascension ladders: the mortal
+one (Humans, Dwarves, Elves, Undead, Monsters) spends _bodies_ — an ascended-tier unit costs 8 of
+its own Elite copies plus 180 Rare copies of same-faction fodder — while the celestial one
+(Angels, Demons) spends _luck_, at 14 of its own Elite copies and no fodder at all. Rungs are
+authored in ascended copies and players hold base ones, so every requirement is resolved
+recursively into base copies; [`data/ascension.spec.ts`](src/data/ascension.spec.ts) pins every
+derived total. **Only spare copies are ever consumed** — never a character you have levelled —
+so there is no way to destroy a week's investment by tapping the wrong row. Copies past ★5
+become spark and buy something in the shop instead.
+
+**Four currencies, none of them decorative.** Gold is broad and comfortable (gear will spend it
+later), XP is characters-only and slower, essence is charged only at breakthrough levels and is
+the real late bottleneck, and summon crystals buy pulls. Through level 140 all three levelling
+currencies land within about a third of each other in time-to-afford. Crystals accrue idly and
+on first clears and are deliberately **not** a repeatable battle reward — stage 1 resolves in
+four seconds, so paying crystals per clear would make tap-farming the bottom of the ladder the
+fastest way to pull.
+
+`GameState` now carries a keyed wallet and rate table rather than a field per currency, and
+**save v3** folds gold into it and adds the roster, the party and the pity counter. A v2 save
+keeps its gold and income, joins with its stages already credited, and gets the starter party
+back on load.
+
+**Routing arrived**, for exactly the reason the design notes said to wait for: a screen that
+survives a reload. Home, summon, roster and shop are routes — `/roster/rin` is somewhere you can
+come back to — while the battle stays a signal-swapped mode, because nothing it shows outlives a
+refresh. The tab bar hides during a fight, since a battle has no exit until it ends.
+
+Deliberately deferred: native foreground/background handling (`@capacitor/app`) and Angular
+Material. Both are cheap to add later and add debugging surface now.
 
 ---
 
@@ -253,11 +304,52 @@ is a bug, migrations are pure `(old) => (new)` steps, and old migrations are nev
 Loading clamps and defaults on recoverable damage rather than throwing — a thrown error
 costs the player their entire run.
 
-The current version is **2**: v1 was the gold counter, and v2 added `stage` and `battleCount`
-when combat landed. Every historical version keeps a fixture in
+The current version is **3**: v1 was the gold counter, v2 added `stage` and `battleCount` when
+combat landed, and v3 turned the single gold pair into a keyed wallet and rate table and added
+the roster, the active party and the pity counter. Every historical version keeps a fixture in
 [`src/core/save/fixtures/`](src/core/save/fixtures/), and
 [`fixtures.spec.ts`](src/core/save/fixtures.spec.ts) migrates all of them to current on every
 run — that is the test that catches the migration written months ago and never exercised since.
+
+**A migration only does what it can see.** `core/` cannot import `data/`, so a migration cannot
+know who the starter characters are or what a stage grants. Anything needing content belongs in
+an idempotent load-time repair instead — `grantStarters` seeds a missing roster, and
+`reconcileClearedStages` rebuilds the idle rates and first-clear bonuses a returning run had
+already earned. Both run on **every** load rather than behind a version gate, and both only ever
+raise, so a healthy save passes through untouched.
+[`tests/save-recovery.spec.ts`](tests/save-recovery.spec.ts) covers the whole path from a v2 save
+on disk to a working run.
+
+### Clearing your save during development
+
+There is deliberately **no reset button in the game yet** — a destructive, irreversible action
+belongs behind a settings menu, and there is no settings menu. Until there is, clear the save by
+hand.
+
+The catch is that you cannot do it from a tab running the game. The app holds the authoritative
+state in memory and writes it back on autosave and on `visibilitychange` — which fires as you
+reload — so clearing storage from the app's own tab is immediately undone by the app itself.
+Clearing browser site data has the same problem for the same reason.
+
+Instead, get a console on the same origin with **no app running**. `public/favicon.ico` is served
+as a static file, so it shares `localhost:4200`'s storage and boots no Angular:
+
+1. Navigate to `http://localhost:4200/favicon.ico`
+2. Open devtools there and run:
+
+```js
+localStorage.clear();
+```
+
+3. Navigate back to `http://localhost:4200/`
+
+Nothing was alive to write the save back, so you get a genuinely fresh run.
+
+The same trick is how you **edit** a save rather than delete it: read and write
+`CapacitorStorage.save` from that favicon tab and the change sticks. (Capacitor's Preferences web
+backend is `localStorage` under a `CapacitorStorage.` prefix.) Editing your own save is
+explicitly fine — see the no-anti-cheat design constraint in [`AGENTS.md`](AGENTS.md) — it just
+has to happen while the game is not running.
 
 ---
 

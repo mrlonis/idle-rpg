@@ -1,14 +1,29 @@
 import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import {
+  type CurrencyId,
+  emptyWallet,
   type GameState,
+  grantStarters,
+  type Numeric,
   type OfflineReport,
+  reconcileClearedStages,
   type RepairIssue,
   resume,
   stampSaveTime,
   tick,
-  ZERO,
+  zeroRates,
 } from '../core';
+import { STARTER_CHARACTER_IDS } from '../data';
+import { CHARACTERS_BY_ID, STAGE_PROGRESS } from './content';
 import { SaveService } from './save.service';
+
+/**
+ * Stable empties for the pre-load window, so `wallet()` and `rates()` never hand a template a
+ * null. Built once: a fresh object per read would make every `computed` downstream of them
+ * recompute on every sample, which at ~6Hz is the whole UI.
+ */
+const EMPTY_WALLET = emptyWallet();
+const ZERO_RATES = zeroRates();
 
 /** Simulation step. The sim advances in fixed 10Hz slices regardless of frame rate. */
 const SIM_STEP_MS = 100;
@@ -55,8 +70,25 @@ export class GameLoopService {
   readonly snapshot = signal<GameState | null>(null);
 
   readonly isReady = computed(() => this.snapshot() !== null);
-  readonly gold = computed(() => this.snapshot()?.gold ?? ZERO);
-  readonly goldPerSec = computed(() => this.snapshot()?.goldPerSec ?? ZERO);
+
+  /** Every currency the run holds, and what each earns per second. */
+  readonly wallet = computed(() => this.snapshot()?.wallet ?? EMPTY_WALLET);
+  readonly rates = computed(() => this.snapshot()?.rates ?? ZERO_RATES);
+
+  /** One currency's balance, for a template that only cares about one. */
+  balanceOf(id: CurrencyId): Numeric {
+    return this.wallet()[id];
+  }
+
+  readonly gold = computed(() => this.wallet().gold);
+  readonly goldPerSec = computed(() => this.rates().gold);
+  readonly summons = computed(() => this.wallet().summons);
+  readonly spark = computed(() => this.wallet().spark);
+
+  /** The roster, the party fighting from it, and the pity counter. */
+  readonly roster = computed(() => this.snapshot()?.roster ?? []);
+  readonly activeParty = computed(() => this.snapshot()?.activeParty ?? []);
+  readonly pity = computed(() => this.snapshot()?.pity ?? 0);
 
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
   readonly offlineReport = signal<OfflineReport | null>(null);
@@ -93,7 +125,21 @@ export class GameLoopService {
     this.saveIssues.set(loaded.issues);
     this.loadFailure.set(loaded.fatal);
 
-    this.state = loaded.state;
+    // Two idempotent repairs, both needing content that `core/` cannot see, and both running on
+    // every load rather than behind a version gate.
+    //
+    // `grantStarters` covers a save that arrives with an empty roster — a v2 save that predates
+    // characters, or one damaged badly enough that every entry was dropped — so the player lands
+    // with a party rather than a game they cannot play.
+    //
+    // `reconcileClearedStages` rebuilds the idle income a run has already earned. The v2 → v3
+    // migration moved gold across and started the other three rates at zero, which stranded
+    // returning players on gold-only income with no way back except re-fighting the ladder. It
+    // also undercounted `clearedStages` at the top of the ladder, and paid none of the
+    // first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
+    // recoverable from the gold rate the save did keep.
+    const repaired = grantStarters(loaded.state, STARTER_CHARACTER_IDS, CHARACTERS_BY_ID);
+    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS);
     this.settle(nowMs);
 
     this.running = true;

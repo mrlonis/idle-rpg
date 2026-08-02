@@ -1,0 +1,24 @@
+{
+  "version": 3,
+  "wallet": {
+    "gold": "8.675309e+21",
+    "xp": "412000",
+    "essence": "1840",
+    "summons": "350",
+    "spark": "12"
+  },
+  "rates": { "gold": "250", "xp": "48", "essence": "0.8", "summons": "0.22" },
+  "lastTickAt": 1753574400000,
+  "rng": { "seed": 3735928559, "calls": 417 },
+  "stage": 5,
+  "clearedStages": 4,
+  "battleCount": 143,
+  "roster": [
+    { "defId": "alpha", "rarity": 4, "level": 46, "copies": 11 },
+    { "defId": "beta", "rarity": 2, "level": 22, "copies": 3 },
+    { "defId": "gamma", "rarity": 3, "level": 31, "copies": 6 }
+  ],
+  "activeParty": ["gamma", "alpha", "beta"],
+  "pity": 37,
+  "pullCount": 139
+}

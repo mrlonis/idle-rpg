@@ -4,46 +4,82 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
-import { newGame } from '../state';
+import { newGame, type GameState } from '../state';
+import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import { fromSaveData, toSaveData, type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
 
 const T0 = 1_700_000_000_000;
-const OPTIONS: RepairOptions = { fallbackSeed: 0xabcdef, nowMs: T0 };
+const OPTIONS: RepairOptions = {
+  fallbackSeed: 0xabcdef,
+  nowMs: T0,
+  characters: TEST_CHARACTERS,
+  levelCurve: TEST_LEVEL_CURVE,
+};
 
 function issueFields(raw: unknown): string[] {
   return fromSaveData(raw, OPTIONS).issues.map((issue) => issue.field);
 }
 
+/** A run holding some gold, leaving every other currency at zero. */
+function withGold(seed: number, gold: string): GameState {
+  const state = newGame({ seed, nowMs: T0 });
+  return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
+}
+
 describe('toSaveData', () => {
   it('encodes Numeric fields as strings and stamps the current version', () => {
-    const state = { ...newGame({ seed: 99, nowMs: T0 }), gold: num('1.5e+25') };
-
-    expect(toSaveData(state)).toEqual({
+    expect(toSaveData(withGold(99, '1.5e+25'))).toEqual({
       version: SAVE_VERSION,
-      gold: '1.5e+25',
-      goldPerSec: '0',
+      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0' },
+      rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
       stage: 1,
+      clearedStages: 0,
       battleCount: 0,
+      roster: [],
+      activeParty: [],
+      pity: 0,
+      pullCount: 0,
     });
   });
 
   it('produces JSON-serialisable output', () => {
-    const state = { ...newGame({ seed: 99, nowMs: T0 }), gold: num('1.5e+25') };
+    expect(() => JSON.stringify(toSaveData(withGold(99, '1.5e+25')))).not.toThrow();
+  });
 
-    expect(() => JSON.stringify(toSaveData(state))).not.toThrow();
+  it('encodes the roster as plain records', () => {
+    const state: GameState = {
+      ...newGame({ seed: 3, nowMs: T0 }),
+      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }],
+      activeParty: ['alpha'],
+    };
+
+    expect(toSaveData(state).roster).toEqual([{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }]);
+    expect(toSaveData(state).activeParty).toEqual(['alpha']);
   });
 });
 
 describe('round-trip', () => {
   it('preserves state exactly through save and load', () => {
-    const original = {
-      ...newGame({ seed: 0xdeadbeef, nowMs: T0 }),
-      gold: num('9.87654321e+42'),
-      goldPerSec: num('1234.5'),
+    const base = newGame({ seed: 0xdeadbeef, nowMs: T0 });
+    const original: GameState = {
+      ...base,
+      wallet: {
+        ...base.wallet,
+        gold: num('9.87654321e+42'),
+        summons: num('4200'),
+        spark: num('9'),
+      },
+      rates: { ...base.rates, gold: num('1234.5'), essence: num('0.05') },
       rng: { seed: 0xdeadbeef, calls: 8321 },
+      stage: 6,
+      clearedStages: 5,
+      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2 }],
+      activeParty: ['gamma'],
+      pity: 22,
+      pullCount: 631,
     };
 
     const { state, issues } = fromSaveData(
@@ -52,57 +88,77 @@ describe('round-trip', () => {
     );
 
     expect(issues).toEqual([]);
-    expect(state.gold.eq(original.gold)).toBe(true);
-    expect(state.goldPerSec.eq(original.goldPerSec)).toBe(true);
+    expect(state.wallet.gold.eq(original.wallet.gold)).toBe(true);
+    expect(state.wallet.summons.eq(original.wallet.summons)).toBe(true);
+    expect(state.wallet.spark.eq(original.wallet.spark)).toBe(true);
+    expect(state.rates.gold.eq(original.rates.gold)).toBe(true);
+    expect(state.rates.essence.eq(original.rates.essence)).toBe(true);
     expect(state.lastTickAt).toBe(original.lastTickAt);
     expect(state.rng).toEqual(original.rng);
+    expect(state.roster).toEqual(original.roster);
+    expect(state.activeParty).toEqual(original.activeParty);
+    expect(state.pity).toBe(22);
+    expect(state.pullCount).toBe(631);
+    expect(state.clearedStages).toBe(5);
   });
 
   it('preserves magnitudes past float64 exact-integer range', () => {
-    const original = { ...newGame({ seed: 1, nowMs: T0 }), gold: num('1.2345e+180') };
+    const original = withGold(1, '1.2345e+180');
 
     const { state } = fromSaveData(JSON.parse(JSON.stringify(toSaveData(original))), OPTIONS);
 
-    expect(state.gold.toString()).toBe('1.2345e+180');
+    expect(state.wallet.gold.toString()).toBe('1.2345e+180');
   });
 });
 
 describe('fromSaveData repair', () => {
   it('never throws, whatever it is handed', () => {
-    for (const raw of [null, undefined, 'string', 42, [], {}, { gold: {} }, { rng: 'no' }]) {
+    for (const raw of [
+      null,
+      undefined,
+      'string',
+      42,
+      [],
+      {},
+      { wallet: {} },
+      { wallet: { gold: {} } },
+      { rng: 'no' },
+      { roster: 'not an array' },
+      { roster: [null, 5, 'x'] },
+      { activeParty: 'nope' },
+    ]) {
       expect(() => fromSaveData(raw, OPTIONS)).not.toThrow();
     }
   });
 
   it.each([
-    { label: 'unparseable gold', raw: { gold: 'garbage' }, field: 'gold', expected: '0' },
-    { label: 'NaN gold', raw: { gold: Number.NaN }, field: 'gold', expected: '0' },
-    { label: 'null gold', raw: { gold: null }, field: 'gold', expected: '0' },
-    { label: 'missing gold', raw: {}, field: 'gold', expected: '0' },
-    { label: 'object gold', raw: { gold: { v: 1 } }, field: 'gold', expected: '0' },
-  ])('defaults $label to 0 and reports it', ({ raw, field, expected }) => {
+    { label: 'unparseable gold', raw: { wallet: { gold: 'garbage' } } },
+    { label: 'NaN gold', raw: { wallet: { gold: Number.NaN } } },
+    { label: 'null gold', raw: { wallet: { gold: null } } },
+    { label: 'missing wallet', raw: {} },
+    { label: 'object gold', raw: { wallet: { gold: { v: 1 } } } },
+  ])('defaults $label to 0 and reports it', ({ raw }) => {
     const { state, issues } = fromSaveData(raw, OPTIONS);
 
-    expect(state.gold.toString()).toBe(expected);
-    expect(issues.map((issue) => issue.field)).toContain(field);
+    expect(state.wallet.gold.toString()).toBe('0');
+    expect(issues.map((issue) => issue.field)).toContain('wallet.gold');
   });
 
   it('clamps negative gold to zero', () => {
-    const { state, issues } = fromSaveData({ gold: '-500' }, OPTIONS);
+    const { state, issues } = fromSaveData({ wallet: { gold: '-500' } }, OPTIONS);
 
-    expect(state.gold.toString()).toBe('0');
+    expect(state.wallet.gold.toString()).toBe('0');
     expect(issues.map((issue) => issue.problem).join()).toMatch(/negative/);
   });
 
-  it('defaults a damaged goldPerSec to zero, matching a fresh run', () => {
+  it('defaults a damaged rate to zero, matching a fresh run', () => {
     // Idle income is earned by clearing stages, so inventing a rate would hand out progression
     // that was never made. It self-heals: the next clear raises the rate to what the stage
     // grants, and `applyBattleResult` only ever raises it.
-    expect(fromSaveData({ goldPerSec: 'garbage' }, OPTIONS).state.goldPerSec.toString()).toBe('0');
-  });
+    const { state } = fromSaveData({ rates: { gold: 'garbage', xp: '-3' } }, OPTIONS);
 
-  it('clamps a negative goldPerSec to zero', () => {
-    expect(fromSaveData({ goldPerSec: '-3' }, OPTIONS).state.goldPerSec.toString()).toBe('0');
+    expect(state.rates.gold.toString()).toBe('0');
+    expect(state.rates.xp.toString()).toBe('0');
   });
 
   it.each([
@@ -143,6 +199,113 @@ describe('fromSaveData repair', () => {
     expect(state.rng.calls).toBe(0);
   });
 
+  describe('the roster', () => {
+    it('drops a character this build no longer ships', () => {
+      // The stated rule, and the reason the repair pass takes a character lookup at all: an id
+      // nothing can render must not survive into the UI as a crash.
+      const { state, issues } = fromSaveData(
+        { roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }, { defId: 'ghost' }] },
+        OPTIONS,
+      );
+
+      expect(state.roster.map((owned) => owned.defId)).toEqual(['alpha']);
+      expect(issues.map((issue) => issue.problem).join()).toMatch(/unknown character "ghost"/);
+    });
+
+    it('drops a duplicate entry rather than owning a character twice', () => {
+      const { state, issues } = fromSaveData(
+        {
+          roster: [
+            { defId: 'alpha', rarity: 0, level: 5, copies: 1 },
+            { defId: 'alpha', rarity: 3, level: 9, copies: 4 },
+          ],
+        },
+        OPTIONS,
+      );
+
+      expect(state.roster).toHaveLength(1);
+      expect(state.roster[0].level).toBe(5);
+      expect(issues.map((issue) => issue.problem).join()).toMatch(/duplicate/);
+    });
+
+    it('clamps a damaged rarity and level rather than dropping the character', () => {
+      // The one recoverable kind of damage here. Keeping it is the difference between a player
+      // losing one character's progress and losing the character.
+      const { state } = fromSaveData(
+        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4 }] },
+        OPTIONS,
+      );
+
+      expect(state.roster[0].rarity).toBe(13);
+      expect(state.roster[0].level).toBe(TEST_LEVEL_CURVE.caps[13]);
+      expect(state.roster[0].copies).toBe(0);
+    });
+
+    it('never lets a character sit below its tier’s starting rarity', () => {
+      // `gamma` is ascended-tier and starts at Elite. At Rare its ascension costs would be
+      // computed from a rung it could never have been on.
+      const { state } = fromSaveData(
+        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0 }] },
+        OPTIONS,
+      );
+
+      expect(state.roster[0].rarity).toBe(2);
+    });
+
+    it('clamps a level above the rarity’s cap', () => {
+      const { state } = fromSaveData(
+        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0 }] },
+        OPTIONS,
+      );
+
+      expect(state.roster[0].level).toBe(TEST_LEVEL_CURVE.caps[0]);
+    });
+  });
+
+  describe('the active party', () => {
+    it('drops members who are not owned', () => {
+      const { state, issues } = fromSaveData(
+        {
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          activeParty: ['alpha', 'beta', 'ghost'],
+        },
+        OPTIONS,
+      );
+
+      expect(state.activeParty).toEqual(['alpha']);
+      expect(issues.map((issue) => issue.field)).toContain('activeParty[]');
+    });
+
+    it('drops a repeated member', () => {
+      const { state } = fromSaveData(
+        {
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          activeParty: ['alpha', 'alpha'],
+        },
+        OPTIONS,
+      );
+
+      expect(state.activeParty).toEqual(['alpha']);
+    });
+
+    it('trims a party larger than the party size', () => {
+      const roster = ['alpha', 'beta', 'gamma'].map((defId) => ({
+        defId,
+        rarity: defId === 'gamma' ? 2 : 0,
+        level: 1,
+        copies: 0,
+      }));
+
+      const { state, issues } = fromSaveData(
+        { roster, activeParty: ['alpha', 'beta', 'gamma', 'alpha'] },
+        OPTIONS,
+      );
+
+      expect(state.activeParty).toHaveLength(3);
+      expect(issues.map((issue) => issue.field)).toContain('activeParty[]');
+    });
+  });
+
   it('reports no issues for a clean save', () => {
     const clean = toSaveData(newGame({ seed: 5, nowMs: T0 }));
 
@@ -150,10 +313,15 @@ describe('fromSaveData repair', () => {
   });
 
   it('reports every damaged field, not just the first', () => {
-    const fields = issueFields({ gold: 'x', goldPerSec: 'y', lastTickAt: 'z', rng: {} });
+    const fields = issueFields({
+      wallet: { gold: 'x' },
+      rates: { gold: 'y' },
+      lastTickAt: 'z',
+      rng: {},
+    });
 
     expect(fields).toEqual(
-      expect.arrayContaining(['gold', 'goldPerSec', 'lastTickAt', 'rng.seed', 'rng.calls']),
+      expect.arrayContaining(['wallet.gold', 'rates.gold', 'lastTickAt', 'rng.seed', 'rng.calls']),
     );
   });
 

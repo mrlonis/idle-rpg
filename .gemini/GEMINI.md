@@ -27,7 +27,9 @@ Balance philosophy: this is a **time economy**, not a money economy. Commercial 
 tuning (0.6% rates, 90-pull pity, manufactured scarcity) exists to sell a bridge across a
 gap it creates. There is no bridge to sell here, so generosity is free. When suggesting
 rates or pacing, err generous. Pity and duplicate-conversion are mandatory — an unlucky
-player has no escape valve, so bad luck must be bounded.
+player has no escape valve, so bad luck must be bounded. Both shipped in milestone 3: pity is
+global and always on screen, and duplicates are the primary ascension path rather than a
+consolation prize — a pull can never produce nothing.
 
 ---
 
@@ -109,24 +111,135 @@ Two decisions worth not re-litigating:
 - **Targeting is the living opponent with the least HP, ties by slot.** Deliberately naive
   until enemy design gives it something to reason about; milestone 4 is where that lands.
 
-### 3. Gacha: a few characters, seeded rolls, visible pity — **NEXT**
+### 3. Gacha, roster, ascension and levelling — **COMPLETE**
 
-`pull(state, bannerId, count) => { state, results }`. Pity lives in `GameState`, is global
-rather than per-banner, and is visible in the UI at all times. Pulls advance
+`pull(state, banner, count) => { state, results }`. Pity lives in `GameState`, is **global
+rather than per-banner**, and is visible in the UI at all times. Pulls advance
 `state.rng.calls`; combat never does.
 
-Starting numbers to tune by simulation, deliberately far more generous than commercial
-tuning: base top-rarity 2.5%, soft pity from pull 30 ramping ~+6%/pull, hard pity at 50,
-duplicates convert to shards, roughly one ten-pull per day of normal play.
+Rates are deliberately far more generous than commercial tuning: base ascended-tier 2.5%, soft
+pity from pull 30 ramping +6%/pull, hard pity at 50 — and soft pity passes certainty around
+pull 47, so the guarantee is a floor rather than the mechanism. A paid gacha tunes to sell a
+bridge across a gap it manufactures. There is no bridge to sell here, so every reason to be
+stingy is a reason that does not apply.
 
-`data/characters.ts` already holds three characters, but there is no **roster**: the party is
-the fixed `STARTER_TEAM` and ownership lives nowhere. Adding owned characters to `GameState`
-(and the save migration for it) is this milestone's job, not milestone 2's.
+**A pull consumes exactly three RNG draws whatever it produces** — tier, character, elite
+upgrade — including the upgrade roll on results that can never be upgraded. Same discipline as
+crits in `damage.ts`, for the same reason: if consumption depended on the branch taken,
+`rng.calls` would no longer describe where a run is in its sequence and O(1) resume would break.
 
-### 4. Team composition affecting combat math
+#### Two rarity axes, which is the thing to understand first
+
+**Tier** is which character you pulled and never changes: `common`, `legendary`, `ascended`.
+**Rarity** is how far that character has been ascended, `rare` → `ascended-5`. They share two
+words (a `legendary`-tier character and the `legendary` rarity are unrelated) because that is
+the genre's vocabulary; the types keep them apart.
+
+Tier is a **slope, not a head start.** Base stat budgets are close across tiers — a higher tier
+buys a sharper version of its faction's identity, not more of everything. The gap opens through
+per-level growth: ×1.2 at level 50, ×19.5 at level 1000. That is what makes a common-tier
+character a genuine early answer that genuinely falls off, as a consequence of the math rather
+than as an assertion. Any character of any tier can reach `ascended-5`.
+
+#### Ascension
+
+Duplicates are the primary progression path, so a dupe is never wasted. Two ladders, authored
+in `data/ascension.ts` and resolved by `core/roster/rarity.ts`:
+
+- **Mortal** (Humans, Dwarves, Elves, Undead, Monsters) spends **bodies**: four rungs are paid
+  with same-faction fodder. An ascended-tier unit costs 8 of its own Elite copies plus 180 Rare
+  copies of fodder to reach Ascended, 18 Elite copies for ★5.
+- **Celestial** (Angels, Demons) spends **luck**: every rung is copies of the character itself.
+  14 Elite copies to Ascended, 24 for ★5, no fodder at all.
+
+Rungs are quoted in _ascended_ copies and a player only holds _base_ ones, so every requirement
+is **resolved recursively into base copies**. That recursion is why this is code and not a
+lookup table, and `data/ascension.spec.ts` pins every derived total against its design target.
+
+**Only spare copies are ever consumed, never a character you have levelled.** A deliberate
+departure from the genre: nobody can destroy a week's investment by tapping the wrong row, so
+the confirmation dance around irreversible loss does not exist, and a faction-mate stays both a
+playable character and an ascension resource.
+
+Copies of a character already at `ascended-5` convert to **spark**, which buys either a new
+character or a targeted copy in the shop. Spark only accrues after something is maxed, so it is
+late-game overflow — **pity is the escape valve for bad luck, not the shop.**
+
+#### Levelling and the four currencies
+
+`GameState` carries a keyed **wallet** and **rate table** rather than a field per currency; ten
+flat fields would have been ten lines in every encoder, decoder and repair pass.
+
+- `gold` — broad. Levels now, gear later, so it is the most comfortable of the three.
+- `xp` — characters only, so it accrues far more slowly.
+- `essence` — charged only at breakthrough levels (every tenth) and the stingiest thing in the
+  game. Cheapest of the three before level 60 and the most expensive by 200.
+- `summons` — buys pulls. Slow idle trickle **plus a first-clear bonus**, and deliberately
+  **not** a repeatable battle reward: stage 1 resolves in four seconds, so a repeatable crystal
+  payout would make tap-farming the bottom of the ladder the fastest way to pull.
+- `spark` — the only currency with no rate at all, enforced by the `Rates` type.
+
+The design target is that no currency is decorative: through level 140 all three levelling
+currencies land within about a third of each other in time-to-afford. Level cap is 1000 at
+`ascended-5` and is aspirational — the ladder is eight stages long, and rates rise with content.
+
+**Only `hp`, `atk` and `def` scale.** `spd` is ATB gauge per tick against a fixed threshold and
+`critChance` is a probability; a growing `spd` would hit the clamp within eighty levels and turn
+the one stat that buys turns into a constant.
+
+**A migration cannot finish the job on its own, and the v2 → v3 one proved it twice.** It carried
+gold across and started xp, essence and summons at zero, leaving a returning player on gold-only
+income with no way back except re-fighting stages they had already beaten. And it seeded
+`clearedStages` from `stage - 1`, which looked careful — "do not pay a bonus they already earned"
+— but was exactly backwards: the first-clear bonus **did not exist in v2**, so nothing had been
+earned, and marking those stages settled closed the door on all 3,000 crystals silently and
+permanently. Neither was fixable inside the migration, because both need to know what the stages
+grant and `core/` cannot see `data/`.
+
+`reconcileClearedStages` is the repair. It runs on **every** load next to `grantStarters` rather
+than behind a version gate, re-derives the clear count from the surviving gold rate, restores
+every rate those stages unlock, and **pays the first-clear bonus for each stage it credits**. It
+only ever raises, so a healthy save passes through by reference and is not even republished.
+
+Three rules came out of it, and they are worth more than the fix:
+
+- **When a migration cannot express something because it cannot see content, the missing half
+  belongs in an idempotent load-time repair** — and the migration's doc comment should say so. A
+  migration that quietly does half the job is worse than one that does none, because the half it
+  did looks like success.
+- **Crediting progress and paying for it are the same operation.** Anything that advances
+  `clearedStages` must settle what that stage owes in the same step. Marking a stage cleared
+  without paying it is strictly worse than leaving it uncredited, because the normal reward path
+  will then skip it forever and nothing will ever notice.
+- **A migration should default to crediting nothing.** Zero means "not yet settled", not "did not
+  happen". Guessing progress forward inside a migration is how the door got closed in the first
+  place; the repair can always infer more later, but it can never un-pay something.
+
+Shipped: `core/currency.ts`, `core/roster/` (`types`, `rarity`, `level`, `stats`, `roster`,
+`ascend`), `core/gacha/` (`pull`, `shop`), `data/` (`ascension`, `banners`, `levels`, 21
+characters across 7 factions), `ui/` (`content`, `roster.service`, `gacha.service`, and the
+summon, roster, character and shop screens). Save v3 folds gold into the wallet and adds the
+roster, party and pity.
+
+**Routing arrived here**, and the trigger is the one this file already named: a screen that
+survives a reload. Home, summon, roster and shop all describe saved state, so `/roster/rin` is
+somewhere a player can come back to. The battle screen is still a signal-swapped **mode** — its
+contents live only in memory — and the tab bar hides during a fight, because a battle has no
+exit until it ends and navigation that refused to work would be worse than none.
+
+### 4. Team composition affecting combat math — **NEXT**
 
 Composition matters through **enemy design**, not flat synergy bonuses — see
 "Content and balance". Characters are keys to locks, not rungs on a ladder.
+
+Milestone 3 built the lock-picking set: 21 characters across 7 factions, each faction expressing
+one axis more sharply as tier rises. What it deliberately did **not** build is anything for those
+niches to answer. Targeting is still "the living opponent with the least HP", every combatant
+does one thing on its turn, and the only reason to field Thraun over Vharok is a stat line.
+
+This milestone is where enemies get questions worth asking — a healer that has to be burst, a
+wide wave that punishes single-target, a debuff that needs a cleanse — and where the naive
+targeting from milestone 2 finally has something to reason about.
 
 ### 5. Offline catch-up — **PARTIALLY COMPLETE**
 
@@ -142,8 +255,8 @@ Still outstanding:
 **The segmented solver is not needed yet, and that is worth being precise about.** It exists to
 price an away window in which the rate _changes_ — auto-progression clearing stages while nobody
 is watching. Battles are player-initiated, so nothing clears a stage while the player is away:
-`goldPerSec` is constant across any offline window, and the fixed-rate closed form already
-shipped is exactly right. The gap opens when the unlockable auto-battle lands (see "Later: the
+**every** rate is constant across any offline window, and the fixed-rate closed form already
+shipped is exactly right — it now settles four currencies in one pass rather than one. The gap opens when the unlockable auto-battle lands (see "Later: the
 two auto-battles"), because that is the first thing that advances stages unattended. Build the
 segmented solver then, against that feature, rather than speculatively now.
 
@@ -190,16 +303,26 @@ watching" is the same question in all three places.
   in `ui/game-loop.service.ts` covers the current need. Revisit it when the offline path pays
   out battle rewards (milestone 5) rather than before — that is when the difference between a
   web `visibilitychange` and a real iOS lifecycle event starts to matter.
-- **Routing.** `app.routes.ts` is still intentionally empty, now for a sharper reason than
-  "there is only one screen". There are two — home and battle — and `App` swaps between them
-  with a signal. The battle screen is a **mode, not a location**: everything it shows lives in
-  memory, so a `/battle` URL could never be reloaded or shared, and adding one would mean
-  adding a guard to redirect it home. Reach for the router when a screen arrives that genuinely
-  survives a reload (roster, banner, settings). Note that routing is also what would give
-  Android's hardware back button somewhere to go — that question arrives with `@capacitor/app`,
-  not before.
 - **Angular Material.** Installed but unused. Do not pull it in until a real control needs
-  it — a counter and a button do not.
+  it. Milestone 3 added five screens' worth of buttons, tabs, a progress bar, a table and a
+  disclosure without it, all AXE-clean — so the bar for reaching for it is higher now, not
+  lower.
+- **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
+  over", and nothing calls it. That is intentional: wiping a run is destructive and
+  irreversible, and it belongs **behind a settings menu**, not on the home screen where a
+  mis-tap can reach it. Build it when the settings screen arrives — and note the method has
+  never been executed by anything, including tests, so making it reachable means covering it.
+  Until then, `README.md` documents clearing the save by hand.
+
+  Worth knowing when that lands: **the running game overwrites external edits to the save.** It
+  holds the authoritative state in memory and persists on autosave and on `visibilitychange`, so
+  clearing storage from the app's own tab is undone by the app on the way out. A reset therefore
+  has to stop the loop and replace the in-memory state, not just empty the slots.
+
+Routing is **no longer deferred** — it shipped with milestone 3, for exactly the reason this
+list used to give for waiting: the roster and the banner are screens that survive a reload. See
+milestone 3 above. Note that routing is also what gives Android's hardware back button somewhere
+to go; that question still arrives with `@capacitor/app`, not before.
 
 ---
 
@@ -235,8 +358,10 @@ do not disable that rule.
 - Expose pure functions. Shipped: `tick(state, dtMs) => state`,
   `resume(state, nowMs) => { state, report }`,
   `simulateBattle(team, stage, seed) => BattleResult`,
-  `applyBattleResult(state, result, stageCount) => state`. Planned:
-  `pull(state, bannerId, count) => { state, results }` (milestone 3),
+  `applyBattleResult(state, result, stageCount) => state`,
+  `pull(state, banner, count, ...) => { state, results }`,
+  `ascend(state, defId, plan, ...) => RosterResult`,
+  `levelUp(state, defId, targetLevel, curve) => RosterResult`. Planned:
   `timeToClear(state, stage)` (milestone 5).
 - Return new state; do not mutate arguments in place.
 - **Never call `Math.random()`.** Use the seeded PRNG in `core/rng.ts`. Seed and call
@@ -337,7 +462,9 @@ defenses — there is nothing to protect.
 - Depth comes from a modest number of systems that interact, not from volume of
   hand-authored content.
 - Characters are **sidegrades with distinct niches**, not a strict power ladder. Two
-  players should clear the same stage with different teams.
+  players should clear the same stage with different teams. This holds _within_ a tier;
+  ascension and levelling are the vertical axis, and tier is a growth slope rather than a
+  starting advantage (see milestone 3).
 - Team composition matters through **enemy design** (a healer that must be burst, a wide
   wave that punishes single-target, a debuff that needs a cleanse), not through flat
   synergy bonuses like "+10% if two Fire units" — those just create a new optimal team.
@@ -470,3 +597,19 @@ not long-running and need none of this.
   it when a sweep genuinely gets slow, not on principle.
 - When evaluating balance, look at the **5th percentile** player, not the mean. In a paid
   game the unlucky tail buys its way out; here they cannot, so they are the design target.
+
+### Testing `data/`
+
+- **Derive from the content, never retype it.** A spec in `data/` that copies a number out of a
+  neighbouring file has turned a coupling into a comment: it keeps measuring the old value
+  forever and passes happily while the thing it claimed to protect drifts. `data/levels.spec.ts`
+  reads its income rates off `STAGES` for exactly this reason — the level curve is tuned against
+  the top of the ladder, so adding a stage has to re-run every time-to-afford assertion. The same
+  applies to `data/ascension.spec.ts`, which derives its totals from the authored rungs rather
+  than restating "8 self, 180 fodder" as a constant.
+- **Prefer a threshold that fails when content outgrows it** to one that documents an intention.
+  When such a test fails after new content lands, the right response is to retune deliberately —
+  not to move the threshold to make it green.
+- Conformance is asserted through **typed locals** (`const stages: readonly StageData[] = STAGES`)
+  rather than annotations on the data itself, because `data/` may not import `core/`. That
+  assignment is what turns a malformed stat block into a compile error.
