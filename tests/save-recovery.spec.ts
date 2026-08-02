@@ -52,9 +52,19 @@ function perHour(perSecond: number): string {
   return `${Number((perSecond * 3600).toPrecision(12))}/hr`;
 }
 
+/** One currency's card in the home screen's wallet strip, gold included. */
+function cardOf(page: Page, label: string) {
+  return page.locator('.wallet__item').filter({ hasText: label });
+}
+
 /** The rate shown under one currency on the home screen, e.g. `3/s` or `180/hr`. */
 function rateOf(page: Page, label: string) {
-  return page.locator('.wallet__item').filter({ hasText: label }).locator('.wallet__rate');
+  return cardOf(page, label).locator('.wallet__rate');
+}
+
+/** The balance shown for one currency. */
+function amountOf(page: Page, label: string) {
+  return cardOf(page, label).locator('.wallet__amount');
 }
 
 test.describe('recovering a pre-gacha save', () => {
@@ -77,7 +87,7 @@ test.describe('recovering a pre-gacha save', () => {
 
     await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
 
-    await expect(page.locator('.resource__rate')).toHaveText(`${top.rates.gold}/s`);
+    await expect(rateOf(page, 'Gold')).toHaveText(`${top.rates.gold}/s`);
     await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
     await expect(rateOf(page, 'Essence')).toHaveText(perHour(top.rates.essence));
     await expect(rateOf(page, 'Crystals')).toHaveText(perHour(top.rates.summons));
@@ -90,8 +100,7 @@ test.describe('recovering a pre-gacha save', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    const crystals = page.locator('.wallet__item').filter({ hasText: 'Crystals' });
-    await expect(crystals.locator('.wallet__amount')).toHaveText(
+    await expect(amountOf(page, 'Crystals')).toHaveText(
       `${(owedCrystals / 1000).toFixed(1).replace(/\.0$/, '')}K`,
     );
   });
@@ -112,7 +121,7 @@ test.describe('recovering a pre-gacha save', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    await expect(page.locator('.resource__value')).toHaveText('1.5M');
+    await expect(amountOf(page, 'Gold')).toHaveText('1.5M');
     await expect(
       page.getByRole('button', { name: new RegExp(`^Fight Stage ${STAGES.length}`) }),
     ).toBeVisible();
@@ -184,8 +193,7 @@ test.describe('re-fighting a cleared stage', () => {
 
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
-    const crystals = page.locator('.wallet__item').filter({ hasText: 'Crystals' });
-    await expect(crystals.locator('.wallet__amount')).not.toHaveText(/^\d{3,}/);
+    await expect(amountOf(page, 'Crystals')).not.toHaveText(/^\d{3,}/);
   });
 
   test('does not disturb the idle rates it already had', async ({ page }) => {
@@ -200,7 +208,7 @@ test.describe('re-fighting a cleared stage', () => {
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
     // Still the top-of-ladder rates, not stage 1's.
-    await expect(page.locator('.resource__rate')).toHaveText(`${top.rates.gold}/s`);
+    await expect(rateOf(page, 'Gold')).toHaveText(`${top.rates.gold}/s`);
     await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
     await expect(rateOf(page, 'Essence')).toHaveText(perHour(top.rates.essence));
   });

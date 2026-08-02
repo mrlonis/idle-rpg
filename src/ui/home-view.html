@@ -1,3 +1,7 @@
+<header class="head">
+  <h1 class="head__title">Home</h1>
+</header>
+
 @if (loadFailure(); as failure) {
   <p class="notice notice--error" role="alert">
     Your save could not be read, so this is a fresh run. The old save has not been overwritten.
@@ -18,19 +22,13 @@
   </p>
 }
 
-<section class="resource" aria-labelledby="gold-label">
-  <h1 id="gold-label" class="resource__label">Gold</h1>
-  <!--
-    Deliberately not an aria-live region. This updates ~6 times a second, and announcing
-    every change would flood a screen reader into uselessness. The heading names the
-    value, so it is reachable on demand without being shouted continuously.
-  -->
-  <p class="resource__value">{{ gold() }}</p>
-  <p class="resource__rate">{{ goldRate() }}</p>
-</section>
-
 <section class="wallet" aria-labelledby="wallet-label">
-  <h2 id="wallet-label" class="section__heading">Other currencies</h2>
+  <h2 id="wallet-label" class="section__heading">Currencies</h2>
+  <!--
+    Deliberately not an aria-live region. These update ~6 times a second, and announcing every
+    change would flood a screen reader into uselessness. Each amount is named by the label
+    beside it, so it stays reachable on demand without being shouted continuously.
+  -->
   <ul class="wallet__list">
     @for (currency of currencies(); track currency.id) {
       <li class="wallet__item">

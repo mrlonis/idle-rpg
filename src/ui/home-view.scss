@@ -12,32 +12,15 @@
   max-width: 32rem;
 }
 
-.resource {
-  text-align: center;
+// Full width so the title sits left, as it does on every other screen, rather than being
+// centred by the host's `align-items`.
+.head {
+  width: 100%;
 }
 
-.resource__label {
+.head__title {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: t.$muted;
-}
-
-.resource__value {
-  margin: 0.25rem 0 0;
-  font-size: clamp(2.5rem, 12vw, 4rem);
-  font-weight: 700;
-  line-height: 1.1;
-  @include t.numeric;
-}
-
-.resource__rate {
-  margin: 0.25rem 0 0;
-  font-size: 1rem;
-  color: t.$muted;
-  @include t.numeric;
+  font-size: 1.5rem;
 }
 
 .section__heading {
@@ -54,9 +37,12 @@
   width: 100%;
 }
 
+// 5.5rem rather than 7rem so all five currencies fit one row at the 32rem cap. At 7rem the
+// fifth wrapped alone onto a second row and stretched to full width, which read as a heading
+// for the strip above it rather than as one more card.
 .wallet__list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
   gap: 0.5rem;
   margin: 0;
   padding: 0;
