@@ -19,7 +19,7 @@ current — verify against the code.
 
 ---
 
-### 1. Tick loop, one resource, save/load — **COMPLETE**
+## 1. Tick loop, one resource, save/load — **COMPLETE**
 
 A number counts up on screen and survives a refresh. This proves the whole architecture
 end to end: `core/` purity, the sim/render split, and the save path.
@@ -30,7 +30,7 @@ mulberry32 with O(1) resume and derived sub-streams), `core/state.ts`, `core/tic
 `core/offline.ts`, `ui/game-loop.service.ts`, `ui/save.service.ts`,
 `ui/format-numeric.ts`.
 
-### 2. Player-initiated battles up a stage ladder — **COMPLETE**
+## 2. Player-initiated battles up a stage ladder — **COMPLETE**
 
 `simulateBattle(team, stage, seed) => BattleResult` resolves instantly and headlessly into an
 event log; the UI animates the log afterwards. Combat is not driven by the render tick — that
@@ -88,7 +88,7 @@ Two decisions worth not re-litigating:
 - **Targeting is the living opponent with the least HP, ties by slot.** Deliberately naive
   until enemy design gives it something to reason about; milestone 4 is where that lands.
 
-### 3. Gacha, roster, ascension and levelling — **COMPLETE**
+## 3. Gacha, roster, ascension and levelling — **COMPLETE**
 
 `pull(state, banner, count) => { state, results }`. Pity lives in `GameState`, is **global
 rather than per-banner**, and is visible in the UI at all times. Pulls advance
@@ -105,7 +105,7 @@ upgrade — including the upgrade roll on results that can never be upgraded. Sa
 crits in `damage.ts`, for the same reason: if consumption depended on the branch taken,
 `rng.calls` would no longer describe where a run is in its sequence and O(1) resume would break.
 
-#### Two rarity axes, which is the thing to understand first
+### Two rarity axes, which is the thing to understand first
 
 **Tier** is which character you pulled and never changes: `common`, `legendary`, `ascended`.
 **Rarity** is how far that character has been ascended, `rare` → `ascended-5`. They share two
@@ -118,7 +118,7 @@ per-level growth: ×1.2 at level 50, ×19.5 at level 1000. That is what makes a 
 character a genuine early answer that genuinely falls off, as a consequence of the math rather
 than as an assertion. Any character of any tier can reach `ascended-5`.
 
-#### Ascension
+### Ascension
 
 Duplicates are the primary progression path, so a dupe is never wasted. Two ladders, authored
 in `data/ascension.ts` and resolved by `core/roster/rarity.ts`:
@@ -142,7 +142,7 @@ Copies of a character already at `ascended-5` convert to **spark**, which buys e
 character or a targeted copy in the shop. Spark only accrues after something is maxed, so it is
 late-game overflow — **pity is the escape valve for bad luck, not the shop.**
 
-#### Levelling and the four currencies
+### Levelling and the four currencies
 
 `GameState` carries a keyed **wallet** and **rate table** rather than a field per currency; ten
 flat fields would have been ten lines in every encoder, decoder and repair pass.
@@ -204,7 +204,7 @@ somewhere a player can come back to. The battle screen is still a signal-swapped
 contents live only in memory — and the tab bar hides during a fight, because a battle has no
 exit until it ends and navigation that refused to work would be worse than none.
 
-### 4. Team composition affecting combat math — **NEXT**
+## 4. Team composition affecting combat math — **NEXT**
 
 Composition matters through **enemy design**, not flat synergy bonuses — see
 "Content and balance" in [AGENTS.md](../AGENTS.md). Characters are keys to locks, not rungs on
@@ -219,7 +219,7 @@ This milestone is where enemies get questions worth asking — a healer that has
 wide wave that punishes single-target, a debuff that needs a cleanse — and where the naive
 targeting from milestone 2 finally has something to reason about.
 
-### 5. Offline catch-up — **PARTIALLY COMPLETE**
+## 5. Offline catch-up — **PARTIALLY COMPLETE**
 
 Done and tested: the continuous fixed-rate closed form, the `[0, CAP_MS]` clamp, the
 backwards-clock guard, and `accrueDiscrete()` for expected-value drops with a carried
@@ -246,16 +246,16 @@ battle, since crits make any single fight unrepresentative.
 The migration chain no longer needs a first customer: save v2 exercised it for real when combat
 landed.
 
-### 6. Run it on a physical iPhone
+## 6. Run it on a physical iPhone
 
 Do this while the app is still small, so the signing and provisioning pain lands early
 rather than next to a deadline. `npm run ios` builds, syncs, and opens Xcode.
 
-### 7. Prestige layer, then content
+## 7. Prestige layer, then content
 
 Only after 1–6 are solid.
 
-### Later: the two auto-battles
+## Later: the two auto-battles
 
 "Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
 button the player presses. Do not build either of these into it.
@@ -276,7 +276,7 @@ button the player presses. Do not build either of these into it.
 Both want milestone 5's offline work to exist first, since "what happens while nobody is
 watching" is the same question in all three places.
 
-### Deliberately deferred
+## Deliberately deferred
 
 - **Foreground/background handling via `@capacitor/app`.** The `visibilitychange` handling
   in `ui/game-loop.service.ts` covers the current need. Revisit it when the offline path pays
