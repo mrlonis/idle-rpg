@@ -24,9 +24,10 @@ export const ATB_THRESHOLD = 1000;
 /**
  * How much game time one battle tick represents.
  *
- * Only used to convert a resolved battle into a duration. `BattleResult.durationMs` is what
- * a future `timeToClear(state, stage)` — the missing piece of the segmented offline solver —
- * will be built from, so the conversion lives in one place from the start.
+ * Only used to convert a resolved battle into a duration, which `BattleResult.durationMs`
+ * reports. That was once earmarked for a `timeToClear(state, stage)` feeding a segmented
+ * offline solver; both are cancelled — offline rates never change mid-window — so the duration
+ * now exists for balance sweeps and for display.
  */
 export const BATTLE_TICK_MS = 100;
 

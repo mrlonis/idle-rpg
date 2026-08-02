@@ -36,10 +36,13 @@ export interface OfflineReport {
  * the exact answer is one multiplication per currency.
  *
  * **The rates are constant across any offline window**, which is what makes the closed form
- * exactly right rather than merely close. Battles are player-initiated, so nothing clears a
- * stage — and therefore nothing raises a rate — while the player is away. The day an
- * unattended auto-battle lands, that stops being true and this needs the segmented solver;
- * until then, building one would be pricing a window that cannot happen.
+ * exactly right rather than merely close. Battles only ever resolve with the app in the
+ * foreground — auto-battle included, by design — so nothing clears a stage, and therefore
+ * nothing raises a rate, while the player is away.
+ *
+ * That is a permanent property of the design rather than a temporary one, so there is no
+ * segmented solver and none is owed. Reversing the foreground-only rule is what would change
+ * it; see `docs/milestones.md`.
  *
  * Two clock guards, neither of them anti-cheat:
  * - A negative delta means the device clock moved backwards. Clamp to zero and pay out
@@ -93,6 +96,12 @@ export interface DiscreteAccrual {
  *
  * The remainder is carried in the save so that many short sessions accrue at the same rate
  * as one long one, instead of rounding away to nothing.
+ *
+ * **Nothing calls this, and nothing is planned to.** Idle income is the four continuous rates
+ * and nothing else — nothing drops while the player is away — so there is no `dropCarry` field
+ * in `GameState` and no reason to add one. Kept because it is eight specified lines encoding a
+ * rule worth not re-deriving under pressure: offline loot is paid at expected value, never
+ * rolled. Do not wire it up to manufacture a use for it; see `docs/milestones.md`.
  */
 export function accrueDiscrete(carry: number, expected: number): DiscreteAccrual {
   const safeCarry = Number.isFinite(carry) && carry > 0 ? carry : 0;

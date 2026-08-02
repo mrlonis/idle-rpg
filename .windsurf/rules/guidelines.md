@@ -52,8 +52,8 @@ Read it before starting a milestone, and specifically before:
   deliberately deferred, and the doc records the condition that has to be met first;
 - building anything that fights on its own — "auto-battle" means two separate features, and
   neither belongs in the milestone that introduced combat;
-- adding the **segmented offline solver** — it is unbuilt on purpose, and the doc says what has
-  to land before it is worth building.
+- adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
+  cancelled rather than pending, and the doc records why each one stopped being needed.
 
 ---
 
@@ -92,8 +92,8 @@ do not disable that rule.
   `applyBattleResult(state, result, stageCount) => state`,
   `pull(state, banner, count, ...) => { state, results }`,
   `ascend(state, defId, plan, ...) => RosterResult`,
-  `levelUp(state, defId, targetLevel, curve) => RosterResult`. Planned:
-  `timeToClear(state, stage)` (milestone 5).
+  `levelUp(state, defId, targetLevel, curve) => RosterResult`. Nothing is planned but unbuilt —
+  `timeToClear(state, stage)` was, and is cancelled; see [milestone 5](../../docs/milestones.md).
 - Return new state; do not mutate arguments in place.
 - **Never call `Math.random()`.** Use the seeded PRNG in `core/rng.ts`. Seed and call
   counter live in the save.
@@ -150,13 +150,21 @@ The app is zoneless. The sim clock and the render clock are separate.
 **Never replay offline time step by step.** Twelve hours at 10Hz is 432,000 iterations on
 resume and will hang the device. Three cases:
 
-1. **Continuous, fixed rate** (gold, stamina, XP) → closed form: `rate * elapsedSec`.
+1. **Continuous, fixed rate** (gold, stamina, XP) → closed form: `rate * elapsedSec`. **This is
+   the only case this game has**, and `resume()` in `core/offline.ts` is it.
 2. **Continuous, rate changes mid-window** (auto-progression advancing stages) →
    _segmented_ closed form. Solve time-to-clear per stage and loop over segments (~single
    digits of iterations), never per tick.
 3. **Discrete drops** → expected value with deterministic rounding, carrying the
    fractional remainder in the save. **Do not roll RNG for offline loot** — it invites
    force-quit rerolling, and expected value reads as fair to players.
+
+**Cases 2 and 3 do not arise and are not to be built.** Auto-battle is foreground-only, so no
+stage clears while the player is away and no rate ever changes mid-window; and nothing drops
+while they are away, so idle income is the four continuous rates and nothing else. They are
+documented because they are the right techniques _if_ those product decisions are ever reversed
+— which would re-open [milestone 5](../../docs/milestones.md). Do not implement either speculatively,
+and do not add a `dropCarry` field.
 
 Clamp elapsed to `[0, CAP_MS]` where the cap is 8–12h. A negative delta means the device
 clock moved backwards; clamp to zero rather than punishing. Do not add clock-tamper

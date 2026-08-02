@@ -14,15 +14,15 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 ## Status
 
-| #   | Milestone                              | Status                                          |
-| --- | -------------------------------------- | ----------------------------------------------- |
-| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                 |
-| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`            |
-| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing            |
-| 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations         |
-| 5   | Offline catch-up on resume             | 🟡 Next; continuous done, segmented outstanding |
-| 6   | Run on a physical iPhone               | ⬜                                              |
-| 7   | Prestige layer, then content           | ⬜                                              |
+| #   | Milestone                              | Status                                       |
+| --- | -------------------------------------- | -------------------------------------------- |
+| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                              |
+| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`         |
+| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing         |
+| 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations      |
+| 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
+| 6   | Run on a physical iPhone               | 🟡 Next                                      |
+| 7   | Prestige layer, then content           | ⬜                                           |
 
 ---
 
@@ -104,8 +104,10 @@ Two decisions worth not re-litigating:
   Applying it up front spoils every fight: the gold counter and the income rate both jump the
   instant the player taps, announcing the outcome before the first blow lands. The cost is that
   a battle abandoned by a reload mid-animation pays nothing — acceptable precisely because the
-  player starts each fight and watches it, and going again is one tap. If an unattended loop is
-  ever added, revisit this: for a loop that runs while nobody is looking, the trade inverts.
+  player starts each fight and watches it, and going again is one tap. This survived contact
+  with auto-battle unchanged: that loop is foreground-only, so it is attended too and the trade
+  never inverts. What auto-battle does need is to **persist** at the end of each fight rather
+  than waiting for the next autosave; see "Later: the two auto-battles".
 - **Targeting was the living opponent with the least HP, ties by slot.** Deliberately naive
   until enemy design gave it something to reason about, which milestone 4 did: an ordinary
   attack now goes through the **front rank** and only reaches the back one once the front is
@@ -409,28 +411,65 @@ Three decisions worth not re-litigating:
   in the fast suite — but it is now seconds rather than milliseconds, so the separate
   `*.balance.ts` project described under "Testing `core/`" is closer than it was.
 
-## 5. Offline catch-up — **PARTIALLY COMPLETE**
+## 5. Offline catch-up — **COMPLETE**
 
-Done and tested: the continuous fixed-rate closed form, the `[0, CAP_MS]` clamp, the
-backwards-clock guard, and `accrueDiscrete()` for expected-value drops with a carried
-remainder.
+Shipped and tested in [`core/offline.ts`](../src/core/offline.ts): the continuous fixed-rate
+closed form settling all four rate-bearing currencies in one pass, the `[0, OFFLINE_CAP_MS]`
+clamp at ten hours, the backwards-clock guard, and a non-finite guard for a damaged
+`lastTickAt`. `resume()` is called on load from `ui/game-loop.service.ts` and its report is
+rendered on the home screen, so the path is wired end to end rather than merely available.
 
-Still outstanding:
+The project's highest-value invariant is pinned in
+[`offline.spec.ts`](../src/core/offline.spec.ts): the closed form agrees with stepwise accrual,
+asserted on relative error and checked at magnitudes past float64's exact-integer range.
 
-- A drop source to feed `accrueDiscrete()`, plus the `dropCarry` field in `GameState`.
-- The **segmented** closed form for a rate that changes mid-window — but not yet; see below.
+**This milestone closed by ruling work out, not by building it.** Two items sat on it for a
+long time and both were cancelled by design decisions rather than implemented. That is worth
+recording, because a future reader will otherwise see a solver named all over the codebase and
+assume somebody forgot it.
 
-**The segmented solver is not needed yet, and that is worth being precise about.** It exists to
-price an away window in which the rate _changes_ — auto-progression clearing stages while nobody
-is watching. Battles are player-initiated, so nothing clears a stage while the player is away:
-**every** rate is constant across any offline window, and the fixed-rate closed form already
-shipped is exactly right — it now settles four currencies in one pass rather than one. The gap opens when the unlockable auto-battle lands (see "Later: the
-two auto-battles"), because that is the first thing that advances stages unattended. Build the
-segmented solver then, against that feature, rather than speculatively now.
+### Why there is no segmented solver
 
-`timeToClear(state, stage)` is still the missing piece when that day comes, and
-`BattleResult.durationMs` is its raw material — though a mean over several seeds, not one
-battle, since crits make any single fight unrepresentative.
+The segmented closed form prices an away window in which the rate _changes_. Rates change on
+exactly one event: a stage clearing. **Auto-battle is foreground-only** — it runs with the app
+open and the player on the battle screen, and each battle is committed as it ends, so closing
+the app costs at most the fight in flight (see "Later: the two auto-battles"). Nothing clears a
+stage while the player is away.
+
+So every rate is constant across every offline window, permanently. The fixed-rate closed form
+is not an approximation that will need replacing; it is exactly right, and stays exactly right.
+The trigger would be genuinely unattended progression — stages advancing with the app closed —
+which is not the design. **Do not build the segmented solver speculatively.** If that product
+decision is ever reversed, `AGENTS.md` still records the technique to use.
+
+`timeToClear(state, stage)` is cancelled with it: the segmented solver was its only consumer.
+`BATTLE_TICK_MS` and `BattleResult.durationMs` remain useful raw material for balance sweeps —
+a mean over several seeds, not one battle, since crits make any single fight unrepresentative.
+
+### Why `accrueDiscrete()` has no caller
+
+It converts an expected quantity of discrete drops into whole units plus a carried remainder,
+and it is built, exported and tested. It has **no consumer, and no planned one**: nothing drops
+while the player is away. Idle income is the four continuous rates and nothing else, so there
+was never a `dropCarry` field in `GameState` and there is no longer a reason to add one.
+
+Kept rather than deleted because it is eight lines, fully specified, and encodes a rule worth
+not re-deriving under pressure — offline loot is paid at expected value with deterministic
+rounding, never rolled, because rolling invites force-quit rerolling. If a drop mechanic ever
+arrives it is ready; if one never does, it costs nothing. Do not wire it up to manufacture a
+use.
+
+### What did not need revisiting
+
+Milestone 2 applies a battle's result when the animation finishes and notes that the trade
+"inverts for an unattended loop". It does not invert here, because the loop is attended by
+definition. Backgrounding already pauses the animator rather than abandoning the fight, so
+auto-battle inherits the existing behaviour unchanged.
+
+One genuine gap belongs to **auto-battle, not to this milestone**: results reach `GameState` at
+animation end but only reach storage on `visibilitychange` or the thirty-second backstop
+autosave. A hard suspend can therefore lose completed battles, which the auto-battle section
+records as a requirement to fix there.
 
 The migration chain no longer needs a first customer: save v2 exercised it for real when combat
 landed.
@@ -456,21 +495,41 @@ button the player presses. Do not build either of these into it.
    thing to loop for it.
 2. **An unlockable that re-enters stages until the party loses.** Earned after a certain
    stage. It keeps fighting on its own, and on a loss the player is dropped back to the idle
-   screen to either watch their earnings or start again. This one **does** award and advance,
-   which is why the note above about applying results at the end of the animation has to be
-   revisited when it lands: an unattended loop is exactly the case where a battle lost to an
-   autosave or a backgrounded app matters, and where skipping the animation entirely may be
-   the better answer.
+   screen to either watch their earnings or start again. This one **does** award and advance.
 
-Both want milestone 5's offline work to exist first, since "what happens while nobody is
-watching" is the same question in all three places.
+   **It is foreground-only, and that is a design decision with consequences well beyond this
+   feature.** It runs with the app open and the player on the battle screen. It does not run
+   with the app closed, backgrounded or suspended, and it never advances a stage while nobody
+   is watching. That is what keeps every idle rate constant across every offline window, which
+   is the entire reason milestone 5 needs no segmented solver — so this is not a detail to
+   quietly relax later. Making it run unattended re-opens milestone 5.
+
+   **Each battle is committed when it ends.** Losing the app mid-fight costs that fight and
+   nothing else: no pause/resume state machine, no reconciliation on next launch, no partial
+   battle to recover. Everything already finished is already banked.
+
+   That last part is a real change, not a description of today. Results reach `GameState` at
+   animation end, but only reach storage on `visibilitychange` or the thirty-second backstop
+   autosave — so a suspend without `visibilitychange` can lose several **completed** battles at
+   4x. **Persist when each battle ends** as part of building this; it is what makes "we just
+   lose the fight in flight" actually true.
+
+   Because the loop is attended, milestone 2's decision to apply results at the end of the
+   animation does **not** invert. Backgrounding already pauses the animator rather than
+   abandoning the fight. Skipping the animation is a playback choice, not a correctness one.
+
+Neither is blocked on milestone 5 any more — it is complete, and the foreground-only rule above
+is what settled it.
 
 ## Deliberately deferred
 
 - **Foreground/background handling via `@capacitor/app`.** The `visibilitychange` handling
-  in `ui/game-loop.service.ts` covers the current need. Revisit it when the offline path pays
-  out battle rewards (milestone 5) rather than before — that is when the difference between a
-  web `visibilitychange` and a real iOS lifecycle event starts to matter.
+  in `ui/game-loop.service.ts` covers the current need. Its old trigger — "when the offline path
+  pays out battle rewards" — will never fire, because the offline path pays the four idle rates
+  and nothing else. The live reason to revisit it is **auto-battle**: a loop that must stop when
+  the app leaves the foreground is the first thing that cares about the difference between a web
+  `visibilitychange` and a real iOS lifecycle event. Persisting at the end of each fight is what
+  keeps that from being urgent, since a missed lifecycle event then costs one battle.
 - **Angular Material.** Installed but unused. Do not pull it in until a real control needs
   it. Milestone 3 added five screens' worth of buttons, tabs, a progress bar, a table and a
   disclosure without it, all AXE-clean — so the bar for reaching for it is higher now, not

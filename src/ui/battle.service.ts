@@ -102,9 +102,13 @@ export interface BattleCombatantView {
  * it up front would spoil every fight: the gold counter and the income rate would both jump the
  * instant the player tapped, announcing the outcome before the first blow landed. The cost is
  * that a battle abandoned mid-animation — by a reload, not by backgrounding, which merely pauses
- * — pays nothing. That is a fair trade here in a way it would not be for an unattended loop: the
- * player is watching, a fight lasts seconds, the save stays exactly consistent with what was
- * shown, and going again is one tap.
+ * — pays nothing. That is a fair trade: the player is watching, a fight lasts seconds, the save
+ * stays exactly consistent with what was shown, and going again is one tap.
+ *
+ * It stays a fair trade when auto-battle lands, because that loop is **foreground-only** and so
+ * is attended too. What auto-battle will need is to **persist at the end of each fight** rather
+ * than leaving the result to the next autosave — otherwise a suspend can lose several completed
+ * battles. See `docs/milestones.md`.
  */
 @Service()
 export class BattleService {
