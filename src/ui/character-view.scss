@@ -45,18 +45,6 @@
   text-transform: capitalize;
 }
 
-.tier--common {
-  color: t.$tier-common;
-}
-
-.tier--legendary {
-  color: t.$tier-legendary;
-}
-
-.tier--ascended {
-  color: t.$tier-ascended;
-}
-
 .card {
   @include t.card;
   padding: 0.875rem 1rem;
@@ -270,3 +258,6 @@
   font-size: 0.75rem;
   text-align: right;
 }
+
+@include t.rarity-palette;
+@include t.tier-palette;

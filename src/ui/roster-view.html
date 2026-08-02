@@ -38,45 +38,85 @@
     You do not own any characters yet. That should not happen — try reloading.
   </p>
 } @else {
-  <ul class="roster">
-    @for (entry of entries(); track entry.defId) {
-      <li class="roster__row" [class.roster__row--fielded]="entry.inParty">
-        <div class="roster__identity">
-          <a class="roster__name" [routerLink]="['/roster', entry.defId]">
-            {{ entry.name }}
-          </a>
-          <p class="roster__meta">
-            <span class="tier tier--{{ entry.tier }}">{{ entry.tier }}</span>
-            <span>{{ entry.factionName }}</span>
-            <span>{{ entry.role }}</span>
-            <span>{{ entry.rarityLabel }}</span>
-          </p>
-          <p class="roster__stats">
-            Level {{ entry.level }}/{{ entry.levelCap }}
-            @if (entry.copies > 0) {
-              · {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
-            }
-            · {{ placementLabel(entry.row, entry.rowSlot) }}
-          </p>
-        </div>
-
-        @if (nextAction(entry.row, entry.name); as action) {
-          <button
-            type="button"
-            class="roster__toggle"
-            [class.roster__toggle--remove]="entry.inParty"
-            [attr.aria-pressed]="entry.inParty"
-            (click)="cycle(entry.defId)"
-          >
-            <!--
-              The accessible name spells out both the action and who it applies to, because the
-              visible label alone ("To back") repeats down the whole list.
-            -->
-            <span class="visually-hidden">{{ action.description }}</span>
-            <span aria-hidden="true">{{ action.label }}</span>
-          </button>
+  <!--
+    One section per heading, the fielded party first and then the seven factions in the order
+    the matchup cycle names them. Empty sections still render: the headings are a fixed shape
+    to scroll through rather than a list that rearranges itself as the roster fills, and "none
+    owned yet" under Angels is information a player summoning for a healer wants.
+  -->
+  @for (section of sections(); track section.id) {
+    <section class="group" [attr.aria-labelledby]="'group-' + section.id">
+      <h2 class="group__title" [id]="'group-' + section.id">
+        {{ section.label }}
+        @if (section.members.length > 0) {
+          <span class="group__count">{{ section.members.length }}</span>
         }
-      </li>
-    }
-  </ul>
+      </h2>
+
+      @if (section.members.length === 0) {
+        <p class="group__empty">{{ section.empty }}</p>
+      } @else {
+        <ul class="roster">
+          @for (entry of section.members; track entry.defId) {
+            <li class="roster__row" [class.roster__row--fielded]="entry.inParty">
+              <div class="roster__identity">
+                <a
+                  class="roster__name"
+                  [routerLink]="['/roster', entry.defId]"
+                  [queryParams]="{ from: screenId }"
+                >
+                  {{ entry.name }}
+                </a>
+                <p class="roster__meta">
+                  <span class="tier tier--{{ entry.tier }}">{{ entry.tier }}</span>
+                  <span>{{ entry.factionName }}</span>
+                  <span>{{ entry.role }}</span>
+                  <span class="rarity rarity--{{ entry.rarityFamily }}">
+                    {{ entry.rarityLabel }}
+                  </span>
+                </p>
+                <!--
+                  The copies count carries the ascended tier's colour once the next rung is
+                  payable, so a roster can be scanned for "who can I ascend" without opening
+                  every sheet. The row also says so in words: colour is never the only signal,
+                  and a rung whose price is entirely faction fodder is payable with no spare
+                  copies of its own to colour.
+                -->
+                <p class="roster__stats">
+                  Level {{ entry.level }}/{{ entry.levelCap }}
+                  @if (entry.copies > 0) {
+                    ·
+                    <span class="roster__copies" [class.roster__copies--ready]="entry.canAscend">
+                      {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
+                    </span>
+                  }
+                  · {{ placementLabel(entry.row, entry.rowSlot) }}
+                  @if (entry.canAscend) {
+                    · <span class="roster__ready">ready to ascend</span>
+                  }
+                </p>
+              </div>
+
+              @if (nextAction(entry.row, entry.name); as action) {
+                <button
+                  type="button"
+                  class="roster__toggle"
+                  [class.roster__toggle--remove]="entry.inParty"
+                  [attr.aria-pressed]="entry.inParty"
+                  (click)="cycle(entry.defId)"
+                >
+                  <!--
+                    The accessible name spells out both the action and who it applies to,
+                    because the visible label alone ("To back") repeats down the whole list.
+                  -->
+                  <span class="visually-hidden">{{ action.description }}</span>
+                  <span aria-hidden="true">{{ action.label }}</span>
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
 }

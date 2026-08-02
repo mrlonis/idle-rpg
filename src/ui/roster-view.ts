@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BACK_ROW_SIZE, FRONT_ROW_SIZE, PARTY_SIZE, type RosterFailure, type Row } from '../core';
-import { RosterService } from './roster.service';
+import { type ScreenId } from './navigation';
+import { type RosterEntryView, RosterService } from './roster.service';
 
 /** Why a formation change was refused, in words a player can act on. */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
@@ -18,6 +19,16 @@ interface PlacementAction {
   readonly description: string;
 }
 
+/** One heading and the rows under it. */
+interface RosterSection {
+  /** Stable key, and the `id` the section's heading is labelled by. */
+  readonly id: string;
+  readonly label: string;
+  readonly members: readonly RosterEntryView[];
+  /** Shown in place of the list when the section is empty. */
+  readonly empty: string;
+}
+
 /**
  * The roster: everyone owned, and where they are standing.
  *
@@ -29,6 +40,13 @@ interface PlacementAction {
  * Which row a character stands in is entirely the player's call. Nothing here consults a
  * character's role: role-locking would let an unlucky roster reach a state with no legal
  * formation, and a bad front row is a far better failure than no front row.
+ *
+ * The list is **grouped by faction under fixed headings**, with the fielded party pinned above
+ * them as a group of its own. Faction is the axis the whole ascension system turns on — a
+ * mortal rung is paid in faction-mates — so "how deep is my Dwarf bench" is a question the
+ * screen should answer by being scrolled, not by being read. Every faction keeps its heading
+ * even when nothing is under it, because a fixed shape is something a player can learn the
+ * position of, and because an absent group and an empty one say different things about a run.
  */
 @Component({
   selector: 'app-roster-view',
@@ -42,6 +60,13 @@ export class RosterView {
   protected readonly partySize = PARTY_SIZE;
   protected readonly entries = this.roster.entries;
   protected readonly openSlots = this.roster.openSlots;
+
+  /**
+   * What this screen calls itself on links out to a character sheet. The roster is also where a
+   * sheet with no origin at all falls back to, but the link says so anyway: every link into a
+   * sheet naming its own screen is one rule, and a rule with an exception in it is not learnt.
+   */
+  protected readonly screenId: ScreenId = 'roster';
 
   /** The two ranks, front first, for the formation panel above the list. */
   protected readonly ranks = computed(() => [
@@ -59,6 +84,31 @@ export class RosterView {
       hint: 'Shielded while the front row holds. +5% to whichever attack stat is higher.',
       members: this.roster.backRow(),
     },
+  ]);
+
+  /**
+   * The list, as headings and their rows: the party first, then one section per faction.
+   *
+   * The wording of an empty section is decided here rather than in the service, because it is
+   * copy. What the service supplies is the fact behind it — how many of that faction are owned
+   * — so a group emptied by fielding everybody says so instead of claiming you own none.
+   */
+  protected readonly sections = computed<readonly RosterSection[]>(() => [
+    {
+      id: 'fielded',
+      // Not "Formation": the panel above already owns that heading, and two level-2 headings
+      // whose names differ by a preposition are indistinguishable to anyone navigating by
+      // heading. "Fielded" is the word the summary line at the top of the screen already uses.
+      label: 'Fielded',
+      members: this.roster.fielded(),
+      empty: 'Nobody is fielded. Field somebody from a faction below.',
+    },
+    ...this.roster.benchGroups().map((group) => ({
+      id: group.factionId,
+      label: group.label,
+      members: group.members,
+      empty: group.owned === 0 ? 'None owned yet.' : 'Everyone you own is fielded.',
+    })),
   ]);
 
   /** The last refusal, cleared as soon as anything succeeds. */

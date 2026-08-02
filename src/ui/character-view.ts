@@ -11,6 +11,7 @@ import {
 import { characterById, GROWTH_RULES } from './content';
 import { formatAmounts, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { backTo } from './navigation';
 import { RosterService } from './roster.service';
 
 /** Why an action was refused, in words a player can act on. */
@@ -80,6 +81,25 @@ export class CharacterView {
 
   /** From `/roster/:defId`, bound by the router rather than read off an `ActivatedRoute`. */
   readonly defId = input.required<string>();
+
+  /**
+   * Which screen sent the player here, from the `from` query parameter.
+   *
+   * Bound the same way `defId` is — `withComponentInputBinding` supplies query parameters as
+   * inputs just as it supplies path parameters — so this sheet still never touches
+   * `ActivatedRoute`. Optional by design: a bookmarked or hand-typed URL carries no origin, and
+   * {@link backTo} answers for that case rather than leaving the player with no way out.
+   */
+  readonly from = input<string>();
+
+  /**
+   * Where the back link goes and what it calls itself.
+   *
+   * The sheet hangs off `/roster/:defId`, but it is not only reached from the roster — tapping a
+   * name in the party on the home screen lands here too, and sending that player to a screen
+   * they were never on is the confusion this resolves.
+   */
+  protected readonly back = computed(() => backTo(this.from()));
 
   /** The last refusal, cleared as soon as anything succeeds. */
   protected readonly message = signal<string | null>(null);

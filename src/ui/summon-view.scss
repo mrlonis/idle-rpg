@@ -224,9 +224,10 @@
   font-weight: 600;
 }
 
+// No colour of its own: the rarity class always supplies one, and leaving a $muted here would
+// be a specificity tie with `.rarity--*` decided only by source order.
 .results__rarity {
   font-size: 0.8125rem;
-  color: t.$muted;
   text-align: right;
 }
 
@@ -258,3 +259,7 @@
   @include t.button-quiet;
   font-size: 0.875rem;
 }
+
+@include t.rarity-palette;
+
+@include t.tier-palette;

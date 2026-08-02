@@ -55,7 +55,20 @@ export type RarityId = (typeof RARITIES)[number];
 export const MAX_RARITY_INDEX = RARITIES.length - 1;
 
 /**
- * How a character is pulled and how it grows.
+ * The five families the fourteen rungs group into, for anything that treats `rare` and
+ * `rare-plus` as the same kind of thing.
+ *
+ * A rung's suffix — `-plus`, or a star count — is a step *within* a family rather than a new
+ * one, which is why the ladder has fourteen entries and this has five. `rarity.spec.ts`
+ * asserts every entry in {@link RARITIES} strips to one of these, so adding a rung without
+ * deciding which family it belongs to is a failing test rather than a silent gap downstream.
+ */
+export const RARITY_FAMILIES = ['rare', 'elite', 'legendary', 'mythic', 'ascended'] as const;
+
+export type RarityFamily = (typeof RARITY_FAMILIES)[number];
+
+/**
+ * How a character is pulled and how it grows, **in ascending order of growth slope**.
  *
  * - `common` starts at `rare`, is the weakest per level, and carries the early game. It can
  *   still be taken all the way to `ascended-5` — deliberately, so an early favourite is a
@@ -63,8 +76,14 @@ export const MAX_RARITY_INDEX = RARITIES.length - 1;
  * - `legendary` starts at `rare` too but grows faster and hits harder in its niche. Mid-game.
  * - `ascended` starts at `elite`, skipping the bottom two rungs entirely, and grows fastest.
  *   Late-game, and the thing the pity counter is pointed at.
+ *
+ * An array rather than a bare union for the same reason as {@link RARITIES}: the order is a
+ * fact about the tiers, so anything ranking them should read it here rather than keep its own
+ * copy. A fourth tier is then a compile error everywhere that ranking is exhaustive.
  */
-export type CharacterTier = 'common' | 'legendary' | 'ascended';
+export const CHARACTER_TIERS = ['common', 'legendary', 'ascended'] as const;
+
+export type CharacterTier = (typeof CHARACTER_TIERS)[number];
 
 /**
  * Which ascension ladder a character walks, decided by its faction.

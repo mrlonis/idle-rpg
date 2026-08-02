@@ -10,11 +10,18 @@ import {
   fodderBaseCopies,
   fullAscensionCost,
   rarityAt,
+  rarityFamily,
   rarityIndex,
   rarityLabel,
   startRarityIndex,
 } from './rarity';
-import { type AscensionRules, MAX_RARITY_INDEX, RARITIES } from './types';
+import {
+  type AscensionRules,
+  MAX_RARITY_INDEX,
+  RARITIES,
+  RARITY_FAMILIES,
+  type RarityFamily,
+} from './types';
 
 /**
  * A synthetic ladder, not the shipped one.
@@ -197,5 +204,56 @@ describe('resolving rungs into base copies', () => {
     };
 
     expect(() => copyCost(cyclic, 'mortal', 0, 6)).not.toThrow();
+  });
+});
+
+describe('rarity families', () => {
+  it('sorts every rung on the ladder into a known family', () => {
+    // Derived from RARITIES rather than from a retyped list, so a fourteenth-and-a-half rung
+    // added without deciding its family fails here instead of rendering uncoloured.
+    const families = RARITIES.map((_, index) => rarityFamily(index));
+
+    expect(families).toHaveLength(RARITIES.length);
+    for (const family of families) {
+      expect(RARITY_FAMILIES).toContain(family);
+    }
+  });
+
+  it('keeps a rung and its +variant in the same family', () => {
+    // The whole reason families exist: `Rare` and `Rare+` are one kind of thing, and the label
+    // already carries the step within it.
+    for (const [index, id] of RARITIES.entries()) {
+      if (id.endsWith('-plus')) {
+        expect(rarityFamily(index)).toBe(rarityFamily(index - 1));
+      }
+    }
+  });
+
+  it('folds all six ascended rungs together', () => {
+    const ascended = RARITIES.map((_, index) => index).filter(
+      (index) => rarityFamily(index) === 'ascended',
+    );
+
+    // `ascended` plus ★1–★5. Stars are a step inside the family, not a family each.
+    expect(ascended).toHaveLength(6);
+    expect(rarityAt(ascended[0])).toBe('ascended');
+    expect(rarityAt(ascended.at(-1) ?? -1)).toBe('ascended-5');
+  });
+
+  it('names the family every rung starts in', () => {
+    const at = (id: string): RarityFamily => rarityFamily(rarityIndex(id));
+
+    expect(at('rare')).toBe('rare');
+    expect(at('elite-plus')).toBe('elite');
+    expect(at('legendary')).toBe('legendary');
+    expect(at('mythic-plus')).toBe('mythic');
+    expect(at('ascended-3')).toBe('ascended');
+  });
+
+  it('clamps an out-of-range index rather than throwing', () => {
+    // Same contract as rarityAt: a damaged save yields the bottom rung, not an exception.
+    expect(rarityFamily(-5)).toBe('rare');
+    expect(rarityFamily(999)).toBe('ascended');
+    expect(rarityFamily(Number.NaN)).toBe('rare');
   });
 });

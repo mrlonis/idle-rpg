@@ -21,7 +21,20 @@ $danger-bg: #2a1a1a;
 // Tier colours. Each is paired with a text label in the markup — never the sole signal.
 $tier-common: #9fb4d0; // 6.9:1 on $surface
 $tier-legendary: #f0c674; // 9.6:1 on $surface
-$tier-ascended: #e59bf5; // 7.4:1 on $surface
+$tier-ascended: #f5eafe; // 14.2:1 on $surface
+
+// Rarity colours: one hue per family, so `Rare` and `Rare+` read as the same kind of thing and
+// the label's own suffix carries the step within it. Ratios are quoted against $surface and
+// $surface-raised, the two backgrounds a rarity is ever drawn on.
+//
+// Legendary and Ascended deliberately share the tier tokens above. Tier and rarity are separate
+// axes — `types.ts` goes to some length to keep them apart — so this is the one place they are
+// allowed to look alike, and it is a decision rather than an accident.
+$rarity-rare: #6cb6ff; // 7.7:1 / 6.9:1
+$rarity-elite: #c08cf5; // 6.5:1 / 5.9:1
+$rarity-legendary: $tier-legendary; // 10.2:1 / 9.2:1
+$rarity-mythic: #ff7b72; // 6.5:1 / 5.9:1
+$rarity-ascended: $tier-ascended; // 14.2:1 / 12.8:1
 
 // The smallest comfortable touch target. Above the 44px floor because these are thumb targets
 // on a phone, not pointer targets.
@@ -73,4 +86,52 @@ $tap-target: 2.75rem;
 // reads as the whole display vibrating.
 @mixin numeric {
   font-variant-numeric: tabular-nums;
+}
+
+// The rarity palette as a block, for the four screens that show a rarity. Angular scopes
+// component styles, so a shared mixin is the only way to write these once — the same reason
+// the palette itself lives here rather than in a global stylesheet.
+//
+// The class is applied alongside the rarity's own text, never instead of it: `Elite+` says
+// which rung it is whether or not the colour is perceivable.
+// The tier palette, for the three screens that name a tier. Same reasoning as the rarity block
+// below: component styles are scoped, and the chip on the roster and the rates table on the
+// summon screen have to agree about what a legendary looks like.
+//
+// Colour only — the chip's shape is the caller's business, because the summon screen's rates
+// table wants the colour without the pill around it.
+@mixin tier-palette {
+  .tier--common {
+    color: $tier-common;
+  }
+
+  .tier--legendary {
+    color: $tier-legendary;
+  }
+
+  .tier--ascended {
+    color: $tier-ascended;
+  }
+}
+
+@mixin rarity-palette {
+  .rarity--rare {
+    color: $rarity-rare;
+  }
+
+  .rarity--elite {
+    color: $rarity-elite;
+  }
+
+  .rarity--legendary {
+    color: $rarity-legendary;
+  }
+
+  .rarity--mythic {
+    color: $rarity-mythic;
+  }
+
+  .rarity--ascended {
+    color: $rarity-ascended;
+  }
 }

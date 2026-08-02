@@ -86,6 +86,44 @@
   text-transform: capitalize;
 }
 
+// A faction heading, in the same quiet uppercase as the formation panel's — these are labels
+// for a region, not a second level of content competing with the screen's title.
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: t.$muted;
+}
+
+// The count is a scanning aid, not a badge — a pill here would read as a notification.
+.group__count {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  @include t.numeric;
+}
+
+.group__empty {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed t.$border;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: t.$muted;
+}
+
 .roster {
   display: flex;
   flex-direction: column;
@@ -146,23 +184,22 @@
   text-transform: capitalize;
 }
 
-.tier--common {
-  color: t.$tier-common;
-}
-
-.tier--legendary {
-  color: t.$tier-legendary;
-}
-
-.tier--ascended {
-  color: t.$tier-ascended;
-}
-
 .roster__stats {
   margin: 0.1875rem 0 0;
   font-size: 0.75rem;
   color: t.$muted;
   @include t.numeric;
+}
+
+// Ascension-ready, in the colour the ascended tier already owns — the thing being signalled is
+// ascension, so borrowing that colour is one less thing for a player to learn. 14.2:1 on
+// $surface, and paired with "ready to ascend" in the same line so colour is never the only
+// carrier: a rung paid entirely in faction fodder is payable with zero spare copies, and there
+// would be no count to colour at all.
+.roster__copies--ready,
+.roster__ready {
+  color: t.$tier-ascended;
+  font-weight: 600;
 }
 
 .roster__toggle {
@@ -213,3 +250,6 @@
   white-space: nowrap;
   border: 0;
 }
+
+@include t.rarity-palette;
+@include t.tier-palette;

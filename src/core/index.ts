@@ -161,6 +161,7 @@ export {
   fodderBaseCopies,
   fullAscensionCost,
   rarityAt,
+  rarityFamily,
   rarityIndex,
   rarityLabel,
   startRarityIndex,
@@ -182,8 +183,10 @@ export {
 } from './roster/roster';
 export { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './roster/stats';
 export {
+  CHARACTER_TIERS,
   MAX_RARITY_INDEX,
   RARITIES,
+  RARITY_FAMILIES,
   type AscensionLadder,
   type AscensionPath,
   type AscensionRequirement,
@@ -195,6 +198,7 @@ export {
   type CopyCost,
   type FactionData,
   type OwnedCharacter,
+  type RarityFamily,
   type RarityId,
 } from './roster/types';
 export {

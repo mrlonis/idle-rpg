@@ -29,10 +29,18 @@ class FakeGameLoop {
   readonly loadFailure = signal<string | undefined>(undefined);
   readonly wallet = signal(emptyWallet());
   readonly rates = signal(zeroRates());
-  readonly gold = signal(num(0));
-  readonly goldPerSec = signal(num(0));
-  readonly summons = signal(num(0));
-  readonly spark = signal(num(0));
+  // Derived from the wallet and the rate table, exactly as the real service derives them. Two
+  // independent signals would let a test set a gold balance the real service could never
+  // produce alongside its own wallet.
+  readonly gold = computed(() => this.wallet().gold);
+  readonly goldPerSec = computed(() => this.rates().gold);
+  readonly summons = computed(() => this.wallet().summons);
+  readonly spark = computed(() => this.wallet().spark);
+}
+
+/** A wallet holding one currency, since most tests care about exactly one. */
+function walletWith(id: 'gold' | 'xp' | 'essence' | 'summons' | 'spark', amount: string) {
+  return { ...emptyWallet(), [id]: num(amount) };
 }
 
 /** One fielded character, which is all the home screen reads off the roster. */
@@ -46,6 +54,7 @@ function member(name: string, row: Row, rowSlot: number): RosterEntryView {
     role: 'ranger',
     rarity: 0,
     rarityLabel: 'Rare',
+    rarityFamily: 'rare',
     level: 1,
     levelCap: 40,
     atLevelCap: false,
@@ -110,25 +119,37 @@ async function render(
   return { game, battles, roster, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
+/** The wallet strip, as three parallel lists in the order the cards are laid out. */
+function walletStrip(el: HTMLElement) {
+  const text = (selector: string) =>
+    [...el.querySelectorAll(selector)].map((node) => node.textContent?.trim());
+
+  return {
+    labels: text('.wallet__label'),
+    amounts: text('.wallet__amount'),
+    rates: text('.wallet__rate'),
+  };
+}
+
 describe('HomeView', () => {
   it('renders gold formatted, not as a raw Decimal', async () => {
-    const { el } = await render((game) => game.gold.set(num('1234567')));
+    const { el } = await render((game) => game.wallet.set(walletWith('gold', '1234567')));
 
     // The whole reason formatNumeric exists: DecimalPipe cannot render a Decimal.
-    expect(el.querySelector('.resource__value')?.textContent?.trim()).toBe('1.23M');
+    expect(walletStrip(el).amounts[0]).toBe('1.23M');
     expect(el.textContent).not.toContain('[object Object]');
   });
 
   it('renders the rate with its unit', async () => {
-    const { el } = await render((game) => game.goldPerSec.set(num('250')));
+    const { el } = await render((game) => game.rates.set({ ...zeroRates(), gold: num('250') }));
 
-    expect(el.querySelector('.resource__rate')?.textContent?.trim()).toBe('250/s');
+    expect(walletStrip(el).rates[0]).toBe('250/s');
   });
 
   it('renders values past float64 exact-integer range', async () => {
-    const { el } = await render((game) => game.gold.set(num('1.2345e+30')));
+    const { el } = await render((game) => game.wallet.set(walletWith('gold', '1.2345e+30')));
 
-    expect(el.querySelector('.resource__value')?.textContent?.trim()).toBe('1.23No');
+    expect(walletStrip(el).amounts[0]).toBe('1.23No');
   });
 
   describe('the way into a fight', () => {
@@ -161,14 +182,14 @@ describe('HomeView', () => {
 
   describe('the hint under the counter', () => {
     it('explains why a fresh run earns nothing', async () => {
-      const { el } = await render((game) => game.goldPerSec.set(num(0)));
+      const { el } = await render((game) => game.rates.set(zeroRates()));
 
       expect(el.querySelector('.hint')?.textContent).toContain('Win a stage');
     });
 
     it('stops saying that once income is flowing', async () => {
       // Leaving it up would be untrue, and would teach the player to ignore this line.
-      const { el } = await render((game) => game.goldPerSec.set(num('1.5')));
+      const { el } = await render((game) => game.rates.set({ ...zeroRates(), gold: num('1.5') }));
 
       expect(el.querySelector('.hint')?.textContent).not.toContain('Win a stage');
       expect(el.querySelector('.hint')?.textContent).toContain('raises all four idle rates');
@@ -213,7 +234,7 @@ describe('HomeView', () => {
   });
 
   describe('the wallet strip', () => {
-    it('lists every currency except gold, which has the hero treatment', async () => {
+    it('lists every currency, gold among them rather than above them', async () => {
       const { el } = await render((game) => {
         game.wallet.set({
           gold: num('100'),
@@ -224,12 +245,12 @@ describe('HomeView', () => {
         });
       });
 
-      const labels = [...el.querySelectorAll('.wallet__label')].map((node) =>
-        node.textContent?.trim(),
-      );
+      const { labels, amounts } = walletStrip(el);
 
-      expect(labels).toEqual(['XP', 'Essence', 'Crystals', 'Spark']);
-      expect(el.querySelector('.wallet__list')?.textContent).toContain('4.2K');
+      expect(labels).toEqual(['Gold', 'XP', 'Essence', 'Crystals', 'Spark']);
+      expect(amounts).toEqual(['100', '4.2K', '17', '350', '2']);
+      // Nothing outside the strip is showing gold a second time.
+      expect(el.querySelectorAll('.wallet__item')).toHaveLength(5);
     });
 
     it('says where spark comes from rather than showing it a rate it does not have', async () => {
@@ -245,6 +266,25 @@ describe('HomeView', () => {
       const { el } = await render();
 
       expect(el.querySelector('.party__list')?.textContent).toContain('Rin');
+    });
+
+    it('links each name to that character sheet, saying the trip started here', async () => {
+      // Levelling somebody up is the reason to tap a name here, and the character sheet is
+      // where that happens — going via the roster screen to reach it is a wasted step. The
+      // `from` is what sends the sheet's back link here rather than to a roster screen this
+      // player never passed through.
+      const { el } = await render((_game, _battles, roster) => {
+        roster.frontRow.set([member('Rin', 'front', 1)]);
+        roster.backRow.set([member('Wren', 'back', 1)]);
+      });
+
+      const links = [...el.querySelectorAll<HTMLAnchorElement>('.party__name')];
+
+      expect(links.map((link) => link.textContent?.trim())).toEqual(['Rin', 'Wren']);
+      expect(links.map((link) => link.getAttribute('href'))).toEqual([
+        '/roster/rin?from=home',
+        '/roster/wren?from=home',
+      ]);
     });
 
     it('refuses to start a fight with nobody fielded', async () => {
@@ -294,15 +334,25 @@ describe('HomeView', () => {
   });
 
   describe('accessibility', () => {
-    it('labels the gold figure with a heading rather than announcing every change', async () => {
-      // An aria-live region here would fire ~6 times a second and make a screen reader
-      // unusable. The heading names the value so it stays reachable on demand.
+    it('names the screen with a single top-level heading', async () => {
+      // The gold hero block used to carry this screen's only `h1`. Folding it into the wallet
+      // strip would have left the page with no `h1` at all.
       const { el } = await render();
 
-      const section = el.querySelector('.resource');
-      expect(section?.getAttribute('aria-labelledby')).toBe('gold-label');
-      expect(el.querySelector('#gold-label')?.textContent).toContain('Gold');
-      expect(el.querySelector('.resource__value')?.getAttribute('aria-live')).toBeNull();
+      expect([...el.querySelectorAll('h1')].map((node) => node.textContent?.trim())).toEqual([
+        'Home',
+      ]);
+    });
+
+    it('labels the wallet strip with a heading rather than announcing every change', async () => {
+      // An aria-live region here would fire ~6 times a second and make a screen reader
+      // unusable. The labels name the values so they stay reachable on demand.
+      const { el } = await render();
+
+      const section = el.querySelector('.wallet');
+      expect(section?.getAttribute('aria-labelledby')).toBe('wallet-label');
+      expect(el.querySelector('#wallet-label')?.textContent).toContain('Currencies');
+      expect(el.querySelector('.wallet__amount')?.getAttribute('aria-live')).toBeNull();
     });
   });
 });

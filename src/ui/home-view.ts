@@ -1,6 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CURRENCY_IDS, type CurrencyId, FRONT_ROW_SIZE, RATE_CURRENCY_IDS } from '../core';
+import {
+  CURRENCY_IDS,
+  type CurrencyId,
+  FRONT_ROW_SIZE,
+  RATE_CURRENCY_IDS,
+  type RateCurrencyId,
+} from '../core';
 import { BattleService } from './battle.service';
 import {
   CURRENCY_LABELS,
@@ -10,6 +16,7 @@ import {
   formatRate,
 } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { type ScreenId } from './navigation';
 import { RosterService } from './roster.service';
 
 /** One currency as the wallet strip shows it. */
@@ -24,6 +31,13 @@ interface CurrencyRow {
 /** Sentence case for a label that reads mid-sentence elsewhere. */
 function titleCase(label: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+const RATE_BEARING = new Set<CurrencyId>(RATE_CURRENCY_IDS);
+
+/** Narrows to the currencies `Rates` is keyed by, so reading a rate needs no cast. */
+function hasRate(id: CurrencyId): id is RateCurrencyId {
+  return RATE_BEARING.has(id);
 }
 
 /**
@@ -46,8 +60,12 @@ export class HomeView {
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
 
-  protected readonly gold = computed(() => formatNumeric(this.game.gold()));
-  protected readonly goldRate = computed(() => formatRate(this.game.goldPerSec()));
+  /**
+   * What this screen calls itself on links out to a character sheet, so the sheet's back link
+   * comes back here rather than to the roster. Typed, so a screen that is not registered in
+   * `navigation.ts` is a compile error rather than a link that silently lands on the fallback.
+   */
+  protected readonly screenId: ScreenId = 'home';
 
   /**
    * The party, as the two ranks it fights in.
@@ -63,7 +81,12 @@ export class HomeView {
   protected readonly fieldedCount = this.roster.fieldedCount;
 
   /**
-   * Every currency except gold, which has the hero treatment above.
+   * Every currency, gold included and shown exactly like the rest.
+   *
+   * Gold used to have a hero block of its own above this strip, four times the height of these
+   * cards. It was pulled into the row because that size made a claim the balance does not: gold
+   * is the broadest currency, but essence is the one a run is actually bottlenecked on, and a
+   * counter that large points a player at the wrong number.
    *
    * Spark is included even at zero: a player needs to know the currency exists and where it
    * comes from before they have any, and an empty row with a label is how they find that out.
@@ -71,13 +94,12 @@ export class HomeView {
   protected readonly currencies = computed<readonly CurrencyRow[]>(() => {
     const wallet = this.game.wallet();
     const rates = this.game.rates();
-    const hasRate = new Set<string>(RATE_CURRENCY_IDS);
 
-    return CURRENCY_IDS.filter((id) => id !== 'gold').map((id) => ({
+    return CURRENCY_IDS.map((id) => ({
       id,
       label: titleCase(CURRENCY_LABELS[id]),
       amount: formatNumeric(wallet[id]),
-      rate: hasRate.has(id) ? formatRate(rates[id as 'xp' | 'essence' | 'summons']) : null,
+      rate: hasRate(id) ? formatRate(rates[id]) : null,
     }));
   });
 

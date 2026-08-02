@@ -5,6 +5,7 @@ import {
   type CopyCost,
   MAX_RARITY_INDEX,
   RARITIES,
+  type RarityFamily,
   type RarityId,
 } from './types';
 
@@ -55,6 +56,18 @@ export function clampRarityIndex(index: number): number {
  */
 export function startRarityIndex(tier: CharacterTier): number {
   return tier === 'ascended' ? rarityIndex('elite') : 0;
+}
+
+/**
+ * Which family a rung belongs to: `rare-plus` is a Rare, `ascended-3` an Ascended.
+ *
+ * Derived by stripping the suffix rather than by a lookup table, for the same reason the cost
+ * arithmetic above is derived — a table would have to be edited in lockstep with `RARITIES` and
+ * would go stale quietly. The suffixes are the only two the ladder uses, and `rarity.spec.ts`
+ * proves every rung still strips to a known family.
+ */
+export function rarityFamily(index: number): RarityFamily {
+  return rarityAt(index).replace(/-(?:plus|\d+)$/, '') as RarityFamily;
 }
 
 /** Human-readable rarity, with the stars spelled out. */

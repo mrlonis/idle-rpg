@@ -50,6 +50,16 @@ export const CHARACTERS_BY_ID: CharacterLookup = new Map<string, CharacterData>(
   CHARACTERS.map((character) => [character.id, character]),
 );
 
+/**
+ * Every faction, in the order they are authored.
+ *
+ * That order is the one the roster groups by — the four mortal factions of the matchup cycle,
+ * then Monsters, then the two celestials — so a player who has learnt the cycle finds the same
+ * shape on the roster screen. It is a list rather than a derived sort because there is no rule
+ * that produces it; it is the order somebody chose.
+ */
+export const FACTIONS_IN_ORDER: readonly FactionData[] = FACTIONS;
+
 /** Every faction, keyed by id. Faction is what decides a character's ascension ladder. */
 export const FACTIONS_BY_ID: FactionLookup = new Map<string, FactionData>(
   FACTIONS.map((faction) => [faction.id, faction]),

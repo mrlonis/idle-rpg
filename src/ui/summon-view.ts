@@ -1,10 +1,26 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { type PullFailure } from '../core';
+import {
+  type CharacterTier,
+  type PullFailure,
+  rarityFamily,
+  rarityLabel,
+  startRarityIndex,
+} from '../core';
 import { MULTI_PULL_COUNT, PITY, TIER_WEIGHTS } from '../data';
 import { formatNumeric } from './format-numeric';
 import { GachaService } from './gacha.service';
 import { GameLoopService } from './game-loop.service';
+
+/** The tiers as the rates table lists them: the rarest first, because that is what pity buys. */
+const TIERS: readonly CharacterTier[] = ['ascended', 'legendary', 'common'];
+
+/** Tier names as prose. The bare id is the class suffix; this is what a player reads. */
+const TIER_NAMES: Readonly<Record<CharacterTier, string>> = {
+  ascended: 'Ascended tier',
+  legendary: 'Legendary tier',
+  common: 'Common tier',
+};
 
 /** Why a pull could not be made, in words a player can act on. */
 const FAILURE_MESSAGES: Readonly<Record<PullFailure, string>> = {
@@ -72,19 +88,24 @@ export class SummonView {
   });
 
   /** The authored pre-pity odds, for the rates table. */
-  protected readonly rateRows = [
-    {
-      tier: 'Ascended tier',
-      chance: formatPercent(TIER_WEIGHTS.ascended),
-      note: 'Starts at Elite',
-    },
-    {
-      tier: 'Legendary tier',
-      chance: formatPercent(TIER_WEIGHTS.legendary),
-      note: 'Starts at Rare',
-    },
-    { tier: 'Common tier', chance: formatPercent(TIER_WEIGHTS.common), note: 'Starts at Rare' },
-  ] as const;
+  /**
+   * The three tiers and what each one is worth, best first.
+   *
+   * Where a tier lands on the ladder is read off `startRarityIndex` rather than written out as
+   * a caption. An ascended-tier character skipping the bottom two rungs is a `core/` decision
+   * and most of what the tier is worth — a hand-typed "Starts at Elite" would keep saying so
+   * after a retune moved it.
+   */
+  protected readonly rateRows = TIERS.map((tier) => {
+    const startsAt = startRarityIndex(tier);
+    return {
+      tier,
+      name: TIER_NAMES[tier],
+      chance: formatPercent(TIER_WEIGHTS[tier]),
+      startsAt: rarityLabel(startsAt),
+      startsAtFamily: rarityFamily(startsAt),
+    };
+  });
 
   protected pullOnce(): void {
     this.gacha.pullOnce();
