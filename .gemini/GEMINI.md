@@ -52,7 +52,9 @@ Read it before starting a milestone, and specifically before:
 - reaching for **`@capacitor/app`** or a **run reset** — each is deliberately deferred, and the
   doc records the condition that has to be met first. **Angular Material is not deferred, it is
   removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to be
-  the cause of the app's broken first appearance on a real phone. Do not reinstall it;
+  the cause of the app's broken first appearance on a real phone. Do not reinstall it.
+  `@angular/cdk` is a separate question and the answer is different — see the accessibility
+  section below;
 - building anything that fights on its own — "auto-battle" means two separate features, and
   neither belongs in the milestone that introduced combat;
 - adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
@@ -189,9 +191,24 @@ defenses — there is nothing to protect.
 - Android needs a system back-button handler (`@capacitor/app`) that pops modals and
   navigates up, exiting only from the root. iOS has no equivalent.
 - Safe-area handling is `env(safe-area-inset-*)` CSS on both platforms (Capacitor 8 moved
-  Android edge-to-edge to the same mechanism). **Never write `padding: env(safe-area-inset-top)`**
-  — the one-value shorthand puts the _top_ inset on all four sides, which is a 59px gutter down
-  both edges of an iPhone. Name the side every time. This shipped, and cost milestone 6 a day.
+  Android edge-to-edge to the same mechanism). **Never write `padding: env(safe-area-inset-top)`.**
+  The single-value shorthand reads as though it targets one side and does not — it puts the _top_
+  inset on all four, which is a 59px gutter down both edges of an iPhone. This shipped, and it is
+  what made the app's first run on real hardware look broken. Use the longhand
+  (`padding-top: env(safe-area-inset-top)`); the only shorthand that means what it looks like is
+  the fully spelled-out four-value form:
+
+  ```css
+  /* wrong — 59px on every side */
+  padding: env(safe-area-inset-top);
+  /* right */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  ```
+
+  The trap generalises to any `env()` or `var()` in a shorthand: the value names a side, the
+  property does not know that.
+
 - **The document must not scroll; a container inside it does.** `html` and `body` are
   `height: 100%; overflow: hidden`, the shell is a flex column, and `main` is the scroll
   container. That removes iOS rubber-banding of the whole page and, with it, the reason to reach
@@ -265,6 +282,22 @@ defenses — there is nothing to protect.
 
 - It MUST pass all AXE checks.
 - It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+- The bar above is load-bearing, not aspirational — it is what caught `user-scalable=no` in
+  milestone 6, within a minute of it being written. When a fix and the accessibility suite
+  disagree, the suite is usually telling you the fix was a reflex. Look for the option that
+  satisfies both before reaching to silence one.
+- **`@angular/cdk` is installed and is the sanctioned answer for modals**, unlike Angular
+  Material, which is removed. It is not a UI framework — it is an accessibility primitives
+  library, and `cdkTrapFocus` / `Overlay` cover focus trapping, focus restoration, background
+  `inert` and scroll blocking. Those are where a hand-rolled dialog fails AXE, so do not
+  hand-roll them. Nothing imports CDK today; it is on hand deliberately, and its presence is
+  **not** a precedent for installing anything else speculatively.
+  - When that day comes, CDK wants two prebuilt global stylesheets — `a11y-prebuilt.css` for
+    `.cdk-visually-hidden`, `overlay-prebuilt.css` for overlay positioning. Add them
+    deliberately, at that point, and read them first: `overlay-prebuilt.css` declares
+    `.cdk-overlay-container { position: fixed; height: 100%; width: 100% }`, which is correct
+    only because the shell now guarantees the document fills the viewport. Wiring a global
+    stylesheet in without reading it is the exact mistake Material's scaffold made.
 
 ### Components
 

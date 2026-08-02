@@ -512,9 +512,10 @@ on `body` would have ended this in a minute.
 
 ### What changed
 
-- **Angular Material is uninstalled**, along with `@angular/cdk`. Nothing imported it; the only
-  thing it did was own `styles.scss`, and what it did there was the bug. `styles.css` went from
-  8.82 kB to 699 bytes. See the deferred list below, where it used to sit.
+- **Angular Material is uninstalled.** Nothing imported it; the only thing it did was own
+  `styles.scss`, and what it did there was the bug. `styles.css` went from 8.82 kB to 699 bytes.
+  `@angular/cdk` went with it and was then put back deliberately — see the deferred list below,
+  which records why the two got different answers.
 - **The document no longer scrolls.** `html` and `body` are `height: 100%; overflow: hidden`,
   the shell is a flex column, and `main` is the scroll container. This is the structural fix, not
   a cosmetic one: it removes page-level rubber-banding, and it lets the tab bar become a flex
@@ -524,7 +525,11 @@ on `body` would have ended this in a minute.
 - **Safe-area insets moved to where they cannot scroll away.** Horizontal and top insets sit on
   the shell, so the top gutter is outside the scroll container and content cannot slide under the
   notch; the bottom inset sits on the tab bar, so its own surface colour fills the home-indicator
-  strip rather than the page colour showing through.
+  strip rather than the page colour showing through. That split is the part to preserve — moving
+  the bottom inset up to the shell alongside the other three looks tidier and puts the tab bar's
+  touch targets over the home indicator. Measured at 393×852 with a 34px bottom inset: the links
+  are 64px tall and end at y=818, exactly where the indicator strip begins, and the bar's surface
+  still reaches y=852.
 - **Zoom is off on both platforms, and the viewport meta was not the way to do it.** The reflex
   fix is `maximum-scale=1, user-scalable=no`; it was written, and the accessibility suite
   immediately failed all six screens on AXE's `meta-viewport` rule (WCAG 1.4.4). It turned out to
@@ -610,9 +615,35 @@ is what settled it.
   imported by a single component — five screens' worth of buttons, tabs, a progress bar, a table
   and a disclosure were built without it, all AXE-clean. The only thing it actually did was own
   the scaffolded global stylesheet, and what it did there broke the app's first run on real
-  hardware (see milestone 6). It and `@angular/cdk` are uninstalled. If a control ever genuinely
-  needs it, reinstalling is one command — but write the global styles by hand rather than
-  accepting `mat.theme()`, which assumes a light scheme and a webfont this project cannot have.
+  hardware (see milestone 6). If a control ever genuinely needs it, reinstalling is one command —
+  but write the global styles by hand rather than accepting `mat.theme()`, which assumes a light
+  scheme and a webfont this project cannot have.
+- **`@angular/cdk`.** Uninstalled alongside Material, then **deliberately reinstalled** while
+  milestone 6 was still open. Nothing imports it yet, which is the one thing about this entry
+  worth being honest about: it is a dependency on hand for a use case that has not arrived.
+  That was a considered call rather than a drift, so the reasoning is recorded here instead of
+  being re-argued later.
+
+  The case for it is that CDK is not a UI framework, it is an accessibility primitives library,
+  and this project's bar is a clean AXE run against WCAG AA. The first modal — pull results, a
+  roster detail sheet — needs a focus trap, focus restoration on close, the background made
+  `inert`, scroll blocking and Escape handling. That is a list of things that are individually
+  easy to write and collectively easy to get subtly wrong, and getting them wrong is an
+  accessibility bug rather than a cosmetic one. `cdkTrapFocus` and `Overlay` are the answer, and
+  "no UI framework" was never meant to forbid them.
+
+  The case against installing it _early_ is the one this milestone just lived through: an
+  unused dependency is how Material got in, and CDK versions in lockstep with Angular, so
+  waiting would have cost nothing but an `npm i`. **Its presence is not a precedent.** Do not
+  read it as a licence to install anything else against a future need.
+
+  One thing to read before wiring it up: CDK ships prebuilt global stylesheets, and
+  `overlay-prebuilt.css` declares `.cdk-overlay-container { position: fixed; height: 100%;
+width: 100% }`. That is correct here only because the shell now guarantees the document fills
+  the viewport — under the old layout it would have had the same mismatch as the tab bar. Add
+  those stylesheets when the first overlay lands, not before, and read them rather than pasting
+  them.
+
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a
