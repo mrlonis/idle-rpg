@@ -36,152 +36,12 @@ the run resumes where it left off.
 
 ## Roadmap
 
-Ordered so there is **always something playable**. Each step layers onto the previous
-skeleton without changing its shape. [AGENTS.md](AGENTS.md) carries the full detail and the
-design rationale for each.
+Ordered so there is **always something playable**: each step layers onto the previous skeleton
+without changing its shape, from the tick loop and save layer through combat, the gacha and
+formations, on to offline catch-up and a prestige layer.
 
-| #   | Milestone                              | Status                                          |
-| --- | -------------------------------------- | ----------------------------------------------- |
-| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                                 |
-| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`            |
-| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing            |
-| 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations         |
-| 5   | Offline catch-up on resume             | 🟡 Next; continuous done, segmented outstanding |
-| 6   | Run on a physical iPhone               | ⬜                                              |
-| 7   | Prestige layer, then content           | ⬜                                              |
-
-**What milestone 1 shipped.** A gold counter that accrues at 10Hz, samples into the UI at
-~6Hz, persists through `@capacitor/preferences`, and settles offline earnings in closed form
-on resume. Underneath that: `Numeric` (a `break_infinity` wrapper so the backing numeric type
-is a one-file swap), a seeded mulberry32 PRNG with O(1) resume and derived sub-streams ready
-for combat, and a versioned save layer with a migration chain, fixtures, and repair that
-clamps damage rather than throwing.
-
-**What milestone 2 shipped.** A party of three that fights up a stage ladder, one battle
-at a time, whenever the player taps Fight. `simulateBattle` resolves a whole fight
-synchronously and headlessly into an event log, and the UI narrates that log afterwards at
-1x, 2x or 4x. Combat is deliberately not driven by the render tick, which is what makes the speed
-control a single multiplication in the animator rather than a second combat implementation — and
-what will make offline resolution and skipping cheap when they arrive.
-
-The game is **two screens**: home (gold, income, and the way into a fight) and the battle, which
-replaces home for the length of a fight. A battle has no exit until it ends; when it settles, the
-player can fight the next stage without leaving or close and return home. The swap is a signal
-rather than a route — a battle is a mode, not a location, since nothing it shows survives a
-reload.
-
-**Clearing a stage is what switches the idle game on.** A run starts at zero gold per second and
-earns nothing while idle; the first clear takes it to 0.5/s and every stage after that is a
-permanent raise, up to 25/s at the top of the ladder. The one-off gold for a clear is the smaller
-half of the deal, tuned to roughly 40 seconds of the income it unlocks — the rate is the
-progression, the lump is the bonus.
-
-Nothing fights on its own. The two features "auto-battle" could mean — the party sparring
-ambiently behind the idle screen, and an unlockable that re-enters stages until the party loses —
-are both later work, and [AGENTS.md](AGENTS.md) records what each one implies.
-
-Turn order is an ATB gauge (`gauge += spd` per tick, act at 1000) rather than fixed rounds, so
-SPD buys turns instead of just going first. The loop jumps straight to the tick of the next
-action instead of stepping tick by tick — the same closed-form instinct as offline resume, and
-[`clock.spec.ts`](src/core/battle/clock.spec.ts) pins the jump against a brute-force per-tick
-count. Damage is `atk² / (atk + def)`: strictly positive, so a battle always terminates, and
-diminishing in DEF, so defence never becomes the only stat. Randomness comes from a sub-stream
-derived via `deriveSeed(seed, 'battle:<stageId>:<battleCount>')`, and the number of draws an
-action spends never depends on how those draws came out — so replaying a battle is reproducible
-and never shifts the gacha sequence, which stopped being a hypothetical in milestone 3.
-Milestone 4 kept every one of those properties and split the formula across two defences.
-
-Combat also drove the save layer's **first real migration**: v2 adds `stage` and `battleCount`,
-and a pre-combat v1 save keeps its gold and RNG position and simply joins the ladder at stage 1.
-
-**Milestone 5 is partly done.** The pieces that never needed combat are built and tested: the
-fixed-rate closed form, the offline cap, the backwards-clock guard, and expected-value drop
-accrual with a carried remainder. What is left is a drop source to feed `accrueDiscrete()`.
-
-The segmented solver — for an away window in which the earning rate changes — is deliberately
-still unbuilt. Because the player starts every battle, no stage is ever cleared while they are
-away, so `goldPerSec` is constant across any offline window and the fixed-rate closed form is
-exactly right. That changes the day an unattended auto-battle lands, and not before.
-
-**What milestone 3 shipped.** A gacha, a roster, an ascension economy and character levelling —
-substantially the largest milestone so far.
-
-`pull(state, banner, count)` draws from the main RNG stream and consumes **exactly three draws
-per pull** whatever it produces, so `rng.calls` still describes where a run is in its sequence
-and resume stays O(1). Combat draws from a derived sub-stream and never advances it, so fighting
-between two pulls cannot shift what the next pull gives.
-
-**Pity is global, always on screen, and generous on purpose.** Base 2.5% for an ascended-tier
-character, soft pity from pull 30 at +6%/pull, guaranteed by 50 — and soft pity passes certainty
-around pull 47, so the cap is a floor rather than the mechanism. A paid gacha tunes to sell a
-bridge across a gap it manufactures; there is no bridge to sell here, so every reason to be
-stingy is a reason that does not apply.
-
-**Two rarity axes.** _Tier_ is which character you pulled (common / legendary / ascended) and
-never changes; _rarity_ is how far you have ascended them, `Rare` through `Ascended ★★★★★`. Tier
-is a **slope, not a head start**: base stat budgets are close, and the gap opens through
-per-level growth — ×1.2 at level 50, ×19.5 at level 1000. A common-tier character is a genuine
-early answer that genuinely falls off, because the math says so rather than because it was
-authored weak. Any character of any tier can reach ★5.
-
-**Duplicates are the progression, not a consolation prize.** Two ascension ladders: the mortal
-one (Humans, Dwarves, Elves, Undead, Monsters) spends _bodies_ — an ascended-tier unit costs 8 of
-its own Elite copies plus 180 Rare copies of same-faction fodder — while the celestial one
-(Angels, Demons) spends _luck_, at 14 of its own Elite copies and no fodder at all. Rungs are
-authored in ascended copies and players hold base ones, so every requirement is resolved
-recursively into base copies; [`data/ascension.spec.ts`](src/data/ascension.spec.ts) pins every
-derived total. **Only spare copies are ever consumed** — never a character you have levelled —
-so there is no way to destroy a week's investment by tapping the wrong row. Copies past ★5
-become spark and buy something in the shop instead.
-
-**Four currencies, none of them decorative.** Gold is broad and comfortable (gear will spend it
-later), XP is characters-only and slower, essence is charged only at breakthrough levels and is
-the real late bottleneck, and summon crystals buy pulls. Through level 140 all three levelling
-currencies land within about a third of each other in time-to-afford. Crystals accrue idly and
-on first clears and are deliberately **not** a repeatable battle reward — stage 1 resolves in
-four seconds, so paying crystals per clear would make tap-farming the bottom of the ladder the
-fastest way to pull.
-
-`GameState` now carries a keyed wallet and rate table rather than a field per currency, and
-**save v3** folds gold into it and adds the roster, the party and the pity counter. A v2 save
-keeps its gold and income, joins with its stages already credited, and gets the starter party
-back on load.
-
-**Routing arrived**, for exactly the reason the design notes said to wait for: a screen that
-survives a reload. Home, summon, roster and shop are routes — `/roster/rin` is somewhere you can
-come back to — while the battle stays a signal-swapped mode, because nothing it shows outlives a
-refresh. The tab bar hides during a fight, since a battle has no exit until it ends.
-
-**What milestone 4 shipped.** The party became a **formation**: five slots in two ranks, two in
-front and three behind. The front row is a _gate_ — an ordinary attack works through it before it
-can reach the back — so where a character stands is a decision rather than a seating chart. Front
-row buys +5% to both defences; back row buys +5% to whichever attack stat is already higher, and
-only that one, so a mage gets all of it on the spells it casts and none of it on the physical
-swing it makes in between. Placement is free: any character can stand anywhere, because
-role-locking would let an unlucky roster reach a state with no legal party.
-
-Combat grew a real vocabulary underneath it. Seventeen stats including split physical and magical
-attack and defence, MP, life-steal, penetration, tenacity and dodge — of which only the five
-quantities scale with level, for the same reason speed never has. Every combatant now carries a
-kit: skills metered by cooldown, by MP, or by the caster's own health, with conditions that stop
-a healer spending its pool on a party at full HP. Buffs, debuffs, poisons, shields, stuns and
-cleanses all land through one status layer that refreshes rather than stacks.
-
-Enemies got questions worth asking. A Marsh Acolyte behind two Boars cannot be reached by an
-ordinary attack at all, and that is the whole encounter: two parties differing in a single slot
-clear it almost always and almost never, depending on whether one of them can shoot over a front
-rank. Six new archetypes each name their own answer — a debuffer that wants a cleanse, a caster
-that punishes all-physical armour, a shielder that wants burst rather than chip, an armour gate
-that wants penetration, and something that dodges half of what you throw at it.
-
-Factions became a **matchup matrix**: a closed mortal cycle at +5%, Monsters trading reach for a
-bill, and celestials paying for a one-way advantage with the luck-only ascension ladder. The
-ladder is twelve stages; the three starting characters clear the opening run and stop dead at the
-healer lock, which is a wall about _who_ is fighting rather than about how many levels they have.
-**Save v4** replaces the flat party with the two ranks.
-
-Deliberately deferred: native foreground/background handling (`@capacitor/app`) and Angular
-Material. Both are cheap to add later and add debugging surface now.
+**[docs/milestones.md](docs/milestones.md)** is the single source of truth — the status of every
+milestone, what each one shipped, and the design rationale behind each decision.
 
 ---
 
@@ -192,6 +52,7 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
+docs/     Long-form project documentation. See docs/milestones.md.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.
@@ -396,7 +257,12 @@ npm run sync:agent-instructions && npm run sync:agent-instructions:check
 ```
 
 CI runs the check as its first step, so an un-synced `AGENTS.md` fails the build before lint
-or tests run. See [`scripts/README.md`](scripts/README.md) for details.
+or tests run.
+
+Links inside `AGENTS.md` are authored **relative to the repository root** — the copies live at
+three different depths, and the sync script retargets every href for its destination and refuses
+to write if one points at a missing path. See
+[`scripts/README.md`](scripts/README.md#relative-links) for the details.
 
 Accessibility is a hard requirement: the UI must pass AXE checks and meet WCAG AA minimums,
 including focus management, color contrast, and ARIA attributes.
