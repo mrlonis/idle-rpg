@@ -37,10 +37,12 @@ import {
   CHARACTERS_BY_ID,
   factionName,
   FACTIONS_BY_ID,
+  FACTIONS_IN_ORDER,
   GROWTH_RULES,
   LEVELS,
 } from './content';
 import { GameLoopService } from './game-loop.service';
+import { compareEntries, factionRanker, groupBench, type RosterGroup } from './roster-order';
 
 /**
  * One roster row, with everything the UI needs already resolved.
@@ -106,7 +108,7 @@ export class RosterService {
     return state.roster
       .map((owned) => this.toView(owned))
       .filter((entry): entry is RosterEntryView => entry !== null)
-      .sort(compareEntries);
+      .sort((a, b) => compareEntries(a, b, FACTION_RANK));
   });
 
   /** The front rank, in slot order, as roster rows. Missing members are simply absent. */
@@ -117,6 +119,23 @@ export class RosterService {
   /** The back rank, in slot order. */
   readonly backRow = computed<readonly RosterEntryView[]>(() =>
     this.rank(this.game.formation().back),
+  );
+
+  /** Everyone fielded, front rank then back — the same order the battle board draws. */
+  readonly fielded = computed<readonly RosterEntryView[]>(() => [
+    ...this.frontRow(),
+    ...this.backRow(),
+  ]);
+
+  /**
+   * The bench, split into one group per faction.
+   *
+   * A partition of {@link entries} rather than a second sort: the order is decided once, in one
+   * comparator, so the roster list and anything else reading `entries` can never disagree about
+   * who comes first.
+   */
+  readonly benchGroups = computed<readonly RosterGroup[]>(() =>
+    groupBench(this.entries(), FACTIONS_IN_ORDER),
   );
 
   /** Empty slots left in each rank, which is what the formation editor shows as gaps. */
@@ -326,21 +345,5 @@ export class RosterService {
 /** Structural stand-in so `mutate` does not have to import the state type by name twice. */
 type GameStateLike = Parameters<typeof levelUpToAffordable>[0];
 
-/**
- * Fielded characters first in formation order, then everyone else by rarity, level and name.
- *
- * Party members pinned to the top because the roster's most common use is checking on who is
- * actually fighting; below that, the characters a player has invested in are the ones they are
- * looking for.
- */
-function compareEntries(a: RosterEntryView, b: RosterEntryView): number {
-  if (a.inParty !== b.inParty) {
-    return a.inParty ? -1 : 1;
-  }
-  if (a.inParty && b.inParty) {
-    // Front rank first, then order within the rank — the same order the battle board draws.
-    const rank = (entry: RosterEntryView): number => (entry.row === 'front' ? 0 : 1);
-    return rank(a) - rank(b) || (a.rowSlot ?? 0) - (b.rowSlot ?? 0);
-  }
-  return b.rarity - a.rarity || b.level - a.level || a.name.localeCompare(b.name);
-}
+/** Built once: the authored faction order is static content, and the sort runs per snapshot. */
+const FACTION_RANK = factionRanker(FACTIONS_IN_ORDER);

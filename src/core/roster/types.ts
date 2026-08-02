@@ -68,7 +68,7 @@ export const RARITY_FAMILIES = ['rare', 'elite', 'legendary', 'mythic', 'ascende
 export type RarityFamily = (typeof RARITY_FAMILIES)[number];
 
 /**
- * How a character is pulled and how it grows.
+ * How a character is pulled and how it grows, **in ascending order of growth slope**.
  *
  * - `common` starts at `rare`, is the weakest per level, and carries the early game. It can
  *   still be taken all the way to `ascended-5` — deliberately, so an early favourite is a
@@ -76,8 +76,14 @@ export type RarityFamily = (typeof RARITY_FAMILIES)[number];
  * - `legendary` starts at `rare` too but grows faster and hits harder in its niche. Mid-game.
  * - `ascended` starts at `elite`, skipping the bottom two rungs entirely, and grows fastest.
  *   Late-game, and the thing the pity counter is pointed at.
+ *
+ * An array rather than a bare union for the same reason as {@link RARITIES}: the order is a
+ * fact about the tiers, so anything ranking them should read it here rather than keep its own
+ * copy. A fourth tier is then a compile error everywhere that ranking is exhaustive.
  */
-export type CharacterTier = 'common' | 'legendary' | 'ascended';
+export const CHARACTER_TIERS = ['common', 'legendary', 'ascended'] as const;
+
+export type CharacterTier = (typeof CHARACTER_TIERS)[number];
 
 /**
  * Which ascension ladder a character walks, decided by its faction.

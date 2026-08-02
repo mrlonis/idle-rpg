@@ -86,6 +86,44 @@
   text-transform: capitalize;
 }
 
+// A faction heading, in the same quiet uppercase as the formation panel's — these are labels
+// for a region, not a second level of content competing with the screen's title.
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: t.$muted;
+}
+
+// The count is a scanning aid, not a badge — a pill here would read as a notification.
+.group__count {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  @include t.numeric;
+}
+
+.group__empty {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed t.$border;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: t.$muted;
+}
+
 .roster {
   display: flex;
   flex-direction: column;

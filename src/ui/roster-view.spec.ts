@@ -3,7 +3,8 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { type Row } from '../core';
+import { type FactionData, type Row } from '../core';
+import { groupBench } from './roster-order';
 import { RosterView } from './roster-view';
 import { type RosterEntryView, RosterService } from './roster.service';
 
@@ -48,8 +49,25 @@ class FakeRoster {
   readonly entries = signal<readonly RosterEntryView[]>([entry()]);
   readonly frontRow = computed(() => this.entries().filter((row) => row.row === 'front'));
   readonly backRow = computed(() => this.entries().filter((row) => row.row === 'back'));
-  readonly fieldedCount = computed(() => this.entries().filter((row) => row.inParty).length);
+  readonly fielded = computed(() => [...this.frontRow(), ...this.backRow()]);
+  readonly fieldedCount = computed(() => this.fielded().length);
   readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 2, back: 3 });
+  /** The real partition, so the template is exercised against the shape it actually receives. */
+  readonly benchGroups = computed(() => groupBench(this.entries(), FACTIONS));
+}
+
+/** Three of the seven, which is enough to show a populated group beside two empty ones. */
+const FACTIONS: readonly FactionData[] = [
+  { id: 'elf', name: 'Elves', ascensionPath: 'mortal' },
+  { id: 'dwarf', name: 'Dwarves', ascensionPath: 'mortal' },
+  { id: 'angel', name: 'Angels', ascensionPath: 'celestial' },
+];
+
+/** The headings the list is currently showing, in document order. */
+function headings(el: HTMLElement): readonly string[] {
+  return [...el.querySelectorAll('.group__title')].map((node) =>
+    (node.textContent ?? '').replace(/\s+/g, ' ').trim(),
+  );
 }
 
 async function render(configure?: (roster: FakeRoster) => void) {
@@ -75,6 +93,100 @@ async function render(configure?: (roster: FakeRoster) => void) {
 }
 
 describe('RosterView', () => {
+  describe('the faction groups', () => {
+    it('pins the party above the factions and gives every faction a heading', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          entry({ defId: 'kestrel', name: 'Kestrel', inParty: true, row: 'front', rowSlot: 1 }),
+          entry({ defId: 'rin', name: 'Rin', faction: 'elf', factionName: 'Elves' }),
+        ]),
+      );
+
+      expect(headings(el)).toEqual(['Fielded 1', 'Elves 1', 'Dwarves', 'Angels']);
+    });
+
+    it('does not reuse the formation panel’s heading for the fielded group', async () => {
+      // Two level-2 headings named "Formation" and "In your formation" are indistinguishable
+      // to anyone navigating this screen by heading, which is most of the point of having them.
+      const { el } = await render();
+
+      const level2 = [...el.querySelectorAll('h2')].map((node) =>
+        (node.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      );
+      expect(new Set(level2).size).toBe(level2.length);
+    });
+
+    it('says a faction is unowned rather than that it is empty', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ faction: 'elf', factionName: 'Elves' })]),
+      );
+
+      const groups = [...el.querySelectorAll('.group')];
+      expect(groups[3]?.querySelector('.group__empty')?.textContent?.trim()).toBe(
+        'None owned yet.',
+      );
+    });
+
+    it('distinguishes a faction emptied by fielding from one you own none of', async () => {
+      // The two look identical on screen and mean opposite things: one is a reason to summon,
+      // the other is a reason to look at your formation.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          entry({
+            defId: 'dorn',
+            name: 'Dorn',
+            faction: 'dwarf',
+            factionName: 'Dwarves',
+            inParty: true,
+            row: 'front',
+            rowSlot: 1,
+          }),
+        ]),
+      );
+
+      const empties = [...el.querySelectorAll('.group__empty')].map((n) => n.textContent?.trim());
+      expect(empties).toEqual([
+        'None owned yet.',
+        'Everyone you own is fielded.',
+        'None owned yet.',
+      ]);
+    });
+
+    it('tells a player with nobody fielded what to do about it', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ faction: 'elf', factionName: 'Elves' })]),
+      );
+
+      expect(el.querySelector('.group__empty')?.textContent?.trim()).toBe(
+        'Nobody is fielded. Field somebody from a faction below.',
+      );
+    });
+
+    it('labels each section by its own heading, so the regions are navigable', async () => {
+      // A section with an `aria-labelledby` pointing at nothing is worse than no landmark: a
+      // screen reader announces an unnamed region and the grouping stops being navigable.
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ faction: 'elf', factionName: 'Elves' })]),
+      );
+
+      for (const section of el.querySelectorAll('section.group')) {
+        const id = section.getAttribute('aria-labelledby');
+        expect(id).toBeTruthy();
+        expect(el.querySelector(`#${id}`)?.classList.contains('group__title')).toBe(true);
+      }
+    });
+
+    it('lists a character exactly once, in its faction group and not the party', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ defId: 'rin', name: 'Rin', faction: 'elf' })]),
+      );
+
+      expect([...el.querySelectorAll('.roster__name')].map((n) => n.textContent?.trim())).toEqual([
+        'Rin',
+      ]);
+    });
+  });
+
   describe('the rarity label', () => {
     it('carries its family as a class so the palette can colour it', async () => {
       const { el } = await render((roster) =>

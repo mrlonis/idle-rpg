@@ -183,6 +183,7 @@ export {
 } from './roster/roster';
 export { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './roster/stats';
 export {
+  CHARACTER_TIERS,
   MAX_RARITY_INDEX,
   RARITIES,
   RARITY_FAMILIES,
