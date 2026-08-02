@@ -82,7 +82,12 @@ export function ensureTrailingNewline(content: string): string {
  */
 const LINK_PATTERN = /(!?)\[([^\]]*)\]\(\s*(<[^>]*>|[^()\s]+)((?:\s+(?:"[^"]*"|'[^']*'))?)\s*\)/g;
 
-const FENCE_PATTERN = /^\s{0,3}(`{3,}|~{3,})/;
+/**
+ * A fenced code block delimiter: up to three spaces of indent, then a run of three or more
+ * backticks or tildes, then the rest of the line. The trailing group is the info string on an
+ * opening fence (` ```ts `) and must be empty on a closing one.
+ */
+const FENCE_PATTERN = /^\s{0,3}(`{3,}|~{3,})(.*)$/;
 
 const ABSOLUTE_HREF_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 
@@ -178,7 +183,7 @@ function unmaskCodeSpans(masked: string, spans: string[]): string {
  * is not a link to rewrite.
  */
 function mapProseLines(content: string, transform: (line: string) => string): string {
-  let fence: string | null = null;
+  let fence: { char: string; length: number } | null = null;
 
   return content
     .split('\n')
@@ -187,13 +192,17 @@ function mapProseLines(content: string, transform: (line: string) => string): st
 
       if (match) {
         const marker = match[1];
+        const rest = match[2];
 
         if (fence === null) {
-          fence = marker[0];
+          fence = { char: marker[0], length: marker.length };
           return line;
         }
 
-        if (marker.startsWith(fence)) {
+        // CommonMark: a closing fence uses the same character, is at least as long as the
+        // opening one, and carries no info string. Without the length test a ``` line closes
+        // a ```` block; without the info-string test a ```ts line does.
+        if (marker.startsWith(fence.char) && marker.length >= fence.length && rest.trim() === '') {
           fence = null;
         }
 
@@ -234,6 +243,32 @@ export function splitHref(href: string): { path: string; fragment: string } | nu
   return { path, fragment };
 }
 
+/** Percent-decodes an href path, falling back to the raw text on malformed input. */
+function decodePath(path: string): string {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+/**
+ * `true` when a repo-relative path climbs out of the repository — `../outside.md`, `a/../../b`,
+ * or a percent-encoded spelling of either.
+ *
+ * Links are authored relative to the repository root, so such a path is meaningless by
+ * definition. It is rejected rather than resolved for a concrete reason: the rewriter and the
+ * validator would otherwise disagree about it. `posix.resolve('/', '../x.md')` clamps at the
+ * root and yields `/x.md`, silently changing what the author wrote, while `resolve(root, ...)`
+ * in validation genuinely walks above the repo and stats a file outside it. One would pass,
+ * the other would quietly retarget. Treating it as broken keeps them in step, and means no
+ * path outside the repository is ever touched.
+ */
+export function escapesRoot(path: string): boolean {
+  const normalized = posix.normalize(decodePath(path));
+  return normalized === '..' || normalized.startsWith('../');
+}
+
 /**
  * Rewrites a repo-relative href authored against the repository root so that it resolves from
  * `targetPath` instead. `AGENTS.md` lives at the root, so its links are already root-relative;
@@ -242,7 +277,9 @@ export function splitHref(href: string): { path: string; fragment: string } | nu
 export function rewriteHref(href: string, targetPath: string): string {
   const parts = splitHref(href);
 
-  if (!parts) {
+  // An escaping path is left exactly as authored rather than clamped to the root. Validation
+  // rejects it before this runs; this is the guard for any other caller.
+  if (!parts || escapesRoot(parts.path)) {
     return href;
   }
 
@@ -290,22 +327,18 @@ export function collectRelativePaths(content: string): string[] {
 }
 
 /**
+ * Every repo-relative path that does not resolve to a file inside the repository — either
+ * because nothing is there, or because it climbs out via `..`.
+ *
  * Repo-relative links are copied into six files at three different depths, so a typo here
- * becomes six broken links. Resolve each against the repository root before anything is
- * written.
+ * becomes six broken links. Checked before anything is written.
  */
 export function findBrokenLinks(content: string, rootDir: string): string[] {
-  return collectRelativePaths(content).filter((path) => {
-    let decoded: string;
-
-    try {
-      decoded = decodeURIComponent(path);
-    } catch {
-      decoded = path;
-    }
-
-    return !existsSync(resolve(rootDir, decoded));
-  });
+  return collectRelativePaths(content).filter(
+    // Short-circuits before `existsSync`, so an escaping path is reported without the
+    // filesystem outside the repository ever being touched.
+    (path) => escapesRoot(path) || !existsSync(resolve(rootDir, decodePath(path))),
+  );
 }
 
 export function readExisting(filePath: string): {
@@ -346,13 +379,18 @@ function main() {
   const broken = findBrokenLinks(sourceBody, root);
 
   if (broken.length > 0) {
-    console.error(`AGENTS.md links to ${broken.length} path(s) that do not exist:\n`);
+    console.error(
+      `AGENTS.md has ${broken.length} link(s) that do not resolve inside the repository:\n`,
+    );
 
     for (const path of broken) {
       console.error(`  ${path}`);
     }
 
-    console.error('\nLinks are authored relative to the repository root. Nothing was written.');
+    console.error(
+      '\nLinks are authored relative to the repository root, and may not climb above it with' +
+        ' "..". Nothing was written.',
+    );
     process.exit(1);
   }
 

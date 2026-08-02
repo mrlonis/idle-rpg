@@ -1,6 +1,6 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
@@ -8,6 +8,7 @@ import {
   collectRelativePaths,
   detectEol,
   ensureTrailingNewline,
+  escapesRoot,
   findBrokenLinks,
   maybeWrite,
   normalizeEol,
@@ -183,6 +184,40 @@ describe('splitHref', () => {
   });
 });
 
+describe('escapesRoot', () => {
+  it('is false for an ordinary repo-relative path', () => {
+    expect(escapesRoot('docs/milestones.md')).toBe(false);
+  });
+
+  it('is false for a path that dips into a subdirectory and back', () => {
+    expect(escapesRoot('docs/../src/core/offline.ts')).toBe(false);
+  });
+
+  it('is false for an explicitly current-directory path', () => {
+    expect(escapesRoot('./docs/milestones.md')).toBe(false);
+  });
+
+  it('is true for a leading parent segment', () => {
+    expect(escapesRoot('../outside.md')).toBe(true);
+  });
+
+  it('is true for a bare parent segment', () => {
+    expect(escapesRoot('..')).toBe(true);
+  });
+
+  it('is true when nested parent segments climb past the root', () => {
+    expect(escapesRoot('docs/../../outside.md')).toBe(true);
+  });
+
+  it('is true for a percent-encoded parent segment', () => {
+    expect(escapesRoot('%2e%2e/outside.md')).toBe(true);
+  });
+
+  it('falls back to the raw path when percent-decoding fails', () => {
+    expect(escapesRoot('../bad%zz.md')).toBe(true);
+  });
+});
+
 describe('rewriteHref', () => {
   it('adds one level for a target nested one directory deep', () => {
     expect(rewriteHref('docs/milestones.md', '.claude/CLAUDE.md')).toBe('../docs/milestones.md');
@@ -222,6 +257,16 @@ describe('rewriteHref', () => {
 
   it('leaves a bare anchor untouched', () => {
     expect(rewriteHref('#milestones', '.claude/CLAUDE.md')).toBe('#milestones');
+  });
+
+  it('leaves an escaping path exactly as authored rather than clamping it to the root', () => {
+    expect(rewriteHref('../outside.md', '.claude/CLAUDE.md')).toBe('../outside.md');
+  });
+
+  it('leaves a nested escaping path untouched', () => {
+    expect(rewriteHref('docs/../../outside.md', '.windsurf/rules/guidelines.md')).toBe(
+      'docs/../../outside.md',
+    );
   });
 
   it('keeps the angle-bracket wrapper when rewriting', () => {
@@ -318,6 +363,45 @@ describe('rewriteRelativeLinks', () => {
     );
   });
 
+  it('does not let a shorter fence close a longer one', () => {
+    const content = ['````', '```', '[y](docs/y.md)', '````', '[z](docs/z.md)'].join('\n');
+
+    expect(rewriteRelativeLinks(content, '.claude/CLAUDE.md')).toBe(
+      ['````', '```', '[y](docs/y.md)', '````', '[z](../docs/z.md)'].join('\n'),
+    );
+  });
+
+  it('lets a longer fence close a shorter one', () => {
+    const content = ['```', '[y](docs/y.md)', '`````', '[z](docs/z.md)'].join('\n');
+
+    expect(rewriteRelativeLinks(content, '.claude/CLAUDE.md')).toBe(
+      ['```', '[y](docs/y.md)', '`````', '[z](../docs/z.md)'].join('\n'),
+    );
+  });
+
+  it('does not let a fence carrying an info string close a block', () => {
+    const content = [
+      '```',
+      '[y](docs/y.md)',
+      '```ts',
+      '[w](docs/w.md)',
+      '```',
+      '[z](docs/z.md)',
+    ].join('\n');
+
+    expect(rewriteRelativeLinks(content, '.claude/CLAUDE.md')).toBe(
+      ['```', '[y](docs/y.md)', '```ts', '[w](docs/w.md)', '```', '[z](../docs/z.md)'].join('\n'),
+    );
+  });
+
+  it('opens a block from a fence that carries an info string', () => {
+    const content = ['```md', '[y](docs/y.md)', '```', '[z](docs/z.md)'].join('\n');
+
+    expect(rewriteRelativeLinks(content, '.claude/CLAUDE.md')).toBe(
+      ['```md', '[y](docs/y.md)', '```', '[z](../docs/z.md)'].join('\n'),
+    );
+  });
+
   it('does not let a tilde fence close a backtick fence', () => {
     const content = ['```', '~~~', '[y](docs/y.md)', '```', '[z](docs/z.md)'].join('\n');
 
@@ -368,6 +452,28 @@ describe('findBrokenLinks', () => {
   it('resolves a percent-encoded path before checking', () => {
     writeFileSync(join(tmpDir, 'a b.md'), 'x', 'utf8');
     expect(findBrokenLinks('[a](a%20b.md)', tmpDir)).toEqual([]);
+  });
+
+  it('reports a path that climbs out of the repository', () => {
+    expect(findBrokenLinks('[a](../outside.md)', tmpDir)).toEqual(['../outside.md']);
+  });
+
+  it('reports an escaping path even when the file outside the root exists', () => {
+    // The sibling genuinely exists on disk. It is still broken: links are repo-relative, and
+    // resolving this one would stat a file outside the repository.
+    const sibling = mkdtempSync(join(tmpdir(), 'sync-agent-outside-'));
+    writeFileSync(join(sibling, 'outside.md'), 'x', 'utf8');
+
+    try {
+      const href = `../${basename(sibling)}/outside.md`;
+      expect(findBrokenLinks(`[a](${href})`, tmpDir)).toEqual([href]);
+    } finally {
+      rmSync(sibling, { recursive: true });
+    }
+  });
+
+  it('reports a percent-encoded escaping path', () => {
+    expect(findBrokenLinks('[a](%2e%2e/outside.md)', tmpDir)).toEqual(['%2e%2e/outside.md']);
   });
 
   it('every relative link in AGENTS.md resolves', () => {

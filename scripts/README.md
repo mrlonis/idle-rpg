@@ -47,18 +47,19 @@ Details worth knowing:
 
 - **Left alone:** external URLs (`https:`, `mailto:` — any scheme), protocol-relative hrefs (`//host/x`), bare anchors (`#section`), and root-absolute paths (`/docs/x.md`).
 - **Fragments survive:** `docs/milestones.md#status` becomes `../docs/milestones.md#status`.
-- **Fenced code blocks are skipped**, so a path-like string inside a directory tree or shell snippet is never rewritten. Backtick and tilde fences are tracked separately, so one cannot close the other.
+- **Rejected:** any path that climbs out of the repository (`../outside.md`, `a/../../b`, or a percent-encoded spelling). Links are repo-relative by definition, so an escaping one is treated as broken and aborts the run — it is never resolved against the filesystem, and never silently clamped to the root.
+- **Fenced code blocks are skipped**, so a path-like string inside a directory tree or shell snippet is never rewritten. Fence matching follows CommonMark: a closing fence uses the same character, is at least as long as the opening one, and carries no info string — so neither a tilde fence, a shorter fence, nor a ` ```ts ` line can close a block early.
 - **Images and titles are handled:** `![alt](path)` keeps its bang, and `[text](path "Title")` keeps its title. Angle-bracketed hrefs (`[text](<path>)`) keep their wrapper.
 - **Reference-style links are not supported.** `[text][ref]` with a separate `[ref]: path` definition is not matched and would not be rewritten — use inline links.
 
-Because a typo propagates to six files at once, the script resolves every repo-relative link against the repository root before writing and aborts the whole run if one is missing:
+Because a typo propagates to six files at once, the script resolves every repo-relative link against the repository root before writing and aborts the whole run if one does not land inside it:
 
 ```text
-AGENTS.md links to 1 path(s) that do not exist:
+AGENTS.md has 1 link(s) that do not resolve inside the repository:
 
   docs/nope.md
 
-Links are authored relative to the repository root. Nothing was written.
+Links are authored relative to the repository root, and may not climb above it with "..". Nothing was written.
 ```
 
 ### Usage
