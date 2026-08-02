@@ -107,8 +107,22 @@
   padding: 0.5rem 0.75rem;
 }
 
+// A link to the character sheet, styled as the name it replaces rather than as a link: a list
+// where every row is blue and underlined reads as a menu, not as a party. Hover and the focus
+// ring carry the affordance, and the 1.75rem floor keeps the tap target past the 24px minimum
+// that the bare line box would miss.
 .party__name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  color: t.$text;
   font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .party__detail {

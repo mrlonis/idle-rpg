@@ -247,6 +247,23 @@ describe('HomeView', () => {
       expect(el.querySelector('.party__list')?.textContent).toContain('Rin');
     });
 
+    it('links each name to that character sheet', async () => {
+      // Levelling somebody up is the reason to tap a name here, and the character sheet is
+      // where that happens — going via the roster screen to reach it is a wasted step.
+      const { el } = await render((_game, _battles, roster) => {
+        roster.frontRow.set([member('Rin', 'front', 1)]);
+        roster.backRow.set([member('Wren', 'back', 1)]);
+      });
+
+      const links = [...el.querySelectorAll<HTMLAnchorElement>('.party__name')];
+
+      expect(links.map((link) => link.textContent?.trim())).toEqual(['Rin', 'Wren']);
+      expect(links.map((link) => link.getAttribute('href'))).toEqual([
+        '/roster/rin',
+        '/roster/wren',
+      ]);
+    });
+
     it('refuses to start a fight with nobody fielded', async () => {
       // An empty party resolves as an immediate defeat, so the control says so instead of
       // letting the player walk into it.

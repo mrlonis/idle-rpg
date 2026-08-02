@@ -55,7 +55,14 @@
         <ul class="party__list">
           @for (member of rank.members; track member.defId) {
             <li class="party__member">
-              <span class="party__name">{{ member.name }}</span>
+              <!--
+                The name is the way straight to the character sheet, so levelling somebody up
+                is one tap from the idle screen rather than a trip through the roster. Same
+                target as the roster list's name, so both screens teach the same gesture.
+              -->
+              <a class="party__name" [routerLink]="['/roster', member.defId]">
+                {{ member.name }}
+              </a>
               <span class="party__detail">
                 {{ member.rarityLabel }} · Level {{ member.level }}
               </span>
