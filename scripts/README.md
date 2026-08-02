@@ -15,11 +15,13 @@ Many AI tools load their context from tool-specific files in fixed locations (`.
 ### How it works
 
 1. Reads `AGENTS.md` from the repository root.
-2. Normalises trailing whitespace and line endings.
-3. Writes the content to each selected target file, creating any missing parent directories automatically.
-4. For the Cursor target (`.cursor/rules/cursor.mdc`) it prepends a YAML front-matter header that Cursor requires.
-5. Each file preserves its own existing line-ending style (LF or CRLF) so cross-platform repositories stay clean.
-6. In `--check` mode no files are written; the script exits with code `1` if any file is out of sync.
+2. Validates every repo-relative markdown link and exits with code `1` if any points at a path that does not exist — before writing anything.
+3. Normalises trailing whitespace and line endings.
+4. Rewrites each repo-relative link so it resolves from the target's own directory (see [Relative links](#relative-links)).
+5. Writes the content to each selected target file, creating any missing parent directories automatically.
+6. For the Cursor target (`.cursor/rules/cursor.mdc`) it prepends a YAML front-matter header that Cursor requires.
+7. Each file preserves its own existing line-ending style (LF or CRLF) so cross-platform repositories stay clean.
+8. In `--check` mode no files are written; the script exits with code `1` if any file is out of sync.
 
 ### Targets
 
@@ -31,6 +33,34 @@ Many AI tools load their context from tool-specific files in fixed locations (`.
 | `junie`    | `.junie/guidelines.md`                                    |
 | `windsurf` | `.windsurf/rules/guidelines.md`                           |
 | `cursor`   | `.cursor/rules/cursor.mdc` _(prepends YAML front-matter)_ |
+
+### Relative links
+
+The targets sit at three different depths, so a link that is correct in `AGENTS.md` is broken in every copy of it. **Author links relative to the repository root** — exactly as they resolve from `AGENTS.md` itself — and the script retargets each one per destination:
+
+| Authored in `AGENTS.md` | `.claude/CLAUDE.md` (depth 1) | `.windsurf/rules/guidelines.md` (depth 2) |
+| ----------------------- | ----------------------------- | ----------------------------------------- |
+| `docs/milestones.md`    | `../docs/milestones.md`       | `../../docs/milestones.md`                |
+| `src/core/battle/x.ts`  | `../src/core/battle/x.ts`     | `../../src/core/battle/x.ts`              |
+
+Details worth knowing:
+
+- **Left alone:** external URLs (`https:`, `mailto:` — any scheme), protocol-relative hrefs (`//host/x`), bare anchors (`#section`), and root-absolute paths (`/docs/x.md`).
+- **Fragments survive:** `docs/milestones.md#status` becomes `../docs/milestones.md#status`.
+- **Rejected:** any path that climbs out of the repository (`../outside.md`, `a/../../b`, or a percent-encoded spelling). Links are repo-relative by definition, so an escaping one is treated as broken and aborts the run — it is never resolved against the filesystem, and never silently clamped to the root.
+- **Fenced code blocks are skipped**, so a path-like string inside a directory tree or shell snippet is never rewritten. Fence matching follows CommonMark: a closing fence uses the same character, is at least as long as the opening one, and carries no info string — so neither a tilde fence, a shorter fence, nor a ` ```ts ` line can close a block early.
+- **Images and titles are handled:** `![alt](path)` keeps its bang, and `[text](path "Title")` keeps its title. Angle-bracketed hrefs (`[text](<path>)`) keep their wrapper.
+- **Reference-style links are not supported.** `[text][ref]` with a separate `[ref]: path` definition is not matched and would not be rewritten — use inline links.
+
+Because a typo propagates to six files at once, the script resolves every repo-relative link against the repository root before writing and aborts the whole run if one does not land inside it:
+
+```text
+AGENTS.md has 1 link(s) that do not resolve inside the repository:
+
+  docs/nope.md
+
+Links are authored relative to the repository root, and may not climb above it with "..". Nothing was written.
+```
 
 ### Usage
 

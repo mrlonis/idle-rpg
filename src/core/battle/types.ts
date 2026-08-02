@@ -683,7 +683,7 @@ export interface BattleResult {
   readonly outcome: BattleOutcome;
   /** Battle ticks elapsed. */
   readonly ticks: number;
-  /** Game milliseconds the fight represents — the raw material for `timeToClear`. */
+  /** Game milliseconds the fight represents. Used for display and for balance sweeps. */
   readonly durationMs: number;
   /** The opening line-up, both sides, at full HP. */
   readonly roster: readonly CombatantSnapshot[];
