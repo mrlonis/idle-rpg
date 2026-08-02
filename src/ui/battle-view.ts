@@ -179,9 +179,16 @@ function narrate(event: BattleEvent, names: ReadonlyMap<string, string>): string
     case 'status-expired':
       return `${who(event.target)} is no longer ${event.statusName}`;
     case 'cleanse':
+      // A count rather than the names, even though the event carries the ids it removed. The ids
+      // are `weaken` and `slow`, not `Weakened` and `Slowed` — resolving them to display names
+      // would mean threading a second lookup through here for a line that is read once and
+      // scrolls away. What the count does have to say is what it counts, or "cleanses 2 from
+      // Bran" leaves the reader to guess between effects, targets and stacks.
       return event.removed.length === 0
         ? null
-        : `${who(event.source)} cleanses ${event.removed.length} from ${who(event.target)}`;
+        : `${who(event.source)} cleanses ${event.removed.length} ${
+            event.removed.length === 1 ? 'effect' : 'effects'
+          } from ${who(event.target)}`;
     case 'tick-damage':
       return `${who(event.target)} takes ${formatNumeric(event.damage.round(), 1)} from ${event.statusName}`;
     case 'tick-heal':
