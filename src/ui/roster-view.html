@@ -51,12 +51,24 @@
             <span>{{ entry.role }}</span>
             <span>{{ entry.rarityLabel }}</span>
           </p>
+          <!--
+            The copies count carries the ascended tier's colour once the next rung is payable,
+            so a roster can be scanned for "who can I ascend" without opening every sheet. The
+            row also says so in words: colour is never the only signal, and a rung whose price
+            is entirely faction fodder is payable with no spare copies of its own to colour.
+          -->
           <p class="roster__stats">
             Level {{ entry.level }}/{{ entry.levelCap }}
             @if (entry.copies > 0) {
-              · {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
+              ·
+              <span class="roster__copies" [class.roster__copies--ready]="entry.canAscend">
+                {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
+              </span>
             }
             · {{ placementLabel(entry.row, entry.rowSlot) }}
+            @if (entry.canAscend) {
+              · <span class="roster__ready">ready to ascend</span>
+            }
           </p>
         </div>
 

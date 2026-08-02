@@ -165,6 +165,17 @@
   @include t.numeric;
 }
 
+// Ascension-ready, in the colour the ascended tier already owns — the thing being signalled is
+// ascension, so borrowing that colour is one less thing for a player to learn. 7.4:1 on
+// $surface, and paired with "ready to ascend" in the same line so colour is never the only
+// carrier: a rung paid entirely in faction fodder is payable with zero spare copies, and there
+// would be no count to colour at all.
+.roster__copies--ready,
+.roster__ready {
+  color: t.$tier-ascended;
+  font-weight: 600;
+}
+
 .roster__toggle {
   white-space: nowrap;
   @include t.button-quiet;
