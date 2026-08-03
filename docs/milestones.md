@@ -23,7 +23,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
 | 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
 | 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
-| 8   | Gear                                   | ⬜                                           |
+| 8   | Power that compounds                   | ⬜                                           |
+| 9   | Chapters                               | ⬜                                           |
+| 10  | Gear                                   | ⬜                                           |
 
 ---
 
@@ -662,6 +664,18 @@ Note that ×1.4 a stage is **fitted to the existing curve, not derived from a tu
 The table says what the current slope implies; it does not say that 19 or 24 is the right ladder
 length. That is a design decision this informs rather than settles.
 
+**Milestone 9 settles it, and moves the goalposts.** The table above treats "level 1000 in a
+reasonable time" as the target to tune toward. Under the chapter structure that target is wrong:
+1000 is deliberately a chapter-100 goal, roughly 9,500 stages out, and the cap being unreachable
+in chapter 1 is the intent rather than the bug. What survives from this section is the diagnosis
+— income that freezes permanently with nothing left to clear — not the prescription.
+
+So treat this milestone's stages as **the last of the flat, hand-tuned ladder**: enough content
+to exercise auto-battle against something, and the opening stretch of what becomes chapter 1.
+Their rates get re-derived in milestone 9 when rates stop being an authored field, and the whole
+curve is retuned in milestone 8. **Do not over-invest in tuning them here** — anything past
+"auto-battle has a ladder to chew on" is work that gets done twice.
+
 Two things guard the work. [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates
 off the top of `STAGES` rather than restating them, so **every stage added re-runs the entire
 time-to-afford table**; when it fails, the curve and the economy have come apart and the answer
@@ -673,7 +687,7 @@ The new stages need locks, not bigger numbers. Milestone 4's six archetypes each
 and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
 for those before authoring a stat block that is stage 12 with a multiplier on it.
 
-### 3. Gear moves to milestone 8
+### 3. Gear moves to milestone 10
 
 Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
 deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
@@ -684,9 +698,191 @@ it later — [`core/currency.ts`](../src/core/currency.ts),
 comfortable currency in the game for a reason that has not shipped, and the ladder extension
 above makes it comfortable to the point of meaninglessness.
 
-That makes gear the natural next milestone rather than part of this one: it is a second sink and
-a second axis of decision, and it is large enough that folding it in here would be the same
-mistake as "prestige layer, then content" — two milestones on one line.
+That makes gear its own milestone rather than part of this one: it is a second sink and a second
+axis of decision, and it is large enough that folding it in here would be the same mistake as
+"prestige layer, then content" — two milestones on one line. It sits at **10**, after the
+scaling rework and the chapter structure, so its power budget is designed against the curve it
+has to live in rather than being tuned twice.
+
+## 8. Power that compounds
+
+**Both sides of the fight scale, or neither does.** This milestone makes levelling and ascension
+dramatically more powerful, and gives enemies their own levels so the ladder survives it. Those
+are one job, not two: raising the player's curve without raising the enemy's does not create a
+power fantasy, it deletes the content. Splitting them across two milestones would leave the game
+unplayable in between, which is the one thing the ordering exists to prevent.
+
+### What "more dramatic" has to mean numerically
+
+Today the game grows at `1.0075` per level at common tier and `1.12` per ascension rung. Across
+the full level range that is three orders of magnitude — a gentle slope, not an incremental
+game. The shape to aim for:
+
+| Per level      | Multiplier at level 1000 |
+| -------------- | ------------------------ |
+| 1.0075 (today) | ×1.7e3                   |
+| 1.014          | ×1.1e6                   |
+| 1.021          | ×1.0e9                   |
+| 1.028          | ×9.6e11                  |
+
+**This costs nothing architecturally, and that is not luck.** `core/numeric.ts` already wraps
+`break_infinity`, so quantities past float64's 9e15 are already the working type everywhere.
+AGENTS.md hedged that dependency — "add `break_infinity.js` only if the curve actually demands
+it". The curve now demands it, and the hedge can be retired.
+
+### The stomp requirement is testable, so test it
+
+"Go idle for a long time, come back, level up, and stomp stages until the next wall" is a
+property, not a feeling: **an idle window of length T must buy levels that convert into a run of
+at least N cleared stages.** Write that as a spec over the ladder and tune against it. Tuning
+compounding curves by feel is how an incremental game ends up either trivial or a wall, and the
+5th-percentile player is the one who finds out first.
+
+### Ascension has to move more than levelling does
+
+`perAscension` is `1.12`, worth ×4.36 across the full rung ladder. If levelling delivers ×10⁹
+and ascension delivers ×4, **the gacha stops mattering** — duplicates are the primary
+progression path by design, and a progression path worth ×4 against a levelling path worth a
+billion is decoration. For scale: ×1.35 a rung is ×49 across the ladder, ×1.6 is ×450, ×2.0 is
+×8,192. Pick the ascension multiplier against the levelling one deliberately, in that order.
+
+### Enemies become instances rather than stat blocks
+
+An enemy becomes a definition plus a level, tier and rarity — the machinery `core/roster/`
+already runs for characters, pointed at the other side of the board. Two consequences, and the
+second is why hand-authored chapters are viable at all:
+
+1. **Locks stay locks.** A Marsh Acolyte with a fixed stat block is a puzzle the player solves
+   once and never again; at ×10⁹ it is a rounding error. Milestone 4's whole thesis — that
+   composition matters because enemies ask questions — holds late-game **only** if the enemy
+   asking scales alongside the party answering. That is the real reason the vision says
+   composition matters more late than early, and it is a consequence of this change rather than
+   an assertion about it.
+2. **Authoring collapses.** A stage stops being a set of authored stat blocks and becomes a short
+   line naming archetypes and a level. See milestone 9.
+
+### What survives the rescale and what quietly does not
+
+- **Multiplicative edges survive at any magnitude.** The faction matrix's 5–10% is 5–10% whether
+  the numbers are 10² or 10¹². Milestone 4's matchup design needs no rework, which is a point in
+  favour of how it was built.
+- **Anything additive or threshold-shaped does not.** A flat bonus, or any authored constant
+  compared against a scaling quantity, silently becomes a no-op. Audit for these rather than
+  waiting to notice.
+- **The non-scaling stats stay non-scaling.** `spd`, the probabilities, penetration and `mp` are
+  bounded for termination and metering reasons a bigger power curve does not touch — see
+  milestone 4. A compounding game makes it **more** important that `spd` cannot grow, not less.
+- **The tier fall-off is the thing to preserve on purpose.** Common tier is meant to be a genuine
+  early answer that becomes a joke at cap. Steepening every tier by the same factor preserves
+  that ratio; steepening them unevenly is a retune of milestone 3's central promise and should be
+  a decision somebody made, not a side effect of picking three numbers.
+
+**No save migration.** Growth lives in `data/` and levels are stored rather than power, so every
+existing save re-derives its stats on load.
+
+**One thing this milestone does not answer:** what the growth axis is once a character actually
+reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
+hole milestone 7 diagnosed, moved further down the ladder rather than filled. Gear, ascension
+rungs past `ascended-5`, and roster breadth are the candidates. Decide it before it arrives.
+
+## 9. Chapters
+
+Stages group into chapters. Chapter size steps every ten chapters and caps at 200:
+
+| Chapters | Stages each | Running total |
+| -------- | ----------- | ------------- |
+| 1–10     | 50          | 500           |
+| 11–20    | 60          | 1,100         |
+| 21–30    | 70          | 1,800         |
+| 31–40    | 80          | 2,600         |
+| 41–50    | 90          | 3,500         |
+| …        | …           | …             |
+| 91–100   | 140         | 9,500         |
+| 151+     | 200 (cap)   | 20,000 at 160 |
+
+**Every tenth stage is a mini-boss formation and the last stage of a chapter is a true boss.** A
+50-stage chapter has mini-bosses at 10, 20, 30 and 40 with its boss at 50; a 200-stage chapter
+has nineteen mini-bosses. The level cap is sized against this: reaching level 1000 around chapter
+100 is roughly **9.5 stages per level**, which is the anchor to tune income and cost against.
+
+### Idle income becomes a function, and that is what makes the scale survivable
+
+`rates` is authored per stage today. Nine and a half thousand authored rate tables is not
+something anyone maintains, so income becomes a function of chapter and stage index. **Every
+clear still raises all four rates** — that contract is the whole idle loop and it is not up for
+negotiation at 50 stages a chapter any more than it was at 12.
+
+Two things fall out of it, and both are improvements:
+
+- **`reconcileClearedStages` gets simpler, not harder.** Rates become a function of the
+  high-water mark, so the load-time repair evaluates a function instead of re-summing an authored
+  table — and the rule it exists to enforce (crediting progress and paying for it are the same
+  operation, see milestone 3) gets easier to hold, not harder.
+- **`clearedStages` stops being a per-stage record.** Progression is linear, so a high-water mark
+  carries the same information at a fraction of the save footprint. Thousands of individual
+  entries in a save that has to survive repair is a cost with nothing bought by it.
+
+### Stages are hand-authored, and here is when that stops working
+
+**The decision is that every stage is authored by hand rather than generated.** Milestone 8 is
+what makes that viable: a stage is a short line naming archetypes and a level, not a set of
+hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
+difficulty curve cannot.
+
+The arithmetic is recorded here so the decision stays re-checkable instead of becoming folklore:
+**100 stages** for the first two chapters, **500** for the first band, **9,500** to reach chapter
+100, **18,000** by the time the 200-stage cap arrives at chapter 151. The first two chapters are
+comfortably hand-authored. The first band is a real but finite job. Chapter 100 is not
+hand-authorable by anyone, and the honest form of this plan says so rather than discovering it at
+chapter 30.
+
+If the ladder genuinely heads that far, the technique is **generation from a difficulty curve
+with hand-authored set-pieces** — mini-bosses and bosses stay authored, ordinary stages get
+generated against a tuned reference. Do not build that speculatively; this paragraph is the
+trigger, and the trigger is "authoring a chapter has stopped being an afternoon", not a stage
+count.
+
+### Enemy tier and rarity across the bands
+
+From the long-term vision, normalised — the original had chapter 20 in two bands:
+
+| Chapters | Enemy tiers          |
+| -------- | -------------------- |
+| 1–10     | common               |
+| 11–20    | common + legendary   |
+| 21–30    | legendary            |
+| 31–40    | legendary + ascended |
+| 41–50    | ascended             |
+
+Mini-bosses and chapter bosses sit a step above their band. Past chapter 50 the three tiers are
+exhausted, and **enemy rarity — the ascension ladder — takes over**, with level scaling
+underneath the whole way. That is what the vision's "enemies should have their own levels _and_
+ascensions" actually buys: two axes that outlast the tier vocabulary, so the enemy side has
+somewhere to go for as long as the player side does.
+
+### Ship two chapters
+
+Chapters 1 and 2, 50 stages each. The existing twelve become chapter 1's opening.
+
+**Both sit in the first band, so shipping them proves the chapter _flow_ but not the size
+formula** — the boundary, the boss, whatever unlocks on clearing a chapter, and income
+continuity across the seam all get exercised; the step to 60 stages does not arrive until chapter 11. Build the formula anyway and test it directly rather than inferring it from two chapters that
+happen to be the same length.
+
+Save v5: `stage` becomes a chapter and a stage within it. Existing saves map to chapter 1 — and
+per milestone 3's rule, the migration credits nothing it cannot pay for, leaving the load-time
+repair to settle rates from the high-water mark.
+
+## 10. Gear
+
+The second progression axis, and the third leg of the power fantasy alongside levels and
+ascension. Milestone 7 records why it is owed: four places in the codebase state that gold's
+coefficient is the shallowest of the three **because** gear will spend it later, and the ladder
+extension makes gold comfortable to the point of meaninglessness.
+
+It lands here, last, because its power budget only means something against the curve from
+milestone 8 and the content shape from milestone 9. Built earlier, it gets tuned twice — and the
+second tuning would be against numbers nine orders of magnitude away from the first.
 
 ## Later: the two auto-battles
 
