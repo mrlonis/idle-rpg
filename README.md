@@ -59,7 +59,7 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
-docs/     Long-form project documentation. Roadmap, glossary, attributes, ascension.
+docs/     Roadmap, glossary, attributes, combat, economy, ascension, saves.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.
