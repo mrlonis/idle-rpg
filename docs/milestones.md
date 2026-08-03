@@ -29,10 +29,11 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 11  | Chapters                               | ⬜                                           |
 | 12  | Gear                                   | ⬜                                           |
 | 13  | Settings, and the save-safety gap      | ⬜                                           |
-| 14  | Dailies and notifications              | ⬜                                           |
+| 14  | Dailies, bounties and notifications    | ⬜                                           |
 | 15  | Faction towers                         | ⬜                                           |
 | 16  | Deep per-hero investment               | ⬜                                           |
 | 17  | The roguelite run                      | ⬜                                           |
+| 18  | Puzzle maps                            | ⬜                                           |
 
 ---
 
@@ -1093,6 +1094,44 @@ Two things fall out of it, and both are improvements:
   carries the same information at a fraction of the save footprint. Thousands of individual
   entries in a save that has to survive repair is a cost with nothing bought by it.
 
+#### Summon crystals must come off the exponential curve
+
+**A rate should compound only if what it buys compounds.** Gold, xp and essence buy levels, and
+level costs compound, so those three belong on the exponential. Summon crystals buy a pull at a
+flat 8 crystals, feeding an ascension at a flat 8 elite plus 180 rare copies. A compounding rate
+against a flat price outruns it exponentially, and the current curve does exactly that — summons
+climb ×1.25 a stage against gold's ×1.43, which looks conservative and is not:
+
+| Stage                | Pulls per day |
+| -------------------- | ------------- |
+| 12 (today)           | 194           |
+| 24                   | 2,924         |
+| 50 (chapter 1 ends)  | 1,039,386     |
+| 110 (chapter 2 ends) | 8 × 10¹¹      |
+
+**The damage is not to the gacha, it is to ascension.** Milestone 15 rests on towers costing
+ascension even though resonance makes levelling free, and milestone 16 is fed by duplicates. Both
+arguments collapse if pulls are effectively unlimited by chapter 2 — ascension stops being a
+constraint and two milestones lose the thing that made them decisions.
+
+Fix it here, when the curve is being written down, rather than discovering it at chapter 3. The
+options are to take summons off the exponential entirely (linear or logarithmic in stage index),
+to scale ascension costs with chapter, or both. **This is not a reason to be less generous.** The
+crystal rate is the most distinctive thing about this game's economy and it should stay
+extravagant; what has to change is that it stops compounding against a price that does not.
+
+### The offline cap grows with content
+
+`OFFLINE_CAP_MS` is a fixed ten hours, and AGENTS.md sanctions anything in 8–12h. Make it a
+progression axis instead: start it lower and extend it as chapters fall.
+
+**It is the one reward in the genre that asks less of the player rather than more.** Every other
+unlock is a reason to open the app; a longer cap is permission to close it and still be paid.
+That is exactly the right shape for a game whose pitch is a time economy with nothing to sell,
+and it costs a single constant becoming a function of the high-water mark. The clamp, the
+backwards-clock guard and the closed form in `core/offline.ts` are all unchanged — only the bound
+moves.
+
 ### Stages are hand-authored, and here is when that stops working
 
 **The decision is that every stage is authored by hand rather than generated.** Milestone 10 is
@@ -1210,7 +1249,7 @@ The trigger to revisit is a real report of a lost run, not a hypothetical. Two a
 it is the only way to know the table above survives contact with a device — the same argument
 milestone 6 made for running on a phone early, which found a bug nothing else would have.
 
-## 14. Dailies, and a reason to open the app tomorrow
+## 14. Dailies, bounties, and a reason to open the app tomorrow
 
 Nothing currently rewards opening the app except idle income the player would collect anyway.
 
@@ -1229,6 +1268,22 @@ reset boundary is therefore supplied by the caller and never read from `new Date
 simulation. The backwards-clock rule applies unchanged: a device clock that moves back must not
 hand out a second day of rewards and must not punish either. Clamp; do not detect. There is
 nothing to protect.
+
+### The bounty board
+
+Dispatch characters on timed missions that pay out on a clock. It belongs in this milestone
+rather than its own because it needs exactly the machinery dailies already build — a claim ledger
+and a caller-supplied time boundary — and building that twice would be the waste.
+
+It earns its place for a reason dailies do not cover: **it is the only system that pays you for
+characters you are not fighting with.** Dispatched characters come off the bench, so a wide roster
+becomes worth something before faction bonuses or towers ask for it, and a duplicate-heavy run has
+a use for breadth from the moment it starts. It is also the gentlest return hook in the genre — a
+mission finishing in four hours is a reason to come back that costs the player nothing if they
+do not.
+
+Keep dispatch and the formation **disjoint**: a character cannot be both fighting and away. That
+is what makes it a bench sink rather than a free resource tap, and it is the whole of the design.
 
 ### Local notifications
 
@@ -1279,6 +1334,16 @@ cap is what limits how much of the floor a bench character can collect. So crewi
 real investment decision, just not a levelling grind. That is the intended shape — if towers ever
 feel free, the cap clause in milestone 9 is the thing that has stopped working.
 
+### Saved team presets
+
+Pure quality of life, and it becomes unavoidable precisely here. Seven towers plus the campaign is
+eight lineups, and by milestone 17 it is more than that — all reassembled slot by slot from a
+roster of dozens every time the player switches mode.
+
+**The absence of this is what makes multi-mode content feel like admin rather than depth.** It is
+the cheapest thing in this milestone and the one most likely to be cut for being unglamorous; the
+note is here so that cutting it is a decision rather than an oversight.
+
 ## 16. Deep per-hero investment
 
 **The answer to the question milestone 10 leaves open** — what grows once a character reaches
@@ -1310,6 +1375,45 @@ a question mid-flight.
 **Do not build it before towers.** It is the most interesting thing on this list and the least
 structural, and taking it first would be choosing the fun problem over the one blocking
 everything else.
+
+## 18. Puzzle maps
+
+**The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
+roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
+small authored map with a restricted roster, one-way gates, teleporters, buffs found along the
+way, and a correct route through it. Peaks of Time is the reference.
+
+It is fully offline and it needs no system this project lacks — the battle simulator, the
+formation, and the status vocabulary already do everything a map needs. What it needs is
+**authoring**, and that is the whole of the argument against it: every map is hand-designed with
+no curve to generate from, no sweep to validate it, and no way to know it is solvable except by
+solving it. Milestone 11 records the point at which hand-authoring stages stops scaling; this is
+that problem without the escape hatch of generation.
+
+So it is last, and it is honestly the one item here a solo developer might decide not to want.
+It is written down because it is the thing that makes the genre's best games feel like more than
+a number going up — and skipping it should be a decision made on the cost, not a gap nobody
+noticed.
+
+## Not a milestone: the simulation harness is the only feedback loop
+
+**There is no telemetry and there never will be**, because there is no server. Nobody will ever
+know which stage players actually wall on, which characters go unused, or how many runs end in the
+first hour. The genre's tuning is done against millions of players; this game has a sample size of
+one, and that one already knows the answers.
+
+Two things follow, and both are load-bearing:
+
+- **The balance sweep is not a testing convenience, it is the substitute for players.** AGENTS.md
+  defers a separate `*.balance.ts` project until the fast suite "stops being tolerable", which
+  frames it as a performance concern. It is not — it is the only instrument this project will ever
+  have for finding out whether the game is tuned. Milestones 8 through 11 each change what a
+  battle costs, and a sweep is the only thing that will notice.
+- **A bad curve cannot be hotfixed.** Every balance change ships through App Store review, so the
+  gap between shipping a wall and fixing it is measured in days. That is a standing argument for
+  erring generous everywhere: an over-tuned wall you cannot see and cannot quickly fix is the one
+  failure mode with no recovery, and the philosophy this project already holds is also its
+  insurance policy.
 
 ## Not a milestone: the presentation track
 
