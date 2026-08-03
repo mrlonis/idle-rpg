@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { zeroRates } from './currency';
 import { num } from './numeric';
-import { accrueDiscrete, OFFLINE_CAP_MS, resume } from './offline';
+import { accrueDiscrete, MIN_PLAUSIBLE_TICK_MS, resume } from './offline';
 import { newGame, type GameState } from './state';
 import { tick } from './tick';
 
@@ -35,13 +35,12 @@ function relativeError(actual: string, expected: string): number {
 }
 
 describe('resume', () => {
-  it('pays out rate * elapsed for a window under the cap', () => {
+  it('pays out rate * elapsed', () => {
     const state = stateWithRate('250');
 
     const { state: resumed, report } = resume(state, T0 + 60_000);
 
     expect(report.elapsedMs).toBe(60_000);
-    expect(report.wasCapped).toBe(false);
     expect(report.earned.gold.toString()).toBe('15000');
     expect(resumed.wallet.gold.toString()).toBe('15000');
   });
@@ -54,16 +53,39 @@ describe('resume', () => {
     expect(resumed.lastTickAt).toBe(T0 + 5_000);
   });
 
-  it('clamps the payout at OFFLINE_CAP_MS and flags it', () => {
+  it('pays the whole window however long it is, because there is no cap', () => {
+    // The genre caps offline income to force a daily session. This game does not: come back a
+    // year later and it pays a year. Deleting this test is deleting a product decision.
     const state = stateWithRate('1');
-    const away = OFFLINE_CAP_MS + 6 * 60 * 60 * 1000;
+    const year = 365 * 24 * 60 * 60 * 1000;
 
-    const { report } = resume(state, T0 + away);
+    const { report } = resume(state, T0 + year);
 
-    expect(report.rawElapsedMs).toBe(away);
-    expect(report.elapsedMs).toBe(OFFLINE_CAP_MS);
-    expect(report.wasCapped).toBe(true);
-    expect(report.earned.gold.toString()).toBe(String(OFFLINE_CAP_MS / 1000));
+    expect(report.rawElapsedMs).toBe(year);
+    expect(report.elapsedMs).toBe(year);
+    expect(report.earned.gold.toString()).toBe(String(year / 1000));
+  });
+
+  it('pays nothing when lastTickAt predates the project, which is damage rather than absence', () => {
+    // A timestamp of zero is finite and yields a positive delta, so it passes both other guards.
+    // With no cap overhead there is nothing else to stop it paying out decades of income and
+    // silently wrecking a run's pacing.
+    const state = { ...withGold(stateWithRate('100'), '500'), lastTickAt: 0 };
+
+    const { state: resumed, report } = resume(state, T0);
+
+    expect(report.elapsedMs).toBe(0);
+    expect(report.earned.gold.toString()).toBe('0');
+    expect(resumed.wallet.gold.toString()).toBe('500');
+  });
+
+  it('treats the plausibility floor as inclusive, so a save written at the boundary still pays', () => {
+    const state = { ...stateWithRate('2'), lastTickAt: MIN_PLAUSIBLE_TICK_MS };
+
+    const { report } = resume(state, MIN_PLAUSIBLE_TICK_MS + 10_000);
+
+    expect(report.elapsedMs).toBe(10_000);
+    expect(report.earned.gold.toString()).toBe('20');
   });
 
   it('pays nothing when the device clock moved backwards, without going negative', () => {
@@ -103,7 +125,7 @@ describe('closed-form resume vs stepwise accrual', () => {
   it.each([
     { label: '1 minute at 10Hz', durationMs: 60_000, dtMs: 100, rate: '250' },
     { label: '1 hour at 10Hz', durationMs: 60 * 60 * 1000, dtMs: 100, rate: '1e6' },
-    { label: '10 hours at 10Hz (the cap)', durationMs: OFFLINE_CAP_MS, dtMs: 100, rate: '1' },
+    { label: '10 hours at 10Hz', durationMs: 10 * 60 * 60 * 1000, dtMs: 100, rate: '1' },
     { label: '1 hour at 6Hz', durationMs: 60 * 60 * 1000, dtMs: 160, rate: '1e18' },
   ])('matches within 1e-12 relative error: $label', ({ durationMs, dtMs, rate }) => {
     const start = stateWithRate(rate);

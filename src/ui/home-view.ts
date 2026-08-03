@@ -144,7 +144,6 @@ export class HomeView {
     return {
       duration: formatDuration(report.elapsedMs),
       earned,
-      wasCapped: report.wasCapped,
     };
   });
 

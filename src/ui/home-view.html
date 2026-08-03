@@ -16,9 +16,6 @@
 @if (offlineSummary(); as summary) {
   <p class="notice" role="status">
     While you were away for {{ summary.duration }}, you earned {{ summary.earned }}.
-    @if (summary.wasCapped) {
-      <span class="notice__detail">Offline earnings are capped — come back sooner!</span>
-    }
   </p>
 }
 

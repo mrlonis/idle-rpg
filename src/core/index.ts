@@ -215,7 +215,7 @@ export {
 export {
   accrueDiscrete,
   EMPTY_OFFLINE_REPORT,
-  OFFLINE_CAP_MS,
+  MIN_PLAUSIBLE_TICK_MS,
   paidNothing,
   resume,
   type DiscreteAccrual,

@@ -425,15 +425,16 @@ Three decisions worth not re-litigating:
 ## 5. Offline catch-up — **COMPLETE**
 
 Shipped and tested in [`core/offline.ts`](../src/core/offline.ts): the continuous fixed-rate
-closed form settling all four rate-bearing currencies in one pass, the `[0, OFFLINE_CAP_MS]`
-clamp at ten hours, the backwards-clock guard, and a non-finite guard for a damaged
-`lastTickAt`. `resume()` is called on load from `ui/game-loop.service.ts` and its report is
-rendered on the home screen, so the path is wired end to end rather than merely available.
+closed form settling all four rate-bearing currencies in one pass, the backwards-clock guard, and
+a non-finite guard for a damaged `lastTickAt`. `resume()` is called on load from
+`ui/game-loop.service.ts` and its report is rendered on the home screen, so the path is wired end
+to end rather than merely available.
 
-**The ten-hour cap is since retired** — see milestone 11. There is no offline cap at all: a year
-away pays a year. The closed form was always O(1) in elapsed time, so the ceiling was never
-buying performance; it was a genre reflex, and the only thing it did on purpose was bound a
-corrupt timestamp.
+**The ten-hour cap this originally shipped with has since been deleted** — see milestone 11.
+There is no offline cap at all: a year away pays a year. The closed form was always O(1) in
+elapsed time, so the ceiling was never buying performance; it was a genre reflex, and the only
+thing it did on purpose was bound a corrupt timestamp — a job `MIN_PLAUSIBLE_TICK_MS` now does
+deliberately.
 
 The project's highest-value invariant is pinned in
 [`offline.spec.ts`](../src/core/offline.spec.ts): the closed form agrees with stepwise accrual,
@@ -1125,27 +1126,32 @@ to scale ascension costs with chapter, or both. **This is not a reason to be les
 crystal rate is the most distinctive thing about this game's economy and it should stay
 extravagant; what has to change is that it stops compounding against a price that does not.
 
-### The offline cap is deleted, not raised
+### The offline cap is gone — **DONE**
 
-`OFFLINE_CAP_MS` is a fixed ten hours today. **Remove it.** Come back a year later and the game
-pays a year.
+Shipped ahead of this milestone, because leaving `AGENTS.md` saying "there is no offline cap"
+while `OFFLINE_CAP_MS` still clamped would have had every later session building on a false
+premise. Come back a year later and the game pays a year.
 
-This costs nothing to allow, which is the point: `resume()` is a closed form, so a year settles in
-the same O(1) as an hour, and `Numeric` is a `break_infinity` Decimal, so the quantities do not
-overflow. **The genre caps offline income to force a daily session.** There is no session to force
-here and nothing to sell by forcing it, so the cap was inherited rather than chosen.
+It cost nothing to allow, which is the point: `resume()` is a closed form, so a year settles in
+the same O(1) as an hour — 315 million ticks that never run — and `Numeric` is a
+`break_infinity` Decimal, so the quantities do not overflow. **The genre caps offline income to
+force a daily session.** There is no session to force here and nothing to sell by forcing it, so
+the cap was inherited rather than chosen.
 
-It is a few lines — `elapsedMs` stops being clamped from above and `wasCapped` leaves the resume
-report — so it can land any time; it sits in this milestone only because this is where the idle
-economy is already open.
+Two things came with it that were not obvious from the outside:
 
-**One thing the cap was doing that nothing else does.** It bounded a damaged `lastTickAt`. A
-timestamp of zero is finite and produces a positive delta, so it passes both existing guards, and
-without the ceiling it pays out decades — silently destroying a run's pacing without the player
-ever choosing it. That is the same class of harm as the milestone 3 migration bug: an unnoticed,
-unrecoverable change to somebody's run. **Reject implausible timestamps instead**: anything
-predating the project is corruption rather than an absence, and pays zero exactly as a non-finite
-delta already does. A constant, not a save field, and no migration.
+- **The cap was bounding a damaged `lastTickAt`, and nothing else was.** A timestamp of zero is
+  finite and produces a positive delta, so it passes both other guards; without the ceiling it
+  pays out decades and silently destroys a run's pacing without the player ever choosing it —
+  the same class of harm as the milestone 3 migration bug. `MIN_PLAUSIBLE_TICK_MS` replaces it:
+  a `lastTickAt` before 2020 is damage rather than an absence and pays zero, exactly as a
+  non-finite delta already does. A constant, not a save field, and no migration.
+- **`formatDuration` only went up to hours**, which was sufficient by construction while the
+  window was clamped at ten. Uncapped, a year away is a supported outcome and "8760 hours" is a
+  correct answer nobody can read, so it now carries days.
+
+`OFFLINE_CAP_MS` and `OfflineReport.wasCapped` are deleted, along with the home screen's "come
+back sooner" notice — which was the cap's only user-facing artefact and is now a lie.
 
 ### Stages are hand-authored, and here is when that stops working
 

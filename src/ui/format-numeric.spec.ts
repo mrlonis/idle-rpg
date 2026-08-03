@@ -120,6 +120,11 @@ describe('formatDuration', () => {
     { ms: 3_600_000, expected: '1 hour' },
     { ms: 7_200_000, expected: '2 hours' },
     { ms: 5_400_000, expected: '1h 30m' },
+    // Days exist because there is no offline cap; a year away is a supported outcome.
+    { ms: 23 * 3_600_000, expected: '23 hours' },
+    { ms: 24 * 3_600_000, expected: '1 day' },
+    { ms: 50 * 3_600_000, expected: '2d 2h' },
+    { ms: 365 * 24 * 3_600_000, expected: '365 days' },
   ])('formats $ms ms as "$expected"', ({ ms, expected }) => {
     expect(formatDuration(ms)).toBe(expected);
   });

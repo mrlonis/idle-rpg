@@ -124,6 +124,10 @@ export function formatAmounts(amounts: CurrencyAmounts): string | null {
  *
  * Deliberately imprecise: "about 3 hours" is what a returning player wants, not
  * "2h 58m 41s".
+ *
+ * **Days exist because there is no offline cap.** While the away window was clamped at ten
+ * hours, stopping at an hours unit was sufficient by construction. Uncapped, a year away is a
+ * supported outcome and "8760 hours" is a correct answer that no one can read.
  */
 export function formatDuration(ms: number): string {
   if (!Number.isFinite(ms) || ms <= 0) {
@@ -137,9 +141,17 @@ export function formatDuration(ms: number): string {
     return `${minutes} minute${minutes === 1 ? '' : 's'}`;
   }
   const hours = Math.floor(minutes / 60);
-  const remainder = minutes % 60;
-  if (remainder === 0) {
-    return `${hours} hour${hours === 1 ? '' : 's'}`;
+  if (hours < 24) {
+    const remainder = minutes % 60;
+    if (remainder === 0) {
+      return `${hours} hour${hours === 1 ? '' : 's'}`;
+    }
+    return `${hours}h ${remainder}m`;
   }
-  return `${hours}h ${remainder}m`;
+  const days = Math.floor(hours / 24);
+  const remainder = hours % 24;
+  if (remainder === 0) {
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  return `${days}d ${remainder}h`;
 }

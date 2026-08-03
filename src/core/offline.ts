@@ -3,21 +3,24 @@ import { type Numeric } from './numeric';
 import { type GameState } from './state';
 
 /**
- * The maximum offline window that is paid out, in milliseconds.
+ * The earliest `lastTickAt` treated as a real timestamp rather than as damage.
  *
- * This is a pacing lever, not a security one. There is no PvP and nothing to buy, so
- * winding the device clock forward costs nothing and is not defended against — the cap
- * exists purely so there is a reason to come back tomorrow.
+ * **There is no offline cap** — a year away pays a year — and removing it took away the ceiling
+ * that used to bound a corrupt `lastTickAt` incidentally. A damaged timestamp of zero is finite
+ * and produces a positive delta, so it passes every other guard here and would pay out decades
+ * of income, silently wrecking a run's pacing without the player ever choosing it.
+ *
+ * A literal rather than a `Date` expression, because `core/` has no clock. It is
+ * `2020-01-01T00:00:00Z`: comfortably before this project existed, and comfortably after the
+ * epoch-adjacent values that damage actually produces.
  */
-export const OFFLINE_CAP_MS = 10 * 60 * 60 * 1000;
+export const MIN_PLAUSIBLE_TICK_MS = 1_577_836_800_000;
 
 export interface OfflineReport {
-  /** The unclamped delta, for display and diagnostics. */
+  /** The raw delta, before the clock guards. For display and diagnostics. */
   readonly rawElapsedMs: number;
-  /** The delta actually paid out, after clamping to `[0, OFFLINE_CAP_MS]`. */
+  /** The delta actually paid out. Equal to `rawElapsedMs` unless a clock guard fired. */
   readonly elapsedMs: number;
-  /** `true` when the player was away longer than the cap. Worth surfacing in the UI. */
-  readonly wasCapped: boolean;
   /**
    * What was earned over the paid window, per currency.
    *
@@ -31,9 +34,10 @@ export interface OfflineReport {
  * Settles the away period and returns both the updated state and a report to show the
  * player.
  *
- * The elapsed window is never replayed tick by tick. Ten hours at 10Hz is 360,000
- * iterations on resume and would hang the device; every currency accrues at a fixed rate, so
- * the exact answer is one multiplication per currency.
+ * The elapsed window is never replayed tick by tick, and with no cap that argument stops being
+ * a nicety: a year at 10Hz is 315 million iterations on resume. Every currency accrues at a
+ * fixed rate, so the exact answer is one multiplication per currency and a year settles in the
+ * same O(1) as a minute. That is what makes an uncapped window affordable at all.
  *
  * **The rates are constant across any offline window**, which is what makes the closed form
  * exactly right rather than merely close. Battles only ever resolve with the app in the
@@ -44,18 +48,24 @@ export interface OfflineReport {
  * segmented solver and none is owed. Reversing the foreground-only rule is what would change
  * it; see `docs/milestones.md`.
  *
- * Two clock guards, neither of them anti-cheat:
+ * There is deliberately **no upper bound**. The genre caps offline income to force a daily
+ * session; there is no session to force here and nothing to sell by forcing it. Come back a year
+ * later and the game pays a year.
+ *
+ * Three clock guards, none of them anti-cheat:
  * - A negative delta means the device clock moved backwards. Clamp to zero and pay out
  *   nothing rather than punishing the player for a timezone change or an NTP correction.
  * - A non-finite delta means `lastTickAt` was damaged. Treat it as zero.
+ * - A `lastTickAt` below {@link MIN_PLAUSIBLE_TICK_MS} is damage rather than an absence, and
+ *   pays nothing. Without a cap overhead, nothing else would catch it.
  */
 export function resume(
   state: GameState,
   nowMs: number,
 ): { state: GameState; report: OfflineReport } {
   const rawElapsedMs = nowMs - state.lastTickAt;
-  const safeElapsedMs = Number.isFinite(rawElapsedMs) ? Math.max(rawElapsedMs, 0) : 0;
-  const elapsedMs = Math.min(safeElapsedMs, OFFLINE_CAP_MS);
+  const damaged = !Number.isFinite(rawElapsedMs) || state.lastTickAt < MIN_PLAUSIBLE_TICK_MS;
+  const elapsedMs = damaged ? 0 : Math.max(rawElapsedMs, 0);
 
   const earned = accrue(state.rates, elapsedMs / 1000);
 
@@ -68,7 +78,6 @@ export function resume(
     report: {
       rawElapsedMs,
       elapsedMs,
-      wasCapped: safeElapsedMs > OFFLINE_CAP_MS,
       earned,
     },
   };
@@ -115,6 +124,5 @@ export function accrueDiscrete(carry: number, expected: number): DiscreteAccrual
 export const EMPTY_OFFLINE_REPORT: OfflineReport = {
   rawElapsedMs: 0,
   elapsedMs: 0,
-  wasCapped: false,
   earned: zeroRates(),
 };
