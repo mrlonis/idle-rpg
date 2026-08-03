@@ -171,9 +171,20 @@ documented because they are the right techniques _if_ those product decisions ar
 — which would re-open [milestone 5](docs/milestones.md). Do not implement either speculatively,
 and do not add a `dropCarry` field.
 
-Clamp elapsed to `[0, CAP_MS]` where the cap is 8–12h. A negative delta means the device
-clock moved backwards; clamp to zero rather than punishing. Do not add clock-tamper
-defenses — there is nothing to protect.
+**There is no offline cap.** Come back a year later and the game pays a year. This is deliberate
+and it is not to be reintroduced: the genre caps offline earnings to force a daily session, which
+is the exact opposite of this game's pitch. It also costs nothing to allow — the closed form is
+O(1) in elapsed time, so a year settles as fast as an hour, and `Numeric` is already a
+`break_infinity` Decimal, so the quantities do not overflow.
+
+Clamp elapsed to `[0, ∞)`. A negative delta means the device clock moved backwards; clamp to zero
+rather than punishing. Do not add clock-tamper defenses — there is nothing to protect.
+
+**The cap used to bound a damaged `lastTickAt`, and that job now needs doing on purpose.** A
+timestamp of zero is finite and yields a positive delta, so it passes every guard `resume()` has
+and would pay out decades of income — silently wrecking a run's pacing without the player ever
+choosing it. Treat an implausible timestamp as damage rather than as an absence: anything
+predating the project is corruption, and pays zero exactly as a non-finite delta does.
 
 ---
 

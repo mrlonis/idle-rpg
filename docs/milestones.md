@@ -430,6 +430,11 @@ clamp at ten hours, the backwards-clock guard, and a non-finite guard for a dama
 `lastTickAt`. `resume()` is called on load from `ui/game-loop.service.ts` and its report is
 rendered on the home screen, so the path is wired end to end rather than merely available.
 
+**The ten-hour cap is since retired** — see milestone 11. There is no offline cap at all: a year
+away pays a year. The closed form was always O(1) in elapsed time, so the ceiling was never
+buying performance; it was a genre reflex, and the only thing it did on purpose was bound a
+corrupt timestamp.
+
 The project's highest-value invariant is pinned in
 [`offline.spec.ts`](../src/core/offline.spec.ts): the closed form agrees with stepwise accrual,
 asserted on relative error and checked at magnitudes past float64's exact-integer range.
@@ -1120,17 +1125,27 @@ to scale ascension costs with chapter, or both. **This is not a reason to be les
 crystal rate is the most distinctive thing about this game's economy and it should stay
 extravagant; what has to change is that it stops compounding against a price that does not.
 
-### The offline cap grows with content
+### The offline cap is deleted, not raised
 
-`OFFLINE_CAP_MS` is a fixed ten hours, and AGENTS.md sanctions anything in 8–12h. Make it a
-progression axis instead: start it lower and extend it as chapters fall.
+`OFFLINE_CAP_MS` is a fixed ten hours today. **Remove it.** Come back a year later and the game
+pays a year.
 
-**It is the one reward in the genre that asks less of the player rather than more.** Every other
-unlock is a reason to open the app; a longer cap is permission to close it and still be paid.
-That is exactly the right shape for a game whose pitch is a time economy with nothing to sell,
-and it costs a single constant becoming a function of the high-water mark. The clamp, the
-backwards-clock guard and the closed form in `core/offline.ts` are all unchanged — only the bound
-moves.
+This costs nothing to allow, which is the point: `resume()` is a closed form, so a year settles in
+the same O(1) as an hour, and `Numeric` is a `break_infinity` Decimal, so the quantities do not
+overflow. **The genre caps offline income to force a daily session.** There is no session to force
+here and nothing to sell by forcing it, so the cap was inherited rather than chosen.
+
+It is a few lines — `elapsedMs` stops being clamped from above and `wasCapped` leaves the resume
+report — so it can land any time; it sits in this milestone only because this is where the idle
+economy is already open.
+
+**One thing the cap was doing that nothing else does.** It bounded a damaged `lastTickAt`. A
+timestamp of zero is finite and produces a positive delta, so it passes both existing guards, and
+without the ceiling it pays out decades — silently destroying a run's pacing without the player
+ever choosing it. That is the same class of harm as the milestone 3 migration bug: an unnoticed,
+unrecoverable change to somebody's run. **Reject implausible timestamps instead**: anything
+predating the project is corruption rather than an absence, and pays zero exactly as a non-finite
+delta already does. A constant, not a save field, and no migration.
 
 ### Stages are hand-authored, and here is when that stops working
 
@@ -1291,10 +1306,20 @@ is what makes it a bench sink rather than a free resource tap, and it is the who
 it is compatible with the offline constraint in a way push notifications never could be.
 Schedule on background, cancel on foreground.
 
-Keep it to earned moments. The ten-hour offline cap being reached is a real event with a real
-cost to ignoring it, and telling a player about it is a service. A notification that exists to
-manufacture a session is the pattern this project rejects everywhere else, and shipping one would
-be the first place the app asked for the player's time rather than respecting it.
+**Removing the offline cap removed the only earned reason to send one, and that is worth facing
+rather than working around.** The justification used to be that the ten-hour ceiling was a real
+event with a real cost to ignoring it — income you had stopped accruing. With no cap, staying
+away costs nothing. Nothing is lost, so there is nothing to warn about.
+
+What is left is weak and should be judged as weak. A finished bounty is the only candidate, and
+even that is not a real cost: a completed mission sits there indefinitely, so the player loses
+nothing by not hearing about it.
+
+**So the default is to ship no notifications at all.** The rule this project holds everywhere else
+is that a notification existing to manufacture a session is the pattern it rejects — and once
+absence is free, every notification is that pattern by definition. Reintroduce them only if some
+future system creates a genuine cost to being away, and note that such a system would itself be
+worth questioning.
 
 ## 15. Faction towers, and something for a roster to be
 
