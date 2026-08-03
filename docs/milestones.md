@@ -386,7 +386,7 @@ investment, but it may not demand an ascended-tier pull, because there is no way
 Shipped:
 
 - `core/battle/types.ts` — rows, formations, the seventeen-stat block, the skill and status
-  vocabulary, and a thirteen-kind event log.
+  vocabulary, and a fourteen-kind event log.
 - `core/battle/status.ts` — buffs, debuffs, damage-over-time, shields and stuns. Quantities are
   **snapshotted at application**, so a poison does not stop hurting when its caster dies; that
   would make "kill the debuffer" the answer to every debuff, which is the same lock twice.

@@ -39,10 +39,16 @@ the run resumes where it left off.
 
 Ordered so there is **always something playable**: each step layers onto the previous skeleton
 without changing its shape, from the tick loop and save layer through combat, the gacha and
-formations, on to offline catch-up and a prestige layer.
+formations, on to offline catch-up, a combat rework and chapters of content.
 
 **[docs/milestones.md](docs/milestones.md)** is the single source of truth — the status of every
 milestone, what each one shipped, and the design rationale behind each decision.
+
+Alongside it, one reference per system: **[glossary](docs/glossary.md)** for the vocabulary (start
+here if tier, rarity and faction are running together), **[attributes](docs/attributes.md)** for
+the stat block, **[combat](docs/combat.md)** for how a battle resolves,
+**[economy](docs/economy.md)** for currencies and curves, **[ascension](docs/ascension.md)** for
+the rung ladders, and **[saves](docs/saves.md)** for persistence and migrations.
 
 ---
 
@@ -53,7 +59,7 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
-docs/     Long-form project documentation. See docs/milestones.md.
+docs/     Long-form project documentation. Roadmap, glossary, attributes, ascension.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.
