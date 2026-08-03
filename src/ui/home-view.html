@@ -13,6 +13,12 @@
   </p>
 }
 
+@if (autoStoppedAt(); as stopped) {
+  <p class="notice" role="status">
+    Auto-battle stopped: your party lost on Stage {{ stopped.number }} — {{ stopped.name }}.
+  </p>
+}
+
 @if (offlineSummary(); as summary) {
   <p class="notice" role="status">
     While you were away for {{ summary.duration }}, you earned {{ summary.earned }}.

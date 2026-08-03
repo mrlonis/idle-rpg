@@ -1,5 +1,37 @@
 import { AxeBuilder } from '@axe-core/playwright';
 import { expect, type Page, test, type TestInfo } from '@playwright/test';
+import { STAGES } from '../src/data';
+
+/**
+ * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
+ *
+ * The rates are the top of the ladder rather than an assertion of clears on their own, because
+ * `reconcileClearedStages` re-derives the count from the gold rate on every load.
+ */
+const top = STAGES[STAGES.length - 1];
+const unlockedSave = {
+  version: 4,
+  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+  rates: {
+    gold: String(top.rates.gold),
+    xp: String(top.rates.xp),
+    essence: String(top.rates.essence),
+    summons: String(top.rates.summons),
+  },
+  lastTickAt: Date.now(),
+  rng: { seed: 3735928559, calls: 0 },
+  stage: 1,
+  clearedStages: STAGES.length,
+  battleCount: 214,
+  roster: [
+    { defId: 'rin', rarity: 0, level: 1, copies: 0 },
+    { defId: 'bran', rarity: 0, level: 1, copies: 0 },
+    { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+  ],
+  formation: { front: ['bran', 'mira'], back: ['rin'] },
+  pity: 0,
+  pullCount: 0,
+};
 
 /**
  * AGENTS.md makes accessibility a hard requirement — all AXE checks, WCAG AA minimums — so it
@@ -65,6 +97,26 @@ test.describe('Accessibility', () => {
     await expect(page.locator('.actions')).toBeVisible({ timeout: 15_000 });
 
     await scan(page, testInfo, 'battle');
+  });
+
+  test('the battle screen with auto-battle unlocked has no AXE violations', async ({
+    page,
+  }, testInfo) => {
+    // The Auto toggle only renders for a run that has earned it, so the scan above never sees it.
+    // It is a pressed-state button sitting beside three more of them, which is exactly the markup
+    // most likely to end up announcing nothing.
+    await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
+      'CapacitorStorage.save',
+      JSON.stringify(unlockedSave),
+    ] as const);
+    await page.goto('');
+
+    await page.getByRole('button', { name: /^Fight Stage/ }).click();
+    await expect(page.getByRole('button', { name: 'Auto' })).toBeVisible();
+    await page.getByRole('button', { name: '4×' }).click();
+    await expect(page.locator('.actions')).toBeVisible({ timeout: 15_000 });
+
+    await scan(page, testInfo, 'battle-auto');
   });
 
   /**

@@ -45,6 +45,8 @@ class FakeBattles {
   readonly partyBack = signal<readonly BattleCombatantView[]>([]);
   readonly foesFront = signal<readonly BattleCombatantView[]>([]);
   readonly foesBack = signal<readonly BattleCombatantView[]>([]);
+  readonly isAuto = signal(false);
+  readonly isAutoUnlocked = signal(false);
 
   /**
    * Recorded rather than left empty, so a test that meant to assert a control did nothing can
@@ -62,6 +64,10 @@ class FakeBattles {
 
   setSpeed(speed: number): void {
     this.calls.push(`speed:${speed}`);
+  }
+
+  setAuto(on: boolean, nowMs: number): void {
+    this.calls.push(`auto:${on}:${nowMs}`);
   }
 }
 

@@ -3,15 +3,40 @@ import {
   BANDIT,
   BOAR,
   BULWARK_ENEMY,
+  COLOSSUS,
   GOLEM,
   HAG,
+  HEADSMAN,
+  HIEROPHANT,
+  OATHBREAKER,
   PYRE,
+  RAVAGER,
+  REVENANT,
   RIMEPLATE,
+  SENTINEL,
   SHADE,
+  SKYSHRIKE,
   SLIME,
+  STORMCALLER,
+  TYRANT,
+  UNMADE,
   WARDEN,
   WISP,
+  WRATHBORN,
 } from './enemies';
+
+/**
+ * Stages that must have been cleared before auto-battle unlocks.
+ *
+ * Twelve: the whole of the ladder as it stood before this milestone doubled it. The first half is
+ * climbed by hand and the second is what auto-battle exists to chew on — a twenty-four stage
+ * ladder tapped through one fight at a time would be *worse* than a twelve stage one, so the
+ * unlock lands exactly where the new content starts.
+ *
+ * A count of clears rather than a stage id, because `clearedStages` is the field that keeps
+ * counting after `stage` stops climbing at the top of the ladder — see `applyBattleResult`.
+ */
+export const AUTO_BATTLE_UNLOCK_CLEARS = 12;
 
 /**
  * The stage ladder.
@@ -30,43 +55,69 @@ import {
  *
  * ## How difficulty escalates
  *
- * Not by multiplying stats. There is no level scaling here on purpose — the curve has not
- * earned it yet, and a scaling factor is a balance number that would have to live in `data/`
- * anyway. Stages escalate by asking harder questions, and each new lock arrives on its own
- * before it is combined with anything:
+ * Not by multiplying stats. There is no level-scaling factor here on purpose: stages escalate by
+ * asking harder questions, and each new lock arrives on its own before it is combined with
+ * anything. The second half needs bigger stat blocks as well — the party that arrives at stage 13
+ * is several times the party that cleared stage 12, and a 300-HP Slime in front of it is an empty
+ * square rather than an easy fight — but those are authored bodies for the locks to stand behind,
+ * not the mechanism.
  *
- * | # | Stage             | What it asks                                          |
- * | - | ----------------- | ----------------------------------------------------- |
- * | 1 | Mossy Hollow      | nothing. It exists so the first tap pays.             |
- * | 2 | Sunken Path       | three bodies instead of two.                          |
- * | 3 | Wisplight Marsh   | something fast, standing behind something else.       |
- * | 4 | Bramble Run       | a real HP pool in front.                              |
- * | 5 | Cutthroat Camp    | damage that reaches your back rank.                   |
- * | 6 | Thornwood Clearing| five bodies. Single-target damage falls behind.       |
- * | 7 | Marsh Shrine      | **a healer you cannot reach by default.**            |
- * | 8 | Hagfen            | a party-wide debuff, on top of a healer.              |
- * | 9 | Broken Causeway   | armour that physical damage bounces off.              |
- * |10 | Ashen Span        | a refreshed absorb, and a magical wave behind it.     |
- * |11 | The Warden's Gate | a stun, and something that dodges half of what you do.|
- * |12 | Rimeplate Deep    | both defences up, and three casters behind them.      |
+ * | #  | Stage              | What it asks                                              |
+ * | -- | ------------------ | --------------------------------------------------------- |
+ * |  1 | Mossy Hollow       | nothing. It exists so the first tap pays.                 |
+ * |  2 | Sunken Path        | three bodies instead of two.                              |
+ * |  3 | Wisplight Marsh    | something fast, standing behind something else.           |
+ * |  4 | Bramble Run        | a real HP pool in front.                                  |
+ * |  5 | Cutthroat Camp     | damage that reaches your back rank.                       |
+ * |  6 | Thornwood Clearing | five bodies. Single-target damage falls behind.           |
+ * |  7 | Marsh Shrine       | **a healer you cannot reach by default.**                |
+ * |  8 | Hagfen             | a party-wide debuff, on top of a healer.                  |
+ * |  9 | Broken Causeway    | armour that physical damage bounces off.                  |
+ * | 10 | Ashen Span         | a refreshed absorb, and a magical wave behind it.         |
+ * | 11 | The Warden's Gate  | a stun, and something that dodges half of what you do.    |
+ * | 12 | Rimeplate Deep     | both defences up, and three casters behind them.          |
+ * | 13 | Ashfall Reach      | **your whole back rank as the target.**                  |
+ * | 14 | The Cairn Line     | armour to grind through, with a clock running.            |
+ * | 15 | Flensing Grounds   | **penetration: armour stops working.**                   |
+ * | 16 | The Kindled Span   | **something that gets worse as you kill it.**            |
+ * | 17 | Ravager's Deep     | both of those at once, with nothing your armour answers.  |
+ * | 18 | The Hollow Choir   | **a healer and a shielder in one body, behind a wall.**  |
+ * | 19 | Gallowmoor         | **an executioner that ignores rank.**                    |
+ * | 20 | The Adamant Gate   | **a wall your debuffs bounce off.**                      |
+ * | 21 | Bonefall           | **something that kills your wall first.**                |
+ * | 22 | The Broken Oath    | five bodies, three locks, and sustain behind them.        |
+ * | 23 | Tyrant's Rest      | the wall-breaker and the wall, together.                  |
+ * | 24 | The Unmade         | every lock at once.                                       |
  *
  * ## Where the ladder is tuned to
  *
- * **The three starting characters clear stages 1–4 comfortably and stall around 5–6.** That
- * boundary is deliberate and is the single most important number in this file. Two of the five
- * formation slots start empty, so the first stall is not a wall — it is the moment the summon
- * economy becomes the answer, which is exactly when a new player has banked enough first-clear
- * crystals to do something about it.
+ * Three reference parties, all measured in
+ * [`stages.balance.ts`](./stages.balance.ts) rather than asserted here:
  *
- * Nothing past stage 6 is meant to fall to three level-1 commons. `stages.spec.ts` asserts both
- * halves of that: the early ladder clears, and the late ladder does not.
+ * - **Three level-1 starters clear stages 1–6 and stop dead at the healer lock.** That boundary
+ *   is the single most important number in the first half. Two of the five formation slots start
+ *   empty, so the stall is not a wall — it is the moment the summon economy becomes the answer,
+ *   which is exactly when a new player has banked enough first-clear crystals to do something.
+ * - **Five common-tier characters at level 80 clear the twelve stages that are climbed by hand**,
+ *   and stop soon after. Auto-battle unlocks on finishing that half.
+ * - **The same five at level 200 clear the whole ladder**, losing a member at the top. Still
+ *   common tier: the second half asks for levels and ascension rungs, which are bought with time
+ *   and duplicates, and never for a pull nobody can buy.
  *
  * ## The four rates, and the one lump
  *
  * `rates` is the real prize. Clearing a stage permanently raises idle income on **every**
  * currency, and a rate compounds with time away in a way a lump sum cannot. Gold runs 0.5/s to
- * 25/s across the ladder; the others are scaled to sit where `levels.ts` needs them, with
- * essence deliberately stingiest.
+ * 90/s across the ladder; the others are scaled to sit where `levels.ts` needs them, with essence
+ * deliberately stingiest.
+ *
+ * **The gold slope decelerates across the second half, from about ×1.4 a stage to about ×1.1.**
+ * That is deliberate and it is the one number here worth understanding before changing. The level
+ * curve runs to 1000 and is meant to stay out of reach — milestone 11 makes level 1000 a
+ * chapter-100 goal, thousands of stages away — so income that kept compounding at ×1.4 would put
+ * the ceiling inside a fortnight and delete the vertical axis this milestone exists to protect.
+ * [`levels.spec.ts`](./levels.spec.ts) reads its rates off the top of this file and fails when
+ * that stops being true.
  *
  * `reward` is the smaller half: a one-off lump paid on every clear, tuned to roughly forty
  * seconds of the income the stage unlocks, so it reads as a bonus rather than as the
@@ -79,8 +130,15 @@ import {
  * to the rate and to genuine progress removes that incentive completely rather than balancing
  * against it.
  *
- * `firstClearSummons` totals 5,000 across the ladder — fifty pulls, five of them as ten-pulls —
- * so a new player who fights their way up fills both empty formation slots and then some.
+ * **The crystal rate nearly stops climbing over the second half, and that is not an oversight.**
+ * The stated pacing target is about a ten-pull a day at the top of the ladder, and
+ * [`banners.spec.ts`](./banners.spec.ts) measures it against whichever stage is last — so
+ * doubling the ladder at the old slope tripled it. Crystals were never the bottleneck; making
+ * them grow like gold would only shorten the one system that is supposed to unfold over weeks.
+ *
+ * `firstClearSummons` totals about 17,000 across the ladder — roughly 170 pulls for a full climb.
+ * Generous on purpose: duplicates are the primary ascension path, and the top of the ladder is
+ * tuned to a party several ascension rungs up, which is a lot of copies.
  */
 export const STAGES = [
   {
@@ -209,5 +267,136 @@ export const STAGES = [
     reward: { gold: 1000, xp: 188, essence: 8 },
     rates: { gold: 25, xp: 4.7, essence: 0.08, summons: 0.018 },
     firstClearSummons: 900,
+  },
+
+  // -------------------------------------------------------------------------------------
+  // The Ashfall Reach — stages 13 to 24
+  // -------------------------------------------------------------------------------------
+
+  {
+    // The back-rank lock. Twelve stages have rewarded putting the fragile things behind two
+    // bodies; two Sky-Shrikes diving the whole back row at once is the bill for that. The
+    // encounter is a race the party wins by noticing it — 2,600 HP and 40 armour die quickly to
+    // anything that can reach them.
+    id: 'stage-13',
+    name: 'Ashfall Reach',
+    enemies: { front: [REVENANT, REVENANT], back: [SKYSHRIKE, SKYSHRIKE] },
+    reward: { gold: 1160, xp: 218, essence: 9 },
+    rates: { gold: 29, xp: 5.4, essence: 0.093, summons: 0.0185 },
+    firstClearSummons: 920,
+  },
+  {
+    // Grind, with a clock on it. Two Cairn Sentinels are the most armour on the ladder so far and
+    // the Stormcaller behind them makes taking a long time about it expensive.
+    id: 'stage-14',
+    name: 'The Cairn Line',
+    enemies: { front: [SENTINEL, SENTINEL], back: [STORMCALLER] },
+    reward: { gold: 1320, xp: 248, essence: 11 },
+    rates: { gold: 33, xp: 6.2, essence: 0.106, summons: 0.019 },
+    firstClearSummons: 940,
+  },
+  {
+    // Penetration arrives. A Ravager ignores nearly half of whichever defence the party bought,
+    // which is the first time on the ladder that buying more of a defensive stat is not an answer.
+    id: 'stage-15',
+    name: 'Flensing Grounds',
+    enemies: { front: [RAVAGER, REVENANT], back: [SKYSHRIKE, STORMCALLER] },
+    reward: { gold: 1520, xp: 286, essence: 12 },
+    rates: { gold: 38, xp: 7.1, essence: 0.121, summons: 0.0195 },
+    firstClearSummons: 960,
+  },
+  {
+    // The escalation lock. Chipping the Wrathborn down is what turns it on, so the fight the party
+    // has been winning gets harder at exactly the moment it looks won. Burst through the window,
+    // or take the speed back off it with a Slow.
+    id: 'stage-16',
+    name: 'The Kindled Span',
+    enemies: { front: [WRATHBORN, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
+    reward: { gold: 1720, xp: 323, essence: 14 },
+    rates: { gold: 43, xp: 8, essence: 0.137, summons: 0.0199 },
+    firstClearSummons: 980,
+  },
+  {
+    // Both of the last two locks at once, and the first stage where armour is worth so little that
+    // the party's HP pool is what is actually keeping it alive.
+    id: 'stage-17',
+    name: "Ravager's Deep",
+    enemies: { front: [RAVAGER, RAVAGER], back: [WRATHBORN, STORMCALLER, SKYSHRIKE] },
+    reward: { gold: 1920, xp: 361, essence: 15 },
+    rates: { gold: 48, xp: 9, essence: 0.155, summons: 0.0203 },
+    firstClearSummons: 1000,
+  },
+  {
+    // A healer and a shielder in one body, standing behind a wall. Chip damage loses to the
+    // barrier and burst loses to the heal, so the only answer left is the one the back rank was
+    // built around: reach past the front and kill it.
+    id: 'stage-18',
+    name: 'The Hollow Choir',
+    enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE, STORMCALLER] },
+    reward: { gold: 2160, xp: 406, essence: 17 },
+    rates: { gold: 54, xp: 10.1, essence: 0.175, summons: 0.0207 },
+    firstClearSummons: 1020,
+  },
+  {
+    // The execution lock. A Headsman ignores rank and goes for whoever is closest to dying, which
+    // is a demand for sustain aimed somewhere other than the front rank.
+    id: 'stage-19',
+    name: 'Gallowmoor',
+    enemies: { front: [OATHBREAKER, REVENANT], back: [HEADSMAN, HIEROPHANT] },
+    reward: { gold: 2360, xp: 444, essence: 19 },
+    rates: { gold: 59, xp: 11.1, essence: 0.196, summons: 0.0211 },
+    firstClearSummons: 1040,
+  },
+  {
+    // The tenacity lock. Sunder, Weaken and Slow have answered every large thing below this, and
+    // against 0.85 tenacity almost none of them land. What is left is raw damage and penetration.
+    id: 'stage-20',
+    name: 'The Adamant Gate',
+    enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, STORMCALLER] },
+    reward: { gold: 2600, xp: 489, essence: 21 },
+    rates: { gold: 65, xp: 12.2, essence: 0.219, summons: 0.0214 },
+    firstClearSummons: 1060,
+  },
+  {
+    // The wall-breaker. A Tyrant attacks the party's largest HP pool rather than through the front
+    // rank, so the wall is the first thing to die and a second body does not help.
+    id: 'stage-21',
+    name: 'Bonefall',
+    enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, STORMCALLER] },
+    reward: { gold: 2840, xp: 534, essence: 23 },
+    rates: { gold: 71, xp: 13.3, essence: 0.244, summons: 0.0217 },
+    firstClearSummons: 1080,
+  },
+  {
+    // Five bodies and three locks: a wall nothing sticks to, an executioner behind it, and the
+    // heal-plus-barrier undoing whatever the party does not finish.
+    id: 'stage-22',
+    name: 'The Broken Oath',
+    enemies: { front: [OATHBREAKER, COLOSSUS], back: [HEADSMAN, HIEROPHANT, STORMCALLER] },
+    reward: { gold: 3080, xp: 579, essence: 25 },
+    rates: { gold: 77, xp: 14.4, essence: 0.271, summons: 0.022 },
+    firstClearSummons: 1100,
+  },
+  {
+    // The wall-breaker and the wall, together. Whatever the party puts in front dies to the Tyrant
+    // and whatever it puts behind dies to the Headsman.
+    id: 'stage-23',
+    name: "Tyrant's Rest",
+    enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, OATHBREAKER, HEADSMAN] },
+    reward: { gold: 3320, xp: 624, essence: 27 },
+    rates: { gold: 83, xp: 15.5, essence: 0.3, summons: 0.0223 },
+    firstClearSummons: 1120,
+  },
+  {
+    // The end of the authored ladder. It takes the biggest thing the party brought, burns the
+    // whole party, half-ignores both defences and shrugs off half of what is aimed back —
+    // winnable, expensively, by a party that arrived with sustain, reach and penetration, and by
+    // nothing that brought only one of them.
+    id: 'stage-24',
+    name: 'The Unmade',
+    enemies: { front: [UNMADE, TYRANT], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
+    reward: { gold: 3600, xp: 677, essence: 29 },
+    rates: { gold: 90, xp: 16.8, essence: 0.33, summons: 0.0225 },
+    firstClearSummons: 1150,
   },
 ] as const;

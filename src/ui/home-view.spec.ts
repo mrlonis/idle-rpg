@@ -80,9 +80,11 @@ class FakeRoster {
   readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 1, back: 3 });
 }
 
-/** Only the two things the home screen asks of the animator. */
+/** Only the three things the home screen asks of the animator. */
 class FakeBattles {
   readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1 });
+  /** Set when an auto-battle run ended in a loss, which is what dropped the player back here. */
+  readonly autoStoppedAt = signal<StageHeading | null>(null);
   readonly fought: number[] = [];
 
   fight(nowMs: number): void {

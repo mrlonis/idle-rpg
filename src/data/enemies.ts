@@ -3,16 +3,22 @@ import {
   CINDER_STORM,
   CUTPURSE,
   FADE,
+  FLENSE,
   GATE_SLAM,
   GLACIAL_SLAM,
   GORE,
+  HEADSMANS_ARC,
   MEND,
   MIRE,
   MOTE_LANCE,
+  RUINOUS_ARC,
   SHIELD_BASH,
+  SHRIKE_DIVE,
   STONE_FIST,
+  TYRANTS_CLAIM,
   WITHERHEX,
   WITHERING_TOUCH,
+  WRATH_UNBOUND,
 } from './skills';
 
 /**
@@ -43,7 +49,7 @@ import {
  * ever produce a new single optimal team.
  *
  * The six originals are the blunt versions: a body, a fast body, a wall, a hard hitter, an
- * armour check, a gate. The six added here are the sharp ones, and each names the answer it
+ * armour check, a gate. The six that follow them are the sharp ones, and each names the answer it
  * wants:
  *
  * | Enemy         | The question                             | The answer                        |
@@ -54,6 +60,9 @@ import {
  * | Iron Bulwark  | can you out-damage a refreshed absorb?    | burst, not chip                   |
  * | Rimeplate     | what do you do when both defences are up? | penetration, or Sunder            |
  * | Fen Shade     | what do you do when it dodges half of it? | accuracy, or volume               |
+ *
+ * A third set follows for the second half of the ladder — see "The Ashfall Reach" below, which
+ * also records why those needed new stat blocks rather than the old ones with a multiplier.
  *
  * ## Factions
  *
@@ -344,6 +353,339 @@ export const SHADE = {
   skills: [FADE, WITHERING_TOUCH],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Ashfall Reach — the second half of the ladder
+//
+// ## Why these are new stat blocks rather than the old ones with a multiplier
+//
+// The party that arrives at stage 13 is roughly four times the party that cleared stage 12 —
+// levels and ascension rungs, compounding. Fielding a 300-HP Slime against it is not an easy
+// encounter, it is an empty square: it dies before it acts and the stage is a formality. So the
+// second half of the ladder needs bodies of its own whatever else it does.
+//
+// What it must *not* be is only that. Six of the twelve below exist because
+// `core/battle/types.ts` had vocabulary nothing had ever used — `enemy-row-back`,
+// `enemy-lowest`, `enemy-highest` and the `self-hurt` condition, plus `tenacity` and penetration
+// pushed far enough to be a question rather than a rounding error. Each one names an answer the
+// twenty-three character roster already has and nothing was asking for. The other six are the
+// bodies and the support those locks stand behind, sized for the band they appear in.
+//
+// | Enemy             | The question                                    | The answer                     |
+// | ----------------- | ----------------------------------------------- | ------------------------------ |
+// | Sky-Shrike        | what if your whole back rank is the target?     | durability, a barrier, or speed |
+// | Barbed Ravager    | what if armour simply stops working?            | HP, sustain, evasion            |
+// | Wrathborn         | what if chipping it is what turns it on?        | burst through the window, or a slow |
+// | Ashen Hierophant  | a healer and a shielder in one body             | reach — killing it, not racing it |
+// | Gallows Headsman  | can you keep your weakest member alive?         | sustain that is not the tank's |
+// | Adamant Colossus  | can you win without a single debuff landing?    | raw damage, penetration        |
+// | Bonefall Tyrant   | what if your wall is the first thing to die?    | heals on the front, or a cleanse |
+//
+// ## Scale
+//
+// Roughly a tenth again a stage, which is deliberately the slope the idle rates take across this
+// stretch. Damage is `atk² / (atk + def)`, so scaling attack and defence together leaves a fight
+// the same *length* while making it a fight between bigger numbers — which is what keeps the
+// second half feeling like the first rather than like a wait.
+
+/**
+ * A body for the top half of the ladder, and the one that drains.
+ *
+ * Deliberately unremarkable: not every stage should be a lock, and a stage made entirely of
+ * questions has no room left for the answers to land. Its lifesteal is what stops a party
+ * ignoring it while it works on the thing behind it.
+ */
+export const REVENANT = {
+  id: 'revenant',
+  name: 'Ash Revenant',
+  faction: 'undead',
+  stats: {
+    hp: 2900,
+    patk: 72,
+    matk: 54,
+    pdef: 22,
+    mdef: 19,
+    spd: 82,
+    critChance: 0.06,
+    critMultiplier: 1.6,
+    lifesteal: 0.2,
+  },
+  skills: [WITHERING_TOUCH, GORE],
+} as const;
+
+/** The wall of this half: enormous on both defences, slow, and it slows you back. */
+export const SENTINEL = {
+  id: 'sentinel',
+  name: 'Cairn Sentinel',
+  faction: 'dwarf',
+  stats: {
+    hp: 3950,
+    patk: 72,
+    matk: 42,
+    pdef: 86,
+    mdef: 70,
+    spd: 66,
+    critChance: 0.03,
+    critMultiplier: 1.5,
+    tenacity: 0.25,
+  },
+  skills: [GLACIAL_SLAM, SHIELD_BASH],
+} as const;
+
+/**
+ * The back-rank lock.
+ *
+ * By stage 13 every encounter below has taught the same habit — put the fragile things behind the
+ * two bodies — and this is the encounter that charges for it. Almost no armour and the highest
+ * speed on the ladder, so it is a race the party can win outright by noticing it exists.
+ */
+export const SKYSHRIKE = {
+  id: 'skyshrike',
+  name: 'Sky-Shrike',
+  faction: 'elf',
+  stats: {
+    hp: 1450,
+    patk: 100,
+    matk: 35,
+    pdef: 22,
+    mdef: 26,
+    spd: 152,
+    critChance: 0.16,
+    critMultiplier: 1.8,
+    accuracy: 1.1,
+  },
+  skills: [SHRIKE_DIVE],
+} as const;
+
+/**
+ * The penetration lock.
+ *
+ * Everything up to here has been answerable by buying more of a defensive stat. This one ignores
+ * nearly half of whichever the party bought — and because penetration is a *percentage* rather
+ * than a subtraction, a wall still feels like a body rather than like an empty square. The answer
+ * is durability that is not armour: HP, sustain, or not being hit.
+ */
+export const RAVAGER = {
+  id: 'ravager',
+  name: 'Barbed Ravager',
+  faction: 'monster',
+  stats: {
+    hp: 3450,
+    patk: 118,
+    matk: 30,
+    pdef: 48,
+    mdef: 38,
+    spd: 94,
+    critChance: 0.08,
+    critMultiplier: 1.7,
+    armorPen: 0.45,
+    magicPen: 0.4,
+  },
+  skills: [FLENSE],
+} as const;
+
+/**
+ * The escalation lock: it gets worse as it dies.
+ *
+ * Every other meter on the ladder counts down toward the enemy being able to act. This one counts
+ * down toward the party wishing it had not started. Below half health it buys itself a third more
+ * speed and a third more `matk` at once, so the damage it does in the last quarter of its HP bar
+ * dwarfs the first three.
+ */
+export const WRATHBORN = {
+  id: 'wrathborn',
+  name: 'Wrathborn',
+  faction: 'demon',
+  stats: {
+    hp: 3300,
+    patk: 64,
+    matk: 125,
+    pdef: 44,
+    mdef: 52,
+    spd: 92,
+    critChance: 0.1,
+    critMultiplier: 1.8,
+    mp: 90,
+    mpRegen: 6,
+  },
+  skills: [WRATH_UNBOUND, RUINOUS_ARC],
+} as const;
+
+/** The wide magical wave of this half, and the only thing here that debuffs the whole party. */
+export const STORMCALLER = {
+  id: 'stormcaller',
+  name: 'Fen Stormcaller',
+  faction: 'human',
+  stats: {
+    hp: 2950,
+    patk: 42,
+    matk: 140,
+    pdef: 36,
+    mdef: 50,
+    spd: 100,
+    critChance: 0.12,
+    critMultiplier: 1.8,
+    mp: 110,
+    mpRegen: 6,
+    effectHit: 0.15,
+  },
+  skills: [CINDER_STORM, WITHERHEX],
+} as const;
+
+/**
+ * A healer and a shielder in one body, which is a different problem from either.
+ *
+ * A Marsh Acolyte can be out-damaged. An Iron Bulwark can be burst. This does both from the same
+ * turn economy, so chip damage loses to the barrier and burst loses to the heal — and the only
+ * answer left is the one milestone 4 built the back rank around: **reach it**. A celestial, so it
+ * also deals ten percent more to every mortal in the party with nothing coming back.
+ */
+export const HIEROPHANT = {
+  id: 'hierophant',
+  name: 'Ashen Hierophant',
+  faction: 'angel',
+  stats: {
+    hp: 5100,
+    patk: 48,
+    matk: 240,
+    pdef: 78,
+    mdef: 120,
+    spd: 104,
+    critChance: 0.04,
+    critMultiplier: 1.5,
+    mp: 120,
+    mpRegen: 6,
+  },
+  skills: [MEND, BULWARK],
+} as const;
+
+/**
+ * The execution lock: the party's own executioner rule, pointed back at it.
+ *
+ * Throat Cut, Decisive Strike and Devour all ignore rank and go for the lowest HP on the field.
+ * Nothing had ever done that to the player. What it asks for is sustain aimed at whoever is
+ * nearly dead rather than at whoever is standing in front, which is a different skill and a
+ * different character.
+ */
+export const HEADSMAN = {
+  id: 'headsman',
+  name: 'Gallows Headsman',
+  faction: 'undead',
+  stats: {
+    hp: 6700,
+    patk: 168,
+    matk: 58,
+    pdef: 100,
+    mdef: 84,
+    spd: 108,
+    critChance: 0.18,
+    critMultiplier: 1.9,
+    lifesteal: 0.2,
+  },
+  skills: [HEADSMANS_ARC],
+} as const;
+
+/**
+ * The tenacity lock: a wall that debuffs bounce off.
+ *
+ * Sunder, Weaken and Slow have been the answer to every large thing on the ladder so far, and
+ * against 0.85 tenacity almost none of them land. That leaves raw damage and penetration — and
+ * because the party has spent twenty stages learning to open armour rather than out-hit it, this
+ * is the encounter that asks whether it can still do the other thing.
+ */
+export const COLOSSUS = {
+  id: 'colossus',
+  name: 'Adamant Colossus',
+  faction: 'dwarf',
+  stats: {
+    hp: 8600,
+    patk: 168,
+    matk: 78,
+    pdef: 205,
+    mdef: 178,
+    spd: 58,
+    critChance: 0.03,
+    critMultiplier: 1.6,
+    tenacity: 0.85,
+  },
+  skills: [GLACIAL_SLAM, SHIELD_BASH],
+} as const;
+
+/**
+ * The wall-breaker: it attacks the biggest thing the party brought.
+ *
+ * A front rank works because ordinary attacks have to pass through it. A Tyrant does not attack
+ * *through* anything — it attacks the largest HP pool on the field, which is the wall itself, and
+ * sunders it on the way so the next one lands harder. Fielding a second body does not help; the
+ * answers are healing pointed at the front rank, or a cleanse.
+ */
+export const TYRANT = {
+  id: 'tyrant',
+  name: 'Bonefall Tyrant',
+  faction: 'monster',
+  stats: {
+    hp: 9800,
+    patk: 220,
+    matk: 88,
+    pdef: 158,
+    mdef: 138,
+    spd: 88,
+    critChance: 0.12,
+    critMultiplier: 1.9,
+    armorPen: 0.3,
+  },
+  skills: [TYRANTS_CLAIM],
+} as const;
+
+/** The gate of the second half: a Warden's stun on a body that can survive being answered. */
+export const OATHBREAKER = {
+  id: 'oathbreaker',
+  name: 'The Oathbreaker',
+  faction: 'human',
+  stats: {
+    hp: 7400,
+    patk: 155,
+    matk: 116,
+    pdef: 145,
+    mdef: 125,
+    spd: 100,
+    critChance: 0.12,
+    critMultiplier: 1.8,
+    mp: 110,
+    mpRegen: 6,
+    effectHit: 0.15,
+  },
+  skills: [GATE_SLAM, CUTPURSE],
+} as const;
+
+/**
+ * The end of the authored ladder, and every lock it has taught at once.
+ *
+ * It takes the biggest thing the party brought, burns the whole party, half-ignores both
+ * defences, and shrugs off half of what is aimed back. Winnable, expensively, by a party that
+ * arrived with sustain, reach and penetration — and by nothing that brought only one of them.
+ */
+export const UNMADE = {
+  id: 'unmade',
+  name: 'The Unmade',
+  faction: 'demon',
+  stats: {
+    hp: 12500,
+    patk: 195,
+    matk: 175,
+    pdef: 200,
+    mdef: 180,
+    spd: 96,
+    critChance: 0.15,
+    critMultiplier: 2,
+    mp: 140,
+    mpRegen: 7,
+    armorPen: 0.3,
+    magicPen: 0.3,
+    tenacity: 0.5,
+  },
+  skills: [TYRANTS_CLAIM, CINDER_STORM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -359,4 +701,16 @@ export const ENEMIES = [
   BULWARK_ENEMY,
   RIMEPLATE,
   SHADE,
+  REVENANT,
+  SENTINEL,
+  SKYSHRIKE,
+  RAVAGER,
+  WRATHBORN,
+  STORMCALLER,
+  HIEROPHANT,
+  HEADSMAN,
+  COLOSSUS,
+  TYRANT,
+  OATHBREAKER,
+  UNMADE,
 ] as const;

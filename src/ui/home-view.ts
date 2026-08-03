@@ -113,6 +113,14 @@ export class HomeView {
   protected readonly canFight = computed(() => this.fieldedCount() > 0);
 
   /**
+   * Why the player is suddenly back on this screen.
+   *
+   * An auto-battle run ends by dropping them here, which means the board that explained the loss
+   * is already gone. Without this line the transition reads as the app having lost their place.
+   */
+  protected readonly autoStoppedAt = this.battles.autoStoppedAt;
+
+  /**
    * What to say under the counter.
    *
    * A run that has never won earns nothing at all, so the first message has to explain why the

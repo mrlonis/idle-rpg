@@ -74,8 +74,11 @@ Read it before starting a milestone, and specifically before:
   the cause of the app's broken first appearance on a real phone. Do not reinstall it.
   `@angular/cdk` is a separate question and the answer is different — see the accessibility
   section below;
-- building anything that fights on its own — "auto-battle" means two separate features, and
-  neither belongs in the milestone that introduced combat;
+- building anything that fights on its own — "auto-battle" means two separate features, and only
+  one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
+  it commits and persists at the end of every fight, and switching it off when the app leaves the
+  foreground is a correctness requirement rather than a courtesy (see "Offline progression").
+  **Ambient sparring on the idle screen is still deferred** and must never award anything;
 - adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
   cancelled rather than pending, and the doc records why each one stopped being needed.
 
@@ -185,7 +188,13 @@ resume and will hang the device. Three cases:
 
 **Cases 2 and 3 do not arise and are not to be built.** Auto-battle is foreground-only, so no
 stage clears while the player is away and no rate ever changes mid-window; and nothing drops
-while they are away, so idle income is the four continuous rates and nothing else. They are
+while they are away, so idle income is the four continuous rates and nothing else.
+
+**"Foreground-only" is enforced in one line and it is load-bearing.** `BattleService` listens for
+`visibilitychange` and switches the loop off on hide. Without it a hidden tab — which still steps
+the animator at roughly 1Hz, clamped to a second per step — would keep climbing the ladder
+unattended, and a rate that rises mid-window is exactly what makes the closed form wrong. Do not
+"improve" this into a pause that keeps fighting. They are
 documented because they are the right techniques _if_ those product decisions are ever reversed
 — which would re-open [milestone 5](../../docs/milestones.md). Do not implement either speculatively,
 and do not add a `dropCarry` field.
@@ -446,15 +455,20 @@ not long-running and need none of this.
 - The highest-value invariant in the project: **closed-form offline resume must match
   stepwise accrual.** Assert relative error, not `toBeCloseTo` (which is absolute decimal
   places and will fail once numbers get large).
-- Slow statistical balance sweeps belong in a separate vitest project (`*.balance.ts`) with
-  a long timeout, not in the fast unit suite that runs on save. That project does not exist
-  yet, but it is closer than it was. Before milestone 4 a full sweep of the ladder was
-  milliseconds; skills, statuses and `Decimal` quantities made a battle roughly a millisecond
-  on its own, so `data/stages.spec.ts` now sweeps two parties across the twelve stages at 40
-  seeds each — plus a two-party comparison on the one stage that proves the milestone — and
-  costs a couple of seconds. Reach for the separate project when that stops
-  being tolerable — and before shrinking the sample, which buys speed by making the answer
-  less true.
+- Slow statistical balance sweeps belong in the separate vitest project — `*.balance.ts`, run by
+  `npm run test:balance` against `vitest.balance.config.ts` — not in the fast unit suite that runs
+  on save. **That project exists now**, and the trigger it was waiting for is worth recording:
+  before milestone 4 a full sweep of the ladder was milliseconds; skills, statuses and `Decimal`
+  quantities made a battle roughly a millisecond on its own; and milestone 7 doubled the ladder
+  and added a third reference party, at which point three parties across twenty-four stages at 40
+  seeds was thousands of battles. **Moving the sweep was the answer, not shrinking the sample** —
+  a smaller sample buys speed by making the answer less true.
+  - `data/stages.spec.ts` keeps what is fast and structural: ids, rank sizes, factions, and the
+    monotonicity of the rate and reward curves.
+  - `data/stages.balance.ts` holds what has to be simulated: the reference-party sweeps and the
+    per-stage difficulty probe.
+  - `*.balance.ts` files are excluded from `tsconfig.app.json` so the app never bundles them, and
+    included in `tsconfig.spec.json` so typed linting still covers them. A new one needs both.
 - When evaluating balance, look at the **5th percentile** player, not the mean. In a paid
   game the unlucky tail buys its way out; here they cannot, so they are the design target.
 

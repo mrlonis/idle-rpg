@@ -4,6 +4,7 @@ import {
   BLEED,
   BURN,
   CURSE,
+  FOCUS,
   GUARD,
   HASTE,
   POISON,
@@ -757,6 +758,119 @@ export const WITHERING_TOUCH = {
   priority: 1,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Enemy kits — the late locks
+//
+// Four of these five exist because the vocabulary in `core/battle/types.ts` had targets and a
+// condition that nothing in the game had ever used. `enemy-row-back`, `enemy-lowest`,
+// `enemy-highest` and `self-hurt` were all authorable from milestone 4 onward and all sat idle,
+// which meant four questions the roster already had answers to that nothing was asking.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The back-rank lock: the whole of it, at once.
+ *
+ * A Wisp's Mote Lance taught that a rank is cover rather than immunity, one target at a time.
+ * This says the same thing to a party that took the lesson and stacked three fragile carries
+ * behind two bodies anyway — which by the second half of the ladder is most parties, because
+ * every encounter below has rewarded it. The answers are durability on the carries, a barrier
+ * that lands before the dive does, or killing something with 22 `pdef` before it acts twice.
+ *
+ * Deliberately not enormous per target. Three back-rank hits at 0.95 against the party's softest
+ * three stat blocks is already the widest damage in the game by the value it actually lands.
+ */
+export const SHRIKE_DIVE = {
+  id: 'shrike-dive',
+  name: 'Shrike Dive',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 0.95 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** The Ravager opening both front bodies up for its own penetration. */
+export const FLENSE = {
+  id: 'flense',
+  name: 'Flense',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.15 },
+    { kind: 'status', status: BLEED, chance: 0.8 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The escalation lock: a thing that gets worse the closer it is to dying.
+ *
+ * `self-hurt` is the condition this exists to use. Every other meter in the game says "not yet" —
+ * a cooldown, a pool, an ally who is not hurt enough to be worth healing. This one says "not
+ * until you have already committed", which inverts the usual shape: chipping a Wrathborn down is
+ * the thing that turns it on. Burst it through the window, or blunt the window with a slow.
+ */
+export const WRATH_UNBOUND = {
+  id: 'wrath-unbound',
+  name: 'Wrath Unbound',
+  target: 'self',
+  effects: [
+    { kind: 'status', status: FOCUS },
+    { kind: 'status', status: HASTE },
+  ],
+  cooldown: 60,
+  condition: { kind: 'self-hurt', fraction: 0.5 },
+  priority: 3,
+} as const;
+
+/** The Wrathborn's ordinary turn, so the fight before the window is not a formality. */
+export const RUINOUS_ARC = {
+  id: 'ruinous-arc',
+  name: 'Ruinous Arc',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.7 }],
+  cost: { kind: 'mp', amount: 12 },
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * The execution lock: rank buys nobody safety, and the weakest member is the target.
+ *
+ * `enemy-lowest` is the player's own executioner rule — Throat Cut, Decisive Strike, Devour —
+ * pointed back at them. What it asks for is the one thing a party that has been winning by
+ * out-damaging everything has not needed: keeping a nearly-dead member alive rather than
+ * finishing the fight before it matters.
+ */
+export const HEADSMANS_ARC = {
+  id: 'headsmans-arc',
+  name: "Headsman's Arc",
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * The wall-breaker lock: it goes for the biggest thing you brought.
+ *
+ * The mirror of {@link HEADSMANS_ARC}, and a sharper question than it looks. A front rank works
+ * because ordinary attacks have to pass through it; a Tyrant does not attack *through* anything,
+ * it attacks the party's largest HP pool — which is the wall itself. Sundering it on the way
+ * means the second hit lands harder than the first, so the answer is sustain on the tank or a
+ * cleanse, not a second body.
+ */
+export const TYRANTS_CLAIM = {
+  id: 'tyrants-claim',
+  name: "Tyrant's Claim",
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.05 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -815,4 +929,10 @@ export const SKILLS = [
   GLACIAL_SLAM,
   FADE,
   WITHERING_TOUCH,
+  SHRIKE_DIVE,
+  FLENSE,
+  WRATH_UNBOUND,
+  RUINOUS_ARC,
+  HEADSMANS_ARC,
+  TYRANTS_CLAIM,
 ] as const;

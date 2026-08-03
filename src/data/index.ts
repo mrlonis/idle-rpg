@@ -76,5 +76,5 @@ export {
 } from './enemies';
 export { GROWTH, LEVEL_CURVE } from './levels';
 export { SKILLS } from './skills';
-export { STAGES } from './stages';
+export { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from './stages';
 export { STATUSES } from './statuses';

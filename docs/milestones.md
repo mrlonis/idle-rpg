@@ -22,8 +22,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations      |
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
 | 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
-| 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
-| 8   | The combat rework                      | ⬜                                           |
+| 7   | Auto-battle, then doubling the ladder  | ✅ **Complete** — prestige cancelled         |
+| 8   | The combat rework                      | 🟡 Next                                      |
 | 9   | Resonance — levels the roster shares   | ⬜                                           |
 | 10  | Power that compounds                   | ⬜                                           |
 | 11  | Chapters                               | ⬜                                           |
@@ -577,14 +577,165 @@ written and `ios/` was not touched. Read the pod source before accepting that a 
 needs a native fix — and note that the config option is also what let the viewport meta stay
 accessible, so the two are not independent choices.
 
-## 7. Auto-battle, then doubling the ladder
+## 7. Auto-battle, then doubling the ladder — **COMPLETE**
+
+Shipped: the unlockable repeat loop, twelve new stages with twelve new enemies and six new locks,
+and the separate balance project the sweeps had outgrown.
+
+Four decisions were taken while building it, and each is written up in the section it belongs to
+below:
+
+1. **Twenty-four stages**, not nineteen — the ladder is literally doubled.
+2. **The gold slope decelerates** across the second half rather than continuing at ×1.4, because
+   the alternative was putting level 1000 inside a fortnight. See "the tuning collision".
+3. **Auto-battle unlocks on twelve clears**, exactly where the hand-climbed half ends.
+4. **It switches itself off when the app leaves the foreground** rather than pausing.
+
+### What shipped
+
+- `data/enemies.ts` — twelve new stat blocks for the Ashfall Reach, six of them locks:
+  Sky-Shrike (the whole back rank as the target), Barbed Ravager (penetration, so armour stops
+  working), Wrathborn (gets worse as it dies), Ashen Hierophant (a healer and a shielder in one
+  body), Gallows Headsman (executes the lowest-HP ally regardless of rank), Adamant Colossus
+  (0.85 tenacity, so debuffs bounce off). Bonefall Tyrant, The Oathbreaker, The Unmade, Ash
+  Revenant, Cairn Sentinel and Fen Stormcaller are the bodies and support they stand with.
+- `data/skills.ts` — five new enemy skills, four of which exist to use vocabulary that had never
+  been used: `enemy-row-back`, `enemy-lowest`, `enemy-highest`, and the `self-hurt` condition.
+- `data/stages.ts` — stages 13–24, plus `AUTO_BATTLE_UNLOCK_CLEARS`.
+- `ui/battle.service.ts` — `isAuto`, `isAutoUnlocked`, `autoStoppedAt`, `setAuto()`, the
+  `visibilitychange` listener, and persistence at the end of **every** battle.
+- `ui/battle-view.*` — the Auto toggle beside the speed controls; `ui/home-view.*` — the notice
+  that says which stage ended an auto run.
+- `vitest.balance.config.ts` and `data/stages.balance.ts` — the balance project.
+- **No save migration.** `isAuto` is session state on purpose: a flag that survived a reload
+  would be a loop the player armed yesterday resuming without them, which is the opposite of
+  foreground-only.
+
+### 1. Auto-battle — the unlockable repeat
+
+Unlocks at **twelve clears** — the whole of the ladder as it stood before this milestone. The
+first half is climbed one tap at a time and the second is what the loop exists to chew on, so the
+unlock lands exactly where the new content starts. It reads `clearedStages` rather than `stage`,
+because `stage` stops climbing at the top of the ladder and a stage-number check would answer "not
+yet" forever for a run that had beaten everything.
+
+Three things about it are load-bearing rather than cosmetic:
+
+- **Foreground-only, enforced by switching off on `visibilitychange`.** This is the half that is
+  easy to get wrong. A hidden tab still steps the animator at roughly 1Hz, and `MAX_STEP_MS`
+  clamps each step to a second — so playback keeps advancing in real time while nobody is
+  watching, and an unattended loop would climb the ladder in the background. A stage clearing
+  while the player is away is precisely what would stop every idle rate being constant across an
+  offline window, which is the entire reason milestone 5 needs no segmented solver. **A pause that
+  keeps fighting is not an improvement, it re-opens milestone 5.**
+- **Off rather than paused.** The toggle the player left on is visibly off when they come back, so
+  a running loop is always a loop they can see they started. Resuming silently would be a loop
+  running because of a decision made in another session.
+- **Persist at the end of every battle**, not just auto ones. This was the one requirement
+  auto-battle placed on the rest of the app, and it is what makes "losing the app costs the fight
+  in flight and nothing else" true rather than aspirational. There is no pause/resume state
+  machine and nothing to reconcile on next launch, because everything already finished is banked.
+
+The battle in flight when the app hides is left alone: it finishes, banks and persists, and
+nothing follows it.
+
+**A loss ends the run and drops the player back to the idle screen**, as this milestone always
+specified. That leaves one gap the spec did not: the board explaining the loss is gone by the time
+they can read it, so `autoStoppedAt` carries the stage out and the home screen says which one.
+
+**`@capacitor/app` stayed deferred.** It was named here as the first thing that would genuinely
+care about a real iOS lifecycle event versus a web `visibilitychange`, and it turned out not to be
+needed — because persisting per battle is exactly what bounds the cost of a missed event to one
+fight. The condition for revisiting it is unchanged.
+
+**Ambient sparring on the idle screen is still deferred.** It awards nothing and touches no state,
+so it buys no progression and blocks nothing.
+
+### 2. Doubling the ladder, and the tuning collision
+
+Twelve new stages, and the first thing they ran into was a test doing its job.
+
+[`levels.spec.ts`](../src/data/levels.spec.ts) asserts that one character to level 1000 costs more
+than a thousand hours of income at the top of the ladder, and it reads the rates off `STAGES`
+rather than restating them. Continuing this milestone's own fitted ×1.4-a-stage slope to
+twenty-four stages puts gold at ~1,417/s and level 1000 at **75 hours**. The spec failed exactly
+as designed.
+
+**The section above predicted that and called it the goal. Milestone 11 retracts it**, and
+milestone 11 wins: level 1000 is a chapter-100 target, thousands of stages out, and the cap being
+unreachable in chapter 1 is the intent. So the thing that got retuned was **the rate slope** —
+neither the level curve nor the threshold:
+
+|                   | gold/s at the top | level 1000  |
+| ----------------- | ----------------- | ----------- |
+| 12 stages         | 25                | ~4,280h     |
+| 24 at ×1.4/stage  | 1,417             | ~75h ❌     |
+| **24 as shipped** | **90**            | **~1,190h** |
+
+The slope decelerates smoothly from about ×1.4 a stage to about ×1.1. That is also the
+forward-compatible shape: milestone 11 replaces authored rates with a derived curve over ~100
+stages a chapter, and ×1.4 compounded over a hundred stages is a number with fourteen zeros in it.
+
+**A second derived threshold fired for the same reason**, and is worth recording because it is the
+same lesson twice. [`banners.spec.ts`](../src/data/banners.spec.ts) pins "roughly a ten-pull a day
+at the top of the ladder" and measures it against whichever stage is last, so doubling the ladder
+at the old crystal slope tripled the rate to 36 pulls a day. Crystals were never the bottleneck,
+so the answer was to flatten their curve almost completely across the second half rather than to
+widen the band. **Both of these are the "derive, never retype" rule paying for itself** — neither
+would have been noticed if the specs had copied their numbers across.
+
+### 3. The new stages are locks, not multipliers — mostly
+
+Six of the twelve new enemies exist to ask a question nothing was asking, and four of those use
+targeting or conditions that had been authorable since milestone 4 and never used. That was the
+richest seam available, and it is worth checking before inventing a mechanic: the vocabulary is
+usually already there.
+
+The other six are bodies and support. **They needed to be new stat blocks rather than the old ones
+reused**, and the reason is not a preference: the party arriving at stage 13 is several times the
+party that cleared stage 12, so a 300-HP Slime in front of it is not an easy fight, it is an empty
+square. Scaling attack and defence together leaves a fight the same _length_ while making it a
+fight between bigger numbers, which is what keeps the second half feeling like the first.
+
+**One thing to be honest about: the second half has no single-slot composition proof as sharp as
+milestone 4's.** That milestone could show Rin-versus-Gnash on the Marsh Shrine at 85% versus 15%,
+and no comparable pair was found here — swapping one character against any of the new locks moves
+the win rate by a few points, not by seventy. Rather than ship a threshold that barely passes and
+call it a proof, the balance project asserts the two things that _are_ true and measurable: every
+enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8's
+rework makes a sharper comparison available, this is the gap to close.
+
+### 4. The balance project now exists
+
+The sweep outgrew the fast suite here, exactly as `AGENTS.md` predicted. Three reference parties
+across twenty-four stages at forty seeds, plus a bisecting difficulty probe, is thousands of
+battles and more than ten seconds. **The sample was not shrunk** — that buys speed by making the
+answer less true. `npm run test:balance` runs `src/**/*.balance.ts` against
+`vitest.balance.config.ts`, and `data/stages.spec.ts` kept only what is fast and structural.
+
+The reference parties also got a correction worth knowing about. The mid-game party was five
+characters at **level 80 with no ascension at all** — and `rare` caps at level 40, so the number
+the whole mid-ladder was tuned against described a party that cannot exist. `at()` scales whatever
+it is handed; only `levelUp` enforces the cap, and no sweep goes through it. The parties are now
+checked against their own rarity's cap on the way in:
+
+| Party    | Composition                                | Clears           |
+| -------- | ------------------------------------------ | ---------------- |
+| Starters | three at level 1                           | 1–6              |
+| Built    | five common-tier at level 80, `elite`      | the first twelve |
+| Invested | five common-tier at level 200, `legendary` | all twenty-four  |
+
+Still common tier at the top, and still no pull anyone had to be lucky for: the second half asks
+for levels and ascension rungs, which are bought with time and duplicates.
+
+### The original plan, and what survived of it
 
 **The prestige layer is cancelled, not deferred.** This milestone used to read "prestige layer,
 then content", and neither half had been checked against what the game actually looks like when
 the ladder runs out. The check is below: the second half is right, the first half is answering a
 question this game does not have, and the ordering was backwards.
 
-### What the top of the ladder actually looks like
+#### What the top of the ladder looked like
 
 Idle income rises on exactly one event — a stage clearing. Once stage 12 falls, all four rates
 are frozen permanently at 25 gold/s, 4.7 xp/s, 0.08 essence/s and 0.018 summons/s. The level
@@ -606,7 +757,7 @@ vertical axis two and a half years out of reach.** The game runs out of _decisio
 it runs out of _numbers_. That is the hole this milestone exists to fill, and it is the thing to
 measure any proposal against.
 
-### Why there is no prestige layer
+#### Why there is no prestige layer
 
 Prestige trades a reset of one axis for a permanent multiplier on another. Four reasons it does
 not fit here, recorded so it does not get re-proposed on genre instinct:
@@ -632,9 +783,9 @@ existing stages**, not a run reset — it keeps the reward shape (a cleared stag
 forever) and costs the player nothing they already earned. It is still recycling, and it still
 loses to authoring more ladder while there is ladder worth authoring.
 
-### 1. Auto-battle — the unlockable repeat
+#### The plan for auto-battle
 
-**This comes first because it is a prerequisite for the content, not a peer of it.** A
+**This came first because it is a prerequisite for the content, not a peer of it.** A
 twenty-four stage ladder climbed by tapping Fight is worse than a twelve stage one; doubling the
 content without it makes the game worse. It is also the cheapest item here, because it is
 already fully specified under "Later: the two auto-battles" below, constraints included.
@@ -657,7 +808,7 @@ This is also the first thing that genuinely cares about the difference between a
 Persisting per battle is what keeps that from being urgent: a missed lifecycle event then costs
 one fight.
 
-### 2. Roughly double the ladder
+#### The plan for the ladder
 
 This is the native mechanism and it closes the gap on its own. The twelve authored stages
 multiply income about 50× end to end, roughly ×1.4 a stage. Continuing that slope, against the
@@ -701,7 +852,7 @@ The new stages need locks, not bigger numbers. Milestone 4's six archetypes each
 and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
 for those before authoring a stat block that is stage 12 with a multiplier on it.
 
-### 3. Gear moves to milestone 12
+### Gear moves to milestone 12
 
 Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
 deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
@@ -1481,8 +1632,10 @@ decision rather than an oversight.
 ## Later: the two auto-battles
 
 "Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
-button the player presses. Do not build either of these into it. **The second one is milestone
-7**; the first stays deferred indefinitely, and the split below is why.
+button the player presses. **The second one shipped in milestone 7**; the first stays deferred
+indefinitely, and the split below is why. Everything under item 2 is now a description of built
+behaviour rather than a plan — it is kept because the constraints are the reason the feature has
+the shape it does.
 
 1. **Ambient sparring on the idle screen.** The party visibly fighting in the background while
    the player watches their income tick up — presentation, not simulation. It should not award
@@ -1504,11 +1657,10 @@ button the player presses. Do not build either of these into it. **The second on
    nothing else: no pause/resume state machine, no reconciliation on next launch, no partial
    battle to recover. Everything already finished is already banked.
 
-   That last part is a real change, not a description of today. Results reach `GameState` at
-   animation end, but only reach storage on `visibilitychange` or the thirty-second backstop
-   autosave — so a suspend without `visibilitychange` can lose several **completed** battles at
-   4x. **Persist when each battle ends** as part of building this; it is what makes "we just
-   lose the fight in flight" actually true.
+   That last part was a real change rather than a description of the app at the time: results
+   reached `GameState` at animation end but only reached storage on `visibilitychange` or the
+   thirty-second backstop, so a suspend could lose several **completed** battles at 4x.
+   `BattleService.settle` now persists at the end of every fight, auto or not.
 
    Because the loop is attended, milestone 2's decision to apply results at the end of the
    animation does **not** invert. Backgrounding already pauses the animator rather than
@@ -1519,13 +1671,15 @@ is what settled it.
 
 ## Deliberately deferred
 
-- **Foreground/background handling via `@capacitor/app`.** The `visibilitychange` handling
-  in `ui/game-loop.service.ts` covers the current need. Its old trigger — "when the offline path
-  pays out battle rewards" — will never fire, because the offline path pays the four idle rates
-  and nothing else. The live reason to revisit it is **auto-battle**: a loop that must stop when
-  the app leaves the foreground is the first thing that cares about the difference between a web
-  `visibilitychange` and a real iOS lifecycle event. Persisting at the end of each fight is what
-  keeps that from being urgent, since a missed lifecycle event then costs one battle.
+- **Foreground/background handling via `@capacitor/app`.** Still deferred, and milestone 7 is the
+  evidence for why rather than a reason to revisit it. Auto-battle was named as the first feature
+  that would genuinely care about the difference between a web `visibilitychange` and a real iOS
+  lifecycle event, and it shipped without needing one: `BattleService` listens for
+  `visibilitychange` and switches the loop off, and because every battle persists as it ends, a
+  lifecycle event the web API misses costs exactly one fight. `ui/game-loop.service.ts` covers the
+  save side the same way. The trigger to watch for is something whose cost on a missed event is
+  **unbounded** rather than one battle — that is what would make the native API worth the
+  dependency.
 - **Angular Material.** **Removed, not deferred.** It was installed by `ng new` and never
   imported by a single component — five screens' worth of buttons, tabs, a progress bar, a table
   and a disclosure were built without it, all AXE-clean. The only thing it actually did was own
