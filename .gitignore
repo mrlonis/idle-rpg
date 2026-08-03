@@ -60,3 +60,6 @@ node_modules/
 # Claude
 .claude/*
 !.claude/CLAUDE.md
+
+# Local code-signing identity. See ios/signing.example.xcconfig.
+ios/signing.xcconfig

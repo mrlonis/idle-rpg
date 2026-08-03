@@ -186,6 +186,23 @@ defenses — there is nothing to protect.
 - Prefer `capacitor.config.ts` over per-platform Xcode/Android Studio settings when the
   option exists in both.
 - Do not edit `android/app/src/main/assets/public/` or `ios/App/App/public/` — generated.
+- **Code-signing identity lives in `ios/signing.xcconfig`, which is git-ignored.** `DEVELOPMENT_TEAM`
+  is deliberately absent from `project.pbxproj`; `ios/debug.xcconfig` and `ios/release.xcconfig`
+  pull it in with `#include? "signing.xcconfig"` — the optional include, which Xcode skips without
+  complaint when the file is missing, so a fresh clone builds and is simply asked for a team.
+  Copy `ios/signing.example.xcconfig` to set yours up.
+
+  The reason for the indirection, and the thing to know before "simplifying" it: with
+  `CODE_SIGN_STYLE = Automatic`, choosing a team in Xcode's Signing & Capabilities tab writes
+  `DEVELOPMENT_TEAM` **straight back into `project.pbxproj`**. Advice to "leave it unset in the
+  shared project and just set it locally in Xcode" therefore does not stick on its own — the
+  xcconfig is what makes it stick. If the line reappears in the project file, delete it there and
+  put the value in `signing.xcconfig`; do not commit it.
+
+  A team ID is an identifier, not a credential — it is the App ID prefix and ships inside every
+  app Apple distributes, and it signs nothing without the private key in your keychain. So this
+  is an ergonomics fix, not a secret-handling one. Do not treat a leaked team ID as an incident.
+
 - Build order matters: `ng build` → `cap sync` → open. Syncing before building ships stale
   assets.
 - Android needs a system back-button handler (`@capacitor/app`) that pops modals and

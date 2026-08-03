@@ -173,6 +173,21 @@ npm run build && npm run cap:sync
 Syncing before building ships stale assets. `npm run ios` and `npm run android` do both
 steps in the right order and then open the native IDE.
 
+### Signing an iOS build
+
+`DEVELOPMENT_TEAM` is intentionally not in `project.pbxproj`. Before your first run on a
+physical device:
+
+```bash
+cp ios/signing.example.xcconfig ios/signing.xcconfig   # then put your Team ID in it
+```
+
+That file is git-ignored, and `ios/debug.xcconfig` / `ios/release.xcconfig` pull it in with
+`#include?` — the optional include, so the project still builds without it and Xcode just asks
+for a team. Note that picking a team in Xcode's Signing & Capabilities tab writes
+`DEVELOPMENT_TEAM` back into `project.pbxproj`; if that happens, move the value into
+`signing.xcconfig` rather than committing it.
+
 Two things that will bite you if ignored:
 
 - The project has no explicit `browserslist` yet. One should be added and kept aligned with

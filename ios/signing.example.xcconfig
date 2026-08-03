@@ -1,0 +1,12 @@
+// Copy to `signing.xcconfig` (git-ignored) and set your own Apple Developer Team ID:
+//
+//     cp ios/signing.example.xcconfig ios/signing.xcconfig
+//
+// Xcode > Settings > Accounts shows the ID, or Signing & Capabilities on the App target.
+// Without it the project still builds; Xcode prompts for a team on the first device run.
+//
+// This indirection exists so the team ID stays out of project.pbxproj. Setting it through the
+// Xcode UI while CODE_SIGN_STYLE is Automatic writes it straight back into the project file,
+// which is why "just configure it locally" does not stick on its own.
+
+DEVELOPMENT_TEAM = XXXXXXXXXX
