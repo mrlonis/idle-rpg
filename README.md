@@ -3,7 +3,8 @@
 A 2D incremental idle RPG for mobile — gacha pulls, idle progression, team building, and
 stage climbing. iOS-first, Android secondary. Solo dev project.
 
-**Stack:** TypeScript, Angular 22 (zoneless), Angular Material, Capacitor 8. No backend.
+**Stack:** TypeScript, Angular 22 (zoneless), Capacitor 8. No backend, and no UI framework —
+the screens are hand-written components over a shared palette.
 
 The game is **completely free and fully offline**: no in-app purchases, no ads, no
 accounts, no servers, no network calls. Balance is tuned as a _time economy_ rather than a
@@ -171,6 +172,21 @@ npm run build && npm run cap:sync
 
 Syncing before building ships stale assets. `npm run ios` and `npm run android` do both
 steps in the right order and then open the native IDE.
+
+### Signing an iOS build
+
+`DEVELOPMENT_TEAM` is intentionally not in `project.pbxproj`. Before your first run on a
+physical device:
+
+```bash
+cp ios/signing.example.xcconfig ios/signing.xcconfig   # then put your Team ID in it
+```
+
+That file is git-ignored, and `ios/debug.xcconfig` / `ios/release.xcconfig` pull it in with
+`#include?` — the optional include, so the project still builds without it and Xcode just asks
+for a team. Note that picking a team in Xcode's Signing & Capabilities tab writes
+`DEVELOPMENT_TEAM` back into `project.pbxproj`; if that happens, move the value into
+`signing.xcconfig` rather than committing it.
 
 Two things that will bite you if ignored:
 

@@ -3,7 +3,8 @@
 A 2D incremental idle RPG for mobile (iOS-first, Android secondary): gacha pulls, idle
 progression, team building, stage climbing. Solo dev project.
 
-Stack: TypeScript, Angular 22 (zoneless), Angular Material, Capacitor 8. No backend.
+Stack: TypeScript, Angular 22 (zoneless), Capacitor 8. No backend, no UI framework — the
+screens are hand-written components over the palette in `src/ui/theme.scss`.
 
 ---
 
@@ -48,8 +49,12 @@ verify against the code.**
 
 Read it before starting a milestone, and specifically before:
 
-- reaching for **Angular Material**, **`@capacitor/app`**, or a **run reset** — each is
-  deliberately deferred, and the doc records the condition that has to be met first;
+- reaching for **`@capacitor/app`** or a **run reset** — each is deliberately deferred, and the
+  doc records the condition that has to be met first. **Angular Material is not deferred, it is
+  removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to be
+  the cause of the app's broken first appearance on a real phone. Do not reinstall it.
+  `@angular/cdk` is a separate question and the answer is different — see the accessibility
+  section below;
 - building anything that fights on its own — "auto-battle" means two separate features, and
   neither belongs in the milestone that introduced combat;
 - adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
@@ -181,12 +186,68 @@ defenses — there is nothing to protect.
 - Prefer `capacitor.config.ts` over per-platform Xcode/Android Studio settings when the
   option exists in both.
 - Do not edit `android/app/src/main/assets/public/` or `ios/App/App/public/` — generated.
+- **Code-signing identity lives in `ios/signing.xcconfig`, which is git-ignored.** `DEVELOPMENT_TEAM`
+  is deliberately absent from `project.pbxproj`; `ios/debug.xcconfig` and `ios/release.xcconfig`
+  pull it in with `#include? "signing.xcconfig"` — the optional include, which Xcode skips without
+  complaint when the file is missing, so a fresh clone builds and is simply asked for a team.
+  Copy `ios/signing.example.xcconfig` to set yours up.
+
+  The reason for the indirection, and the thing to know before "simplifying" it: with
+  `CODE_SIGN_STYLE = Automatic`, choosing a team in Xcode's Signing & Capabilities tab writes
+  `DEVELOPMENT_TEAM` **straight back into `project.pbxproj`**. Advice to "leave it unset in the
+  shared project and just set it locally in Xcode" therefore does not stick on its own — the
+  xcconfig is what makes it stick. If the line reappears in the project file, delete it there and
+  put the value in `signing.xcconfig`; do not commit it.
+
+  A team ID is an identifier, not a credential — it is the App ID prefix and ships inside every
+  app Apple distributes, and it signs nothing without the private key in your keychain. So this
+  is an ergonomics fix, not a secret-handling one. Do not treat a leaked team ID as an incident.
+
 - Build order matters: `ng build` → `cap sync` → open. Syncing before building ships stale
   assets.
 - Android needs a system back-button handler (`@capacitor/app`) that pops modals and
   navigates up, exiting only from the root. iOS has no equivalent.
 - Safe-area handling is `env(safe-area-inset-*)` CSS on both platforms (Capacitor 8 moved
-  Android edge-to-edge to the same mechanism).
+  Android edge-to-edge to the same mechanism). **Never write `padding: env(safe-area-inset-top)`.**
+  The single-value shorthand reads as though it targets one side and does not — it puts the _top_
+  inset on all four, which is a 59px gutter down both edges of an iPhone. This shipped, and it is
+  what made the app's first run on real hardware look broken. Use the longhand
+  (`padding-top: env(safe-area-inset-top)`); the only shorthand that means what it looks like is
+  the fully spelled-out four-value form:
+
+  ```css
+  /* wrong — 59px on every side */
+  padding: env(safe-area-inset-top);
+  /* right */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  ```
+
+  The trap generalises to any `env()` or `var()` in a shorthand: the value names a side, the
+  property does not know that.
+
+- **The document must not scroll; a container inside it does.** `html` and `body` are
+  `height: 100%; overflow: hidden`, the shell is a flex column, and `main` is the scroll
+  container. That removes iOS rubber-banding of the whole page and, with it, the reason to reach
+  for `position: fixed` — a fixed element lays out against the _visual_ viewport, so it keeps
+  filling the screen when the document does not, and any layout bug elsewhere then presents as a
+  broken tab bar.
+- **Set `backgroundColor` in `capacitor.config.ts`.** Left unset, `CAPBridgeViewController`
+  falls back to `UIColor.systemBackground` — white in light mode — and that is what shows before
+  the first paint and anywhere web content does not reach.
+- Capacitor 8 already disables pinch-zoom (`zoomEnabled` defaults to false, which installs the
+  pinch-blocking scroll delegate on iOS and turns off `setBuiltInZoomControls` on Android) and
+  already sets `scrollView.bounces = false`. **Do not subclass `CAPBridgeViewController` to do
+  either** — read `node_modules/@capacitor/ios/Capacitor/Capacitor/CAPBridgeViewController.swift`
+  before believing a native fix is needed for WebView chrome.
+- **Do not put `maximum-scale=1, user-scalable=no` in the viewport meta.** It is the reflex fix
+  for zoom in a shelled app and it is all cost here: AXE flags it under WCAG 1.4.4, and it buys
+  nothing over the native `zoomEnabled: false` above plus `touch-action: manipulation` for
+  double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real
+  values instead of zero.
+- **No webfonts.** The app is offline-only, so a `fonts.googleapis.com` stylesheet is a network
+  call on the critical rendering path that fails exactly when the player has no signal.
+  `src/styles.scss` uses the platform system stack.
 - Keep `browserslist` explicit and aligned with Capacitor 8's floors (iOS 15+, API 24+).
   Angular's default target can emit syntax that old Android System WebView cannot parse,
   which fails at parse time and renders a blank screen with no visible error.
@@ -238,6 +299,22 @@ defenses — there is nothing to protect.
 
 - It MUST pass all AXE checks.
 - It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+- The bar above is load-bearing, not aspirational — it is what caught `user-scalable=no` in
+  milestone 6, within a minute of it being written. When a fix and the accessibility suite
+  disagree, the suite is usually telling you the fix was a reflex. Look for the option that
+  satisfies both before reaching to silence one.
+- **`@angular/cdk` is installed and is the sanctioned answer for modals**, unlike Angular
+  Material, which is removed. It is not a UI framework — it is an accessibility primitives
+  library, and `cdkTrapFocus` / `Overlay` cover focus trapping, focus restoration, background
+  `inert` and scroll blocking. Those are where a hand-rolled dialog fails AXE, so do not
+  hand-roll them. Nothing imports CDK today; it is on hand deliberately, and its presence is
+  **not** a precedent for installing anything else speculatively.
+  - When that day comes, CDK wants two prebuilt global stylesheets — `a11y-prebuilt.css` for
+    `.cdk-visually-hidden`, `overlay-prebuilt.css` for overlay positioning. Add them
+    deliberately, at that point, and read them first: `overlay-prebuilt.css` declares
+    `.cdk-overlay-container { position: fixed; height: 100%; width: 100% }`, which is correct
+    only because the shell now guarantees the document fills the viewport. Wiring a global
+    stylesheet in without reading it is the exact mistake Material's scaffold made.
 
 ### Components
 

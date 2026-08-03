@@ -4,15 +4,30 @@
     <meta charset="utf-8" />
     <title>IdleRpg</title>
     <base href="/" />
+    <!--
+      `viewport-fit=cover` is what makes env(safe-area-inset-*) report real values instead of
+      zero, which the shell layout depends on.
+
+      Deliberately **not** `maximum-scale=1, user-scalable=no`. That is the reflex fix for zoom in
+      a shelled app, and here it would be all cost: AXE flags it under WCAG 1.4.4, and it buys
+      nothing, because `zoomEnabled: false` in `capacitor.config.ts` already disables the pinch
+      recogniser natively on iOS and `setBuiltInZoomControls` on Android. Double-tap-to-zoom is
+      handled by `touch-action: manipulation` in `styles.scss`. Zoom is off on both platforms
+      without ever telling a browser that a user may not scale the page.
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      Declared before any stylesheet loads, so the WebView paints its backdrop in the app's page
+      colour rather than flashing the white it would otherwise default to.
+    -->
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#12121a" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <!--
+      No webfonts. The game runs fully offline, so a stylesheet from fonts.googleapis.com is a
+      network call on the critical rendering path that fails exactly when the player is on a
+      plane. `styles.scss` uses the platform's own system stack instead.
+    -->
   </head>
   <body>
     <app-root></app-root>

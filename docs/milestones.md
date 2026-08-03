@@ -479,6 +479,87 @@ landed.
 Do this while the app is still small, so the signing and provisioning pain lands early
 rather than next to a deadline. `npm run ios` builds, syncs, and opens Xcode.
 
+### What the first run on real hardware found
+
+The app worked and looked broken: a narrow column of content down the middle of the screen,
+white margins on all four sides, and a full-width dark tab bar that did not line up with
+anything above it. The obvious reading is that the page is zoomed out — on iOS a `position: fixed`
+element lays out against the _visual_ viewport, so it keeps filling the screen while a scaled-down
+document does not, and that is exactly the signature.
+
+It was not zoom. Reproduced headlessly in Chromium at 393×852 with CDP's safe-area inset
+override and the scale pinned at 1.0, the screenshot matches the phone pixel for pixel. The
+cause was three lines of the Angular CLI's scaffolded `src/styles.scss`, never edited since
+`ng new`:
+
+```scss
+body {
+  color-scheme: light; // → --mat-sys-surface resolved to rgb(255, 248, 248)
+  background-color: var(--mat-sys-surface);
+  padding: env(safe-area-inset-top); // → 59px on ALL FOUR sides
+}
+```
+
+`padding` with a single value applies it to every side, so the **top** inset became a 59px
+gutter down both edges as well — a 275px content column in a 393px viewport. The fixed tab bar
+stayed 393px because fixed elements do not care what the document is doing. `min-height: 100dvh`
+on both the shell and `main`, on top of 118px of body padding, put `scrollHeight` at 1142 against
+an 852px viewport, which is the white below the fold.
+
+Worth keeping: **the tell that says "zoom" also says "the document is narrower than the
+viewport", and the second is far more likely.** Measure before theorising — `getComputedStyle`
+on `body` would have ended this in a minute.
+
+### What changed
+
+- **Angular Material is uninstalled.** Nothing imported it; the only thing it did was own
+  `styles.scss`, and what it did there was the bug. `styles.css` went from 8.82 kB to 699 bytes.
+  `@angular/cdk` went with it and was then put back deliberately — see the deferred list below,
+  which records why the two got different answers.
+- **The document no longer scrolls.** `html` and `body` are `height: 100%; overflow: hidden`,
+  the shell is a flex column, and `main` is the scroll container. This is the structural fix, not
+  a cosmetic one: it removes page-level rubber-banding, and it lets the tab bar become a flex
+  item instead of `position: fixed`. A bar that is a sibling in the layout cannot disagree with
+  the content above it, and `main` stops having to carry a hard-coded 6rem of bottom padding to
+  guess the bar's height — which was also dead space on the two screens that have no bar.
+- **Safe-area insets moved to where they cannot scroll away.** Horizontal and top insets sit on
+  the shell, so the top gutter is outside the scroll container and content cannot slide under the
+  notch; the bottom inset sits on the tab bar, so its own surface colour fills the home-indicator
+  strip rather than the page colour showing through. That split is the part to preserve — moving
+  the bottom inset up to the shell alongside the other three looks tidier and puts the tab bar's
+  touch targets over the home indicator. Measured at 393×852 with a 34px bottom inset: the links
+  are 64px tall and end at y=818, exactly where the indicator strip begins, and the bar's surface
+  still reaches y=852.
+- **Zoom is off on both platforms, and the viewport meta was not the way to do it.** The reflex
+  fix is `maximum-scale=1, user-scalable=no`; it was written, and the accessibility suite
+  immediately failed all six screens on AXE's `meta-viewport` rule (WCAG 1.4.4). It turned out to
+  buy nothing: `zoomEnabled: false` in `capacitor.config.ts` disables the pinch recogniser
+  natively on iOS and `setBuiltInZoomControls` on Android, and `touch-action: manipulation`
+  handles double-tap. The meta is back to `width=device-width, initial-scale=1,
+viewport-fit=cover`, zoom is still off on device, and the AXE run is clean. The accessibility
+  bar caught this within a minute of it being written, which is the argument for having it.
+- **`backgroundColor` is set in `capacitor.config.ts`**, globally and per platform. Unset, the
+  native window falls back to `UIColor.systemBackground` — white — which is what shows for a
+  frame before first paint.
+- **The Google Fonts `<link>`s are gone.** Roboto and Material Icons were being fetched over the
+  network by an app whose first design constraint is that it never touches the network. Neither
+  was used: the components already asked for the system stack.
+- WebView chrome that has no place in a game surface is off — tap highlight, long-press callout,
+  text selection, overscroll chaining — with selection turned back **on** for the battle log,
+  which is the one screen showing prose a player might want to copy.
+
+### The native change that turned out not to be needed
+
+The standard advice for this class of problem ends with "subclass `CAPBridgeViewController` and
+disable the pinch recogniser and `scrollView.bounces` yourself". **Capacitor 8 already does
+both.** `CAPBridgeViewController.swift` sets `bounces = false` unconditionally, and installs the
+scroll delegate that blocks zooming whenever `zoomEnabled` is false — which is its default since
+Capacitor 6. `capacitor.config.ts` now states `zoomEnabled: false` and `contentInset: 'never'`
+anyway, because a silent default is not a decision anyone can find later, but no Swift was
+written and `ios/` was not touched. Read the pod source before accepting that a WebView problem
+needs a native fix — and note that the config option is also what let the viewport meta stay
+accessible, so the two are not independent choices.
+
 ## 7. Prestige layer, then content
 
 Only after 1–6 are solid.
@@ -530,10 +611,39 @@ is what settled it.
   the app leaves the foreground is the first thing that cares about the difference between a web
   `visibilitychange` and a real iOS lifecycle event. Persisting at the end of each fight is what
   keeps that from being urgent, since a missed lifecycle event then costs one battle.
-- **Angular Material.** Installed but unused. Do not pull it in until a real control needs
-  it. Milestone 3 added five screens' worth of buttons, tabs, a progress bar, a table and a
-  disclosure without it, all AXE-clean — so the bar for reaching for it is higher now, not
-  lower.
+- **Angular Material.** **Removed, not deferred.** It was installed by `ng new` and never
+  imported by a single component — five screens' worth of buttons, tabs, a progress bar, a table
+  and a disclosure were built without it, all AXE-clean. The only thing it actually did was own
+  the scaffolded global stylesheet, and what it did there broke the app's first run on real
+  hardware (see milestone 6). If a control ever genuinely needs it, reinstalling is one command —
+  but write the global styles by hand rather than accepting `mat.theme()`, which assumes a light
+  scheme and a webfont this project cannot have.
+- **`@angular/cdk`.** Uninstalled alongside Material, then **deliberately reinstalled** while
+  milestone 6 was still open. Nothing imports it yet, which is the one thing about this entry
+  worth being honest about: it is a dependency on hand for a use case that has not arrived.
+  That was a considered call rather than a drift, so the reasoning is recorded here instead of
+  being re-argued later.
+
+  The case for it is that CDK is not a UI framework, it is an accessibility primitives library,
+  and this project's bar is a clean AXE run against WCAG AA. The first modal — pull results, a
+  roster detail sheet — needs a focus trap, focus restoration on close, the background made
+  `inert`, scroll blocking and Escape handling. That is a list of things that are individually
+  easy to write and collectively easy to get subtly wrong, and getting them wrong is an
+  accessibility bug rather than a cosmetic one. `cdkTrapFocus` and `Overlay` are the answer, and
+  "no UI framework" was never meant to forbid them.
+
+  The case against installing it _early_ is the one this milestone just lived through: an
+  unused dependency is how Material got in, and CDK versions in lockstep with Angular, so
+  waiting would have cost nothing but an `npm i`. **Its presence is not a precedent.** Do not
+  read it as a licence to install anything else against a future need.
+
+  One thing to read before wiring it up: CDK ships prebuilt global stylesheets, and
+  `overlay-prebuilt.css` declares `.cdk-overlay-container { position: fixed; height: 100%;
+width: 100% }`. That is correct here only because the shell now guarantees the document fills
+  the viewport — under the old layout it would have had the same mismatch as the tab bar. Add
+  those stylesheets when the first overlay lands, not before, and read them rather than pasting
+  them.
+
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a

@@ -1,1 +1,6 @@
 CAPACITOR_DEBUG = true
+
+// Local code-signing identity, if this machine has one. `#include?` is the *optional* include:
+// Xcode skips it silently when the file is absent, so a fresh clone builds without a team set
+// and Xcode simply asks for one. See signing.example.xcconfig.
+#include? "signing.xcconfig"
