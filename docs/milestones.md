@@ -21,8 +21,19 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing         |
 | 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations      |
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
-| 6   | Run on a physical iPhone               | 🟡 Next                                      |
-| 7   | Prestige layer, then content           | ⬜                                           |
+| 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
+| 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
+| 8   | The combat rework                      | ⬜                                           |
+| 9   | Resonance — levels the roster shares   | ⬜                                           |
+| 10  | Power that compounds                   | ⬜                                           |
+| 11  | Chapters                               | ⬜                                           |
+| 12  | Gear                                   | ⬜                                           |
+| 13  | Settings, and the save-safety gap      | ⬜                                           |
+| 14  | Dailies, bounties and notifications    | ⬜                                           |
+| 15  | Faction towers                         | ⬜                                           |
+| 16  | Deep per-hero investment               | ⬜                                           |
+| 17  | The roguelite run                      | ⬜                                           |
+| 18  | Puzzle maps                            | ⬜                                           |
 
 ---
 
@@ -414,10 +425,16 @@ Three decisions worth not re-litigating:
 ## 5. Offline catch-up — **COMPLETE**
 
 Shipped and tested in [`core/offline.ts`](../src/core/offline.ts): the continuous fixed-rate
-closed form settling all four rate-bearing currencies in one pass, the `[0, OFFLINE_CAP_MS]`
-clamp at ten hours, the backwards-clock guard, and a non-finite guard for a damaged
-`lastTickAt`. `resume()` is called on load from `ui/game-loop.service.ts` and its report is
-rendered on the home screen, so the path is wired end to end rather than merely available.
+closed form settling all four rate-bearing currencies in one pass, the backwards-clock guard, and
+a non-finite guard for a damaged `lastTickAt`. `resume()` is called on load from
+`ui/game-loop.service.ts` and its report is rendered on the home screen, so the path is wired end
+to end rather than merely available.
+
+**The ten-hour cap this originally shipped with has since been deleted** — see milestone 11.
+There is no offline cap at all: a year away pays a year. The closed form was always O(1) in
+elapsed time, so the ceiling was never buying performance; it was a genre reflex, and the only
+thing it did on purpose was bound a corrupt timestamp — a job `MIN_PLAUSIBLE_TICK_MS` now does
+deliberately.
 
 The project's highest-value invariant is pinned in
 [`offline.spec.ts`](../src/core/offline.spec.ts): the closed form agrees with stepwise accrual,
@@ -560,21 +577,919 @@ written and `ios/` was not touched. Read the pod source before accepting that a 
 needs a native fix — and note that the config option is also what let the viewport meta stay
 accessible, so the two are not independent choices.
 
-## 7. Prestige layer, then content
+## 7. Auto-battle, then doubling the ladder
 
-Only after 1–6 are solid.
+**The prestige layer is cancelled, not deferred.** This milestone used to read "prestige layer,
+then content", and neither half had been checked against what the game actually looks like when
+the ladder runs out. The check is below: the second half is right, the first half is answering a
+question this game does not have, and the ordering was backwards.
+
+### What the top of the ladder actually looks like
+
+Idle income rises on exactly one event — a stage clearing. Once stage 12 falls, all four rates
+are frozen permanently at 25 gold/s, 4.7 xp/s, 0.08 essence/s and 0.018 summons/s. The level
+curve, meanwhile, runs to 1000. One character from level 1 to the cap, at those frozen rates:
+
+| Currency | Cost | Time at post-ladder income |
+| -------- | ---- | -------------------------- |
+| gold     | 385M | ~178 days                  |
+| xp       | 75M  | ~185 days                  |
+| essence  | 6.1M | **~882 days**              |
+
+Per character, and the party is five. Essence binds by roughly 5×, exactly as
+[`levels.ts`](../src/data/levels.ts) intends — but it was tuned against a ladder that would keep
+growing, and the ladder stopped. Crystals do not take up the slack either: 0.018/s is about 190
+pulls a day at 8 crystals each, so collection is not the bottleneck and never becomes one.
+
+**So the post-ladder state is nothing left to clear, income that can never rise again, and a
+vertical axis two and a half years out of reach.** The game runs out of _decisions_ long before
+it runs out of _numbers_. That is the hole this milestone exists to fill, and it is the thing to
+measure any proposal against.
+
+### Why there is no prestige layer
+
+Prestige trades a reset of one axis for a permanent multiplier on another. Four reasons it does
+not fit here, recorded so it does not get re-proposed on genre instinct:
+
+1. **There is nothing to reset.** The only resettable axis is stage progress, and stage progress
+   _is_ the income rate — the rate table is the reward. Wiping it takes everything and hands
+   back twelve fights the player has already won.
+2. **The roster cannot be part of it, and that is settled law.** Ascension consumes only spare
+   copies specifically so that nobody can destroy a week's investment by tapping the wrong row
+   (see milestone 3). A prestige that eats levelled characters contradicts the most
+   player-protective decision in the design.
+3. **The job prestige normally does is already done.** Its usual purpose is an uncapped vertical
+   axis so numbers keep growing past authored content. That is ascension plus the 1000-level
+   curve, and the table above shows two and a half years of it sitting unreachable. The problem
+   is not a missing multiplier track; it is income that cannot reach the one already built.
+4. **Its other purpose is content recycling** — making twelve stages feel like a hundred and
+   twenty. That is the same shape as the tuning philosophy this project rejects everywhere else:
+   a structural answer to "we ran out of content" that spends the player's time in place of
+   authoring time. There is nothing to sell here, so the honest version is to author the stages.
+
+If the recycling idea ever does come back, the form to consider is **difficulty tiers over
+existing stages**, not a run reset — it keeps the reward shape (a cleared stage raises rates
+forever) and costs the player nothing they already earned. It is still recycling, and it still
+loses to authoring more ladder while there is ladder worth authoring.
+
+### 1. Auto-battle — the unlockable repeat
+
+**This comes first because it is a prerequisite for the content, not a peer of it.** A
+twenty-four stage ladder climbed by tapping Fight is worse than a twelve stage one; doubling the
+content without it makes the game worse. It is also the cheapest item here, because it is
+already fully specified under "Later: the two auto-battles" below, constraints included.
+
+Two of those constraints are load-bearing and are not to be relaxed while building it:
+
+- **Foreground-only.** It never advances a stage while nobody is watching. That is what keeps
+  every idle rate constant across every offline window, which is the entire reason milestone 5
+  needs no segmented solver. Making it run unattended re-opens milestone 5.
+- **Persist at the end of each battle.** Results reach `GameState` at animation end but only
+  reach storage on `visibilitychange` or the thirty-second backstop, so a hard suspend can
+  currently lose several _completed_ battles at 4x. Fixing that is what makes "losing the app
+  costs the fight in flight and nothing else" actually true.
+
+**Ambient sparring on the idle screen is not part of this** and stays deferred. It awards
+nothing and touches no state, so it buys no progression and blocks nothing.
+
+This is also the first thing that genuinely cares about the difference between a web
+`visibilitychange` and an iOS lifecycle event, so `@capacitor/app` may stop being deferred here.
+Persisting per battle is what keeps that from being urgent: a missed lifecycle event then costs
+one fight.
+
+### 2. Roughly double the ladder
+
+This is the native mechanism and it closes the gap on its own. The twelve authored stages
+multiply income about 50× end to end, roughly ×1.4 a stage. Continuing that slope, against the
+essence cost of level 1000:
+
+| Ladder length | Essence rate | One character to level 1000 |
+| ------------- | ------------ | --------------------------- |
+| 12 (today)    | 0.08/s       | ~882 days                   |
+| 19            | ~0.84/s      | ~84 days                    |
+| 24            | ~4.5/s       | ~16 days                    |
+
+**Everything prestige was gesturing at is delivered by the system already built.** Gold stops
+binding entirely by stage 24 (about three days to cap) and essence stays the wall, which is the
+role [`levels.ts`](../src/data/levels.ts) assigns it — the shape of the economy survives the
+extension rather than needing a retune.
+
+Note that ×1.4 a stage is **fitted to the existing curve, not derived from a tuning target**.
+The table says what the current slope implies; it does not say that 19 or 24 is the right ladder
+length. That is a design decision this informs rather than settles.
+
+**Milestone 11 settles it, and moves the goalposts.** The table above treats "level 1000 in a
+reasonable time" as the target to tune toward. Under the chapter structure that target is wrong:
+1000 is deliberately a chapter-100 goal, roughly 9,500 stages out, and the cap being unreachable
+in chapter 1 is the intent rather than the bug. What survives from this section is the diagnosis
+— income that freezes permanently with nothing left to clear — not the prescription.
+
+So treat this milestone's stages as **the last of the flat, hand-tuned ladder**: enough content
+to exercise auto-battle against something, and the opening stretch of what becomes chapter 1.
+Their rates get re-derived in milestone 11 when rates stop being an authored field, and the whole
+curve is retuned in milestone 10. **Do not over-invest in tuning them here** — anything past
+"auto-battle has a ladder to chew on" is work that gets done twice.
+
+Two things guard the work. [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates
+off the top of `STAGES` rather than restating them, so **every stage added re-runs the entire
+time-to-afford table**; when it fails, the curve and the economy have come apart and the answer
+is to retune one of them deliberately, never to move the threshold. And
+[`stages.spec.ts`](../src/data/stages.spec.ts) sweeps the ladder at forty seeds, so a stage that
+is unclearable by the intended party fails on the way in.
+
+The new stages need locks, not bigger numbers. Milestone 4's six archetypes each name a question
+and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
+for those before authoring a stat block that is stage 12 with a multiplier on it.
+
+### 3. Gear moves to milestone 12
+
+Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
+deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
+it later — [`core/currency.ts`](../src/core/currency.ts),
+[`core/roster/level.ts`](../src/core/roster/level.ts),
+[`data/levels.ts`](../src/data/levels.ts), and an assertion in
+[`levels.spec.ts`](../src/data/levels.spec.ts) that keeps it true. So gold is currently the most
+comfortable currency in the game for a reason that has not shipped, and the ladder extension
+above makes it comfortable to the point of meaninglessness.
+
+That makes gear its own milestone rather than part of this one: it is a second sink and a second
+axis of decision, and it is large enough that folding it in here would be the same mistake as
+"prestige layer, then content" — two milestones on one line. It sits at **12**, after the
+scaling rework and the chapter structure, so its power budget is designed against the curve it
+has to live in rather than being tuned twice.
+
+## 8. The combat rework
+
+Four interlocking changes: the stat block, energy and ultimates, how many skills a character
+gets, and faction lineup bonuses. **They are one milestone because they cannot ship apart** —
+authoring twenty-three character kits against the old stat block and then re-authoring them for
+energy is the same work done twice, and every one of the four changes what the others are tuned
+against.
+
+It sits here, before the compounding rework and the chapters, for the same reason: milestone 10
+retunes all scaling and milestone 11 authors a hundred stages, and doing either against a combat
+model that is about to change means doing it again. It is independent of auto-battle at 7, which
+is model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
+
+**This is the largest milestone in the project, larger than milestone 4.** If it needs splitting,
+split at the stat boundary: the new stats can land at neutral defaults and change nothing
+observable, with the rest following.
+
+### The stat block
+
+**One `atk` and one `def`. Damage type becomes a property of the skill rather than of the stat**
+— a skill declares physical or magic, reads the single attack stat, and is reduced by defence
+plus the matching resist. That is the AFK Arena shape and it collapses four stats into two.
+
+Seventeen stats become roughly twenty-two:
+
+| Disposition   | Stats                                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Kept as-is    | `hp`, `critChance`, `accuracy`, `dodge`, `lifesteal`, `tenacity`                                                               |
+| Kept, renamed | `armorPen`/`magicPen` → physical/magic pierce, `spd` → haste, `effectHit` → insight                                            |
+| Collapsed     | `patk`/`matk` → `atk`, `pdef`/`mdef` → `def`                                                                                   |
+| Reshaped      | `critMultiplier` → crit damage amplification, opposed by a new crit damage resistance                                          |
+| **Deleted**   | `mp`, `mpRegen`                                                                                                                |
+| New           | magic resist, physical resist, crit damage resistance, crit block rate, recovery, health regen, received healing, attack speed |
+
+Four things worth knowing before starting:
+
+- **Half of this vocabulary is already built.** Four of the new stats are _opposed pairs_ —
+  accuracy vs dodge, insight vs tenacity, crit damage amplification vs resistance, crit rating vs
+  crit block. The first two already work exactly that way in `damage.ts`. This is not a foreign
+  system bolted on; it is the pattern already there, extended consistently.
+- **Recovery has to scale, and nothing else new does.** At the ×10⁹ health milestone 10 is aiming
+  for, a non-scaling recovery is a no-op — the same argument that keeps a budget stat fixed, run
+  backwards. So the scaling set is health, attack, defence and recovery; everything else new is a
+  percentage or a point value, which is where they belong.
+- **Haste and attack speed collapse in an ATB system unless separated on purpose.** AFK Arena is
+  real-time, so casting frequency and attack animation speed are genuinely different things. Here
+  `gauge += spd` per tick makes both just gauge fill. The proposed split: **haste** is gauge fill
+  for everything, clamped exactly as `spd` is today because the termination argument has not
+  changed; **attack speed** is extra gauge that accrues only while the actor's next action would
+  be a basic attack, so a high-attack-speed character machine-guns basics between skill windows.
+  **Validate this against a sweep rather than treating it as settled** — it is the one mapping
+  here with no precedent in the codebase.
+- **Collapsing `patk`/`matk` deletes milestone 4's back-row bonus.** "+5% to whichever offensive
+  stat is already higher, and only that one" has no meaning with a single attack stat, and the
+  reasoning behind it — that a caster gets the bonus where its damage actually comes from — goes
+  with it. It needs replacing, not dropping: the front/back asymmetry is what makes the front rank
+  a real cost. Deciding what replaces it is part of this milestone, not an afterthought.
+
+### Energy and ultimates
+
+Every character's first skill is an **ultimate**, metered by a 0–100 energy pool that fills from
+acting — landing a hit, taking one, healing an ally — plus a regen over time. **Every other skill
+costs nothing but its cooldown.** `mp` and `mpRegen` are deleted outright.
+
+Two consequences to go in with eyes open:
+
+- **Termination is already safe, and not because of MP.** `MAX_BATTLE_TICKS` is 18,000 with a
+  distinct `stalemate` outcome, and the comment there already anticipates a healer with a deep
+  enough pool out-sustaining a party. The timeout model this needs is already built.
+- **What is actually traded away is pacing, not correctness.** MP's documented job was to
+  front-load and then run dry, which is what made a long fight feel different from a short one.
+  Energy that refills from acting never runs dry, so fights converge on ultimates-on-cooldown. If
+  long fights should still feel different, that difference now has to come from somewhere else —
+  enemy design, or the stalemate clock being close enough to matter.
+
+Milestone 4's "three ways to meter a skill" becomes two: energy for ultimates, cooldown for
+everything else. The Undead's HP-cost bargain goes with MP unless it is deliberately kept.
+
+### How many skills a character gets
+
+**Both axes.** Tier sets the ceiling and ascension rungs unlock up to it:
+
+| Tier      | Ceiling          |
+| --------- | ---------------- |
+| common    | 2 — ultimate + 1 |
+| legendary | 3 — ultimate + 2 |
+| ascended  | 4 — ultimate + 3 |
+
+Proposed rung mapping: the ultimate from the start, the second skill at `elite`, the third at
+`legendary`, the fourth at `ascended`. **Check this against the starting rungs before committing**
+— higher tiers already start further up the ladder, so an ascended-tier character would arrive
+with its second skill already unlocked while a common-tier one climbs two rungs for the same
+thing. That is a head start stacked on top of a ceiling, and it may or may not be what is wanted.
+
+**This modifies a promise, and the modification should be deliberate.** Milestone 3 says tier is a
+slope rather than a head start; a permanent skill ceiling is a capability gate, which is a
+different claim. What keeps it fair is the tuning target that already exists: **five common-tier
+characters at level 80 clear the whole ladder**, asserted in
+[`stages.spec.ts`](../src/data/stages.spec.ts). Hold that with two skills each and the promise
+survives in substance — the top of the ladder still cannot demand a pull nobody can buy. Let it
+fail and quietly retune it, and the game has become tier-gated without anyone deciding to.
+
+### Faction lineup bonuses
+
+The AFK Arena ladder, applied to the party's own composition:
+
+| Composition             | Bonus                    |
+| ----------------------- | ------------------------ |
+| 3 of a faction          | +10% attack, +10% health |
+| 3 of one + 2 of another | +15% attack, +15% health |
+| 4 of a faction          | +15% attack, +20% health |
+| 5 of a faction          | +25% attack, +25% health |
+
+**Monsters** give all allies +2% attack and +2% health each. **Angels** count as any faction for
+the purpose of the ladder above. **Demons** have their own ladder, stacking with everything else:
+1 → +30% defence, 2 → +25% energy recovery when injured, 3 → +15% crit rating, 4 → +30% crit
+damage, 5 → +15 haste. The last of those has to respect the haste clamp, for the same termination
+reason the authored value does.
+
+**This is the pattern AGENTS.md names and rejects** — "+10% if two Fire units… those just create a
+new optimal team". The rule is being overridden knowingly, and the reason it survives in substance
+is worth writing down rather than leaving as a contradiction:
+
+**A mono-faction bonus does not create one optimal team, it creates seven — and the encounter's
+faction matchup decides which one to bring.** That is still a statement about the fight in front
+of you, which was the whole distinction the rule was drawing. Note what it is _not_: the player is
+not choosing between the lineup bonus and the matchup. They keep the +25% and switch which
+mono-faction team fields it. The two are complementary, not competing.
+
+That only works under two conditions, and both are real work:
+
+- **The matchup edges have to come up.** They are 1.05–1.10 today, sized on the assumption that
+  nothing bigger sat alongside them. Against a +25% lineup bonus they are decorative. The
+  constraint to tune against is that the swing between the right faction and the wrong one must
+  exceed the quality gap between a player's best and second-best faction team — otherwise nobody
+  ever switches. That is a sweep question, not a number to pick at a desk; the 40-seed ladder
+  sweep already exists to answer it.
+- **The roster has to grow.** Fielding a different mono-faction team per encounter needs five good
+  characters in several factions. Twenty-three characters across seven factions is roughly three
+  each. **This is the same roster pressure faction towers create in milestone 15** — which is a
+  point in favour of both, but it means character count is now a dependency of this milestone and
+  not only of that one.
+
+**One bad-luck failure mode to design against.** Angels counting as any faction makes them
+enormously valuable, and celestials ascend on copies of themselves alone — no fodder, no
+substitute. A player whose banners are unkind cannot build one at any price. That is precisely the
+shape milestone 4 added Wren and Dorn to fix: not a fight lost, but a category of answer that
+cannot be bought. Either the wildcard needs a non-Angel route, or every faction needs enough
+depth that a mono-five is reachable without one.
+
+### Sequencing and the re-sweep
+
+Stats first — they are the vocabulary everything else speaks. Then energy and ultimates, then
+skill gating, then the lineup bonuses and the matchup rescale. **Then re-sweep the entire ladder**,
+because every one of the four changes what a battle costs, and the tuning target that five
+common-tier characters at level 80 clear twelve stages is the thing that says whether the rework
+landed or merely compiled.
+
+## 9. Resonance — levels the roster shares
+
+**Invest in five characters; every other character you own is carried to the same level.** No
+resource gates it and no slots limit it — unlike the system it is modelled on, where emblems and
+slots meter how much of the roster benefits. Owning a character is the only requirement.
+
+### The rule
+
+Sort the roster by level, take the top `PARTY_SIZE`, and the **lowest of those five** is the
+resonance floor. Every character is treated as being at least that level.
+
+```
+effectiveLevel = min(levelCapFor(rarity), max(investedLevel, resonanceFloor))
+```
+
+Three properties fall out of that formula, and they are the whole design:
+
+- **It cannot be gamed by hyper-levelling one character.** The floor is the _fifth_-highest level,
+  so it only rises once all five have been invested in. Pouring everything into a single favourite
+  moves nothing.
+- **Ties need no tiebreak.** The floor is a level, not a character, so equal levels produce the
+  same answer whatever order they sort in. The derivation is deterministic without anyone having
+  to decide what beats what.
+- **The rarity cap still binds, and that is what keeps ascension alive.** A `rare` character caps
+  at level 40; a floor of 200 lifts it to 40 and no further. So resonance makes _levels_ free and
+  leaves _ascension_ entirely individual — the bench still has something to spend on, and raising a
+  cap is the only way to collect more of the floor. Without this clause the feature would make
+  ascension pointless for everyone outside the top five.
+
+**The rule needs no edge case for a small roster, and it is worth understanding why rather than
+adding one.** With fewer than `PARTY_SIZE` characters owned the floor is the lowest invested level
+in the roster — so every character is already at or above it and nobody can benefit. The feature
+is self-neutralising: it does nothing until the roster exceeds five, at which point it starts
+working on its own. A special case here would be code that cannot change an outcome.
+
+### This is not only quality of life
+
+Milestone 8 introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
+only reachable by fielding a _different_ five-character team per encounter. Milestone 15 does the
+same thing harder, with seven faction towers demanding thirty-five invested characters.
+
+**Neither is affordable without this.** Levelling thirty-five characters individually is seven
+times the cost of levelling five, against an economy tuned for one team. So resonance is closer to
+a prerequisite for milestone 8's faction bonuses than a convenience that follows them — it is
+positioned after the rework only because the rework decides what a level is worth.
+
+What it deliberately does not cover: ascension, and milestone 16's per-character investment track.
+Those stay individual, which is what stops the roster becoming a single undifferentiated blob with
+one number attached.
+
+### Derived, never stored
+
+`OwnedCharacter.level` stays exactly what it is today — the **invested** level, the one the player
+paid for. The floor is computed from the roster on read and written nowhere.
+
+**No save migration, and that is not a coincidence.** Baking a resonated level into the save would
+be irreversible and wrong the moment the top five changes: a character recorded at 200 because the
+floor was 200 has no way back to its real invested level once the floor drops. Storing what was
+paid for and deriving the rest is the only version that survives a reshuffle.
+
+### The floor never falls, and that is a provable invariant
+
+**No character ever loses a level to resonance.** This is worth stating as an invariant and
+testing as one, because the obvious worry — bench levels dropping when the top five change — turns
+out to be impossible rather than merely unlikely. Three facts give it:
+
+1. **Invested levels only rise.** There is no de-level mechanic and no plan for one.
+2. **Characters are never removed from the roster.** Milestone 3 settled this for a different
+   reason: ascension consumes only spare copies, never a character that has been levelled. There
+   is no path that deletes a roster entry.
+3. **Adding a character can only raise or hold the `PARTY_SIZE`-th highest value.** A new level-1
+   entry sorts below the floor and cannot move it; a high-level one pushes the fifth-highest
+   upward.
+
+So `floor` is monotonically non-decreasing, and since `effectiveLevel` is a `max` against it, no
+displayed level can fall. **The roster screen therefore needs one number, not two** — showing
+"levelled to" and "carried to" separately would be defending against a state that cannot occur.
+
+**The one exception is a damaged save.** Load-time repair drops unknown character ids, so a
+character removed from `data/` disappears from the roster — and if it was among the top five, the
+floor falls with it. That is rare, bounded, and strictly better than the alternative of refusing
+to load; it is recorded here so that a floor that moved backwards is recognised as a repair having
+run rather than a bug in this feature.
+
+### Levelling the five without visiting five screens
+
+A button that levels the whole top five together, because the alternative is five screens for one
+step of the floor.
+
+Worth knowing when building it: **only the lowest of the five moves the floor.** Levelling a
+character already above it buys that character's own power — they are in the party, so this is
+real — but buys nothing for the roster until the laggard catches up. Levelling all five together
+sidesteps the distinction entirely by keeping them equal, which makes the steady state "the top
+five share a level, and that level is the floor". That is the mental model worth protecting, and
+the button is what protects it.
+
+Two details that decide whether it feels good:
+
+- **Make it atomic.** `maxAffordableLevel` already exists, so a partial application is easy to
+  write and is the wrong behaviour: levelling three of five because the fourth is unaffordable
+  drifts them apart and quietly breaks the model above. Level all five or none.
+- **Breakthrough levels are lumpy.** Essence is charged only every tenth level, so the cost of one
+  step is uneven and occasionally five times its neighbours. The button should price the whole
+  operation before committing to it, rather than discovering the shortfall partway through.
+
+## 10. Power that compounds
+
+**Both sides of the fight scale, or neither does.** This milestone makes levelling and ascension
+dramatically more powerful, and gives enemies their own levels so the ladder survives it. Those
+are one job, not two: raising the player's curve without raising the enemy's does not create a
+power fantasy, it deletes the content. Splitting them across two milestones would leave the game
+unplayable in between, which is the one thing the ordering exists to prevent.
+
+### What "more dramatic" has to mean numerically
+
+Today the game grows at `1.0075` per level at common tier and `1.12` per ascension rung. Across
+the full level range that is three orders of magnitude — a gentle slope, not an incremental
+game. The shape to aim for:
+
+| Per level      | Multiplier at level 1000 |
+| -------------- | ------------------------ |
+| 1.0075 (today) | ×1.7e3                   |
+| 1.014          | ×1.1e6                   |
+| 1.021          | ×1.0e9                   |
+| 1.028          | ×9.6e11                  |
+
+**This costs nothing architecturally, and that is not luck.** `core/numeric.ts` already wraps
+`break_infinity`, so quantities past float64's 9e15 are already the working type everywhere.
+AGENTS.md hedged that dependency — "add `break_infinity.js` only if the curve actually demands
+it". The curve now demands it, and the hedge can be retired.
+
+### The stomp requirement is testable, so test it
+
+"Go idle for a long time, come back, level up, and stomp stages until the next wall" is a
+property, not a feeling: **an idle window of length T must buy levels that convert into a run of
+at least N cleared stages.** Write that as a spec over the ladder and tune against it. Tuning
+compounding curves by feel is how an incremental game ends up either trivial or a wall, and the
+5th-percentile player is the one who finds out first.
+
+### Ascension has to move more than levelling does
+
+`perAscension` is `1.12`, worth ×4.36 across the full rung ladder. If levelling delivers ×10⁹
+and ascension delivers ×4, **the gacha stops mattering** — duplicates are the primary
+progression path by design, and a progression path worth ×4 against a levelling path worth a
+billion is decoration. For scale: ×1.35 a rung is ×49 across the ladder, ×1.6 is ×450, ×2.0 is
+×8,192. Pick the ascension multiplier against the levelling one deliberately, in that order.
+
+### Enemies become instances rather than stat blocks
+
+An enemy becomes a definition plus a level, tier and rarity — the machinery `core/roster/`
+already runs for characters, pointed at the other side of the board. Two consequences, and the
+second is why hand-authored chapters are viable at all:
+
+1. **Locks stay locks.** A Marsh Acolyte with a fixed stat block is a puzzle the player solves
+   once and never again; at ×10⁹ it is a rounding error. Milestone 4's whole thesis — that
+   composition matters because enemies ask questions — holds late-game **only** if the enemy
+   asking scales alongside the party answering. That is the real reason the vision says
+   composition matters more late than early, and it is a consequence of this change rather than
+   an assertion about it.
+2. **Authoring collapses.** A stage stops being a set of authored stat blocks and becomes a short
+   line naming archetypes and a level. See milestone 11.
+
+### What survives the rescale and what quietly does not
+
+- **Multiplicative edges survive at any magnitude.** The faction matrix's 5–10% is 5–10% whether
+  the numbers are 10² or 10¹². Milestone 4's matchup design needs no rework, which is a point in
+  favour of how it was built.
+- **Anything additive or threshold-shaped does not.** A flat bonus, or any authored constant
+  compared against a scaling quantity, silently becomes a no-op. Audit for these rather than
+  waiting to notice.
+- **The non-scaling stats stay non-scaling.** `spd`, the probabilities, penetration and `mp` are
+  bounded for termination and metering reasons a bigger power curve does not touch — see
+  milestone 4. A compounding game makes it **more** important that `spd` cannot grow, not less.
+- **The tier fall-off is the thing to preserve on purpose.** Common tier is meant to be a genuine
+  early answer that becomes a joke at cap. Steepening every tier by the same factor preserves
+  that ratio; steepening them unevenly is a retune of milestone 3's central promise and should be
+  a decision somebody made, not a side effect of picking three numbers.
+
+**No save migration.** Growth lives in `data/` and levels are stored rather than power, so every
+existing save re-derives its stats on load.
+
+**One thing this milestone does not answer:** what the growth axis is once a character actually
+reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
+hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 16 is
+the intended answer**; it is that far out because nothing before it is close enough to the cap to
+care.
+
+## 11. Chapters
+
+Stages group into chapters. Chapter size steps every ten chapters and caps at 200:
+
+| Chapters | Stages each | Running total |
+| -------- | ----------- | ------------- |
+| 1–10     | 50          | 500           |
+| 11–20    | 60          | 1,100         |
+| 21–30    | 70          | 1,800         |
+| 31–40    | 80          | 2,600         |
+| 41–50    | 90          | 3,500         |
+| …        | …           | …             |
+| 91–100   | 140         | 9,500         |
+| 151+     | 200 (cap)   | 20,000 at 160 |
+
+**Every tenth stage is a mini-boss formation and the last stage of a chapter is a true boss.** A
+50-stage chapter has mini-bosses at 10, 20, 30 and 40 with its boss at 50; a 200-stage chapter
+has nineteen mini-bosses. The level cap is sized against this: reaching level 1000 around chapter
+100 is roughly **9.5 stages per level**, which is the anchor to tune income and cost against.
+
+### Idle income becomes a function, and that is what makes the scale survivable
+
+`rates` is authored per stage today. Nine and a half thousand authored rate tables is not
+something anyone maintains, so income becomes a function of chapter and stage index. **Every
+clear still raises all four rates** — that contract is the whole idle loop and it is not up for
+negotiation at 50 stages a chapter any more than it was at 12.
+
+Two things fall out of it, and both are improvements:
+
+- **`reconcileClearedStages` gets simpler, not harder.** Rates become a function of the
+  high-water mark, so the load-time repair evaluates a function instead of re-summing an authored
+  table — and the rule it exists to enforce (crediting progress and paying for it are the same
+  operation, see milestone 3) gets easier to hold, not harder.
+- **`clearedStages` stops being a per-stage record.** Progression is linear, so a high-water mark
+  carries the same information at a fraction of the save footprint. Thousands of individual
+  entries in a save that has to survive repair is a cost with nothing bought by it.
+
+#### Summon crystals must come off the exponential curve
+
+**A rate should compound only if what it buys compounds.** Gold, xp and essence buy levels, and
+level costs compound, so those three belong on the exponential. Summon crystals buy a pull at a
+flat 8 crystals, feeding an ascension at a flat 8 elite plus 180 rare copies. A compounding rate
+against a flat price outruns it exponentially, and the current curve does exactly that — summons
+climb ×1.25 a stage against gold's ×1.43, which looks conservative and is not:
+
+| Stage                | Pulls per day |
+| -------------------- | ------------- |
+| 12 (today)           | 194           |
+| 24                   | 2,924         |
+| 50 (chapter 1 ends)  | 1,039,386     |
+| 110 (chapter 2 ends) | 8 × 10¹¹      |
+
+**The damage is not to the gacha, it is to ascension.** Milestone 15 rests on towers costing
+ascension even though resonance makes levelling free, and milestone 16 is fed by duplicates. Both
+arguments collapse if pulls are effectively unlimited by chapter 2 — ascension stops being a
+constraint and two milestones lose the thing that made them decisions.
+
+Fix it here, when the curve is being written down, rather than discovering it at chapter 3. The
+options are to take summons off the exponential entirely (linear or logarithmic in stage index),
+to scale ascension costs with chapter, or both. **This is not a reason to be less generous.** The
+crystal rate is the most distinctive thing about this game's economy and it should stay
+extravagant; what has to change is that it stops compounding against a price that does not.
+
+### The offline cap is gone — **DONE**
+
+Shipped ahead of this milestone, because leaving `AGENTS.md` saying "there is no offline cap"
+while `OFFLINE_CAP_MS` still clamped would have had every later session building on a false
+premise. Come back a year later and the game pays a year.
+
+It cost nothing to allow, which is the point: `resume()` is a closed form, so a year settles in
+the same O(1) as an hour — 315 million ticks that never run — and `Numeric` is a
+`break_infinity` Decimal, so the quantities do not overflow. **The genre caps offline income to
+force a daily session.** There is no session to force here and nothing to sell by forcing it, so
+the cap was inherited rather than chosen.
+
+Two things came with it that were not obvious from the outside:
+
+- **The cap was bounding a damaged `lastTickAt`, and nothing else was.** A timestamp of zero is
+  finite and produces a positive delta, so it passes both other guards; without the ceiling it
+  pays out decades and silently destroys a run's pacing without the player ever choosing it —
+  the same class of harm as the milestone 3 migration bug. `MIN_PLAUSIBLE_TICK_MS` replaces it:
+  a `lastTickAt` before 2020 is damage rather than an absence and pays zero, exactly as a
+  non-finite delta already does. A constant, not a save field, and no migration.
+- **`formatDuration` only went up to hours**, which was sufficient by construction while the
+  window was clamped at ten. Uncapped, a year away is a supported outcome and "8760 hours" is a
+  correct answer nobody can read, so it now carries days.
+
+`OFFLINE_CAP_MS` and `OfflineReport.wasCapped` are deleted, along with the home screen's "come
+back sooner" notice — which was the cap's only user-facing artefact and is now a lie.
+
+### Stages are hand-authored, and here is when that stops working
+
+**The decision is that every stage is authored by hand rather than generated.** Milestone 10 is
+what makes that viable: a stage is a short line naming archetypes and a level, not a set of
+hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
+difficulty curve cannot.
+
+The arithmetic is recorded here so the decision stays re-checkable instead of becoming folklore:
+**100 stages** for the first two chapters, **500** for the first band, **9,500** to reach chapter
+100, **18,000** by the time the 200-stage cap arrives at chapter 151. The first two chapters are
+comfortably hand-authored. The first band is a real but finite job. Chapter 100 is not
+hand-authorable by anyone, and the honest form of this plan says so rather than discovering it at
+chapter 30.
+
+If the ladder genuinely heads that far, the technique is **generation from a difficulty curve
+with hand-authored set-pieces** — mini-bosses and bosses stay authored, ordinary stages get
+generated against a tuned reference. Do not build that speculatively; this paragraph is the
+trigger, and the trigger is "authoring a chapter has stopped being an afternoon", not a stage
+count.
+
+### Enemy tier and rarity across the bands
+
+From the long-term vision, normalised — the original had chapter 20 in two bands:
+
+| Chapters | Enemy tiers          |
+| -------- | -------------------- |
+| 1–10     | common               |
+| 11–20    | common + legendary   |
+| 21–30    | legendary            |
+| 31–40    | legendary + ascended |
+| 41–50    | ascended             |
+
+Mini-bosses and chapter bosses sit a step above their band. Past chapter 50 the three tiers are
+exhausted, and **enemy rarity — the ascension ladder — takes over**, with level scaling
+underneath the whole way. That is what the vision's "enemies should have their own levels _and_
+ascensions" actually buys: two axes that outlast the tier vocabulary, so the enemy side has
+somewhere to go for as long as the player side does.
+
+### Ship two chapters
+
+Chapters 1 and 2, 50 stages each. The existing twelve become chapter 1's opening.
+
+**Both sit in the first band, so shipping them proves the chapter _flow_ but not the size
+formula** — the boundary, the boss, whatever unlocks on clearing a chapter, and income
+continuity across the seam all get exercised; the step to 60 stages does not arrive until chapter 11. Build the formula anyway and test it directly rather than inferring it from two chapters that
+happen to be the same length.
+
+Save v5: `stage` becomes a chapter and a stage within it. Existing saves map to chapter 1 — and
+per milestone 3's rule, the migration credits nothing it cannot pay for, leaving the load-time
+repair to settle rates from the high-water mark.
+
+## 12. Gear
+
+The second progression axis, and the third leg of the power fantasy alongside levels and
+ascension. Milestone 7 records why it is owed: four places in the codebase state that gold's
+coefficient is the shallowest of the three **because** gear will spend it later, and the ladder
+extension makes gold comfortable to the point of meaninglessness.
+
+It lands here, last, because its power budget only means something against the curve from
+milestone 10 and the content shape from milestone 11. Built earlier, it gets tuned twice — and the
+second tuning would be against numbers nine orders of magnitude away from the first.
+
+## 13. Settings, and the save-safety gap
+
+A small milestone that clears a backlog. Three things have been waiting on a settings screen —
+the run reset, combat speed defaults, and somewhere to put whatever accumulates next.
+
+**The run reset is the one with a trap in it.** `SaveService.clear()` exists, is documented, and
+has never been executed by anything including tests, so making it reachable means covering it.
+And per "Deliberately deferred" below: the running game holds authoritative state in memory and
+persists on autosave and `visibilitychange`, so clearing storage from inside the app is undone by
+the app on the way out. A reset has to stop the loop and replace the in-memory state, not merely
+empty the slots.
+
+### Saves are already backed up, which is not the same as safe
+
+Verified rather than assumed. `@capacitor/preferences` on iOS writes to `UserDefaults.standard`,
+which lands in `Library/Preferences/<bundle>.plist` — inside the backed-up part of the app
+container. Android's manifest already carries `android:allowBackup="true"`, so Auto Backup covers
+SharedPreferences. **Both platforms back up player saves today, with zero code.**
+
+| Scenario                                   | iOS | Android |
+| ------------------------------------------ | --- | ------- |
+| New device, restore from backup at setup   | ✅  | ✅      |
+| Device erased and restored                 | ✅  | ✅      |
+| **App deleted, then re-downloaded**        | ❌  | ✅      |
+| App _offloaded_, then re-downloaded        | ✅  | ✅      |
+| Backup disabled, or the account over quota | ❌  | ❌      |
+| Moving between iOS and Android             | ❌  | ❌      |
+
+**The decision is to rely on this and build nothing.** It covers the common real loss — getting a
+new phone — and export/import is manual enough that most players would not use it until after
+they had already lost the run.
+
+The gaps are recorded so nobody later mistakes "it is in iCloud" for "it is safe". Deleting an
+app on iOS destroys its container, and iOS never restores per-app data on re-download; iCloud
+Backup restores at device setup and nowhere else. **"Offload App" preserves data and looks
+identical to the player**, which is exactly how this gets misdiagnosed as working. And iCloud's
+free tier is 5GB, so a large share of users sit over quota with backups that have silently not
+completed in months.
+
+The trigger to revisit is a real report of a lost run, not a hypothetical. Two answers exist:
+
+- **Export/import.** Covers every row above including cross-platform, needs no account and no
+  network. It has no downside here that it would have elsewhere: the usual objection is save
+  editing and duping, and this project has **no anti-cheat by design** — a player editing their
+  own save affects only their own run. The standard reason to resist it does not apply.
+- **`NSUbiquitousKeyValueStore`.** Closes the iOS reinstall row automatically — 1MB and 1024 keys
+  against a save needing a fraction of it. Costs an iCloud entitlement, an Apple ID dependency,
+  and network sync, which is a real tension with "no server, no accounts, no network calls".
+  Decide it as one rather than absorbing it quietly, and note it leaves Android needing its own
+  answer.
+
+**Verify the backup path on real hardware as part of this milestone.** It costs one restore, and
+it is the only way to know the table above survives contact with a device — the same argument
+milestone 6 made for running on a phone early, which found a bug nothing else would have.
+
+## 14. Dailies, bounties, and a reason to open the app tomorrow
+
+Nothing currently rewards opening the app except idle income the player would collect anyway.
+
+**The retention framing undersells it: quests are a faucet that is not stage-gated.** A player
+stuck below a wall has exactly one income source today, and it is the thing the wall is
+throttling. Dailies pay whether or not the ladder is moving, so being stuck stops meaning being
+stopped — which matters more in a game with no way to buy a way past.
+
+Scope: daily quests that reset, a weekly tier, and one-off achievements over counters `GameState`
+already keeps — stages cleared, pulls made, characters ascended, levels reached. What is missing
+is the claim ledger and the reset clock.
+
+**The reset clock is the hard part, and it is a `core/` purity question.** Core has no clock —
+time is a parameter passed in from `ui/`, exactly as `resume(state, nowMs)` takes it. A daily
+reset boundary is therefore supplied by the caller and never read from `new Date()` inside the
+simulation. The backwards-clock rule applies unchanged: a device clock that moves back must not
+hand out a second day of rewards and must not punish either. Clamp; do not detect. There is
+nothing to protect.
+
+### The bounty board
+
+Dispatch characters on timed missions that pay out on a clock. It belongs in this milestone
+rather than its own because it needs exactly the machinery dailies already build — a claim ledger
+and a caller-supplied time boundary — and building that twice would be the waste.
+
+It earns its place for a reason dailies do not cover: **it is the only system that pays you for
+characters you are not fighting with.** Dispatched characters come off the bench, so a wide roster
+becomes worth something before faction bonuses or towers ask for it, and a duplicate-heavy run has
+a use for breadth from the moment it starts. It is also the gentlest return hook in the genre — a
+mission finishing in four hours is a reason to come back that costs the player nothing if they
+do not.
+
+Keep dispatch and the formation **disjoint**: a character cannot be both fighting and away. That
+is what makes it a bench sink rather than a free resource tap, and it is the whole of the design.
+
+### Local notifications
+
+`@capacitor/local-notifications` schedules **on-device** — no network, no account, no server — so
+it is compatible with the offline constraint in a way push notifications never could be.
+Schedule on background, cancel on foreground.
+
+**Removing the offline cap removed the only earned reason to send one, and that is worth facing
+rather than working around.** The justification used to be that the ten-hour ceiling was a real
+event with a real cost to ignoring it — income you had stopped accruing. With no cap, staying
+away costs nothing. Nothing is lost, so there is nothing to warn about.
+
+What is left is weak and should be judged as weak. A finished bounty is the only candidate, and
+even that is not a real cost: a completed mission sits there indefinitely, so the player loses
+nothing by not hearing about it.
+
+**So the default is to ship no notifications at all.** The rule this project holds everywhere else
+is that a notification existing to manufacture a session is the pattern it rejects — and once
+absence is free, every notification is that pattern by definition. Reintroduce them only if some
+future system creates a genuine cost to being away, and note that such a system would itself be
+worth questioning.
+
+## 15. Faction towers, and something for a roster to be
+
+**The problem here is not "more content".** Through milestone 12 the game has exactly one thing
+to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
+slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
+pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
+distinct niches, seven factions, two players clearing the same stage with different teams — is
+funded by a game that only ever asks for five characters. **The generosity is producing material
+with nowhere to go.**
+
+Seven towers, one per faction, five slots each, restricted to that faction. That is demand for
+**thirty-five invested characters against a roster of twenty-three**, so an unlucky pull becomes
+the answer to a tower instead of fodder, duplicates gain a second use, and a wall in chapter 3
+has somewhere to send the player.
+
+Two consequences to design for rather than discover:
+
+- **A tower is a wall about who you own, in a game with no way to buy characters.** That is the
+  failure mode role-locked formation slots were rejected for in milestone 4: an unlucky roster
+  reaching a state where no legal party exists. Towers must therefore be skippable, never on the
+  critical path, and never the only source of anything.
+- **The roster is smaller than the demand, and that is a decision to make on purpose.**
+  Twenty-three characters across seven factions is roughly three per faction against five slots,
+  so no tower is fully crewed the day it ships. That is a content driver, but it means this
+  milestone either arrives with more characters or arrives with towers that visibly cannot be
+  finished. Pick one; do not let it happen by accident.
+
+### Resonance is a hard prerequisite, and it already shipped
+
+**Nobody levels thirty-five characters from scratch.** Towers are only affordable because
+milestone 9 already carries the whole roster to the fifth-highest level — without it this
+milestone is seven times the levelling cost of one team, against an economy tuned for one team.
+
+What towers still cost is **ascension**, which resonance deliberately does not cover: the rarity
+cap is what limits how much of the floor a bench character can collect. So crewing a tower is a
+real investment decision, just not a levelling grind. That is the intended shape — if towers ever
+feel free, the cap clause in milestone 9 is the thing that has stopped working.
+
+### Saved team presets
+
+Pure quality of life, and it becomes unavoidable precisely here. Seven towers plus the campaign is
+eight lineups, and by milestone 17 it is more than that — all reassembled slot by slot from a
+roster of dozens every time the player switches mode.
+
+**The absence of this is what makes multi-mode content feel like admin rather than depth.** It is
+the cheapest thing in this milestone and the one most likely to be cut for being unglamorous; the
+note is here so that cutting it is a decision rather than an oversight.
+
+## 16. Deep per-hero investment
+
+**The answer to the question milestone 10 leaves open** — what grows once a character reaches
+level 1000. A per-character track that unlocks late, is fed by duplicates, and modifies
+**behaviour rather than adding stats**: an extra target, a condition dropped from a skill, a
+cooldown crossing a threshold that changes what the kit does.
+
+Behaviour rather than stats, for a reason milestone 10 makes sharp. At ×10⁹ raw power another
+multiplier is invisible and another _ability_ is not. It is also the only way composition can
+keep mattering late, which the long-term vision asks for explicitly: a stat track makes the late
+game a bigger version of the early game, and a behaviour track makes it a different one.
+
+Duplicate-fed, because copies past `ascended-5` currently convert to spark and spark buys more
+characters — which at this point in a run is a loop with no exit. This gives late duplicates
+somewhere to go that is not the shop.
+
+## 17. The roguelite run
+
+A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
+them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
+far larger build than towers and it wants a roster deep enough to field several teams at once —
+which towers are what create.
+
+What it adds that neither the campaign nor a tower does: **decisions inside a run rather than
+before one.** Everything else in this game is decided at the formation screen and then watched. A
+run where the third fight's relic depends on how the second went is the only place the game asks
+a question mid-flight.
+
+**Do not build it before towers.** It is the most interesting thing on this list and the least
+structural, and taking it first would be choosing the fun problem over the one blocking
+everything else.
+
+## 18. Puzzle maps
+
+**The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
+roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
+small authored map with a restricted roster, one-way gates, teleporters, buffs found along the
+way, and a correct route through it. Peaks of Time is the reference.
+
+It is fully offline and it needs no system this project lacks — the battle simulator, the
+formation, and the status vocabulary already do everything a map needs. What it needs is
+**authoring**, and that is the whole of the argument against it: every map is hand-designed with
+no curve to generate from, no sweep to validate it, and no way to know it is solvable except by
+solving it. Milestone 11 records the point at which hand-authoring stages stops scaling; this is
+that problem without the escape hatch of generation.
+
+So it is last, and it is honestly the one item here a solo developer might decide not to want.
+It is written down because it is the thing that makes the genre's best games feel like more than
+a number going up — and skipping it should be a decision made on the cost, not a gap nobody
+noticed.
+
+## Not a milestone: the simulation harness is the only feedback loop
+
+**There is no telemetry and there never will be**, because there is no server. Nobody will ever
+know which stage players actually wall on, which characters go unused, or how many runs end in the
+first hour. The genre's tuning is done against millions of players; this game has a sample size of
+one, and that one already knows the answers.
+
+Two things follow, and both are load-bearing:
+
+- **The balance sweep is not a testing convenience, it is the substitute for players.** AGENTS.md
+  defers a separate `*.balance.ts` project until the fast suite "stops being tolerable", which
+  frames it as a performance concern. It is not — it is the only instrument this project will ever
+  have for finding out whether the game is tuned. Milestones 8 through 11 each change what a
+  battle costs, and a sweep is the only thing that will notice.
+- **A bad curve cannot be hotfixed.** Every balance change ships through App Store review, so the
+  gap between shipping a wall and fixing it is measured in days. That is a standing argument for
+  erring generous everywhere: an over-tuned wall you cannot see and cannot quickly fix is the one
+  failure mode with no recovery, and the philosophy this project already holds is also its
+  insurance policy.
+
+## Not a milestone: the presentation track
+
+**Every milestone here is a system, and the genre's draw is at least half aesthetic.** Art,
+animation, effects, sound. This project is hand-written components over the palette in
+`ui/theme.scss`, and at some point "it works and looks like a spreadsheet" becomes the actual
+blocker rather than any missing mechanic.
+
+It is unnumbered because it does not sequence like the rest: it is continuous, it has no
+completion state, and it gates nothing. It is written down because a solo developer without an
+artist has one constraint most likely to decide whether this ships, and it is this one rather
+than any system above.
+
+Equally absent and equally unnumbered: **onboarding**. There is no first-session experience
+anywhere in this plan, and the first ninety seconds decide more than milestones 13 through 17
+combined.
+
+## Ruled out: genre systems this game will not have
+
+Standard in the genre, and they arrive by reflex. Listed so that not having them is visibly a
+decision rather than an oversight.
+
+- **Limited-time banners and event FOMO.** Manufactured scarcity with no bridge to sell — the
+  exact pattern the balance philosophy rejects. A banner may rotate; it may not expire in a way
+  that costs a player something they can never get back.
+- **Energy or stamina gates on modes.** This is already a time economy. A second one only
+  subtracts, and it exists in paid games to sell refills.
+- **Guilds, co-op bosses, friend lists.** Ruled out by "no server, no accounts" and "no social
+  comparison". They carry a great deal of the genre's retention, so the honest position is that
+  this game replaces them with nothing and accepts the cost — not that the gap is not there.
+- **Login streaks that punish a miss.** A streak that resets is a scarcity mechanic wearing a
+  generosity costume. Cumulative login rewards are fine; escalating ones that reset are not.
 
 ## Later: the two auto-battles
 
 "Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
-button the player presses. Do not build either of these into it.
+button the player presses. Do not build either of these into it. **The second one is milestone
+7**; the first stays deferred indefinitely, and the split below is why.
 
 1. **Ambient sparring on the idle screen.** The party visibly fighting in the background while
    the player watches their income tick up — presentation, not simulation. It should not award
    anything, advance a stage, or touch `GameState`; if it did, it would be a second progression
    path competing with the real one. The event log a battle already produces is the natural
    thing to loop for it.
-2. **An unlockable that re-enters stages until the party loses.** Earned after a certain
+2. **Milestone 7 — an unlockable that re-enters stages until the party loses.** Earned after a certain
    stage. It keeps fighting on its own, and on a loss the player is dropped back to the idle
    screen to either watch their earnings or start again. This one **does** award and advance.
 
@@ -647,8 +1562,9 @@ width: 100% }`. That is correct here only because the shell now guarantees the d
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a
-  mis-tap can reach it. Build it when the settings screen arrives — and note the method has
-  never been executed by anything, including tests, so making it reachable means covering it.
+  mis-tap can reach it. **The settings screen is milestone 13**, so this lands there — and note
+  the method has never been executed by anything, including tests, so making it reachable means
+  covering it.
   Until then, `README.md` documents clearing the save by hand.
 
   Worth knowing when that lands: **the running game overwrites external edits to the save.** It

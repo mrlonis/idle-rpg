@@ -200,7 +200,6 @@ describe('HomeView', () => {
     const report = (over: Partial<OfflineReport>): OfflineReport => ({
       rawElapsedMs: 3_600_000,
       elapsedMs: 3_600_000,
-      wasCapped: false,
       earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0) },
       ...over,
     });
@@ -212,10 +211,14 @@ describe('HomeView', () => {
       expect(el.textContent).toContain('900');
     });
 
-    it('mentions the cap when the away window was clamped', async () => {
-      const { el } = await render((game) => game.offlineReport.set(report({ wasCapped: true })));
+    it('reports a very long absence in full, since there is no cap', async () => {
+      const year = 365 * 24 * 60 * 60 * 1000;
+      const { el } = await render((game) =>
+        game.offlineReport.set(report({ rawElapsedMs: year, elapsedMs: year })),
+      );
 
-      expect(el.textContent).toContain('capped');
+      expect(el.textContent).toContain('365 days');
+      expect(el.textContent).not.toContain('capped');
     });
 
     it('stays hidden when nothing was earned', async () => {
