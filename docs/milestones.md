@@ -21,8 +21,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing         |
 | 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations      |
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
-| 6   | Run on a physical iPhone               | 🟡 Next                                      |
-| 7   | Prestige layer, then content           | ⬜                                           |
+| 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
+| 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
+| 8   | Gear                                   | ⬜                                           |
 
 ---
 
@@ -560,21 +561,145 @@ written and `ios/` was not touched. Read the pod source before accepting that a 
 needs a native fix — and note that the config option is also what let the viewport meta stay
 accessible, so the two are not independent choices.
 
-## 7. Prestige layer, then content
+## 7. Auto-battle, then doubling the ladder
 
-Only after 1–6 are solid.
+**The prestige layer is cancelled, not deferred.** This milestone used to read "prestige layer,
+then content", and neither half had been checked against what the game actually looks like when
+the ladder runs out. The check is below: the second half is right, the first half is answering a
+question this game does not have, and the ordering was backwards.
+
+### What the top of the ladder actually looks like
+
+Idle income rises on exactly one event — a stage clearing. Once stage 12 falls, all four rates
+are frozen permanently at 25 gold/s, 4.7 xp/s, 0.08 essence/s and 0.018 summons/s. The level
+curve, meanwhile, runs to 1000. One character from level 1 to the cap, at those frozen rates:
+
+| Currency | Cost | Time at post-ladder income |
+| -------- | ---- | -------------------------- |
+| gold     | 385M | ~178 days                  |
+| xp       | 75M  | ~185 days                  |
+| essence  | 6.1M | **~882 days**              |
+
+Per character, and the party is five. Essence binds by roughly 5×, exactly as
+[`levels.ts`](../src/data/levels.ts) intends — but it was tuned against a ladder that would keep
+growing, and the ladder stopped. Crystals do not take up the slack either: 0.018/s is about 190
+pulls a day at 8 crystals each, so collection is not the bottleneck and never becomes one.
+
+**So the post-ladder state is nothing left to clear, income that can never rise again, and a
+vertical axis two and a half years out of reach.** The game runs out of _decisions_ long before
+it runs out of _numbers_. That is the hole this milestone exists to fill, and it is the thing to
+measure any proposal against.
+
+### Why there is no prestige layer
+
+Prestige trades a reset of one axis for a permanent multiplier on another. Four reasons it does
+not fit here, recorded so it does not get re-proposed on genre instinct:
+
+1. **There is nothing to reset.** The only resettable axis is stage progress, and stage progress
+   _is_ the income rate — the rate table is the reward. Wiping it takes everything and hands
+   back twelve fights the player has already won.
+2. **The roster cannot be part of it, and that is settled law.** Ascension consumes only spare
+   copies specifically so that nobody can destroy a week's investment by tapping the wrong row
+   (see milestone 3). A prestige that eats levelled characters contradicts the most
+   player-protective decision in the design.
+3. **The job prestige normally does is already done.** Its usual purpose is an uncapped vertical
+   axis so numbers keep growing past authored content. That is ascension plus the 1000-level
+   curve, and the table above shows two and a half years of it sitting unreachable. The problem
+   is not a missing multiplier track; it is income that cannot reach the one already built.
+4. **Its other purpose is content recycling** — making twelve stages feel like a hundred and
+   twenty. That is the same shape as the tuning philosophy this project rejects everywhere else:
+   a structural answer to "we ran out of content" that spends the player's time in place of
+   authoring time. There is nothing to sell here, so the honest version is to author the stages.
+
+If the recycling idea ever does come back, the form to consider is **difficulty tiers over
+existing stages**, not a run reset — it keeps the reward shape (a cleared stage raises rates
+forever) and costs the player nothing they already earned. It is still recycling, and it still
+loses to authoring more ladder while there is ladder worth authoring.
+
+### 1. Auto-battle — the unlockable repeat
+
+**This comes first because it is a prerequisite for the content, not a peer of it.** A
+twenty-four stage ladder climbed by tapping Fight is worse than a twelve stage one; doubling the
+content without it makes the game worse. It is also the cheapest item here, because it is
+already fully specified under "Later: the two auto-battles" below, constraints included.
+
+Two of those constraints are load-bearing and are not to be relaxed while building it:
+
+- **Foreground-only.** It never advances a stage while nobody is watching. That is what keeps
+  every idle rate constant across every offline window, which is the entire reason milestone 5
+  needs no segmented solver. Making it run unattended re-opens milestone 5.
+- **Persist at the end of each battle.** Results reach `GameState` at animation end but only
+  reach storage on `visibilitychange` or the thirty-second backstop, so a hard suspend can
+  currently lose several _completed_ battles at 4x. Fixing that is what makes "losing the app
+  costs the fight in flight and nothing else" actually true.
+
+**Ambient sparring on the idle screen is not part of this** and stays deferred. It awards
+nothing and touches no state, so it buys no progression and blocks nothing.
+
+This is also the first thing that genuinely cares about the difference between a web
+`visibilitychange` and an iOS lifecycle event, so `@capacitor/app` may stop being deferred here.
+Persisting per battle is what keeps that from being urgent: a missed lifecycle event then costs
+one fight.
+
+### 2. Roughly double the ladder
+
+This is the native mechanism and it closes the gap on its own. The twelve authored stages
+multiply income about 50× end to end, roughly ×1.4 a stage. Continuing that slope, against the
+essence cost of level 1000:
+
+| Ladder length | Essence rate | One character to level 1000 |
+| ------------- | ------------ | --------------------------- |
+| 12 (today)    | 0.08/s       | ~882 days                   |
+| 19            | ~0.84/s      | ~84 days                    |
+| 24            | ~4.5/s       | ~16 days                    |
+
+**Everything prestige was gesturing at is delivered by the system already built.** Gold stops
+binding entirely by stage 24 (about three days to cap) and essence stays the wall, which is the
+role [`levels.ts`](../src/data/levels.ts) assigns it — the shape of the economy survives the
+extension rather than needing a retune.
+
+Note that ×1.4 a stage is **fitted to the existing curve, not derived from a tuning target**.
+The table says what the current slope implies; it does not say that 19 or 24 is the right ladder
+length. That is a design decision this informs rather than settles.
+
+Two things guard the work. [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates
+off the top of `STAGES` rather than restating them, so **every stage added re-runs the entire
+time-to-afford table**; when it fails, the curve and the economy have come apart and the answer
+is to retune one of them deliberately, never to move the threshold. And
+[`stages.spec.ts`](../src/data/stages.spec.ts) sweeps the ladder at forty seeds, so a stage that
+is unclearable by the intended party fails on the way in.
+
+The new stages need locks, not bigger numbers. Milestone 4's six archetypes each name a question
+and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
+for those before authoring a stat block that is stage 12 with a multiplier on it.
+
+### 3. Gear moves to milestone 8
+
+Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
+deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
+it later — [`core/currency.ts`](../src/core/currency.ts),
+[`core/roster/level.ts`](../src/core/roster/level.ts),
+[`data/levels.ts`](../src/data/levels.ts), and an assertion in
+[`levels.spec.ts`](../src/data/levels.spec.ts) that keeps it true. So gold is currently the most
+comfortable currency in the game for a reason that has not shipped, and the ladder extension
+above makes it comfortable to the point of meaninglessness.
+
+That makes gear the natural next milestone rather than part of this one: it is a second sink and
+a second axis of decision, and it is large enough that folding it in here would be the same
+mistake as "prestige layer, then content" — two milestones on one line.
 
 ## Later: the two auto-battles
 
 "Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
-button the player presses. Do not build either of these into it.
+button the player presses. Do not build either of these into it. **The second one is milestone
+7**; the first stays deferred indefinitely, and the split below is why.
 
 1. **Ambient sparring on the idle screen.** The party visibly fighting in the background while
    the player watches their income tick up — presentation, not simulation. It should not award
    anything, advance a stage, or touch `GameState`; if it did, it would be a second progression
    path competing with the real one. The event log a battle already produces is the natural
    thing to loop for it.
-2. **An unlockable that re-enters stages until the party loses.** Earned after a certain
+2. **Milestone 7 — an unlockable that re-enters stages until the party loses.** Earned after a certain
    stage. It keeps fighting on its own, and on a loss the player is dropped back to the idle
    screen to either watch their earnings or start again. This one **does** award and advance.
 
