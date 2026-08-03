@@ -34,11 +34,30 @@ consolation prize — a pull can never produce nothing.
 
 ---
 
-## Milestones
+## Reference documentation
 
-The full roadmap — the status of every milestone, what each one shipped, and the reasoning
-behind each decision — lives in **[docs/milestones.md](docs/milestones.md)**. That file is the
-single source of truth for project status; this one links to it rather than restating it.
+Long-form references live in `docs/`. This file states rules; those files explain systems. When
+the two disagree, the code is right and both are stale.
+
+- **[docs/milestones.md](docs/milestones.md)** — the roadmap. The status of every milestone, what
+  each one shipped, and the reasoning behind each decision. **Single source of truth for project
+  status**; nothing else restates it.
+- **[docs/glossary.md](docs/glossary.md)** — the vocabulary, and specifically the words that mean
+  more than one thing. Read this before writing prose about tiers, rarities or factions — several
+  terms collide by design and the collisions are listed there.
+- **[docs/attributes.md](docs/attributes.md)** — the combatant stat block, which stats may scale
+  and why, and the milestone 8 rework.
+- **[docs/ascension.md](docs/ascension.md)** — the rung ladder, the two ascension paths, and how
+  rung prices resolve recursively into base copies.
+- **[docs/combat.md](docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
+  statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️ there are termination
+  arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to return.
+- **[docs/economy.md](docs/economy.md)** — the five currencies, income rates, the level curve,
+  pull rates and pity, and offline accrual.
+- **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
+  fixtures.
+
+## Milestones
 
 The ordering exists so there is **always something playable**. Each milestone layers onto the
 previous skeleton without changing its shape. Do not skip ahead: a later milestone built on an

@@ -95,13 +95,32 @@ describe('mulberry32 determinism', () => {
 
 describe('mulberry32 output range', () => {
   it('stays within [0, 1)', () => {
+    // Accumulate in the loop, assert once after it. The sample size is the point of this
+    // test — every consumer of the stream (`Math.floor(draw() * n)` for pull rates, targeting,
+    // drop rolls) is wrong at the edges if a value can reach 1 — so do not shrink it, and do
+    // not move the assertions back inside. An `expect()` costs ~12µs against ~9ns for the draw
+    // itself, so the loop body below is ~1ms of arithmetic; two assertions per iteration made
+    // it ~2.1s idle, which intermittently blew vitest's 5000ms default timeout on a loaded
+    // machine. Tracking min/max proves the same property over the same 100,000 values.
     const draw = mulberry32(2024);
+    let min = Infinity;
+    let max = -Infinity;
+    let nonFinite = 0;
 
     for (let i = 0; i < 100_000; i++) {
       const value = draw();
-      expect(value).toBeGreaterThanOrEqual(0);
-      expect(value).toBeLessThan(1);
+      // A NaN would slip past both comparisons below, so count it rather than compare it.
+      if (!Number.isFinite(value)) {
+        nonFinite++;
+        continue;
+      }
+      if (value < min) min = value;
+      if (value > max) max = value;
     }
+
+    expect(nonFinite).toBe(0);
+    expect(min).toBeGreaterThanOrEqual(0);
+    expect(max).toBeLessThan(1);
   });
 
   it('returns finite numbers', () => {
