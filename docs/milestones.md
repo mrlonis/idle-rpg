@@ -23,14 +23,15 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
 | 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
 | 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
-| 8   | Power that compounds                   | ⬜                                           |
-| 9   | Chapters                               | ⬜                                           |
-| 10  | Gear                                   | ⬜                                           |
-| 11  | Settings, and the save-safety gap      | ⬜                                           |
-| 12  | Dailies and notifications              | ⬜                                           |
-| 13  | Faction towers                         | ⬜                                           |
-| 14  | Deep per-hero investment               | ⬜                                           |
-| 15  | The roguelite run                      | ⬜                                           |
+| 8   | The combat rework                      | ⬜                                           |
+| 9   | Power that compounds                   | ⬜                                           |
+| 10  | Chapters                               | ⬜                                           |
+| 11  | Gear                                   | ⬜                                           |
+| 12  | Settings, and the save-safety gap      | ⬜                                           |
+| 13  | Dailies and notifications              | ⬜                                           |
+| 14  | Faction towers                         | ⬜                                           |
+| 15  | Deep per-hero investment               | ⬜                                           |
+| 16  | The roguelite run                      | ⬜                                           |
 
 ---
 
@@ -669,7 +670,7 @@ Note that ×1.4 a stage is **fitted to the existing curve, not derived from a tu
 The table says what the current slope implies; it does not say that 19 or 24 is the right ladder
 length. That is a design decision this informs rather than settles.
 
-**Milestone 9 settles it, and moves the goalposts.** The table above treats "level 1000 in a
+**Milestone 10 settles it, and moves the goalposts.** The table above treats "level 1000 in a
 reasonable time" as the target to tune toward. Under the chapter structure that target is wrong:
 1000 is deliberately a chapter-100 goal, roughly 9,500 stages out, and the cap being unreachable
 in chapter 1 is the intent rather than the bug. What survives from this section is the diagnosis
@@ -677,8 +678,8 @@ in chapter 1 is the intent rather than the bug. What survives from this section 
 
 So treat this milestone's stages as **the last of the flat, hand-tuned ladder**: enough content
 to exercise auto-battle against something, and the opening stretch of what becomes chapter 1.
-Their rates get re-derived in milestone 9 when rates stop being an authored field, and the whole
-curve is retuned in milestone 8. **Do not over-invest in tuning them here** — anything past
+Their rates get re-derived in milestone 10 when rates stop being an authored field, and the whole
+curve is retuned in milestone 9. **Do not over-invest in tuning them here** — anything past
 "auto-battle has a ladder to chew on" is work that gets done twice.
 
 Two things guard the work. [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates
@@ -692,7 +693,7 @@ The new stages need locks, not bigger numbers. Milestone 4's six archetypes each
 and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
 for those before authoring a stat block that is stage 12 with a multiplier on it.
 
-### 3. Gear moves to milestone 10
+### 3. Gear moves to milestone 11
 
 Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
 deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
@@ -705,11 +706,169 @@ above makes it comfortable to the point of meaninglessness.
 
 That makes gear its own milestone rather than part of this one: it is a second sink and a second
 axis of decision, and it is large enough that folding it in here would be the same mistake as
-"prestige layer, then content" — two milestones on one line. It sits at **10**, after the
+"prestige layer, then content" — two milestones on one line. It sits at **11**, after the
 scaling rework and the chapter structure, so its power budget is designed against the curve it
 has to live in rather than being tuned twice.
 
-## 8. Power that compounds
+## 8. The combat rework
+
+Four interlocking changes: the stat block, energy and ultimates, how many skills a character
+gets, and faction lineup bonuses. **They are one milestone because they cannot ship apart** —
+authoring twenty-three character kits against the old stat block and then re-authoring them for
+energy is the same work done twice, and every one of the four changes what the others are tuned
+against.
+
+It sits here, before the compounding rework and the chapters, for the same reason: milestone 9
+retunes all scaling and milestone 10 authors a hundred stages, and doing either against a combat
+model that is about to change means doing it again. It is independent of auto-battle at 7, which
+is model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
+
+**This is the largest milestone in the project, larger than milestone 4.** If it needs splitting,
+split at the stat boundary: the new stats can land at neutral defaults and change nothing
+observable, with the rest following.
+
+### The stat block
+
+**One `atk` and one `def`. Damage type becomes a property of the skill rather than of the stat**
+— a skill declares physical or magic, reads the single attack stat, and is reduced by defence
+plus the matching resist. That is the AFK Arena shape and it collapses four stats into two.
+
+Seventeen stats become roughly twenty-two:
+
+| Disposition   | Stats                                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Kept as-is    | `hp`, `critChance`, `accuracy`, `dodge`, `lifesteal`, `tenacity`                                                               |
+| Kept, renamed | `armorPen`/`magicPen` → physical/magic pierce, `spd` → haste, `effectHit` → insight                                            |
+| Collapsed     | `patk`/`matk` → `atk`, `pdef`/`mdef` → `def`                                                                                   |
+| Reshaped      | `critMultiplier` → crit damage amplification, opposed by a new crit damage resistance                                          |
+| **Deleted**   | `mp`, `mpRegen`                                                                                                                |
+| New           | magic resist, physical resist, crit damage resistance, crit block rate, recovery, health regen, received healing, attack speed |
+
+Four things worth knowing before starting:
+
+- **Half of this vocabulary is already built.** Four of the new stats are _opposed pairs_ —
+  accuracy vs dodge, insight vs tenacity, crit damage amplification vs resistance, crit rating vs
+  crit block. The first two already work exactly that way in `damage.ts`. This is not a foreign
+  system bolted on; it is the pattern already there, extended consistently.
+- **Recovery has to scale, and nothing else new does.** At the ×10⁹ health milestone 9 is aiming
+  for, a non-scaling recovery is a no-op — the same argument that keeps a budget stat fixed, run
+  backwards. So the scaling set is health, attack, defence and recovery; everything else new is a
+  percentage or a point value, which is where they belong.
+- **Haste and attack speed collapse in an ATB system unless separated on purpose.** AFK Arena is
+  real-time, so casting frequency and attack animation speed are genuinely different things. Here
+  `gauge += spd` per tick makes both just gauge fill. The proposed split: **haste** is gauge fill
+  for everything, clamped exactly as `spd` is today because the termination argument has not
+  changed; **attack speed** is extra gauge that accrues only while the actor's next action would
+  be a basic attack, so a high-attack-speed character machine-guns basics between skill windows.
+  **Validate this against a sweep rather than treating it as settled** — it is the one mapping
+  here with no precedent in the codebase.
+- **Collapsing `patk`/`matk` deletes milestone 4's back-row bonus.** "+5% to whichever offensive
+  stat is already higher, and only that one" has no meaning with a single attack stat, and the
+  reasoning behind it — that a caster gets the bonus where its damage actually comes from — goes
+  with it. It needs replacing, not dropping: the front/back asymmetry is what makes the front rank
+  a real cost. Deciding what replaces it is part of this milestone, not an afterthought.
+
+### Energy and ultimates
+
+Every character's first skill is an **ultimate**, metered by a 0–100 energy pool that fills from
+acting — landing a hit, taking one, healing an ally — plus a regen over time. **Every other skill
+costs nothing but its cooldown.** `mp` and `mpRegen` are deleted outright.
+
+Two consequences to go in with eyes open:
+
+- **Termination is already safe, and not because of MP.** `MAX_BATTLE_TICKS` is 18,000 with a
+  distinct `stalemate` outcome, and the comment there already anticipates a healer with a deep
+  enough pool out-sustaining a party. The timeout model this needs is already built.
+- **What is actually traded away is pacing, not correctness.** MP's documented job was to
+  front-load and then run dry, which is what made a long fight feel different from a short one.
+  Energy that refills from acting never runs dry, so fights converge on ultimates-on-cooldown. If
+  long fights should still feel different, that difference now has to come from somewhere else —
+  enemy design, or the stalemate clock being close enough to matter.
+
+Milestone 4's "three ways to meter a skill" becomes two: energy for ultimates, cooldown for
+everything else. The Undead's HP-cost bargain goes with MP unless it is deliberately kept.
+
+### How many skills a character gets
+
+**Both axes.** Tier sets the ceiling and ascension rungs unlock up to it:
+
+| Tier      | Ceiling          |
+| --------- | ---------------- |
+| common    | 2 — ultimate + 1 |
+| legendary | 3 — ultimate + 2 |
+| ascended  | 4 — ultimate + 3 |
+
+Proposed rung mapping: the ultimate from the start, the second skill at `elite`, the third at
+`legendary`, the fourth at `ascended`. **Check this against the starting rungs before committing**
+— higher tiers already start further up the ladder, so an ascended-tier character would arrive
+with its second skill already unlocked while a common-tier one climbs two rungs for the same
+thing. That is a head start stacked on top of a ceiling, and it may or may not be what is wanted.
+
+**This modifies a promise, and the modification should be deliberate.** Milestone 3 says tier is a
+slope rather than a head start; a permanent skill ceiling is a capability gate, which is a
+different claim. What keeps it fair is the tuning target that already exists: **five common-tier
+characters at level 80 clear the whole ladder**, asserted in
+[`stages.spec.ts`](../src/data/stages.spec.ts). Hold that with two skills each and the promise
+survives in substance — the top of the ladder still cannot demand a pull nobody can buy. Let it
+fail and quietly retune it, and the game has become tier-gated without anyone deciding to.
+
+### Faction lineup bonuses
+
+The AFK Arena ladder, applied to the party's own composition:
+
+| Composition             | Bonus                    |
+| ----------------------- | ------------------------ |
+| 3 of a faction          | +10% attack, +10% health |
+| 3 of one + 2 of another | +15% attack, +15% health |
+| 4 of a faction          | +15% attack, +20% health |
+| 5 of a faction          | +25% attack, +25% health |
+
+**Monsters** give all allies +2% attack and +2% health each. **Angels** count as any faction for
+the purpose of the ladder above. **Demons** have their own ladder, stacking with everything else:
+1 → +30% defence, 2 → +25% energy recovery when injured, 3 → +15% crit rating, 4 → +30% crit
+damage, 5 → +15 haste. The last of those has to respect the haste clamp, for the same termination
+reason the authored value does.
+
+**This is the pattern AGENTS.md names and rejects** — "+10% if two Fire units… those just create a
+new optimal team". The rule is being overridden knowingly, and the reason it survives in substance
+is worth writing down rather than leaving as a contradiction:
+
+**A mono-faction bonus does not create one optimal team, it creates seven — and the encounter's
+faction matchup decides which one to bring.** That is still a statement about the fight in front
+of you, which was the whole distinction the rule was drawing. Note what it is _not_: the player is
+not choosing between the lineup bonus and the matchup. They keep the +25% and switch which
+mono-faction team fields it. The two are complementary, not competing.
+
+That only works under two conditions, and both are real work:
+
+- **The matchup edges have to come up.** They are 1.05–1.10 today, sized on the assumption that
+  nothing bigger sat alongside them. Against a +25% lineup bonus they are decorative. The
+  constraint to tune against is that the swing between the right faction and the wrong one must
+  exceed the quality gap between a player's best and second-best faction team — otherwise nobody
+  ever switches. That is a sweep question, not a number to pick at a desk; the 40-seed ladder
+  sweep already exists to answer it.
+- **The roster has to grow.** Fielding a different mono-faction team per encounter needs five good
+  characters in several factions. Twenty-three characters across seven factions is roughly three
+  each. **This is the same roster pressure faction towers create in milestone 14** — which is a
+  point in favour of both, but it means character count is now a dependency of this milestone and
+  not only of that one.
+
+**One bad-luck failure mode to design against.** Angels counting as any faction makes them
+enormously valuable, and celestials ascend on copies of themselves alone — no fodder, no
+substitute. A player whose banners are unkind cannot build one at any price. That is precisely the
+shape milestone 4 added Wren and Dorn to fix: not a fight lost, but a category of answer that
+cannot be bought. Either the wildcard needs a non-Angel route, or every faction needs enough
+depth that a mono-five is reachable without one.
+
+### Sequencing and the re-sweep
+
+Stats first — they are the vocabulary everything else speaks. Then energy and ultimates, then
+skill gating, then the lineup bonuses and the matchup rescale. **Then re-sweep the entire ladder**,
+because every one of the four changes what a battle costs, and the tuning target that five
+common-tier characters at level 80 clear twelve stages is the thing that says whether the rework
+landed or merely compiled.
+
+## 9. Power that compounds
 
 **Both sides of the fight scale, or neither does.** This milestone makes levelling and ascension
 dramatically more powerful, and gives enemies their own levels so the ladder survives it. Those
@@ -764,7 +923,7 @@ second is why hand-authored chapters are viable at all:
    composition matters more late than early, and it is a consequence of this change rather than
    an assertion about it.
 2. **Authoring collapses.** A stage stops being a set of authored stat blocks and becomes a short
-   line naming archetypes and a level. See milestone 9.
+   line naming archetypes and a level. See milestone 10.
 
 ### What survives the rescale and what quietly does not
 
@@ -787,11 +946,11 @@ existing save re-derives its stats on load.
 
 **One thing this milestone does not answer:** what the growth axis is once a character actually
 reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
-hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 14 is
+hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 15 is
 the intended answer**; it is that far out because nothing before it is close enough to the cap to
 care.
 
-## 9. Chapters
+## 10. Chapters
 
 Stages group into chapters. Chapter size steps every ten chapters and caps at 200:
 
@@ -830,7 +989,7 @@ Two things fall out of it, and both are improvements:
 
 ### Stages are hand-authored, and here is when that stops working
 
-**The decision is that every stage is authored by hand rather than generated.** Milestone 8 is
+**The decision is that every stage is authored by hand rather than generated.** Milestone 9 is
 what makes that viable: a stage is a short line naming archetypes and a level, not a set of
 hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
 difficulty curve cannot.
@@ -879,7 +1038,7 @@ Save v5: `stage` becomes a chapter and a stage within it. Existing saves map to 
 per milestone 3's rule, the migration credits nothing it cannot pay for, leaving the load-time
 repair to settle rates from the high-water mark.
 
-## 10. Gear
+## 11. Gear
 
 The second progression axis, and the third leg of the power fantasy alongside levels and
 ascension. Milestone 7 records why it is owed: four places in the codebase state that gold's
@@ -887,10 +1046,10 @@ coefficient is the shallowest of the three **because** gear will spend it later,
 extension makes gold comfortable to the point of meaninglessness.
 
 It lands here, last, because its power budget only means something against the curve from
-milestone 8 and the content shape from milestone 9. Built earlier, it gets tuned twice — and the
+milestone 9 and the content shape from milestone 10. Built earlier, it gets tuned twice — and the
 second tuning would be against numbers nine orders of magnitude away from the first.
 
-## 11. Settings, and the save-safety gap
+## 12. Settings, and the save-safety gap
 
 A small milestone that clears a backlog. Three things have been waiting on a settings screen —
 the run reset, combat speed defaults, and somewhere to put whatever accumulates next.
@@ -945,7 +1104,7 @@ The trigger to revisit is a real report of a lost run, not a hypothetical. Two a
 it is the only way to know the table above survives contact with a device — the same argument
 milestone 6 made for running on a phone early, which found a bug nothing else would have.
 
-## 12. Dailies, and a reason to open the app tomorrow
+## 13. Dailies, and a reason to open the app tomorrow
 
 Nothing currently rewards opening the app except idle income the player would collect anyway.
 
@@ -976,9 +1135,9 @@ cost to ignoring it, and telling a player about it is a service. A notification 
 manufacture a session is the pattern this project rejects everywhere else, and shipping one would
 be the first place the app asked for the player's time rather than respecting it.
 
-## 13. Faction towers, and something for a roster to be
+## 14. Faction towers, and something for a roster to be
 
-**The problem here is not "more content".** Through milestone 10 the game has exactly one thing
+**The problem here is not "more content".** Through milestone 11 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
 slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
 pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
@@ -1013,14 +1172,14 @@ Low-level characters inherit levels from the top-invested ones. It is squarely o
 a time economy with no bridge to sell, and inheritance is a straight refund of time the player
 already spent. Err generous, as everywhere else.
 
-## 14. Deep per-hero investment
+## 15. Deep per-hero investment
 
-**The answer to the question milestone 8 leaves open** — what grows once a character reaches
+**The answer to the question milestone 9 leaves open** — what grows once a character reaches
 level 1000. A per-character track that unlocks late, is fed by duplicates, and modifies
 **behaviour rather than adding stats**: an extra target, a condition dropped from a skill, a
 cooldown crossing a threshold that changes what the kit does.
 
-Behaviour rather than stats, for a reason milestone 8 makes sharp. At ×10⁹ raw power another
+Behaviour rather than stats, for a reason milestone 9 makes sharp. At ×10⁹ raw power another
 multiplier is invisible and another _ability_ is not. It is also the only way composition can
 keep mattering late, which the long-term vision asks for explicitly: a stat track makes the late
 game a bigger version of the early game, and a behaviour track makes it a different one.
@@ -1029,7 +1188,7 @@ Duplicate-fed, because copies past `ascended-5` currently convert to spark and s
 characters — which at this point in a run is a loop with no exit. This gives late duplicates
 somewhere to go that is not the shop.
 
-## 15. The roguelite run
+## 16. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1058,7 +1217,7 @@ artist has one constraint most likely to decide whether this ships, and it is th
 than any system above.
 
 Equally absent and equally unnumbered: **onboarding**. There is no first-session experience
-anywhere in this plan, and the first ninety seconds decide more than milestones 11 through 15
+anywhere in this plan, and the first ninety seconds decide more than milestones 12 through 16
 combined.
 
 ## Ruled out: genre systems this game will not have
@@ -1161,7 +1320,7 @@ width: 100% }`. That is correct here only because the shell now guarantees the d
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a
-  mis-tap can reach it. **The settings screen is milestone 11**, so this lands there — and note
+  mis-tap can reach it. **The settings screen is milestone 12**, so this lands there — and note
   the method has never been executed by anything, including tests, so making it reachable means
   covering it.
   Until then, `README.md` documents clearing the save by hand.
