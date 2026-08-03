@@ -26,6 +26,11 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 8   | Power that compounds                   | ⬜                                           |
 | 9   | Chapters                               | ⬜                                           |
 | 10  | Gear                                   | ⬜                                           |
+| 11  | Settings, and the save-safety gap      | ⬜                                           |
+| 12  | Dailies and notifications              | ⬜                                           |
+| 13  | Faction towers                         | ⬜                                           |
+| 14  | Deep per-hero investment               | ⬜                                           |
+| 15  | The roguelite run                      | ⬜                                           |
 
 ---
 
@@ -782,8 +787,9 @@ existing save re-derives its stats on load.
 
 **One thing this milestone does not answer:** what the growth axis is once a character actually
 reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
-hole milestone 7 diagnosed, moved further down the ladder rather than filled. Gear, ascension
-rungs past `ascended-5`, and roster breadth are the candidates. Decide it before it arrives.
+hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 14 is
+the intended answer**; it is that far out because nothing before it is close enough to the cap to
+care.
 
 ## 9. Chapters
 
@@ -884,6 +890,193 @@ It lands here, last, because its power budget only means something against the c
 milestone 8 and the content shape from milestone 9. Built earlier, it gets tuned twice — and the
 second tuning would be against numbers nine orders of magnitude away from the first.
 
+## 11. Settings, and the save-safety gap
+
+A small milestone that clears a backlog. Three things have been waiting on a settings screen —
+the run reset, combat speed defaults, and somewhere to put whatever accumulates next.
+
+**The run reset is the one with a trap in it.** `SaveService.clear()` exists, is documented, and
+has never been executed by anything including tests, so making it reachable means covering it.
+And per "Deliberately deferred" below: the running game holds authoritative state in memory and
+persists on autosave and `visibilitychange`, so clearing storage from inside the app is undone by
+the app on the way out. A reset has to stop the loop and replace the in-memory state, not merely
+empty the slots.
+
+### Saves are already backed up, which is not the same as safe
+
+Verified rather than assumed. `@capacitor/preferences` on iOS writes to `UserDefaults.standard`,
+which lands in `Library/Preferences/<bundle>.plist` — inside the backed-up part of the app
+container. Android's manifest already carries `android:allowBackup="true"`, so Auto Backup covers
+SharedPreferences. **Both platforms back up player saves today, with zero code.**
+
+| Scenario                                   | iOS | Android |
+| ------------------------------------------ | --- | ------- |
+| New device, restore from backup at setup   | ✅  | ✅      |
+| Device erased and restored                 | ✅  | ✅      |
+| **App deleted, then re-downloaded**        | ❌  | ✅      |
+| App _offloaded_, then re-downloaded        | ✅  | ✅      |
+| Backup disabled, or the account over quota | ❌  | ❌      |
+| Moving between iOS and Android             | ❌  | ❌      |
+
+**The decision is to rely on this and build nothing.** It covers the common real loss — getting a
+new phone — and export/import is manual enough that most players would not use it until after
+they had already lost the run.
+
+The gaps are recorded so nobody later mistakes "it is in iCloud" for "it is safe". Deleting an
+app on iOS destroys its container, and iOS never restores per-app data on re-download; iCloud
+Backup restores at device setup and nowhere else. **"Offload App" preserves data and looks
+identical to the player**, which is exactly how this gets misdiagnosed as working. And iCloud's
+free tier is 5GB, so a large share of users sit over quota with backups that have silently not
+completed in months.
+
+The trigger to revisit is a real report of a lost run, not a hypothetical. Two answers exist:
+
+- **Export/import.** Covers every row above including cross-platform, needs no account and no
+  network. It has no downside here that it would have elsewhere: the usual objection is save
+  editing and duping, and this project has **no anti-cheat by design** — a player editing their
+  own save affects only their own run. The standard reason to resist it does not apply.
+- **`NSUbiquitousKeyValueStore`.** Closes the iOS reinstall row automatically — 1MB and 1024 keys
+  against a save needing a fraction of it. Costs an iCloud entitlement, an Apple ID dependency,
+  and network sync, which is a real tension with "no server, no accounts, no network calls".
+  Decide it as one rather than absorbing it quietly, and note it leaves Android needing its own
+  answer.
+
+**Verify the backup path on real hardware as part of this milestone.** It costs one restore, and
+it is the only way to know the table above survives contact with a device — the same argument
+milestone 6 made for running on a phone early, which found a bug nothing else would have.
+
+## 12. Dailies, and a reason to open the app tomorrow
+
+Nothing currently rewards opening the app except idle income the player would collect anyway.
+
+**The retention framing undersells it: quests are a faucet that is not stage-gated.** A player
+stuck below a wall has exactly one income source today, and it is the thing the wall is
+throttling. Dailies pay whether or not the ladder is moving, so being stuck stops meaning being
+stopped — which matters more in a game with no way to buy a way past.
+
+Scope: daily quests that reset, a weekly tier, and one-off achievements over counters `GameState`
+already keeps — stages cleared, pulls made, characters ascended, levels reached. What is missing
+is the claim ledger and the reset clock.
+
+**The reset clock is the hard part, and it is a `core/` purity question.** Core has no clock —
+time is a parameter passed in from `ui/`, exactly as `resume(state, nowMs)` takes it. A daily
+reset boundary is therefore supplied by the caller and never read from `new Date()` inside the
+simulation. The backwards-clock rule applies unchanged: a device clock that moves back must not
+hand out a second day of rewards and must not punish either. Clamp; do not detect. There is
+nothing to protect.
+
+### Local notifications
+
+`@capacitor/local-notifications` schedules **on-device** — no network, no account, no server — so
+it is compatible with the offline constraint in a way push notifications never could be.
+Schedule on background, cancel on foreground.
+
+Keep it to earned moments. The ten-hour offline cap being reached is a real event with a real
+cost to ignoring it, and telling a player about it is a service. A notification that exists to
+manufacture a session is the pattern this project rejects everywhere else, and shipping one would
+be the first place the app asked for the player's time rather than respecting it.
+
+## 13. Faction towers, and something for a roster to be
+
+**The problem here is not "more content".** Through milestone 10 the game has exactly one thing
+to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
+slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
+pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
+distinct niches, seven factions, two players clearing the same stage with different teams — is
+funded by a game that only ever asks for five characters. **The generosity is producing material
+with nowhere to go.**
+
+Seven towers, one per faction, five slots each, restricted to that faction. That is demand for
+**thirty-five invested characters against a roster of twenty-three**, so an unlucky pull becomes
+the answer to a tower instead of fodder, duplicates gain a second use, and a wall in chapter 3
+has somewhere to send the player.
+
+Two consequences to design for rather than discover:
+
+- **A tower is a wall about who you own, in a game with no way to buy characters.** That is the
+  failure mode role-locked formation slots were rejected for in milestone 4: an unlucky roster
+  reaching a state where no legal party exists. Towers must therefore be skippable, never on the
+  critical path, and never the only source of anything.
+- **The roster is smaller than the demand, and that is a decision to make on purpose.**
+  Twenty-three characters across seven factions is roughly three per faction against five slots,
+  so no tower is fully crewed the day it ships. That is a content driver, but it means this
+  milestone either arrives with more characters or arrives with towers that visibly cannot be
+  finished. Pick one; do not let it happen by accident.
+
+### Level inheritance ships with this, not after it
+
+**It stops being optional the moment towers exist.** Nobody levels thirty-five characters from
+scratch, and without it every new pull is a level-1 liability arriving exactly when the player is
+most pleased to see it — the gacha's payoff moment converted into a chore.
+
+Low-level characters inherit levels from the top-invested ones. It is squarely on-brand: this is
+a time economy with no bridge to sell, and inheritance is a straight refund of time the player
+already spent. Err generous, as everywhere else.
+
+## 14. Deep per-hero investment
+
+**The answer to the question milestone 8 leaves open** — what grows once a character reaches
+level 1000. A per-character track that unlocks late, is fed by duplicates, and modifies
+**behaviour rather than adding stats**: an extra target, a condition dropped from a skill, a
+cooldown crossing a threshold that changes what the kit does.
+
+Behaviour rather than stats, for a reason milestone 8 makes sharp. At ×10⁹ raw power another
+multiplier is invisible and another _ability_ is not. It is also the only way composition can
+keep mattering late, which the long-term vision asks for explicitly: a stat track makes the late
+game a bigger version of the early game, and a behaviour track makes it a different one.
+
+Duplicate-fed, because copies past `ascended-5` currently convert to spark and spark buys more
+characters — which at this point in a run is a loop with no exit. This gives late duplicates
+somewhere to go that is not the shop.
+
+## 15. The roguelite run
+
+A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
+them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
+far larger build than towers and it wants a roster deep enough to field several teams at once —
+which towers are what create.
+
+What it adds that neither the campaign nor a tower does: **decisions inside a run rather than
+before one.** Everything else in this game is decided at the formation screen and then watched. A
+run where the third fight's relic depends on how the second went is the only place the game asks
+a question mid-flight.
+
+**Do not build it before towers.** It is the most interesting thing on this list and the least
+structural, and taking it first would be choosing the fun problem over the one blocking
+everything else.
+
+## Not a milestone: the presentation track
+
+**Every milestone here is a system, and the genre's draw is at least half aesthetic.** Art,
+animation, effects, sound. This project is hand-written components over the palette in
+`ui/theme.scss`, and at some point "it works and looks like a spreadsheet" becomes the actual
+blocker rather than any missing mechanic.
+
+It is unnumbered because it does not sequence like the rest: it is continuous, it has no
+completion state, and it gates nothing. It is written down because a solo developer without an
+artist has one constraint most likely to decide whether this ships, and it is this one rather
+than any system above.
+
+Equally absent and equally unnumbered: **onboarding**. There is no first-session experience
+anywhere in this plan, and the first ninety seconds decide more than milestones 11 through 15
+combined.
+
+## Ruled out: genre systems this game will not have
+
+Standard in the genre, and they arrive by reflex. Listed so that not having them is visibly a
+decision rather than an oversight.
+
+- **Limited-time banners and event FOMO.** Manufactured scarcity with no bridge to sell — the
+  exact pattern the balance philosophy rejects. A banner may rotate; it may not expire in a way
+  that costs a player something they can never get back.
+- **Energy or stamina gates on modes.** This is already a time economy. A second one only
+  subtracts, and it exists in paid games to sell refills.
+- **Guilds, co-op bosses, friend lists.** Ruled out by "no server, no accounts" and "no social
+  comparison". They carry a great deal of the genre's retention, so the honest position is that
+  this game replaces them with nothing and accepts the cost — not that the gap is not there.
+- **Login streaks that punish a miss.** A streak that resets is a scarcity mechanic wearing a
+  generosity costume. Cumulative login rewards are fine; escalating ones that reset are not.
+
 ## Later: the two auto-battles
 
 "Auto-battle" means two different features, and neither is milestone 2. Milestone 2 is a
@@ -968,8 +1161,9 @@ width: 100% }`. That is correct here only because the shell now guarantees the d
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a
-  mis-tap can reach it. Build it when the settings screen arrives — and note the method has
-  never been executed by anything, including tests, so making it reachable means covering it.
+  mis-tap can reach it. **The settings screen is milestone 11**, so this lands there — and note
+  the method has never been executed by anything, including tests, so making it reachable means
+  covering it.
   Until then, `README.md` documents clearing the save by hand.
 
   Worth knowing when that lands: **the running game overwrites external edits to the save.** It
