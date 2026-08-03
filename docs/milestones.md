@@ -24,14 +24,15 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
 | 7   | Auto-battle, then doubling the ladder  | 🟡 Next — prestige cancelled                 |
 | 8   | The combat rework                      | ⬜                                           |
-| 9   | Power that compounds                   | ⬜                                           |
-| 10  | Chapters                               | ⬜                                           |
-| 11  | Gear                                   | ⬜                                           |
-| 12  | Settings, and the save-safety gap      | ⬜                                           |
-| 13  | Dailies and notifications              | ⬜                                           |
-| 14  | Faction towers                         | ⬜                                           |
-| 15  | Deep per-hero investment               | ⬜                                           |
-| 16  | The roguelite run                      | ⬜                                           |
+| 9   | Resonance — levels the roster shares   | ⬜                                           |
+| 10  | Power that compounds                   | ⬜                                           |
+| 11  | Chapters                               | ⬜                                           |
+| 12  | Gear                                   | ⬜                                           |
+| 13  | Settings, and the save-safety gap      | ⬜                                           |
+| 14  | Dailies and notifications              | ⬜                                           |
+| 15  | Faction towers                         | ⬜                                           |
+| 16  | Deep per-hero investment               | ⬜                                           |
+| 17  | The roguelite run                      | ⬜                                           |
 
 ---
 
@@ -670,7 +671,7 @@ Note that ×1.4 a stage is **fitted to the existing curve, not derived from a tu
 The table says what the current slope implies; it does not say that 19 or 24 is the right ladder
 length. That is a design decision this informs rather than settles.
 
-**Milestone 10 settles it, and moves the goalposts.** The table above treats "level 1000 in a
+**Milestone 11 settles it, and moves the goalposts.** The table above treats "level 1000 in a
 reasonable time" as the target to tune toward. Under the chapter structure that target is wrong:
 1000 is deliberately a chapter-100 goal, roughly 9,500 stages out, and the cap being unreachable
 in chapter 1 is the intent rather than the bug. What survives from this section is the diagnosis
@@ -678,8 +679,8 @@ in chapter 1 is the intent rather than the bug. What survives from this section 
 
 So treat this milestone's stages as **the last of the flat, hand-tuned ladder**: enough content
 to exercise auto-battle against something, and the opening stretch of what becomes chapter 1.
-Their rates get re-derived in milestone 10 when rates stop being an authored field, and the whole
-curve is retuned in milestone 9. **Do not over-invest in tuning them here** — anything past
+Their rates get re-derived in milestone 11 when rates stop being an authored field, and the whole
+curve is retuned in milestone 10. **Do not over-invest in tuning them here** — anything past
 "auto-battle has a ladder to chew on" is work that gets done twice.
 
 Two things guard the work. [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates
@@ -693,7 +694,7 @@ The new stages need locks, not bigger numbers. Milestone 4's six archetypes each
 and an answer; the twenty-three character roster has answers nothing currently asks for. Reach
 for those before authoring a stat block that is stage 12 with a multiplier on it.
 
-### 3. Gear moves to milestone 11
+### 3. Gear moves to milestone 12
 
 Gear is a promise with no home. Four places in the codebase state that gold's coefficient is
 deliberately the shallowest of the three **because** gear, gear levels and the shop will spend
@@ -706,7 +707,7 @@ above makes it comfortable to the point of meaninglessness.
 
 That makes gear its own milestone rather than part of this one: it is a second sink and a second
 axis of decision, and it is large enough that folding it in here would be the same mistake as
-"prestige layer, then content" — two milestones on one line. It sits at **11**, after the
+"prestige layer, then content" — two milestones on one line. It sits at **12**, after the
 scaling rework and the chapter structure, so its power budget is designed against the curve it
 has to live in rather than being tuned twice.
 
@@ -718,8 +719,8 @@ authoring twenty-three character kits against the old stat block and then re-aut
 energy is the same work done twice, and every one of the four changes what the others are tuned
 against.
 
-It sits here, before the compounding rework and the chapters, for the same reason: milestone 9
-retunes all scaling and milestone 10 authors a hundred stages, and doing either against a combat
+It sits here, before the compounding rework and the chapters, for the same reason: milestone 10
+retunes all scaling and milestone 11 authors a hundred stages, and doing either against a combat
 model that is about to change means doing it again. It is independent of auto-battle at 7, which
 is model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
 
@@ -750,7 +751,7 @@ Four things worth knowing before starting:
   accuracy vs dodge, insight vs tenacity, crit damage amplification vs resistance, crit rating vs
   crit block. The first two already work exactly that way in `damage.ts`. This is not a foreign
   system bolted on; it is the pattern already there, extended consistently.
-- **Recovery has to scale, and nothing else new does.** At the ×10⁹ health milestone 9 is aiming
+- **Recovery has to scale, and nothing else new does.** At the ×10⁹ health milestone 10 is aiming
   for, a non-scaling recovery is a no-op — the same argument that keeps a budget stat fixed, run
   backwards. So the scaling set is health, attack, defence and recovery; everything else new is a
   percentage or a point value, which is where they belong.
@@ -849,7 +850,7 @@ That only works under two conditions, and both are real work:
   sweep already exists to answer it.
 - **The roster has to grow.** Fielding a different mono-faction team per encounter needs five good
   characters in several factions. Twenty-three characters across seven factions is roughly three
-  each. **This is the same roster pressure faction towers create in milestone 14** — which is a
+  each. **This is the same roster pressure faction towers create in milestone 15** — which is a
   point in favour of both, but it means character count is now a dependency of this milestone and
   not only of that one.
 
@@ -868,7 +869,112 @@ because every one of the four changes what a battle costs, and the tuning target
 common-tier characters at level 80 clear twelve stages is the thing that says whether the rework
 landed or merely compiled.
 
-## 9. Power that compounds
+## 9. Resonance — levels the roster shares
+
+**Invest in five characters; every other character you own is carried to the same level.** No
+resource gates it and no slots limit it — unlike the system it is modelled on, where emblems and
+slots meter how much of the roster benefits. Owning a character is the only requirement.
+
+### The rule
+
+Sort the roster by level, take the top `PARTY_SIZE`, and the **lowest of those five** is the
+resonance floor. Every character is treated as being at least that level.
+
+```
+effectiveLevel = min(levelCapFor(rarity), max(investedLevel, resonanceFloor))
+```
+
+Three properties fall out of that formula, and they are the whole design:
+
+- **It cannot be gamed by hyper-levelling one character.** The floor is the _fifth_-highest level,
+  so it only rises once all five have been invested in. Pouring everything into a single favourite
+  moves nothing.
+- **Ties need no tiebreak.** The floor is a level, not a character, so equal levels produce the
+  same answer whatever order they sort in. The derivation is deterministic without anyone having
+  to decide what beats what.
+- **The rarity cap still binds, and that is what keeps ascension alive.** A `rare` character caps
+  at level 40; a floor of 200 lifts it to 40 and no further. So resonance makes _levels_ free and
+  leaves _ascension_ entirely individual — the bench still has something to spend on, and raising a
+  cap is the only way to collect more of the floor. Without this clause the feature would make
+  ascension pointless for everyone outside the top five.
+
+**The rule needs no edge case for a small roster, and it is worth understanding why rather than
+adding one.** With fewer than `PARTY_SIZE` characters owned the floor is the lowest invested level
+in the roster — so every character is already at or above it and nobody can benefit. The feature
+is self-neutralising: it does nothing until the roster exceeds five, at which point it starts
+working on its own. A special case here would be code that cannot change an outcome.
+
+### This is not only quality of life
+
+Milestone 8 introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
+only reachable by fielding a _different_ five-character team per encounter. Milestone 15 does the
+same thing harder, with seven faction towers demanding thirty-five invested characters.
+
+**Neither is affordable without this.** Levelling thirty-five characters individually is seven
+times the cost of levelling five, against an economy tuned for one team. So resonance is closer to
+a prerequisite for milestone 8's faction bonuses than a convenience that follows them — it is
+positioned after the rework only because the rework decides what a level is worth.
+
+What it deliberately does not cover: ascension, and milestone 16's per-character investment track.
+Those stay individual, which is what stops the roster becoming a single undifferentiated blob with
+one number attached.
+
+### Derived, never stored
+
+`OwnedCharacter.level` stays exactly what it is today — the **invested** level, the one the player
+paid for. The floor is computed from the roster on read and written nowhere.
+
+**No save migration, and that is not a coincidence.** Baking a resonated level into the save would
+be irreversible and wrong the moment the top five changes: a character recorded at 200 because the
+floor was 200 has no way back to its real invested level once the floor drops. Storing what was
+paid for and deriving the rest is the only version that survives a reshuffle.
+
+### The floor never falls, and that is a provable invariant
+
+**No character ever loses a level to resonance.** This is worth stating as an invariant and
+testing as one, because the obvious worry — bench levels dropping when the top five change — turns
+out to be impossible rather than merely unlikely. Three facts give it:
+
+1. **Invested levels only rise.** There is no de-level mechanic and no plan for one.
+2. **Characters are never removed from the roster.** Milestone 3 settled this for a different
+   reason: ascension consumes only spare copies, never a character that has been levelled. There
+   is no path that deletes a roster entry.
+3. **Adding a character can only raise or hold the `PARTY_SIZE`-th highest value.** A new level-1
+   entry sorts below the floor and cannot move it; a high-level one pushes the fifth-highest
+   upward.
+
+So `floor` is monotonically non-decreasing, and since `effectiveLevel` is a `max` against it, no
+displayed level can fall. **The roster screen therefore needs one number, not two** — showing
+"levelled to" and "carried to" separately would be defending against a state that cannot occur.
+
+**The one exception is a damaged save.** Load-time repair drops unknown character ids, so a
+character removed from `data/` disappears from the roster — and if it was among the top five, the
+floor falls with it. That is rare, bounded, and strictly better than the alternative of refusing
+to load; it is recorded here so that a floor that moved backwards is recognised as a repair having
+run rather than a bug in this feature.
+
+### Levelling the five without visiting five screens
+
+A button that levels the whole top five together, because the alternative is five screens for one
+step of the floor.
+
+Worth knowing when building it: **only the lowest of the five moves the floor.** Levelling a
+character already above it buys that character's own power — they are in the party, so this is
+real — but buys nothing for the roster until the laggard catches up. Levelling all five together
+sidesteps the distinction entirely by keeping them equal, which makes the steady state "the top
+five share a level, and that level is the floor". That is the mental model worth protecting, and
+the button is what protects it.
+
+Two details that decide whether it feels good:
+
+- **Make it atomic.** `maxAffordableLevel` already exists, so a partial application is easy to
+  write and is the wrong behaviour: levelling three of five because the fourth is unaffordable
+  drifts them apart and quietly breaks the model above. Level all five or none.
+- **Breakthrough levels are lumpy.** Essence is charged only every tenth level, so the cost of one
+  step is uneven and occasionally five times its neighbours. The button should price the whole
+  operation before committing to it, rather than discovering the shortfall partway through.
+
+## 10. Power that compounds
 
 **Both sides of the fight scale, or neither does.** This milestone makes levelling and ascension
 dramatically more powerful, and gives enemies their own levels so the ladder survives it. Those
@@ -923,7 +1029,7 @@ second is why hand-authored chapters are viable at all:
    composition matters more late than early, and it is a consequence of this change rather than
    an assertion about it.
 2. **Authoring collapses.** A stage stops being a set of authored stat blocks and becomes a short
-   line naming archetypes and a level. See milestone 10.
+   line naming archetypes and a level. See milestone 11.
 
 ### What survives the rescale and what quietly does not
 
@@ -946,11 +1052,11 @@ existing save re-derives its stats on load.
 
 **One thing this milestone does not answer:** what the growth axis is once a character actually
 reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
-hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 15 is
+hole milestone 7 diagnosed, moved further down the ladder rather than filled. **Milestone 16 is
 the intended answer**; it is that far out because nothing before it is close enough to the cap to
 care.
 
-## 10. Chapters
+## 11. Chapters
 
 Stages group into chapters. Chapter size steps every ten chapters and caps at 200:
 
@@ -989,7 +1095,7 @@ Two things fall out of it, and both are improvements:
 
 ### Stages are hand-authored, and here is when that stops working
 
-**The decision is that every stage is authored by hand rather than generated.** Milestone 9 is
+**The decision is that every stage is authored by hand rather than generated.** Milestone 10 is
 what makes that viable: a stage is a short line naming archetypes and a level, not a set of
 hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
 difficulty curve cannot.
@@ -1038,7 +1144,7 @@ Save v5: `stage` becomes a chapter and a stage within it. Existing saves map to 
 per milestone 3's rule, the migration credits nothing it cannot pay for, leaving the load-time
 repair to settle rates from the high-water mark.
 
-## 11. Gear
+## 12. Gear
 
 The second progression axis, and the third leg of the power fantasy alongside levels and
 ascension. Milestone 7 records why it is owed: four places in the codebase state that gold's
@@ -1046,10 +1152,10 @@ coefficient is the shallowest of the three **because** gear will spend it later,
 extension makes gold comfortable to the point of meaninglessness.
 
 It lands here, last, because its power budget only means something against the curve from
-milestone 9 and the content shape from milestone 10. Built earlier, it gets tuned twice — and the
+milestone 10 and the content shape from milestone 11. Built earlier, it gets tuned twice — and the
 second tuning would be against numbers nine orders of magnitude away from the first.
 
-## 12. Settings, and the save-safety gap
+## 13. Settings, and the save-safety gap
 
 A small milestone that clears a backlog. Three things have been waiting on a settings screen —
 the run reset, combat speed defaults, and somewhere to put whatever accumulates next.
@@ -1104,7 +1210,7 @@ The trigger to revisit is a real report of a lost run, not a hypothetical. Two a
 it is the only way to know the table above survives contact with a device — the same argument
 milestone 6 made for running on a phone early, which found a bug nothing else would have.
 
-## 13. Dailies, and a reason to open the app tomorrow
+## 14. Dailies, and a reason to open the app tomorrow
 
 Nothing currently rewards opening the app except idle income the player would collect anyway.
 
@@ -1135,9 +1241,9 @@ cost to ignoring it, and telling a player about it is a service. A notification 
 manufacture a session is the pattern this project rejects everywhere else, and shipping one would
 be the first place the app asked for the player's time rather than respecting it.
 
-## 14. Faction towers, and something for a roster to be
+## 15. Faction towers, and something for a roster to be
 
-**The problem here is not "more content".** Through milestone 11 the game has exactly one thing
+**The problem here is not "more content".** Through milestone 12 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
 slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
 pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
@@ -1162,24 +1268,25 @@ Two consequences to design for rather than discover:
   milestone either arrives with more characters or arrives with towers that visibly cannot be
   finished. Pick one; do not let it happen by accident.
 
-### Level inheritance ships with this, not after it
+### Resonance is a hard prerequisite, and it already shipped
 
-**It stops being optional the moment towers exist.** Nobody levels thirty-five characters from
-scratch, and without it every new pull is a level-1 liability arriving exactly when the player is
-most pleased to see it — the gacha's payoff moment converted into a chore.
+**Nobody levels thirty-five characters from scratch.** Towers are only affordable because
+milestone 9 already carries the whole roster to the fifth-highest level — without it this
+milestone is seven times the levelling cost of one team, against an economy tuned for one team.
 
-Low-level characters inherit levels from the top-invested ones. It is squarely on-brand: this is
-a time economy with no bridge to sell, and inheritance is a straight refund of time the player
-already spent. Err generous, as everywhere else.
+What towers still cost is **ascension**, which resonance deliberately does not cover: the rarity
+cap is what limits how much of the floor a bench character can collect. So crewing a tower is a
+real investment decision, just not a levelling grind. That is the intended shape — if towers ever
+feel free, the cap clause in milestone 9 is the thing that has stopped working.
 
-## 15. Deep per-hero investment
+## 16. Deep per-hero investment
 
-**The answer to the question milestone 9 leaves open** — what grows once a character reaches
+**The answer to the question milestone 10 leaves open** — what grows once a character reaches
 level 1000. A per-character track that unlocks late, is fed by duplicates, and modifies
 **behaviour rather than adding stats**: an extra target, a condition dropped from a skill, a
 cooldown crossing a threshold that changes what the kit does.
 
-Behaviour rather than stats, for a reason milestone 9 makes sharp. At ×10⁹ raw power another
+Behaviour rather than stats, for a reason milestone 10 makes sharp. At ×10⁹ raw power another
 multiplier is invisible and another _ability_ is not. It is also the only way composition can
 keep mattering late, which the long-term vision asks for explicitly: a stat track makes the late
 game a bigger version of the early game, and a behaviour track makes it a different one.
@@ -1188,7 +1295,7 @@ Duplicate-fed, because copies past `ascended-5` currently convert to spark and s
 characters — which at this point in a run is a loop with no exit. This gives late duplicates
 somewhere to go that is not the shop.
 
-## 16. The roguelite run
+## 17. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1217,7 +1324,7 @@ artist has one constraint most likely to decide whether this ships, and it is th
 than any system above.
 
 Equally absent and equally unnumbered: **onboarding**. There is no first-session experience
-anywhere in this plan, and the first ninety seconds decide more than milestones 12 through 16
+anywhere in this plan, and the first ninety seconds decide more than milestones 13 through 17
 combined.
 
 ## Ruled out: genre systems this game will not have
@@ -1320,7 +1427,7 @@ width: 100% }`. That is correct here only because the shell now guarantees the d
 - **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
   over", and nothing calls it. That is intentional: wiping a run is destructive and
   irreversible, and it belongs **behind a settings menu**, not on the home screen where a
-  mis-tap can reach it. **The settings screen is milestone 12**, so this lands there — and note
+  mis-tap can reach it. **The settings screen is milestone 13**, so this lands there — and note
   the method has never been executed by anything, including tests, so making it reachable means
   covering it.
   Until then, `README.md` documents clearing the save by hand.
