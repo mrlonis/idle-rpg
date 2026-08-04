@@ -18,25 +18,41 @@ import { type CombatRules, type CombatStats, type DamageType } from './types';
  * `def = atk` halves it, and each further point of DEF is worth less than the last. That
  * diminishing return is what stops a defensive stat from becoming the only stat.
  *
- * ## Two axes, two defences
+ * ## One attack, one defence, two axes anyway
  *
- * A hit declares its {@link DamageType} and is measured against the matching defence. That is
- * the whole reason a wall is not automatically a wall against everything: a Golem's enormous
- * `pdef` is worth nothing against a spell, and a caster that neglected `mdef` dies to one.
+ * Milestone 8a collapsed `patk`/`matk` and `pdef`/`mdef` into one of each. A hit's
+ * {@link DamageType} therefore no longer decides *which stat is read* — it decides which
+ * **pierce** the attacker brings and which **resist** the defender answers with. The axis
+ * survives the collapse: a Golem is still a wall against swords and a liability against
+ * spells, it just says so with `physicalResist` instead of with a second defence stat.
  *
  * ## Penetration multiplies, it does not subtract
  *
- * `def × (1 - pen)`, capped below 1 by `content.ts`. Flat penetration would be a hard counter
- * — enough of it deletes a defensive stat outright — while a fraction stays a *discount* on
- * the same diminishing curve. A shredder therefore makes a wall feel like a body rather than
- * like an empty square.
+ * `def × (1 - pierce)`, capped below 1 by `content.ts`. Flat penetration would be a hard
+ * counter — enough of it deletes a defensive stat outright — while a fraction stays a
+ * *discount* on the same diminishing curve. A shredder therefore makes a wall feel like a body
+ * rather than like an empty square.
+ *
+ * ## Resist is capped for a different reason than penetration is
+ *
+ * ⚠️ Resist multiplies the **result**, so unlike `def` it can reach zero rather than merely
+ * approaching it. A combatant at resist 1 is a combatant nothing can hurt, and a fight against
+ * one runs to the tick cap every time. `maxResist` is the termination guard; it is not a
+ * tuning knob.
+ *
+ * ## Two opposed pairs on the crit, not one multiplier
+ *
+ * Whether a hit crits is `critChance - critBlock`; what a crit is worth is
+ * `1 + max(critDamageAmp - critDamageResist, 0)`. Both follow the shape `accuracy`/`dodge` and
+ * `insight`/`tenacity` already had, which is what makes a crit build answerable by something
+ * other than more dodge.
  *
  * ## Ordering, and why it is fixed
  *
- * `base × skill power × faction matchup × crit`. Power is applied to the **result** rather
- * than to the attack stat feeding it: the formula is quadratic in ATK, so scaling the input
- * would make a 2× skill hit for roughly 4× and turn every authored multiplier into a balance
- * trap.
+ * `base × skill power × faction matchup × resist × crit`. Power is applied to the **result**
+ * rather than to the attack stat feeding it: the formula is quadratic in ATK, so scaling the
+ * input would make a 2× skill hit for roughly 4× and turn every authored multiplier into a
+ * balance trap.
  *
  * ## Randomness
  *
@@ -69,28 +85,33 @@ export function baseDamage(atk: Numeric, def: Numeric): Numeric {
   return atk.mul(atk).div(atk.add(def));
 }
 
-/** The attack stat a damage type reads. */
-export function attackStat(stats: CombatStats, type: DamageType): Numeric {
-  return type === 'physical' ? stats.patk : stats.matk;
-}
-
 /**
- * The defence a damage type is measured against, after the attacker's penetration.
+ * The defence a hit is measured against, after the attacker's matching pierce.
  *
- * Never below zero, so a damaged or hostile penetration value cannot turn a defensive stat
- * into a damage bonus.
+ * Never below zero, so a damaged or hostile pierce value cannot turn a defensive stat into a
+ * damage bonus.
  */
 export function effectiveDefence(
   attacker: CombatStats,
   defender: CombatStats,
   type: DamageType,
 ): Numeric {
-  const [def, pen] =
-    type === 'physical'
-      ? ([defender.pdef, attacker.armorPen] as const)
-      : ([defender.mdef, attacker.magicPen] as const);
-  const remaining = 1 - pen;
-  return remaining <= 0 ? ZERO : def.mul(remaining);
+  const pierce = type === 'physical' ? attacker.physicalPierce : attacker.magicPierce;
+  const remaining = 1 - pierce;
+  return remaining <= 0 ? ZERO : defender.def.mul(remaining);
+}
+
+/**
+ * The share of a hit that survives the defender's matching resist.
+ *
+ * Applied after the defence curve rather than folded into it: `def` diminishes what a hit is
+ * worth against a growing quantity, resist removes a flat percentage of whatever is left, and
+ * the two answer different questions. Clamped below 1 by `content.ts`, which is what stops
+ * this from ever returning zero.
+ */
+export function resistedShare(defender: CombatStats, type: DamageType): number {
+  const resist = type === 'physical' ? defender.physicalResist : defender.magicResist;
+  return Math.min(Math.max(1 - resist, 0), 1);
 }
 
 /**
@@ -109,6 +130,27 @@ export function hitChance(
 }
 
 /**
+ * Chance a hit is critical, after the target's crit block.
+ *
+ * Allowed to reach zero, unlike the hit chance: a hit that never crits still kills, so a
+ * crit-immune archetype cannot stall a battle the way an unhittable one could.
+ */
+export function critChance(attacker: CombatStats, defender: CombatStats): number {
+  return Math.min(Math.max(attacker.critChance - defender.critBlock, 0), 1);
+}
+
+/**
+ * What a critical hit is worth, as a multiplier on the ordinary result.
+ *
+ * `1 + max(amp - resist, 0)`. Never below 1, so a well-defended target turns a crit into an
+ * ordinary hit rather than into a *worse* one — a "critical" that reduced damage would be a
+ * mechanic nobody could read off a battle log.
+ */
+export function critMultiplier(attacker: CombatStats, defender: CombatStats): number {
+  return 1 + Math.max(attacker.critDamageAmp - defender.critDamageResist, 0);
+}
+
+/**
  * The matchup multiplier for one ordered faction pairing.
  *
  * An unlisted pairing is neutral, which is also what an unknown faction gets. That is the
@@ -123,7 +165,7 @@ export function factionMultiplier(rules: CombatRules, attacker: string, defender
 /**
  * Chance a status effect lands.
  *
- * `authored + effectHit - tenacity`, clamped to `[0, 1]`. Deliberately allowed to reach zero:
+ * `authored + insight - tenacity`, clamped to `[0, 1]`. Deliberately allowed to reach zero:
  * unlike a hit chance, a debuff that never lands cannot stall a battle, so a genuinely
  * immune-to-debuffs archetype is authorable. Most content leaves both stats at zero, in which
  * case this is exactly what the skill authored — debuffs are meant to land, and the answer to
@@ -135,7 +177,7 @@ export function statusChance(
   defender: CombatStats,
 ): number {
   const base = Number.isFinite(authored) ? authored : 1;
-  return Math.min(Math.max(base + attacker.effectHit - defender.tenacity, 0), 1);
+  return Math.min(Math.max(base + attacker.insight - defender.tenacity, 0), 1);
 }
 
 /**
@@ -164,14 +206,11 @@ export function rollAttack(
     return { hit: false, damage: ZERO, crit: false };
   }
 
-  const crit = critRoll < attacker.critChance;
-  const scale = num(Number.isFinite(power) ? Math.max(power, 0) : 0).mul(
-    Number.isFinite(matchup) ? Math.max(matchup, 0) : 1,
-  );
-  const base = baseDamage(
-    attackStat(attacker, type),
-    effectiveDefence(attacker, defender, type),
-  ).mul(scale);
+  const crit = critRoll < critChance(attacker, defender);
+  const scale = num(Number.isFinite(power) ? Math.max(power, 0) : 0)
+    .mul(Number.isFinite(matchup) ? Math.max(matchup, 0) : 1)
+    .mul(resistedShare(defender, type));
+  const base = baseDamage(attacker.atk, effectiveDefence(attacker, defender, type)).mul(scale);
 
-  return { hit: true, damage: crit ? base.mul(attacker.critMultiplier) : base, crit };
+  return { hit: true, damage: crit ? base.mul(critMultiplier(attacker, defender)) : base, crit };
 }

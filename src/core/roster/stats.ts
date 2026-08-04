@@ -6,25 +6,33 @@ import { type CharacterData, type CharacterTier, type OwnedCharacter } from './t
 /**
  * How a character's stats follow from its tier, its level and its rarity.
  *
- * ## Only the five quantities scale, and that is deliberate
+ * ## Only the four quantities scale, and that is deliberate
  *
- * `hp`, `patk`, `matk`, `pdef` and `mdef` are quantities and grow without bound. Nothing else
- * in the block scales with anything.
+ * `hp`, `atk`, `def` and `recovery` are quantities and grow without bound. Nothing else in the
+ * block scales with anything.
  *
- * That is not a simplification, it is a requirement. `spd` is ATB gauge per tick against a
+ * That is not a simplification, it is a requirement. `haste` is ATB gauge per tick against a
  * threshold of 1000, and `content.ts` clamps it to `[1, ATB_THRESHOLD]` because the
  * simulation's termination argument depends on nobody banking two actions in one tick. A
- * `spd` that grew with level would hit the clamp within about eighty levels and then be
+ * `haste` that grew with level would hit the clamp within about eighty levels and then be
  * identical for every character in the game — turning the one stat that buys turns into a
- * flat constant.
+ * flat constant. `attackSpeed` is folded into the same gauge and inherits the same bound.
  *
- * The same argument covers the rest of the block from the other end. `critChance`, `dodge`,
- * `lifesteal`, `effectHit` and `tenacity` are probabilities and cannot exceed 1; `armorPen`
- * and `magicPen` are capped below 1 so a defensive stat can never be erased outright; and
- * `mp` is a **budget measured against authored skill costs**, so growing it would quietly
- * delete the metering that makes a healer's pool run out. Growth belongs to the quantities;
- * the scheduling weights, the probabilities and the resource budget stay where they were
- * authored, which is what keeps a fast fragile character fast and fragile at level 900.
+ * The same argument covers the rest of the block from the other end. `critChance`, `critBlock`,
+ * `dodge`, `lifeLeech`, `insight` and `tenacity` are probabilities and cannot exceed 1; the
+ * pierce pair is capped below 1 so a defensive stat can never be erased outright, and the
+ * resist pair is capped below 1 because a combatant nothing can damage is a battle that never
+ * ends; and `mp` is a **budget measured against authored skill costs**, so growing it would
+ * quietly delete the metering that makes a healer's pool run out.
+ *
+ * **`recovery` is the exception that proves the rule, and it is the one new stat that had to
+ * be.** It is a quantity measured against `hp`, so a fixed value is a no-op the moment health
+ * outgrows it — the budget argument run backwards. `healthRegen` amplifies it as a percentage
+ * and therefore stays where it was authored, which is the correct side of the line for both.
+ *
+ * Growth belongs to the quantities; the scheduling weights, the probabilities and the resource
+ * budget stay where they were authored, which is what keeps a fast fragile character fast and
+ * fragile at level 900.
  *
  * ## Why tiers diverge instead of starting apart
  *
@@ -97,10 +105,11 @@ export function scaleStats(
   return {
     ...base,
     hp: scale(base.hp),
-    patk: scale(base.patk),
-    matk: scale(base.matk),
-    pdef: scale(base.pdef),
-    mdef: scale(base.mdef),
+    atk: scale(base.atk),
+    def: scale(base.def),
+    // Absent stays absent. A character with no natural recovery should not acquire one at
+    // level 2 just because the scaler visited the field.
+    ...(base.recovery === undefined ? {} : { recovery: scale(base.recovery) }),
     // Everything else carries through untouched — see the note at the top of this file. The
     // spread is what does it, so a stat added to the block later is unscaled by default, which
     // is the safe direction: a scheduling weight or a probability that quietly started growing

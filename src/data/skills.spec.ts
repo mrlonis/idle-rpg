@@ -2,7 +2,13 @@
 // Content is checked by deriving from it, not by re-typing the numbers. This spec runs headless
 // for the same reason `core/` does.
 import { describe, expect, it } from 'vitest';
-import { type CharacterData, type CombatantData, type SkillData, type StatusData } from '../core';
+import {
+  ATB_THRESHOLD,
+  type CharacterData,
+  type CombatantData,
+  type SkillData,
+  type StatusData,
+} from '../core';
 import { CHARACTERS } from './characters';
 import { ENEMIES } from './enemies';
 import { SKILLS } from './skills';
@@ -99,24 +105,52 @@ describe('the skill library', () => {
     }
   });
 
-  it('prices every heal and shield against something the caster actually has', () => {
-    // Both scale off `matk`, so a healer authored with a physical stat line would produce a skill
-    // that fires on cue and restores nothing.
-    const healers = combatants.filter((combatant) =>
-      (combatant.skills ?? []).some((skill) =>
-        skill.effects.some(
-          (effect) =>
-            effect.kind === 'heal' ||
-            (effect.kind === 'status' &&
-              (effect.status.kind === 'regen' || effect.status.kind === 'shield')),
-        ),
-      ),
-    );
+  it('makes every heal, shield and regeneration worth the turn it costs', () => {
+    // All three price against `atk`, and since 8a there is only one attack stat — so this can no
+    // longer catch a healer that invested in the wrong half of its offence. What it catches now
+    // is the failure the collapse created: the characters authored to restore health are healers
+    // and tanks, which carry the lowest attack stats in the game, so a power tuned against the
+    // old `matk` can quietly become a badge rather than a defence.
+    //
+    // Both halves of the bar are read off the content. A restoration is measured against a
+    // typical health bar, and a regeneration is credited with the procs its authored duration
+    // buys at a typical gauge fill — so adding a slower roster or a bigger one re-runs the
+    // arithmetic instead of leaving a number here describing a game that has moved on.
+    const median = (values: readonly number[]): number => {
+      const sorted = [...values].sort((a, b) => a - b);
+      return sorted[Math.floor(sorted.length / 2)];
+    };
+    const typicalHp = median(combatants.map((combatant) => Number(combatant.stats.hp)));
+    const typicalHaste = median(combatants.map((combatant) => combatant.stats.haste));
+    const procs = (duration: number): number =>
+      Math.max(Math.floor(duration / (ATB_THRESHOLD / typicalHaste)), 1);
+
+    /** What one use of a skill restores, as a multiple of the caster's `atk`. */
+    const restoration = (skill: SkillData): number => {
+      let best = 0;
+      for (const effect of skill.effects) {
+        if (effect.kind === 'heal') {
+          best = Math.max(best, effect.power);
+        } else if (effect.kind === 'status' && effect.status.kind === 'shield') {
+          best = Math.max(best, effect.status.power);
+        } else if (effect.kind === 'status' && effect.status.kind === 'regen') {
+          best = Math.max(best, effect.status.power * procs(effect.status.duration));
+        }
+      }
+      return best;
+    };
+
+    const healers = combatants
+      .map((combatant) => ({
+        combatant,
+        best: Math.max(0, ...(combatant.skills ?? []).map(restoration)),
+      }))
+      .filter((entry) => entry.best > 0);
 
     expect(healers.length).toBeGreaterThan(0);
-    for (const healer of healers) {
-      expect(Number(healer.stats.matk), healer.id).toBeGreaterThanOrEqual(
-        Number(healer.stats.patk) * 0.6,
+    for (const { combatant, best } of healers) {
+      expect(Number(combatant.stats.atk) * best, combatant.id).toBeGreaterThanOrEqual(
+        typicalHp * 0.05,
       );
     }
   });

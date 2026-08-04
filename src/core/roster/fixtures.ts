@@ -38,13 +38,11 @@ export const TEST_ALPHA: CharacterData = {
   role: 'bruiser',
   stats: {
     hp: 100,
-    patk: 10,
-    matk: 4,
-    pdef: 5,
-    mdef: 4,
-    spd: 100,
+    atk: 10,
+    def: 4,
+    haste: 100,
     critChance: 0.1,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
   },
 };
 
@@ -56,13 +54,11 @@ export const TEST_BETA: CharacterData = {
   role: 'bruiser',
   stats: {
     hp: 120,
-    patk: 12,
-    matk: 5,
-    pdef: 6,
-    mdef: 5,
-    spd: 105,
+    atk: 12,
+    def: 6,
+    haste: 105,
     critChance: 0.12,
-    critMultiplier: 1.6,
+    critDamageAmp: 0.6,
   },
 };
 
@@ -74,13 +70,11 @@ export const TEST_GAMMA: CharacterData = {
   role: 'bruiser',
   stats: {
     hp: 140,
-    patk: 14,
-    matk: 6,
-    pdef: 7,
-    mdef: 6,
-    spd: 110,
+    atk: 14,
+    def: 6,
+    haste: 110,
     critChance: 0.15,
-    critMultiplier: 1.7,
+    critDamageAmp: 0.7,
   },
 };
 
@@ -93,13 +87,11 @@ export const TEST_DELTA: CharacterData = {
   role: 'mage',
   stats: {
     hp: 110,
-    patk: 11,
-    matk: 12,
-    pdef: 8,
-    mdef: 9,
-    spd: 95,
+    atk: 12,
+    def: 8,
+    haste: 95,
     critChance: 0.05,
-    critMultiplier: 1.4,
+    critDamageAmp: 0.4,
   },
 };
 
@@ -111,13 +103,11 @@ export const TEST_EPSILON: CharacterData = {
   role: 'mage',
   stats: {
     hp: 115,
-    patk: 13,
-    matk: 15,
-    pdef: 7,
-    mdef: 8,
-    spd: 100,
+    atk: 15,
+    def: 8,
+    haste: 100,
     critChance: 0.2,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
   },
 };
 
@@ -129,13 +119,11 @@ export const TEST_ZETA: CharacterData = {
   role: 'mage',
   stats: {
     hp: 130,
-    patk: 15,
-    matk: 18,
-    pdef: 6,
-    mdef: 7,
-    spd: 108,
+    atk: 18,
+    def: 6,
+    haste: 108,
     critChance: 0.25,
-    critMultiplier: 2,
+    critDamageAmp: 1,
   },
 };
 

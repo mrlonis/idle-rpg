@@ -3,8 +3,6 @@ import {
   BARRIER,
   BLEED,
   BURN,
-  CURSE,
-  FOCUS,
   GUARD,
   HASTE,
   POISON,
@@ -13,7 +11,6 @@ import {
   SLOW,
   STUN,
   SUNDER,
-  WARD,
   WEAKEN,
 } from './statuses';
 
@@ -44,7 +41,7 @@ import {
  *
  * ## Cooldowns are in battle ticks
  *
- * A combatant acts every `1000 / spd` ticks, so a 40-tick cooldown is roughly every fourth
+ * A combatant acts every `1000 / haste` ticks, so a 40-tick cooldown is roughly every fourth
  * turn at a middling speed and every sixth for something fast. Quoting them in ticks rather
  * than turns means a haste genuinely shortens the wait, which it would not if cooldowns were
  * counted in the caster's own actions.
@@ -75,7 +72,7 @@ export const GUARD_BREAK = {
   priority: 2,
 } as const;
 
-/** Seren. A party-wide `patk` buff is worth most to a front rank that is already swinging. */
+/** Seren. A party-wide `atk` buff, and since 8a it is worth the same to a caster as to a blade. */
 export const OATH_OF_ARMS = {
   id: 'oath-of-arms',
   name: 'Oath of Arms',
@@ -229,12 +226,18 @@ export const SALTBEARD_REMEDY = {
   priority: 4,
 } as const;
 
-/** Dorn covering the axis Dwarves are worst on. */
+/**
+ * Dorn's contribution to a rank he is not standing in.
+ *
+ * Was the magical half of {@link SHIELD_WALL} before the defences collapsed into one. What
+ * distinguishes it now is reach — every ally rather than the front row — which is the same
+ * thing it was always for: covering the axis a Dwarf line-up is worst on.
+ */
 export const STOUT_WARD = {
   id: 'stout-ward',
   name: 'Stout Ward',
   target: 'ally-all',
-  effects: [{ kind: 'status', status: WARD }],
+  effects: [{ kind: 'status', status: GUARD }],
   cost: { kind: 'mp', amount: 14 },
   cooldown: 65,
   priority: 2,
@@ -322,7 +325,7 @@ export const GRAVE_GRASP = {
 
 /**
  * Sable. The clearest statement of the Undead bargain: pay 55 HP for a magical drain that
- * usually returns more than it cost, and lose the trade outright against high `mdef`.
+ * usually returns more than it cost, and lose the trade outright against high magic resist.
  */
 export const BLOOD_PACT = {
   id: 'blood-pact',
@@ -363,7 +366,7 @@ export const SOUL_SIPHON = {
 // Monsters — raw ATK, and the answer to armour
 // ---------------------------------------------------------------------------------------
 
-/** Gnash. A bleed priced against a Monster's `patk` is a lot of damage for a free skill. */
+/** Gnash. A bleed priced against a Monster's `atk` is a lot of damage for a free skill. */
 export const REND = {
   id: 'rend',
   name: 'Rend',
@@ -493,7 +496,7 @@ export const EMBERBURST = {
   priority: 2,
 } as const;
 
-/** Malakar reaching the back rank the way an Elf does, but with `matk` behind it. */
+/** Malakar reaching the back rank the way an Elf does, but with a spell rather than an arrow. */
 export const GAMBLERS_CUT = {
   id: 'gamblers-cut',
   name: "Gambler's Cut",
@@ -511,7 +514,7 @@ export const HEXFIRE = {
   target: 'enemy-front',
   effects: [
     { kind: 'damage', damageType: 'magical', power: 1.35 },
-    { kind: 'status', status: CURSE, chance: 0.85 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
   ],
   cost: { kind: 'mp', amount: 10 },
   cooldown: 45,
@@ -525,7 +528,7 @@ export const RUIN_UNBOUND = {
   target: 'enemy-all',
   effects: [
     { kind: 'damage', damageType: 'magical', power: 1.15 },
-    { kind: 'status', status: CURSE, chance: 0.75 },
+    { kind: 'status', status: SUNDER, chance: 0.75 },
   ],
   cost: { kind: 'mp', amount: 26 },
   cooldown: 70,
@@ -670,8 +673,8 @@ export const MIRE = {
 /**
  * The wide-wave lock: a caster that hits the whole party for magical damage every few turns.
  *
- * Punishes a party built entirely of `pdef`, which is otherwise the cheapest durability in the
- * game. The answer is `mdef`, a Ward, or killing it — and it is fragile precisely so that
+ * Punishes a party built entirely of physical resist, which is otherwise the cheapest durability
+ * in the game. The answer is magic resist, or killing it — and it is fragile precisely so that
  * killing it is a real option for a party that can reach it.
  */
 export const CINDER_STORM = {
@@ -780,7 +783,7 @@ export const WITHERING_TOUCH = {
  * This says the same thing to a party that took the lesson and stacked three fragile carries
  * behind two bodies anyway — which by the second half of the ladder is most parties, because
  * every encounter below has rewarded it. The answers are durability on the carries, a barrier
- * that lands before the dive does, or killing something with 22 `pdef` before it acts twice.
+ * that lands before the dive does, or killing something with 24 `def` before it acts twice.
  *
  * Deliberately not enormous per target. Three back-rank hits at 0.95 against the party's softest
  * three stat blocks is already the widest damage in the game by the value it actually lands.
@@ -820,7 +823,7 @@ export const WRATH_UNBOUND = {
   name: 'Wrath Unbound',
   target: 'self',
   effects: [
-    { kind: 'status', status: FOCUS },
+    { kind: 'status', status: RALLY },
     { kind: 'status', status: HASTE },
   ],
   cooldown: 60,

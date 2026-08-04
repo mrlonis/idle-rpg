@@ -23,6 +23,7 @@ export {
   applyRowBonus,
   MAX_ACCURACY,
   MAX_PENETRATION,
+  MAX_RESIST,
   matchupKey,
   ticksPerAction,
   toAmount,
@@ -34,11 +35,13 @@ export {
   toSkill,
 } from './battle/content';
 export {
-  attackStat,
   baseDamage,
+  critChance,
+  critMultiplier,
   effectiveDefence,
   factionMultiplier,
   hitChance,
+  resistedShare,
   rollAttack,
   statusChance,
   type AttackRoll,

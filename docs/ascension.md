@@ -135,7 +135,7 @@ visible at all times. Reading the shop as the bad-luck mechanism gets the econom
 
 _Not built. Recorded here so this page does not quietly go stale._
 
-- **Skills unlock by rung.** Milestone 8 gates skill count on both axes: tier sets a ceiling
+- **Skills unlock by rung.** Milestone 8b gates skill count on both axes: tier sets a ceiling
   (common 2, legendary 3, ascended 4) and ascension rungs unlock up to it. That makes a rung the
   most valuable thing in the game — a skill is worth more than any stat multiplier — and it is the
   strongest available answer to "ascensions should feel more dramatic".

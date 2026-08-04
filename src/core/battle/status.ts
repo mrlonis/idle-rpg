@@ -50,11 +50,15 @@ export function toActiveStatus(data: StatusData, applier: CombatStats, tick: num
       return {
         ...base,
         damageType: data.damageType,
-        amount: scaled(data.damageType === 'physical' ? applier.patk : applier.matk, data.power),
+        // One `atk` since 8a, so a poison's bite no longer depends on which attack stat its
+        // applier happened to favour. `damageType` still rides along, and it is still read: the
+        // simulation settles it against the **target's** matching resist as the status lands,
+        // which is a thing this function cannot do because it only ever sees the applier.
+        amount: scaled(applier.atk, data.power),
       };
     case 'regen':
     case 'shield':
-      return { ...base, amount: scaled(applier.matk, data.power) };
+      return { ...base, amount: scaled(applier.atk, data.power) };
     case 'stun':
       return base;
   }
@@ -198,8 +202,8 @@ export function absorbDamage(
 /**
  * The stat block a combatant is currently fighting with.
  *
- * `spd` is re-clamped after modification and nothing else is. That asymmetry is the
- * simulation's termination argument showing through: a haste that pushed `spd` past
+ * `haste` is re-clamped after modification and nothing else is. That asymmetry is the
+ * simulation's termination argument showing through: a haste that pushed past
  * `ATB_THRESHOLD` would let a combatant bank two actions in one tick, and a slow that pushed
  * it below 1 would leave it unable to ever act again. The quantities have no such bound —
  * they are allowed to go anywhere, because the damage formula is well behaved across the
@@ -211,33 +215,42 @@ export function effectiveStats(stats: CombatStats, statuses: readonly ActiveStat
   }
   return {
     ...stats,
-    patk: stats.patk.mul(statModifier(statuses, 'patk')),
-    matk: stats.matk.mul(statModifier(statuses, 'matk')),
-    pdef: stats.pdef.mul(statModifier(statuses, 'pdef')),
-    mdef: stats.mdef.mul(statModifier(statuses, 'mdef')),
-    spd: clampSpeed(stats.spd * statModifier(statuses, 'spd')),
+    atk: stats.atk.mul(statModifier(statuses, 'atk')),
+    def: stats.def.mul(statModifier(statuses, 'def')),
+    haste: clampHaste(stats.haste * statModifier(statuses, 'haste')),
   };
 }
 
 /**
- * Just the current speed, without building a whole stat block for it.
+ * Just the current gauge fill, without building a whole stat block for it.
  *
  * The scheduling loop asks for this on every combatant on every iteration, and it is the only
  * stat it needs — but the quantities in a full {@link effectiveStats} are `Decimal`s, so
- * producing one costs four arbitrary-precision multiplications. Doing that ten times an
- * iteration to read a plain number made a balance sweep of the whole ladder take twenty
- * seconds; this makes the same sweep a rounding error. Same arithmetic, same clamp, no
- * allocation.
+ * producing one costs arbitrary-precision multiplications. Doing that ten times an iteration
+ * to read a plain number made a balance sweep of the whole ladder take twenty seconds; this
+ * makes the same sweep a rounding error. Same arithmetic, same clamp, no allocation.
+ *
+ * `swinging` — whether the combatant's **last** action was a basic attack — is what separates
+ * {@link CombatStats.attackSpeed} from haste. It is passed in rather than derived here because
+ * the answer lives on the fighter, and this file deliberately knows nothing about fighters.
+ * **The sum is re-clamped**, not each half: two stats that individually respected the gauge
+ * bound and jointly did not would break turn ordering exactly as one oversized stat would.
  */
-export function effectiveSpeed(stats: CombatStats, statuses: readonly ActiveStatus[]): number {
-  return statuses.length === 0 ? stats.spd : clampSpeed(stats.spd * statModifier(statuses, 'spd'));
+export function effectiveSpeed(
+  stats: CombatStats,
+  statuses: readonly ActiveStatus[],
+  swinging = false,
+): number {
+  const extra = swinging ? stats.attackSpeed : 0;
+  const modifier = statuses.length === 0 ? 1 : statModifier(statuses, 'haste');
+  return clampHaste((stats.haste + extra) * modifier);
 }
 
-function clampSpeed(spd: number): number {
-  if (!Number.isFinite(spd)) {
+function clampHaste(haste: number): number {
+  if (!Number.isFinite(haste)) {
     return 1;
   }
-  return Math.min(Math.max(spd, 1), ATB_THRESHOLD);
+  return Math.min(Math.max(haste, 1), ATB_THRESHOLD);
 }
 
 /**

@@ -34,13 +34,11 @@ function unit(
     skills: extra.skills,
     stats: {
       hp: 100,
-      patk: 20,
-      matk: 20,
-      pdef: 5,
-      mdef: 5,
-      spd: 100,
+      atk: 20,
+      def: 5,
+      haste: 100,
       critChance: 0,
-      critMultiplier: 2,
+      critDamageAmp: 1,
       ...stats,
     },
   };
@@ -233,10 +231,7 @@ function replay(result: BattleResult): Board {
 
 describe('simulateBattle', () => {
   it('resolves a winnable fight into a victory', () => {
-    const result = fight(
-      line([unit('hero', { hp: 1000, patk: 100 })]),
-      stage(line([unit('mook')])),
-    );
+    const result = fight(line([unit('hero', { hp: 1000, atk: 100 })]), stage(line([unit('mook')])));
 
     expect(result.outcome).toBe('victory');
     expect(result.stageId).toBe('test-stage');
@@ -245,8 +240,8 @@ describe('simulateBattle', () => {
 
   it('resolves an unwinnable fight into a defeat', () => {
     const result = fight(
-      line([unit('hero', { hp: 10, patk: 1 })]),
-      stage(line([unit('titan', { hp: 100_000, patk: 500 })])),
+      line([unit('hero', { hp: 10, atk: 1 })]),
+      stage(line([unit('titan', { hp: 100_000, atk: 500 })])),
     );
 
     expect(result.outcome).toBe('defeat');
@@ -254,9 +249,9 @@ describe('simulateBattle', () => {
   });
 
   it('pays the stage reward on a victory and nothing otherwise', () => {
-    const strong = line([unit('hero', { hp: 1000, patk: 100 })]);
-    const weak = line([unit('hero', { hp: 10, patk: 1 })]);
-    const opponent = stage(line([unit('titan', { hp: 100_000, patk: 500 })]), 250, 4);
+    const strong = line([unit('hero', { hp: 1000, atk: 100 })]);
+    const weak = line([unit('hero', { hp: 10, atk: 1 })]);
+    const opponent = stage(line([unit('titan', { hp: 100_000, atk: 500 })]), 250, 4);
 
     const won = fight(strong, stage(line([unit('mook')]), 250, 4)).reward;
     expect(won.gained.gold?.eq(250)).toBe(true);
@@ -272,8 +267,8 @@ describe('simulateBattle', () => {
   describe('determinism', () => {
     it('produces an identical battle from an identical seed', () => {
       const party = line(
-        [unit('rin', { spd: 118, critChance: 0.25 })],
-        [unit('bran', { spd: 70 })],
+        [unit('rin', { haste: 118, critChance: 0.25 })],
+        [unit('bran', { haste: 70 })],
       );
       const encounter = stage(line([unit('slime', { critChance: 0.1 })], [unit('slime')]));
 
@@ -283,8 +278,8 @@ describe('simulateBattle', () => {
     it('produces a different battle from a different seed', () => {
       // Hits, crits and status applications are the only RNG consumers, so this is also what
       // makes a retry a genuinely new fight rather than a replay of the same loss.
-      const party = line([unit('rin', { hp: 400, patk: 60, critChance: 0.5 })]);
-      const encounter = stage(line([unit('slime', { hp: 300, patk: 15, critChance: 0.5 })]));
+      const party = line([unit('rin', { hp: 400, atk: 60, critChance: 0.5 })]);
+      const encounter = stage(line([unit('slime', { hp: 300, atk: 15, critChance: 0.5 })]));
 
       const first = fight(party, encounter, battleSeed(SEED, 'test-stage', 0));
       const second = fight(party, encounter, battleSeed(SEED, 'test-stage', 1));
@@ -317,10 +312,8 @@ describe('simulateBattle', () => {
     it('chooses targets without consulting the RNG', () => {
       // Selection has to be a pure function of the battle state. If it drew, the tie-break in a
       // five-body wave would move with the seed and no replay would be exact.
-      const party = line([unit('hero', { hp: 2000, patk: 40, critChance: 0 })]);
-      const encounter = stage(
-        line([unit('a', { hp: 90, patk: 0 }), unit('b', { hp: 60, patk: 0 })]),
-      );
+      const party = line([unit('hero', { hp: 2000, atk: 40, critChance: 0 })]);
+      const encounter = stage(line([unit('a', { hp: 90, atk: 0 }), unit('b', { hp: 60, atk: 0 })]));
 
       const first = attackTargets(fight(party, encounter, 1));
       const second = attackTargets(fight(party, encounter, 987_654));
@@ -334,8 +327,8 @@ describe('simulateBattle', () => {
       // The whole reason for an ATB gauge rather than fixed rounds. The fast ally acts at ticks
       // 5, 10 and 15; the slow enemy gets its single turn at tick 10.
       const result = fight(
-        line([unit('swift', { hp: 1000, patk: 10, pdef: 0, spd: 200 })]),
-        stage(line([unit('slow', { hp: 25, patk: 0, pdef: 0, spd: 100 })])),
+        line([unit('swift', { hp: 1000, atk: 10, def: 0, haste: 200 })]),
+        stage(line([unit('slow', { hp: 25, atk: 0, def: 0, haste: 100 })])),
       );
 
       expect(result.outcome).toBe('victory');
@@ -344,8 +337,8 @@ describe('simulateBattle', () => {
 
     it('breaks a gauge tie towards the party', () => {
       const result = fight(
-        line([unit('ally', { hp: 1000, patk: 10, pdef: 0, spd: 100 })]),
-        stage(line([unit('foe', { hp: 1000, patk: 10, pdef: 0, spd: 100 })])),
+        line([unit('ally', { hp: 1000, atk: 10, def: 0, haste: 100 })]),
+        stage(line([unit('foe', { hp: 1000, atk: 10, def: 0, haste: 100 })])),
       );
 
       const first = result.events.find((event) => event.kind === 'attack');
@@ -354,8 +347,8 @@ describe('simulateBattle', () => {
 
     it('lets the faster side strike first', () => {
       const result = fight(
-        line([unit('slowpoke', { hp: 1000, patk: 10, pdef: 0, spd: 50 })]),
-        stage(line([unit('quick', { hp: 1000, patk: 10, pdef: 0, spd: 250 })])),
+        line([unit('slowpoke', { hp: 1000, atk: 10, def: 0, haste: 50 })]),
+        stage(line([unit('quick', { hp: 1000, atk: 10, def: 0, haste: 250 })])),
       );
 
       expect(result.events.find((event) => event.kind === 'attack')).toMatchObject({
@@ -368,8 +361,8 @@ describe('simulateBattle', () => {
       // The animator's board moves only because an event said so, and a turn start is the one
       // place MP goes up. Without this event it would have to model regeneration itself.
       const result = fight(
-        line([unit('caster', { hp: 500, patk: 30, mp: 10, mpRegen: 4, spd: 100 })]),
-        stage(line([unit('mook', { hp: 400, patk: 5, spd: 1 })])),
+        line([unit('caster', { hp: 500, atk: 30, mp: 10, mpRegen: 4, haste: 100 })]),
+        stage(line([unit('mook', { hp: 400, atk: 5, haste: 1 })])),
       );
 
       const turns = result.events.filter(
@@ -380,6 +373,150 @@ describe('simulateBattle', () => {
         { tick: 20, mp: 10 },
       ]);
     });
+
+    it('pays attack speed only for the turn after a basic attack', () => {
+      // The one mapping in the stat block with no precedent. Haste is gauge for everything;
+      // attack speed is gauge for swinging, so a combatant machine-guns basics between its skill
+      // windows and drops back to plain haste for the turn after a cast.
+      //
+      // The kit here is one skill on a 60-tick cooldown. Nothing has been used at tick 0, so the
+      // opening turn arrives on haste alone for both fighters and is spent casting. The turn
+      // after *that* is also plain — a cast is not a swing. From the first basic attack onward
+      // the fast one pulls ahead.
+      const swinger = unit(
+        'swinger',
+        { hp: 1000, atk: 10, def: 0, haste: 100, attackSpeed: 100 },
+        { skills: [POISON_DART] },
+      );
+      const plain = unit(
+        'plain',
+        { hp: 1000, atk: 10, def: 0, haste: 100 },
+        { skills: [POISON_DART] },
+      );
+      const dummy = () => stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })]));
+
+      const fast = fight(line([swinger]), dummy());
+      const slow = fight(line([plain]), dummy());
+      const turnsOf = (result: BattleResult): number[] =>
+        result.events.filter((event) => event.kind === 'turn').map((event) => event.tick);
+
+      expect(turnsOf(fast).slice(0, 4)).toEqual([10, 20, 25, 30]);
+      expect(turnsOf(slow).slice(0, 4)).toEqual([10, 20, 30, 40]);
+    });
+
+    it('keeps paying attack speed while a skill sits ineligible rather than on cooldown', () => {
+      // Reading the *last* action rather than predicting the next one is what makes this true,
+      // and it is the reason for the choice. A skill gated on a condition that is not met never
+      // goes on cooldown — so "is everything in the kit on cooldown" would read as "no" forever
+      // and suppress the bonus for the whole fight. Aelrindel's Volley wants three living
+      // enemies; his attack speed is the largest in the game and must not depend on that.
+      const gated: SkillData = {
+        ...SNIPE,
+        id: 'gated',
+        cooldown: 40,
+        condition: { kind: 'enemies-at-least', count: 3 },
+      };
+      const result = fight(
+        line([
+          unit(
+            'archer',
+            { hp: 1000, atk: 10, def: 0, haste: 100, attackSpeed: 100 },
+            { skills: [gated] },
+          ),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })])),
+      );
+
+      const turns = result.events.filter((event) => event.kind === 'turn').map((e) => e.tick);
+      // The opening turn is a basic attack, because the gate never opens — so every turn after
+      // it is paid at haste plus attack speed.
+      expect(turns.slice(0, 4)).toEqual([10, 15, 20, 25]);
+    });
+
+    it('re-clamps haste and attack speed together, not one at a time', () => {
+      // The termination argument. Two stats that individually respected the gauge bound and
+      // jointly did not would bank two actions in a tick exactly as one oversized stat would, so
+      // a combatant at the ceiling on both still acts once per tick and no more.
+      const result = fight(
+        line([
+          unit(
+            'blur',
+            { hp: 1000, atk: 10, def: 0, haste: 1000, attackSpeed: 1000 },
+            { skills: [POISON_DART] },
+          ),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })])),
+      );
+
+      const turns = result.events.filter((event) => event.kind === 'turn').map((e) => e.tick);
+      expect(turns.slice(0, 4)).toEqual([1, 2, 3, 4]);
+    });
+  });
+
+  describe('recovery', () => {
+    it('heals at the top of a turn, amplified by health regen', () => {
+      // A quantity rather than a percentage of maximum HP, so a deep pool does not heal faster
+      // than a shallow one for free — and one of the four stats that scales, because a fixed
+      // number measured against a health bar heading for ×10⁹ is a rounding error by then.
+      const result = fight(
+        line([
+          unit('dwarf', { hp: 1000, atk: 1, def: 0, haste: 100, recovery: 20, healthRegen: 0.5 }),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, atk: 300, def: 0, haste: 100 })])),
+      );
+
+      const healed = result.events.find(
+        (event) => event.kind === 'heal' && event.target === 'ally-0' && event.tick > 10,
+      );
+      expect(healed).toBeDefined();
+      expect(healed?.kind === 'heal' && healed.amount.eq(30)).toBe(true);
+    });
+
+    it('does not amplify its own recovery with received healing', () => {
+      // "Received healing" means received from somebody else. Amplifying a self-heal would make
+      // the stat a second `healthRegen` rather than the thing that makes a healer worth fielding.
+      const result = fight(
+        line([
+          unit('dwarf', {
+            hp: 1000,
+            atk: 1,
+            def: 0,
+            haste: 100,
+            recovery: 20,
+            receivedHealing: 3,
+          }),
+        ]),
+        stage(line([unit('mook', { hp: 100_000, atk: 300, def: 0, haste: 100 })])),
+      );
+
+      const healed = result.events.find(
+        (event) => event.kind === 'heal' && event.target === 'ally-0' && event.tick > 10,
+      );
+      expect(healed?.kind === 'heal' && healed.amount.eq(20)).toBe(true);
+    });
+
+    it('amplifies a heal that came from an ally', () => {
+      const result = fight(
+        line(
+          [unit('tank', { hp: 1000, atk: 5, def: 0, haste: 60, receivedHealing: 1 })],
+          [
+            unit(
+              'medic',
+              { hp: 1000, atk: 40, mp: 60, mpRegen: 2, haste: 100 },
+              { skills: [MEND] },
+            ),
+          ],
+        ),
+        stage(line([unit('mook', { hp: 100_000, atk: 200, def: 0, haste: 100 })])),
+      );
+
+      const mended = result.events.find(
+        (event) => event.kind === 'heal' && event.source === 'ally-1' && event.target === 'ally-0',
+      );
+      // 40 attack × power 1, doubled by the tank's amplifier. Compared as a number because the
+      // amplifier is a float multiplier.
+      expect(mended?.kind === 'heal' && mended.amount.toNumber()).toBeCloseTo(80, 6);
+    });
   });
 
   describe('rows', () => {
@@ -387,11 +524,11 @@ describe('simulateBattle', () => {
       // The front row is a gate. A back-rank healer on 60 HP is unreachable while anything is
       // standing in front of it, which is the entire mechanical content of a formation.
       const result = fight(
-        line([unit('hero', { hp: 1000, patk: 50, pdef: 0, spd: 100 })]),
+        line([unit('hero', { hp: 1000, atk: 50, def: 0, haste: 100 })]),
         stage(
           line(
-            [unit('wall', { hp: 400, patk: 0, spd: 1 })],
-            [unit('healer', { hp: 60, patk: 0, spd: 1 })],
+            [unit('wall', { hp: 400, atk: 0, haste: 1 })],
+            [unit('healer', { hp: 60, atk: 0, haste: 1 })],
           ),
         ),
       );
@@ -402,11 +539,11 @@ describe('simulateBattle', () => {
     it('falls through to the back rank once the front is empty', () => {
       // Otherwise a party would stand there swinging at a rank nobody is in.
       const result = fight(
-        line([unit('hero', { hp: 1000, patk: 100, pdef: 0, spd: 100 })]),
+        line([unit('hero', { hp: 1000, atk: 100, def: 0, haste: 100 })]),
         stage(
           line(
-            [unit('wall', { hp: 50, patk: 0, spd: 1 })],
-            [unit('healer', { hp: 50, patk: 0, spd: 1 })],
+            [unit('wall', { hp: 50, atk: 0, haste: 1 })],
+            [unit('healer', { hp: 50, atk: 0, haste: 1 })],
           ),
         ),
       );
@@ -418,11 +555,11 @@ describe('simulateBattle', () => {
     it('lets a bypass skill reach the back rank straight away', () => {
       // What a sniper, a ranger or a mage is bought for, and the answer to a protected healer.
       const result = fight(
-        line([unit('archer', { hp: 1000, patk: 50, pdef: 0, spd: 100 }, { skills: [SNIPE] })]),
+        line([unit('archer', { hp: 1000, atk: 50, def: 0, haste: 100 }, { skills: [SNIPE] })]),
         stage(
           line(
-            [unit('wall', { hp: 4000, patk: 0, spd: 1 })],
-            [unit('healer', { hp: 400, patk: 0, spd: 1 })],
+            [unit('wall', { hp: 4000, atk: 0, haste: 1 })],
+            [unit('healer', { hp: 400, atk: 0, haste: 1 })],
           ),
         ),
       );
@@ -447,15 +584,15 @@ describe('simulateBattle', () => {
     });
 
     it('applies the front rank’s defensive bonus and the back rank’s offensive one', () => {
-      const encounter = stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })]));
+      const encounter = stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })]));
       const front = fight(
-        line([unit('hero', { patk: 40, matk: 10, pdef: 20, spd: 100 })]),
+        line([unit('hero', { atk: 40, def: 20, haste: 100 })]),
         encounter,
         SEED,
         TEST_COMBAT_RULES,
       );
       const back = fight(
-        line([], [unit('hero', { patk: 40, matk: 10, pdef: 20, spd: 100 })]),
+        line([], [unit('hero', { atk: 40, def: 20, haste: 100 })]),
         encounter,
         SEED,
         TEST_COMBAT_RULES,
@@ -471,8 +608,8 @@ describe('simulateBattle', () => {
       // A formation with nobody in front is legal — a player mid-reshuffle is entitled to one —
       // and the gate has to fall through rather than leaving both sides swinging at air.
       const result = fight(
-        line([], [unit('hero', { hp: 1000, patk: 60, spd: 100 })]),
-        stage(line([], [unit('mook', { hp: 200, patk: 10, spd: 100 })])),
+        line([], [unit('hero', { hp: 1000, atk: 60, haste: 100 })]),
+        stage(line([], [unit('mook', { hp: 200, atk: 10, haste: 100 })])),
       );
 
       expect(result.outcome).toBe('victory');
@@ -482,16 +619,16 @@ describe('simulateBattle', () => {
   describe('factions', () => {
     it('applies the matchup multiplier to damage', () => {
       const encounter = stage(
-        line([unit('victim', { hp: 5000, patk: 0, pdef: 0, spd: 1 }, { faction: 'weak' })]),
+        line([unit('victim', { hp: 5000, atk: 0, def: 0, haste: 1 }, { faction: 'weak' })]),
       );
       const plain = fight(
-        line([unit('hero', { patk: 50, pdef: 0 }, { faction: 'neutral' })]),
+        line([unit('hero', { atk: 50, def: 0 }, { faction: 'neutral' })]),
         encounter,
         SEED,
         TEST_COMBAT_RULES,
       );
       const favoured = fight(
-        line([unit('hero', { patk: 50, pdef: 0 }, { faction: 'strong' })]),
+        line([unit('hero', { atk: 50, def: 0 }, { faction: 'strong' })]),
         encounter,
         SEED,
         TEST_COMBAT_RULES,
@@ -505,10 +642,8 @@ describe('simulateBattle', () => {
   describe('skills', () => {
     it('prefers the highest-priority skill it can pay for and reports the cast', () => {
       const result = fight(
-        line([
-          unit('mage', { hp: 1000, patk: 10, matk: 60, mp: 20, spd: 100 }, { skills: [FIREBALL] }),
-        ]),
-        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+        line([unit('mage', { hp: 1000, atk: 60, mp: 20, haste: 100 }, { skills: [FIREBALL] })]),
+        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
       );
 
       const cast = result.events.find((event) => event.kind === 'cast');
@@ -520,11 +655,11 @@ describe('simulateBattle', () => {
         line([
           unit(
             'mage',
-            { hp: 1000, patk: 10, matk: 60, mp: 12, mpRegen: 0, spd: 100 },
+            { hp: 1000, atk: 60, mp: 12, mpRegen: 0, haste: 100 },
             { skills: [FIREBALL] },
           ),
         ]),
-        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
       );
 
       expect(result.events.filter((event) => event.kind === 'cast')).toHaveLength(1);
@@ -536,11 +671,11 @@ describe('simulateBattle', () => {
         line([
           unit(
             'mage',
-            { hp: 1000, patk: 10, matk: 60, mp: 999, mpRegen: 99, spd: 100 },
+            { hp: 1000, atk: 60, mp: 999, mpRegen: 99, haste: 100 },
             { skills: [FIREBALL] },
           ),
         ]),
-        stage(line([unit('mook', { hp: 100_000, patk: 0, spd: 1 })])),
+        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })])),
       );
 
       const casts = result.events
@@ -554,8 +689,8 @@ describe('simulateBattle', () => {
       // An HP cost is a tempo trade, not a suicide button — and a combatant that could kill
       // itself paying for a skill could also end a battle without either side landing a blow.
       const result = fight(
-        line([unit('warlock', { hp: 30, patk: 10, matk: 60, spd: 100 }, { skills: [BLOOD_BOLT] })]),
-        stage(line([unit('mook', { hp: 5000, patk: 0, spd: 1 })])),
+        line([unit('warlock', { hp: 30, atk: 60, haste: 100 }, { skills: [BLOOD_BOLT] })]),
+        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
       );
 
       expect(result.events.filter((event) => event.kind === 'cast')).toEqual([]);
@@ -564,16 +699,10 @@ describe('simulateBattle', () => {
     it('skips a heal nobody needs and casts it once somebody does', () => {
       const result = fight(
         line(
-          [unit('tank', { hp: 300, patk: 5, pdef: 0, spd: 60 })],
-          [
-            unit(
-              'medic',
-              { hp: 400, patk: 5, matk: 40, mp: 60, mpRegen: 2, spd: 100 },
-              { skills: [MEND] },
-            ),
-          ],
+          [unit('tank', { hp: 300, atk: 5, def: 0, haste: 60 })],
+          [unit('medic', { hp: 400, atk: 40, mp: 60, mpRegen: 2, haste: 100 }, { skills: [MEND] })],
         ),
-        stage(line([unit('mook', { hp: 4000, patk: 40, pdef: 0, spd: 100 })])),
+        stage(line([unit('mook', { hp: 4000, atk: 40, def: 0, haste: 100 })])),
       );
 
       const firstCast = result.events.find((event) => event.kind === 'cast');
@@ -587,10 +716,41 @@ describe('simulateBattle', () => {
   });
 
   describe('statuses', () => {
+    it('settles a poison against the target’s resist as it lands', () => {
+      // The collapse to one `atk` took `damageType`'s old job away — it no longer chooses which
+      // attack stat a poison is priced against — and this is the job it took on instead. Without
+      // it the field would have no consumer at all, and a wall that shrugged off swords but not
+      // bleeds would be a hole in the one axis 8a moved onto the resists.
+      //
+      // Settled at application rather than per tick, for the same reason the quantity itself is:
+      // a poison does not stop hurting when its caster dies, so it should not start hurting more
+      // when the body it is sitting on drops its guard.
+      const dart = (defender: CombatantData): BattleResult =>
+        fight(
+          line([unit('rogue', { hp: 1000, atk: 40, haste: 100 }, { skills: [POISON_DART] })]),
+          stage(line([defender])),
+        );
+      const bare = dart(unit('mook', { hp: 100_000, atk: 0, haste: 100 }));
+      const armoured = dart(
+        unit('golem', { hp: 100_000, atk: 0, haste: 100, physicalResist: 0.5 }),
+      );
+      const warded = dart(unit('ghost', { hp: 100_000, atk: 0, haste: 100, magicResist: 0.5 }));
+
+      const bite = (result: BattleResult): number => {
+        const tick = result.events.find((event) => event.kind === 'tick-damage');
+        expect(tick).toBeDefined();
+        return tick?.kind === 'tick-damage' ? tick.damage.toNumber() : 0;
+      };
+
+      expect(bite(armoured)).toBeCloseTo(bite(bare) / 2, 6);
+      // The poison is physical, so a magic resist is the wrong answer to it.
+      expect(bite(warded)).toBeCloseTo(bite(bare), 6);
+    });
+
     it('ticks a poison on its host’s own turn and stops when it expires', () => {
       const result = fight(
-        line([unit('rogue', { hp: 1000, patk: 40, spd: 100 }, { skills: [POISON_DART] })]),
-        stage(line([unit('mook', { hp: 100_000, patk: 0, spd: 100 })])),
+        line([unit('rogue', { hp: 1000, atk: 40, haste: 100 }, { skills: [POISON_DART] })]),
+        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 100 })])),
       );
 
       const ticks = result.events
@@ -609,9 +769,9 @@ describe('simulateBattle', () => {
 
     it('spends a turn to a stun and still consumes the gauge, so a lock cannot deadlock', () => {
       const result = fight(
-        line([unit('hero', { hp: 5000, patk: 60, spd: 100 })]),
+        line([unit('hero', { hp: 5000, atk: 60, haste: 100 })]),
         stage(
-          line([unit('binder', { hp: 900, patk: 5, spd: 100, effectHit: 1 }, { skills: [BIND] })]),
+          line([unit('binder', { hp: 900, atk: 5, haste: 100, insight: 1 }, { skills: [BIND] })]),
         ),
       );
 
@@ -624,13 +784,9 @@ describe('simulateBattle', () => {
     it('absorbs damage into a shield before HP, and reports both halves', () => {
       const result = fight(
         line([
-          unit(
-            'guard',
-            { hp: 1000, patk: 5, matk: 100, pdef: 0, spd: 200 },
-            { skills: [BARRIER_SKILL] },
-          ),
+          unit('guard', { hp: 1000, atk: 100, def: 0, haste: 200 }, { skills: [BARRIER_SKILL] }),
         ]),
-        stage(line([unit('mook', { hp: 100_000, patk: 40, pdef: 0, spd: 100 })])),
+        stage(line([unit('mook', { hp: 100_000, atk: 40, def: 0, haste: 100 })])),
       );
 
       const absorbed = result.events.find(
@@ -647,10 +803,10 @@ describe('simulateBattle', () => {
       // removed" has to guess which badge to drop, and disagrees with the simulation from then on.
       const result = fight(
         line([
-          unit('victim', { hp: 4000, patk: 5, spd: 100 }),
+          unit('victim', { hp: 4000, atk: 5, haste: 100 }),
           unit(
             'cleric',
-            { hp: 4000, patk: 5, matk: 40, mp: 200, mpRegen: 10, spd: 100 },
+            { hp: 4000, atk: 40, mp: 200, mpRegen: 10, haste: 100 },
             { skills: [PURIFY] },
           ),
         ]),
@@ -658,7 +814,7 @@ describe('simulateBattle', () => {
           line([
             unit(
               'hexer',
-              { hp: 100_000, patk: 5, matk: 30, spd: 100, effectHit: 1 },
+              { hp: 100_000, atk: 30, haste: 100, insight: 1 },
               { skills: [POISON_DART] },
             ),
           ]),
@@ -674,8 +830,8 @@ describe('simulateBattle', () => {
       // combatant drops everything it was carrying, which is what keeps the log's replay honest
       // about corpses.
       const result = fight(
-        line([unit('rogue', { hp: 1000, patk: 40, spd: 200 }, { skills: [QUICK_DART] })]),
-        stage(line([unit('mook', { hp: 300_000, patk: 0, spd: 1 })])),
+        line([unit('rogue', { hp: 1000, atk: 40, haste: 200 }, { skills: [QUICK_DART] })]),
+        stage(line([unit('mook', { hp: 300_000, atk: 0, haste: 1 })])),
       );
 
       const applied = result.events.filter((event) => event.kind === 'status');
@@ -696,13 +852,13 @@ describe('simulateBattle', () => {
       // animator's shield stayed full — which is precisely the bug this used to miss.
       const result = fight(
         line(
-          [unit('bran', { hp: 900, patk: 30, matk: 80, spd: 90 }, { skills: [BARRIER_SKILL] })],
-          [unit('rin', { hp: 400, patk: 60, critChance: 0.3 }, { skills: [POISON_DART] })],
+          [unit('bran', { hp: 900, atk: 80, haste: 90 }, { skills: [BARRIER_SKILL] })],
+          [unit('rin', { hp: 400, atk: 60, critChance: 0.3 }, { skills: [POISON_DART] })],
         ),
         stage(
           line(
-            [unit('slime', { hp: 900, patk: 22 }, { skills: [POISON_DART] })],
-            [unit('shaman', { hp: 600, patk: 18, matk: 70, spd: 80 }, { skills: [BARRIER_SKILL] })],
+            [unit('slime', { hp: 900, atk: 22 }, { skills: [POISON_DART] })],
+            [unit('shaman', { hp: 600, atk: 70, haste: 80 }, { skills: [BARRIER_SKILL] })],
           ),
         ),
       );
@@ -717,8 +873,8 @@ describe('simulateBattle', () => {
 
     it('records a defeat the moment a combatant reaches zero, and only once', () => {
       const result = fight(
-        line([unit('hero', { hp: 1000, patk: 100 })]),
-        stage(line([unit('mook', { hp: 50, patk: 0 })])),
+        line([unit('hero', { hp: 1000, atk: 100 })]),
+        stage(line([unit('mook', { hp: 50, atk: 0 })])),
       );
 
       const defeats = result.events.filter((event) => event.kind === 'defeat');
@@ -728,8 +884,8 @@ describe('simulateBattle', () => {
 
     it('never reports negative HP', () => {
       const result = fight(
-        line([unit('hero', { hp: 1000, patk: 5000 })]),
-        stage(line([unit('mook', { hp: 10, patk: 0 })])),
+        line([unit('hero', { hp: 1000, atk: 5000 })]),
+        stage(line([unit('mook', { hp: 10, atk: 0 })])),
       );
 
       for (const event of result.events) {
@@ -740,7 +896,7 @@ describe('simulateBattle', () => {
     });
 
     it('closes with exactly one end event', () => {
-      const result = fight(line([unit('hero', { patk: 100 })]), stage(line([unit('mook')])));
+      const result = fight(line([unit('hero', { atk: 100 })]), stage(line([unit('mook')])));
 
       expect(result.events.filter((event) => event.kind === 'end')).toHaveLength(1);
       expect(result.events.at(-1)?.kind).toBe('end');
@@ -749,13 +905,13 @@ describe('simulateBattle', () => {
     it('is ordered by tick throughout', () => {
       const result = fight(
         line(
-          [unit('rin', { hp: 400, patk: 60, spd: 118 }, { skills: [POISON_DART] })],
-          [unit('bran', { hp: 900, patk: 30, spd: 70 })],
+          [unit('rin', { hp: 400, atk: 60, haste: 118 }, { skills: [POISON_DART] })],
+          [unit('bran', { hp: 900, atk: 30, haste: 70 })],
         ),
         stage(
           line(
-            [unit('slime', { hp: 400, patk: 22 })],
-            [unit('wisp', { hp: 200, patk: 18, spd: 148 })],
+            [unit('slime', { hp: 400, atk: 22 })],
+            [unit('wisp', { hp: 200, atk: 18, haste: 148 })],
           ),
         ),
       );
@@ -772,10 +928,10 @@ describe('simulateBattle', () => {
       // after the last enemy falls.
       const result = fight(
         line([
-          unit('a', { hp: 1000, patk: 100, spd: 100 }),
-          unit('b', { hp: 1000, patk: 100, spd: 100 }),
+          unit('a', { hp: 1000, atk: 100, haste: 100 }),
+          unit('b', { hp: 1000, atk: 100, haste: 100 }),
         ]),
-        stage(line([unit('mook', { hp: 30, patk: 0, spd: 100 })])),
+        stage(line([unit('mook', { hp: 30, atk: 0, haste: 100 })])),
       );
 
       expect(result.events.filter((event) => event.kind === 'attack')).toHaveLength(1);
@@ -785,7 +941,7 @@ describe('simulateBattle', () => {
   describe('naming', () => {
     it('numbers repeated copies so the log stays readable', () => {
       const result = fight(
-        line([unit('hero', { patk: 100 })]),
+        line([unit('hero', { atk: 100 })]),
         stage(line([unit('slime'), unit('slime')], [unit('slime')])),
       );
 
@@ -795,7 +951,7 @@ describe('simulateBattle', () => {
     });
 
     it('leaves a single copy unnumbered', () => {
-      const result = fight(line([unit('hero', { patk: 100 })]), stage(line([unit('slime')])));
+      const result = fight(line([unit('hero', { atk: 100 })]), stage(line([unit('slime')])));
 
       expect(result.roster.find((c) => c.side === 'enemy')?.name).toBe('slime');
     });
@@ -807,8 +963,8 @@ describe('simulateBattle', () => {
       // turns. A synchronous function on the main thread needs a hard ceiling, and a balance
       // sweep needs one even more.
       const result = fight(
-        line([unit('pebble', { hp: 1000, patk: 1, pdef: '1e12', spd: 100 })]),
-        stage(line([unit('mountain', { hp: '1e12', patk: 0, pdef: '1e12', spd: 100 })])),
+        line([unit('pebble', { hp: 1000, atk: 1, def: '1e12', haste: 100 })]),
+        stage(line([unit('mountain', { hp: '1e12', atk: 0, def: '1e12', haste: 100 })])),
       );
 
       expect(result.outcome).toBe('stalemate');
@@ -820,8 +976,8 @@ describe('simulateBattle', () => {
       // The hit-chance floor is the reason. Without it, a stacked dodge pool would make every
       // fight against it a run to the tick cap.
       const result = fight(
-        line([unit('hero', { hp: 5000, patk: 60, accuracy: 0 })]),
-        stage(line([unit('ghost', { hp: 200, patk: 0, dodge: 1, spd: 1 })])),
+        line([unit('hero', { hp: 5000, atk: 60, accuracy: 0 })]),
+        stage(line([unit('ghost', { hp: 200, atk: 0, dodge: 1, haste: 1 })])),
       );
 
       expect(result.outcome).toBe('victory');
@@ -841,8 +997,8 @@ describe('simulateBattle', () => {
 
     it('prices the fight in game time', () => {
       const result = fight(
-        line([unit('swift', { hp: 1000, patk: 10, pdef: 0, spd: 200 })]),
-        stage(line([unit('slow', { hp: 25, patk: 0, pdef: 0, spd: 100 })])),
+        line([unit('swift', { hp: 1000, atk: 10, def: 0, haste: 200 })]),
+        stage(line([unit('slow', { hp: 25, atk: 0, def: 0, haste: 100 })])),
       );
 
       expect(result.durationMs).toBe(ticksToMs(result.ticks));

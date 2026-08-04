@@ -6,7 +6,7 @@
  *
  * ## Durations are in battle ticks, and that reads oddly until it doesn't
  *
- * A combatant acts every `1000 / spd` ticks, so a Human at `spd: 96` takes a turn roughly
+ * A combatant acts every `1000 / haste` ticks, so a Human at `haste: 96` takes a turn roughly
  * every 11 ticks and a Wisp at 148 every 7. A 45-tick debuff is therefore about four turns for
  * the Human and six for the Wisp — which is the point. Quoting durations in *turns* would make
  * a debuff last longest on the slow target it was least needed against, because the slow
@@ -16,9 +16,17 @@
  *
  * A stat multiplier sits between 0.7 and 1.4, which is roughly a quarter to a third of the
  * stat. Big enough that spending a turn on it beats swinging, small enough that landing two of
- * them is not the whole fight. Damage-over-time is priced per proc against the applier's
- * attack stat, so a poison from a big attacker hurts more — the debuffer's own investment
- * still matters after the debuff has landed.
+ * them is not the whole fight. Damage-over-time is priced per proc against the applier's `atk`,
+ * so a poison from a big attacker hurts more — the debuffer's own investment still matters
+ * after the debuff has landed.
+ *
+ * ## Three statuses went with the stat collapse
+ *
+ * `CURSE`, `WARD` and `FOCUS` were the magical halves of `SUNDER`, `GUARD` and `RALLY`. With one
+ * `atk` and one `def` they were the same status under a second name, so milestone 8a deleted
+ * them rather than shipping duplicates. The axis they carried did not disappear — it moved onto
+ * `physicalResist` and `magicResist`, which are percentages and therefore outside what a
+ * `stat-mod` may move.
  *
  * Nothing here stacks. Re-applying by the same id refreshes it, which is enforced in `core/`
  * rather than here: two casters with the same 0.72 defence debuff would otherwise land 0.52,
@@ -36,25 +44,14 @@ const LINGERING = 60;
 // Hostile — the things a cleanse exists to answer
 // ---------------------------------------------------------------------------------------
 
-/** Physical armour torn open. The setup a Monster's raw ATK wants. */
+/** Armour torn open. The setup a Monster's raw ATK wants, and now the only defence shred. */
 export const SUNDER = {
   kind: 'stat-mod',
   id: 'sunder',
   name: 'Sundered',
   hostile: true,
   duration: STANDARD,
-  stat: 'pdef',
-  multiplier: 0.72,
-} as const;
-
-/** The magical half of {@link SUNDER}. */
-export const CURSE = {
-  kind: 'stat-mod',
-  id: 'curse',
-  name: 'Cursed',
-  hostile: true,
-  duration: STANDARD,
-  stat: 'mdef',
+  stat: 'def',
   multiplier: 0.72,
 } as const;
 
@@ -65,13 +62,13 @@ export const WEAKEN = {
   name: 'Weakened',
   hostile: true,
   duration: STANDARD,
-  stat: 'patk',
+  stat: 'atk',
   multiplier: 0.75,
 } as const;
 
 /**
- * Slowed. The most quietly powerful debuff in the game, because SPD buys turns rather than
- * damage — a third off a Wisp's speed is a third of everything it was ever going to do.
+ * Slowed. The most quietly powerful debuff in the game, because haste buys turns rather than
+ * damage — a third off a Wisp's gauge fill is a third of everything it was ever going to do.
  */
 export const SLOW = {
   kind: 'stat-mod',
@@ -79,11 +76,11 @@ export const SLOW = {
   name: 'Slowed',
   hostile: true,
   duration: STANDARD,
-  stat: 'spd',
+  stat: 'haste',
   multiplier: 0.7,
 } as const;
 
-/** A physical bleed, priced against the applier's `patk`. */
+/** A physical bleed, priced against the applier's `atk` and answered by physical resist. */
 export const BLEED = {
   kind: 'dot',
   id: 'bleed',
@@ -105,7 +102,7 @@ export const POISON = {
   power: 0.24,
 } as const;
 
-/** The magical damage-over-time, measured against `mdef` rather than armour. */
+/** The magical damage-over-time, answered by magic resist rather than by physical. */
 export const BURN = {
   kind: 'dot',
   id: 'burn',
@@ -142,40 +139,18 @@ export const GUARD = {
   name: 'Guarded',
   hostile: false,
   duration: STANDARD,
-  stat: 'pdef',
+  stat: 'def',
   multiplier: 1.4,
 } as const;
 
-/** The magical half of {@link GUARD}. */
-export const WARD = {
-  kind: 'stat-mod',
-  id: 'ward',
-  name: 'Warded',
-  hostile: false,
-  duration: STANDARD,
-  stat: 'mdef',
-  multiplier: 1.4,
-} as const;
-
-/** Sharpened. Lands on `patk`, so it is worth most to a front rank. */
+/** Sharpened. One `atk` since 8a, so it is worth the same to a caster as to a swordsman. */
 export const RALLY = {
   kind: 'stat-mod',
   id: 'rally',
   name: 'Rallied',
   hostile: false,
   duration: STANDARD,
-  stat: 'patk',
-  multiplier: 1.3,
-} as const;
-
-/** The caster's half of {@link RALLY}. */
-export const FOCUS = {
-  kind: 'stat-mod',
-  id: 'focus',
-  name: 'Focused',
-  hostile: false,
-  duration: STANDARD,
-  stat: 'matk',
+  stat: 'atk',
   multiplier: 1.3,
 } as const;
 
@@ -186,7 +161,7 @@ export const HASTE = {
   name: 'Hastened',
   hostile: false,
   duration: STANDARD,
-  stat: 'spd',
+  stat: 'haste',
   multiplier: 1.35,
 } as const;
 
@@ -213,7 +188,11 @@ export const BARRIER = {
   name: 'Barrier',
   hostile: false,
   duration: 70,
-  power: 1.1,
+  // Retuned upward in milestone 8a, deliberately rather than to make a test green. Shields
+  // price against the applier's `atk`, and the characters authored to cast them are tanks and
+  // healers — the lowest attack stats in the game. At 1.1 a Dwarf's barrier absorbed under four
+  // percent of a health bar, which is a badge rather than a defence.
+  power: 1.5,
 } as const;
 
 /** A bigger, briefer {@link BARRIER}. */
@@ -223,7 +202,7 @@ export const AEGIS = {
   name: 'Aegis',
   hostile: false,
   duration: 55,
-  power: 1.8,
+  power: 2.3,
 } as const;
 
 /**
@@ -234,7 +213,6 @@ export const AEGIS = {
  */
 export const STATUSES = [
   SUNDER,
-  CURSE,
   WEAKEN,
   SLOW,
   BLEED,
@@ -242,9 +220,7 @@ export const STATUSES = [
   BURN,
   STUN,
   GUARD,
-  WARD,
   RALLY,
-  FOCUS,
   HASTE,
   REGENERATION,
   BARRIER,

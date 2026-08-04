@@ -46,23 +46,28 @@ import {
  *
  * ## Stats here are level 1, at the character's starting rarity
  *
- * Everything below is a **base** block. `core/roster/stats.ts` scales the five quantities —
- * `hp`, `patk`, `matk`, `pdef` and `mdef` — for level and rarity, and scales nothing else. The
- * scheduling weight (`spd`), every probability (`critChance`, `dodge`, `lifesteal`,
- * `effectHit`, `tenacity`), the penetration pair and the `mp` budget all stay exactly as
- * written, at every level. So the numbers here are what a character is *like*, and level is how
- * much of it there is.
+ * Everything below is a **base** block. `core/roster/stats.ts` scales the four quantities —
+ * `hp`, `atk`, `def` and `recovery` — for level and rarity, and scales nothing else. The
+ * scheduling weights (`haste`, `attackSpeed`), every probability (`critChance`, `critBlock`,
+ * `dodge`, `lifeLeech`, `insight`, `tenacity`), the pierce and resist pairs, the percentage
+ * amplifiers and the `mp` budget all stay exactly as written, at every level. So the numbers
+ * here are what a character is *like*, and level is how much of it there is.
+ *
+ * `recovery` is the one new quantity that had to scale: it is measured against `hp`, so a fixed
+ * value would be a no-op the moment health outgrew it. `healthRegen` amplifies it as a
+ * percentage and therefore does not scale, which is the correct side of the line for both.
  *
  * `mp` staying flat is what keeps a caster metered: skill costs are authored, so a pool that
- * grew with level would silently turn a resource into a formality.
+ * grew with level would silently turn a resource into a formality. Milestone 8b replaces it
+ * with energy.
  *
  * ## Every basic attack is physical
  *
- * Even a mage's. That is why the back row's offensive bonus lands on the *higher* of `patk`
- * and `matk` rather than on attack generally — a caster in the back gets all of it on `matk`,
- * which only its skills read, so the bonus is worth exactly as much as the caster's MP lasts.
- * A `matk` stat with no MP behind it is a stat that shows up on the character sheet and almost
- * never in a fight.
+ * Even a mage's. Since milestone 8a that no longer means a mage swings with a stat it did not
+ * invest in — there is one `atk` and everything reads it. What the type decides now is which
+ * **resist** answers the hit, so a mage's swing is the thing a `physicalResist` wall was built
+ * for and its spells are what get past one. The trade moved from the caster's stat sheet onto
+ * the encounter, which is where this game keeps preferring to put things.
  *
  * ## Tier is a slope, not a head start
  *
@@ -86,11 +91,18 @@ import {
  *   mortal faction with both a healer and a cleanse, deliberately: Angels are the natural
  *   support and they walk the luck-only ladder, so a run that never pulls one still needs
  *   somewhere to buy sustain.
- * - **Dwarves** — DEF and attrition. Cannot close a fight; can refuse to lose one.
- * - **Elves** — SPD, crit and **reach**. Made of paper, and the first answer to a back rank.
- * - **Undead** — enormous HP, almost no DEF, and skills paid for in their own life.
+ * - **Dwarves** — DEF and attrition: `recovery`, `healthRegen` and a `critBlock` that keeps a
+ *   wall from folding to one lucky spike. Cannot close a fight; can refuse to lose one.
+ * - **Elves** — haste, attack speed, crit and **reach**. Made of paper, and the first answer
+ *   to a back rank. The only faction authored with `attackSpeed`, which is what that stat was
+ *   separated from haste to express.
+ * - **Undead** — enormous HP, almost no DEF, and skills paid for in their own life, which is
+ *   why they are the other faction that recovers it.
  * - **Monsters** — raw ATK and penetration. The answer to armour, given the damage curve.
- * - **Angels** — consistency and sustain. High DEF, low or no crit, deep MP.
+ *   Deliberately the shortest stat blocks in the file: a faction with nothing but a number is a
+ *   faction that says what it is.
+ * - **Angels** — consistency and sustain. High DEF, low or no crit, deep MP, and the only
+ *   holders of `receivedHealing` and `critDamageResist`: the faction that answers a spike.
  * - **Demons** — magical damage and pure variance. Ignore armour entirely; die to anything.
  *
  * Because damage is `atk² / (atk + def)`, a party of many small hits is punished by high DEF
@@ -113,13 +125,12 @@ export const MIRA = {
   role: 'bruiser',
   stats: {
     hp: 580,
-    patk: 48,
-    matk: 20,
-    pdef: 23,
-    mdef: 21,
-    spd: 96,
+    atk: 48,
+    def: 22,
+    recovery: 4,
+    haste: 96,
     critChance: 0.12,
-    critMultiplier: 1.6,
+    critDamageAmp: 0.6,
   },
   skills: [GUARD_BREAK],
 } as const;
@@ -134,15 +145,15 @@ export const SEREN = {
   role: 'bruiser',
   stats: {
     hp: 545,
-    patk: 54,
-    matk: 24,
-    pdef: 27,
-    mdef: 24,
-    spd: 102,
+    atk: 54,
+    def: 26,
+    recovery: 5,
+    haste: 102,
     critChance: 0.15,
-    critMultiplier: 1.7,
+    critDamageAmp: 0.7,
     mp: 42,
     mpRegen: 3,
+    physicalResist: 0.03,
   },
   skills: [OATH_OF_ARMS, SWORN_STRIKE],
 } as const;
@@ -157,13 +168,12 @@ export const AURELIA = {
   role: 'support',
   stats: {
     hp: 600,
-    patk: 57,
-    matk: 28,
-    pdef: 29,
-    mdef: 27,
-    spd: 104,
+    atk: 57,
+    def: 28,
+    recovery: 6,
+    haste: 104,
     critChance: 0.18,
-    critMultiplier: 1.75,
+    critDamageAmp: 0.75,
     mp: 52,
     mpRegen: 4,
   },
@@ -186,15 +196,15 @@ export const WREN = {
   role: 'healer',
   stats: {
     hp: 500,
-    patk: 30,
-    matk: 46,
-    pdef: 20,
-    mdef: 26,
-    spd: 94,
+    atk: 46,
+    def: 23,
+    recovery: 5,
+    haste: 94,
     critChance: 0.08,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
     mp: 54,
     mpRegen: 4,
+    magicResist: 0.06,
   },
   skills: [TRIAGE, FIELD_DRESSING],
 } as const;
@@ -213,13 +223,15 @@ export const BRAN = {
   role: 'tank',
   stats: {
     hp: 940,
-    patk: 34,
-    matk: 12,
-    pdef: 42,
-    mdef: 26,
-    spd: 70,
+    atk: 34,
+    def: 34,
+    recovery: 7,
+    haste: 70,
     critChance: 0.05,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    critBlock: 0.05,
+    physicalResist: 0.11,
+    healthRegen: 0.2,
   },
   skills: [SHIELD_WALL],
 } as const;
@@ -234,15 +246,17 @@ export const KORRIN = {
   role: 'tank',
   stats: {
     hp: 1010,
-    patk: 31,
-    matk: 13,
-    pdef: 52,
-    mdef: 30,
-    spd: 64,
+    atk: 31,
+    def: 41,
+    recovery: 9,
+    haste: 64,
     critChance: 0.04,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    critBlock: 0.06,
     mp: 44,
     mpRegen: 3,
+    physicalResist: 0.12,
+    healthRegen: 0.25,
   },
   skills: [ANVIL_STANCE, HAMMER_CHECK],
 } as const;
@@ -257,16 +271,18 @@ export const THRAUN = {
   role: 'tank',
   stats: {
     hp: 1120,
-    patk: 29,
-    matk: 22,
-    pdef: 66,
-    mdef: 38,
-    spd: 58,
+    atk: 29,
+    def: 52,
+    recovery: 11,
+    haste: 58,
     critChance: 0.03,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
     mp: 54,
     mpRegen: 4,
     tenacity: 0.2,
+    physicalResist: 0.12,
+    healthRegen: 0.35,
   },
   skills: [DEEP_WARD, GROUND_SLAM],
 } as const;
@@ -285,15 +301,16 @@ export const DORN = {
   role: 'support',
   stats: {
     hp: 820,
-    patk: 30,
-    matk: 34,
-    pdef: 38,
-    mdef: 34,
-    spd: 76,
+    atk: 34,
+    def: 36,
+    recovery: 7,
+    haste: 76,
     critChance: 0.04,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    critBlock: 0.04,
     mp: 50,
     mpRegen: 4,
+    healthRegen: 0.2,
   },
   skills: [SALTBEARD_REMEDY, STOUT_WARD],
 } as const;
@@ -312,13 +329,13 @@ export const RIN = {
   role: 'ranger',
   stats: {
     hp: 430,
-    patk: 63,
-    matk: 26,
-    pdef: 14,
-    mdef: 16,
-    spd: 118,
+    atk: 63,
+    def: 15,
+    haste: 118,
+    attackSpeed: 22,
     critChance: 0.22,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
+    magicResist: 0.03,
     accuracy: 1.1,
   },
   skills: [PIERCING_SHOT],
@@ -334,15 +351,15 @@ export const LYSHA = {
   role: 'assassin',
   stats: {
     hp: 385,
-    patk: 66,
-    matk: 28,
-    pdef: 11,
-    mdef: 14,
-    spd: 134,
+    atk: 66,
+    def: 12,
+    haste: 134,
+    attackSpeed: 26,
     critChance: 0.26,
-    critMultiplier: 1.85,
+    critDamageAmp: 0.85,
     mp: 38,
     mpRegen: 3,
+    magicResist: 0.05,
     dodge: 0.1,
   },
   skills: [THROAT_CUT, WINDSTEP],
@@ -359,18 +376,18 @@ export const AELRINDEL = {
   role: 'sniper',
   stats: {
     hp: 350,
-    patk: 70,
-    matk: 30,
-    pdef: 9,
-    mdef: 12,
-    spd: 152,
+    atk: 70,
+    def: 10,
+    haste: 152,
+    attackSpeed: 30,
     critChance: 0.3,
-    critMultiplier: 1.9,
+    critDamageAmp: 0.9,
     mp: 46,
     mpRegen: 3,
-    armorPen: 0.2,
-    accuracy: 1.15,
+    physicalPierce: 0.2,
+    magicResist: 0.06,
     dodge: 0.12,
+    accuracy: 1.15,
   },
   skills: [FIRST_ARROW, VOLLEY],
 } as const;
@@ -389,14 +406,14 @@ export const MORTLACH = {
   role: 'bruiser',
   stats: {
     hp: 780,
-    patk: 40,
-    matk: 22,
-    pdef: 12,
-    mdef: 10,
-    spd: 82,
+    atk: 40,
+    def: 11,
+    recovery: 9,
+    haste: 82,
     critChance: 0.06,
-    critMultiplier: 1.5,
-    lifesteal: 0.05,
+    critDamageAmp: 0.5,
+    lifeLeech: 0.05,
+    physicalResist: 0.04,
   },
   skills: [GRAVE_GRASP],
 } as const;
@@ -411,14 +428,14 @@ export const SABLE = {
   role: 'bruiser',
   stats: {
     hp: 880,
-    patk: 43,
-    matk: 40,
-    pdef: 9,
-    mdef: 8,
-    spd: 88,
+    atk: 43,
+    def: 8,
+    recovery: 12,
+    haste: 88,
     critChance: 0.07,
-    critMultiplier: 1.55,
-    lifesteal: 0.08,
+    critDamageAmp: 0.55,
+    lifeLeech: 0.08,
+    physicalResist: 0.03,
   },
   skills: [BLOOD_PACT],
 } as const;
@@ -433,15 +450,14 @@ export const NEKROS = {
   role: 'mage',
   stats: {
     hp: 1020,
-    patk: 46,
-    matk: 52,
-    pdef: 7,
-    mdef: 7,
-    spd: 92,
+    atk: 52,
+    def: 7,
+    recovery: 16,
+    haste: 92,
     critChance: 0.08,
-    critMultiplier: 1.6,
-    lifesteal: 0.1,
-    magicPen: 0.15,
+    critDamageAmp: 0.6,
+    lifeLeech: 0.1,
+    magicPierce: 0.15,
   },
   skills: [GRAVE_TIDE, SOUL_SIPHON],
 } as const;
@@ -459,13 +475,12 @@ export const GNASH = {
   role: 'bruiser',
   stats: {
     hp: 620,
-    patk: 58,
-    matk: 14,
-    pdef: 18,
-    mdef: 14,
-    spd: 74,
+    atk: 58,
+    def: 16,
+    haste: 74,
     critChance: 0.04,
-    critMultiplier: 1.6,
+    critDamageAmp: 0.6,
+    physicalResist: 0.06,
   },
   skills: [REND],
 } as const;
@@ -481,14 +496,13 @@ export const RUK = {
   role: 'bruiser',
   stats: {
     hp: 700,
-    patk: 68,
-    matk: 15,
-    pdef: 15,
-    mdef: 12,
-    spd: 68,
+    atk: 68,
+    def: 14,
+    haste: 68,
     critChance: 0.03,
-    critMultiplier: 1.7,
-    armorPen: 0.25,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.25,
+    physicalResist: 0.05,
   },
   skills: [MOUNTAIN_BREAKER],
 } as const;
@@ -504,15 +518,14 @@ export const VHAROK = {
   role: 'bruiser',
   stats: {
     hp: 760,
-    patk: 80,
-    matk: 18,
-    pdef: 12,
-    mdef: 10,
-    spd: 62,
+    atk: 80,
+    def: 11,
+    haste: 62,
     critChance: 0.02,
-    critMultiplier: 1.8,
-    armorPen: 0.35,
-    effectHit: 0.1,
+    critDamageAmp: 0.8,
+    insight: 0.1,
+    physicalPierce: 0.35,
+    physicalResist: 0.04,
   },
   skills: [WORLDS_MAW, DEVOUR],
 } as const;
@@ -532,15 +545,16 @@ export const CELIA = {
   role: 'healer',
   stats: {
     hp: 690,
-    patk: 44,
-    matk: 42,
-    pdef: 34,
-    mdef: 36,
-    spd: 86,
+    atk: 44,
+    def: 35,
+    recovery: 6,
+    haste: 86,
     critChance: 0.02,
-    critMultiplier: 1.4,
+    critDamageAmp: 0.4,
+    critDamageResist: 0.15,
     mp: 52,
     mpRegen: 4,
+    receivedHealing: 0.15,
   },
   skills: [CHOIRLIGHT],
 } as const;
@@ -554,16 +568,17 @@ export const ITHURIEL = {
   role: 'healer',
   stats: {
     hp: 740,
-    patk: 47,
-    matk: 48,
-    pdef: 41,
-    mdef: 44,
-    spd: 90,
+    atk: 48,
+    def: 42,
+    recovery: 8,
+    haste: 90,
     critChance: 0.01,
-    critMultiplier: 1.35,
+    critDamageAmp: 0.35,
+    critDamageResist: 0.2,
     mp: 60,
     mpRegen: 5,
     tenacity: 0.15,
+    receivedHealing: 0.2,
   },
   skills: [ABSOLUTION, VERSE_OF_DAWN],
 } as const;
@@ -583,16 +598,17 @@ export const SERAPHINE = {
   role: 'healer',
   stats: {
     hp: 810,
-    patk: 50,
-    matk: 56,
-    pdef: 48,
-    mdef: 52,
-    spd: 94,
+    atk: 56,
+    def: 50,
+    recovery: 10,
+    haste: 94,
     critChance: 0,
-    critMultiplier: 1.3,
+    critDamageAmp: 0.3,
+    critDamageResist: 0.3,
     mp: 70,
     mpRegen: 5,
     tenacity: 0.25,
+    receivedHealing: 0.3,
   },
   skills: [UNWAVERING_LIGHT, AEGIS_SKILL],
 } as const;
@@ -612,15 +628,14 @@ export const PYRA = {
   role: 'mage',
   stats: {
     hp: 470,
-    patk: 55,
-    matk: 50,
-    pdef: 16,
-    mdef: 18,
-    spd: 100,
+    atk: 55,
+    def: 17,
+    haste: 100,
     critChance: 0.25,
-    critMultiplier: 1.9,
+    critDamageAmp: 0.9,
     mp: 42,
     mpRegen: 3,
+    magicResist: 0.03,
   },
   skills: [EMBERBURST],
 } as const;
@@ -635,15 +650,14 @@ export const MALAKAR = {
   role: 'mage',
   stats: {
     hp: 420,
-    patk: 58,
-    matk: 56,
-    pdef: 13,
-    mdef: 15,
-    spd: 108,
+    atk: 58,
+    def: 14,
+    haste: 108,
     critChance: 0.34,
-    critMultiplier: 2.1,
+    critDamageAmp: 1.1,
     mp: 48,
     mpRegen: 3,
+    magicResist: 0.03,
     dodge: 0.08,
   },
   skills: [GAMBLERS_CUT, HEXFIRE],
@@ -661,16 +675,15 @@ export const AZRATHOTH = {
   role: 'mage',
   stats: {
     hp: 380,
-    patk: 62,
-    matk: 66,
-    pdef: 10,
-    mdef: 12,
-    spd: 116,
+    atk: 66,
+    def: 11,
+    haste: 116,
     critChance: 0.45,
-    critMultiplier: 2.4,
+    critDamageAmp: 1.4,
     mp: 58,
     mpRegen: 4,
-    magicPen: 0.2,
+    magicPierce: 0.2,
+    magicResist: 0.04,
   },
   skills: [RUIN_UNBOUND, UNMAKING],
 } as const;

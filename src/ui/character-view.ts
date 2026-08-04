@@ -123,36 +123,49 @@ export class CharacterView {
     );
     const percent = (value: number | undefined): string => `${Math.round((value ?? 0) * 100)}%`;
 
-    // The five quantities first, because those are the ones that grow; then the scheduling
+    // The four quantities first, because those are the ones that grow; then the scheduling
     // weight and the probabilities, which do not. Anything sitting at its default is omitted
-    // rather than shown as a zero — a sheet listing "Armour pen 0%" for eighteen of twenty-three
-    // characters is a sheet nobody reads.
+    // rather than shown as a zero — a sheet listing "Physical pierce 0%" for eighteen of
+    // twenty-three characters is a sheet nobody reads.
     const rows = [
       // `scaleStats` returns a JSON-safe stat block, so quantities arrive as exponential
       // strings — the same shape `data/` authors and the same shape combat parses.
       { label: 'HP', value: formatNumeric(num(scaled.hp)) },
-      { label: 'P.ATK', value: formatNumeric(num(scaled.patk)) },
-      { label: 'M.ATK', value: formatNumeric(num(scaled.matk)) },
-      { label: 'P.DEF', value: formatNumeric(num(scaled.pdef)) },
-      { label: 'M.DEF', value: formatNumeric(num(scaled.mdef)) },
-      // Unscaled by design — SPD is a scheduling weight against a fixed ATB threshold, MP is a
-      // budget measured against authored skill costs, and the rest are probabilities. See
-      // `core/roster/stats.ts`.
-      { label: 'SPD', value: String(scaled.spd) },
-      { label: 'Crit', value: `${percent(scaled.critChance)} ×${scaled.critMultiplier}` },
+      { label: 'ATK', value: formatNumeric(num(scaled.atk)) },
+      { label: 'DEF', value: formatNumeric(num(scaled.def)) },
+      // Unscaled by design — haste is a scheduling weight against a fixed ATB threshold, MP is
+      // a budget measured against authored skill costs, and the rest are probabilities or
+      // percentage amplifiers. See `core/roster/stats.ts`.
+      { label: 'Haste', value: String(scaled.haste) },
+      { label: 'Crit', value: `${percent(scaled.critChance)} +${percent(scaled.critDamageAmp)}` },
     ];
 
+    // Recovery is the fourth quantity and the only one a character can be authored without, so
+    // it sits with the scaling stats but is shown only when there is something to show.
+    if (scaled.recovery !== undefined) {
+      rows.splice(3, 0, { label: 'Recovery', value: formatNumeric(num(scaled.recovery)) });
+    }
+
     const optional: readonly (readonly [string, number | undefined])[] = [
-      ['Lifesteal', scaled.lifesteal],
-      ['Armour pen', scaled.armorPen],
-      ['Magic pen', scaled.magicPen],
+      ['Attack speed', scaled.attackSpeed],
+      ['Crit block', scaled.critBlock],
+      ['Crit dmg resist', scaled.critDamageResist],
+      ['Life leech', scaled.lifeLeech],
+      ['Physical pierce', scaled.physicalPierce],
+      ['Magic pierce', scaled.magicPierce],
+      ['Physical resist', scaled.physicalResist],
+      ['Magic resist', scaled.magicResist],
+      ['Health regen', scaled.healthRegen],
+      ['Received healing', scaled.receivedHealing],
       ['Dodge', scaled.dodge],
       ['Tenacity', scaled.tenacity],
-      ['Effect hit', scaled.effectHit],
+      ['Insight', scaled.insight],
     ];
     for (const [label, value] of optional) {
       if (value !== undefined && value > 0) {
-        rows.push({ label, value: percent(value) });
+        // Attack speed is gauge per tick like haste, not a percentage, so it is the one entry
+        // here that would read as nonsense multiplied by a hundred.
+        rows.push({ label, value: label === 'Attack speed' ? String(value) : percent(value) });
       }
     }
     // Accuracy defaults to certainty rather than to nothing, so it is worth showing only when

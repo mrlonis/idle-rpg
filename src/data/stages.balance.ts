@@ -179,9 +179,9 @@ describe('ladder balance', () => {
   });
 
   it('lets a level-80 common-tier party clear the hand-climbed half', () => {
-    // Milestone 4's promise, and milestone 8 is asked to preserve it through the combat rework:
-    // five common-tier characters at level 80 clear twelve stages. That half is climbed one tap
-    // at a time, and auto-battle unlocks on finishing it.
+    // Milestone 4's promise, which 8a preserved through the stat collapse and 8b has to preserve
+    // through energy: five common-tier characters at level 80 clear twelve stages. That half is
+    // climbed one tap at a time, and auto-battle unlocks on finishing it.
     const unreliable = builtSweeps
       .slice(0, HANDCLIMBED)
       .filter((entry) => entry.winRate < 0.9)
@@ -262,10 +262,9 @@ describe('the shape of the climb', () => {
           stats: {
             ...base,
             hp: grow(base.hp),
-            patk: grow(base.patk),
-            matk: grow(base.matk),
-            pdef: grow(base.pdef),
-            mdef: grow(base.mdef),
+            atk: grow(base.atk),
+            def: grow(base.def),
+            ...(base.recovery === undefined ? {} : { recovery: grow(base.recovery) }),
           },
           basic: character.basic,
           skills: character.skills,

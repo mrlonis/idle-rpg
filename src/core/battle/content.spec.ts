@@ -9,6 +9,7 @@ import {
   applyRowBonus,
   MAX_ACCURACY,
   MAX_PENETRATION,
+  MAX_RESIST,
   matchupKey,
   ticksPerAction,
   toAmount,
@@ -22,13 +23,11 @@ import { type CombatRulesData, type SkillData, type StatBlockData } from './type
 
 const SOUND: StatBlockData = {
   hp: 500,
-  patk: 40,
-  matk: 25,
-  pdef: 20,
-  mdef: 15,
-  spd: 100,
+  atk: 40,
+  def: 20,
+  haste: 100,
   critChance: 0.1,
-  critMultiplier: 1.5,
+  critDamageAmp: 0.5,
 };
 
 const STRIKE: SkillData = {
@@ -43,36 +42,43 @@ describe('toCombatStats', () => {
     const stats = toCombatStats(SOUND);
 
     expect(stats.hp.eq(500)).toBe(true);
-    expect(stats.patk.eq(40)).toBe(true);
-    expect(stats.matk.eq(25)).toBe(true);
-    expect(stats.pdef.eq(20)).toBe(true);
-    expect(stats.mdef.eq(15)).toBe(true);
-    expect(stats.spd).toBe(100);
+    expect(stats.atk.eq(40)).toBe(true);
+    expect(stats.def.eq(20)).toBe(true);
+    expect(stats.haste).toBe(100);
     expect(stats.critChance).toBe(0.1);
-    expect(stats.critMultiplier).toBe(1.5);
+    expect(stats.critDamageAmp).toBe(0.5);
   });
 
   it('defaults every optional stat to nothing, except accuracy which defaults to certainty', () => {
-    // Which is what lets a Dwarf's stat block stay eight lines instead of seventeen: a stat is
-    // mentioned only when it is part of the character's identity.
+    // Which is what lets a Monster's stat block stay six lines instead of twenty-three: a stat
+    // is mentioned only when it is part of the character's identity.
     const stats = toCombatStats(SOUND);
 
+    expect(stats.recovery.eq(0)).toBe(true);
+    expect(stats.attackSpeed).toBe(0);
+    expect(stats.critDamageResist).toBe(0);
+    expect(stats.critBlock).toBe(0);
     expect(stats.mp).toBe(0);
     expect(stats.mpRegen).toBe(0);
-    expect(stats.lifesteal).toBe(0);
-    expect(stats.effectHit).toBe(0);
+    expect(stats.lifeLeech).toBe(0);
+    expect(stats.insight).toBe(0);
     expect(stats.tenacity).toBe(0);
-    expect(stats.armorPen).toBe(0);
-    expect(stats.magicPen).toBe(0);
+    expect(stats.physicalPierce).toBe(0);
+    expect(stats.magicPierce).toBe(0);
+    expect(stats.physicalResist).toBe(0);
+    expect(stats.magicResist).toBe(0);
+    expect(stats.healthRegen).toBe(0);
+    expect(stats.receivedHealing).toBe(0);
     expect(stats.dodge).toBe(0);
     expect(stats.accuracy).toBe(1);
   });
 
   it('accepts string quantities so late content can exceed float64', () => {
-    const stats = toCombatStats({ ...SOUND, hp: '1.5e+40', patk: '2e+20' });
+    const stats = toCombatStats({ ...SOUND, hp: '1.5e+40', atk: '2e+20', recovery: '3e+18' });
 
     expect(stats.hp.eq('1.5e+40')).toBe(true);
-    expect(stats.patk.eq('2e+20')).toBe(true);
+    expect(stats.atk.eq('2e+20')).toBe(true);
+    expect(stats.recovery.eq('3e+18')).toBe(true);
   });
 
   it.each([0, -1, -1000])('floors HP at 1 rather than accepting %p', (hp) => {
@@ -80,25 +86,33 @@ describe('toCombatStats', () => {
     expect(toCombatStats({ ...SOUND, hp }).hp.eq(1)).toBe(true);
   });
 
-  it('floors every attack and defence at zero', () => {
-    const stats = toCombatStats({ ...SOUND, patk: -50, matk: -50, pdef: -50, mdef: -50 });
+  it('floors attack, defence and recovery at zero', () => {
+    const stats = toCombatStats({ ...SOUND, atk: -50, def: -50, recovery: -50 });
 
-    expect(stats.patk.eq(0)).toBe(true);
-    expect(stats.matk.eq(0)).toBe(true);
-    expect(stats.pdef.eq(0)).toBe(true);
-    expect(stats.mdef.eq(0)).toBe(true);
+    expect(stats.atk.eq(0)).toBe(true);
+    expect(stats.def.eq(0)).toBe(true);
+    expect(stats.recovery.eq(0)).toBe(true);
   });
 
-  it.each([0, -1, Number.NaN, Infinity])('clamps an unusable spd of %p up to 1', (spd) => {
+  it.each([0, -1, Number.NaN, Infinity])('clamps an unusable haste of %p up to 1', (haste) => {
     // A combatant that cannot fill its gauge never acts, and the simulation would spin until it
     // hit the tick cap waiting for a turn that can never come.
-    expect(toCombatStats({ ...SOUND, spd }).spd).toBe(1);
+    expect(toCombatStats({ ...SOUND, haste }).haste).toBe(1);
   });
 
-  it('caps spd at the gauge threshold', () => {
+  it('caps haste at the gauge threshold', () => {
     // Above the threshold a combatant would bank more than one action per tick, and turn
     // ordering — which resolves each ready combatant exactly once per tick — would drop turns.
-    expect(toCombatStats({ ...SOUND, spd: ATB_THRESHOLD * 5 }).spd).toBe(ATB_THRESHOLD);
+    expect(toCombatStats({ ...SOUND, haste: ATB_THRESHOLD * 5 }).haste).toBe(ATB_THRESHOLD);
+  });
+
+  it('bounds attack speed by the gauge threshold too', () => {
+    // It is added to haste before the clamp, so an unbounded value here would breach the
+    // scheduling guard by the back door.
+    expect(toCombatStats({ ...SOUND, attackSpeed: ATB_THRESHOLD * 3 }).attackSpeed).toBe(
+      ATB_THRESHOLD,
+    );
+    expect(toCombatStats({ ...SOUND, attackSpeed: -20 }).attackSpeed).toBe(0);
   });
 
   it.each([
@@ -109,17 +123,30 @@ describe('toCombatStats', () => {
     expect(toCombatStats({ ...SOUND, critChance }).critChance).toBe(expected);
   });
 
-  it('never lets a critical hit reduce damage', () => {
-    expect(toCombatStats({ ...SOUND, critMultiplier: 0.5 }).critMultiplier).toBe(1);
-    expect(toCombatStats({ ...SOUND, critMultiplier: Number.NaN }).critMultiplier).toBe(1);
+  it('floors crit amplification and its resist at zero rather than at one', () => {
+    // A point value, not a multiplier: a crit is worth `1 + max(amp - resist, 0)`, so zero is
+    // "a crit does nothing extra" and a negative would be a critical hit that hurt less.
+    expect(toCombatStats({ ...SOUND, critDamageAmp: -0.5 }).critDamageAmp).toBe(0);
+    expect(toCombatStats({ ...SOUND, critDamageAmp: Number.NaN }).critDamageAmp).toBe(0);
+    expect(toCombatStats({ ...SOUND, critDamageResist: -2 }).critDamageResist).toBe(0);
   });
 
   it('caps penetration below total, so a defensive stat can never be erased', () => {
-    const stats = toCombatStats({ ...SOUND, armorPen: 5, magicPen: 1 });
+    const stats = toCombatStats({ ...SOUND, physicalPierce: 5, magicPierce: 1 });
 
-    expect(stats.armorPen).toBe(MAX_PENETRATION);
-    expect(stats.magicPen).toBe(MAX_PENETRATION);
+    expect(stats.physicalPierce).toBe(MAX_PENETRATION);
+    expect(stats.magicPierce).toBe(MAX_PENETRATION);
     expect(MAX_PENETRATION).toBeLessThan(1);
+  });
+
+  it('caps resist below total, because an immune combatant is a battle that never ends', () => {
+    // The termination guard, arriving from a third direction after the hit-chance floor and the
+    // penetration cap. Resist multiplies the result, so unlike `def` it can reach zero.
+    const stats = toCombatStats({ ...SOUND, physicalResist: 5, magicResist: 1 });
+
+    expect(stats.physicalResist).toBe(MAX_RESIST);
+    expect(stats.magicResist).toBe(MAX_RESIST);
+    expect(MAX_RESIST).toBeLessThan(1);
   });
 
   it('allows accuracy above certainty but not without limit', () => {
@@ -139,7 +166,12 @@ describe('toCombatStats', () => {
 });
 
 describe('applyRowBonus', () => {
-  const rows = { frontDefence: 1.05, backOffence: 1.05 };
+  const rows = {
+    frontDefence: 1.05,
+    frontCritDamageResist: 0.05,
+    backAttack: 1.05,
+    backCritDamageAmp: 0.05,
+  };
 
   // Compared numerically rather than with `.eq()`. The bonus is a float multiplier, so 15 × 1.05
   // lands on 15.749999999999998 — which is exactly right for damage and exactly wrong for an
@@ -148,41 +180,36 @@ describe('applyRowBonus', () => {
     expect(value.toNumber(), label).toBeCloseTo(expected, 10);
   };
 
-  it('raises both defences in the front rank', () => {
-    // Symmetric, so putting a body forward is worth the same whatever is thrown at it.
+  it('sharpens the front rank: more defence, and more answer to a crit', () => {
     const stats = applyRowBonus(toCombatStats(SOUND), 'front', rows);
 
-    near(stats.pdef, 21, 'pdef');
-    near(stats.mdef, 15.75, 'mdef');
-    near(stats.patk, 40, 'patk');
+    near(stats.def, 21, 'def');
+    expect(stats.critDamageResist).toBeCloseTo(0.05, 10);
   });
 
-  it('raises only the higher offensive stat in the back rank', () => {
-    // Not a flat attack bonus. A caster gets all of it on `matk`, which only its skills read —
-    // so the bonus pays for standing where a character's damage actually comes from.
-    const brawler = applyRowBonus(toCombatStats(SOUND), 'back', rows);
-    const caster = applyRowBonus(toCombatStats({ ...SOUND, patk: 20, matk: 60 }), 'back', rows);
+  it('sharpens the back rank: more attack, and more crit damage', () => {
+    const stats = applyRowBonus(toCombatStats(SOUND), 'back', rows);
 
-    near(brawler.patk, 42, 'brawler patk');
-    near(brawler.matk, 25, 'brawler matk');
-    near(caster.matk, 63, 'caster matk');
-    near(caster.patk, 20, 'caster patk');
+    near(stats.atk, 42, 'atk');
+    expect(stats.critDamageAmp).toBeCloseTo(0.55, 10);
   });
 
-  it('gives a tie to the physical stat, which is what the basic attack reads', () => {
-    const stats = applyRowBonus(toCombatStats({ ...SOUND, patk: 30, matk: 30 }), 'back', rows);
+  it('adds the crit halves as points rather than multiplying them', () => {
+    // A percentage on a point value pays nothing at all to a combatant sitting at zero, which
+    // is most of them — the failure mode that makes this worth its own assertion.
+    const blank = applyRowBonus(toCombatStats({ ...SOUND, critDamageAmp: 0 }), 'back', rows);
 
-    near(stats.patk, 31.5, 'patk');
-    near(stats.matk, 30, 'matk');
+    expect(blank.critDamageAmp).toBeCloseTo(0.05, 10);
   });
 
-  it('leaves defences alone in the back rank and offence alone in the front', () => {
+  it("leaves the other rank's half of the deal alone", () => {
     const back = applyRowBonus(toCombatStats(SOUND), 'back', rows);
     const front = applyRowBonus(toCombatStats(SOUND), 'front', rows);
 
-    near(back.pdef, 20, 'back pdef');
-    near(front.patk, 40, 'front patk');
-    near(front.matk, 25, 'front matk');
+    near(back.def, 20, 'back def');
+    expect(back.critDamageResist).toBe(0);
+    near(front.atk, 40, 'front atk');
+    expect(front.critDamageAmp).toBe(0.5);
   });
 });
 
@@ -269,12 +296,25 @@ describe('toCombatant', () => {
     // which is exactly the trap a value that is authored, parsed and never read lays.
     const tight = toCombatRules({ ...TEST_COMBAT_RULES_DATA, maxPenetration: 0.25 });
     const shredder = toCombatant(
-      { id: 'ruk', name: 'Ruk', faction: 'monster', stats: { ...SOUND, armorPen: 0.8 } },
+      { id: 'ruk', name: 'Ruk', faction: 'monster', stats: { ...SOUND, physicalPierce: 0.8 } },
       tight,
       'front',
     );
 
-    expect(shredder.stats.armorPen).toBe(0.25);
+    expect(shredder.stats.physicalPierce).toBe(0.25);
+  });
+
+  it('caps resist against the authored ceiling rather than the module’s own', () => {
+    // Same trap as penetration, and a worse failure: a resist that is not clamped where content
+    // says it should be is a combatant that cannot be damaged.
+    const tight = toCombatRules({ ...TEST_COMBAT_RULES_DATA, maxResist: 0.2 });
+    const wall = toCombatant(
+      { id: 'golem', name: 'Golem', faction: 'monster', stats: { ...SOUND, physicalResist: 0.8 } },
+      tight,
+      'front',
+    );
+
+    expect(wall.stats.physicalResist).toBe(0.2);
   });
 
   it('applies the row bonus as it places the combatant', () => {
@@ -284,7 +324,7 @@ describe('toCombatant', () => {
       'front',
     );
 
-    expect(front.stats.pdef.eq(21)).toBe(true);
+    expect(front.stats.def.eq(21)).toBe(true);
   });
 });
 

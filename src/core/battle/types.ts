@@ -42,38 +42,89 @@ export type DamageType = 'physical' | 'magical';
 /**
  * A stat a buff or debuff can move.
  *
- * Deliberately only the five that are multiplied into a damage or scheduling calculation.
- * Crit chance, lifesteal and the accuracy pair are excluded because a multiplier on a
+ * Deliberately only the three that are multiplied into a damage or scheduling calculation.
+ * Crit chance, life leech and the accuracy pair are excluded because a multiplier on a
  * probability is far harder to read than one on a quantity, and because a stacking crit buff
  * is the fastest route to a fight decided entirely by one lucky opening turn.
+ *
+ * It was five before milestone 8a. Collapsing `patk`/`matk` into `atk` and `pdef`/`mdef` into
+ * `def` made the magical half of each opposed status the same status twice, so `CURSE`, `WARD`
+ * and `FOCUS` went with them rather than surviving as duplicates under different names.
  */
-export type ModifiableStat = 'patk' | 'matk' | 'pdef' | 'mdef' | 'spd';
+export type ModifiableStat = 'atk' | 'def' | 'haste';
 
 /**
  * The plain stat block authored in `data/`.
  *
- * The eight required fields are what a combatant **is**. The rest default to nothing (or, for
+ * The six required fields are what a combatant **is**. The rest default to nothing (or, for
  * {@link accuracy}, to certainty), so a stat block only mentions a stat when that stat is part
- * of the character's identity — a Dwarf does not need to declare `armorPen: 0` to say it is
- * not a shredder.
+ * of the character's identity — a Dwarf does not need to declare `physicalPierce: 0` to say it
+ * is not a shredder.
+ *
+ * ## One attack, one defence
+ *
+ * Damage type is a property of the **skill**, not of the stat it reads. A skill declares
+ * physical or magical, reads the single {@link atk}, and is reduced by {@link def} less the
+ * matching pierce and then by the matching resist. Four stats became two, and the axis they
+ * used to carry moved onto {@link physicalResist} and {@link magicResist} — which is what keeps
+ * a Golem a wall against swords and a liability against spells.
  */
 export interface StatBlockData {
   readonly hp: number | string;
-  /** Physical attack. Basic attacks are physical for everybody; skills declare their own type. */
-  readonly patk: number | string;
-  readonly matk: number | string;
-  readonly pdef: number | string;
-  readonly mdef: number | string;
   /**
-   * ATB gauge gained per battle tick. A plain `number` because it is bounded — speed is a
-   * scheduling weight, not a quantity that grows exponentially, and the simulation relies on
-   * it staying at or below `ATB_THRESHOLD`.
+   * Attack. **One stat.** Every damaging skill reads it whatever type it declares, so a
+   * caster's basic swing and its spells come off the same number.
    */
-  readonly spd: number;
-  /** Probability of a critical hit, 0–1. */
+  readonly atk: number | string;
+  /** Defence. **One stat.** Reduces both damage types, before the matching resist applies. */
+  readonly def: number | string;
+  /**
+   * Health recovered at the top of each of this combatant's own turns, before
+   * {@link healthRegen} amplifies it.
+   *
+   * The one new stat that **must** scale. It is measured against `hp`, so a fixed value is a
+   * no-op the moment health outgrows it — the same argument that keeps a budget stat fixed,
+   * run backwards.
+   */
+  readonly recovery?: number | string;
+  /**
+   * ATB gauge gained per battle tick. Was `spd`. A plain `number` because it is bounded —
+   * haste is a scheduling weight, not a quantity that grows exponentially, and the simulation
+   * relies on it staying at or below `ATB_THRESHOLD`.
+   */
+  readonly haste: number;
+  /**
+   * Extra gauge, accruing **only when the combatant's last action was a basic attack**.
+   *
+   * The split between this and {@link haste} is the one mapping in the block with no precedent
+   * in the codebase. In a real-time game casting frequency and swing speed are genuinely
+   * different things; in an ATB system `gauge += haste` makes both just gauge fill, so the
+   * separation has to be manufactured. This is the manufactured half: a high-attack-speed
+   * combatant machine-guns basics between its skill windows, and a cast drops it back to plain
+   * haste for one turn.
+   *
+   * **Keyed off the action already taken rather than the one about to be chosen.** Predicting
+   * the next action means running `chooseSkill`, which the scheduling loop cannot afford; and
+   * approximating it as "nothing in the kit is off cooldown" silently suppresses the bonus for
+   * a whole fight whenever a skill is gated on a condition that is not currently met, because
+   * such a skill never goes on cooldown. See `effectiveSpeed` and `docs/attributes.md`.
+   */
+  readonly attackSpeed?: number;
+  /** Probability of a critical hit before the target's {@link critBlock}, 0–1. */
   readonly critChance: number;
-  /** Damage multiplier on a critical hit. */
-  readonly critMultiplier: number;
+  /**
+   * Crit damage amplification, in points above the base hit.
+   *
+   * A crit deals `1 + max(critDamageAmp − target.critDamageResist, 0)` times normal. Opposed
+   * rather than flat, which is what makes {@link critDamageResist} an authorable answer to a
+   * crit build instead of leaving dodge as the only one. `0.6` here is the old
+   * `critMultiplier: 1.6`.
+   */
+  readonly critDamageAmp: number;
+  /** Subtracted from an attacker's {@link critDamageAmp} when this combatant is crit. */
+  readonly critDamageResist?: number;
+  /** Subtracted from an attacker's {@link critChance} when this combatant is the target. */
+  readonly critBlock?: number;
 
   /**
    * Maximum skill points. Absent or zero means this combatant pays no MP at all.
@@ -86,20 +137,39 @@ export interface StatBlockData {
    *
    * A plain `number`, and deliberately unscaled: MP is a budget measured against authored
    * skill costs, so growing it with level would quietly delete the metering.
+   *
+   * **Milestone 8b replaces this with energy** and deletes both MP fields. It survives 8a
+   * because energy does not exist yet, and a healer with neither is a healer with no meter.
    */
   readonly mp?: number;
   /** MP regained at the start of each of this combatant's own turns. */
   readonly mpRegen?: number;
-  /** Fraction of damage dealt returned to the attacker as healing, 0–1. */
-  readonly lifesteal?: number;
-  /** Added to a status effect's authored application chance when this combatant applies it. */
-  readonly effectHit?: number;
+  /** Fraction of damage dealt returned to the attacker as healing, 0–1. Was `lifesteal`. */
+  readonly lifeLeech?: number;
+  /**
+   * Added to a status effect's authored application chance when this combatant applies it.
+   * Was `effectHit`.
+   */
+  readonly insight?: number;
   /** Subtracted from a status effect's application chance when this combatant is the target. */
   readonly tenacity?: number;
-  /** Fraction of the target's `pdef` ignored. */
-  readonly armorPen?: number;
-  /** Fraction of the target's `mdef` ignored. */
-  readonly magicPen?: number;
+  /** Fraction of the target's `def` ignored by a physical hit. Was `armorPen`. */
+  readonly physicalPierce?: number;
+  /**
+   * Fraction of the target's `def` ignored by a magical hit. Was `magicPen`.
+   *
+   * **Never abbreviate this to MP.** That spelling belongs to the skill-point pool until 8b
+   * deletes it, and to nothing afterwards.
+   */
+  readonly magicPierce?: number;
+  /** Fraction of incoming physical damage removed, applied after `def`. */
+  readonly physicalResist?: number;
+  /** Fraction of incoming magical damage removed, applied after `def`. */
+  readonly magicResist?: number;
+  /** Percentage amplifier on {@link recovery}. */
+  readonly healthRegen?: number;
+  /** Percentage amplifier on healing received **from somebody else**. */
+  readonly receivedHealing?: number;
   /** Subtracted from an incoming attack's hit chance. */
   readonly dodge?: number;
   /** Base hit chance before the target's dodge. Absent means 1 — a certain hit. */
@@ -195,7 +265,7 @@ export type StatusData =
       readonly hostile: true;
       readonly duration: number;
       readonly damageType: DamageType;
-      /** Fraction of the applier's matching attack stat dealt on each affected turn. */
+      /** Fraction of the applier's `atk` dealt on each affected turn. */
       readonly power: number;
     }
   | {
@@ -204,7 +274,7 @@ export type StatusData =
       readonly name: string;
       readonly hostile: false;
       readonly duration: number;
-      /** Fraction of the applier's `matk` healed on each affected turn. */
+      /** Fraction of the applier's `atk` healed on each affected turn. */
       readonly power: number;
     }
   | {
@@ -213,7 +283,7 @@ export type StatusData =
       readonly name: string;
       readonly hostile: false;
       readonly duration: number;
-      /** Fraction of the applier's `matk` banked as an absorb pool. */
+      /** Fraction of the applier's `atk` banked as an absorb pool. */
       readonly power: number;
     }
   | {
@@ -293,10 +363,10 @@ export interface CombatantData {
    * The attack used when nothing better is available. Absent means the rules' default: a
    * single-target **physical** hit into the front row.
    *
-   * Physical for everybody is deliberate. It is what makes the back row's offensive bonus a
-   * real choice for a caster — the bonus lands on `matk`, which only the skills use, so a
-   * mage that spends most of its turns swinging gets far less out of the back row than its
-   * stat sheet suggests.
+   * Physical for everybody is deliberate, and it still is after the collapse to one `atk`.
+   * The type no longer decides which attack stat is read — it decides which pierce and which
+   * resist apply — so a basic attack is the swing every physical-resist wall is authored
+   * against, and a magical kit is what gets past one.
    */
   readonly basic?: SkillData;
   /** Everything above the basic attack, in any order; parsing sorts them by priority. */
@@ -328,19 +398,28 @@ export interface FactionMatchupData {
   readonly multiplier: number;
 }
 
-/** What standing in each row is worth. */
+/**
+ * What standing in each rank is worth.
+ *
+ * Each rank **sharpens the role it already has** rather than paying a flat tax on the other.
+ * The front row is the gate ordinary attacks work through, so it gets defence and the answer
+ * to a crit build; the back row is where damage is fielded, so it gets attack and the crit
+ * amplification to go with it.
+ *
+ * This replaced milestone 4's "+5% to whichever offensive stat is already higher, and only
+ * that one", which had no meaning once `patk` and `matk` collapsed into one stat. The
+ * front/back asymmetry it existed to protect is what makes the front rank a real cost, so it
+ * needed replacing rather than dropping.
+ */
 export interface RowBonusData {
-  /** Multiplier on **both** defences for a front-row combatant. */
+  /** Multiplier on `def` for a front-row combatant. */
   readonly frontDefence: number;
-  /**
-   * Multiplier on a back-row combatant's **higher** offensive stat, and only that one.
-   *
-   * Not a flat attack bonus. A mage in the back row gets the whole of it on `matk` and none
-   * of it on the physical basic attack it spends most of its turns using; a bruiser gets it
-   * on `patk` and nothing on the spells it does not have. The bonus therefore rewards putting
-   * a character where its damage actually comes from, rather than rewarding the back row.
-   */
-  readonly backOffence: number;
+  /** Points of `critDamageResist` added for a front-row combatant. */
+  readonly frontCritDamageResist: number;
+  /** Multiplier on `atk` for a back-row combatant. */
+  readonly backAttack: number;
+  /** Points of `critDamageAmp` added for a back-row combatant. */
+  readonly backCritDamageAmp: number;
 }
 
 /**
@@ -363,6 +442,14 @@ export interface CombatRulesData {
   readonly minHitChance: number;
   /** Ceiling on penetration, so a defensive stat can never be erased outright. */
   readonly maxPenetration: number;
+  /**
+   * Ceiling on `physicalResist` and `magicResist`.
+   *
+   * ⚠️ A termination guard, not a balance knob. A resist reaching 1 is a combatant nothing can
+   * damage, and a fight nobody can win runs to the tick cap — the same failure the hit-chance
+   * floor and the penetration cap exist to prevent, arriving by a third route.
+   */
+  readonly maxResist: number;
   /** The attack used by any combatant that does not author its own. */
   readonly basicAttack: SkillData;
 }
@@ -398,31 +485,46 @@ export interface StageData {
 /** A stat block after parsing and clamping, as the simulation uses it. */
 export interface CombatStats {
   readonly hp: Numeric;
-  readonly patk: Numeric;
-  readonly matk: Numeric;
-  readonly pdef: Numeric;
-  readonly mdef: Numeric;
+  readonly atk: Numeric;
+  readonly def: Numeric;
+  /** Health restored at the top of each own turn, before {@link healthRegen}. */
+  readonly recovery: Numeric;
   /** Guaranteed to be in `[1, ATB_THRESHOLD]`, so nobody is ever stuck and nobody ever
    * banks two actions in a single tick. */
-  readonly spd: number;
+  readonly haste: number;
+  /** Guaranteed to be in `[0, ATB_THRESHOLD]`. Folded into the gauge and re-clamped with
+   * {@link haste}, so the pair can never breach the scheduling bound between them. */
+  readonly attackSpeed: number;
   /** Guaranteed to be in `[0, 1]`. */
   readonly critChance: number;
-  /** Guaranteed to be at least 1, so a "critical" hit never reduces damage. */
-  readonly critMultiplier: number;
+  /** Guaranteed to be non-negative, so a "critical" hit never reduces damage. */
+  readonly critDamageAmp: number;
+  /** Guaranteed to be non-negative. */
+  readonly critDamageResist: number;
+  /** Guaranteed to be in `[0, 1]`. */
+  readonly critBlock: number;
   /** Guaranteed to be a non-negative integer. Zero means this combatant pays no MP. */
   readonly mp: number;
   /** Guaranteed to be a non-negative integer. */
   readonly mpRegen: number;
   /** Guaranteed to be in `[0, 1]`. */
-  readonly lifesteal: number;
+  readonly lifeLeech: number;
   /** Guaranteed to be in `[0, 1]`. */
-  readonly effectHit: number;
+  readonly insight: number;
   /** Guaranteed to be in `[0, 1]`. */
   readonly tenacity: number;
   /** Guaranteed to be in `[0, MAX_PENETRATION]`. */
-  readonly armorPen: number;
+  readonly physicalPierce: number;
   /** Guaranteed to be in `[0, MAX_PENETRATION]`. */
-  readonly magicPen: number;
+  readonly magicPierce: number;
+  /** Guaranteed to be in `[0, MAX_RESIST]`, so damage is never reduced to nothing. */
+  readonly physicalResist: number;
+  /** Guaranteed to be in `[0, MAX_RESIST]`, for the same reason. */
+  readonly magicResist: number;
+  /** Guaranteed to be non-negative. */
+  readonly healthRegen: number;
+  /** Guaranteed to be non-negative. */
+  readonly receivedHealing: number;
   /** Guaranteed to be in `[0, 1]`. */
   readonly dodge: number;
   /** Guaranteed to be in `[0, MAX_ACCURACY]`, so accuracy can out-run a dodge stack. */
@@ -460,6 +562,7 @@ export interface CombatRules {
   readonly matchups: ReadonlyMap<string, number>;
   readonly minHitChance: number;
   readonly maxPenetration: number;
+  readonly maxResist: number;
   readonly basicAttack: Skill;
 }
 
@@ -511,7 +614,8 @@ export interface CombatantSnapshot {
   readonly hp: Numeric;
   readonly maxMp: number;
   readonly mp: number;
-  readonly spd: number;
+  /** Current gauge fill per tick: haste, plus attack speed when the last action was a swing. */
+  readonly haste: number;
   /** Remaining absorb pool across every active shield. Zero when unshielded. */
   readonly shield: Numeric;
   readonly statuses: readonly ActiveStatus[];

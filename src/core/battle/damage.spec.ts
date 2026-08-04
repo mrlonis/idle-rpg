@@ -6,11 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
 import { toCombatStats } from './content';
 import {
-  attackStat,
   baseDamage,
+  critChance,
+  critMultiplier,
   effectiveDefence,
   factionMultiplier,
   hitChance,
+  resistedShare,
   rollAttack,
   statusChance,
 } from './damage';
@@ -20,13 +22,11 @@ import { type StatBlockData } from './types';
 function stats(overrides: Partial<StatBlockData> = {}) {
   return toCombatStats({
     hp: 100,
-    patk: 50,
-    matk: 30,
-    pdef: 10,
-    mdef: 10,
-    spd: 100,
+    atk: 50,
+    def: 10,
+    haste: 100,
     critChance: 0,
-    critMultiplier: 2,
+    critDamageAmp: 1,
     ...overrides,
   });
 }
@@ -87,39 +87,101 @@ describe('baseDamage', () => {
 });
 
 describe('damage types', () => {
-  it('reads the attack stat the type names', () => {
-    const attacker = stats({ patk: 70, matk: 20 });
+  it('reads one attack stat whatever the type declares', () => {
+    // The collapse, asserted rather than assumed. A caster's swing and its spells come off the
+    // same number now; what the type still decides is which pierce and which resist apply.
+    const attacker = stats({ atk: 70 });
+    const defender = stats({ def: 0 });
+    const physical = rollAttack(
+      attacker,
+      defender,
+      'physical',
+      1,
+      1,
+      NEUTRAL_COMBAT_RULES,
+      draws(0, 1),
+    );
+    const magical = rollAttack(
+      attacker,
+      defender,
+      'magical',
+      1,
+      1,
+      NEUTRAL_COMBAT_RULES,
+      draws(0, 1),
+    );
 
-    expect(attackStat(attacker, 'physical').eq(70)).toBe(true);
-    expect(attackStat(attacker, 'magical').eq(20)).toBe(true);
+    expect(physical.damage.eq(70)).toBe(true);
+    expect(magical.damage.eq(70)).toBe(true);
   });
 
-  it('measures each type against its own defence', () => {
-    // The whole reason a wall is not automatically a wall against everything: a Golem's armour
-    // does nothing about a spell, and a caster that neglected `mdef` dies to one.
+  it('measures both types against the same defence', () => {
     const attacker = stats();
-    const defender = stats({ pdef: 60, mdef: 5 });
+    const defender = stats({ def: 60 });
 
     expect(effectiveDefence(attacker, defender, 'physical').eq(60)).toBe(true);
-    expect(effectiveDefence(attacker, defender, 'magical').eq(5)).toBe(true);
+    expect(effectiveDefence(attacker, defender, 'magical').eq(60)).toBe(true);
   });
 
-  it('discounts defence by the attacker’s penetration rather than subtracting it', () => {
+  it('keeps the two axes alive through the resists instead', () => {
+    // The whole reason a wall is not automatically a wall against everything: a Golem's armour
+    // does nothing about a spell. That statement used to live in `pdef` vs `mdef`; it lives in
+    // `physicalResist` vs `magicResist` now, and it has to still be true.
+    const wall = stats({ physicalResist: 0.4 });
+
+    expect(resistedShare(wall, 'physical')).toBeCloseTo(0.6, 10);
+    expect(resistedShare(wall, 'magical')).toBe(1);
+  });
+
+  it('never lets resist reach zero damage, whatever content authors', () => {
+    // The termination guard. Resist multiplies the result, so unlike `def` it can reach zero —
+    // and a combatant nothing can hurt is a fight that runs to the tick cap.
+    const immune = stats({ physicalResist: 5, magicResist: 5 });
+
+    expect(resistedShare(immune, 'physical')).toBeGreaterThan(0);
+    expect(resistedShare(immune, 'magical')).toBeGreaterThan(0);
+  });
+
+  it('discounts defence by the attacker’s matching pierce rather than subtracting it', () => {
     // A fraction keeps penetration on the same diminishing curve. Flat penetration would be a
     // hard counter: enough of it deletes a defensive stat outright.
-    const shredder = stats({ armorPen: 0.25, magicPen: 0.5 });
-    const defender = stats({ pdef: 80, mdef: 40 });
+    const shredder = stats({ physicalPierce: 0.25, magicPierce: 0.5 });
+    const defender = stats({ def: 80 });
 
     expect(effectiveDefence(shredder, defender, 'physical').eq(60)).toBe(true);
-    expect(effectiveDefence(shredder, defender, 'magical').eq(20)).toBe(true);
+    expect(effectiveDefence(shredder, defender, 'magical').eq(40)).toBe(true);
   });
 
   it('never lets penetration erase a defence completely', () => {
     // `content.ts` caps penetration below 1 so the top of the DEF curve keeps working. A
     // defence of zero would make "stack penetration" collapse every defensive archetype at once.
-    const shredder = stats({ armorPen: 5 });
+    const shredder = stats({ physicalPierce: 5 });
 
-    expect(effectiveDefence(shredder, stats({ pdef: 100 }), 'physical').gt(0)).toBe(true);
+    expect(effectiveDefence(shredder, stats({ def: 100 }), 'physical').gt(0)).toBe(true);
+  });
+});
+
+describe('the crit pair', () => {
+  it('subtracts the target’s crit block from the attacker’s rating', () => {
+    expect(critChance(stats({ critChance: 0.5 }), stats({ critBlock: 0.2 }))).toBeCloseTo(0.3, 10);
+  });
+
+  it('lets crit block reach immunity, because a hit that never crits still kills', () => {
+    // Unlike the hit chance, which is a termination guard: this one is allowed to floor at zero.
+    expect(critChance(stats({ critChance: 0.4 }), stats({ critBlock: 1 }))).toBe(0);
+  });
+
+  it('resolves crit damage as one plus the point difference', () => {
+    expect(critMultiplier(stats({ critDamageAmp: 0.8 }), stats())).toBeCloseTo(1.8, 10);
+    expect(critMultiplier(stats({ critDamageAmp: 0.8 }), stats({ critDamageResist: 0.3 }))).toBe(
+      1.5,
+    );
+  });
+
+  it('never lets a critical hit land for less than an ordinary one', () => {
+    // Floored at 1 rather than allowed to invert. A "critical" that reduced damage is a mechanic
+    // nobody could read off a battle log.
+    expect(critMultiplier(stats({ critDamageAmp: 0.2 }), stats({ critDamageResist: 5 }))).toBe(1);
   });
 });
 
@@ -169,8 +231,8 @@ describe('statusChance', () => {
     expect(statusChance(0.8, stats(), stats())).toBeCloseTo(0.8, 10);
   });
 
-  it('adds the applier’s effect hit and subtracts the target’s tenacity', () => {
-    expect(statusChance(0.8, stats({ effectHit: 0.15 }), stats())).toBeCloseTo(0.95, 10);
+  it('adds the applier’s insight and subtracts the target’s tenacity', () => {
+    expect(statusChance(0.8, stats({ insight: 0.15 }), stats())).toBeCloseTo(0.95, 10);
     expect(statusChance(0.8, stats(), stats({ tenacity: 0.3 }))).toBeCloseTo(0.5, 10);
   });
 
@@ -178,17 +240,17 @@ describe('statusChance', () => {
     // Unlike a hit chance, a debuff that never lands cannot stall a battle — so this one is
     // allowed to reach zero and an immune-to-debuffs archetype is authorable.
     expect(statusChance(1, stats(), stats({ tenacity: 1 }))).toBe(0);
-    expect(statusChance(1, stats({ effectHit: 0.5 }), stats())).toBe(1);
+    expect(statusChance(1, stats({ insight: 0.5 }), stats())).toBe(1);
   });
 });
 
 describe('rollAttack', () => {
   it('applies the crit multiplier when the second draw lands under the crit chance', () => {
-    const attacker = stats({ patk: 50, critChance: 0.25, critMultiplier: 2 });
+    const attacker = stats({ atk: 50, critChance: 0.25, critDamageAmp: 1 });
 
     const { damage, crit, hit } = rollAttack(
       attacker,
-      stats({ pdef: 0 }),
+      stats({ def: 0 }),
       'physical',
       1,
       1,
@@ -202,11 +264,11 @@ describe('rollAttack', () => {
   });
 
   it('does not crit when the draw lands on or above the crit chance', () => {
-    const attacker = stats({ patk: 50, critChance: 0.25, critMultiplier: 2 });
+    const attacker = stats({ atk: 50, critChance: 0.25, critDamageAmp: 1 });
 
     const { damage, crit } = rollAttack(
       attacker,
-      stats({ pdef: 0 }),
+      stats({ def: 0 }),
       'physical',
       1,
       1,
@@ -285,8 +347,8 @@ describe('rollAttack', () => {
   it('scales the result by the skill power rather than the attack stat', () => {
     // The formula is quadratic in ATK, so scaling the input would make a 2× skill hit for
     // roughly 4× — which turns every authored multiplier into a balance trap.
-    const attacker = stats({ patk: 50 });
-    const defender = stats({ pdef: 50 });
+    const attacker = stats({ atk: 50 });
+    const defender = stats({ def: 50 });
 
     const single = rollAttack(
       attacker,
@@ -313,8 +375,8 @@ describe('rollAttack', () => {
 
   it('multiplies by the faction matchup', () => {
     const roll = rollAttack(
-      stats({ patk: 50 }),
-      stats({ pdef: 0 }),
+      stats({ atk: 50 }),
+      stats({ def: 0 }),
       'physical',
       1,
       1.1,
@@ -323,5 +385,32 @@ describe('rollAttack', () => {
     );
 
     expect(roll.damage.eq(55)).toBe(true);
+  });
+
+  it('multiplies by the defender’s matching resist and by nothing else', () => {
+    const armoured = stats({ def: 0, physicalResist: 0.4 });
+    const physical = rollAttack(
+      stats({ atk: 50 }),
+      armoured,
+      'physical',
+      1,
+      1,
+      NEUTRAL_COMBAT_RULES,
+      draws(0, 1),
+    );
+    const magical = rollAttack(
+      stats({ atk: 50 }),
+      armoured,
+      'magical',
+      1,
+      1,
+      NEUTRAL_COMBAT_RULES,
+      draws(0, 1),
+    );
+
+    // Compared numerically: resist is a float multiplier, so 50 × 0.6 lands a bit either side
+    // of 30. What matters is which type it touched, not the last bit of it.
+    expect(physical.damage.toNumber()).toBeCloseTo(30, 10);
+    expect(magical.damage.toNumber()).toBeCloseTo(50, 10);
   });
 });

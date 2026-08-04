@@ -46,7 +46,7 @@ the two disagree, the code is right and both are stale.
   more than one thing. Read this before writing prose about tiers, rarities or factions — several
   terms collide by design and the collisions are listed there.
 - **[docs/attributes.md](../../docs/attributes.md)** — the combatant stat block, which stats may scale
-  and why, and the milestone 8 rework.
+  and why, and what the milestone 8a collapse to one `atk` and one `def` cost.
 - **[docs/ascension.md](../../docs/ascension.md)** — the rung ladder, the two ascension paths, and how
   rung prices resolve recursively into base copies.
 - **[docs/combat.md](../../docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,

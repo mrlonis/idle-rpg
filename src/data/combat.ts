@@ -44,19 +44,23 @@
 /**
  * What standing in each rank is worth.
  *
- * The front row's five percent covers **both** defences, so putting a body forward is worth
- * the same whatever is being thrown at it.
+ * **Each rank sharpens the role it already has.** The front row is the gate ordinary attacks
+ * work through, so it gets defence and the answer to a crit build. The back row is where damage
+ * is fielded, so it gets attack and the crit amplification to go with it. Neither is a tax on
+ * the other: the cost of the front row is that it is the rank getting hit, which is a fact about
+ * the formation rather than a number in this file.
  *
- * The back row's five percent lands on whichever offensive stat is already higher, and only
- * that one. A mage gets all of it on `matk` — which nothing but its skills read, because every
- * basic attack in the game is physical — and none of it on the swing it spends most of its
- * turns making. So the bonus pays for standing where a character's damage actually comes from
- * rather than paying for the back row itself, and a caster that runs out of MP quietly stops
- * benefiting from where it is standing.
+ * This replaced milestone 4's "+5% to whichever offensive stat is already higher, and only that
+ * one" when milestone 8a collapsed `patk` and `matk` into a single `atk`, at which point the
+ * old rule had nothing left to choose between. The crit halves are **points, not multipliers** —
+ * a crit is worth `1 + max(amp - resist, 0)`, so multiplying a zero by 1.05 would pay nothing at
+ * all.
  */
 export const ROW_BONUSES = {
   frontDefence: 1.05,
-  backOffence: 1.05,
+  frontCritDamageResist: 0.05,
+  backAttack: 1.05,
+  backCritDamageAmp: 0.05,
 } as const;
 
 /**
@@ -110,11 +114,11 @@ export const FACTION_MATCHUPS = [
  * The attack every combatant falls back to.
  *
  * **Physical, single target, into the front rank.** All three of those are load-bearing.
- * Physical is why the back row's `matk` bonus only pays off on a cast; single-target is what
- * makes a wide wave a genuine question; and targeting through the front-row gate is what turns
- * a formation into a puzzle instead of a seating chart. Every bypass in the game is authored
- * on an individual skill, so reaching a back line is a decision about who to field rather than
- * a number to accumulate.
+ * Physical is the type every `physicalResist` wall in the game is authored against, so a
+ * magical kit is what gets past one; single-target is what makes a wide wave a genuine
+ * question; and targeting through the front-row gate is what turns a formation into a puzzle
+ * instead of a seating chart. Every bypass in the game is authored on an individual skill, so
+ * reaching a back line is a decision about who to field rather than a number to accumulate.
  */
 export const BASIC_ATTACK = {
   id: 'basic-attack',
@@ -138,7 +142,7 @@ export const BASIC_ATTACK = {
 export const MIN_HIT_CHANCE = 0.1;
 
 /**
- * Ceiling on `armorPen` and `magicPen`.
+ * Ceiling on `physicalPierce` and `magicPierce`.
  *
  * A shredder should make a wall feel like a body, not like an empty square. Leaving a tenth of
  * DEF standing keeps the diminishing-return curve doing its job at the top end, which is what
@@ -146,11 +150,22 @@ export const MIN_HIT_CHANCE = 0.1;
  */
 export const MAX_PENETRATION = 0.9;
 
+/**
+ * Ceiling on `physicalResist` and `magicResist`.
+ *
+ * ⚠️ The same guard as {@link MIN_HIT_CHANCE}, arriving from the other side. Resist removes a
+ * flat percentage of what a hit was going to be, so unlike `def` it reaches zero rather than
+ * approaching it — and a combatant that cannot be damaged is a fight that runs to the tick cap
+ * every time. Not a tuning knob.
+ */
+export const MAX_RESIST = 0.9;
+
 /** Everything the simulation needs that is a number rather than a rule. */
 export const COMBAT_RULES = {
   rows: ROW_BONUSES,
   matchups: FACTION_MATCHUPS,
   minHitChance: MIN_HIT_CHANCE,
   maxPenetration: MAX_PENETRATION,
+  maxResist: MAX_RESIST,
   basicAttack: BASIC_ATTACK,
 } as const;

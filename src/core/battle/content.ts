@@ -27,11 +27,13 @@ import {
  * catch, not damage to recover and explain. The clamping exists because **the simulation's
  * termination argument depends on it**:
  *
- * - a `spd` of 0 would leave a combatant unable to ever act, and a `spd` above the gauge
+ * - a `haste` of 0 would leave a combatant unable to ever act, and a `haste` above the gauge
  *   threshold would let one bank two actions in a single tick and break turn ordering;
  * - a `dodge` of 1 would make a combatant unhittable, and a fight nobody can win is a fight
  *   that runs to the tick cap;
- * - penetration at 1 would erase a defensive stat outright rather than diminish it.
+ * - penetration at 1 would erase a defensive stat outright rather than diminish it;
+ * - a resist at 1 would make a combatant immune to a damage type, which is the unwinnable
+ *   fight arriving by a third route.
  *
  * None of those are balance opinions. They are the conditions under which `simulateBattle` is
  * guaranteed to return.
@@ -44,7 +46,7 @@ import {
 const MIN_HP: Numeric = ONE;
 
 /**
- * Hard ceiling on `armorPen` and `magicPen`.
+ * Hard ceiling on `physicalPierce` and `magicPierce`.
  *
  * A shredder should make a wall feel like a body, not like an empty square. Leaving a tenth of
  * DEF standing keeps the diminishing-return curve doing its job at the top end, which is what
@@ -55,6 +57,20 @@ const MIN_HP: Numeric = ONE;
  * penetration value that erases a defence outright.
  */
 export const MAX_PENETRATION = 0.9;
+
+/**
+ * Hard ceiling on `physicalResist` and `magicResist`.
+ *
+ * ⚠️ The termination argument, not a balance opinion. Resist multiplies damage by `1 - resist`
+ * **after** the defence curve has already diminished it, so unlike `def` it can reach zero
+ * rather than merely approaching it. A combatant at resist 1 cannot be hurt by that damage
+ * type at all, and a fight against one runs to `MAX_BATTLE_TICKS` every time.
+ *
+ * Same value as {@link MAX_PENETRATION} and same reasoning: a tenth of the damage still
+ * getting through is what keeps a resist a discount rather than an immunity. As with
+ * penetration, content authors its own ceiling and this is the floor under it.
+ */
+export const MAX_RESIST = 0.9;
 
 /**
  * Ceiling on `accuracy`.
@@ -89,34 +105,47 @@ function atLeast(value: Numeric, floor: Numeric): Numeric {
 /**
  * Parses and clamps an authored stat block into the form the simulation uses.
  *
- * `maxPenetration` is a parameter rather than a constant read from here because it is a balance
- * number, and balance numbers live in `data/`. It defaults to {@link MAX_PENETRATION} so a spec
- * or a fixture can parse a stat block without assembling a whole rule set; `toCombatant` passes
- * the authored ceiling, which is the path every real combatant takes.
+ * `maxPenetration` and `maxResist` are parameters rather than constants read from here because
+ * they are balance numbers, and balance numbers live in `data/`. They default to
+ * {@link MAX_PENETRATION} and {@link MAX_RESIST} so a spec or a fixture can parse a stat block
+ * without assembling a whole rule set; `toCombatant` passes the authored ceilings, which is the
+ * path every real combatant takes.
  */
 export function toCombatStats(
   raw: StatBlockData,
   maxPenetration: number = MAX_PENETRATION,
+  maxResist: number = MAX_RESIST,
 ): CombatStats {
   const penCap = clamp(maxPenetration, 0, MAX_PENETRATION, MAX_PENETRATION);
+  const resistCap = clamp(maxResist, 0, MAX_RESIST, MAX_RESIST);
   return {
     hp: atLeast(parseOr(raw.hp, MIN_HP), MIN_HP),
-    patk: atLeast(parseOr(raw.patk, ZERO), ZERO),
-    matk: atLeast(parseOr(raw.matk, ZERO), ZERO),
-    pdef: atLeast(parseOr(raw.pdef, ZERO), ZERO),
-    mdef: atLeast(parseOr(raw.mdef, ZERO), ZERO),
-    spd: clamp(raw.spd, 1, ATB_THRESHOLD, 1),
+    atk: atLeast(parseOr(raw.atk, ZERO), ZERO),
+    def: atLeast(parseOr(raw.def, ZERO), ZERO),
+    recovery: raw.recovery === undefined ? ZERO : atLeast(parseOr(raw.recovery, ZERO), ZERO),
+    haste: clamp(raw.haste, 1, ATB_THRESHOLD, 1),
+    // Bounded by the gauge threshold on its own as well as jointly with haste, so a damaged
+    // value cannot overflow the sum before `effectiveSpeed` gets to re-clamp it.
+    attackSpeed: optional(raw.attackSpeed, 0, ATB_THRESHOLD, 0),
     critChance: clamp(raw.critChance, 0, 1, 0),
-    critMultiplier: clamp(raw.critMultiplier, 1, Number.MAX_SAFE_INTEGER, 1),
+    // A point value rather than a multiplier: a crit deals `1 + max(amp - resist, 0)` times
+    // normal, so zero here is a crit that does nothing extra rather than one that halves the hit.
+    critDamageAmp: clamp(raw.critDamageAmp, 0, Number.MAX_SAFE_INTEGER, 0),
+    critDamageResist: optional(raw.critDamageResist, 0, Number.MAX_SAFE_INTEGER, 0),
+    critBlock: optional(raw.critBlock, 0, 1, 0),
     // Whole points: MP is a budget counted against authored costs, and a pool of 40.5 would
     // make "three casts at 13" depend on floating-point luck.
     mp: counter(raw.mp),
     mpRegen: counter(raw.mpRegen),
-    lifesteal: optional(raw.lifesteal, 0, 1, 0),
-    effectHit: optional(raw.effectHit, 0, 1, 0),
+    lifeLeech: optional(raw.lifeLeech, 0, 1, 0),
+    insight: optional(raw.insight, 0, 1, 0),
     tenacity: optional(raw.tenacity, 0, 1, 0),
-    armorPen: optional(raw.armorPen, 0, penCap, 0),
-    magicPen: optional(raw.magicPen, 0, penCap, 0),
+    physicalPierce: optional(raw.physicalPierce, 0, penCap, 0),
+    magicPierce: optional(raw.magicPierce, 0, penCap, 0),
+    physicalResist: optional(raw.physicalResist, 0, resistCap, 0),
+    magicResist: optional(raw.magicResist, 0, resistCap, 0),
+    healthRegen: optional(raw.healthRegen, 0, Number.MAX_SAFE_INTEGER, 0),
+    receivedHealing: optional(raw.receivedHealing, 0, Number.MAX_SAFE_INTEGER, 0),
     dodge: optional(raw.dodge, 0, 1, 0),
     accuracy: optional(raw.accuracy, 0, MAX_ACCURACY, 1),
   };
@@ -125,26 +154,29 @@ export function toCombatStats(
 /**
  * Applies what standing in a row is worth.
  *
- * The front row's bonus is symmetric across both defences, so putting a body forward is worth
- * the same amount regardless of what is being thrown at it.
+ * Each rank sharpens the role it already has. The front row is the gate ordinary attacks work
+ * through, so it gets defence and the answer to a crit build; the back row is where damage is
+ * fielded, so it gets attack and the amplification to go with it.
  *
- * The back row's is deliberately **not** symmetric: it lands on whichever offensive stat is
- * already higher, and on nothing else. A caster in the back gets the whole of it on `matk`,
- * which only its skills use, and none of it on the physical basic attack it spends most of
- * its turns making — so the bonus rewards standing where a character's damage actually comes
- * from rather than rewarding the back row itself. Ties go to `patk`, the stat the basic
- * attack reads, which is the conservative half of an arbitrary choice.
+ * The crit halves are **point additions** rather than multipliers, because that is how the
+ * opposed pair resolves — `1 + max(amp - resist, 0)`. Multiplying a combatant's zero
+ * amplification by 1.05 would pay nothing at all, which is the failure mode a percentage on a
+ * point value always has.
  */
 export function applyRowBonus(stats: CombatStats, row: Row, rows: RowBonusData): CombatStats {
   if (row === 'front') {
-    const multiplier = Math.max(rows.frontDefence, 0);
-    return { ...stats, pdef: stats.pdef.mul(multiplier), mdef: stats.mdef.mul(multiplier) };
+    return {
+      ...stats,
+      def: stats.def.mul(Math.max(rows.frontDefence, 0)),
+      critDamageResist: stats.critDamageResist + Math.max(rows.frontCritDamageResist, 0),
+    };
   }
 
-  const multiplier = Math.max(rows.backOffence, 0);
-  return stats.matk.gt(stats.patk)
-    ? { ...stats, matk: stats.matk.mul(multiplier) }
-    : { ...stats, patk: stats.patk.mul(multiplier) };
+  return {
+    ...stats,
+    atk: stats.atk.mul(Math.max(rows.backAttack, 0)),
+    critDamageAmp: stats.critDamageAmp + Math.max(rows.backCritDamageAmp, 0),
+  };
 }
 
 /** Parses an authored skill, defaulting everything a terse kit leaves out. */
@@ -177,7 +209,11 @@ export function toCombatant(raw: CombatantData, rules: CombatRules, row: Row): C
     id: raw.id,
     name: raw.name,
     faction: raw.faction,
-    stats: applyRowBonus(toCombatStats(raw.stats, rules.maxPenetration), row, rules.rows),
+    stats: applyRowBonus(
+      toCombatStats(raw.stats, rules.maxPenetration, rules.maxResist),
+      row,
+      rules.rows,
+    ),
     basic: raw.basic === undefined ? rules.basicAttack : toSkill(raw.basic),
     skills: (raw.skills ?? []).map(toSkill).sort((a, b) => b.priority - a.priority),
   };
@@ -204,12 +240,17 @@ export function toCombatRules(raw: CombatRulesData): CombatRules {
   return {
     rows: {
       frontDefence: clamp(raw.rows.frontDefence, 0, Number.MAX_SAFE_INTEGER, 1),
-      backOffence: clamp(raw.rows.backOffence, 0, Number.MAX_SAFE_INTEGER, 1),
+      frontCritDamageResist: clamp(raw.rows.frontCritDamageResist, 0, Number.MAX_SAFE_INTEGER, 0),
+      backAttack: clamp(raw.rows.backAttack, 0, Number.MAX_SAFE_INTEGER, 1),
+      backCritDamageAmp: clamp(raw.rows.backCritDamageAmp, 0, Number.MAX_SAFE_INTEGER, 0),
     },
     matchups,
     // Never zero. A hit chance that can reach zero is a battle that can never end.
     minHitChance: clamp(raw.minHitChance, Number.MIN_VALUE, 1, 0.1),
     maxPenetration: clamp(raw.maxPenetration, 0, MAX_PENETRATION, MAX_PENETRATION),
+    // Never 1, for the same reason: a combatant nothing can damage is a battle that can never
+    // end, whether the immunity came from dodging or from soaking.
+    maxResist: clamp(raw.maxResist, 0, MAX_RESIST, MAX_RESIST),
     basicAttack: toSkill(raw.basicAttack),
   };
 }
@@ -245,9 +286,9 @@ export function toRates(raw: AuthoredCurrencies): Readonly<Partial<Rates>> {
 /**
  * Ticks a combatant needs to fill its gauge from empty.
  *
- * The clearest way to read what a speed value actually buys, which is why it is exported
+ * The clearest way to read what a haste value actually buys, which is why it is exported
  * rather than inlined: balance work and specs both reason in actions, not in gauge points.
  */
-export function ticksPerAction(spd: number): number {
-  return Math.ceil(ATB_THRESHOLD / clamp(spd, 1, ATB_THRESHOLD, 1));
+export function ticksPerAction(haste: number): number {
+  return Math.ceil(ATB_THRESHOLD / clamp(haste, 1, ATB_THRESHOLD, 1));
 }
