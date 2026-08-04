@@ -485,7 +485,8 @@ export interface CombatRulesData {
    *
    * A termination guard before it is a balance lever. The simulation's promise that a battle
    * always ends rests on damage landing eventually; without a floor, a stacked dodge pool
-   * could make a combatant unhittable and turn every fight against it into a stalemate.
+   * could make a combatant unhittable, and every fight against it would be decided by the clock
+   * rather than by either side.
    */
   readonly minHitChance: number;
   /** Ceiling on penetration, so a defensive stat can never be erased outright. */
@@ -677,7 +678,20 @@ export interface CombatantSnapshot {
   readonly statuses: readonly ActiveStatus[];
 }
 
-export type BattleOutcome = 'victory' | 'defeat' | 'stalemate';
+/**
+ * How a fight ended, as the player reads it. **Two answers, not three.**
+ *
+ * There was a `stalemate` here until the battle timer landed. It meant "neither side could finish
+ * inside the tick cap", which was a true statement about the simulation and a useless one to the
+ * player: they did not clear the stage, they were paid nothing, and auto-battle stopped — which is
+ * a defeat wearing a word that suggested otherwise. Running the clock out is now losing, so it is
+ * reported as losing.
+ *
+ * **The distinction did not disappear, it moved to {@link BattleResult.timedOut}**, which is where
+ * it was always more useful. A timeout is a fact about the fight, not an outcome of it: the balance
+ * sweep needs it to catch an over-tuned sustain kit, and nothing on screen needs it at all.
+ */
+export type BattleOutcome = 'victory' | 'defeat';
 
 /**
  * A single thing that happened, tagged with the battle tick it happened on.
@@ -861,6 +875,20 @@ export interface BattleReward {
 export interface BattleResult {
   readonly stageId: string;
   readonly outcome: BattleOutcome;
+  /**
+   * Whether the fight ended because the ninety-second timer ran out rather than because a side
+   * died. Always paired with a `defeat` outcome — see {@link BattleOutcome}.
+   *
+   * ⚠️ **This is the successor to the zero-stalemates balance assertion**, and it carries that
+   * job alone now that a timeout is indistinguishable on screen from being killed. Milestone 8b
+   * deleted the MP pool that guaranteed a fight against a healer resolves; the sweep in
+   * `data/stages.balance.ts` is what replaced it, and this flag is what the sweep reads. A kit
+   * that out-sustains the ladder shows up here or nowhere.
+   *
+   * Nothing in `ui/` reads it. A player who ran out of time lost, and the reason is a tuning
+   * question rather than something to explain on a results screen.
+   */
+  readonly timedOut: boolean;
   /** Battle ticks elapsed. */
   readonly ticks: number;
   /** Game milliseconds the fight represents. Used for display and for balance sweeps. */

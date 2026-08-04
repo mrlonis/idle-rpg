@@ -23,10 +23,13 @@ import { type EnergyRules, type EnergyRulesData } from './types';
  * ## ⚠️ Energy is not a termination argument, and MP was
  *
  * A pool that only ever refills cannot run out, so a fight against a healer is no longer bounded
- * by the healer's resources. It is bounded by `MAX_BATTLE_TICKS` alone, which reports a
- * `stalemate`. That is a real transfer of responsibility and it is why the ladder sweep asserts
- * **zero stalemates** on every reference party, winning or losing — that assertion is now the
- * only thing standing where the MP pool used to.
+ * by the healer's resources. It is bounded by `MAX_BATTLE_TICKS` alone — the ninety-second timer,
+ * which ends the fight as a defeat. That is a real transfer of responsibility, and it is why the
+ * ladder sweep asserts **no reference party ever runs the clock out**, winning or losing: that
+ * assertion is the only thing standing where the MP pool used to.
+ *
+ * It reads `BattleResult.timedOut` rather than the outcome, because a timeout and a wipe are the
+ * same `defeat` on screen. An outcome-based version of that guard would pass for the wrong reason.
  *
  * Nothing here can make a fight longer in an unbounded way, though: every gain is non-negative
  * and the pool is clamped, so energy cannot loop, and an ultimate cannot be cast twice from one

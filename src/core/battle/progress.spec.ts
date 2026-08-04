@@ -37,6 +37,8 @@ function outcome(kind: BattleOutcome, reward: RewardSpec = {}): BattleResult {
   return {
     stageId: 'test-stage',
     outcome: kind,
+    // Progression keys off the outcome alone, so nothing here varies with how a defeat arrived.
+    timedOut: false,
     ticks: 100,
     durationMs: 10_000,
     roster: [],
@@ -79,7 +81,7 @@ describe('applyBattleResult', () => {
     expect(next.wallet.essence.eq(5)).toBe(true);
   });
 
-  it.each<BattleOutcome>(['defeat', 'stalemate'])('holds the stage on a %s', (kind) => {
+  it.each<BattleOutcome>(['defeat'])('holds the stage on a %s', (kind) => {
     const state = withGold(run({ stage: 3 }), '500');
 
     const next = applyBattleResult(state, outcome(kind), STAGE_COUNT);
@@ -88,17 +90,14 @@ describe('applyBattleResult', () => {
     expect(next.wallet.gold.eq(500)).toBe(true);
   });
 
-  it.each<BattleOutcome>(['victory', 'defeat', 'stalemate'])(
-    'counts the battle on a %s',
-    (kind) => {
-      // The counter feeds the battle RNG label. If a loss did not advance it, the retry would be
-      // a bit-for-bit replay of the same loss and the stage would be a permanent wall for
-      // reasons the player could never see.
-      const state = run({ battleCount: 41 });
+  it.each<BattleOutcome>(['victory', 'defeat'])('counts the battle on a %s', (kind) => {
+    // The counter feeds the battle RNG label. If a loss did not advance it, the retry would be
+    // a bit-for-bit replay of the same loss and the stage would be a permanent wall for
+    // reasons the player could never see.
+    const state = run({ battleCount: 41 });
 
-      expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).battleCount).toBe(42);
-    },
-  );
+    expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).battleCount).toBe(42);
+  });
 
   it('stops at the last authored stage, which then repeats', () => {
     const state = run({ stage: STAGE_COUNT });
@@ -144,7 +143,7 @@ describe('applyBattleResult', () => {
       expect(next.rates.xp.eq('0.1')).toBe(true);
     });
 
-    it.each<BattleOutcome>(['defeat', 'stalemate'])('leaves the rate alone on a %s', (kind) => {
+    it.each<BattleOutcome>(['defeat'])('leaves the rate alone on a %s', (kind) => {
       const state = withGoldRate(run(), '4');
 
       expect(applyBattleResult(state, outcome(kind), STAGE_COUNT).rates.gold.eq(4)).toBe(true);

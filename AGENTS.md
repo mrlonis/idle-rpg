@@ -53,12 +53,17 @@ the two disagree, the code is right and both are stale.
 - **[docs/combat.md](docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
   energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
   there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
-  return. One of them now lives outside `core/`: milestone 8b deleted the MP pool that guaranteed a
-  fight against a healer resolves, so the **zero-stalemates assertion in the balance sweep** is what
-  stands in its place. Treat it as a guard rather than as a balance test, and know what it does not
-  cover: it sweeps three reference parties of five, and a **solo sustain character** against a stage
-  it cannot kill still runs to the tick cap. That gap predates 8c and is recorded in
-  [the roadmap](docs/milestones.md); do not close it by relaxing the assertion.
+  return.
+  - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
+    outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
+    The headroom over the longest tuned fight is **1.9×**, so a stage that takes longer than ninety
+    seconds against the party it is meant for is unclearable — treat the timer as a budget every
+    encounter has to fit inside, and expect the balance sweep to say so first.
+  - One termination argument lives outside `core/`: milestone 8b deleted the MP pool that
+    guaranteed a fight against a healer resolves, so an assertion in the balance sweep stands in
+    its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
+    same `defeat` on screen, so an outcome-based version of that guard silently tests nothing. Do
+    not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
 - **[docs/economy.md](docs/economy.md)** — the five currencies, income rates, the level curve,
   pull rates and pity, and offline accrual.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and

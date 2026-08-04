@@ -1085,9 +1085,14 @@ metronome. MP could not express that at all.
 ### ⚠️ What actually broke was the termination argument, exactly where the plan said
 
 The plan recorded that the healer guarantee transfers onto `MAX_BATTLE_TICKS`. It does, and the
-thing now standing where the MP pool used to is a single assertion: **the ladder sweep requires zero
-stalemates on every reference party, winning or losing.** That assertion is no longer a nice-to-have
-and should not be relaxed.
+thing now standing where the MP pool used to is a single assertion: **the ladder sweep requires that
+no reference party ever runs the clock out, winning or losing.** That assertion is no longer a
+nice-to-have and should not be relaxed.
+
+_Two things about it changed after 8c, and the shape did not._ The assertion was written against a
+`stalemate` outcome that no longer exists — a timeout is now a defeat — so it reads
+`BattleResult.timedOut` instead. And `MAX_BATTLE_TICKS` went from 18,000 to 900. Both are recorded
+under [the battle timer](#the-battle-timer-and-the-guard-that-was-not-guarding) below.
 
 It bit immediately. The **Ashen Hierophant** at stage 24 turned out to be the one enemy in the game
 whose pool genuinely metered it — a healer _and_ a shielder spending 28 a cycle against 6 a turn —
@@ -1118,7 +1123,7 @@ every 2.5–3.9 turns after it, against cooldowns of 35–55 ticks before — wh
 
 The milestone-4 promise held. Three level-1 starters clear to the healer lock at stage 7, five
 common-tier characters at level 80 clear the hand-climbed half, and an invested common-tier party
-clears all twenty-four. No stalemates anywhere, and no fight over sixty seconds.
+clears all twenty-four. Nothing decided by the clock anywhere, and no fight over sixty seconds.
 
 ### The Undead kept their bargain by inverting it
 
@@ -1242,24 +1247,81 @@ to stage 14 at `elite` with two skills, to stage 18 at `legendary` with three, a
 at `ascended` with four — and the rungs that unlock nothing (`elite+`, `mythic`) move it far less
 than the two that do.
 
-### A pre-existing stalemate gap this milestone measured but did not open
+### A pre-existing stalemate gap this milestone measured but did not open — **CLOSED**
 
-⚠️ **A solo sustain character against a stage it cannot kill runs to the tick cap** — thirty minutes
+⚠️ **A solo sustain character against a stage it cannot kill ran to the tick cap** — thirty minutes
 of battle time for nothing. Fielding one character is legal, and a wall with 29 `atk` behind a
 regeneration is exactly the shape the zero-stalemates guard exists to catch.
 
-It **predates 8c**: the same scan against the 8b kits finds 238 stalled battles across the roster
-and ladder, with Thraun alone accounting for 110 of them. The new skills make it worse rather than
-possible — 308 after, and the growth is concentrated in the sustain kits this milestone added
+It **predated 8c**: the same scan against the 8b kits finds 238 stalled battles across the roster
+and ladder, with Thraun alone accounting for 110 of them. The new skills made it worse rather than
+possible — 308 after, and the growth was concentrated in the sustain kits this milestone added
 (Celia 27 → 50, Seraphine 20 → 34, Korrin 30 → 43).
 
-**The shipped guard still passes**, because it sweeps three reference parties of five and none of
-them stalls anywhere. That is the gap: the assertion that replaced the MP termination argument in 8b
-covers the parties a tuned ladder is measured against, not every party a player can legally field.
-Closing it is a real piece of work — a damage floor, a draw condition, or a concession that a
-one-character party is not a supported configuration — and it is a decision about the combat model
-rather than about skill counts, so it is not this milestone's to make. Recorded here so it is
-chosen deliberately rather than discovered by a player.
+**The shipped guard passed throughout**, because it sweeps three reference parties of five and none
+of them stalls anywhere. That was the gap: the assertion that replaced the MP termination argument
+in 8b covered the parties a tuned ladder is measured against, not every party a player can legally
+field. It was fixed immediately after 8c, and the fix is below.
+
+### The battle timer, and the guard that was not guarding
+
+**A fight is ninety seconds. Run the clock out and you lose.** `MAX_BATTLE_TICKS` went from 18,000
+to 900, the `stalemate` outcome was deleted, and `BattleResult.timedOut` took over the job of saying
+which kind of defeat it was.
+
+**Three candidate fixes were written down first and all three died on measurement**, which is worth
+recording because each looked reasonable:
+
+- **A damage floor** — a minimum fraction off any hit, so no fight can be raced indefinitely. It
+  does not work, and the reason generalises: damage is `atk² / (atk + def)` and is already never
+  zero. The deadlocks were never "damage rounds away", they were **sustain out-pacing damage**. A
+  floor big enough to beat the best heal in the game is a global damage buff wearing a guard's
+  clothes.
+- **A minimum formation size** — declare one-character parties unsupported. Dead on the numbers:
+  Thraun + Celia is two characters and stalls 4/4 against stages 18 and 19. Party size correlates
+  with the failure and does not define it; **total party damage** does.
+- **A stall detector** — end the fight when neither side has reached a new low for N ticks. This
+  was the most promising and still failed. Sized so it never cuts a legitimate fight short it needs
+  a window of ~4,000 ticks, which left the mean stalled fight at fourteen minutes; and some stalls
+  never trigger it at all, because a party being ground down slowly _is_ making progress — just not
+  progress anyone wants to watch.
+
+**What the measurement actually showed is that the cap was never bounding anything.** The longest
+fight any reference party has is **48.5 seconds**, against a cap of thirty minutes — a 37× budget on
+a number nothing approached. Two things had drifted apart: _the fight is decided_ and _the fight has
+finished_. A party that cannot out-damage a healer has lost inside the first minute, and the clock
+was the only participant that had not noticed.
+
+So the fix is a timer rather than machinery, and **it is a rule of the game rather than a guard
+bolted on beside one** — the genre convention, and what the ladder was already being tuned to
+without anyone writing it down.
+
+**It cost nothing in tuned content and everything in pathological content**, which is the right
+direction:
+
+|                                     | Before      | After                      |
+| ----------------------------------- | ----------- | -------------------------- |
+| Longest reference-party fight       | 48.5s       | 48.5s — unchanged          |
+| Reference wins flipped to defeats   | —           | **0**, at 40 seeds a stage |
+| Longest fight, any legal party      | 30 min      | **90s**                    |
+| Solo / sustain-pair fights over 90s | 59 of 3,552 | **0**                      |
+
+**The guard was widened at the same time, and its shape changed.** `stages.balance.ts` grew a
+`parties nobody tuned for` block covering solo and two-character sustain parties — the
+configurations the three reference parties never described. What it asserts is deliberately not a
+balance claim: **those parties are allowed to lose, and not allowed to lose slowly.** It also
+asserts a lone character can still clear _something_, so the timer never becomes a minimum party
+size by the back door.
+
+⚠️ **The assertion reads `timedOut`, never the outcome.** A timeout and a wipe are the same `defeat`
+on screen now, so the obvious rewrite in terms of `outcome` would pass forever while testing
+nothing. That is the one way to break this guard without noticing.
+
+**The margin is now 1.9× rather than 37×, and that is the real cost.** Ninety seconds is a budget
+every encounter has to fit inside, which milestone 10's rescale and milestone 11's hundred stages
+both have to respect. A stage tuned to take longer than the timer against the party it is meant for
+is unclearable, so the sweep asserts the margin directly — it should go red naming a stage before
+any win-rate assertion does.
 
 ## 8d. Faction lineup bonuses — **NEXT**
 

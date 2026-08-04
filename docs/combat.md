@@ -12,8 +12,8 @@ is one multiplication in the animator, not a second combat path.
 `simulateBattle` capable of not returning.
 
 See [attributes](attributes.md) for the stat block and [glossary](glossary.md) for vocabulary.
-Milestone 8a rewrote the damage and scheduling halves of this page; 8b replaced MP with energy.
-Milestone 8**c** still owes the skill-count gating and 8**d** the faction lineup bonuses.
+Milestone 8a rewrote the damage and scheduling halves of this page, 8b replaced MP with energy, and
+8c gated skills behind ascension rungs. Milestone 8**d** still owes the faction lineup bonuses.
 
 ---
 
@@ -27,11 +27,11 @@ attack** — so a high-attack-speed combatant machine-guns basics between its sk
 cast drops it back to plain haste for one turn. The two are summed and clamped together, never
 separately.
 
-| Constant           | Value  | Meaning                                      |
-| ------------------ | ------ | -------------------------------------------- |
-| `ATB_THRESHOLD`    | 1000   | Gauge required to act.                       |
-| `BATTLE_TICK_MS`   | 100    | Simulated milliseconds per tick.             |
-| `MAX_BATTLE_TICKS` | 18,000 | Half an hour of game time, then `stalemate`. |
+| Constant           | Value | Meaning                                             |
+| ------------------ | ----- | --------------------------------------------------- |
+| `ATB_THRESHOLD`    | 1000  | Gauge required to act.                              |
+| `BATTLE_TICK_MS`   | 100   | Simulated milliseconds per tick.                    |
+| `MAX_BATTLE_TICKS` | 900   | ⚠️ The battle timer: ninety seconds, then a defeat. |
 
 **The simulation jumps straight to the tick of the next action** rather than stepping tick by
 tick — `ticksUntilReady()` in [`clock.ts`](../src/core/battle/clock.ts) computes the jump, and
@@ -59,8 +59,26 @@ exactly this reason, and so is the pair.
 
 ### Outcomes
 
-`victory`, `defeat`, `stalemate`. Stalemate means the tick cap arrived first — out of patience
-rather than out of combatants, and in practice sustain out-racing damage.
+**`victory` or `defeat`. There is no third answer.**
+
+You have ninety seconds to win. Running the clock out is losing — the same defeat as being wiped,
+paying the same nothing, and stopping auto-battle the same way.
+
+There used to be a `stalemate` for "the tick cap arrived first", against a cap of 18,000 ticks —
+half an hour. It was a true statement about the simulation and a useless one to the player, and the
+cap it described bounded nothing: the longest fight any reference party has is 48.5 seconds, so the
+old ceiling was 37× a number nothing approached. What it actually produced was a party that could
+not out-damage a healer generating half an hour of battle log on a screen with no exit.
+
+⚠️ **The distinction moved to `BattleResult.timedOut` rather than disappearing.** A timeout and a
+wipe are the same thing to a player and very different things to a balance sweep — an over-tuned
+sustain kit is invisible unless something records which one happened. Nothing in `ui/` reads the
+flag; the sweep reads nothing else.
+
+**The headroom is now 1.9×, and that is a constraint on content rather than slack.** A stage tuned
+to take longer than ninety seconds against the party it is meant for is a stage nobody can clear,
+which is why `stages.balance.ts` asserts the margin directly and should fail before the win-rate
+assertions do.
 
 ---
 
@@ -109,7 +127,7 @@ skill hit for roughly 4× and turn every authored multiplier into a balance trap
 `accuracy - dodge`, floored at `MIN_HIT_CHANCE` (0.1).
 
 ⚠️ The floor is a termination guard first and a balance number second: a dodge pool that could
-reach certainty would turn every fight against it into a stalemate. Ten percent also keeps an
+reach certainty would leave every fight against it to the timer. Ten percent also keeps an
 evasion build annoying rather than unbeatable, which is the right amount of annoying for a stat
 whose only counter-play is accuracy.
 
@@ -264,10 +282,11 @@ land. The pacing difference between a short fight and a long one survived; it ch
 
 ⚠️ **What did not survive is a termination argument.** The MP pool was what guaranteed a fight
 against a healer resolves rather than grinding against a heal that never stops. A bar that only
-refills cannot run out, so that guarantee now rests **entirely** on the `MAX_BATTLE_TICKS`
-stalemate. This was recorded in milestone 8 before the work rather than discovered after it, and
-the thing standing where the pool used to is one assertion: the ladder sweep requires **zero
-stalemates** on every reference party, winning or losing.
+refills cannot run out, so that guarantee now rests **entirely** on the `MAX_BATTLE_TICKS` timer.
+This was recorded in milestone 8 before the work rather than discovered after it, and the thing
+standing where the pool used to is one assertion: the ladder sweep requires that **no reference
+party ever runs the clock out**, winning or losing, read off `timedOut` rather than off the
+outcome.
 
 It showed up immediately and exactly where predicted. The Ashen Hierophant at stage 24 was the one
 enemy in the game its pool genuinely metered — two skills against 6 regen a turn — and losing it
