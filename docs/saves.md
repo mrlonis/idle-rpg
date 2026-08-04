@@ -50,6 +50,12 @@ the battle rate would be a backlog of writes that were stale before they started
 the storage layer rather than pacing the caller keeps the game's frame rate off the disk's
 critical path.
 
+⚠️ **The store is injected, not imported.** `SaveService` takes its key/value backend from the
+`KEY_VALUE_STORE` token, whose default factory returns `@capacitor/preferences`. That seam exists
+for the spec: the unit-test builder shares one module registry across every spec file, so
+`vi.mock('@capacitor/preferences')` is silently order-dependent and fails on some machines and not
+others. Overriding a provider cannot be.
+
 ⚠️ **The running game overwrites external edits.** It holds authoritative state in memory and
 persists on the way out, so clearing storage from inside the app is undone by the app. A reset has
 to stop the loop and replace the in-memory state, not merely empty the slots.

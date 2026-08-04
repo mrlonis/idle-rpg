@@ -1,4 +1,4 @@
-import { Service } from '@angular/core';
+import { inject, InjectionToken, Service } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import {
   type GameState,
@@ -12,6 +12,38 @@ import { CHARACTERS_BY_ID, LEVELS } from './content';
 
 const PRIMARY_KEY = 'save';
 const BACKUP_KEY = 'save.bak';
+
+/**
+ * The three operations this service needs from a key/value store.
+ *
+ * Structurally what `@capacitor/preferences` already exposes, so the real plugin satisfies it
+ * without an adapter.
+ */
+export interface KeyValueStore {
+  get(options: { key: string }): Promise<{ value: string | null }>;
+  set(options: { key: string; value: string }): Promise<void>;
+  remove(options: { key: string }): Promise<void>;
+}
+
+/**
+ * Where saves are written. Defaults to `@capacitor/preferences`; overridden in tests.
+ *
+ * **This token exists so the spec never has to mock a module**, and that is worth explaining
+ * because "just `vi.mock` the plugin" is the obvious alternative and it is a trap here. The
+ * Angular unit-test builder runs with `isolate` **false** by default, so every spec file shares
+ * one module registry — which makes `vi.mock` order-dependent across the whole suite. Whichever
+ * file imports `@capacitor/preferences` first wins, and the specs that reach it transitively
+ * (anything bootstrapping the app or the game loop) are exactly the ones whose order nobody
+ * controls. That failed in CI and not locally, which is the worst shape a test failure can have.
+ *
+ * Injecting the store makes the seam a provider rather than a module-graph side effect, so it
+ * cannot depend on load order at all. Turning isolation on would also have worked, and was
+ * rejected: it slows the suite that runs on save, to fix one file's design.
+ */
+export const KEY_VALUE_STORE = new InjectionToken<KeyValueStore>('KEY_VALUE_STORE', {
+  providedIn: 'root',
+  factory: () => Preferences,
+});
 
 /**
  * What the repair pass needs to check a save against the content this build ships.
@@ -42,6 +74,17 @@ function repairOptions(nowMs: number): RepairOptions {
  */
 @Service()
 export class SaveService {
+  private readonly store = inject(KEY_VALUE_STORE);
+
+  /**
+   * The newest state waiting to be written, and the drain that is working through them.
+   *
+   * Together these make {@link save} **serialised and coalescing**. Both halves matter and they
+   * answer different problems — see the note on {@link save}.
+   */
+  private queued: GameState | null = null;
+  private draining: Promise<void> | null = null;
+
   /**
    * Reads the run, falling back to the backup slot when the primary is unusable.
    *
@@ -64,15 +107,6 @@ export class SaveService {
     const fromBackup = loadSaveText(backup, repairOptions(nowMs));
     return fromBackup.fatal === undefined ? fromBackup : result;
   }
-
-  /**
-   * The newest state waiting to be written, and the drain that is working through them.
-   *
-   * Together these make {@link save} **serialised and coalescing**. Both halves matter and they
-   * answer different problems — see the note on {@link save}.
-   */
-  private queued: GameState | null = null;
-  private draining: Promise<void> | null = null;
 
   /**
    * Writes the run, copying the previous contents to the backup slot first.
@@ -144,9 +178,9 @@ export class SaveService {
   private async write(state: GameState): Promise<void> {
     const previous = await this.read(PRIMARY_KEY);
     if (previous !== null) {
-      await Preferences.set({ key: BACKUP_KEY, value: previous });
+      await this.store.set({ key: BACKUP_KEY, value: previous });
     }
-    await Preferences.set({ key: PRIMARY_KEY, value: JSON.stringify(toSaveData(state)) });
+    await this.store.set({ key: PRIMARY_KEY, value: JSON.stringify(toSaveData(state)) });
   }
 
   /**
@@ -161,12 +195,12 @@ export class SaveService {
   async clear(): Promise<void> {
     this.queued = null;
     await this.draining;
-    await Preferences.remove({ key: PRIMARY_KEY });
-    await Preferences.remove({ key: BACKUP_KEY });
+    await this.store.remove({ key: PRIMARY_KEY });
+    await this.store.remove({ key: BACKUP_KEY });
   }
 
   private async read(key: string): Promise<string | null> {
-    const { value } = await Preferences.get({ key });
+    const { value } = await this.store.get({ key });
     return value;
   }
 }

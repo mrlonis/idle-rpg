@@ -1,70 +1,93 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type GameState, newGame, num, SAVE_VERSION, stampSaveTime, toSaveData } from '../core';
+import { KEY_VALUE_STORE, type KeyValueStore, makeSeed, SaveService } from './save.service';
 
 /** A run holding some gold, leaving every other currency at zero. */
 function withGold(state: GameState, gold: string): GameState {
   return { ...state, wallet: { ...state.wallet, gold: num(gold) } };
 }
 
-/** In-memory stand-in for the native key/value store. */
-const store = new Map<string, string>();
-
 /**
- * Every operation the store saw, in order, so a test can assert on *interleaving* rather than
- * only on the final bytes.
+ * In-memory stand-in for the native key/value store, **provided rather than module-mocked**.
  *
- * On the web Preferences is `localStorage` behind an async wrapper and the gap between two
- * operations is a microtask. On a device it is a real bridge round-trip, which is where two
- * overlapping writes have room to tear — so the settling delay below is configurable and the
- * ordering assertions are written against this log rather than against timing.
+ * `vi.mock('@capacitor/preferences')` is the obvious way to write this and it is the wrong one:
+ * the Angular unit-test builder defaults `isolate` to false, so every spec shares one module
+ * registry and the mock only wins if this file happens to import the plugin first. It does not
+ * always, which is a green suite locally and a red one in CI. `SaveService` takes its store from
+ * {@link KEY_VALUE_STORE} so this is a provider, and providers do not care about load order.
  */
-const operations: string[] = [];
+class FakeStore implements KeyValueStore {
+  readonly entries = new Map<string, string>();
 
-/** How long a store operation takes to settle. Raised in the tests that exercise concurrency. */
-let settle: () => Promise<void> = () => Promise.resolve();
+  /**
+   * Every operation, in order, so a test can assert on *interleaving* rather than only on the
+   * final bytes.
+   */
+  readonly operations: string[] = [];
 
-vi.mock('@capacitor/preferences', () => ({
-  Preferences: {
-    get: async ({ key }: { key: string }) => {
-      operations.push(`get:${key}`);
-      await settle();
-      return { value: store.get(key) ?? null };
-    },
-    set: async ({ key, value }: { key: string; value: string }) => {
-      operations.push(`set:${key}`);
-      await settle();
-      store.set(key, value);
-    },
-    remove: async ({ key }: { key: string }) => {
-      operations.push(`remove:${key}`);
-      await settle();
-      store.delete(key);
-    },
-  },
-}));
+  /** How long an operation takes to settle. Raised by {@link beSlow} for the concurrency tests. */
+  private settle: () => Promise<void> = () => Promise.resolve();
 
-/** Settles after a handful of microtask turns, which is enough room for two writes to tear. */
-function slowStore(): void {
-  settle = async () => {
-    for (let turn = 0; turn < 4; turn++) {
-      await Promise.resolve();
-    }
-  };
+  /**
+   * Settles after a handful of microtask turns, which is enough room for two writes to tear.
+   *
+   * On the web Preferences is `localStorage` behind an async wrapper and the gap between two
+   * operations is a single microtask. On a device it is a real bridge round-trip — which is the
+   * case worth testing, since that is where overlapping writes have room to interleave.
+   */
+  beSlow(): void {
+    this.settle = async () => {
+      for (let turn = 0; turn < 4; turn++) {
+        await Promise.resolve();
+      }
+    };
+  }
+
+  async get({ key }: { key: string }): Promise<{ value: string | null }> {
+    this.operations.push(`get:${key}`);
+    await this.settle();
+    return { value: this.entries.get(key) ?? null };
+  }
+
+  async set({ key, value }: { key: string; value: string }): Promise<void> {
+    this.operations.push(`set:${key}`);
+    await this.settle();
+    this.entries.set(key, value);
+  }
+
+  async remove({ key }: { key: string }): Promise<void> {
+    this.operations.push(`remove:${key}`);
+    await this.settle();
+    this.entries.delete(key);
+  }
 }
-
-const { makeSeed, SaveService } = await import('./save.service');
 
 const T0 = 1_700_000_000_000;
 
 describe('SaveService', () => {
-  let service: InstanceType<typeof SaveService>;
+  let service: SaveService;
+  let store: FakeStore;
+  let operations: string[];
 
   beforeEach(() => {
-    store.clear();
-    operations.length = 0;
-    settle = () => Promise.resolve();
-    service = new SaveService();
+    store = new FakeStore();
+    operations = store.operations;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: KEY_VALUE_STORE, useValue: store }],
+    });
+    service = TestBed.inject(SaveService);
   });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  /** Raises the store's latency for the tests that are about two writes overlapping. */
+  function slowStore(): void {
+    store.beSlow();
+  }
 
   it('round-trips a run', async () => {
     const state = withGold(newGame({ seed: 4242, nowMs: T0 }), '5e+20');
@@ -99,15 +122,15 @@ describe('SaveService', () => {
     await service.save(first);
     await service.save(second);
 
-    expect(store.get('save')).toContain('222');
-    expect(store.get('save.bak')).toContain('111');
+    expect(store.entries.get('save')).toContain('222');
+    expect(store.entries.get('save.bak')).toContain('111');
   });
 
   it('falls back to the backup when the primary slot is unreadable', async () => {
     // The exact scenario the backup exists for: a torn or corrupted primary write.
     const good = withGold(newGame({ seed: 7, nowMs: T0 }), '999');
-    store.set('save.bak', JSON.stringify(toSaveData(good)));
-    store.set('save', '{ not json at all');
+    store.entries.set('save.bak', JSON.stringify(toSaveData(good)));
+    store.entries.set('save', '{ not json at all');
 
     const loaded = await service.load(T0);
 
@@ -116,8 +139,8 @@ describe('SaveService', () => {
   });
 
   it('reports the failure when both slots are unusable', async () => {
-    store.set('save', '{ broken');
-    store.set('save.bak', 'also broken');
+    store.entries.set('save', '{ broken');
+    store.entries.set('save.bak', 'also broken');
 
     const loaded = await service.load(T0);
 
@@ -128,7 +151,7 @@ describe('SaveService', () => {
   it('surfaces a future-versioned save as fatal rather than silently resetting', async () => {
     // The player downgraded the app. Their run is intact and becomes readable again on
     // update, so this must not be mistaken for corruption.
-    store.set('save', JSON.stringify({ version: SAVE_VERSION + 3, wallet: { gold: '5' } }));
+    store.entries.set('save', JSON.stringify({ version: SAVE_VERSION + 3, wallet: { gold: '5' } }));
 
     const loaded = await service.load(T0);
 
@@ -136,7 +159,7 @@ describe('SaveService', () => {
   });
 
   it('recovers a damaged-but-migratable save and reports what it repaired', async () => {
-    store.set(
+    store.entries.set(
       'save',
       JSON.stringify({ version: SAVE_VERSION, wallet: { gold: 'garbage' }, rng: {} }),
     );
@@ -165,7 +188,7 @@ describe('SaveService', () => {
       // Deliberately not awaited in turn: this is the shape `settle()` produces.
       await Promise.all([service.save(first), service.save(second)]);
 
-      expect(store.get('save')).toContain('222');
+      expect(store.entries.get('save')).toContain('222');
     });
 
     it('keeps the read-then-write pair of each save intact', async () => {
@@ -198,7 +221,7 @@ describe('SaveService', () => {
       ];
       await Promise.all(saves);
 
-      expect(store.get('save')).toContain('333');
+      expect(store.entries.get('save')).toContain('333');
       expect(operations.filter((op) => op === 'set:save')).toHaveLength(2);
     });
 
@@ -212,7 +235,7 @@ describe('SaveService', () => {
       const later = service.save(second);
       await first;
 
-      expect(store.get('save')).toContain('222');
+      expect(store.entries.get('save')).toContain('222');
       await later;
     });
   });
@@ -223,7 +246,7 @@ describe('SaveService', () => {
 
     await service.clear();
 
-    expect(store.size).toBe(0);
+    expect(store.entries.size).toBe(0);
   });
 });
 

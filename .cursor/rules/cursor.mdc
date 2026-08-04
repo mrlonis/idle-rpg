@@ -451,6 +451,17 @@ not long-running and need none of this.
 - Keep tests deterministic: avoid time, network, and global state coupling unless explicitly mocked.
 - Mock only what is necessary, and prefer lightweight fakes/stubs over deep or brittle mocks.
 - Ensure tests are fast and isolated so they can run reliably in CI.
+- **Never `vi.mock()` a module.** The Angular unit-test builder defaults `isolate` to **false** —
+  every spec file shares one module registry in one thread — so a module mock only wins if that
+  spec happens to import the module before any other spec does. File order is not controlled and
+  differs between machines, which makes this a green suite locally and a red one in CI. There are
+  no `vi.mock` calls left in this repo, and adding one is how that class of failure comes back.
+  - **Inject the seam instead.** A dependency that a test needs to replace should arrive through
+    an `InjectionToken` whose default factory returns the real thing, so the test overrides a
+    provider rather than a module. `KEY_VALUE_STORE` in `ui/save.service.ts` is the worked
+    example, and its doc comment records why the obvious alternative was rejected.
+  - Raising `isolate` to true would also fix it, and was considered and rejected: it slows the
+    suite that runs on save in order to paper over one file's design.
 
 ### Testing `core/`
 
