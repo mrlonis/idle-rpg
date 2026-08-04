@@ -39,6 +39,7 @@ import {
   FACTIONS_BY_ID,
   FACTIONS_IN_ORDER,
   GROWTH_RULES,
+  KIT,
   LEVELS,
 } from './content';
 import { GameLoopService } from './game-loop.service';
@@ -168,7 +169,7 @@ export class RosterService {
         const character = CHARACTERS_BY_ID.get(defId);
         const owned = findOwned(state, defId);
         if (character !== undefined && owned !== undefined) {
-          combatants.push(toBattleCombatant(character, owned, GROWTH_RULES));
+          combatants.push(toBattleCombatant(character, owned, GROWTH_RULES, KIT));
         }
       }
       return combatants;

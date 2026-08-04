@@ -1,5 +1,6 @@
 import { type GachaRulesData } from '../gacha/types';
 import { type FactionLookup } from './ascend';
+import { type KitRulesData } from './kit';
 import { type LevelCurveData } from './level';
 import { type CharacterLookup } from './roster';
 import { type GrowthData } from './stats';
@@ -195,6 +196,20 @@ export const TEST_LEVEL_CURVE: LevelCurveData = {
 export const TEST_GROWTH: GrowthData = {
   perLevel: { common: 1.0075, legendary: 1.009, ascended: 1.0105 },
   perAscension: 1.12,
+};
+
+/**
+ * The shipped ceilings and the shipped rungs.
+ *
+ * Unlike the ladders and the level curve above, this is not shrunk to keep specs legible: the
+ * table is three numbers and three rarity names, and a fixture that used different ones would
+ * make every kit assertion in `kit.spec.ts` a statement about the fixture rather than about the
+ * rule. The fixture characters carry no kits at all — see the note at the top of this file — so
+ * nothing else here is affected by it.
+ */
+export const TEST_KIT_RULES: KitRulesData = {
+  ceiling: { common: 2, legendary: 3, ascended: 4 },
+  unlocks: ['elite', 'legendary', 'ascended'],
 };
 
 export const TEST_GACHA: GachaRulesData = {

@@ -43,6 +43,11 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
 class FakeRoster {
   readonly rows = signal<readonly RosterEntryView[]>([entry()]);
 
+  /** Re-points the fake at a different rung, which is what the skill list keys off. */
+  at(over: Partial<RosterEntryView>): void {
+    this.rows.set([entry(over)]);
+  }
+
   entry(defId: string): RosterEntryView | null {
     return this.rows().find((row) => row.defId === defId) ?? null;
   }
@@ -64,7 +69,7 @@ class FakeGameLoop {
  * hands over `defId`, so a test that set the input directly would assert the mapping and skip the
  * binding that makes it work.
  */
-async function open(url: string) {
+async function open(url: string, roster: FakeRoster = new FakeRoster()) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     providers: [
@@ -73,7 +78,7 @@ async function open(url: string) {
         withComponentInputBinding(),
       ),
       provideLocationMocks(),
-      { provide: RosterService, useValue: new FakeRoster() },
+      { provide: RosterService, useValue: roster },
       { provide: GameLoopService, useValue: new FakeGameLoop() },
     ],
   }).compileComponents();
@@ -133,6 +138,84 @@ describe('CharacterView', () => {
       const link = el.querySelector<HTMLAnchorElement>('.notice__link');
       expect(link?.getAttribute('href')).toBe('/');
       expect(link?.textContent?.trim()).toBe('Back to Home');
+    });
+  });
+
+  describe('the skill list', () => {
+    /** Every skill row, as a player reads it: the name, and whether it says it is locked. */
+    const rows = (el: HTMLElement) =>
+      [...el.querySelectorAll<HTMLElement>('.skills__row')].map((row) => ({
+        name: row.querySelector('.skills__name')?.textContent?.trim(),
+        locked: row.classList.contains('skills__row--locked'),
+        meta: row.querySelector('.skills__meta')?.textContent?.replace(/\s+/gu, ' ').trim(),
+      }));
+
+    it('shows the locked half of the kit rather than hiding it', async () => {
+      // Rin is common tier: her ultimate from the start, her second skill at Elite. Hiding the
+      // locked row would make a rung's reward invisible until after it had been paid for.
+      const el = await open('/roster/rin');
+
+      expect(rows(el)).toHaveLength(2);
+      expect(rows(el)[0].locked).toBe(false);
+      expect(rows(el)[1].locked).toBe(true);
+    });
+
+    it('names the rung that unlocks a locked skill, in words rather than only in colour', async () => {
+      const el = await open('/roster/rin');
+
+      expect(rows(el)[1].meta).toBe('Locked · unlocks at Elite');
+    });
+
+    it('opens the whole kit once the character reaches the rung', async () => {
+      const roster = new FakeRoster();
+      roster.at({ rarity: 2, rarityLabel: 'Elite', rarityFamily: 'elite' });
+      const el = await open('/roster/rin', roster);
+
+      expect(rows(el).every((row) => !row.locked)).toBe(true);
+      expect(rows(el)[1].meta).toContain('cooldown');
+    });
+
+    it('says how many skills the tier holds, so two is legible as complete', async () => {
+      // Without it a two-skill common-tier character looks like a four-skill character the player
+      // has failed to invest in.
+      const el = await open('/roster/rin');
+
+      expect(el.textContent).toContain('2 skills at common tier');
+    });
+  });
+
+  describe('the ascension card', () => {
+    /** The unlock line, whitespace collapsed the way a reader sees it. */
+    const unlockLine = (el: HTMLElement) =>
+      el.querySelector('.ascend__unlock')?.textContent?.replace(/\s+/gu, ' ').trim();
+
+    it('says the rung being bought unlocks a skill when it actually does', async () => {
+      // The price is already shown in copies; this is the other half of the trade. The one rung
+      // that unlocks a skill should not look like the four that do not.
+      const roster = new FakeRoster();
+      roster.at({ rarity: 1, ascensionCost: { self: 2, faction: 0 } });
+      const el = await open('/roster/rin', roster);
+
+      expect(unlockLine(el)).toBe('This rung unlocks Snare Arrow');
+    });
+
+    it('does not sell a skill the rung being bought will not hand over', async () => {
+      // Rin at Rare is two rungs below Elite. This card sits directly above "next rung costs", so
+      // a distant unlock phrased as an imminent one is a player paying for something they do not
+      // get — which is the one thing this line must never do.
+      const roster = new FakeRoster();
+      roster.at({ rarity: 0, ascensionCost: { self: 2, faction: 0 } });
+      const el = await open('/roster/rin', roster);
+
+      expect(unlockLine(el)).toBe('Snare Arrow unlocks later, at Elite');
+    });
+
+    it('promises nothing once the kit is fully unlocked', async () => {
+      const roster = new FakeRoster();
+      roster.at({ rarity: 2, ascensionCost: { self: 1, faction: 0 } });
+      const el = await open('/roster/rin', roster);
+
+      expect(el.querySelector('.ascend__unlock')).toBeNull();
     });
   });
 });

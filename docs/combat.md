@@ -202,13 +202,42 @@ did it crit, did it stick".
 so: they share one bar, and the lower-priority of them could never fire. `toSkill` discards a
 cooldown authored on an ultimate, so a kit cannot pick up a second gate by accident.
 
-**No enemy has one.** Energy is a character system — a bar the player watches, and what 8c hangs
-its skill ceiling on. An encounter is read as a rhythm instead, so its pacing is authored directly
-in cooldowns where a designer can set it exactly. It also keeps skills shareable between enemies,
-which several are.
+**No enemy has one.** Energy is a character system — a bar the player watches, and what 8c hung its
+skill ceiling on. An encounter is read as a rhythm instead, so its pacing is authored directly in
+cooldowns where a designer can set it exactly. It also keeps skills shareable between enemies, which
+several are.
 
 It was three before 8b: `mp` was a pool that started full and ran dry, and `hp` was the Undead
 paying for tempo in their own life. Both went with the `mp` stat.
+
+### How much of a kit a character actually has
+
+Since milestone 8c a character does not fight with everything its kit authors. **Tier sets a
+ceiling** — how many skills it may ever field, ultimate included — and **ascension rungs unlock up
+to it**:
+
+| Tier      | Ceiling          | Unlocks at                                 |
+| --------- | ---------------- | ------------------------------------------ |
+| common    | 2 — ultimate + 1 | ultimate, then `elite`                     |
+| legendary | 3 — ultimate + 2 | ultimate, `elite`, `legendary`             |
+| ascended  | 4 — ultimate + 3 | ultimate, `elite`, `legendary`, `ascended` |
+
+Three things about the rule matter to anyone reading a fight:
+
+- **The thresholds are absolute rarity**, read against the ladder rather than against each
+  character's own starting rung. `ascended`-tier characters start at `elite`, so they arrive
+  holding their second skill already — a deliberate head start, argued in
+  [milestones](milestones.md).
+- **The ultimate is never gated.** It is the one skill the energy bar meters, so gating it would
+  produce a combatant whose bar fills and can never be spent.
+- **Which ordinary skill unlocks first is the kit's authored order**, and combat never sees it:
+  `toCombatant` sorts by `priority`, so authored order decides when a skill is _earned_ and
+  `priority` decides when it is _used_.
+
+**The gate is applied in `toBattleCombatant`, not here.** `simulateBattle` receives a kit that has
+already been narrowed, exactly as it receives stats that have already been scaled — nothing in
+`core/battle/` knows what a tier or a rung is, which is what keeps a fixture-driven battle spec
+free of roster concepts.
 
 ### Energy
 

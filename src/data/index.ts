@@ -74,6 +74,7 @@ export {
   WARDEN,
   WISP,
 } from './enemies';
+export { KIT_RULES } from './kits';
 export { GROWTH, LEVEL_CURVE } from './levels';
 export { SKILLS } from './skills';
 export { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from './stages';

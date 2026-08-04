@@ -25,8 +25,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled         |
 | 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`       |
 | 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone   |
-| 8c  | The combat rework: skill counts         | 🟡 Next                                      |
-| 8d  | The combat rework: lineup bonuses       | ⬜                                           |
+| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung   |
+| 8d  | The combat rework: lineup bonuses       | 🟡 Next                                      |
 | 8e  | Five characters per faction             | ⬜                                           |
 | 9   | Resonance — levels the roster shares    | ⬜                                           |
 | 10  | Power that compounds                    | ⬜                                           |
@@ -1151,7 +1151,7 @@ the cast cost, so the cooldown was already the binding meter and the pool was de
 - The ladder is tuned against the new meter, so a skill-count change is measured against a baseline
   that is already true.
 
-## 8c. How many skills a character gets — **NEXT**
+## 8c. How many skills a character gets — **COMPLETE**
 
 **Both axes.** Tier sets the ceiling and ascension rungs unlock up to it:
 
@@ -1179,23 +1179,89 @@ and the promise survives in substance — the top of the ladder still cannot dem
 buy. Let it fail and quietly retune it, and the game has become tier-gated without anyone deciding
 to.
 
-### The authoring job, which is most of this milestone
+Shipped: the rule in [`core/roster/kit.ts`](../src/core/roster/kit.ts), the table in
+[`data/kits.ts`](../src/data/kits.ts), thirty new skills, every kit re-authored at its ceiling, the
+gate applied on the same seam that scales stats, and the sheet showing what is still locked.
 
-Twenty-six skills exist across the roster; the ceilings ask for fifty-six. That is thirty new ones:
+### The authoring job, which was most of this milestone
 
-| Tier      | Characters | Have | Ceiling asks |
-| --------- | ---------- | ---- | ------------ |
-| common    | 9          | 11   | 18           |
-| legendary | 7          | 8    | 21           |
-| ascended  | 7          | 14   | 28           |
+Thirty-seven skills existed across the roster; the ceilings asked for sixty-seven. That was thirty
+new ones:
 
-Two things settled in 8b that this authoring should not relitigate. **An ultimate carries no
-cooldown** — the bar is the cooldown, and `toSkill` discards one authored on it. And **a condition
-on an ultimate means "wait", never "never"**: a healer holding its bar until an ally is hurt is the
-system working, but an ultimate gated on three living enemies is a bar the player watches fill and
-never spend on a boss stage. `characters.spec.ts` asserts both.
+| Tier      | Characters | Had | Ceiling asks | Authored |
+| --------- | ---------- | --- | ------------ | -------- |
+| common    | 9          | 11  | 18           | 7        |
+| legendary | 7          | 12  | 21           | 9        |
+| ascended  | 7          | 14  | 28           | 14       |
 
-## 8d. Faction lineup bonuses
+**The counts in the plan were wrong and the total was right**, which is worth recording because it
+is the failure mode a hand-maintained tally always has: the plan said twenty-six skills existed and
+the ceilings asked for fifty-six, and both numbers had gone stale — but their difference was still
+thirty, so the headline survived while everything supporting it rotted. The table above is the
+measured version. Nothing derives from it; `characters.spec.ts` asserts each kit against
+`skillCeiling` directly, so the next time content moves it is the spec that fails rather than this
+paragraph that quietly stops being true.
+
+Two things settled in 8b that this authoring did not relitigate. **An ultimate carries no cooldown**
+— the bar is the cooldown, and `toSkill` discards one authored on it. And **a condition on an
+ultimate means "wait", never "never"**: a healer holding its bar until an ally is hurt is the system
+working, but an ultimate gated on three living enemies is a bar the player watches fill and never
+spend on a boss stage. `characters.spec.ts` asserts both.
+
+### Three conventions the kits now keep, and one of them is load-bearing
+
+- **Every kit is authored at exactly its tier's ceiling.** Never fewer, or a character is short of
+  what its tier promises; never more, or content ships that no amount of ascending could reach.
+- **The ultimate is written first, then the ordinary skills in unlock order.** The list order _is_
+  the progression, so reading a kit top to bottom reads what the player gets and when. This is a
+  readability convention rather than a mechanism — `unlockedSkills` finds the ultimate by its flag,
+  and combat still sorts by `priority` — which is deliberate: a kit authored out of convention
+  degrades to a confusing sheet rather than to a broken fight.
+- **The ultimate is never gated, unconditionally.** Not "unlocked at the tier's starting rung",
+  which is the same thing until a damaged save holds an ascended-tier character below `elite` and
+  hands the simulation a combatant whose energy bar fills and can never be spent.
+
+### The re-sweep found nothing to retune, and the reason is worth knowing
+
+The milestone-4 promise held without touching the ladder: five common-tier characters at level 80
+clear the hand-climbed half **with two skills each**, and the invested party still clears all
+twenty-four. What moved was smaller than expected — the top of the ladder went from 98% to 100% for
+the invested party, and nothing else changed a win rate at all.
+
+**That is because the reference five are the conservative half of the authoring job, by
+construction.** Bran, Gnash, Rin, Celia and Pyra are what the ladder is tuned against, so their
+second skills were authored knowing the sweep would measure them: a weaker Hammer Check, a plain
+Maul, a slow rather than a second arrow, half a Choirlight, a smaller Emberburst. A new skill on a
+50-tick cooldown replaces a basic attack roughly one turn in five, so a 1.5× where a 1.0× used to be
+is worth single-digit percent — which is the size a milestone that must not move an already-tuned
+ladder should be aiming for.
+
+**Where the gate is visible is the top half of the roster**, and that is the progression it was
+built to sell. An ascended-tier party held at one level, with the rung as the only variable, clears
+to stage 14 at `elite` with two skills, to stage 18 at `legendary` with three, and the whole ladder
+at `ascended` with four — and the rungs that unlock nothing (`elite+`, `mythic`) move it far less
+than the two that do.
+
+### A pre-existing stalemate gap this milestone measured but did not open
+
+⚠️ **A solo sustain character against a stage it cannot kill runs to the tick cap** — thirty minutes
+of battle time for nothing. Fielding one character is legal, and a wall with 29 `atk` behind a
+regeneration is exactly the shape the zero-stalemates guard exists to catch.
+
+It **predates 8c**: the same scan against the 8b kits finds 238 stalled battles across the roster
+and ladder, with Thraun alone accounting for 110 of them. The new skills make it worse rather than
+possible — 308 after, and the growth is concentrated in the sustain kits this milestone added
+(Celia 27 → 50, Seraphine 20 → 34, Korrin 30 → 43).
+
+**The shipped guard still passes**, because it sweeps three reference parties of five and none of
+them stalls anywhere. That is the gap: the assertion that replaced the MP termination argument in 8b
+covers the parties a tuned ladder is measured against, not every party a player can legally field.
+Closing it is a real piece of work — a damage floor, a draw condition, or a concession that a
+one-character party is not a supported configuration — and it is a decision about the combat model
+rather than about skill counts, so it is not this milestone's to make. Recorded here so it is
+chosen deliberately rather than discovered by a player.
+
+## 8d. Faction lineup bonuses — **NEXT**
 
 The AFK Arena ladder, applied to the party's own composition:
 

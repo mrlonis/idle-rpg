@@ -9,6 +9,7 @@ import {
   type FactionLookup,
   type GachaRulesData,
   type GrowthData,
+  type KitRulesData,
   type LevelCurveData,
   type ShopOfferData,
   type StageProgressData,
@@ -24,6 +25,7 @@ import {
   ELITE_UPGRADE_CHANCE,
   FACTIONS,
   GROWTH,
+  KIT_RULES,
   LEVEL_CURVE,
   PITY,
   PULL_COST,
@@ -73,6 +75,9 @@ export const LEVELS: LevelCurveData = LEVEL_CURVE;
 
 /** Per-tier and per-ascension stat growth. */
 export const GROWTH_RULES: GrowthData = GROWTH;
+
+/** How many skills a tier may field, and which rung unlocks each one. */
+export const KIT: KitRulesData = KIT_RULES;
 
 /**
  * The combat rules, parsed once.

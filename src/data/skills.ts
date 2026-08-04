@@ -86,6 +86,23 @@ export const GUARD_BREAK = {
   priority: 2,
 } as const;
 
+/**
+ * Mira's second skill, and the clearest statement of what a generalist is for.
+ *
+ * She has no spike and no wall, so what her extra turn buys is **not needing either**: a trickle
+ * of health that costs her nothing and never runs out. It is the smallest sustain in the game and
+ * the only one on a character nobody would call a healer, which is exactly the reading — a
+ * bruiser who outlasts the fight she was never going to win quickly.
+ */
+export const SECOND_WIND = {
+  id: 'second-wind',
+  name: 'Second Wind',
+  target: 'self',
+  effects: [{ kind: 'status', status: REGENERATION }],
+  cooldown: 65,
+  priority: 1,
+} as const;
+
 /** Seren. A party-wide `atk` buff, and since 8a it is worth the same to a caster as to a blade. */
 export const OATH_OF_ARMS = {
   id: 'oath-of-arms',
@@ -104,6 +121,26 @@ export const SWORN_STRIKE = {
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
   cooldown: 40,
   priority: 1,
+} as const;
+
+/**
+ * Seren's third, and the roster's only stun.
+ *
+ * A turn taken away was an enemy tool — the Warden's, on a 75-tick cooldown — and pointing it back
+ * at the player's side is what a legendary-tier Human is for: no new axis, the most useful
+ * ordinary thing in the game, done dependably. Deliberately a coin flip rather than certainty, and
+ * on a long cooldown, because a stun the player can schedule is a lock rather than a spike.
+ */
+export const POMMEL_STRIKE = {
+  id: 'pommel-strike',
+  name: 'Pommel Strike',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.45 },
+    { kind: 'status', status: STUN, chance: 0.4 },
+  ],
+  cooldown: 60,
+  priority: 2,
 } as const;
 
 /** Aurelia. Both halves of a tempo buff at once, and the most expensive thing a Human casts. */
@@ -127,6 +164,42 @@ export const DECISIVE_STRIKE = {
   effects: [{ kind: 'damage', damageType: 'physical', power: 2 }],
   cooldown: 40,
   priority: 2,
+} as const;
+
+/**
+ * Aurelia's third: the marshal's actual job, which is not killing anything.
+ *
+ * Armour for everybody, on a cooldown rather than a bar — the same status Korrin spends his
+ * ultimate on. That overlap is the point of a versatile faction: a Human buys at three skills deep
+ * what a Dwarf is built around, and pays for it by being worse at it than he is.
+ */
+export const HOLD_THE_LINE = {
+  id: 'hold-the-line',
+  name: 'Hold the Line',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * Aurelia's fourth, and the only wide turn a Human takes.
+ *
+ * Small damage across the front rank with the armour opened behind it, which is a setup rather
+ * than a swing: it is worth most on the turn before everybody else acts. That is what the last
+ * skill of a support kit should be — the one that makes the other four members better rather than
+ * the one that finally makes her a damage dealer.
+ */
+export const SWEEPING_COMMAND = {
+  id: 'sweeping-command',
+  name: 'Sweeping Command',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.1 },
+    { kind: 'status', status: SUNDER, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 1,
 } as const;
 
 /**
@@ -174,6 +247,27 @@ export const SHIELD_WALL = {
   priority: 2,
 } as const;
 
+/**
+ * Bran's second skill, and it is Korrin's third with the edges filed off.
+ *
+ * At 34 `atk` the damage on this is nearly decoration; what it buys is a quarter off whatever the
+ * front rank hits for, which is the only way a character who cannot finish a fight contributes to
+ * winning one. Deliberately a weaker {@link HAMMER_CHECK} — the faction's tier story is that
+ * Korrin is a sharper Bran, and a shared tool at two settings says that more plainly than two
+ * unrelated ones would.
+ */
+export const IRON_REBUKE = {
+  id: 'iron-rebuke',
+  name: 'Iron Rebuke',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.3 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
 /** Korrin. The same armour, for everybody, at a price. */
 export const ANVIL_STANCE = {
   id: 'anvil-stance',
@@ -197,6 +291,22 @@ export const HAMMER_CHECK = {
   priority: 2,
 } as const;
 
+/**
+ * Korrin's third, and the Dwarven answer to a wave rather than to a hit.
+ *
+ * `recovery` and `healthRegen` are the faction's stat block; this is the same idea spent on
+ * somebody else. A regeneration is worth less than the equivalent heal up front and far more than
+ * it across a long fight, which is precisely the fight a Dwarf line-up is trying to have.
+ */
+export const FORGELIGHT_VIGIL = {
+  id: 'forgelight-vigil',
+  name: 'Forgelight Vigil',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: REGENERATION }],
+  cooldown: 70,
+  priority: 1,
+} as const;
+
 /** Thraun. A party-wide absorb pool, which is the most durability one turn can buy. */
 export const DEEP_WARD = {
   id: 'deep-ward',
@@ -218,6 +328,43 @@ export const GROUND_SLAM = {
   ],
   cooldown: 50,
   priority: 2,
+} as const;
+
+/**
+ * Thraun's third: the worst attacker in the game making somebody else's attack land.
+ *
+ * He will never take the killing blow — 29 `atk` guarantees it — so his offensive turn is spent
+ * on the one thing that pays regardless of who swings next. Against the diminishing-DEF curve a
+ * quarter off a wall's armour is worth more to a Monster standing beside him than any damage he
+ * could have dealt himself.
+ */
+export const DEEPSTONE_GRASP = {
+  id: 'deepstone-grasp',
+  name: 'Deepstone Grasp',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
+ * Thraun's fourth, and the deepest single turn of durability the game has.
+ *
+ * A second absorb pool on everybody, stacked on top of {@link DEEP_WARD} rather than replacing it
+ * — the two are different statuses, so a fully ascended Thraun genuinely carries the party behind
+ * two shields at once. That is what the top of a wall's kit should be: not more armour, which
+ * diminishes, but a second pool, which does not.
+ */
+export const WARD_UNBROKEN = {
+  id: 'ward-unbroken',
+  name: 'The Ward Unbroken',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 85,
+  priority: 4,
 } as const;
 
 /** Dorn. Two debuffs off one ally, cheap and often — the cleanse a mortal roster can rely on. */
@@ -268,6 +415,27 @@ export const PIERCING_SHOT = {
   priority: 2,
 } as const;
 
+/**
+ * Rin's second skill, and it is not a second arrow.
+ *
+ * The obvious choice was more damage, and the reason it is wrong is what she is standing behind:
+ * at 430 HP her problem has never been output, it is the turn on which something reaches her. A
+ * third off the front rank's gauge is a third of everything it was going to do — the same reason
+ * {@link SLOW} is the quietest strong debuff in the game — and it costs the party nothing to have
+ * an Elf apply it while everyone else swings.
+ */
+export const SNARE_ARROW = {
+  id: 'snare-arrow',
+  name: 'Snare Arrow',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
 /** Lysha buying herself turns, which on a 134-speed body is worth more than any damage skill. */
 export const WINDSTEP = {
   id: 'windstep',
@@ -286,6 +454,23 @@ export const THROAT_CUT = {
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
   ultimate: true,
   priority: 3,
+} as const;
+
+/**
+ * Lysha's third, and the rung at which she stops being a pure executioner.
+ *
+ * Reach is the Elven axis and she was the one member of the faction without it — Rin opens with
+ * it, Aelrindel is built on it, and Lysha killed only whatever was already dying. This is the
+ * skill that makes her a second answer to a protected healer rather than a worse Aelrindel, and it
+ * arrives late enough to be an investment rather than a starting condition.
+ */
+export const NIGHTREACH = {
+  id: 'nightreach',
+  name: 'Nightreach',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 50,
+  priority: 1,
 } as const;
 
 /** Aelrindel. The sharpest back-line answer authored, and the reason a Warden hides badly. */
@@ -307,6 +492,40 @@ export const VOLLEY = {
   cooldown: 60,
   condition: { kind: 'enemies-at-least', count: 3 },
   priority: 2,
+} as const;
+
+/**
+ * Aelrindel's third, and the literal reading of "can delete a back rank on his own".
+ *
+ * {@link FIRST_ARROW} says it one target at a time and this says it to the whole rank at once —
+ * the mirror of the Shrike's dive, pointed the other way. Small per target for the reason every
+ * wide skill is: against the party compositions that hide three carries behind two bodies, 0.95
+ * landing on the three softest stat blocks on the field is the widest damage in the game by what
+ * it actually takes off.
+ */
+export const SPLITTING_SHAFT = {
+  id: 'splitting-shaft',
+  name: 'Splitting Shaft',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 0.95 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Aelrindel's fourth: the shot that ignores rank altogether.
+ *
+ * Every other thing in his kit is a statement about **where** a target is standing. This one is
+ * not, which is what makes it the last of them — a fully ascended sniper has run out of places
+ * left to reach and starts reaching for whoever is closest to dying instead.
+ */
+export const ARROW_OF_ENDING = {
+  id: 'arrow-of-ending',
+  name: 'Arrow of Ending',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 55,
+  priority: 1,
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -335,6 +554,23 @@ export const GRAVE_GRASP = {
 } as const;
 
 /**
+ * Mortlach's second, and the same drain aimed somewhere else.
+ *
+ * {@link GRAVE_GRASP} feeds on whatever is standing in front of him; this feeds on whatever is
+ * closest to falling over, which is worth more precisely when the fight is going badly and his 11
+ * `def` is starting to tell. A faction that refuses to lose by being hurt profitably should have
+ * its best turn on the turn it is losing.
+ */
+export const CARRION_FEAST = {
+  id: 'carrion-feast',
+  name: 'Carrion Feast',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'physical', power: 1.45, siphon: 0.4 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
  * Sable. The clearest statement of the Undead bargain, now that the bargain runs the other way.
  *
  * It cost 55 of her own health before energy existed, and the trade it described was "spend life
@@ -349,6 +585,42 @@ export const BLOOD_PACT = {
   effects: [{ kind: 'drain', damageType: 'magical', power: 1.7, siphon: 0.55 }],
   ultimate: true,
   priority: 2,
+} as const;
+
+/**
+ * Sable's second, and the only defensive turn an Undead takes.
+ *
+ * It is defensive by being offensive, which is the faction's whole grammar: nothing about her 8
+ * `def` improves, but the rank hitting her acts a third less often. Cold rather than blood — she
+ * is the Unquiet, and the Unquiet slow a room down by being in it.
+ */
+export const GRAVE_CHILL = {
+  id: 'grave-chill',
+  name: 'Grave Chill',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.65 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Sable's third: {@link BLOOD_PACT} without the bar, at the price of being smaller.
+ *
+ * The ordinary skill a kit built on one drain wants is another drain, and the interesting question
+ * is only what it goes after. This one executes, which is what makes it more than a discount
+ * ultimate — she opens with the bar on whatever is in front and closes with this on whatever is
+ * nearly gone.
+ */
+export const UNQUIET_HUNGER = {
+  id: 'unquiet-hunger',
+  name: 'Unquiet Hunger',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.55, siphon: 0.5 }],
+  cooldown: 50,
+  priority: 1,
 } as const;
 
 /**
@@ -383,8 +655,49 @@ export const SOUL_SIPHON = {
   priority: 2,
 } as const;
 
+/**
+ * Nekros' third, and the one drain in the game that goes for the biggest thing on the field.
+ *
+ * Every other siphon in the file is opportunistic — the front rank, or whatever is nearly dead.
+ * A Grave Sovereign takes his tithe from whatever has the most to give, which against a wall is
+ * both the largest health pool and the target his 15 `magicPierce` was authored for.
+ */
+export const SOVEREIGNS_TOLL = {
+  id: 'sovereigns-toll',
+  name: "Sovereign's Toll",
+  target: 'enemy-highest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.7, siphon: 0.5 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Nekros' fourth: the Undead bargain finally spent on himself.
+ *
+ * `onHurt` is the largest energy source in the game and the Undead are the faction with no
+ * armour, so the thing a fully ascended one has most of is tempo he was paid for being hit. This
+ * is what he does with it — both halves of a buff at once, on the character least able to survive
+ * needing a second turn to apply them.
+ */
+export const SOUL_TITHE = {
+  id: 'soul-tithe',
+  name: 'Soul Tithe',
+  target: 'self',
+  effects: [
+    { kind: 'status', status: RALLY },
+    { kind: 'status', status: HASTE },
+  ],
+  cooldown: 70,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Monsters — raw ATK, and the answer to armour
+//
+// The shortest kits in the file, and deliberately so. Every other faction's later skills buy a
+// new verb — a stun, a slow, a second absorb pool; a Monster's buy more of the one it already
+// has. That is the same statement the six-line stat blocks in `characters.ts` make, and it is
+// worth making twice: a faction with nothing but a number is a faction that says what it is.
 // ---------------------------------------------------------------------------------------
 
 /** Gnash. A bleed priced against a Monster's `atk` is a lot of damage for a free skill. */
@@ -400,6 +713,16 @@ export const REND = {
   priority: 2,
 } as const;
 
+/** Gnash's second, and there is nothing else to say about it. No status, no reach, no condition. */
+export const MAUL = {
+  id: 'maul',
+  name: 'Maul',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
 /** Ruk. One enormous predictable hit, which is what the diminishing-DEF curve rewards. */
 export const MOUNTAIN_BREAKER = {
   id: 'mountain-breaker',
@@ -408,6 +731,42 @@ export const MOUNTAIN_BREAKER = {
   effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
   ultimate: true,
   priority: 2,
+} as const;
+
+/**
+ * Ruk's second: the armour answer said with a debuff instead of with a stat.
+ *
+ * His 25 `physicalPierce` only ever helps Ruk. This helps whoever swings next as well, which is
+ * the difference between a Monster who beats a Golem and a Monster who is the reason the party
+ * does.
+ */
+export const SUNDER_STONE = {
+  id: 'sunder-stone',
+  name: 'Sunder Stone',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.45 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * Ruk's third, and the trade it makes is the file's own rule read backwards.
+ *
+ * One big hit beats several small ones against the diminishing-DEF curve, so a Monster spreading
+ * its damage is giving up its best argument — which is exactly why this is the *third* skill
+ * rather than the first. It is what a kit reaches for once its single-target turns are already
+ * spoken for, and against a wide wave it is the one thing his stat block cannot do.
+ */
+export const AVALANCHE = {
+  id: 'avalanche',
+  name: 'Avalanche',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.1 }],
+  cooldown: 55,
+  priority: 1,
 } as const;
 
 /** Vharok going for the biggest thing on the field and opening it up for everyone else. */
@@ -433,6 +792,32 @@ export const DEVOUR = {
   priority: 2,
 } as const;
 
+/** Vharok's third. The largest ordinary hit in the game, on the largest `atk` in the game. */
+export const GORGE = {
+  id: 'gorge',
+  name: 'Gorge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * Vharok's fourth, and the only wave a Monster ever throws.
+ *
+ * At 80 `atk` and 35 `physicalPierce`, 1.15 across everything living is not the small number it
+ * looks like next to {@link WORLDS_MAW} — it is the same stat block applied five times. The
+ * cooldown is what keeps that from being the only thing he ever does.
+ */
+export const DEVOURING_TIDE = {
+  id: 'devouring-tide',
+  name: 'Devouring Tide',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 70,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Angels — sustain, and the reason a party can lose a race and still win a fight
 // ---------------------------------------------------------------------------------------
@@ -446,6 +831,24 @@ export const CHOIRLIGHT = {
   ultimate: true,
   condition: { kind: 'ally-hurt', fraction: 0.85 },
   priority: 3,
+} as const;
+
+/**
+ * Celia's second, and the reason her ultimate stops being the whole of her.
+ *
+ * Half a {@link CHOIRLIGHT} on a cooldown, which sounds like a worse version of the same thing
+ * and is not: an energy bar opens a fight empty. The first thirty seconds of every encounter were
+ * a common-tier Angel standing there being consistent about nothing. This is what she does before
+ * the bar arrives.
+ */
+export const SOOTHING_VERSE = {
+  id: 'soothing-verse',
+  name: 'Soothing Verse',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 0.9 }],
+  cooldown: 45,
+  condition: { kind: 'ally-hurt', fraction: 0.9 },
+  priority: 2,
 } as const;
 
 /** Ithuriel. Less per target, but everybody, which answers a wave rather than a spike. */
@@ -468,6 +871,23 @@ export const ABSOLUTION = {
   cooldown: 35,
   condition: { kind: 'ally-afflicted' },
   priority: 4,
+} as const;
+
+/**
+ * Ithuriel's third: sustain that arrives before the damage does.
+ *
+ * Both of his other turns answer something that has already happened — a heal needs somebody hurt,
+ * a cleanse needs somebody afflicted. An absorb pool is the only restorative in the game that is
+ * worth casting into a full-health party, and handing the faction's healer one is what makes an
+ * Angel line-up an answer to burst rather than only to attrition.
+ */
+export const DAWNWARD = {
+  id: 'dawnward',
+  name: 'Dawnward',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 70,
+  priority: 2,
 } as const;
 
 /** Seraphine. A wave heal with a tail on it — the most a full bar buys anybody. */
@@ -494,6 +914,41 @@ export const AEGIS_SKILL = {
   priority: 2,
 } as const;
 
+/**
+ * Seraphine's third: the single-target heal her kit had no room for below it.
+ *
+ * Both of her other restorative turns are wide, which is the right shape for a party losing
+ * slowly and the wrong one for a party losing one member fast. This is the answer to the second,
+ * and it is deliberately the least interesting skill in her kit — a character whose whole design
+ * position is having no variance should end up with the tool that always does the same thing.
+ */
+export const VIGIL = {
+  id: 'vigil',
+  name: 'Vigil',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.3 }],
+  cooldown: 40,
+  condition: { kind: 'ally-hurt', fraction: 0.9 },
+  priority: 2,
+} as const;
+
+/**
+ * Seraphine's fourth, and the only damage an Angel deals on purpose.
+ *
+ * She cannot crit at all, so this is the one wide attack in the game with no variance whatsoever —
+ * the same number every time, against everything. That is not a large number, and it is not meant
+ * to be: what it buys a party of healers is the ability to eventually finish a fight it was
+ * already never going to lose, which is the failure mode a full sustain line-up otherwise has.
+ */
+export const JUDGEMENT = {
+  id: 'judgement',
+  name: 'Judgement',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.9 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Demons — magical damage, and the only faction that ignores armour entirely
 // ---------------------------------------------------------------------------------------
@@ -509,6 +964,22 @@ export const EMBERBURST = {
   ],
   ultimate: true,
   priority: 2,
+} as const;
+
+/**
+ * Pyra's second, and it is her first turn rather than her best one.
+ *
+ * No burn, no status, nothing to set up — a Demon's whole argument is that armour does not answer
+ * her, and this is that argument at a smaller size while the bar fills. At 25% crit for 1.9× it is
+ * also the cheapest place in the game to watch what variance actually feels like.
+ */
+export const CINDERLASH = {
+  id: 'cinderlash',
+  name: 'Cinderlash',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 50,
+  priority: 1,
 } as const;
 
 /** Malakar reaching the back rank the way an Elf does, but with a spell rather than an arrow. */
@@ -534,6 +1005,23 @@ export const HEXFIRE = {
   priority: 2,
 } as const;
 
+/**
+ * Malakar's third, and the most on-the-nose skill in the file.
+ *
+ * A third of his swings land for over double and the other two thirds are why he is called the
+ * Gambler. This raises the stake rather than the odds: {@link RALLY} multiplies `atk`, and `atk`
+ * is what the crit is a multiple *of*, so a good fight gets better and a bad one is exactly as
+ * bad as it was.
+ */
+export const DOUBLE_OR_NOTHING = {
+  id: 'double-or-nothing',
+  name: 'Double or Nothing',
+  target: 'self',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
 /** Azrathoth against a wave. Expensive enough that he casts it roughly twice a fight. */
 export const RUIN_UNBOUND = {
   id: 'ruin-unbound',
@@ -555,6 +1043,39 @@ export const UNMAKING = {
   target: 'enemy-highest',
   effects: [{ kind: 'damage', damageType: 'magical', power: 2.45 }],
   ultimate: true,
+  priority: 2,
+} as const;
+
+/**
+ * Azrathoth's third: the Demon answer to a rank, which nothing else in the faction but Malakar
+ * has.
+ *
+ * Ruin Unbound needs three targets and Unmaking wants the largest, so a protected healer behind
+ * two bodies was a question a fully invested Azrathoth could not ask. This is the rung that fixes
+ * it, and 20 `magicPierce` is what makes it land on the kind of thing that hides.
+ */
+export const ENTROPY = {
+  id: 'entropy',
+  name: 'Entropy',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.85 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
+ * Azrathoth's fourth, and the mirror of his own ultimate.
+ *
+ * {@link UNMAKING} takes the biggest thing on the field; this takes the smallest. A kit that can
+ * name either end of the fight is what "Ruin Unbound" should mean at the top of the ladder — and
+ * on a 45% crit chance, either one is a coin flip between finishing something and wasting a turn.
+ */
+export const LONG_SILENCE = {
+  id: 'long-silence',
+  name: 'The Long Silence',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.1 }],
+  cooldown: 55,
   priority: 2,
 } as const;
 
@@ -940,42 +1461,72 @@ export const TYRANTS_CLAIM = {
  */
 export const SKILLS = [
   GUARD_BREAK,
+  SECOND_WIND,
   OATH_OF_ARMS,
   SWORN_STRIKE,
+  POMMEL_STRIKE,
   MARSHALS_CALL,
   DECISIVE_STRIKE,
+  HOLD_THE_LINE,
+  SWEEPING_COMMAND,
   FIELD_DRESSING,
   TRIAGE,
   SHIELD_WALL,
+  IRON_REBUKE,
   ANVIL_STANCE,
   HAMMER_CHECK,
+  FORGELIGHT_VIGIL,
   DEEP_WARD,
   GROUND_SLAM,
+  DEEPSTONE_GRASP,
+  WARD_UNBROKEN,
   SALTBEARD_REMEDY,
   STOUT_WARD,
   PIERCING_SHOT,
+  SNARE_ARROW,
   WINDSTEP,
   THROAT_CUT,
+  NIGHTREACH,
   FIRST_ARROW,
   VOLLEY,
+  SPLITTING_SHAFT,
+  ARROW_OF_ENDING,
   GRAVE_GRASP,
+  CARRION_FEAST,
   BLOOD_PACT,
+  GRAVE_CHILL,
+  UNQUIET_HUNGER,
   GRAVE_TIDE,
   SOUL_SIPHON,
+  SOVEREIGNS_TOLL,
+  SOUL_TITHE,
   REND,
+  MAUL,
   MOUNTAIN_BREAKER,
+  SUNDER_STONE,
+  AVALANCHE,
   WORLDS_MAW,
   DEVOUR,
+  GORGE,
+  DEVOURING_TIDE,
   CHOIRLIGHT,
+  SOOTHING_VERSE,
   VERSE_OF_DAWN,
   ABSOLUTION,
+  DAWNWARD,
   UNWAVERING_LIGHT,
   AEGIS_SKILL,
+  VIGIL,
+  JUDGEMENT,
   EMBERBURST,
+  CINDERLASH,
   GAMBLERS_CUT,
   HEXFIRE,
+  DOUBLE_OR_NOTHING,
   RUIN_UNBOUND,
   UNMAKING,
+  ENTROPY,
+  LONG_SILENCE,
   MOTE_LANCE,
   GORE,
   CUTPURSE,

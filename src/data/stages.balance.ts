@@ -9,13 +9,17 @@ import {
   type CombatRulesData,
   type FormationData,
   type GrowthData,
+  type KitRulesData,
   scaleStats,
   simulateBattle,
   type StageData,
+  toBattleCombatant,
   toCombatRules,
+  unlockedSkills,
 } from '../core';
 import { BRAN, CELIA, GNASH, MIRA, PYRA, RIN } from './characters';
 import { COMBAT_RULES } from './combat';
+import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { STAGES } from './stages';
 
@@ -28,6 +32,7 @@ import { STAGES } from './stages';
  */
 const stages: readonly StageData[] = STAGES;
 const growth: GrowthData = GROWTH;
+const kit: KitRulesData = KIT_RULES;
 const authoredRules: CombatRulesData = COMBAT_RULES;
 const rules: CombatRules = toCombatRules(authoredRules);
 
@@ -41,6 +46,16 @@ const rules: CombatRules = toCombatRules(authoredRules);
  */
 const TRIALS = 40;
 
+/**
+ * The rung the difficulty probe fields its kits at.
+ *
+ * `elite`, matching {@link BUILT} — the lowest rung whose level cap permits the reference party,
+ * and the rung at which a common-tier character's second skill arrives. The probe sweeps *power*
+ * continuously and holds everything else fixed, so the kit has to be a constant rather than
+ * something that moves with the multiplier.
+ */
+const PROBE_RARITY = 2;
+
 interface Sweep {
   readonly winRate: number;
   readonly meanSeconds: number;
@@ -48,16 +63,22 @@ interface Sweep {
   readonly stalemates: number;
 }
 
-/** One character resolved for level and rarity, exactly as `ui/` hands it to a battle. */
+/**
+ * One character resolved for level and rarity, exactly as `ui/` hands it to a battle.
+ *
+ * Through `toBattleCombatant` rather than reassembled here, and that matters more since milestone
+ * 8c than it did before: the kit is now narrowed by tier and rung as well as the stats being
+ * scaled, so a sweep that built its own combatant would measure a party fielding skills the game
+ * has not handed the player yet. The reference five below are all common tier — two skills each,
+ * and only at `elite` or above.
+ */
 function at(character: CharacterData, level: number, rarity: number): CombatantData {
-  return {
-    id: character.id,
-    name: character.name,
-    faction: character.faction,
-    stats: scaleStats(character.stats, growth, character.tier, level, rarity),
-    basic: character.basic,
-    skills: character.skills,
-  };
+  return toBattleCombatant(
+    character,
+    { defId: character.id, rarity, level, copies: 0 },
+    growth,
+    kit,
+  );
 }
 
 function sweep(party: FormationData, stage: StageData): Sweep {
@@ -273,7 +294,10 @@ describe('the shape of the climb', () => {
             ...(base.recovery === undefined ? {} : { recovery: grow(base.recovery) }),
           },
           basic: character.basic,
-          skills: character.skills,
+          // The kit {@link BUILT} fields, held fixed while the power multiplier sweeps. The probe
+          // deliberately decouples stats from levels — that is what makes the curve continuous —
+          // but a kit is not a quantity, so it has to be pinned to a rung rather than scaled.
+          skills: unlockedSkills(character.skills ?? [], kit, character.tier, PROBE_RARITY),
         };
       };
       return {

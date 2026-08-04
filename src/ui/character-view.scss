@@ -145,11 +145,19 @@
 
 .ascend__intro,
 .ascend__pool-label,
-.ascend__done {
+.ascend__done,
+.ascend__unlock {
   margin: 0 0 0.5rem;
   font-size: 0.875rem;
   color: t.$muted;
   line-height: 1.5;
+}
+
+// The one line on this card that is a reward rather than a price, so it is the one that is not
+// muted. $accent measures 9.4:1 on $surface, and the sentence says what is being unlocked and when
+// in words — the colour is emphasis, never the thing carrying the meaning.
+.ascend__unlock {
+  color: t.$accent;
 }
 
 .ascend__costs {
@@ -257,6 +265,19 @@
   color: t.$muted;
   font-size: 0.75rem;
   text-align: right;
+}
+
+// A locked skill is dimmed, but never *only* dimmed — the row also says "Locked" and names the
+// rung that opens it. $muted is 6.1:1 on $surface, so the dimmed name stays above AA on its own
+// rather than relying on the reader being able to tell two greys apart.
+.skills__row--locked .skills__name {
+  color: t.$muted;
+  font-weight: 500;
+}
+
+.skills__lock {
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 @include t.rarity-palette;

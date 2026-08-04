@@ -40,6 +40,22 @@ are the ones a new player is actually climbing, and headroom they cannot reach i
 reach `ascended-5`** — deliberately, so an early favourite is a real investment rather than
 something the game later tells you was a waste.
 
+### Three rungs also hand over a skill
+
+Since milestone 8c a rung buys more than a stat multiplier and a level cap. `elite`, `legendary` and
+`ascended` each unlock the next skill in a character's kit, up to the ceiling its tier allows — two
+skills at `common`, three at `legendary`, four at `ascended`. The ultimate is never gated. The rule
+is in [`core/roster/kit.ts`](../src/core/roster/kit.ts) and the table in
+[`data/kits.ts`](../src/data/kits.ts); [combat](combat.md) covers what it means in a fight.
+
+Two consequences worth having in mind while reading the prices below:
+
+- **The thresholds are absolute rarity**, so the head start `ascended` tier gets by starting at
+  `elite` is now a skill as well as two rungs of cost.
+- **The rungs are not evenly rewarding.** `elite`, `legendary` and `ascended` are the ones a player
+  is saving toward; `elite-plus`, `mythic` and the five stars are stats alone. The character sheet
+  says which of the two the next rung is, because the price does not.
+
 ---
 
 ## Two paths, expensive in different things
