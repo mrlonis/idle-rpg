@@ -3,7 +3,8 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { type FactionData, type Row } from '../core';
+import { type FactionData, lineupBonus, type Row } from '../core';
+import { COMBAT } from './content';
 import { groupBench } from './roster-order';
 import { RosterView } from './roster-view';
 import { type RosterEntryView, RosterService } from './roster.service';
@@ -54,6 +55,19 @@ class FakeRoster {
   readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 2, back: 3 });
   /** The real partition, so the template is exercised against the shape it actually receives. */
   readonly benchGroups = computed(() => groupBench(this.entries(), FACTIONS));
+  /**
+   * The real resolver against the shipped rules, exactly as the service does it.
+   *
+   * Faked no further than the roster itself: the point of the panel is that the screen and the
+   * simulation agree about what a composition is worth, and a stub returning hand-written numbers
+   * would test the template against an agreement that does not exist.
+   */
+  readonly lineup = computed(() =>
+    lineupBonus(
+      this.fielded().map((row) => row.faction),
+      COMBAT.lineup,
+    ),
+  );
 }
 
 /** Three of the seven, which is enough to show a populated group beside two empty ones. */
@@ -277,6 +291,94 @@ describe('RosterView', () => {
 
       expect(el.querySelector('.roster__ready')).toBeNull();
       expect(el.textContent).toContain('9 spare copies');
+    });
+  });
+
+  describe('the lineup bonus panel', () => {
+    /** A fielded character of a given faction, in whichever rank still has room. */
+    const fieldedOf = (faction: string, index: number): RosterEntryView =>
+      entry({
+        defId: `${faction}-${index}`,
+        name: `${faction} ${index}`,
+        faction,
+        factionName: faction,
+        inParty: true,
+        row: index < 2 ? 'front' : 'back',
+        rowSlot: index < 2 ? index + 1 : index - 1,
+      });
+
+    const effects = (el: HTMLElement): readonly string[] =>
+      [...el.querySelectorAll('.lineup__effect')].map((node) => (node.textContent ?? '').trim());
+
+    it('tells a party that qualified for nothing what would qualify', async () => {
+      // The panel's real job. A bonus with no visible next rung is a number rather than a
+      // decision, and this screen is where the decision is made.
+      const { el } = await render((roster) =>
+        roster.entries.set([fieldedOf('human', 0), fieldedOf('dwarf', 1)]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('No faction bonus yet');
+      expect(effects(el)).toEqual([]);
+      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Angels');
+    });
+
+    it('names the composition and what it is worth', async () => {
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          fieldedOf('dwarf', 0),
+          fieldedOf('dwarf', 1),
+          fieldedOf('dwarf', 2),
+          fieldedOf('elf', 3),
+          fieldedOf('elf', 4),
+        ]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Dwarves ×3 · Elves ×2');
+      expect(effects(el)).toEqual(['+15% attack', '+15% health']);
+    });
+
+    it('credits Angels to the faction they stood in for', async () => {
+      // The wildcard is what makes a mono five reachable at all on this roster, so the panel has
+      // to read as five of the faction the player was building towards rather than as a mix.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          fieldedOf('human', 0),
+          fieldedOf('human', 1),
+          fieldedOf('human', 2),
+          fieldedOf('angel', 3),
+          fieldedOf('angel', 4),
+        ]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×5');
+      expect(effects(el)).toEqual(['+25% attack', '+25% health']);
+    });
+
+    it('names the flat tracks separately, so a bonus without a rung is still attributable', async () => {
+      // One Demon reaches no rung at all and is still worth fielding. "+30% defence" with no
+      // composition line beside it is a number a player cannot act on.
+      const { el } = await render((roster) =>
+        roster.entries.set([fieldedOf('demon', 0), fieldedOf('monster', 1), fieldedOf('elf', 2)]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe(
+        'Monsters ×1 · Demons ×1',
+      );
+      expect(effects(el)).toEqual(['+2% attack', '+2% health', '+30% defence']);
+    });
+
+    it('follows the formation rather than the whole roster', async () => {
+      // Three Dwarves owned, one fielded. A panel counting the bench would promise a bonus the
+      // battle does not pay, which is the one thing this screen must never do.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          fieldedOf('dwarf', 0),
+          entry({ defId: 'benched-1', faction: 'dwarf' }),
+          entry({ defId: 'benched-2', faction: 'dwarf' }),
+        ]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('No faction bonus yet');
     });
   });
 });

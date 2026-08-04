@@ -1,8 +1,23 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BACK_ROW_SIZE, FRONT_ROW_SIZE, PARTY_SIZE, type RosterFailure, type Row } from '../core';
+import { COMBAT, factionName } from './content';
 import { type ScreenId } from './navigation';
 import { type RosterEntryView, RosterService } from './roster.service';
+
+/**
+ * The three factions the lineup rules name, read off the parsed rules rather than spelled out.
+ *
+ * Copy is decided in this file; *which faction* is content, and a screen that hard-coded "Angels"
+ * would keep saying it after the wildcard moved. Naming them here is what keeps the panel's words
+ * and the simulation's behaviour the same statement.
+ */
+const WILDCARD_FACTION = COMBAT.lineup.wildcard;
+const RALLY_FACTION = COMBAT.lineup.rally.faction;
+const LADDER_FACTION = COMBAT.lineup.ladder.faction;
+
+/** The smallest composition that pays anything, for the "nothing yet" hint. */
+const SMALLEST_RUNG = Math.min(...COMBAT.lineup.tiers.map((tier) => tier.largest));
 
 /** Why a formation change was refused, in words a player can act on. */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
@@ -17,6 +32,22 @@ interface PlacementAction {
   readonly label: string;
   /** Spelled out for assistive technology, because the visible label repeats down the list. */
   readonly description: string;
+}
+
+/**
+ * The lineup bonus, in words.
+ *
+ * Three parts because the panel answers three questions in the order a player asks them: what
+ * shape am I fielding, what is it worth, and what would be worth more. The last one is the point
+ * of the panel — a bonus with no visible next rung is a number rather than a decision.
+ */
+interface LineupPanel {
+  /** The composition, named: "Five Dwarves", "Three Humans and two Dwarves", or the empty case. */
+  readonly shape: string;
+  /** Every stat the bonus moves, already formatted. Empty when the party qualified for nothing. */
+  readonly effects: readonly string[];
+  /** What to do about it, whether the party has a bonus or not. */
+  readonly hint: string;
 }
 
 /** One heading and the rows under it. */
@@ -74,14 +105,14 @@ export class RosterView {
       row: 'front' as const,
       label: 'Front row',
       capacity: FRONT_ROW_SIZE,
-      hint: 'Attacks come here first. +5% to both defences.',
+      hint: 'Attacks come here first. +5% defence, +0.05 crit damage resistance.',
       members: this.roster.frontRow(),
     },
     {
       row: 'back' as const,
       label: 'Back row',
       capacity: BACK_ROW_SIZE,
-      hint: 'Shielded while the front row holds. +5% to whichever attack stat is higher.',
+      hint: 'Shielded while the front row holds. +5% attack, +0.05 crit damage.',
       members: this.roster.backRow(),
     },
   ]);
@@ -110,6 +141,62 @@ export class RosterView {
       empty: group.owned === 0 ? 'None owned yet.' : 'Everyone you own is fielded.',
     })),
   ]);
+
+  /**
+   * What the fielded party's faction composition is worth, as copy.
+   *
+   * The numbers come from `core/` through the service — the same call the simulation makes — and
+   * only the wording is decided here. A screen that recomputed the ladder would eventually
+   * promise something a battle did not pay, which is the one failure a bonus meant to provoke a
+   * rebuild cannot afford.
+   */
+  protected readonly lineup = computed<LineupPanel>(() => {
+    const { bonus, tier, rallyCount, ladderCount } = this.roster.lineup();
+    const percent = (value: number): string => `${Math.round(value * 100)}%`;
+
+    // Fixed order rather than the order the tracks resolved in, so the panel reads the same way
+    // every time and a player can learn where to look for the stat they care about.
+    const effects = [
+      bonus.attack > 0 ? `+${percent(bonus.attack)} attack` : null,
+      bonus.health > 0 ? `+${percent(bonus.health)} health` : null,
+      bonus.defence > 0 ? `+${percent(bonus.defence)} defence` : null,
+      bonus.critChance > 0 ? `+${percent(bonus.critChance)} crit rating` : null,
+      bonus.critDamageAmp > 0 ? `+${percent(bonus.critDamageAmp)} crit damage` : null,
+      bonus.haste > 0 ? `+${bonus.haste} haste` : null,
+      bonus.injuredEnergyRegen > 0
+        ? `+${percent(bonus.injuredEnergyRegen)} energy recovery while hurt`
+        : null,
+    ].filter((effect): effect is string => effect !== null);
+
+    // "Dwarves ×3" rather than "3 Dwarves", because the authored faction names are plural and
+    // irregular — a count of one would read "1 Monsters", and deriving "Monster" from "Monsters"
+    // is a rule that works until it meets "Undead". The multiplication sign also announces as
+    // "times" rather than being skipped, so the line reads correctly aloud as well.
+    const named: string[] = [];
+    if (tier !== null) {
+      named.push(`${factionName(tier.faction)} ×${tier.count}`);
+      if (tier.secondFaction !== null) {
+        named.push(`${factionName(tier.secondFaction)} ×${tier.secondCount}`);
+      }
+    }
+    // The two flat tracks are named separately because they pay without reaching a rung at all,
+    // and a player looking at "+2% attack" with no composition line has no way to attribute it.
+    if (rallyCount > 0 && tier?.faction !== RALLY_FACTION) {
+      named.push(`${factionName(RALLY_FACTION)} ×${rallyCount}`);
+    }
+    if (ladderCount > 0 && tier?.faction !== LADDER_FACTION) {
+      named.push(`${factionName(LADDER_FACTION)} ×${ladderCount}`);
+    }
+
+    return {
+      shape: named.length > 0 ? named.join(' · ') : 'No faction bonus yet',
+      effects,
+      hint:
+        tier === null
+          ? `Field ${SMALLEST_RUNG} of one faction for a bonus. ${factionName(WILDCARD_FACTION)} count as any faction.`
+          : `${factionName(WILDCARD_FACTION)} count as any faction, so they fill a gap in any line-up.`,
+    };
+  });
 
   /** The last refusal, cleared as soon as anything succeeds. */
   protected readonly message = signal<string | null>(null);

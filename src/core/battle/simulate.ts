@@ -5,6 +5,7 @@ import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './c
 import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
 import { factionMultiplier, resistedShare, rollAttack, statusChance } from './damage';
 import { clampEnergy } from './energy';
+import { applyLineupBonus, lineupBonus, NO_LINEUP_BONUS } from './lineup';
 import { chooseSkill, type FighterView, isAlive, selectTargets } from './skills';
 import {
   absorbDamage,
@@ -29,6 +30,7 @@ import {
   type CombatRules,
   type CombatStats,
   type FormationData,
+  type LineupBonus,
   type Row,
   ROWS,
   type Side,
@@ -100,8 +102,19 @@ interface Fighter extends FighterView {
   readonly faction: string;
   /** Whether this combatant has anything to spend a full bar on. */
   readonly hasUltimate: boolean;
-  /** As parsed, with the row bonus already baked in. Statuses are applied on top per read. */
+  /**
+   * As parsed, with the row bonus and the lineup bonus already baked in. Statuses are applied on
+   * top per read.
+   */
   readonly base: CombatStats;
+  /**
+   * What this side's composition is worth, kept for the one clause that cannot be baked in.
+   *
+   * Every other part of the lineup bonus is a fixed multiplier and lives in {@link base}. The
+   * injured-energy clause is conditional on current health, so it has to be read at the top of a
+   * turn — see `upkeep`.
+   */
+  readonly lineup: LineupBonus;
   readonly combatant: Combatant;
   hp: Numeric;
   energy: number;
@@ -168,6 +181,25 @@ function speed(fighter: Fighter): number {
  * Copies of the same definition are numbered ("Slime 1", "Slime 2") across both rows, so the
  * log stays readable when a stage fields three of something. Keys are positional and never
  * reused, so events stay unambiguous even between identical combatants.
+ *
+ * ## The lineup bonus is the party's alone, and that is a decision rather than an oversight
+ *
+ * This function is otherwise perfectly symmetric, so paying the composition bonus to both sides
+ * would have been the shorter code. It is deliberately not, for two reasons:
+ *
+ * - **An enemy formation is authored, so a bonus on top of it decides nothing.** The lineup
+ *   bonus exists to make *who you brought* a question with seven answers. A stage's line-up is
+ *   written down in `data/`, and multiplying an authored stat block by a number derived from that
+ *   same authored stat block is a stat block with a hidden step — the author could simply have
+ *   written the larger number.
+ * - **It would silently retune the whole ladder**, unevenly. Early stages field waves of one
+ *   faction and late ones are deliberately mixed, so a symmetric rule would hand the opening
+ *   stages up to +25% and the closing ones nothing, which is the opposite of the difficulty curve
+ *   twenty-four stages were tuned to.
+ *
+ * The matchup matrix stays symmetric, and the difference between the two is the point: a matchup
+ * is a fact about the fight, and a composition bonus is a reward for a decision only the player
+ * makes.
  */
 function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fighter[] {
   const ranks: readonly (readonly [Row, readonly CombatantData[]])[] = ROWS.map((row) => [
@@ -182,11 +214,20 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
     }
   }
 
+  const lineup =
+    side === 'ally'
+      ? lineupBonus(
+          [...formation.front, ...formation.back].map((def) => def.faction),
+          rules.lineup,
+        ).bonus
+      : NO_LINEUP_BONUS;
+
   const numbered = new Map<string, number>();
   const fighters: Fighter[] = [];
   for (const [row, members] of ranks) {
     for (const def of members) {
       const combatant = toCombatant(def, rules, row);
+      const stats = applyLineupBonus(combatant.stats, lineup);
       const ordinal = (numbered.get(combatant.id) ?? 0) + 1;
       numbered.set(combatant.id, ordinal);
       const slot = fighters.length;
@@ -200,10 +241,11 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
         name: (totals.get(combatant.id) ?? 0) > 1 ? `${combatant.name} ${ordinal}` : combatant.name,
         faction: combatant.faction,
         hasUltimate: combatant.skills.some((skill) => skill.ultimate),
-        maxHp: combatant.stats.hp,
-        base: combatant.stats,
+        maxHp: stats.hp,
+        base: stats,
+        lineup,
         combatant,
-        hp: combatant.stats.hp,
+        hp: stats.hp,
         // Empty, not full. An ultimate is a payoff rather than an opener — the single most
         // consequential difference between energy and the MP pool it replaced.
         energy: 0,
@@ -565,9 +607,32 @@ export function simulateBattle(
     }
   };
 
+  /**
+   * The drip half of the energy meter, with the one conditional lineup clause folded in.
+   *
+   * The clause is worth its own function because it is the only part of a lineup bonus that is
+   * not a constant for the fight: it pays a combatant for being **injured**, so it has to be read
+   * at the top of every turn rather than baked into a stat block.
+   *
+   * Short-circuited when nothing is owed, which is every party that did not field the ladder
+   * faction twice — so the common case costs a comparison against zero rather than the `Decimal`
+   * multiplication the health threshold needs.
+   *
+   * It touches only the authorable half of the meter. What a fight *pays* — landing a hit, taking
+   * one, healing an ally — is the same for everybody and describes the fight rather than the
+   * party, which is the same line `CombatRules.energy` already draws.
+   */
+  const energyRegenFor = (actor: Fighter): number => {
+    const bonus = actor.lineup.injuredEnergyRegen;
+    if (bonus === 0 || actor.hp.gte(actor.maxHp.mul(rules.lineup.injuredBelow))) {
+      return actor.base.energyRegen;
+    }
+    return clampEnergy(actor.base.energyRegen * (1 + bonus));
+  };
+
   /** Regenerates, resolves lingering statuses, and reports whether the actor may act. */
   const upkeep = (actor: Fighter): boolean => {
-    charge(actor, actor.base.energyRegen);
+    charge(actor, energyRegenFor(actor));
     events.push({ kind: 'turn', tick, combatant: actor.key, energy: actor.energy });
 
     // Natural recovery, amplified by `healthRegen`. It is a quantity rather than a percentage

@@ -26,8 +26,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`       |
 | 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone   |
 | 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung   |
-| 8d  | The combat rework: lineup bonuses       | 🟡 Next                                      |
-| 8e  | Five characters per faction             | ⬜                                           |
+| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays     |
+| 8e  | Five characters per faction             | 🟡 Next — 8d's premise depends on it         |
 | 9   | Resonance — levels the roster shares    | ⬜                                           |
 | 10  | Power that compounds                    | ⬜                                           |
 | 11  | Chapters                                | ⬜                                           |
@@ -729,6 +729,11 @@ the win rate by a few points, not by seventy. Rather than ship a threshold that 
 call it a proof, the balance project asserts the two things that _are_ true and measurable: every
 enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8c's
 skill counts or 8d's lineup bonuses make a sharper comparison available, this is the gap to close.
+**Neither did.** 8c's skill gating moves a party's power without changing which question it
+answers, and 8d's lineup bonus pays every faction the same rung for the same shape — so it separates
+_compositions_ rather than characters, which is a different axis from the one this gap is about.
+Milestone 8e is the next candidate: five deep in every faction is the first time two genuinely
+different answers to one lock can both be fielded.
 
 ### 4. The balance project now exists
 
@@ -1323,9 +1328,14 @@ both have to respect. A stage tuned to take longer than the timer against the pa
 is unclearable, so the sweep asserts the margin directly — it should go red naming a stage before
 any win-rate assertion does.
 
-## 8d. Faction lineup bonuses — **NEXT**
+## 8d. Faction lineup bonuses — **COMPLETE**
 
-The AFK Arena ladder, applied to the party's own composition:
+The AFK Arena ladder, applied to the party's own composition. It shipped as designed, with the
+numbers below unchanged; what follows the design note is what the work actually settled.
+
+Authored in [`data/combat.ts`](../src/data/combat.ts), resolved by
+[`core/battle/lineup.ts`](../src/core/battle/lineup.ts), and shown on the roster screen under the
+formation it describes.
 
 | Composition             | Bonus                    |
 | ----------------------- | ------------------------ |
@@ -1351,17 +1361,25 @@ of you, which was the whole distinction the rule was drawing. Note what it is _n
 not choosing between the lineup bonus and the matchup. They keep the +25% and switch which
 mono-faction team fields it. The two are complementary, not competing.
 
-That only works under two conditions, and both are real work:
+That only works under two conditions, and **neither is met yet**. This is the milestone's honest
+result, so it is stated before anything else it shipped:
 
-- **The matchup edges have to come up.** They are 1.05–1.10 today, sized on the assumption that
-  nothing bigger sat alongside them. Against a +25% lineup bonus they are decorative. The
-  constraint to tune against is that the swing between the right faction and the wrong one must
-  exceed the quality gap between a player's best and second-best faction team — otherwise nobody
-  ever switches. That is a sweep question, not a number to pick at a desk; the 40-seed ladder
-  sweep already exists to answer it.
-- **The roster has to grow**, and that is now 8e rather than a hidden half of this milestone. The
-  mechanic ships against the current twenty-three; the premise it is sold on does not become true
-  until the roster does.
+- **The matchup edges are still 1.05–1.10, and the plan to retune them here was wrong.** The
+  constraint the design note names is that the swing between the right faction and the wrong one
+  must exceed the quality gap between a player's best and second-best faction team. That is not a
+  sweep question after all, and calling it one was the error: **both teams are mono, so both hold
+  the same +25% and the lineup bonus cancels out of the comparison entirely.** What is left is how
+  much better one faction's roster is than another's — an investment question about a player, not
+  a number a simulation can produce. Worse, with no second mono-faction team buildable there is
+  nothing to measure against. Any edge chosen now would be tuned against a roster that does not
+  exist. It moves to 8e, next to the content that makes the question answerable.
+- **The roster has to grow**, which is 8e. The mechanic ships against the current twenty-three;
+  the premise it is sold on does not become true until the roster does.
+
+`data/stages.balance.ts` carries this as a test rather than as a paragraph — one that pins the top
+of the ladder at several times the largest matchup edge and says in its own comment that it is
+recording a known gap rather than defending a property. It is the assertion to revisit when 8e
+lands.
 
 **One bad-luck failure mode to design against, and it is why 8e exists.** Angels counting as any
 faction makes them enormously valuable, and celestials ascend on copies of themselves alone — no
@@ -1369,17 +1387,84 @@ fodder, no substitute. Worse, with three characters in most factions and four Hu
 wildcard is today the _only_ route to a mono-five at all: three Humans plus two Angels reads as five
 Humans. So the wildcard is not a luxury, it is the path — which is precisely the shape milestone 4
 added Wren and Dorn to fix. Not a fight lost, but a category of answer that cannot be bought.
+`data/combat.spec.ts` asserts the wildcard reaches a mono-five, so the fact is measured rather than
+asserted, and it is the test that should start looking strange once 8e authors five per faction.
 
-## 8e. Five characters per faction
+### The bonus is the party's alone
+
+`buildSide` is otherwise perfectly symmetric, so paying the composition bonus to enemy formations
+too would have been the shorter code. It deliberately does not, for two reasons:
+
+- **An enemy formation is authored, so a bonus on top of it decides nothing.** The whole point is
+  to make _who you brought_ a question with seven answers. A stage's line-up is written down in
+  `data/`, and multiplying an authored stat block by a number derived from that same stat block is
+  a stat block with a hidden step — the author could have written the larger number.
+- **It would have silently retuned all twenty-four stages, unevenly.** Early stages field waves of
+  one faction and late ones are deliberately mixed, so a symmetric rule would hand the opening
+  stages up to +25% and the closing ones almost nothing — the exact inverse of the difficulty
+  curve the ladder was tuned to.
+
+The matchup matrix stays symmetric, and the difference is the point: a matchup is a fact about the
+fight, and a composition bonus is a reward for a decision only the player makes.
+
+### What the resolver had to get right
+
+- **The wildcard counts on the composition ladder and nowhere else.** Letting Angels stand in for
+  Monsters and Demons as well would make them strictly the best character in the game at every
+  roster size, and would turn the other two tracks into things that happen rather than things you
+  choose. The design note said "for the purpose of the ladder above" and that restriction is load-
+  bearing rather than incidental.
+- **A wildcard cannot be spent twice.** The `3 + 2` rung asks for two factions, so what the first
+  half spends has to come off what the second half may.
+- **Every rung is tried, not just the last one that matched.** A mono-four pays the same attack as
+  a three-and-two and more health, so a resolver reading the table in order would make the answer
+  depend on where somebody put a row. It also tries every faction assignment rather than the
+  cheapest — greedy is correct only while each rung asks for at least as many of its first faction
+  as its second, and a party is five people against seven factions, so exhaustive costs nothing and
+  needs no invariant.
+- ⚠️ **The haste step is re-clamped into `[1, ATB_THRESHOLD]`.** The termination argument, arriving
+  from a new direction: `+15` on top of an authored 110 is nowhere near the bound, and a retune
+  that made it so would let a combatant bank two actions in one tick.
+- **One clause could not be baked into a stat block.** "+25% energy recovery when injured" is
+  conditional on current health, so the fighter carries the bonus and `upkeep` reads it per turn —
+  short-circuited on zero, so every party that did not field two Demons pays a comparison rather
+  than a `Decimal` multiplication. It amplifies `energyRegen` only: what a _fight_ pays is the same
+  for everybody and describes the encounter rather than the party, which is the line
+  `CombatRules.energy` already draws.
+
+### The ladder needed no retuning, which was not obvious in advance
+
+The full 40-seed sweep passed unchanged. The reason is that the reference party is a rainbow — one
+each of Dwarf, Monster, Elf, Angel and Demon — so it reaches **no rung at all** and collects only
+the Monster share and the first Demon step: +2% attack, +2% health, +30% defence. That is a real
+buff and it did not move a single win-rate assertion.
+
+The sweep grew a fourth party rather than leaving it there. `BOOSTED` is three Demons and two
+Angels — the Angels read as Demons, so it is a mono-five _and_ three rungs of the Demon track, and
+nothing legal stacks higher. It is a **guard, not a tuning target**: nothing asserts it should beat
+anything. What it watches for is the failure mode more health and more defence make likelier, which
+is ⚠️ a party surviving a fight it cannot win until the ninety seconds run out. It reads `timedOut`,
+like everything else standing where the MP pool used to.
+
+## 8e. Five characters per faction — **NEXT**
 
 Twenty-three characters across seven factions is roughly three each: four Humans, four Dwarves, and
 three of everything else. **A mono-faction five is unreachable in every faction without an Angel**,
 which makes 8d's premise — field a different mono-faction team per encounter — false the day it
-ships.
+ships. It shipped, and it is false; that is the state this milestone starts from rather than a risk
+it is guarding against.
 
 Roughly twelve new characters, each with a full kit at its tier's 8c ceiling. Deliberately its own
 milestone rather than a half of 8d: it is a content-authoring job of a size that would hide inside a
 mechanics milestone and swallow it, and the mechanics are testable without it.
+
+**It inherited the matchup retune, and that was not the original plan.** 8d expected to resize the
+1.05–1.10 edges against its own sweep and could not: two mono-faction teams both carry the same
+composition bonus, so it cancels out of the comparison, and with no second mono-faction team
+buildable there was nothing to compare anyway. The question only becomes answerable once this
+milestone exists — at which point the thing to measure is whether a player with two invested
+faction teams ever has a reason to switch between them, and `data/stages.balance.ts` holds the
+assertion that should be revisited first.
 
 **This is the same roster pressure faction towers create in milestone 15**, which is a point in
 favour of both. Doing it here means 15 arrives with its prerequisite already met rather than
@@ -1422,9 +1507,9 @@ working on its own. A special case here would be code that cannot change an outc
 
 ### This is not only quality of life
 
-Milestone 8d introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
-only reachable by fielding a _different_ five-character team per encounter — and 8e authors the
-roster that makes that possible. Milestone 15 does the same thing harder, with seven faction towers
+Milestone 8d shipped mono-faction lineup bonuses worth up to +25% attack and health, which are only
+reachable by fielding a _different_ five-character team per encounter — and 8e authors the roster
+that makes that possible. Milestone 15 does the same thing harder, with seven faction towers
 demanding thirty-five invested characters.
 
 **Neither is affordable without this.** Levelling thirty-five characters individually is seven

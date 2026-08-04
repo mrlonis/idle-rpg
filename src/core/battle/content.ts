@@ -2,6 +2,7 @@ import { type CurrencyAmounts, type CurrencyId, type Rates, RATE_CURRENCY_IDS } 
 import { type Numeric, ONE, parseOr, ZERO } from '../numeric';
 import { ATB_THRESHOLD } from './clock';
 import { MAX_ENERGY, toEnergyRules } from './energy';
+import { toLineupRules } from './lineup';
 import {
   type AuthoredAmount,
   type AuthoredCurrencies,
@@ -251,6 +252,7 @@ export function toCombatRules(raw: CombatRulesData): CombatRules {
       backCritDamageAmp: clamp(raw.rows.backCritDamageAmp, 0, Number.MAX_SAFE_INTEGER, 0),
     },
     matchups,
+    lineup: toLineupRules(raw.lineup),
     energy: toEnergyRules(raw.energy),
     // Never zero. A hit chance that can reach zero is a battle that can never end.
     minHitChance: clamp(raw.minHitChance, Number.MIN_VALUE, 1, 0.1),

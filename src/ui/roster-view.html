@@ -31,6 +31,24 @@
       </ul>
     </div>
   }
+
+  <!--
+    What the party's faction composition is worth. Drawn inside the formation panel rather than
+    beside it because it is a property of the formation and changes with every placement — a
+    player cycling somebody into the back row should see the number move without looking away.
+  -->
+  <div class="lineup" aria-labelledby="lineup-heading">
+    <h3 id="lineup-heading" class="lineup__label">Lineup bonus</h3>
+    <p class="lineup__shape">{{ lineup().shape }}</p>
+    @if (lineup().effects.length > 0) {
+      <ul class="lineup__effects">
+        @for (effect of lineup().effects; track effect) {
+          <li class="lineup__effect">{{ effect }}</li>
+        }
+      </ul>
+    }
+    <p class="lineup__hint">{{ lineup().hint }}</p>
+  </div>
 </section>
 
 @if (entries().length === 0) {

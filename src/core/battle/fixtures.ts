@@ -20,6 +20,16 @@ export const TEST_COMBAT_RULES_DATA: CombatRulesData = {
     backCritDamageAmp: 0.05,
   },
   matchups: [{ attacker: 'strong', defender: 'weak', multiplier: 2 }],
+  // Inert by default, so a battle spec measuring damage or scheduling is never quietly reading a
+  // composition bonus as well. `lineup.spec.ts` supplies its own rules, and the specs that want
+  // one here reach for {@link LINEUP_COMBAT_RULES_DATA} below.
+  lineup: {
+    tiers: [],
+    wildcard: 'wildcard',
+    rally: { faction: 'rally', attack: 0, health: 0 },
+    ladder: { faction: 'ladder', steps: [] },
+    injuredBelow: 0.5,
+  },
   // Round numbers, and deliberately not the shipped ones: a spec asserting "the bar filled by
   // ten" should fail when this fixture changes, not when the ladder is retuned.
   energy: { onHit: 10, onHurt: 10, onHeal: 10 },
@@ -55,3 +65,29 @@ export const PLAIN_COMBAT_RULES: CombatRules = toCombatRules({
   rows: { frontDefence: 1, frontCritDamageResist: 0, backAttack: 1, backCritDamageAmp: 0 },
   matchups: [],
 });
+
+/**
+ * Rules with a composition ladder, for the specs that are about one.
+ *
+ * Round numbers again, and deliberately unlike the shipped table: a spec asserting "two of a kind
+ * doubled the party's attack" should fail when this fixture changes, not when milestone 8d's
+ * ladder is retuned. Two members is enough of a threshold to reach with a fixture party, which
+ * the shipped three is not.
+ */
+export const LINEUP_COMBAT_RULES_DATA: CombatRulesData = {
+  ...TEST_COMBAT_RULES_DATA,
+  rows: { frontDefence: 1, frontCritDamageResist: 0, backAttack: 1, backCritDamageAmp: 0 },
+  matchups: [],
+  lineup: {
+    tiers: [{ largest: 2, second: 0, attack: 1, health: 1 }],
+    wildcard: 'wildcard',
+    rally: { faction: 'rally', attack: 0.5, health: 0.5 },
+    ladder: {
+      faction: 'ladder',
+      steps: [{ defence: 1 }, { injuredEnergyRegen: 1 }, { critChance: 0.5 }],
+    },
+    injuredBelow: 0.5,
+  },
+};
+
+export const LINEUP_COMBAT_RULES: CombatRules = toCombatRules(LINEUP_COMBAT_RULES_DATA);

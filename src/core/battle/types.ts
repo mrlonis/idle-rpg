@@ -420,6 +420,189 @@ export interface RowBonusData {
 }
 
 /**
+ * One rung of the composition ladder: a shape a party can have, and what it pays.
+ *
+ * A **shape** rather than a faction. `{ largest: 3, second: 2 }` reads "three of one faction and
+ * two of another", and says nothing about which — that is what makes the ladder seven teams
+ * rather than one, and it is the whole of why this is sanctioned where a flat synergy bonus is
+ * not. See {@link LineupRulesData}.
+ */
+export interface LineupTierData {
+  /** Members of a single faction this rung asks for. */
+  readonly largest: number;
+  /** Members of a **second** faction it also asks for. Zero means it asks for nothing else. */
+  readonly second: number;
+  /** Fractional points added to `atk`. `0.1` is +10%. */
+  readonly attack: number;
+  /** Fractional points added to `hp`. */
+  readonly health: number;
+}
+
+/**
+ * One step of the ladder faction's own track, awarded for the *n*th member of that faction.
+ *
+ * Cumulative: a party fielding three gets steps one, two and three. Every field is optional
+ * because a step says only what it adds, in the same spirit as a stat block mentioning a stat
+ * only when that stat is part of the character's identity.
+ */
+export interface LineupLadderStepData {
+  /** Fractional points added to `def`. */
+  readonly defence?: number;
+  /**
+   * Fractional points added to `energyRegen`, and **only while the combatant is injured** —
+   * below {@link LineupRulesData.injuredBelow} of its maximum health.
+   *
+   * The one bonus in the file that is not a constant for the whole fight, which is why it is
+   * carried on the fighter rather than folded into its stat block. See `lineup.ts`.
+   */
+  readonly injuredEnergyRegen?: number;
+  /** Points of `critChance`. A rating is a probability, so this is added, not multiplied. */
+  readonly critChance?: number;
+  /**
+   * Points of `critDamageAmp`.
+   *
+   * Points rather than a multiplier, for the reason the row bonus is: a crit is worth
+   * `1 + max(amp − resist, 0)`, so a percentage of a roster that mostly sits low would pay
+   * almost nothing.
+   */
+  readonly critDamageAmp?: number;
+  /**
+   * Points of `haste`.
+   *
+   * ⚠️ Re-clamped into `[1, ATB_THRESHOLD]` after it is added, for the same termination reason
+   * the authored value is: above the threshold a combatant banks two actions in one tick.
+   */
+  readonly haste?: number;
+}
+
+/**
+ * What a party's own faction composition is worth.
+ *
+ * ## This is the pattern the project rules name and reject, overridden knowingly
+ *
+ * "+10% if two Fire units… those just create a new optimal team" is the thing a matchup
+ * multiplier was chosen over, and this is that thing. The reason it survives in substance:
+ * **a mono-faction bonus does not create one optimal team, it creates seven** — one per faction —
+ * and which of them to bring is decided by the encounter's own matchup. That is still a statement
+ * about the fight in front of you, which was the entire distinction the rule was drawing.
+ *
+ * Note what the player is *not* choosing between. They keep the top of the ladder and switch
+ * which mono-faction team fields it; the lineup bonus and the matchup matrix are complementary,
+ * not competing.
+ *
+ * ## Three mechanisms, and they stack
+ *
+ * - **The ladder** ({@link tiers}): shapes, not factions. Best-paying met rung wins.
+ * - **The wildcard** ({@link wildcard}): a faction whose members count as any faction *on the
+ *   ladder only*. It deliberately does not count towards {@link rally} or {@link ladder} — a
+ *   wildcard that filled in everywhere would be strictly the best character in the game.
+ * - **The rally** ({@link rally}) and **the ladder faction** ({@link ladder}): flat per-member
+ *   tracks, paid to every ally, that add on top of whatever rung the composition reached.
+ *
+ * Every faction here is a plain string for the reason {@link CombatantData.faction} is: factions
+ * are content, `data/` authors them, and `core/` only ever looks them up. A rule naming a faction
+ * that does not exist simply never fires.
+ */
+export interface LineupRulesData {
+  /**
+   * The composition ladder, as shapes and their payouts.
+   *
+   * Order is presentation only. The resolver takes the **best-paying** rung a party qualifies
+   * for — most attack, then most health — rather than the last one in the list, so a reordered
+   * table cannot silently change what a party is worth.
+   */
+  readonly tiers: readonly LineupTierData[];
+  /** Faction counting as any faction on {@link tiers}, and on nothing else. */
+  readonly wildcard: string;
+  /** A faction paying every ally a flat share per member fielded. */
+  readonly rally: {
+    readonly faction: string;
+    /** Fractional points of `atk` per member. */
+    readonly attack: number;
+    /** Fractional points of `hp` per member. */
+    readonly health: number;
+  };
+  /** A faction with a cumulative track of its own, stacking with everything above. */
+  readonly ladder: {
+    readonly faction: string;
+    /** Step *n* is awarded for the *n*th member fielded. Steps past the party size never fire. */
+    readonly steps: readonly LineupLadderStepData[];
+  };
+  /**
+   * Health fraction below which a combatant counts as injured, for
+   * {@link LineupLadderStepData.injuredEnergyRegen}.
+   */
+  readonly injuredBelow: number;
+}
+
+/** The lineup rules after clamping. Same shape; the guard is that it has been through `lineup.ts`. */
+export interface LineupRules extends LineupRulesData {
+  readonly tiers: readonly LineupTierData[];
+  readonly ladder: {
+    readonly faction: string;
+    readonly steps: readonly LineupLadderStepData[];
+  };
+}
+
+/**
+ * What one party's composition resolved to, as numbers to fold into a stat block.
+ *
+ * Everything is **added from zero**, so a party that qualified for nothing is all zeroes and
+ * "did anything apply" is a plain check rather than a comparison against 1.
+ */
+export interface LineupBonus {
+  /** Fractional points on `atk`: `0.35` is ×1.35. */
+  readonly attack: number;
+  /** Fractional points on `hp`. */
+  readonly health: number;
+  /** Fractional points on `def`. */
+  readonly defence: number;
+  /** Points of `critChance`, before the `[0, 1]` clamp. */
+  readonly critChance: number;
+  /** Points of `critDamageAmp`. */
+  readonly critDamageAmp: number;
+  /** Points of `haste`, before the `[1, ATB_THRESHOLD]` re-clamp. */
+  readonly haste: number;
+  /**
+   * Fractional points on `energyRegen`, applied **only while the combatant is injured**.
+   *
+   * The one field that cannot be folded into a stat block, because the condition is on current
+   * health and a stat block is fixed for the fight.
+   */
+  readonly injuredEnergyRegen: number;
+}
+
+/** Which rung a party reached, and on whom. Everything a screen needs to explain the bonus. */
+export interface LineupTierMatch {
+  /** The faction the rung resolved on, wildcards included. */
+  readonly faction: string;
+  /** How many count as it. */
+  readonly count: number;
+  /** The second faction of a split rung, or `null` on a mono rung. */
+  readonly secondFaction: string | null;
+  readonly secondCount: number;
+  readonly attack: number;
+  readonly health: number;
+}
+
+/**
+ * A resolved composition: the numbers, and enough of the reasoning to put on a screen.
+ *
+ * The simulation reads {@link bonus} and nothing else. The rest exists because "+15% attack" with
+ * no explanation is a number a player cannot chase — a formation screen has to be able to say
+ * *four Undead*, which is the decision the bonus is trying to provoke.
+ */
+export interface LineupSummary {
+  readonly bonus: LineupBonus;
+  /** The best-paying rung met, or `null` when the composition reached none. */
+  readonly tier: LineupTierMatch | null;
+  /** Members of {@link LineupRulesData.rally} fielded. */
+  readonly rallyCount: number;
+  /** Members of {@link LineupRulesData.ladder} fielded. */
+  readonly ladderCount: number;
+}
+
+/**
  * What fighting is worth in energy.
  *
  * The half of the meter that is the same for everybody. A character's own contribution is
@@ -479,6 +662,13 @@ export type EnergyRules = EnergyRulesData;
 export interface CombatRulesData {
   readonly rows: RowBonusData;
   readonly matchups: readonly FactionMatchupData[];
+  /**
+   * What a **party's own** composition is worth.
+   *
+   * Applied to the player's side alone — see `buildSide` in `simulate.ts` for why an enemy
+   * formation deliberately does not get one.
+   */
+  readonly lineup: LineupRulesData;
   readonly energy: EnergyRulesData;
   /**
    * Floor under any attack's hit chance.
@@ -607,6 +797,7 @@ export interface CombatRules {
   readonly rows: RowBonusData;
   /** Keyed `attacker>defender`. A missing pair is neutral. */
   readonly matchups: ReadonlyMap<string, number>;
+  readonly lineup: LineupRules;
   readonly energy: EnergyRules;
   readonly minHitChance: number;
   readonly maxPenetration: number;

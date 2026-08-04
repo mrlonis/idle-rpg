@@ -36,6 +36,14 @@ export {
 } from './battle/content';
 export { clampEnergy, isCharged, MAX_ENERGY, toEnergyRules } from './battle/energy';
 export {
+  applyLineupBonus,
+  isNeutralLineup,
+  lineupBonus,
+  NO_LINEUP,
+  NO_LINEUP_BONUS,
+  toLineupRules,
+} from './battle/lineup';
+export {
   baseDamage,
   critChance,
   critMultiplier,
@@ -84,6 +92,13 @@ export {
   type DamageType,
   type FactionMatchupData,
   type FormationData,
+  type LineupBonus,
+  type LineupLadderStepData,
+  type LineupRules,
+  type LineupRulesData,
+  type LineupSummary,
+  type LineupTierData,
+  type LineupTierMatch,
   type ModifiableStat,
   type Row,
   type RowBonusData,
