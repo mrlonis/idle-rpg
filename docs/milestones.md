@@ -23,7 +23,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
 | 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
 | 7   | Auto-battle, then doubling the ladder  | ✅ **Complete** — prestige cancelled         |
-| 8   | The combat rework                      | 🟡 Next                                      |
+| 8a  | The combat rework: the stat block      | ✅ **Complete** — one `atk`, one `def`       |
+| 8b  | The combat rework: energy and lineups  | 🟡 Next                                      |
 | 9   | Resonance — levels the roster shares   | ⬜                                           |
 | 10  | Power that compounds                   | ⬜                                           |
 | 11  | Chapters                               | ⬜                                           |
@@ -79,8 +80,8 @@ eight-stage ladder as it stood here — milestone 4's twelve stages take the top
 `applyBattleResult` only ever raises it. The one-off `goldReward` is the smaller half, tuned to
 roughly 40 seconds of the income it unlocks.
 
-**Turn order is an ATB gauge** (`gauge += spd` per tick, act at 1000) rather than fixed rounds,
-so SPD buys turns instead of just going first. Randomness comes from a sub-stream derived via
+**Turn order is an ATB gauge** (`gauge += haste` per tick, act at 1000) rather than fixed rounds,
+so haste buys turns instead of just going first. Randomness comes from a sub-stream derived via
 `deriveSeed(seed, 'battle:<stageId>:<battleCount>')`, and the number of draws an action spends
 never depends on how those draws came out — so replaying a battle is reproducible and never
 shifts the gacha sequence, which stopped being hypothetical in milestone 3. Milestone 4 kept
@@ -94,7 +95,7 @@ Shipped:
   per-tick count, the same way offline resume is pinned against stepwise accrual.
 - `core/battle/types.ts` — the two-layer content vocabulary. `...Data` types are the plain
   JSON-safe shapes `data/` authors; the runtime types are what the simulation works in.
-- `core/battle/content.ts` — parses and clamps authored content. `spd` is clamped to
+- `core/battle/content.ts` — parses and clamps authored content. `haste` is clamped to
   `[1, ATB_THRESHOLD]`, and the simulation's termination argument depends on it.
 - `core/battle/damage.ts` — `atk² / (atk + def)`, strictly positive so a battle always ends,
   with diminishing DEF returns. Crits are the only RNG consumer, at exactly one draw per
@@ -198,8 +199,8 @@ currencies land within about a third of each other in time-to-afford. Level cap 
 content.
 
 **Only the quantities scale** — `hp`, and after milestone 4 the four attack and defence stats.
-`spd` is ATB gauge per tick against a fixed threshold and `critChance` is a probability; a
-growing `spd` would hit the clamp within eighty levels and turn the one stat that buys turns into
+`haste` is ATB gauge per tick against a fixed threshold and `critChance` is a probability; a
+growing `haste` would hit the clamp within eighty levels and turn the one stat that buys turns into
 a constant. Milestone 4 extended the same argument to `mp`, which is a budget measured against
 authored skill costs rather than a quantity.
 
@@ -266,12 +267,17 @@ real cost rather than a free wall.
   of its turns making. The bonus pays for standing where a character's damage actually comes
   from, and a caster that has run out of MP quietly stops benefiting from where it is standing.
 
+> **Superseded by 8a.** The collapse to a single `atk` left that rule nothing to choose between.
+> Each rank now sharpens the role it already has — front `def × 1.05` and
+> `critDamageResist + 0.05`, back `atk × 1.05` and `critDamageAmp + 0.05`. The asymmetry it
+> existed to protect is unchanged; see [8a](#8a-the-stat-block--complete).
+
 **Placement is free.** Any character can stand in either rank. Role-locking was considered and
 rejected for one reason: it would let an unlucky roster reach a state where no legal party
 exists, and in a game with no way to buy characters that is a run with nowhere to go. A bad front
 row is a far better failure than no front row. `CharacterRole` exists and **nothing in the
 simulation reads it** — it is there so the roster screen can say "healer" instead of making a
-player infer it from `matk` and a skill list.
+player infer it from a stat block and a skill list.
 
 ### The proof it works, as a number
 
@@ -288,6 +294,10 @@ have spent the fight on the Boars and the Acolyte's presence would have changed 
 duration. That gap is the milestone.
 
 ### The stat block, and why most of it does not scale
+
+> **The names here are pre-8a.** The reasoning survived the rework intact; the vocabulary did not.
+> [attributes](attributes.md) has the current block, and [8a](#8a-the-stat-block--complete) has
+> what changed.
 
 Seventeen stats: `hp`, `patk`, `matk`, `pdef`, `mdef`, `spd`, `critChance`, `critMultiplier`,
 `mp`, `mpRegen`, `lifesteal`, `effectHit`, `tenacity`, `armorPen`, `magicPen`, `dodge`,
@@ -334,7 +344,7 @@ Six new enemy archetypes, each naming the answer it wants:
 | ------------- | ----------------------------------------- | --------------------------------- |
 | Marsh Acolyte | can you reach a healer behind two bodies? | reach, or burst through the front |
 | Bog Hag       | can you survive a party-wide debuff?      | a cleanse                         |
-| Pyre Caster   | is any of your durability magical?        | `mdef`, a Ward, or killing it     |
+| Pyre Caster   | is any of your durability magical?        | `magicResist`, or killing it      |
 | Iron Bulwark  | can you out-damage a refreshed absorb?    | burst, not chip                   |
 | Rimeplate     | what do you do when both defences are up? | penetration, or Sunder            |
 | Fen Shade     | what do you do when it dodges half of it? | accuracy, or volume               |
@@ -714,7 +724,7 @@ milestone 4's.** That milestone could show Rin-versus-Gnash on the Marsh Shrine 
 and no comparable pair was found here — swapping one character against any of the new locks moves
 the win rate by a few points, not by seventy. Rather than ship a threshold that barely passes and
 call it a proof, the balance project asserts the two things that _are_ true and measurable: every
-enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8's
+enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8b's
 rework makes a sharper comparison available, this is the gap to close.
 
 ### 4. The balance project now exists
@@ -884,21 +894,119 @@ has to live in rather than being tuned twice.
 ## 8. The combat rework
 
 Four interlocking changes: the stat block, energy and ultimates, how many skills a character
-gets, and faction lineup bonuses. **They are one milestone because they cannot ship apart** —
-authoring twenty-three character kits against the old stat block and then re-authoring them for
-energy is the same work done twice, and every one of the four changes what the others are tuned
-against.
+gets, and faction lineup bonuses.
 
-It sits here, before the compounding rework and the chapters, for the same reason: milestone 10
-retunes all scaling and milestone 11 authors a hundred stages, and doing either against a combat
-model that is about to change means doing it again. It is independent of auto-battle at 7, which
-is model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
+It sits here, before the compounding rework and the chapters, because milestone 10 retunes all
+scaling and milestone 11 authors a hundred stages, and doing either against a combat model that is
+about to change means doing it again. It is independent of auto-battle at 7, which is
+model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
 
-**This is the largest milestone in the project, larger than milestone 4.** If it needs splitting,
-split at the stat boundary: the new stats can land at neutral defaults and change nothing
-observable, with the rest following.
+**It was split, at the stat boundary this document nominated.** The plan said the four changes
+could not ship apart, and that was half right: the _authoring_ cannot be done twice, but the
+vocabulary can land first and the rest can be written against it. So 8a is the stat block and
+nothing else, and 8b is energy, skill gating and the lineup bonuses.
 
-### The stat block
+What made the split safe is what makes it worth recording. **MP survives 8a untouched.** Deleting
+it before energy exists would leave every healer unmetered, and the MP pool is the thing that
+currently guarantees a fight against one resolves — see [combat](combat.md). A milestone that
+removed a termination argument and replaced it two milestones later is not a smaller milestone,
+it is a broken one.
+
+## 8a. The stat block — **COMPLETE**
+
+Seventeen stats became twenty-three, and the two collapses are the whole of it: `patk`/`matk` →
+`atk`, `pdef`/`mdef` → `def`. **Damage type moved onto the skill**, where it now selects the
+attacker's pierce and the defender's resist rather than which stat is read.
+
+Shipped: the block in [attributes](attributes.md), the formula in [combat](combat.md), every
+character and enemy re-authored, three statuses deleted, the row bonus replaced, and the whole
+ladder re-swept.
+
+### What the collapse actually cost, and what paid for it
+
+- **The two damage axes survive on `physicalResist` and `magicResist`.** A Golem is still a wall
+  against swords and a liability against spells; it says so with a resist rather than with a
+  second defence stat. Had that not worked the collapse would have been a genuine loss of design,
+  not a simplification.
+- **`MAX_RESIST` is a new termination guard, and it is not the penetration cap wearing a hat.**
+  `def` diminishes a hit and can never reach zero; **resist multiplies the result and can.** A
+  combatant at resist 1 cannot be damaged by that type at all, and a fight against one runs to the
+  tick cap every time. Same value as the penetration cap, different argument.
+- **Three statuses were deleted rather than duplicated.** `CURSE`, `WARD` and `FOCUS` were the
+  magical halves of `SUNDER`, `GUARD` and `RALLY`, and with one `atk` and one `def` they were the
+  same status under a second name. `ModifiableStat` is now `atk | def | haste`.
+- **`damageType` on a damage-over-time had to be given a new job, or deleted.** Its old one was
+  choosing between `patk` and `matk`, which the collapse took away. It now selects the **target's**
+  resist, settled into the snapshot as the status lands — so a Golem shrugs off a bleed exactly as
+  it shrugs off a sword. Left alone it would have been a live field with no consumer, and a hole
+  in the one axis this milestone claims moved onto the resists.
+- **Shields and regeneration had to be re-priced, and that was not on the plan.** They scale off
+  the applier's `atk` — and the characters authored to cast them are tanks and healers, which
+  carry the lowest attack stats in the game. At the old power a Dwarf's barrier absorbed under
+  four percent of a health bar. `BARRIER` went 1.1 → 1.5 and `AEGIS` 1.8 → 2.3. **The test that
+  caught it had to be rewritten to catch it**: the old assertion compared `matk` against `patk`,
+  which is not a question that can be asked any more, and the successor measures restoration
+  against a typical health bar instead. That is the `data/` testing rule doing its job — a
+  threshold that fails when content outgrows it, retuned deliberately rather than moved.
+
+### The back-row bonus, replaced rather than dropped
+
+"+5% to whichever offensive stat is already higher, and only that one" had nothing left to choose
+between. The replacement makes **each rank sharpen the role it already has**:
+
+| Rank  | Gets                                    |
+| ----- | --------------------------------------- |
+| Front | `def × 1.05`, `critDamageResist + 0.05` |
+| Back  | `atk × 1.05`, `critDamageAmp + 0.05`    |
+
+The crit halves are **points, not multipliers.** A crit is `1 + max(amp − resist, 0)`, so a
+percentage on a point value would pay nothing at all to the majority of the roster, which sits at
+zero on both. That is the failure mode the old rule could not have and this one can, so it has its
+own assertion.
+
+Neither rank pays a tax to the other. The cost of the front row is that it is the rank getting
+hit, which is a fact about the formation rather than a number in `data/`.
+
+### `haste` and `attackSpeed`, the one mapping with no precedent — validated
+
+The doc's own instruction was to validate this against a sweep rather than treat it as settled, so:
+**haste is gauge for everything; attack speed is extra gauge that accrues only when the last
+action was a basic attack.** Elves are the only faction authored with it, and the ladder sweep
+holds with them carrying 22–30 points of it.
+
+**The first implementation predicted the next action instead, and it was wrong in a way worth
+recording** — it read "would the next action be a basic attack" as "is every skill on cooldown",
+which is cheap and looks equivalent. It is not: a skill gated on a condition that is not currently
+met never goes on cooldown, so it suppresses the bonus _for the whole fight_. Aelrindel's Volley
+wants three living enemies, so the largest attack speed in the game would have paid out only on
+wide waves — on the character the stat exists to describe.
+
+Keying off the action already taken fixes that and is strictly cheaper: no kit scan, and no
+scheduling boundary of its own, because the flag can only move inside an action and an action is a
+tick boundary already. The rejected reading needed the simulation to jump to the moment a cooldown
+elapsed, purely to stop crediting gauge for ticks nobody spent swinging.
+
+### `recovery` and `healthRegen` both survived
+
+The plan flagged them as near-redundant and worth collapsing. They were kept: `recovery` is the
+scaling quantity and `healthRegen` the percentage amplifier on it. Collapsing to one would have
+removed the ability to say "this character recovers unusually well **for its size**", which is
+what distinguishes a Dwarf from a big Undead health pool. `recovery` is the fourth scaling stat
+and had to be — a fixed number measured against a health bar heading for ×10⁹ is a rounding error
+by then.
+
+### What the re-sweep says
+
+The milestone-4 promise held through the rework without retuning the ladder: three level-1
+starters clear to the healer lock at stage 7, five common-tier characters at level 80 clear the
+hand-climbed half, and an invested common-tier party clears all twenty-four with 3.7 survivors and
+a 43-second fight at the top. The identity pass — giving the new stats to the factions they
+describe — is what closed the two gaps the mechanical conversion left.
+
+### The original plan for the stat block, kept for its reasoning
+
+_What follows is the 8a design note as written before the work. [attributes](attributes.md) is what
+actually shipped; where the two differ, the difference is recorded above._
 
 **One `atk` and one `def`. Damage type becomes a property of the skill rather than of the stat**
 — a skill declares physical or magic, reads the single attack stat, and is reduced by defence
@@ -938,6 +1046,8 @@ Four things worth knowing before starting:
   reasoning behind it — that a caster gets the bonus where its damage actually comes from — goes
   with it. It needs replacing, not dropping: the front/back asymmetry is what makes the front rank
   a real cost. Deciding what replaces it is part of this milestone, not an afterthought.
+
+## 8b. Energy, skill counts and lineup bonuses — **NEXT**
 
 ### Energy and ultimates
 
@@ -1033,11 +1143,23 @@ depth that a mono-five is reachable without one.
 
 ### Sequencing and the re-sweep
 
-Stats first — they are the vocabulary everything else speaks. Then energy and ultimates, then
-skill gating, then the lineup bonuses and the matchup rescale. **Then re-sweep the entire ladder**,
-because every one of the four changes what a battle costs, and the tuning target that five
-common-tier characters at level 80 clear twelve stages is the thing that says whether the rework
-landed or merely compiled.
+Stats first — they are the vocabulary everything else speaks. **That half is done.** Then energy
+and ultimates, then skill gating, then the lineup bonuses and the matchup rescale. **Then re-sweep
+the entire ladder**, because every one of the four changes what a battle costs, and the tuning
+target that five common-tier characters at level 80 clear twelve stages is the thing that says
+whether the rework landed or merely compiled.
+
+8a re-swept and held it. 8b has to hold it again, and the harder half is still ahead: energy never
+runs dry, so it moves the healer guarantee onto the stalemate clock, and a +25% lineup bonus is
+five times the size of a matchup edge.
+
+### What 8b starts from
+
+- `mp` and `mpRegen` are still in `StatBlockData` and still metering every caster. Deleting them
+  is 8b's first move and its riskiest one.
+- The stat vocabulary energy has to fit into is settled and swept, so kits can be authored once.
+- The ladder is tuned against the new block, so a lineup-bonus rescale is measured against a
+  baseline that is already true rather than one that is about to change underneath it.
 
 ## 9. Resonance — levels the roster shares
 
@@ -1076,13 +1198,13 @@ working on its own. A special case here would be code that cannot change an outc
 
 ### This is not only quality of life
 
-Milestone 8 introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
+Milestone 8b introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
 only reachable by fielding a _different_ five-character team per encounter. Milestone 15 does the
 same thing harder, with seven faction towers demanding thirty-five invested characters.
 
 **Neither is affordable without this.** Levelling thirty-five characters individually is seven
 times the cost of levelling five, against an economy tuned for one team. So resonance is closer to
-a prerequisite for milestone 8's faction bonuses than a convenience that follows them — it is
+a prerequisite for milestone 8b's faction bonuses than a convenience that follows them — it is
 positioned after the rework only because the rework decides what a level is worth.
 
 What it deliberately does not cover: ascension, and milestone 16's per-character investment track.
@@ -1209,9 +1331,10 @@ second is why hand-authored chapters are viable at all:
 - **Anything additive or threshold-shaped does not.** A flat bonus, or any authored constant
   compared against a scaling quantity, silently becomes a no-op. Audit for these rather than
   waiting to notice.
-- **The non-scaling stats stay non-scaling.** `spd`, the probabilities, penetration and `mp` are
+- **The non-scaling stats stay non-scaling.** `haste`, the probabilities, penetration, resist and
+  `mp` are
   bounded for termination and metering reasons a bigger power curve does not touch — see
-  milestone 4. A compounding game makes it **more** important that `spd` cannot grow, not less.
+  milestone 4. A compounding game makes it **more** important that `haste` cannot grow, not less.
 - **The tier fall-off is the thing to preserve on purpose.** Common tier is meant to be a genuine
   early answer that becomes a joke at cap. Steepening every tier by the same factor preserves
   that ratio; steepening them unevenly is a retune of milestone 3's central promise and should be

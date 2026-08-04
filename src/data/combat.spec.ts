@@ -6,6 +6,7 @@ import {
   type CombatRulesData,
   type FactionMatchupData,
   MAX_PENETRATION,
+  MAX_RESIST,
   matchupKey,
   type SkillData,
   toCombatRules,
@@ -123,18 +124,29 @@ describe('the matchup matrix', () => {
 
 describe('row bonuses', () => {
   it('is worth enough to notice and not enough to decide', () => {
-    for (const value of [ROW_BONUSES.frontDefence, ROW_BONUSES.backOffence]) {
+    for (const value of [ROW_BONUSES.frontDefence, ROW_BONUSES.backAttack]) {
       expect(value).toBeGreaterThan(1);
       expect(value).toBeLessThanOrEqual(1.1);
+    }
+  });
+
+  it('pays the crit halves in points, because they are opposed rather than scaled', () => {
+    // A crit is `1 + max(amp - resist, 0)`. A multiplier here would pay nothing at all to the
+    // majority of the roster, which sits at zero on both — the exact failure the old
+    // "higher of two attack stats" rule could not have, and this one can.
+    for (const value of [ROW_BONUSES.frontCritDamageResist, ROW_BONUSES.backCritDamageAmp]) {
+      expect(value).toBeGreaterThan(0);
+      expect(value).toBeLessThanOrEqual(0.1);
     }
   });
 });
 
 describe('the default basic attack', () => {
   it('is physical, single target, and goes through the front-rank gate', () => {
-    // All three are load-bearing. Physical is why the back row's `matk` bonus only pays off on a
-    // cast; single-target is what makes a wide wave a genuine question; and going through the
-    // gate is what turns a formation into a puzzle rather than a seating chart.
+    // All three are load-bearing. Physical is the type every `physicalResist` wall is authored
+    // against, so a magical kit is what gets past one; single-target is what makes a wide wave a
+    // genuine question; and going through the gate is what turns a formation into a puzzle
+    // rather than a seating chart.
     expect(basic.target).toBe('enemy-front');
     expect(basic.effects).toEqual([{ kind: 'damage', damageType: 'physical', power: 1 }]);
   });
@@ -157,5 +169,14 @@ describe('the guards', () => {
   it('leaves some defence standing whatever the penetration', () => {
     expect(rules.maxPenetration).toBeGreaterThan(0);
     expect(rules.maxPenetration).toBeLessThanOrEqual(MAX_PENETRATION);
+  });
+
+  it('lets some damage through whatever the resist', () => {
+    // The same guard as the hit-chance floor, arriving from the other side: resist multiplies
+    // the result rather than diminishing an input, so at 1 it is an immunity and a fight against
+    // one runs to the tick cap.
+    expect(rules.maxResist).toBeGreaterThan(0);
+    expect(rules.maxResist).toBeLessThanOrEqual(MAX_RESIST);
+    expect(rules.maxResist).toBeLessThan(1);
   });
 });

@@ -12,10 +12,10 @@
  */
 
 /**
- * Gauge value at which a combatant acts. Every combatant gains `spd` gauge per tick, so
- * `ATB_THRESHOLD / spd` is the number of ticks between its actions.
+ * Gauge value at which a combatant acts. Every combatant gains `haste` gauge per tick, so
+ * `ATB_THRESHOLD / haste` is the number of ticks between its actions.
  *
- * 1000 gives speed values a comfortable authoring range — a `spd` of 100 acts once per
+ * 1000 gives gauge values a comfortable authoring range — a `haste` of 100 acts once per
  * second at {@link BATTLE_TICK_MS}, and single-point differences still shift turn order over
  * a long fight, so SPD is a real stat rather than a rounding artefact.
  */
@@ -50,7 +50,7 @@ export function ticksToMs(ticks: number): number {
 }
 
 /**
- * Ticks until a gauge at `gauge`, gaining `spd` per tick, reaches {@link ATB_THRESHOLD}.
+ * Ticks until a gauge at `gauge`, gaining `haste` per tick, reaches {@link ATB_THRESHOLD}.
  *
  * This is what lets the simulation skip straight to the next action instead of stepping one
  * tick at a time. The same reasoning as offline resume: a fight between slow combatants can
@@ -61,6 +61,6 @@ export function ticksToMs(ticks: number): number {
  * Never returns less than 1, so the caller is guaranteed forward progress even if it is
  * handed a gauge that is already full.
  */
-export function ticksUntilReady(gauge: number, spd: number): number {
-  return Math.max(1, Math.ceil((ATB_THRESHOLD - gauge) / spd));
+export function ticksUntilReady(gauge: number, haste: number): number {
+  return Math.max(1, Math.ceil((ATB_THRESHOLD - gauge) / haste));
 }

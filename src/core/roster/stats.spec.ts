@@ -82,37 +82,62 @@ describe('tier divergence', () => {
 });
 
 describe('scaleStats', () => {
-  it('scales the five quantities and nothing else', () => {
-    const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 100, 5);
+  it('scales the four quantities and nothing else', () => {
+    const scaled = scaleStats({ ...TEST_ALPHA.stats, recovery: 3 }, GROWTH, 'common', 100, 5);
 
     expect(num(scaled.hp).gt(num(TEST_ALPHA.stats.hp))).toBe(true);
-    expect(num(scaled.patk).gt(num(TEST_ALPHA.stats.patk))).toBe(true);
-    expect(num(scaled.matk).gt(num(TEST_ALPHA.stats.matk))).toBe(true);
-    expect(num(scaled.pdef).gt(num(TEST_ALPHA.stats.pdef))).toBe(true);
-    expect(num(scaled.mdef).gt(num(TEST_ALPHA.stats.mdef))).toBe(true);
+    expect(num(scaled.atk).gt(num(TEST_ALPHA.stats.atk))).toBe(true);
+    expect(num(scaled.def).gt(num(TEST_ALPHA.stats.def))).toBe(true);
+    expect(num(scaled.recovery ?? 0).gt(num(3))).toBe(true);
   });
 
-  it('never scales SPD, because it is a scheduling weight against a fixed threshold', () => {
-    // A SPD that grew with level would hit the ATB clamp within about eighty levels and then be
-    // identical for every character in the game — turning the one stat that buys turns into a
-    // constant, and breaking the simulation's termination argument on the way.
-    const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 1000, MAX_RARITY_INDEX);
+  it('leaves an absent recovery absent rather than inventing one', () => {
+    // A character with no natural recovery should not acquire one at level 2 because the scaler
+    // visited the field.
+    const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 500, 5);
 
-    expect(scaled.spd).toBe(TEST_ALPHA.stats.spd);
+    expect(TEST_ALPHA.stats.recovery).toBeUndefined();
+    expect(scaled.recovery).toBeUndefined();
   });
 
-  it('never scales crit, because a probability cannot exceed one', () => {
-    const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 1000, MAX_RARITY_INDEX);
+  it('never scales haste, because it is a scheduling weight against a fixed threshold', () => {
+    // A haste that grew with level would hit the ATB clamp within about eighty levels and then
+    // be identical for every character in the game — turning the one stat that buys turns into a
+    // constant, and breaking the simulation's termination argument on the way. Attack speed is
+    // added to the same gauge and inherits the same reasoning.
+    const scaled = scaleStats(
+      { ...TEST_ALPHA.stats, attackSpeed: 20 },
+      GROWTH,
+      'common',
+      1000,
+      MAX_RARITY_INDEX,
+    );
+
+    expect(scaled.haste).toBe(TEST_ALPHA.stats.haste);
+    expect(scaled.attackSpeed).toBe(20);
+  });
+
+  it('never scales a probability or a percentage amplifier', () => {
+    const scaled = scaleStats(
+      { ...TEST_ALPHA.stats, healthRegen: 0.3, receivedHealing: 0.2, physicalResist: 0.25 },
+      GROWTH,
+      'common',
+      1000,
+      MAX_RARITY_INDEX,
+    );
 
     expect(scaled.critChance).toBe(TEST_ALPHA.stats.critChance);
-    expect(scaled.critMultiplier).toBe(TEST_ALPHA.stats.critMultiplier);
+    expect(scaled.critDamageAmp).toBe(TEST_ALPHA.stats.critDamageAmp);
+    expect(scaled.healthRegen).toBe(0.3);
+    expect(scaled.receivedHealing).toBe(0.2);
+    expect(scaled.physicalResist).toBe(0.25);
   });
 
   it('leaves a level-1 starting-rarity character exactly as authored', () => {
     const scaled = scaleStats(TEST_ALPHA.stats, GROWTH, 'common', 1, 0);
 
     expect(num(scaled.hp).eq(num(TEST_ALPHA.stats.hp))).toBe(true);
-    expect(num(scaled.patk).eq(num(TEST_ALPHA.stats.patk))).toBe(true);
+    expect(num(scaled.atk).eq(num(TEST_ALPHA.stats.atk))).toBe(true);
   });
 
   it('changes nothing at all under flat growth', () => {
@@ -164,7 +189,7 @@ describe('toBattleCombatant', () => {
     );
 
     expect(toCombatStats(invested.stats).hp.gt(toCombatStats(base.stats).hp)).toBe(true);
-    expect(toCombatStats(invested.stats).patk.gt(toCombatStats(base.stats).patk)).toBe(true);
+    expect(toCombatStats(invested.stats).atk.gt(toCombatStats(base.stats).atk)).toBe(true);
   });
 
   it('produces a combatant the simulation can parse without special-casing', () => {
@@ -175,7 +200,7 @@ describe('toBattleCombatant', () => {
     );
     const stats = toCombatStats(combatant.stats);
 
-    expect(stats.spd).toBeGreaterThanOrEqual(1);
+    expect(stats.haste).toBeGreaterThanOrEqual(1);
     expect(stats.critChance).toBeLessThanOrEqual(1);
     expect(stats.hp.gt(0)).toBe(true);
   });

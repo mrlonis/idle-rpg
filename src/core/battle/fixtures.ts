@@ -13,10 +13,16 @@ import { type CombatRules, type CombatRulesData } from './types';
  * multiplier is dropped entirely pass every test in the suite.
  */
 export const TEST_COMBAT_RULES_DATA: CombatRulesData = {
-  rows: { frontDefence: 1.05, backOffence: 1.05 },
+  rows: {
+    frontDefence: 1.05,
+    frontCritDamageResist: 0.05,
+    backAttack: 1.05,
+    backCritDamageAmp: 0.05,
+  },
   matchups: [{ attacker: 'strong', defender: 'weak', multiplier: 2 }],
   minHitChance: 0.1,
   maxPenetration: 0.9,
+  maxResist: 0.9,
   basicAttack: {
     id: 'basic-attack',
     name: 'Attack',
@@ -43,6 +49,6 @@ export const NEUTRAL_COMBAT_RULES: CombatRules = toCombatRules({
 /** Rules with no row bonuses either, so a stat block arrives in the simulation as authored. */
 export const PLAIN_COMBAT_RULES: CombatRules = toCombatRules({
   ...TEST_COMBAT_RULES_DATA,
-  rows: { frontDefence: 1, backOffence: 1 },
+  rows: { frontDefence: 1, frontCritDamageResist: 0, backAttack: 1, backCritDamageAmp: 0 },
   matchups: [],
 });

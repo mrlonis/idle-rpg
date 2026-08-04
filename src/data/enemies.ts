@@ -32,13 +32,16 @@ import {
  *
  * ## What the stats mean
  *
- * - `spd` is ATB gauge gained per battle tick, against a threshold of 1000. So `spd: 100` acts
- *   once per 10 ticks, and a combatant at 200 genuinely takes twice as many turns as one at
- *   100 — speed is a real stat, not a tiebreak.
- * - Damage is `atk² / (atk + def)`, measured against `pdef` or `mdef` depending on the
- *   attack's type. DEF has diminishing returns and can never reduce a hit to zero, so a
- *   high-DEF enemy is a soft wall that punishes low ATK rather than a hard one that makes a
- *   fight unwinnable.
+ * - `haste` is ATB gauge gained per battle tick, against a threshold of 1000. So `haste: 100`
+ *   acts once per 10 ticks, and a combatant at 200 genuinely takes twice as many turns as one
+ *   at 100 — gauge fill is a real stat, not a tiebreak. `attackSpeed` is extra gauge that
+ *   accrues only while every skill is on cooldown, so it buys basic attacks and nothing else.
+ * - Damage is `atk² / (atk + def × (1 - pierce))`, then reduced by the matching **resist**.
+ *   One attack stat and one defence stat since milestone 8a: the attack's type no longer picks
+ *   which stat it reads, it picks which pierce and which resist apply. DEF has diminishing
+ *   returns and can never reduce a hit to zero, so a high-DEF enemy is a soft wall that
+ *   punishes low ATK rather than a hard one that makes a fight unwinnable — and resist is
+ *   capped below 1 for the same reason.
  * - Every basic attack is physical and targets the **front rank**, falling through to the back
  *   only once the front is empty.
  *
@@ -56,9 +59,9 @@ import {
  * | ------------- | ---------------------------------------- | --------------------------------- |
  * | Marsh Acolyte | can you reach a healer behind two bodies? | reach, or burst through the front |
  * | Bog Hag       | can you survive a party-wide debuff?      | a cleanse                         |
- * | Pyre Caster   | is any of your durability magical?        | `mdef`, a Ward, or killing it     |
+ * | Pyre Caster   | is any of your durability magical?        | `magicResist`, or killing it      |
  * | Iron Bulwark  | can you out-damage a refreshed absorb?    | burst, not chip                   |
- * | Rimeplate     | what do you do when both defences are up? | penetration, or Sunder            |
+ * | Rimeplate     | what do you do when it resists both?      | penetration, or Sunder            |
  * | Fen Shade     | what do you do when it dodges half of it? | accuracy, or volume               |
  *
  * A third set follows for the second half of the ladder — see "The Ashfall Reach" below, which
@@ -83,13 +86,12 @@ export const SLIME = {
   faction: 'monster',
   stats: {
     hp: 300,
-    patk: 26,
-    matk: 9,
-    pdef: 7,
-    mdef: 6,
-    spd: 78,
+    atk: 26,
+    def: 6,
+    haste: 78,
     critChance: 0.03,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    physicalResist: 0.03,
   },
 } as const;
 
@@ -102,13 +104,12 @@ export const WISP = {
   faction: 'undead',
   stats: {
     hp: 230,
-    patk: 24,
-    matk: 32,
-    pdef: 5,
-    mdef: 8,
-    spd: 148,
+    atk: 32,
+    def: 6,
+    haste: 148,
     critChance: 0.08,
-    critMultiplier: 1.6,
+    critDamageAmp: 0.6,
+    magicResist: 0.1,
   },
   skills: [MOTE_LANCE],
 } as const;
@@ -120,13 +121,12 @@ export const BOAR = {
   faction: 'monster',
   stats: {
     hp: 760,
-    patk: 45,
-    matk: 13,
-    pdef: 20,
-    mdef: 13,
-    spd: 84,
+    atk: 45,
+    def: 16,
+    haste: 84,
     critChance: 0.05,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    physicalResist: 0.1,
   },
   skills: [GORE],
 } as const;
@@ -139,13 +139,12 @@ export const BANDIT = {
   faction: 'human',
   stats: {
     hp: 620,
-    patk: 56,
-    matk: 16,
-    pdef: 24,
-    mdef: 19,
-    spd: 106,
+    atk: 56,
+    def: 22,
+    haste: 106,
     critChance: 0.12,
-    critMultiplier: 1.7,
+    critDamageAmp: 0.7,
+    physicalResist: 0.05,
   },
   skills: [CUTPURSE],
 } as const;
@@ -159,13 +158,14 @@ export const GOLEM = {
   faction: 'monster',
   stats: {
     hp: 2600,
-    patk: 84,
-    matk: 18,
-    pdef: 98,
-    mdef: 32,
-    spd: 52,
+    atk: 84,
+    def: 65,
+    haste: 52,
     critChance: 0.02,
-    critMultiplier: 2,
+    critDamageAmp: 1,
+    critDamageResist: 0.25,
+    critBlock: 0.12,
+    physicalResist: 0.23,
   },
   skills: [STONE_FIST],
 } as const;
@@ -178,16 +178,14 @@ export const WARDEN = {
   faction: 'human',
   stats: {
     hp: 2100,
-    patk: 92,
-    matk: 48,
-    pdef: 50,
-    mdef: 46,
-    spd: 98,
+    atk: 92,
+    def: 48,
+    haste: 98,
     critChance: 0.1,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
     mp: 72,
     mpRegen: 4,
-    effectHit: 0.1,
+    insight: 0.1,
   },
   skills: [GATE_SLAM],
 } as const;
@@ -209,15 +207,14 @@ export const ACOLYTE = {
   faction: 'human',
   stats: {
     hp: 700,
-    patk: 26,
-    matk: 96,
-    pdef: 18,
-    mdef: 32,
-    spd: 92,
+    atk: 96,
+    def: 25,
+    haste: 92,
     critChance: 0.02,
-    critMultiplier: 1.4,
+    critDamageAmp: 0.4,
     mp: 90,
     mpRegen: 6,
+    magicResist: 0.13,
   },
   skills: [MEND],
 } as const;
@@ -235,16 +232,15 @@ export const HAG = {
   faction: 'undead',
   stats: {
     hp: 1080,
-    patk: 44,
-    matk: 76,
-    pdef: 26,
-    mdef: 40,
-    spd: 88,
+    atk: 76,
+    def: 33,
+    haste: 88,
     critChance: 0.04,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
     mp: 80,
     mpRegen: 5,
-    effectHit: 0.15,
+    insight: 0.15,
+    magicResist: 0.1,
   },
   skills: [WITHERHEX, MIRE],
 } as const;
@@ -262,15 +258,14 @@ export const PYRE = {
   faction: 'demon',
   stats: {
     hp: 820,
-    patk: 24,
-    matk: 94,
-    pdef: 18,
-    mdef: 30,
-    spd: 96,
+    atk: 94,
+    def: 24,
+    haste: 96,
     critChance: 0.1,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
     mp: 78,
     mpRegen: 5,
+    magicResist: 0.11,
   },
   skills: [CINDER_STORM],
 } as const;
@@ -288,16 +283,15 @@ export const BULWARK_ENEMY = {
   faction: 'dwarf',
   stats: {
     hp: 1700,
-    patk: 56,
-    matk: 66,
-    pdef: 68,
-    mdef: 52,
-    spd: 74,
+    atk: 66,
+    def: 60,
+    haste: 74,
     critChance: 0.03,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
     mp: 80,
     mpRegen: 5,
     tenacity: 0.2,
+    physicalResist: 0.06,
   },
   skills: [BULWARK, SHIELD_BASH],
 } as const;
@@ -315,14 +309,16 @@ export const RIMEPLATE = {
   faction: 'monster',
   stats: {
     hp: 3400,
-    patk: 100,
-    matk: 26,
-    pdef: 90,
-    mdef: 78,
-    spd: 60,
+    atk: 100,
+    def: 84,
+    recovery: 14,
+    haste: 60,
     critChance: 0.03,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
     tenacity: 0.3,
+    physicalResist: 0.03,
   },
   skills: [GLACIAL_SLAM],
 } as const;
@@ -340,15 +336,14 @@ export const SHADE = {
   faction: 'undead',
   stats: {
     hp: 980,
-    patk: 60,
-    matk: 78,
-    pdef: 12,
-    mdef: 18,
-    spd: 112,
+    atk: 78,
+    def: 15,
+    haste: 112,
     critChance: 0.08,
-    critMultiplier: 1.7,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.15,
+    magicResist: 0.09,
     dodge: 0.55,
-    lifesteal: 0.15,
   },
   skills: [FADE, WITHERING_TOUCH],
 } as const;
@@ -391,7 +386,7 @@ export const SHADE = {
  * A body for the top half of the ladder, and the one that drains.
  *
  * Deliberately unremarkable: not every stage should be a lock, and a stage made entirely of
- * questions has no room left for the answers to land. Its lifesteal is what stops a party
+ * questions has no room left for the answers to land. Its life leech is what stops a party
  * ignoring it while it works on the thing behind it.
  */
 export const REVENANT = {
@@ -400,14 +395,14 @@ export const REVENANT = {
   faction: 'undead',
   stats: {
     hp: 2900,
-    patk: 72,
-    matk: 54,
-    pdef: 22,
-    mdef: 19,
-    spd: 82,
+    atk: 72,
+    def: 20,
+    recovery: 22,
+    haste: 82,
     critChance: 0.06,
-    critMultiplier: 1.6,
-    lifesteal: 0.2,
+    critDamageAmp: 0.6,
+    lifeLeech: 0.2,
+    physicalResist: 0.03,
   },
   skills: [WITHERING_TOUCH, GORE],
 } as const;
@@ -419,14 +414,16 @@ export const SENTINEL = {
   faction: 'dwarf',
   stats: {
     hp: 3950,
-    patk: 72,
-    matk: 42,
-    pdef: 86,
-    mdef: 70,
-    spd: 66,
+    atk: 72,
+    def: 78,
+    recovery: 20,
+    haste: 66,
     critChance: 0.03,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
     tenacity: 0.25,
+    physicalResist: 0.05,
+    healthRegen: 0.25,
   },
   skills: [GLACIAL_SLAM, SHIELD_BASH],
 } as const;
@@ -444,13 +441,12 @@ export const SKYSHRIKE = {
   faction: 'elf',
   stats: {
     hp: 1450,
-    patk: 100,
-    matk: 35,
-    pdef: 22,
-    mdef: 26,
-    spd: 152,
+    atk: 100,
+    def: 24,
+    haste: 152,
     critChance: 0.16,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
+    magicResist: 0.04,
     accuracy: 1.1,
   },
   skills: [SHRIKE_DIVE],
@@ -470,15 +466,14 @@ export const RAVAGER = {
   faction: 'monster',
   stats: {
     hp: 3450,
-    patk: 118,
-    matk: 30,
-    pdef: 48,
-    mdef: 38,
-    spd: 94,
+    atk: 118,
+    def: 43,
+    haste: 94,
     critChance: 0.08,
-    critMultiplier: 1.7,
-    armorPen: 0.45,
-    magicPen: 0.4,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.45,
+    magicPierce: 0.4,
+    physicalResist: 0.05,
   },
   skills: [FLENSE],
 } as const;
@@ -488,7 +483,7 @@ export const RAVAGER = {
  *
  * Every other meter on the ladder counts down toward the enemy being able to act. This one counts
  * down toward the party wishing it had not started. Below half health it buys itself a third more
- * speed and a third more `matk` at once, so the damage it does in the last quarter of its HP bar
+ * speed and a third more `atk` at once, so the damage it does in the last quarter of its HP bar
  * dwarfs the first three.
  */
 export const WRATHBORN = {
@@ -497,15 +492,14 @@ export const WRATHBORN = {
   faction: 'demon',
   stats: {
     hp: 3300,
-    patk: 64,
-    matk: 125,
-    pdef: 44,
-    mdef: 52,
-    spd: 92,
+    atk: 125,
+    def: 48,
+    haste: 92,
     critChance: 0.1,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
     mp: 90,
     mpRegen: 6,
+    magicResist: 0.04,
   },
   skills: [WRATH_UNBOUND, RUINOUS_ARC],
 } as const;
@@ -517,16 +511,15 @@ export const STORMCALLER = {
   faction: 'human',
   stats: {
     hp: 2950,
-    patk: 42,
-    matk: 140,
-    pdef: 36,
-    mdef: 50,
-    spd: 100,
+    atk: 140,
+    def: 43,
+    haste: 100,
     critChance: 0.12,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
     mp: 110,
     mpRegen: 6,
-    effectHit: 0.15,
+    insight: 0.15,
+    magicResist: 0.07,
   },
   skills: [CINDER_STORM, WITHERHEX],
 } as const;
@@ -545,15 +538,16 @@ export const HIEROPHANT = {
   faction: 'angel',
   stats: {
     hp: 5100,
-    patk: 48,
-    matk: 240,
-    pdef: 78,
-    mdef: 120,
-    spd: 104,
+    atk: 240,
+    def: 99,
+    recovery: 30,
+    haste: 104,
     critChance: 0.04,
-    critMultiplier: 1.5,
+    critDamageAmp: 0.5,
     mp: 120,
     mpRegen: 6,
+    magicResist: 0.1,
+    receivedHealing: 0.25,
   },
   skills: [MEND, BULWARK],
 } as const;
@@ -572,14 +566,13 @@ export const HEADSMAN = {
   faction: 'undead',
   stats: {
     hp: 6700,
-    patk: 168,
-    matk: 58,
-    pdef: 100,
-    mdef: 84,
-    spd: 108,
+    atk: 168,
+    def: 92,
+    haste: 108,
     critChance: 0.18,
-    critMultiplier: 1.9,
-    lifesteal: 0.2,
+    critDamageAmp: 0.9,
+    lifeLeech: 0.2,
+    physicalResist: 0.04,
   },
   skills: [HEADSMANS_ARC],
 } as const;
@@ -598,14 +591,16 @@ export const COLOSSUS = {
   faction: 'dwarf',
   stats: {
     hp: 8600,
-    patk: 168,
-    matk: 78,
-    pdef: 205,
-    mdef: 178,
-    spd: 58,
+    atk: 168,
+    def: 192,
+    recovery: 34,
+    haste: 58,
     critChance: 0.03,
-    critMultiplier: 1.6,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
     tenacity: 0.85,
+    physicalResist: 0.03,
+    healthRegen: 0.3,
   },
   skills: [GLACIAL_SLAM, SHIELD_BASH],
 } as const;
@@ -624,14 +619,13 @@ export const TYRANT = {
   faction: 'monster',
   stats: {
     hp: 9800,
-    patk: 220,
-    matk: 88,
-    pdef: 158,
-    mdef: 138,
-    spd: 88,
+    atk: 220,
+    def: 148,
+    haste: 88,
     critChance: 0.12,
-    critMultiplier: 1.9,
-    armorPen: 0.3,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.3,
+    physicalResist: 0.03,
   },
   skills: [TYRANTS_CLAIM],
 } as const;
@@ -643,16 +637,15 @@ export const OATHBREAKER = {
   faction: 'human',
   stats: {
     hp: 7400,
-    patk: 155,
-    matk: 116,
-    pdef: 145,
-    mdef: 125,
-    spd: 100,
+    atk: 155,
+    def: 135,
+    haste: 100,
     critChance: 0.12,
-    critMultiplier: 1.8,
+    critDamageAmp: 0.8,
     mp: 110,
     mpRegen: 6,
-    effectHit: 0.15,
+    insight: 0.15,
+    physicalResist: 0.03,
   },
   skills: [GATE_SLAM, CUTPURSE],
 } as const;
@@ -670,18 +663,18 @@ export const UNMADE = {
   faction: 'demon',
   stats: {
     hp: 12500,
-    patk: 195,
-    matk: 175,
-    pdef: 200,
-    mdef: 180,
-    spd: 96,
+    atk: 195,
+    def: 190,
+    recovery: 40,
+    haste: 96,
     critChance: 0.15,
-    critMultiplier: 2,
+    critDamageAmp: 1,
+    critDamageResist: 0.2,
     mp: 140,
     mpRegen: 7,
-    armorPen: 0.3,
-    magicPen: 0.3,
     tenacity: 0.5,
+    physicalPierce: 0.3,
+    magicPierce: 0.3,
   },
   skills: [TYRANTS_CLAIM, CINDER_STORM],
 } as const;

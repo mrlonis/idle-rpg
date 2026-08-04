@@ -3,7 +3,7 @@ import { num, type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './clock';
 import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
-import { factionMultiplier, rollAttack, statusChance } from './damage';
+import { factionMultiplier, resistedShare, rollAttack, statusChance } from './damage';
 import { chooseSkill, type FighterView, isAlive, selectTargets } from './skills';
 import {
   absorbDamage,
@@ -45,10 +45,11 @@ import {
  *
  * ## Turn order
  *
- * An ATB gauge rather than fixed rounds. Every living combatant gains its **current** `spd` in
- * gauge per tick and acts when it reaches `ATB_THRESHOLD`, so a faster combatant genuinely
- * takes more turns instead of merely going earlier in a round — and a haste or a slow is a
- * real effect rather than a reordering.
+ * An ATB gauge rather than fixed rounds. Every living combatant gains its **current** `haste`
+ * in gauge per tick — plus its `attackSpeed` on the ticks its next action would be a basic
+ * attack — and acts when it reaches `ATB_THRESHOLD`. A faster combatant therefore genuinely
+ * takes more turns instead of merely going earlier in a round, and a haste or a slow is a real
+ * effect rather than a reordering.
  *
  * The loop jumps straight to the next thing that happens instead of stepping tick by tick.
  * "The next thing" is the sooner of the next action and the next status expiry; missing the
@@ -96,6 +97,13 @@ interface Fighter extends FighterView {
   hp: Numeric;
   mp: number;
   gauge: number;
+  /**
+   * Whether the last action taken was a basic attack, which is what `attackSpeed` pays for.
+   *
+   * False before the first action: a fight opens at plain haste for everybody, because nobody
+   * has swung yet.
+   */
+  swinging: boolean;
   statuses: readonly ActiveStatus[];
   cooldowns: Map<string, number>;
 }
@@ -117,13 +125,32 @@ function live(fighter: Fighter): CombatStats {
 }
 
 /**
- * A fighter's current speed, without building a whole stat block to read one number.
+ * A fighter's current gauge fill, without building a whole stat block to read one number.
  *
  * The scheduling loop asks every living combatant for this twice an iteration, and a full
- * {@link live} costs four `Decimal` multiplications it would immediately throw away.
+ * {@link live} costs `Decimal` multiplications it would immediately throw away.
+ *
+ * `swinging` — whether the last action was a basic attack — is what {@link CombatStats.attackSpeed}
+ * pays for. Reading the **last** action rather than predicting the next one is deliberate and it
+ * is the whole of why this stays cheap and sound:
+ *
+ * - Predicting the next one means running {@link chooseSkill}, which walks the kit resolving
+ *   targets for each candidate. Doing that ten times an iteration is what `effectiveSpeed`
+ *   exists to avoid.
+ * - Approximating it as "nothing in the kit is off cooldown" is cheap but wrong in a way that
+ *   bites the exact content the stat was authored for: a skill gated on a condition that is not
+ *   currently met never goes on cooldown, so it suppresses the bonus permanently. Aelrindel's
+ *   Volley needs three living enemies, and on that reading his attack speed — the largest in the
+ *   game — would pay only on wide waves.
+ * - The flag can only change **inside an action**, which is already a tick boundary, so the gauge
+ *   rate is constant across a jump for free. The alternatives both need a scheduling boundary of
+ *   their own to stay exact.
+ *
+ * It also reads the way the stat is described: a combatant that has started swinging keeps
+ * swinging faster, and casting drops it back to plain haste for one turn.
  */
 function speed(fighter: Fighter): number {
-  return effectiveSpeed(fighter.base, fighter.statuses);
+  return effectiveSpeed(fighter.base, fighter.statuses, fighter.swinging);
 }
 
 /**
@@ -170,6 +197,7 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
         hp: combatant.stats.hp,
         mp: combatant.stats.mp,
         gauge: 0,
+        swinging: false,
         statuses: [],
         cooldowns: new Map<string, number>(),
       });
@@ -250,7 +278,7 @@ function snapshot(fighter: Fighter): CombatantSnapshot {
     hp: fighter.hp,
     maxMp: fighter.maxMp,
     mp: fighter.mp,
-    spd: speed(fighter),
+    haste: speed(fighter),
     shield: shieldTotal(fighter.statuses),
     statuses: fighter.statuses,
   };
@@ -309,6 +337,48 @@ export function simulateBattle(
     return fighter.hp.sub(before);
   };
 
+  /**
+   * Healing amplified by the recipient's `receivedHealing`, but only when somebody else is
+   * doing it.
+   *
+   * "Received healing" is the whole of the stat's meaning: a self-heal, a life leech and the
+   * natural recovery at the top of a turn are all a combatant healing itself, and amplifying
+   * those would make the stat a second `healthRegen` rather than the thing that makes a
+   * dedicated healer worth fielding behind it.
+   */
+  const amplified = (target: Fighter, source: Fighter, amount: Numeric): Numeric =>
+    source === target ? amount : amount.mul(1 + target.base.receivedHealing);
+
+  /**
+   * Settles a freshly rolled status against the combatant it is landing on.
+   *
+   * Both adjustments here belong to the **recipient**, which is why they happen at application
+   * rather than in `toActiveStatus` — that function only ever sees the applier. And they happen
+   * at application rather than per tick because that is when the quantity is snapshotted anyway:
+   * a poison does not stop hurting when its caster dies, and by the same token it should not
+   * start hurting more when the wall it is sitting on drops its guard.
+   *
+   * - A **damage-over-time** is measured against the target's matching resist. Without this the
+   *   `damageType` on a `dot` would be a field with no consumer: the collapse to one `atk` took
+   *   away its old job of choosing an attack stat, and answering a resist is the job it took on.
+   *   A Golem that shrugged off swords and not bleeds would be a hole in the one axis milestone
+   *   8a moved onto the resists.
+   * - A **regeneration** is healing from somebody else, so the recipient's amplifier applies.
+   */
+  const resolveAgainst = (status: ActiveStatus, target: Fighter, source: Fighter): ActiveStatus => {
+    if (status.amount === undefined) {
+      return status;
+    }
+    if (status.kind === 'dot' && status.damageType !== undefined) {
+      const share = resistedShare(live(target), status.damageType);
+      return share === 1 ? status : { ...status, amount: status.amount.mul(share) };
+    }
+    if (status.kind === 'regen') {
+      return { ...status, amount: amplified(target, source, status.amount) };
+    }
+    return status;
+  };
+
   /** Resolves one skill from `actor` onto one already-selected `target`. */
   const resolveOn = (actor: Fighter, target: Fighter, skill: Skill): void => {
     const attacker = live(actor);
@@ -352,9 +422,9 @@ export function simulateBattle(
             targetHp: target.hp,
           });
 
-          // Life drain is measured against damage **dealt**, shield included: a shield
+          // Life leech is measured against damage **dealt**, shield included: a shield
           // protects its holder, it does not deny the attacker its return.
-          const siphon = attacker.lifesteal + (effect.kind === 'drain' ? effect.siphon : 0);
+          const siphon = attacker.lifeLeech + (effect.kind === 'drain' ? effect.siphon : 0);
           if (siphon > 0 && isAlive(actor)) {
             const gained = restore(actor, roll.damage.mul(siphon));
             if (gained.gt(ZERO)) {
@@ -379,7 +449,10 @@ export function simulateBattle(
           if (!isAlive(target)) {
             break;
           }
-          const gained = restore(target, attacker.matk.mul(Math.max(effect.power, 0)));
+          const gained = restore(
+            target,
+            amplified(target, actor, attacker.atk.mul(Math.max(effect.power, 0))),
+          );
           events.push({
             kind: 'heal',
             tick,
@@ -410,7 +483,8 @@ export function simulateBattle(
             });
             break;
           }
-          const status = toActiveStatus(effect.status, attacker, tick);
+          const rolled = toActiveStatus(effect.status, attacker, tick);
+          const status = resolveAgainst(rolled, target, actor);
           target.statuses = applyStatus(target.statuses, status);
           events.push({ kind: 'status', tick, source: actor.key, target: target.key, status });
           break;
@@ -435,10 +509,29 @@ export function simulateBattle(
     }
   };
 
-  /** Regenerates MP, resolves lingering statuses, and reports whether the actor may act. */
+  /** Regenerates, resolves lingering statuses, and reports whether the actor may act. */
   const upkeep = (actor: Fighter): boolean => {
     actor.mp = Math.min(actor.mp + actor.base.mpRegen, actor.maxMp);
     events.push({ kind: 'turn', tick, combatant: actor.key, mp: actor.mp });
+
+    // Natural recovery, amplified by `healthRegen`. It is a quantity rather than a percentage
+    // of maximum HP on purpose — a percentage would scale itself and make a deep pool heal
+    // faster than a shallow one for free — and it is one of the four stats that grows, because
+    // a fixed number measured against a health bar heading for ×10⁹ is a rounding error by
+    // then. Self-healing, so `receivedHealing` deliberately does not touch it.
+    if (actor.base.recovery.gt(ZERO)) {
+      const gained = restore(actor, actor.base.recovery.mul(1 + actor.base.healthRegen));
+      if (gained.gt(ZERO)) {
+        events.push({
+          kind: 'heal',
+          tick,
+          source: actor.key,
+          target: actor.key,
+          amount: gained,
+          targetHp: actor.hp,
+        });
+      }
+    }
 
     for (const status of actor.statuses) {
       if (status.amount === undefined) {
@@ -500,6 +593,7 @@ export function simulateBattle(
     if (skill.cooldown > 0) {
       actor.cooldowns.set(skill.id, tick + skill.cooldown);
     }
+    actor.swinging = skill.id === actor.combatant.basic.id;
     if (skill.id !== actor.combatant.basic.id) {
       events.push({
         kind: 'cast',
@@ -532,6 +626,9 @@ export function simulateBattle(
     tick += jump;
     for (const fighter of fighters) {
       if (isAlive(fighter)) {
+        // The jump was sized so nothing changes inside `[tick, tick + jump)`: gauge modifiers
+        // are bounded by `nextExpiry`, and `swinging` only ever moves inside an action, which is
+        // a tick boundary by construction.
         fighter.gauge += speed(fighter) * jump;
       }
     }

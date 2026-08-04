@@ -228,7 +228,7 @@ export const STAGES = [
   {
     // The armour check. Almost nothing physical the party does lands for full value against 62
     // DEF, and the Pyre Caster behind it means grinding through slowly is not free either. A
-    // Golem's `mdef` is only 20 — this is where a caster earns a slot.
+    // The Golem's resist is physical only — this is where a caster earns a slot.
     id: 'stage-9',
     name: 'Broken Causeway',
     enemies: { front: [GOLEM], back: [WISP, PYRE] },

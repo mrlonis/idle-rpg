@@ -9,6 +9,7 @@ import {
   growthMultiplier,
   MAX_ACCURACY,
   MAX_PENETRATION,
+  MAX_RESIST,
   type SkillData,
   type StatBlockData,
   startRarityIndex,
@@ -36,12 +37,7 @@ const TIERS: readonly CharacterTier[] = ['common', 'legendary', 'ascended'];
 
 /** A rough power budget. Deliberately crude — it is a smell test, not a balance model. */
 function budget(stats: StatBlockData): number {
-  return (
-    Number(stats.hp) / 10 +
-    Math.max(Number(stats.patk), Number(stats.matk)) +
-    Number(stats.pdef) +
-    Number(stats.mdef)
-  );
+  return Number(stats.hp) / 10 + Number(stats.atk) + Number(stats.def) * 2;
 }
 
 describe('the roster', () => {
@@ -105,17 +101,18 @@ describe('the roster', () => {
       const stats = character.stats;
 
       expect(Number(stats.hp), character.id).toBeGreaterThan(0);
-      expect(Number(stats.patk), character.id).toBeGreaterThan(0);
-      expect(Number(stats.matk), character.id).toBeGreaterThan(0);
-      expect(Number(stats.pdef), character.id).toBeGreaterThanOrEqual(0);
-      expect(Number(stats.mdef), character.id).toBeGreaterThanOrEqual(0);
-      // SPD is ATB gauge per tick against a threshold of 1000; above it a combatant would bank
-      // two actions in a single tick and break turn ordering.
-      expect(stats.spd, character.id).toBeGreaterThanOrEqual(1);
-      expect(stats.spd, character.id).toBeLessThanOrEqual(1000);
+      expect(Number(stats.atk), character.id).toBeGreaterThan(0);
+      expect(Number(stats.def), character.id).toBeGreaterThanOrEqual(0);
+      expect(Number(stats.recovery ?? 0), character.id).toBeGreaterThanOrEqual(0);
+      // Haste is ATB gauge per tick against a threshold of 1000; above it a combatant would bank
+      // two actions in a single tick and break turn ordering. Attack speed is added to the same
+      // gauge, so the pair has to respect the bound between them.
+      expect(stats.haste, character.id).toBeGreaterThanOrEqual(1);
+      expect(stats.haste + (stats.attackSpeed ?? 0), character.id).toBeLessThanOrEqual(1000);
+      expect(stats.attackSpeed ?? 0, character.id).toBeGreaterThanOrEqual(0);
       expect(stats.critChance, character.id).toBeGreaterThanOrEqual(0);
       expect(stats.critChance, character.id).toBeLessThanOrEqual(1);
-      expect(stats.critMultiplier, character.id).toBeGreaterThanOrEqual(1);
+      expect(stats.critDamageAmp, character.id).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -123,20 +120,43 @@ describe('the roster', () => {
     // Authored content that needed clamping is a bug for this spec to catch rather than damage to
     // repair: `content.ts` clamps because a *player's* save is untrusted, not because `data/` is.
     for (const character of characters) {
-      const { lifesteal, effectHit, tenacity, armorPen, magicPen, dodge, accuracy, mp, mpRegen } =
-        character.stats;
+      const {
+        lifeLeech,
+        insight,
+        tenacity,
+        critBlock,
+        physicalPierce,
+        magicPierce,
+        physicalResist,
+        magicResist,
+        critDamageResist,
+        healthRegen,
+        receivedHealing,
+        dodge,
+        accuracy,
+        mp,
+        mpRegen,
+      } = character.stats;
 
       for (const [label, value] of [
-        ['lifesteal', lifesteal],
-        ['effectHit', effectHit],
+        ['lifeLeech', lifeLeech],
+        ['insight', insight],
         ['tenacity', tenacity],
+        ['critBlock', critBlock],
         ['dodge', dodge],
       ] as const) {
         expect(value ?? 0, `${character.id} ${label}`).toBeGreaterThanOrEqual(0);
         expect(value ?? 0, `${character.id} ${label}`).toBeLessThanOrEqual(1);
       }
-      expect(armorPen ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
-      expect(magicPen ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
+      expect(physicalPierce ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
+      expect(magicPierce ?? 0, character.id).toBeLessThanOrEqual(MAX_PENETRATION);
+      // Resist is the termination guard, not a balance number: a combatant nothing can damage
+      // is a fight that runs to the tick cap.
+      expect(physicalResist ?? 0, character.id).toBeLessThanOrEqual(MAX_RESIST);
+      expect(magicResist ?? 0, character.id).toBeLessThanOrEqual(MAX_RESIST);
+      expect(critDamageResist ?? 0, character.id).toBeGreaterThanOrEqual(0);
+      expect(healthRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
+      expect(receivedHealing ?? 0, character.id).toBeGreaterThanOrEqual(0);
       expect(accuracy ?? 1, character.id).toBeLessThanOrEqual(MAX_ACCURACY);
       expect(mp ?? 0, character.id).toBeGreaterThanOrEqual(0);
       expect(mpRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
@@ -269,11 +289,11 @@ describe('characters are sidegrades within a tier', () => {
     // never worth fielding.
     const axes: readonly (keyof StatBlockData)[] = [
       'hp',
-      'patk',
-      'matk',
-      'pdef',
-      'mdef',
-      'spd',
+      'atk',
+      'def',
+      'recovery',
+      'haste',
+      'attackSpeed',
       'critChance',
     ];
     const peers = characters.filter((character) => character.tier === tier);
@@ -304,12 +324,12 @@ describe('characters are sidegrades within a tier', () => {
     // now carry a fourth character each — the mortal healer and the mortal cleanse — and neither
     // is on their faction's axis, which is exactly why they were added.
     const axisOf: Readonly<Record<string, keyof StatBlockData>> = {
-      dwarf: 'pdef',
-      elf: 'spd',
-      monster: 'patk',
+      dwarf: 'def',
+      elf: 'haste',
+      monster: 'atk',
       demon: 'critChance',
       undead: 'hp',
-      angel: 'mdef',
+      angel: 'def',
     };
     const canonical: Readonly<Record<string, readonly string[]>> = {
       dwarf: ['bran', 'korrin', 'thraun'],

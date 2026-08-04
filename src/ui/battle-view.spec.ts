@@ -122,7 +122,7 @@ const WEAKENED: ActiveStatus = {
   kind: 'stat-mod',
   hostile: true,
   expiresAt: 85,
-  stat: 'patk',
+  stat: 'atk',
   multiplier: 0.75,
 };
 
