@@ -761,10 +761,16 @@ export const WITHERING_TOUCH = {
 // ---------------------------------------------------------------------------------------
 // Enemy kits — the late locks
 //
-// Four of these five exist because the vocabulary in `core/battle/types.ts` had targets and a
-// condition that nothing in the game had ever used. `enemy-row-back`, `enemy-lowest`,
-// `enemy-highest` and `self-hurt` were all authorable from milestone 4 onward and all sat idle,
-// which meant four questions the roster already had answers to that nothing was asking.
+// Most of these exist because the vocabulary in `core/battle/types.ts` had targets and a
+// condition that nothing in the game had ever used. `enemy-row-back` (Shrike Dive),
+// `enemy-lowest` (Headsman's Arc), `enemy-highest` (Tyrant's Claim) and the `self-hurt` condition
+// (Wrath Unbound) were all authorable from milestone 4 onward and all sat idle, which meant four
+// questions the roster already had answers to that nothing was asking. Flense and Ruinous Arc are
+// the ordinary turns the Ravager and the Wrathborn take between them — a lock still has to be
+// attached to something that fights.
+//
+// Named rather than counted on purpose: a count goes stale the first time this list grows, and
+// this comment has already done that once.
 // ---------------------------------------------------------------------------------------
 
 /**

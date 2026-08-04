@@ -66,6 +66,15 @@ export class SaveService {
   }
 
   /**
+   * The newest state waiting to be written, and the drain that is working through them.
+   *
+   * Together these make {@link save} **serialised and coalescing**. Both halves matter and they
+   * answer different problems — see the note on {@link save}.
+   */
+  private queued: GameState | null = null;
+  private draining: Promise<void> | null = null;
+
+  /**
    * Writes the run, copying the previous contents to the backup slot first.
    *
    * The state is written exactly as given — `lastTickAt` is maintained by the game loop as
@@ -74,8 +83,65 @@ export class SaveService {
    * `fatal` loads must not reach here: a save this build cannot read (because it came from a
    * newer build) is still perfectly good once the player updates, and overwriting it would
    * destroy a working run. `GameLoopService` enforces that.
+   *
+   * ## Two writes must never be in flight together
+   *
+   * A write is a **read-then-write across two slots** — read the primary, copy it to the backup,
+   * then overwrite the primary. Run two of those concurrently and they interleave: both read the
+   * same primary, and whichever finishes last wins, so an *older* state can land on top of a
+   * newer one. That is lost progress, and the backup can end up describing a save that was never
+   * the primary.
+   *
+   * It became a real risk when auto-battle landed. Persisting at the end of every battle is what
+   * makes "losing the app costs the fight in flight and nothing else" true, but at 4x that is
+   * about one write a second, and on a device each one is a bridge round-trip rather than the
+   * microtask `localStorage` costs on the web. So the guarantee that motivated the frequent
+   * writes is exactly the guarantee the frequency would have broken.
+   *
+   * **Serialising here rather than pacing the caller** is deliberate. Making the next auto-battle
+   * fight wait for the previous write would couple the game's pacing to disk latency, so a slow
+   * bridge would stutter the animation. The ordering problem belongs to the two slots, so the
+   * ordering lives with them, and the loop stays free-running.
+   *
+   * ## Coalescing, not queueing
+   *
+   * A caller that arrives while a write is in progress **replaces** whatever was waiting instead
+   * of joining a queue. Every state is a snapshot of one monotonically advancing run, so an
+   * intermediate one that never reaches disk costs nothing — whereas a queue that grew with the
+   * battle rate would be a backlog of writes that were stale before they started.
+   *
+   * The returned promise still resolves only once **that state, or a newer one**, is on disk,
+   * which is what makes `void persist()` safe to fire and forget.
    */
   async save(state: GameState): Promise<void> {
+    this.queued = state;
+    this.draining ??= this.drain();
+    await this.draining;
+  }
+
+  /**
+   * Writes queued states until none is left.
+   *
+   * The loop re-checks {@link queued} after each write rather than capturing it up front, which
+   * is what lets a state that arrived mid-write be picked up by the drain already running instead
+   * of starting a second one.
+   */
+  private async drain(): Promise<void> {
+    try {
+      while (this.queued !== null) {
+        const next = this.queued;
+        this.queued = null;
+        await this.write(next);
+      }
+    } finally {
+      // Cleared here rather than after the loop so a failed write cannot wedge the service into
+      // a state where every later save awaits a promise that already rejected.
+      this.draining = null;
+    }
+  }
+
+  /** One state to disk: backup first, then the primary. Only ever called from {@link drain}. */
+  private async write(state: GameState): Promise<void> {
     const previous = await this.read(PRIMARY_KEY);
     if (previous !== null) {
       await Preferences.set({ key: BACKUP_KEY, value: previous });
@@ -83,8 +149,18 @@ export class SaveService {
     await Preferences.set({ key: PRIMARY_KEY, value: JSON.stringify(toSaveData(state)) });
   }
 
-  /** Clears both slots. For a deliberate "start over", never as error recovery. */
+  /**
+   * Clears both slots. For a deliberate "start over", never as error recovery.
+   *
+   * Drops anything waiting to be written and lets a write already in progress finish, so the two
+   * slots are never removed out from under a half-completed write. That is not the whole of a
+   * reset: the running game holds the authoritative state in memory and will persist it again on
+   * the next autosave, so a reset has to stop the loop and replace that state as well. See
+   * `docs/milestones.md`.
+   */
   async clear(): Promise<void> {
+    this.queued = null;
+    await this.draining;
     await Preferences.remove({ key: PRIMARY_KEY });
     await Preferences.remove({ key: BACKUP_KEY });
   }

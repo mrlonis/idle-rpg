@@ -9,19 +9,48 @@ function withGold(state: GameState, gold: string): GameState {
 /** In-memory stand-in for the native key/value store. */
 const store = new Map<string, string>();
 
+/**
+ * Every operation the store saw, in order, so a test can assert on *interleaving* rather than
+ * only on the final bytes.
+ *
+ * On the web Preferences is `localStorage` behind an async wrapper and the gap between two
+ * operations is a microtask. On a device it is a real bridge round-trip, which is where two
+ * overlapping writes have room to tear — so the settling delay below is configurable and the
+ * ordering assertions are written against this log rather than against timing.
+ */
+const operations: string[] = [];
+
+/** How long a store operation takes to settle. Raised in the tests that exercise concurrency. */
+let settle: () => Promise<void> = () => Promise.resolve();
+
 vi.mock('@capacitor/preferences', () => ({
   Preferences: {
-    get: ({ key }: { key: string }) => Promise.resolve({ value: store.get(key) ?? null }),
-    set: ({ key, value }: { key: string; value: string }) => {
-      store.set(key, value);
-      return Promise.resolve();
+    get: async ({ key }: { key: string }) => {
+      operations.push(`get:${key}`);
+      await settle();
+      return { value: store.get(key) ?? null };
     },
-    remove: ({ key }: { key: string }) => {
+    set: async ({ key, value }: { key: string; value: string }) => {
+      operations.push(`set:${key}`);
+      await settle();
+      store.set(key, value);
+    },
+    remove: async ({ key }: { key: string }) => {
+      operations.push(`remove:${key}`);
+      await settle();
       store.delete(key);
-      return Promise.resolve();
     },
   },
 }));
+
+/** Settles after a handful of microtask turns, which is enough room for two writes to tear. */
+function slowStore(): void {
+  settle = async () => {
+    for (let turn = 0; turn < 4; turn++) {
+      await Promise.resolve();
+    }
+  };
+}
 
 const { makeSeed, SaveService } = await import('./save.service');
 
@@ -32,6 +61,8 @@ describe('SaveService', () => {
 
   beforeEach(() => {
     store.clear();
+    operations.length = 0;
+    settle = () => Promise.resolve();
     service = new SaveService();
   });
 
@@ -115,6 +146,75 @@ describe('SaveService', () => {
     expect(loaded.fatal).toBeUndefined();
     expect(loaded.issues.length).toBeGreaterThan(0);
     expect(loaded.state.wallet.gold.toString()).toBe('0');
+  });
+
+  describe('overlapping writes', () => {
+    /**
+     * Auto-battle is what made this worth guarding.
+     *
+     * A battle persists as it ends, and at 4x that can be one write a second — so two writes are
+     * genuinely in flight together on a device. Each one is a read-then-write across two slots, so
+     * without serialisation an older save can finish last and overwrite a newer one, which is
+     * progress loss rather than a cosmetic ordering wobble.
+     */
+    it('never lets an earlier write finish after a later one', async () => {
+      slowStore();
+      const first = withGold(newGame({ seed: 1, nowMs: T0 }), '111');
+      const second = withGold(newGame({ seed: 1, nowMs: T0 }), '222');
+
+      // Deliberately not awaited in turn: this is the shape `settle()` produces.
+      await Promise.all([service.save(first), service.save(second)]);
+
+      expect(store.get('save')).toContain('222');
+    });
+
+    it('keeps the read-then-write pair of each save intact', async () => {
+      // The tearing, stated as a sequence rather than as an outcome. One write is
+      // `get:save`, `set:save.bak`, `set:save` — and two of those interleaved is how the backup
+      // ends up describing a save that was never the primary.
+      slowStore();
+      await service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '111'));
+      operations.length = 0;
+
+      await Promise.all([
+        service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '222')),
+        service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '333')),
+      ]);
+
+      // Every `get:save` is followed by its own backup and primary write before the next one.
+      const pairs = operations.join(',');
+      expect(pairs).not.toMatch(/get:save,(?!set:save\.bak,set:save)/);
+    });
+
+    it('writes only the newest state when several pile up', async () => {
+      // Coalescing, not queueing. States are snapshots of one monotonically advancing run, so an
+      // intermediate one that never reaches disk costs nothing — and a queue that grew with the
+      // battle rate would be a backlog of writes nobody wants.
+      slowStore();
+      const saves = [
+        service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '111')),
+        service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '222')),
+        service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '333')),
+      ];
+      await Promise.all(saves);
+
+      expect(store.get('save')).toContain('333');
+      expect(operations.filter((op) => op === 'set:save')).toHaveLength(2);
+    });
+
+    it('resolves a caller only once its state, or a newer one, is on disk', async () => {
+      // The contract that makes `void persist()` safe to fire and forget: nothing is told the run
+      // is durable while an older snapshot is the one on disk.
+      slowStore();
+      const second = withGold(newGame({ seed: 1, nowMs: T0 }), '222');
+
+      const first = service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '111'));
+      const later = service.save(second);
+      await first;
+
+      expect(store.get('save')).toContain('222');
+      await later;
+    });
   });
 
   it('clears both slots on request', async () => {

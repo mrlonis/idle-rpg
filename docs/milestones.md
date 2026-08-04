@@ -599,8 +599,10 @@ below:
   body), Gallows Headsman (executes the lowest-HP ally regardless of rank), Adamant Colossus
   (0.85 tenacity, so debuffs bounce off). Bonefall Tyrant, The Oathbreaker, The Unmade, Ash
   Revenant, Cairn Sentinel and Fen Stormcaller are the bodies and support they stand with.
-- `data/skills.ts` — five new enemy skills, four of which exist to use vocabulary that had never
-  been used: `enemy-row-back`, `enemy-lowest`, `enemy-highest`, and the `self-hurt` condition.
+- `data/skills.ts` — six new enemy skills. Four exist to use vocabulary that had never been used:
+  Shrike Dive (`enemy-row-back`), Headsman's Arc (`enemy-lowest`), Tyrant's Claim
+  (`enemy-highest`) and Wrath Unbound (the `self-hurt` condition). Flense and Ruinous Arc are the
+  ordinary turns the Ravager and the Wrathborn take between them.
 - `data/stages.ts` — stages 13–24, plus `AUTO_BATTLE_UNLOCK_CLEARS`.
 - `ui/battle.service.ts` — `isAuto`, `isAutoUnlocked`, `autoStoppedAt`, `setAuto()`, the
   `visibilitychange` listener, and persistence at the end of **every** battle.
@@ -635,6 +637,16 @@ Three things about it are load-bearing rather than cosmetic:
   auto-battle placed on the rest of the app, and it is what makes "losing the app costs the fight
   in flight and nothing else" true rather than aspirational. There is no pause/resume state
   machine and nothing to reconcile on next launch, because everything already finished is banked.
+
+  **Doing that made a latent save race reachable, and the fix belongs with it.** A write is a
+  read-then-write across the primary and backup slots, so two in flight together interleave and an
+  older state can land on top of a newer one. Nothing had ever written often enough for that to
+  matter; one write a second at 4x does, and on a device each write is a bridge round-trip rather
+  than a microtask. `SaveService` now keeps at most one write in flight and coalesces whatever
+  arrives during it down to the newest state. **Serialising at the storage layer rather than
+  making the next fight wait for the previous write** is the deliberate half: gating the loop on
+  disk latency would put a slow bridge into the animation's critical path, and the ordering
+  problem belongs to the two slots rather than to the battle loop. See [saves](saves.md).
 
 The battle in flight when the app hides is left alone: it finishes, banks and persists, and
 nothing follows it.
