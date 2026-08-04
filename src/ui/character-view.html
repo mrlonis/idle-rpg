@@ -38,11 +38,21 @@
       <ul class="skills">
         @for (skill of skills(); track skill.id) {
           <!--
-            The lock is stated in text as well as in colour, because colour alone is not an
-            accessible way to say a thing is unavailable — and `aria-disabled` rather than
-            `disabled`, since a list row is not an interactive control.
+            The lock is carried three ways, and the text is the load-bearing one: the row says
+            "Locked" and names the rung, so it survives both a styling change and a reader who
+            cannot perceive the dimming. Colour alone would fail WCAG 1.4.1.
+
+            `aria-disabled` is the programmatic half, and it is `aria-disabled` rather than
+            `disabled` because a list row is not an interactive control. It is valid here despite
+            `listitem` not listing it: ARIA 1.2 promoted `aria-disabled` to a **global** attribute,
+            which is why the AXE suite passes with it — see `ariaAttrs` in axe-core, where it is
+            marked `global: true`. Do not "fix" it by deleting it.
           -->
-          <li class="skills__row" [class.skills__row--locked]="!skill.unlocked">
+          <li
+            class="skills__row"
+            [class.skills__row--locked]="!skill.unlocked"
+            [attr.aria-disabled]="skill.unlocked ? null : 'true'"
+          >
             <span class="skills__name">{{ skill.name }}</span>
             <span class="skills__meta">
               @if (skill.unlocked) {

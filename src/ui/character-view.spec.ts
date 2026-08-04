@@ -148,6 +148,7 @@ describe('CharacterView', () => {
         name: row.querySelector('.skills__name')?.textContent?.trim(),
         locked: row.classList.contains('skills__row--locked'),
         meta: row.querySelector('.skills__meta')?.textContent?.replace(/\s+/gu, ' ').trim(),
+        ariaDisabled: row.getAttribute('aria-disabled'),
       }));
 
     it('shows the locked half of the kit rather than hiding it', async () => {
@@ -166,12 +167,23 @@ describe('CharacterView', () => {
       expect(rows(el)[1].meta).toBe('Locked · unlocks at Elite');
     });
 
+    it('marks a locked row disabled for assistive tech, and only a locked one', async () => {
+      // The programmatic half of the lock, so it does not depend on the dimming being perceived
+      // or on the styling staying as it is. `aria-disabled` rather than `disabled` because a list
+      // row is not a control — valid on a `listitem` because ARIA 1.2 made it a global attribute,
+      // which is what lets the AXE suite pass with it.
+      const el = await open('/roster/rin');
+
+      expect(rows(el).map((row) => row.ariaDisabled)).toEqual([null, 'true']);
+    });
+
     it('opens the whole kit once the character reaches the rung', async () => {
       const roster = new FakeRoster();
       roster.at({ rarity: 2, rarityLabel: 'Elite', rarityFamily: 'elite' });
       const el = await open('/roster/rin', roster);
 
       expect(rows(el).every((row) => !row.locked)).toBe(true);
+      expect(rows(el).every((row) => row.ariaDisabled === null)).toBe(true);
       expect(rows(el)[1].meta).toContain('cooldown');
     });
 

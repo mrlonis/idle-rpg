@@ -11,6 +11,7 @@ import {
   type GrowthData,
   type KitRulesData,
   MAX_BATTLE_TICKS,
+  rarityIndex,
   scaleStats,
   simulateBattle,
   type StageData,
@@ -49,14 +50,32 @@ const rules: CombatRules = toCombatRules(authoredRules);
 const TRIALS = 40;
 
 /**
+ * The rungs this file fields parties at, resolved from the ladder rather than written as indices.
+ *
+ * Every one of these used to be a bare number, which is a coupling wearing a literal's clothes: 2
+ * means `elite` only for as long as nobody inserts a rung below it, and a reordered ladder would
+ * have moved every reference party silently — the sweep would still pass, describing a different
+ * game. Reading them off `rarityIndex` makes that a compile-time relationship, and an id that
+ * stops being a rarity resolves to `-1` and fails loudly instead.
+ *
+ * The names also carry what the numbers never did. `ELITE` is the lowest rung whose level cap
+ * permits {@link BUILT} and the rung at which a common-tier character's second skill arrives;
+ * `LEGENDARY` is where {@link INVESTED} sits; `ASCENDED` is where a fully invested character ends
+ * up; `RARE` is where every character starts and where {@link STARTERS} still is. Those are the
+ * facts the sweeps are actually about.
+ */
+const RARE = rarityIndex('rare');
+const ELITE = rarityIndex('elite');
+const LEGENDARY = rarityIndex('legendary');
+const ASCENDED = rarityIndex('ascended');
+
+/**
  * The rung the difficulty probe fields its kits at.
  *
- * `elite`, matching {@link BUILT} — the lowest rung whose level cap permits the reference party,
- * and the rung at which a common-tier character's second skill arrives. The probe sweeps *power*
- * continuously and holds everything else fixed, so the kit has to be a constant rather than
- * something that moves with the multiplier.
+ * Matching {@link BUILT}. The probe sweeps *power* continuously and holds everything else fixed,
+ * so the kit has to be pinned to a rung rather than moving with the multiplier.
  */
-const PROBE_RARITY = 2;
+const PROBE_RARITY = ELITE;
 
 interface Sweep {
   readonly winRate: number;
@@ -130,8 +149,8 @@ function legal(level: number, rarity: number): number {
 
 /** The three characters a run starts with, at level 1, standing where the game puts them. */
 const STARTERS: FormationData = {
-  front: [at(BRAN, 1, 0), at(MIRA, 1, 0)],
-  back: [at(RIN, 1, 0)],
+  front: [at(BRAN, 1, RARE), at(MIRA, 1, RARE)],
+  back: [at(RIN, 1, RARE)],
 };
 
 /**
@@ -142,8 +161,12 @@ const STARTERS: FormationData = {
  * nothing behind it. `elite` is simply the lowest rung whose cap (100) permits level 80.
  */
 const BUILT: FormationData = {
-  front: [at(BRAN, legal(80, 2), 2), at(GNASH, legal(80, 2), 2)],
-  back: [at(RIN, legal(80, 2), 2), at(CELIA, legal(80, 2), 2), at(PYRA, legal(80, 2), 2)],
+  front: [at(BRAN, legal(80, ELITE), ELITE), at(GNASH, legal(80, ELITE), ELITE)],
+  back: [
+    at(RIN, legal(80, ELITE), ELITE),
+    at(CELIA, legal(80, ELITE), ELITE),
+    at(PYRA, legal(80, ELITE), ELITE),
+  ],
 };
 
 /**
@@ -154,8 +177,12 @@ const BUILT: FormationData = {
  * a player cannot earn.
  */
 const INVESTED: FormationData = {
-  front: [at(BRAN, legal(200, 4), 4), at(GNASH, legal(200, 4), 4)],
-  back: [at(RIN, legal(200, 4), 4), at(CELIA, legal(200, 4), 4), at(PYRA, legal(200, 4), 4)],
+  front: [at(BRAN, legal(200, LEGENDARY), LEGENDARY), at(GNASH, legal(200, LEGENDARY), LEGENDARY)],
+  back: [
+    at(RIN, legal(200, LEGENDARY), LEGENDARY),
+    at(CELIA, legal(200, LEGENDARY), LEGENDARY),
+    at(PYRA, legal(200, LEGENDARY), LEGENDARY),
+  ],
 };
 
 const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) }));
@@ -325,12 +352,12 @@ describe('parties nobody tuned for', () => {
   });
 
   const awkward: readonly { label: string; party: FormationData }[] = [
-    { label: 'solo Thraun', party: solo(THRAUN, 8) },
-    { label: 'solo Celia', party: solo(CELIA, 8) },
-    { label: 'solo Bran', party: solo(BRAN, 2) },
-    { label: 'Thraun + Celia', party: sustainPair(THRAUN, CELIA, 8) },
-    { label: 'Korrin + Celia', party: sustainPair(KORRIN, CELIA, 8) },
-    { label: 'Thraun + Korrin', party: sustainPair(THRAUN, KORRIN, 8) },
+    { label: 'solo Thraun', party: solo(THRAUN, ASCENDED) },
+    { label: 'solo Celia', party: solo(CELIA, ASCENDED) },
+    { label: 'solo Bran', party: solo(BRAN, ELITE) },
+    { label: 'Thraun + Celia', party: sustainPair(THRAUN, CELIA, ASCENDED) },
+    { label: 'Korrin + Celia', party: sustainPair(KORRIN, CELIA, ASCENDED) },
+    { label: 'Thraun + Korrin', party: sustainPair(THRAUN, KORRIN, ASCENDED) },
   ];
 
   const awkwardSweeps = awkward.flatMap(({ label, party }) =>
