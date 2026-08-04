@@ -1,9 +1,10 @@
 import { mulberry32 } from '../mulberry32';
-import { num, type Numeric, ZERO } from '../numeric';
+import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './clock';
 import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
 import { factionMultiplier, resistedShare, rollAttack, statusChance } from './damage';
+import { clampEnergy } from './energy';
 import { chooseSkill, type FighterView, isAlive, selectTargets } from './skills';
 import {
   absorbDamage,
@@ -58,11 +59,18 @@ import {
  *
  * ## Why a turn is upkeep first, action second
  *
- * A turn regenerates MP, ticks damage-over-time and regeneration, and only then acts. A
+ * A turn regenerates energy, ticks damage-over-time and regeneration, and only then acts. A
  * stunned combatant **still consumes its turn** — the gauge is spent and the action is
  * skipped. That is what bounds a stun lock: a stun costs its victim turns rather than freezing
  * the victim out of the schedule entirely, so a stunned side keeps arriving at the front of
  * the queue and the fight cannot deadlock.
+ *
+ * ## Energy
+ *
+ * Every combatant opens a fight at **zero** energy and fills it from its own `energyRegen` plus
+ * what the fight pays — landing a hit, taking one, healing an ally. An ultimate spends the whole
+ * bar. See [`energy.ts`](energy.ts) for why that inverts what MP did to pacing, and for the
+ * termination responsibility it hands to `MAX_BATTLE_TICKS`.
  *
  * ## Determinism
  *
@@ -90,12 +98,13 @@ interface Fighter extends FighterView {
   readonly defId: string;
   readonly name: string;
   readonly faction: string;
-  readonly maxMp: number;
+  /** Whether this combatant has anything to spend a full bar on. */
+  readonly hasUltimate: boolean;
   /** As parsed, with the row bonus already baked in. Statuses are applied on top per read. */
   readonly base: CombatStats;
   readonly combatant: Combatant;
   hp: Numeric;
-  mp: number;
+  energy: number;
   gauge: number;
   /**
    * Whether the last action taken was a basic attack, which is what `attackSpeed` pays for.
@@ -190,12 +199,14 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
         defId: combatant.id,
         name: (totals.get(combatant.id) ?? 0) > 1 ? `${combatant.name} ${ordinal}` : combatant.name,
         faction: combatant.faction,
+        hasUltimate: combatant.skills.some((skill) => skill.ultimate),
         maxHp: combatant.stats.hp,
-        maxMp: combatant.stats.mp,
         base: combatant.stats,
         combatant,
         hp: combatant.stats.hp,
-        mp: combatant.stats.mp,
+        // Empty, not full. An ultimate is a payoff rather than an opener — the single most
+        // consequential difference between energy and the MP pool it replaced.
+        energy: 0,
         gauge: 0,
         swinging: false,
         statuses: [],
@@ -276,8 +287,8 @@ function snapshot(fighter: Fighter): CombatantSnapshot {
     faction: fighter.faction,
     maxHp: fighter.maxHp,
     hp: fighter.hp,
-    maxMp: fighter.maxMp,
-    mp: fighter.mp,
+    energy: fighter.energy,
+    ultimate: fighter.hasUltimate,
     haste: speed(fighter),
     shield: shieldTotal(fighter.statuses),
     statuses: fighter.statuses,
@@ -385,8 +396,28 @@ export function simulateBattle(
     return status;
   };
 
+  /** Adds energy to a fighter, clamped to the bar. Returns the new total for the event log. */
+  const charge = (fighter: Fighter, amount: number): number => {
+    fighter.energy = clampEnergy(fighter.energy + amount);
+    return fighter.energy;
+  };
+
+  /**
+   * What one action has already been paid for.
+   *
+   * `onHit` and `onHeal` are **once per action**, so a row nuke does not charge its own caster
+   * five times over and turn every wide ultimate into an engine that refuels itself. That has to
+   * be tracked across the per-target loop, and it has to be tracked here rather than settled
+   * afterwards: the `attack` and `heal` events carry the caster's energy, and an award applied
+   * after the events were emitted would put a number in the log that never existed.
+   */
+  interface Credit {
+    hit: boolean;
+    healed: boolean;
+  }
+
   /** Resolves one skill from `actor` onto one already-selected `target`. */
-  const resolveOn = (actor: Fighter, target: Fighter, skill: Skill): void => {
+  const resolveOn = (actor: Fighter, target: Fighter, skill: Skill, credit: Credit): void => {
     const attacker = live(actor);
     const matchup = factionMultiplier(rules, actor.faction, target.faction);
 
@@ -416,6 +447,14 @@ export function simulateBattle(
           const absorbed = absorbDamage(target.statuses, roll.damage);
           target.statuses = absorbed.statuses;
           const fell = damage(target, absorbed.through);
+
+          // The attacker is credited once for the action; the target every time it is hit. A
+          // combatant that has just fallen is not credited — a bar filling on a corpse is a
+          // number the animator would have to draw somewhere.
+          const sourceEnergy = credit.hit ? actor.energy : charge(actor, rules.energy.onHit);
+          credit.hit = true;
+          const targetEnergy = fell ? target.energy : charge(target, rules.energy.onHurt);
+
           events.push({
             kind: 'attack',
             tick,
@@ -426,6 +465,8 @@ export function simulateBattle(
             absorbed: absorbed.absorbed,
             crit: roll.crit,
             targetHp: target.hp,
+            sourceEnergy,
+            targetEnergy,
           });
 
           // Life leech is measured against damage **dealt**, shield included: a shield
@@ -441,6 +482,8 @@ export function simulateBattle(
                 target: actor.key,
                 amount: gained,
                 targetHp: actor.hp,
+                // Healing itself, so no energy. Same line `receivedHealing` draws.
+                sourceEnergy: actor.energy,
               });
             }
           }
@@ -459,6 +502,11 @@ export function simulateBattle(
             target,
             amplified(target, actor, attacker.atk.mul(Math.max(effect.power, 0))),
           );
+          const healedAnother = target !== actor;
+          const sourceEnergy =
+            healedAnother && !credit.healed ? charge(actor, rules.energy.onHeal) : actor.energy;
+          credit.healed = credit.healed || healedAnother;
+
           events.push({
             kind: 'heal',
             tick,
@@ -466,6 +514,7 @@ export function simulateBattle(
             target: target.key,
             amount: gained,
             targetHp: target.hp,
+            sourceEnergy,
           });
           break;
         }
@@ -517,8 +566,8 @@ export function simulateBattle(
 
   /** Regenerates, resolves lingering statuses, and reports whether the actor may act. */
   const upkeep = (actor: Fighter): boolean => {
-    actor.mp = Math.min(actor.mp + actor.base.mpRegen, actor.maxMp);
-    events.push({ kind: 'turn', tick, combatant: actor.key, mp: actor.mp });
+    charge(actor, actor.base.energyRegen);
+    events.push({ kind: 'turn', tick, combatant: actor.key, energy: actor.energy });
 
     // Natural recovery, amplified by `healthRegen`. It is a quantity rather than a percentage
     // of maximum HP on purpose — a percentage would scale itself and make a deep pool heal
@@ -535,6 +584,7 @@ export function simulateBattle(
           target: actor.key,
           amount: gained,
           targetHp: actor.hp,
+          sourceEnergy: actor.energy,
         });
       }
     }
@@ -589,12 +639,9 @@ export function simulateBattle(
       return;
     }
 
-    if (skill.costKind === 'mp') {
-      actor.mp -= skill.costAmount;
-    } else if (skill.costKind === 'hp') {
-      // `canAfford` guarantees this leaves at least a sliver, so paying for a skill can never
-      // be what kills the caster.
-      actor.hp = actor.hp.sub(num(skill.costAmount));
+    if (skill.ultimate) {
+      // The whole bar, every time. `canAfford` has already established it was full.
+      actor.energy = 0;
     }
     if (skill.cooldown > 0) {
       actor.cooldowns.set(skill.id, tick + skill.cooldown);
@@ -607,13 +654,15 @@ export function simulateBattle(
         source: actor.key,
         skillId: skill.id,
         skillName: skill.name,
-        mp: actor.mp,
-        hp: actor.hp,
+        energy: actor.energy,
       });
     }
 
+    // One record for the whole action, so `onHit` and `onHeal` are paid once however many
+    // targets the skill reaches.
+    const credit: Credit = { hit: false, healed: false };
     for (const target of targets) {
-      resolveOn(actor, target, skill);
+      resolveOn(actor, target, skill, credit);
     }
   };
 

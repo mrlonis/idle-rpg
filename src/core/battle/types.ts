@@ -127,23 +127,21 @@ export interface StatBlockData {
   readonly critBlock?: number;
 
   /**
-   * Maximum skill points. Absent or zero means this combatant pays no MP at all.
+   * Energy regained at the top of each of this combatant's own turns.
    *
-   * Not every kit is metered the same way, and that is the point: a cooldown-only kit is
-   * always available and therefore has to be individually weaker, an MP kit front-loads and
-   * then runs dry, and an HP-cost kit converts its own life into tempo. A healer's pool is
-   * finite on purpose — it is what guarantees a fight against one resolves rather than
-   * grinding against a heal that never stops.
+   * The drip half of the energy meter. The other half — landing a hit, taking one, healing an
+   * ally — is the same for everybody and lives in {@link EnergyRulesData}, because it describes
+   * what fighting is worth rather than what a character is like. This is the half that is
+   * authorable, and it is where "casts often" is said: a support with 14 here reaches its
+   * ultimate on the drip alone, and a Monster with none reaches it only by fighting.
    *
-   * A plain `number`, and deliberately unscaled: MP is a budget measured against authored
-   * skill costs, so growing it with level would quietly delete the metering.
+   * Absent means zero, which is a combatant that charges purely from combat.
    *
-   * **Milestone 8b replaces this with energy** and deletes both MP fields. It survives 8a
-   * because energy does not exist yet, and a healer with neither is a healer with no meter.
+   * A plain `number`, and deliberately unscaled: it is a budget measured against a fixed
+   * `MAX_ENERGY` bar, so growing it with level would quietly delete the metering — the
+   * same argument that kept `mp` flat before energy replaced it.
    */
-  readonly mp?: number;
-  /** MP regained at the start of each of this combatant's own turns. */
-  readonly mpRegen?: number;
+  readonly energyRegen?: number;
   /** Fraction of damage dealt returned to the attacker as healing, 0–1. Was `lifesteal`. */
   readonly lifeLeech?: number;
   /**
@@ -158,8 +156,8 @@ export interface StatBlockData {
   /**
    * Fraction of the target's `def` ignored by a magical hit. Was `magicPen`.
    *
-   * **Never abbreviate this to MP.** That spelling belongs to the skill-point pool until 8b
-   * deletes it, and to nothing afterwards.
+   * **Never abbreviate this to MP.** That spelling belonged to the skill-point pool, which 8b
+   * deleted, and now belongs to nothing — which makes it free to be misread rather than safe.
    */
   readonly magicPierce?: number;
   /** Fraction of incoming physical damage removed, applied after `def`. */
@@ -174,21 +172,6 @@ export interface StatBlockData {
   readonly dodge?: number;
   /** Base hit chance before the target's dodge. Absent means 1 — a certain hit. */
   readonly accuracy?: number;
-}
-
-/** How a skill is paid for. */
-export type SkillCostKind =
-  /** Free. Metered by its cooldown alone, which is why such skills are individually weaker. */
-  | 'none'
-  | 'mp'
-  /** Paid in the caster's own HP, and never lethal — see `payCost` in `skills.ts`. */
-  | 'hp';
-
-/** What a skill costs to use. */
-export interface SkillCostData {
-  readonly kind: SkillCostKind;
-  /** Ignored when `kind` is `none`. */
-  readonly amount?: number;
 }
 
 /**
@@ -331,11 +314,25 @@ export interface SkillData {
   readonly name: string;
   readonly target: SkillTarget;
   readonly effects: readonly SkillEffectData[];
-  readonly cost?: SkillCostData;
+  /**
+   * Whether this is the kit's **ultimate**: metered by a full energy bar rather than by a
+   * cooldown, and emptying that bar when it fires.
+   *
+   * There are exactly two ways to meter a skill, and this flag is the whole of the distinction.
+   * An ultimate is always available once charged and never otherwise; everything else is always
+   * affordable and gated by its cooldown alone. `data/characters.spec.ts` asserts every playable
+   * character declares exactly one, which is what makes "the ultimate" a thing the roster screen
+   * and milestone 8c's skill gating can both point at.
+   *
+   * An ultimate carries no cooldown. Two meters on one skill would make "when does this come
+   * up" the product of a bar and a timer, which is the unreadability energy replaced MP to fix.
+   */
+  readonly ultimate?: boolean;
   /**
    * Battle ticks before this skill can be used again, counted from the turn it was used.
    *
-   * Absent means no cooldown, which is only sane on a skill that costs something.
+   * Absent means no cooldown, which is only sane on an {@link ultimate} — anything else would
+   * be a strictly better basic attack available every single turn.
    */
   readonly cooldown?: number;
   readonly condition?: SkillConditionData;
@@ -423,6 +420,56 @@ export interface RowBonusData {
 }
 
 /**
+ * What fighting is worth in energy.
+ *
+ * The half of the meter that is the same for everybody. A character's own contribution is
+ * {@link StatBlockData.energyRegen}; this is what the fight itself pays, and it is why a
+ * combatant nobody is hitting and who is hitting nobody charges slowly however it was authored.
+ *
+ * All three are **flat points, not fractions of anything**. A gain proportional to damage dealt
+ * would read as fair and would quietly stop working: milestone 10 aims at health bars around
+ * ×10⁹, and any quantity compared against a scaling one becomes a no-op or a landslide. Points
+ * against a fixed bar survive a rescale untouched — the same reasoning that keeps `haste`
+ * bounded and `recovery` scaling.
+ */
+export interface EnergyRulesData {
+  /**
+   * Awarded to the actor **once per action** in which at least one damaging hit landed.
+   *
+   * Once per action rather than once per hit, because per hit would make a row nuke charge its
+   * own caster five times over and turn every wide ultimate into an engine that refuels itself.
+   */
+  readonly onHit: number;
+  /**
+   * Awarded to a combatant for **each** damaging hit it takes.
+   *
+   * Per hit rather than per action, and the asymmetry with {@link onHit} is deliberate: being
+   * focused is what should charge a bar fastest, and a wide attack genuinely does hit five
+   * separate people. It is also what gives the Undead their meter — the faction with the largest
+   * pools and almost no armour is the faction that gets hit.
+   */
+  readonly onHurt: number;
+  /**
+   * Awarded to the actor **once per action** in which it healed somebody else.
+   *
+   * Somebody else, on the same reasoning as `receivedHealing`: a life leech and the natural
+   * recovery at the top of a turn are a combatant healing itself, and paying energy for those
+   * would charge every bruiser in the game for standing still.
+   */
+  readonly onHeal: number;
+}
+
+/**
+ * The energy gains after clamping.
+ *
+ * Structurally identical to {@link EnergyRulesData} — every field there is already required — and
+ * named separately for the same reason {@link CombatRules} is: the two sit either side of the
+ * parse in `energy.ts`, and a signature saying which one it takes says whether it has been
+ * clamped yet.
+ */
+export type EnergyRules = EnergyRulesData;
+
+/**
  * Everything about combat that is a balance number rather than a rule.
  *
  * Passed into the simulation rather than imported, for the reason everything else in this
@@ -432,6 +479,7 @@ export interface RowBonusData {
 export interface CombatRulesData {
   readonly rows: RowBonusData;
   readonly matchups: readonly FactionMatchupData[];
+  readonly energy: EnergyRulesData;
   /**
    * Floor under any attack's hit chance.
    *
@@ -503,10 +551,8 @@ export interface CombatStats {
   readonly critDamageResist: number;
   /** Guaranteed to be in `[0, 1]`. */
   readonly critBlock: number;
-  /** Guaranteed to be a non-negative integer. Zero means this combatant pays no MP. */
-  readonly mp: number;
-  /** Guaranteed to be a non-negative integer. */
-  readonly mpRegen: number;
+  /** Guaranteed to be in `[0, MAX_ENERGY]`. Zero means this combatant charges only by fighting. */
+  readonly energyRegen: number;
   /** Guaranteed to be in `[0, 1]`. */
   readonly lifeLeech: number;
   /** Guaranteed to be in `[0, 1]`. */
@@ -537,8 +583,8 @@ export interface Skill {
   readonly name: string;
   readonly target: SkillTarget;
   readonly effects: readonly SkillEffectData[];
-  readonly costKind: SkillCostKind;
-  readonly costAmount: number;
+  /** Metered by a full energy bar rather than by {@link cooldown}. Never both. */
+  readonly ultimate: boolean;
   readonly cooldown: number;
   readonly condition: SkillConditionData;
   readonly priority: number;
@@ -560,6 +606,7 @@ export interface CombatRules {
   readonly rows: RowBonusData;
   /** Keyed `attacker>defender`. A missing pair is neutral. */
   readonly matchups: ReadonlyMap<string, number>;
+  readonly energy: EnergyRules;
   readonly minHitChance: number;
   readonly maxPenetration: number;
   readonly maxResist: number;
@@ -612,8 +659,17 @@ export interface CombatantSnapshot {
   readonly faction: string;
   readonly maxHp: Numeric;
   readonly hp: Numeric;
-  readonly maxMp: number;
-  readonly mp: number;
+  /** Current energy, in `[0, MAX_ENERGY]`. The bar's maximum is universal, so it is not carried. */
+  readonly energy: number;
+  /**
+   * Whether this combatant has an ultimate at all.
+   *
+   * Carried rather than inferred because the snapshot is the whole of what the UI gets, and a
+   * combatant with no ultimate has a bar that can fill and can never be spent — which is a
+   * meter the player should not be shown. Every combatant has energy; not everything has
+   * something to do with it.
+   */
+  readonly ultimate: boolean;
   /** Current gauge fill per tick: haste, plus attack speed when the last action was a swing. */
   readonly haste: number;
   /** Remaining absorb pool across every active shield. Zero when unshielded. */
@@ -634,22 +690,21 @@ export type BattleOutcome = 'victory' | 'defeat' | 'stalemate';
  */
 export type BattleEvent =
   /**
-   * A combatant's turn begins. Carries MP after regeneration, which is the only place it
-   * moves up, so an animator never has to model regen itself.
+   * A combatant's turn begins. Carries energy after regeneration, which is the only place the
+   * drip half of the meter moves, so an animator never has to model regen itself.
    */
   | {
       readonly kind: 'turn';
       readonly tick: number;
       readonly combatant: string;
-      readonly mp: number;
+      readonly energy: number;
     }
   /**
    * A skill above the basic attack is used.
    *
-   * Carries both of the caster's resources **after** the cost is paid, because a skill can be
-   * priced in either. An HP-cost kit that moved its own health with no event to show for it
-   * would leave the animator's board disagreeing with the simulation for the rest of the
-   * fight.
+   * Carries the caster's energy **after** the cost is paid, so an ultimate reads as a bar
+   * emptying rather than as a bar the animator has to know to clear. An ordinary skill carries
+   * it unchanged, which costs one number and saves the reader a rule.
    */
   | {
       readonly kind: 'cast';
@@ -657,9 +712,17 @@ export type BattleEvent =
       readonly source: string;
       readonly skillId: string;
       readonly skillName: string;
-      readonly mp: number;
-      readonly hp: Numeric;
+      readonly energy: number;
     }
+  /**
+   * A damaging hit that landed.
+   *
+   * Carries **both** sides' energy, because one hit moves both meters — the attacker's for
+   * landing it and the target's for taking it. Two numbers on the event that already exists
+   * rather than a fifteenth event kind: the log's promise is that replaying it reproduces the
+   * final standings, and an animator that had to correlate a separate energy event with the hit
+   * that caused it would be re-deriving state the simulation already knew.
+   */
   | {
       readonly kind: 'attack';
       readonly tick: number;
@@ -673,6 +736,10 @@ export type BattleEvent =
       readonly crit: boolean;
       /** The target's remaining HP after the hit, so a replay never recomputes damage. */
       readonly targetHp: Numeric;
+      /** The attacker's energy after being credited for landing this hit. */
+      readonly sourceEnergy: number;
+      /** The target's energy after being credited for taking it. */
+      readonly targetEnergy: number;
     }
   | {
       readonly kind: 'miss';
@@ -680,6 +747,10 @@ export type BattleEvent =
       readonly source: string;
       readonly target: string;
     }
+  /**
+   * Health restored. Covers a healing skill, a life leech, and the natural recovery at the top
+   * of a turn — the last two arriving with the actor as its own source.
+   */
   | {
       readonly kind: 'heal';
       readonly tick: number;
@@ -687,6 +758,11 @@ export type BattleEvent =
       readonly target: string;
       readonly amount: Numeric;
       readonly targetHp: Numeric;
+      /**
+       * The healer's energy afterwards. Unchanged when it healed itself, which is the same line
+       * `receivedHealing` draws and for the same reason.
+       */
+      readonly sourceEnergy: number;
     }
   | {
       readonly kind: 'status';

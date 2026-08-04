@@ -18,6 +18,7 @@ import {
   toCombatStats,
   toSkill,
 } from './content';
+import { MAX_ENERGY } from './energy';
 import { PLAIN_COMBAT_RULES, TEST_COMBAT_RULES_DATA } from './fixtures';
 import { type CombatRulesData, type SkillData, type StatBlockData } from './types';
 
@@ -58,8 +59,7 @@ describe('toCombatStats', () => {
     expect(stats.attackSpeed).toBe(0);
     expect(stats.critDamageResist).toBe(0);
     expect(stats.critBlock).toBe(0);
-    expect(stats.mp).toBe(0);
-    expect(stats.mpRegen).toBe(0);
+    expect(stats.energyRegen).toBe(0);
     expect(stats.lifeLeech).toBe(0);
     expect(stats.insight).toBe(0);
     expect(stats.tenacity).toBe(0);
@@ -157,11 +157,13 @@ describe('toCombatStats', () => {
     expect(MAX_ACCURACY).toBeGreaterThan(1);
   });
 
-  it('keeps MP whole, because it is a budget counted against authored costs', () => {
-    const stats = toCombatStats({ ...SOUND, mp: 40.9, mpRegen: 3.7 });
-
-    expect(stats.mp).toBe(40);
-    expect(stats.mpRegen).toBe(3);
+  it('bounds energy regen by the bar it fills', () => {
+    // A regen above the bar means "charged every turn regardless", which is a one-turn cooldown
+    // wearing a meter's clothes. The clamp is what stops a damaged stat block saying that.
+    expect(toCombatStats({ ...SOUND, energyRegen: 12 }).energyRegen).toBe(12);
+    expect(toCombatStats({ ...SOUND, energyRegen: 4000 }).energyRegen).toBe(MAX_ENERGY);
+    expect(toCombatStats({ ...SOUND, energyRegen: -5 }).energyRegen).toBe(0);
+    expect(toCombatStats({ ...SOUND, energyRegen: Number.NaN }).energyRegen).toBe(0);
   });
 });
 
@@ -217,31 +219,33 @@ describe('toSkill', () => {
   it('defaults everything a terse kit leaves out', () => {
     const skill = toSkill(STRIKE);
 
-    expect(skill.costKind).toBe('none');
-    expect(skill.costAmount).toBe(0);
+    expect(skill.ultimate).toBe(false);
     expect(skill.cooldown).toBe(0);
     expect(skill.condition).toEqual({ kind: 'always' });
     expect(skill.priority).toBe(1);
   });
 
-  it('carries an authored cost, cooldown and condition through', () => {
+  it('carries an authored cooldown and condition through', () => {
     const skill = toSkill({
       ...STRIKE,
-      cost: { kind: 'mp', amount: 12 },
       cooldown: 45,
       condition: { kind: 'ally-hurt', fraction: 0.8 },
       priority: 3,
     });
 
-    expect(skill.costKind).toBe('mp');
-    expect(skill.costAmount).toBe(12);
+    expect(skill.ultimate).toBe(false);
     expect(skill.cooldown).toBe(45);
     expect(skill.condition).toEqual({ kind: 'ally-hurt', fraction: 0.8 });
     expect(skill.priority).toBe(3);
   });
 
-  it('charges nothing for a skill whose cost kind is none, whatever amount it names', () => {
-    expect(toSkill({ ...STRIKE, cost: { kind: 'none', amount: 40 } }).costAmount).toBe(0);
+  it('discards a cooldown authored on an ultimate, so the two meters stay exclusive', () => {
+    // The bar *is* the cooldown. A skill carrying both would make "when does this come up" the
+    // product of a meter and a timer, which is the unreadability energy replaced MP to fix.
+    const skill = toSkill({ ...STRIKE, ultimate: true, cooldown: 45 });
+
+    expect(skill.ultimate).toBe(true);
+    expect(skill.cooldown).toBe(0);
   });
 });
 

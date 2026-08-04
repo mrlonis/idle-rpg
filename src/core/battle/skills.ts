@@ -1,4 +1,5 @@
 import { num, type Numeric, ZERO } from '../numeric';
+import { isCharged } from './energy';
 import {
   type ActiveStatus,
   type Combatant,
@@ -47,7 +48,7 @@ export interface FighterView {
   readonly slot: number;
   readonly maxHp: Numeric;
   readonly hp: Numeric;
-  readonly mp: number;
+  readonly energy: number;
   readonly statuses: readonly ActiveStatus[];
   /** Skill id to the battle tick at which it becomes usable again. */
   readonly cooldowns: ReadonlyMap<string, number>;
@@ -151,19 +152,16 @@ export function selectTargets<T extends FighterView>(
   }
 }
 
-/** Whether the actor can pay for a skill right now. */
+/**
+ * Whether the actor can pay for a skill right now.
+ *
+ * One question, because there is one price. An ordinary skill is free and metered by its
+ * cooldown; an ultimate costs a full bar and nothing else. Both halves of that used to be a
+ * three-way switch over MP and HP costs, and collapsing it is most of what made energy worth
+ * the swap.
+ */
 export function canAfford(actor: FighterView, skill: Skill): boolean {
-  switch (skill.costKind) {
-    case 'none':
-      return true;
-    case 'mp':
-      return actor.mp >= skill.costAmount;
-    case 'hp':
-      // Strictly greater, never equal. An HP cost is a tempo trade, not a suicide button, and
-      // a combatant that could kill itself paying for a skill would also be a combatant that
-      // could end a battle without either side landing a blow.
-      return actor.hp.gt(num(skill.costAmount));
-  }
+  return !skill.ultimate || isCharged(actor.energy);
 }
 
 /** Whether a skill's cooldown has elapsed. */

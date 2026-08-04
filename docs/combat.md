@@ -12,9 +12,8 @@ is one multiplication in the animator, not a second combat path.
 `simulateBattle` capable of not returning.
 
 See [attributes](attributes.md) for the stat block and [glossary](glossary.md) for vocabulary.
-Milestone 8a rewrote the damage and scheduling halves of this page. Milestone 8b still owes the
-energy rework, the skill-count gating and the faction lineup bonuses — the MP sections below are
-what ships until then.
+Milestone 8a rewrote the damage and scheduling halves of this page; 8b replaced MP with energy.
+Milestone 8**c** still owes the skill-count gating and 8**d** the faction lineup bonuses.
 
 ---
 
@@ -45,7 +44,7 @@ a gauge rate mid-window. Attack speed deliberately needs no third entry: it keys
 action taken, which can only change inside an action, and an action is a tick boundary already.
 That is half the reason it is defined that way; the other half is in [attributes](attributes.md).
 
-**A turn is upkeep first, action second.** MP regenerates, `recovery × (1 + healthRegen)` is
+**A turn is upkeep first, action second.** Energy regenerates, `recovery × (1 + healthRegen)` is
 healed, statuses tick, and then the combatant acts. Natural recovery emits an ordinary `heal`
 event with the actor as its own source, so the log stays complete without a fifteenth event kind.
 
@@ -191,20 +190,62 @@ rather than something selection has to consider.
 **Nothing in selection or targeting draws RNG.** The whole of a fight's randomness is "did it hit,
 did it crit, did it stick".
 
-### Three ways to meter a skill
+### Two ways to meter a skill
 
-| Cost   | Behaviour                                                                                                 |
-| ------ | --------------------------------------------------------------------------------------------------------- |
-| `none` | Metered by cooldown alone, so each such skill has to be individually weaker.                              |
-| `mp`   | A finite pool regenerating per turn. Front-loads, then runs dry.                                          |
-| `hp`   | Paid in the caster's own life, **never lethally**. The Undead's bargain: huge HP pools, almost no armour. |
+| Kind       | Behaviour                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| Ordinary   | Free, metered by its cooldown alone, so each such skill has to be individually weaker.    |
+| `ultimate` | Metered by a **full energy bar** and nothing else. No cooldown — the bar is the cooldown. |
 
-⚠️ **The MP pool is what guarantees a fight against a healer resolves** rather than grinding
-against a heal that never stops. Milestone 8**b** replaces MP with energy — which refills from
-acting and therefore never runs dry — so that guarantee transfers entirely onto the
-`MAX_BATTLE_TICKS` stalemate. That is a real trade, and it is recorded in milestone 8 rather than
-discovered later. It has not happened yet: 8a deliberately left MP alone, because a healer with
-neither meter is a healer with no meter at all.
+**Every playable character declares exactly one ultimate**, asserted in
+[`characters.spec.ts`](../src/data/characters.spec.ts). Two would be worse than none and silently
+so: they share one bar, and the lower-priority of them could never fire. `toSkill` discards a
+cooldown authored on an ultimate, so a kit cannot pick up a second gate by accident.
+
+**No enemy has one.** Energy is a character system — a bar the player watches, and what 8c hangs
+its skill ceiling on. An encounter is read as a rhythm instead, so its pacing is authored directly
+in cooldowns where a designer can set it exactly. It also keeps skills shareable between enemies,
+which several are.
+
+It was three before 8b: `mp` was a pool that started full and ran dry, and `hp` was the Undead
+paying for tempo in their own life. Both went with the `mp` stat.
+
+### Energy
+
+A bar of `MAX_ENERGY` (100) for everybody, filled from the combatant's own `energyRegen` per turn
+plus what the fight pays:
+
+| Source   | Paid                                       | Shipped value |
+| -------- | ------------------------------------------ | ------------- |
+| `onHit`  | Once per action that landed a damaging hit | 20            |
+| `onHurt` | **Per damaging hit taken**                 | 10            |
+| `onHeal` | Once per action that healed somebody else  | 15            |
+
+The asymmetry is deliberate and was tuned rather than guessed. `onHurt` is per hit because being
+focused should charge a bar fastest — that is the Undead's whole meter, and it is what makes a wide
+enemy wave charge a party all at once. `onHit` is per action so a row nuke does not charge its own
+caster five times over. At ten each the back rank then charged half as fast as the front one, which
+put the slowest meter in the game on the rank where damage is fielded; doubling `onHit` restores the
+symmetry without giving up what the per-hit rule buys.
+
+**An ultimate opens a fight unavailable, and that is the whole change.** MP started full, so a
+caster front-loaded and ran dry and a long fight was one it had already lost the interesting half
+of. Energy starts at zero, so an ultimate is a payoff and a long fight is one where more of them
+land. The pacing difference between a short fight and a long one survived; it changed sign.
+
+⚠️ **What did not survive is a termination argument.** The MP pool was what guaranteed a fight
+against a healer resolves rather than grinding against a heal that never stops. A bar that only
+refills cannot run out, so that guarantee now rests **entirely** on the `MAX_BATTLE_TICKS`
+stalemate. This was recorded in milestone 8 before the work rather than discovered after it, and
+the thing standing where the pool used to is one assertion: the ladder sweep requires **zero
+stalemates** on every reference party, winning or losing.
+
+It showed up immediately and exactly where predicted. The Ashen Hierophant at stage 24 was the one
+enemy in the game its pool genuinely metered — two skills against 6 regen a turn — and losing it
+handed the enemy an unmetered heal every second turn, turning the last stage into a 102-second
+attrition war the reference party lost more often than it won. The fix was enemy design, as the
+milestone said it would have to be: its own longer-cooldown heal, so the stage-7 Acolyte that shares
+none of that history keeps its cadence.
 
 Conditions are what stop a healer spending its pool on a party at full health. Without them a
 priority list would have to say "always cast the biggest thing", and a support kit would be
@@ -278,6 +319,15 @@ Fourteen event kinds: `turn`, `attack`, `cast`, `miss`, `heal`, `status`, `statu
 and status expiries are events at all, and why **a cleanse names the ids it removed rather than
 how many** — an animator holding two debuffs and told "one was removed" has to guess, and
 disagrees with the simulation from then on.
+
+**Energy rides on the events that move it rather than on a fifteenth event kind.** `turn` carries
+it after regeneration, `cast` after the bar is spent, `heal` carries the healer's, and `attack`
+carries **both** sides' — one hit moves two meters, the attacker's for landing it and the target's
+for taking it. A separate energy event would have made the animator correlate it with the hit that
+caused it, which is re-deriving state the simulation already knew.
+
+Statuses deliberately pay no energy: a poison tick is not an action, and crediting one would make a
+damage-over-time an energy engine.
 
 ---
 

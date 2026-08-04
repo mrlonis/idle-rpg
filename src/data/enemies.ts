@@ -8,6 +8,7 @@ import {
   GLACIAL_SLAM,
   GORE,
   HEADSMANS_ARC,
+  LITANY,
   MEND,
   MIRE,
   MOTE_LANCE,
@@ -45,6 +46,10 @@ import {
  *   capped below 1 for the same reason.
  * - Every basic attack is physical and targets the **front rank**, falling through to the back
  *   only once the front is empty.
+ * - **No enemy carries an ultimate**, so no enemy has an `energyRegen` either. Energy is a
+ *   character system — a bar the player watches, and what milestone 8c hangs its skill ceiling on.
+ *   An encounter is read as a rhythm instead, so its pacing is authored directly in cooldowns
+ *   where it can be set exactly. See the note above the enemy kits in `skills.ts`.
  *
  * ## Design intent: these are locks, not rungs on a ladder
  *
@@ -184,8 +189,6 @@ export const WARDEN = {
     haste: 98,
     critChance: 0.1,
     critDamageAmp: 0.8,
-    mp: 72,
-    mpRegen: 4,
     insight: 0.1,
   },
   skills: [GATE_SLAM],
@@ -213,8 +216,6 @@ export const ACOLYTE = {
     haste: 92,
     critChance: 0.02,
     critDamageAmp: 0.4,
-    mp: 90,
-    mpRegen: 6,
     magicResist: 0.13,
   },
   skills: [MEND],
@@ -238,8 +239,6 @@ export const HAG = {
     haste: 88,
     critChance: 0.04,
     critDamageAmp: 0.5,
-    mp: 80,
-    mpRegen: 5,
     insight: 0.15,
     magicResist: 0.1,
   },
@@ -264,8 +263,6 @@ export const PYRE = {
     haste: 96,
     critChance: 0.1,
     critDamageAmp: 0.8,
-    mp: 78,
-    mpRegen: 5,
     magicResist: 0.11,
   },
   skills: [CINDER_STORM],
@@ -289,8 +286,6 @@ export const BULWARK_ENEMY = {
     haste: 74,
     critChance: 0.03,
     critDamageAmp: 0.5,
-    mp: 80,
-    mpRegen: 5,
     tenacity: 0.2,
     physicalResist: 0.06,
   },
@@ -498,8 +493,6 @@ export const WRATHBORN = {
     haste: 92,
     critChance: 0.1,
     critDamageAmp: 0.8,
-    mp: 90,
-    mpRegen: 6,
     magicResist: 0.04,
   },
   skills: [WRATH_UNBOUND, RUINOUS_ARC],
@@ -517,8 +510,6 @@ export const STORMCALLER = {
     haste: 100,
     critChance: 0.12,
     critDamageAmp: 0.8,
-    mp: 110,
-    mpRegen: 6,
     insight: 0.15,
     magicResist: 0.07,
   },
@@ -532,6 +523,13 @@ export const STORMCALLER = {
  * turn economy, so chip damage loses to the barrier and burst loses to the heal — and the only
  * answer left is the one milestone 4 built the back rank around: **reach it**. A celestial, so it
  * also deals ten percent more to every mortal in the party with nothing coming back.
+ *
+ * **It heals with {@link LITANY} rather than {@link MEND}, and milestone 8b is why.** Two skills
+ * against one MP pool meant this was the one enemy in the game the pool genuinely metered — it
+ * spent 28 a cycle against 6 a turn and ran down. Deleting MP handed it an unmetered heal every
+ * second turn, and stage 24 became a 102-second attrition war the reference party lost more often
+ * than it won. Its own longer-cooldown heal puts the cadence back without touching the Acolyte,
+ * which shares none of that history and was never pool-limited at all.
  */
 export const HIEROPHANT = {
   id: 'hierophant',
@@ -545,12 +543,10 @@ export const HIEROPHANT = {
     haste: 104,
     critChance: 0.04,
     critDamageAmp: 0.5,
-    mp: 120,
-    mpRegen: 6,
     magicResist: 0.1,
     receivedHealing: 0.25,
   },
-  skills: [MEND, BULWARK],
+  skills: [LITANY, BULWARK],
 } as const;
 
 /**
@@ -643,8 +639,6 @@ export const OATHBREAKER = {
     haste: 100,
     critChance: 0.12,
     critDamageAmp: 0.8,
-    mp: 110,
-    mpRegen: 6,
     insight: 0.15,
     physicalResist: 0.03,
   },
@@ -671,8 +665,6 @@ export const UNMADE = {
     critChance: 0.15,
     critDamageAmp: 1,
     critDamageResist: 0.2,
-    mp: 140,
-    mpRegen: 7,
     tenacity: 0.5,
     physicalPierce: 0.3,
     magicPierce: 0.3,

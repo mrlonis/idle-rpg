@@ -76,12 +76,13 @@
                   <div class="bar__fill" [style.width.%]="fighter.fraction * 100"></div>
                   <div class="bar__shield" [style.width.%]="shieldPercent(fighter)"></div>
                 </div>
-                @if (fighter.maxMp > 0) {
-                  <span class="fighter__mp">MP {{ fighter.mp }} / {{ fighter.maxMp }}</span>
-                  <div class="bar bar--mp" aria-hidden="true">
+                @if (fighter.hasUltimate) {
+                  <span class="fighter__energy">Energy {{ fighter.energy }} / {{ maxEnergy }}</span>
+                  <div class="bar bar--energy" aria-hidden="true">
                     <div
-                      class="bar__fill bar__fill--mp"
-                      [style.width.%]="fighter.mpFraction * 100"
+                      class="bar__fill bar__fill--energy"
+                      [class.bar__fill--charged]="fighter.energyFraction >= 1"
+                      [style.width.%]="fighter.energyFraction * 100"
                     ></div>
                   </div>
                 }
@@ -123,12 +124,13 @@
                   ></div>
                   <div class="bar__shield" [style.width.%]="shieldPercent(fighter)"></div>
                 </div>
-                @if (fighter.maxMp > 0) {
-                  <span class="fighter__mp">MP {{ fighter.mp }} / {{ fighter.maxMp }}</span>
-                  <div class="bar bar--mp" aria-hidden="true">
+                @if (fighter.hasUltimate) {
+                  <span class="fighter__energy">Energy {{ fighter.energy }} / {{ maxEnergy }}</span>
+                  <div class="bar bar--energy" aria-hidden="true">
                     <div
-                      class="bar__fill bar__fill--mp"
-                      [style.width.%]="fighter.mpFraction * 100"
+                      class="bar__fill bar__fill--energy"
+                      [class.bar__fill--charged]="fighter.energyFraction >= 1"
+                      [style.width.%]="fighter.energyFraction * 100"
                     ></div>
                   </div>
                 }

@@ -113,6 +113,8 @@ function attack(damage: Numeric, absorbed: Numeric, crit = false): BattleEvent {
     absorbed,
     crit,
     targetHp: num(500),
+    sourceEnergy: 10,
+    targetEnergy: 10,
   };
 }
 
@@ -173,8 +175,9 @@ describe('the battle log', () => {
       target: 'ally-0',
       amount: num(30),
       targetHp: num(900),
+      sourceEnergy: 0,
     };
-    const heal: BattleEvent = { ...drain, target: 'ally-1' };
+    const heal: BattleEvent = { ...drain, target: 'ally-1', sourceEnergy: 10 };
 
     expect(await render([drain, heal])).toEqual(['Bran drains 30', 'Bran heals Wren for 30']);
   });
@@ -230,7 +233,7 @@ describe('the battle log', () => {
     // Turn markers drive the board's highlight and would drown the log — a fight is far more
     // turns than it is interesting moments. The closing event has its own announced line, and
     // repeating it here would mean a screen reader hears the outcome twice.
-    const turn: BattleEvent = { kind: 'turn', tick: 10, combatant: 'ally-0', mp: 40 };
+    const turn: BattleEvent = { kind: 'turn', tick: 10, combatant: 'ally-0', energy: 40 };
     const end: BattleEvent = { kind: 'end', tick: 90, outcome: 'victory' };
 
     expect(await render([turn, end])).toEqual([]);

@@ -1,6 +1,7 @@
 import { type CurrencyAmounts, type CurrencyId, type Rates, RATE_CURRENCY_IDS } from '../currency';
 import { type Numeric, ONE, parseOr, ZERO } from '../numeric';
 import { ATB_THRESHOLD } from './clock';
+import { MAX_ENERGY, toEnergyRules } from './energy';
 import {
   type AuthoredAmount,
   type AuthoredCurrencies,
@@ -133,10 +134,10 @@ export function toCombatStats(
     critDamageAmp: clamp(raw.critDamageAmp, 0, Number.MAX_SAFE_INTEGER, 0),
     critDamageResist: optional(raw.critDamageResist, 0, Number.MAX_SAFE_INTEGER, 0),
     critBlock: optional(raw.critBlock, 0, 1, 0),
-    // Whole points: MP is a budget counted against authored costs, and a pool of 40.5 would
-    // make "three casts at 13" depend on floating-point luck.
-    mp: counter(raw.mp),
-    mpRegen: counter(raw.mpRegen),
+    // Bounded by the bar it fills. A regen above `MAX_ENERGY` would mean "charged every turn
+    // regardless", which is a cooldown of one turn wearing a meter's clothes — and clamping it
+    // here is what stops a damaged stat block from expressing that by accident.
+    energyRegen: optional(raw.energyRegen, 0, MAX_ENERGY, 0),
     lifeLeech: optional(raw.lifeLeech, 0, 1, 0),
     insight: optional(raw.insight, 0, 1, 0),
     tenacity: optional(raw.tenacity, 0, 1, 0),
@@ -179,19 +180,24 @@ export function applyRowBonus(stats: CombatStats, row: Row, rows: RowBonusData):
   };
 }
 
-/** Parses an authored skill, defaulting everything a terse kit leaves out. */
+/**
+ * Parses an authored skill, defaulting everything a terse kit leaves out.
+ *
+ * **An ultimate's cooldown is discarded rather than honoured.** The two meters are exclusive by
+ * design — see {@link SkillData.ultimate} — and enforcing that here rather than trusting content
+ * means a kit cannot acquire a second gate by accident. `data/skills.spec.ts` asserts no ultimate
+ * authors one in the first place; this is the guard under that, in the same spirit as every other
+ * clamp in this file.
+ */
 export function toSkill(raw: SkillData): Skill {
-  const kind = raw.cost?.kind ?? 'none';
+  const ultimate = raw.ultimate === true;
   return {
     id: raw.id,
     name: raw.name,
     target: raw.target,
     effects: raw.effects,
-    costKind: kind,
-    // A cost of zero on an `mp` or `hp` skill is not an error — it is a free skill a later
-    // balance pass can price without touching the kit's shape.
-    costAmount: kind === 'none' ? 0 : counter(raw.cost?.amount),
-    cooldown: counter(raw.cooldown),
+    ultimate,
+    cooldown: ultimate ? 0 : counter(raw.cooldown),
     condition: raw.condition ?? { kind: 'always' },
     priority: optional(raw.priority, -Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 1),
   };
@@ -245,6 +251,7 @@ export function toCombatRules(raw: CombatRulesData): CombatRules {
       backCritDamageAmp: clamp(raw.rows.backCritDamageAmp, 0, Number.MAX_SAFE_INTEGER, 0),
     },
     matchups,
+    energy: toEnergyRules(raw.energy),
     // Never zero. A hit chance that can reach zero is a battle that can never end.
     minHitChance: clamp(raw.minHitChance, Number.MIN_VALUE, 1, 0.1),
     maxPenetration: clamp(raw.maxPenetration, 0, MAX_PENETRATION, MAX_PENETRATION),

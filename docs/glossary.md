@@ -112,8 +112,8 @@ Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
 | **Summons**          | The pull currency, called crystals in the UI. Accrues idly — which is the unusual part of this game's economy.                                                                                                                                                                                                                                                      |
 | **Essence**          | Charged only at breakthrough levels (every tenth) and the stingiest currency. Cheapest before level 60, most expensive by 200.                                                                                                                                                                                                                                      |
 | **Breakthrough**     | Every tenth level, where essence is charged. Rarity caps are all multiples of ten so an ascension always lands in front of one rather than stranded between two.                                                                                                                                                                                                    |
-| **Ultimate**         | Every character's first skill, metered by energy. _Planned, milestone 8b._                                                                                                                                                                                                                                                                                          |
-| **Energy**           | A 0–100 pool filling from acting, spent only on ultimates. Replaces `mp` entirely. _Planned, milestone 8b._                                                                                                                                                                                                                                                         |
+| **Ultimate**         | The one skill in a kit metered by a full energy bar instead of a cooldown. Exactly one per character, and it spends the whole bar. Enemies have none.                                                                                                                                                                                                               |
+| **Energy**           | A 0–100 bar filling from `energyRegen` plus what fighting pays, spent only on ultimates. **Opens a fight empty**, so an ultimate is a payoff rather than an opener. Replaced `mp` in 8b.                                                                                                                                                                            |
 | **Sub-stream**       | An RNG stream derived via `deriveSeed(seed, label)`. Combat draws from one so replaying a battle never shifts the pull sequence.                                                                                                                                                                                                                                    |
 | **Resume / offline** | `resume(state, nowMs)` settles time away in closed form. **There is no offline cap** — a year away pays a year.                                                                                                                                                                                                                                                     |
 | **Repair**           | Load-time fixing that clamps and defaults rather than throwing. Runs on every load, not behind a version gate. A thrown error costs a player their whole run.                                                                                                                                                                                                       |
@@ -122,10 +122,11 @@ Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
 
 ## Two traps worth naming
 
-**`mp` still means the skill-point pool, and only until 8b.** `magicPierce` shipped in 8a and is
-conventionally abbreviated MP everywhere outside this repo. Spell out "magic pierce" and never
-abbreviate it here — the collision is temporary, and the wrong half of it is the one that is
-about to disappear.
+**`mp` means nothing at all now, and that is the trap.** The skill-point pool was deleted in 8b;
+`magicPierce` shipped in 8a and is conventionally abbreviated MP everywhere outside this repo.
+The collision resolved by one side disappearing, which makes the abbreviation _available_ rather
+than safe — anyone writing "MP" now is either quoting history or means magic pierce, and a reader
+cannot tell which. Spell out "magic pierce", and say "energy" for the meter.
 
 **`atk` exists now, and half the prose about it is older than it is.** Milestone 8a collapsed
 `patk`/`matk` into one `atk` and `pdef`/`mdef` into one `def`. Damage type moved onto the skill,

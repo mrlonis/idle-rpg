@@ -120,7 +120,7 @@ function firstHit(result: BattleResult): Numeric {
 /** Every mutable thing the log is supposed to be able to reproduce, keyed by combatant. */
 interface Board {
   readonly hp: Record<string, string>;
-  readonly mp: Record<string, number>;
+  readonly energy: Record<string, number>;
   readonly shield: Record<string, string>;
   readonly statuses: Record<string, readonly string[]>;
 }
@@ -128,7 +128,7 @@ interface Board {
 function boardOf(snapshots: BattleResult['final']): Board {
   return {
     hp: Object.fromEntries(snapshots.map((c) => [c.key, c.hp.toString()])),
-    mp: Object.fromEntries(snapshots.map((c) => [c.key, c.mp])),
+    energy: Object.fromEntries(snapshots.map((c) => [c.key, c.energy])),
     shield: Object.fromEntries(snapshots.map((c) => [c.key, c.shield.toString()])),
     statuses: Object.fromEntries(
       snapshots.map((c) => [c.key, c.statuses.map((status) => status.id)]),
@@ -145,7 +145,7 @@ function boardOf(snapshots: BattleResult['final']): Board {
  */
 function replay(result: BattleResult): Board {
   const hp = new Map(result.roster.map((c) => [c.key, c.hp]));
-  const mp = new Map(result.roster.map((c) => [c.key, c.mp]));
+  const energy = new Map(result.roster.map((c) => [c.key, c.energy]));
   const held = new Map<string, ActiveStatus[]>(result.roster.map((c) => [c.key, []]));
 
   const spend = (key: string, absorbed: Numeric): void => {
@@ -170,18 +170,25 @@ function replay(result: BattleResult): Board {
   for (const event of result.events) {
     switch (event.kind) {
       case 'turn':
-        mp.set(event.combatant, event.mp);
+        energy.set(event.combatant, event.energy);
         break;
       case 'cast':
-        mp.set(event.source, event.mp);
-        hp.set(event.source, event.hp);
+        energy.set(event.source, event.energy);
         break;
       case 'attack':
+        hp.set(event.target, event.targetHp);
+        spend(event.target, event.absorbed);
+        energy.set(event.source, event.sourceEnergy);
+        energy.set(event.target, event.targetEnergy);
+        break;
       case 'tick-damage':
         hp.set(event.target, event.targetHp);
         spend(event.target, event.absorbed);
         break;
       case 'heal':
+        hp.set(event.target, event.targetHp);
+        energy.set(event.source, event.sourceEnergy);
+        break;
       case 'tick-heal':
         hp.set(event.target, event.targetHp);
         break;
@@ -219,7 +226,7 @@ function replay(result: BattleResult): Board {
 
   return {
     hp: Object.fromEntries([...hp].map(([key, value]) => [key, value.toString()])),
-    mp: Object.fromEntries(mp),
+    energy: Object.fromEntries(energy),
     shield: Object.fromEntries(
       [...held].map(([key, statuses]) => [key, shield(statuses).toString()]),
     ),
@@ -357,20 +364,26 @@ describe('simulateBattle', () => {
       });
     });
 
-    it('opens every turn with a marker carrying regenerated MP', () => {
+    it('opens every turn with a marker carrying regenerated energy', () => {
       // The animator's board moves only because an event said so, and a turn start is the one
-      // place MP goes up. Without this event it would have to model regeneration itself.
+      // place the drip half of the meter goes up. Without this event it would have to model
+      // regeneration itself.
+      //
+      // The caster swings each turn and the mook is too slow to answer, so what accumulates is
+      // 4 regen plus 10 for landing a hit — and the fight opens at zero rather than full, which
+      // is the whole of what changed when energy replaced MP.
       const result = fight(
-        line([unit('caster', { hp: 500, atk: 30, mp: 10, mpRegen: 4, haste: 100 })]),
-        stage(line([unit('mook', { hp: 400, atk: 5, haste: 1 })])),
+        line([unit('caster', { hp: 500, atk: 30, energyRegen: 4, haste: 100 })]),
+        stage(line([unit('mook', { hp: 4000, atk: 5, haste: 1 })])),
       );
 
       const turns = result.events.filter(
         (event) => event.kind === 'turn' && event.combatant === 'ally-0',
       );
-      expect(turns.slice(0, 2)).toMatchObject([
-        { tick: 10, mp: 10 },
-        { tick: 20, mp: 10 },
+      expect(turns.slice(0, 3)).toMatchObject([
+        { tick: 10, energy: 4 },
+        { tick: 20, energy: 18 },
+        { tick: 30, energy: 32 },
       ]);
     });
 
@@ -499,13 +512,7 @@ describe('simulateBattle', () => {
       const result = fight(
         line(
           [unit('tank', { hp: 1000, atk: 5, def: 0, haste: 60, receivedHealing: 1 })],
-          [
-            unit(
-              'medic',
-              { hp: 1000, atk: 40, mp: 60, mpRegen: 2, haste: 100 },
-              { skills: [MEND] },
-            ),
-          ],
+          [unit('medic', { hp: 1000, atk: 40, haste: 100 }, { skills: [MEND] })],
         ),
         stage(line([unit('mook', { hp: 100_000, atk: 200, def: 0, haste: 100 })])),
       );
@@ -640,42 +647,156 @@ describe('simulateBattle', () => {
   });
 
   describe('skills', () => {
-    it('prefers the highest-priority skill it can pay for and reports the cast', () => {
-      const result = fight(
-        line([unit('mage', { hp: 1000, atk: 60, mp: 20, haste: 100 }, { skills: [FIREBALL] })]),
-        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
-      );
-
-      const cast = result.events.find((event) => event.kind === 'cast');
-      expect(cast).toMatchObject({ kind: 'cast', skillId: 'fireball', tick: 10, mp: 8 });
-    });
-
-    it('falls back to the basic attack once the pool is dry', () => {
+    it('opens every fight with an empty bar, on both sides', () => {
+      // The single most consequential difference between energy and the MP pool it replaced. MP
+      // started full, so a caster front-loaded and ran dry; energy starts at nothing, so an
+      // ultimate is a payoff for a fight that has gone on rather than an opening move.
       const result = fight(
         line([
-          unit(
-            'mage',
-            { hp: 1000, atk: 60, mp: 12, mpRegen: 0, haste: 100 },
-            { skills: [FIREBALL] },
-          ),
+          unit('mage', { hp: 1000, atk: 60, energyRegen: 30, haste: 100 }, { skills: [FIREBALL] }),
         ]),
-        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
+        stage(line([unit('mook', { hp: 5000, atk: 10, haste: 100 })])),
       );
 
-      expect(result.events.filter((event) => event.kind === 'cast')).toHaveLength(1);
-      expect(attackTicks(result).length).toBeGreaterThan(1);
+      expect(result.roster.map((combatant) => combatant.energy)).toEqual([0, 0]);
     });
 
-    it('holds a skill on cooldown even with the resources to cast it', () => {
+    it('holds an ultimate until the bar fills, then spends the whole of it', () => {
+      // 30 regen a turn plus 10 for landing a hit reaches 100 on the third turn, and the cast
+      // reports an emptied bar. The mook is too slow to answer, so nothing muddies the count
+      // with `onHurt`.
       const result = fight(
         line([
-          unit(
-            'mage',
-            { hp: 1000, atk: 60, mp: 999, mpRegen: 99, haste: 100 },
-            { skills: [FIREBALL] },
-          ),
+          unit('mage', { hp: 1000, atk: 60, energyRegen: 30, haste: 100 }, { skills: [FIREBALL] }),
         ]),
-        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })])),
+        stage(line([unit('mook', { hp: 500_000, atk: 0, haste: 1 })])),
+      );
+
+      const casts = result.events.filter((event) => event.kind === 'cast');
+      expect(casts.slice(0, 3)).toMatchObject([
+        { skillId: 'fireball', tick: 30, energy: 0 },
+        { skillId: 'fireball', tick: 60, energy: 0 },
+        { skillId: 'fireball', tick: 90, energy: 0 },
+      ]);
+    });
+
+    it('swings while the bar is refilling', () => {
+      // The turns between ultimates are basic attacks rather than nothing, which is what makes a
+      // slow-charging kit a real kit instead of a pause.
+      const result = fight(
+        line([
+          unit('mage', { hp: 1000, atk: 60, energyRegen: 30, haste: 100 }, { skills: [FIREBALL] }),
+        ]),
+        stage(line([unit('mook', { hp: 500_000, atk: 0, haste: 1 })])),
+      );
+
+      const casts = new Set(
+        result.events.filter((event) => event.kind === 'cast').map((event) => event.tick),
+      );
+      const swings = attackTicks(result).filter((tick) => !casts.has(tick));
+      expect(swings.slice(0, 4)).toEqual([10, 20, 40, 50]);
+    });
+
+    // The fixture rules pay a round ten for each of the three energy sources — deliberately not
+    // the shipped numbers, so these assertions fail when the rule changes rather than when the
+    // ladder is retuned. See `TEST_COMBAT_RULES_DATA`.
+    const GAIN = 10;
+
+    /** A three-wide front rank of punchbags, for the two credit rules. */
+    const punchbags = (): FormationData =>
+      line([
+        unit('mook-a', { hp: 500_000, atk: 0, haste: 1 }),
+        unit('mook-b', { hp: 500_000, atk: 0, haste: 1 }),
+        unit('mook-c', { hp: 500_000, atk: 0, haste: 1 }),
+      ]);
+
+    it('credits the attacker once for an action however many targets it reaches', () => {
+      // ⚠️ The rule that stops a wide ultimate from refuelling itself. `onHit` is paid per
+      // *action*, so a three-target sweep banks one gain rather than three — otherwise the widest
+      // skill in the game would charge its own next cast and the meter would come off the fight.
+      //
+      // The bar is emptied by the cast, so what these three events report is the single credit.
+      const result = fight(
+        line([
+          unit('sweeper', { hp: 1000, atk: 60, energyRegen: 100, haste: 100 }, { skills: [SWEEP] }),
+        ]),
+        stage(punchbags()),
+      );
+
+      const hits = result.events.filter((event) => event.kind === 'attack' && event.tick === 10);
+      expect(hits).toHaveLength(3);
+      expect(hits.map((event) => event.kind === 'attack' && event.sourceEnergy)).toEqual([
+        GAIN,
+        GAIN,
+        GAIN,
+      ]);
+    });
+
+    it('credits a defender for every hit it takes, so being focused charges fastest', () => {
+      // The other half of the asymmetry, and the Undead's entire meter. `onHurt` is paid per
+      // incoming hit, so the three targets of that same sweep each bank their own.
+      const result = fight(
+        line([
+          unit('sweeper', { hp: 1000, atk: 60, energyRegen: 100, haste: 100 }, { skills: [SWEEP] }),
+        ]),
+        stage(punchbags()),
+      );
+
+      const hits = result.events.filter((event) => event.kind === 'attack' && event.tick === 10);
+      expect(hits.map((event) => event.kind === 'attack' && event.targetEnergy)).toEqual([
+        GAIN,
+        GAIN,
+        GAIN,
+      ]);
+    });
+
+    it('pays energy for healing an ally and nothing for healing itself', () => {
+      // The same line `receivedHealing` draws. A life leech and the natural recovery at the top of
+      // a turn are a combatant healing itself, and paying for those would charge every bruiser in
+      // the game for standing still.
+      //
+      // Measured as the move against the turn marker that opened the same turn, rather than as an
+      // absolute: the medic swings on the turns it is not needed, so its bar is not empty by the
+      // time somebody is hurt enough to heal.
+      const result = fight(
+        line(
+          [unit('tank', { hp: 1000, atk: 5, def: 0, haste: 60, recovery: 50 })],
+          [unit('medic', { hp: 1000, atk: 40, energyRegen: 0, haste: 100 }, { skills: [MEND] })],
+        ),
+        stage(line([unit('mook', { hp: 500_000, atk: 200, def: 0, haste: 100 })])),
+      );
+
+      /** Energy carried into `key`'s turn at or before `tick`. */
+      const openedAt = (key: string, tick: number): number => {
+        const turns = result.events.filter(
+          (event) => event.kind === 'turn' && event.combatant === key && event.tick <= tick,
+        );
+        const last = turns[turns.length - 1];
+        return last?.kind === 'turn' ? last.energy : 0;
+      };
+
+      const mended = result.events.find(
+        (event) => event.kind === 'heal' && event.source === 'ally-1' && event.target === 'ally-0',
+      );
+      const recovered = result.events.find(
+        (event) => event.kind === 'heal' && event.source === 'ally-0' && event.target === 'ally-0',
+      );
+
+      expect(mended?.kind === 'heal' && mended.sourceEnergy - openedAt('ally-1', mended.tick)).toBe(
+        GAIN,
+      );
+      expect(
+        recovered?.kind === 'heal' && recovered.sourceEnergy - openedAt('ally-0', recovered.tick),
+      ).toBe(0);
+    });
+
+    it('holds an ordinary skill on cooldown however full the bar is', () => {
+      // The other meter, and the one an ultimate never carries. A charged bar buys nothing here.
+      const result = fight(
+        line([
+          unit('mage', { hp: 1000, atk: 60, energyRegen: 100, haste: 100 }, { skills: [SEAR] }),
+        ]),
+        stage(line([unit('mook', { hp: 500_000, atk: 0, haste: 1 })])),
       );
 
       const casts = result.events
@@ -685,22 +806,11 @@ describe('simulateBattle', () => {
       expect(casts.slice(0, 3)).toEqual([10, 40, 70]);
     });
 
-    it('never lets an HP cost kill the caster', () => {
-      // An HP cost is a tempo trade, not a suicide button — and a combatant that could kill
-      // itself paying for a skill could also end a battle without either side landing a blow.
-      const result = fight(
-        line([unit('warlock', { hp: 30, atk: 60, haste: 100 }, { skills: [BLOOD_BOLT] })]),
-        stage(line([unit('mook', { hp: 5000, atk: 0, haste: 1 })])),
-      );
-
-      expect(result.events.filter((event) => event.kind === 'cast')).toEqual([]);
-    });
-
     it('skips a heal nobody needs and casts it once somebody does', () => {
       const result = fight(
         line(
           [unit('tank', { hp: 300, atk: 5, def: 0, haste: 60 })],
-          [unit('medic', { hp: 400, atk: 40, mp: 60, mpRegen: 2, haste: 100 }, { skills: [MEND] })],
+          [unit('medic', { hp: 400, atk: 40, haste: 100 }, { skills: [MEND] })],
         ),
         stage(line([unit('mook', { hp: 4000, atk: 40, def: 0, haste: 100 })])),
       );
@@ -804,11 +914,7 @@ describe('simulateBattle', () => {
       const result = fight(
         line([
           unit('victim', { hp: 4000, atk: 5, haste: 100 }),
-          unit(
-            'cleric',
-            { hp: 4000, atk: 40, mp: 200, mpRegen: 10, haste: 100 },
-            { skills: [PURIFY] },
-          ),
+          unit('cleric', { hp: 4000, atk: 40, energyRegen: 20, haste: 100 }, { skills: [PURIFY] }),
         ]),
         stage(
           line([
@@ -866,7 +972,7 @@ describe('simulateBattle', () => {
       const board = replay(result);
 
       expect(board.hp).toEqual(boardOf(result.final).hp);
-      expect(board.mp).toEqual(boardOf(result.final).mp);
+      expect(board.energy).toEqual(boardOf(result.final).energy);
       expect(board.shield).toEqual(boardOf(result.final).shield);
       expect(board.statuses).toEqual(boardOf(result.final).statuses);
     });
@@ -1056,17 +1162,27 @@ const FIREBALL: SkillData = {
   name: 'Fireball',
   target: 'enemy-front',
   effects: [{ kind: 'damage', damageType: 'magical', power: 2 }],
-  cost: { kind: 'mp', amount: 12 },
-  cooldown: 30,
+  ultimate: true,
   priority: 5,
 };
 
-const BLOOD_BOLT: SkillData = {
-  id: 'blood-bolt',
-  name: 'Blood Bolt',
+/** A wide ultimate, for the once-per-action energy credit. */
+const SWEEP: SkillData = {
+  id: 'sweep',
+  name: 'Sweep',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  ultimate: true,
+  priority: 5,
+};
+
+/** The other meter: free, and gated by a cooldown alone. */
+const SEAR: SkillData = {
+  id: 'sear',
+  name: 'Sear',
   target: 'enemy-front',
   effects: [{ kind: 'damage', damageType: 'magical', power: 2 }],
-  cost: { kind: 'hp', amount: 40 },
+  cooldown: 30,
   priority: 5,
 };
 
@@ -1075,7 +1191,7 @@ const MEND: SkillData = {
   name: 'Mend',
   target: 'ally-lowest',
   effects: [{ kind: 'heal', power: 1 }],
-  cost: { kind: 'mp', amount: 8 },
+  cooldown: 20,
   condition: { kind: 'ally-hurt', fraction: 0.9 },
   priority: 5,
 };
@@ -1158,7 +1274,6 @@ const PURIFY: SkillData = {
   name: 'Purify',
   target: 'ally-afflicted',
   effects: [{ kind: 'cleanse', count: 2 }],
-  cost: { kind: 'mp', amount: 6 },
   cooldown: 20,
   condition: { kind: 'ally-afflicted' },
   priority: 5,

@@ -34,6 +34,7 @@ export {
   toRates,
   toSkill,
 } from './battle/content';
+export { clampEnergy, isCharged, MAX_ENERGY, toEnergyRules } from './battle/energy';
 export {
   baseDamage,
   critChance,
@@ -88,9 +89,9 @@ export {
   type RowBonusData,
   type Side,
   type Skill,
+  type EnergyRules,
+  type EnergyRulesData,
   type SkillConditionData,
-  type SkillCostData,
-  type SkillCostKind,
   type SkillData,
   type SkillEffectData,
   type SkillTarget,
