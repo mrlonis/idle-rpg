@@ -83,10 +83,10 @@ export class BattleView {
       return null;
     }
     if (outcome === 'defeat') {
+      // One message for both ways to lose. A fight that ran the ninety seconds out is a fight the
+      // party could not finish, which is the same thing the player needs to do about it — bring
+      // more damage — and `timedOut` is a tuning signal rather than something to explain here.
       return 'Defeated. Your party regroups — try again when you are ready.';
-    }
-    if (outcome === 'stalemate') {
-      return 'Stalemate — neither side could finish it.';
     }
     const gained = this.battles.result()?.reward.gained ?? {};
     const earnings = `idle income now ${formatRate(this.game.goldPerSec())} gold`;

@@ -4,10 +4,17 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { toCombatStats } from '../battle/content';
+import { type SkillData } from '../battle/types';
 import { num } from '../numeric';
-import { owned, TEST_ALPHA, TEST_GAMMA, TEST_GROWTH as GROWTH } from './fixtures';
+import {
+  owned,
+  TEST_ALPHA,
+  TEST_GAMMA,
+  TEST_GROWTH as GROWTH,
+  TEST_KIT_RULES as KIT,
+} from './fixtures';
 import { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './stats';
-import { MAX_RARITY_INDEX } from './types';
+import { type CharacterData, MAX_RARITY_INDEX } from './types';
 
 const FLAT: GrowthData = {
   perLevel: { common: 1, legendary: 1, ascended: 1 },
@@ -174,18 +181,19 @@ describe('scaleStats', () => {
 describe('toBattleCombatant', () => {
   it('carries the character id through unchanged', () => {
     // Battle events, the roster and the save all have to speak the same ids.
-    const combatant = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH);
+    const combatant = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT);
 
     expect(combatant.id).toBe('gamma');
     expect(combatant.name).toBe('Gamma');
   });
 
   it('reflects the level and rarity the player has actually invested', () => {
-    const base = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH);
+    const base = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT);
     const invested = toBattleCombatant(
       TEST_GAMMA,
       { defId: 'gamma', rarity: 8, level: 200, copies: 0 },
       GROWTH,
+      KIT,
     );
 
     expect(toCombatStats(invested.stats).hp.gt(toCombatStats(base.stats).hp)).toBe(true);
@@ -197,11 +205,33 @@ describe('toBattleCombatant', () => {
       TEST_ALPHA,
       { defId: 'alpha', rarity: 6, level: 300, copies: 0 },
       GROWTH,
+      KIT,
     );
     const stats = toCombatStats(combatant.stats);
 
     expect(stats.haste).toBeGreaterThanOrEqual(1);
     expect(stats.critChance).toBeLessThanOrEqual(1);
     expect(stats.hp.gt(0)).toBe(true);
+  });
+
+  it('hands the simulation only the part of the kit the rungs have unlocked', () => {
+    // The gate lives on this seam rather than inside combat, exactly as stat scaling does — so
+    // `simulateBattle` never has to know what a tier or a rung is.
+    const skills: readonly SkillData[] = [
+      { id: 'ult', name: 'Ult', target: 'enemy-front', effects: [], ultimate: true },
+      { id: 'second', name: 'Second', target: 'enemy-front', effects: [], cooldown: 10 },
+    ];
+    const armed: CharacterData = { ...TEST_ALPHA, skills };
+
+    const rare = toBattleCombatant(armed, owned(armed), GROWTH, KIT);
+    const elite = toBattleCombatant(
+      armed,
+      { defId: armed.id, rarity: 2, level: 1, copies: 0 },
+      GROWTH,
+      KIT,
+    );
+
+    expect(rare.skills?.map((skill) => skill.id)).toEqual(['ult']);
+    expect(elite.skills?.map((skill) => skill.id)).toEqual(['ult', 'second']);
   });
 });

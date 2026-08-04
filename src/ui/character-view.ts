@@ -2,15 +2,19 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   growthMultiplier,
+  kitSlots,
   MAX_ENERGY,
+  nextSkillUnlock,
   num,
+  rarityLabel,
   type RosterFailure,
   scaleStats,
+  skillCeiling,
   type SkillData,
   type SkillTarget,
   ticksToMs,
 } from '../core';
-import { characterById, GROWTH_RULES } from './content';
+import { characterById, GROWTH_RULES, KIT } from './content';
 import { formatAmounts, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 import { backTo } from './navigation';
@@ -189,19 +193,65 @@ export class CharacterView {
   });
 
   /**
-   * The character's kit, basic attack excluded.
+   * The character's kit, basic attack excluded — the **whole** kit, locked entries included.
    *
-   * Read off the definition rather than the roster entry because a kit is what a character
-   * *is* — levelling and ascending change the numbers behind it and never the list.
+   * The list is what a character *is* and never changes; how much of it this character has
+   * unlocked does, and that is the half the player is being asked to invest in. Showing only the
+   * unlocked part would make a rung's reward invisible until after it was paid for, and would make
+   * a two-skill common-tier character indistinguishable from a four-skill ascended-tier one on the
+   * screen where that difference is the point.
    */
-  protected readonly skills = computed(() =>
-    (this.definition()?.skills ?? []).map((skill) => ({
-      id: skill.id,
-      name: skill.name,
-      cost: skillMeter(skill),
-      target: TARGET_LABELS[skill.target],
-    })),
-  );
+  protected readonly skills = computed(() => {
+    const character = this.definition();
+    const entry = this.entry();
+    if (character === null || entry === null) {
+      return [];
+    }
+    return kitSlots(character.skills ?? [], KIT, character.tier, entry.rarity).map((slot) => ({
+      id: slot.skill.id,
+      name: slot.skill.name,
+      cost: skillMeter(slot.skill),
+      target: TARGET_LABELS[slot.skill.target],
+      unlocked: slot.unlocked,
+      // Absent only for a skill no rung can reach, which content is asserted never to author —
+      // so the template's fallback is a safety net rather than a case a player meets.
+      unlocksAt: slot.unlocksAt === undefined ? null : rarityLabel(slot.unlocksAt),
+    }));
+  });
+
+  /** How many skills this character's tier allows in total, for the footnote under the list. */
+  protected readonly ceiling = computed(() => {
+    const character = this.definition();
+    return character === null ? null : skillCeiling(KIT, character.tier);
+  });
+
+  /**
+   * The next skill an ascension buys, named on the ascension card.
+   *
+   * A rung's price is already shown in copies; this is the other half of the trade. Without it,
+   * the one ascension that unlocks a skill looks exactly like the four that do not.
+   *
+   * **`imminent` is the difference between a promise and a receipt.** The card sits directly above
+   * "next rung costs", so an unlock two rungs away phrased as though it were the next one is a
+   * player paying for a skill they do not get. Only the rung immediately above the character's
+   * current one is described as what ascending buys now.
+   */
+  protected readonly nextUnlock = computed(() => {
+    const character = this.definition();
+    const entry = this.entry();
+    if (character === null || entry === null) {
+      return null;
+    }
+    const slot = nextSkillUnlock(character.skills ?? [], KIT, character.tier, entry.rarity);
+    if (slot?.unlocksAt === undefined) {
+      return null;
+    }
+    return {
+      name: slot.skill.name,
+      at: rarityLabel(slot.unlocksAt),
+      imminent: slot.unlocksAt === entry.rarity + 1,
+    };
+  });
 
   /** The compounded multiplier on this character's quantities, as the sheet reports it. */
   protected readonly multiplier = computed(() => {

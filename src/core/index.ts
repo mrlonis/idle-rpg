@@ -149,6 +149,15 @@ export {
   type FodderOption,
 } from './roster/ascend';
 export {
+  kitSlots,
+  nextSkillUnlock,
+  ordinaryUnlock,
+  skillCeiling,
+  unlockedSkills,
+  type KitRulesData,
+  type KitSlot,
+} from './roster/kit';
+export {
   canLevelUp,
   clampLevel,
   cumulativeLevelCost,

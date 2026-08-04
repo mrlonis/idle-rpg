@@ -177,7 +177,7 @@ export const ENERGY_RULES = {
  *
  * A termination guard first and a balance number second. `simulateBattle` is only guaranteed
  * to return because damage lands eventually; a dodge pool that could reach certainty would
- * turn every fight against it into a stalemate. Ten percent also keeps an evasion build
+ * leave every fight against it to be decided by the clock. Ten percent also keeps an evasion build
  * *annoying* rather than *unbeatable*, which is the right amount of annoying for a stat with
  * no counter-play beyond accuracy.
  */

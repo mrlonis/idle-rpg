@@ -9,8 +9,8 @@ import { type CombatRules, type CombatStats, type DamageType } from './types';
  *
  * Subtractive mitigation (`atk - def`) has two failure modes an idle game cannot tolerate.
  * It goes to zero — and then negative — as soon as DEF catches ATK, which turns a merely
- * unfavourable matchup into an unwinnable one and leaves the simulation grinding against a
- * stalemate it can never resolve. And it makes DEF a hard wall, so a single point of it can
+ * unfavourable matchup into an unwinnable one and leaves the simulation grinding at a fight it
+ * can never resolve, until the timer ends it. And it makes DEF a hard wall, so a single point of it can
  * flip a fight, which is miserable to tune.
  *
  * This form is strictly positive whenever ATK is, so a battle always terminates. It also

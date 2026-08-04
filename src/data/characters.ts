@@ -2,40 +2,70 @@ import {
   ABSOLUTION,
   AEGIS_SKILL,
   ANVIL_STANCE,
+  ARROW_OF_ENDING,
+  AVALANCHE,
+  BLOOD_PACT,
+  CARRION_FEAST,
   CHOIRLIGHT,
+  CINDERLASH,
+  DAWNWARD,
   DECISIVE_STRIKE,
   DEEP_WARD,
+  DEEPSTONE_GRASP,
   DEVOUR,
+  DEVOURING_TIDE,
+  DOUBLE_OR_NOTHING,
   EMBERBURST,
+  ENTROPY,
   FIELD_DRESSING,
   FIRST_ARROW,
+  FORGELIGHT_VIGIL,
   GAMBLERS_CUT,
+  GORGE,
+  GRAVE_CHILL,
   GRAVE_GRASP,
   GRAVE_TIDE,
   GROUND_SLAM,
   GUARD_BREAK,
   HAMMER_CHECK,
   HEXFIRE,
+  HOLD_THE_LINE,
+  IRON_REBUKE,
+  JUDGEMENT,
+  LONG_SILENCE,
   MARSHALS_CALL,
+  MAUL,
   MOUNTAIN_BREAKER,
+  NIGHTREACH,
   OATH_OF_ARMS,
   PIERCING_SHOT,
-  RUIN_UNBOUND,
+  POMMEL_STRIKE,
   REND,
+  RUIN_UNBOUND,
   SALTBEARD_REMEDY,
+  SECOND_WIND,
   SHIELD_WALL,
+  SNARE_ARROW,
+  SOOTHING_VERSE,
   SOUL_SIPHON,
+  SOUL_TITHE,
+  SOVEREIGNS_TOLL,
+  SPLITTING_SHAFT,
   STOUT_WARD,
+  SUNDER_STONE,
+  SWEEPING_COMMAND,
   SWORN_STRIKE,
   THROAT_CUT,
   TRIAGE,
   UNMAKING,
+  UNQUIET_HUNGER,
   UNWAVERING_LIGHT,
   VERSE_OF_DAWN,
+  VIGIL,
   VOLLEY,
+  WARD_UNBROKEN,
   WINDSTEP,
   WORLDS_MAW,
-  BLOOD_PACT,
 } from './skills';
 
 /**
@@ -75,6 +105,25 @@ import {
  * its six-line stat block makes. And a Dwarf sits high not because it is a caster but because it
  * is **slow**: at 70 haste it takes half as many turns as an Elf, and a per-turn drip has to be
  * read per turn.
+ *
+ * ## A kit is authored at its tier's ceiling, ultimate first, then in unlock order
+ *
+ * Since milestone 8c a character does not fight with everything written below it. Tier sets how
+ * many skills it may ever field — two, three or four, counting the ultimate — and ascension rungs
+ * hand them over one at a time. The table and the rungs are in `kits.ts`; the rule that reads them
+ * is `core/roster/kit.ts`.
+ *
+ * Two conventions make a kit readable, and `characters.spec.ts` asserts both:
+ *
+ * - **Exactly as many skills as the tier allows.** Never fewer, so no character is short of what
+ *   its tier promises; never more, so nothing is authored that no amount of ascending could reach.
+ * - **The ultimate first, then the ordinary skills in the order they unlock.** The list order *is*
+ *   the progression — second entry at `elite`, third at `legendary`, fourth at `ascended` — so
+ *   reading a kit top to bottom reads what the player gets and when.
+ *
+ * Selection order is unaffected by either: `core/battle/content.ts` sorts a kit by descending
+ * `priority` before a fight, so where a skill sits in this list decides when it is *earned* and
+ * never when it is *used*.
  *
  * ## Every basic attack is physical
  *
@@ -151,7 +200,7 @@ export const MIRA = {
     critDamageAmp: 0.6,
     energyRegen: 9,
   },
-  skills: [GUARD_BREAK],
+  skills: [GUARD_BREAK, SECOND_WIND],
 } as const;
 
 /** Mira with the edges filed sharper: a little faster, a little more likely to spike, and the
@@ -173,7 +222,7 @@ export const SEREN = {
     energyRegen: 9,
     physicalResist: 0.03,
   },
-  skills: [OATH_OF_ARMS, SWORN_STRIKE],
+  skills: [OATH_OF_ARMS, SWORN_STRIKE, POMMEL_STRIKE],
 } as const;
 
 /** No weakness worth naming and no spike worth fearing — she simply never has a bad matchup,
@@ -194,7 +243,7 @@ export const AURELIA = {
     critDamageAmp: 0.75,
     energyRegen: 10,
   },
-  skills: [MARSHALS_CALL, DECISIVE_STRIKE],
+  skills: [MARSHALS_CALL, DECISIVE_STRIKE, HOLD_THE_LINE, SWEEPING_COMMAND],
 } as const;
 
 /**
@@ -222,7 +271,7 @@ export const WREN = {
     energyRegen: 12,
     magicResist: 0.06,
   },
-  skills: [TRIAGE, FIELD_DRESSING],
+  skills: [FIELD_DRESSING, TRIAGE],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -250,7 +299,7 @@ export const BRAN = {
     physicalResist: 0.11,
     healthRegen: 0.2,
   },
-  skills: [SHIELD_WALL],
+  skills: [SHIELD_WALL, IRON_REBUKE],
 } as const;
 
 /** Trades what little offence Bran had for more wall. Against a wide wave of small hits he is
@@ -274,7 +323,7 @@ export const KORRIN = {
     physicalResist: 0.12,
     healthRegen: 0.25,
   },
-  skills: [ANVIL_STANCE, HAMMER_CHECK],
+  skills: [ANVIL_STANCE, HAMMER_CHECK, FORGELIGHT_VIGIL],
 } as const;
 
 /** The most extreme defensive block authored, and the worst attacker in the game to pay for it.
@@ -299,7 +348,7 @@ export const THRAUN = {
     physicalResist: 0.12,
     healthRegen: 0.35,
   },
-  skills: [DEEP_WARD, GROUND_SLAM],
+  skills: [DEEP_WARD, GROUND_SLAM, DEEPSTONE_GRASP, WARD_UNBROKEN],
 } as const;
 
 /**
@@ -326,7 +375,7 @@ export const DORN = {
     energyRegen: 12,
     healthRegen: 0.2,
   },
-  skills: [SALTBEARD_REMEDY, STOUT_WARD],
+  skills: [STOUT_WARD, SALTBEARD_REMEDY],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -353,7 +402,7 @@ export const RIN = {
     magicResist: 0.03,
     accuracy: 1.1,
   },
-  skills: [PIERCING_SHOT],
+  skills: [PIERCING_SHOT, SNARE_ARROW],
 } as const;
 
 /** Gives up HP for tempo. Acts roughly a third more often than Rin and dies to roughly a third
@@ -376,7 +425,7 @@ export const LYSHA = {
     magicResist: 0.05,
     dodge: 0.1,
   },
-  skills: [THROAT_CUT, WINDSTEP],
+  skills: [THROAT_CUT, WINDSTEP, NIGHTREACH],
 } as const;
 
 /** The fastest thing authored and the softest. Acts nearly three times for every two turns a
@@ -402,7 +451,7 @@ export const AELRINDEL = {
     dodge: 0.12,
     accuracy: 1.15,
   },
-  skills: [FIRST_ARROW, VOLLEY],
+  skills: [FIRST_ARROW, VOLLEY, SPLITTING_SHAFT, ARROW_OF_ENDING],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -429,7 +478,7 @@ export const MORTLACH = {
     lifeLeech: 0.05,
     physicalResist: 0.04,
   },
-  skills: [GRAVE_GRASP],
+  skills: [GRAVE_GRASP, CARRION_FEAST],
 } as const;
 
 /** More of Mortlach, with the armour stripped further and a magical drain bought with his own
@@ -452,7 +501,7 @@ export const SABLE = {
     lifeLeech: 0.08,
     physicalResist: 0.03,
   },
-  skills: [BLOOD_PACT],
+  skills: [BLOOD_PACT, GRAVE_CHILL, UNQUIET_HUNGER],
 } as const;
 
 /** The largest HP pool in the game attached to the thinnest armour, and the only character who
@@ -475,7 +524,7 @@ export const NEKROS = {
     lifeLeech: 0.1,
     magicPierce: 0.15,
   },
-  skills: [GRAVE_TIDE, SOUL_SIPHON],
+  skills: [GRAVE_TIDE, SOUL_SIPHON, SOVEREIGNS_TOLL, SOUL_TITHE],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -499,7 +548,7 @@ export const GNASH = {
     energyRegen: 5,
     physicalResist: 0.06,
   },
-  skills: [REND],
+  skills: [REND, MAUL],
 } as const;
 
 /** Slower and harder still, and the first character with real armour penetration. Nearly never
@@ -522,7 +571,7 @@ export const RUK = {
     physicalPierce: 0.25,
     physicalResist: 0.05,
   },
-  skills: [MOUNTAIN_BREAKER],
+  skills: [MOUNTAIN_BREAKER, SUNDER_STONE, AVALANCHE],
 } as const;
 
 /** The highest ATK authored, on the slowest body that is not a Dwarf, ignoring a third of
@@ -546,7 +595,7 @@ export const VHAROK = {
     physicalPierce: 0.35,
     physicalResist: 0.04,
   },
-  skills: [WORLDS_MAW, DEVOUR],
+  skills: [WORLDS_MAW, DEVOUR, GORGE, DEVOURING_TIDE],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -574,7 +623,7 @@ export const CELIA = {
     energyRegen: 13,
     receivedHealing: 0.15,
   },
-  skills: [CHOIRLIGHT],
+  skills: [CHOIRLIGHT, SOOTHING_VERSE],
 } as const;
 
 /** More wall, less luck, and the deepest cleanse in the game. */
@@ -597,7 +646,7 @@ export const ITHURIEL = {
     tenacity: 0.15,
     receivedHealing: 0.2,
   },
-  skills: [ABSOLUTION, VERSE_OF_DAWN],
+  skills: [VERSE_OF_DAWN, ABSOLUTION, DAWNWARD],
 } as const;
 
 /** Cannot crit. At all.
@@ -626,7 +675,7 @@ export const SERAPHINE = {
     tenacity: 0.25,
     receivedHealing: 0.3,
   },
-  skills: [UNWAVERING_LIGHT, AEGIS_SKILL],
+  skills: [UNWAVERING_LIGHT, AEGIS_SKILL, VIGIL, JUDGEMENT],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -652,7 +701,7 @@ export const PYRA = {
     energyRegen: 8,
     magicResist: 0.03,
   },
-  skills: [EMBERBURST],
+  skills: [EMBERBURST, CINDERLASH],
 } as const;
 
 /** A third of his swings land for over double. The other two thirds are why he is called that.
@@ -674,7 +723,7 @@ export const MALAKAR = {
     magicResist: 0.03,
     dodge: 0.08,
   },
-  skills: [GAMBLERS_CUT, HEXFIRE],
+  skills: [GAMBLERS_CUT, HEXFIRE, DOUBLE_OR_NOTHING],
 } as const;
 
 /** The most volatile block in the game: nearly half his attacks land for 2.4×, on the second
@@ -698,7 +747,7 @@ export const AZRATHOTH = {
     magicPierce: 0.2,
     magicResist: 0.04,
   },
-  skills: [RUIN_UNBOUND, UNMAKING],
+  skills: [UNMAKING, RUIN_UNBOUND, ENTROPY, LONG_SILENCE],
 } as const;
 
 /**

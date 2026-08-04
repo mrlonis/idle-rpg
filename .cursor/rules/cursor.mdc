@@ -54,13 +54,22 @@ the two disagree, the code is right and both are stale.
 - **[docs/attributes.md](../../docs/attributes.md)** — the combatant stat block, which stats may scale
   and why, and what the milestone 8a collapse to one `atk` and one `def` cost.
 - **[docs/ascension.md](../../docs/ascension.md)** — the rung ladder, the two ascension paths, and how
-  rung prices resolve recursively into base copies.
+  rung prices resolve recursively into base copies. Since milestone 8c three of the rungs also hand
+  over a skill.
 - **[docs/combat.md](../../docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
   energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
   there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
-  return. One of them now lives outside `core/`: milestone 8b deleted the MP pool that guaranteed a
-  fight against a healer resolves, so the **zero-stalemates assertion in the balance sweep** is what
-  stands in its place. Treat it as a guard rather than as a balance test.
+  return.
+  - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
+    outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
+    The headroom over the longest tuned fight is **1.9×**, so a stage that takes longer than ninety
+    seconds against the party it is meant for is unclearable — treat the timer as a budget every
+    encounter has to fit inside, and expect the balance sweep to say so first.
+  - One termination argument lives outside `core/`: milestone 8b deleted the MP pool that
+    guaranteed a fight against a healer resolves, so an assertion in the balance sweep stands in
+    its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
+    same `defeat` on screen, so an outcome-based version of that guard silently tests nothing. Do
+    not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
 - **[docs/economy.md](../../docs/economy.md)** — the five currencies, income rates, the level curve,
   pull rates and pity, and offline accrual.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
@@ -312,7 +321,15 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
 - Characters are **sidegrades with distinct niches**, not a strict power ladder. Two
   players should clear the same stage with different teams. This holds _within_ a tier;
   ascension and levelling are the vertical axis, and tier is a growth slope rather than a
-  starting advantage (see [milestone 3](../../docs/milestones.md)).
+  starting advantage (see [milestone 3](../../docs/milestones.md)) — with one deliberate exception since
+  milestone 8c, which is that tier also caps how many skills a character may field.
+- **A kit is authored at exactly its tier's ceiling**: two skills at `common`, three at
+  `legendary`, four at `ascended`, ultimate included. Fewer leaves a character short of what its
+  tier promises; more ships content no rung can ever reach. Write the ultimate first and the rest in
+  the order they unlock — `elite`, `legendary`, `ascended` — which is what makes a kit readable as a
+  progression. `data/characters.spec.ts` asserts all of it; the rule is in
+  [`core/roster/kit.ts`](../../src/core/roster/kit.ts) and the table in
+  [`data/kits.ts`](../../src/data/kits.ts).
 - Team composition matters through **enemy design** (a healer that must be burst, a wide
   wave that punishes single-target, a debuff that needs a cleanse), not through flat
   synergy bonuses like "+10% if two Fire units" — those just create a new optimal team.

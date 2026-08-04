@@ -37,12 +37,41 @@
       <h2 id="skills-label" class="section__heading">Skills</h2>
       <ul class="skills">
         @for (skill of skills(); track skill.id) {
-          <li class="skills__row">
+          <!--
+            The lock is carried three ways, and the text is the load-bearing one: the row says
+            "Locked" and names the rung, so it survives both a styling change and a reader who
+            cannot perceive the dimming. Colour alone would fail WCAG 1.4.1.
+
+            `aria-disabled` is the programmatic half, and it is `aria-disabled` rather than
+            `disabled` because a list row is not an interactive control. It is valid here despite
+            `listitem` not listing it: ARIA 1.2 promoted `aria-disabled` to a **global** attribute,
+            which is why the AXE suite passes with it — see `ariaAttrs` in axe-core, where it is
+            marked `global: true`. Do not "fix" it by deleting it.
+          -->
+          <li
+            class="skills__row"
+            [class.skills__row--locked]="!skill.unlocked"
+            [attr.aria-disabled]="skill.unlocked ? null : 'true'"
+          >
             <span class="skills__name">{{ skill.name }}</span>
-            <span class="skills__meta">{{ skill.target }} · {{ skill.cost }}</span>
+            <span class="skills__meta">
+              @if (skill.unlocked) {
+                {{ skill.target }} · {{ skill.cost }}
+              } @else if (skill.unlocksAt; as rung) {
+                <span class="skills__lock">Locked</span> · unlocks at {{ rung }}
+              } @else {
+                <span class="skills__lock">Locked</span>
+              }
+            </span>
           </li>
         }
       </ul>
+      @if (ceiling(); as limit) {
+        <p class="card__footnote">
+          {{ limit }} skills at {{ row.tier }} tier. The ultimate is yours from the start; ascending
+          unlocks the rest.
+        </p>
+      }
       <p class="card__footnote">
         Every character also has a basic attack: physical, single target, into the front row.
       </p>
@@ -91,6 +120,15 @@
     @if (row.isMaxRarity) {
       <p class="ascend__done">Fully ascended. Further copies of {{ row.name }} convert to spark.</p>
     } @else if (row.ascensionCost; as cost) {
+      @if (nextUnlock(); as unlock) {
+        <p class="ascend__unlock">
+          @if (unlock.imminent) {
+            This rung unlocks <strong>{{ unlock.name }}</strong>
+          } @else {
+            <strong>{{ unlock.name }}</strong> unlocks later, at {{ unlock.at }}
+          }
+        </p>
+      }
       <p class="ascend__intro">Next rung costs, in copies as they arrive from a banner:</p>
       <ul class="ascend__costs">
         <li class="ascend__cost" [class.ascend__cost--short]="row.copies < cost.self">

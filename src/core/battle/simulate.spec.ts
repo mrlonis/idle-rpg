@@ -888,7 +888,9 @@ describe('simulateBattle', () => {
       const stunned = result.events.filter((event) => event.kind === 'stunned');
       expect(stunned.length).toBeGreaterThan(0);
       // The victim keeps arriving at the front of the queue rather than being frozen out of it.
-      expect(result.outcome).not.toBe('stalemate');
+      // Read off `timedOut` rather than the outcome: a stun lock would show up as the clock
+      // running out, and since that reports `defeat` the outcome alone can no longer say so.
+      expect(result.timedOut).toBe(false);
     });
 
     it('absorbs damage into a shield before HP, and reports both halves', () => {
@@ -1064,18 +1066,60 @@ describe('simulateBattle', () => {
   });
 
   describe('termination', () => {
-    it('gives up as a stalemate rather than running forever', () => {
+    it('calls time on a fight nobody can finish, and calls it a defeat', () => {
       // The damage formula guarantees a battle ends eventually, but "eventually" can be 1e24
       // turns. A synchronous function on the main thread needs a hard ceiling, and a balance
       // sweep needs one even more.
+      //
+      // Running the clock out is losing. The party did not clear the stage, so `defeat` is what
+      // the player is told — there is no third outcome to explain.
       const result = fight(
         line([unit('pebble', { hp: 1000, atk: 1, def: '1e12', haste: 100 })]),
         stage(line([unit('mountain', { hp: '1e12', atk: 0, def: '1e12', haste: 100 })])),
       );
 
-      expect(result.outcome).toBe('stalemate');
+      expect(result.outcome).toBe('defeat');
       expect(result.ticks).toBe(MAX_BATTLE_TICKS);
-      expect(result.events.at(-1)).toMatchObject({ kind: 'end', outcome: 'stalemate' });
+      expect(result.events.at(-1)).toMatchObject({ kind: 'end', outcome: 'defeat' });
+    });
+
+    it('records that the clock was what ended it, separately from the outcome', () => {
+      // ⚠️ `timedOut` is the successor to the zero-stalemates balance assertion. On screen a
+      // timeout and a wipe are the same defeat; in a sweep they are not remotely the same thing,
+      // and an over-tuned sustain kit is invisible without this flag.
+      const stalled = fight(
+        line([unit('pebble', { hp: 1000, atk: 1, def: '1e12', haste: 100 })]),
+        stage(line([unit('mountain', { hp: '1e12', atk: 0, def: '1e12', haste: 100 })])),
+      );
+      const killed = fight(
+        line([unit('victim', { hp: 1, atk: 1, haste: 100 })]),
+        stage(line([unit('killer', { hp: 5000, atk: 500, haste: 200 })])),
+      );
+
+      expect(stalled.timedOut).toBe(true);
+      expect(killed.timedOut).toBe(false);
+      expect(killed.outcome).toBe('defeat');
+    });
+
+    it('pays nothing for a fight the clock ended', () => {
+      // `reward` keys off the outcome, and the outcome for a timed-out fight is now the same
+      // `defeat` a wipe produces — so this asserts the timer cannot become a way to farm a stage
+      // by standing in it.
+      const result = fight(
+        line([unit('pebble', { hp: 1000, atk: 1, def: '1e12', haste: 100 })]),
+        stage(line([unit('mountain', { hp: '1e12', atk: 0, def: '1e12', haste: 100 })])),
+      );
+
+      expect(result.reward.gained).toEqual({});
+      expect(result.reward.rates).toEqual({});
+      expect(result.reward.firstClearSummons.eq(0)).toBe(true);
+    });
+
+    it('gives a fight ninety seconds, which is the rule and not only a guard', () => {
+      // The cap is quoted in ticks and felt in seconds, and the two drifting apart is exactly how
+      // a thirty-minute battle shipped unnoticed. Asserting the conversion keeps the number in
+      // `clock.ts` honest about what it means.
+      expect(ticksToMs(MAX_BATTLE_TICKS)).toBe(90_000);
     });
 
     it('still finishes against a combatant that dodges almost everything', () => {

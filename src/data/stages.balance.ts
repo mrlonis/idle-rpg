@@ -9,13 +9,20 @@ import {
   type CombatRulesData,
   type FormationData,
   type GrowthData,
+  type KitRulesData,
+  MAX_BATTLE_TICKS,
+  rarityIndex,
   scaleStats,
   simulateBattle,
   type StageData,
+  ticksToMs,
+  toBattleCombatant,
   toCombatRules,
+  unlockedSkills,
 } from '../core';
-import { BRAN, CELIA, GNASH, MIRA, PYRA, RIN } from './characters';
+import { BRAN, CELIA, GNASH, KORRIN, MIRA, PYRA, RIN, THRAUN } from './characters';
 import { COMBAT_RULES } from './combat';
+import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { STAGES } from './stages';
 
@@ -28,6 +35,7 @@ import { STAGES } from './stages';
  */
 const stages: readonly StageData[] = STAGES;
 const growth: GrowthData = GROWTH;
+const kit: KitRulesData = KIT_RULES;
 const authoredRules: CombatRulesData = COMBAT_RULES;
 const rules: CombatRules = toCombatRules(authoredRules);
 
@@ -41,29 +49,66 @@ const rules: CombatRules = toCombatRules(authoredRules);
  */
 const TRIALS = 40;
 
+/**
+ * The rungs this file fields parties at, resolved from the ladder rather than written as indices.
+ *
+ * Every one of these used to be a bare number, which is a coupling wearing a literal's clothes: 2
+ * means `elite` only for as long as nobody inserts a rung below it, and a reordered ladder would
+ * have moved every reference party silently — the sweep would still pass, describing a different
+ * game. Reading them off `rarityIndex` makes that a compile-time relationship, and an id that
+ * stops being a rarity resolves to `-1` and fails loudly instead.
+ *
+ * The names also carry what the numbers never did. `ELITE` is the lowest rung whose level cap
+ * permits {@link BUILT} and the rung at which a common-tier character's second skill arrives;
+ * `LEGENDARY` is where {@link INVESTED} sits; `ASCENDED` is where a fully invested character ends
+ * up; `RARE` is where every character starts and where {@link STARTERS} still is. Those are the
+ * facts the sweeps are actually about.
+ */
+const RARE = rarityIndex('rare');
+const ELITE = rarityIndex('elite');
+const LEGENDARY = rarityIndex('legendary');
+const ASCENDED = rarityIndex('ascended');
+
+/**
+ * The rung the difficulty probe fields its kits at.
+ *
+ * Matching {@link BUILT}. The probe sweeps *power* continuously and holds everything else fixed,
+ * so the kit has to be pinned to a rung rather than moving with the multiplier.
+ */
+const PROBE_RARITY = ELITE;
+
 interface Sweep {
   readonly winRate: number;
   readonly meanSeconds: number;
+  readonly maxSeconds: number;
   readonly meanSurvivors: number;
-  readonly stalemates: number;
+  /** Fights that ran the ninety seconds out instead of ending in a death. */
+  readonly timedOut: number;
 }
 
-/** One character resolved for level and rarity, exactly as `ui/` hands it to a battle. */
+/**
+ * One character resolved for level and rarity, exactly as `ui/` hands it to a battle.
+ *
+ * Through `toBattleCombatant` rather than reassembled here, and that matters more since milestone
+ * 8c than it did before: the kit is now narrowed by tier and rung as well as the stats being
+ * scaled, so a sweep that built its own combatant would measure a party fielding skills the game
+ * has not handed the player yet. The reference five below are all common tier — two skills each,
+ * and only at `elite` or above.
+ */
 function at(character: CharacterData, level: number, rarity: number): CombatantData {
-  return {
-    id: character.id,
-    name: character.name,
-    faction: character.faction,
-    stats: scaleStats(character.stats, growth, character.tier, level, rarity),
-    basic: character.basic,
-    skills: character.skills,
-  };
+  return toBattleCombatant(
+    character,
+    { defId: character.id, rarity, level, copies: 0 },
+    growth,
+    kit,
+  );
 }
 
 function sweep(party: FormationData, stage: StageData): Sweep {
   let wins = 0;
-  let stalemates = 0;
+  let timedOut = 0;
   let ticks = 0;
+  let longest = 0;
   let survivors = 0;
 
   for (let attempt = 0; attempt < TRIALS; attempt++) {
@@ -71,18 +116,20 @@ function sweep(party: FormationData, stage: StageData): Sweep {
     if (result.outcome === 'victory') {
       wins++;
     }
-    if (result.outcome === 'stalemate') {
-      stalemates++;
+    if (result.timedOut) {
+      timedOut++;
     }
     ticks += result.ticks;
+    longest = Math.max(longest, result.ticks);
     survivors += result.final.filter((c) => c.side === 'ally' && c.hp.gt(0)).length;
   }
 
   return {
     winRate: wins / TRIALS,
     meanSeconds: ticks / TRIALS / 10,
+    maxSeconds: longest / 10,
     meanSurvivors: survivors / TRIALS,
-    stalemates,
+    timedOut,
   };
 }
 
@@ -102,8 +149,8 @@ function legal(level: number, rarity: number): number {
 
 /** The three characters a run starts with, at level 1, standing where the game puts them. */
 const STARTERS: FormationData = {
-  front: [at(BRAN, 1, 0), at(MIRA, 1, 0)],
-  back: [at(RIN, 1, 0)],
+  front: [at(BRAN, 1, RARE), at(MIRA, 1, RARE)],
+  back: [at(RIN, 1, RARE)],
 };
 
 /**
@@ -114,8 +161,12 @@ const STARTERS: FormationData = {
  * nothing behind it. `elite` is simply the lowest rung whose cap (100) permits level 80.
  */
 const BUILT: FormationData = {
-  front: [at(BRAN, legal(80, 2), 2), at(GNASH, legal(80, 2), 2)],
-  back: [at(RIN, legal(80, 2), 2), at(CELIA, legal(80, 2), 2), at(PYRA, legal(80, 2), 2)],
+  front: [at(BRAN, legal(80, ELITE), ELITE), at(GNASH, legal(80, ELITE), ELITE)],
+  back: [
+    at(RIN, legal(80, ELITE), ELITE),
+    at(CELIA, legal(80, ELITE), ELITE),
+    at(PYRA, legal(80, ELITE), ELITE),
+  ],
 };
 
 /**
@@ -126,8 +177,12 @@ const BUILT: FormationData = {
  * a player cannot earn.
  */
 const INVESTED: FormationData = {
-  front: [at(BRAN, legal(200, 4), 4), at(GNASH, legal(200, 4), 4)],
-  back: [at(RIN, legal(200, 4), 4), at(CELIA, legal(200, 4), 4), at(PYRA, legal(200, 4), 4)],
+  front: [at(BRAN, legal(200, LEGENDARY), LEGENDARY), at(GNASH, legal(200, LEGENDARY), LEGENDARY)],
+  back: [
+    at(RIN, legal(200, LEGENDARY), LEGENDARY),
+    at(CELIA, legal(200, LEGENDARY), LEGENDARY),
+    at(PYRA, legal(200, LEGENDARY), LEGENDARY),
+  ],
 };
 
 const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) }));
@@ -142,20 +197,20 @@ const WALL = stages.findIndex((stage) => stage.id === 'stage-7');
 const HANDCLIMBED = stages.findIndex((stage) => stage.id === 'stage-12') + 1;
 
 describe('ladder balance', () => {
-  it('never stalls out on a fight either party is meant to have', () => {
-    // ⚠️ **The load-bearing assertion in this file since milestone 8b.** A stalemate means neither
-    // side could finish inside the tick cap: the player sits through half an hour of battle time
-    // for nothing.
+  it('never runs the clock out on a fight either party is meant to have', () => {
+    // ⚠️ **The load-bearing assertion in this file since milestone 8b.** Every fight a tuned party
+    // has should end because somebody died, not because ninety seconds elapsed.
     //
     // It used to be a content check backed by a mechanical guarantee. The MP pool ran dry, so a
     // healer eventually stopped healing whatever the content said. Energy only ever refills, so
-    // that guarantee is gone and this is what replaced it — the sweep is now the only thing
-    // standing between an over-tuned sustain kit and a fight that runs to `MAX_BATTLE_TICKS`.
-    // Do not relax it, and do not narrow it to the parties that win: an unwinnable fight should
-    // end in a defeat the player can read, not in a clock running out.
-    const stalled = everySweep
-      .filter((entry) => entry.stalemates > 0)
-      .map((entry) => entry.stage.id);
+    // that guarantee is gone and this is what replaced it — the sweep is the only thing standing
+    // between an over-tuned sustain kit and a fight decided by a timer.
+    //
+    // **It reads `timedOut` rather than the outcome, and that is the whole reason the flag
+    // exists.** Since the timer became a loss, a fight the party could not finish and a fight the
+    // party was killed in are the same `defeat` on screen — so an outcome-based version of this
+    // test would have quietly stopped testing anything.
+    const stalled = everySweep.filter((entry) => entry.timedOut > 0).map((entry) => entry.stage.id);
 
     expect(stalled).toEqual([]);
   });
@@ -238,6 +293,120 @@ describe('ladder balance', () => {
 
     expect(overlong).toEqual([]);
   });
+
+  it('leaves the timer real headroom over the longest fight the ladder actually has', () => {
+    // The margin between "the longest tuned fight" and "the clock" is what content is allowed to
+    // grow into. It used to be 37x, which is another way of saying the cap bounded nothing; at
+    // ninety seconds it is small enough to be a genuine constraint, and this is what makes that
+    // constraint visible rather than a surprise.
+    //
+    // A stage that grows past the margin is unclearable by the party it was tuned for, so this is
+    // the test that should fail first when milestone 10 rescales or milestone 11 authors a
+    // hundred stages — before the win-rate assertions do, and with a number in the message.
+    const longest = Math.max(...everySweep.map((entry) => entry.maxSeconds));
+    const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
+
+    expect(longest, `longest fight ${longest.toFixed(1)}s against a ${timer}s timer`).toBeLessThan(
+      timer * 0.75,
+    );
+  });
+});
+
+/**
+ * The parties the ladder is *not* tuned against, which is the point.
+ *
+ * A player may field one character, or five healers, and neither is a configuration any of the
+ * sweeps above describes. Before the battle timer this is where the game's worst behaviour lived:
+ * a solo wall against a stage it could not kill produced thirty minutes of battle log on a screen
+ * with no exit, and no assertion anywhere covered it — the zero-stalemates guard swept three tuned
+ * parties of five and passed while the failure sat outside it.
+ *
+ * **These parties are allowed to lose. They are not allowed to lose slowly.** That is the whole of
+ * what this block asserts, and it is deliberately not a balance claim: nothing here says a solo
+ * Thraun should beat anything.
+ */
+describe('parties nobody tuned for', () => {
+  /**
+   * Level 120 at the `ascended` rung, which is not an arbitrary pick.
+   *
+   * It is the investment level at which these characters are strong enough to survive the late
+   * ladder indefinitely and still nowhere near strong enough to kill it — the exact band in which
+   * the old thirty-minute fights lived. Levelling them further does not make the point better; it
+   * makes them win, which is a different test.
+   */
+  const AWKWARD_LEVEL = 120;
+
+  const member = (character: CharacterData, rarity: number): CombatantData =>
+    at(character, legal(Math.min(AWKWARD_LEVEL, LEVEL_CURVE.caps[rarity]), rarity), rarity);
+
+  /** A one-character party, which the formation permits and the ladder never assumed. */
+  const solo = (character: CharacterData, rarity: number): FormationData => ({
+    front: [member(character, rarity)],
+    back: [],
+  });
+
+  /** Two characters chosen to sustain rather than to kill — the worst shape a real player builds. */
+  const sustainPair = (a: CharacterData, b: CharacterData, rarity: number): FormationData => ({
+    front: [member(a, rarity), member(b, rarity)],
+    back: [],
+  });
+
+  const awkward: readonly { label: string; party: FormationData }[] = [
+    { label: 'solo Thraun', party: solo(THRAUN, ASCENDED) },
+    { label: 'solo Celia', party: solo(CELIA, ASCENDED) },
+    { label: 'solo Bran', party: solo(BRAN, ELITE) },
+    { label: 'Thraun + Celia', party: sustainPair(THRAUN, CELIA, ASCENDED) },
+    { label: 'Korrin + Celia', party: sustainPair(KORRIN, CELIA, ASCENDED) },
+    { label: 'Thraun + Korrin', party: sustainPair(THRAUN, KORRIN, ASCENDED) },
+  ];
+
+  const awkwardSweeps = awkward.flatMap(({ label, party }) =>
+    stages.map((stage) => ({ label, stage, ...sweep(party, stage) })),
+  );
+
+  it('never leaves a player watching a fight that has already been decided', () => {
+    // ⚠️ The gap this block exists to close, stated as the promise it makes: whatever you field,
+    // you find out within ninety seconds. The timer is what guarantees it, so this is really an
+    // assertion that nothing bypasses the timer — but it is worth having, because the version of
+    // this that was missing is exactly how thirty-minute fights shipped.
+    const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
+    const overlong = awkwardSweeps
+      .filter((entry) => entry.maxSeconds > timer)
+      .map((entry) => `${entry.label} vs ${entry.stage.id} ${entry.maxSeconds.toFixed(1)}s`);
+
+    expect(overlong).toEqual([]);
+  });
+
+  it('pays nothing for a fight the clock ended', () => {
+    // A timeout is a defeat, and a defeat earns no gold, no rates and no first-clear bonus. Worth
+    // asserting rather than assuming: `reward` keys off the outcome, and the outcome for a
+    // timed-out fight changed.
+    const timedOut = awkward
+      .flatMap(({ party }) =>
+        stages.map((stage) =>
+          simulateBattle(party, stage, battleSeed(0xc0ffee, stage.id, 0), rules),
+        ),
+      )
+      .filter((result) => result.timedOut);
+
+    expect(timedOut.length).toBeGreaterThan(0);
+    for (const result of timedOut) {
+      expect(result.outcome, result.stageId).toBe('defeat');
+      expect(Object.keys(result.reward.gained), result.stageId).toEqual([]);
+      expect(Object.keys(result.reward.rates), result.stageId).toEqual([]);
+      expect(result.reward.firstClearSummons.eq(0), result.stageId).toBe(true);
+    }
+  });
+
+  it('still lets a lone character clear something, so the rule is a timer and not a party-size gate', () => {
+    // The fix deliberately was not "ban small parties". If a one-character party could no longer
+    // beat anything at all, the timer would have become a formation requirement by the back door.
+    const soloClears = awkwardSweeps.filter(
+      (entry) => entry.label.startsWith('solo') && entry.winRate >= 0.9,
+    );
+
+    expect(soloClears.length).toBeGreaterThan(0);
+  });
 });
 
 describe('the shape of the climb', () => {
@@ -273,7 +442,10 @@ describe('the shape of the climb', () => {
             ...(base.recovery === undefined ? {} : { recovery: grow(base.recovery) }),
           },
           basic: character.basic,
-          skills: character.skills,
+          // The kit {@link BUILT} fields, held fixed while the power multiplier sweeps. The probe
+          // deliberately decouples stats from levels — that is what makes the curve continuous —
+          // but a kit is not a quantity, so it has to be pinned to a rung rather than scaled.
+          skills: unlockedSkills(character.skills ?? [], kit, character.tier, PROBE_RARITY),
         };
       };
       return {

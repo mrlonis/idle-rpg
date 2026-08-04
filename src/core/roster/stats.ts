@@ -1,5 +1,6 @@
 import { type CombatantData, type StatBlockData } from '../battle/types';
 import { num, type Numeric, serialize } from '../numeric';
+import { type KitRulesData, unlockedSkills } from './kit';
 import { clampRarityIndex, startRarityIndex } from './rarity';
 import { type CharacterData, type CharacterTier, type OwnedCharacter } from './types';
 
@@ -123,13 +124,19 @@ export function scaleStats(
  * Resolves one owned character into the combatant the simulation fights with.
  *
  * The `id` carries through unchanged so battle events, the roster and the save all speak the
- * same character ids, and so does the kit — a character's skills are what it *is*, not
- * something levelling hands it.
+ * same character ids.
+ *
+ * **The kit does not.** Since milestone 8c a character fights with the part of its kit it has
+ * unlocked — tier sets the ceiling, ascension rungs unlock up to it, and `core/roster/kit.ts`
+ * decides which. Narrowing it here rather than inside the simulation is the same seam `scaleStats`
+ * sits on: combat receives a combatant that is already exactly what the player owns, and knows
+ * nothing about tiers or rungs.
  */
 export function toBattleCombatant(
   character: CharacterData,
   owned: OwnedCharacter,
   growth: GrowthData,
+  kit: KitRulesData,
 ): CombatantData {
   return {
     id: character.id,
@@ -137,6 +144,6 @@ export function toBattleCombatant(
     faction: character.faction,
     stats: scaleStats(character.stats, growth, character.tier, owned.level, owned.rarity),
     basic: character.basic,
-    skills: character.skills,
+    skills: unlockedSkills(character.skills ?? [], kit, character.tier, owned.rarity),
   };
 }

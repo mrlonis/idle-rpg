@@ -8,15 +8,23 @@
   max-width: 32rem;
 }
 
-.head__back {
+// Both ways off this screen: the header's back link, and the one in the "you do not own that
+// character" notice. They are the same control in two places, and grouping them writes the
+// `focus-ring` expansion once instead of twice — a whole `:focus-visible` block is the most
+// expensive thing in this file to repeat.
+.head__back,
+.notice__link {
   display: inline-flex;
   align-items: center;
   min-height: t.$tap-target;
   color: t.$accent;
-  font-size: 0.875rem;
   font-weight: 600;
-  text-decoration: none;
   @include t.focus-ring;
+}
+
+.head__back {
+  font-size: 0.875rem;
+  text-decoration: none;
 
   &:hover {
     text-decoration: underline;
@@ -37,11 +45,17 @@
   color: t.$muted;
 }
 
-.tier {
-  padding: 0.0625rem 0.375rem;
+// The two pills on this screen — the tier chip in the header and the "at cap" flag beside the
+// level. Same shape, different contents.
+.tier,
+.level__flag {
   border-radius: 0.75rem;
   background: t.$surface-raised;
   font-weight: 600;
+}
+
+.tier {
+  padding: 0.0625rem 0.375rem;
   text-transform: capitalize;
 }
 
@@ -73,13 +87,19 @@
   margin: 0;
 }
 
-.stats__pair {
+// The raised tiles: one per stat, and one per line of an ascension price. Identical boxes with
+// different contents inside them, so the box is written once.
+.stats__pair,
+.ascend__cost {
   display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
   padding: 0.5rem 0.625rem;
   border-radius: 0.5rem;
   background: t.$surface-raised;
+}
+
+.stats__pair {
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .stats__key {
@@ -106,11 +126,8 @@
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.0625rem 0.4375rem;
-  border-radius: 0.75rem;
-  background: t.$surface-raised;
   color: t.$muted;
   font-size: 0.6875rem;
-  font-weight: 600;
 }
 
 .level__wallet,
@@ -133,9 +150,17 @@
   font-size: 0.9375rem;
 }
 
+// Only the three colours that differ, because `button--primary` is never written without
+// `button` beside it — every use in the template is `class="button button--primary"`.
+//
+// `t.button-primary` would be the obvious include here and it re-expands `button-base`: the touch
+// target, the padding, the radius, the font, the focus ring and the whole `:disabled` block, all
+// emitted a second time to be overridden by nothing. That is the single largest piece of
+// duplication this stylesheet had, and this file is measured against a size budget.
 .button--primary {
-  @include t.button-primary;
-  font-size: 0.9375rem;
+  border-color: t.$accent;
+  background: t.$accent-bg;
+  color: t.$accent;
 }
 
 .button--wide {
@@ -145,30 +170,42 @@
 
 .ascend__intro,
 .ascend__pool-label,
-.ascend__done {
+.ascend__done,
+.ascend__unlock {
   margin: 0 0 0.5rem;
   font-size: 0.875rem;
   color: t.$muted;
   line-height: 1.5;
 }
 
-.ascend__costs {
+// The one line on this card that is a reward rather than a price, so it is the one that is not
+// muted. $accent measures 9.4:1 on $surface, and the sentence says what is being unlocked and when
+// in words — the colour is emphasis, never the thing carrying the meaning.
+.ascend__unlock {
+  color: t.$accent;
+}
+
+// Every list on this screen is a stripped `<ul>` stacked vertically — the ascension price, the
+// fodder pool, the kit. Only the spacing differs, so only the spacing is written per list.
+.ascend__costs,
+.ascend__pool,
+.skills {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  margin: 0 0 0.875rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.ascend__costs {
+  gap: 0.375rem;
+  margin-bottom: 0.875rem;
+}
+
 .ascend__cost {
-  display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.5rem 0.625rem;
-  border-radius: 0.5rem;
-  background: t.$surface-raised;
   font-size: 0.875rem;
 }
 
@@ -188,12 +225,7 @@
 }
 
 .ascend__pool {
-  display: flex;
-  flex-direction: column;
   gap: 0.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
 .ascend__pool-item {
@@ -222,22 +254,12 @@
   color: t.$danger;
 }
 
+// The rest of it is grouped with `.head__back` above.
 .notice__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: t.$tap-target;
   margin-left: 0.375rem;
-  color: t.$accent;
-  font-weight: 600;
-  @include t.focus-ring;
 }
 
 .skills {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
   gap: 0.5rem;
 }
 
@@ -257,6 +279,19 @@
   color: t.$muted;
   font-size: 0.75rem;
   text-align: right;
+}
+
+// A locked skill is dimmed, but never *only* dimmed — the row also says "Locked" and names the
+// rung that opens it. $muted is 6.1:1 on $surface, so the dimmed name stays above AA on its own
+// rather than relying on the reader being able to tell two greys apart.
+.skills__row--locked .skills__name {
+  color: t.$muted;
+  font-weight: 500;
+}
+
+.skills__lock {
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 @include t.rarity-palette;

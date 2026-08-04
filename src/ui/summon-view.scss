@@ -155,8 +155,16 @@
   gap: 0.75rem;
 }
 
-.pull {
+// Every button on this screen is the quiet variant underneath — the two pull buttons and the
+// dismiss on the results panel. `button-quiet` carries the touch target, the focus ring and the
+// whole `:disabled` block, so writing it once rather than three times is the largest saving
+// available in a stylesheet measured against a size budget.
+.pull,
+.results__dismiss {
   @include t.button-quiet;
+}
+
+.pull {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -167,11 +175,16 @@
   font-weight: 700;
 }
 
+// Only the three colours that differ, because `pull--multi` is never written without `pull`
+// beside it — the template writes `class="pull pull--multi"`.
+//
+// `t.button-primary` would re-expand `button-base` here, and the three declarations that used to
+// follow it — `flex-direction`, `min-height`, `font-size` — existed only to undo that second
+// expansion overriding what `.pull` had already set.
 .pull--multi {
-  @include t.button-primary;
-  flex-direction: column;
-  min-height: 3.5rem;
-  font-size: 1rem;
+  border-color: t.$accent;
+  background: t.$accent-bg;
+  color: t.$accent;
 }
 
 .pull__cost {
@@ -255,8 +268,8 @@
   @include t.focus-ring;
 }
 
+// The rest of it is grouped with `.pull` above.
 .results__dismiss {
-  @include t.button-quiet;
   font-size: 0.875rem;
 }
 

@@ -319,6 +319,7 @@ export function simulateBattle(
 
   let tick = 0;
   let outcome = decide(fighters);
+  let timedOut = false;
 
   /**
    * Moves a fighter's HP, clamped to `[0, maxHp]`, and reports whether it just fell.
@@ -669,12 +670,17 @@ export function simulateBattle(
   while (outcome === undefined) {
     const jump = ticksUntilNextEvent(fighters, tick);
     if (tick + jump > MAX_BATTLE_TICKS) {
-      // Out of patience rather than out of combatants. The damage formula and the hit-chance
-      // floor guarantee a battle ends eventually, but "eventually" is not a promise a
-      // synchronous function on the main thread can keep — and a healer with a deep enough
-      // pool can genuinely out-sustain a party for a long time.
+      // The ninety seconds are up, and that is a loss. Out of time rather than out of
+      // combatants — the damage formula and the hit-chance floor guarantee a battle ends
+      // eventually, but a party that cannot out-damage a healer has already lost by the first
+      // minute and only the clock had not noticed.
+      //
+      // `timedOut` is what keeps that difference readable where it matters. The player sees a
+      // defeat, because that is what it is; the balance sweep sees the reason, because an
+      // over-tuned sustain kit is invisible otherwise.
       tick = MAX_BATTLE_TICKS;
-      outcome = 'stalemate';
+      outcome = 'defeat';
+      timedOut = true;
       break;
     }
 
@@ -731,6 +737,7 @@ export function simulateBattle(
   return {
     stageId: stage.id,
     outcome,
+    timedOut,
     ticks: tick,
     durationMs: ticksToMs(tick),
     roster,

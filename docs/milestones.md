@@ -25,8 +25,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled         |
 | 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`       |
 | 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone   |
-| 8c  | The combat rework: skill counts         | 🟡 Next                                      |
-| 8d  | The combat rework: lineup bonuses       | ⬜                                           |
+| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung   |
+| 8d  | The combat rework: lineup bonuses       | 🟡 Next                                      |
 | 8e  | Five characters per faction             | ⬜                                           |
 | 9   | Resonance — levels the roster shares    | ⬜                                           |
 | 10  | Power that compounds                    | ⬜                                           |
@@ -1085,9 +1085,14 @@ metronome. MP could not express that at all.
 ### ⚠️ What actually broke was the termination argument, exactly where the plan said
 
 The plan recorded that the healer guarantee transfers onto `MAX_BATTLE_TICKS`. It does, and the
-thing now standing where the MP pool used to is a single assertion: **the ladder sweep requires zero
-stalemates on every reference party, winning or losing.** That assertion is no longer a nice-to-have
-and should not be relaxed.
+thing now standing where the MP pool used to is a single assertion: **the ladder sweep requires that
+no reference party ever runs the clock out, winning or losing.** That assertion is no longer a
+nice-to-have and should not be relaxed.
+
+_Two things about it changed after 8c, and the shape did not._ The assertion was written against a
+`stalemate` outcome that no longer exists — a timeout is now a defeat — so it reads
+`BattleResult.timedOut` instead. And `MAX_BATTLE_TICKS` went from 18,000 to 900. Both are recorded
+under [the battle timer](#the-battle-timer-and-the-guard-that-was-not-guarding) below.
 
 It bit immediately. The **Ashen Hierophant** at stage 24 turned out to be the one enemy in the game
 whose pool genuinely metered it — a healer _and_ a shielder spending 28 a cycle against 6 a turn —
@@ -1118,7 +1123,7 @@ every 2.5–3.9 turns after it, against cooldowns of 35–55 ticks before — wh
 
 The milestone-4 promise held. Three level-1 starters clear to the healer lock at stage 7, five
 common-tier characters at level 80 clear the hand-climbed half, and an invested common-tier party
-clears all twenty-four. No stalemates anywhere, and no fight over sixty seconds.
+clears all twenty-four. Nothing decided by the clock anywhere, and no fight over sixty seconds.
 
 ### The Undead kept their bargain by inverting it
 
@@ -1151,7 +1156,7 @@ the cast cost, so the cooldown was already the binding meter and the pool was de
 - The ladder is tuned against the new meter, so a skill-count change is measured against a baseline
   that is already true.
 
-## 8c. How many skills a character gets — **NEXT**
+## 8c. How many skills a character gets — **COMPLETE**
 
 **Both axes.** Tier sets the ceiling and ascension rungs unlock up to it:
 
@@ -1179,23 +1184,146 @@ and the promise survives in substance — the top of the ladder still cannot dem
 buy. Let it fail and quietly retune it, and the game has become tier-gated without anyone deciding
 to.
 
-### The authoring job, which is most of this milestone
+Shipped: the rule in [`core/roster/kit.ts`](../src/core/roster/kit.ts), the table in
+[`data/kits.ts`](../src/data/kits.ts), thirty new skills, every kit re-authored at its ceiling, the
+gate applied on the same seam that scales stats, and the sheet showing what is still locked.
 
-Twenty-six skills exist across the roster; the ceilings ask for fifty-six. That is thirty new ones:
+### The authoring job, which was most of this milestone
 
-| Tier      | Characters | Have | Ceiling asks |
-| --------- | ---------- | ---- | ------------ |
-| common    | 9          | 11   | 18           |
-| legendary | 7          | 8    | 21           |
-| ascended  | 7          | 14   | 28           |
+Thirty-seven skills existed across the roster; the ceilings asked for sixty-seven. That was thirty
+new ones:
 
-Two things settled in 8b that this authoring should not relitigate. **An ultimate carries no
-cooldown** — the bar is the cooldown, and `toSkill` discards one authored on it. And **a condition
-on an ultimate means "wait", never "never"**: a healer holding its bar until an ally is hurt is the
-system working, but an ultimate gated on three living enemies is a bar the player watches fill and
-never spend on a boss stage. `characters.spec.ts` asserts both.
+| Tier      | Characters | Had | Ceiling asks | Authored |
+| --------- | ---------- | --- | ------------ | -------- |
+| common    | 9          | 11  | 18           | 7        |
+| legendary | 7          | 12  | 21           | 9        |
+| ascended  | 7          | 14  | 28           | 14       |
 
-## 8d. Faction lineup bonuses
+**The counts in the plan were wrong and the total was right**, which is worth recording because it
+is the failure mode a hand-maintained tally always has: the plan said twenty-six skills existed and
+the ceilings asked for fifty-six, and both numbers had gone stale — but their difference was still
+thirty, so the headline survived while everything supporting it rotted. The table above is the
+measured version. Nothing derives from it; `characters.spec.ts` asserts each kit against
+`skillCeiling` directly, so the next time content moves it is the spec that fails rather than this
+paragraph that quietly stops being true.
+
+Two things settled in 8b that this authoring did not relitigate. **An ultimate carries no cooldown**
+— the bar is the cooldown, and `toSkill` discards one authored on it. And **a condition on an
+ultimate means "wait", never "never"**: a healer holding its bar until an ally is hurt is the system
+working, but an ultimate gated on three living enemies is a bar the player watches fill and never
+spend on a boss stage. `characters.spec.ts` asserts both.
+
+### Three conventions the kits now keep, and one of them is load-bearing
+
+- **Every kit is authored at exactly its tier's ceiling.** Never fewer, or a character is short of
+  what its tier promises; never more, or content ships that no amount of ascending could reach.
+- **The ultimate is written first, then the ordinary skills in unlock order.** The list order _is_
+  the progression, so reading a kit top to bottom reads what the player gets and when. This is a
+  readability convention rather than a mechanism — `unlockedSkills` finds the ultimate by its flag,
+  and combat still sorts by `priority` — which is deliberate: a kit authored out of convention
+  degrades to a confusing sheet rather than to a broken fight.
+- **The ultimate is never gated, unconditionally.** Not "unlocked at the tier's starting rung",
+  which is the same thing until a damaged save holds an ascended-tier character below `elite` and
+  hands the simulation a combatant whose energy bar fills and can never be spent.
+
+### The re-sweep found nothing to retune, and the reason is worth knowing
+
+The milestone-4 promise held without touching the ladder: five common-tier characters at level 80
+clear the hand-climbed half **with two skills each**, and the invested party still clears all
+twenty-four. What moved was smaller than expected — the top of the ladder went from 98% to 100% for
+the invested party, and nothing else changed a win rate at all.
+
+**That is because the reference five are the conservative half of the authoring job, by
+construction.** Bran, Gnash, Rin, Celia and Pyra are what the ladder is tuned against, so their
+second skills were authored knowing the sweep would measure them: a weaker Hammer Check, a plain
+Maul, a slow rather than a second arrow, half a Choirlight, a smaller Emberburst. A new skill on a
+50-tick cooldown replaces a basic attack roughly one turn in five, so a 1.5× where a 1.0× used to be
+is worth single-digit percent — which is the size a milestone that must not move an already-tuned
+ladder should be aiming for.
+
+**Where the gate is visible is the top half of the roster**, and that is the progression it was
+built to sell. An ascended-tier party held at one level, with the rung as the only variable, clears
+to stage 14 at `elite` with two skills, to stage 18 at `legendary` with three, and the whole ladder
+at `ascended` with four — and the rungs that unlock nothing (`elite+`, `mythic`) move it far less
+than the two that do.
+
+### A pre-existing stalemate gap this milestone measured but did not open — **CLOSED**
+
+⚠️ **A solo sustain character against a stage it cannot kill ran to the tick cap** — thirty minutes
+of battle time for nothing. Fielding one character is legal, and a wall with 29 `atk` behind a
+regeneration is exactly the shape the zero-stalemates guard exists to catch.
+
+It **predated 8c**: the same scan against the 8b kits finds 238 stalled battles across the roster
+and ladder, with Thraun alone accounting for 110 of them. The new skills made it worse rather than
+possible — 308 after, and the growth was concentrated in the sustain kits this milestone added
+(Celia 27 → 50, Seraphine 20 → 34, Korrin 30 → 43).
+
+**The shipped guard passed throughout**, because it sweeps three reference parties of five and none
+of them stalls anywhere. That was the gap: the assertion that replaced the MP termination argument
+in 8b covered the parties a tuned ladder is measured against, not every party a player can legally
+field. It was fixed immediately after 8c, and the fix is below.
+
+### The battle timer, and the guard that was not guarding
+
+**A fight is ninety seconds. Run the clock out and you lose.** `MAX_BATTLE_TICKS` went from 18,000
+to 900, the `stalemate` outcome was deleted, and `BattleResult.timedOut` took over the job of saying
+which kind of defeat it was.
+
+**Three candidate fixes were written down first and all three died on measurement**, which is worth
+recording because each looked reasonable:
+
+- **A damage floor** — a minimum fraction off any hit, so no fight can be raced indefinitely. It
+  does not work, and the reason generalises: damage is `atk² / (atk + def)` and is already never
+  zero. The deadlocks were never "damage rounds away", they were **sustain out-pacing damage**. A
+  floor big enough to beat the best heal in the game is a global damage buff wearing a guard's
+  clothes.
+- **A minimum formation size** — declare one-character parties unsupported. Dead on the numbers:
+  Thraun + Celia is two characters and stalls 4/4 against stages 18 and 19. Party size correlates
+  with the failure and does not define it; **total party damage** does.
+- **A stall detector** — end the fight when neither side has reached a new low for N ticks. This
+  was the most promising and still failed. Sized so it never cuts a legitimate fight short it needs
+  a window of ~4,000 ticks, which left the mean stalled fight at fourteen minutes; and some stalls
+  never trigger it at all, because a party being ground down slowly _is_ making progress — just not
+  progress anyone wants to watch.
+
+**What the measurement actually showed is that the cap was never bounding anything.** The longest
+fight any reference party has is **48.5 seconds**, against a cap of thirty minutes — a 37× budget on
+a number nothing approached. Two things had drifted apart: _the fight is decided_ and _the fight has
+finished_. A party that cannot out-damage a healer has lost inside the first minute, and the clock
+was the only participant that had not noticed.
+
+So the fix is a timer rather than machinery, and **it is a rule of the game rather than a guard
+bolted on beside one** — the genre convention, and what the ladder was already being tuned to
+without anyone writing it down.
+
+**It cost nothing in tuned content and everything in pathological content**, which is the right
+direction:
+
+|                                     | Before      | After                      |
+| ----------------------------------- | ----------- | -------------------------- |
+| Longest reference-party fight       | 48.5s       | 48.5s — unchanged          |
+| Reference wins flipped to defeats   | —           | **0**, at 40 seeds a stage |
+| Longest fight, any legal party      | 30 min      | **90s**                    |
+| Solo / sustain-pair fights over 90s | 59 of 3,552 | **0**                      |
+
+**The guard was widened at the same time, and its shape changed.** `stages.balance.ts` grew a
+`parties nobody tuned for` block covering solo and two-character sustain parties — the
+configurations the three reference parties never described. What it asserts is deliberately not a
+balance claim: **those parties are allowed to lose, and not allowed to lose slowly.** It also
+asserts a lone character can still clear _something_, so the timer never becomes a minimum party
+size by the back door.
+
+⚠️ **The assertion reads `timedOut`, never the outcome.** A timeout and a wipe are the same `defeat`
+on screen now, so the obvious rewrite in terms of `outcome` would pass forever while testing
+nothing. That is the one way to break this guard without noticing.
+
+**The margin is now 1.9× rather than 37×, and that is the real cost.** Ninety seconds is a budget
+every encounter has to fit inside, which milestone 10's rescale and milestone 11's hundred stages
+both have to respect. A stage tuned to take longer than the timer against the party it is meant for
+is unclearable, so the sweep asserts the margin directly — it should go red naming a stage before
+any win-rate assertion does.
+
+## 8d. Faction lineup bonuses — **NEXT**
 
 The AFK Arena ladder, applied to the party's own composition:
 

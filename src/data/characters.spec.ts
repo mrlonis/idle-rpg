@@ -7,16 +7,22 @@ import {
   type CharacterTier,
   type FactionData,
   growthMultiplier,
+  type KitRulesData,
   MAX_ACCURACY,
   MAX_ENERGY,
   MAX_PENETRATION,
+  MAX_RARITY_INDEX,
   MAX_RESIST,
+  rarityLabel,
   type SkillData,
+  skillCeiling,
   type StatBlockData,
   startRarityIndex,
+  unlockedSkills,
 } from '../core';
 import { FACTIONS } from './ascension';
 import { BRAN, CHARACTERS, MIRA, RIN, STARTER_FORMATION } from './characters';
+import { KIT_RULES } from './kits';
 import { GROWTH } from './levels';
 import { SKILLS } from './skills';
 
@@ -30,6 +36,7 @@ import { SKILLS } from './skills';
 const characters: readonly CharacterData[] = CHARACTERS;
 const factions: readonly FactionData[] = FACTIONS;
 const skills: readonly SkillData[] = SKILLS;
+const kits: KitRulesData = KIT_RULES;
 const starters: readonly CharacterData[] = [...STARTER_FORMATION.front, ...STARTER_FORMATION.back]
   .map((id) => characters.find((character) => character.id === id))
   .filter((character): character is CharacterData => character !== undefined);
@@ -186,6 +193,51 @@ describe('kits', () => {
     for (const character of characters) {
       for (const skill of character.skills ?? []) {
         expect(known.has(skill.id), `${character.id}/${skill.id}`).toBe(true);
+      }
+    }
+  });
+
+  it('authors every kit at exactly its tier’s ceiling', () => {
+    // Never fewer, or a character is short of what its tier promises. Never more, or content is
+    // authored that no amount of ascending could ever reach — `kitSlots` would report it locked
+    // with no rung that unlocks it, which is a bug that only shows up on a fully invested
+    // character months into a run.
+    const wrong = characters
+      .map((character) => ({
+        id: character.id,
+        skills: (character.skills ?? []).length,
+        ceiling: skillCeiling(kits, character.tier),
+      }))
+      .filter((entry) => entry.skills !== entry.ceiling)
+      .map((entry) => `${entry.id} has ${entry.skills}, ceiling is ${entry.ceiling}`);
+
+    expect(wrong).toEqual([]);
+  });
+
+  it('authors the ultimate first and the rest in the order they unlock', () => {
+    // A convention rather than a mechanism — `unlockedSkills` finds the ultimate by its flag, and
+    // combat sorts by priority — but it is what makes a kit readable as a progression: second
+    // entry at Elite, third at Legendary, fourth at Ascended.
+    const misordered = characters
+      .filter((character) => (character.skills ?? [])[0]?.ultimate !== true)
+      .map((character) => character.id);
+
+    expect(misordered).toEqual([]);
+  });
+
+  it('leaves every tier with a working kit at every rung it can reach', () => {
+    // The gate has to narrow a kit, never empty one. A rung that hands a character nothing but a
+    // basic attack is a character the player cannot field, and the starting party sits at `rare`
+    // — the rung where every common-tier kit is at its thinnest.
+    for (const character of characters) {
+      for (let rarity = startRarityIndex(character.tier); rarity <= MAX_RARITY_INDEX; rarity++) {
+        const unlocked = unlockedSkills(character.skills ?? [], kits, character.tier, rarity);
+
+        expect(unlocked.length, `${character.id} at ${rarityLabel(rarity)}`).toBeGreaterThan(0);
+        expect(
+          unlocked.filter((skill) => skill.ultimate === true).length,
+          `${character.id} at ${rarityLabel(rarity)}`,
+        ).toBe(1);
       }
     }
   });
