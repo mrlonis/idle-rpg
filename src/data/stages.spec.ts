@@ -1,27 +1,16 @@
 // @vitest-environment node
-// Content is simulated, not played. This spec runs headless for the same reason `core/` does:
-// checking a ladder by simulating it takes seconds, and checking it by hand takes an hour and
-// only covers one seed.
+// The ladder's *shape*: ids, ranks, rates and rewards. Fast, structural, and derived from the
+// content rather than retyped out of it.
+//
+// **The simulated sweeps live in [`stages.balance.ts`](./stages.balance.ts)**, in the separate
+// balance project `AGENTS.md` describes. They moved there when milestone 7 doubled the ladder and
+// added a third reference party: three parties across twenty-four stages at forty seeds is nearly
+// three thousand battles, and the rule is to move the sweep rather than shrink the sample.
 import { describe, expect, it } from 'vitest';
-import {
-  battleSeed,
-  BACK_ROW_SIZE,
-  type CharacterData,
-  type CombatantData,
-  type CombatRules,
-  type CombatRulesData,
-  type FormationData,
-  FRONT_ROW_SIZE,
-  type GrowthData,
-  scaleStats,
-  simulateBattle,
-  type StageData,
-  toCombatRules,
-} from '../core';
-import { BRAN, CELIA, GNASH, MIRA, PYRA, RIN, STARTER_FORMATION } from './characters';
-import { COMBAT_RULES } from './combat';
-import { GROWTH } from './levels';
-import { STAGES } from './stages';
+import { BACK_ROW_SIZE, FRONT_ROW_SIZE, type StageData } from '../core';
+import { BRAN, MIRA, RIN, STARTER_FORMATION } from './characters';
+import { ENEMIES } from './enemies';
+import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from './stages';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -31,86 +20,6 @@ import { STAGES } from './stages';
  * what turns a malformed stat block into a compile error instead of a runtime surprise.
  */
 const stages: readonly StageData[] = STAGES;
-const growth: GrowthData = GROWTH;
-const authoredRules: CombatRulesData = COMBAT_RULES;
-const rules: CombatRules = toCombatRules(authoredRules);
-
-/**
- * Seeds per stage.
- *
- * Enough to tell "reliable" from "a coin flip" without making this spec something people avoid
- * running. Combat is far heavier than it was before skills and statuses existed — a sweep of the
- * whole ladder is a couple of seconds rather than ten milliseconds — so this is the number where
- * the sweep still belongs in the fast suite. When it stops being, the answer is the separate
- * balance project AGENTS.md describes, not a smaller sample here.
- */
-const TRIALS = 40;
-
-interface Sweep {
-  readonly winRate: number;
-  readonly meanSeconds: number;
-  readonly meanSurvivors: number;
-  readonly stalemates: number;
-}
-
-/** One character resolved for level and rarity, exactly as `ui/` hands it to a battle. */
-function at(character: CharacterData, level: number, rarity = 0): CombatantData {
-  return {
-    id: character.id,
-    name: character.name,
-    faction: character.faction,
-    stats: scaleStats(character.stats, growth, character.tier, level, rarity),
-    basic: character.basic,
-    skills: character.skills,
-  };
-}
-
-function sweep(party: FormationData, stage: StageData): Sweep {
-  let wins = 0;
-  let stalemates = 0;
-  let ticks = 0;
-  let survivors = 0;
-
-  for (let attempt = 0; attempt < TRIALS; attempt++) {
-    const result = simulateBattle(party, stage, battleSeed(0xc0ffee, stage.id, attempt), rules);
-    if (result.outcome === 'victory') {
-      wins++;
-    }
-    if (result.outcome === 'stalemate') {
-      stalemates++;
-    }
-    ticks += result.ticks;
-    survivors += result.final.filter((c) => c.side === 'ally' && c.hp.gt(0)).length;
-  }
-
-  return {
-    winRate: wins / TRIALS,
-    meanSeconds: ticks / TRIALS / 10,
-    meanSurvivors: survivors / TRIALS,
-    stalemates,
-  };
-}
-
-/** The three characters a run starts with, at level 1, standing where the game puts them. */
-const STARTERS: FormationData = {
-  front: [at(BRAN, 1), at(MIRA, 1)],
-  back: [at(RIN, 1)],
-};
-
-/**
- * A plausible mid-game party: five common-tier characters at level 80, none ascended.
- *
- * Deliberately all `common` tier. If the top of the ladder needed a lucky banner it would be a
- * wall in front of players who cannot buy their way past one, which in a game with no purchases
- * is a wall with nothing behind it.
- */
-const BUILT: FormationData = {
-  front: [at(BRAN, 80), at(GNASH, 80)],
-  back: [at(RIN, 80), at(CELIA, 80), at(PYRA, 80)],
-};
-
-const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) }));
-const builtSweeps = stages.map((stage) => ({ stage, ...sweep(BUILT, stage) }));
 
 /** Where the starter party is expected to stop: the healer lock. */
 const WALL = stages.findIndex((stage) => stage.id === 'stage-7');
@@ -221,6 +130,39 @@ describe('stage content', () => {
       expect(Number(stage.reward.gold), stage.id).toBeLessThan(Number.MAX_SAFE_INTEGER);
     }
   });
+
+  it('fields every enemy it ships somewhere on the ladder', () => {
+    // An archetype nobody ever meets is a stat block with a comment attached. Each one names a
+    // question, and a question that is never asked is not content.
+    const fielded = new Set(
+      stages.flatMap((stage) =>
+        [...stage.enemies.front, ...stage.enemies.back].map((enemy) => enemy.id),
+      ),
+    );
+    const orphans = ENEMIES.map((enemy) => enemy.id).filter((id) => !fielded.has(id));
+
+    expect(orphans).toEqual([]);
+  });
+});
+
+describe('where auto-battle unlocks', () => {
+  it('lands on a stage the ladder actually has', () => {
+    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThan(0);
+    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeLessThanOrEqual(stages.length);
+  });
+
+  it('leaves real content on the far side of it', () => {
+    // Auto-battle is a prerequisite for the second half rather than a reward for finishing the
+    // game: a ladder tapped through one fight at a time is worse the longer it gets. If the
+    // unlock ever drifted to the last stage, the feature would arrive with nothing left to do.
+    expect(stages.length - AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThanOrEqual(stages.length / 3);
+  });
+
+  it('unlocks past the wall, so it is never the answer to being stuck', () => {
+    // A loop that re-enters the stage a party keeps losing is a loop that loses over and over. It
+    // has to arrive well after the point where the game stops being about levels.
+    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThan(WALL + 1);
+  });
 });
 
 describe('the starting formation', () => {
@@ -245,98 +187,5 @@ describe('the starting formation', () => {
     // survive standing where the attacks land. Putting her behind Bran and Mira is what makes the
     // opening ladder answerable at all.
     expect(STARTER_FORMATION.back).toContain(RIN.id);
-  });
-});
-
-describe('ladder balance', () => {
-  it('never stalls out on a fight either party is meant to have', () => {
-    // A stalemate means neither side could finish inside the tick cap. That is a content bug: the
-    // player sits through half an hour of battle time for nothing. Healers and shields make it a
-    // real risk now in a way it was not before, which is exactly why it is asserted on both the
-    // party that is losing and the party that is winning.
-    const stalled = [...starterSweeps, ...builtSweeps]
-      .filter((entry) => entry.stalemates > 0)
-      .map((entry) => entry.stage.id);
-
-    expect(stalled).toEqual([]);
-  });
-
-  it('lets three level-1 starters clear the opening ladder', () => {
-    // The stages before the wall have to fall to the party the game hands out, because the
-    // crystals they pay are how a player affords anything else.
-    const unreliable = starterSweeps
-      .slice(0, WALL)
-      .filter((entry) => entry.winRate < 0.9)
-      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
-
-    expect(unreliable).toEqual([]);
-  });
-
-  it('stops three level-1 starters at the healer lock and everything past it', () => {
-    // The single most important number in the ladder. A starting party has two empty formation
-    // slots, and this is where filling them stops being optional — the wall is a question about
-    // *who* is fighting rather than about how many levels they have, which is what makes it the
-    // right place for the early game to end.
-    const cleared = starterSweeps
-      .slice(WALL)
-      .filter((entry) => entry.winRate > 0.05)
-      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
-
-    expect(cleared).toEqual([]);
-  });
-
-  it('is clearable end to end by a built party of common-tier characters', () => {
-    // Without a lucky banner. The top of the ladder is allowed to demand investment; it is not
-    // allowed to demand an ascended-tier pull, because there is no way to buy one.
-    const unreliable = builtSweeps
-      .filter((entry) => entry.winRate < 0.9)
-      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
-
-    expect(unreliable).toEqual([]);
-  });
-
-  it('still costs a built party something at the top', () => {
-    // A ladder cleared without ever losing a party member has no texture, and stage 12 would read
-    // exactly like stage 1.
-    const top = builtSweeps[builtSweeps.length - 1];
-
-    expect(top.meanSurvivors).toBeLessThan(5);
-    expect(top.meanSeconds).toBeGreaterThan(builtSweeps[0].meanSeconds * 3);
-  });
-
-  it('keeps every fight inside a watchable length', () => {
-    // The UI animates the log in real time, so battle duration is screen time. The playback
-    // control tops out at 4x, so a minute here is fifteen seconds for a player in a hurry — but
-    // anything past that stops being a battle and starts being a wait.
-    const overlong = [...starterSweeps, ...builtSweeps]
-      .filter((entry) => entry.meanSeconds > 60)
-      .map((entry) => `${entry.stage.id} ${entry.meanSeconds.toFixed(1)}s`);
-
-    expect(overlong).toEqual([]);
-  });
-});
-
-describe('composition, which is what this ladder exists to prove', () => {
-  it('turns the healer lock on whether the party can reach a back rank at all', () => {
-    // The thesis of the whole milestone, stated as a number.
-    //
-    // Two parties, identical but for one slot. One holds Rin, whose Piercing Shot is free, comes
-    // off a short cooldown and targets the enemy *back* row. The other holds Gnash, who hits
-    // harder and can only hit what is in front of him. Against two Boars guarding an Acolyte, the
-    // first wins almost always and the second wins almost never — and Gnash is the better
-    // character on raw damage.
-    //
-    // That gap is the entire point of milestone 4. Under milestone 2's targeting — "attack the
-    // opponent with the least HP" — both parties would have spent the whole fight on the Boars
-    // and the Acolyte's presence would have changed nothing but the duration.
-    const shrine = stages[WALL];
-    const withReach: FormationData = { front: [at(BRAN, 20), at(MIRA, 20)], back: [at(RIN, 20)] };
-    const withoutReach: FormationData = {
-      front: [at(BRAN, 20), at(MIRA, 20)],
-      back: [at(GNASH, 20)],
-    };
-
-    expect(sweep(withReach, shrine).winRate).toBeGreaterThan(0.85);
-    expect(sweep(withoutReach, shrine).winRate).toBeLessThan(0.15);
   });
 });

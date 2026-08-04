@@ -56,9 +56,49 @@ $bane: #fca5a5; // 6.8:1 on $surface
   color: $text;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .speeds {
   display: flex;
   gap: 0.25rem;
+}
+
+.auto {
+  min-width: 3.25rem;
+  // Same 44px touch-target floor as the speed buttons beside it.
+  min-height: 2.75rem;
+  padding: 0 0.625rem;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  background: $track;
+  color: $text;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auto--on {
+  // As with the speed buttons: colour is the second signal, `aria-pressed` is the first, and the
+  // running loop also says so in words in the line below the header.
+  border-color: $ally;
+  color: $ally;
+}
+
+.auto:focus-visible {
+  outline: 2px solid $text;
+  outline-offset: 2px;
+}
+
+.battle__auto {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: $muted;
+  text-align: center;
 }
 
 .speeds__button {

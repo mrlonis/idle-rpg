@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import { formationMembers, type GameState, newGame, num, startRarityIndex } from '../core';
-import { STAGES, STARTER_FORMATION } from '../data';
+import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES, STARTER_FORMATION } from '../data';
 import { BattleService, type PlaybackSpeed } from './battle.service';
 import { CHARACTERS_BY_ID } from './content';
 import { GameLoopService } from './game-loop.service';
@@ -28,15 +28,40 @@ const T0 = 1_700_000_000_000;
  * the coupling that makes `simulateBattle` treating an empty party as a defeat the honest
  * behaviour rather than a trap.
  */
-function withStarters(state: GameState): GameState {
+function withStarters(state: GameState, level = 1): GameState {
   const starterIds = formationMembers(STARTER_FORMATION);
   const roster = starterIds.map((defId) => ({
     defId,
     rarity: startRarityIndex(CHARACTERS_BY_ID.get(defId)?.tier ?? 'common'),
-    level: 1,
+    level,
     copies: 0,
   }));
   return { ...state, roster, formation: STARTER_FORMATION };
+}
+
+/** A run far enough up the ladder to have earned auto-battle. */
+function unlocked(state: GameState): GameState {
+  return { ...state, clearedStages: AUTO_BATTLE_UNLOCK_CLEARS };
+}
+
+/**
+ * Runs `body` with the document reporting itself as backgrounded.
+ *
+ * `visibilityState` is a prototype getter, so this shadows it with an own property and removes
+ * that again afterwards rather than assigning — leaving it stubbed would make every later spec in
+ * the file think the app was hidden.
+ */
+function whileHidden(body: () => void): void {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    get: () => 'hidden',
+  });
+  try {
+    document.dispatchEvent(new Event('visibilitychange'));
+    body();
+  } finally {
+    Reflect.deleteProperty(document, 'visibilityState');
+  }
 }
 
 /**
@@ -47,6 +72,8 @@ function withStarters(state: GameState): GameState {
 class FakeGameLoop {
   readonly snapshot = signal<GameState | null>(null);
   readonly applied: GameState[] = [];
+  /** Every state handed to `persist`, so "one write per battle" is checkable rather than assumed. */
+  readonly persisted: GameState[] = [];
 
   get current(): GameState | null {
     return this.snapshot();
@@ -61,11 +88,29 @@ class FakeGameLoop {
     this.snapshot.set(next);
     this.applied.push(next);
   }
+
+  persist(): Promise<void> {
+    const state = this.snapshot();
+    if (state !== null) {
+      this.persisted.push(state);
+    }
+    return Promise.resolve();
+  }
 }
 
-function build(state: GameState | null = newGame({ seed: 0xc0ffee, nowMs: T0 })) {
+/**
+ * Stands up an animator over a run.
+ *
+ * `party: false` leaves the formation empty, which `simulateBattle` resolves as an immediate
+ * defeat — the only way to make a loss deterministic rather than a matter of which seed came up.
+ * `level` raises the starters instead, for the specs that need a win to be just as certain.
+ */
+function build(
+  state: GameState | null = newGame({ seed: 0xc0ffee, nowMs: T0 }),
+  { party = true, level = 1 }: { party?: boolean; level?: number } = {},
+) {
   const loop = new FakeGameLoop();
-  loop.snapshot.set(state === null ? null : withStarters(state));
+  loop.snapshot.set(state === null || !party ? state : withStarters(state, level));
 
   // Reset up front rather than only in `afterEach`, so a test can stand up two independent
   // animators — comparing playback speeds needs two of them narrating the same battle.
@@ -433,6 +478,184 @@ describe('BattleService', () => {
       fightToTheEnd(battles);
 
       expect(loop.current?.rates.gold.eq(500)).toBe(true);
+    });
+  });
+
+  describe('persisting a finished battle', () => {
+    it('writes the run at the end of every fight rather than waiting for an autosave', () => {
+      // Auto-battle's one hard requirement on the rest of the app. Results reached `GameState`
+      // here already, but only reached storage on `visibilitychange` or the thirty-second
+      // backstop — so a hard suspend could lose several *completed* battles. This is what makes
+      // "losing the app costs the fight in flight and nothing else" true.
+      const { loop, battles } = build();
+
+      fightToTheEnd(battles);
+
+      expect(loop.persisted).toHaveLength(1);
+      expect(loop.persisted[0].battleCount).toBe(1);
+    });
+
+    it('writes nothing while a fight is still playing', () => {
+      const { loop, battles } = build();
+
+      battles.fight(T0);
+      run(battles, (battles.result()?.durationMs ?? 0) - 200);
+
+      expect(loop.persisted).toEqual([]);
+    });
+  });
+
+  describe('auto-battle', () => {
+    const fresh = () => newGame({ seed: 0xc0ffee, nowMs: T0 });
+
+    it('stays locked until the ladder behind it has been cleared', () => {
+      const { battles } = build();
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+
+      expect(battles.isAutoUnlocked()).toBe(false);
+      expect(battles.isAuto()).toBe(false);
+    });
+
+    it('unlocks on the clear count, not on the stage number', () => {
+      // `stage` stops climbing at the top of the ladder, so a run that had beaten everything
+      // would answer "not yet" forever if this read that field instead.
+      const { battles } = build({ ...unlocked(fresh()), stage: STAGES.length });
+
+      expect(battles.isAutoUnlocked()).toBe(true);
+    });
+
+    it('refuses to arm away from the battle screen', () => {
+      // The loop's only stopping condition is a loss, and there is nowhere for a player who is
+      // not on the battle screen to watch one happen.
+      const { battles } = build(unlocked(fresh()));
+
+      battles.setAuto(true, T0);
+
+      expect(battles.isAuto()).toBe(false);
+      expect(battles.isOpen()).toBe(false);
+    });
+
+    it('starts the next fight the moment it is switched on between battles', () => {
+      // A toggle that armed something and then waited for a tap would be asking the player to do
+      // the thing they just asked not to do.
+      const { battles } = build(unlocked(fresh()), { level: 200 });
+
+      fightToTheEnd(battles);
+      expect(battles.isFighting()).toBe(false);
+
+      battles.setAuto(true, T0);
+
+      expect(battles.isAuto()).toBe(true);
+      expect(battles.isFighting()).toBe(true);
+    });
+
+    it('keeps re-entering stages while it wins', () => {
+      const { loop, battles } = build(unlocked(fresh()), { level: 200 });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 120_000);
+
+      expect(loop.applied.length).toBeGreaterThan(3);
+      expect(loop.current?.stage).toBeGreaterThan(3);
+      // One write per battle, still — the loop does not batch them up.
+      expect(loop.persisted).toHaveLength(loop.applied.length);
+    });
+
+    it('stops on a loss and drops the player back to the idle screen', () => {
+      const { battles } = build(unlocked(fresh()), { party: false });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 5_000);
+
+      expect(battles.isAuto()).toBe(false);
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.result()).toBeNull();
+    });
+
+    it('names the stage the run died on, since the board is gone by then', () => {
+      const { battles } = build({ ...unlocked(fresh()), stage: 3 }, { party: false });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 5_000);
+
+      expect(battles.autoStoppedAt()).toEqual({ name: STAGES[2].name, number: 3 });
+    });
+
+    it('clears that notice as soon as another fight starts', () => {
+      const { battles } = build(unlocked(fresh()), { party: false });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 5_000);
+      expect(battles.autoStoppedAt()).not.toBeNull();
+
+      battles.fight(T0);
+
+      expect(battles.autoStoppedAt()).toBeNull();
+    });
+
+    it('lets the battle on screen finish when switched off mid-fight, then stops', () => {
+      const { loop, battles } = build(unlocked(fresh()), { level: 200 });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 300);
+      battles.setAuto(false, T0);
+      run(battles, 120_000);
+
+      expect(loop.applied).toHaveLength(1);
+      expect(battles.isFighting()).toBe(false);
+      expect(battles.isOpen()).toBe(true);
+    });
+
+    it('switches itself off when the app leaves the foreground', () => {
+      // The load-bearing half of "foreground-only". A hidden tab still advances playback at
+      // roughly 1Hz, so an unattended loop would climb the ladder in the background — and stages
+      // clearing while the player is away is exactly what would stop every idle rate being
+      // constant across an offline window, which is why `core/offline.ts` needs no segmented
+      // solver.
+      const { battles } = build(unlocked(fresh()), { level: 200 });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      whileHidden(() => {
+        expect(battles.isAuto()).toBe(false);
+      });
+    });
+
+    it('does not abandon the fight that was in flight when it switched off', () => {
+      const { loop, battles } = build(unlocked(fresh()), { level: 200 });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      whileHidden(() => undefined);
+      run(battles, 120_000);
+
+      // The fight already running still banks and still persists. Everything finished is banked;
+      // only what follows is cancelled.
+      expect(loop.applied).toHaveLength(1);
+      expect(loop.persisted).toHaveLength(1);
+    });
+
+    it('cannot outlive the battle screen it runs on', () => {
+      // Closing is the player's own way out of a loop they switched off mid-fight, and it is the
+      // reason `close` resets the flag rather than trusting whatever set it.
+      const { battles } = build(unlocked(fresh()), { level: 200 });
+
+      battles.fight(T0);
+      battles.setAuto(true, T0);
+      run(battles, 300);
+      battles.setAuto(false, T0);
+      run(battles, 120_000);
+      battles.close();
+
+      expect(battles.isAuto()).toBe(false);
+      expect(battles.isOpen()).toBe(false);
     });
   });
 

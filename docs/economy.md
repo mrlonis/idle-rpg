@@ -42,20 +42,37 @@ starts at zero income and earns nothing at all until the first stage falls — w
 the first battle the only thing worth doing. The one-off `goldReward` is the smaller half, tuned
 to roughly forty seconds of the income it unlocks.
 
-Across the twelve authored stages:
+Across the twenty-four authored stages:
 
 | Stage | gold/s | xp/s | essence/s | summons/s |
 | ----- | ------ | ---- | --------- | --------- |
 | 1     | 0.5    | 0.1  | 0.0015    | 0.0015    |
 | 6     | 5.5    | 1.05 | 0.017     | 0.008     |
 | 12    | 25     | 4.7  | 0.08      | 0.018     |
+| 18    | 54     | 10.1 | 0.175     | 0.0207    |
+| 24    | 90     | 16.8 | 0.33      | 0.0225    |
 
 `applyBattleResult` **only ever raises** a rate. Rates never fall, which is what lets load-time
 repair re-derive progress from the gold rate alone.
 
+**The gold slope decelerates across the second half**, from about ×1.4 a stage to about ×1.1.
+Milestone 7 doubled the ladder, and continuing the old slope would have put the level-1000 ceiling
+inside a fortnight — deleting the vertical axis that half of the ladder exists to make reachable.
+Milestone 11 makes level 1000 a chapter-100 goal, thousands of stages out, so the ceiling staying
+out of reach is the intent rather than a shortfall.
+
 **Summons are deliberately not a repeatable battle reward.** Stage 1 resolves in four seconds, so
 a repeatable crystal payout would make tap-farming the bottom of the ladder the fastest way to
 pull. They accrue idly, plus a **first-clear bonus** per stage.
+
+**The crystal rate almost stops climbing over the second half, on purpose.** The stated pacing
+target is roughly a ten-pull a day at the top of the ladder, and
+[`banners.spec.ts`](../src/data/banners.spec.ts) measures it against whichever stage is last — so
+doubling the ladder at the old slope tripled it, and the spec said so. Crystals were never the
+bottleneck; growing them like gold would only shorten the one system meant to unfold over weeks.
+First-clear bonuses do the opposite and keep rising, totalling about 17,000 across the full climb
+— roughly 170 pulls — because duplicates are the primary ascension path and the top of the ladder
+is tuned to a party several rungs up.
 
 ---
 
@@ -79,12 +96,17 @@ visible jumps instead of creeping up every level.
 - **Essence is the bottleneck and is supposed to be felt.** Cheapest of the three before level 60,
   most expensive by 200.
 
-**Level 1000 is aspirational, not a grind to schedule.** The ladder is twelve stages long and the
-curve is tuned against content that does not exist yet.
+**Level 1000 is aspirational, not a grind to schedule.** The ladder is twenty-four stages long and
+the curve is tuned against content that does not exist yet.
 [`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates off the top of `STAGES`
 rather than restating them, so **adding a stage re-runs every time-to-afford assertion**. When it
 fails, the curve and the economy have come apart, and the answer is to retune one of them
 deliberately — never to move the threshold.
+
+That is not hypothetical: doubling the ladder in milestone 7 is exactly what made it fire, and the
+thing that got retuned was the **rate slope**, not the curve and not the threshold. At the top of
+the ladder as it stands, one character from level 1 to 1000 costs about 1,190 hours of gold — so
+the ceiling is still years away, which is where it belongs.
 
 ### Growth
 

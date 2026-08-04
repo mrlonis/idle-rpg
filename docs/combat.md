@@ -128,6 +128,20 @@ Eleven targeting modes: `enemy-front`, `enemy-back`, `enemy-lowest`, `enemy-high
 `enemy-row-front`, `enemy-row-back`, `enemy-all`, `ally-lowest`, `ally-afflicted`, `ally-all`,
 `self`.
 
+**All eleven are now used, and four of them only became content in milestone 7.**
+`enemy-row-back`, `enemy-lowest`, `enemy-highest` and the `self-hurt` condition were all
+authorable from milestone 4 and all sat idle — four questions the roster already had answers to
+that nothing was asking. Turning each into an enemy is what the second half of the ladder is made
+of, and it is worth checking this list against `data/skills.ts` before authoring a new mechanic:
+the vocabulary is usually already there.
+
+| Vocabulary       | The enemy that uses it | The question                            |
+| ---------------- | ---------------------- | --------------------------------------- |
+| `enemy-row-back` | Sky-Shrike             | what if your whole back rank is hit?    |
+| `enemy-lowest`   | Gallows Headsman       | can you keep your weakest member alive? |
+| `enemy-highest`  | Bonefall Tyrant        | what if your wall dies first?           |
+| `self-hurt`      | Wrathborn              | what if chipping it turns it on?        |
+
 ---
 
 ## Skills

@@ -14,7 +14,7 @@ import {
   type StageData,
   ZERO,
 } from '../core';
-import { STAGES } from '../data';
+import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from '../data';
 import { COMBAT } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
@@ -92,11 +92,11 @@ export interface BattleCombatantView {
  * free — 2x is one multiplication in {@link advance}, not a second combat implementation. It is
  * also why offline resolution and skipping will be cheap when they arrive.
  *
- * **Battles are started by the player, one at a time.** Nothing fights on its own: the animator
- * is idle, and stays idle after a battle ends, until {@link fight} is called again. The two
- * kinds of automation the name "auto-battle" suggests — the party visibly sparring behind the
- * idle screen, and an unlockable that re-enters stages until the party loses — are later
- * milestones and neither is built here.
+ * **A battle is started by the player, and only one kind of automation continues it.**
+ * {@link setAuto} is the unlockable repeat: it re-enters stages until the party loses, and it is
+ * the *only* thing that ever calls {@link fight} without a tap. The other feature the name
+ * "auto-battle" suggests — the party visibly sparring behind the idle screen — is presentation
+ * rather than simulation and is still deferred; it must never award anything.
  *
  * **The result is applied when the animation finishes, not when the battle resolves.** Applying
  * it up front would spoil every fight: the gold counter and the income rate would both jump the
@@ -105,10 +105,9 @@ export interface BattleCombatantView {
  * — pays nothing. That is a fair trade: the player is watching, a fight lasts seconds, the save
  * stays exactly consistent with what was shown, and going again is one tap.
  *
- * It stays a fair trade when auto-battle lands, because that loop is **foreground-only** and so
- * is attended too. What auto-battle will need is to **persist at the end of each fight** rather
- * than leaving the result to the next autosave — otherwise a suspend can lose several completed
- * battles. See `docs/milestones.md`.
+ * It stayed a fair trade when auto-battle landed, because that loop is **foreground-only** and so
+ * is attended too. What it did need is {@link settle} persisting at the end of every fight rather
+ * than leaving the result to the next autosave — see the note there.
  */
 @Service()
 export class BattleService {
@@ -143,6 +142,35 @@ export class BattleService {
    * player is in, not a place they can link to.
    */
   readonly isOpen = signal(false);
+
+  /**
+   * True while auto-battle is running the loop.
+   *
+   * Session state, deliberately not saved. A flag that survived a reload would be a loop the
+   * player armed yesterday resuming without them, which is the opposite of "foreground-only" —
+   * and keeping it out of `GameState` is what lets this whole milestone ship without a save
+   * migration.
+   */
+  readonly isAuto = signal(false);
+
+  /**
+   * Whether the run has earned auto-battle at all.
+   *
+   * Read off `clearedStages` rather than `stage`, because `stage` stops climbing at the top of
+   * the ladder and would answer "no" forever for a run that had beaten everything.
+   */
+  readonly isAutoUnlocked = computed(
+    () => (this.game.snapshot()?.clearedStages ?? 0) >= AUTO_BATTLE_UNLOCK_CLEARS,
+  );
+
+  /**
+   * The stage an auto-battle run lost on, or `null`.
+   *
+   * A loss drops the player back to the idle screen — which means the board that explained the
+   * loss is gone by the time they can read it. This is what the home screen says instead. Cleared
+   * the moment another fight starts, because by then it is describing a run that is over.
+   */
+  readonly autoStoppedAt = signal<StageHeading | null>(null);
 
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
   private readonly liveMp = signal<ReadonlyMap<string, number>>(new Map());
@@ -226,8 +254,35 @@ export class BattleService {
   });
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.stop());
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    inject(DestroyRef).onDestroy(() => {
+      this.stop();
+      document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    });
   }
+
+  /**
+   * Switches auto-battle off the moment the app stops being the foreground.
+   *
+   * **This is the load-bearing half of "foreground-only", not a courtesy.** A hidden tab throttles
+   * the animator to roughly 1Hz, and {@link MAX_STEP_MS} clamps each step to a second — so
+   * playback keeps advancing in real time while nobody is watching, and an unattended loop would
+   * climb the ladder in the background. Stages clearing while the player is away is precisely what
+   * would make every idle rate non-constant across an offline window, which is the entire reason
+   * `core/offline.ts` needs no segmented solver. Relaxing this re-opens milestone 5.
+   *
+   * The battle already in flight is left alone. It finishes, banks, and persists, and then nothing
+   * follows it — which is what makes "losing the app costs the fight in flight and nothing else"
+   * true rather than aspirational.
+   *
+   * Off rather than paused, deliberately: the toggle the player left on is visibly off when they
+   * come back, so a loop that is running is always a loop they can see they started.
+   */
+  private readonly onVisibilityChange = (): void => {
+    if (document.visibilityState === 'hidden') {
+      this.isAuto.set(false);
+    }
+  };
 
   /**
    * Fights the stage the run is on, then narrates it.
@@ -238,12 +293,17 @@ export class BattleService {
    * Ignored while a battle is already playing, so a double tap cannot start two fights or
    * abandon one halfway. `nowMs` is passed in for the same reason it is everywhere else — the
    * clock lives at the edges, and a caller that supplies it can drive playback deterministically.
+   *
+   * Called by the player, and by {@link settle} when auto-battle is carrying the run forward.
    */
   fight(nowMs: number): void {
     const state = this.game.current;
     if (state === null || this.isFighting()) {
       return;
     }
+
+    // Whatever stopped the last auto run is describing history the moment a new fight starts.
+    this.autoStoppedAt.set(null);
 
     const { stage, number } = stageFor(state.stage);
     const result = simulateBattle(
@@ -293,6 +353,9 @@ export class BattleService {
     if (this.isFighting()) {
       return;
     }
+    // Leaving the battle screen ends the loop. Auto-battle is a thing the player is watching
+    // happen, so it cannot outlive the screen it happens on.
+    this.isAuto.set(false);
     this.isOpen.set(false);
     this.result.set(null);
     this.stage.set(null);
@@ -314,6 +377,34 @@ export class BattleService {
   }
 
   /**
+   * Turns the repeat loop on or off.
+   *
+   * Switching it on between fights starts the next one immediately, because a toggle that armed
+   * something and then waited for a tap would be asking the player to do the thing they just
+   * asked not to do. Switching it on mid-fight simply queues: the battle on screen finishes as
+   * normal and the next one follows it.
+   *
+   * Refused before the run has earned it, and refused off the battle screen — the loop's own
+   * stopping condition is a loss, and there is nowhere for a player who is not watching to see
+   * one happen.
+   *
+   * `nowMs` is only read when starting a fight; the clock lives at the edges, as everywhere else.
+   */
+  setAuto(on: boolean, nowMs: number): void {
+    if (!on) {
+      this.isAuto.set(false);
+      return;
+    }
+    if (!this.isAutoUnlocked() || !this.isOpen()) {
+      return;
+    }
+    this.isAuto.set(true);
+    if (!this.isFighting()) {
+      this.fight(nowMs);
+    }
+  }
+
+  /**
    * Advances narration to `nowMs`.
    *
    * Separate from the timer so playback can be driven deterministically in tests, exactly as
@@ -332,7 +423,7 @@ export class BattleService {
       return;
     }
     this.playbackMs += Math.min(delta, MAX_STEP_MS) * this.playbackSpeed();
-    this.play();
+    this.play(nowMs);
   }
 
   /**
@@ -343,8 +434,11 @@ export class BattleService {
    * only because an event said so, which is why the log carries turn starts and status
    * expiries at all. Anything the animator had to derive for itself would be a second
    * implementation of combat, and the two would drift.
+   *
+   * `nowMs` is carried through only so that {@link settle} can hand it to the fight auto-battle
+   * starts next, keeping the follow-on battle on the same clock as the one that just ended.
    */
-  private play(): void {
+  private play(nowMs: number): void {
     const result = this.result();
     if (result === null) {
       this.isFighting.set(false);
@@ -463,22 +557,49 @@ export class BattleService {
     }
 
     if (this.cursor >= result.events.length) {
-      this.settle(result);
+      this.settle(result, nowMs);
     }
   }
 
   /**
-   * Banks a fully narrated battle and returns to idle.
+   * Banks a fully narrated battle, writes it to storage, and either stops or goes again.
    *
    * This is the only place the run is written, and it happens in the same pass that plays the
    * closing event — so the outcome the player reads and the gold, income and stage they are
    * credited with land together, never one before the other.
+   *
+   * **Persisting here rather than leaving it to the next autosave is auto-battle's one hard
+   * requirement on the rest of the app.** Results reached `GameState` at this point already, but
+   * only reached storage on `visibilitychange` or the thirty-second backstop — so a hard suspend
+   * could lose several *completed* battles, which at 4x is most of a climb. Writing per battle is
+   * what makes "losing the app costs the fight in flight and nothing else" a true statement
+   * instead of an intention: there is no pause/resume state machine and nothing to reconcile on
+   * the next launch, because everything already finished is already banked.
+   *
+   * A win goes again. Anything else ends the run and drops the player back to the idle screen,
+   * with {@link autoStoppedAt} carrying out the stage that stopped them.
    */
-  private settle(result: BattleResult): void {
+  private settle(result: BattleResult, nowMs: number): void {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
     this.game.apply((state) => applyBattleResult(state, result, STAGES.length));
+    void this.game.persist();
+
+    if (!this.isAuto()) {
+      return;
+    }
+    if (result.outcome === 'victory') {
+      this.fight(nowMs);
+      return;
+    }
+
+    // Read before closing: `close` clears the board, and the stage that ended the run is the one
+    // thing worth carrying off it.
+    const stoppedAt = this.stage();
+    this.isAuto.set(false);
+    this.close();
+    this.autoStoppedAt.set(stoppedAt);
   }
 }
 

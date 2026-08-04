@@ -32,7 +32,29 @@ and Google backups with zero code.** What that does and does not cover is tabula
 
 - **`visibilitychange`** is the real trigger. `beforeunload` is unreliable in a WebView and iOS
   can suspend without warning.
+- **At the end of every battle**, added in milestone 7. Results reach `GameState` when the
+  animation finishes but used to reach storage only on the two triggers below, so a hard suspend
+  could lose several _completed_ battles — most of an auto-battle climb at 4x. Writing per battle
+  is what makes "losing the app costs the fight in flight and nothing else" true.
 - **A 30-second autosave** is the backstop, not the mechanism.
+
+⚠️ **Writes are serialised, and that is a correctness rule rather than a performance one.** One
+write is a read-then-write across both slots — read the primary, copy it to the backup, overwrite
+the primary. Two of those in flight together interleave: both read the same primary, and whichever
+lands last wins, so an **older state can overwrite a newer one**. Persisting per battle is what
+made that reachable, since at 4x it is about one write a second and on a device each is a bridge
+round-trip rather than a microtask. `SaveService` therefore keeps at most one write in flight and
+**coalesces** anything that arrives during it to the newest state — states are snapshots of one
+monotonically advancing run, so a dropped intermediate costs nothing, whereas a queue growing with
+the battle rate would be a backlog of writes that were stale before they started. Serialising at
+the storage layer rather than pacing the caller keeps the game's frame rate off the disk's
+critical path.
+
+⚠️ **The store is injected, not imported.** `SaveService` takes its key/value backend from the
+`KEY_VALUE_STORE` token, whose default factory returns `@capacitor/preferences`. That seam exists
+for the spec: the unit-test builder shares one module registry across every spec file, so
+`vi.mock('@capacitor/preferences')` is silently order-dependent and fails on some machines and not
+others. Overriding a provider cannot be.
 
 ⚠️ **The running game overwrites external edits.** It holds authoritative state in memory and
 persists on the way out, so clearing storage from inside the app is undone by the app. A reset has

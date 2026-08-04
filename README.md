@@ -111,19 +111,26 @@ environment is defence in depth.
 
 ### Test
 
-| Command                      | Description                                        |
-| ---------------------------- | -------------------------------------------------- |
-| `npm test`                   | Everything: unit, e2e, then scripts. What CI runs. |
-| `npm run test:unit`          | Unit tests — `core/` and Angular — with coverage.  |
-| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.         |
-| `npm run test:scripts`       | Vitest tests for `scripts/`.                       |
-| `npm run playwright:install` | Install Playwright browsers and their system deps. |
+| Command                      | Description                                                 |
+| ---------------------------- | ----------------------------------------------------------- |
+| `npm test`                   | Everything: unit, balance, e2e, then scripts. What CI runs. |
+| `npm run test:unit`          | Unit tests — `core/` and Angular — with coverage.           |
+| `npm run test:balance`       | Statistical balance sweeps over shipped content.            |
+| `npm run test:e2e`           | Playwright end-to-end tests from `tests/`.                  |
+| `npm run test:scripts`       | Vitest tests for `scripts/`.                                |
+| `npm run playwright:install` | Install Playwright browsers and their system deps.          |
 
 Prefer scoping test runs to what you changed:
 
 ```bash
 npm run test:unit -- --include src/app/app.spec.ts
 ```
+
+**The balance project is separate on purpose.** `src/**/*.balance.ts` simulates thousands of
+battles to check that the stage ladder is clearable, escalates smoothly and never stalls — seconds
+rather than milliseconds, which is too slow for the suite that runs on save. It is excluded from
+`tsconfig.app.json` so the app never bundles it and included in `tsconfig.spec.json` so typed
+linting still covers it; a new `*.balance.ts` file needs both.
 
 ### Lint and format
 

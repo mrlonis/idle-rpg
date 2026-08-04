@@ -1,5 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
+import { num } from '../src/core';
 import { STAGES } from '../src/data';
+import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 
 /**
  * Regression cover for a real save-corrupting bug.
@@ -47,10 +49,16 @@ const owedCrystals = STAGES.reduce(
   0,
 );
 
-/** The hourly form the home screen switches to for the two rates that are tiny per second. */
-function perHour(perSecond: number): string {
-  return `${Number((perSecond * 3600).toPrecision(12))}/hr`;
-}
+/**
+ * What the home screen will render for a rate or a balance.
+ *
+ * Borrowed from `ui/` rather than restated, for the same reason the rates above are read from
+ * `data/`. This file used to spell out the hourly form for essence and crystals, which was true
+ * only while both sat under the formatter's per-second threshold — doubling the ladder pushed
+ * essence over it, and the assertion started describing a screen the app no longer draws.
+ */
+const shownRate = (perSecond: number | string): string => formatRate(num(perSecond));
+const shownAmount = (value: number | string): string => formatNumeric(num(value));
 
 /** One currency's card in the home screen's wallet strip, gold included. */
 function cardOf(page: Page, label: string) {
@@ -87,10 +95,10 @@ test.describe('recovering a pre-gacha save', () => {
 
     await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
 
-    await expect(rateOf(page, 'Gold')).toHaveText(`${top.rates.gold}/s`);
-    await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
-    await expect(rateOf(page, 'Essence')).toHaveText(perHour(top.rates.essence));
-    await expect(rateOf(page, 'Crystals')).toHaveText(perHour(top.rates.summons));
+    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
+    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(top.rates.essence));
+    await expect(rateOf(page, 'Crystals')).toHaveText(shownRate(top.rates.summons));
   });
 
   test('pays the first-clear bonuses the ladder had already earned', async ({ page }) => {
@@ -100,9 +108,7 @@ test.describe('recovering a pre-gacha save', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    await expect(amountOf(page, 'Crystals')).toHaveText(
-      `${(owedCrystals / 1000).toFixed(1).replace(/\.0$/, '')}K`,
-    );
+    await expect(amountOf(page, 'Crystals')).toHaveText(shownAmount(owedCrystals));
   });
 
   test('leaves enough crystals to actually pull', async ({ page }) => {
@@ -131,13 +137,13 @@ test.describe('recovering a pre-gacha save', () => {
     // The repair runs on every load, so a healthy save has to pass through unchanged.
     await seedSave(page, v2AtTheTop);
     await page.goto('');
-    await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
 
     // Second load, now reading the current-version save the first one wrote.
     await page.reload();
 
-    await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
-    await expect(rateOf(page, 'Crystals')).toHaveText(perHour(top.rates.summons));
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
+    await expect(rateOf(page, 'Crystals')).toHaveText(shownRate(top.rates.summons));
   });
 });
 
@@ -208,8 +214,8 @@ test.describe('re-fighting a cleared stage', () => {
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
     // Still the top-of-ladder rates, not stage 1's.
-    await expect(rateOf(page, 'Gold')).toHaveText(`${top.rates.gold}/s`);
-    await expect(rateOf(page, 'XP')).toHaveText(`${top.rates.xp}/s`);
-    await expect(rateOf(page, 'Essence')).toHaveText(perHour(top.rates.essence));
+    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
+    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(top.rates.essence));
   });
 });

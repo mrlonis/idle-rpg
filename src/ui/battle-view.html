@@ -5,20 +5,44 @@
         Stage {{ current.number }}
         <span class="battle__stage-name">{{ current.name }}</span>
       </h1>
-      <div class="speeds" role="group" aria-label="Playback speed">
-        @for (speed of speeds; track speed) {
+      <div class="controls">
+        <div class="speeds" role="group" aria-label="Playback speed">
+          @for (speed of speeds; track speed) {
+            <button
+              type="button"
+              class="speeds__button"
+              [class.speeds__button--active]="speed === playbackSpeed()"
+              [attr.aria-pressed]="speed === playbackSpeed()"
+              (click)="setSpeed(speed)"
+            >
+              {{ speed }}&times;
+            </button>
+          }
+        </div>
+        <!--
+          Sits in the header rather than beside Fight and Close, because those two only appear
+          once a battle has settled and auto-battle never lets it settle. A toggle a running loop
+          could not reach would be a loop with no off switch.
+        -->
+        @if (isAutoUnlocked()) {
           <button
             type="button"
-            class="speeds__button"
-            [class.speeds__button--active]="speed === playbackSpeed()"
-            [attr.aria-pressed]="speed === playbackSpeed()"
-            (click)="setSpeed(speed)"
+            class="auto"
+            [class.auto--on]="isAuto()"
+            [attr.aria-pressed]="isAuto()"
+            (click)="toggleAuto()"
           >
-            {{ speed }}&times;
+            Auto
           </button>
         }
       </div>
     </header>
+
+    @if (isAuto()) {
+      <p class="battle__auto" role="status">
+        Auto-battle is on — fighting on until the party loses.
+      </p>
+    }
 
     <div class="battle__sides">
       <!--

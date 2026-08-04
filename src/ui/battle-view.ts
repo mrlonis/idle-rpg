@@ -32,6 +32,8 @@ export class BattleView {
   protected readonly speeds = PLAYBACK_SPEEDS;
   protected readonly playbackSpeed = this.battles.playbackSpeed;
   protected readonly stage = this.battles.stage;
+  protected readonly isAuto = this.battles.isAuto;
+  protected readonly isAutoUnlocked = this.battles.isAutoUnlocked;
 
   /**
    * Each side as its two ranks, front first.
@@ -110,6 +112,10 @@ export class BattleView {
 
   protected setSpeed(speed: PlaybackSpeed): void {
     this.battles.setSpeed(speed);
+  }
+
+  protected toggleAuto(): void {
+    this.battles.setAuto(!this.isAuto(), Date.now());
   }
 
   /**
