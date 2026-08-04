@@ -9,6 +9,9 @@ $track: #2f2f42;
 $ally: #4ade80; // 7.5:1 on $track — well past the 3:1 WCAG AA minimum for non-text
 $foe: #f87171; // 4.7:1 on $track
 $mana: #7dd3fc; // 8.9:1 on $track
+$charged: #fcd34d; // 9.1:1 on $track — a full energy bar, which is the one state that
+// changes what the next turn will be. Carried by the "Energy 100 / 100" text as well, so it
+// obeys the rule at the top of this file: no distinction here rests on seeing a colour.
 $shield: #cbd5e1; // 9.6:1 on $track
 $boon: #93c5fd; // 5.9:1 on $surface
 $bane: #fca5a5; // 6.8:1 on $surface
@@ -207,7 +210,7 @@ $bane: #fca5a5; // 6.8:1 on $surface
   }
 }
 
-.fighter__mp {
+.fighter__energy {
   grid-column: 1 / -1;
   color: $muted;
   font-variant-numeric: tabular-nums;
@@ -225,7 +228,7 @@ $bane: #fca5a5; // 6.8:1 on $surface
   display: flex;
 }
 
-.bar--mp {
+.bar--energy {
   height: 0.25rem;
 }
 
@@ -239,8 +242,14 @@ $bane: #fca5a5; // 6.8:1 on $surface
   background: $foe;
 }
 
-.bar__fill--mp {
+.bar__fill--energy {
   background: $mana;
+}
+
+.bar__fill--charged {
+  // A full bar is the one state that changes what the next turn will be, so it gets a colour of
+  // its own rather than relying on the player noticing that a bar reached the end of its track.
+  background: $charged;
 }
 
 .bar__shield {

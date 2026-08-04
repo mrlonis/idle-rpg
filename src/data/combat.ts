@@ -131,6 +131,48 @@ export const BASIC_ATTACK = {
 } as const;
 
 /**
+ * What fighting is worth in energy, against a bar of 100.
+ *
+ * These three numbers decide how often ultimates land, and they were chosen to **reproduce the
+ * cadence the cooldowns and MP pool used to produce** rather than to be a fresh opinion — the
+ * ladder was tuned against roughly one marquee cast every three to five turns, and a rework that
+ * quietly halved that would have retuned twenty-four stages by accident.
+ *
+ * Measured against the invested reference party at the top of the ladder, this lands there:
+ *
+ * | Combatant                 | Per turn                       | Turns per ultimate |
+ * | ------------------------- | ------------------------------ | ------------------ |
+ * | Front-line, being hit     | 5–9 regen + 20 hit + 10/hit taken | 2.5             |
+ * | Back-line damage          | 8 regen + 20 hit               | 3.9                |
+ * | Healer under pressure     | 13 regen + 15 heal             | 3.2                |
+ * | Healer with nothing to do | 13 regen alone                 | 7.7                |
+ *
+ * The last row is the shape worth noticing: a support that is not needed charges slowly, so an
+ * ultimate arrives when the fight has actually gone badly rather than on a metronome. That is
+ * pacing MP could not express — its pool was full at the opening bell.
+ *
+ * ## Why `onHit` is double `onHurt`
+ *
+ * It was not, and the ladder said so. At ten each the back rank charged half as fast as the front
+ * one, because `onHurt` is paid **per incoming hit** while `onHit` is paid once per action — so a
+ * front-liner absorbing three attacks a turn banked thirty and the damage dealer behind it banked
+ * ten. That put the slowest meter in the game on the rank where the damage is fielded, which is
+ * backwards, and stage 24 fell to 43%.
+ *
+ * Doubling `onHit` restores the symmetry the per-hit rule breaks without giving up what that rule
+ * buys: being focused still charges a bar fastest, which is the Undead's whole meter and the
+ * reason a wide enemy wave charges a whole party at once.
+ *
+ * A single gain stays a fifth of the bar or less. Larger and one exchange charges an ultimate;
+ * smaller and the meter stops responding to the fight and becomes `energyRegen` with extra steps.
+ */
+export const ENERGY_RULES = {
+  onHit: 20,
+  onHurt: 10,
+  onHeal: 15,
+} as const;
+
+/**
  * Floor under any attack's hit chance.
  *
  * A termination guard first and a balance number second. `simulateBattle` is only guaranteed
@@ -164,6 +206,7 @@ export const MAX_RESIST = 0.9;
 export const COMBAT_RULES = {
   rows: ROW_BONUSES,
   matchups: FACTION_MATCHUPS,
+  energy: ENERGY_RULES,
   minHitChance: MIN_HIT_CHANCE,
   maxPenetration: MAX_PENETRATION,
   maxResist: MAX_RESIST,

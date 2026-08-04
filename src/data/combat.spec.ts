@@ -151,8 +151,10 @@ describe('the default basic attack', () => {
     expect(basic.effects).toEqual([{ kind: 'damage', damageType: 'physical', power: 1 }]);
   });
 
-  it('costs nothing, has no cooldown, and sits below every authored skill', () => {
-    expect(basic.cost).toBeUndefined();
+  it('is not an ultimate, has no cooldown, and sits below every authored skill', () => {
+    // The floor. It is what happens when nothing better is available, so it can carry neither
+    // meter — an unchargeable basic attack would leave a combatant with no action at all.
+    expect(basic.ultimate).toBeUndefined();
     expect(basic.cooldown).toBeUndefined();
     expect(basic.priority).toBe(0);
   });

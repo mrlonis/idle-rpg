@@ -14,27 +14,30 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 ## Status
 
-| #   | Milestone                              | Status                                       |
-| --- | -------------------------------------- | -------------------------------------------- |
-| 1   | Tick loop, one resource, save/load     | ✅ **Complete**                              |
-| 2   | Battle up a stage ladder               | ✅ **Complete** — introduced `data/`         |
-| 3   | Gacha, roster, ascension, levelling    | ✅ **Complete** — introduced routing         |
-| 4   | Team composition affecting combat math | ✅ **Complete** — introduced formations      |
-| 5   | Offline catch-up on resume             | ✅ **Complete** — segmented solver ruled out |
-| 6   | Run on a physical iPhone               | ✅ **Complete** — removed Angular Material   |
-| 7   | Auto-battle, then doubling the ladder  | ✅ **Complete** — prestige cancelled         |
-| 8a  | The combat rework: the stat block      | ✅ **Complete** — one `atk`, one `def`       |
-| 8b  | The combat rework: energy and lineups  | 🟡 Next                                      |
-| 9   | Resonance — levels the roster shares   | ⬜                                           |
-| 10  | Power that compounds                   | ⬜                                           |
-| 11  | Chapters                               | ⬜                                           |
-| 12  | Gear                                   | ⬜                                           |
-| 13  | Settings, and the save-safety gap      | ⬜                                           |
-| 14  | Dailies, bounties and notifications    | ⬜                                           |
-| 15  | Faction towers                         | ⬜                                           |
-| 16  | Deep per-hero investment               | ⬜                                           |
-| 17  | The roguelite run                      | ⬜                                           |
-| 18  | Puzzle maps                            | ⬜                                           |
+| #   | Milestone                               | Status                                       |
+| --- | --------------------------------------- | -------------------------------------------- |
+| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                              |
+| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`         |
+| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing         |
+| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations      |
+| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out |
+| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material   |
+| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled         |
+| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`       |
+| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone   |
+| 8c  | The combat rework: skill counts         | 🟡 Next                                      |
+| 8d  | The combat rework: lineup bonuses       | ⬜                                           |
+| 8e  | Five characters per faction             | ⬜                                           |
+| 9   | Resonance — levels the roster shares    | ⬜                                           |
+| 10  | Power that compounds                    | ⬜                                           |
+| 11  | Chapters                                | ⬜                                           |
+| 12  | Gear                                    | ⬜                                           |
+| 13  | Settings, and the save-safety gap       | ⬜                                           |
+| 14  | Dailies, bounties and notifications     | ⬜                                           |
+| 15  | Faction towers                          | ⬜                                           |
+| 16  | Deep per-hero investment                | ⬜                                           |
+| 17  | The roguelite run                       | ⬜                                           |
+| 18  | Puzzle maps                             | ⬜                                           |
 
 ---
 
@@ -724,8 +727,8 @@ milestone 4's.** That milestone could show Rin-versus-Gnash on the Marsh Shrine 
 and no comparable pair was found here — swapping one character against any of the new locks moves
 the win rate by a few points, not by seventy. Rather than ship a threshold that barely passes and
 call it a proof, the balance project asserts the two things that _are_ true and measurable: every
-enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8b's
-rework makes a sharper comparison available, this is the gap to close.
+enemy is fielded somewhere, and the per-stage difficulty curve rises smoothly. If milestone 8c's
+skill counts or 8d's lineup bonuses make a sharper comparison available, this is the gap to close.
 
 ### 4. The balance project now exists
 
@@ -901,16 +904,24 @@ scaling and milestone 11 authors a hundred stages, and doing either against a co
 about to change means doing it again. It is independent of auto-battle at 7, which is
 model-agnostic — and auto-battle earns its place first by making the re-sweep cheap.
 
-**It was split, at the stat boundary this document nominated.** The plan said the four changes
-could not ship apart, and that was half right: the _authoring_ cannot be done twice, but the
-vocabulary can land first and the rest can be written against it. So 8a is the stat block and
-nothing else, and 8b is energy, skill gating and the lineup bonuses.
+**It was split twice.** The plan said the four changes could not ship apart, and that was half
+right: the _authoring_ cannot be done twice, but the vocabulary can land first and the rest can be
+written against it. So 8a took the stat block alone. Then 8b took energy alone, and the remaining
+two became 8c and 8d — with the roster growth 8d turns out to depend on becoming 8e.
 
-What made the split safe is what makes it worth recording. **MP survives 8a untouched.** Deleting
-it before energy exists would leave every healer unmetered, and the MP pool is the thing that
-currently guarantees a fight against one resolves — see [combat](combat.md). A milestone that
-removed a termination argument and replaced it two milestones later is not a smaller milestone,
-it is a broken one.
+**The second split was made at the boundary between a mechanic and its content**, and the reason
+is worth recording because it is the same reason each time. Energy is a swap with a fixed content
+surface: convert twenty-six existing kits and re-sweep. Skill counts are an authoring job of thirty
+new skills against a mechanic that is by then settled. Lineup bonuses are a party-composition layer
+that sits outside the combatant entirely and needs its own tuning pass. Shipping them together
+means a red ladder sweep with three possible causes; shipping them apart means each sweep names its
+own culprit — which is exactly what happened in 8b, where the failure turned out to be one enemy.
+
+What made the first split safe is worth keeping too. **MP survived 8a untouched.** Deleting it
+before energy existed would have left every healer unmetered, and the MP pool was the thing that
+guaranteed a fight against one resolves — see [combat](combat.md). A milestone that removed a
+termination argument and replaced it two milestones later is not a smaller milestone, it is a
+broken one.
 
 ## 8a. The stat block — **COMPLETE**
 
@@ -1047,29 +1058,100 @@ Four things worth knowing before starting:
   with it. It needs replacing, not dropping: the front/back asymmetry is what makes the front rank
   a real cost. Deciding what replaces it is part of this milestone, not an afterthought.
 
-## 8b. Energy, skill counts and lineup bonuses — **NEXT**
+## 8b. Energy and ultimates — **COMPLETE**
 
-### Energy and ultimates
+`mp` and `mpRegen` are gone, and so are HP costs. Every character now declares exactly one
+**ultimate**, metered by a 0–100 energy bar and nothing else; every other skill costs nothing but
+its cooldown. Milestone 4's "three ways to meter a skill" is two.
 
-Every character's first skill is an **ultimate**, metered by a 0–100 energy pool that fills from
-acting — landing a hit, taking one, healing an ally — plus a regen over time. **Every other skill
-costs nothing but its cooldown.** `mp` and `mpRegen` are deleted outright.
+Shipped: [`core/battle/energy.ts`](../src/core/battle/energy.ts), `energyRegen` on every character,
+the gains in [`data/combat.ts`](../src/data/combat.ts), all twenty-six character kits and every
+enemy kit re-metered, the energy bar in the battle view, and the ladder re-swept.
 
-Two consequences to go in with eyes open:
+### The bar opens empty, and that inverted the pacing rather than deleting it
 
-- **Termination is already safe, and not because of MP.** `MAX_BATTLE_TICKS` is 18,000 with a
-  distinct `stalemate` outcome, and the comment there already anticipates a healer with a deep
-  enough pool out-sustaining a party. The timeout model this needs is already built.
-- **What is actually traded away is pacing, not correctness.** MP's documented job was to
-  front-load and then run dry, which is what made a long fight feel different from a short one.
-  Energy that refills from acting never runs dry, so fights converge on ultimates-on-cooldown. If
-  long fights should still feel different, that difference now has to come from somewhere else —
-  enemy design, or the stalemate clock being close enough to matter.
+The plan said MP's job was "front-load and then run dry", and worried that energy "never runs dry,
+so fights converge on ultimates-on-cooldown". Half of that was right and the interesting half was
+not. **MP started full; energy starts at zero.** So a caster no longer opens strong and fades — it
+opens with basic attacks and cheap cooldowns, and its marquee turn arrives once both sides have
+committed. The difference between a short fight and a long one survived; it changed sign.
 
-Milestone 4's "three ways to meter a skill" becomes two: energy for ultimates, cooldown for
-everything else. The Undead's HP-cost bargain goes with MP unless it is deliberately kept.
+That is a better shape than the one it replaced, and it is worth stating because the plan expected
+a loss. A kit's ultimate is now its answer to a fight going long. A support that is not needed
+charges slowly — a healer holding at 13 regen with nothing to heal takes about eight turns, against
+three under pressure — so an ultimate arrives because the fight went badly rather than on a
+metronome. MP could not express that at all.
 
-### How many skills a character gets
+### ⚠️ What actually broke was the termination argument, exactly where the plan said
+
+The plan recorded that the healer guarantee transfers onto `MAX_BATTLE_TICKS`. It does, and the
+thing now standing where the MP pool used to is a single assertion: **the ladder sweep requires zero
+stalemates on every reference party, winning or losing.** That assertion is no longer a nice-to-have
+and should not be relaxed.
+
+It bit immediately. The **Ashen Hierophant** at stage 24 turned out to be the one enemy in the game
+whose pool genuinely metered it — a healer _and_ a shielder spending 28 a cycle against 6 a turn —
+and losing that pool handed it an unmetered heal every second turn. Stage 24 went to a 102-second
+attrition war the invested reference party won 43% of the time.
+
+**Two things about that failure are worth keeping.** First, the fix had to be enemy design, which
+is what the plan predicted the answer would have to be. Second, the obvious fix was the wrong one:
+raising `MEND`'s cooldown turns the sweep green at 32, but `MEND` is shared with the stage-7
+Acolyte, whose pool was exactly break-even and therefore never metered it at all. That would have
+weakened the ladder's most important early lock to solve a problem at its last. The Hierophant got
+its own heal instead, and the two locks now tune independently — which they always should have.
+
+### `onHit` is double `onHurt`, and the ladder is what decided that
+
+The first pass paid ten for each source and the sweep failed at stage 24 with a 43% win rate. The
+cause was not the enemy: **`onHurt` is paid per incoming hit while `onHit` is paid once per action**,
+so a front-liner absorbing three attacks a turn banked thirty while the damage dealer behind it
+banked ten. That put the slowest meter in the game on the rank where damage is fielded.
+
+Both halves of that asymmetry are load-bearing, so neither could simply go. Per-hit `onHurt` is the
+Undead's entire meter and is what makes a wide enemy wave charge a whole party at once; once-per-
+action `onHit` is what stops a row nuke from charging its own next cast five times over. Doubling
+`onHit` to 20 restores the symmetry without giving up either. The reference party's ultimates land
+every 2.5–3.9 turns after it, against cooldowns of 35–55 ticks before — which was the target.
+
+### What the re-sweep says
+
+The milestone-4 promise held. Three level-1 starters clear to the healer lock at stage 7, five
+common-tier characters at level 80 clear the hand-climbed half, and an invested common-tier party
+clears all twenty-four. No stalemates anywhere, and no fight over sixty seconds.
+
+### The Undead kept their bargain by inverting it
+
+HP costs went with MP, so Sable and Nekros no longer buy their best turns with their own life. The
+faction identity survived because the **drain** vocabulary was already there: every Undead kit is
+now built on it, and their meter is the one thing their stat block guarantees — `onHurt` is the
+largest energy source in the game and the Undead are the faction with no armour. They are handed
+tempo for having been hit, and take the life back out of whatever hit them.
+
+### Enemies have no ultimates, and that asymmetry is deliberate
+
+Energy is a **character** system: a bar the player watches, and what 8c hangs its skill ceiling on.
+An enemy has no roster screen, does not ascend, and is read as a rhythm — so its pacing is authored
+directly in cooldowns, where an encounter designer sets it exactly.
+
+It is also what keeps skills shareable. `ultimate` is a property of the skill, and several enemies
+field the same one; marking `TYRANTS_CLAIM` and `CINDER_STORM` would have made the Unmade a
+combatant with two ultimates sharing one bar, where the lower-priority of them could never fire.
+
+**Deleting the enemy MP pools cost almost nothing**, which is the useful thing to know before
+retuning any of it: in every case but the Hierophant's the pool regenerated more between casts than
+the cast cost, so the cooldown was already the binding meter and the pool was decoration.
+
+### What 8c starts from
+
+- The stat vocabulary and the metering are both settled, so kits can be authored once.
+- Every character has exactly one ultimate, asserted in
+  [`characters.spec.ts`](../src/data/characters.spec.ts) — which is the predicate 8c's skill gating
+  needs, since the ultimate is the one skill a ceiling must never gate.
+- The ladder is tuned against the new meter, so a skill-count change is measured against a baseline
+  that is already true.
+
+## 8c. How many skills a character gets — **NEXT**
 
 **Both axes.** Tier sets the ceiling and ascension rungs unlock up to it:
 
@@ -1079,21 +1161,41 @@ everything else. The Undead's HP-cost bargain goes with MP unless it is delibera
 | legendary | 3 — ultimate + 2 |
 | ascended  | 4 — ultimate + 3 |
 
-Proposed rung mapping: the ultimate from the start, the second skill at `elite`, the third at
-`legendary`, the fourth at `ascended`. **Check this against the starting rungs before committing**
-— higher tiers already start further up the ladder, so an ascended-tier character would arrive
-with its second skill already unlocked while a common-tier one climbs two rungs for the same
-thing. That is a head start stacked on top of a ceiling, and it may or may not be what is wanted.
+**The rung mapping is absolute rarity, and it is a deliberate head start**: the ultimate from the
+start, the second skill at `elite`, the third at `legendary`, the fourth at `ascended`. Because an
+ascended-tier character starts at `elite` rather than `rare`, it arrives with its second skill
+already unlocked while a common-tier one climbs two rungs for the same thing.
 
-**This modifies a promise, and the modification should be deliberate.** Milestone 3 says tier is a
-slope rather than a head start; a permanent skill ceiling is a capability gate, which is a
-different claim. What keeps it fair is the tuning target that already exists: **five common-tier
-characters at level 80 clear the whole ladder**, asserted in
-[`stages.spec.ts`](../src/data/stages.spec.ts). Hold that with two skills each and the promise
-survives in substance — the top of the ladder still cannot demand a pull nobody can buy. Let it
-fail and quietly retune it, and the game has become tier-gated without anyone deciding to.
+That was chosen with the alternative on the table. Counting rungs from each character's own start
+would have given tier a higher ceiling and no free unlock, preserving milestone 3's "tier is a
+slope, not a head start" exactly. Absolute rarity was picked instead, so the promise is being
+modified twice over — a capability gate _and_ a head start on reaching it — and that has to be
+deliberate rather than discovered.
 
-### Faction lineup bonuses
+**What keeps it fair is the tuning target that already exists.** Five common-tier characters at
+level 80 clear the hand-climbed half, asserted in [`stages.spec.ts`](../src/data/stages.spec.ts)
+and swept in [`stages.balance.ts`](../src/data/stages.balance.ts). Hold that with two skills each
+and the promise survives in substance — the top of the ladder still cannot demand a pull nobody can
+buy. Let it fail and quietly retune it, and the game has become tier-gated without anyone deciding
+to.
+
+### The authoring job, which is most of this milestone
+
+Twenty-six skills exist across the roster; the ceilings ask for fifty-six. That is thirty new ones:
+
+| Tier      | Characters | Have | Ceiling asks |
+| --------- | ---------- | ---- | ------------ |
+| common    | 9          | 11   | 18           |
+| legendary | 7          | 8    | 21           |
+| ascended  | 7          | 14   | 28           |
+
+Two things settled in 8b that this authoring should not relitigate. **An ultimate carries no
+cooldown** — the bar is the cooldown, and `toSkill` discards one authored on it. And **a condition
+on an ultimate means "wait", never "never"**: a healer holding its bar until an ally is hurt is the
+system working, but an ultimate gated on three living enemies is a bar the player watches fill and
+never spend on a boss stage. `characters.spec.ts` asserts both.
+
+## 8d. Faction lineup bonuses
 
 The AFK Arena ladder, applied to the party's own composition:
 
@@ -1108,7 +1210,8 @@ The AFK Arena ladder, applied to the party's own composition:
 the purpose of the ladder above. **Demons** have their own ladder, stacking with everything else:
 1 → +30% defence, 2 → +25% energy recovery when injured, 3 → +15% crit rating, 4 → +30% crit
 damage, 5 → +15 haste. The last of those has to respect the haste clamp, for the same termination
-reason the authored value does.
+reason the authored value does — and the second now has a stat to multiply, since `energyRegen`
+shipped in 8b.
 
 **This is the pattern AGENTS.md names and rejects** — "+10% if two Fire units… those just create a
 new optimal team". The rule is being overridden knowingly, and the reason it survives in substance
@@ -1128,38 +1231,31 @@ That only works under two conditions, and both are real work:
   exceed the quality gap between a player's best and second-best faction team — otherwise nobody
   ever switches. That is a sweep question, not a number to pick at a desk; the 40-seed ladder
   sweep already exists to answer it.
-- **The roster has to grow.** Fielding a different mono-faction team per encounter needs five good
-  characters in several factions. Twenty-three characters across seven factions is roughly three
-  each. **This is the same roster pressure faction towers create in milestone 15** — which is a
-  point in favour of both, but it means character count is now a dependency of this milestone and
-  not only of that one.
+- **The roster has to grow**, and that is now 8e rather than a hidden half of this milestone. The
+  mechanic ships against the current twenty-three; the premise it is sold on does not become true
+  until the roster does.
 
-**One bad-luck failure mode to design against.** Angels counting as any faction makes them
-enormously valuable, and celestials ascend on copies of themselves alone — no fodder, no
-substitute. A player whose banners are unkind cannot build one at any price. That is precisely the
-shape milestone 4 added Wren and Dorn to fix: not a fight lost, but a category of answer that
-cannot be bought. Either the wildcard needs a non-Angel route, or every faction needs enough
-depth that a mono-five is reachable without one.
+**One bad-luck failure mode to design against, and it is why 8e exists.** Angels counting as any
+faction makes them enormously valuable, and celestials ascend on copies of themselves alone — no
+fodder, no substitute. Worse, with three characters in most factions and four Humans, an Angel
+wildcard is today the _only_ route to a mono-five at all: three Humans plus two Angels reads as five
+Humans. So the wildcard is not a luxury, it is the path — which is precisely the shape milestone 4
+added Wren and Dorn to fix. Not a fight lost, but a category of answer that cannot be bought.
 
-### Sequencing and the re-sweep
+## 8e. Five characters per faction
 
-Stats first — they are the vocabulary everything else speaks. **That half is done.** Then energy
-and ultimates, then skill gating, then the lineup bonuses and the matchup rescale. **Then re-sweep
-the entire ladder**, because every one of the four changes what a battle costs, and the tuning
-target that five common-tier characters at level 80 clear twelve stages is the thing that says
-whether the rework landed or merely compiled.
+Twenty-three characters across seven factions is roughly three each: four Humans, four Dwarves, and
+three of everything else. **A mono-faction five is unreachable in every faction without an Angel**,
+which makes 8d's premise — field a different mono-faction team per encounter — false the day it
+ships.
 
-8a re-swept and held it. 8b has to hold it again, and the harder half is still ahead: energy never
-runs dry, so it moves the healer guarantee onto the stalemate clock, and a +25% lineup bonus is
-five times the size of a matchup edge.
+Roughly twelve new characters, each with a full kit at its tier's 8c ceiling. Deliberately its own
+milestone rather than a half of 8d: it is a content-authoring job of a size that would hide inside a
+mechanics milestone and swallow it, and the mechanics are testable without it.
 
-### What 8b starts from
-
-- `mp` and `mpRegen` are still in `StatBlockData` and still metering every caster. Deleting them
-  is 8b's first move and its riskiest one.
-- The stat vocabulary energy has to fit into is settled and swept, so kits can be authored once.
-- The ladder is tuned against the new block, so a lineup-bonus rescale is measured against a
-  baseline that is already true rather than one that is about to change underneath it.
+**This is the same roster pressure faction towers create in milestone 15**, which is a point in
+favour of both. Doing it here means 15 arrives with its prerequisite already met rather than
+carrying it.
 
 ## 9. Resonance — levels the roster shares
 
@@ -1198,13 +1294,14 @@ working on its own. A special case here would be code that cannot change an outc
 
 ### This is not only quality of life
 
-Milestone 8b introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
-only reachable by fielding a _different_ five-character team per encounter. Milestone 15 does the
-same thing harder, with seven faction towers demanding thirty-five invested characters.
+Milestone 8d introduces mono-faction lineup bonuses worth up to +25% attack and health, which are
+only reachable by fielding a _different_ five-character team per encounter — and 8e authors the
+roster that makes that possible. Milestone 15 does the same thing harder, with seven faction towers
+demanding thirty-five invested characters.
 
 **Neither is affordable without this.** Levelling thirty-five characters individually is seven
 times the cost of levelling five, against an economy tuned for one team. So resonance is closer to
-a prerequisite for milestone 8b's faction bonuses than a convenience that follows them — it is
+a prerequisite for milestone 8d's faction bonuses than a convenience that follows them — it is
 positioned after the rework only because the rework decides what a level is worth.
 
 What it deliberately does not cover: ascension, and milestone 16's per-character investment track.

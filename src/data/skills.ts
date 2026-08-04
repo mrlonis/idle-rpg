@@ -28,16 +28,30 @@ import {
  * somebody to hit. Failing all of those it swings. So a kit is a **preference list**, and the
  * three ways to say "not this turn" are a condition, a cooldown and a price.
  *
- * ## The three costs, and why the game has all of them
+ * ## Two ways to meter a skill, since milestone 8b
  *
- * - **`none`** — metered by cooldown alone. Always eventually available, so each one has to be
- *   individually weaker. This is what a character with no magic at all gets.
- * - **`mp`** — a finite pool that regenerates slowly per turn. Front-loads: a caster opens
- *   strong and runs dry, which is what makes a long fight different from a short one and what
- *   guarantees a fight against a healer resolves instead of grinding forever.
- * - **`hp`** — pays in its own life, and never lethally. Converts durability into tempo, which
- *   is exactly the Undead's bargain: they have the largest HP pools in the game and almost no
- *   armour to protect them, so spending health is the one resource they have to spare.
+ * - **Ordinary** — free, and metered by its cooldown alone. Always eventually available, so each
+ *   one has to be individually weaker.
+ * - **`ultimate: true`** — metered by a full energy bar and nothing else. No cooldown; the bar is
+ *   the cooldown. **Every playable character declares exactly one**, asserted in
+ *   `characters.spec.ts`.
+ *
+ * It was three before. `mp` was a pool that started full and ran dry, and `hp` was the Undead
+ * paying for tempo in their own life. Both went with the MP stat, and what replaced the second of
+ * them is worth reading in the Undead section below — the faction kept its bargain by inverting
+ * it rather than by losing it.
+ *
+ * ## An ultimate opens a fight unavailable, which is the whole change
+ *
+ * A cooldown skill is ready on turn one; MP was full on turn one. An energy bar is **empty** on
+ * turn one and fills from fighting. So the shape of a fight moved: the opening is basic attacks
+ * and cheap cooldowns, and the marquee turns arrive once both sides have committed. A kit's
+ * ultimate is therefore its answer to a fight going long, not its opener — and authoring one that
+ * only makes sense in the first ten seconds is the mistake this section exists to prevent.
+ *
+ * A **condition on an ultimate means "wait", never "never".** A healer holding its bar until
+ * somebody is hurt is the system working; an ultimate gated on something a stage may not contain
+ * is a meter the player watches fill and never spend.
  *
  * ## Cooldowns are in battle ticks
  *
@@ -68,7 +82,7 @@ export const GUARD_BREAK = {
     { kind: 'damage', damageType: 'physical', power: 1.55 },
     { kind: 'status', status: SUNDER, chance: 0.9 },
   ],
-  cooldown: 45,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -78,8 +92,7 @@ export const OATH_OF_ARMS = {
   name: 'Oath of Arms',
   target: 'ally-all',
   effects: [{ kind: 'status', status: RALLY }],
-  cost: { kind: 'mp', amount: 14 },
-  cooldown: 60,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -102,8 +115,7 @@ export const MARSHALS_CALL = {
     { kind: 'status', status: RALLY },
     { kind: 'status', status: HASTE },
   ],
-  cost: { kind: 'mp', amount: 22 },
-  cooldown: 85,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -113,7 +125,6 @@ export const DECISIVE_STRIKE = {
   name: 'Decisive Strike',
   target: 'enemy-lowest',
   effects: [{ kind: 'damage', damageType: 'physical', power: 2 }],
-  cost: { kind: 'mp', amount: 10 },
   cooldown: 40,
   priority: 2,
 } as const;
@@ -130,8 +141,7 @@ export const FIELD_DRESSING = {
   name: 'Field Dressing',
   target: 'ally-lowest',
   effects: [{ kind: 'heal', power: 1.5 }],
-  cost: { kind: 'mp', amount: 12 },
-  cooldown: 25,
+  ultimate: true,
   condition: { kind: 'ally-hurt', fraction: 0.8 },
   priority: 3,
 } as const;
@@ -145,7 +155,6 @@ export const TRIAGE = {
     { kind: 'cleanse', count: 1 },
     { kind: 'heal', power: 0.6 },
   ],
-  cost: { kind: 'mp', amount: 14 },
   cooldown: 45,
   condition: { kind: 'ally-afflicted' },
   priority: 4,
@@ -161,7 +170,7 @@ export const SHIELD_WALL = {
   name: 'Shield Wall',
   target: 'self',
   effects: [{ kind: 'status', status: GUARD }],
-  cooldown: 55,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -171,8 +180,7 @@ export const ANVIL_STANCE = {
   name: 'Anvil Stance',
   target: 'ally-all',
   effects: [{ kind: 'status', status: GUARD }],
-  cost: { kind: 'mp', amount: 16 },
-  cooldown: 70,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -195,8 +203,7 @@ export const DEEP_WARD = {
   name: 'Deep Ward',
   target: 'ally-all',
   effects: [{ kind: 'status', status: BARRIER }],
-  cost: { kind: 'mp', amount: 20 },
-  cooldown: 75,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -209,7 +216,6 @@ export const GROUND_SLAM = {
     { kind: 'damage', damageType: 'physical', power: 1.05 },
     { kind: 'status', status: SLOW, chance: 0.7 },
   ],
-  cost: { kind: 'mp', amount: 12 },
   cooldown: 50,
   priority: 2,
 } as const;
@@ -220,7 +226,6 @@ export const SALTBEARD_REMEDY = {
   name: 'Saltbeard Remedy',
   target: 'ally-afflicted',
   effects: [{ kind: 'cleanse', count: 2 }],
-  cost: { kind: 'mp', amount: 10 },
   cooldown: 30,
   condition: { kind: 'ally-afflicted' },
   priority: 4,
@@ -238,8 +243,7 @@ export const STOUT_WARD = {
   name: 'Stout Ward',
   target: 'ally-all',
   effects: [{ kind: 'status', status: GUARD }],
-  cost: { kind: 'mp', amount: 14 },
-  cooldown: 65,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -260,7 +264,7 @@ export const PIERCING_SHOT = {
   name: 'Piercing Shot',
   target: 'enemy-back',
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
-  cooldown: 40,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -270,7 +274,6 @@ export const WINDSTEP = {
   name: 'Windstep',
   target: 'self',
   effects: [{ kind: 'status', status: HASTE }],
-  cost: { kind: 'mp', amount: 10 },
   cooldown: 70,
   priority: 2,
 } as const;
@@ -281,8 +284,7 @@ export const THROAT_CUT = {
   name: 'Throat Cut',
   target: 'enemy-lowest',
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
-  cost: { kind: 'mp', amount: 8 },
-  cooldown: 35,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -292,8 +294,7 @@ export const FIRST_ARROW = {
   name: 'First Arrow',
   target: 'enemy-back',
   effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
-  cost: { kind: 'mp', amount: 12 },
-  cooldown: 40,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -303,14 +304,24 @@ export const VOLLEY = {
   name: 'Volley',
   target: 'enemy-all',
   effects: [{ kind: 'damage', damageType: 'physical', power: 0.75 }],
-  cost: { kind: 'mp', amount: 16 },
   cooldown: 60,
   condition: { kind: 'enemies-at-least', count: 3 },
   priority: 2,
 } as const;
 
 // ---------------------------------------------------------------------------------------
-// Undead — enormous HP and almost no armour, so life is the currency they spend
+// Undead — enormous HP and almost no armour, so life is the currency they take
+//
+// The bargain used to run the other way: Sable and Nekros paid for their best turns in their own
+// health, which was the one resource a faction with the largest pools and no armour had to spare.
+// Milestone 8b deleted HP costs along with MP, and the identity survived by **inverting** rather
+// than by being replaced. Every Undead kit is now built on `drain`, and their meter is the one
+// thing their stat block guarantees: `onHurt` is the largest energy source in the game, and the
+// Undead are the faction that gets hit. They no longer spend life for tempo — they are handed
+// tempo for having spent it, and they take the life back out of whatever hit them.
+//
+// That is why all three of them siphon and none of them regenerates. A Dwarf refuses to lose by
+// not being hurt; an Undead refuses to lose by being hurt profitably.
 // ---------------------------------------------------------------------------------------
 
 /** Mortlach. Free sustain, which is what keeps a body with 12 DEF standing. */
@@ -319,25 +330,37 @@ export const GRAVE_GRASP = {
   name: 'Grave Grasp',
   target: 'enemy-front',
   effects: [{ kind: 'drain', damageType: 'physical', power: 1.3, siphon: 0.45 }],
-  cooldown: 40,
+  ultimate: true,
   priority: 2,
 } as const;
 
 /**
- * Sable. The clearest statement of the Undead bargain: pay 55 HP for a magical drain that
- * usually returns more than it cost, and lose the trade outright against high magic resist.
+ * Sable. The clearest statement of the Undead bargain, now that the bargain runs the other way.
+ *
+ * It cost 55 of her own health before energy existed, and the trade it described was "spend life
+ * for a drain that usually returns more than it cost". The drain is untouched and so is the way it
+ * loses outright to magic resist; what changed is what buys the turn. She is paid for having been
+ * hit, and this is what she does with it.
  */
 export const BLOOD_PACT = {
   id: 'blood-pact',
   name: 'Blood Pact',
   target: 'enemy-front',
   effects: [{ kind: 'drain', damageType: 'magical', power: 1.7, siphon: 0.55 }],
-  cost: { kind: 'hp', amount: 55 },
-  cooldown: 40,
+  ultimate: true,
   priority: 2,
 } as const;
 
-/** Nekros. A wave-wide poison bought with a large slice of the biggest HP pool in the game. */
+/**
+ * Nekros. A wave-wide poison, and the biggest thing the Undead do with a full bar.
+ *
+ * **Its `enemies-at-least` condition went with the HP cost that justified it.** The condition
+ * existed to stop Nekros spending ninety health on a single target, which was a bad trade rather
+ * than a bad idea. Energy is already the meter, and against one large enemy a full bar spent on a
+ * poison is exactly what an ultimate is for — whereas an ultimate that cannot fire is a bar the
+ * player watches stay full. Conditions on an ultimate are for kits that should *wait* (a healer
+ * holding for somebody to be hurt), not for kits that should never spend.
+ */
 export const GRAVE_TIDE = {
   id: 'grave-tide',
   name: 'Grave Tide',
@@ -346,9 +369,7 @@ export const GRAVE_TIDE = {
     { kind: 'damage', damageType: 'magical', power: 0.95 },
     { kind: 'status', status: POISON, chance: 0.85 },
   ],
-  cost: { kind: 'hp', amount: 90 },
-  cooldown: 70,
-  condition: { kind: 'enemies-at-least', count: 2 },
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -375,7 +396,7 @@ export const REND = {
     { kind: 'damage', damageType: 'physical', power: 1.65 },
     { kind: 'status', status: BLEED, chance: 0.85 },
   ],
-  cooldown: 45,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -385,7 +406,7 @@ export const MOUNTAIN_BREAKER = {
   name: 'Mountain Breaker',
   target: 'enemy-front',
   effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
-  cooldown: 55,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -398,7 +419,7 @@ export const WORLDS_MAW = {
     { kind: 'damage', damageType: 'physical', power: 2.45 },
     { kind: 'status', status: SUNDER, chance: 0.9 },
   ],
-  cooldown: 60,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -422,8 +443,7 @@ export const CHOIRLIGHT = {
   name: 'Choirlight',
   target: 'ally-lowest',
   effects: [{ kind: 'heal', power: 1.7 }],
-  cost: { kind: 'mp', amount: 12 },
-  cooldown: 25,
+  ultimate: true,
   condition: { kind: 'ally-hurt', fraction: 0.85 },
   priority: 3,
 } as const;
@@ -434,8 +454,7 @@ export const VERSE_OF_DAWN = {
   name: 'Verse of Dawn',
   target: 'ally-all',
   effects: [{ kind: 'heal', power: 0.95 }],
-  cost: { kind: 'mp', amount: 20 },
-  cooldown: 55,
+  ultimate: true,
   condition: { kind: 'ally-hurt', fraction: 0.8 },
   priority: 3,
 } as const;
@@ -446,13 +465,12 @@ export const ABSOLUTION = {
   name: 'Absolution',
   target: 'ally-afflicted',
   effects: [{ kind: 'cleanse', count: 3 }],
-  cost: { kind: 'mp', amount: 12 },
   cooldown: 35,
   condition: { kind: 'ally-afflicted' },
   priority: 4,
 } as const;
 
-/** Seraphine. A wave heal with a tail on it, and the most MP any single skill asks for. */
+/** Seraphine. A wave heal with a tail on it — the most a full bar buys anybody. */
 export const UNWAVERING_LIGHT = {
   id: 'unwavering-light',
   name: 'Unwavering Light',
@@ -461,8 +479,7 @@ export const UNWAVERING_LIGHT = {
     { kind: 'heal', power: 1.05 },
     { kind: 'status', status: REGENERATION },
   ],
-  cost: { kind: 'mp', amount: 24 },
-  cooldown: 60,
+  ultimate: true,
   condition: { kind: 'ally-hurt', fraction: 0.85 },
   priority: 3,
 } as const;
@@ -473,7 +490,6 @@ export const AEGIS_SKILL = {
   name: 'Aegis',
   target: 'ally-all',
   effects: [{ kind: 'status', status: AEGIS }],
-  cost: { kind: 'mp', amount: 20 },
   cooldown: 80,
   priority: 2,
 } as const;
@@ -491,8 +507,7 @@ export const EMBERBURST = {
     { kind: 'damage', damageType: 'magical', power: 1.6 },
     { kind: 'status', status: BURN, chance: 0.85 },
   ],
-  cost: { kind: 'mp', amount: 10 },
-  cooldown: 35,
+  ultimate: true,
   priority: 2,
 } as const;
 
@@ -502,8 +517,7 @@ export const GAMBLERS_CUT = {
   name: "Gambler's Cut",
   target: 'enemy-back',
   effects: [{ kind: 'damage', damageType: 'magical', power: 2 }],
-  cost: { kind: 'mp', amount: 12 },
-  cooldown: 40,
+  ultimate: true,
   priority: 3,
 } as const;
 
@@ -516,7 +530,6 @@ export const HEXFIRE = {
     { kind: 'damage', damageType: 'magical', power: 1.35 },
     { kind: 'status', status: SUNDER, chance: 0.85 },
   ],
-  cost: { kind: 'mp', amount: 10 },
   cooldown: 45,
   priority: 2,
 } as const;
@@ -530,7 +543,6 @@ export const RUIN_UNBOUND = {
     { kind: 'damage', damageType: 'magical', power: 1.15 },
     { kind: 'status', status: SUNDER, chance: 0.75 },
   ],
-  cost: { kind: 'mp', amount: 26 },
   cooldown: 70,
   condition: { kind: 'enemies-at-least', count: 3 },
   priority: 3,
@@ -542,13 +554,27 @@ export const UNMAKING = {
   name: 'Unmaking',
   target: 'enemy-highest',
   effects: [{ kind: 'damage', damageType: 'magical', power: 2.45 }],
-  cost: { kind: 'mp', amount: 14 },
-  cooldown: 45,
+  ultimate: true,
   priority: 2,
 } as const;
 
 // ---------------------------------------------------------------------------------------
 // Enemy kits — the locks
+//
+// **No enemy has an ultimate, and that asymmetry is deliberate.** Energy is a character system:
+// it exists so a player can watch a bar fill and know what it buys, and so milestone 8c has
+// something to hang a skill ceiling on. An enemy has no roster screen, does not ascend, and is
+// read by the player as a rhythm rather than as a resource — so its pacing is authored directly
+// in cooldowns, where an encounter designer can set it exactly.
+//
+// It is also what keeps skills shareable. Several of these are fielded by two or three different
+// enemies, and `ultimate` is a property of the skill; marking one would make the Unmade a
+// combatant with two ultimates sharing one bar, where the lower-priority of them could never fire.
+//
+// Deleting the enemy MP pools cost almost nothing, which is the useful thing to know before
+// retuning any of this. In every case the pool regenerated more between casts than the cast cost —
+// the Acolyte's Mend regained 11 against a price of 12, the Hag's Witherhex 24 against 14 — so the
+// cooldown was already the binding meter and the pool was decoration.
 // ---------------------------------------------------------------------------------------
 
 /**
@@ -605,8 +631,13 @@ export const STONE_FIST = {
 /**
  * The Warden's answer to everything: hit the whole party, and take a turn off somebody.
  *
- * Priced in MP against a shallow pool, so it lands roughly twice a fight. A stun on a cooldown
- * this long is a spike to survive, not a lock to be held under.
+ * A stun on a cooldown this long is a spike to survive, not a lock to be held under.
+ *
+ * It used to carry an MP price on top of that cooldown, and the price was doing nothing: the
+ * Warden regenerated 28 points between casts against a cost of 30, so the cooldown was already the
+ * only meter. That was true of **every** enemy MP skill in the file, which is why deleting the
+ * stat moved the ladder by so much less than it moved the roster — see the note on enemy metering
+ * at the head of this section.
  */
 export const GATE_SLAM = {
   id: 'gate-slam',
@@ -616,7 +647,6 @@ export const GATE_SLAM = {
     { kind: 'damage', damageType: 'physical', power: 0.85 },
     { kind: 'status', status: STUN, chance: 0.35 },
   ],
-  cost: { kind: 'mp', amount: 30 },
   cooldown: 75,
   priority: 3,
 } as const;
@@ -634,8 +664,35 @@ export const MEND = {
   name: 'Mend',
   target: 'ally-lowest',
   effects: [{ kind: 'heal', power: 1.6 }],
-  cost: { kind: 'mp', amount: 12 },
   cooldown: 20,
+  condition: { kind: 'ally-hurt', fraction: 0.9 },
+  priority: 3,
+} as const;
+
+/**
+ * The Hierophant's own heal, and the reason it does not simply borrow {@link MEND}.
+ *
+ * The two enemies that heal are metered very differently and used to be metered by something
+ * other than their cooldowns. The Acolyte at stage 7 spent 12 MP against 12 regenerated every two
+ * turns — exactly break-even, so its pool never bit and `MEND`'s 20-tick cooldown always was its
+ * real cadence. The Hierophant heals **and** shields, so it spent 12 + 16 against 6 a turn and
+ * genuinely ran down; deleting MP handed it an unmetered heal every second turn, and stage 24
+ * went from a fight to a 102-second attrition war it usually lost.
+ *
+ * Splitting the skill is what keeps that fix from landing on stage 7. Raising `MEND` instead
+ * would have worked — the sweep goes green at 32 — but the Acolyte's cadence would have gone from
+ * every two turns to every three as collateral, weakening the ladder's most important early lock
+ * to solve a problem at its last. **The two locks now tune independently, which is what they
+ * always should have done.**
+ *
+ * A four-turn heal against the Hierophant's 104 haste, which is roughly where the MP pool left it.
+ */
+export const LITANY = {
+  id: 'litany',
+  name: 'Litany',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.6 }],
+  cooldown: 32,
   condition: { kind: 'ally-hurt', fraction: 0.9 },
   priority: 3,
 } as const;
@@ -652,7 +709,6 @@ export const WITHERHEX = {
   name: 'Witherhex',
   target: 'enemy-all',
   effects: [{ kind: 'status', status: WEAKEN, chance: 0.9 }],
-  cost: { kind: 'mp', amount: 14 },
   cooldown: 55,
   condition: { kind: 'status-absent', statusId: 'weaken' },
   priority: 3,
@@ -664,7 +720,6 @@ export const MIRE = {
   name: 'Mire',
   target: 'enemy-row-front',
   effects: [{ kind: 'status', status: SLOW, chance: 0.8 }],
-  cost: { kind: 'mp', amount: 10 },
   cooldown: 60,
   condition: { kind: 'status-absent', statusId: 'slow' },
   priority: 2,
@@ -685,7 +740,6 @@ export const CINDER_STORM = {
     { kind: 'damage', damageType: 'magical', power: 0.9 },
     { kind: 'status', status: BURN, chance: 0.6 },
   ],
-  cost: { kind: 'mp', amount: 18 },
   cooldown: 55,
   priority: 3,
 } as const;
@@ -702,7 +756,6 @@ export const BULWARK = {
   name: 'Bulwark',
   target: 'ally-all',
   effects: [{ kind: 'status', status: BARRIER }],
-  cost: { kind: 'mp', amount: 16 },
   cooldown: 60,
   priority: 3,
 } as const;
@@ -837,7 +890,6 @@ export const RUINOUS_ARC = {
   name: 'Ruinous Arc',
   target: 'enemy-front',
   effects: [{ kind: 'damage', damageType: 'magical', power: 1.7 }],
-  cost: { kind: 'mp', amount: 12 },
   cooldown: 40,
   priority: 2,
 } as const;
@@ -929,6 +981,7 @@ export const SKILLS = [
   CUTPURSE,
   STONE_FIST,
   GATE_SLAM,
+  LITANY,
   MEND,
   WITHERHEX,
   MIRE,

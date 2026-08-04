@@ -50,8 +50,11 @@ the two disagree, the code is right and both are stale.
 - **[docs/ascension.md](docs/ascension.md)** — the rung ladder, the two ascension paths, and how
   rung prices resolve recursively into base copies.
 - **[docs/combat.md](docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
-  statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️ there are termination
-  arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to return.
+  energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
+  there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
+  return. One of them now lives outside `core/`: milestone 8b deleted the MP pool that guaranteed a
+  fight against a healer resolves, so the **zero-stalemates assertion in the balance sweep** is what
+  stands in its place. Treat it as a guard rather than as a balance test.
 - **[docs/economy.md](docs/economy.md)** — the five currencies, income rates, the level curve,
   pull rates and pity, and offline accrual.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and

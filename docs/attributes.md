@@ -7,8 +7,9 @@ are allowed to grow.
 clamp, the hit-chance floor and the resist cap. They are spelled out under "the rules that decide
 what may scale", and they are not tuning knobs.
 
-Milestone 8a rewrote this page. See [glossary](glossary.md) for the vocabulary and
-[milestones](milestones.md) for the reasoning behind the rework, including what 8b still owes.
+Milestone 8a rewrote this page and 8b replaced `mp`/`mpRegen` with `energyRegen`. See
+[glossary](glossary.md) for the vocabulary and [milestones](milestones.md) for the reasoning behind
+the rework, including what 8c and 8d still owe.
 
 ---
 
@@ -30,26 +31,26 @@ Authored in [`data/characters.ts`](../src/data/characters.ts) and
 
 ## The bounded rest
 
-| Stat               | Meaning                                                                             |
-| ------------------ | ----------------------------------------------------------------------------------- |
-| `haste`            | ATB gauge per tick, against a threshold of 1000. Was `spd`.                         |
-| `attackSpeed`      | Extra gauge, accruing **only** on the turn after a basic attack.                    |
-| `critChance`       | Crit rating, before the target's `critBlock`.                                       |
-| `critDamageAmp`    | Crit damage amplification, in **points**. A crit deals `1 + max(amp − resist, 0)`×. |
-| `critDamageResist` | Subtracted from an attacker's amplification.                                        |
-| `critBlock`        | Subtracted from an attacker's crit rating.                                          |
-| `accuracy`         | Hit chance before dodge. Absent means certainty. Capped at `MAX_ACCURACY` (2).      |
-| `dodge`            | Subtracted from an incoming attack's hit chance.                                    |
-| `physicalPierce`   | Fraction of the target's `def` a physical hit ignores. Was `armorPen`.              |
-| `magicPierce`      | The same for a magical hit. Was `magicPen`. **Never abbreviate to MP.**             |
-| `physicalResist`   | Fraction of incoming physical damage removed, **after** `def`.                      |
-| `magicResist`      | The same for magical damage.                                                        |
-| `lifeLeech`        | Fraction of damage dealt returned as healing. Was `lifesteal`.                      |
-| `insight`          | Added to a status's application chance when applying. Was `effectHit`.              |
-| `tenacity`         | Subtracted from it when receiving.                                                  |
-| `healthRegen`      | Percentage amplifier on `recovery`.                                                 |
-| `receivedHealing`  | Percentage amplifier on healing received **from somebody else**.                    |
-| `mp`, `mpRegen`    | The skill-point pool. **Deleted in 8b**, when energy replaces it.                   |
+| Stat               | Meaning                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| `haste`            | ATB gauge per tick, against a threshold of 1000. Was `spd`.                             |
+| `attackSpeed`      | Extra gauge, accruing **only** on the turn after a basic attack.                        |
+| `critChance`       | Crit rating, before the target's `critBlock`.                                           |
+| `critDamageAmp`    | Crit damage amplification, in **points**. A crit deals `1 + max(amp − resist, 0)`×.     |
+| `critDamageResist` | Subtracted from an attacker's amplification.                                            |
+| `critBlock`        | Subtracted from an attacker's crit rating.                                              |
+| `accuracy`         | Hit chance before dodge. Absent means certainty. Capped at `MAX_ACCURACY` (2).          |
+| `dodge`            | Subtracted from an incoming attack's hit chance.                                        |
+| `physicalPierce`   | Fraction of the target's `def` a physical hit ignores. Was `armorPen`.                  |
+| `magicPierce`      | The same for a magical hit. Was `magicPen`. **Never abbreviate to MP.**                 |
+| `physicalResist`   | Fraction of incoming physical damage removed, **after** `def`.                          |
+| `magicResist`      | The same for magical damage.                                                            |
+| `lifeLeech`        | Fraction of damage dealt returned as healing. Was `lifesteal`.                          |
+| `insight`          | Added to a status's application chance when applying. Was `effectHit`.                  |
+| `tenacity`         | Subtracted from it when receiving.                                                      |
+| `healthRegen`      | Percentage amplifier on `recovery`.                                                     |
+| `receivedHealing`  | Percentage amplifier on healing received **from somebody else**.                        |
+| `energyRegen`      | Energy regained at the top of each own turn. The authorable half of the ultimate meter. |
 
 Only `hp`, `atk`, `def`, `haste`, `critChance` and `critDamageAmp` are required. Everything else
 defaults to nothing — or, for `accuracy`, to certainty — so a stat block mentions a stat only when
@@ -78,8 +79,9 @@ by a termination argument, or by being measured against something authored.
 - **Penetration is capped below 1** so a defensive stat can never be erased outright, and it is a
   _percentage_ rather than a subtraction — so a shredder makes a wall feel like a body rather than
   like an empty square.
-- **`mp` is a budget measured against authored skill costs.** Growing it would silently delete the
-  metering that makes a healer's pool run out. Energy inherits the job in 8b.
+- **`energyRegen` is a budget measured against a fixed 100-point bar.** Growing it would put every
+  ultimate in the game on a one-turn meter within about eighty levels. The argument is inherited
+  verbatim from the `mp` pool 8b deleted — the resource changed shape and the reason did not.
 
 **`recovery` is the exception, and it is the budget argument run backwards.** It is a quantity
 measured against `hp`, so a fixed value becomes a no-op the moment health outgrows it — and

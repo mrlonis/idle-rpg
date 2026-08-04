@@ -22,8 +22,10 @@ import { type CharacterData, type CharacterTier, type OwnedCharacter } from './t
  * `dodge`, `lifeLeech`, `insight` and `tenacity` are probabilities and cannot exceed 1; the
  * pierce pair is capped below 1 so a defensive stat can never be erased outright, and the
  * resist pair is capped below 1 because a combatant nothing can damage is a battle that never
- * ends; and `mp` is a **budget measured against authored skill costs**, so growing it would
- * quietly delete the metering that makes a healer's pool run out.
+ * ends; and `energyRegen` is a **budget measured against a fixed 100-point bar**, so growing it
+ * would put every ultimate in the game on a one-turn meter within about eighty levels. That last
+ * argument is inherited verbatim from the `mp` pool energy replaced in 8b — the resource changed
+ * shape, and the reason it must not scale did not.
  *
  * **`recovery` is the exception that proves the rule, and it is the one new stat that had to
  * be.** It is a quantity measured against `hp`, so a fixed value is a no-op the moment health

@@ -7,6 +7,7 @@ import {
   type BattleEvent,
   type BattleOutcome,
   type BattleResult,
+  MAX_ENERGY,
   type Numeric,
   type Row,
   type Side,
@@ -69,10 +70,18 @@ export interface BattleCombatantView {
   readonly maxHp: Numeric;
   /** Remaining HP as a 0–1 fraction, for a progress bar. */
   readonly fraction: number;
-  readonly maxMp: number;
-  readonly mp: number;
-  /** Remaining MP as a 0–1 fraction. Zero-pool combatants report 0 and hide the bar. */
-  readonly mpFraction: number;
+  /** Current energy, 0–{@link MAX_ENERGY}. */
+  readonly energy: number;
+  /**
+   * Energy as a 0–1 fraction, for the bar.
+   *
+   * Reports 0 for a combatant with no ultimate, which is what hides the bar. Every combatant
+   * *has* energy since 8b — the bar is hidden because there is nothing to spend it on, not
+   * because the pool is empty, and those were the same condition back when pools differed.
+   */
+  readonly energyFraction: number;
+  /** Whether this combatant has an ultimate, and therefore a meter worth drawing. */
+  readonly hasUltimate: boolean;
   /** Remaining absorb across every shield, for a bar segment over the HP bar. */
   readonly shield: Numeric;
   readonly statuses: readonly ActiveStatus[];
@@ -173,7 +182,7 @@ export class BattleService {
   readonly autoStoppedAt = signal<StageHeading | null>(null);
 
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
-  private readonly liveMp = signal<ReadonlyMap<string, number>>(new Map());
+  private readonly liveEnergy = signal<ReadonlyMap<string, number>>(new Map());
   private readonly liveStatuses = signal<ReadonlyMap<string, readonly ActiveStatus[]>>(new Map());
   private readonly acting = signal<string | null>(null);
 
@@ -192,14 +201,14 @@ export class BattleService {
       return [];
     }
     const hp = this.liveHp();
-    const mp = this.liveMp();
+    const energy = this.liveEnergy();
     const statuses = this.liveStatuses();
     const acting = this.acting();
     const battle = this.battleId();
 
     return result.roster.map((combatant) => {
       const current = hp.get(combatant.key) ?? combatant.maxHp;
-      const currentMp = mp.get(combatant.key) ?? combatant.maxMp;
+      const currentEnergy = energy.get(combatant.key) ?? combatant.energy;
       const held = statuses.get(combatant.key) ?? [];
       return {
         key: combatant.key,
@@ -211,9 +220,9 @@ export class BattleService {
         hp: current,
         maxHp: combatant.maxHp,
         fraction: fractionOf(current, combatant.maxHp),
-        maxMp: combatant.maxMp,
-        mp: currentMp,
-        mpFraction: combatant.maxMp > 0 ? Math.min(currentMp / combatant.maxMp, 1) : 0,
+        energy: currentEnergy,
+        energyFraction: combatant.ultimate ? Math.min(currentEnergy / MAX_ENERGY, 1) : 0,
+        hasUltimate: combatant.ultimate,
         shield: shieldOf(held),
         statuses: held,
         isActing: acting === combatant.key && current.gt(ZERO),
@@ -321,7 +330,10 @@ export class BattleService {
     this.stage.set({ name: stage.name, number });
     this.result.set(result);
     this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
-    this.liveMp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxMp])));
+    // Empty, matching the simulation's opening state. An ultimate is a payoff, not an opener.
+    this.liveEnergy.set(
+      new Map(result.roster.map((combatant) => [combatant.key, combatant.energy])),
+    );
     this.liveStatuses.set(new Map());
     this.acting.set(null);
     this.recentEvents.set([]);
@@ -362,7 +374,7 @@ export class BattleService {
     this.outcome.set(null);
     this.recentEvents.set([]);
     this.liveHp.set(new Map());
-    this.liveMp.set(new Map());
+    this.liveEnergy.set(new Map());
     this.liveStatuses.set(new Map());
     this.acting.set(null);
   }
@@ -430,7 +442,7 @@ export class BattleService {
    * Plays every event whose tick has now been reached.
    *
    * The animator's whole job is to walk the log; it never recomputes anything the simulation
-   * already decided. Every mutable board value — HP, MP, statuses, whose turn it is — moves
+   * already decided. Every mutable board value — HP, energy, statuses, whose turn it is — moves
    * only because an event said so, which is why the log carries turn starts and status
    * expiries at all. Anything the animator had to derive for itself would be a second
    * implementation of combat, and the two would drift.
@@ -447,7 +459,7 @@ export class BattleService {
 
     const played: BattleEvent[] = [];
     let hp: Map<string, Numeric> | undefined;
-    let mp: Map<string, number> | undefined;
+    let energy: Map<string, number> | undefined;
     let statuses: Map<string, readonly ActiveStatus[]> | undefined;
     let acting: string | null | undefined;
 
@@ -455,9 +467,9 @@ export class BattleService {
       hp ??= new Map(this.liveHp());
       hp.set(key, value);
     };
-    const setMp = (key: string, value: number): void => {
-      mp ??= new Map(this.liveMp());
-      mp.set(key, value);
+    const setEnergy = (key: string, value: number): void => {
+      energy ??= new Map(this.liveEnergy());
+      energy.set(key, value);
     };
     const editStatuses = (
       key: string,
@@ -482,14 +494,17 @@ export class BattleService {
       switch (event.kind) {
         case 'turn':
           acting = event.combatant;
-          setMp(event.combatant, event.mp);
+          setEnergy(event.combatant, event.energy);
           break;
         case 'cast':
-          setMp(event.source, event.mp);
-          setHp(event.source, event.hp);
+          setEnergy(event.source, event.energy);
           break;
         case 'attack':
           setHp(event.target, event.targetHp);
+          // One hit moves both meters: the attacker is credited for landing it and the target
+          // for taking it. Both numbers ride on the event, so neither is re-derived here.
+          setEnergy(event.source, event.sourceEnergy);
+          setEnergy(event.target, event.targetEnergy);
           // A shield that absorbed part of the hit has shrunk by exactly that much. Replaying
           // the split here is what keeps the shield segment on the bar honest.
           if (event.absorbed.gt(ZERO)) {
@@ -497,6 +512,9 @@ export class BattleService {
           }
           break;
         case 'heal':
+          setHp(event.target, event.targetHp);
+          setEnergy(event.source, event.sourceEnergy);
+          break;
         case 'tick-heal':
           setHp(event.target, event.targetHp);
           break;
@@ -543,8 +561,8 @@ export class BattleService {
     if (hp !== undefined) {
       this.liveHp.set(hp);
     }
-    if (mp !== undefined) {
-      this.liveMp.set(mp);
+    if (energy !== undefined) {
+      this.liveEnergy.set(energy);
     }
     if (statuses !== undefined) {
       this.liveStatuses.set(statuses);

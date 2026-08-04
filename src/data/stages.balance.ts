@@ -143,10 +143,16 @@ const HANDCLIMBED = stages.findIndex((stage) => stage.id === 'stage-12') + 1;
 
 describe('ladder balance', () => {
   it('never stalls out on a fight either party is meant to have', () => {
-    // A stalemate means neither side could finish inside the tick cap. That is a content bug: the
-    // player sits through half an hour of battle time for nothing. Healers and shields make it a
-    // real risk, which is why it is asserted on the parties that are losing as well as the ones
-    // that are winning.
+    // ⚠️ **The load-bearing assertion in this file since milestone 8b.** A stalemate means neither
+    // side could finish inside the tick cap: the player sits through half an hour of battle time
+    // for nothing.
+    //
+    // It used to be a content check backed by a mechanical guarantee. The MP pool ran dry, so a
+    // healer eventually stopped healing whatever the content said. Energy only ever refills, so
+    // that guarantee is gone and this is what replaced it — the sweep is now the only thing
+    // standing between an over-tuned sustain kit and a fight that runs to `MAX_BATTLE_TICKS`.
+    // Do not relax it, and do not narrow it to the parties that win: an unwinnable fight should
+    // end in a defeat the player can read, not in a clock running out.
     const stalled = everySweep
       .filter((entry) => entry.stalemates > 0)
       .map((entry) => entry.stage.id);
@@ -179,9 +185,9 @@ describe('ladder balance', () => {
   });
 
   it('lets a level-80 common-tier party clear the hand-climbed half', () => {
-    // Milestone 4's promise, which 8a preserved through the stat collapse and 8b has to preserve
-    // through energy: five common-tier characters at level 80 clear twelve stages. That half is
-    // climbed one tap at a time, and auto-battle unlocks on finishing it.
+    // Milestone 4's promise, preserved through 8a's stat collapse and 8b's energy rework, and the
+    // thing 8c's skill ceiling has to hold: five common-tier characters at level 80 clear twelve
+    // stages. That half is climbed one tap at a time, and auto-battle unlocks on finishing it.
     const unreliable = builtSweeps
       .slice(0, HANDCLIMBED)
       .filter((entry) => entry.winRate < 0.9)

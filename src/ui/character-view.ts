@@ -2,11 +2,13 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   growthMultiplier,
+  MAX_ENERGY,
   num,
   type RosterFailure,
   scaleStats,
   type SkillData,
   type SkillTarget,
+  ticksToMs,
 } from '../core';
 import { characterById, GROWTH_RULES } from './content';
 import { formatAmounts, formatNumeric } from './format-numeric';
@@ -48,14 +50,19 @@ const TARGET_LABELS: Readonly<Record<SkillTarget, string>> = {
   self: 'Self',
 };
 
-/** What a skill charges, phrased the way the kit is metered rather than as a raw number. */
-function skillCost(skill: SkillData): string {
-  const kind = skill.cost?.kind ?? 'none';
-  const amount = skill.cost?.amount ?? 0;
-  if (kind === 'none' || amount === 0) {
-    return 'No cost';
+/**
+ * How a skill is metered, phrased the way it is felt rather than as a raw number.
+ *
+ * Two answers since 8b, because there are two meters. A cooldown is quoted in seconds rather than
+ * in the battle ticks it is authored in — ticks are a unit of the simulation and nothing the
+ * player has ever been shown.
+ */
+function skillMeter(skill: SkillData): string {
+  if (skill.ultimate === true) {
+    return `Ultimate — ${MAX_ENERGY} energy`;
   }
-  return kind === 'mp' ? `${amount} MP` : `${amount} HP`;
+  const cooldown = skill.cooldown ?? 0;
+  return cooldown > 0 ? `${(ticksToMs(cooldown) / 1000).toFixed(1)}s cooldown` : 'No cooldown';
 }
 
 /**
@@ -133,9 +140,9 @@ export class CharacterView {
       { label: 'HP', value: formatNumeric(num(scaled.hp)) },
       { label: 'ATK', value: formatNumeric(num(scaled.atk)) },
       { label: 'DEF', value: formatNumeric(num(scaled.def)) },
-      // Unscaled by design — haste is a scheduling weight against a fixed ATB threshold, MP is
-      // a budget measured against authored skill costs, and the rest are probabilities or
-      // percentage amplifiers. See `core/roster/stats.ts`.
+      // Unscaled by design — haste is a scheduling weight against a fixed ATB threshold,
+      // `energyRegen` is a budget measured against a fixed 100-point bar, and the rest are
+      // probabilities or percentage amplifiers. See `core/roster/stats.ts`.
       { label: 'Haste', value: String(scaled.haste) },
       { label: 'Crit', value: `${percent(scaled.critChance)} +${percent(scaled.critDamageAmp)}` },
     ];
@@ -173,8 +180,10 @@ export class CharacterView {
     if (scaled.accuracy !== undefined && scaled.accuracy !== 1) {
       rows.push({ label: 'Accuracy', value: percent(scaled.accuracy) });
     }
-    if (scaled.mp !== undefined && scaled.mp > 0) {
-      rows.push({ label: 'MP', value: `${scaled.mp} (+${scaled.mpRegen ?? 0}/turn)` });
+    // The bar is 100 for everybody, so what is worth showing is the rate this character fills it
+    // at on its own — the rest of the fill is what fighting pays and is the same for the roster.
+    if (scaled.energyRegen !== undefined && scaled.energyRegen > 0) {
+      rows.push({ label: 'Energy regen', value: `${scaled.energyRegen}/turn` });
     }
     return rows;
   });
@@ -189,7 +198,7 @@ export class CharacterView {
     (this.definition()?.skills ?? []).map((skill) => ({
       id: skill.id,
       name: skill.name,
-      cost: skillCost(skill),
+      cost: skillMeter(skill),
       target: TARGET_LABELS[skill.target],
     })),
   );

@@ -8,6 +8,7 @@ import {
   type FactionData,
   growthMultiplier,
   MAX_ACCURACY,
+  MAX_ENERGY,
   MAX_PENETRATION,
   MAX_RESIST,
   type SkillData,
@@ -134,8 +135,7 @@ describe('the roster', () => {
         receivedHealing,
         dodge,
         accuracy,
-        mp,
-        mpRegen,
+        energyRegen,
       } = character.stats;
 
       for (const [label, value] of [
@@ -158,8 +158,10 @@ describe('the roster', () => {
       expect(healthRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
       expect(receivedHealing ?? 0, character.id).toBeGreaterThanOrEqual(0);
       expect(accuracy ?? 1, character.id).toBeLessThanOrEqual(MAX_ACCURACY);
-      expect(mp ?? 0, character.id).toBeGreaterThanOrEqual(0);
-      expect(mpRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
+      // Bounded by the bar it fills. Above `MAX_ENERGY` is "charged every turn regardless",
+      // which is a one-turn cooldown rather than a meter.
+      expect(energyRegen ?? 0, character.id).toBeGreaterThanOrEqual(0);
+      expect(energyRegen ?? 0, character.id).toBeLessThanOrEqual(MAX_ENERGY);
     }
   });
 
@@ -188,35 +190,53 @@ describe('kits', () => {
     }
   });
 
-  it('funds every metered skill from the pool of the character carrying it', () => {
-    // A 24-MP skill on a 20-MP character is a skill that never fires, and nothing in the
-    // simulation would report it — the character would simply swing for the whole fight.
+  it('gives every character exactly one ultimate', () => {
+    // The promise the rest of the game is written against. "The ultimate" is a thing the roster
+    // screen names, the energy bar meters, and milestone 8c's skill gating exempts from its
+    // ceiling — and none of those can point at a kit carrying none or two.
+    //
+    // Two would be worse than none, and silently: they share one bar, so the lower-priority of
+    // them could never fire and would read as a simulation bug rather than a content one.
+    const counts = characters.map((character) => ({
+      id: character.id,
+      ultimates: (character.skills ?? []).filter((skill) => skill.ultimate === true).length,
+    }));
+
+    expect(counts.filter((entry) => entry.ultimates !== 1)).toEqual([]);
+  });
+
+  it('gives every ordinary skill a cooldown, so nothing is both unmetered and unlimited', () => {
+    // An ultimate is exempt because the bar *is* its cooldown — and `toSkill` discards one
+    // authored on an ultimate anyway, so a kit carrying both would be quietly half-ignored.
     for (const character of characters) {
       for (const skill of character.skills ?? []) {
-        if (skill.cost?.kind === 'mp') {
-          expect(character.stats.mp ?? 0, `${character.id}/${skill.id}`).toBeGreaterThanOrEqual(
-            skill.cost.amount ?? 0,
-          );
+        if (skill.ultimate === true) {
+          expect(skill.cooldown, `${character.id}/${skill.id}`).toBeUndefined();
+          continue;
         }
-        if (skill.cost?.kind === 'hp') {
-          // Strictly greater: an HP cost is never allowed to be lethal, so a skill priced at the
-          // caster's whole health pool could never be used either.
-          expect(Number(character.stats.hp), `${character.id}/${skill.id}`).toBeGreaterThan(
-            skill.cost.amount ?? 0,
-          );
-        }
+        expect(skill.cooldown ?? 0, `${character.id}/${skill.id}`).toBeGreaterThan(0);
       }
     }
   });
 
-  it('gives every free skill a cooldown, so nothing is both unmetered and unlimited', () => {
-    for (const character of characters) {
-      for (const skill of character.skills ?? []) {
-        if ((skill.cost?.kind ?? 'none') === 'none') {
-          expect(skill.cooldown ?? 0, `${character.id}/${skill.id}`).toBeGreaterThan(0);
-        }
-      }
-    }
+  it('never gates an ultimate on something a stage might not contain', () => {
+    // A condition on an ultimate means "wait", never "never". A healer holding its bar until an
+    // ally is hurt is the system working; a bar gated on three living enemies is one the player
+    // watches fill and never spend on a boss stage. Only the `hurt` conditions are about a state
+    // the fight will reach on its own.
+    const stranded = characters.flatMap((character) =>
+      (character.skills ?? [])
+        .filter(
+          (skill) =>
+            skill.ultimate === true &&
+            skill.condition !== undefined &&
+            skill.condition.kind !== 'ally-hurt' &&
+            skill.condition.kind !== 'self-hurt',
+        )
+        .map((skill) => `${character.id}/${skill.id} ${skill.condition?.kind}`),
+    );
+
+    expect(stranded).toEqual([]);
   });
 
   it('puts every kit above the basic attack in the selection order', () => {

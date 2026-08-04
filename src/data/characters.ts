@@ -50,16 +50,31 @@ import {
  * `hp`, `atk`, `def` and `recovery` — for level and rarity, and scales nothing else. The
  * scheduling weights (`haste`, `attackSpeed`), every probability (`critChance`, `critBlock`,
  * `dodge`, `lifeLeech`, `insight`, `tenacity`), the pierce and resist pairs, the percentage
- * amplifiers and the `mp` budget all stay exactly as written, at every level. So the numbers
- * here are what a character is *like*, and level is how much of it there is.
+ * amplifiers and the `energyRegen` budget all stay exactly as written, at every level. So the
+ * numbers here are what a character is *like*, and level is how much of it there is.
  *
  * `recovery` is the one new quantity that had to scale: it is measured against `hp`, so a fixed
  * value would be a no-op the moment health outgrew it. `healthRegen` amplifies it as a
  * percentage and therefore does not scale, which is the correct side of the line for both.
  *
- * `mp` staying flat is what keeps a caster metered: skill costs are authored, so a pool that
- * grew with level would silently turn a resource into a formality. Milestone 8b replaces it
- * with energy.
+ * `energyRegen` staying flat is what keeps a caster metered, and it inherited the job from `mp`
+ * unchanged: the bar it fills is a fixed 100, so a regen that grew with level would silently turn
+ * the meter into a formality by about level eighty.
+ *
+ * ## Every character has exactly one ultimate
+ *
+ * Since milestone 8b, one skill in every kit is marked `ultimate` and is metered by a full energy
+ * bar instead of by a cooldown. `energyRegen` here is the authorable half of how fast that bar
+ * fills; the other half — ten for landing a hit, ten for taking one, ten for healing an ally — is
+ * the same for everybody and lives in `combat.ts`.
+ *
+ * So the number below says **how much a character charges on its own**, and it is read against
+ * how much fighting it expects to do. An Angel at 14 reaches its ultimate from the back rank
+ * without being touched, which is what "consistency" means for a faction whose job is to have the
+ * answer ready. A Monster at 5 reaches it only by being in the fight, which is the same statement
+ * its six-line stat block makes. And a Dwarf sits high not because it is a caster but because it
+ * is **slow**: at 70 haste it takes half as many turns as an Elf, and a per-turn drip has to be
+ * read per turn.
  *
  * ## Every basic attack is physical
  *
@@ -96,13 +111,16 @@ import {
  * - **Elves** — haste, attack speed, crit and **reach**. Made of paper, and the first answer
  *   to a back rank. The only faction authored with `attackSpeed`, which is what that stat was
  *   separated from haste to express.
- * - **Undead** — enormous HP, almost no DEF, and skills paid for in their own life, which is
- *   why they are the other faction that recovers it.
+ * - **Undead** — enormous HP, almost no DEF, and every kit built on `drain`. They used to buy
+ *   their best turns with their own life; since 8b they are paid in energy for having been hit
+ *   and take the life back out of whatever hit them. The lowest `energyRegen` outside the
+ *   Monsters, because being in the fight is their meter.
  * - **Monsters** — raw ATK and penetration. The answer to armour, given the damage curve.
  *   Deliberately the shortest stat blocks in the file: a faction with nothing but a number is a
  *   faction that says what it is.
- * - **Angels** — consistency and sustain. High DEF, low or no crit, deep MP, and the only
- *   holders of `receivedHealing` and `critDamageResist`: the faction that answers a spike.
+ * - **Angels** — consistency and sustain. High DEF, low or no crit, the highest `energyRegen` in
+ *   the game, and the only holders of `receivedHealing` and `critDamageResist`: the faction that
+ *   answers a spike, and the one whose answer is ready whether or not the fight has gone badly.
  * - **Demons** — magical damage and pure variance. Ignore armour entirely; die to anything.
  *
  * Because damage is `atk² / (atk + def)`, a party of many small hits is punished by high DEF
@@ -131,6 +149,7 @@ export const MIRA = {
     haste: 96,
     critChance: 0.12,
     critDamageAmp: 0.6,
+    energyRegen: 9,
   },
   skills: [GUARD_BREAK],
 } as const;
@@ -151,8 +170,7 @@ export const SEREN = {
     haste: 102,
     critChance: 0.15,
     critDamageAmp: 0.7,
-    mp: 42,
-    mpRegen: 3,
+    energyRegen: 9,
     physicalResist: 0.03,
   },
   skills: [OATH_OF_ARMS, SWORN_STRIKE],
@@ -174,8 +192,7 @@ export const AURELIA = {
     haste: 104,
     critChance: 0.18,
     critDamageAmp: 0.75,
-    mp: 52,
-    mpRegen: 4,
+    energyRegen: 10,
   },
   skills: [MARSHALS_CALL, DECISIVE_STRIKE],
 } as const;
@@ -202,8 +219,7 @@ export const WREN = {
     haste: 94,
     critChance: 0.08,
     critDamageAmp: 0.5,
-    mp: 54,
-    mpRegen: 4,
+    energyRegen: 12,
     magicResist: 0.06,
   },
   skills: [TRIAGE, FIELD_DRESSING],
@@ -230,6 +246,7 @@ export const BRAN = {
     critChance: 0.05,
     critDamageAmp: 0.5,
     critBlock: 0.05,
+    energyRegen: 9,
     physicalResist: 0.11,
     healthRegen: 0.2,
   },
@@ -253,8 +270,7 @@ export const KORRIN = {
     critChance: 0.04,
     critDamageAmp: 0.5,
     critBlock: 0.06,
-    mp: 44,
-    mpRegen: 3,
+    energyRegen: 10,
     physicalResist: 0.12,
     healthRegen: 0.25,
   },
@@ -278,8 +294,7 @@ export const THRAUN = {
     critChance: 0.03,
     critDamageAmp: 0.5,
     critBlock: 0.08,
-    mp: 54,
-    mpRegen: 4,
+    energyRegen: 10,
     tenacity: 0.2,
     physicalResist: 0.12,
     healthRegen: 0.35,
@@ -308,8 +323,7 @@ export const DORN = {
     critChance: 0.04,
     critDamageAmp: 0.5,
     critBlock: 0.04,
-    mp: 50,
-    mpRegen: 4,
+    energyRegen: 12,
     healthRegen: 0.2,
   },
   skills: [SALTBEARD_REMEDY, STOUT_WARD],
@@ -335,6 +349,7 @@ export const RIN = {
     attackSpeed: 22,
     critChance: 0.22,
     critDamageAmp: 0.8,
+    energyRegen: 8,
     magicResist: 0.03,
     accuracy: 1.1,
   },
@@ -357,8 +372,7 @@ export const LYSHA = {
     attackSpeed: 26,
     critChance: 0.26,
     critDamageAmp: 0.85,
-    mp: 38,
-    mpRegen: 3,
+    energyRegen: 8,
     magicResist: 0.05,
     dodge: 0.1,
   },
@@ -382,8 +396,7 @@ export const AELRINDEL = {
     attackSpeed: 30,
     critChance: 0.3,
     critDamageAmp: 0.9,
-    mp: 46,
-    mpRegen: 3,
+    energyRegen: 8,
     physicalPierce: 0.2,
     magicResist: 0.06,
     dodge: 0.12,
@@ -412,6 +425,7 @@ export const MORTLACH = {
     haste: 82,
     critChance: 0.06,
     critDamageAmp: 0.5,
+    energyRegen: 6,
     lifeLeech: 0.05,
     physicalResist: 0.04,
   },
@@ -434,6 +448,7 @@ export const SABLE = {
     haste: 88,
     critChance: 0.07,
     critDamageAmp: 0.55,
+    energyRegen: 6,
     lifeLeech: 0.08,
     physicalResist: 0.03,
   },
@@ -456,6 +471,7 @@ export const NEKROS = {
     haste: 92,
     critChance: 0.08,
     critDamageAmp: 0.6,
+    energyRegen: 7,
     lifeLeech: 0.1,
     magicPierce: 0.15,
   },
@@ -480,6 +496,7 @@ export const GNASH = {
     haste: 74,
     critChance: 0.04,
     critDamageAmp: 0.6,
+    energyRegen: 5,
     physicalResist: 0.06,
   },
   skills: [REND],
@@ -501,6 +518,7 @@ export const RUK = {
     haste: 68,
     critChance: 0.03,
     critDamageAmp: 0.7,
+    energyRegen: 5,
     physicalPierce: 0.25,
     physicalResist: 0.05,
   },
@@ -523,6 +541,7 @@ export const VHAROK = {
     haste: 62,
     critChance: 0.02,
     critDamageAmp: 0.8,
+    energyRegen: 6,
     insight: 0.1,
     physicalPierce: 0.35,
     physicalResist: 0.04,
@@ -552,8 +571,7 @@ export const CELIA = {
     critChance: 0.02,
     critDamageAmp: 0.4,
     critDamageResist: 0.15,
-    mp: 52,
-    mpRegen: 4,
+    energyRegen: 13,
     receivedHealing: 0.15,
   },
   skills: [CHOIRLIGHT],
@@ -575,8 +593,7 @@ export const ITHURIEL = {
     critChance: 0.01,
     critDamageAmp: 0.35,
     critDamageResist: 0.2,
-    mp: 60,
-    mpRegen: 5,
+    energyRegen: 14,
     tenacity: 0.15,
     receivedHealing: 0.2,
   },
@@ -605,8 +622,7 @@ export const SERAPHINE = {
     critChance: 0,
     critDamageAmp: 0.3,
     critDamageResist: 0.3,
-    mp: 70,
-    mpRegen: 5,
+    energyRegen: 14,
     tenacity: 0.25,
     receivedHealing: 0.3,
   },
@@ -633,8 +649,7 @@ export const PYRA = {
     haste: 100,
     critChance: 0.25,
     critDamageAmp: 0.9,
-    mp: 42,
-    mpRegen: 3,
+    energyRegen: 8,
     magicResist: 0.03,
   },
   skills: [EMBERBURST],
@@ -655,8 +670,7 @@ export const MALAKAR = {
     haste: 108,
     critChance: 0.34,
     critDamageAmp: 1.1,
-    mp: 48,
-    mpRegen: 3,
+    energyRegen: 8,
     magicResist: 0.03,
     dodge: 0.08,
   },
@@ -680,8 +694,7 @@ export const AZRATHOTH = {
     haste: 116,
     critChance: 0.45,
     critDamageAmp: 1.4,
-    mp: 58,
-    mpRegen: 4,
+    energyRegen: 9,
     magicPierce: 0.2,
     magicResist: 0.04,
   },

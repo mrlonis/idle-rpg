@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { type BattleEvent, ZERO } from '../core';
+import { type BattleEvent, MAX_ENERGY, ZERO } from '../core';
 import {
   type BattleCombatantView,
   BattleService,
@@ -30,6 +30,8 @@ export class BattleView {
   private readonly game = inject(GameLoopService);
 
   protected readonly speeds = PLAYBACK_SPEEDS;
+  /** The denominator on every energy bar. One number for the whole game since 8b. */
+  protected readonly maxEnergy = MAX_ENERGY;
   protected readonly playbackSpeed = this.battles.playbackSpeed;
   protected readonly stage = this.battles.stage;
   protected readonly isAuto = this.battles.isAuto;

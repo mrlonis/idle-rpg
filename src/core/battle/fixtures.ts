@@ -20,6 +20,9 @@ export const TEST_COMBAT_RULES_DATA: CombatRulesData = {
     backCritDamageAmp: 0.05,
   },
   matchups: [{ attacker: 'strong', defender: 'weak', multiplier: 2 }],
+  // Round numbers, and deliberately not the shipped ones: a spec asserting "the bar filled by
+  // ten" should fail when this fixture changes, not when the ladder is retuned.
+  energy: { onHit: 10, onHurt: 10, onHeal: 10 },
   minHitChance: 0.1,
   maxPenetration: 0.9,
   maxResist: 0.9,
