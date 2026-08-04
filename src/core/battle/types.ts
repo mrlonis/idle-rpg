@@ -94,18 +94,20 @@ export interface StatBlockData {
    */
   readonly haste: number;
   /**
-   * Extra gauge, accruing **only while every authored skill is on cooldown**.
+   * Extra gauge, accruing **only when the combatant's last action was a basic attack**.
    *
    * The split between this and {@link haste} is the one mapping in the block with no precedent
    * in the codebase. In a real-time game casting frequency and swing speed are genuinely
    * different things; in an ATB system `gauge += haste` makes both just gauge fill, so the
    * separation has to be manufactured. This is the manufactured half: a high-attack-speed
-   * combatant machine-guns basics between its skill windows and gains nothing on the turn it
-   * casts.
+   * combatant machine-guns basics between its skill windows, and a cast drops it back to plain
+   * haste for one turn.
    *
-   * "The next action would be a basic attack" is read as "nothing in the kit is off cooldown".
-   * That is cheap enough to ask on every scheduling iteration, which running the whole of
-   * `chooseSkill` is not — see `effectiveSpeed`.
+   * **Keyed off the action already taken rather than the one about to be chosen.** Predicting
+   * the next action means running `chooseSkill`, which the scheduling loop cannot afford; and
+   * approximating it as "nothing in the kit is off cooldown" silently suppresses the bonus for
+   * a whole fight whenever a skill is gated on a condition that is not currently met, because
+   * such a skill never goes on cooldown. See `effectiveSpeed` and `docs/attributes.md`.
    */
   readonly attackSpeed?: number;
   /** Probability of a critical hit before the target's {@link critBlock}, 0–1. */
@@ -612,7 +614,7 @@ export interface CombatantSnapshot {
   readonly hp: Numeric;
   readonly maxMp: number;
   readonly mp: number;
-  /** Current gauge fill per tick: haste, plus attack speed when the next action is a swing. */
+  /** Current gauge fill per tick: haste, plus attack speed when the last action was a swing. */
   readonly haste: number;
   /** Remaining absorb pool across every active shield. Zero when unshielded. */
   readonly shield: Numeric;

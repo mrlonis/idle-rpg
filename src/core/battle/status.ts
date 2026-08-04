@@ -230,12 +230,11 @@ export function effectiveStats(stats: CombatStats, statuses: readonly ActiveStat
  * to read a plain number made a balance sweep of the whole ladder take twenty seconds; this
  * makes the same sweep a rounding error. Same arithmetic, same clamp, no allocation.
  *
- * `swinging` is what separates {@link CombatStats.attackSpeed} from haste. It is passed in
- * rather than derived here because the answer to "would the next action be a basic attack"
- * lives in the fighter's cooldown map, and this file deliberately knows nothing about
- * fighters. **The sum is re-clamped**, not each half: two stats that individually respected
- * the gauge bound and jointly did not would break turn ordering exactly as one oversized stat
- * would.
+ * `swinging` — whether the combatant's **last** action was a basic attack — is what separates
+ * {@link CombatStats.attackSpeed} from haste. It is passed in rather than derived here because
+ * the answer lives on the fighter, and this file deliberately knows nothing about fighters.
+ * **The sum is re-clamped**, not each half: two stats that individually respected the gauge
+ * bound and jointly did not would break turn ordering exactly as one oversized stat would.
  */
 export function effectiveSpeed(
   stats: CombatStats,

@@ -46,10 +46,10 @@ import {
  * ## Turn order
  *
  * An ATB gauge rather than fixed rounds. Every living combatant gains its **current** `haste`
- * in gauge per tick — plus its `attackSpeed` on the ticks its next action would be a basic
- * attack — and acts when it reaches `ATB_THRESHOLD`. A faster combatant therefore genuinely
- * takes more turns instead of merely going earlier in a round, and a haste or a slow is a real
- * effect rather than a reordering.
+ * in gauge per tick — plus its `attackSpeed` while its last action was a basic attack — and
+ * acts when it reaches `ATB_THRESHOLD`. A faster combatant therefore genuinely takes more turns
+ * instead of merely going earlier in a round, and a haste or a slow is a real effect rather
+ * than a reordering.
  *
  * The loop jumps straight to the next thing that happens instead of stepping tick by tick.
  * "The next thing" is the sooner of the next action and the next status expiry; missing the
@@ -364,13 +364,19 @@ export function simulateBattle(
    *   A Golem that shrugged off swords and not bleeds would be a hole in the one axis milestone
    *   8a moved onto the resists.
    * - A **regeneration** is healing from somebody else, so the recipient's amplifier applies.
+   *
+   * Both read `base` rather than {@link live}. The resists and `receivedHealing` are not in
+   * `ModifiableStat`, so a status cannot move them and the effective block would return the same
+   * two numbers after four `Decimal` multiplications thrown away — the same trade `effectiveSpeed`
+   * exists to make. If either stat ever becomes modifiable, these two reads are what has to
+   * change with it.
    */
   const resolveAgainst = (status: ActiveStatus, target: Fighter, source: Fighter): ActiveStatus => {
     if (status.amount === undefined) {
       return status;
     }
     if (status.kind === 'dot' && status.damageType !== undefined) {
-      const share = resistedShare(live(target), status.damageType);
+      const share = resistedShare(target.base, status.damageType);
       return share === 1 ? status : { ...status, amount: status.amount.mul(share) };
     }
     if (status.kind === 'regen') {

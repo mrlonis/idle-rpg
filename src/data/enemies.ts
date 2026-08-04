@@ -35,7 +35,8 @@ import {
  * - `haste` is ATB gauge gained per battle tick, against a threshold of 1000. So `haste: 100`
  *   acts once per 10 ticks, and a combatant at 200 genuinely takes twice as many turns as one
  *   at 100 — gauge fill is a real stat, not a tiebreak. `attackSpeed` is extra gauge that
- *   accrues only while every skill is on cooldown, so it buys basic attacks and nothing else.
+ *   accrues only while the combatant's last action was a basic attack, so it buys basic attacks
+ *   and nothing else.
  * - Damage is `atk² / (atk + def × (1 - pierce))`, then reduced by the matching **resist**.
  *   One attack stat and one defence stat since milestone 8a: the attack's type no longer picks
  *   which stat it reads, it picks which pierce and which resist apply. DEF has diminishing
