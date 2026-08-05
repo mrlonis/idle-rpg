@@ -127,7 +127,13 @@ export interface ResonanceView {
   readonly affordable: number;
   /** The highest floor this roster could ever reach without an ascension. */
   readonly ceiling: number;
-  /** `true` when only an ascension can move the floor further. */
+  /**
+   * `true` when only an ascension can move the floor further.
+   *
+   * **Narrower than "the plan came back empty", deliberately.** `resonancePlan` also returns
+   * `null` for a roster with nobody in it, and a flag that conflated the two would put "your
+   * fifth-highest character is at its cap" on a screen with no characters on it.
+   */
   readonly capped: boolean;
 }
 
@@ -187,7 +193,9 @@ export class RosterService {
       stepCost: step?.cost ?? null,
       affordable: maxAffordableResonance(state.roster, state.wallet, LEVELS),
       ceiling: resonanceCeiling(state.roster, LEVELS),
-      capped: step === null,
+      // A roster with nobody in it has no plan either, and it is not cap-stalled — it has
+      // nothing to stall. See the note on the field.
+      capped: step === null && state.roster.length > 0,
     };
   });
 
@@ -482,7 +490,13 @@ export class RosterService {
 /** Structural stand-in so `mutate` does not have to import the state type by name twice. */
 type GameStateLike = Parameters<typeof levelUpToAffordable>[0];
 
-/** What the resonance panel shows before a save has loaded: a run with nobody in it. */
+/**
+ * What the resonance panel shows before a save has loaded: a run with nobody in it.
+ *
+ * `capped` is **false** here for the same reason it is narrowed above — nothing about a run that
+ * has not loaded is waiting on an ascension. Both buttons are still disabled without it: there is
+ * no `stepCost` to spend and `affordable` does not exceed `floor`.
+ */
 const EMPTY_RESONANCE: ResonanceView = {
   floor: 1,
   anchors: [],
@@ -490,7 +504,7 @@ const EMPTY_RESONANCE: ResonanceView = {
   stepCost: null,
   affordable: 1,
   ceiling: 1,
-  capped: true,
+  capped: false,
 };
 
 /** Built once: the authored faction order is static content, and the sort runs per snapshot. */

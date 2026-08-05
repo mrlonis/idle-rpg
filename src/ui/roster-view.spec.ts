@@ -484,10 +484,17 @@ describe('RosterView', () => {
         })),
       );
 
-      const names = [...el.querySelectorAll('.resonance__anchor')].map((node) =>
-        (node.textContent ?? '').replace(/\s+/g, ' ').trim(),
-      );
+      const rows = [...el.querySelectorAll('.resonance__anchor')];
+      const names = rows.map((node) => (node.textContent ?? '').replace(/\s+/g, ' ').trim());
       expect(names).toEqual(['Azrathoth, Ruin Unbound 30', 'Dorn 12 moves the floor']);
+
+      // `&ngsp;` is an **Angular** pseudo-entity, not an HTML one — the compiler registers it in
+      // `NAMED_ENTITIES` and substitutes a real space after whitespace removal. It reads like a
+      // typo, so this asserts the rendered markup rather than only the collapsed text: without
+      // it the flag would run on as "12moves", and with a genuinely unknown entity the literal
+      // characters would survive into the accessible name.
+      expect(rows.map((node) => node.innerHTML).join()).not.toContain('&amp;ngsp;');
+      expect(rows[1].textContent).toContain('12 moves');
     });
 
     it('marks only the anchors that are actually standing on the floor', async () => {
@@ -563,6 +570,49 @@ describe('RosterView', () => {
       expect(el.querySelector('.resonance__hint')?.textContent?.trim()).toContain(
         'is at its rarity’s level cap',
       );
+    });
+
+    it('does not blame a cap on a screen with no characters on it', async () => {
+      // The pre-load window and a roster repaired down to nothing both reach here with no plan
+      // to price, which is not the same fact as a cap-stalled roster. `RosterService` keeps the
+      // two apart at the flag; this is the copy that would have conflated them.
+      const { el } = await render((roster) => {
+        roster.entries.set([]);
+        roster.resonance.set({
+          floor: 1,
+          anchors: [],
+          carried: 0,
+          stepCost: null,
+          affordable: 1,
+          ceiling: 1,
+          capped: false,
+        });
+      });
+
+      const hint = el.querySelector('.resonance__hint')?.textContent?.trim() ?? '';
+      expect(hint).not.toContain('level cap');
+      expect(hint).not.toContain('everybody already stands above the floor');
+      expect(el.querySelector('.resonance__carried')?.textContent?.trim()).toBe(
+        'Nothing to share yet.',
+      );
+    });
+
+    it('keeps both buttons disabled with nobody owned', async () => {
+      const { el } = await render((roster) => {
+        roster.entries.set([]);
+        roster.resonance.set({
+          floor: 1,
+          anchors: [],
+          carried: 0,
+          stepCost: null,
+          affordable: 1,
+          ceiling: 1,
+          capped: false,
+        });
+      });
+
+      const buttons = [...el.querySelectorAll<HTMLButtonElement>('.resonance__actions .button')];
+      expect(buttons.map((button) => button.disabled)).toEqual([true, true]);
     });
 
     it('says why a refused raise was refused', async () => {

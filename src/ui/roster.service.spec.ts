@@ -147,4 +147,20 @@ describe('RosterService and the resonance floor', () => {
     expect(roster.entries().every((row) => !row.resonated)).toBe(true);
     expect(roster.resonance().carried).toBe(0);
   });
+
+  it('reports a cap stall as capped, and only a cap stall', () => {
+    // `resonancePlan` returns null for two unrelated reasons — a cap nothing can climb past, and
+    // a roster with nobody in it — and only the first is something an ascension fixes. A flag
+    // that conflated them would put "your fifth-highest character is at its cap" on a screen
+    // with no characters on it.
+    const stalled = build([
+      ...CAST.slice(0, PARTY_SIZE - 1).map((character) => entry(character.id, 40)),
+      // `rare`, capped at 40 and already there: four can climb past it and a fifth cannot.
+      entry(CAST[PARTY_SIZE - 1].id, LEVELS.caps[0], 0),
+    ]);
+    const nobody = build([]);
+
+    expect(stalled.roster.resonance().capped).toBe(true);
+    expect(nobody.roster.resonance().capped).toBe(false);
+  });
 });

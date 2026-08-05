@@ -300,6 +300,10 @@ export class RosterView {
   protected readonly resonancePanel = computed<ResonancePanel>(() => {
     const { floor, anchors, carried, stepCost, affordable, ceiling, capped } = this.resonance();
     const owned = this.entries().length;
+    // The pre-load window and a roster repaired down to nothing both land here, and every other
+    // line on this panel is a claim about characters. Answered first so none of them has to be
+    // written twice — "everybody already stands above the floor" is not true of nobody.
+    const empty = owned === 0;
 
     return {
       floor,
@@ -311,8 +315,9 @@ export class RosterView {
         // above the floor buys that character's own power and moves the roster nothing.
         lagging: entry.level <= floor,
       })),
-      carried:
-        carried === 0
+      carried: empty
+        ? 'Nothing to share yet.'
+        : carried === 0
           ? `Nobody is being carried yet — resonance starts working once you own more than ${PARTY_SIZE}.`
           : `${carried} ${carried === 1 ? 'character is' : 'characters are'} being carried above what you paid for.`,
       stepCost: stepCost === null ? null : formatAmounts(stepCost),
@@ -322,11 +327,13 @@ export class RosterView {
       maxLabel: affordable > floor ? `Raise to ${affordable}` : 'Raise as far as I can',
       canStep: !capped && stepCost !== null,
       canMax: affordable > floor,
-      hint: capped
-        ? `Your ${PARTY_SIZE}th-highest character is at its rarity’s level cap. Ascend somebody — or level a sixth character past them — to raise this further.`
-        : owned <= PARTY_SIZE
-          ? `Raising this costs nothing you would not have spent anyway: with ${PARTY_SIZE} or fewer characters everybody already stands above the floor.`
-          : `Ascension is never carried. A character’s own rarity still caps how much of this it collects, and this roster tops out at ${ceiling}.`,
+      hint: empty
+        ? 'Your roster sets a level every character you own is carried to. It starts working as soon as there is a roster to set it.'
+        : capped
+          ? `Your ${PARTY_SIZE}th-highest character is at its rarity’s level cap. Ascend somebody — or level a sixth character past them — to raise this further.`
+          : owned <= PARTY_SIZE
+            ? `Raising this costs nothing you would not have spent anyway: with ${PARTY_SIZE} or fewer characters everybody already stands above the floor.`
+            : `Ascension is never carried. A character’s own rarity still caps how much of this it collects, and this roster tops out at ${ceiling}.`,
     };
   });
 

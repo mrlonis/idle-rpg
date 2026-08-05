@@ -127,7 +127,19 @@ describe('effectiveLevel', () => {
   it('reports whether a character is standing above what was paid for', () => {
     expect(isResonated(CURVE, at('a', 4), 60)).toBe(true);
     expect(isResonated(CURVE, at('a', 80), 60)).toBe(false);
-    // At its cap and below the floor: carried, but only as far as its own rung allows.
+  });
+
+  it('still counts a character carried only as far as its own rung allows', () => {
+    // `rare` caps at 10, so a floor of 60 lifts this one from 4 to 10 and stops. Partly carried
+    // is still carried — the roster row says so, and the level it shows is not the paid one.
+    expect(isResonated(CURVE, at('a', 4, 0), 60)).toBe(true);
+    expect(effectiveLevel(CURVE, at('a', 4, 0), 60)).toBe(10);
+  });
+
+  it('does not count a character whose own investment already reached its cap', () => {
+    // Paid all the way to 10 at `rare`, under a floor of 60: the cap binds, so the floor is
+    // lifting it nowhere and `resonated` is false. Marking this row "carried" would offer the
+    // player a mechanic that is doing nothing for it — the honest prompt here is an ascension.
     expect(isResonated(CURVE, at('a', 10, 0), 60)).toBe(false);
   });
 });
