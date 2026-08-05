@@ -77,10 +77,18 @@ wipe are the same thing to a player and very different things to a balance sweep
 sustain kit is invisible unless something records which one happened. Nothing in `ui/` reads the
 flag; the sweep reads nothing else.
 
-**The headroom is now 1.9×, and that is a constraint on content rather than slack.** A stage tuned
-to take longer than ninety seconds against the party it is meant for is a stage nobody can clear,
+**The headroom is 1.40×, and that is a constraint on content rather than slack.** A stage tuned to
+take longer than ninety seconds against the party it is meant for is a stage nobody can clear,
 which is why `stages.balance.ts` asserts the margin directly and should fail before the win-rate
 assertions do.
+
+It was 1.9× until milestone 8e, and the seven mono-faction fives it authored are what spent the
+difference — the longest fight anyone actually clears is now a mono-Dwarf five taking stage 16 in
+64.5 seconds, four walls and one attacker winning the way that faction wins. The same milestone
+narrowed the assertion to **fights a party clears**, because adding those parties revealed the old
+version was measuring losing fights too; losing fights are bounded separately, at 95% of the timer.
+See [milestone 8e](milestones.md) for why that narrowing is the assertion's own sentence rather
+than a moved threshold.
 
 ---
 
