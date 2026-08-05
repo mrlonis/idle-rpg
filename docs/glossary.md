@@ -7,8 +7,8 @@ Several terms collide because the genre's vocabulary collides. The types keep th
 file is what prose should point at.
 
 Companion references: [attributes](attributes.md) for the stat block, [ascension](ascension.md)
-for the rung ladders, [milestones](milestones.md) for the roadmap and the reasoning behind each
-decision.
+for the rung ladders, [level resonance](level-resonance.md) for the level the roster shares,
+[milestones](milestones.md) for the roadmap and the reasoning behind each decision.
 
 ---
 
@@ -89,16 +89,21 @@ made this look unfinished; they are never both on the table at once.
 
 ---
 
-## Level means two things once resonance ships
+## Level means two things, and has since milestone 9
 
 - **Invested level** — what the player actually paid to raise. Stored in the save as
-  `OwnedCharacter.level`.
-- **Effective level** — what the character actually fights at:
+  `OwnedCharacter.level`, and the **only** one of the two that is stored.
+- **Effective level** — what the character actually fights at, and the one every screen shows:
   `min(levelCapFor(rarity), max(investedLevel, resonanceFloor))`.
 
 The **resonance floor** is the level of the fifth-highest-levelled character in the roster.
-Everyone is carried to at least that level, capped by their own rarity. _Planned, milestone 9._
-Until then the two are the same number.
+Everyone is carried to at least that level, capped by their own rarity. Levelling is charged from
+the effective level, so nobody ever pays for the climb resonance already gave them.
+See [level resonance](level-resonance.md).
+
+**"Level" unqualified now means the effective one** — it is what the roster row, the character
+sheet and the battle all read. Say "invested level" when you mean the paid one; there is no other
+word for it, and `OwnedCharacter.level` is the thing being named.
 
 Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
 
@@ -129,6 +134,8 @@ Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
 | **Summons**          | The pull currency, called crystals in the UI. Accrues idly — which is the unusual part of this game's economy.                                                                                                                                                                                                                                                      |
 | **Essence**          | Charged only at breakthrough levels (every tenth) and the stingiest currency. Cheapest before level 60, most expensive by 200.                                                                                                                                                                                                                                      |
 | **Breakthrough**     | Every tenth level, where essence is charged. Rarity caps are all multiples of ten so an ascension always lands in front of one rather than stranded between two.                                                                                                                                                                                                    |
+| **Resonance floor**  | The fifth-highest **invested** level in the roster. Everyone is carried to it, capped by their own rarity. Derived on read and never stored, and monotonically non-decreasing. See [level resonance](level-resonance.md).                                                                                                                                           |
+| **Anchor**           | One of the `PARTY_SIZE` highest-levelled characters, whose levels are what set the floor. Not the same as the **formation** — an anchor need not be fielded, and a fielded character need not be an anchor.                                                                                                                                                         |
 | **Ultimate**         | The one skill in a kit metered by a full energy bar instead of a cooldown. Exactly one per character, and it spends the whole bar. Enemies have none. **Never gated by 8c's skill ceiling.**                                                                                                                                                                        |
 | **Kit**              | Every skill a character authors, basic attack excluded. Not the same as what it fights with — see **ceiling**.                                                                                                                                                                                                                                                      |
 | **Ceiling**          | How many skills a **tier** may ever field, ultimate included: 2 common, 3 legendary, 4 ascended. An authoring constraint as much as a runtime one — every kit is authored at exactly its ceiling.                                                                                                                                                                   |

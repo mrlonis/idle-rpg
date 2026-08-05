@@ -181,23 +181,36 @@ describe('scaleStats', () => {
 describe('toBattleCombatant', () => {
   it('carries the character id through unchanged', () => {
     // Battle events, the roster and the save all have to speak the same ids.
-    const combatant = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT);
+    const combatant = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT, 1);
 
     expect(combatant.id).toBe('gamma');
     expect(combatant.name).toBe('Gamma');
   });
 
   it('reflects the level and rarity the player has actually invested', () => {
-    const base = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT);
+    const base = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT, 1);
     const invested = toBattleCombatant(
       TEST_GAMMA,
       { defId: 'gamma', rarity: 8, level: 200, copies: 0 },
       GROWTH,
       KIT,
+      200,
     );
 
     expect(toCombatStats(invested.stats).hp.gt(toCombatStats(base.stats).hp)).toBe(true);
     expect(toCombatStats(invested.stats).atk.gt(toCombatStats(base.stats).atk)).toBe(true);
+  });
+
+  it('fights at the level it is handed, not at the one in the roster entry', () => {
+    // The milestone 9 seam. `OwnedCharacter.level` is what the player paid for; resonance can
+    // carry a character above it, and a version of this that read the entry would send a bench
+    // character into a fight at a level no screen was showing.
+    const entry = { defId: 'gamma', rarity: 8, level: 1, copies: 0 };
+
+    const invested = toBattleCombatant(TEST_GAMMA, entry, GROWTH, KIT, 1);
+    const carried = toBattleCombatant(TEST_GAMMA, entry, GROWTH, KIT, 200);
+
+    expect(toCombatStats(carried.stats).hp.gt(toCombatStats(invested.stats).hp)).toBe(true);
   });
 
   it('produces a combatant the simulation can parse without special-casing', () => {
@@ -206,6 +219,7 @@ describe('toBattleCombatant', () => {
       { defId: 'alpha', rarity: 6, level: 300, copies: 0 },
       GROWTH,
       KIT,
+      300,
     );
     const stats = toCombatStats(combatant.stats);
 
@@ -223,12 +237,13 @@ describe('toBattleCombatant', () => {
     ];
     const armed: CharacterData = { ...TEST_ALPHA, skills };
 
-    const rare = toBattleCombatant(armed, owned(armed), GROWTH, KIT);
+    const rare = toBattleCombatant(armed, owned(armed), GROWTH, KIT, 1);
     const elite = toBattleCombatant(
       armed,
       { defId: armed.id, rarity: 2, level: 1, copies: 0 },
       GROWTH,
       KIT,
+      1,
     );
 
     expect(rare.skills?.map((skill) => skill.id)).toEqual(['ult']);

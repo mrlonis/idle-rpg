@@ -6,6 +6,7 @@ import {
   MAX_ENERGY,
   nextSkillUnlock,
   num,
+  PARTY_SIZE,
   rarityLabel,
   type RosterFailure,
   scaleStats,
@@ -89,6 +90,9 @@ function skillMeter(skill: SkillData): string {
 export class CharacterView {
   private readonly roster = inject(RosterService);
   private readonly game = inject(GameLoopService);
+
+  /** How many characters set the shared level, for the resonance note under the level. */
+  protected readonly partySize = PARTY_SIZE;
 
   /** From `/roster/:defId`, bound by the router rather than read off an `ActivatedRoute`. */
   readonly defId = input.required<string>();

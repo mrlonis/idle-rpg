@@ -86,6 +86,24 @@
         <span class="level__flag">at cap — ascend to raise it</span>
       }
     </p>
+    <!--
+      Why a character nobody has spent anything on is standing at 214. Only shown when resonance
+      is actually doing something, so the common case — a character levelled the ordinary way —
+      is not asked to read an explanation of a mechanic that is not affecting it.
+    -->
+    @if (row.resonated) {
+      <p class="level__resonance">
+        Carried here by resonance: your {{ partySize }} highest-levelled characters set a shared
+        level and everyone you own is lifted to it, up to their own rarity’s cap.
+        <!--
+          The charging clause is the actionable half, and it is a promise a capped character
+          cannot collect on — the flag above already says the only move left is an ascension.
+        -->
+        @if (!row.atLevelCap) {
+          Levelling from here is charged from {{ row.level }}, not from what you paid.
+        }
+      </p>
+    }
     <p class="level__wallet">You hold {{ walletSummary() }}</p>
     @if (nextLevelCost(); as cost) {
       <p class="level__cost">Next level costs {{ cost }}</p>

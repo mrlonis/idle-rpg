@@ -2,12 +2,12 @@ import { provideLocationMocks } from '@angular/common/testing';
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { describe, expect, it } from 'vitest';
-import { type FactionData, lineupBonus, type Row } from '../core';
+import { describe, expect, it, vi } from 'vitest';
+import { type FactionData, lineupBonus, num, type RosterResult, type Row } from '../core';
 import { COMBAT } from './content';
 import { groupBench } from './roster-order';
 import { RosterView } from './roster-view';
-import { type RosterEntryView, RosterService } from './roster.service';
+import { type ResonanceView, type RosterEntryView, RosterService } from './roster.service';
 
 /** One roster row, benched and unremarkable, with only what a test cares about overridden. */
 function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
@@ -22,6 +22,7 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     rarityLabel: 'Rare',
     rarityFamily: 'rare',
     level: 12,
+    resonated: false,
     levelCap: 40,
     atLevelCap: false,
     isMaxRarity: false,
@@ -68,6 +69,25 @@ class FakeRoster {
       COMBAT.lineup,
     ),
   );
+  /**
+   * The shared level, stubbed rather than derived.
+   *
+   * The opposite call from {@link lineup} above, and for a reason: the lineup panel exists to
+   * prove the screen and the simulation agree, whereas resonance's derivation is `core/`'s and is
+   * pinned in `core/roster/resonance.spec.ts`. What is left for the component to get right is the
+   * copy — which is exactly what a stub lets a test drive into a state on purpose.
+   */
+  readonly resonance = signal<ResonanceView>({
+    floor: 12,
+    anchors: [],
+    carried: 0,
+    stepCost: { gold: num(100), xp: num(40) },
+    affordable: 12,
+    ceiling: 40,
+    capped: false,
+  });
+  readonly resonateOnce = vi.fn<() => RosterResult>(() => ({ ok: false, reason: 'not-owned' }));
+  readonly resonateMax = vi.fn<() => RosterResult>(() => ({ ok: false, reason: 'not-owned' }));
 }
 
 /** Three of the seven, which is enough to show a populated group beside two empty ones. */
@@ -438,6 +458,147 @@ describe('RosterView', () => {
       );
 
       expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('No faction bonus yet');
+    });
+  });
+
+  describe('the resonance panel', () => {
+    it('states the shared level as a sentence rather than as a bare figure', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('.resonance__floor')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        'Everyone you own fights at level 12 or their own, whichever is higher.',
+      );
+    });
+
+    it('names the characters holding the floor up, one per item', async () => {
+      // A floor is a number with no visible cause without this, and it is the only place the
+      // screen says which five are doing the lifting. A list rather than a joined sentence
+      // because two shipped names contain commas — "Azrathoth, Ruin Unbound" is one person.
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({
+          ...view,
+          anchors: [
+            entry({ name: 'Azrathoth, Ruin Unbound', level: 30 }),
+            entry({ defId: 'dorn', name: 'Dorn', level: 12 }),
+          ],
+        })),
+      );
+
+      const names = [...el.querySelectorAll('.resonance__anchor')].map((node) =>
+        (node.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      );
+      expect(names).toEqual(['Azrathoth, Ruin Unbound 30', 'Dorn 12 moves the floor']);
+    });
+
+    it('marks only the anchors that are actually standing on the floor', async () => {
+      // Levelling somebody already above it buys that character's own power and moves the roster
+      // nothing, which is the distinction the whole panel exists to make visible.
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({
+          ...view,
+          anchors: [entry({ name: 'Rin', level: 30 }), entry({ defId: 'dorn', name: 'Dorn' })],
+        })),
+      );
+
+      const lagging = [...el.querySelectorAll('.resonance__anchor--lagging')].map((node) =>
+        (node.textContent ?? '').trim(),
+      );
+      expect(lagging).toHaveLength(1);
+      expect(lagging[0]).toContain('Dorn');
+    });
+
+    it('tells a small roster that nothing is being carried yet', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('.resonance__carried')?.textContent?.trim()).toBe(
+        'Nobody is being carried yet — resonance starts working once you own more than 5.',
+      );
+    });
+
+    it('counts the characters standing above what was paid for', async () => {
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({ ...view, carried: 4 })),
+      );
+
+      expect(el.querySelector('.resonance__carried')?.textContent?.trim()).toBe(
+        '4 characters are being carried above what you paid for.',
+      );
+    });
+
+    it('prices the next level before it is committed to', async () => {
+      // Breakthrough levels are lumpy, so "what does this cost" is a real question rather than a
+      // decoration — and the answer has to be visible before the tap, not after it.
+      const { el } = await render();
+
+      expect(el.querySelector('.resonance__cost')?.textContent?.trim()).toBe(
+        'Next level of shared power costs 100 gold · 40 XP',
+      );
+    });
+
+    it('names the level each button lands on, so the two are not the same control twice', async () => {
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({ ...view, affordable: 19 })),
+      );
+
+      const labels = [...el.querySelectorAll('.resonance__actions .button')].map((node) =>
+        node.textContent?.trim(),
+      );
+      expect(labels).toEqual(['Raise to 13', 'Raise to 19']);
+    });
+
+    it('disables both buttons when the wallet reaches nowhere and the floor is capped', async () => {
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({ ...view, capped: true, stepCost: null })),
+      );
+
+      const buttons = [...el.querySelectorAll<HTMLButtonElement>('.resonance__actions .button')];
+      expect(buttons.map((button) => button.disabled)).toEqual([true, true]);
+    });
+
+    it('sends a capped roster to ascension rather than to the wallet', async () => {
+      const { el } = await render((roster) =>
+        roster.resonance.update((view) => ({ ...view, capped: true, stepCost: null })),
+      );
+
+      expect(el.querySelector('.resonance__hint')?.textContent?.trim()).toContain(
+        'is at its rarity’s level cap',
+      );
+    });
+
+    it('says why a refused raise was refused', async () => {
+      const { el, roster } = await render();
+      roster.resonateOnce.mockReturnValue({ ok: false, reason: 'level-capped' });
+
+      el.querySelector<HTMLButtonElement>('.resonance__actions .button')?.click();
+      await Promise.resolve();
+
+      expect(roster.resonateOnce).toHaveBeenCalled();
+    });
+  });
+
+  describe('a carried level', () => {
+    it('is marked on the row it belongs to, in words as well as in colour', async () => {
+      const { el } = await render((roster) => roster.entries.set([entry({ resonated: true })]));
+
+      expect(el.querySelector('.roster__carried')?.textContent?.trim()).toBe('carried');
+    });
+
+    it('shows one number, never the invested level beside it', async () => {
+      // The floor is monotonically non-decreasing, so a carried level can never revert — a
+      // second figure would be defending against a state that cannot occur.
+      const { el } = await render((roster) =>
+        roster.entries.set([entry({ resonated: true, level: 40, levelCap: 40 })]),
+      );
+
+      expect(el.querySelector('.roster__stats')?.textContent?.replace(/\s+/g, ' ')).toContain(
+        'Level 40/40 carried',
+      );
+    });
+
+    it('leaves an ordinarily-levelled row unmarked', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('.roster__carried')).toBeNull();
     });
   });
 });

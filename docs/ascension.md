@@ -56,6 +56,10 @@ Two consequences worth having in mind while reading the prices below:
   is saving toward; `elite-plus`, `mythic` and the five stars are stats alone. The character sheet
   says which of the two the next rung is, because the price does not.
 
+This is what makes a rung the most valuable thing in the game — a skill is worth more than any stat
+multiplier — and it is the strongest answer available to "ascensions should feel more dramatic",
+which milestone 10 has to make good on some other way if it wants more.
+
 ---
 
 ## Two paths, expensive in different things
@@ -147,25 +151,27 @@ visible at all times. Reading the shop as the bad-luck mechanism gets the econom
 
 ---
 
+## Ascension is the only individual cost
+
+Since milestone 9, **levels are shared and rungs are not.** Resonance carries every character in
+the roster to the fifth-highest level for free — but **the rarity cap still binds**, so raising a
+cap is the only way for a bench character to collect more of the floor. That is what leaves the
+bench something to spend on, and what makes crewing a faction tower an investment decision rather
+than a levelling grind. See [level resonance](level-resonance.md); if a bench character ever feels
+free to bring, the cap clause is what has stopped working.
+
+The two prices are also spent from different pockets: levels come out of the wallet, rungs out of
+duplicate copies. Nothing about resonance touches the copies.
+
+---
+
 ## Planned changes
 
 _Not built. Recorded here so this page does not quietly go stale._
 
-- **Skills unlock by rung.** Milestone 8c gates skill count on both axes: tier sets a ceiling
-  (common 2, legendary 3, ascended 4) and ascension rungs unlock up to it — the second skill at
-  `elite`, the third at `legendary`, the fourth at `ascended`. Those are **absolute rarities**, so
-  an ascended-tier character starting at `elite` arrives with its second skill already unlocked;
-  that head start is deliberate and is recorded in [milestone 8c](milestones.md). The ultimate is
-  never gated. This makes a rung the most valuable thing in the game — a skill is worth more than
-  any stat multiplier — and it is the strongest available answer to "ascensions should feel more
-  dramatic".
 - **`perAscension` gets much larger.** It is `1.12` today, worth ×4.36 across the full ladder. If
   levelling is retuned toward ×10⁹ and ascension stays at ×4, the gacha stops mattering; see
   milestone 10.
-- **Ascension becomes the only individual cost.** Milestone 9's resonance carries every character
-  to the fifth-highest level for free, but **the rarity cap still binds** — so raising a cap is the
-  only way to collect more of the floor, and ascension is what the bench spends on. If towers ever
-  feel free, that cap clause is what has stopped working.
 - **Ascension costs may need to scale with chapter.** Summon crystals currently compound at ×1.25
   a stage against a flat pull price and a flat ascension price, which stops being a constraint
   entirely by chapter 2. Milestone 11 records the fix.

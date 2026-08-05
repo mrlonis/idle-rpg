@@ -22,6 +22,7 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     rarityLabel: 'Rare',
     rarityFamily: 'rare',
     level: 12,
+    resonated: false,
     levelCap: 40,
     atLevelCap: false,
     isMaxRarity: false,
@@ -228,6 +229,40 @@ describe('CharacterView', () => {
       const el = await open('/roster/rin', roster);
 
       expect(el.querySelector('.ascend__unlock')).toBeNull();
+    });
+  });
+
+  describe('the level card', () => {
+    it('explains a level nobody paid for', async () => {
+      // Without this, a character the player has spent nothing on simply shows 40 and the whole
+      // mechanic is invisible on the one screen where they are deciding what to spend next.
+      const roster = new FakeRoster();
+      roster.at({ resonated: true, level: 40 });
+      const el = await open('/roster/rin', roster);
+
+      const note = el.querySelector('.level__resonance')?.textContent?.replace(/\s+/gu, ' ').trim();
+      expect(note).toContain('Carried here by resonance');
+      expect(note).toContain('charged from 40');
+    });
+
+    it('does not promise a discount a capped character cannot collect', async () => {
+      // The flag above already says the only move left is an ascension, so a sentence about what
+      // the next level would cost is a promise this character cannot take up.
+      const roster = new FakeRoster();
+      roster.at({ resonated: true, level: 40, atLevelCap: true });
+      const el = await open('/roster/rin', roster);
+
+      const note = el.querySelector('.level__resonance')?.textContent?.replace(/\s+/gu, ' ').trim();
+      expect(note).toContain('Carried here by resonance');
+      expect(note).not.toContain('charged from');
+    });
+
+    it('stays quiet for a character levelled the ordinary way', async () => {
+      // The common case should not be asked to read an explanation of a mechanic that is not
+      // affecting it.
+      const el = await open('/roster/rin');
+
+      expect(el.querySelector('.level__resonance')).toBeNull();
     });
   });
 });

@@ -20,7 +20,8 @@
   @include t.numeric;
 }
 
-.formation {
+.formation,
+.resonance {
   @include t.card;
   padding: 0.75rem;
   display: flex;
@@ -28,10 +29,15 @@
   gap: 0.75rem;
 }
 
+.resonance {
+  gap: 0.25rem;
+}
+
 // The panel's own label and the lineup bonus's are the same thing in the same place — a quiet
 // uppercase name for a region, sitting below the screen title rather than competing with it. One
 // rule rather than two so they cannot drift into nearly-matching.
 .formation__title,
+.resonance__title,
 .lineup__label {
   margin: 0;
   font-size: 0.75rem;
@@ -127,6 +133,92 @@
   font-size: 0.75rem;
   font-weight: 600;
   @include t.numeric;
+}
+
+// The shared level, stated as a sentence. Same weight as a rank's name, because it is the one
+// line of the panel worth reading first.
+.resonance__floor {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.resonance__level {
+  color: t.$accent;
+  @include t.numeric;
+}
+
+// Who is holding it up, how many it is lifting, and what the next step costs — the supporting
+// detail, in the same voice as every other hint on this screen.
+.resonance__held,
+.resonance__carried,
+.resonance__cost,
+.resonance__hint {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.resonance__anchors {
+  margin: 0.25rem 0 0.125rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.resonance__anchor {
+  padding: 0.1875rem 0.4375rem;
+  border: 1px solid t.$border;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+}
+
+// The characters actually standing on the floor — the ones the next step charges for. The flag
+// beside them says so in words, so the tint is a scanning aid rather than the signal.
+.resonance__anchor--lagging {
+  border-color: t.$accent;
+  background: t.$accent-bg;
+  color: t.$accent;
+}
+
+.resonance__anchor-level {
+  font-weight: 600;
+  @include t.numeric;
+}
+
+.resonance__anchor-flag {
+  margin-left: 0.25rem;
+  font-size: 0.6875rem;
+  opacity: 0.85;
+}
+
+.resonance__cost {
+  @include t.numeric;
+}
+
+.resonance__hint {
+  margin-top: 0.375rem;
+}
+
+.resonance__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.button {
+  @include t.button-quiet;
+  flex: 1 1 8rem;
+  font-size: 0.875rem;
+}
+
+.button--primary {
+  @include t.button-primary;
+  flex: 1 1 8rem;
+  font-size: 0.875rem;
 }
 
 // A faction heading, in the same quiet uppercase as the formation panel's — these are labels
@@ -242,6 +334,13 @@
 .roster__copies--ready,
 .roster__ready {
   color: t.$tier-ascended;
+  font-weight: 600;
+}
+
+// A carried level, in the accent the resonance panel above already uses for the floor itself.
+// The word does the work; the colour only ties it back to where the number came from.
+.roster__carried {
+  color: t.$accent;
   font-weight: 600;
 }
 
