@@ -45,7 +45,7 @@ describe('grantCopies', () => {
     const { state, isNew } = grantCopies(run(), TEST_ALPHA, 1);
 
     expect(isNew).toBe(true);
-    expect(state.roster).toEqual([{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }]);
+    expect(state.roster).toEqual([{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }]);
   });
 
   it('starts an ascended-tier character at Elite, skipping the two cheapest rungs', () => {
@@ -74,7 +74,7 @@ describe('grantCopies', () => {
     // Nothing left to ascend, so the caller converts these to spark. Banking them would be
     // hoarding material that can never be spent.
     const state = run({
-      roster: [{ defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0 }],
+      roster: [{ defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0, gear: {} }],
     });
 
     const { state: next, overflow } = grantCopies(state, TEST_ALPHA, 3);
@@ -300,7 +300,7 @@ describe('levelUp', () => {
   });
 
   it('is a no-op for a target at or below the current level', () => {
-    const state = run({ roster: [{ defId: 'alpha', rarity: 0, level: 6, copies: 0 }] });
+    const state = run({ roster: [{ defId: 'alpha', rarity: 0, level: 6, copies: 0, gear: {} }] });
 
     const result = levelUp(state, 'alpha', 3, CURVE);
 
@@ -323,7 +323,7 @@ describe('levelUpToAffordable', () => {
 
   it('reports the cap when there is nowhere left to go', () => {
     const state = run({
-      roster: [{ defId: 'alpha', rarity: 0, level: levelCapFor(CURVE, 0), copies: 0 }],
+      roster: [{ defId: 'alpha', rarity: 0, level: levelCapFor(CURVE, 0), copies: 0, gear: {} }],
     });
 
     expect(levelUpToAffordable(state, 'alpha', CURVE)).toEqual({
@@ -351,6 +351,7 @@ describe('levelling against the resonance floor', () => {
       rarity: MAX_RARITY_INDEX,
       level,
       copies: 0,
+      gear: {},
     }));
   }
 
@@ -359,10 +360,13 @@ describe('levelling against the resonance floor', () => {
     // invested level would sell those levels back — and the first thirty of them would buy
     // nothing visible at all.
     const carried = run({
-      roster: [...anchored(30), { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0 }],
+      roster: [
+        ...anchored(30),
+        { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0, gear: {} },
+      ],
     });
     const paid = run({
-      roster: [{ defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 30, copies: 0 }],
+      roster: [{ defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 30, copies: 0, gear: {} }],
     });
 
     const one = levelUp(carried, 'alpha', 31, CURVE);
@@ -381,7 +385,10 @@ describe('levelling against the resonance floor', () => {
 
   it('is a no-op below the floor rather than a level nobody can see', () => {
     const state = run({
-      roster: [...anchored(30), { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0 }],
+      roster: [
+        ...anchored(30),
+        { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0, gear: {} },
+      ],
     });
 
     const result = levelUp(state, 'alpha', 20, CURVE);
@@ -408,6 +415,7 @@ describe('raiseResonance', () => {
       rarity: MAX_RARITY_INDEX,
       level,
       copies: 0,
+      gear: {},
     }));
   }
 
@@ -428,7 +436,7 @@ describe('raiseResonance', () => {
   it('levels only the laggard when only the laggard is holding the floor down', () => {
     const roster = [
       ...anchored(40, PARTY_SIZE - 1),
-      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0 },
+      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0, gear: {} },
     ];
     const state = run({ roster });
 
@@ -443,7 +451,7 @@ describe('raiseResonance', () => {
     // the whole derived-floor design rests on.
     const roster = [
       ...anchored(40, PARTY_SIZE - 1),
-      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0 },
+      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0, gear: {} },
     ];
 
     const result = raiseResonance(run({ roster }), 30, CURVE);
@@ -467,7 +475,7 @@ describe('raiseResonance', () => {
   it('reports the cap when no five characters can stand on the target', () => {
     const roster = [
       ...anchored(20, PARTY_SIZE - 1),
-      { defId: 'rare', rarity: 0, level: 10, copies: 0 },
+      { defId: 'rare', rarity: 0, level: 10, copies: 0, gear: {} },
     ];
 
     expect(raiseResonance(run({ roster }), 11, CURVE)).toEqual({
@@ -520,7 +528,7 @@ describe('raiseResonance', () => {
 describe('repairOwned', () => {
   it('clamps a rarity outside the ladder', () => {
     const repaired = repairOwned(
-      { defId: 'alpha', rarity: 99, level: 1, copies: 0 },
+      { defId: 'alpha', rarity: 99, level: 1, copies: 0, gear: {} },
       TEST_ALPHA,
       CURVE,
     );
@@ -530,7 +538,7 @@ describe('repairOwned', () => {
 
   it('lifts a character below its tier’s floor back onto a rung it could be on', () => {
     const repaired = repairOwned(
-      { defId: 'gamma', rarity: 0, level: 1, copies: 0 },
+      { defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {} },
       TEST_GAMMA,
       CURVE,
     );
@@ -540,7 +548,7 @@ describe('repairOwned', () => {
 
   it('clamps a level to the repaired rarity’s cap', () => {
     const repaired = repairOwned(
-      { defId: 'alpha', rarity: 0, level: 9999, copies: 0 },
+      { defId: 'alpha', rarity: 0, level: 9999, copies: 0, gear: {} },
       TEST_ALPHA,
       CURVE,
     );
@@ -550,7 +558,7 @@ describe('repairOwned', () => {
 
   it.each([-5, Number.NaN, 3.7])('repairs a copy count of %p', (copies) => {
     const repaired = repairOwned(
-      { defId: 'alpha', rarity: 0, level: 1, copies },
+      { defId: 'alpha', rarity: 0, level: 1, copies, gear: {} },
       TEST_ALPHA,
       CURVE,
     );

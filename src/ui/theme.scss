@@ -135,3 +135,45 @@ $tap-target: 2.75rem;
     color: $rarity-ascended;
   }
 }
+
+// Gear grade colours. One hue per rung of the grade ladder, ascending.
+//
+// Shared rather than declared per component because two screens draw a grade — the bag and the
+// character sheet's equipment panel — and a ladder whose colours disagreed between them would be
+// worse than no colour at all. Angular scopes component styles, so this is `@use`d rather than
+// living in a global stylesheet.
+//
+// Every one is paired with the grade's **name** in the markup. Colour is never the only carrier of
+// meaning here, which is the rule the whole palette is built on: a player who cannot distinguish
+// these still reads "Masterwork".
+//
+// Deliberately distinct from the rarity tokens above. A grade and a rarity are different ladders —
+// see docs/glossary.md, which goes to some length to keep them apart — so `relic` shares a hue with
+// `legendary` only because gold is what the top of a ladder looks like, not because they mean the
+// same thing.
+//
+// Ratios are quoted against $surface, the only background a grade name is drawn on.
+$grades: (
+  'worn': #a0a0b0,
+  // 6.1:1
+  'sturdy': #7fd1ae,
+  // 7.9:1
+  'fine': #6cb6ff,
+  // 6.9:1
+  'masterwork': #c08cf5,
+  // 5.9:1
+  'relic': #f0c674,
+); // 9.6:1
+
+// Emits `.grade` and one `.grade--<id>` per rung. Used by any screen that names a grade.
+@mixin grade-colours {
+  .grade {
+    font-weight: 700;
+  }
+
+  @each $id, $colour in $grades {
+    .grade--#{$id} {
+      color: $colour;
+    }
+  }
+}

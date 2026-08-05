@@ -1,6 +1,9 @@
+import { LowerCasePipe } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  type GearFailure,
+  type GearSlot,
   growthMultiplier,
   kitSlots,
   MAX_ENERGY,
@@ -18,8 +21,29 @@ import {
 import { characterById, GROWTH_RULES, KIT } from './content';
 import { formatAmounts, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { type GearItemView, type GearSlotView, GearService } from './gear.service';
 import { backTo } from './navigation';
 import { RosterService } from './roster.service';
+
+/**
+ * Why a gear action was refused.
+ *
+ * Exhaustive over `GearFailure` rather than partial, unlike {@link FAILURE_MESSAGES} below. A
+ * reason with no message surfaces as a button that silently does nothing, which is what returning
+ * reasons at all was meant to prevent — and gear has only nine of them, so covering them all costs
+ * nothing and makes a new one a compile error.
+ */
+const GEAR_FAILURES: Readonly<Record<GearFailure, string>> = {
+  'unknown-item': 'That piece is no longer in your bag.',
+  'unknown-character': 'That character is not in this build.',
+  'not-owned': 'You do not own this character.',
+  'wrong-archetype': 'That piece was forged for a different archetype.',
+  'item-equipped': 'That piece is being worn.',
+  'slot-empty': 'Nothing is in that slot.',
+  'max-level': 'Already at this grade’s maximum level.',
+  'material-is-target': 'A piece cannot be its own material.',
+  'insufficient-currency': 'Not enough alloy or gold.',
+};
 
 /** Why an action was refused, in words a player can act on. */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
@@ -83,13 +107,14 @@ function skillMeter(skill: SkillData): string {
  */
 @Component({
   selector: 'app-character-view',
-  imports: [RouterLink],
+  imports: [LowerCasePipe, RouterLink],
   templateUrl: './character-view.html',
   styleUrl: './character-view.scss',
 })
 export class CharacterView {
   private readonly roster = inject(RosterService);
   private readonly game = inject(GameLoopService);
+  private readonly gear = inject(GearService);
 
   /** How many characters set the shared level, for the resonance note under the level. */
   protected readonly partySize = PARTY_SIZE;
@@ -277,6 +302,49 @@ export class CharacterView {
 
   /** Faction-mates whose spares could pay the fodder half of the next rung. */
   protected readonly fodder = computed(() => this.roster.fodderFor(this.defId()));
+
+  /**
+   * The five gear slots, and what this character's gear is currently worth.
+   *
+   * `slots()` and `bonusFor()` are plain methods on the service rather than signals, because they
+   * are parameterised by a character id and a `computed` cannot take an argument. Wrapping them
+   * here is what makes them reactive: both read the run's snapshot signal internally, and that
+   * read happens inside this `computed`, so equipping a piece redraws the slot and the totals
+   * together without either being cached.
+   */
+  protected readonly gearSlots = computed<readonly GearSlotView[]>(() =>
+    this.gear.slots(this.defId()),
+  );
+
+  protected readonly gearBonus = computed(() => this.gear.bonusFor(this.defId()));
+
+  /** Which slot's picker is open, or `null`. One at a time, like the fodder list below. */
+  protected readonly openSlot = signal<GearSlot | null>(null);
+
+  protected toggleSlot(slot: GearSlot): void {
+    this.openSlot.update((open) => (open === slot ? null : slot));
+    this.message.set(null);
+  }
+
+  protected equip(slot: GearSlot, item: GearItemView): void {
+    const result = this.gear.equip(this.defId(), item.id);
+    if (result.ok) {
+      this.openSlot.set(null);
+      this.message.set(null);
+      return;
+    }
+    this.message.set(GEAR_FAILURES[result.reason]);
+  }
+
+  protected unequip(slot: GearSlot): void {
+    const result = this.gear.unequip(this.defId(), slot);
+    if (result.ok) {
+      this.openSlot.set(null);
+      this.message.set(null);
+      return;
+    }
+    this.message.set(GEAR_FAILURES[result.reason]);
+  }
 
   protected readonly walletSummary = computed(() => {
     const wallet = this.game.wallet();

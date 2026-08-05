@@ -4,18 +4,19 @@ import { num, type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric
  * The run's currencies, and the wallet that holds them.
  *
  * Milestone 1 had exactly one quantity and carried it as two fields on `GameState` —
- * `gold` and `goldPerSec`. Five currencies would be ten such fields, and every one of them
+ * `gold` and `goldPerSec`. Six currencies would be twelve such fields, and every one of them
  * would need its own line in `tick`, in `resume`, in the save encoder and in the repair
  * pass. A keyed record collapses all of that into one loop per operation, which is why the
- * flat fields are gone.
+ * flat fields are gone — and why milestone 12 adding a sixth cost one entry in one array.
  *
  * ## What each currency is for
  *
  * The three levelling currencies are deliberately **not** interchangeable, and their rates
  * are tuned far apart so each one bites at a different moment:
  *
- * - `gold` is the broad one. Levelling spends it now; gear, gear levels and the shop will
- *   spend it later. It is the fastest-accruing currency because it has the most claims on it.
+ * - `gold` is the broad one, and since milestone 12 it genuinely is: levelling, gear levels and
+ *   the forge all spend it. It is the fastest-accruing currency because it has the most claims on
+ *   it, and its level-curve coefficient is the shallowest of the three for the same reason.
  * - `xp` only ever levels characters, so it accrues more slowly — there is nothing else
  *   competing for it and no reason to be generous with a currency with one use.
  * - `essence` is the bottleneck on purpose. It is charged only at breakthrough levels, and
@@ -25,23 +26,41 @@ import { num, type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric
  *   flat base every run earns from the first minute, plus a permanent step for each first-time
  *   stage clear — see {@link SummonRateCurve} — on top of the first-clear lump. So progress is
  *   rewarded, and a player stuck on a stage never stops earning pulls.
- * - `spark` is the only currency with **no rate at all**. It exists solely as the overflow
+ * - `spark` is one of two currencies with **no rate at all**. It exists solely as the overflow
  *   valve: copies of a character already at `Ascended★5` have nothing left to ascend, so
  *   they convert here and buy something from the shop instead of evaporating.
+ * - `alloy` is the second rateless one, and it is spark's opposite number for gear: a piece the
+ *   player does not want salvages into alloy, and alloy plus gold is what enhances the pieces they
+ *   do. It has no rate because it is minted by drops rather than by time, and a rate would make
+ *   the bag fill itself.
+ *
+ * ## Why gear material is a currency rather than a pile of items
+ *
+ * "Enhance this piece using those pieces" is the shape milestone 12 was asked for, and consuming
+ * item instances directly is the obvious way to build it. It has one failure the closed form
+ * avoids: a stage clear drops gear, auto-battle clears a stage a minute, and an evening of that is
+ * thousands of item records in a save that the repair pass walks on every load. Bounding the bag
+ * then means **throwing drops away**, which is the one outcome this project's economy rules out
+ * everywhere else — a pull can never produce nothing, and neither should a fight.
+ *
+ * Salvaging into a quantity fixes both at once. The bag holds what the player chose to keep, the
+ * overflow is worth exactly what it would have been worth as fodder, and the save stays flat.
+ * `spark` is the precedent, and it is a close one: both are what a duplicate becomes when there is
+ * nothing left to do with the object itself.
  */
 
 /** Every currency the run can hold. */
-export const CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons', 'spark'] as const;
+export const CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons', 'spark', 'alloy'] as const;
 
 export type CurrencyId = (typeof CURRENCY_IDS)[number];
 
 /**
  * The currencies that accrue at a per-second rate.
  *
- * A subset rather than the whole list, because `spark` genuinely has no rate — it is minted
- * by duplicate pulls and nothing else. Keeping it out of `Rates` at the type level means the
- * offline solver cannot silently start paying it out, which is the failure this split exists
- * to prevent.
+ * A subset rather than the whole list, because two currencies genuinely have no rate: `spark` is
+ * minted by duplicate pulls and `alloy` by salvaged gear, and nothing else mints either. Keeping
+ * them out of `Rates` at the type level means the offline solver cannot silently start paying one
+ * out, which is the failure this split exists to prevent.
  */
 export const RATE_CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons'] as const;
 
@@ -58,7 +77,7 @@ export type CurrencyAmounts = Readonly<Partial<Record<CurrencyId, Numeric>>>;
 
 /** A wallet with nothing in it. A new run starts here and earns its way out. */
 export function emptyWallet(): Wallet {
-  return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO, spark: ZERO };
+  return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO, spark: ZERO, alloy: ZERO };
 }
 
 /**

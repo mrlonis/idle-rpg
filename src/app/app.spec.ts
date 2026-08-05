@@ -181,7 +181,7 @@ describe('App', () => {
         node.textContent?.trim(),
       );
 
-      expect(labels).toEqual(['Home', 'Summon', 'Roster', 'Shop']);
+      expect(labels).toEqual(['Home', 'Summon', 'Roster', 'Gear', 'Shop']);
     });
 
     it('disappears during a fight', async () => {

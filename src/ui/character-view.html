@@ -32,6 +32,102 @@
     }
   </section>
 
+  <section class="card" aria-labelledby="gear-label">
+    <h2 id="gear-label" class="section__heading">Gear</h2>
+
+    @if (gearBonus().length > 0) {
+      <ul class="gearTotals">
+        @for (bonus of gearBonus(); track bonus.stat) {
+          <li class="gearTotals__item">
+            <span class="gearTotals__label">{{ bonus.label }}</span>
+            <span class="gearTotals__value">+{{ bonus.percent }}%</span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="card__footnote">
+        Nothing equipped. Gear is a percentage of this character’s own stats, so a piece is worth
+        the same at level 1 and at level 1000.
+      </p>
+    }
+
+    <ul class="slots">
+      @for (slot of gearSlots(); track slot.slot) {
+        <li class="slot">
+          <button
+            type="button"
+            class="slot__row"
+            [attr.aria-expanded]="openSlot() === slot.slot"
+            [attr.aria-controls]="'slot-' + slot.slot"
+            (click)="toggleSlot(slot.slot)"
+          >
+            <span class="slot__name">{{ slot.label }}</span>
+            @if (slot.item; as worn) {
+              <span class="slot__worn">
+                <span class="grade grade--{{ worn.gradeId }}">{{ worn.gradeName }}</span>
+                <span class="slot__level">Lv {{ worn.level }}</span>
+                @if (worn.alignmentActive) {
+                  <span class="slot__aligned">Aligned</span>
+                }
+              </span>
+            } @else {
+              <span class="slot__empty">Empty</span>
+            }
+          </button>
+
+          @if (openSlot() === slot.slot) {
+            <div class="picker" [id]="'slot-' + slot.slot">
+              @if (slot.item) {
+                <button type="button" class="picker__remove" (click)="unequip(slot.slot)">
+                  Take off
+                </button>
+              }
+
+              @if (slot.options.length === 0) {
+                <p class="card__footnote">
+                  No spare {{ row.role }} {{ slot.label | lowercase }} pieces. Gear only fits the
+                  archetype it was forged for — anything else is enhancement material.
+                </p>
+              } @else {
+                <ul class="picker__list">
+                  @for (option of slot.options; track option.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="picker__option"
+                        (click)="equip(slot.slot, option)"
+                      >
+                        <span class="picker__identity">
+                          <span class="grade grade--{{ option.gradeId }}">{{
+                            option.gradeName
+                          }}</span>
+                          <span class="picker__level">Lv {{ option.level }}</span>
+                          @if (option.alignmentLabel; as faction) {
+                            <span class="picker__faction">{{ faction }}</span>
+                          }
+                        </span>
+                        <span class="picker__stats">
+                          @for (bonus of option.bonuses; track bonus.stat) {
+                            <span class="picker__stat">
+                              {{ bonus.label }} +{{ bonus.percent }}%
+                            </span>
+                          }
+                        </span>
+                        @if (option.wornByName; as wearer) {
+                          <span class="picker__wornBy">Currently on {{ wearer }}</span>
+                        }
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
   @if (skills().length > 0) {
     <section class="card" aria-labelledby="skills-label">
       <h2 id="skills-label" class="section__heading">Skills</h2>

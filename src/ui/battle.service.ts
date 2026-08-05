@@ -19,7 +19,15 @@ import {
   ZERO,
 } from '../core';
 import { AUTO_BATTLE_UNLOCK_CLEARS } from '../data';
-import { CHAPTERS_IN_ORDER, COMBAT, LADDER, STAGES, SUMMON_RATE_CURVE } from './content';
+import {
+  CHAPTERS_IN_ORDER,
+  COMBAT,
+  GEAR,
+  GEAR_ALIGNMENTS,
+  LADDER,
+  STAGES,
+  SUMMON_RATE_CURVE,
+} from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -635,7 +643,23 @@ export class BattleService {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
-    this.game.apply((state) => applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE));
+    // The gear bundle is what turns a win into a drop. It is optional on `applyBattleResult` so
+    // the balance sweep and the combat specs need not construct content they have no use for;
+    // here it is always supplied, and the stage kind comes off the resolved stage rather than
+    // being re-derived, because `LADDER` is chapter lengths and does not know where the
+    // mini-bosses fall.
+    // Read back off the result rather than remembered from the start of the fight. `settle` runs
+    // when the *animation* ends, which can be a minute of playback later, and a field set at the
+    // top of `fight` is one more thing that has to still be true by then. The result names the
+    // stage it was fought against, so the lookup cannot disagree with it.
+    const kind = STAGES.find((stage) => stage.id === result.stageId)?.kind ?? 'normal';
+    this.game.apply((state) =>
+      applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE, {
+        rules: GEAR,
+        factions: GEAR_ALIGNMENTS,
+        kind,
+      }),
+    );
     void this.game.persist();
 
     if (!this.isAuto()) {

@@ -11,7 +11,12 @@ import {
   type CombatRulesData,
   emptyWallet,
   type FormationData,
+  GEAR_SLOTS,
+  type GearItem,
+  type GearRulesData,
+  gearLookup,
   type GrowthData,
+  loadoutBonus,
   type KitRulesData,
   type LevelCurveData,
   levelCapFor,
@@ -74,6 +79,7 @@ import {
   ZAPHIEL,
 } from './characters';
 import { COMBAT_RULES } from './combat';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 
@@ -120,6 +126,7 @@ const growth: GrowthData = GROWTH;
 const kit: KitRulesData = KIT_RULES;
 const authoredRules: CombatRulesData = COMBAT_RULES;
 const rules: CombatRules = toCombatRules(authoredRules);
+const gearRules: GearRulesData = GEAR_RULES;
 
 /**
  * Seeds per stage.
@@ -181,18 +188,56 @@ interface Sweep {
  * `legendary` fields two — which is a real difference between the two reference parties rather
  * than an artefact of how they are built here.
  */
-function at(character: CharacterData, level: number, rarity: number): CombatantData {
+function at(
+  character: CharacterData,
+  level: number,
+  rarity: number,
+  kitted?: GearKit,
+): CombatantData {
   // The level is passed twice on purpose: the sweep fields parties at an *explicit* level, so
   // the invested level and the effective one are the same number here. Resonance can only ever
   // raise the second, which is a statement about what a player's roster costs rather than about
   // what a party of a given power can clear — the thing this file measures.
   return toBattleCombatant(
     character,
-    { defId: character.id, rarity, level, copies: 0 },
+    { defId: character.id, rarity, level, copies: 0, gear: {} },
     growth,
     kit,
     level,
+    kitted === undefined ? undefined : gearBonus(character, kitted),
   );
+}
+
+/** A full five-piece set at one grade and one enhancement level. */
+interface GearKit {
+  readonly grade: number;
+  readonly level: number;
+  /** Whether every piece happens to be aligned to the wearer's own faction. */
+  readonly aligned: boolean;
+}
+
+/**
+ * What a full set of `kitted` is worth to `character`.
+ *
+ * Built through `loadoutBonus` rather than summed here, for the reason `at()` goes through
+ * `toBattleCombatant`: the sweep has to measure the seam the game actually uses. A bonus assembled
+ * in this file would keep agreeing with itself after the real one had drifted.
+ *
+ * Five pieces of the character's own archetype, which is the only loadout the game will let a
+ * player build — the archetype gate is checked in `equip`, so a mixed-archetype set is not a party
+ * anybody could field and therefore not a tuning target.
+ */
+function gearBonus(character: CharacterData, kitted: GearKit) {
+  const pieces: GearItem[] = GEAR_SLOTS.map((slot) => ({
+    id: `${character.id}:${slot}`,
+    slot,
+    archetype: character.role,
+    grade: kitted.grade,
+    alignment: kitted.aligned ? character.faction : undefined,
+    level: kitted.level,
+  }));
+  const loadout = Object.fromEntries(pieces.map((piece) => [piece.slot, piece.id]));
+  return loadoutBonus(gearRules, loadout, gearLookup(pieces), character.faction);
 }
 
 function sweep(party: FormationData, stage: StageData, using: CombatRules = rules): Sweep {
@@ -244,10 +289,11 @@ function mono(
   back: readonly CharacterData[],
   level: number,
   rarity: number,
+  kitted?: GearKit,
 ): FormationData {
   return {
-    front: front.map((character) => at(character, legal(level, rarity), rarity)),
-    back: back.map((character) => at(character, legal(level, rarity), rarity)),
+    front: front.map((character) => at(character, legal(level, rarity), rarity, kitted)),
+    back: back.map((character) => at(character, legal(level, rarity), rarity, kitted)),
   };
 }
 
@@ -274,17 +320,40 @@ const BUILT_RARITY = RARE_PLUS;
  * moment the level ladder first stops and the ascension one starts — which is a far more honest
  * description of who finishes the hand-climbed half than a party three times further invested.
  */
-const BUILT: FormationData = {
-  front: [
-    at(BRAN, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
-    at(GNASH, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
-  ],
-  back: [
-    at(RIN, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
-    at(CELIA, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
-    at(PYRA, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
-  ],
-};
+const BUILT_FRONT = [BRAN, GNASH];
+const BUILT_BACK = [RIN, CELIA, PYRA];
+
+const BUILT: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUILT_RARITY);
+
+/**
+ * The gear a mid-game party has actually assembled, and the gear a maximal one has.
+ *
+ * Two kits rather than one, because the interesting question about a third progression axis is not
+ * "what does the ceiling look like" but "does the middle of it feel like anything".
+ *
+ * - `FOUND` is a full set of the middle grade at half its cap, unaligned. That is roughly what
+ *   falls out of clearing chapter 1 and enhancing what dropped — no shop purchases, no luck, and
+ *   no attempt to match factions.
+ * - `MAXED` is every slot at the top grade, at level 100, aligned. Nothing legal is stronger, and
+ *   it is deliberately far out of reach of {@link BUILT}'s investment: it is the ceiling this file
+ *   measures *against*, not a party anybody has at level 40.
+ */
+const FOUND: GearKit = { grade: 2, level: 30, aligned: false };
+const MAXED: GearKit = { grade: gearRules.grades.length - 1, level: 100, aligned: true };
+
+/** {@link BUILT}, wearing what chapter 1 would have handed it. */
+const FOUND_GEAR: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUILT_RARITY, FOUND);
+
+/**
+ * {@link BUILT}, wearing the best gear that exists.
+ *
+ * ⚠️ **A guard, not a tuning target**, in exactly the sense {@link BOOSTED} is one. Nothing here
+ * asserts this party should clear anything in particular. What it watches is the failure a large
+ * health and defence bonus makes likelier — a party surviving a fight it cannot win until the
+ * ninety seconds run out — and the fact that the strongest thing the game can field still has to
+ * resolve its fights.
+ */
+const MAXED_GEAR: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUILT_RARITY, MAXED);
 
 /**
  * The same five characters, invested to level 90 and four rungs up, at `legendary`.
@@ -415,12 +484,28 @@ const boostedSweeps = stages.map((stage) => ({
 const monoSweeps = MONO_FIVES.flatMap(({ faction, party }) =>
   SAMPLED.map((stage) => ({ label: `mono-${faction}`, faction, stage, ...sweep(party, stage) })),
 );
+// The two geared parties are swept over the stride for the reason the mono fives are: what they
+// measure is how much further gear carries the *same* party, which is a statement about the
+// ladder's range rather than about any one stage on it. The load-bearing assertions — zero
+// timeouts and the timer headroom — read them through `everySweep` regardless.
+const foundGearSweeps = SAMPLED.map((stage) => ({
+  label: 'found-gear',
+  stage,
+  ...sweep(FOUND_GEAR, stage),
+}));
+const maxedGearSweeps = SAMPLED.map((stage) => ({
+  label: 'maxed-gear',
+  stage,
+  ...sweep(MAXED_GEAR, stage),
+}));
 const everySweep = [
   ...starterSweeps,
   ...builtSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
+  ...foundGearSweeps,
+  ...maxedGearSweeps,
 ];
 
 /** Where the starter party is expected to stop: the healer lock. */
@@ -598,6 +683,90 @@ describe('ladder balance', () => {
     expect(longest, `longest fight ${longest.toFixed(1)}s against a ${timer}s timer`).toBeLessThan(
       timer * 0.95,
     );
+  });
+});
+
+describe('gear', () => {
+  /** The same five characters at the same investment, ungeared, over the same stages. */
+  const ungeared = SAMPLED.map((stage) => ({ stage, ...sweep(BUILT, stage) }));
+
+  const cleared = (entries: readonly { winRate: number }[]): number =>
+    entries.filter((entry) => entry.winRate >= 0.9).length;
+
+  it('carries the same party meaningfully further up the ladder', () => {
+    // The whole point of a third axis, measured rather than asserted. Gear that could not be seen
+    // in a win rate would be a number on a sheet, and this milestone's brief was explicit that a
+    // geared party should start flying through content tuned for an ungeared one.
+    expect(cleared(foundGearSweeps)).toBeGreaterThan(cleared(ungeared));
+    expect(cleared(maxedGearSweeps)).toBeGreaterThan(cleared(foundGearSweeps));
+  });
+
+  it('is a third axis rather than a replacement for the other two', () => {
+    // ⚠️ The assertion that fails if gear ever becomes the game. Levelling is worth ×10⁹ and the
+    // rung ladder ×450; gear at its absolute ceiling is worth about ×2, so a party at {@link
+    // BUILT}'s investment wearing the best gear that exists must still not out-clear a party that
+    // spent fifty levels and three rungs on top of it.
+    //
+    // If this goes red the answer is to cut the profiles in `data/gear.ts`, not to move the bar:
+    // gear that outruns investment turns every wall into a drop-table problem and deletes the
+    // reason to level anybody.
+    const investedOverSample = SAMPLED.map((stage) => ({ stage, ...sweep(INVESTED, stage) }));
+
+    expect(cleared(maxedGearSweeps)).toBeLessThan(cleared(investedOverSample));
+  });
+
+  it('never makes a fight one the party cannot finish', () => {
+    // ⚠️ The guard the health and defence halves of gear make necessary, and the same one the
+    // lineup bonus needs below. Everything that raises how long a party survives raises the
+    // chance of a party outlasting a fight it cannot win, which is the ninety-second timeout.
+    // `everySweep` covers both geared parties for this already; naming the mechanic here means a
+    // failure says which change caused it.
+    const stalled = [...foundGearSweeps, ...maxedGearSweeps]
+      .filter((entry) => entry.timedOut > 0)
+      .map((entry) => entry.stage.id);
+
+    expect(stalled).toEqual([]);
+  });
+
+  it('shortens fights rather than lengthening them', () => {
+    // The direction matters for the timer budget. Gear raises attack alongside health, so a geared
+    // party should resolve its fights *sooner* — the same argument milestone 10 made about
+    // re-authoring the archetypes. If gear ever made the mean fight longer, it would be spending
+    // headroom that milestone 8e already spent most of.
+    const meanOf = (entries: readonly { meanSeconds: number; winRate: number }[]): number => {
+      const won = entries.filter((entry) => entry.winRate >= 0.9);
+      return won.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(won.length, 1);
+    };
+
+    expect(meanOf(maxedGearSweeps)).toBeLessThan(meanOf(ungeared) * 1.1);
+  });
+
+  it('leaves the starter wall where it is', () => {
+    // ⚠️ **The single most important number in the ladder, and gear is the first thing since
+    // milestone 4 that could have moved it by accident.** Three level-1 starters clear to the
+    // stage-7 healer lock and stop, and that boundary is about *who* is fighting rather than how
+    // much they have. Drops start at stage 1, so a starter party arrives at the wall wearing
+    // whatever six stages handed it — which at the bottom of the ladder is the bottom grade at
+    // level 1, worth a few percent.
+    //
+    // Fielded here at the most generous reading of that: a full set, every slot, bottom grade,
+    // unenhanced. If a party that has not levelled anything can gear its way through the lock,
+    // the drop table is too generous at the bottom of the ladder and `gradeSoftness` is the dial.
+    const kitted: FormationData = {
+      front: [
+        at(BRAN, 1, RARE, { grade: 0, level: 1, aligned: false }),
+        at(MIRA, 1, RARE, { grade: 0, level: 1, aligned: false }),
+      ],
+      back: [at(RIN, 1, RARE, { grade: 0, level: 1, aligned: false })],
+    };
+    const lock = stages[WALL];
+
+    expect(lock).toBeDefined();
+    if (lock === undefined) {
+      return;
+    }
+
+    expect(sweep(kitted, lock).winRate).toBeLessThan(0.2);
   });
 });
 

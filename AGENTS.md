@@ -74,7 +74,32 @@ the two disagree, the code is right and both are stale.
     its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
     same `defeat` on screen, so an outcome-based version of that guard silently tests nothing. Do
     not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
-- **[docs/economy.md](docs/economy.md)** — the five currencies, income rates, the level curve,
+- **[docs/gear.md](docs/gear.md)** — the third progression axis, added in milestone 12: five slots,
+  five archetypes, a five-rung grade ladder, and an hourly forge.
+  - ⚠️ **Every gear bonus is a percentage of the wearer's own stat, never a flat quantity.** A flat
+    bonus is invisible against a levelling curve worth ×10⁹, and — the stronger argument — it is an
+    **addition**, which is exactly what the whole-board rescale identity forbids. Anything proposed
+    later that adds rather than multiplies has to answer this.
+  - ⚠️ **The defensive share of the profiles is half what it looks like it should be, and that is a
+    termination argument.** At twice the size a fully geared party ran the ninety-second clock out
+    on `c2-s23`. Sweeping the ladder at ×1, ×0.5 and ×0 defence clears 75, 74 and 74 stages — so
+    defence bought one stage in the fights the party wins and a stall in the ones it loses. Do not
+    put it back without re-running `npm run test:balance`.
+  - ⚠️ **Boots move `haste`, so gear inherits the clamp argument in `roster/stats.ts`.** The bound is
+    a percentage sized so the fastest character reaches about 236 against an `ATB_THRESHOLD` of 1000,
+    and `data/gear.spec.ts` **derives** it from the shipped profiles rather than restating it.
+  - **Archetype gating is safe where placement gating would not be**, and the distinction is the
+    whole of it: a piece the party cannot wear is **fodder**, not a dead end. This is what makes
+    `CharacterRole` load-bearing without re-opening milestone 4's "no legal party" failure. The eight
+    roles collapsed to five here; `healer` folding into `support` is the visible cost.
+  - **Alignment is a bonus, never a restriction**, and it does not favour mono-faction parties —
+    matching one character is one chance in eight either way.
+  - **The shop's stock is derived from the seed and the refresh index, never stored.** That is what
+    makes rerolling impossible rather than merely detectable, which is worth far more in a project
+    with no anti-cheat. The refresh index is supplied by `ui/`; `core/` still has no clock.
+  - **Drops roll from a derived sub-stream**, never the main one. Otherwise fighting a stage shifts
+    the gacha sequence.
+- **[docs/economy.md](docs/economy.md)** — the six currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
   income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
   coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
@@ -109,7 +134,8 @@ the two disagree, the code is right and both are stale.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures.
+  fixtures. **`SAVE_VERSION` is 1 since milestone 12**, and v0 → v1 is the first entry the chain
+  walker has ever had to walk.
 
 ## Milestones
 
@@ -219,12 +245,16 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 0 and the table is empty, and that is the current state rather than an
-    oversight.** Five versions and four migrations were collapsed into a v0 baseline while the
-    game was pre-release, on the one argument that licenses it: no save any of them wrote has ever
-    existed outside development. [saves](docs/saves.md) records the reset and the condition — a
-    player loading a save — that closes the door on repeating it. The chain walker was kept and is
-    still tested against a synthetic history, so the next real migration lands on proven code.
+  - **`SAVE_VERSION` is 1.** Five versions and four migrations were collapsed into a v0 baseline
+    while the game was pre-release, on the one argument that licenses it: no save any of them wrote
+    has ever existed outside development. [saves](docs/saves.md) records the reset and the condition
+    — a player loading a save — that closes the door on repeating it. The chain walker was kept and
+    tested against a synthetic history through the whole v0 era so that the first real migration
+    would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
+  - ⚠️ **The reset burned version numbers and v1 re-issued the first of them.** The old v1 was
+    milestone 1's gold counter; this v1 is the gear schema, and nothing can tell them apart from the
+    number alone. Safe only because no save carrying the old meaning exists outside development —
+    **not safe in general**, and the cost of re-basing that is easiest to forget.
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a

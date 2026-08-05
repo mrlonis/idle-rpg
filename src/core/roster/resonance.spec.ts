@@ -27,7 +27,7 @@ import { type OwnedCharacter } from './types';
  * was not about.
  */
 function at(defId: string, level: number, rarity = 13): OwnedCharacter {
-  return { defId, rarity, level, copies: 0 };
+  return { defId, rarity, level, copies: 0, gear: {} };
 }
 
 /** A roster of `count` characters at `level`, named `c0`, `c1`, … */

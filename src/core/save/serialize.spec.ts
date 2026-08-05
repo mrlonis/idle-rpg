@@ -31,7 +31,7 @@ describe('toSaveData', () => {
   it('encodes Numeric fields as strings and stamps the current version', () => {
     expect(toSaveData(withGold(99, '1.5e+25'))).toEqual({
       version: SAVE_VERSION,
-      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0' },
+      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
       rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
@@ -43,6 +43,9 @@ describe('toSaveData', () => {
       formation: { front: [], back: [] },
       pity: 0,
       pullCount: 0,
+      gear: [],
+      gearMinted: 0,
+      gearShop: { slot: 0, purchased: [] },
     });
   });
 
@@ -53,11 +56,13 @@ describe('toSaveData', () => {
   it('encodes the roster as plain records', () => {
     const state: GameState = {
       ...newGame({ seed: 3, nowMs: T0 }),
-      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }],
+      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} }],
       formation: { front: ['alpha'], back: [] },
     };
 
-    expect(toSaveData(state).roster).toEqual([{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }]);
+    expect(toSaveData(state).roster).toEqual([
+      { defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} },
+    ]);
     expect(toSaveData(state).formation).toEqual({ front: ['alpha'], back: [] });
   });
 });
@@ -78,7 +83,7 @@ describe('round-trip', () => {
       chapter: 2,
       stage: 6,
       clearedStages: 5,
-      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2 }],
+      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2, gear: {} }],
       formation: { front: ['gamma'], back: [] },
       pity: 22,
       pullCount: 631,
@@ -206,7 +211,12 @@ describe('fromSaveData repair', () => {
       // The stated rule, and the reason the repair pass takes a character lookup at all: an id
       // nothing can render must not survive into the UI as a crash.
       const { state, issues } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }, { defId: 'ghost' }] },
+        {
+          roster: [
+            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+            { defId: 'ghost' },
+          ],
+        },
         OPTIONS,
       );
 
@@ -218,8 +228,8 @@ describe('fromSaveData repair', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [
-            { defId: 'alpha', rarity: 0, level: 5, copies: 1 },
-            { defId: 'alpha', rarity: 3, level: 9, copies: 4 },
+            { defId: 'alpha', rarity: 0, level: 5, copies: 1, gear: {} },
+            { defId: 'alpha', rarity: 3, level: 9, copies: 4, gear: {} },
           ],
         },
         OPTIONS,
@@ -234,7 +244,7 @@ describe('fromSaveData repair', () => {
       // The one recoverable kind of damage here. Keeping it is the difference between a player
       // losing one character's progress and losing the character.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4 }] },
+        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4, gear: {} }] },
         OPTIONS,
       );
 
@@ -247,7 +257,7 @@ describe('fromSaveData repair', () => {
       // `gamma` is ascended-tier and starts at Elite. At Rare its ascension costs would be
       // computed from a rung it could never have been on.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0 }] },
+        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {} }] },
         OPTIONS,
       );
 
@@ -256,7 +266,7 @@ describe('fromSaveData repair', () => {
 
     it('clamps a level above the rarity’s cap', () => {
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0 }] },
+        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0, gear: {} }] },
         OPTIONS,
       );
 
@@ -268,7 +278,7 @@ describe('fromSaveData repair', () => {
     it('drops members who are not owned', () => {
       const { state, issues } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
           formation: { front: ['alpha', 'beta'], back: ['ghost'] },
         },
         OPTIONS,
@@ -283,7 +293,7 @@ describe('fromSaveData repair', () => {
     it('drops a repeated member rather than letting it stand in both ranks', () => {
       const { state } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
           formation: { front: ['alpha'], back: ['alpha'] },
         },
         OPTIONS,
@@ -331,5 +341,57 @@ describe('fromSaveData repair', () => {
 
   it('always returns a state stamped at the current version', () => {
     expect(fromSaveData({ version: 1 }, OPTIONS).state.version).toBe(SAVE_VERSION);
+  });
+
+  describe('the gear mint counter', () => {
+    const bagOf = (...ids: string[]) =>
+      ids.map((id) => ({ id, slot: 'chest', archetype: 'brawler', grade: 0, level: 1 }));
+
+    /**
+     * Only the issues about the counter.
+     *
+     * These fixtures are deliberately partial — a bare `{ gear, gearMinted }` — so every other
+     * field is defaulted and reported. Narrowing here keeps each assertion about the one repair
+     * it names rather than about the twenty that come free with an empty object.
+     */
+    const mintIssues = (raw: unknown) =>
+      fromSaveData(raw, OPTIONS).issues.filter((issue) => issue.field === 'gearMinted');
+
+    it('recovers a damaged counter to the highest id in the bag, reporting it once', () => {
+      // ⚠️ Reissuing a live id is the one kind of gear damage that produces a *plausible* wrong
+      // answer rather than a missing one: the next drop takes an id something is already wearing,
+      // and a loadout silently rebinds to a different object. So a damaged counter recovers to what
+      // the bag proves has been minted rather than to zero.
+      //
+      // One issue, not two. Defaulting to zero and then clamping up reaches the same number by a
+      // route that reports the same field twice, which reads as two separate things having gone
+      // wrong.
+      const raw = { gear: bagOf('g3', 'g7'), gearMinted: 'nonsense' };
+
+      expect(fromSaveData(raw, OPTIONS).state.gearMinted).toBe(7);
+      expect(mintIssues(raw)).toHaveLength(1);
+    });
+
+    it('raises a counter that has fallen behind the bag, and says so', () => {
+      const raw = { gear: bagOf('g9'), gearMinted: 2 };
+
+      expect(fromSaveData(raw, OPTIONS).state.gearMinted).toBe(9);
+      expect(mintIssues(raw)).toHaveLength(1);
+    });
+
+    it('reads the highest id rather than the bag length, since pieces get salvaged out', () => {
+      const raw = { gear: bagOf('g40'), gearMinted: 40 };
+
+      expect(fromSaveData(raw, OPTIONS).state.gearMinted).toBe(40);
+      expect(mintIssues(raw)).toEqual([]);
+    });
+
+    it('leaves a counter ahead of the bag alone', () => {
+      // The ordinary state of any run that has ever salvaged anything.
+      const raw = { gear: bagOf('g2'), gearMinted: 11 };
+
+      expect(fromSaveData(raw, OPTIONS).state.gearMinted).toBe(11);
+      expect(mintIssues(raw)).toEqual([]);
+    });
   });
 });

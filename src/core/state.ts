@@ -1,4 +1,5 @@
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
+import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
@@ -168,6 +169,32 @@ export interface GameState extends LadderPosition {
   readonly pity: number;
   /** Pulls made over the life of the run. Display only; the RNG position lives in `rng.calls`. */
   readonly pullCount: number;
+  /**
+   * Every piece of gear the run owns, equipped or not.
+   *
+   * **One list rather than a bag plus a per-character pile**, with {@link OwnedCharacter.gear}
+   * holding ids into it. An item then has exactly one home, so "is this piece equipped, and by
+   * whom" has one answer, and moving a piece between characters cannot produce two of it — which
+   * is the failure a copy-on-equip design has and only notices once somebody reports doubled
+   * stats.
+   *
+   * Unbounded in principle and bounded in practice: unequipped pieces past the authored inventory
+   * limit are auto-salvaged into `alloy`, worst first. See `core/gear/inventory.ts`.
+   */
+  readonly gear: readonly GearItem[];
+  /**
+   * How many pieces this run has ever minted, and therefore the next id.
+   *
+   * Monotonic, and never rewound when a piece is salvaged. A reissued id would silently rebind a
+   * loadout reference to a different object, which is the one kind of gear damage that produces a
+   * plausible-looking wrong answer rather than a missing one.
+   *
+   * A counter rather than an RNG draw because an id has to be unique, and a draw is unique only by
+   * luck — over an evening of auto-battle a 32-bit stream will collide.
+   */
+  readonly gearMinted: number;
+  /** Which stocking of the gear shop this run is looking at, and what it has taken from it. */
+  readonly gearShop: GearShopState;
 }
 
 export interface NewGameOptions {
@@ -198,6 +225,9 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     formation: emptyFormation(),
     pity: 0,
     pullCount: 0,
+    gear: [],
+    gearMinted: 0,
+    gearShop: emptyGearShop(),
   };
 }
 

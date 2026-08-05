@@ -307,3 +307,172 @@
 
 @include t.rarity-palette;
 @include t.tier-palette;
+
+// Gear
+//
+// The panel sits between the stat block and the skill list, which is where it belongs on the
+// page as well as in the fiction: gear modifies the block above it, and reads as a modifier
+// rather than as a second kit.
+
+.gearTotals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gearTotals__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+  font-size: 0.875rem;
+}
+
+.gearTotals__label {
+  color: t.$muted;
+}
+
+.gearTotals__value {
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  background: t.$surface-raised;
+  overflow: hidden;
+}
+
+.slot__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: t.$tap-target;
+  padding: 0.5rem 0.875rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  @include t.focus-ring;
+}
+
+.slot__name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.slot__worn {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.slot__level {
+  color: t.$muted;
+  @include t.numeric;
+}
+
+// Spelled out rather than shown as a colour or an icon: the alignment bonus is a real 30% and a
+// player has to be able to tell it is active without decoding anything.
+.slot__aligned {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.75rem;
+  background: t.$accent-bg;
+  color: t.$accent;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.slot__empty {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid t.$border;
+}
+
+.picker__remove {
+  @include t.button-quiet;
+  align-self: flex-start;
+}
+
+.picker__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.picker__option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  min-height: t.$tap-target;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  background: t.$surface;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  @include t.focus-ring;
+}
+
+.picker__identity {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.picker__level {
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.picker__faction {
+  color: t.$muted;
+  font-size: 0.75rem;
+}
+
+.picker__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.picker__wornBy {
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+@include t.grade-colours;

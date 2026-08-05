@@ -8,7 +8,8 @@ file is what prose should point at.
 
 Companion references: [attributes](attributes.md) for the stat block, [ascension](ascension.md)
 for the rung ladders, [level resonance](level-resonance.md) for the level the roster shares,
-[milestones](milestones.md) for the roadmap and the reasoning behind each decision.
+[gear](gear.md) for the third progression axis, [milestones](milestones.md) for the roadmap and the
+reasoning behind each decision.
 
 ---
 
@@ -22,6 +23,11 @@ for the rung ladders, [level resonance](level-resonance.md) for the level the ro
 | `legendary` | ✅ the middle tier  | ✅ index 4           | ✅                     |
 | `mythic`    | —                   | ✅ index 6           | ✅                     |
 | `ascended`  | ✅ the top tier     | ✅ index 8 (of 14)   | ✅                     |
+
+**A gear grade is deliberately none of these.** Milestone 12 needed a fifth ladder and named it
+`worn`, `sturdy`, `fine`, `masterwork`, `relic` precisely so the table above stays three columns
+wide. `data/gear.spec.ts` asserts no grade id is one of the words in it. If a sixth ladder ever
+arrives, do the same thing.
 
 So **"a legendary character" is ambiguous and should never be written.** Say "a legendary-tier
 character" (how it was pulled) or "a character at legendary rarity" (how far it has been
@@ -57,6 +63,29 @@ See [`core/roster/types.ts`](../src/core/roster/types.ts).
 **Rarity family** groups the fourteen rungs into five (`rare`, `elite`, `legendary`, `mythic`,
 `ascended`) for anything that treats `rare` and `rare-plus` as the same kind of thing. A `-plus`
 suffix or a star is a step _within_ a family, not a new one.
+
+---
+
+## Archetype is a role, and role became load-bearing in milestone 12
+
+**`CharacterRole` and `GearArchetype` are the same five values and the same idea**: `tank`,
+`brawler`, `mage`, `ranger`, `support`. A piece of gear names the archetype it was forged for, and
+only a character of that role may wear it.
+
+There used to be eight roles — `bruiser`, `assassin`, `sniper` and `healer` were the four that went.
+Each of the three that folded away was a statement about a **kit** rather than about a character,
+and the kit says it more precisely. `healer` folding into `support` is the one with a visible cost:
+the roster screen no longer says "healer" about the seven characters that heal.
+
+⚠️ **Role used to be inert and is not any more, and the old comment about that is about a different
+question.** "Keeping it inert is the point" was about **placement** — a role that gates which rank a
+character may stand in lets an unlucky roster reach a state with no legal party, which is why
+milestone 4 rejected role-locked ranks. Gear gating is safe because **a piece the party cannot wear
+is fodder, not a dead end**. Nothing about placement changed. See [gear](gear.md).
+
+The vocabulary lives in `core/gear/types.ts` and `roster/types.ts` re-exports it, for the reason
+`CHARACTER_TIERS` lives in `core/growth.ts`: `OwnedCharacter` carries a loadout, so `roster/` already
+depends on `gear/`, and shared vocabulary goes in the lower module to keep the graph a tree.
 
 ---
 
@@ -144,7 +173,7 @@ somewhere. It is not a character's level and nothing derives one from the other.
 | **Fodder**           | Copies of a _different_ character of the same faction, spent on the mortal ladder.                                                                                                                                                                                                                                                                                  |
 | **Base copies**      | Copies at the rarity a pull produces. Every rung's price is resolved recursively down into these, which is why ascension costs are code rather than a lookup table.                                                                                                                                                                                                 |
 | **Pity**             | The bad-luck floor on pulls. **Global, not per-banner**, and always visible. Soft pity from pull 30 at +6%/pull; hard pity at 50.                                                                                                                                                                                                                                   |
-| **Spark**            | What a copy becomes when the character is already at `ascended-5`. Late-game overflow, and the only currency with no idle rate. **Pity is the escape valve for bad luck, not the shop.**                                                                                                                                                                            |
+| **Spark**            | What a copy becomes when the character is already at `ascended-5`. Late-game overflow, and one of two currencies with no idle rate. **Pity is the escape valve for bad luck, not the shop.**                                                                                                                                                                        |
 | **Summons**          | The pull currency, called crystals in the UI. Accrues idly from the first minute of a run — the only rate that does not wait for a stage clear, and the unusual part of this game's economy.                                                                                                                                                                        |
 | **Essence**          | Charged only at breakthrough levels (every tenth) and the stingiest currency. Cheapest before level 60, most expensive by 200.                                                                                                                                                                                                                                      |
 | **Breakthrough**     | Every tenth level, where essence is charged. Rarity caps are all multiples of ten so an ascension always lands in front of one rather than stranded between two.                                                                                                                                                                                                    |
@@ -157,6 +186,10 @@ somewhere. It is not a character's level and nothing derives one from the other.
 | **Energy**           | A 0–100 bar filling from `energyRegen` plus what fighting pays, spent only on ultimates. **Opens a fight empty**, so an ultimate is a payoff rather than an opener. Replaced `mp` in 8b.                                                                                                                                                                            |
 | **Sub-stream**       | An RNG stream derived via `deriveSeed(seed, label)`. Combat draws from one so replaying a battle never shifts the pull sequence.                                                                                                                                                                                                                                    |
 | **Resume / offline** | `resume(state, nowMs)` settles time away in closed form. **There is no offline cap** — a year away pays a year.                                                                                                                                                                                                                                                     |
+| **Alloy**            | What a piece of gear becomes when it is salvaged. Spark's opposite number: the other rateless currency, and what enhancement spends alongside gold. Returns everything ever invested, so an enhancement decision is always reversible.                                                                                                                              |
+| **Grade**            | A gear piece's rung: `worn` → `relic`. Sets both its multiplier and how far it can be enhanced, and is **fixed at drop** — you find better gear rather than upgrading into it. Deliberately shares no word with tier or rarity.                                                                                                                                     |
+| **Archetype**        | Which kind of character a piece was forged for, and the same five values as `CharacterRole`. The one gate on equipping. A piece the party cannot wear is **fodder, not a dead end**.                                                                                                                                                                                |
+| **Alignment**        | The faction a gear piece pays 1.3× on. A **bonus, never a restriction** — anyone may wear anything. Does not favour mono-faction parties: matching one character is one chance in eight either way.                                                                                                                                                                 |
 | **Repair**           | Load-time fixing that clamps and defaults rather than throwing. Runs on every load, not behind a version gate. A thrown error costs a player their whole run.                                                                                                                                                                                                       |
 
 ---

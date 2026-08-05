@@ -64,13 +64,40 @@ to stop the loop and replace the in-memory state, not merely empty the slots.
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **0**, and the migration table is **empty**. Every save carries its version.
+`SAVE_VERSION` is **1**, and the migration table holds **one entry**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
 asserts every version below current has a migration registered, so that mistake fails in CI rather
-than on a device. That assertion is vacuous today and is kept for exactly that reason: it fires on
-the next bump, which is when nobody is thinking about it.
+than on a device. It was vacuous through the whole v0 era and was kept for exactly this reason — it
+fired the moment milestone 12 moved the version, which is when nobody is thinking about it.
+
+### v0 → v1: gear
+
+Purely additive. `alloy` joins the wallet, each roster entry gains what it is wearing, and three
+top-level fields carry the bag, the mint counter and the shop ledger. Every value it writes is the
+empty value for something that did not exist, so a migrated save is a run that owns no gear — which
+is exactly what it is.
+
+It does **not** try to work out what gear a returning player "should" have. There is no receipt to
+read: nothing in a v0 save records a fight that would have dropped a piece, so the honest answer is
+none and the next stage clear is where the bag starts filling. That is the opposite situation to the
+v2 → v3 rate hole below, where the surviving gold rate _was_ a receipt for progress the migration had
+silently dropped.
+
+**The alternative was to widen v0 in place, and it was declined.** Nobody outside development has
+loaded a v0 save, so it would have been legal under the same argument the reset itself ran on. The
+chain walker had been sitting proven and unused since the reset specifically so that the first real
+migration would land on tested code, and taking the free option would have deferred that to a day
+when it was urgent.
+
+⚠️ **The reset burned version numbers, and this re-issued the first of them.** The old v1 was
+milestone 1's gold counter; this v1 is the gear schema, and a build cannot tell them apart from the
+number alone — so a genuine pre-reset v1 save would now be read as a current one and repaired into
+something close to a fresh run rather than reported as unreadable. That is safe for exactly one
+reason, and it is the reason the reset was licensed: **no save carrying the old meaning has ever
+existed outside development.** It is not safe in general. It is the cost of re-basing that is easiest
+to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscovered by accident.
 
 ### The chain was re-based, once, while nobody was playing
 
@@ -93,11 +120,16 @@ next schema change.
 ⚠️ **The rule this suspends is scoped, not softened.** It now reads: _never delete or edit a
 migration once a build carrying it has reached a player._ That condition is what makes the rule
 enforceable rather than aspirational, and it is also what closes the door — the moment anyone
-outside development loads a save, the chain is permanent and the next version is v1.
+outside development loads a save, the chain is permanent.
 
-**The machinery survived the entries.** `migrate()` still walks a chain, and `migrate.spec.ts`
-still drives that walk against a synthetic history. Proven code with no callers is a far better
-position than an unproven chain walker written on the day the first real migration is urgent.
+**The next version was v1 and it arrived with gear**, as this section always said it would. See
+above.
+
+**The machinery survived the entries, and that is what it was for.** `migrate()` still walks a
+chain, and `migrate.spec.ts` still drives multi-step chaining against a synthetic history — the real
+table holds one entry, so it exercises a single step rather than a chain. Proven code with no callers
+was a far better position than an unproven chain walker written on the day the first real migration
+was urgent, which is precisely how v0 → v1 landed.
 
 ### The rules that still apply
 
@@ -139,9 +171,16 @@ and the one a player actually hits. Two jobs remain and both earn their place:
 
 ### Load-time repair is a separate thing from migration
 
-Two functions run on **every load**, not behind a version gate:
+Three functions run on **every load**, not behind a version gate:
 
 - **`grantStarters`** — covers a save arriving with an empty roster.
+- **`repairLoadouts`** — checks gear against the content this build ships. The save layer parses a
+  piece's _shape_; whether the id resolves, whether the piece sits in the slot it claims, and whether
+  its archetype still matches its wearer all need both the bag and the shipped content, and only
+  `ui/` can see both. It only ever removes what cannot be rendered, so a healthy save comes back as
+  the same object. **The archetype check is reachable with no corruption at all** — a build that
+  re-authors a character's role gets there — which is why it is a load-time repair rather than a
+  migration.
 - **`reconcileClearedStages`** — re-derives the clear count from the surviving gold rate, restores
   every rate those stages unlock, and **pays the first-clear bonus for each stage it credits.** It
   only ever raises, so a healthy save passes through by reference and is not even republished.
@@ -179,8 +218,14 @@ that prompted them:
 ## Fixtures
 
 [`src/core/save/fixtures/`](../src/core/save/fixtures/) holds one JSON save per historical
-version — `v0.json` today, since the re-base left one version — and
+version — `v0.json` and `v1.json` — and
 [`fixtures.spec.ts`](../src/core/save/fixtures.spec.ts) migrates every one of them to current.
+
+The second one is what the coverage assertion in that spec was left in place for: it fired the
+moment `SAVE_VERSION` moved, which is exactly the job it had. `v0.json` now exercises the chain
+rather than only the repair pass, and `v1.json` pins what a current save actually looks like —
+including a worn piece, an unaligned piece, and a mint counter deliberately ahead of the bag, so the
+"a counter that has fallen behind the ids in use" repair has something to read.
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a
 version is a chain nobody has proved works from that version. The coverage assertion in that spec

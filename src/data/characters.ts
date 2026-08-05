@@ -277,7 +277,7 @@ export const MIRA = {
   name: 'Mira',
   faction: 'human',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 580,
     atk: 48,
@@ -298,7 +298,7 @@ export const SEREN = {
   name: 'Seren the Oathbound',
   faction: 'human',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 545,
     atk: 54,
@@ -347,7 +347,7 @@ export const WREN = {
   name: 'Wren of the Ninth',
   faction: 'human',
   tier: 'common',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 500,
     atk: 46,
@@ -422,7 +422,7 @@ export const IVO = {
   name: 'Ivo Blacklance',
   faction: 'human',
   tier: 'legendary',
-  role: 'assassin',
+  role: 'brawler',
   stats: {
     hp: 530,
     atk: 59,
@@ -555,7 +555,7 @@ export const GRIMNA = {
   name: 'Grimna Coalsong',
   faction: 'dwarf',
   tier: 'common',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 760,
     atk: 41,
@@ -584,7 +584,7 @@ export const HEDDA = {
   name: 'Hedda Grudgebearer',
   faction: 'dwarf',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 880,
     atk: 46,
@@ -668,7 +668,7 @@ export const LYSHA = {
   name: 'Lysha Windstep',
   faction: 'elf',
   tier: 'legendary',
-  role: 'assassin',
+  role: 'brawler',
   stats: {
     hp: 385,
     atk: 66,
@@ -692,7 +692,7 @@ export const AELRINDEL = {
   name: 'Aelrindel, First Arrow',
   faction: 'elf',
   tier: 'ascended',
-  role: 'sniper',
+  role: 'ranger',
   stats: {
     hp: 350,
     atk: 70,
@@ -718,7 +718,7 @@ export const FAELEN = {
   name: 'Faelen',
   faction: 'elf',
   tier: 'common',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 455,
     atk: 50,
@@ -746,7 +746,7 @@ export const CIRIEN = {
   name: 'Cirien',
   faction: 'elf',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 560,
     atk: 55,
@@ -793,7 +793,7 @@ export const SYLVARA = {
   name: 'Sylvara Sunspear',
   faction: 'elf',
   tier: 'legendary',
-  role: 'sniper',
+  role: 'ranger',
   stats: {
     hp: 445,
     atk: 63,
@@ -820,7 +820,7 @@ export const MORTLACH = {
   name: 'Mortlach the Patient',
   faction: 'undead',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 780,
     atk: 40,
@@ -843,7 +843,7 @@ export const SABLE = {
   name: 'Sable, the Unquiet',
   faction: 'undead',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 880,
     atk: 43,
@@ -966,7 +966,7 @@ export const KARSITH = {
   name: 'Karsith the Rotcrown',
   faction: 'undead',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 960,
     atk: 49,
@@ -992,7 +992,7 @@ export const GNASH = {
   name: 'Gnash',
   faction: 'monster',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 620,
     atk: 58,
@@ -1014,7 +1014,7 @@ export const RUK = {
   name: 'Ruk the Mountain-Eater',
   faction: 'monster',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 700,
     atk: 68,
@@ -1037,7 +1037,7 @@ export const VHAROK = {
   name: "Vharok, World's Maw",
   faction: 'monster',
   tier: 'ascended',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 760,
     atk: 80,
@@ -1088,7 +1088,7 @@ export const YERRIK = {
   name: 'Yerrik',
   faction: 'monster',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 660,
     atk: 54,
@@ -1116,7 +1116,7 @@ export const GHORRAK = {
   name: 'Ghorrak the Sunderjaw',
   faction: 'monster',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 730,
     atk: 65,
@@ -1139,7 +1139,7 @@ export const OZZA = {
   name: 'Ozza Ninefang',
   faction: 'monster',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 840,
     atk: 60,
@@ -1168,7 +1168,7 @@ export const CELIA = {
   name: 'Celia of the Choir',
   faction: 'angel',
   tier: 'common',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 690,
     atk: 44,
@@ -1190,7 +1190,7 @@ export const ITHURIEL = {
   name: 'Ithuriel, Verse of Dawn',
   faction: 'angel',
   tier: 'legendary',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 740,
     atk: 48,
@@ -1219,7 +1219,7 @@ export const SERAPHINE = {
   name: 'Seraphine, the Unwavering',
   faction: 'angel',
   tier: 'ascended',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 810,
     atk: 56,
@@ -1456,7 +1456,7 @@ export const THREX = {
   name: 'Threx the Bound',
   faction: 'demon',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 640,
     atk: 48,
@@ -1517,7 +1517,7 @@ export const SANGUINE = {
   name: 'Sanguine, the Red Tithe',
   faction: 'demon',
   tier: 'legendary',
-  role: 'healer',
+  role: 'support',
   stats: {
     hp: 545,
     atk: 56,

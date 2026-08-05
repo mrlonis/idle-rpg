@@ -6,6 +6,7 @@ import {
   num,
   positionAt,
   resolveLadder,
+  SAVE_VERSION,
   type StageRewardCurveData,
   summonRatePerSecond,
   totalStages,
@@ -340,7 +341,10 @@ test.describe('a save this build cannot read', () => {
     const written = await page.evaluate((key) => localStorage.getItem(key), SAVE_KEY);
     const saved = JSON.parse(written ?? '{}') as Record<string, unknown>;
 
-    expect(saved['version']).toBe(0);
+    // Read off the constant rather than typed, so bumping the schema re-runs this rather than
+    // leaving it asserting a version the build stopped writing. Milestone 12's v1 is what made
+    // that difference real.
+    expect(saved['version']).toBe(SAVE_VERSION);
     expect(saved['chapter']).toBe(1);
     expect(saved['stage']).toBe(2);
     // The old save's gold did not survive, which is the honest half of "reset to nothing".

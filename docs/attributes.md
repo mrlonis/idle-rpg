@@ -202,6 +202,16 @@ Elves are the only faction authored with it, which is what the stat was separate
 - **Anything additive or threshold-shaped does not.** A flat bonus, or any authored constant
   compared against a scaling quantity, silently becomes a no-op. `recovery` is the worked example
   of catching one before it shipped; audit for the rest rather than waiting to notice.
+- **Gear is the second worked example, and it was designed against this rule rather than caught by
+  it.** Milestone 12 could have authored flat `+atk` on a chest piece; that is a rounding error by
+  level 400 and would have needed a second exponential to keep pace. Every gear bonus is a
+  **percentage of the wearer's own stat** instead, so it is worth the same proportion at level 1 and
+  at level 1000 and commutes with the rescale identity. See [gear](gear.md).
+- ⚠️ **`haste` has a second consumer now and the bound got tighter.** Boots move it, so the argument
+  that nothing may grow into `content.ts`'s `[1, ATB_THRESHOLD]` clamp applies to gear as well as to
+  levels. The answer is a bounded percentage rather than an exemption: the largest set in the game
+  takes the fastest character to about 236 against a threshold of 1000, and `data/gear.spec.ts`
+  derives that from the shipped profiles rather than restating it.
 - **The tier fall-off is the thing to preserve on purpose.** Common tier is meant to be a genuine
   early answer that becomes a joke at cap. Steepening every tier by the same factor preserves that
   ratio; steepening them unevenly is a retune of a central promise and should be somebody's

@@ -48,5 +48,8 @@ export function tick(state: GameState, dtMs: number): GameState {
     formation: state.formation,
     pity: state.pity,
     pullCount: state.pullCount,
+    gear: state.gear,
+    gearMinted: state.gearMinted,
+    gearShop: state.gearShop,
   };
 }

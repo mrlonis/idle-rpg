@@ -31,7 +31,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived  |
 | 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels  |
 | 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived |
-| 12  | Gear                                    | ⬜                                           |
+| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots  |
 | 13  | Settings, and the save-safety gap       | ⬜                                           |
 | 14  | Dailies, bounties and notifications     | ⬜                                           |
 | 15  | Faction towers                          | ⬜                                           |
@@ -1508,16 +1508,126 @@ was nothing to exercise: auto-battle unlocks on a clear count and everything els
 chapter-completion reward is a real idea and belongs with something to spend it on — milestone 12
 or 14.
 
-## 12. Gear
+## 12. Gear — **COMPLETE**
 
-The second progression axis, and the third leg of the power fantasy alongside levels and
-ascension. Milestone 7 records why it is owed: four places in the codebase state that gold's
-coefficient is the shallowest of the three **because** gear will spend it later, and the ladder
-extension makes gold comfortable to the point of meaninglessness.
+The third leg of the power fantasy alongside levels and ascension. Milestone 7 records why it was
+owed: four places in the codebase state that gold's coefficient is the shallowest of the three
+**because** gear will spend it later, and the ladder extension made gold comfortable to the point of
+meaninglessness.
 
-It lands here, last, because its power budget only means something against the curve from
-milestone 10 and the content shape from milestone 11. Built earlier, it gets tuned twice — and the
-second tuning would be against numbers nine orders of magnitude away from the first.
+It landed here, last, because its power budget only means something against the curve from milestone
+10 and the content shape from milestone 11. Built earlier it would have been tuned twice, and the
+second tuning would have been against numbers nine orders of magnitude away from the first.
+
+[gear](gear.md) is the current statement of the system. What belongs here is the reasoning, and the
+four decisions that were not obvious going in.
+
+Shipped: `core/gear/` (`types`, `stats`, `inventory`, `roll`, `shop`), `data/gear.ts`, a sixth
+currency, the gear screen and the character sheet's equipment panel, two new accessibility scans,
+and **save v1** — the first entry the migration chain has ever had to walk.
+
+### 1. Every bonus is a percentage, and that decision made the rest easy
+
+A flat `+400 atk` authored against a level-40 stat block is invisible against a curve worth ×10⁹, so
+flat gear needs its own exponential and then needs re-tuning every time the ladder extends. That is
+the failure milestone 10 had just finished deleting from the enemy side of the board.
+
+⚠️ **The stronger argument is the identity.** `simulate.spec.ts` asserts that scaling both sides by a
+common factor leaves the whole simulation unchanged; that is what let milestone 10 rescale everything
+by ×10⁹ without touching the ninety-second timer or the faction matrix. A percentage is a
+multiplication, so it commutes with that rescale and the identity survives untouched. **A flat bonus
+is an addition, and an addition is exactly what the identity forbids.** Anything proposed later that
+adds rather than multiplies has to answer this.
+
+### 2. The roster's eight roles became five, and role stopped being inert
+
+Gear gates on archetype, and the roster already had a `CharacterRole`. Rather than mint a parallel
+five-value enum plus a mapping to keep in sync, the eight roles were collapsed to the five the brief
+asked for — `assassin` folded into `brawler`, `sniper` into `ranger`, `healer` into `support`. All
+three were distinctions with nothing downstream of them: each is a statement about a **kit**, and the
+kit says it more precisely than a label can. This project already carries three meanings of "rarity",
+which is the argument for not adding a fourth near-synonym.
+
+⚠️ **This reverses a comment that said keeping role inert was the point**, and the reversal is
+deliberate rather than an oversight. That comment was about **placement**: a role that gates which
+rank a character may stand in lets an unlucky roster reach a state with no legal party, which is why
+milestone 4 rejected role-locked ranks. Gear gating is a different question, and the difference is
+what makes it safe — **a piece the party cannot wear is fodder, not a dead end.** It enhances
+something else at full value on the turn it drops. There is no roster this gate can make unplayable.
+
+**The cost is real and worth naming**: the roster screen no longer says "healer" about the seven
+characters that heal. What tells a player Cirien heals is Cirien's skill list.
+
+### 3. The zero-timeout guard caught a real regression, and the measurement is the interesting part
+
+The defensive half of the gear profiles was authored at twice what shipped, and the ladder sweep went
+red on `c2-s23` — a fully geared party running the ninety seconds out against a stage it could not
+beat. That is the stall class 8c's timer exists to bound, and exactly what the guard is for.
+
+The instinct was to shrink the whole gear budget. **The measurement said something better.** Sweeping
+the ladder with the defensive share at ×1, ×0.5 and ×0 clears **75, 74 and 74** stages — so defence
+was buying one stage in the fights the party wins and a ninety-second stall in the ones it loses.
+That follows from the damage formula: `atk² / (atk + def)` has sharply diminishing returns once the
+attacker's `atk` outruns the defender's `def`, which is the situation on every stage tuned above the
+party, while `def` and `hp` multiply each other to extend a fight nobody is going to win.
+
+Halving defence keeps it as an identity — a tank's is still more than twice a mage's — and took the
+longest fight in the sweep from 90.0s to 54.2s. **Scaling the whole budget would not have worked**:
+the probe shows ×0.5 and ×0.65 both stall somewhere too, because a party sitting exactly at its
+damage threshold against a stage always produces some long fights. The dial was the ratio, not the
+size.
+
+⚠️ Worth keeping: **win rate near a damage threshold is a step function**, which 8e already recorded
+about the matchup matrix. A continuous power dial like gear will always land some configuration on a
+threshold; what the guard is really asserting is that no _reference_ party does.
+
+### 4. Gear material is a currency, because the alternative throws drops away
+
+"Enhance this piece using those pieces" was the brief, and consuming item instances directly is the
+obvious build. It has one failure: auto-battle clears a stage a minute and every clear drops, so an
+evening is thousands of item records in a save the repair pass walks on every load. Bounding the bag
+then means **throwing drops away**, which is the one outcome this project's economy rules out
+everywhere else — a pull can never produce nothing, and neither should a fight.
+
+`alloy` is the sixth currency and the second with no idle rate. Spark is the precedent and a close
+one: both are what a duplicate becomes when there is nothing left to do with the object itself. The
+bag holds what the player chose to keep, overflow is worth exactly what it would have been as fodder,
+and the screen still offers the action as one tap.
+
+**It cost the offline invariant its timeout margin**, which is worth recording because it is the kind
+of thing that looks like a flake. `credit` loops over the wallet, so a sixth currency is 13% more work
+in the hot path — measured at 313ms → 354ms uninstrumented — and `offline.spec.ts`'s 360,000-tick
+replay was already at ~98% of vitest's 5s default under v8 coverage. The case now carries an explicit
+30s timeout. **Do not shrink the replay to fit**; the step count is what makes the project's
+highest-value invariant mean anything.
+
+### The save chain has its first real migration
+
+`SAVE_VERSION` went 0 → 1, purely additive. The alternative was to widen v0 in place — nobody outside
+development has loaded one, so it would have been legal under the same argument the reset itself ran
+on — and it was declined. **The chain walker has been sitting proven and unused since the reset
+specifically so the first real migration would land on tested code**, and taking the free option here
+would have deferred that to a day when it was urgent.
+
+⚠️ **The reset burned version numbers and this re-issued the first of them.** The old v1 was milestone
+1's gold counter; this v1 is the gear schema, and a build cannot tell them apart from the number
+alone. That is safe for exactly one reason, and it is the reason the reset was licensed: no save
+carrying the old meaning has ever existed outside development. It is **not safe in general**, and it
+is the cost of re-basing that is easiest to forget. `migrate.spec.ts` states it as behaviour so it
+cannot be rediscovered by accident.
+
+### What this leaves for later
+
+**Enemies wear no gear, and are not planned to until chapter 10** — which does not exist. That is the
+point of the milestone rather than a gap: a geared party flies through content tuned for an ungeared
+one, which is what makes gear feel like progress. When chapter 10 arrives, the shape to reach for is
+the one milestone 10 established — fold the expected gear budget into the enemy's stat block or its
+level, rather than building a second equipment system on that side of the board.
+
+**Nothing chapter-gated arrived with it.** Milestone 11 left "a chapter-completion reward is a real
+idea and belongs with something to spend it on — milestone 12 or 14". Gear gave it something to spend
+on and it still was not built, because a chapter boss already pays four drops and a crystal
+multiplier. It belongs with 14's claim ledger, which is the machinery it actually needs.
 
 ## 13. Settings, and the save-safety gap
 

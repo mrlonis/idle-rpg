@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v0 from './fixtures/v0.json';
+import v1 from './fixtures/v1.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -18,17 +19,21 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * **There is one fixture today because there is one version.** The chain was re-based to a v0
- * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — so v1
- * through v5 and their four migrations no longer exist to be exercised. That makes this file
- * briefly thin and it is not a reason to delete it: the first time `SAVE_VERSION` moves, the
- * coverage assertion below is what fails if a fixture is not added with it.
+ * **There are two, and the second one is the point.** The chain was re-based to a v0 baseline while
+ * the game was still pre-release — see [saves](../../../docs/saves.md) — leaving this file with a
+ * single fixture and nothing to walk. Milestone 12 added gear and with it the v0 → v1 migration, so
+ * the v0 fixture now exercises the chain rather than only the repair pass, and the v1 fixture pins
+ * what a current save actually looks like. The coverage assertion below is what caught the missing
+ * fixture the moment `SAVE_VERSION` moved, which is exactly the job it was left here to do.
  *
  * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
  * type-checks. Registering a new fixture is two lines.
  */
-const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([[0, v0]]);
+const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
+  [0, v0],
+  [1, v1],
+]);
 
 const OPTIONS: RepairOptions = {
   fallbackSeed: 1,
@@ -113,9 +118,9 @@ describe('v0 fixture contents', () => {
     const { state } = loadSave(v0, OPTIONS);
 
     expect(state.roster).toEqual([
-      { defId: 'alpha', rarity: 4, level: 46, copies: 11 },
-      { defId: 'beta', rarity: 2, level: 22, copies: 3 },
-      { defId: 'gamma', rarity: 3, level: 31, copies: 6 },
+      { defId: 'alpha', rarity: 4, level: 46, copies: 11, gear: {} },
+      { defId: 'beta', rarity: 2, level: 22, copies: 3, gear: {} },
+      { defId: 'gamma', rarity: 3, level: 31, copies: 6, gear: {} },
     ]);
   });
 

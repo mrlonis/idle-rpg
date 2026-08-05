@@ -4,9 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { describe, expect, it } from 'vitest';
-import { emptyWallet, type FodderOption } from '../core';
+import { emptyWallet, type FodderOption, GEAR_SLOTS } from '../core';
 import { CharacterView } from './character-view';
 import { GameLoopService } from './game-loop.service';
+import { type GearBonusView, GearService, type GearSlotView } from './gear.service';
 import { type RosterEntryView, RosterService } from './roster.service';
 
 /** One owned row. `rin` and `wren` are real ids, because the sheet resolves its own definition. */
@@ -64,6 +65,28 @@ class FakeGameLoop {
 }
 
 /**
+ * The gear panel's seam, faked for the same reason `RosterService` is: the real one reaches for
+ * the shipped roster and the whole grade ladder, and the sheet's job is to render what it is
+ * handed rather than to resolve it.
+ *
+ * Empty slots by default. Every test here is about the level card, the skill list or the back
+ * link, and the gear panel's own behaviour belongs with the gear screen.
+ */
+class FakeGear {
+  readonly slotViews = signal<readonly GearSlotView[]>(
+    GEAR_SLOTS.map((slot) => ({ slot, label: slot, item: null, options: [] })),
+  );
+
+  slots(): readonly GearSlotView[] {
+    return this.slotViews();
+  }
+
+  bonusFor(): readonly GearBonusView[] {
+    return [];
+  }
+}
+
+/**
  * Renders the sheet by **navigating** to it rather than by setting inputs.
  *
  * The whole feature under test is that the router hands `from` to the component the same way it
@@ -81,6 +104,7 @@ async function open(url: string, roster: FakeRoster = new FakeRoster()) {
       provideLocationMocks(),
       { provide: RosterService, useValue: roster },
       { provide: GameLoopService, useValue: new FakeGameLoop() },
+      { provide: GearService, useValue: new FakeGear() },
     ],
   }).compileComponents();
 

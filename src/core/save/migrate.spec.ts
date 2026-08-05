@@ -78,19 +78,36 @@ describe('migrate', () => {
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it.each([1, 2, 3, 4, 5])('discards a v%i save from before the baseline', (version) => {
+  it.each([2, 3, 4, 5])('discards a v%i save from before the baseline', (version) => {
     // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
     // collapsed into v0 while the game was pre-release, so a save written by any of them has no
     // path to current and never will. It reads as newer-than-supported because the numbers were
     // re-based; either way `loadSave` turns it into a fresh run, which is the whole intent.
     expect(() => migrate({ version })).toThrow();
   });
+
+  it('reads version 1 as the gear schema, not as the pre-baseline v1', () => {
+    // ⚠️ **The reset burned version numbers, and milestone 12 re-issued the first of them.** The
+    // old v1 was milestone 1's gold counter; this v1 is the gear schema, and a build cannot tell
+    // the two apart from the number alone — so a genuine pre-reset v1 save would now be read as a
+    // current one and repaired into something close to a fresh run rather than reported as
+    // unreadable.
+    //
+    // That is safe here for exactly one reason, and it is the same reason the reset itself was
+    // licensed: **no save carrying the old meaning has ever existed outside development.** It is
+    // not safe in general, and it is the cost of re-basing that is easiest to forget — every
+    // number below `SAVE_VERSION` now means something different from what it meant before the
+    // reset. Nothing else may be re-issued once a build reaches a player.
+    expect(() => migrate({ version: 1 })).not.toThrow();
+    expect(migrate({ version: 1 })).toEqual({ version: 1 });
+  });
 });
 
 describe('migration chaining', () => {
-  // The real MIGRATIONS map is empty, so these drive the real `migrate` walk with a synthetic
-  // history. The algorithm is therefore covered before there is any history to migrate — on the
-  // day a v1 first ships, the chaining logic is already known good.
+  // A synthetic history rather than the real MIGRATIONS map, which now holds one entry and so
+  // exercises a single step rather than a chain. Multi-step chaining is what has to keep working
+  // and what nothing shipped can currently demonstrate, so it is driven from here — through the
+  // real `migrate` walk, with a table of its own.
   //
   // **This block is why the walker survived the v0 reset rather than being deleted with the four
   // migrations it used to run.** It is proven machinery with no callers, which is a far better

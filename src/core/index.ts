@@ -55,7 +55,7 @@ export {
   statusChance,
   type AttackRoll,
 } from './battle/damage';
-export { applyBattleResult, reconcileClearedStages } from './battle/progress';
+export { applyBattleResult, reconcileClearedStages, type GearAward } from './battle/progress';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
@@ -159,6 +159,87 @@ export {
   type SummonRateCurve,
   type Wallet,
 } from './currency';
+export {
+  addGear,
+  alloyStep,
+  canEnhance,
+  enhance,
+  enhanceCost,
+  enhanceToAffordable,
+  equip,
+  equippedBy,
+  findGear,
+  gearId,
+  goldStep,
+  investedAlloy,
+  loadoutOf,
+  repairLoadouts,
+  salvage,
+  salvageValue,
+  unequip,
+  unequippedGear,
+  useAsMaterial,
+  type GearFailure,
+  type GearResult,
+  type GearSpec,
+} from './gear/inventory';
+export {
+  dropCount,
+  gradeWeights,
+  rollDrops,
+  rollGear,
+  weightedIndex,
+  type Draw,
+} from './gear/roll';
+export {
+  buyGear,
+  gearShopOffers,
+  gearShopSlot,
+  msUntilRestock,
+  offerPrice,
+  type GearShopFailure,
+  type GearShopResult,
+} from './gear/shop';
+export {
+  applyGearBonus,
+  clampGearLevel,
+  clampGradeIndex,
+  gearLookup,
+  gearProfile,
+  gearScale,
+  gradeAt,
+  isAligned,
+  isNeutralBonus,
+  itemBonus,
+  loadoutBonus,
+  maxGearLevel,
+  maxLoadoutBonus,
+  type GearLookup,
+} from './gear/stats';
+export {
+  emptyGearShop,
+  emptyLoadout,
+  GEAR_ARCHETYPES,
+  GEAR_SLOTS,
+  GEAR_STATS,
+  loadoutItems,
+  NO_GEAR_BONUS,
+  type GearAlignment,
+  type GearArchetype,
+  type GearBonus,
+  type GearDropData,
+  type GearEnhanceData,
+  type GearGradeData,
+  type GearItem,
+  type GearLoadout,
+  type GearOffer,
+  type GearRulesData,
+  type GearShopData,
+  type GearShopState,
+  type GearSlot,
+  type GearStat,
+  type GearStatProfile,
+} from './gear/types';
 export { CHARACTER_TIERS, growthAt, type CharacterTier, type GrowthData } from './growth';
 export { ascendedChance, pull } from './gacha/pull';
 export {
@@ -257,6 +338,7 @@ export {
   type AscensionRequirement,
   type AscensionRules,
   type AscensionScope,
+  CHARACTER_ROLES,
   type CharacterData,
   type CharacterRole,
   type CopyCost,
@@ -295,7 +377,12 @@ export {
   type Migration,
   type RawSave,
 } from './save/migrate';
-export { type AnySaveData, type CurrentSaveData, type SaveDataV0 } from './save/schema';
+export {
+  type AnySaveData,
+  type CurrentSaveData,
+  type SaveDataV0,
+  type SaveDataV1,
+} from './save/schema';
 export {
   fromSaveData,
   toSaveData,
