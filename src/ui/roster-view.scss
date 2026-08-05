@@ -28,7 +28,11 @@
   gap: 0.75rem;
 }
 
-.formation__title {
+// The panel's own label and the lineup bonus's are the same thing in the same place — a quiet
+// uppercase name for a region, sitting below the screen title rather than competing with it. One
+// rule rather than two so they cannot drift into nearly-matching.
+.formation__title,
+.lineup__label {
   margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
@@ -37,25 +41,44 @@
   color: t.$muted;
 }
 
-.rank__label {
+// A rank's name and the composition the lineup bonus resolved to: both the one line of the block
+// worth reading first.
+.rank__label,
+.lineup__shape {
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
 }
 
-.rank__hint {
+.lineup__shape {
+  margin-top: 0.25rem;
+}
+
+// What a rank is worth, and what the wildcard is for. Same voice, so the same styling.
+.rank__hint,
+.lineup__hint {
   margin: 0.125rem 0 0.375rem;
   font-size: 0.75rem;
   color: t.$muted;
 }
 
-.rank__slots {
+.lineup__hint {
+  margin: 0.375rem 0 0;
+}
+
+// A row of small things that wraps: the slots in a rank, and the effects a bonus is paying.
+.rank__slots,
+.lineup__effects {
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
+}
+
+.lineup__effects {
+  margin-top: 0.375rem;
 }
 
 .slot {
@@ -84,6 +107,26 @@
   font-size: 0.6875rem;
   color: t.$muted;
   text-transform: capitalize;
+}
+
+// The lineup bonus, sitting under the two ranks it describes. Separated by a rule rather than by
+// a card of its own: it is a property of the formation above it, not a second panel.
+.lineup {
+  border-top: 1px solid t.$border;
+  padding-top: 0.625rem;
+}
+
+// The accent palette, which is the same one the roster uses for "ready to ascend": both mean
+// "something good is available here". The text says what it is, so the colour is never the only
+// signal.
+.lineup__effect {
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 0.375rem;
+  background: t.$accent-bg;
+  color: t.$accent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  @include t.numeric;
 }
 
 // A faction heading, in the same quiet uppercase as the formation panel's — these are labels

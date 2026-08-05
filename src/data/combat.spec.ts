@@ -3,16 +3,31 @@
 // for the same reason `core/` does.
 import { describe, expect, it } from 'vitest';
 import {
+  applyLineupBonus,
+  ATB_THRESHOLD,
   type CombatRulesData,
   type FactionMatchupData,
+  type LineupRulesData,
+  type LineupTierData,
+  lineupBonus,
   MAX_PENETRATION,
   MAX_RESIST,
   matchupKey,
+  PARTY_SIZE,
   type SkillData,
   toCombatRules,
+  toCombatStats,
 } from '../core';
 import { FACTIONS } from './ascension';
-import { BASIC_ATTACK, COMBAT_RULES, FACTION_MATCHUPS, ROW_BONUSES } from './combat';
+import {
+  BASIC_ATTACK,
+  COMBAT_RULES,
+  FACTION_MATCHUPS,
+  LINEUP_BONUSES,
+  LINEUP_INJURED_BELOW,
+  LINEUP_TIERS,
+  ROW_BONUSES,
+} from './combat';
 
 /**
  * Conformance through typed locals, as everywhere else in `data/`: the files themselves cannot
@@ -21,6 +36,8 @@ import { BASIC_ATTACK, COMBAT_RULES, FACTION_MATCHUPS, ROW_BONUSES } from './com
  */
 const authored: CombatRulesData = COMBAT_RULES;
 const matchups: readonly FactionMatchupData[] = FACTION_MATCHUPS;
+const lineup: LineupRulesData = LINEUP_BONUSES;
+const tiers: readonly LineupTierData[] = LINEUP_TIERS;
 const basic: SkillData = BASIC_ATTACK;
 const rules = toCombatRules(authored);
 
@@ -138,6 +155,155 @@ describe('row bonuses', () => {
       expect(value).toBeGreaterThan(0);
       expect(value).toBeLessThanOrEqual(0.1);
     }
+  });
+});
+
+describe('the lineup bonus', () => {
+  /** The party the shipped rules make of these factions, resolved through `core/`. */
+  const worth = (...factions: readonly string[]) => lineupBonus(factions, rules.lineup);
+
+  it('only names factions that exist', () => {
+    // The three named tracks are plain strings by design — `core/` looks factions up and never
+    // enumerates them — so a rule naming a faction that has been renamed simply stops firing.
+    // Silently. This is what makes that loud instead.
+    const known: ReadonlySet<string> = new Set(FACTIONS.map((faction) => faction.id));
+
+    expect(known.has(lineup.wildcard)).toBe(true);
+    expect(known.has(lineup.rally.faction)).toBe(true);
+    expect(known.has(lineup.ladder.faction)).toBe(true);
+  });
+
+  it('keeps the three tracks on three different factions', () => {
+    // Stacking is the design; stacking on one faction would not be. A faction holding two tracks
+    // would be strictly the best thing to field, which is the single-optimal-team failure this
+    // whole mechanic is overriding a project rule to avoid.
+    const named = [lineup.wildcard, lineup.rally.faction, lineup.ladder.faction];
+
+    expect(new Set(named).size).toBe(named.length);
+  });
+
+  it('never asks for more of a faction than a party has room for', () => {
+    // A rung nobody can reach is content that ships and never fires. `second` is what a split's
+    // other half asks for, so the two together are the whole party.
+    for (const tier of tiers) {
+      expect(tier.largest + tier.second, `${tier.largest}+${tier.second}`).toBeLessThanOrEqual(
+        PARTY_SIZE,
+      );
+    }
+    expect(lineup.ladder.steps.length).toBeLessThanOrEqual(PARTY_SIZE);
+  });
+
+  it('pays more for a bigger commitment, all the way up the ladder', () => {
+    // Derived by resolving parties rather than by re-reading the table, so this measures what a
+    // player would actually be paid. A rung that paid less than a smaller one would make the
+    // fifth member of a faction a downgrade.
+    const climb = [
+      worth('human', 'human', 'human', 'dwarf', 'elf'),
+      worth('human', 'human', 'human', 'dwarf', 'dwarf'),
+      worth('human', 'human', 'human', 'human', 'dwarf'),
+      worth('human', 'human', 'human', 'human', 'human'),
+    ].map((summary) => summary.bonus);
+
+    for (let step = 1; step < climb.length; step++) {
+      expect(climb[step].attack, `step ${step}`).toBeGreaterThanOrEqual(climb[step - 1].attack);
+      expect(climb[step].health, `step ${step}`).toBeGreaterThanOrEqual(climb[step - 1].health);
+      expect(
+        climb[step].attack + climb[step].health,
+        `step ${step} pays no more than the one below`,
+      ).toBeGreaterThan(climb[step - 1].attack + climb[step - 1].health);
+    }
+  });
+
+  it('pays a rainbow party nothing, which is what makes the ladder a decision', () => {
+    const rainbow = worth('human', 'dwarf', 'elf', 'undead', 'monster');
+
+    // Except the Monster share, which is per member and therefore has no threshold to miss.
+    expect(rainbow.tier).toBeNull();
+    expect(rainbow.bonus.attack).toBeCloseTo(lineup.rally.attack);
+  });
+
+  it('lets Angels stand in for a mono five, which is the roster’s only route to one today', () => {
+    // ⚠️ The bad-luck failure mode milestone 8e exists to close, pinned here so it is a measured
+    // fact rather than a claim in a document. Four Humans is the deepest faction on the roster,
+    // and every faction is three deep or less otherwise — so without the wildcard, the top of
+    // this ladder is unreachable, and the wildcard walks the luck-only ascension path.
+    const filled = worth('human', 'human', 'human', 'angel', 'angel');
+
+    expect(filled.tier?.faction).toBe('human');
+    expect(filled.tier?.count).toBe(PARTY_SIZE);
+    expect(filled.bonus.attack).toBe(tiers[tiers.length - 1].attack);
+  });
+
+  it('keeps the wildcard off the other two tracks', () => {
+    const angels = worth('angel', 'angel', 'angel', 'angel', 'angel');
+
+    expect(angels.rallyCount).toBe(0);
+    expect(angels.ladderCount).toBe(0);
+    // It is still five of a faction, so the composition ladder pays in full.
+    expect(angels.tier?.count).toBe(PARTY_SIZE);
+  });
+
+  it('opens the Demon track on the stat its own faction is worst at', () => {
+    // One Demon is worth fielding next to anything, which is what stops the track being all or
+    // nothing — and defence is the right opener because the roster's Demons are glass.
+    const one = worth('demon', 'human', 'dwarf', 'elf', 'undead');
+
+    expect(one.bonus.defence).toBeGreaterThan(0);
+    expect(one.bonus.haste).toBe(0);
+  });
+
+  it('makes the Demon track cumulative rather than a choice of one rung', () => {
+    const full = worth('demon', 'demon', 'demon', 'demon', 'demon');
+    const three = worth('demon', 'demon', 'demon', 'human', 'dwarf');
+
+    expect(full.bonus.defence).toBe(three.bonus.defence);
+    expect(full.bonus.critChance).toBe(three.bonus.critChance);
+    expect(full.bonus.haste).toBeGreaterThan(three.bonus.haste);
+  });
+
+  it('respects the haste clamp with the largest party the track can be fielded by', () => {
+    // ⚠️ A termination argument rather than a balance one. The slowest thing in the game plus the
+    // whole track still has to sit inside the gauge bound, or a combatant banks two actions in a
+    // single tick and turn ordering stops meaning anything.
+    const slowest = toCombatStats({
+      hp: 1,
+      atk: 1,
+      def: 1,
+      haste: 1,
+      critChance: 0,
+      critDamageAmp: 0,
+    });
+    const fastest = toCombatStats({
+      hp: 1,
+      atk: 1,
+      def: 1,
+      haste: ATB_THRESHOLD,
+      critChance: 0,
+      critDamageAmp: 0,
+    });
+    const bonus = worth('demon', 'demon', 'demon', 'demon', 'demon').bonus;
+
+    expect(applyLineupBonus(slowest, bonus).haste).toBeGreaterThanOrEqual(1);
+    expect(applyLineupBonus(fastest, bonus).haste).toBeLessThanOrEqual(ATB_THRESHOLD);
+  });
+
+  it('agrees with the roster about when a character counts as injured', () => {
+    // The Demon track's energy clause is a comeback mechanic, and a comeback mechanic that
+    // disagreed with every `self-hurt` skill in the game about what "hurt" means would be a
+    // second definition nobody asked for.
+    expect(rules.lineup.injuredBelow).toBe(LINEUP_INJURED_BELOW);
+    expect(LINEUP_INJURED_BELOW).toBeGreaterThan(0);
+    expect(LINEUP_INJURED_BELOW).toBeLessThan(1);
+  });
+
+  it('is worth several times a matchup edge, because it asks for the whole party', () => {
+    // The relationship the milestone's design note is about. A matchup is a tiebreaker you get
+    // for free; the top of this ladder costs all five slots, so it has to be worth visibly more
+    // or nobody would ever build for it.
+    const biggestEdge = Math.max(...matchups.map((matchup) => matchup.multiplier)) - 1;
+    const top = worth('human', 'human', 'human', 'human', 'human').bonus;
+
+    expect(top.attack).toBeGreaterThan(biggestEdge * 2);
   });
 });
 

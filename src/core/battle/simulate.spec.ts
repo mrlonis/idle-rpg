@@ -6,7 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { MAX_BATTLE_TICKS, ticksToMs } from './clock';
-import { PLAIN_COMBAT_RULES, TEST_COMBAT_RULES } from './fixtures';
+import { toCombatRules } from './content';
+import {
+  LINEUP_COMBAT_RULES,
+  LINEUP_COMBAT_RULES_DATA,
+  PLAIN_COMBAT_RULES,
+  TEST_COMBAT_RULES,
+} from './fixtures';
 import { battleSeed, simulateBattle } from './simulate';
 import {
   type ActiveStatus,
@@ -1154,6 +1160,90 @@ describe('simulateBattle', () => {
       expect(result.durationMs).toBe(ticksToMs(result.ticks));
       expect(result.durationMs).toBe(ticksToMs(15));
     });
+  });
+});
+
+describe('the lineup bonus in a battle', () => {
+  /** Two of a faction is the fixture ladder's only rung, and it doubles attack and health. */
+  const pair = (faction: string, stats: Partial<StatBlockData> = {}): FormationData =>
+    line([unit('a', stats, { faction }), unit('b', stats, { faction })]);
+
+  it('multiplies the opening health of a party that qualified', () => {
+    const qualified = fight(pair('same'), stage(line([unit('foe')])), SEED, LINEUP_COMBAT_RULES);
+    const rainbow = fight(
+      line([unit('a', {}, { faction: 'one' }), unit('b', {}, { faction: 'two' })]),
+      stage(line([unit('foe')])),
+      SEED,
+      LINEUP_COMBAT_RULES,
+    );
+
+    const health = (result: BattleResult): Numeric =>
+      result.roster.find((combatant) => combatant.side === 'ally')?.maxHp ?? ZERO;
+
+    expect(health(qualified).eq(health(rainbow).mul(2))).toBe(true);
+  });
+
+  it('does not pay one to the enemy formation', () => {
+    // ⚠️ The decision `buildSide` documents, pinned. An enemy line-up is authored, so a bonus
+    // derived from it is a stat block with a hidden step — and a symmetric rule would silently
+    // retune every stage on the ladder, hardest at the mono-faction end where it is easiest.
+    const foes = line([
+      unit('foe', {}, { faction: 'same' }),
+      unit('foe2', {}, { faction: 'same' }),
+    ]);
+    const withBonus = fight(line([unit('hero')]), stage(foes), SEED, LINEUP_COMBAT_RULES);
+    const without = fight(line([unit('hero')]), stage(foes), SEED, PLAIN_COMBAT_RULES);
+
+    const enemyHealth = (result: BattleResult): string =>
+      result.roster
+        .filter((c) => c.side === 'enemy')
+        .map((c) => c.maxHp.toString())
+        .join(',');
+
+    expect(enemyHealth(withBonus)).toBe(enemyHealth(without));
+  });
+
+  it('pays the injured-energy clause only once health has actually fallen', () => {
+    // The one clause that cannot be folded into a stat block, so it is the one that needs a
+    // battle to test rather than a call to `applyLineupBonus`.
+    //
+    // Measured by varying **only the threshold**, against one party and one seed. These units
+    // have no ultimate, so energy is never spent and never changes a decision — the two runs are
+    // therefore the same fight tick for tick, and every difference in the numbers below is the
+    // clause and nothing else. What a fight pays is zeroed out for the same reason: with the drip
+    // as the only source, the meter is a direct readout of the thing under test.
+    const threshold = (injuredBelow: number): CombatRules =>
+      toCombatRules({
+        ...LINEUP_COMBAT_RULES_DATA,
+        energy: { onHit: 0, onHurt: 0, onHeal: 0 },
+        lineup: { ...LINEUP_COMBAT_RULES_DATA.lineup, injuredBelow },
+      });
+
+    // Two of the ladder faction, which is what the fixture's second step asks for.
+    const party = line([
+      unit('a', { hp: 300, energyRegen: 3 }, { faction: 'ladder' }),
+      unit('b', { hp: 300, energyRegen: 3 }, { faction: 'ladder' }),
+    ]);
+    const encounter = stage(line([unit('foe', { hp: 1500, atk: 30 })]));
+
+    const drip = (rules: CombatRules): readonly number[] =>
+      fight(party, encounter, SEED, rules)
+        .events.filter((event) => event.kind === 'turn' && event.combatant === 'ally-0')
+        .map((event) => (event.kind === 'turn' ? event.energy : 0));
+
+    // A threshold of zero is a combatant that can never be below it, which disables the clause
+    // outright — the same reading `toLineupRules` gives a damaged value.
+    const never = drip(threshold(0));
+    const injured = drip(threshold(0.5));
+
+    expect(injured.length).toBe(never.length);
+    // Full health at the opening bell, so the first turn is the authored drip either way.
+    expect(injured[0]).toBe(never[0]);
+    // Never behind, and ahead somewhere: the clause only ever adds, and it does add. Asserted as
+    // "somewhere" rather than "at the end" because the bar is capped — two meters that both
+    // reached full would agree again, which says nothing about how they got there.
+    expect(injured.every((energy, turn) => energy >= never[turn])).toBe(true);
+    expect(injured.some((energy, turn) => energy > never[turn])).toBe(true);
   });
 });
 

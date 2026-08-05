@@ -9,7 +9,13 @@ what may scale", and they are not tuning knobs.
 
 Milestone 8a rewrote this page and 8b replaced `mp`/`mpRegen` with `energyRegen`. See
 [glossary](glossary.md) for the vocabulary and [milestones](milestones.md) for the reasoning behind
-the rework, including what 8c and 8d still owe.
+the rework.
+
+**Three things now modify a stat block before a fight starts, and they apply in this order:** the
+authored block is parsed and clamped, then the **row bonus** for where the character stands, then
+the **lineup bonus** for the party's faction composition (8d, party side only — see
+[combat](combat.md)). Every one of them re-clamps what it touches, which is why the guards below
+are stated as properties of the block rather than of the authoring.
 
 ---
 

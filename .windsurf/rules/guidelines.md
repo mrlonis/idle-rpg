@@ -332,6 +332,22 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   encounter, while a matchup multiplier is a statement about the fight in front of you. Keep
   matchup edges small — five to ten percent — so they decide a fight that was already close
   rather than carrying a party that brought the wrong answer.
+  - **Milestone 8d overrode the first half of that rule, once, knowingly, and the override does
+    not generalise.** The faction lineup bonus in [`data/combat.ts`](../../src/data/combat.ts) pays a
+    party for its own composition, which is exactly the pattern above. It survives on one
+    argument: **a mono-faction bonus does not create one optimal team, it creates seven**, and
+    which of the seven to bring is decided by the matchup — so it is still a statement about the
+    fight in front of you. Any _new_ proposal of this shape has to make that argument on its own
+    merits; "8d did it" is not the argument. A bonus for a set of specific characters, or for a
+    role mix, or for anything that resolves to one best answer, is still the thing the rule
+    forbids.
+  - The premise is **not true yet**, and it is worth knowing which part is owed. A mono-faction
+    five is unreachable in every faction on the current twenty-three characters without spending
+    Angels as wildcards, so today a player fields whatever composition they can reach and the
+    matchup decides nothing. Milestone 8e authors the roster that makes the choice real, and
+    resizing the matchup edges is **its** job rather than 8d's — sized against a roster that does
+    not exist yet, any number picked now is guesswork. `data/stages.balance.ts` records this as a
+    test rather than as a note.
 - Check the scaling curve against float64's safe range (9e15) before committing to it. Add
   `break_infinity.js` only if the curve actually demands it.
 

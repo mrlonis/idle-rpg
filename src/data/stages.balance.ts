@@ -20,7 +20,19 @@ import {
   toCombatRules,
   unlockedSkills,
 } from '../core';
-import { BRAN, CELIA, GNASH, KORRIN, MIRA, PYRA, RIN, THRAUN } from './characters';
+import {
+  AZRATHOTH,
+  BRAN,
+  CELIA,
+  GNASH,
+  ITHURIEL,
+  KORRIN,
+  MALAKAR,
+  MIRA,
+  PYRA,
+  RIN,
+  THRAUN,
+} from './characters';
 import { COMBAT_RULES } from './combat';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
@@ -104,7 +116,7 @@ function at(character: CharacterData, level: number, rarity: number): CombatantD
   );
 }
 
-function sweep(party: FormationData, stage: StageData): Sweep {
+function sweep(party: FormationData, stage: StageData, using: CombatRules = rules): Sweep {
   let wins = 0;
   let timedOut = 0;
   let ticks = 0;
@@ -112,7 +124,7 @@ function sweep(party: FormationData, stage: StageData): Sweep {
   let survivors = 0;
 
   for (let attempt = 0; attempt < TRIALS; attempt++) {
-    const result = simulateBattle(party, stage, battleSeed(0xc0ffee, stage.id, attempt), rules);
+    const result = simulateBattle(party, stage, battleSeed(0xc0ffee, stage.id, attempt), using);
     if (result.outcome === 'victory') {
       wins++;
     }
@@ -185,10 +197,42 @@ const INVESTED: FormationData = {
   ],
 };
 
+/**
+ * The most heavily boosted party milestone 8d's lineup bonus permits, on the roster as it stands.
+ *
+ * Three Demons and two Angels. The Angels read as Demons on the composition ladder, so this is a
+ * mono-five — the top rung — *and* three rungs of the Demon track underneath it. Nothing legal
+ * stacks higher.
+ *
+ * It is here as a **guard rather than a tuning target**. Nothing asserts this party should beat
+ * anything; what it is watched for is the failure mode a bonus to health and defence makes more
+ * likely, which is a party that survives a fight it cannot win until the clock ends it.
+ */
+const BOOSTED: FormationData = {
+  front: [at(PYRA, legal(80, ELITE), ELITE), at(MALAKAR, legal(80, ELITE), ELITE)],
+  back: [
+    at(AZRATHOTH, legal(80, ELITE), ELITE),
+    at(CELIA, legal(80, ELITE), ELITE),
+    at(ITHURIEL, legal(80, ELITE), ELITE),
+  ],
+};
+
+/** The same five, with every lineup track switched off — the control the bonus is measured against. */
+const withoutLineup: CombatRules = toCombatRules({
+  ...authoredRules,
+  lineup: {
+    ...authoredRules.lineup,
+    tiers: [],
+    rally: { ...authoredRules.lineup.rally, attack: 0, health: 0 },
+    ladder: { ...authoredRules.lineup.ladder, steps: [] },
+  },
+});
+
 const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) }));
 const builtSweeps = stages.map((stage) => ({ stage, ...sweep(BUILT, stage) }));
 const investedSweeps = stages.map((stage) => ({ stage, ...sweep(INVESTED, stage) }));
-const everySweep = [...starterSweeps, ...builtSweeps, ...investedSweeps];
+const boostedSweeps = stages.map((stage) => ({ stage, ...sweep(BOOSTED, stage) }));
+const everySweep = [...starterSweeps, ...builtSweeps, ...investedSweeps, ...boostedSweeps];
 
 /** Where the starter party is expected to stop: the healer lock. */
 const WALL = stages.findIndex((stage) => stage.id === 'stage-7');
@@ -309,6 +353,58 @@ describe('ladder balance', () => {
     expect(longest, `longest fight ${longest.toFixed(1)}s against a ${timer}s timer`).toBeLessThan(
       timer * 0.75,
     );
+  });
+});
+
+describe('the lineup bonus', () => {
+  /** The same party and the same seeds, with and without the composition tracks. */
+  const withBonus = boostedSweeps;
+  const withoutBonus = stages.map((stage) => ({
+    stage,
+    ...sweep(BOOSTED, stage, withoutLineup),
+  }));
+
+  const cleared = (entries: readonly { winRate: number }[]): number =>
+    entries.reduce((total, entry) => total + entry.winRate, 0);
+
+  it('is worth enough to change which stages a party clears', () => {
+    // The whole mechanic, measured rather than asserted. A composition bonus that could not be
+    // seen in a win rate would be a number on a screen, and the milestone's premise — field a
+    // different mono-faction team per encounter — needs it to be a reason to rebuild a party.
+    expect(cleared(withBonus)).toBeGreaterThan(cleared(withoutBonus));
+  });
+
+  it('never makes a fight one the party cannot finish', () => {
+    // ⚠️ The guard the health and defence halves of this bonus make necessary. Everything on the
+    // ladder above them raises how long a party survives, and a party that survives a fight it
+    // cannot win is precisely the ninety-second timeout the sweep exists to catch. `everySweep`
+    // covers the boosted party for the same assertion; this one names the mechanic, so a failure
+    // says which change caused it.
+    const stalled = withBonus.filter((entry) => entry.timedOut > 0).map((entry) => entry.stage.id);
+
+    expect(stalled).toEqual([]);
+  });
+
+  it('leaves the matchup matrix decorative next to it, which is milestone 8e’s problem', () => {
+    // ⚠️ **This test records a known gap rather than defending a property**, and it is worth being
+    // explicit about which.
+    //
+    // The milestone's design note asks that "the swing between the right faction and the wrong one
+    // must exceed the quality gap between a player's best and second-best faction team". That
+    // cannot be measured here and it is not being measured here. With four Humans, four Dwarves
+    // and three of everything else, a mono-five is unreachable in every faction without spending
+    // Angels — so there is no second mono-faction team to compare a first one against, and any
+    // number picked for the matrix now would be tuned against a roster that does not exist.
+    //
+    // What *is* true today, and is what this pins: the top of the composition ladder is worth
+    // several times the largest matchup edge. So while the roster is this shallow, a player keeps
+    // whatever composition they can reach and the matchup decides nothing. That is the expected
+    // state, not a regression — and when milestone 8e authors five per faction, this assertion is
+    // the one that should be revisited alongside the matrix.
+    const biggestEdge = Math.max(...authoredRules.matchups.map((entry) => entry.multiplier)) - 1;
+    const top = Math.max(...authoredRules.lineup.tiers.map((tier) => tier.attack));
+
+    expect(top).toBeGreaterThan(biggestEdge * 2);
   });
 });
 

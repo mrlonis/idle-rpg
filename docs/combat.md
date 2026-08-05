@@ -12,8 +12,10 @@ is one multiplication in the animator, not a second combat path.
 `simulateBattle` capable of not returning.
 
 See [attributes](attributes.md) for the stat block and [glossary](glossary.md) for vocabulary.
-Milestone 8a rewrote the damage and scheduling halves of this page, 8b replaced MP with energy, and
-8c gated skills behind ascension rungs. Milestone 8**d** still owes the faction lineup bonuses.
+Milestone 8a rewrote the damage and scheduling halves of this page, 8b replaced MP with energy, 8c
+gated skills behind ascension rungs, and 8d added the faction lineup bonus. The rework is done;
+what 8**e** owes it is a roster deep enough to make the lineup bonus a choice — see
+[milestones](milestones.md).
 
 ---
 
@@ -195,6 +197,59 @@ the vocabulary is usually already there.
 | `enemy-lowest`   | Gallows Headsman       | can you keep your weakest member alive? |
 | `enemy-highest`  | Bonefall Tyrant        | what if your wall dies first?           |
 | `self-hurt`      | Wrathborn              | what if chipping it turns it on?        |
+
+---
+
+## The lineup bonus
+
+What the **party's own composition** is worth. Authored in
+[`data/combat.ts`](../src/data/combat.ts), resolved by
+[`core/battle/lineup.ts`](../src/core/battle/lineup.ts), and folded into a stat block right after
+the row bonus — what a character is, then where it stands, then who it was brought with.
+
+**Three tracks, and they stack.**
+
+| Composition             | Attack | Health |
+| ----------------------- | ------ | ------ |
+| 3 of a faction          | +10%   | +10%   |
+| 3 of one + 2 of another | +15%   | +15%   |
+| 4 of a faction          | +15%   | +20%   |
+| 5 of a faction          | +25%   | +25%   |
+
+- **Monsters** pay every ally +2% attack and +2% health **each**, per member rather than at a
+  threshold — so one Monster is worth bringing.
+- **Demons** climb a cumulative track of their own: 1 → +30% `def`, 2 → +25% `energyRegen` while
+  below half health, 3 → +0.15 `critChance`, 4 → +0.30 `critDamageAmp`, 5 → +15 `haste`.
+- **Angels are the wildcard**, counting as any faction **on the composition table only**. Three
+  Humans and two Angels reads as five Humans. They are deliberately not wildcards for the Monster
+  or Demon tracks — one that filled in everywhere would make Angels strictly the best characters in
+  the game and turn the other two tracks into things that happen rather than things you choose.
+
+The composition table and the Monster share **add** rather than multiply, so a screen can name one
+number: five Monsters is +25% and +10%, reported as +35%.
+
+**Only the party gets one.** `buildSide` is symmetric in every other respect, and this asymmetry is
+deliberate: an enemy formation is authored, so a bonus derived from it is a stat block with a hidden
+step, and a symmetric rule would have retuned twenty-four stages unevenly — most at the
+mono-faction end, which is where the early ladder lives. The matchup matrix stays symmetric, and
+that is the distinction: a matchup is a fact about the fight, a composition bonus is a reward for a
+decision only the player makes.
+
+**Why this is allowed to exist at all.** A bonus for your own line-up is the pattern
+[AGENTS.md](../AGENTS.md) names and rejects. The override rests on one argument: a mono-faction
+bonus does not create one optimal team, it creates **seven**, and the matchup decides which to
+bring — so it is still a statement about the fight in front of you. ⚠️ The argument is specific to
+_faction_ composition; it does not license a bonus for a set of characters or a role mix, which
+would resolve to one best answer.
+
+Two mechanical notes worth not rediscovering:
+
+- ⚠️ **The haste step is re-clamped into `[1, ATB_THRESHOLD]`.** Same termination argument as the
+  authored value — above the threshold a combatant banks two actions in a tick.
+- **The injured-energy clause is the one thing not baked into the stat block.** It is conditional
+  on current health, so the fighter carries it and `upkeep` reads it per turn, short-circuited on
+  zero. It amplifies `energyRegen` and nothing else: what a fight _pays_ is the same for everybody
+  and describes the encounter rather than the party.
 
 ---
 

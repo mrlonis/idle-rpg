@@ -111,6 +111,101 @@ export const FACTION_MATCHUPS = [
 ] as const;
 
 /**
+ * The composition ladder: what fielding several of one faction is worth.
+ *
+ * Shapes, not factions. `{ largest: 3, second: 2 }` is "three of one and two of another" and says
+ * nothing about which — which is the whole of why this exists as four rows rather than seven
+ * tables, and the whole of why it is sanctioned at all. See {@link LINEUP_BONUSES}.
+ *
+ * The best-paying rung a party reaches is the one that applies; the resolver in
+ * [`core/battle/lineup.ts`](../core/battle/lineup.ts) tries every rung rather than reading the
+ * list as ordered, so the mono-four paying more health than the three-and-two for the same attack
+ * is a fact about these numbers rather than about where the row sits.
+ */
+export const LINEUP_TIERS = [
+  { largest: 3, second: 0, attack: 0.1, health: 0.1 },
+  { largest: 3, second: 2, attack: 0.15, health: 0.15 },
+  { largest: 4, second: 0, attack: 0.15, health: 0.2 },
+  { largest: 5, second: 0, attack: 0.25, health: 0.25 },
+] as const;
+
+/**
+ * Health fraction below which the Demon track's energy clause pays.
+ *
+ * Half a bar, matching the `self-hurt` condition the roster's own comeback skills are authored
+ * against — a character that only turns on when the fight has gone badly should agree with the
+ * rest of the game about when that is.
+ */
+export const LINEUP_INJURED_BELOW = 0.5;
+
+/**
+ * What the party's own faction composition is worth.
+ *
+ * ## This is the pattern this project's rules name and reject, overridden on purpose
+ *
+ * "+10% if two Fire units… those just create a new optimal team" is exactly the shape of the
+ * ladder above, and the matchup matrix at the top of this file was chosen over it. The override is
+ * deliberate, and it rests on one observation: **a mono-faction bonus does not create one optimal
+ * team, it creates seven.** Which of the seven to bring is decided by the matchup, which is a
+ * statement about the fight in front of you — so the property the rule was protecting survives
+ * intact.
+ *
+ * Note what the player is **not** choosing between. They do not trade the lineup bonus for the
+ * matchup; they keep the top of the ladder and switch which mono-faction team carries it. The two
+ * are complementary.
+ *
+ * ⚠️ **The premise is not true yet, and that is milestone 8e's job rather than a bug here.** With
+ * twenty-three characters across seven factions — four Humans, four Dwarves, three of everything
+ * else — a mono-five is unreachable in every faction without spending Angels as wildcards. The
+ * mechanic ships against the roster that exists; the pitch it is sold on arrives when the roster
+ * does.
+ *
+ * ## Three tracks, and they stack
+ *
+ * - **The ladder** ({@link LINEUP_TIERS}), open to every faction.
+ * - **Angels are the wildcard**, counting as any faction *on the ladder only*. Deliberately not on
+ *   the two tracks below: a wildcard that filled in everywhere would be strictly the best
+ *   character in the game, and the factions it stood in for would stop being decisions.
+ * - **Monsters rally**, paying every ally a flat two percent of attack and health per Monster
+ *   fielded. The faction that hits everything harder and takes it back from everybody is the one
+ *   whose contribution is a share rather than a shape — a single Monster is worth bringing, which
+ *   is the opposite of a threshold.
+ * - **Demons climb a track of their own**, cumulative and stacking with everything above. It opens
+ *   on defence, which is the stat the roster's Demons are worst at, so the first Demon is worth
+ *   fielding next to anything; it closes on haste, which is worth the most and asks for all five.
+ *
+ * The two tracks add rather than multiply. A screen has to be able to say "+35% attack" as one
+ * number, and 1.25 × 1.10 is not a number anybody reads off a pair of authored percentages.
+ */
+export const LINEUP_BONUSES = {
+  tiers: LINEUP_TIERS,
+  wildcard: 'angel',
+  rally: { faction: 'monster', attack: 0.02, health: 0.02 },
+  ladder: {
+    faction: 'demon',
+    steps: [
+      // Points on `def`, which is a multiplier — the one bonus on this track that is.
+      { defence: 0.3 },
+      // ⚠️ Conditional on being below {@link LINEUP_INJURED_BELOW} of maximum health, which is
+      // what keeps it a comeback rather than a flat upgrade. It amplifies `energyRegen` and
+      // nothing else: what a *fight* pays is the same for everybody and is not a party's business.
+      { injuredEnergyRegen: 0.25 },
+      // Points, not a multiplier. A rating is a probability, and the roster sits between 0.05 and
+      // 0.18 — a percentage of that would be a rounding error.
+      { critChance: 0.15 },
+      // Points, for the reason the back-row bonus is: a crit is `1 + max(amp − resist, 0)`, so a
+      // percentage pays least to exactly the characters with the least to amplify.
+      { critDamageAmp: 0.3 },
+      // ⚠️ Points of gauge per tick, re-clamped into `[1, ATB_THRESHOLD]` after it is added. The
+      // authored values sit between 70 and 110, so this is worth roughly a sixth of a turn — real,
+      // and nowhere near the clamp it is guarded by.
+      { haste: 15 },
+    ],
+  },
+  injuredBelow: LINEUP_INJURED_BELOW,
+} as const;
+
+/**
  * The attack every combatant falls back to.
  *
  * **Physical, single target, into the front rank.** All three of those are load-bearing.
@@ -206,6 +301,7 @@ export const MAX_RESIST = 0.9;
 export const COMBAT_RULES = {
   rows: ROW_BONUSES,
   matchups: FACTION_MATCHUPS,
+  lineup: LINEUP_BONUSES,
   energy: ENERGY_RULES,
   minHitChance: MIN_HIT_CHANCE,
   maxPenetration: MAX_PENETRATION,

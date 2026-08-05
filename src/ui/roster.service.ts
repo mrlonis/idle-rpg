@@ -17,6 +17,8 @@ import {
   levelCost,
   levelUp,
   levelUpToAffordable,
+  lineupBonus,
+  type LineupSummary,
   MAX_RARITY_INDEX,
   maxAffordableLevel,
   nextAscension,
@@ -35,6 +37,7 @@ import {
 import {
   ASCENSION,
   CHARACTERS_BY_ID,
+  COMBAT,
   factionName,
   FACTIONS_BY_ID,
   FACTIONS_IN_ORDER,
@@ -150,6 +153,25 @@ export class RosterService {
 
   /** How many characters are currently fielded, across both ranks. */
   readonly fieldedCount = computed(() => formationSize(this.game.formation()));
+
+  /**
+   * What the fielded party's faction composition is worth, resolved through `core/`.
+   *
+   * The **same function the simulation calls**, rather than a second reading of the same table.
+   * A formation screen promising +25% and a battle awarding something else is the worst possible
+   * failure for a mechanic whose entire job is to make the player rebuild their party, and two
+   * implementations of one ladder is how that happens.
+   *
+   * Derived from {@link fielded} so it follows the formation the screen is showing, and returns
+   * the whole summary rather than the numbers alone — a bonus a player cannot attribute to a
+   * faction is one they cannot chase.
+   */
+  readonly lineup = computed<LineupSummary>(() =>
+    lineupBonus(
+      this.fielded().map((entry) => entry.faction),
+      COMBAT.lineup,
+    ),
+  );
 
   /**
    * The party as a formation of combatants, with stats already scaled for level and rarity.

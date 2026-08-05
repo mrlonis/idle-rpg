@@ -67,11 +67,23 @@ three unrelated mechanics, and conflating them is the second most common confusi
    faction — Humans hit Dwarves for ×1.05, and so on round a closed cycle. **This is a statement
    about the fight in front of you**, which is why it is sanctioned where flat synergy bonuses are
    not. See [`data/combat.ts`](../src/data/combat.ts).
-3. **The lineup bonus** — _planned, milestone 8d, not built._ A bonus for how many of one faction
-   are in **your own party**. This is the opposite shape from the matchup and it was explicitly
-   ruled out until milestone 8 overrode it; the reasoning for the override is recorded there.
+3. **The lineup bonus** — shipped in milestone 8d. A bonus for how many of one faction are in
+   **your own party**: three of a faction pays +10% attack and health, five pays +25%. This is the
+   opposite shape from the matchup and it was explicitly ruled out until milestone 8d overrode the
+   rule knowingly — a mono-faction bonus creates seven optimal teams rather than one, and the
+   matchup decides which to bring. Three tracks stack: the composition ladder, **Monsters** paying
+   every ally a flat share per member, and **Demons** climbing a cumulative track of their own.
+   **Angels are the wildcard**, counting as any faction on the composition ladder and on neither of
+   the other two. It applies to the **party only** — an enemy formation never gets one.
+   See [`data/combat.ts`](../src/data/combat.ts).
 
 When someone says "faction bonus", ask which of 2 and 3 they mean.
+
+**Numbers 2 and 3 are also the two halves of milestone 8d's unfinished business.** The lineup bonus
+is worth up to +25% and a matchup edge is worth 5–10%, so today a player keeps whatever composition
+they can reach and the matchup decides nothing. Resizing the edges waits for milestone 8e, because
+two mono-faction teams both carry the same lineup bonus — it cancels — and there is no second
+mono-faction team to compare against until the roster is five deep.
 
 ---
 
@@ -104,6 +116,8 @@ Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
 | **Chapter**          | A group of stages. _Planned, milestone 11._ Chapters 1–10 hold 50 stages each, stepping +10 every ten chapters, capped at 200.                                                                                                                                                                                                                                      |
 | **Formation**        | The party: two front slots, three back. `PARTY_SIZE` is 5. Placement is free — any character in either row.                                                                                                                                                                                                                                                         |
 | **Row / rank**       | Front or back. Front gets +5% `def` and +0.05 crit damage resistance; back gets +5% `atk` and +0.05 crit damage amplification. Each rank sharpens the role it already has. Ordinary attacks go through the front rank first.                                                                                                                                        |
+| **Lineup bonus**     | What the party's own faction composition is worth — see the three jobs of "faction" above. Applied to the **party only**, never to an enemy formation. Not the same as a **row bonus**, which is about where one character stands rather than about who else you brought.                                                                                           |
+| **Wildcard**         | Angels, on the composition ladder only. Three Humans and two Angels reads as five Humans. Deliberately not a wildcard for the Monster or Demon tracks, where it would make one faction strictly the best thing to own.                                                                                                                                              |
 | **Role**             | `tank`, `bruiser`, `assassin`, `ranger`, `sniper`, `mage`, `healer`, `support`. **Nothing in the simulation reads it** — it exists so the roster screen can say "healer" instead of implying it.                                                                                                                                                                    |
 | **Copies**           | Spare duplicates of a character, counted rather than tracked individually. The ascension currency. Only spares are ever consumed — never a character you have levelled.                                                                                                                                                                                             |
 | **Fodder**           | Copies of a _different_ character of the same faction, spent on the mortal ladder.                                                                                                                                                                                                                                                                                  |
