@@ -22,10 +22,12 @@ import {
   unlockedSkills,
 } from '../core';
 import { FACTIONS } from './ascension';
+import * as authored from './characters';
 import { BRAN, CHARACTERS, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { KIT_RULES } from './kits';
 import { GROWTH } from './levels';
 import { SKILLS } from './skills';
+import * as surface from '.';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -164,6 +166,22 @@ describe('the roster', () => {
       .map((faction) => faction.id);
 
     expect(blind).toEqual([]);
+  });
+
+  it('re-exports every character from `data/index.ts`', () => {
+    // `data/index.ts` is the public surface, and a hand-maintained re-export list is exactly the
+    // kind of thing that goes stale silently: the roster keeps working, every spec keeps passing,
+    // and one character is simply unreachable through the barrel. Milestone 8e shipped 26 new
+    // characters and left Nyxara off the list — nothing caught it, because nothing was looking.
+    //
+    // Derived from the module rather than from a count, so it stays true as the roster grows.
+    const named = Object.keys(authored).filter(
+      (key) => key !== 'CHARACTERS' && key !== 'STARTER_FORMATION',
+    );
+    const missing = named.filter((key) => !(key in surface));
+
+    expect(named.length).toBe(characters.length);
+    expect(missing).toEqual([]);
   });
 
   it('gives every character a unique id and a name', () => {

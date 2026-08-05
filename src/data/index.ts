@@ -63,6 +63,7 @@ export {
   NAEL,
   NAERIN,
   NEKROS,
+  NYXARA,
   ORIN,
   OSSUARY,
   OZZA,
