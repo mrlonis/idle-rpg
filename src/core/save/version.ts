@@ -6,4 +6,4 @@
  * asserts that every version below this one has a migration registered, so that mistake
  * fails in CI rather than on a player's device.
  */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;

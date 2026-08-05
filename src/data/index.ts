@@ -107,5 +107,7 @@ export {
 export { KIT_RULES } from './kits';
 export { GROWTH, LEVEL_CURVE } from './levels';
 export { SKILLS } from './skills';
-export { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from './stages';
+export { CHAPTER_1 } from './chapter-1';
+export { CHAPTER_2 } from './chapter-2';
+export { AUTO_BATTLE_UNLOCK_CLEARS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 export { STATUSES } from './statuses';

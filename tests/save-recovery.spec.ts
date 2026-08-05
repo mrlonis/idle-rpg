@@ -1,6 +1,16 @@
 import { expect, type Page, test } from '@playwright/test';
-import { num, summonRatePerSecond } from '../src/core';
-import { STAGES, SUMMON_RATE } from '../src/data';
+import {
+  type ChapterCurveData,
+  type ChapterData,
+  ladderShape,
+  num,
+  positionAt,
+  resolveLadder,
+  type StageRewardCurveData,
+  summonRatePerSecond,
+  totalStages,
+} from '../src/core';
+import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
 import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 
 /**
@@ -33,30 +43,44 @@ async function seedSave(page: Page, save: unknown): Promise<void> {
   );
 }
 
-/**
- * The top of the ladder, read from `data/` rather than retyped.
- *
- * A v2 save carries exactly one thing repair can work from — the gold rate — so "a run that beat
- * everything" means "a run whose gold rate is the last stage's". Hard-coding 16/s and 3,000
- * crystals is what this file used to do, and the moment the ladder grew past eight stages both
- * numbers quietly started describing a different save than the one the test claimed to be about.
- */
-const top = STAGES[STAGES.length - 1];
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
+
+const LADDER = ladderShape(chapters);
+const STAGES = resolveLadder(chapters, chapterCurve, rewards);
+const CLEARS = totalStages(LADDER);
 
 /**
- * The crystal rate a fully cleared ladder earns, per second.
+ * How far the pre-gacha save below had climbed, and the stage whose rates it therefore carries.
+ *
+ * ⚠️ **Twenty-four rather than the whole ladder, and that is the point of the number.** A v2 save
+ * is a linear stage number written by a build that shipped twenty-four stages, and since milestone
+ * 11 the repair will not credit more clears than the position it is parked on has reached — a
+ * guard that exists precisely because the rate curve was re-derived underneath every save, so an
+ * old receipt read against the new curve says "cleared everything". Seeding a hundred here would
+ * describe a save that cannot exist and would quietly stop testing the guard.
+ */
+const RECOVERED = 24;
+const top = STAGES[RECOVERED - 1];
+
+/**
+ * The crystal rate a run credited with `RECOVERED` clears earns, per second.
  *
  * Derived rather than read off `top`, because no stage authors a crystal rate: it is a function
  * of the clear count, so repairing the count is what repairs this rate. That makes it the one
  * number on this screen that proves the two halves of the repair agreed.
  */
-const crystalRate = summonRatePerSecond(SUMMON_RATE, STAGES.length);
+const crystalRate = summonRatePerSecond(SUMMON_RATE, RECOVERED);
 
-/** Every first-clear bonus on the ladder, which is what a fully cleared run is owed. */
-const owedCrystals = STAGES.reduce(
+/** Every first-clear bonus the repair is going to credit, which is what the run is owed. */
+const owedCrystals = STAGES.slice(0, RECOVERED).reduce(
   (total, stage) => total + Number(stage.firstClearSummons ?? 0),
   0,
 );
+
+/** Where `RECOVERED` stages in lands, as a chapter and a stage within it. */
+const parked = positionAt(LADDER, RECOVERED);
 
 /**
  * What the home screen will render for a rate or a balance.
@@ -85,14 +109,14 @@ function amountOf(page: Page, label: string) {
 }
 
 test.describe('recovering a pre-gacha save', () => {
-  /** A v2 save from a player who had cleared the whole ladder. */
+  /** A v2 save from a player who had cleared the whole ladder that build shipped. */
   const v2AtTheTop = {
     version: 2,
     gold: '1500000',
     goldPerSec: String(top.rates.gold),
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
-    stage: STAGES.length,
+    stage: RECOVERED,
     battleCount: 214,
   };
 
@@ -102,7 +126,7 @@ test.describe('recovering a pre-gacha save', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
 
     await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
@@ -138,7 +162,7 @@ test.describe('recovering a pre-gacha save', () => {
 
     await expect(amountOf(page, 'Gold')).toHaveText('1.5M');
     await expect(
-      page.getByRole('button', { name: new RegExp(`^Fight Stage ${STAGES.length}`) }),
+      page.getByRole('button', { name: new RegExp(`^Fight ${parked.chapter}-${parked.stage} `) }),
     ).toBeVisible();
   });
 
@@ -157,6 +181,9 @@ test.describe('recovering a pre-gacha save', () => {
 });
 
 test.describe('re-fighting a cleared stage', () => {
+  /** The last stage of the shipped ladder, which is what a fully cleared run's rates are. */
+  const atTheTop = STAGES[CLEARS - 1];
+
   /**
    * A v3 save sitting on stage 1 with the whole ladder already cleared — so the next fight is
    * unambiguously a re-fight, and it is the opening stage rather than the boss.
@@ -170,15 +197,15 @@ test.describe('re-fighting a cleared stage', () => {
     version: 3,
     wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: {
-      gold: String(top.rates.gold),
-      xp: String(top.rates.xp),
-      essence: String(top.rates.essence),
-      summons: String(crystalRate),
+      gold: String(atTheTop.rates.gold),
+      xp: String(atTheTop.rates.xp),
+      essence: String(atTheTop.rates.essence),
+      summons: String(summonRatePerSecond(SUMMON_RATE, CLEARS)),
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
     stage: 1,
-    clearedStages: STAGES.length,
+    clearedStages: CLEARS,
     battleCount: 214,
     roster: [
       { defId: 'rin', rarity: 0, level: 1, copies: 0 },
@@ -191,20 +218,23 @@ test.describe('re-fighting a cleared stage', () => {
   };
 
   test('pays the lump but never a second first-clear bonus', async ({ page }) => {
-    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 124/hr, so a bonus
+    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 150/hr, so a bonus
     // firing again is unmistakable: the balance would jump past 200 rather than creeping up by
     // a fraction over the few seconds this test takes.
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage 1/ }).click();
+    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
     });
 
-    // The one-off reward still lands — farming a beaten stage is meant to pay.
-    await expect(page.locator('.battle__outcome')).toContainText('25 gold');
+    // The one-off reward still lands — farming a beaten stage is meant to pay. Read off the
+    // shipped curve rather than typed, like everything else in this file.
+    await expect(page.locator('.battle__outcome')).toContainText(
+      `${shownAmount(STAGES[0].reward.gold ?? 0)} gold`,
+    );
 
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
@@ -215,7 +245,7 @@ test.describe('re-fighting a cleared stage', () => {
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage 1/ }).click();
+    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
@@ -223,8 +253,8 @@ test.describe('re-fighting a cleared stage', () => {
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
     // Still the top-of-ladder rates, not stage 1's.
-    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
-    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
-    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(top.rates.essence));
+    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(atTheTop.rates.gold));
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(atTheTop.rates.xp));
+    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(atTheTop.rates.essence));
   });
 });

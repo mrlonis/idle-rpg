@@ -68,7 +68,7 @@ export class BattleView {
   /** Names the stage the next fight enters: the one ahead after a win, the same one after a loss. */
   protected readonly fightLabel = computed(() => {
     const next = this.battles.nextStage();
-    return next === null ? 'Fight again' : `Fight Stage ${next.number} — ${next.name}`;
+    return next === null ? 'Fight again' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
   });
 
   /**

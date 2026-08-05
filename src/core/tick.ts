@@ -40,6 +40,7 @@ export function tick(state: GameState, dtMs: number): GameState {
     rates: state.rates,
     lastTickAt: state.lastTickAt,
     rng: state.rng,
+    chapter: state.chapter,
     stage: state.stage,
     clearedStages: state.clearedStages,
     battleCount: state.battleCount,

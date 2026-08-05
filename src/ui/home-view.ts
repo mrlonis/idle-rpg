@@ -103,10 +103,16 @@ export class HomeView {
     }));
   });
 
-  /** Names the stage on the Fight control, so the tap is never a leap in the dark. */
+  /**
+   * Names the stage on the Fight control, so the tap is never a leap in the dark.
+   *
+   * `2-14` rather than "Chapter 2, Stage 14": the control is one line on a phone and the long form
+   * pushes the stage's own name off it, which is the half a player actually reads. The chapter is
+   * named in full on the battle screen's heading.
+   */
   protected readonly fightLabel = computed(() => {
     const next = this.battles.nextStage();
-    return next === null ? 'Preparing…' : `Fight Stage ${next.number} — ${next.name}`;
+    return next === null ? 'Preparing…' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
   });
 
   /** A party of nobody loses instantly, so the control says so rather than letting it happen. */

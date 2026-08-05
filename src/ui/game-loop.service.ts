@@ -15,7 +15,13 @@ import {
   zeroRates,
 } from '../core';
 import { STARTER_FORMATION } from '../data';
-import { CHARACTERS_BY_ID, STAGE_PROGRESS, SUMMON_RATE_CURVE } from './content';
+import {
+  CHAPTER_RULES,
+  CHARACTERS_BY_ID,
+  LADDER,
+  STAGE_REWARD_CURVE,
+  SUMMON_RATE_CURVE,
+} from './content';
 import { SaveService } from './save.service';
 
 /**
@@ -161,7 +167,13 @@ export class GameLoopService {
     // `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
     // arrives here earning nothing and leaves earning the base.
     const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
-    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS, SUMMON_RATE_CURVE);
+    this.state = reconcileClearedStages(
+      repaired,
+      LADDER,
+      CHAPTER_RULES,
+      STAGE_REWARD_CURVE,
+      SUMMON_RATE_CURVE,
+    );
     this.settle(nowMs);
 
     this.running = true;

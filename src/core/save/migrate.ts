@@ -106,6 +106,35 @@ const migrateV3ToV4: Migration = (save) => {
 };
 
 /**
+ * v4 → v5: the ladder gains chapters, and `stage` stops meaning a position on all of it.
+ *
+ * **Every v4 save is a chapter 1 save, and that is arithmetic rather than a convention.** The v4
+ * ladder was twenty-four stages and chapter 1 holds fifty, so no v4 position can have reached
+ * chapter 2 — which makes the mapping the identity on `stage` and a literal `1` on `chapter`.
+ *
+ * **The two numbers this step depends on are written out rather than imported**, as the note at
+ * the top of this file requires. A migration is dated: it describes the ladder that existed the
+ * day it shipped, and a chapter length a later release is free to retune would silently change
+ * what this step means for every save that has not run it yet. The one at the time was 24 stages
+ * in a single chapter, moving into a chapter 1 of 50.
+ *
+ * A damaged v4 save carrying `stage: 999` is left as it is, deliberately. Clamping a position
+ * into the ladder needs to know how long the chapters are, which is content, and the load-time
+ * repair does it on every load anyway — so guessing here would be a second, staler answer to a
+ * question that is already answered properly downstream.
+ *
+ * `clearedStages` is carried across untouched. It is a count of stages beaten, not a position, so
+ * re-cutting the ladder into chapters does not change what it says. The rate curve *was* re-cut
+ * in the same release, and that is `reconcileClearedStages`' problem rather than this step's —
+ * see the receipt cap there.
+ */
+const migrateV4ToV5: Migration = (save) => ({
+  ...save,
+  version: 5,
+  chapter: 1,
+});
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
  * **Never delete or edit an entry once it ships.** A player can return after any number of
@@ -115,6 +144,7 @@ export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migrat
   [1, migrateV1ToV2],
   [2, migrateV2ToV3],
   [3, migrateV3ToV4],
+  [4, migrateV4ToV5],
 ]);
 
 export class UnknownSaveVersionError extends Error {

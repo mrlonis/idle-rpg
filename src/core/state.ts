@@ -1,4 +1,5 @@
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
+import { type LadderPosition } from './ladder';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
@@ -64,8 +65,11 @@ export function rowCapacity(row: 'front' | 'back'): number {
  * Every field is `readonly`: core functions return a new state rather than mutating the
  * one they were given. That purity is what lets the UI hold a state object directly as a
  * snapshot without defensive copying.
+ *
+ * It **is** a {@link LadderPosition}, stated rather than left to structural typing, so a run can
+ * be handed straight to `stageIndex` or `advancePosition` without anybody re-deriving the pair.
  */
-export interface GameState {
+export interface GameState extends LadderPosition {
   /** Save schema version. Present from the first commit so migrations always have a floor. */
   readonly version: number;
   /**
@@ -93,19 +97,44 @@ export interface GameState {
   readonly lastTickAt: number;
   readonly rng: RngState;
   /**
-   * The stage the party is currently fighting, 1-based.
+   * The chapter the party is currently in, 1-based.
    *
-   * An index rather than a stage id: `core/` cannot import `data/`, so it has no way to check
-   * an id against the authored stages, whereas a bounded integer can be repaired on load
-   * without knowing what content exists. The caller clamps it to the stages it actually has.
+   * Together with {@link stage} this is a {@link LadderPosition}, and `GameState` satisfies that
+   * interface structurally so a position never has to be unpacked to be passed on.
+   */
+  readonly chapter: number;
+  /**
+   * The stage the party is currently fighting **within {@link chapter}**, 1-based.
+   *
+   * ⚠️ **Not a position on the whole ladder.** It was one until milestone 11, and reading it as
+   * one is a bug that presents as a player being teleported: chapter 2 stage 3 and chapter 1
+   * stage 3 are the same number here. `stageIndex(ladder, state)` is the only way to get a linear
+   * index, and it is what the clear count, the crystal rate and the reward curve are all
+   * functions of.
+   *
+   * The pair is stored rather than the linear index because a linear index only means anything
+   * against the exact chapter sizes it was written under. Retuning a chapter's length would
+   * silently relocate every save mid-ladder; a chapter and a stage still names the same place
+   * afterwards.
+   *
+   * Numbers rather than a stage id, for the reason they always were: `core/` cannot import
+   * `data/`, so it cannot check an id against the authored stages, whereas a bounded integer pair
+   * can be repaired on load without knowing what content exists. The caller clamps it to the
+   * ladder it actually ships.
    */
   readonly stage: number;
   /**
-   * How many stages have ever been cleared.
+   * How many stages have ever been cleared, as a linear count over the whole ladder.
    *
-   * Distinct from {@link stage}, which stops climbing at the end of the authored ladder and so
+   * Distinct from the position, which stops climbing at the end of the authored ladder and so
    * cannot answer "was this a first clear" once the player is farming the last one. First-clear
-   * summon bonuses are paid against this.
+   * summon bonuses and the crystal rate are both paid against this.
+   *
+   * **A count rather than a pair, deliberately, and the asymmetry with the position is the
+   * point.** The position is a *place* and has to survive the ladder being re-cut around it; this
+   * is a *quantity earned*, and "I have beaten ninety-one stages" means the same thing however
+   * the ladder is cut. It is also what keeps a save flat when chapters run to hundreds of stages:
+   * a per-stage record of thousands of entries is a cost with nothing bought by it.
    */
   readonly clearedStages: number;
   /**
@@ -158,6 +187,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     rates: zeroRates(),
     lastTickAt: nowMs,
     rng: { seed: seed >>> 0, calls: 0 },
+    chapter: 1,
     stage: 1,
     clearedStages: 0,
     battleCount: 0,

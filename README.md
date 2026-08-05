@@ -224,9 +224,11 @@ is a bug, migrations are pure `(old) => (new)` steps, and old migrations are nev
 Loading clamps and defaults on recoverable damage rather than throwing — a thrown error
 costs the player their entire run.
 
-The current version is **3**: v1 was the gold counter, v2 added `stage` and `battleCount` when
-combat landed, and v3 turned the single gold pair into a keyed wallet and rate table and added
-the roster, the active party and the pity counter. Every historical version keeps a fixture in
+The current version is **5**: v1 was the gold counter, v2 added `stage` and `battleCount` when
+combat landed, v3 turned the single gold pair into a keyed wallet and rate table and added the
+roster, the active party and the pity counter, v4 split the party into two ranks, and v5 cut the
+ladder into chapters — so `stage` is now a stage _within_ a chapter rather than a position on the
+whole ladder. Every historical version keeps a fixture in
 [`src/core/save/fixtures/`](src/core/save/fixtures/), and
 [`fixtures.spec.ts`](src/core/save/fixtures.spec.ts) migrates all of them to current on every
 run — that is the test that catches the migration written months ago and never exercised since.

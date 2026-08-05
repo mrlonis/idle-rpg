@@ -36,7 +36,7 @@ test.describe('App', () => {
     test('sends an unknown route home rather than to a blank screen', async ({ page }) => {
       await page.goto('/nowhere');
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
     });
   });
 
@@ -54,7 +54,7 @@ test.describe('App', () => {
 
       await page.getByRole('link', { name: '← Home' }).click();
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
     });
 
     test('goes to the roster when the roster opened it', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('App', () => {
     test('disappears during a fight, which has no exit until it ends', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('button', { name: /^Fight Stage/ }).click();
+      await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
 
       await expect(page.locator('.battle')).toBeVisible();
       await expect(page.getByRole('navigation')).toHaveCount(0);
@@ -150,7 +150,7 @@ test.describe('App', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
       await tabs.getByRole('link', { name: 'Home' }).click();
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
       await expect(notice).toBeHidden();
     });
   });

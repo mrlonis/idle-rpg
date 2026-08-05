@@ -749,8 +749,31 @@ export interface CombatRulesData {
   readonly basicAttack: SkillData;
 }
 
-/** A stage as authored in `data/`: one encounter, plus what clearing it pays. */
-export interface StageData {
+/**
+ * How a stage sits in its chapter's rhythm.
+ *
+ * Lives here beside the rest of the stage vocabulary rather than in `core/ladder.ts`, which is
+ * where the *rule* that decides it lives — `stageKindAt`. Putting the type there and the stage
+ * here would make the two files import each other for nothing.
+ */
+export type StageKind =
+  /** An ordinary stage. */
+  | 'normal'
+  /** Every tenth stage of a chapter. */
+  | 'mini-boss'
+  /** The last stage of a chapter. */
+  | 'boss';
+
+/**
+ * A stage as authored in `data/`: one encounter, and how hard it is.
+ *
+ * **What is authored is the fight, and nothing about the payout.** Since milestone 11 the rates,
+ * the lump and the first-clear crystals are a function of where the stage sits on the ladder —
+ * see `core/ladder.ts` — so a stage is a line naming archetypes and a number, which is what makes
+ * a hundred of them an afternoon rather than a career. `resolveStage` turns one of these into the
+ * {@link StageData} the simulation takes.
+ */
+export interface StageEncounterData {
   readonly id: string;
   readonly name: string;
   /** The opposing side, in two rows. Repeating an archetype gives multiple copies. */
@@ -775,6 +798,27 @@ export interface StageData {
    * wherever the sweep says it lands.
    */
   readonly level: number;
+}
+
+/**
+ * An encounter, resolved against its place on the ladder: what the simulation is handed.
+ *
+ * The three payout fields are **derived, not authored** — `resolveStage` evaluates them from the
+ * stage's linear index and the reward curve in `data/`. They stay on this interface rather than
+ * being passed alongside it because `simulateBattle` builds a {@link BattleReward} out of them,
+ * and a fight that had to be told separately what it was worth would be one more thing a caller
+ * could get out of step.
+ */
+export interface StageData extends StageEncounterData {
+  /**
+   * Whether this is an ordinary stage, a mini-boss, or its chapter's boss.
+   *
+   * A rule rather than an authored field: every tenth stage of a chapter is a mini-boss and the
+   * last one is a boss, so the rhythm is the same in a fifty-stage chapter and a two-hundred
+   * stage one. What `data/` authors is a line-up worthy of the slot it lands in, and
+   * `chapters.spec.ts` is what checks it did.
+   */
+  readonly kind: StageKind;
   /** One-off payout for the clear, every time it is cleared. */
   readonly reward: AuthoredCurrencies;
   /**

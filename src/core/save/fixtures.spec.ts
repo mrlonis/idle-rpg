@@ -9,6 +9,7 @@ import v1 from './fixtures/v1.json';
 import v2 from './fixtures/v2.json';
 import v3 from './fixtures/v3.json';
 import v4 from './fixtures/v4.json';
+import v5 from './fixtures/v5.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -31,6 +32,7 @@ const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
   [2, v2],
   [3, v3],
   [4, v4],
+  [5, v5],
 ]);
 
 const OPTIONS: RepairOptions = {
@@ -69,6 +71,7 @@ describe('save fixtures', () => {
     expect(Number.isFinite(state.lastTickAt)).toBe(true);
     expect(Number.isInteger(state.rng.calls)).toBe(true);
     expect(state.rng.calls).toBeGreaterThanOrEqual(0);
+    expect(state.chapter).toBeGreaterThanOrEqual(1);
     expect(state.stage).toBeGreaterThanOrEqual(1);
     expect(state.clearedStages).toBeGreaterThanOrEqual(0);
     expect(state.battleCount).toBeGreaterThanOrEqual(0);

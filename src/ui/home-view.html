@@ -25,7 +25,8 @@
 @if (autoStoppedAt(); as stopped) {
   <div class="notice notice--dismissible">
     <p class="notice__text" role="status">
-      Auto-battle stopped: your party lost on Stage {{ stopped.number }} — {{ stopped.name }}.
+      Auto-battle stopped: your party lost on Chapter {{ stopped.chapter }}, Stage
+      {{ stopped.number }} — {{ stopped.name }}.
     </p>
     <button
       type="button"

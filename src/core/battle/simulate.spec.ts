@@ -78,6 +78,9 @@ function stage(
     name: 'Test Stage',
     enemies: { front: enemies.front.map(archetype), back: enemies.back.map(archetype) },
     level,
+    // Ordinary, because nothing in the simulation reads it: a boss is a line-up and a level, and
+    // the kind is there so a screen can say "boss" and the reward curve can pay one.
+    kind: 'normal',
     reward: { gold: goldReward },
     rates: { gold: goldPerSec },
   };

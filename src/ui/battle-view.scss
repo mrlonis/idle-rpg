@@ -59,6 +59,9 @@ $bane: #fca5a5; // 6.8:1 on $surface
   color: $text;
 }
 
+// Where the stage sits, since milestone 11 cut the ladder into chapters. The eyebrow above the
+// name is the short form a player says out loud — "2-14" — and this is what it stands for.
+.battle__stage-chapter,
 // The encounter's difficulty, in the one unit that now means anything: since milestone 10 an
 // archetype is authored at level 1 and a stage fields it at its own level, so this is what a
 // player compares their own party against.

@@ -64,18 +64,19 @@ to stop the loop and replace the in-memory state, not merely empty the slots.
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **4**. Every save carries its version.
+`SAVE_VERSION` is **5**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
 asserts every version below current has a migration registered, so that mistake fails in CI rather
 than on a device.
 
-| Step    | What it did                                                      |
-| ------- | ---------------------------------------------------------------- |
-| v1 → v2 | Added `stage` and `battleCount`. The first real migration.       |
-| v2 → v3 | Folded gold into the keyed wallet; added roster, party and pity. |
-| v3 → v4 | Replaced `activeParty` with `formation`, split in reading order. |
+| Step    | What it did                                                               |
+| ------- | ------------------------------------------------------------------------- |
+| v1 → v2 | Added `stage` and `battleCount`. The first real migration.                |
+| v2 → v3 | Folded gold into the keyed wallet; added roster, party and pity.          |
+| v3 → v4 | Replaced `activeParty` with `formation`, split in reading order.          |
+| v4 → v5 | Cut the ladder into chapters: `stage` becomes a stage _within_ `chapter`. |
 
 Migrations are pure `(old) => (new)` steps, chained. **Never delete an old migration** — a save
 from any historical version must still reach current.
@@ -87,6 +88,13 @@ written against historical shapes, so they have to run before anything tries to 
 literals rather than `FRONT_ROW_SIZE`. A migration is _dated_: it describes the shape that existed
 the day it shipped, and a constant a later release is free to retune would silently change what
 that step means for every save that has not run it yet.
+
+**v4 → v5 is the cleanest case of that rule so far.** Every v4 save is a chapter 1 save, and that
+is arithmetic rather than a convention: the v4 ladder was twenty-four stages and chapter 1 holds
+fifty, so no v4 position can have reached chapter 2. Both numbers live in the migration's doc
+comment; neither is imported. And a damaged v4 save carrying `stage: 999` is deliberately left as
+it is — clamping a position needs to know how long the chapters are, which is content, and the
+load-time repair does it on every load anyway.
 
 ---
 
@@ -108,6 +116,16 @@ Two functions run on **every load**, not behind a version gate:
 - **`reconcileClearedStages`** — re-derives the clear count from the surviving gold rate, restores
   every rate those stages unlock, and **pays the first-clear bonus for each stage it credits.** It
   only ever raises, so a healthy save passes through by reference and is not even republished.
+
+  ⚠️ **The receipt is only good as far as the run has travelled, and milestone 11 is when that
+  stopped being pedantry.** A gold rate is denominated in whatever the rate curve said the day it
+  was written, and that curve was re-derived from scratch when the ladder went from twenty-four
+  stages to a hundred — so a veteran arriving with the old ladder's top rate reads, against the new
+  curve, as somebody who has cleared the entire game, and crediting that would hand over every
+  first-clear bonus on the ladder for stages they have never seen. The repair now caps the receipt
+  at the linear index of the position the save is parked on: **a run cannot have cleared more
+  stages than it has reached.** That is true independently of any curve, which is why it is the
+  right guard rather than a version check.
 
 They live in `ui/` because they need `data/` — and `core/` may not import `data/`. **That
 constraint is the whole reason they exist**, and it produced three rules worth more than the fix
@@ -132,7 +150,7 @@ that prompted them:
 ## Fixtures
 
 [`src/core/save/fixtures/`](../src/core/save/fixtures/) holds one JSON save per historical
-version — `v1.json` through `v4.json` — and
+version — `v1.json` through `v5.json` — and
 [`fixtures.spec.ts`](../src/core/save/fixtures.spec.ts) migrates every one of them to current.
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a

@@ -3,33 +3,44 @@
 // for the same reason `core/` does.
 import { describe, expect, it } from 'vitest';
 import {
+  type ChapterData,
   cumulativeLevelCost,
   type GrowthData,
+  ladderShape,
   type LevelCurveData,
   levelCapFor,
   levelCost,
   MAX_RARITY_INDEX,
   RARITIES,
+  stagePayout,
+  type StageRewardCurveData,
+  totalStages,
   ZERO,
 } from '../core';
+import { CHAPTERS, STAGE_REWARDS } from './chapters';
 import { GROWTH, LEVEL_CURVE } from './levels';
-import { STAGES } from './stages';
 
 const curve: LevelCurveData = LEVEL_CURVE;
 const growth: GrowthData = GROWTH;
+const chapters: readonly ChapterData[] = CHAPTERS;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
 
 /**
- * The rates the top of the authored stage ladder pays, **read from `stages.ts` rather than
+ * The rates the top of the shipped ladder pays, **evaluated from `chapters.ts` rather than
  * retyped here.**
  *
  * The level curve is tuned against these, so every time-to-afford assertion below is really an
  * assertion about the two files agreeing. Copying the numbers across would have made that
- * agreement a comment: adding a stage 9 with higher rates would leave this spec measuring
- * against stage 8's forever, passing happily while the real time-to-max quietly collapsed.
- * Deriving them means new content re-runs all of it, and a curve that no longer fits the
- * economy fails here with the real hours in the message.
+ * agreement a comment: adding a chapter with higher rates would leave this spec measuring against
+ * the old top forever, passing happily while the real time-to-max quietly collapsed. Deriving
+ * them means new content re-runs all of it, and a curve that no longer fits the economy fails
+ * here with the real hours in the message.
+ *
+ * Since milestone 11 income is a function rather than a table, so this goes through `stagePayout`
+ * at the last stage of the ladder — which is the same derivation the game itself does, rather
+ * than a second implementation of it.
  */
-const top = STAGES[STAGES.length - 1].rates;
+const top = stagePayout(rewards, totalStages(ladderShape(chapters))).rates;
 const RATES = {
   gold: Number(top.gold),
   xp: Number(top.xp),
@@ -141,9 +152,9 @@ describe('where the curve lands, in hours of idle income', () => {
   });
 
   it('leaves the ceiling aspirational rather than a grind to schedule', () => {
-    // The cap should stay far out of reach at whatever the ladder currently pays — it is two
-    // dozen stages long, and a reachable level 1000 would mean the curve had been flattened or
-    // the rates inflated past what the content justifies.
+    // The cap should stay far out of reach at whatever the ladder currently pays — level 1000 is
+    // a chapter-100 target and two chapters are shipped, so a reachable one would mean the curve
+    // had been flattened or the rates inflated past what the content justifies.
     //
     // Because the rates are read from `stages.ts`, this is the assertion that fires when new
     // content raises income without the curve being revisited. It is meant to fail then: the

@@ -80,8 +80,36 @@ export interface SaveDataV4 {
   pullCount: number;
 }
 
+/**
+ * v5 is the chapters release: the flat stage number becomes a chapter and a stage within it.
+ *
+ * `stage` keeps its name and changes its meaning, which is normally a bad trade and is the right
+ * one here: every field that reads it has to be revisited anyway, and a save carrying both
+ * `stage` and `stageInChapter` would be two numbers that can disagree.
+ *
+ * **`clearedStages` did not become a pair, and that asymmetry is deliberate.** The position is a
+ * place and has to survive the ladder being re-cut around it; the clear count is a quantity
+ * earned, and "ninety-one stages beaten" means the same thing however the chapters are sliced.
+ */
+export interface SaveDataV5 {
+  version: 5;
+  wallet: { gold: string; xp: string; essence: string; summons: string; spark: string };
+  rates: { gold: string; xp: string; essence: string; summons: string };
+  lastTickAt: number;
+  rng: { seed: number; calls: number };
+  chapter: number;
+  /** The stage **within** `chapter`, not a position on the whole ladder. */
+  stage: number;
+  clearedStages: number;
+  battleCount: number;
+  roster: { defId: string; rarity: number; level: number; copies: number }[];
+  formation: { front: string[]; back: string[] };
+  pity: number;
+  pullCount: number;
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV4;
+export type CurrentSaveData = SaveDataV5;
 
 /** Any historical save shape. Widen this union as versions are added. */
-export type AnySaveData = SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4;
+export type AnySaveData = SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4 | SaveDataV5;

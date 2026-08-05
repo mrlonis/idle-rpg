@@ -2,8 +2,11 @@
   <section class="battle" aria-labelledby="battle-heading">
     <header class="battle__header">
       <h1 id="battle-heading" class="battle__stage">
-        Stage {{ current.number }}
+        {{ current.chapter }}-{{ current.number }}
         <span class="battle__stage-name">{{ current.name }}</span>
+        <span class="battle__stage-chapter">
+          Chapter {{ current.chapter }} · {{ current.chapterName }}
+        </span>
         <span class="battle__stage-level">Enemy level {{ current.level }}</span>
       </h1>
       <div class="controls">

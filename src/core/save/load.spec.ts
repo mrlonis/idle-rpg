@@ -87,6 +87,7 @@ describe('loadSave', () => {
         rates: { gold: '4', xp: 'broken', essence: '0.01', summons: '0.005' },
         lastTickAt: T0 - 1000,
         rng: { seed: 5, calls: 3 },
+        chapter: 2,
         stage: 6,
         clearedStages: 5,
         battleCount: 214,
@@ -102,6 +103,7 @@ describe('loadSave', () => {
     expect(result.state.wallet.xp.eq('900')).toBe(true);
     expect(result.state.rates.gold.eq('4')).toBe(true);
     expect(result.state.rng).toEqual({ seed: 5, calls: 3 });
+    expect(result.state.chapter).toBe(2);
     expect(result.state.stage).toBe(6);
     expect(result.state.battleCount).toBe(214);
     expect(result.state.pity).toBe(12);
