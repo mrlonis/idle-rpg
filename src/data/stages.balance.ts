@@ -516,12 +516,16 @@ describe('ladder balance', () => {
     // the margin on its own. Losing fights are covered by {@link timer} below, and by the
     // zero-timeout assertion at the top of this block, which is the load-bearing one.
     const cleared = everySweep.filter((entry) => entry.winRate >= 0.9);
+    const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
+
+    // Before the reduce below, not after it: an empty `cleared` would make that reduce throw, and
+    // a suite where no tuned party clears anything should report *that* rather than a TypeError.
+    expect(cleared.length).toBeGreaterThan(0);
+
     const worst = cleared.reduce((slowest, entry) =>
       entry.maxSeconds > slowest.maxSeconds ? entry : slowest,
     );
-    const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
 
-    expect(cleared.length).toBeGreaterThan(0);
     expect(
       worst.maxSeconds,
       `longest cleared fight ${worst.maxSeconds.toFixed(1)}s — ${worst.label} vs ` +
