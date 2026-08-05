@@ -13,16 +13,45 @@
   </p>
 }
 
+<!--
+  The two notices below report something that has already finished, so both can be closed.
+  Without that there is no way off them on a phone — the desktop escape hatch is a page reload,
+  and a shelled app has no address bar to reload from.
+
+  The dismiss button sits outside the `role="status"` element on purpose. A live region announces
+  its whole subtree when it is inserted, so a button inside one would have the player told
+  "Dismiss" as part of the news itself.
+-->
 @if (autoStoppedAt(); as stopped) {
-  <p class="notice" role="status">
-    Auto-battle stopped: your party lost on Stage {{ stopped.number }} — {{ stopped.name }}.
-  </p>
+  <div class="notice notice--dismissible">
+    <p class="notice__text" role="status">
+      Auto-battle stopped: your party lost on Stage {{ stopped.number }} — {{ stopped.name }}.
+    </p>
+    <button
+      type="button"
+      class="notice__close"
+      aria-label="Dismiss auto-battle notice"
+      (click)="dismissAutoStopped()"
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
 }
 
 @if (offlineSummary(); as summary) {
-  <p class="notice" role="status">
-    While you were away for {{ summary.duration }}, you earned {{ summary.earned }}.
-  </p>
+  <div class="notice notice--dismissible">
+    <p class="notice__text" role="status">
+      While you were away for {{ summary.duration }}, you earned {{ summary.earned }}.
+    </p>
+    <button
+      type="button"
+      class="notice__close"
+      aria-label="Dismiss offline earnings notice"
+      (click)="dismissOfflineSummary()"
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
 }
 
 <section class="wallet" aria-labelledby="wallet-label">

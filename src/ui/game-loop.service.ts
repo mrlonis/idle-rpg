@@ -96,6 +96,20 @@ export class GameLoopService {
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
   readonly offlineReport = signal<OfflineReport | null>(null);
 
+  /**
+   * Closes the "while you were away" panel.
+   *
+   * Lives here rather than as a flag on the screen because `HomeView` is lazily routed and
+   * re-created on every navigation — a dismissal held in the component would bring the panel
+   * back the moment the player looked at their roster and came home again.
+   *
+   * Discarding the report costs nothing: it is a receipt for income already banked in the
+   * wallet, not the income itself. The next genuine absence publishes a fresh one.
+   */
+  dismissOfflineReport(): void {
+    this.offlineReport.set(null);
+  }
+
   /** Fields recovered from a damaged save, so the UI can tell the player what happened. */
   readonly saveIssues = signal<readonly RepairIssue[]>([]);
 

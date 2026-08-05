@@ -160,4 +160,24 @@ export class HomeView {
     // the service's business: the screen's lifetime is the battle session.
     this.battles.fight(Date.now());
   }
+
+  /**
+   * Closes one of the two notices that report something that already happened.
+   *
+   * Both delegate to the service that owns the signal rather than hiding the line locally: this
+   * screen is lazily routed and is destroyed and rebuilt on every navigation, so a flag held
+   * here would put the notice straight back on the player's next visit.
+   *
+   * Only these two are dismissible. The save-health notices above them describe a condition that
+   * is still true — a run whose save could not be read is not being written to disk for the rest
+   * of the session — and a warning that is still costing the player something should not be
+   * closable.
+   */
+  protected dismissAutoStopped(): void {
+    this.battles.dismissAutoStopped();
+  }
+
+  protected dismissOfflineSummary(): void {
+    this.game.dismissOfflineReport();
+  }
 }

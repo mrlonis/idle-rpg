@@ -34,6 +34,23 @@ const unlockedSave = {
 };
 
 /**
+ * The same run, an hour stale, so the home screen draws its "while you were away" notice.
+ *
+ * That notice carries a dismiss button, and an icon button whose whole accessible name lives in
+ * `aria-label` is exactly the markup that ends up announcing nothing. A fresh run has neither
+ * notice, so no scan below would otherwise ever see one.
+ */
+const awaySave = { ...unlockedSave, lastTickAt: Date.now() - 3_600_000 };
+
+/** Writes a save the app will read on its next load. Capacitor's web backend is localStorage. */
+async function seedSave(page: Page, save: unknown): Promise<void> {
+  await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
+    'CapacitorStorage.save',
+    JSON.stringify(save),
+  ] as const);
+}
+
+/**
  * AGENTS.md makes accessibility a hard requirement — all AXE checks, WCAG AA minimums — so it
  * is checked mechanically rather than by eye.
  *
@@ -81,6 +98,20 @@ test.describe('Accessibility', () => {
     await scan(page, testInfo, 'home');
   });
 
+  test('the home screen with a dismissible notice has no AXE violations', async ({
+    page,
+  }, testInfo) => {
+    await seedSave(page, awaySave);
+    await page.goto('');
+
+    await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Dismiss offline earnings notice' }),
+    ).toBeVisible();
+
+    await scan(page, testInfo, 'home-notice');
+  });
+
   test('the battle screen has no AXE violations', async ({ page }, testInfo) => {
     await page.goto('');
 
@@ -105,10 +136,7 @@ test.describe('Accessibility', () => {
     // The Auto toggle only renders for a run that has earned it, so the scan above never sees it.
     // It is a pressed-state button sitting beside three more of them, which is exactly the markup
     // most likely to end up announcing nothing.
-    await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
-      'CapacitorStorage.save',
-      JSON.stringify(unlockedSave),
-    ] as const);
+    await seedSave(page, unlockedSave);
     await page.goto('');
 
     await page.getByRole('button', { name: /^Fight Stage/ }).click();
