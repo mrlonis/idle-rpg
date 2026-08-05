@@ -51,7 +51,7 @@ const top = STAGES[CLEARS - 1];
 function unlockedRun(index: number) {
   const { chapter, stage } = positionAt(LADDER, index);
   return {
-    version: 5,
+    version: 0,
     chapter,
     wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: {

@@ -295,15 +295,7 @@ export {
   type Migration,
   type RawSave,
 } from './save/migrate';
-export {
-  type AnySaveData,
-  type CurrentSaveData,
-  type SaveDataV1,
-  type SaveDataV2,
-  type SaveDataV3,
-  type SaveDataV4,
-  type SaveDataV5,
-} from './save/schema';
+export { type AnySaveData, type CurrentSaveData, type SaveDataV0 } from './save/schema';
 export {
   fromSaveData,
   toSaveData,

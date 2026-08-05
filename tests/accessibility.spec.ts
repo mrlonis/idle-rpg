@@ -13,7 +13,7 @@ import { CHAPTERS, STAGE_REWARDS } from '../src/data';
 const CLEARS = totalStages(ladderShape(CHAPTERS));
 const top = stagePayout(STAGE_REWARDS, CLEARS);
 const unlockedSave = {
-  version: 4,
+  version: 0,
   wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
   rates: {
     gold: String(top.rates.gold),
@@ -23,6 +23,7 @@ const unlockedSave = {
   },
   lastTickAt: Date.now(),
   rng: { seed: 3735928559, calls: 0 },
+  chapter: 1,
   stage: 1,
   clearedStages: CLEARS,
   battleCount: 214,

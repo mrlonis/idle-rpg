@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { zeroRates } from './currency';
 import { num } from './numeric';
+import { SAVE_VERSION } from './save/version';
 import { newGame, stampSaveTime, type GameState } from './state';
 import { tick } from './tick';
 
@@ -141,6 +142,9 @@ describe('newGame', () => {
   });
 
   it('carries the current save version so migrations always have a floor', () => {
-    expect(newGame({ seed: SEED, nowMs: T0 }).version).toBeGreaterThanOrEqual(1);
+    // Against `SAVE_VERSION` rather than a literal floor: the chain was re-based to a v0 baseline
+    // when the game was still pre-release, so "at least 1" stopped being true without anything
+    // about the rule changing.
+    expect(newGame({ seed: SEED, nowMs: T0 }).version).toBe(SAVE_VERSION);
   });
 });

@@ -3,8 +3,14 @@
 </header>
 
 @if (loadFailure(); as failure) {
+  <!--
+    Says what happened rather than reassuring. The second sentence used to read "the old save has
+    not been overwritten", which was true while a failed load barred the way to the primary slot;
+    since the v0 reset the fresh run is written over it, and a notice that quietly kept promising
+    otherwise would be the worst kind of stale copy — the kind a player relies on.
+  -->
   <p class="notice notice--error" role="alert">
-    Your save could not be read, so this is a fresh run. The old save has not been overwritten.
+    Your save could not be read, so this is a fresh run. It has replaced the old one.
     <span class="notice__detail">{{ failure }}</span>
   </p>
 } @else if (saveIssues().length > 0) {

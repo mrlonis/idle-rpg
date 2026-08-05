@@ -222,7 +222,20 @@ The app is zoneless. The sim clock and the render clock are separate.
   under storage pressure, which loses player saves.
 - Every save carries a `version`. Bumping `SAVE_VERSION` without adding the matching
   migration is a bug.
-- Migrations are pure `(old) => (new)` steps, chained. **Never delete an old migration.**
+- Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
+  build carrying it has reached a player** — they can return after any number of releases and
+  their save has to walk the whole chain.
+  - **`SAVE_VERSION` is 0 and the table is empty, and that is the current state rather than an
+    oversight.** Five versions and four migrations were collapsed into a v0 baseline while the
+    game was pre-release, on the one argument that licenses it: no save any of them wrote has ever
+    existed outside development. [saves](../../docs/saves.md) records the reset and the condition — a
+    player loading a save — that closes the door on repeating it. The chain walker was kept and is
+    still tested against a synthetic history, so the next real migration lands on proven code.
+  - **A save this build cannot read is discarded and written over**, and the fresh run persists
+    normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
+    longer gates persistence. The protection it used to give — a newer build's save surviving a
+    downgrade — cost a game that boots, plays and silently never saves, which is the worse failure
+    and the one a player actually hits.
 - Loading must not throw on recoverable damage. Clamp and default (`NaN` gold becomes 0,
   unknown character IDs are dropped) rather than rejecting. A thrown error costs the
   player their entire run. Write to a backup slot before overwriting the primary.

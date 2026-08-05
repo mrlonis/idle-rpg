@@ -1741,6 +1741,43 @@ It is written down because it is the thing that makes the genre's best games fee
 a number going up — and skipping it should be a decision made on the cost, not a gap nobody
 noticed.
 
+## Not a milestone: the save chain was re-based to v0
+
+Housekeeping rather than a milestone, done straight after chapters shipped. `SAVE_VERSION` went
+from 5 to **0**, the four migrations and five historical shapes were deleted, and the five
+fixtures became one.
+
+**The one argument that licenses it, and the condition that closes the door.** No save written by
+v1 through v5 has ever existed outside development — nobody has played this game but its author,
+on dev servers whose storage does not survive the session — so the chain was four migrations, five
+schema interfaces and five fixtures maintained for an audience of zero, each a thing to keep
+working and to reason about on every schema change. The rule in `AGENTS.md` was therefore
+**scoped rather than softened**: _never delete or edit a migration once a build carrying it has
+reached a player._ That condition is what makes it enforceable, and it is what makes this
+unrepeatable — the moment anyone outside development loads a save, the chain is permanent.
+
+Three decisions inside it worth keeping:
+
+- **The chain walker survived the entries it used to run.** `migrate()` still walks a table and
+  `migrate.spec.ts` still drives that walk against a synthetic history. Proven machinery with no
+  callers is a far better position than an unproven walker written on the day the first real
+  migration is already urgent — which is exactly the day nobody wants to be debugging one.
+- ⚠️ **An unreadable save is now discarded and written over, which reverses the highest-stakes
+  rule the UI had.** `fatal` used to bar the way to the primary slot, on the grounds that the
+  bytes might belong to a newer build and would be readable again after an update. What that
+  bought was a run surviving a downgrade; what it cost was a game that boots, plays, and silently
+  never writes anything down — the worse failure of the two, and the one a player actually hits.
+  `fatal` still reports on the home screen and still drives the backup-slot fallback, so a
+  corrupted primary costs nothing and a genuine failure is visible rather than mysterious.
+- **A save with no `version` is now damage rather than the oldest schema.** Reading it as v1 was
+  right while v1 predated versioning and guessing beat discarding a real run. Nothing below the v0
+  baseline exists, so the guess had nothing left to be for.
+
+The load-time repair was untouched and is the reason this cost so little.
+`reconcileClearedStages` fixes a shape of damage — rates that say the run climbed further than its
+clear count admits — that has nothing to do with migrations, so the e2e cover for it simply seeds
+that damage directly instead of arriving at it through a v2 save.
+
 ## Not a milestone: the simulation harness is the only feedback loop
 
 **There is no telemetry and there never will be**, because there is no server. Nobody will ever

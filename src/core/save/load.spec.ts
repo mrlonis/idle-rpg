@@ -54,15 +54,23 @@ describe('loadSave', () => {
   });
 
   it('reports a fatal error and a fresh run for an unmigratable save', () => {
-    const result = loadSave({ version: 0 }, OPTIONS);
+    const result = loadSave({ version: -3 }, OPTIONS);
 
     expect(result.fatal).toBeDefined();
     expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
-  it('flags a future-versioned save as fatal so the caller does not overwrite it', () => {
-    // The player downgraded the app. Their save is intact and becomes readable again on
-    // update — clobbering it here would destroy a perfectly good run.
+  it('reports a fatal error and a fresh run for a save from before the v0 baseline', () => {
+    // The five pre-release schema versions were collapsed into v0, so nothing they wrote has a
+    // path to current. A fresh run is the answer, and since the v0 reset the caller writes over
+    // it rather than leaving the game unable to save.
+    const result = loadSave({ version: 3, wallet: {} }, OPTIONS);
+
+    expect(result.fatal).toBeDefined();
+    expect(result.state.wallet.gold.toString()).toBe('0');
+  });
+
+  it('flags a future-versioned save as fatal, and still hands back a playable run', () => {
     const result = loadSave({ version: SAVE_VERSION + 5 }, OPTIONS);
 
     expect(result.fatal).toMatch(/newer than this build supports/);
