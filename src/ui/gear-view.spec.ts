@@ -36,7 +36,7 @@ function item(over: Partial<GearItemView> = {}): GearItemView {
     maxLevel: 60,
     atMaxLevel: false,
     bonuses: [{ stat: 'hp', label: 'Health', percent: 9 }],
-    salvageValue: 1420,
+    salvageValue: '1.42K',
     power: 3.2,
     wornBy: null,
     wornByName: null,
@@ -58,6 +58,9 @@ function offer(over: Partial<GearOfferView> = {}): GearOfferView {
 }
 
 class FakeGear {
+  /** What `buy` reports back. Defaults to the ordinary case: the piece was kept, nothing melted. */
+  buyOutcome: { kept: boolean; salvaged: number } = { kept: true, salvaged: 0 };
+
   readonly offers = signal<readonly GearOfferView[]>([offer()]);
   readonly loose = signal<readonly GearItemView[]>([item()]);
   readonly alloy = signal(num(250_000));
@@ -93,7 +96,7 @@ class FakeGear {
   buy(index: number) {
     this.bought.push(index);
     return this.failWith === null
-      ? ({ ok: true, state: {} } as never)
+      ? ({ ok: true, state: {}, ...this.buyOutcome } as never)
       : ({ ok: false, reason: this.failWith } as never);
   }
 
@@ -192,6 +195,41 @@ describe('GearView', () => {
     expect(el.querySelector('[role="status"]')?.textContent).toContain('added to the bag');
   });
 
+  it('does not claim a piece was bagged when the bag salvaged it on arrival', async () => {
+    // ⚠️ The bag keeps the best 240 of the union, so an offer worse than everything already held is
+    // itself the piece that melts. Nothing is lost — the value comes back as alloy — but a
+    // confirmation saying "added to the bag" would be the screen lying about a purchase.
+    const { el, fixture } = await render((gear) => {
+      gear.buyOutcome = { kept: false, salvaged: 1 };
+    });
+
+    click(el, '.offer__buy', fixture);
+
+    const notice = el.querySelector('[role="status"]')?.textContent ?? '';
+    expect(notice).toContain('salvaged');
+    expect(notice).not.toContain('added to the bag');
+  });
+
+  it('says how many pieces the bag shed to fit a purchase in', async () => {
+    const { el, fixture } = await render((gear) => {
+      gear.buyOutcome = { kept: true, salvaged: 2 };
+    });
+
+    click(el, '.offer__buy', fixture);
+
+    const notice = el.querySelector('[role="status"]')?.textContent ?? '';
+    expect(notice).toContain('added to the bag');
+    expect(notice).toContain('2 pieces salvaged');
+  });
+
+  it('says nothing about salvage when the bag had room', async () => {
+    const { el, fixture } = await render();
+
+    click(el, '.offer__buy', fixture);
+
+    expect(el.querySelector('[role="status"]')?.textContent).not.toContain('salvaged');
+  });
+
   it('says why a purchase was refused instead of doing nothing visible', async () => {
     const { el, fixture } = await render((gear) => {
       gear.failWith = 'insufficient-currency';
@@ -282,7 +320,20 @@ describe('GearView', () => {
 
     click(el, '.item__row', fixture);
 
-    expect(el.querySelector('.detail__salvage')?.textContent).toContain('1420 alloy');
+    expect(el.querySelector('.detail__salvage')?.textContent).toContain('1.42K alloy');
+  });
+
+  it('quotes the same salvage figure on the button and in the confirmation', async () => {
+    // They disagreed once — one printing `3288` and the other `3,288`. The view model formats it
+    // at the seam now, so there is no second place for a convention to be chosen.
+    const { el, fixture } = await render();
+
+    click(el, '.item__row', fixture);
+    const onButton = el.querySelector('.detail__salvage')?.textContent ?? '';
+    click(el, '.detail__salvage', fixture);
+
+    expect(el.querySelector('[role="status"]')?.textContent).toContain('1.42K alloy');
+    expect(onButton).toContain('1.42K alloy');
   });
 
   it('closes the row it just salvaged, since the piece is gone', async () => {

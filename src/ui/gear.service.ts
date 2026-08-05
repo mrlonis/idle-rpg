@@ -21,6 +21,7 @@ import {
   type GearStat,
   type GameState,
   isAligned,
+  num,
   itemBonus,
   msUntilRestock,
   type Numeric,
@@ -30,6 +31,7 @@ import {
   useAsMaterial,
 } from '../core';
 import { CHARACTERS_BY_ID, factionName, GEAR, GEAR_ALIGNMENTS } from './content';
+import { formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 
 /**
@@ -260,7 +262,7 @@ export class GearService {
       maxLevel: grade?.maxLevel ?? item.level,
       atMaxLevel: !canEnhance(GEAR, item),
       bonuses: toBonusViews(itemBonus(GEAR, item, faction)),
-      salvageValue: salvageValue(GEAR, item),
+      salvageValue: formatNumeric(num(salvageValue(GEAR, item))),
       power: gearScale(GEAR, item, faction),
       wornBy: wornBy ?? null,
       wornByName: wearer?.name ?? null,
@@ -300,7 +302,16 @@ export interface GearItemView {
   readonly maxLevel: number;
   readonly atMaxLevel: boolean;
   readonly bonuses: readonly GearBonusView[];
-  readonly salvageValue: number;
+  /**
+   * What salvaging this piece pays, **already formatted**.
+   *
+   * A string rather than a number, so the button and the confirmation that follows it cannot
+   * disagree about how to render the same quantity — which they did, one printing `3288` and the
+   * other `3,288`. Formatting at the seam rather than at each use is what makes that a shape the
+   * screen cannot get wrong, and it routes through `formatNumeric` like every other quantity on
+   * the screen rather than introducing a third convention.
+   */
+  readonly salvageValue: string;
   /** The scale factor behind the bonuses. Used for sorting; never shown. */
   readonly power: number;
   /** The character wearing this, or `null` when it is in the bag. */

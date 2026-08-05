@@ -299,6 +299,18 @@ has to give when it fills, and what gives is the **object** rather than the **va
 piece of the union salvages into alloy worth exactly what it would have been worth as material. A
 drop arriving into a full bag of junk keeps the drop.
 
+**The one case worth surfacing is a purchase into a full bag.** "Best of the union" cuts both ways:
+if the offer is worse than all 240 pieces already held, the piece just bought is the one that melts.
+Gold is still spent and the offer is still marked taken, and that is correct — the value comes back
+as alloy — but a confirmation reading "added to the bag" would be the screen lying about a
+transaction the player just paid for. So `buyGear` reports `kept` and `salvaged` rather than only
+`ok`, and the gear screen says which of the three things happened: bagged, bagged after shedding
+_n_ pieces, or salvaged on arrival.
+
+Refusing the purchase instead was the alternative and it loses on the same grounds `useAsMaterial`
+keeps a salvage that did not add up to a level — the outcome is honest and actionable either way,
+and a refusal would mean "your bag is full" blocking a purchase whose fix is a chore.
+
 ---
 
 ## Enemies and gear

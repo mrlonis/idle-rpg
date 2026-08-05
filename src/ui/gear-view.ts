@@ -87,18 +87,38 @@ export class GearView implements OnInit, OnDestroy {
       this.openId.set(null);
     }
     this.notice.set(
-      result.ok
-        ? `Salvaged for ${item.salvageValue.toLocaleString()} alloy.`
-        : FAILURES[result.reason],
+      result.ok ? `Salvaged for ${item.salvageValue} alloy.` : FAILURES[result.reason],
     );
   }
 
+  /**
+   * Buys an offer, and says what actually happened to it.
+   *
+   * ⚠️ **"Added to the bag" is not always true, which is why this reads `kept`.** The bag holds 240
+   * unequipped pieces and `addGear` keeps the best of the union, so a purchase into a full bag
+   * either displaces something worse — the ordinary case — or, when the offer was worse than
+   * everything already held, is itself the piece that melts. Nothing is lost either way, because
+   * the value comes back as alloy; but a confirmation that claimed otherwise would be the screen
+   * lying about a transaction the player just paid gold for.
+   */
   protected buy(offer: GearOfferView): void {
     const result = this.gear.buy(offer.index);
+    if (!result.ok) {
+      this.notice.set(SHOP_FAILURES[result.reason]);
+      return;
+    }
+
+    const name = `${offer.item.gradeName} ${offer.item.slotLabel}`;
+    if (!result.kept) {
+      this.notice.set(
+        `Your bag is full of better gear, so the ${name} was salvaged for ${offer.item.salvageValue} alloy.`,
+      );
+      return;
+    }
     this.notice.set(
-      result.ok
-        ? `${offer.item.gradeName} ${offer.item.slotLabel} added to the bag.`
-        : SHOP_FAILURES[result.reason],
+      result.salvaged > 0
+        ? `${name} added to the bag. The bag was full, so ${result.salvaged} piece${result.salvaged === 1 ? '' : 's'} salvaged to make room.`
+        : `${name} added to the bag.`,
     );
   }
 

@@ -285,23 +285,24 @@ function readGearMinted(raw: unknown, gear: readonly GearItem[], note: Note): nu
     }
   }
 
-  const written =
-    typeof raw === 'number' && Number.isInteger(raw) && raw >= 0
-      ? raw
-      : ((): number => {
-          note(
-            'gearMinted',
-            `not a non-negative integer (${JSON.stringify(raw) ?? 'undefined'})`,
-            String(highest),
-          );
-          return 0;
-        })();
-
-  if (written < highest) {
-    note('gearMinted', `below the highest minted id (${written} < ${highest})`, String(highest));
+  // Recovered to `highest` in one step rather than defaulted to zero and then clamped. Both routes
+  // end at the same number, but the two-step version reports the same field twice — one issue for
+  // "not an integer" and a second for "below the highest minted id" — which reads to anyone looking
+  // at the issue list as two separate things having gone wrong.
+  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0) {
+    note(
+      'gearMinted',
+      `not a non-negative integer (${JSON.stringify(raw) ?? 'undefined'})`,
+      String(highest),
+    );
     return highest;
   }
-  return written;
+
+  if (raw < highest) {
+    note('gearMinted', `below the highest minted id (${raw} < ${highest})`, String(highest));
+    return highest;
+  }
+  return raw;
 }
 
 /**

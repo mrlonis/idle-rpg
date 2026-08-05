@@ -2,7 +2,7 @@ import { canAfford, debit } from '../currency';
 import { num, type Numeric } from '../numeric';
 import { derivedStream } from '../rng';
 import { type GameState } from '../state';
-import { addGear, type GearFailure, type GearResult, type GearSpec, gearId } from './inventory';
+import { addGear, type GearFailure, type GearSpec, gearId } from './inventory';
 import { gradeWeights, rollGear, weightedIndex } from './roll';
 import { gradeAt } from './stats';
 import { type GearOffer, type GearRulesData } from './types';
@@ -119,7 +119,28 @@ export function gearShopOffers(
 export type GearShopFailure = GearFailure | 'unknown-offer' | 'already-purchased';
 
 export type GearShopResult =
-  | { readonly ok: true; readonly state: GameState }
+  | {
+      readonly ok: true;
+      readonly state: GameState;
+      /**
+       * `false` when the bag was full of better pieces and the one just bought was the thing
+       * salvaged to make room.
+       *
+       * ⚠️ **Reported rather than prevented, and the caller has to say which happened.** `addGear`
+       * keeps the best of the union, so a purchase into a full bag either displaces something worse
+       * — fine, and what a player buying an upgrade expects — or, if the offer was worse than all
+       * 240 pieces already held, is itself the thing that melts. The second case still pays out its
+       * alloy, so nothing is lost, but a confirmation saying "added to the bag" would be a lie.
+       *
+       * Refusing the purchase instead was the alternative. It loses on the same grounds
+       * `useAsMaterial` keeps a salvage that did not add up to a level: the outcome is honest and
+       * actionable either way, and a refusal here would mean "your bag is full" blocking a
+       * purchase whose fix is a chore.
+       */
+      readonly kept: boolean;
+      /** How many pieces the bag shed to stay inside its limit, the purchase included. */
+      readonly salvaged: number;
+    }
   | { readonly ok: false; readonly reason: GearShopFailure };
 
 /**
@@ -174,6 +195,14 @@ export function buyGear(
     wallet: debit(state.wallet, cost),
     gearShop: { slot: current, purchased },
   };
-  const granted: GearResult = { ok: true, state: addGear(paid, [spec], rules).state };
-  return granted;
+  // `minted` is the arrivals that survived the bag's limit, so an empty one means the piece just
+  // bought was the worst thing in the union and melted on arrival. Passing that out is the whole
+  // reason this does not simply take `.state` — see {@link GearShopResult}.
+  const granted = addGear(paid, [spec], rules);
+  return {
+    ok: true,
+    state: granted.state,
+    kept: granted.minted.length > 0,
+    salvaged: granted.salvaged,
+  };
 }

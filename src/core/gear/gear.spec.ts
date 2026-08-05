@@ -743,6 +743,53 @@ describe('the shop', () => {
     }
   });
 
+  it('reports that the piece was kept when the bag had room for it', () => {
+    const rich = run({ wallet: { ...newGame({ seed: 1, nowMs: T0 }).wallet, gold: num(1e9) } });
+
+    const bought = buyGear(rich, RULES, ['test-mortal'], 7, 1);
+
+    expect(bought.ok).toBe(true);
+    if (bought.ok) {
+      expect(bought.kept).toBe(true);
+      expect(bought.salvaged).toBe(0);
+    }
+  });
+
+  it('reports that a purchase melted on arrival rather than claiming it was bagged', () => {
+    // ⚠️ The bag keeps the best `inventoryLimit` pieces of the union, so an offer worse than
+    // everything already held is itself the piece that salvages. The gold is still spent and the
+    // offer is still marked taken — nothing is lost, because the value comes back as alloy — but a
+    // caller told only `ok: true` would confirm a purchase that is not in the bag.
+    //
+    // Every held piece here is the top grade several levels in, so its salvage value is far above
+    // anything a level-1 offer can be worth. That makes the outcome deterministic rather than a
+    // property of whatever the shop happened to roll.
+    const hoard: GearItem[] = Array.from({ length: RULES.inventoryLimit }, (_, index) =>
+      item({ id: `h${index}`, grade: 1, level: 5 }),
+    );
+    const full = run({
+      wallet: { ...newGame({ seed: 1, nowMs: T0 }).wallet, gold: num(1e9) },
+      gear: hoard,
+      gearMinted: hoard.length,
+    });
+
+    const bought = buyGear(full, RULES, ['test-mortal'], 7, 1);
+
+    expect(bought.ok).toBe(true);
+    if (!bought.ok) {
+      return;
+    }
+    expect(bought.kept).toBe(false);
+    expect(bought.salvaged).toBe(1);
+    // Charged and marked taken regardless, which is what makes the report necessary rather than
+    // decorative: the transaction happened, it just did not end where the player would assume.
+    expect(bought.state.wallet.gold.lt(full.wallet.gold)).toBe(true);
+    expect(bought.state.gearShop.purchased).toEqual([1]);
+    // And the value is in the wallet rather than gone.
+    expect(bought.state.wallet.alloy.gt(ZERO)).toBe(true);
+    expect(bought.state.gear).toHaveLength(RULES.inventoryLimit);
+  });
+
   it('refuses an offer index the stocking does not have', () => {
     expect(buyGear(run(), RULES, ['test-mortal'], 7, 99)).toEqual({
       ok: false,
