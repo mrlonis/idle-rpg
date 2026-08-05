@@ -11,10 +11,31 @@ import {
   startRarityIndex,
 } from '../core';
 import { AUTO_BATTLE_UNLOCK_CLEARS, STARTER_FORMATION } from '../data';
-import { BattleService, type PlaybackSpeed } from './battle.service';
+import { BattleService } from './battle.service';
 import { CHAPTERS_IN_ORDER, CHARACTERS_BY_ID, LADDER, STAGES } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
+import { KEY_VALUE_STORE, type KeyValueStore } from './save.service';
+import { type PlaybackSpeed } from './settings.service';
+
+/** An empty stand-in for the preferences store, so nothing here reaches the real plugin. */
+class MemoryStore implements KeyValueStore {
+  private readonly entries = new Map<string, string>();
+
+  get({ key }: { key: string }): Promise<{ value: string | null }> {
+    return Promise.resolve({ value: this.entries.get(key) ?? null });
+  }
+
+  set({ key, value }: { key: string; value: string }): Promise<void> {
+    this.entries.set(key, value);
+    return Promise.resolve();
+  }
+
+  remove({ key }: { key: string }): Promise<void> {
+    this.entries.delete(key);
+    return Promise.resolve();
+  }
+}
 
 /**
  * The heading the service should produce for the `index`th stage of the ladder, 0-based.
@@ -148,7 +169,15 @@ function build(
   // animators — comparing playback speeds needs two of them narrating the same battle.
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [BattleService, RosterService, { provide: GameLoopService, useValue: loop }],
+    providers: [
+      BattleService,
+      RosterService,
+      { provide: GameLoopService, useValue: loop },
+      // The playback speed is a persisted setting since milestone 13, so the animator now reaches
+      // a store. Provided empty rather than left to the real plugin: two animators built in one
+      // test must not inherit a speed the previous one wrote.
+      { provide: KEY_VALUE_STORE, useValue: new MemoryStore() },
+    ],
   });
 
   return { loop, battles: TestBed.inject(BattleService) };

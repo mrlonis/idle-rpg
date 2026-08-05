@@ -1,0 +1,64 @@
+@use 'theme' as t;
+
+// The panel itself. `.cdk-overlay-pane` is sized by the config the dialog is opened with; this
+// is what fills it, so the surface, the border and the padding all live here rather than in a
+// global overlay stylesheet nothing else would use.
+:host {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.25rem;
+  // Scrolls itself rather than the page if the text ever outgrows a short screen. The document
+  // does not scroll in this app, so a panel that overflowed would simply be unreachable.
+  overflow-y: auto;
+
+  background: t.$surface-raised;
+  border: 1px solid t.$border;
+  border-radius: 0.75rem;
+  color: t.$text;
+}
+
+.dialog__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+}
+
+.dialog__body {
+  margin: 0 0 0.75rem;
+  color: t.$muted;
+  line-height: 1.45;
+}
+
+// The consequence, in the danger colour and in its own sentence. Colour is never the only
+// carrier of meaning here — the words say it is irreversible whether or not the red reads.
+.dialog__warning {
+  margin: 0 0 1.25rem;
+  padding: 0.625rem 0.75rem;
+  background: t.$danger-bg;
+  border-radius: 0.5rem;
+  color: t.$danger;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.dialog__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.dialog__button {
+  flex: 1 1 0;
+  @include t.button-base;
+}
+
+.dialog__button--quiet {
+  border: 1px solid t.$border;
+  background: t.$surface;
+  color: t.$text;
+}
+
+.dialog__button--danger {
+  border: 1px solid t.$danger;
+  background: t.$danger-bg;
+  color: t.$danger;
+}

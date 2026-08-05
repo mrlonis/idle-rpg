@@ -32,7 +32,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels  |
 | 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived |
 | 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots  |
-| 13  | Settings, and the save-safety gap       | ⬜                                           |
+| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal |
 | 14  | Dailies, bounties and notifications     | ⬜                                           |
 | 15  | Faction towers                          | ⬜                                           |
 | 16  | Deep per-hero investment                | ⬜                                           |
@@ -1629,17 +1629,122 @@ idea and belongs with something to spend it on — milestone 12 or 14". Gear gav
 on and it still was not built, because a chapter boss already pays four drops and a crystal
 multiplier. It belongs with 14's claim ledger, which is the machinery it actually needs.
 
-## 13. Settings, and the save-safety gap
+## 13. Settings, and the save-safety gap — **COMPLETE**
 
-A small milestone that clears a backlog. Three things have been waiting on a settings screen —
-the run reset, combat speed defaults, and somewhere to put whatever accumulates next.
+A small milestone that clears a backlog. Three things had been waiting on a settings screen — the
+run reset, combat speed defaults, and somewhere to put whatever accumulates next.
 
-**The run reset is the one with a trap in it.** `SaveService.clear()` exists, is documented, and
-has never been executed by anything including tests, so making it reachable means covering it.
-And per "Deliberately deferred" below: the running game holds authoritative state in memory and
-persists on autosave and `visibilitychange`, so clearing storage from inside the app is undone by
-the app on the way out. A reset has to stop the loop and replace the in-memory state, not merely
-empty the slots.
+Shipped: `/settings` and a sixth tab; `ui/settings.service.ts` persisting preferences to a key of
+their own; battle speed as a **sticky setting** rather than a per-fight control; `ui/reset-dialog.ts`,
+the app's first CDK overlay; and `GameLoopService.reset`. **No save migration** — the settings are
+not in the save, which is the decision the rest of this section is mostly about.
+
+**Export/import was considered and declined**, and the reasoning below is unchanged: platform backup
+already covers the common loss, and a manual export is something most players would not do until
+after they had already lost the run. The gaps are recorded so nobody mistakes "it is in iCloud" for
+"it is safe".
+
+### Settings are a second key, not a field on the save
+
+The obvious place to put a preference is `GameState`, and it is the wrong one for two reasons that
+only become visible once the reset exists beside it.
+
+**A preference describes the app; a save describes a run.** Put them in one blob and resetting the
+run also resets how fast battles play — which nobody asked for, and which the confirmation dialog
+would then have to admit to. Worse, a save this build could not read would take the player's
+settings down with it, for no reason at all.
+
+**It also keeps the save chain out of it.** Every setting added later would otherwise be a
+`SAVE_VERSION` bump and a migration and a fixture, for a value nothing in `core/` ever reads. The
+chain is expensive on purpose — see the note on v1 re-issuing a burned version number — and
+spending it on a playback speed is not what it is for.
+
+**There is no version field on the settings, and that is a decision rather than an omission.** The
+save carries one because its fields are interdependent: a wallet without its rates is a broken run,
+so it needs a chain that can restate the whole object. Settings are the opposite shape — every field
+is independent, optional, and has a default that is always correct — so the repair is **per field,
+on read**. An unrecognised value becomes the default, an unknown field is ignored, and a missing
+field defaults. That subsumes migration in both directions for free. The bar for revisiting it is a
+key whose old and new meanings **collide**, which is the exact trap `SAVE_VERSION` 1 records; the
+answer there is a new key, not a version number.
+
+### The speed is sticky, and that makes it one value rather than two
+
+The battle screen's 1×/2×/4× buttons and the settings screen's radios write to the same
+`SettingsService` value. Nothing has to be kept in step because there is only one of it —
+`BattleService.playbackSpeed` **is** the setting's signal, not a copy of it.
+
+The alternative was a "default speed" that in-battle taps did not write back. It was rejected on the
+grounds that the speed a player wants is a property of the player rather than of the stage in front
+of them, and a 4× that had to be re-tapped every fight is a setting pretending to be a control.
+
+One ordering bug is possible here and is guarded: the read is asynchronous while the battle screen
+is already live, so a stored speed arriving after the player has tapped one would silently overrule
+them. `SettingsService` drops the late read instead.
+
+### The reset had the trap the notes promised
+
+`SaveService.clear()` existed, was documented, and had one test. Making it reachable was not the
+work; **replacing the in-memory run was.** The loop owns the authoritative state and writes it back
+on autosave and on `visibilitychange`, so a reset that only emptied storage would look correct until
+the app was backgrounded and then hand the old run back.
+
+`GameLoopService.reset` therefore does four things in an order that is itself the argument:
+
+1. **Stop the loop**, so no frame, autosave or visibility handler can write the old run back
+   part-way through.
+2. **Clear both slots.** `clear()` drops what is queued and waits for a write already in flight.
+   Clearing _before_ writing is also what keeps the old run out of the **backup** slot — a write
+   copies the primary across first, and there is nothing to copy once both are gone.
+3. **Replace the state**, through the same content-aware repairs a loaded run goes through.
+   `newGame` cannot seed a roster or a crystal rate, because `core/` cannot see the content that
+   decides either.
+4. **Persist immediately**, so the reset survives the app dying before the first autosave.
+
+The end-to-end test backgrounds the page on purpose after the reset, having first emptied the save
+key — so what the app writes next can only have come from what it is holding. That is the assertion
+a unit fake cannot make.
+
+**A fresh run is its own confirmation**, so the screen navigates home rather than showing a toast.
+Stage 1-1 and an empty wallet say it happened in a way no message would.
+
+### The first CDK overlay, and what it corrected
+
+The dialog is the first thing in this project to use `@angular/cdk`, which has been installed and
+unused since milestone 6. Three things came out of wiring it up:
+
+- **The two prebuilt global stylesheets are no longer needed.** The note in `AGENTS.md` said to add
+  `a11y-prebuilt.css` and `overlay-prebuilt.css` when the first overlay landed. CDK 22 self-loads
+  both through `_CdkPrivateStyleLoader`, so nothing was added to `angular.json` and the overlay
+  renders correctly regardless. The old advice was true and had gone stale, which is the general
+  lesson: read `node_modules` before believing a dependency needs configuring.
+- ⚠️ **CDK's default scroll strategy is wrong for this shell.** Blocking scroll works by putting
+  `position: fixed; overflow-y: scroll` on `html` — a fix for a document that scrolls, and this one
+  deliberately never does. It is replaced with `createNoopScrollStrategy()`; the backdrop already
+  stops a touch reaching the screen underneath.
+- **`aria-modal` is off by default.** CDK supplies `role="dialog"` and `aria-hidden` on everything
+  behind it, but the flag that tells a screen reader the boundary is real has to be asked for.
+
+**Cancel is first in the DOM**, so CDK's initial focus lands on the harmless button. A player who
+opened the dialog by mis-tapping can dismiss it with the tap already in flight.
+
+Testing focus restoration turned up a browser difference worth recording: **WebKit does not leave
+focus on a button it was clicked on.** That is a platform convention rather than a bug, and it means
+a mouse-driven restoration test asserts nothing there. The test opens the dialog with `Enter`, which
+is both the state a keyboard user is in and the only way the assertion means something in all three
+browsers.
+
+### The tab bar is full
+
+Six tabs is what fits across a 375pt phone at a legible label size — measured, not guessed: the
+widest label is 52px inside a 63px tab. At 320pt it is tight but still one line per label.
+
+**A seventh entry is not the answer.** It would have to shrink the text past reading or drop it, and
+a row of unlabelled glyphs is a puzzle rather than navigation. The next screen needs a different
+shape: a "more" tab that opens a list, or moving settings off the bar entirely and onto a control in
+a screen header — the second is what most games this size do, and it frees a slot for something a
+player uses more than once. That decision belongs with the milestone that needs the seventh screen,
+which is 14.
 
 ### Saves are already backed up, which is not the same as safe
 
@@ -1680,9 +1785,12 @@ The trigger to revisit is a real report of a lost run, not a hypothetical. Two a
   Decide it as one rather than absorbing it quietly, and note it leaves Android needing its own
   answer.
 
-**Verify the backup path on real hardware as part of this milestone.** It costs one restore, and
-it is the only way to know the table above survives contact with a device — the same argument
-milestone 6 made for running on a phone early, which found a bug nothing else would have.
+⚠️ **The backup path is still unverified on real hardware, and the table above is therefore read
+from the platform docs rather than from a device.** This was scoped into the milestone and is the
+one part of it not done: it needs a physical phone and a restore, which is not something the test
+suite can stand in for. It costs one restore and it is the only way to know the table survives
+contact with a device — the same argument milestone 6 made for running on a phone early, which
+found a bug nothing else would have. Carry it forward rather than dropping it.
 
 ## 14. Dailies, bounties, and a reason to open the app tomorrow
 
@@ -1998,46 +2106,22 @@ is what settled it.
   hardware (see milestone 6). If a control ever genuinely needs it, reinstalling is one command —
   but write the global styles by hand rather than accepting `mat.theme()`, which assumes a light
   scheme and a webfont this project cannot have.
-- **`@angular/cdk`.** Uninstalled alongside Material, then **deliberately reinstalled** while
-  milestone 6 was still open. Nothing imports it yet, which is the one thing about this entry
-  worth being honest about: it is a dependency on hand for a use case that has not arrived.
-  That was a considered call rather than a drift, so the reasoning is recorded here instead of
-  being re-argued later.
-
-  The case for it is that CDK is not a UI framework, it is an accessibility primitives library,
-  and this project's bar is a clean AXE run against WCAG AA. The first modal — pull results, a
-  roster detail sheet — needs a focus trap, focus restoration on close, the background made
-  `inert`, scroll blocking and Escape handling. That is a list of things that are individually
-  easy to write and collectively easy to get subtly wrong, and getting them wrong is an
-  accessibility bug rather than a cosmetic one. `cdkTrapFocus` and `Overlay` are the answer, and
-  "no UI framework" was never meant to forbid them.
-
-  The case against installing it _early_ is the one this milestone just lived through: an
-  unused dependency is how Material got in, and CDK versions in lockstep with Angular, so
-  waiting would have cost nothing but an `npm i`. **Its presence is not a precedent.** Do not
-  read it as a licence to install anything else against a future need.
-
-  One thing to read before wiring it up: CDK ships prebuilt global stylesheets, and
-  `overlay-prebuilt.css` declares `.cdk-overlay-container { position: fixed; height: 100%;
-width: 100% }`. That is correct here only because the shell now guarantees the document fills
-  the viewport — under the old layout it would have had the same mismatch as the tab bar. Add
-  those stylesheets when the first overlay lands, not before, and read them rather than pasting
-  them.
-
-- **Resetting a run.** `SaveService.clear()` exists and is documented for a deliberate "start
-  over", and nothing calls it. That is intentional: wiping a run is destructive and
-  irreversible, and it belongs **behind a settings menu**, not on the home screen where a
-  mis-tap can reach it. **The settings screen is milestone 13**, so this lands there — and note
-  the method has never been executed by anything, including tests, so making it reachable means
-  covering it.
-  Until then, `README.md` documents clearing the save by hand.
-
-  Worth knowing when that lands: **the running game overwrites external edits to the save.** It
-  holds the authoritative state in memory and persists on autosave and on `visibilitychange`, so
-  clearing storage from the app's own tab is undone by the app on the way out. A reset therefore
-  has to stop the loop and replace the in-memory state, not just empty the slots.
 
 Routing is **no longer deferred** — it shipped with milestone 3, for exactly the reason this
 list used to give for waiting: the roster and the banner are screens that survive a reload. See
 milestone 3 above. Note that routing is also what gives Android's hardware back button somewhere
 to go; that question still arrives with `@capacitor/app`, not before.
+
+**`@angular/cdk` and the run reset are both off this list as of milestone 13.** CDK was installed
+during milestone 6 and then sat unused for six milestones, which was recorded here as a considered
+call rather than a drift; the first overlay is `ui/reset-dialog.ts`, and the entry's argument — that
+CDK is an accessibility primitives library rather than a UI framework, and that a hand-rolled dialog
+gets focus trapping, restoration, background `aria-hidden` and Escape individually easy and
+collectively wrong — held up. The one thing it got wrong was the advice to add CDK's prebuilt global
+stylesheets when the first overlay landed: CDK 22 self-loads them, so nothing was added. **Its
+presence is still not a precedent** for installing anything else against a future need.
+
+The reset landed where this list always said it would — behind a settings menu, not on the home
+screen where a mis-tap can reach it — and it hit the trap the entry warned about: the running game
+overwrites external edits to the save, so clearing storage from the app's own tab is undone by the
+app on the way out. See milestone 13 for the order that fixes it.

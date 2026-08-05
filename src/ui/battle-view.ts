@@ -1,13 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { type BattleEvent, MAX_ENERGY, ZERO } from '../core';
-import {
-  type BattleCombatantView,
-  BattleService,
-  PLAYBACK_SPEEDS,
-  type PlaybackSpeed,
-} from './battle.service';
+import { type BattleCombatantView, BattleService } from './battle.service';
 import { formatAmounts, formatNumeric, formatRate } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { PLAYBACK_SPEEDS, type PlaybackSpeed } from './settings.service';
 
 /**
  * The battle screen.

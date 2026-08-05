@@ -241,13 +241,45 @@ describe('SaveService', () => {
     });
   });
 
-  it('clears both slots on request', async () => {
-    await service.save(newGame({ seed: 1, nowMs: T0 }));
-    await service.save(newGame({ seed: 1, nowMs: T0 }));
+  /**
+   * A deliberate "start over". Reachable from the settings screen since milestone 13, which is
+   * what made the two cases below worth having: a wipe that raced the write queue would leave the
+   * run the player just deleted sitting in one of the slots.
+   */
+  describe('clearing', () => {
+    it('clears both slots on request', async () => {
+      await service.save(newGame({ seed: 1, nowMs: T0 }));
+      await service.save(newGame({ seed: 1, nowMs: T0 }));
 
-    await service.clear();
+      await service.clear();
 
-    expect(store.entries.size).toBe(0);
+      expect(store.entries.size).toBe(0);
+    });
+
+    it('waits for a write already in flight rather than removing the slots under it', async () => {
+      slowStore();
+
+      const writing = service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '111'));
+      await service.clear();
+      await writing;
+
+      // The write finished and *then* both slots went, rather than the removals landing between
+      // the backup copy and the primary overwrite.
+      expect(store.entries.size).toBe(0);
+      expect(operations.indexOf('remove:save')).toBeGreaterThan(operations.lastIndexOf('set:save'));
+    });
+
+    it('drops a state that was still queued, so a wipe cannot be undone by it', async () => {
+      slowStore();
+
+      const first = service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '111'));
+      const queued = service.save(withGold(newGame({ seed: 1, nowMs: T0 }), '222'));
+      await service.clear();
+      await first;
+      await queued;
+
+      expect(store.entries.size).toBe(0);
+    });
   });
 });
 

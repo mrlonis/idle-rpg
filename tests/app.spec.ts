@@ -18,6 +18,7 @@ test.describe('App', () => {
       ['/summon', /Summon/],
       ['/roster', /Roster/],
       ['/shop', /Spark Shop/],
+      ['/settings', /Settings/],
     ] as const) {
       test(`loads ${path} directly`, async ({ page }) => {
         await page.goto(path);
