@@ -97,7 +97,7 @@ class FakeRoster {
 
 /** Only the three things the home screen asks of the animator. */
 class FakeBattles {
-  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1 });
+  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1, level: 1 });
   /** Set when an auto-battle run ended in a loss, which is what dropped the player back here. */
   readonly autoStoppedAt = signal<StageHeading | null>(null);
   readonly fought: number[] = [];
@@ -176,7 +176,7 @@ describe('HomeView', () => {
   describe('the way into a fight', () => {
     it('names the stage on the button', async () => {
       const { el } = await render((_game, battles) =>
-        battles.nextStage.set({ name: 'Cutthroat Camp', number: 5 }),
+        battles.nextStage.set({ name: 'Cutthroat Camp', number: 5, level: 1 }),
       );
 
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe(
@@ -277,7 +277,7 @@ describe('HomeView', () => {
 
     it('closes the auto-battle notice and clears it on the service', async () => {
       const { el, fixture, battles } = await render((_game, animator) =>
-        animator.autoStoppedAt.set({ name: 'Cutthroat Camp', number: 5 }),
+        animator.autoStoppedAt.set({ name: 'Cutthroat Camp', number: 5, level: 1 }),
       );
       expect(el.textContent).toContain('Auto-battle stopped');
 

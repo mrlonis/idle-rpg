@@ -55,12 +55,25 @@ export const AUTO_BATTLE_UNLOCK_CLEARS = 12;
  *
  * ## How difficulty escalates
  *
- * Not by multiplying stats. There is no level-scaling factor here on purpose: stages escalate by
- * asking harder questions, and each new lock arrives on its own before it is combined with
- * anything. The second half needs bigger stat blocks as well — the party that arrives at stage 13
- * is several times the party that cleared stage 12, and a 300-HP Slime in front of it is an empty
- * square rather than an easy fight — but those are authored bodies for the locks to stand behind,
- * not the mechanism.
+ * **By `level`, since milestone 10, and by nothing else.** Every archetype in
+ * [`enemies.ts`](./enemies.ts) is authored once at level 1 and fielded here at whatever level the
+ * stage names; a Tusked Boar at stage 8 and the same Boar at stage 4 are the same fifteen lines of
+ * content at two strengths.
+ *
+ * It used to escalate by authored stat block — no level-scaling factor at all, and bigger blocks
+ * written by hand for the second half. That was defensible while the player's own curve spanned a
+ * factor of forty. Past a billion it is not: a fixed stat block becomes a rounding error, so every
+ * question the ladder had taught would decay into an empty square, and milestone 4's whole thesis
+ * — composition matters because enemies ask things of you — would hold only in the early game.
+ *
+ * **What did not change is what the stages ask.** Each new lock still arrives on its own before it
+ * is combined with anything, and the table below is the same table it was. The level is how hard,
+ * the line-up is what for, and confusing the two is how a ladder becomes a wall of numbers.
+ *
+ * Read a stage's level as roughly **the level of the party it was tuned for**, running somewhat
+ * above it because the enemy side has no ascension rungs and the player's have to be absorbed
+ * somewhere. Stage 12 is level 40 against a party at level 40 with one rung; stage 24 is level 126
+ * against a party at level 90 with four.
  *
  * | #  | Stage              | What it asks                                              |
  * | -- | ------------------ | --------------------------------------------------------- |
@@ -98,11 +111,21 @@ export const AUTO_BATTLE_UNLOCK_CLEARS = 12;
  *   is the single most important number in the first half. Two of the five formation slots start
  *   empty, so the stall is not a wall — it is the moment the summon economy becomes the answer,
  *   which is exactly when a new player has banked enough first-clear crystals to do something.
- * - **Five common-tier characters at level 80 clear the twelve stages that are climbed by hand**,
- *   and stop soon after. Auto-battle unlocks on finishing that half.
- * - **The same five at level 200 clear the whole ladder**, losing a member at the top. Still
- *   common tier: the second half asks for levels and ascension rungs, which are bought with time
- *   and duplicates, and never for a pull nobody can buy.
+ * - **Five common-tier characters at level 40, ascended once, clear the twelve stages that are
+ *   climbed by hand**, and stop soon after. Auto-battle unlocks on finishing that half. Forty is
+ *   the `rare` cap, so this is exactly the party a player holds the moment levelling first stops
+ *   and ascending starts.
+ * - **The same five at level 90, four rungs up at `legendary`, clear the whole ladder**, losing a
+ *   member at the top. Still common tier: the second half asks for levels and ascension rungs,
+ *   which are bought with time and duplicates, and never for a pull nobody can buy.
+ *
+ * **Both of those came down in milestone 10** — from level 80 and level 200 — and the reason is
+ * the stomp requirement rather than the rescale. Holding them where they were meant the ladder had
+ * to absorb the whole of the ×1.6-a-rung ascension gain on top of the levelling one, which left a
+ * stage costing seventeen levels where a day of idle income bought six: a wall wearing a
+ * compounding curve's clothes. Flattening the ladder is what turns an idle window back into a run
+ * of cleared stages, and it is asserted rather than hoped for — see "the stomp" in
+ * [`stages.balance.ts`](./stages.balance.ts).
  *
  * ## The three rates, and the one lump
  *
@@ -149,6 +172,7 @@ export const STAGES = [
     id: 'stage-1',
     name: 'Mossy Hollow',
     enemies: { front: [SLIME], back: [SLIME] },
+    level: 1,
     reward: { gold: 25, xp: 4 },
     rates: { gold: 0.5, xp: 0.1, essence: 0.0015 },
     firstClearSummons: 200,
@@ -157,6 +181,7 @@ export const STAGES = [
     id: 'stage-2',
     name: 'Sunken Path',
     enemies: { front: [SLIME, SLIME], back: [SLIME] },
+    level: 2,
     reward: { gold: 40, xp: 8 },
     rates: { gold: 1, xp: 0.2, essence: 0.003 },
     firstClearSummons: 200,
@@ -167,6 +192,7 @@ export const STAGES = [
     id: 'stage-3',
     name: 'Wisplight Marsh',
     enemies: { front: [SLIME], back: [WISP, WISP] },
+    level: 3,
     reward: { gold: 65, xp: 12 },
     rates: { gold: 1.5, xp: 0.3, essence: 0.005 },
     firstClearSummons: 250,
@@ -175,6 +201,7 @@ export const STAGES = [
     id: 'stage-4',
     name: 'Bramble Run',
     enemies: { front: [BOAR], back: [SLIME, SLIME] },
+    level: 4,
     reward: { gold: 100, xp: 20, essence: 1 },
     rates: { gold: 2.5, xp: 0.5, essence: 0.008 },
     firstClearSummons: 300,
@@ -185,6 +212,7 @@ export const STAGES = [
     id: 'stage-5',
     name: 'Cutthroat Camp',
     enemies: { front: [BANDIT, BANDIT], back: [WISP, SLIME] },
+    level: 5,
     reward: { gold: 160, xp: 32, essence: 1 },
     rates: { gold: 4, xp: 0.8, essence: 0.013 },
     firstClearSummons: 350,
@@ -196,6 +224,7 @@ export const STAGES = [
     id: 'stage-6',
     name: 'Thornwood Clearing',
     enemies: { front: [BOAR, BOAR], back: [WISP, WISP, SLIME] },
+    level: 6,
     reward: { gold: 220, xp: 42, essence: 2 },
     rates: { gold: 5.5, xp: 1.05, essence: 0.017 },
     firstClearSummons: 350,
@@ -214,6 +243,7 @@ export const STAGES = [
     id: 'stage-7',
     name: 'Marsh Shrine',
     enemies: { front: [BOAR, BOAR], back: [ACOLYTE] },
+    level: 16,
     reward: { gold: 300, xp: 56, essence: 2 },
     rates: { gold: 7.5, xp: 1.4, essence: 0.022 },
     firstClearSummons: 400,
@@ -225,17 +255,20 @@ export const STAGES = [
     id: 'stage-8',
     name: 'Hagfen',
     enemies: { front: [BOAR, BANDIT], back: [HAG, ACOLYTE] },
+    level: 16,
     reward: { gold: 400, xp: 74, essence: 3 },
     rates: { gold: 10, xp: 1.85, essence: 0.029 },
     firstClearSummons: 450,
   },
   {
-    // The armour check. Almost nothing physical the party does lands for full value against 62
-    // DEF, and the Pyre Caster behind it means grinding through slowly is not free either. A
-    // The Golem's resist is physical only — this is where a caster earns a slot.
+    // The armour check. Almost nothing physical the party does lands for full value against a
+    // Golem's armour — 58 by the time it is fielded here — and the Pyre Caster behind it means
+    // grinding through slowly is not free either. The Golem's resist is physical only, so this is
+    // where a caster earns a slot.
     id: 'stage-9',
     name: 'Broken Causeway',
     enemies: { front: [GOLEM], back: [WISP, PYRE] },
+    level: 24,
     reward: { gold: 520, xp: 96, essence: 3 },
     rates: { gold: 13, xp: 2.4, essence: 0.037 },
     firstClearSummons: 500,
@@ -247,6 +280,7 @@ export const STAGES = [
     id: 'stage-10',
     name: 'Ashen Span',
     enemies: { front: [BULWARK_ENEMY, BOAR], back: [PYRE] },
+    level: 33,
     reward: { gold: 650, xp: 120, essence: 5 },
     rates: { gold: 16, xp: 3, essence: 0.05 },
     firstClearSummons: 600,
@@ -257,6 +291,7 @@ export const STAGES = [
     id: 'stage-11',
     name: 'The Warden’s Gate',
     enemies: { front: [WARDEN, BANDIT], back: [ACOLYTE, SHADE] },
+    level: 40,
     reward: { gold: 800, xp: 152, essence: 6 },
     rates: { gold: 20, xp: 3.8, essence: 0.063 },
     firstClearSummons: 700,
@@ -268,6 +303,7 @@ export const STAGES = [
     id: 'stage-12',
     name: 'Rimeplate Deep',
     enemies: { front: [RIMEPLATE, BULWARK_ENEMY], back: [HAG, PYRE] },
+    level: 40,
     reward: { gold: 1000, xp: 188, essence: 8 },
     rates: { gold: 25, xp: 4.7, essence: 0.08 },
     firstClearSummons: 900,
@@ -280,11 +316,12 @@ export const STAGES = [
   {
     // The back-rank lock. Twelve stages have rewarded putting the fragile things behind two
     // bodies; two Sky-Shrikes diving the whole back row at once is the bill for that. The
-    // encounter is a race the party wins by noticing it — 2,600 HP and 40 armour die quickly to
-    // anything that can reach them.
+    // encounter is a race the party wins by noticing it — 1,700 HP and almost no armour die
+    // quickly to anything that can reach them.
     id: 'stage-13',
     name: 'Ashfall Reach',
     enemies: { front: [REVENANT, REVENANT], back: [SKYSHRIKE, SKYSHRIKE] },
+    level: 58,
     reward: { gold: 1160, xp: 218, essence: 9 },
     rates: { gold: 29, xp: 5.4, essence: 0.093 },
     firstClearSummons: 920,
@@ -295,6 +332,7 @@ export const STAGES = [
     id: 'stage-14',
     name: 'The Cairn Line',
     enemies: { front: [SENTINEL, SENTINEL], back: [STORMCALLER] },
+    level: 59,
     reward: { gold: 1320, xp: 248, essence: 11 },
     rates: { gold: 33, xp: 6.2, essence: 0.106 },
     firstClearSummons: 940,
@@ -305,6 +343,7 @@ export const STAGES = [
     id: 'stage-15',
     name: 'Flensing Grounds',
     enemies: { front: [RAVAGER, REVENANT], back: [SKYSHRIKE, STORMCALLER] },
+    level: 67,
     reward: { gold: 1520, xp: 286, essence: 12 },
     rates: { gold: 38, xp: 7.1, essence: 0.121 },
     firstClearSummons: 960,
@@ -316,6 +355,7 @@ export const STAGES = [
     id: 'stage-16',
     name: 'The Kindled Span',
     enemies: { front: [WRATHBORN, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
+    level: 74,
     reward: { gold: 1720, xp: 323, essence: 14 },
     rates: { gold: 43, xp: 8, essence: 0.137 },
     firstClearSummons: 980,
@@ -326,6 +366,7 @@ export const STAGES = [
     id: 'stage-17',
     name: "Ravager's Deep",
     enemies: { front: [RAVAGER, RAVAGER], back: [WRATHBORN, STORMCALLER, SKYSHRIKE] },
+    level: 80,
     reward: { gold: 1920, xp: 361, essence: 15 },
     rates: { gold: 48, xp: 9, essence: 0.155 },
     firstClearSummons: 1000,
@@ -337,6 +378,7 @@ export const STAGES = [
     id: 'stage-18',
     name: 'The Hollow Choir',
     enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE, STORMCALLER] },
+    level: 85,
     reward: { gold: 2160, xp: 406, essence: 17 },
     rates: { gold: 54, xp: 10.1, essence: 0.175 },
     firstClearSummons: 1020,
@@ -347,6 +389,7 @@ export const STAGES = [
     id: 'stage-19',
     name: 'Gallowmoor',
     enemies: { front: [OATHBREAKER, REVENANT], back: [HEADSMAN, HIEROPHANT] },
+    level: 100,
     reward: { gold: 2360, xp: 444, essence: 19 },
     rates: { gold: 59, xp: 11.1, essence: 0.196 },
     firstClearSummons: 1040,
@@ -357,6 +400,7 @@ export const STAGES = [
     id: 'stage-20',
     name: 'The Adamant Gate',
     enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, STORMCALLER] },
+    level: 100,
     reward: { gold: 2600, xp: 489, essence: 21 },
     rates: { gold: 65, xp: 12.2, essence: 0.219 },
     firstClearSummons: 1060,
@@ -367,6 +411,7 @@ export const STAGES = [
     id: 'stage-21',
     name: 'Bonefall',
     enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, STORMCALLER] },
+    level: 111,
     reward: { gold: 2840, xp: 534, essence: 23 },
     rates: { gold: 71, xp: 13.3, essence: 0.244 },
     firstClearSummons: 1080,
@@ -377,6 +422,7 @@ export const STAGES = [
     id: 'stage-22',
     name: 'The Broken Oath',
     enemies: { front: [OATHBREAKER, COLOSSUS], back: [HEADSMAN, HIEROPHANT, STORMCALLER] },
+    level: 113,
     reward: { gold: 3080, xp: 579, essence: 25 },
     rates: { gold: 77, xp: 14.4, essence: 0.271 },
     firstClearSummons: 1100,
@@ -387,6 +433,7 @@ export const STAGES = [
     id: 'stage-23',
     name: "Tyrant's Rest",
     enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, OATHBREAKER, HEADSMAN] },
+    level: 126,
     reward: { gold: 3320, xp: 624, essence: 27 },
     rates: { gold: 83, xp: 15.5, essence: 0.3 },
     firstClearSummons: 1120,
@@ -399,6 +446,7 @@ export const STAGES = [
     id: 'stage-24',
     name: 'The Unmade',
     enemies: { front: [UNMADE, TYRANT], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
+    level: 126,
     reward: { gold: 3600, xp: 677, essence: 29 },
     rates: { gold: 90, xp: 16.8, essence: 0.33 },
     firstClearSummons: 1150,

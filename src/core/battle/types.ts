@@ -1,4 +1,5 @@
 import { type CurrencyAmounts, type Rates } from '../currency';
+import { type CharacterTier, type GrowthData } from '../growth';
 import { type Numeric } from '../numeric';
 
 /**
@@ -376,6 +377,32 @@ export interface FormationData {
   readonly back: readonly CombatantData[];
 }
 
+/**
+ * An enemy archetype as authored in `data/`: a combatant, plus the slope it climbs.
+ *
+ * The stat block here is the archetype at **level 1**, exactly as a character's is, and what a
+ * stage fields is that archetype at {@link StageData.level}. Before milestone 10 there was no
+ * such distinction — an enemy was a finished stat block, sized by hand for the band of the
+ * ladder it appeared in — and the cost of that was the thing this milestone had to fix: a lock
+ * is a puzzle the player solves once and then outgrows, so every question the ladder asks
+ * decays into an empty square as the party's own curve runs away from it.
+ *
+ * A tier is the same three slopes a character has and means the same thing here. Fodder is
+ * `common`, a lock is `legendary`, a gate is `ascended` — so a boss pulls away from the escort
+ * standing in front of it as the ladder climbs, rather than the two keeping a fixed distance
+ * forever. It is not a difficulty dial: at level 1 the three slopes are identical, and the
+ * budget in the block is what says how big the thing is.
+ */
+export interface EnemyData extends CombatantData {
+  readonly tier: CharacterTier;
+}
+
+/** An encounter's line-up, in two rows. The enemy-side mirror of {@link FormationData}. */
+export interface EnemyFormationData {
+  readonly front: readonly EnemyData[];
+  readonly back: readonly EnemyData[];
+}
+
 /** A quantity as authored in `data/`, before it becomes a `Numeric`. */
 export type AuthoredAmount = number | string;
 
@@ -679,6 +706,19 @@ export interface CombatRulesData {
   readonly rows: RowBonusData;
   readonly matchups: readonly FactionMatchupData[];
   /**
+   * The curve both sides of the board climb.
+   *
+   * The same table `ui/` scales the party with, arriving here because the simulation resolves the
+   * *enemy* side itself — a stage authors archetypes and a level, and nothing outside `core/`
+   * should be able to hand it a formation scaled to the wrong one. Milestone 9 made the same
+   * argument about a character's effective level and answered it the other way, with a required
+   * parameter; the difference is that a party is assembled by the caller and an encounter is not.
+   *
+   * It sits in the rules rather than in a sixth parameter because it is exactly what this
+   * interface is for: a balance number, authored in `data/`, that combat reads and never decides.
+   */
+  readonly growth: GrowthData;
+  /**
    * What a **party's own** composition is worth.
    *
    * Applied to the player's side alone — see `buildSide` in `simulate.ts` for why an enemy
@@ -713,8 +753,28 @@ export interface CombatRulesData {
 export interface StageData {
   readonly id: string;
   readonly name: string;
-  /** The opposing side, in two rows. Repeating a combatant gives multiple copies. */
-  readonly enemies: FormationData;
+  /** The opposing side, in two rows. Repeating an archetype gives multiple copies. */
+  readonly enemies: EnemyFormationData;
+  /**
+   * The level every enemy in this encounter fights at.
+   *
+   * **The stage's difficulty dial, and since milestone 10 very nearly the whole of it.** An
+   * archetype is authored once at level 1 and fielded wherever it is wanted; what makes stage 19
+   * harder than stage 6 is this number, not a second, bigger stat block. That is what lets a lock
+   * stay a lock — a Marsh Acolyte at the level of the party in front of it is the same question
+   * it was two hundred stages ago — and it is what makes a hand-authored ladder of hundreds of
+   * stages an afternoon's work rather than a career.
+   *
+   * Read it as roughly **the level of the party the stage was tuned for**, running somewhat above
+   * it. Both sides climb the same curve, so scaling them together leaves a fight identical; what
+   * the enemy side does not have is ascension rungs, and the player's have to be absorbed
+   * somewhere. In the shipped ladder that is worth about a third — stage 12 is level 40 against a
+   * party at level 40 with one rung, stage 24 is level 126 against level 90 with four.
+   *
+   * A reading aid rather than an invariant. Nothing enforces it, and a stage is free to be tuned
+   * wherever the sweep says it lands.
+   */
+  readonly level: number;
   /** One-off payout for the clear, every time it is cleared. */
   readonly reward: AuthoredCurrencies;
   /**
@@ -815,6 +875,8 @@ export interface CombatRules {
   readonly matchups: ReadonlyMap<string, number>;
   readonly lineup: LineupRules;
   readonly energy: EnergyRules;
+  /** Carried through unparsed: {@link growthAt} guards its own coefficients. */
+  readonly growth: GrowthData;
   readonly minHitChance: number;
   readonly maxPenetration: number;
   readonly maxResist: number;

@@ -1,3 +1,5 @@
+import { GROWTH } from './levels';
+
 /**
  * The combat rules: what a rank is worth, and who beats whom.
  *
@@ -318,6 +320,10 @@ export const COMBAT_RULES = {
   matchups: FACTION_MATCHUPS,
   lineup: LINEUP_BONUSES,
   energy: ENERGY_RULES,
+  // The same table `ui/` levels the party with, handed to combat because since milestone 10 the
+  // simulation resolves the *enemy* side itself: a stage authors archetypes and a level, and
+  // nothing outside `core/` gets the chance to scale that wrong. One curve, both sides.
+  growth: GROWTH,
   minHitChance: MIN_HIT_CHANCE,
   maxPenetration: MAX_PENETRATION,
   maxResist: MAX_RESIST,

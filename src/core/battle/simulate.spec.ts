@@ -11,6 +11,7 @@ import {
   LINEUP_COMBAT_RULES,
   LINEUP_COMBAT_RULES_DATA,
   PLAIN_COMBAT_RULES,
+  PLAIN_COMBAT_RULES_DATA,
   TEST_COMBAT_RULES,
 } from './fixtures';
 import { battleSeed, simulateBattle } from './simulate';
@@ -19,6 +20,7 @@ import {
   type BattleResult,
   type CombatantData,
   type CombatRules,
+  type EnemyData,
   type FormationData,
   type SkillData,
   type StageData,
@@ -55,15 +57,27 @@ function line(front: readonly CombatantData[], back: readonly CombatantData[] = 
   return { front, back };
 }
 
+/**
+ * A stage fielding an ordinary line-up as its enemies.
+ *
+ * The formation is widened into an enemy formation here rather than at every call site: an enemy
+ * needs a growth tier, and the fixtures' growth table is flat, so the tier is paperwork for these
+ * specs rather than something any of them is measuring. `level: 1` for the same reason — the
+ * "enemy levels" block at the bottom of this file is where the dial is actually turned.
+ */
 function stage(
   enemies: FormationData,
   goldReward: number | string = 100,
   goldPerSec: number | string = 2,
+  level = 1,
 ): StageData {
+  const archetype = (combatant: CombatantData): EnemyData => ({ ...combatant, tier: 'common' });
+
   return {
     id: 'test-stage',
     name: 'Test Stage',
-    enemies,
+    enemies: { front: enemies.front.map(archetype), back: enemies.back.map(archetype) },
+    level,
     reward: { gold: goldReward },
     rates: { gold: goldPerSec },
   };
@@ -1272,6 +1286,75 @@ describe('battleSeed', () => {
     expect(Number.isInteger(seed)).toBe(true);
     expect(seed).toBeGreaterThanOrEqual(0);
     expect(seed).toBeLessThanOrEqual(0xffffffff);
+  });
+});
+
+/**
+ * Enemy levels: the milestone 10 dial, exercised where it is actually read.
+ *
+ * A stage authors archetypes at level 1 and a level to field them at, and the simulation resolves
+ * the pair itself. These are the two things that has to be true — that the dial moves the enemy,
+ * and that moving *both* sides by the same amount moves nothing.
+ */
+describe('enemy levels', () => {
+  /** Doubling per level, so a level is a factor a spec can assert exactly. */
+  const DOUBLING: CombatRules = toCombatRules({
+    ...PLAIN_COMBAT_RULES_DATA,
+    growth: { perLevel: { common: 2, legendary: 2, ascended: 2 }, perAscension: 1 },
+  });
+
+  it('fields an archetype at the stage level rather than as authored', () => {
+    const encounter = stage(line([unit('ogre', { hp: 100 })]), 100, 2, 4);
+    const result = simulateBattle(line([unit('hero')]), encounter, SEED, DOUBLING);
+    const ogre = result.roster.find((combatant) => combatant.defId === 'ogre');
+
+    // Level 4 on a doubling curve is three doublings, so 100 HP takes the field as 800.
+    expect(ogre?.maxHp.toString()).toBe('800');
+  });
+
+  it('leaves a level-1 stage exactly as authored, whatever the curve says', () => {
+    const encounter = stage(line([unit('ogre', { hp: 100 })]));
+    const result = simulateBattle(line([unit('hero')]), encounter, SEED, DOUBLING);
+    const ogre = result.roster.find((combatant) => combatant.defId === 'ogre');
+
+    expect(ogre?.maxHp.toString()).toBe('100');
+  });
+
+  it('resolves the same fight when both sides are scaled together', () => {
+    // ⚠️ **The property milestone 10 rests on**, and the reason a rescale of this size is safe at
+    // all. Damage is `atk² / (atk + def)` and every status prices off the applier's `atk`, so
+    // multiplying both sides by the same factor is an identity on the whole simulation: the same
+    // number of hits land, in the same order, on the same tick. What compounds is the size of the
+    // numbers, not the shape of the fight — which is why the ninety-second timer survived a ladder
+    // that now spans ×370 instead of ×6, and why the faction matrix needed no rework.
+    //
+    // The multiplier is a **factor of two per level** rather than the shipped 1.021 on purpose:
+    // `Decimal` is not exactly distributive, and a fight decided by a hit landing on the last
+    // point of health could legitimately round the other way. Powers of two are exact, so a
+    // failure here is a real asymmetry rather than a rounding artefact.
+    const base = line([unit('hero', { hp: 400, atk: 60, def: 12 })]);
+    const scaled = line([unit('hero', { hp: 3200, atk: 480, def: 96 })]);
+
+    const small = simulateBattle(
+      base,
+      stage(line([unit('ogre', { hp: 500, atk: 45 })])),
+      SEED,
+      DOUBLING,
+    );
+    const large = simulateBattle(
+      scaled,
+      stage(line([unit('ogre', { hp: 500, atk: 45 })]), 100, 2, 4),
+      SEED,
+      DOUBLING,
+    );
+
+    expect(large.outcome).toBe(small.outcome);
+    expect(large.ticks).toBe(small.ticks);
+    expect(attackTicks(large)).toEqual(attackTicks(small));
+    expect(attackTargets(large)).toEqual(attackTargets(small));
+    // The numbers themselves did compound, which is the half of the claim the equalities above
+    // cannot see: an identical fight and identical damage would mean the dial did nothing.
+    expect(firstHit(large).div(firstHit(small)).toNumber()).toBeCloseTo(8);
   });
 });
 

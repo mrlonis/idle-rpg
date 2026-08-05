@@ -59,6 +59,19 @@ $bane: #fca5a5; // 6.8:1 on $surface
   color: $text;
 }
 
+// The encounter's difficulty, in the one unit that now means anything: since milestone 10 an
+// archetype is authored at level 1 and a stage fields it at its own level, so this is what a
+// player compares their own party against.
+.battle__stage-level {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  color: $muted;
+}
+
 .controls {
   display: flex;
   align-items: center;

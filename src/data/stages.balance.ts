@@ -7,11 +7,17 @@ import {
   type CombatantData,
   type CombatRules,
   type CombatRulesData,
+  emptyWallet,
   type FormationData,
   type GrowthData,
   type KitRulesData,
+  type LevelCurveData,
+  levelCapFor,
   lineupBonus,
   MAX_BATTLE_TICKS,
+  maxAffordableLevel,
+  num,
+  type Numeric,
   PARTY_SIZE,
   rarityIndex,
   scaleStats,
@@ -21,6 +27,7 @@ import {
   toBattleCombatant,
   toCombatRules,
   unlockedSkills,
+  type Wallet,
 } from '../core';
 import {
   BRAN,
@@ -98,13 +105,14 @@ const TRIALS = 40;
  * game. Reading them off `rarityIndex` makes that a compile-time relationship, and an id that
  * stops being a rarity resolves to `-1` and fails loudly instead.
  *
- * The names also carry what the numbers never did. `ELITE` is the lowest rung whose level cap
- * permits {@link BUILT} and the rung at which a common-tier character's second skill arrives;
- * `LEGENDARY` is where {@link INVESTED} sits; `ASCENDED` is where a fully invested character ends
- * up; `RARE` is where every character starts and where {@link STARTERS} still is. Those are the
- * facts the sweeps are actually about.
+ * The names also carry what the numbers never did. `RARE_PLUS` is the first ascension anybody
+ * buys and where {@link BUILT} sits; `ELITE` is the rung at which a common-tier character's
+ * second skill arrives; `LEGENDARY` is where {@link INVESTED} sits; `ASCENDED` is where a fully
+ * invested character ends up; `RARE` is where every character starts and where {@link STARTERS}
+ * still is. Those are the facts the sweeps are actually about.
  */
 const RARE = rarityIndex('rare');
+const RARE_PLUS = rarityIndex('rare-plus');
 const ELITE = rarityIndex('elite');
 const LEGENDARY = rarityIndex('legendary');
 const ASCENDED = rarityIndex('ascended');
@@ -132,8 +140,10 @@ interface Sweep {
  * Through `toBattleCombatant` rather than reassembled here, and that matters more since milestone
  * 8c than it did before: the kit is now narrowed by tier and rung as well as the stats being
  * scaled, so a sweep that built its own combatant would measure a party fielding skills the game
- * has not handed the player yet. The reference five below are all common tier — two skills each,
- * and only at `elite` or above.
+ * has not handed the player yet. A common-tier character carries two skills at `elite` and above
+ * and one below it, so {@link BUILT} at `rare-plus` fields one each and {@link INVESTED} at
+ * `legendary` fields two — which is a real difference between the two reference parties rather
+ * than an artefact of how they are built here.
  */
 function at(character: CharacterData, level: number, rarity: number): CombatantData {
   // The level is passed twice on purpose: the sweep fields parties at an *explicit* level, so
@@ -192,15 +202,16 @@ function legal(level: number, rarity: number): number {
   return level;
 }
 
-/** A five at the `elite` rung, for the mono-faction sweeps. */
+/** A five at one investment, for the mono-faction sweeps. */
 function mono(
   front: readonly CharacterData[],
   back: readonly CharacterData[],
   level: number,
+  rarity: number,
 ): FormationData {
   return {
-    front: front.map((character) => at(character, legal(level, ELITE), ELITE)),
-    back: back.map((character) => at(character, legal(level, ELITE), ELITE)),
+    front: front.map((character) => at(character, legal(level, rarity), rarity)),
+    back: back.map((character) => at(character, legal(level, rarity), rarity)),
   };
 }
 
@@ -210,35 +221,59 @@ const STARTERS: FormationData = {
   back: [at(RIN, 1, RARE)],
 };
 
+/** The level and rung {@link BUILT} is fielded at, and what the mono-faction fives match. */
+const BUILT_LEVEL = 40;
+const BUILT_RARITY = RARE_PLUS;
+
 /**
- * The mid-game party: five common-tier characters at level 80, ascended to `elite`.
+ * The mid-game party: five common-tier characters at level 40, ascended once to `rare-plus`.
  *
  * Deliberately all `common` tier. If the ladder needed a lucky banner it would be a wall in front
  * of players who cannot buy their way past one, which in a game with no purchases is a wall with
- * nothing behind it. `elite` is simply the lowest rung whose cap (100) permits level 80.
+ * nothing behind it.
+ *
+ * **It was level 80 at `elite` until milestone 10**, and the two numbers came down together for
+ * one reason: a rung is now worth ×1.6 rather than ×1.12, so two of them are ×2.56 of a party's
+ * whole power rather than ×1.25. Forty is the `rare` cap, so this is the party a player has the
+ * moment the level ladder first stops and the ascension one starts — which is a far more honest
+ * description of who finishes the hand-climbed half than a party three times further invested.
  */
 const BUILT: FormationData = {
-  front: [at(BRAN, legal(80, ELITE), ELITE), at(GNASH, legal(80, ELITE), ELITE)],
+  front: [
+    at(BRAN, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
+    at(GNASH, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
+  ],
   back: [
-    at(RIN, legal(80, ELITE), ELITE),
-    at(CELIA, legal(80, ELITE), ELITE),
-    at(PYRA, legal(80, ELITE), ELITE),
+    at(RIN, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
+    at(CELIA, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
+    at(PYRA, legal(BUILT_LEVEL, BUILT_RARITY), BUILT_RARITY),
   ],
 };
 
 /**
- * The same five characters, invested to the top of the `legendary` rung: level 200, its cap.
+ * The same five characters, invested to level 90 and four rungs up, at `legendary`.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the second half of the ladder
  * asks for levels and ascension rungs, which are bought with time and duplicates, and for nothing
  * a player cannot earn.
+ *
+ * **Level 200 until milestone 10.** The ladder was flattened until an idle window converted into
+ * a run of cleared stages rather than a fraction of one — see "the stomp" at the bottom of this
+ * file — and the top of it came down with the rest. The rung did not: four ascensions is what
+ * makes this party rather than {@link BUILT}, and at ×1.6 a rung that is now most of the distance
+ * between them.
  */
+const INVESTED_LEVEL = 90;
+
 const INVESTED: FormationData = {
-  front: [at(BRAN, legal(200, LEGENDARY), LEGENDARY), at(GNASH, legal(200, LEGENDARY), LEGENDARY)],
+  front: [
+    at(BRAN, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
+    at(GNASH, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
+  ],
   back: [
-    at(RIN, legal(200, LEGENDARY), LEGENDARY),
-    at(CELIA, legal(200, LEGENDARY), LEGENDARY),
-    at(PYRA, legal(200, LEGENDARY), LEGENDARY),
+    at(RIN, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
+    at(CELIA, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
+    at(PYRA, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
   ],
 };
 
@@ -258,14 +293,12 @@ const INVESTED: FormationData = {
  * anything; what it is watched for is the failure mode a bonus to health and defence makes more
  * likely, which is a party that survives a fight it cannot win until the clock ends it.
  */
-const BOOSTED: FormationData = {
-  front: [at(THREX, legal(80, ELITE), ELITE), at(VEXIS, legal(80, ELITE), ELITE)],
-  back: [
-    at(PYRA, legal(80, ELITE), ELITE),
-    at(NYXARA, legal(80, ELITE), ELITE),
-    at(SANGUINE, legal(80, ELITE), ELITE),
-  ],
-};
+const BOOSTED: FormationData = mono(
+  [THREX, VEXIS],
+  [PYRA, NYXARA, SANGUINE],
+  BUILT_LEVEL,
+  BUILT_RARITY,
+);
 
 /**
  * One mono-faction five per faction, at the same investment as {@link BUILT}.
@@ -299,18 +332,18 @@ const MONO_ROSTERS: readonly {
   { faction: 'demon', front: [THREX, VEXIS], back: [PYRA, NYXARA, SANGUINE] },
 ];
 
-/** The seven, at a given level. `MONO_LEVEL` is {@link BUILT}'s, which is what the sweeps use. */
+/** The seven, at a given investment. The sweeps field them at {@link BUILT}'s. */
 function monoFives(
   level: number,
+  rarity: number,
 ): readonly { readonly faction: string; readonly party: FormationData }[] {
   return MONO_ROSTERS.map((roster) => ({
     faction: roster.faction,
-    party: mono(roster.front, roster.back, level),
+    party: mono(roster.front, roster.back, level, rarity),
   }));
 }
 
-const MONO_LEVEL = 80;
-const MONO_FIVES = monoFives(MONO_LEVEL);
+const MONO_FIVES = monoFives(BUILT_LEVEL, BUILT_RARITY);
 
 /** The same five, with every lineup track switched off — the control the bonus is measured against. */
 const withoutLineup: CombatRules = toCombatRules({
@@ -323,12 +356,24 @@ const withoutLineup: CombatRules = toCombatRules({
   },
 });
 
-const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) }));
-const builtSweeps = stages.map((stage) => ({ stage, ...sweep(BUILT, stage) }));
-const investedSweeps = stages.map((stage) => ({ stage, ...sweep(INVESTED, stage) }));
-const boostedSweeps = stages.map((stage) => ({ stage, ...sweep(BOOSTED, stage) }));
+const starterSweeps = stages.map((stage) => ({
+  label: 'starters',
+  stage,
+  ...sweep(STARTERS, stage),
+}));
+const builtSweeps = stages.map((stage) => ({ label: 'built', stage, ...sweep(BUILT, stage) }));
+const investedSweeps = stages.map((stage) => ({
+  label: 'invested',
+  stage,
+  ...sweep(INVESTED, stage),
+}));
+const boostedSweeps = stages.map((stage) => ({
+  label: 'boosted',
+  stage,
+  ...sweep(BOOSTED, stage),
+}));
 const monoSweeps = MONO_FIVES.flatMap(({ faction, party }) =>
-  stages.map((stage) => ({ faction, stage, ...sweep(party, stage) })),
+  stages.map((stage) => ({ label: `mono-${faction}`, faction, stage, ...sweep(party, stage) })),
 );
 const everySweep = [
   ...starterSweeps,
@@ -437,7 +482,7 @@ describe('ladder balance', () => {
     // sharper rather than softer: a loop of overlong fights is an evening, not a session.
     const overlong = everySweep
       .filter((entry) => entry.meanSeconds > 60)
-      .map((entry) => `${entry.stage.id} ${entry.meanSeconds.toFixed(1)}s`);
+      .map((entry) => `${entry.label} vs ${entry.stage.id} ${entry.meanSeconds.toFixed(1)}s`);
 
     expect(overlong).toEqual([]);
   });
@@ -471,13 +516,20 @@ describe('ladder balance', () => {
     // the margin on its own. Losing fights are covered by {@link timer} below, and by the
     // zero-timeout assertion at the top of this block, which is the load-bearing one.
     const cleared = everySweep.filter((entry) => entry.winRate >= 0.9);
-    const longest = Math.max(...cleared.map((entry) => entry.maxSeconds));
     const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
 
+    // Before the reduce below, not after it: an empty `cleared` would make that reduce throw, and
+    // a suite where no tuned party clears anything should report *that* rather than a TypeError.
     expect(cleared.length).toBeGreaterThan(0);
+
+    const worst = cleared.reduce((slowest, entry) =>
+      entry.maxSeconds > slowest.maxSeconds ? entry : slowest,
+    );
+
     expect(
-      longest,
-      `longest cleared fight ${longest.toFixed(1)}s against a ${timer}s timer`,
+      worst.maxSeconds,
+      `longest cleared fight ${worst.maxSeconds.toFixed(1)}s — ${worst.label} vs ` +
+        `${worst.stage.id} — against a ${timer}s timer`,
     ).toBeLessThan(timer * 0.75);
   });
 
@@ -638,7 +690,7 @@ describe('the matchup matrix', () => {
 
   /** Every mono-faction five, every stage, every level, with the matrix on and off. */
   const trials = LEVELS.flatMap((level) =>
-    monoFives(level).flatMap(({ faction, party }) =>
+    monoFives(level, ELITE).flatMap(({ faction, party }) =>
       stages.map((stage) => ({
         faction,
         stage,
@@ -728,14 +780,14 @@ describe('the matchup matrix', () => {
  */
 describe('parties nobody tuned for', () => {
   /**
-   * Level 120 at the `ascended` rung, which is not an arbitrary pick.
+   * Level 40 at the `ascended` rung, which is not an arbitrary pick.
    *
    * It is the investment level at which these characters are strong enough to survive the late
    * ladder indefinitely and still nowhere near strong enough to kill it — the exact band in which
    * the old thirty-minute fights lived. Levelling them further does not make the point better; it
    * makes them win, which is a different test.
    */
-  const AWKWARD_LEVEL = 120;
+  const AWKWARD_LEVEL = 40;
 
   const member = (character: CharacterData, rarity: number): CombatantData =>
     at(character, legal(Math.min(AWKWARD_LEVEL, LEVEL_CURVE.caps[rarity]), rarity), rarity);
@@ -866,10 +918,14 @@ describe('the shape of the climb', () => {
       return wins / 20 >= 0.9;
     };
 
+    // The bracket has to span the whole ladder, and milestone 10 widened the ladder by a factor
+    // of ten: the top stage asks about ×370 of the reference five where it used to ask ×6. The
+    // step count went with it — a bisection in log space cuts its range in half per step, so
+    // holding the old ~1% resolution over a range this much wider costs three more of them.
     let low = 0.05;
-    let high = 40;
+    let high = 4000;
     expect(clears(high), `${stage.id} is unclearable at any power`).toBe(true);
-    for (let step = 0; step < 9; step++) {
+    for (let step = 0; step < 12; step++) {
       const mid = Math.sqrt(low * high);
       if (clears(mid)) {
         high = mid;
@@ -912,5 +968,177 @@ describe('the shape of the climb', () => {
 
     expect(first).toBeGreaterThan(3);
     expect(second).toBeGreaterThan(3);
+  });
+});
+
+/**
+ * The stomp: what an idle window is actually worth in stages.
+ *
+ * **Milestone 10's named deliverable, and the reason it is a spec rather than a feeling.** "Go
+ * idle for a long time, come back, level up, and stomp stages until the next wall" is a property:
+ * an idle window of length T must buy levels that convert into a run of at least N cleared stages.
+ * Tuning a compounding curve by feel is how an incremental game ends up either trivial or a wall,
+ * and the 5th-percentile player is the one who finds out first.
+ *
+ * ## What is being measured, and the one thing that makes it honest
+ *
+ * A party parked on the stage it can just clear, banking that stage's rates for eight hours, and
+ * spending the lot on levels. **The budget is divided by `PARTY_SIZE` before a single level is
+ * bought**, and that division is the whole measurement: since milestone 9 the roster shares a
+ * level, but the floor is the fifth-highest invested level, so raising the party by one level
+ * means paying for five. A version of this that levelled one character would report five times
+ * the truth.
+ *
+ * Rungs are held fixed. Ascension is bought with duplicates rather than with time, so folding it
+ * in would measure the gacha and call it idle income.
+ */
+describe('the stomp', () => {
+  const HOUR = 60 * 60;
+  const curve: LevelCurveData = LEVEL_CURVE;
+
+  /** The reference five, at an arbitrary level and rung. Uncapped: the caller picks legal pairs. */
+  const five = (level: number, rarity: number): FormationData => ({
+    front: [at(BRAN, level, rarity), at(GNASH, level, rarity)],
+    back: [at(RIN, level, rarity), at(CELIA, level, rarity), at(PYRA, level, rarity)],
+  });
+
+  const clears = (level: number, rarity: number, stage: StageData): boolean =>
+    sweep(five(level, rarity), stage).winRate >= 0.9;
+
+  /** The lowest level at which the five take a stage reliably, or `null` past the rarity's cap. */
+  const settles = (stage: StageData, rarity: number): number | null => {
+    const cap = levelCapFor(curve, rarity);
+    if (!clears(cap, rarity, stage)) {
+      return null;
+    }
+    let low = 1;
+    let high = cap;
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      if (clears(mid, rarity, stage)) {
+        high = mid;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return low;
+  };
+
+  /** One party member's share of an idle window at a stage's rates. */
+  const share = (stage: StageData, seconds: number): Wallet => {
+    const banked = (rate: number | string | undefined): Numeric =>
+      num(rate ?? 0)
+        .mul(seconds)
+        .div(PARTY_SIZE);
+
+    return {
+      ...emptyWallet(),
+      gold: banked(stage.rates.gold),
+      xp: banked(stage.rates.xp),
+      essence: banked(stage.rates.essence),
+    };
+  };
+
+  /** Stages cleared in an unbroken run above `from`, at the given investment. */
+  const run = (from: number, level: number, rarity: number): number => {
+    let cleared = 0;
+    for (let index = from + 1; index < stages.length; index++) {
+      if (!clears(level, rarity, stages[index])) {
+        break;
+      }
+      cleared++;
+    }
+    return cleared;
+  };
+
+  /**
+   * Where on the ladder the property is checked, and the rung a player plausibly holds there.
+   *
+   * Three points rather than every stage, because each one costs a bisection over the level
+   * ladder. They are spread across the bands the ladder is authored in — the end of the
+   * hand-climbed half, the middle of the Ashfall Reach, and the run-in to the top — and each is
+   * paired with the rung that makes the level a real number there rather than a formality: a
+   * `legendary` five clears stage 12 at level one, which would measure nothing.
+   */
+  const SAMPLES: readonly { readonly id: string; readonly rarity: number }[] = [
+    { id: 'stage-12', rarity: RARE_PLUS },
+    { id: 'stage-16', rarity: ELITE },
+    { id: 'stage-20', rarity: LEGENDARY },
+  ];
+
+  const parked = SAMPLES.map(({ id, rarity }) => {
+    const index = stages.findIndex((stage) => stage.id === id);
+    return { id, index, rarity, stage: stages[index], settled: settles(stages[index], rarity) };
+  });
+
+  /** What one idle window is worth at every sample point, as levels and as stages. */
+  const after = (seconds: number): readonly { id: string; bought: number; cleared: number }[] =>
+    parked.map(({ id, index, rarity, stage, settled }) => {
+      if (settled === null) {
+        return { id, bought: 0, cleared: 0 };
+      }
+      const reached = maxAffordableLevel(curve, share(stage, seconds), settled, rarity);
+      return { id, bought: reached - settled, cleared: run(index, reached, rarity) };
+    });
+
+  const describeRun = (
+    window: readonly { id: string; bought: number; cleared: number }[],
+  ): string =>
+    window.map((entry) => `${entry.id}: +${entry.bought} levels → ${entry.cleared}`).join(', ');
+
+  it('finds a party parked on each sample stage in the first place', () => {
+    // The bisection returns `null` when the rarity's cap cannot clear the stage at all, which
+    // would make every assertion below vacuous rather than false.
+    const unreachable = parked.filter((entry) => entry.settled === null).map((entry) => entry.id);
+
+    expect(unreachable).toEqual([]);
+  });
+
+  it('pays for a stage with a night away', () => {
+    // Eight hours is the shortest window worth calling idle, and one stage is the smallest unit
+    // of progress the ladder has. Below this the game is asking a player to come back to nothing.
+    const overnight = after(8 * HOUR);
+
+    expect(
+      Math.min(...overnight.map((entry) => entry.cleared)),
+      `eight idle hours — ${describeRun(overnight)}`,
+    ).toBeGreaterThanOrEqual(1);
+  });
+
+  it('pays for a run of them with a day away', () => {
+    // ⚠️ **The assertion the ladder is tuned against**, and the one that moved the most content in
+    // milestone 10. "Go idle for a long time, come back, level up, and stomp stages until the next
+    // wall" is this: a day's income converts into three stages, everywhere on the ladder.
+    //
+    // It was nowhere near true before the retune. Holding the old reference parties meant the
+    // ladder had to absorb the whole of the ×1.6-a-rung ascension gain, which left a stage costing
+    // seventeen levels where a day bought six — a wall wearing a compounding curve's clothes. The
+    // ladder came down to meet it: `INVESTED` is level 90 rather than level 200.
+    const day = after(24 * HOUR);
+
+    expect(
+      Math.min(...day.map((entry) => entry.cleared)),
+      `a day idle — ${describeRun(day)}`,
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  it('leaves levelling and ascension worth about the same across the ladder', () => {
+    // The balance milestone 10 was asked to strike, stated as a number. Levelling from 1 to
+    // `INVESTED`'s level is worth one factor; the four rungs it also holds are worth another. If
+    // the first were much larger the gacha would be decoration — the failure the milestone named
+    // — and if the second were, this whole block would be measuring a currency nobody earns by
+    // waiting, because rungs are bought with duplicates rather than with time.
+    const fromLevels = Math.pow(GROWTH.perLevel.common, INVESTED_LEVEL - 1);
+    const fromRungs = Math.pow(GROWTH.perAscension, LEGENDARY);
+    const ratio = fromLevels / fromRungs;
+
+    expect(
+      ratio,
+      `levels ×${fromLevels.toFixed(1)} against rungs ×${fromRungs.toFixed(1)}`,
+    ).toBeGreaterThan(0.5);
+    expect(
+      ratio,
+      `levels ×${fromLevels.toFixed(1)} against rungs ×${fromRungs.toFixed(1)}`,
+    ).toBeLessThan(2);
   });
 });

@@ -1,9 +1,9 @@
 import { type GachaRulesData } from '../gacha/types';
+import { type GrowthData } from '../growth';
 import { type FactionLookup } from './ascend';
 import { type KitRulesData } from './kit';
 import { type LevelCurveData } from './level';
 import { type CharacterLookup } from './roster';
-import { type GrowthData } from './stats';
 import {
   type AscensionRules,
   type CharacterData,

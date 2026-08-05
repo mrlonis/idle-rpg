@@ -254,6 +254,10 @@ export function toCombatRules(raw: CombatRulesData): CombatRules {
     matchups,
     lineup: toLineupRules(raw.lineup),
     energy: toEnergyRules(raw.energy),
+    // Not clamped here, unlike everything else in this function. A growth coefficient is guarded
+    // where it is used — `growthAt` screens a non-finite or below-one rate down to 1 — because
+    // the guard has to run per tier and this parse has no tier in hand.
+    growth: raw.growth,
     // Never zero. A hit chance that can reach zero is a battle that can never end.
     minHitChance: clamp(raw.minHitChance, Number.MIN_VALUE, 1, 0.1),
     maxPenetration: clamp(raw.maxPenetration, 0, MAX_PENETRATION, MAX_PENETRATION),

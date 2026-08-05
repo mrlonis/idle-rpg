@@ -62,11 +62,13 @@ the two disagree, the code is right and both are stale.
   return.
   - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
     outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
-    The headroom over the longest tuned fight is **1.40×**, so a stage that takes longer than
+    The headroom over the longest tuned fight is **1.66×**, so a stage that takes longer than
     ninety seconds against the party it is meant for is unclearable — treat the timer as a budget
     every encounter has to fit inside, and expect the balance sweep to say so first. It was 1.9×
-    until milestone 8e; the mono-faction fives that milestone made buildable are what spent the
-    difference, and there is much less room now than the older number suggests.
+    until milestone 8e spent most of it on the mono-faction fives, and milestone 10 handed some
+    back by re-authoring every archetype at level 1 — the old blocks had HP that far outgrew their
+    attack, and a less spongy encounter resolves sooner. **The rescale itself moved it not at all**:
+    scaling both sides by the same factor is an identity on fight length in ticks.
   - **The headroom assertion measures fights a party _clears_, and that scope is load-bearing.**
     A fight the party loses has no tuning claim on it — the margin exists so a stage stays
     clearable by the party it was tuned for. Losing fights are bounded separately, at 95% of the
@@ -396,8 +398,22 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   because ascended tier is where new characters arrive. Changing the closed half is a design
   decision: edit the shape in `data/characters.spec.ts` and argue for it in `docs/milestones.md`,
   rather than letting it drift.
-- Check the scaling curve against float64's safe range (9e15) before committing to it. Add
-  `break_infinity.js` only if the curve actually demands it.
+- Check the scaling curve against float64's safe range (9e15) before committing to it. **The curve
+  demands `break_infinity` and the hedge is retired**: milestone 10 took levelling to ×10⁹ and the
+  rung ladder to ×450, so a late-game stat block is past float64's safe range on its own. `Numeric`
+  is the working type everywhere and there is no longer a version of this game that does without it.
+- **An enemy is a level-1 stat block plus a tier, and a stage is archetypes plus a `level`.** Since
+  milestone 10 both sides of the board climb the same curve, which is what keeps a lock a lock
+  instead of letting it decay into an empty square as the party's own numbers run away. Author an
+  archetype's _shape_ and let the stage's level say how big it is; do not write a second, bigger
+  stat block for a later band. There is deliberately no ascension rung on the enemy side — see
+  `toEnemyCombatant` for why the third dial was folded into the block.
+- **Scaling both sides by the same factor is an identity on the whole simulation.** Damage is
+  `atk² / (atk + def)` and every status prices off the applier's `atk`, so the same hits land in the
+  same order on the same tick. That is why the ninety-second timer, the faction matrix and every
+  bounded stat survived a ×10⁹ rescale untouched, and it is asserted in
+  `core/battle/simulate.spec.ts`. Anything additive, or any authored constant compared against a
+  scaling quantity, breaks it — audit for those rather than waiting to notice.
 
 ---
 

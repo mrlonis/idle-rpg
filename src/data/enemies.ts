@@ -23,13 +23,42 @@ import {
 } from './skills';
 
 /**
- * Enemy stat blocks and kits.
+ * Enemy archetypes: a stat block at **level 1**, a kit, and the slope it grows on.
  *
  * Plain data: no functions, no imports outside `data/`. Quantities are numbers (or strings,
  * once a value outgrows float64) rather than `Numeric`, because constructing a `Numeric` would
  * mean importing `core/` — and content that cannot be expressed as plain JSON is content that
  * can never be loaded from a file. `core/battle/content.ts` parses these into the simulation's
  * types.
+ *
+ * ## Every block here is a level-1 block, and that is milestone 10's change
+ *
+ * An archetype used to be a finished stat block, sized by hand for the band of the ladder it
+ * appeared in — a 300-HP Slime for the opening stages and a 12,500-HP Unmade for the end. That
+ * works while the player's own curve spans a factor of forty. Past a billion it does not: the
+ * Slime becomes a rounding error, and so does every question the ladder taught behind it.
+ *
+ * So a stage now names archetypes and a **level**, and `core/` scales the block on the way onto
+ * the field. What is authored here is the archetype's *shape* — fragile and fast, armoured and
+ * slow, a healer with no armour at all — and its weight relative to its neighbours. How big it
+ * actually is on any given stage is that stage's business.
+ *
+ * The practical consequence when reading these numbers: **compare them to a character's level-1
+ * block, not to each other across the ladder**. A level-1 Gate Warden is 1,050 HP against Bran's
+ * 940, which is the right comparison; it meets the party at stage 11, at level 40, where it is
+ * nearer 2,650.
+ *
+ * ## `tier` is the slope, not a difficulty rating
+ *
+ * The same three tiers a character has, meaning the same thing — `common`, `legendary`, `ascended`
+ * in ascending order of growth per level. Fodder and plain bodies are `common`, the locks are
+ * `legendary`, the gates and bosses are `ascended`. At level 1 the three are identical; what the
+ * tier buys is that a gate pulls away from the escort standing in front of it as the ladder
+ * climbs, instead of the two staying a fixed distance apart forever.
+ *
+ * There is deliberately **no ascension rung on this side** — see `toEnemyCombatant` in
+ * `core/roster/stats.ts` for why the third dial milestone 10 planned was folded into the stat
+ * block instead of shipped.
  *
  * ## What the stats mean
  *
@@ -71,7 +100,8 @@ import {
  * | Fen Shade     | what do you do when it dodges half of it? | accuracy, or volume               |
  *
  * A third set follows for the second half of the ladder — see "The Ashfall Reach" below, which
- * also records why those needed new stat blocks rather than the old ones with a multiplier.
+ * also records what survived of the argument for authoring them separately once the level dial
+ * arrived.
  *
  * ## Factions
  *
@@ -90,9 +120,10 @@ export const SLIME = {
   id: 'slime',
   name: 'Slime',
   faction: 'monster',
+  tier: 'common',
   stats: {
-    hp: 300,
-    atk: 26,
+    hp: 290,
+    atk: 25,
     def: 6,
     haste: 78,
     critChance: 0.03,
@@ -108,10 +139,11 @@ export const WISP = {
   id: 'wisp',
   name: 'Wisp',
   faction: 'undead',
+  tier: 'common',
   stats: {
-    hp: 230,
-    atk: 32,
-    def: 6,
+    hp: 210,
+    atk: 30,
+    def: 5,
     haste: 148,
     critChance: 0.08,
     critDamageAmp: 0.6,
@@ -125,10 +157,11 @@ export const BOAR = {
   id: 'boar',
   name: 'Tusked Boar',
   faction: 'monster',
+  tier: 'common',
   stats: {
-    hp: 760,
-    atk: 45,
-    def: 16,
+    hp: 620,
+    atk: 37,
+    def: 13,
     haste: 84,
     critChance: 0.05,
     critDamageAmp: 0.5,
@@ -143,10 +176,11 @@ export const BANDIT = {
   id: 'bandit',
   name: 'Bandit',
   faction: 'human',
+  tier: 'common',
   stats: {
-    hp: 620,
-    atk: 56,
-    def: 22,
+    hp: 520,
+    atk: 46,
+    def: 18,
     haste: 106,
     critChance: 0.12,
     critDamageAmp: 0.7,
@@ -162,10 +196,11 @@ export const GOLEM = {
   id: 'golem',
   name: 'Stone Golem',
   faction: 'monster',
+  tier: 'legendary',
   stats: {
-    hp: 2600,
-    atk: 84,
-    def: 65,
+    hp: 1300,
+    atk: 42,
+    def: 33,
     haste: 52,
     critChance: 0.02,
     critDamageAmp: 1,
@@ -182,10 +217,11 @@ export const WARDEN = {
   id: 'warden',
   name: 'Gate Warden',
   faction: 'human',
+  tier: 'ascended',
   stats: {
-    hp: 2100,
-    atk: 92,
-    def: 48,
+    hp: 1050,
+    atk: 46,
+    def: 24,
     haste: 98,
     critChance: 0.1,
     critDamageAmp: 0.8,
@@ -209,10 +245,11 @@ export const ACOLYTE = {
   id: 'acolyte',
   name: 'Marsh Acolyte',
   faction: 'human',
+  tier: 'legendary',
   stats: {
-    hp: 700,
-    atk: 96,
-    def: 25,
+    hp: 420,
+    atk: 58,
+    def: 15,
     haste: 92,
     critChance: 0.02,
     critDamageAmp: 0.4,
@@ -232,10 +269,11 @@ export const HAG = {
   id: 'hag',
   name: 'Bog Hag',
   faction: 'undead',
+  tier: 'legendary',
   stats: {
-    hp: 1080,
-    atk: 76,
-    def: 33,
+    hp: 650,
+    atk: 46,
+    def: 20,
     haste: 88,
     critChance: 0.04,
     critDamageAmp: 0.5,
@@ -256,10 +294,11 @@ export const PYRE = {
   id: 'pyre',
   name: 'Pyre Caster',
   faction: 'demon',
+  tier: 'legendary',
   stats: {
-    hp: 820,
-    atk: 94,
-    def: 24,
+    hp: 500,
+    atk: 57,
+    def: 15,
     haste: 96,
     critChance: 0.1,
     critDamageAmp: 0.8,
@@ -279,10 +318,11 @@ export const BULWARK_ENEMY = {
   id: 'bulwark',
   name: 'Iron Bulwark',
   faction: 'dwarf',
+  tier: 'legendary',
   stats: {
-    hp: 1700,
-    atk: 66,
-    def: 60,
+    hp: 1020,
+    atk: 40,
+    def: 36,
     haste: 74,
     critChance: 0.03,
     critDamageAmp: 0.5,
@@ -303,11 +343,12 @@ export const RIMEPLATE = {
   id: 'rimeplate',
   name: 'Rimeplate',
   faction: 'monster',
+  tier: 'legendary',
   stats: {
-    hp: 3400,
-    atk: 100,
-    def: 84,
-    recovery: 14,
+    hp: 1400,
+    atk: 60,
+    def: 42,
+    recovery: 6,
     haste: 60,
     critChance: 0.03,
     critDamageAmp: 0.8,
@@ -330,10 +371,11 @@ export const SHADE = {
   id: 'shade',
   name: 'Fen Shade',
   faction: 'undead',
+  tier: 'legendary',
   stats: {
-    hp: 980,
-    atk: 78,
-    def: 15,
+    hp: 590,
+    atk: 47,
+    def: 9,
     haste: 112,
     critChance: 0.08,
     critDamageAmp: 0.7,
@@ -347,14 +389,15 @@ export const SHADE = {
 // ---------------------------------------------------------------------------------------
 // The Ashfall Reach — the second half of the ladder
 //
-// ## Why these are new stat blocks rather than the old ones with a multiplier
+// ## Why these are separate archetypes rather than the old ones at a higher level
 //
-// The party that arrives at stage 13 is roughly four times the party that cleared stage 12 —
-// levels and ascension rungs, compounding. Fielding a 300-HP Slime against it is not an easy
-// encounter, it is an empty square: it dies before it acts and the stage is a formality. So the
-// second half of the ladder needs bodies of its own whatever else it does.
+// Milestone 10 answered half of what this section used to argue. The old reason was scale: a
+// 300-HP Slime against the party that arrives at stage 13 is not an easy encounter, it is an empty
+// square. That reason is gone — a Slime fielded at level 58 is a real body, and the level dial is
+// exactly the thing that makes re-authoring for scale unnecessary.
 //
-// What it must *not* be is only that. Six of the twelve below exist because
+// **The half that survives is the half that always mattered.** Six of the twelve below exist
+// because
 // `core/battle/types.ts` had vocabulary nothing had ever used — `enemy-row-back`,
 // `enemy-lowest`, `enemy-highest` and the `self-hurt` condition, plus `tenacity` and penetration
 // pushed far enough to be a question rather than a rounding error. Each one names an answer the
@@ -373,10 +416,14 @@ export const SHADE = {
 //
 // ## Scale
 //
-// Roughly a tenth again a stage, which is deliberately the slope the idle rates take across this
-// stretch. Damage is `atk² / (atk + def)`, so scaling attack and defence together leaves a fight
-// the same *length* while making it a fight between bigger numbers — which is what keeps the
-// second half feeling like the first rather than like a wait.
+// These sit somewhat heavier at level 1 than the openers above, and that is a statement about the
+// archetypes rather than about the band: a Bonefall Tyrant is a bigger thing than a Slime wherever
+// either of them stands. The band they appear in is `level` on the stage, and nothing here.
+//
+// Damage is `atk² / (atk + def)`, so scaling attack and defence together leaves a fight the same
+// *length* while making it a fight between bigger numbers. That is what lets the whole ladder be
+// rescaled without the ninety-second timer noticing — see the scaling invariant asserted in
+// `core/battle/simulate.spec.ts`.
 
 /**
  * A body for the top half of the ladder, and the one that drains.
@@ -389,11 +436,12 @@ export const REVENANT = {
   id: 'revenant',
   name: 'Ash Revenant',
   faction: 'undead',
+  tier: 'common',
   stats: {
-    hp: 2900,
-    atk: 72,
-    def: 20,
-    recovery: 22,
+    hp: 700,
+    atk: 42,
+    def: 15,
+    recovery: 5,
     haste: 82,
     critChance: 0.06,
     critDamageAmp: 0.6,
@@ -408,18 +456,19 @@ export const SENTINEL = {
   id: 'sentinel',
   name: 'Cairn Sentinel',
   faction: 'dwarf',
+  tier: 'legendary',
   stats: {
-    hp: 3950,
-    atk: 72,
-    def: 78,
-    recovery: 20,
+    hp: 780,
+    atk: 70,
+    def: 46,
+    recovery: 4,
     haste: 66,
     critChance: 0.03,
     critDamageAmp: 0.5,
     critBlock: 0.08,
     tenacity: 0.25,
     physicalResist: 0.05,
-    healthRegen: 0.25,
+    healthRegen: 0.08,
   },
   skills: [GLACIAL_SLAM, SHIELD_BASH],
 } as const;
@@ -435,10 +484,11 @@ export const SKYSHRIKE = {
   id: 'skyshrike',
   name: 'Sky-Shrike',
   faction: 'elf',
+  tier: 'legendary',
   stats: {
-    hp: 1450,
-    atk: 100,
-    def: 24,
+    hp: 480,
+    atk: 63,
+    def: 16,
     haste: 152,
     critChance: 0.16,
     critDamageAmp: 0.8,
@@ -460,10 +510,11 @@ export const RAVAGER = {
   id: 'ravager',
   name: 'Barbed Ravager',
   faction: 'monster',
+  tier: 'legendary',
   stats: {
-    hp: 3450,
-    atk: 118,
-    def: 43,
+    hp: 900,
+    atk: 62,
+    def: 22,
     haste: 94,
     critChance: 0.08,
     critDamageAmp: 0.7,
@@ -486,10 +537,11 @@ export const WRATHBORN = {
   id: 'wrathborn',
   name: 'Wrathborn',
   faction: 'demon',
+  tier: 'legendary',
   stats: {
-    hp: 3300,
-    atk: 125,
-    def: 48,
+    hp: 860,
+    atk: 65,
+    def: 25,
     haste: 92,
     critChance: 0.1,
     critDamageAmp: 0.8,
@@ -503,10 +555,11 @@ export const STORMCALLER = {
   id: 'stormcaller',
   name: 'Fen Stormcaller',
   faction: 'human',
+  tier: 'legendary',
   stats: {
-    hp: 2950,
-    atk: 140,
-    def: 43,
+    hp: 770,
+    atk: 73,
+    def: 22,
     haste: 100,
     critChance: 0.12,
     critDamageAmp: 0.8,
@@ -535,11 +588,12 @@ export const HIEROPHANT = {
   id: 'hierophant',
   name: 'Ashen Hierophant',
   faction: 'angel',
+  tier: 'ascended',
   stats: {
-    hp: 5100,
-    atk: 240,
-    def: 99,
-    recovery: 30,
+    hp: 1220,
+    atk: 84,
+    def: 35,
+    recovery: 7,
     haste: 104,
     critChance: 0.04,
     critDamageAmp: 0.5,
@@ -561,10 +615,11 @@ export const HEADSMAN = {
   id: 'headsman',
   name: 'Gallows Headsman',
   faction: 'undead',
+  tier: 'legendary',
   stats: {
-    hp: 6700,
-    atk: 168,
-    def: 92,
+    hp: 1080,
+    atk: 62,
+    def: 34,
     haste: 108,
     critChance: 0.18,
     critDamageAmp: 0.9,
@@ -586,18 +641,19 @@ export const COLOSSUS = {
   id: 'colossus',
   name: 'Adamant Colossus',
   faction: 'dwarf',
+  tier: 'ascended',
   stats: {
-    hp: 8600,
-    atk: 168,
-    def: 192,
-    recovery: 34,
+    hp: 1450,
+    atk: 74,
+    def: 60,
+    recovery: 7,
     haste: 58,
     critChance: 0.03,
     critDamageAmp: 0.6,
     critBlock: 0.12,
     tenacity: 0.85,
     physicalResist: 0.03,
-    healthRegen: 0.3,
+    healthRegen: 0.15,
   },
   skills: [GLACIAL_SLAM, SHIELD_BASH],
 } as const;
@@ -614,10 +670,11 @@ export const TYRANT = {
   id: 'tyrant',
   name: 'Bonefall Tyrant',
   faction: 'monster',
+  tier: 'ascended',
   stats: {
-    hp: 9800,
-    atk: 220,
-    def: 148,
+    hp: 1900,
+    atk: 78,
+    def: 52,
     haste: 88,
     critChance: 0.12,
     critDamageAmp: 0.9,
@@ -632,10 +689,11 @@ export const OATHBREAKER = {
   id: 'oathbreaker',
   name: 'The Oathbreaker',
   faction: 'human',
+  tier: 'ascended',
   stats: {
-    hp: 7400,
-    atk: 155,
-    def: 135,
+    hp: 1450,
+    atk: 58,
+    def: 48,
     haste: 100,
     critChance: 0.12,
     critDamageAmp: 0.8,
@@ -656,11 +714,12 @@ export const UNMADE = {
   id: 'unmade',
   name: 'The Unmade',
   faction: 'demon',
+  tier: 'ascended',
   stats: {
-    hp: 12500,
-    atk: 195,
-    def: 190,
-    recovery: 40,
+    hp: 2200,
+    atk: 82,
+    def: 68,
+    recovery: 8,
     haste: 96,
     critChance: 0.15,
     critDamageAmp: 1,

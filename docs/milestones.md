@@ -29,7 +29,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays     |
 | 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1       |
 | 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived  |
-| 10  | Power that compounds                    | ⬜                                           |
+| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels  |
 | 11  | Chapters                                | ⬜                                           |
 | 12  | Gear                                    | ⬜                                           |
 | 13  | Settings, and the save-safety gap       | ⬜                                           |
@@ -517,6 +517,11 @@ against their own rarity's cap on the way in:
 Still common tier at the top, and still no pull anyone had to be lucky for: the second half asks for
 levels and ascension rungs, which are bought with time and duplicates.
 
+**Those two investments are the milestone 7 numbers and milestone 10 replaced them** — level 40 at
+`rare-plus` and level 90 at `legendary`. The rows above are kept as written because the correction
+they record is about the _cap check_, which still stands; what each party is made of lives in
+[`stages.balance.ts`](../src/data/stages.balance.ts).
+
 ### Why there is no prestige layer
 
 This milestone used to read "prestige layer, then content". Checking that against what the game
@@ -555,7 +560,7 @@ worth authoring.
 
 **Treat this milestone's stages as the last of the flat, hand-tuned ladder**: enough content to
 exercise auto-battle against something, and the opening stretch of what becomes chapter 1. Their
-rates get re-derived in milestone 11 when rates stop being an authored field, and the whole curve is
+rates get re-derived in milestone 11 when rates stop being an authored field, and the whole curve was
 retuned in milestone 10.
 
 ## 8. The combat rework
@@ -719,6 +724,11 @@ level 80 clear the hand-climbed half, swept in
 [`stages.balance.ts`](../src/data/stages.balance.ts). Hold that with two skills each and the promise
 survives in substance — the top of the ladder still cannot demand a pull nobody can buy. Let it fail
 and quietly retune it, and the game has become tier-gated without anyone deciding to.
+
+**Milestone 10 moved that party below the gate and the promise came out stronger.** The mid-game
+reference is now level 40 at `rare-plus` — one skill each — so the hand-climbed half asks for no
+rung-gated skill at all, and what the second skill gates is the Ashfall Reach. A capability arriving
+with the content that needs it is a better answer than a capability arriving before it.
 
 Shipped: thirty new skills, every kit re-authored at its ceiling, the gate applied on the same seam
 that scales stats, and the sheet showing what is still locked.
@@ -967,6 +977,12 @@ Be honest about the cost, because it is a real reduction rather than a reclassif
 Content added from here has substantially less room than it had. Milestone 10's rescale and
 milestone 11's chapters both need to expect the headroom assertion to fail first.
 
+**Milestone 10 gave some of it back, which was not the plan and is worth knowing why.** Re-authoring
+every archetype at level 1 replaced blocks whose HP had grown far faster than their attack, and a
+less spongy encounter resolves sooner: the longest cleared fight is 54.1s and the headroom is
+**1.66×**. The rescale itself contributed nothing either way — scaling both sides is an identity on
+fight _length_, measured in ticks.
+
 ### The matchup retune it inherited: measured, and deliberately not applied
 
 8d expected to resize the 1.05–1.10 edges and could not. 8e could measure it, and the answer was to
@@ -1061,82 +1077,125 @@ it. Pinning the anchor set once would have supported only the first, while a pla
 second work by hand — so the plan re-picks its five per target, filtered by which rarity caps allow
 it. [level-resonance](level-resonance.md) has why that pick is arithmetic rather than a search.
 
-## 10. Power that compounds
+## 10. Power that compounds — **COMPLETE**
 
-**Both sides of the fight scale, or neither does.** This milestone makes levelling and ascension
-dramatically more powerful, and gives enemies their own levels so the ladder survives it. Those
-are one job, not two: raising the player's curve without raising the enemy's does not create a
-power fantasy, it deletes the content. Splitting them across two milestones would leave the game
-unplayable in between, which is the one thing the ordering exists to prevent.
+**Both sides of the fight scale, or neither does.** Levelling and ascension became dramatically
+more powerful and enemies got their own levels so the ladder survived it. Those were one job, not
+two: raising the player's curve without raising the enemy's does not create a power fantasy, it
+deletes the content.
 
-### What "more dramatic" has to mean numerically
+Shipped: new coefficients in [`levels.ts`](../src/data/levels.ts), a shared
+[`core/growth.ts`](../src/core/growth.ts), `EnemyData` and `StageData.level` in
+[`battle/types.ts`](../src/core/battle/types.ts), `toEnemyCombatant` beside `toBattleCombatant` in
+[`roster/stats.ts`](../src/core/roster/stats.ts), all twenty-four enemy archetypes re-authored at
+level 1, all twenty-four stages given a level, and a stomp spec in
+[`stages.balance.ts`](../src/data/stages.balance.ts). **No save migration** — growth lives in
+`data/` and levels are stored rather than power, so every existing save re-derives on load.
 
-Today the game grows at `1.0075` per level at common tier and `1.12` per ascension rung. Across
-the full level range that is three orders of magnitude — a gentle slope, not an incremental
-game. The shape to aim for:
+### The three numbers, and the two ways to pick them
 
-| Per level      | Multiplier at level 1000 |
-| -------------- | ------------------------ |
-| 1.0075 (today) | ×1.7e3                   |
-| 1.014          | ×1.1e6                   |
-| 1.021          | ×1.0e9                   |
-| 1.028          | ×9.6e11                  |
+| Per level | Common | Legendary | Ascended | Ascended ÷ Common |
+| --------- | ------ | --------- | -------- | ----------------- |
+| was       | 1.0075 | 1.009     | 1.0105   | 19.5× at the cap  |
+| is        | 1.021  | 1.0225    | 1.024    | 18.7× at the cap  |
 
-**This costs nothing architecturally, and that is not luck.** `core/numeric.ts` already wraps
-`break_infinity`, so quantities past float64's 9e15 are already the working type everywhere.
-AGENTS.md hedged that dependency — "add `break_infinity.js` only if the curve actually demands
-it". The curve now demands it, and the hedge can be retired.
+Common tier now compounds to ×1.04e9 across the level range where it reached ×1745 — six orders of
+magnitude steeper, which is the difference between a gentle slope and an incremental game.
 
-### The stomp requirement is testable, so test it
+**Every tier's multiplier-at-cap was raised by the same factor, and that was the decision.** The
+obvious alternative is to scale the _exponents_ by a common factor — multiply each rate's excess
+over 1 by ~2.8 and you get 1.021 / 1.0252 / 1.0294, which reads like the same idea. It is not:
+raising a ratio of 19.5 to the power 2.8 is a ratio of 3,600. Common tier would be five times
+behind at level 200 rather than 1.8, which is a retune of milestone 3's central promise arriving as
+an arithmetic detail. `data/levels.spec.ts` pins the ratio so the choice cannot be un-made by
+accident.
 
-"Go idle for a long time, come back, level up, and stomp stages until the next wall" is a
-property, not a feeling: **an idle window of length T must buy levels that convert into a run of
-at least N cleared stages.** Write that as a spec over the ladder and tune against it. Tuning
-compounding curves by feel is how an incremental game ends up either trivial or a wall, and the
-5th-percentile player is the one who finds out first.
+`perAscension` went `1.12` → `1.6`: ×450 across the full rung ladder rather than ×4.36. Against a
+billion-fold levelling curve the old number would have made the gacha decoration, and duplicates
+are this game's _primary_ ascension path. It was sized against the levelling curve rather than in
+isolation — a rung raises the level cap by 20 to 100, itself worth ×1.5 to ×7.9, so a rung paying
+×1.6 sits inside the range of the headroom it unlocks.
 
-### Ascension has to move more than levelling does
+**The `break_infinity` hedge is retired.** AGENTS.md said to add it "only if the curve actually
+demands it"; the curve demands it.
 
-`perAscension` is `1.12`, worth ×4.36 across the full rung ladder. If levelling delivers ×10⁹
-and ascension delivers ×4, **the gacha stops mattering** — duplicates are the primary
-progression path by design, and a progression path worth ×4 against a levelling path worth a
-billion is decoration. For scale: ×1.35 a rung is ×49 across the ladder, ×1.6 is ×450, ×2.0 is
-×8,192. Pick the ascension multiplier against the levelling one deliberately, in that order.
+### Enemies are instances, and one of the three dials was folded away
 
-### Enemies become instances rather than stat blocks
+An archetype in [`enemies.ts`](../src/data/enemies.ts) is now a **level-1 stat block plus a tier**,
+and a stage names archetypes and a **level**. All twenty-four were re-authored down to a common
+level-1 budget, which is what makes them comparable to a character's own level-1 block and what
+lets a Marsh Acolyte reappear two hundred stages later as the same question rather than an empty
+square. Tier is the growth slope, not a difficulty rating: fodder is `common`, the locks are
+`legendary`, the gates are `ascended`, so a boss pulls away from its escort as the ladder climbs.
 
-An enemy becomes a definition plus a level, tier and rarity — the machinery `core/roster/`
-already runs for characters, pointed at the other side of the board. Two consequences, and the
-second is why hand-authored chapters are viable at all:
+The plan said "a definition plus a level, tier and rarity". **The rarity was folded into the stat
+block and the reason is worth keeping.** A rung is a flat multiplier: per stage it is a ×1.6 cliff
+on a dial `level` already turns smoothly, and per archetype it multiplies a block the author is
+writing anyway. Both spellings say what the block already says. Nothing was lost and a dial nobody
+could explain was not shipped.
 
-1. **Locks stay locks.** A Marsh Acolyte with a fixed stat block is a puzzle the player solves
-   once and never again; at ×10⁹ it is a rounding error. Milestone 4's whole thesis — that
-   composition matters because enemies ask questions — holds late-game **only** if the enemy
-   asking scales alongside the party answering. That is the real reason the vision says
-   composition matters more late than early, and it is a consequence of this change rather than
-   an assertion about it.
-2. **Authoring collapses.** A stage stops being a set of authored stat blocks and becomes a short
-   line naming archetypes and a level. See milestone 11.
+Authoring did collapse as predicted — a stage is a line of archetypes and a number — which is what
+makes milestone 11's hundreds of stages an afternoon rather than a career.
 
-### What survives the rescale and what quietly does not
+### Scaling both sides is an identity, and that is why nothing else broke
 
-- **Multiplicative edges survive at any magnitude.** The faction matrix's 5–10% is 5–10% whether
-  the numbers are 10² or 10¹². Milestone 4's matchup design needs no rework, which is a point in
-  favour of how it was built.
-- **Anything additive or threshold-shaped does not.** A flat bonus, or any authored constant
-  compared against a scaling quantity, silently becomes a no-op. Audit for these rather than
-  waiting to notice.
-- **The non-scaling stats stay non-scaling.** `haste`, the probabilities, penetration, resist and
-  `mp` are
-  bounded for termination and metering reasons a bigger power curve does not touch — see
-  milestone 4. A compounding game makes it **more** important that `haste` cannot grow, not less.
-- **The tier fall-off is the thing to preserve on purpose.** Common tier is meant to be a genuine
-  early answer that becomes a joke at cap. Steepening every tier by the same factor preserves
-  that ratio; steepening them unevenly is a retune of milestone 3's central promise and should be
-  a decision somebody made, not a side effect of picking three numbers.
+Damage is `atk² / (atk + def)` and every status prices off the applier's `atk`, so multiplying both
+sides by the same factor reproduces the fight exactly: same hits, same order, same tick.
+`simulate.spec.ts` asserts it on a doubling curve, where the arithmetic is exact.
 
-**No save migration.** Growth lives in `data/` and levels are stored rather than power, so every
-existing save re-derives its stats on load.
+That property is why the audit the plan called for came back nearly empty. The faction matrix's
+5–10% is 5–10% at any magnitude. Every status in `statuses.ts` was already a multiplier or a share
+of `atk`. Energy gains were already flat points against a fixed bar — `battle/types.ts` had written
+the argument down in advance. The ninety-second timer needed no change, because fight _length_ in
+ticks is invariant under the rescale — the headroom actually **rose from 1.40× to 1.66×**, since
+re-authoring the archetypes replaced blocks whose HP had outgrown their attack. The one thing that
+genuinely moved was the difficulty probe's search bracket, which used to top out at ×40 against a
+ladder that now asks ×370.
+
+### The stomp is what actually retuned the ladder
+
+"Go idle for a long time, come back, level up, and stomp stages until the next wall" was written as
+a spec: an idle window must buy levels that convert into a run of cleared stages, measured at three
+points on the ladder, with the budget divided by `PARTY_SIZE` first because resonance means raising
+the party by one level costs five.
+
+**Measured against the anchors as they stood, eight hours bought two stages, then one, then none.**
+The cause was not the rescale — it was holding "five common-tier at level 200 clear the ladder"
+while a rung went from ×1.12 to ×1.6. The ladder then had to absorb the whole ascension gain on top
+of the levelling one, which left a stage costing seventeen levels where a day of income bought six.
+A wall wearing a compounding curve's clothes.
+
+So the ladder came down to meet it. The reference parties are now **level 40 at `rare-plus`** for
+the hand-climbed half and **level 90 at `legendary`** for all twenty-four, and the twenty-four
+stage levels were solved against a smooth ×1.26-a-stage curve rather than hand-guessed. A night
+away buys one to two stages; a day away buys three to four. Both are asserted.
+
+**Where that leaves the two axes is the number to keep.** Levelling to `INVESTED` is worth ×6.4 and
+its four rungs are worth ×6.6, so across the ladder the two are within a few percent of each other
+— levels are the steady drip, rungs are the leap, and neither is decoration. The balance sweep
+asserts that ratio stays inside `[0.5, 2]`.
+
+Three consequences of flattening, stated rather than discovered:
+
+- **The ladder is a shorter climb in wall-clock terms**, because level 90 across five characters is
+  a fraction of what level 200 cost. That is the price of the stomp and it was paid knowingly;
+  milestone 11 is where the content to spend the rest of the curve on arrives.
+- **The mid-game party sits below the skill gate**, at one skill each rather than two. The promise
+  in milestone 8c came out stronger for it — see the note there.
+- **Nothing here fixes the density properly.** A 24-stage ladder cannot span the interesting level
+  range _and_ cost a couple of levels a stage. Milestone 11's own anchor is roughly 9.5 stages per
+  level, sixty times flatter again, and that is where "stomp" starts meaning what it sounds like.
+
+### What survives the rescale, revisited
+
+- **Multiplicative edges survive at any magnitude**, as predicted. Milestone 4's matchup design
+  needed no rework, which is a point in favour of how it was built.
+- **The non-scaling stats stayed non-scaling.** `haste`, the probabilities, penetration, resist and
+  the energy budget are bounded for termination and metering reasons a bigger power curve does not
+  touch. A compounding game makes it **more** important that `haste` cannot grow, not less — see
+  [attributes](attributes.md).
+- **The tier fall-off was preserved on purpose**, and is the one place a plausible-looking
+  alternative would have quietly retuned milestone 3.
 
 **One thing this milestone does not answer:** what the growth axis is once a character actually
 reaches 1000. The cap is deliberately ~100 chapters out, so it is not urgent — but it is the same
@@ -1266,8 +1325,8 @@ back sooner" notice — which was the cap's only user-facing artefact and is now
 ### Stages are hand-authored, and here is when that stops working
 
 **The decision is that every stage is authored by hand rather than generated.** Milestone 10 is
-what makes that viable: a stage is a short line naming archetypes and a level, not a set of
-hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
+what made that viable, and it shipped: a stage is a short line naming archetypes and a level, not a
+set of hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
 difficulty curve cannot.
 
 The arithmetic is recorded here so the decision stays re-checkable instead of becoming folklore:

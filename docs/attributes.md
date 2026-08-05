@@ -91,7 +91,7 @@ by a termination argument, or by being measured against something authored.
 
 **`recovery` is the exception, and it is the budget argument run backwards.** It is a quantity
 measured against `hp`, so a fixed value becomes a no-op the moment health outgrows it — and
-milestone 10 aims at roughly ×10⁹ across the level range. `healthRegen` amplifies it as a
+milestone 10 took the level range to roughly ×10⁹. `healthRegen` amplifies it as a
 percentage and therefore stays where it was authored, which is the correct side of the line for
 both. That pair is the one place this document keeps two stats where one would nearly do; the
 alternative was a single scaling quantity with no way to say "this character recovers unusually
@@ -99,7 +99,14 @@ well for its size".
 
 **A compounding power curve makes these guards more important, not less.** At ×10⁹ an unbounded
 haste, an uncapped penetration or an uncapped resist stops being a balance problem and becomes a
-hang.
+hang. Milestone 10 shipped that curve and changed none of them, which is the whole of what
+"survives the rescale" meant: the four quantities grew by nine orders of magnitude and every
+bounded stat in this document is authored exactly where it was.
+
+**Enemies scale on the same four quantities and the same three slopes.** Since milestone 10 an
+archetype is a level-1 stat block plus a tier, and a stage fields it at a level — so everything
+above applies unchanged to the other side of the board, including the reason a Wisp is still fast
+and still fragile at stage 24.
 
 ---
 

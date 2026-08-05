@@ -45,7 +45,7 @@ class FakeBattles {
   readonly isFighting = signal(false);
   readonly outcome = signal<string | null>(null);
   readonly stage = signal<StageHeading | null>(null);
-  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1 });
+  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1, level: 1 });
   readonly party = signal([]);
   readonly foes = signal([]);
   readonly recentEvents = signal([]);
