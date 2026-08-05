@@ -70,7 +70,13 @@ import {
  */
 
 // ---------------------------------------------------------------------------------------
-// Humans — versatile, and the only mortal faction with both a healer and a cleanse
+// Humans — versatile, and the faction with an adequate answer to everything
+//
+// They *were* "the only mortal faction with both a healer and a cleanse", and milestone 8e spent
+// that line deliberately. A mono-faction lineup bonus is only a decision if all seven mono-fives
+// are fieldable, and a faction with no sustain is not a team, so every faction now owns an answer
+// to health in its own idiom. What Humans keep is the shape of the promise rather than a monopoly
+// on it: Wren does both halves on one body, cheaply, at common tier, which nobody else manages.
 // ---------------------------------------------------------------------------------------
 
 /** Mira. Opens armour for whoever swings next, which is the most useful thing a generalist does. */
@@ -233,8 +239,120 @@ export const TRIAGE = {
   priority: 4,
 } as const;
 
+/**
+ * Halric. The wall a Human five did not have, and the one defensive verb the faction did not own.
+ *
+ * An absorb pool rather than an armour buff, deliberately. Humans already buy `def` twice — Aurelia
+ * spends a whole skill on it and a Dwarf is built out of it — so a shield is the thing that was
+ * missing rather than a third spelling of the thing that was not. It is also the half of the pair
+ * worth most on a party nobody has hit yet, which is exactly the exchange a front rank opens with.
+ */
+export const SHIELDSWORN_OATH = {
+  id: 'shieldsworn-oath',
+  name: 'Shieldsworn Oath',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Halric's other turn. A wall's second job is making the rank in front of it hit softer. */
+export const BRACING_BLOW = {
+  id: 'bracing-blow',
+  name: 'Bracing Blow',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.35 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Ysolde. The first answer to a protected back rank that is not an Elf, and the whole reason a
+ * mono-Human five can fight a formation. */
+export const TRUESIGHT_VOLLEY = {
+  id: 'truesight-volley',
+  name: 'Truesight Volley',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/**
+ * Ysolde naming the biggest thing on the field.
+ *
+ * `enemy-highest` is the rule almost nothing in the roster uses, and against a wall it is the one
+ * that matters: a Human party's damage is spread thin, so opening the armour on the target every
+ * other member is already grinding against is worth more than another 1.5× somewhere else.
+ */
+export const MARKED_QUARRY = {
+  id: 'marked-quarry',
+  name: 'Marked Quarry',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Ysolde's third: the same reach spread across the whole back rank, priced per head like every
+ * other wide skill in the file. */
+export const LOOSE_THE_FLIGHT = {
+  id: 'loose-the-flight',
+  name: 'Loose the Flight',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 0.9 }],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/** Ivo. The Human closer, and the only mortal executioner outside the Elves. */
+export const BLACKLANCE_THRUST = {
+  id: 'blacklance-thrust',
+  name: 'Blacklance Thrust',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Ivo's filler, and the faction's only bleed. Small on the turn it lands and worth more than the
+ * number says against anything that was going to survive a while. */
+export const RIPOSTE = {
+  id: 'riposte',
+  name: 'Riposte',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: BLEED, chance: 0.75 },
+  ],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Ivo's third. Tempo for himself rather than for the party, which is the difference between a
+ * duellist and a marshal. */
+export const DUELISTS_READ = {
+  id: 'duelists-read',
+  name: "Duelist's Read",
+  target: 'self',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 65,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
-// Dwarves — refusing to lose, and the cleanse that is not celestial
+// Dwarves — refusing to lose, and since 8e able to do something about it
+//
+// "Cannot close a fight; can refuse to lose one" was a niche while a Dwarf stood next to four
+// other factions and a ceiling the moment five of them stood together: Bran, Dorn, Korrin and
+// Thraun in one formation survive essentially anything and kill essentially nothing, which is the
+// ninety-second timeout with a stat block on. Hedda is the answer to that and Orin is the answer
+// to a back rank, and both are legendary tier — so the faction still opens the way it always did.
 // ---------------------------------------------------------------------------------------
 
 /** Bran. Free, on a long cooldown, and only ever about himself. */
@@ -394,6 +512,125 @@ export const STOUT_WARD = {
   priority: 2,
 } as const;
 
+/**
+ * Grimna. The Dwarven heal, and the first one on the mortal ladder that is not Human.
+ *
+ * A party heal on a common-tier character reads generous until it is multiplied out: Dwarves carry
+ * the lowest `atk` in the game and every restoration in the file prices against it, so 0.8 from
+ * Grimna is worth less per head than 0.9 from Celia and far less than Ithuriel's 0.95. That is the
+ * trade the faction has always made — she keeps a party standing and cannot pull anybody back from
+ * the edge, which is what {@link QUENCHING_DRAUGHT} is for.
+ */
+export const COALSONG = {
+  id: 'coalsong',
+  name: 'Coalsong',
+  target: 'ally-all',
+  effects: [{ kind: 'heal', power: 0.8 }],
+  ultimate: true,
+  condition: { kind: 'ally-hurt', fraction: 0.85 },
+  priority: 3,
+} as const;
+
+/** Grimna's single-target heal: the one that actually saves somebody, on a cooldown rather than a
+ * bar so it is available in the opening exchange the ultimate cannot reach. */
+export const QUENCHING_DRAUGHT = {
+  id: 'quenching-draught',
+  name: 'Quenching Draught',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.25 }],
+  cooldown: 45,
+  condition: { kind: 'ally-hurt', fraction: 0.75 },
+  priority: 2,
+} as const;
+
+/**
+ * Hedda. The Dwarf who can finish a fight, which nothing else in the faction can.
+ *
+ * "Cannot close a fight; can refuse to lose one" is the faction's line and it was becoming a
+ * ceiling rather than a niche: a mono-Dwarf five with Bran, Dorn, Korrin and Thraun in it survives
+ * indefinitely and kills nothing, which is the ninety-second timeout wearing a stat block. She is
+ * the answer, and she pays for it by being the softest Dwarf authored.
+ */
+export const GRUDGE_SETTLED = {
+  id: 'grudge-settled',
+  name: 'Grudge Settled',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.95 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Hedda's filler. Nothing clever — a Dwarf hitting something, which is novel enough. */
+export const RUNE_STRUCK = {
+  id: 'rune-struck',
+  name: 'Rune-Struck',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * Hedda's third, and attrition read as an offensive stat for once.
+ *
+ * Conditioned on her own health rather than freely available, which is what keeps it a comeback:
+ * she is worth the most in the fight that has already gone long, which is the only kind of fight
+ * her faction ever has.
+ */
+export const STOKE_THE_GRUDGE = {
+  id: 'stoke-the-grudge',
+  name: 'Stoke the Grudge',
+  target: 'self',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 60,
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  priority: 1,
+} as const;
+
+/** Orin. A hurled anvil, and the first time a Dwarf reaches anything standing behind anything
+ * else. */
+export const HURLED_ANVIL = {
+  id: 'hurled-anvil',
+  name: 'Hurled Anvil',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Orin's wide turn: the whole enemy back rank slowed, which is worth more than the damage on it
+ * against anything that was going to act twice. */
+export const CAVERN_ECHO = {
+  id: 'cavern-echo',
+  name: 'Cavern Echo',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.9 },
+    { kind: 'status', status: SLOW, chance: 0.7 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Orin's third, and the only shield in the game pointed at one person.
+ *
+ * A Dwarf standing in the back rank has given up the front-row defence bonus and is carrying the
+ * faction's reach instead, so what he needs is enough absorb to survive the one skill that goes
+ * past the gate — not a party-wide pool that would be spent on people nothing is aimed at.
+ */
+export const PIT_PROPS = {
+  id: 'pit-props',
+  name: 'Pit-Props',
+  target: 'self',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Elves — speed, and the first answer to a back rank
 // ---------------------------------------------------------------------------------------
@@ -528,6 +765,142 @@ export const ARROW_OF_ENDING = {
   priority: 1,
 } as const;
 
+/**
+ * Faelen. The Elven heal, and the fastest one in the game.
+ *
+ * Weaker per cast than anything a Dwarf or an Angel does and cast far more often, which is the
+ * faction's whole argument applied to sustain rather than to damage. Against a wide, grinding wave
+ * that is worth more than it looks; against one enormous hit it is worth nothing at all, and the
+ * Elf it was aimed at is already dead.
+ */
+export const SYLVAN_REFRAIN = {
+  id: 'sylvan-refrain',
+  name: 'Sylvan Refrain',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.45 }],
+  ultimate: true,
+  condition: { kind: 'ally-hurt', fraction: 0.8 },
+  priority: 3,
+} as const;
+
+/** Faelen's other turn, and the only thing an Elf does that pays out slowly. */
+export const WINDWOVEN_BALM = {
+  id: 'windwoven-balm',
+  name: 'Windwoven Balm',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: REGENERATION }],
+  cooldown: 65,
+  priority: 1,
+} as const;
+
+/**
+ * Cirien. The only Elf who can stand in a front rank, and the reason a mono-Elf five is a party
+ * rather than a demonstration.
+ *
+ * Made of slightly less paper than the rest, and it costs him the thing the faction is for: at 104
+ * haste he is the slowest Elf authored, and his 8 points of attack speed are less than half
+ * Aelrindel's. A body, bought with tempo.
+ */
+export const THORNGUARD = {
+  id: 'thornguard',
+  name: 'Thornguard',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Cirien's other turn: the enemy front rank opened up and left bleeding, which is what a slow Elf
+ * does instead of reaching past it. */
+export const CUT_THE_VANGUARD = {
+  id: 'cut-the-vanguard',
+  name: 'Cut the Vanguard',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: BLEED, chance: 0.7 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/**
+ * Naerin. The Elven controller, and the faction's answer to a wave rather than to a formation.
+ *
+ * Slow across the whole field is the most quietly powerful thing in the status library — haste
+ * buys turns, and a third off everybody's gauge is a third of everything the encounter was ever
+ * going to do. Priced as a wide skill, so the damage attached to it is nominal.
+ */
+export const DUSKWEAVE = {
+  id: 'duskweave',
+  name: 'Duskweave',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.85 },
+    { kind: 'status', status: SLOW, chance: 0.7 },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Naerin picking off whatever the party is already grinding against. */
+export const FADESHOT = {
+  id: 'fadeshot',
+  name: 'Fadeshot',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Naerin's third. A blunted front rank, which is the defensive half of a controller's job. */
+export const WITHERING_GAZE = {
+  id: 'withering-gaze',
+  name: 'Withering Gaze',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.3 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Sylvara. Aelrindel's reach at legendary tier, which is to say most of it and none of the
+ * `physicalPierce` that makes his version answer armour. */
+export const SUNSPEAR_CAST = {
+  id: 'sunspear-cast',
+  name: 'Sunspear Cast',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Sylvara pinning the largest thing on the field in place. Against something slow it is nearly
+ * free; against a Wisp it is most of the fight. */
+export const PINNING_SHOT = {
+  id: 'pinning-shot',
+  name: 'Pinning Shot',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SLOW, chance: 0.7 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Sylvara's third: the cheap wide shot an archer takes when nothing in particular needs killing. */
+export const QUIVER_UNSLUNG = {
+  id: 'quiver-unslung',
+  name: 'Quiver Unslung',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 0.95 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Undead — enormous HP and almost no armour, so life is the currency they take
 //
@@ -539,8 +912,15 @@ export const ARROW_OF_ENDING = {
 // Undead are the faction that gets hit. They no longer spend life for tempo — they are handed
 // tempo for having spent it, and they take the life back out of whatever hit them.
 //
-// That is why all three of them siphon and none of them regenerates. A Dwarf refuses to lose by
-// not being hurt; an Undead refuses to lose by being hurt profitably.
+// That is why every one of them siphons. A Dwarf refuses to lose by not being hurt; an Undead
+// refuses to lose by being hurt profitably.
+//
+// **Milestone 8e added the one thing drain cannot do, and it is worth naming the gap.** A siphon
+// only ever pays its caster, so five Undead standing together were five separate solo runs — each
+// one sustaining itself and none of them able to reach the body that was actually dying. Vesper's
+// {@link GRAVECALL} is the fix, and it is authored small on purpose: the faction's answer to
+// damage is still the exchange rather than the heal, and she is worse at healing than anybody
+// whose job it is.
 // ---------------------------------------------------------------------------------------
 
 /** Mortlach. Free sustain, which is what keeps a body with 12 DEF standing. */
@@ -691,6 +1071,147 @@ export const SOUL_TITHE = {
   priority: 1,
 } as const;
 
+/**
+ * Ghaul. The Undead body, and the only one of them authored to be stood in front of somebody.
+ *
+ * Poison across the front rank rather than a drain, which is the faction bargain read from the
+ * other end: he is not taking life back, he is making the exchange cost more than it pays. A
+ * lingering DoT is also the one damage type an enormous HP pool can afford to wait for.
+ */
+export const BLOATBURST = {
+  id: 'bloatburst',
+  name: 'Bloatburst',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1 },
+    { kind: 'status', status: POISON, chance: 0.85 },
+  ],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Ghaul's other turn, and the faction's cheapest siphon. He is not fast enough to use it often,
+ * which is what keeps the largest common-tier HP pool from also sustaining itself. */
+export const GRASPING_ROT = {
+  id: 'grasping-rot',
+  name: 'Grasping Rot',
+  target: 'enemy-front',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.2, siphon: 0.3 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
+ * Vesper. The Undead blunting a line, which is the closest this faction gets to a defensive skill.
+ *
+ * Undead have almost no armour and nothing that adds any, so the only way they reduce incoming
+ * damage is at the source. That is a real answer and a fragile one — it lasts forty-five ticks and
+ * it lands on whoever happens to be in the front rank when she casts it.
+ */
+export const HOLLOWBIND = {
+  id: 'hollowbind',
+  name: 'Hollowbind',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.9 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/**
+ * Vesper's second, and the first heal an Undead has ever cast on somebody else.
+ *
+ * Drain is the faction's sustain and it only ever pays the caster, which made a mono-Undead five
+ * five separate solo runs. This is the fix, and it is deliberately small: life pulled out of the
+ * ground rather than out of a target, so it costs a turn and buys less than an actual healer's.
+ */
+export const GRAVECALL = {
+  id: 'gravecall',
+  name: 'Gravecall',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.15 }],
+  cooldown: 45,
+  condition: { kind: 'ally-hurt', fraction: 0.75 },
+  priority: 1,
+} as const;
+
+/** Ossuary. The Undead answer to a back rank, spread thin across the whole of it. */
+export const OSSUARY_TIDE = {
+  id: 'ossuary-tide',
+  name: 'Ossuary Tide',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 0.95, siphon: 0.3 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Ossuary reaching past the gate for one target, which is what he does between tides. */
+export const MARROW_DRAW = {
+  id: 'marrow-draw',
+  name: 'Marrow Draw',
+  target: 'enemy-back',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.4, siphon: 0.35 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Ossuary's third: a slow trickle of his own, for the turns when nothing is in reach. */
+export const BONE_CHOIR = {
+  id: 'bone-choir',
+  name: 'Bone Choir',
+  target: 'self',
+  effects: [{ kind: 'status', status: REGENERATION }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+/**
+ * Karsith. Attrition pointed outwards, and the one Undead kit that is not built on siphoning.
+ *
+ * Bleed and poison across a rank do their arithmetic on the target's turns rather than on his, so
+ * a slow, enormous body is the ideal thing to attach them to — every tick he survives is a tick
+ * they are still running. It is the same "refuse to lose" the Dwarves trade in, with the sign
+ * flipped: he does not outlast the fight, he makes the fight outlast the other side.
+ */
+export const CROWN_OF_FLIES = {
+  id: 'crown-of-flies',
+  name: 'Crown of Flies',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: BLEED, chance: 0.85 },
+  ],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Karsith's second, and the longest-running debuff he applies. Cleansing it early is worth far
+ * more than cleansing it late, which is what makes it a question rather than a tax. */
+export const FESTER = {
+  id: 'fester',
+  name: 'Fester',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.5 },
+    { kind: 'status', status: POISON, chance: 0.9 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Karsith's third, and the one drain he keeps — a faction identity is not a kit, but it should
+ * appear in every one of them. */
+export const FEAST_ON_RUIN = {
+  id: 'feast-on-ruin',
+  name: 'Feast on Ruin',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.5, siphon: 0.35 }],
+  cooldown: 45,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Monsters — raw ATK, and the answer to armour
 //
@@ -698,6 +1219,13 @@ export const SOUL_TITHE = {
 // new verb — a stun, a slow, a second absorb pool; a Monster's buy more of the one it already
 // has. That is the same statement the six-line stat blocks in `characters.ts` make, and it is
 // worth making twice: a faction with nothing but a number is a faction that says what it is.
+//
+// **Milestone 8e held that line where it cost something.** Every other faction was given an
+// answer to sustain so that its mono-five is a real party; the Monsters were given `lifeLeech` and
+// a siphon instead of a healer, because the alternative was solving a composition problem by
+// deleting the faction. What they *were* given is reach — Ghorrak's {@link TRAMPLE} — and that is
+// not a softening: with no way at all to select a protected healer, five Monsters did not lose the
+// fight narrowly, they lost it by arithmetic no amount of ATK could touch.
 // ---------------------------------------------------------------------------------------
 
 /** Gnash. A bleed priced against a Monster's `atk` is a lot of damage for a free skill. */
@@ -815,6 +1343,130 @@ export const DEVOURING_TIDE = {
   target: 'enemy-all',
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
   cooldown: 70,
+  priority: 1,
+} as const;
+
+/** Skarn. A Monster with armour on, which is as close to a tank as this faction is allowed to
+ * get: he still cannot buff, heal, cleanse or reach, and he still hits harder than most walls. */
+export const BONEBREAK = {
+  id: 'bonebreak',
+  name: 'Bonebreak',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Skarn's other turn, and the only defensive verb any Monster owns. Pointed at himself, because a
+ * faction that says nothing but a number does not get to say it on somebody else's behalf. */
+export const THICK_HIDE = {
+  id: 'thick-hide',
+  name: 'Thick Hide',
+  target: 'self',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/**
+ * Yerrik. The Monster answer to sustain, and it is deliberately not a heal.
+ *
+ * A mono-Monster five has no healer and will not get one — the faction is authored as raw ATK and
+ * penetration and nothing else, and handing it a support would delete the identity to solve a
+ * composition problem. What it gets instead is life taken out of whatever it is already hitting:
+ * `lifeLeech` on the stat block, a siphon on the ultimate, and no way at all to keep anybody else
+ * standing. The party sustains by winning the exchange, which is the only thing Monsters do.
+ */
+export const BLOOD_GORGE = {
+  id: 'blood-gorge',
+  name: 'Blood Gorge',
+  target: 'enemy-front',
+  effects: [{ kind: 'drain', damageType: 'physical', power: 1.5, siphon: 0.35 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Yerrik's other turn. Wide, cheap and unremarkable, which is most of what a Monster does between
+ * the turns that matter. */
+export const RAGGED_SWIPE = {
+  id: 'ragged-swipe',
+  name: 'Ragged Swipe',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
+ * Ghorrak. The first Monster that gets past a front rank, and the last faction to be given one.
+ *
+ * Monsters were the only faction in the game with no reach whatsoever, which against a protected
+ * healer meant a mono-Monster five simply lost — no amount of ATK answers a target it cannot
+ * select. He answers it by running through the gate rather than shooting over it, which is why the
+ * reach is wide and blunt where an Elf's is a single precise shot.
+ */
+export const TRAMPLE = {
+  id: 'trample',
+  name: 'Trample',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Ghorrak picking one thing out of the back rank, on a cooldown rather than a bar. */
+export const SUNDERJAW = {
+  id: 'sunderjaw',
+  name: 'Sunderjaw',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Ghorrak's third: the front rank opened up on the way through it. */
+export const BREAK_THE_HERD = {
+  id: 'break-the-herd',
+  name: 'Break the Herd',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: SUNDER, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/** Ozza. The heaviest siphon in the game, on the faction with the fewest ways to spend a turn. */
+export const NINEFANG_FEAST = {
+  id: 'ninefang-feast',
+  name: 'Ninefang Feast',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.4 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Ozza's wide turn, and the faction's only bleed. */
+export const GNASHING_TIDE = {
+  id: 'gnashing-tide',
+  name: 'Gnashing Tide',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: BLEED, chance: 0.8 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/** Ozza's third. The biggest thing on the field, hit until it is not. */
+export const MARROW_CRUNCH = {
+  id: 'marrow-crunch',
+  name: 'Marrow Crunch',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 50,
   priority: 1,
 } as const;
 
@@ -949,6 +1601,137 @@ export const JUDGEMENT = {
   priority: 1,
 } as const;
 
+/**
+ * Nael. Armour for everybody, from the faction that has the most of it to give.
+ *
+ * Angels were three healers and nothing else, which made a mono-Angel five a party that could not
+ * die and could not win — the exact ninety-second timeout the sweep exists to catch. He is half of
+ * the fix and {@link LIGHTSPEAR} is the other half: a body that holds a rank, and something that
+ * kills what is standing in it.
+ */
+export const SANCTUARY = {
+  id: 'sanctuary',
+  name: 'Sanctuary',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Nael's other turn. Magical, like everything an Angel does, so a physical-resist wall is not the
+ * answer to him. */
+export const WARDING_STRIKE = {
+  id: 'warding-strike',
+  name: 'Warding Strike',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.3 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Ilyra. The first Angel authored to kill something, and the faction's answer to a back rank. */
+export const LIGHTSPEAR = {
+  id: 'lightspear',
+  name: 'Lightspear',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Ilyra's other turn. Small, magical and utterly predictable, which is the faction in one line. */
+export const KINDLED_WORD = {
+  id: 'kindled-word',
+  name: 'Kindled Word',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.4 }],
+  cooldown: 45,
+  priority: 1,
+} as const;
+
+/**
+ * Zaphiel. Judgement pointed at the largest thing on the field, with its attack taken away.
+ *
+ * The `enemy-highest` rule and a `WEAKEN` on the same turn is a specific claim: whatever is
+ * biggest is usually also what is hitting hardest, so an Angel spending an ultimate on it is
+ * buying the party the exchange rather than the kill. Seraphine's Judgement is the wide version
+ * of the same instinct.
+ */
+export const EVEN_HAND = {
+  id: 'even-hand',
+  name: 'The Even Hand',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.9 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Zaphiel finishing. The only Angel who does. */
+export const WEIGHED_AND_FOUND = {
+  id: 'weighed-and-found',
+  name: 'Weighed and Found',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.8 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Zaphiel's third: tempo for the party, which is the one buff Angels never had. */
+export const LEVEL_GROUND = {
+  id: 'level-ground',
+  name: 'Level Ground',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 65,
+  priority: 1,
+} as const;
+
+/**
+ * Raziel. The only shield in the game a combatant puts on itself and nobody else, and the largest.
+ *
+ * `AEGIS` is the big, brief absorb pool; every other holder spreads it across the party, where a
+ * fixed quantity divided five ways is a badge. On one combatant it is a wall — which is what a
+ * front rank standing in front of four Angels who cannot take a hit actually needs.
+ */
+export const KEEPERS_CHARGE = {
+  id: 'keepers-charge',
+  name: "Keeper's Charge",
+  target: 'self',
+  effects: [{ kind: 'status', status: AEGIS }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Raziel's second. Slowing whatever is in front of him is how a wall makes the fight last long
+ * enough for the four people behind it to matter. */
+export const GATEBREAKERS_ANSWER = {
+  id: 'gatebreakers-answer',
+  name: "Gatebreaker's Answer",
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.5 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Raziel's third, and armour for himself on the turns nothing needs slowing. */
+export const UNYIELDING = {
+  id: 'unyielding',
+  name: 'Unyielding',
+  target: 'self',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Demons — magical damage, and the only faction that ignores armour entirely
 // ---------------------------------------------------------------------------------------
@@ -1077,6 +1860,147 @@ export const LONG_SILENCE = {
   effects: [{ kind: 'damage', damageType: 'magical', power: 2.1 }],
   cooldown: 55,
   priority: 2,
+} as const;
+
+/** Vexis. The Demon bargain in its oldest form: whatever she burns, she takes some of back. */
+export const SINSONG = {
+  id: 'sinsong',
+  name: 'Sinsong',
+  target: 'enemy-front',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.45, siphon: 0.35 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Vexis's other turn, and a burn across the whole front rank rather than on one of it. */
+export const WICKERBURN = {
+  id: 'wickerburn',
+  name: 'Wickerburn',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.95 },
+    { kind: 'status', status: BURN, chance: 0.8 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/**
+ * Threx. A Demon with enough health to be hit, which none of the others are.
+ *
+ * "Ignore armour entirely; die to anything" is the faction line, and the second half of it made a
+ * mono-Demon five unfieldable rather than fragile: five combatants averaging 440 HP have no front
+ * rank at all, and the gate that protects a back rank protects nobody when everybody is behind it.
+ * He is the exception, and he pays for it in the stat the faction is named for — the lowest
+ * `critChance` any Demon has.
+ */
+export const CHAINBREAK = {
+  id: 'chainbreak',
+  name: 'Chainbreak',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.65 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/** Threx's other turn. A Demon holding a rank still has nothing to hold it with, so the answer is
+ * to make the thing in front of him swing softer. */
+export const IRONS_BROKEN = {
+  id: 'irons-broken',
+  name: 'Irons Broken',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.2 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Nyxara. The whole field set alight, priced per head like everything wide. */
+export const THIRD_WHISPER = {
+  id: 'third-whisper',
+  name: 'The Third Whisper',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.05 },
+    { kind: 'status', status: BURN, chance: 0.8 },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Nyxara's second: the front rank blunted, which is a caster keeping herself alive by proxy. */
+export const HEX_THE_HEARTH = {
+  id: 'hex-the-hearth',
+  name: 'Hex the Hearth',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Nyxara's third, and a comeback rather than an opener.
+ *
+ * Conditioned on her own health, like Hedda's, and for the same reason inverted: a Demon below
+ * half is a Demon about to die, so the turn it buys has to be worth more than the turn it costs.
+ * Haste rather than attack, because what she needs is to act again at all.
+ */
+export const WHISPERED_BARGAIN = {
+  id: 'whispered-bargain',
+  name: 'Whispered Bargain',
+  target: 'self',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 60,
+  condition: { kind: 'self-hurt', fraction: 0.5 },
+  priority: 1,
+} as const;
+
+/**
+ * Sanguine. The Demon heal, and the only sustain on the celestial ladder that is not an Angel's.
+ *
+ * Angels are the natural support and they walk the luck-only ladder — which is the argument that
+ * put Wren and Dorn on the mortal one. The same argument applies inside the celestial pair: a run
+ * that pulls Demons and no Angels had no sustain at any price. She is smaller than any Angel's
+ * heal and attached to a body that can crit, which is the trade.
+ */
+export const RED_TITHE = {
+  id: 'red-tithe',
+  name: 'Red Tithe',
+  target: 'ally-lowest',
+  effects: [{ kind: 'heal', power: 1.15 }],
+  ultimate: true,
+  condition: { kind: 'ally-hurt', fraction: 0.8 },
+  priority: 3,
+} as const;
+
+/** Sanguine collecting. The biggest thing on the field pays for the heal that goes out next turn. */
+export const TITHE_COLLECTED = {
+  id: 'tithe-collected',
+  name: 'Tithe Collected',
+  target: 'enemy-highest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.55, siphon: 0.4 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Sanguine's third, and the celestial ladder's second cleanse. Small heal attached, because a
+ * cleanse that arrives on the turn somebody is dying should do something about that too. */
+export const CRIMSON_SIGIL = {
+  id: 'crimson-sigil',
+  name: 'Crimson Sigil',
+  target: 'ally-afflicted',
+  effects: [
+    { kind: 'cleanse', count: 1 },
+    { kind: 'heal', power: 0.65 },
+  ],
+  cooldown: 40,
+  condition: { kind: 'ally-afflicted' },
+  priority: 4,
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -1471,6 +2395,14 @@ export const SKILLS = [
   SWEEPING_COMMAND,
   FIELD_DRESSING,
   TRIAGE,
+  SHIELDSWORN_OATH,
+  BRACING_BLOW,
+  TRUESIGHT_VOLLEY,
+  MARKED_QUARRY,
+  LOOSE_THE_FLIGHT,
+  BLACKLANCE_THRUST,
+  RIPOSTE,
+  DUELISTS_READ,
   SHIELD_WALL,
   IRON_REBUKE,
   ANVIL_STANCE,
@@ -1482,6 +2414,14 @@ export const SKILLS = [
   WARD_UNBROKEN,
   SALTBEARD_REMEDY,
   STOUT_WARD,
+  COALSONG,
+  QUENCHING_DRAUGHT,
+  GRUDGE_SETTLED,
+  RUNE_STRUCK,
+  STOKE_THE_GRUDGE,
+  HURLED_ANVIL,
+  CAVERN_ECHO,
+  PIT_PROPS,
   PIERCING_SHOT,
   SNARE_ARROW,
   WINDSTEP,
@@ -1491,6 +2431,16 @@ export const SKILLS = [
   VOLLEY,
   SPLITTING_SHAFT,
   ARROW_OF_ENDING,
+  SYLVAN_REFRAIN,
+  WINDWOVEN_BALM,
+  THORNGUARD,
+  CUT_THE_VANGUARD,
+  DUSKWEAVE,
+  FADESHOT,
+  WITHERING_GAZE,
+  SUNSPEAR_CAST,
+  PINNING_SHOT,
+  QUIVER_UNSLUNG,
   GRAVE_GRASP,
   CARRION_FEAST,
   BLOOD_PACT,
@@ -1500,6 +2450,16 @@ export const SKILLS = [
   SOUL_SIPHON,
   SOVEREIGNS_TOLL,
   SOUL_TITHE,
+  BLOATBURST,
+  GRASPING_ROT,
+  HOLLOWBIND,
+  GRAVECALL,
+  OSSUARY_TIDE,
+  MARROW_DRAW,
+  BONE_CHOIR,
+  CROWN_OF_FLIES,
+  FESTER,
+  FEAST_ON_RUIN,
   REND,
   MAUL,
   MOUNTAIN_BREAKER,
@@ -1509,6 +2469,16 @@ export const SKILLS = [
   DEVOUR,
   GORGE,
   DEVOURING_TIDE,
+  BONEBREAK,
+  THICK_HIDE,
+  BLOOD_GORGE,
+  RAGGED_SWIPE,
+  TRAMPLE,
+  SUNDERJAW,
+  BREAK_THE_HERD,
+  NINEFANG_FEAST,
+  GNASHING_TIDE,
+  MARROW_CRUNCH,
   CHOIRLIGHT,
   SOOTHING_VERSE,
   VERSE_OF_DAWN,
@@ -1518,6 +2488,16 @@ export const SKILLS = [
   AEGIS_SKILL,
   VIGIL,
   JUDGEMENT,
+  SANCTUARY,
+  WARDING_STRIKE,
+  LIGHTSPEAR,
+  KINDLED_WORD,
+  EVEN_HAND,
+  WEIGHED_AND_FOUND,
+  LEVEL_GROUND,
+  KEEPERS_CHARGE,
+  GATEBREAKERS_ANSWER,
+  UNYIELDING,
   EMBERBURST,
   CINDERLASH,
   GAMBLERS_CUT,
@@ -1527,6 +2507,16 @@ export const SKILLS = [
   UNMAKING,
   ENTROPY,
   LONG_SILENCE,
+  SINSONG,
+  WICKERBURN,
+  CHAINBREAK,
+  IRONS_BROKEN,
+  THIRD_WHISPER,
+  HEX_THE_HEARTH,
+  WHISPERED_BARGAIN,
+  RED_TITHE,
+  TITHE_COLLECTED,
+  CRIMSON_SIGIL,
   MOTE_LANCE,
   GORE,
   CUTPURSE,

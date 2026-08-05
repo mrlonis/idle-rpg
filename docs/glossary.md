@@ -79,11 +79,13 @@ three unrelated mechanics, and conflating them is the second most common confusi
 
 When someone says "faction bonus", ask which of 2 and 3 they mean.
 
-**Numbers 2 and 3 are also the two halves of milestone 8d's unfinished business.** The lineup bonus
-is worth up to +25% and a matchup edge is worth 5–10%, so today a player keeps whatever composition
-they can reach and the matchup decides nothing. Resizing the edges waits for milestone 8e, because
-two mono-faction teams both carry the same lineup bonus — it cancels — and there is no second
-mono-faction team to compare against until the roster is five deep.
+**Numbers 2 and 3 were milestone 8d's unfinished business, and 8e finished it.** They answer
+different questions and are not in competition: the lineup bonus cancels between two mono-faction
+teams — all seven reach the same rung — so it decides _whether_ to build one, and the matchup
+decides _which_ to bring. The edges stayed at 5–10% because measuring them against the seven
+mono-faction fives showed they already decide fights that are genuinely close, which is the whole
+of their job. Comparing "+25%" against "5%" as though they were rival levers is the reading that
+made this look unfinished; they are never both on the table at once.
 
 ---
 

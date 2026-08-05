@@ -4,10 +4,23 @@ import {
   ANVIL_STANCE,
   ARROW_OF_ENDING,
   AVALANCHE,
+  BLACKLANCE_THRUST,
+  BLOATBURST,
+  BLOOD_GORGE,
   BLOOD_PACT,
+  BONE_CHOIR,
+  BONEBREAK,
+  BRACING_BLOW,
+  BREAK_THE_HERD,
   CARRION_FEAST,
+  CAVERN_ECHO,
+  CHAINBREAK,
   CHOIRLIGHT,
   CINDERLASH,
+  COALSONG,
+  CRIMSON_SIGIL,
+  CROWN_OF_FLIES,
+  CUT_THE_VANGUARD,
   DAWNWARD,
   DECISIVE_STRIKE,
   DEEP_WARD,
@@ -15,56 +28,109 @@ import {
   DEVOUR,
   DEVOURING_TIDE,
   DOUBLE_OR_NOTHING,
+  DUELISTS_READ,
+  DUSKWEAVE,
   EMBERBURST,
   ENTROPY,
+  EVEN_HAND,
+  FADESHOT,
+  FEAST_ON_RUIN,
+  FESTER,
   FIELD_DRESSING,
   FIRST_ARROW,
   FORGELIGHT_VIGIL,
   GAMBLERS_CUT,
+  GATEBREAKERS_ANSWER,
+  GNASHING_TIDE,
   GORGE,
+  GRASPING_ROT,
   GRAVE_CHILL,
   GRAVE_GRASP,
   GRAVE_TIDE,
+  GRAVECALL,
   GROUND_SLAM,
+  GRUDGE_SETTLED,
   GUARD_BREAK,
   HAMMER_CHECK,
+  HEX_THE_HEARTH,
   HEXFIRE,
   HOLD_THE_LINE,
+  HOLLOWBIND,
+  HURLED_ANVIL,
   IRON_REBUKE,
+  IRONS_BROKEN,
   JUDGEMENT,
+  KEEPERS_CHARGE,
+  KINDLED_WORD,
+  LEVEL_GROUND,
+  LIGHTSPEAR,
   LONG_SILENCE,
+  LOOSE_THE_FLIGHT,
+  MARKED_QUARRY,
+  MARROW_CRUNCH,
+  MARROW_DRAW,
   MARSHALS_CALL,
   MAUL,
   MOUNTAIN_BREAKER,
   NIGHTREACH,
+  NINEFANG_FEAST,
   OATH_OF_ARMS,
+  OSSUARY_TIDE,
   PIERCING_SHOT,
+  PINNING_SHOT,
+  PIT_PROPS,
   POMMEL_STRIKE,
+  QUENCHING_DRAUGHT,
+  QUIVER_UNSLUNG,
+  RAGGED_SWIPE,
+  RED_TITHE,
   REND,
+  RIPOSTE,
   RUIN_UNBOUND,
+  RUNE_STRUCK,
   SALTBEARD_REMEDY,
+  SANCTUARY,
   SECOND_WIND,
   SHIELD_WALL,
+  SHIELDSWORN_OATH,
+  SINSONG,
   SNARE_ARROW,
   SOOTHING_VERSE,
   SOUL_SIPHON,
   SOUL_TITHE,
   SOVEREIGNS_TOLL,
   SPLITTING_SHAFT,
+  STOKE_THE_GRUDGE,
   STOUT_WARD,
   SUNDER_STONE,
+  SUNDERJAW,
+  SUNSPEAR_CAST,
   SWEEPING_COMMAND,
   SWORN_STRIKE,
+  SYLVAN_REFRAIN,
+  THICK_HIDE,
+  THIRD_WHISPER,
+  THORNGUARD,
   THROAT_CUT,
+  TITHE_COLLECTED,
+  TRAMPLE,
   TRIAGE,
+  TRUESIGHT_VOLLEY,
   UNMAKING,
   UNQUIET_HUNGER,
   UNWAVERING_LIGHT,
+  UNYIELDING,
   VERSE_OF_DAWN,
   VIGIL,
   VOLLEY,
   WARD_UNBROKEN,
+  WARDING_STRIKE,
+  WEIGHED_AND_FOUND,
+  WHISPERED_BARGAIN,
+  WICKERBURN,
   WINDSTEP,
+  WINDWOVEN_BALM,
+  WITHERING_GAZE,
   WORLDS_MAW,
 } from './skills';
 
@@ -151,26 +217,48 @@ import {
  * `combat.ts`) and, by convention, the axis each of its members expresses more extremely as
  * tier rises:
  *
- * - **Humans** — versatile and dependable, the control the others are read against. The one
- *   mortal faction with both a healer and a cleanse, deliberately: Angels are the natural
- *   support and they walk the luck-only ladder, so a run that never pulls one still needs
- *   somewhere to buy sustain.
+ * - **Humans** — versatile and dependable, the control the others are read against. Wren is still
+ *   the cheapest sustain in the game and the only character who heals and cleanses on one common-
+ *   tier body, but "the one mortal faction with both" stopped being true in 8e and stopped being
+ *   the point: Angels are the natural support and they walk the luck-only ladder, so what matters
+ *   is that sustain is buyable without a banner, and now it is buyable in every faction.
  * - **Dwarves** — DEF and attrition: `recovery`, `healthRegen` and a `critBlock` that keeps a
- *   wall from folding to one lucky spike. Cannot close a fight; can refuse to lose one.
+ *   wall from folding to one lucky spike. Cannot close a fight; can refuse to lose one — which
+ *   was a niche next to four other factions and a ceiling once five of them stood together, so
+ *   Hedda is authored as the exception that closes.
  * - **Elves** — haste, attack speed, crit and **reach**. Made of paper, and the first answer
  *   to a back rank. The only faction authored with `attackSpeed`, which is what that stat was
  *   separated from haste to express.
  * - **Undead** — enormous HP, almost no DEF, and every kit built on `drain`. They used to buy
  *   their best turns with their own life; since 8b they are paid in energy for having been hit
  *   and take the life back out of whatever hit them. The lowest `energyRegen` outside the
- *   Monsters, because being in the fight is their meter.
+ *   Monsters, because being in the fight is their meter. A siphon only ever pays its caster, so
+ *   Vesper carries the one heal five of them can point at each other.
  * - **Monsters** — raw ATK and penetration. The answer to armour, given the damage curve.
  *   Deliberately the shortest stat blocks in the file: a faction with nothing but a number is a
- *   faction that says what it is.
+ *   faction that says what it is. **The only faction 8e did not give a healer**, on exactly that
+ *   argument — they sustain through `lifeLeech` and a siphon or they do not sustain.
  * - **Angels** — consistency and sustain. High DEF, low or no crit, the highest `energyRegen` in
  *   the game, and the only holders of `receivedHealing` and `critDamageResist`: the faction that
  *   answers a spike, and the one whose answer is ready whether or not the fight has gone badly.
- * - **Demons** — magical damage and pure variance. Ignore armour entirely; die to anything.
+ *   Three healers made a mono-Angel five a fight nobody could finish, which is what Nael, Ilyra
+ *   and Zaphiel are for.
+ * - **Demons** — magical damage and pure variance. Ignore armour entirely; die to anything —
+ *   except Threx, who is authored to be hit, because five bodies averaging 440 HP have no front
+ *   rank and a gate protects nobody when everyone is behind it.
+ *
+ * ## Seven per faction, and only two of the three tiers are closed
+ *
+ * Since milestone 8e every faction fields **three common, three legendary and one ascended**, and
+ * `characters.spec.ts` asserts the first two exactly and the third as a floor. The bench is fixed
+ * because it is what a mono-faction five is built from and what the mortal ladder eats as fodder;
+ * the ascended tier is open because that is the tier new content arrives at.
+ *
+ * What that budget bought, beyond the count: every faction now owns an answer to health and an
+ * answer to a back rank **in its own idiom**. Those are the two things a party cannot substitute
+ * for — a formation with no reach cannot select a protected healer at all — and a lineup bonus
+ * that pays for mono-faction play is a trap rather than a decision until both exist seven times
+ * over.
  *
  * Because damage is `atk² / (atk + def)`, a party of many small hits is punished by high DEF
  * far more than one big hit is. That is what makes Monsters a real answer to Dwarves and
@@ -272,6 +360,81 @@ export const WREN = {
     magicResist: 0.06,
   },
   skills: [FIELD_DRESSING, TRIAGE],
+} as const;
+
+/**
+ * The Human wall, and the body a mono-Human five was missing.
+ *
+ * Humans had four characters and no tank: two bruisers, a healer and a support, which is a party
+ * that fights well and has nothing to fight from behind. He is the front rank, and he is a Human
+ * one rather than a Dwarven one — 700 HP where Bran has 940, and an absorb pool instead of the
+ * armour stack, so he blunts a spike rather than refusing one.
+ */
+export const HALRIC = {
+  id: 'halric',
+  name: 'Halric Shieldsworn',
+  faction: 'human',
+  tier: 'common',
+  role: 'tank',
+  stats: {
+    hp: 700,
+    atk: 42,
+    def: 30,
+    recovery: 5,
+    haste: 88,
+    critChance: 0.09,
+    critDamageAmp: 0.55,
+    critBlock: 0.04,
+    energyRegen: 10,
+    physicalResist: 0.06,
+  },
+  skills: [SHIELDSWORN_OATH, BRACING_BLOW],
+} as const;
+
+/** The Human answer to a back rank, and the first one in the game that is not an Elf. Slower than
+ * Rin, tougher than Rin, and the reason a Human party can fight a formation without borrowing
+ * one. */
+export const YSOLDE = {
+  id: 'ysolde',
+  name: 'Ysolde Truesight',
+  faction: 'human',
+  tier: 'legendary',
+  role: 'ranger',
+  stats: {
+    hp: 505,
+    atk: 57,
+    def: 21,
+    recovery: 4,
+    haste: 108,
+    attackSpeed: 10,
+    critChance: 0.2,
+    critDamageAmp: 0.75,
+    energyRegen: 9,
+    accuracy: 1.08,
+  },
+  skills: [TRUESIGHT_VOLLEY, MARKED_QUARRY, LOOSE_THE_FLIGHT],
+} as const;
+
+/** The Human closer. Sharper than Seren on every offensive axis and thinner everywhere else,
+ * which is the sidegrade the two of them are: one holds a line, one ends a fight. */
+export const IVO = {
+  id: 'ivo',
+  name: 'Ivo Blacklance',
+  faction: 'human',
+  tier: 'legendary',
+  role: 'assassin',
+  stats: {
+    hp: 530,
+    atk: 59,
+    def: 23,
+    recovery: 4,
+    haste: 112,
+    critChance: 0.24,
+    critDamageAmp: 0.85,
+    energyRegen: 8,
+    dodge: 0.06,
+  },
+  skills: [BLACKLANCE_THRUST, RIPOSTE, DUELISTS_READ],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -378,6 +541,99 @@ export const DORN = {
   skills: [STOUT_WARD, SALTBEARD_REMEDY],
 } as const;
 
+/**
+ * The Dwarven healer, and the second mortal one.
+ *
+ * Dorn cleanses and Korrin regenerates, which between them cover a debuff wave and a long grind
+ * and neither of which pulls anybody back from the edge. She does — and she does it worse than
+ * Wren per point, because every restoration in the game prices against `atk` and hers is a
+ * Dwarf's. What she has instead is a body: 760 HP behind 29 DEF, standing in a rank a Human
+ * healer would not survive.
+ */
+export const GRIMNA = {
+  id: 'grimna',
+  name: 'Grimna Coalsong',
+  faction: 'dwarf',
+  tier: 'common',
+  role: 'healer',
+  stats: {
+    hp: 760,
+    atk: 41,
+    def: 29,
+    recovery: 8,
+    haste: 80,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    critBlock: 0.04,
+    energyRegen: 12,
+    healthRegen: 0.25,
+  },
+  skills: [COALSONG, QUENCHING_DRAUGHT],
+} as const;
+
+/**
+ * The Dwarf who can finish a fight, and the softest one authored.
+ *
+ * Every other Dwarf trades attack for defence and the faction is defined by how far it takes
+ * that; she is the one who trades back. 46 ATK and 15% armour penetration is not a lot next to a
+ * Monster, and next to Korrin it is transformative — a mono-Dwarf five with her in it wins on
+ * points instead of running the clock out.
+ */
+export const HEDDA = {
+  id: 'hedda',
+  name: 'Hedda Grudgebearer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  role: 'bruiser',
+  stats: {
+    hp: 880,
+    atk: 46,
+    def: 33,
+    recovery: 7,
+    haste: 78,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    critBlock: 0.05,
+    energyRegen: 8,
+    physicalPierce: 0.15,
+    physicalResist: 0.08,
+    healthRegen: 0.15,
+  },
+  skills: [GRUDGE_SETTLED, RUNE_STRUCK, STOKE_THE_GRUDGE],
+} as const;
+
+/**
+ * The Dwarven answer to a back rank: a hurled anvil, which is the least elegant reach in the game
+ * and the only one attached to 830 HP. Slowest character in the faction outside Thraun.
+ *
+ * He and Hedda are the faction's two legendaries and they are read against each other. She is
+ * bigger, faster and harder-hitting on every axis but one — his `recovery`, which is the axis the
+ * faction was built on and the reason she does not simply replace him. What he sells is reach and
+ * patience; what she sells is the kill.
+ */
+export const ORIN = {
+  id: 'orin',
+  name: 'Orin Deepvein',
+  faction: 'dwarf',
+  tier: 'legendary',
+  role: 'ranger',
+  stats: {
+    hp: 830,
+    atk: 44,
+    def: 31,
+    recovery: 9,
+    haste: 74,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    critBlock: 0.05,
+    energyRegen: 11,
+    tenacity: 0.12,
+    physicalResist: 0.1,
+    healthRegen: 0.2,
+  },
+  skills: [HURLED_ANVIL, CAVERN_ECHO, PIT_PROPS],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Elves — speed, crit and reach, made of paper
 // ---------------------------------------------------------------------------------------
@@ -454,6 +710,105 @@ export const AELRINDEL = {
   skills: [FIRST_ARROW, VOLLEY, SPLITTING_SHAFT, ARROW_OF_ENDING],
 } as const;
 
+/** The Elven healer: small heals, cast constantly. At 112 haste she gets roughly four turns for
+ * every three a Human healer takes, which is the faction's argument applied to keeping people
+ * alive — and it answers a grind far better than it answers one enormous hit. */
+export const FAELEN = {
+  id: 'faelen',
+  name: 'Faelen',
+  faction: 'elf',
+  tier: 'common',
+  role: 'healer',
+  stats: {
+    hp: 455,
+    atk: 50,
+    def: 16,
+    recovery: 3,
+    haste: 112,
+    critChance: 0.14,
+    critDamageAmp: 0.6,
+    energyRegen: 12,
+    magicResist: 0.05,
+  },
+  skills: [SYLVAN_REFRAIN, WINDWOVEN_BALM],
+} as const;
+
+/**
+ * The only Elf who can stand in a front rank, and he pays for it in the stat the faction is for.
+ *
+ * 560 HP behind 22 DEF is unremarkable anywhere else and is a wall by Elven standards — Rin has
+ * 430 and Aelrindel 350. What it costs is tempo: at 104 haste and 8 points of attack speed he is
+ * the slowest Elf authored, roughly two turns for every three Lysha takes. A body, bought with
+ * the faction's own currency.
+ */
+export const CIRIEN = {
+  id: 'cirien',
+  name: 'Cirien',
+  faction: 'elf',
+  tier: 'common',
+  role: 'bruiser',
+  stats: {
+    hp: 560,
+    atk: 55,
+    def: 22,
+    recovery: 3,
+    haste: 104,
+    attackSpeed: 8,
+    critChance: 0.16,
+    critDamageAmp: 0.65,
+    energyRegen: 8,
+    dodge: 0.06,
+    accuracy: 1.05,
+  },
+  skills: [THORNGUARD, CUT_THE_VANGUARD],
+} as const;
+
+/** The Elven controller. No reach and no execution — what he sells is the whole enemy side
+ * acting a third less often, which against a wide wave is worth more than either. */
+export const NAERIN = {
+  id: 'naerin',
+  name: 'Naerin Duskweaver',
+  faction: 'elf',
+  tier: 'legendary',
+  role: 'mage',
+  stats: {
+    hp: 415,
+    atk: 61,
+    def: 14,
+    haste: 126,
+    attackSpeed: 14,
+    critChance: 0.24,
+    critDamageAmp: 0.8,
+    energyRegen: 9,
+    magicResist: 0.06,
+    dodge: 0.09,
+  },
+  skills: [DUSKWEAVE, FADESHOT, WITHERING_GAZE],
+} as const;
+
+/** Aelrindel's reach a tier down: most of the range, none of the armour penetration, and a body
+ * that survives being reached slightly longer than his does. */
+export const SYLVARA = {
+  id: 'sylvara',
+  name: 'Sylvara Sunspear',
+  faction: 'elf',
+  tier: 'legendary',
+  role: 'sniper',
+  stats: {
+    hp: 445,
+    atk: 63,
+    def: 16,
+    haste: 120,
+    attackSpeed: 20,
+    critChance: 0.27,
+    critDamageAmp: 0.82,
+    energyRegen: 8,
+    physicalPierce: 0.12,
+    accuracy: 1.12,
+  },
+  skills: [SUNSPEAR_CAST, PINNING_SHOT, QUIVER_UNSLUNG],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Undead — bodies without armour, paying for skills in life
 // ---------------------------------------------------------------------------------------
@@ -527,6 +882,106 @@ export const NEKROS = {
   skills: [GRAVE_TIDE, SOUL_SIPHON, SOVEREIGNS_TOLL, SOUL_TITHE],
 } as const;
 
+/** The largest common-tier body in the game and the slowest, with 13 DEF holding it up. Against a
+ * wide wave he is close to unkillable and against one big hit he is a Dwarf-sized target with no
+ * Dwarf attached. */
+export const GHAUL = {
+  id: 'ghaul',
+  name: 'Ghaul the Bloated',
+  faction: 'undead',
+  tier: 'common',
+  role: 'tank',
+  stats: {
+    hp: 1000,
+    atk: 34,
+    def: 13,
+    recovery: 11,
+    haste: 68,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    energyRegen: 6,
+    lifeLeech: 0.06,
+    physicalResist: 0.05,
+  },
+  skills: [BLOATBURST, GRASPING_ROT],
+} as const;
+
+/**
+ * The first Undead who can heal somebody who is not herself.
+ *
+ * Drain pays its caster and nobody else, which made a mono-Undead five into five parallel solo
+ * runs — every member sustaining itself while the one actually dying got nothing. She is the fix,
+ * authored as small as the fix can be: less health per cast than any dedicated healer, on the
+ * lowest DEF in the faction, and she still has to spend her ultimate on blunting a rank.
+ */
+export const VESPER = {
+  id: 'vesper',
+  name: 'Vesper Hollowbind',
+  faction: 'undead',
+  tier: 'common',
+  role: 'support',
+  stats: {
+    hp: 720,
+    atk: 43,
+    def: 10,
+    recovery: 8,
+    haste: 90,
+    critChance: 0.07,
+    critDamageAmp: 0.55,
+    energyRegen: 8,
+    lifeLeech: 0.06,
+    magicResist: 0.04,
+  },
+  skills: [HOLLOWBIND, GRAVECALL],
+} as const;
+
+/** The Undead answer to a back rank, and the only siphon in the game that reaches past a gate.
+ * Everything he takes he takes from somewhere the front rank cannot protect. */
+export const OSSUARY = {
+  id: 'ossuary',
+  name: 'Ossuary, the Nine-Bound',
+  faction: 'undead',
+  tier: 'legendary',
+  role: 'mage',
+  stats: {
+    hp: 940,
+    atk: 47,
+    def: 9,
+    recovery: 13,
+    haste: 86,
+    critChance: 0.07,
+    critDamageAmp: 0.55,
+    energyRegen: 7,
+    lifeLeech: 0.09,
+    magicPierce: 0.12,
+  },
+  skills: [OSSUARY_TIDE, MARROW_DRAW, BONE_CHOIR],
+} as const;
+
+/** Attrition pointed outwards. Two damage-over-time statuses and one drain, on a body slow enough
+ * that everything he applies outlives the turn he spent applying it — the Dwarven bargain with
+ * the sign flipped. */
+export const KARSITH = {
+  id: 'karsith',
+  name: 'Karsith the Rotcrown',
+  faction: 'undead',
+  tier: 'legendary',
+  role: 'bruiser',
+  stats: {
+    hp: 960,
+    atk: 49,
+    def: 7,
+    recovery: 14,
+    haste: 92,
+    critChance: 0.09,
+    critDamageAmp: 0.6,
+    energyRegen: 6,
+    lifeLeech: 0.1,
+    physicalResist: 0.02,
+  },
+  skills: [CROWN_OF_FLIES, FESTER, FEAST_ON_RUIN],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Monsters — raw ATK and penetration, nothing else
 // ---------------------------------------------------------------------------------------
@@ -596,6 +1051,109 @@ export const VHAROK = {
     physicalResist: 0.04,
   },
   skills: [WORLDS_MAW, DEVOUR, GORGE, DEVOURING_TIDE],
+} as const;
+
+/** A Monster with armour on, which is the whole of the concession. He still cannot buff, heal,
+ * cleanse or reach; he simply survives being the thing in front, and he is the slowest common-tier
+ * character in the game for it. */
+export const SKARN = {
+  id: 'skarn',
+  name: 'Skarn',
+  faction: 'monster',
+  tier: 'common',
+  role: 'tank',
+  stats: {
+    hp: 800,
+    atk: 46,
+    def: 20,
+    haste: 66,
+    critChance: 0.03,
+    critDamageAmp: 0.55,
+    energyRegen: 5,
+    physicalResist: 0.08,
+  },
+  skills: [BONEBREAK, THICK_HIDE],
+} as const;
+
+/**
+ * The Monster answer to sustain, and it is deliberately not a healer.
+ *
+ * Every other faction was given something that puts health back on somebody else; the Monsters
+ * were given `lifeLeech` and a siphon, because handing this faction a support would have solved a
+ * composition problem by deleting the thing being composed. A mono-Monster five sustains by
+ * winning the exchange, and if it stops winning the exchange it has nothing at all.
+ */
+export const YERRIK = {
+  id: 'yerrik',
+  name: 'Yerrik',
+  faction: 'monster',
+  tier: 'common',
+  role: 'bruiser',
+  stats: {
+    hp: 660,
+    atk: 54,
+    def: 15,
+    haste: 80,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    energyRegen: 5,
+    lifeLeech: 0.12,
+    physicalPierce: 0.1,
+  },
+  skills: [BLOOD_GORGE, RAGGED_SWIPE],
+} as const;
+
+/**
+ * The first Monster that gets past a front rank, and the last faction to be given reach at all.
+ *
+ * Against a protected healer a party with no back-rank answer does not lose narrowly — it cannot
+ * select the target, so no amount of ATK closes the fight. He answers it by running through the
+ * gate rather than shooting over it, which is why his reach is wide, blunt, and nowhere near as
+ * precise as the shot an Elf takes.
+ */
+export const GHORRAK = {
+  id: 'ghorrak',
+  name: 'Ghorrak the Sunderjaw',
+  faction: 'monster',
+  tier: 'legendary',
+  role: 'bruiser',
+  stats: {
+    hp: 730,
+    atk: 65,
+    def: 13,
+    haste: 72,
+    critChance: 0.04,
+    critDamageAmp: 0.7,
+    energyRegen: 5,
+    insight: 0.08,
+    physicalPierce: 0.28,
+  },
+  skills: [TRAMPLE, SUNDERJAW, BREAK_THE_HERD],
+} as const;
+
+/** The heaviest siphon in the game on the heaviest legendary-tier Monster. He is what happens
+ * when the faction's one idea — take what you need out of whatever is in front of you — is given
+ * a health pool to do it from. */
+export const OZZA = {
+  id: 'ozza',
+  name: 'Ozza Ninefang',
+  faction: 'monster',
+  tier: 'legendary',
+  role: 'bruiser',
+  stats: {
+    hp: 840,
+    atk: 60,
+    def: 12,
+    recovery: 6,
+    haste: 76,
+    critChance: 0.05,
+    critDamageAmp: 0.65,
+    energyRegen: 5,
+    lifeLeech: 0.15,
+    physicalPierce: 0.18,
+    physicalResist: 0.04,
+  },
+  skills: [NINEFANG_FEAST, GNASHING_TIDE, MARROW_CRUNCH],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -678,6 +1236,118 @@ export const SERAPHINE = {
   skills: [UNWAVERING_LIGHT, AEGIS_SKILL, VIGIL, JUDGEMENT],
 } as const;
 
+/**
+ * The Angel who holds a rank rather than healing the person in it.
+ *
+ * The faction was three healers, which is a party that cannot die and cannot win — the exact
+ * ninety-second timeout the balance sweep exists to catch. He is half the answer, and the sweep
+ * is also why his numbers are where they are rather than higher: **a wall added to a faction that
+ * already refuses to die makes the stall worse, not better.** He was authored at 38 DEF behind
+ * 8% physical resist, and a mono-Angel five carrying that stalled stage 18 outright. What holds a
+ * rank here is the party-wide armour buff he casts, not the armour he wears.
+ */
+export const NAEL = {
+  id: 'nael',
+  name: 'Nael of the Fifth Choir',
+  faction: 'angel',
+  tier: 'common',
+  role: 'tank',
+  stats: {
+    hp: 760,
+    atk: 42,
+    def: 35,
+    recovery: 5,
+    haste: 82,
+    critChance: 0.02,
+    critDamageAmp: 0.4,
+    critDamageResist: 0.18,
+    energyRegen: 12,
+    physicalResist: 0.04,
+  },
+  skills: [SANCTUARY, WARDING_STRIKE],
+} as const;
+
+/** The other half: the first Angel authored to kill something. Magical, like everything the
+ * faction does, and reaching past a front rank, which no Angel could before. */
+export const ILYRA = {
+  id: 'ilyra',
+  name: 'Ilyra Lightspear',
+  faction: 'angel',
+  tier: 'common',
+  role: 'mage',
+  stats: {
+    hp: 620,
+    atk: 52,
+    def: 30,
+    recovery: 4,
+    haste: 92,
+    critChance: 0.03,
+    critDamageAmp: 0.45,
+    critDamageResist: 0.1,
+    energyRegen: 12,
+    magicResist: 0.06,
+  },
+  skills: [LIGHTSPEAR, KINDLED_WORD],
+} as const;
+
+/** Angelic damage at legendary tier, and the faction's only debuffer. He does not out-damage a
+ * Demon and never will; what he does is take the biggest thing on the field down a third of its
+ * attack while hitting it, which is a support's instinct with a weapon in it. */
+export const ZAPHIEL = {
+  id: 'zaphiel',
+  name: 'Zaphiel, the Even Hand',
+  faction: 'angel',
+  tier: 'legendary',
+  role: 'mage',
+  stats: {
+    hp: 660,
+    atk: 55,
+    def: 36,
+    recovery: 5,
+    haste: 90,
+    critChance: 0.02,
+    critDamageAmp: 0.4,
+    critDamageResist: 0.15,
+    energyRegen: 13,
+    magicPierce: 0.12,
+    magicResist: 0.06,
+  },
+  skills: [EVEN_HAND, WEIGHED_AND_FOUND, LEVEL_GROUND],
+} as const;
+
+/**
+ * The only combatant in the game who shields himself and nobody else. A fixed absorb pool spread
+ * five ways is a badge; spent on one body in a front rank it is a wall.
+ *
+ * **He is a durable attacker rather than a second wall, and that was a correction.** Authored at
+ * 45 DEF and 51 ATK he was Nael again with better numbers, and a mono-Angel five fielding both of
+ * them took seventy-six seconds to lose a fight it never had a chance in — the sustain faction
+ * given two more reasons not to die and none to kill. His attack now sits above Zaphiel's and his
+ * armour below Ithuriel's, so what he sells is the absorb pool and the tempo he takes away.
+ */
+export const RAZIEL = {
+  id: 'raziel',
+  name: 'Raziel, Keeper of the Gate',
+  faction: 'angel',
+  tier: 'legendary',
+  role: 'tank',
+  stats: {
+    hp: 790,
+    atk: 56,
+    def: 38,
+    recovery: 8,
+    haste: 84,
+    critChance: 0.01,
+    critDamageAmp: 0.35,
+    critDamageResist: 0.18,
+    critBlock: 0.06,
+    energyRegen: 13,
+    tenacity: 0.18,
+    physicalResist: 0.05,
+  },
+  skills: [KEEPERS_CHARGE, GATEBREAKERS_ANSWER, UNYIELDING],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Demons — magical damage and pure variance (celestial ladder)
 // ---------------------------------------------------------------------------------------
@@ -750,36 +1420,178 @@ export const AZRATHOTH = {
   skills: [UNMAKING, RUIN_UNBOUND, ENTROPY, LONG_SILENCE],
 } as const;
 
+/** A Demon who takes back some of what she burns. Not a healer and not close to one — the siphon
+ * pays her alone — but it is the difference between a caster who dies to attrition and one who
+ * merely dies to a spike. */
+export const VEXIS = {
+  id: 'vexis',
+  name: 'Vexis',
+  faction: 'demon',
+  tier: 'common',
+  role: 'mage',
+  stats: {
+    hp: 500,
+    atk: 52,
+    def: 16,
+    haste: 96,
+    critChance: 0.2,
+    critDamageAmp: 0.85,
+    energyRegen: 9,
+    lifeLeech: 0.1,
+    magicResist: 0.04,
+  },
+  skills: [SINSONG, WICKERBURN],
+} as const;
+
+/**
+ * The Demon with enough health to be hit, which none of the others have.
+ *
+ * "Ignore armour entirely; die to anything" made a mono-Demon five unfieldable rather than
+ * fragile: five bodies averaging 440 HP have no front rank, and a gate that protects a back rank
+ * protects nobody when everyone is standing behind it. He is the exception and he pays for it in
+ * the stat the faction is named for — 0.18 crit chance, the lowest any Demon carries.
+ */
+export const THREX = {
+  id: 'threx',
+  name: 'Threx the Bound',
+  faction: 'demon',
+  tier: 'common',
+  role: 'bruiser',
+  stats: {
+    hp: 640,
+    atk: 48,
+    def: 24,
+    recovery: 4,
+    haste: 88,
+    critChance: 0.18,
+    critDamageAmp: 0.8,
+    energyRegen: 8,
+    magicPierce: 0.1,
+    magicResist: 0.05,
+  },
+  skills: [CHAINBREAK, IRONS_BROKEN],
+} as const;
+
+/** Malakar's variance spread across the whole enemy side instead of concentrated on one of it.
+ * The fastest Demon short of Azrathoth, and the only one who opens a fight by setting all five
+ * opponents alight. */
+export const NYXARA = {
+  id: 'nyxara',
+  name: 'Nyxara, the Third Whisper',
+  faction: 'demon',
+  tier: 'legendary',
+  role: 'mage',
+  stats: {
+    hp: 460,
+    atk: 60,
+    def: 15,
+    haste: 112,
+    critChance: 0.32,
+    critDamageAmp: 1.05,
+    energyRegen: 8,
+    magicPierce: 0.15,
+    magicResist: 0.04,
+    dodge: 0.07,
+  },
+  skills: [THIRD_WHISPER, HEX_THE_HEARTH, WHISPERED_BARGAIN],
+} as const;
+
+/**
+ * The Demon healer, and the reason a run that pulled Demons and no Angels is not stranded.
+ *
+ * Wren and Dorn exist because healing is an Angel's job and Angels ascend on copies of themselves
+ * alone. The same argument applies *inside* the celestial pair, and nobody had made it: a player
+ * whose luck ran to Demons had no sustain at any price either. She is smaller per cast than every
+ * Angel and attached to a body that crits a quarter of the time, which is the trade.
+ *
+ * **"Smaller per cast" had to be made true rather than asserted**, and the sweep is what caught
+ * it. Restoration prices against `atk` and hers is a Demon's, so `Red Tithe` at its first
+ * authored power healed *more* than Celia's ultimate while the comment above claimed the
+ * opposite — and a mono-Demon five carrying it out-sustained stage 18 into a ninety-second
+ * timeout nine times in twenty-four. At 1.15 against 56 attack she restores about 64 where Celia
+ * restores 75, which is what the paragraph always said she did. Her `energyRegen` came down with
+ * it: a Demon should reach its ultimate by fighting, not by waiting.
+ */
+export const SANGUINE = {
+  id: 'sanguine',
+  name: 'Sanguine, the Red Tithe',
+  faction: 'demon',
+  tier: 'legendary',
+  role: 'healer',
+  stats: {
+    hp: 545,
+    atk: 56,
+    def: 18,
+    recovery: 5,
+    haste: 100,
+    critChance: 0.26,
+    critDamageAmp: 0.9,
+    energyRegen: 8,
+    lifeLeech: 0.12,
+    magicResist: 0.05,
+  },
+  skills: [RED_TITHE, TITHE_COLLECTED, CRIMSON_SIGIL],
+} as const;
+
 /**
  * Every playable character, in faction then tier order.
  *
  * This is the pull pool and the roster's source of truth. `characters.spec.ts` asserts ids are
- * unique, every faction is populated at all three tiers, every `faction` names a real one, and
- * every kit points at a skill that exists.
+ * unique, every faction fields exactly three common, exactly three legendary and at least one
+ * ascended, every `faction` names a real one, and every kit points at a skill that exists.
+ *
+ * Forty-nine, and the banner needs no edit to include them: `BANNERS` in `banners.ts` carries an
+ * empty `pool`, which means the whole roster. A rate-up banner would narrow it there.
  */
 export const CHARACTERS = [
   MIRA,
   WREN,
+  HALRIC,
   SEREN,
+  YSOLDE,
+  IVO,
   AURELIA,
   BRAN,
   DORN,
+  GRIMNA,
   KORRIN,
+  HEDDA,
+  ORIN,
   THRAUN,
   RIN,
+  FAELEN,
+  CIRIEN,
   LYSHA,
+  NAERIN,
+  SYLVARA,
   AELRINDEL,
   MORTLACH,
+  GHAUL,
+  VESPER,
   SABLE,
+  OSSUARY,
+  KARSITH,
   NEKROS,
   GNASH,
+  SKARN,
+  YERRIK,
   RUK,
+  GHORRAK,
+  OZZA,
   VHAROK,
   CELIA,
+  NAEL,
+  ILYRA,
   ITHURIEL,
+  ZAPHIEL,
+  RAZIEL,
   SERAPHINE,
   PYRA,
+  VEXIS,
+  THREX,
   MALAKAR,
+  NYXARA,
+  SANGUINE,
   AZRATHOTH,
 ] as const;
 

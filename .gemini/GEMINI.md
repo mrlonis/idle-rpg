@@ -56,9 +56,17 @@ the two disagree, the code is right and both are stale.
   return.
   - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
     outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
-    The headroom over the longest tuned fight is **1.9×**, so a stage that takes longer than ninety
-    seconds against the party it is meant for is unclearable — treat the timer as a budget every
-    encounter has to fit inside, and expect the balance sweep to say so first.
+    The headroom over the longest tuned fight is **1.40×**, so a stage that takes longer than
+    ninety seconds against the party it is meant for is unclearable — treat the timer as a budget
+    every encounter has to fit inside, and expect the balance sweep to say so first. It was 1.9×
+    until milestone 8e; the mono-faction fives that milestone made buildable are what spent the
+    difference, and there is much less room now than the older number suggests.
+  - **The headroom assertion measures fights a party _clears_, and that scope is load-bearing.**
+    A fight the party loses has no tuning claim on it — the margin exists so a stage stays
+    clearable by the party it was tuned for. Losing fights are bounded separately, at 95% of the
+    timer, and by the zero-timeout guard below. Do not widen the headroom assertion back to every
+    fight in the sweep: it would fail on parties nothing is tuned for, which is not what it is
+    for.
   - One termination argument lives outside `core/`: milestone 8b deleted the MP pool that
     guaranteed a fight against a healer resolves, so an assertion in the balance sweep stands in
     its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
@@ -341,13 +349,33 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
     merits; "8d did it" is not the argument. A bonus for a set of specific characters, or for a
     role mix, or for anything that resolves to one best answer, is still the thing the rule
     forbids.
-  - The premise is **not true yet**, and it is worth knowing which part is owed. A mono-faction
-    five is unreachable in every faction on the current twenty-three characters without spending
-    Angels as wildcards, so today a player fields whatever composition they can reach and the
-    matchup decides nothing. Milestone 8e authors the roster that makes the choice real, and
-    resizing the matchup edges is **its** job rather than 8d's — sized against a roster that does
-    not exist yet, any number picked now is guesswork. `data/stages.balance.ts` records this as a
-    test rather than as a note.
+  - The premise is **true since milestone 8e**, which authored the roster it needed: seven
+    characters per faction, so a mono-faction five is buildable everywhere without spending Angels
+    as wildcards. `data/stages.balance.ts` sweeps all seven and holds them within about a stage
+    and a half of each other.
+  - **The two faction mechanics answer different questions and are not rival levers.** The lineup
+    rung pays every mono-faction five identically, so it cancels between them: it decides
+    _whether_ to build a mono-faction team, and the matchup decides _which_ to bring. Comparing
+    "+25% composition" against "5% matchup" as though the larger one wins is the reading that made
+    this look unfinished for two milestones; they are never both on the table at once.
+  - **The matchup edges are 1.05–1.10 because 8e measured them, not because nobody got to it.**
+    On fights genuinely in doubt, switching the matrix off moves the win rate by roughly seventeen
+    points. Two traps if you re-measure: averaging over the whole ladder makes the matrix look
+    decorative, because at a fixed investment most stages were never in doubt; and "the matrix
+    never turns a loss into a win" is a false assertion, because win rate near a party's damage
+    threshold is a step function. Measure the edge in levels of investment instead.
+- **A faction is only a team if it owns sustain and a way past a front rank.** Rank is a gate, not
+  a damage reduction — a party with no back-rank targeting cannot _select_ a protected healer, so
+  an encounter built around one is unwinnable rather than hard. Milestone 8e gave every faction
+  both, in its own idiom, and `data/characters.spec.ts` asserts it. **Monsters are the deliberate
+  exception on sustain**: they carry `lifeLeech` and a siphon rather than a healer, because giving
+  that faction a support would solve a composition problem by deleting the faction.
+- **The roster is three common, three legendary and at least one ascended per faction.** The first
+  two are exact and meant to stay exact — they are the bench a mono-faction team is built from and
+  the fodder the mortal ladder eats, and both jobs want a known depth. The third is a floor,
+  because ascended tier is where new characters arrive. Changing the closed half is a design
+  decision: edit the shape in `data/characters.spec.ts` and argue for it in `docs/milestones.md`,
+  rather than letting it drift.
 - Check the scaling curve against float64's safe range (9e15) before committing to it. Add
   `break_infinity.js` only if the curve actually demands it.
 

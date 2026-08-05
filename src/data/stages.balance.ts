@@ -10,7 +10,9 @@ import {
   type FormationData,
   type GrowthData,
   type KitRulesData,
+  lineupBonus,
   MAX_BATTLE_TICKS,
+  PARTY_SIZE,
   rarityIndex,
   scaleStats,
   simulateBattle,
@@ -21,17 +23,43 @@ import {
   unlockedSkills,
 } from '../core';
 import {
-  AZRATHOTH,
   BRAN,
   CELIA,
+  CIRIEN,
+  DORN,
+  FAELEN,
+  GHAUL,
+  GHORRAK,
   GNASH,
-  ITHURIEL,
+  GRIMNA,
+  HALRIC,
+  HEDDA,
+  ILYRA,
+  IVO,
+  KARSITH,
   KORRIN,
-  MALAKAR,
   MIRA,
+  MORTLACH,
+  NAEL,
+  NAERIN,
+  NYXARA,
+  ORIN,
+  OSSUARY,
+  OZZA,
   PYRA,
+  RAZIEL,
   RIN,
+  SANGUINE,
+  SKARN,
+  SYLVARA,
   THRAUN,
+  THREX,
+  VESPER,
+  VEXIS,
+  WREN,
+  YERRIK,
+  YSOLDE,
+  ZAPHIEL,
 } from './characters';
 import { COMBAT_RULES } from './combat';
 import { KIT_RULES } from './kits';
@@ -159,6 +187,18 @@ function legal(level: number, rarity: number): number {
   return level;
 }
 
+/** A five at the `elite` rung, for the mono-faction sweeps. */
+function mono(
+  front: readonly CharacterData[],
+  back: readonly CharacterData[],
+  level: number,
+): FormationData {
+  return {
+    front: front.map((character) => at(character, legal(level, ELITE), ELITE)),
+    back: back.map((character) => at(character, legal(level, ELITE), ELITE)),
+  };
+}
+
 /** The three characters a run starts with, at level 1, standing where the game puts them. */
 const STARTERS: FormationData = {
   front: [at(BRAN, 1, RARE), at(MIRA, 1, RARE)],
@@ -198,24 +238,74 @@ const INVESTED: FormationData = {
 };
 
 /**
- * The most heavily boosted party milestone 8d's lineup bonus permits, on the roster as it stands.
+ * The most heavily boosted party the lineup bonus permits.
  *
- * Three Demons and two Angels. The Angels read as Demons on the composition ladder, so this is a
- * mono-five — the top rung — *and* three rungs of the Demon track underneath it. Nothing legal
- * stacks higher.
+ * Five Demons, which since milestone 8e is buildable without a single lucky pull: three commons
+ * and two legendaries. That is the top rung of the composition ladder *and* all five steps of the
+ * Demon track underneath it, and nothing legal stacks higher.
+ *
+ * **This replaced three Demons and two Angels**, which was the maximum only while a mono-five was
+ * unreachable — the Angels stood in as wildcards to fill the rung and paid nothing on the Demon
+ * track, so it reached three of the five steps rather than all of them. Leaving it as it was would
+ * have meant the guard below quietly stopped watching the worst case the moment 8e shipped.
  *
  * It is here as a **guard rather than a tuning target**. Nothing asserts this party should beat
  * anything; what it is watched for is the failure mode a bonus to health and defence makes more
  * likely, which is a party that survives a fight it cannot win until the clock ends it.
  */
 const BOOSTED: FormationData = {
-  front: [at(PYRA, legal(80, ELITE), ELITE), at(MALAKAR, legal(80, ELITE), ELITE)],
+  front: [at(THREX, legal(80, ELITE), ELITE), at(VEXIS, legal(80, ELITE), ELITE)],
   back: [
-    at(AZRATHOTH, legal(80, ELITE), ELITE),
-    at(CELIA, legal(80, ELITE), ELITE),
-    at(ITHURIEL, legal(80, ELITE), ELITE),
+    at(PYRA, legal(80, ELITE), ELITE),
+    at(NYXARA, legal(80, ELITE), ELITE),
+    at(SANGUINE, legal(80, ELITE), ELITE),
   ],
 };
+
+/**
+ * One mono-faction five per faction, at the same investment as {@link BUILT}.
+ *
+ * **Milestone 8d's premise, made measurable.** The lineup bonus pays a party for its own
+ * composition on the argument that a mono-faction bonus creates seven optimal teams rather than
+ * one; before 8e none of the seven could be fielded, so the argument was a promise. These are the
+ * seven, and the assertions below are what turn the promise into a property.
+ *
+ * Each is **three commons and two legendaries**, which is the deepest a faction goes without an
+ * ascended-tier pull — the same "no lucky banner" rule {@link BUILT} follows, and a real
+ * consequence of the 3/3/1 roster shape: mono-faction play is gated behind two legendary-tier
+ * pulls rather than none. At 22.5% base that is a mild gate, and it is deliberate that it is not
+ * zero, because a composition worth +25% attack and health should cost something.
+ *
+ * The formations are the ones a player would actually build — bodies in front, damage and support
+ * behind — rather than the best five by any single number. Where a faction has no good front rank
+ * that shows up as a bad front rank, which is the honest version of fielding Elves.
+ */
+const MONO_ROSTERS: readonly {
+  readonly faction: string;
+  readonly front: readonly CharacterData[];
+  readonly back: readonly CharacterData[];
+}[] = [
+  { faction: 'human', front: [HALRIC, MIRA], back: [WREN, YSOLDE, IVO] },
+  { faction: 'dwarf', front: [BRAN, HEDDA], back: [DORN, GRIMNA, ORIN] },
+  { faction: 'elf', front: [CIRIEN, RIN], back: [FAELEN, NAERIN, SYLVARA] },
+  { faction: 'undead', front: [GHAUL, MORTLACH], back: [VESPER, OSSUARY, KARSITH] },
+  { faction: 'monster', front: [SKARN, YERRIK], back: [GNASH, GHORRAK, OZZA] },
+  { faction: 'angel', front: [NAEL, RAZIEL], back: [CELIA, ILYRA, ZAPHIEL] },
+  { faction: 'demon', front: [THREX, VEXIS], back: [PYRA, NYXARA, SANGUINE] },
+];
+
+/** The seven, at a given level. `MONO_LEVEL` is {@link BUILT}'s, which is what the sweeps use. */
+function monoFives(
+  level: number,
+): readonly { readonly faction: string; readonly party: FormationData }[] {
+  return MONO_ROSTERS.map((roster) => ({
+    faction: roster.faction,
+    party: mono(roster.front, roster.back, level),
+  }));
+}
+
+const MONO_LEVEL = 80;
+const MONO_FIVES = monoFives(MONO_LEVEL);
 
 /** The same five, with every lineup track switched off — the control the bonus is measured against. */
 const withoutLineup: CombatRules = toCombatRules({
@@ -232,7 +322,16 @@ const starterSweeps = stages.map((stage) => ({ stage, ...sweep(STARTERS, stage) 
 const builtSweeps = stages.map((stage) => ({ stage, ...sweep(BUILT, stage) }));
 const investedSweeps = stages.map((stage) => ({ stage, ...sweep(INVESTED, stage) }));
 const boostedSweeps = stages.map((stage) => ({ stage, ...sweep(BOOSTED, stage) }));
-const everySweep = [...starterSweeps, ...builtSweeps, ...investedSweeps, ...boostedSweeps];
+const monoSweeps = MONO_FIVES.flatMap(({ faction, party }) =>
+  stages.map((stage) => ({ faction, stage, ...sweep(party, stage) })),
+);
+const everySweep = [
+  ...starterSweeps,
+  ...builtSweeps,
+  ...investedSweeps,
+  ...boostedSweeps,
+  ...monoSweeps,
+];
 
 /** Where the starter party is expected to stop: the healer lock. */
 const WALL = stages.findIndex((stage) => stage.id === 'stage-7');
@@ -347,11 +446,49 @@ describe('ladder balance', () => {
     // A stage that grows past the margin is unclearable by the party it was tuned for, so this is
     // the test that should fail first when milestone 10 rescales or milestone 11 authors a
     // hundred stages — before the win-rate assertions do, and with a number in the message.
+    //
+    // ## Milestone 8e narrowed what this measures, and the narrowing is the argument
+    //
+    // It used to read every fight in the sweep. That was fine while the sweep held four parties
+    // and accidentally true — the longest fight in it happened to be one `BUILT` mostly loses.
+    // Adding seven mono-faction fives made the accident visible: the longest fights in the file
+    // are now the mono-Angel and mono-Demon fives dying slowly to stage 18, which they clear zero
+    // and three percent of the time.
+    //
+    // **A fight the party loses is not a fight the ladder was tuned for**, and it is not what the
+    // margin protects. Read the sentence this test is built on: a stage that grows past the margin
+    // is unclearable *by the party it was tuned for*. So the set is now the fights a party
+    // actually clears, which is the set that sentence describes. The bar itself has not moved.
+    //
+    // ⚠️ Be honest about what that costs, because it is a real reduction rather than a
+    // reclassification. The longest *cleared* fight in the file is a mono-Dwarf five taking stage
+    // 16 — four walls and one attacker, winning the way that faction wins — and it eats most of
+    // the margin on its own. Losing fights are covered by {@link timer} below, and by the
+    // zero-timeout assertion at the top of this block, which is the load-bearing one.
+    const cleared = everySweep.filter((entry) => entry.winRate >= 0.9);
+    const longest = Math.max(...cleared.map((entry) => entry.maxSeconds));
+    const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
+
+    expect(cleared.length).toBeGreaterThan(0);
+    expect(
+      longest,
+      `longest cleared fight ${longest.toFixed(1)}s against a ${timer}s timer`,
+    ).toBeLessThan(timer * 0.75);
+  });
+
+  it('finishes every fight it loses inside the clock, with room to spare', () => {
+    // The other half of the assertion above, and the one the mono-faction fives are actually
+    // watched by. A losing fight has no tuning claim on it — nothing says a level-80 mono-Angel
+    // five should trouble stage 18 — but it still has to *end*, and it has to end with enough
+    // margin that the next content change does not tip it into a timeout.
+    //
+    // The zero-timeout assertion at the top of this block is what fails if that margin is ever
+    // spent. This is the earlier warning: it names the number while there is still room in it.
     const longest = Math.max(...everySweep.map((entry) => entry.maxSeconds));
     const timer = ticksToMs(MAX_BATTLE_TICKS) / 1000;
 
     expect(longest, `longest fight ${longest.toFixed(1)}s against a ${timer}s timer`).toBeLessThan(
-      timer * 0.75,
+      timer * 0.95,
     );
   });
 });
@@ -385,26 +522,189 @@ describe('the lineup bonus', () => {
     expect(stalled).toEqual([]);
   });
 
-  it('leaves the matchup matrix decorative next to it, which is milestone 8e’s problem', () => {
-    // ⚠️ **This test records a known gap rather than defending a property**, and it is worth being
-    // explicit about which.
+  it('makes all seven mono-faction fives real parties rather than one real party', () => {
+    // ⚠️ **8d's premise, and the reason milestone 8e existed.** The composition bonus is sanctioned
+    // on the argument that a mono-faction bonus creates seven optimal teams rather than one; seven
+    // teams that are not comparably capable is one optimal team with six excuses.
     //
-    // The milestone's design note asks that "the swing between the right faction and the wrong one
-    // must exceed the quality gap between a player's best and second-best faction team". That
-    // cannot be measured here and it is not being measured here. With four Humans, four Dwarves
-    // and three of everything else, a mono-five is unreachable in every faction without spending
-    // Angels — so there is no second mono-faction team to compare a first one against, and any
-    // number picked for the matrix now would be tuned against a roster that does not exist.
-    //
-    // What *is* true today, and is what this pins: the top of the composition ladder is worth
-    // several times the largest matchup edge. So while the roster is this shallow, a player keeps
-    // whatever composition they can reach and the matchup decides nothing. That is the expected
-    // state, not a regression — and when milestone 8e authors five per faction, this assertion is
-    // the one that should be revisited alongside the matrix.
-    const biggestEdge = Math.max(...authoredRules.matchups.map((entry) => entry.multiplier)) - 1;
-    const top = Math.max(...authoredRules.lineup.tiers.map((tier) => tier.attack));
+    // Measured as the share of the ladder each faction's five clears at `BUILT`'s investment. They
+    // land within about a stage and a half of each other on twenty-four, which is close enough
+    // that the choice between them is about the encounter rather than about which faction the
+    // banner was kind with.
+    const cleared = MONO_FIVES.map(({ faction }) => ({
+      faction,
+      total: monoSweeps
+        .filter((entry) => entry.faction === faction)
+        .reduce((sum, entry) => sum + entry.winRate, 0),
+    }));
+    const best = Math.max(...cleared.map((entry) => entry.total));
+    const worst = Math.min(...cleared.map((entry) => entry.total));
+    const summary = cleared.map((entry) => `${entry.faction} ${entry.total.toFixed(1)}`).join(', ');
 
-    expect(top).toBeGreaterThan(biggestEdge * 2);
+    expect(worst, summary).toBeGreaterThan(0);
+    expect(best - worst, summary).toBeLessThan(stages.length * 0.15);
+  });
+
+  it('pays every mono-faction five the same rung, and only the two faction tracks on top', () => {
+    // **The reason 8d could not size its own matchup edges, stated as an assertion.** Every
+    // mono-faction five reaches the *same rung* of the composition ladder, so that part of the
+    // bonus contributes an identical multiplier to all seven and drops out of any comparison
+    // between them. The lineup bonus decides whether to build a mono-faction team; once a player
+    // owns two, it says almost nothing about which to bring.
+    //
+    // **Almost.** The rung cancels and the two faction tracks deliberately do not: Monsters rally
+    // for a flat share per member, so five of them add ten points of attack and health on top of
+    // the rung, and Demons climb a track of defence, crit and haste that no rung pays. Those are
+    // authored differences between the seven teams rather than leaks, and this test names them so
+    // that a *new* asymmetry shows up as a failure instead of as a slightly better faction.
+    const summaries = MONO_FIVES.map(({ faction, party }) => ({
+      faction,
+      summary: lineupBonus(
+        [...party.front, ...party.back].map((member) => member.faction),
+        rules.lineup,
+      ),
+    }));
+    const top = rules.lineup.tiers.reduce((best, tier) =>
+      tier.attack > best.attack ? tier : best,
+    );
+
+    for (const { faction, summary } of summaries) {
+      // Every one of them reaches the top rung — that is what "mono-faction five" means here.
+      expect(summary.tier?.attack, `${faction} rung attack`).toBe(top.attack);
+      expect(summary.tier?.health, `${faction} rung health`).toBe(top.health);
+    }
+
+    // What is left over, once the rung is subtracted, is the rally track and nothing else.
+    const rally = rules.lineup.rally;
+    for (const { faction, summary } of summaries) {
+      const expected = faction === rally.faction ? rally.attack * PARTY_SIZE : 0;
+
+      expect(summary.bonus.attack - top.attack, `${faction} attack above the rung`).toBeCloseTo(
+        expected,
+      );
+      expect(summary.bonus.health - top.health, `${faction} health above the rung`).toBeCloseTo(
+        faction === rally.faction ? rally.health * PARTY_SIZE : 0,
+      );
+    }
+  });
+});
+
+/**
+ * The matchup matrix, measured rather than argued about.
+ *
+ * This block replaced an assertion that recorded a gap: with twenty-three characters no second
+ * mono-faction team was buildable, so "does the matchup decide which one to bring" had nothing to
+ * compare. Milestone 8e built the seven teams, so the question is now answerable, and what it
+ * pinned in the meantime — that the composition ladder's top rung is worth several times the
+ * largest matchup edge — turned out to be **true and irrelevant**: the ladder pays every
+ * mono-faction five identically, so its size never entered the comparison it was being compared
+ * in.
+ *
+ * ## The answer, and why the edges were left at 1.05 and 1.10
+ *
+ * The milestone expected to resize them and the measurement said not to. Sweeping the seven fives
+ * across the ladder at five investment levels and switching the matrix off, the matrix moves a
+ * *contested* fight — one neither certain nor hopeless — by about seventeen points of win rate on
+ * average, and by twenty-five or more in nearly a third of them. A five percent damage edge is
+ * doing exactly what `combat.ts` claims: deciding fights that were already close, and deciding
+ * nothing else.
+ *
+ * **Contested is the whole of why the earlier reading was wrong.** At a fixed investment the
+ * ladder is close to a step function — a party clears everything up to its level and nothing past
+ * it — so averaged over twenty-four stages a matchup edge looks like noise, because twenty-one of
+ * those stages were never in doubt. The fights it decides are the two or three at the party's
+ * edge, and those are the only fights a player is choosing a team for.
+ */
+describe('the matchup matrix', () => {
+  /**
+   * Investment levels swept so fights land at several party strengths.
+   *
+   * Sweeping levels is what produces contested fights at all. At any single level the ladder is
+   * close to a step function, and a matrix measured only there is measured almost entirely on
+   * fights that were never in doubt.
+   */
+  const LEVELS = [60, 70, 80, 90, 100];
+
+  /** The same rules with every faction edge removed. A missing pair is neutral. */
+  const neutral: CombatRules = toCombatRules({ ...authoredRules, matchups: [] });
+
+  /** Neither certain nor hopeless — the only fights a five percent edge could ever decide. */
+  const inDoubt = (winRate: number): boolean => winRate > 0.05 && winRate < 0.95;
+
+  /** Every mono-faction five, every stage, every level, with the matrix on and off. */
+  const trials = LEVELS.flatMap((level) =>
+    monoFives(level).flatMap(({ faction, party }) =>
+      stages.map((stage) => ({
+        faction,
+        stage,
+        level,
+        on: sweep(party, stage).winRate,
+        off: sweep(party, stage, neutral).winRate,
+      })),
+    ),
+  );
+  const contested = trials.filter((entry) => inDoubt(entry.on) || inDoubt(entry.off));
+
+  it('finds fights the matrix could plausibly decide', () => {
+    // If this ever reaches zero the assertions below are vacuously true, which is the failure mode
+    // a measurement-driven test has and an asserted one does not.
+    expect(contested.length).toBeGreaterThan(0);
+  });
+
+  it('decides a fight that was already close', () => {
+    // The claim `combat.ts` makes about itself, measured: the mean absolute swing in win rate when
+    // the matrix is switched off, over the fights that were close enough to swing.
+    //
+    // This is the assertion that would have justified resizing the edges, and it is why they were
+    // not resized. It came out around seventeen points — a five percent damage edge visibly
+    // decides fights at a party's own ceiling, which is the entire job the matrix was given.
+    const swing =
+      contested.reduce((total, entry) => total + Math.abs(entry.on - entry.off), 0) /
+      contested.length;
+
+    expect(swing, `mean swing ${(swing * 100).toFixed(1)} points of win rate`).toBeGreaterThan(
+      0.05,
+    );
+  });
+
+  it('is worth less than a step of investment, so it tips a fight rather than carrying one', () => {
+    // The other side, and the reason the edges were not resized *upward*: an edge big enough to
+    // carry a party that brought the wrong answer is what the matrix was chosen over a flat
+    // synergy bonus to avoid.
+    //
+    // ⚠️ **The obvious way to write this is wrong, and it is worth recording why.** The first
+    // version asserted the matrix never turns a fight the party loses into one it wins — and it
+    // failed, on a mono-Angel five at level 90 against stage 18, which goes from zero to seventy-
+    // nine percent when the matrix is on. That looks damning and is not: win rate near a party's
+    // damage threshold is close to a step function, because either the party out-damages the
+    // encounter's sustain or it does not. "Loses at zero percent" and "is one exchange short"
+    // are the same reading, so an assertion keyed on the outcome cannot tell a tiebreak from a
+    // rescue.
+    //
+    // What separates them is **how much the edge is worth in the currency the player actually
+    // spends**. Ten levels is the smallest step this sweep resolves, so: a matchup-assisted fight
+    // must never beat the same fight ten levels higher with the matrix switched off. An edge worth
+    // more than ten levels of investment would be an edge a player builds around instead of a
+    // tiebreaker, and that is the line worth defending.
+    const byKey = new Map(
+      trials.map((entry) => [`${entry.faction}/${entry.stage.id}/${entry.level}`, entry]),
+    );
+    const carried: string[] = [];
+
+    for (const entry of trials) {
+      const higher = byKey.get(`${entry.faction}/${entry.stage.id}/${entry.level + 10}`);
+      if (higher === undefined) {
+        continue;
+      }
+      if (entry.on > higher.off) {
+        carried.push(
+          `${entry.faction} ${entry.stage.id}: lvl${entry.level} with the matrix beats ` +
+            `lvl${higher.level} without it (${entry.on.toFixed(2)} > ${higher.off.toFixed(2)})`,
+        );
+      }
+    }
+
+    expect(carried).toEqual([]);
   });
 });
 

@@ -154,11 +154,26 @@ export const LINEUP_INJURED_BELOW = 0.5;
  * matchup; they keep the top of the ladder and switch which mono-faction team carries it. The two
  * are complementary.
  *
- * ⚠️ **The premise is not true yet, and that is milestone 8e's job rather than a bug here.** With
- * twenty-three characters across seven factions — four Humans, four Dwarves, three of everything
- * else — a mono-five is unreachable in every faction without spending Angels as wildcards. The
- * mechanic ships against the roster that exists; the pitch it is sold on arrives when the roster
- * does.
+ * **The premise is true as of milestone 8e**, which authored the roster it needed: seven per
+ * faction, three common and three legendary and one ascended, so a mono-faction five is buildable
+ * everywhere out of three commons and two legendaries and never needs an Angel standing in. All
+ * seven clear within about a stage and a half of each other across the ladder, which is what makes
+ * "which of the seven" a question about the encounter rather than about which faction the banner
+ * was kind with. `data/stages.balance.ts` sweeps all of them.
+ *
+ * Two things that milestone measured and left alone, recorded here because the temptation is to
+ * re-derive them:
+ *
+ * - **The rung cancels between two mono-faction teams.** All seven reach the top of the ladder, so
+ *   the bonus contributes the same multiplier to each and drops out of any comparison between
+ *   them. The ladder decides *whether* to build a mono-faction team; it says nothing about which
+ *   to bring, and it was never supposed to.
+ * - **The matchup edges below stayed at 1.05 and 1.10.** 8d expected to resize them and could not
+ *   measure them; 8e could, and the answer was that they are already doing the job — on fights
+ *   close enough to be in doubt, switching the matrix off moves the win rate by about seventeen
+ *   points. Sized against the whole ladder they look like noise, and that reading is the trap: at
+ *   a fixed investment most stages were never in doubt, and the two or three at a party's own
+ *   ceiling are the only ones anybody picks a team for.
  *
  * ## Three tracks, and they stack
  *

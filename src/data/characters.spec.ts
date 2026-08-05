@@ -13,6 +13,7 @@ import {
   MAX_PENETRATION,
   MAX_RARITY_INDEX,
   MAX_RESIST,
+  PARTY_SIZE,
   rarityLabel,
   type SkillData,
   skillCeiling,
@@ -21,10 +22,12 @@ import {
   unlockedSkills,
 } from '../core';
 import { FACTIONS } from './ascension';
+import * as authored from './characters';
 import { BRAN, CHARACTERS, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { KIT_RULES } from './kits';
 import { GROWTH } from './levels';
 import { SKILLS } from './skills';
+import * as surface from '.';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -48,17 +51,137 @@ function budget(stats: StatBlockData): number {
   return Number(stats.hp) / 10 + Number(stats.atk) + Number(stats.def) * 2;
 }
 
+/**
+ * The shape milestone 8e settled on: **three common, three legendary, and at least one ascended,
+ * in every faction.**
+ *
+ * The first two are closed and the third is open, and the asymmetry is the whole decision. Common
+ * and legendary tier are the *bench* — they are what a mono-faction five is built out of and what
+ * the mortal ladder eats as fodder, and both jobs want a fixed, known depth rather than a pool
+ * that grows every time content ships. Ascended tier is where new characters will keep arriving,
+ * because that is the tier a banner is for.
+ *
+ * Written as numbers rather than derived, deliberately, and this is the "threshold that fails when
+ * content outgrows it" case rather than the "number copied out of a neighbouring file" one: there
+ * is nothing to derive it *from*. If a fourth common-tier Elf ever lands, this failing is the
+ * intended outcome — the roster shape is a design decision, and changing it should be an edit
+ * here and an argument in `docs/milestones.md`, not a silent drift.
+ */
+const ROSTER_SHAPE: Readonly<Record<CharacterTier, { exactly?: number; atLeast?: number }>> = {
+  common: { exactly: 3 },
+  legendary: { exactly: 3 },
+  ascended: { atLeast: 1 },
+};
+
 describe('the roster', () => {
-  it('populates every faction at all three tiers', () => {
+  it('fields three common, three legendary and at least one ascended in every faction', () => {
+    // Milestone 8d pays a party for its own composition on the argument that a mono-faction bonus
+    // creates seven optimal teams rather than one. That argument is false unless all seven can
+    // actually be fielded, and before this milestone none of them could — twenty-three characters
+    // over seven factions is roughly three each, and a mono-five needed an Angel standing in as a
+    // wildcard. This is the assertion that keeps the premise true.
+    const wrong: string[] = [];
+
     for (const faction of factions) {
       for (const tier of TIERS) {
-        const matching = characters.filter(
+        const count = characters.filter(
           (character) => character.faction === faction.id && character.tier === tier,
-        );
+        ).length;
+        const { exactly, atLeast } = ROSTER_SHAPE[tier];
 
-        expect(matching.length, `${faction.id} ${tier}`).toBeGreaterThanOrEqual(1);
+        if (exactly !== undefined && count !== exactly) {
+          wrong.push(`${faction.id} has ${count} ${tier}, wants exactly ${exactly}`);
+        }
+        if (atLeast !== undefined && count < atLeast) {
+          wrong.push(`${faction.id} has ${count} ${tier}, wants at least ${atLeast}`);
+        }
       }
     }
+
+    expect(wrong).toEqual([]);
+  });
+
+  it('can field a full party from any single faction', () => {
+    // The mechanical form of the rule above, and the one that would still be true if the shape
+    // changed: a mono-faction five has to be buildable out of characters the player owns rather
+    // than out of Angels counting as something else. `PARTY_SIZE` is read off `core/` so this
+    // tracks a formation that grows or shrinks.
+    for (const faction of factions) {
+      const mates = characters.filter((character) => character.faction === faction.id);
+
+      expect(mates.length, faction.id).toBeGreaterThanOrEqual(PARTY_SIZE);
+    }
+  });
+
+  it('gives every faction its own answer to staying alive', () => {
+    // 8d's premise again, from the other side. A faction that can field five bodies and none of
+    // them can restore health is a mono-five that loses to attrition on principle, which would
+    // make the composition bonus a trap rather than a decision.
+    //
+    // "Answer" is deliberately broad, because the factions do not answer it the same way and
+    // flattening them into seven healers is exactly what this milestone declined to do. A heal, a
+    // regeneration, an absorb pool and a siphon are all counted — Monsters have only the last of
+    // those, on purpose, and that is a faction identity rather than a gap.
+    const restores = (character: CharacterData): boolean =>
+      (character.skills ?? []).some((skill) =>
+        skill.effects.some(
+          (effect) =>
+            effect.kind === 'heal' ||
+            effect.kind === 'drain' ||
+            (effect.kind === 'status' &&
+              (effect.status.kind === 'regen' || effect.status.kind === 'shield')),
+        ),
+      ) || Number(character.stats.lifeLeech ?? 0) > 0;
+
+    const bare = factions
+      .filter(
+        (faction) =>
+          !characters.some((character) => character.faction === faction.id && restores(character)),
+      )
+      .map((faction) => faction.id);
+
+    expect(bare).toEqual([]);
+  });
+
+  it('gives every faction a way past a front rank', () => {
+    // The other thing a mono-five needs and cannot substitute for. Rank is a gate, not a damage
+    // reduction: a party with no back-rank targeting cannot *select* a protected healer at all, so
+    // an encounter built around one is unwinnable rather than merely hard. Monsters were the last
+    // faction without an answer, and Ghorrak is it.
+    const reaching = (character: CharacterData): boolean =>
+      (character.skills ?? []).some(
+        (skill) =>
+          skill.target === 'enemy-back' ||
+          skill.target === 'enemy-row-back' ||
+          skill.target === 'enemy-all' ||
+          skill.target === 'enemy-lowest' ||
+          skill.target === 'enemy-highest',
+      );
+
+    const blind = factions
+      .filter(
+        (faction) =>
+          !characters.some((character) => character.faction === faction.id && reaching(character)),
+      )
+      .map((faction) => faction.id);
+
+    expect(blind).toEqual([]);
+  });
+
+  it('re-exports every character from `data/index.ts`', () => {
+    // `data/index.ts` is the public surface, and a hand-maintained re-export list is exactly the
+    // kind of thing that goes stale silently: the roster keeps working, every spec keeps passing,
+    // and one character is simply unreachable through the barrel. Milestone 8e shipped 26 new
+    // characters and left Nyxara off the list — nothing caught it, because nothing was looking.
+    //
+    // Derived from the module rather than from a count, so it stays true as the roster grows.
+    const named = Object.keys(authored).filter(
+      (key) => key !== 'CHARACTERS' && key !== 'STARTER_FORMATION',
+    );
+    const missing = named.filter((key) => !(key in surface));
+
+    expect(named.length).toBe(characters.length);
+    expect(missing).toEqual([]);
   });
 
   it('gives every character a unique id and a name', () => {
@@ -392,9 +515,16 @@ describe('characters are sidegrades within a tier', () => {
     // Dwarves get more defensive, Elves faster, Monsters harder-hitting, Demons swingier. The
     // tier sharpens the niche in both directions rather than lifting every number.
     //
-    // Read across the three canonical tiers rather than across every member: Humans and Dwarves
-    // now carry a fourth character each — the mortal healer and the mortal cleanse — and neither
-    // is on their faction's axis, which is exactly why they were added.
+    // Read across three named characters per faction rather than across every member, and since
+    // milestone 8e that is three out of seven rather than three out of four. The other four are
+    // the roles a mono-faction five needs and the faction axis does not supply — a Dwarf who can
+    // kill something, an Elf who can stand in a front rank, a Monster who can reach a back one.
+    // Every one of them is deliberately *off* the axis, so asserting the slope across all seven
+    // would be asserting that the roster has no depth.
+    //
+    // The trio is therefore a **claim about the tier ladder**, not a summary of the faction: it
+    // says that if you follow one archetype from common to ascended the faction's own stat rises
+    // both times. A new character joins this list only if it is meant to be that archetype.
     const axisOf: Readonly<Record<string, keyof StatBlockData>> = {
       dwarf: 'def',
       elf: 'haste',
