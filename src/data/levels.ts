@@ -94,11 +94,11 @@ export const LEVEL_CURVE = {
  * The per-level rates differ by about 0.3 percentage points, which looks like nothing and is
  * the entire design. Compounded across the level range it is worth:
  *
- * | Level | Common | Legendary | Ascended | Ascended ÷ Common |
- * | ----- | ------ | --------- | -------- | ----------------- |
- * | 50    | ×1.4   | ×1.6      | ×1.7     | 1.2×              |
- * | 200   | ×4.4   | ×5.9      | ×8.0     | 1.8×              |
- * | 1000  | ×1745  | ×7714     | ×34024   | 19.5×             |
+ * | Level | Common  | Legendary | Ascended | Ascended ÷ Common |
+ * | ----- | ------- | --------- | -------- | ----------------- |
+ * | 50    | ×2.8    | ×3.0      | ×3.2     | 1.2×              |
+ * | 200   | ×62.6   | ×83.8     | ×112     | 1.8×              |
+ * | 1000  | ×1.04e9 | ×4.5e9    | ×1.95e10 | 18.7×             |
  *
  * So a common-tier character is genuinely competitive early — 20% behind at level 50 is
  * nothing next to being ascended two rungs higher — and genuinely a joke at the cap. That is
@@ -108,19 +108,43 @@ export const LEVEL_CURVE = {
  *
  * Base stat budgets in `characters.ts` are near-equal across tiers on purpose. Tier buys a
  * sharper niche and a steeper slope, not a bigger number at level one.
+ *
+ * ## Milestone 10 multiplied the *multipliers*, not the exponents
+ *
+ * These were 1.0075 / 1.009 / 1.0105, worth ×1745 / ×7714 / ×34024 at the cap — three orders of
+ * magnitude across a thousand levels, which is a gentle slope rather than an incremental game.
+ * The rescale took each of those cap multipliers up by the same factor, about ×600,000, and
+ * solved back for a per-level rate. That is what leaves the right-hand column of the table
+ * exactly where milestone 3 put it.
+ *
+ * **The other candidate was scaling the exponents**, which is the change that looks identical
+ * from here — multiply each rate's excess over 1 by ~2.8 and you get 1.021 / 1.0252 / 1.0294,
+ * which reads like the same idea. It is not: raising a ratio of 19.5 to the power 2.8 is a
+ * ratio of 3,600. Common tier would be five times behind at level 200 rather than 1.8, which is
+ * a retune of milestone 3's central promise dressed as an arithmetic detail. Steepening every
+ * tier by the same factor is the version that preserves the fall-off; steepening them unevenly
+ * is a decision somebody has to make on purpose.
  */
 export const GROWTH = {
   perLevel: {
-    common: 1.0075,
-    legendary: 1.009,
-    ascended: 1.0105,
+    common: 1.021,
+    legendary: 1.0225,
+    ascended: 1.024,
   },
   /**
    * Per rung climbed above a character's starting rarity.
    *
-   * Worth ×4.36 across the full rare-start ladder and ×3.48 for an elite-start one. The
+   * Worth ×450 across the full rare-start ladder and ×176 for an elite-start one. The
    * ascended tier getting *less* total ascension multiplier is intended: it skipped the two
    * cheapest rungs for free, and its steeper per-level slope more than settles the account.
+   *
+   * **It was 1.12, and 1.12 was the number that would have made the gacha decoration.** Against
+   * a levelling path worth ×10⁹, a duplicate path worth ×4.36 end to end is a garnish — and
+   * duplicates are this game's *primary* ascension route by design, so that is the one place the
+   * rescale could not be left to fall where it landed. The size was picked against the levelling
+   * curve rather than in isolation: a rung raises the level cap by 20 to 100, which at 1.021 is
+   * worth ×1.5 to ×7.9 on its own, so a rung paying ×1.6 by itself sits inside the same range as
+   * the headroom it unlocks instead of an order of magnitude below it.
    */
-  perAscension: 1.12,
+  perAscension: 1.6,
 } as const;

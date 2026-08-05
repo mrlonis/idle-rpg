@@ -41,6 +41,11 @@ It decides two things: which rung the character starts on (`ascended`-tier start
 skipping the two cheapest rungs) and how steeply it grows per level. Tier is a **slope, not a head
 start** — base stat budgets are close across tiers, and the gap opens over hundreds of levels.
 
+**Enemies have a tier too, since milestone 10, and it means only the second of those two things.**
+Fodder is `common`, a lock is `legendary`, a gate is `ascended` — the slope, and nothing about
+rungs, because there are none on that side. The word is shared because the mechanism is; see
+[`core/growth.ts`](../src/core/growth.ts), which is where both sides read it from.
+
 **Rarity** — how far a character has been ascended. Fourteen rungs, `rare` → `ascended-5`, bought
 with duplicate copies. **This is the vertical power axis**, and every character of every tier can
 reach the top of it.
@@ -106,6 +111,13 @@ sheet and the battle all read. Say "invested level" when you mean the paid one; 
 word for it, and `OwnedCharacter.level` is the thing being named.
 
 Level caps are per rarity rung, from 40 at `rare` to 1000 at `ascended-5`.
+
+**A third thing carries the word, and it belongs to the other side of the board.** A **stage
+level** (`StageData.level`) is what every enemy in that encounter fights at, and since milestone 10
+it is the whole of what makes one stage harder than another — archetypes are authored once at level
+1 and fielded at it. Read it as roughly the level of the party the stage was tuned for, running a
+little above because the enemy side has no ascension rungs and the player's have to be absorbed
+somewhere. It is not a character's level and nothing derives one from the other.
 
 ---
 

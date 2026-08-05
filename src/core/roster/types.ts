@@ -1,4 +1,5 @@
 import { type CombatantData, type StatBlockData } from '../battle/types';
+import { CHARACTER_TIERS, type CharacterTier } from '../growth';
 
 /**
  * The roster vocabulary: what a character is, how far it has been ascended, and how far it
@@ -68,22 +69,15 @@ export const RARITY_FAMILIES = ['rare', 'elite', 'legendary', 'mythic', 'ascende
 export type RarityFamily = (typeof RARITY_FAMILIES)[number];
 
 /**
- * How a character is pulled and how it grows, **in ascending order of growth slope**.
+ * The three growth slopes, re-exported from [`core/growth.ts`](../growth.ts).
  *
- * - `common` starts at `rare`, is the weakest per level, and carries the early game. It can
- *   still be taken all the way to `ascended-5` — deliberately, so an early favourite is a
- *   real investment rather than something the game later tells you was a waste.
- * - `legendary` starts at `rare` too but grows faster and hits harder in its niche. Mid-game.
- * - `ascended` starts at `elite`, skipping the bottom two rungs entirely, and grows fastest.
- *   Late-game, and the thing the pity counter is pointed at.
- *
- * An array rather than a bare union for the same reason as {@link RARITIES}: the order is a
- * fact about the tiers, so anything ranking them should read it here rather than keep its own
- * copy. A fourth tier is then a compile error everywhere that ranking is exhaustive.
+ * They live there rather than here because milestone 10 pointed the same machinery at the other
+ * side of the board: an enemy declares a tier too, and `battle/types.ts` cannot read a type out
+ * of `roster/` without turning the module graph into a cycle. The prose about what a tier *is*
+ * moved with it; this re-export is what keeps `import { CHARACTER_TIERS } from './types'` — the
+ * roster's own vocabulary — reading the way it always has.
  */
-export const CHARACTER_TIERS = ['common', 'legendary', 'ascended'] as const;
-
-export type CharacterTier = (typeof CHARACTER_TIERS)[number];
+export { CHARACTER_TIERS, type CharacterTier };
 
 /**
  * Which ascension ladder a character walks, decided by its faction.

@@ -141,6 +141,48 @@ describe('stage content', () => {
     }
   });
 
+  it('never fields an encounter at a lower level than the stage below it', () => {
+    // Since milestone 10 the level is the ladder's difficulty dial, so a level that stepped back
+    // is a stage that asks less than the one blocking the player. Non-decreasing rather than
+    // strictly increasing on purpose: two consecutive stages at the same level, with the second
+    // fielding a harder line-up, is a legitimate thing to author and the ladder does it twice.
+    const levels = stages.map((stage) => stage.level);
+
+    expect(levels[0]).toBeGreaterThanOrEqual(1);
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i], stages[i].id).toBeGreaterThanOrEqual(levels[i - 1]);
+    }
+  });
+
+  it('opens at the level the party that fights it is actually on', () => {
+    // The bottom of the ladder is climbed by three level-1 starters, so the enemies there are
+    // level-1 too. This is what stops the opening stages being quietly rescaled by a dial that
+    // did not exist when they were tuned — and it is why the archetype blocks in `enemies.ts` are
+    // authored at level 1 rather than at some notional mid-ladder baseline.
+    expect(stages[0].level).toBe(1);
+    expect(stages[WALL - 1].level).toBeLessThan(10);
+  });
+
+  it('spans a level range the level curve has somewhere left to go past', () => {
+    // Twenty-four stages must not consume the whole thousand-level curve — milestone 11's
+    // chapters are what the rest of it is for. A top stage that had drifted into the high
+    // hundreds would mean this ladder *is* the game, and no content after it could ask for more.
+    const top = stages[stages.length - 1].level;
+
+    expect(top).toBeGreaterThan(100);
+    expect(top).toBeLessThan(400);
+  });
+
+  it('gives every archetype a growth tier', () => {
+    // Conformance is a compile-time matter — `EnemyData` requires it and the typed local above is
+    // what enforces that — so what this checks is the part the type cannot: that the ladder uses
+    // more than one slope. A ladder of nothing but `common` archetypes would make the tier a
+    // field rather than a decision, and a boss would never pull away from its escort.
+    const tiers = new Set(ENEMIES.map((enemy) => enemy.tier));
+
+    expect(tiers.size).toBeGreaterThan(1);
+  });
+
   it('fields every enemy it ships somewhere on the ladder', () => {
     // An archetype nobody ever meets is a stat block with a comment attached. Each one names a
     // question, and a question that is never asked is not content.

@@ -1,6 +1,7 @@
 import { mulberry32 } from '../mulberry32';
 import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
+import { toEnemyCombatant } from '../roster/stats';
 import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './clock';
 import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
 import { factionMultiplier, resistedShare, rollAttack, statusChance } from './damage';
@@ -29,6 +30,7 @@ import {
   type CombatantSnapshot,
   type CombatRules,
   type CombatStats,
+  type EnemyData,
   type FormationData,
   type LineupBonus,
   type Row,
@@ -201,6 +203,26 @@ function speed(fighter: Fighter): number {
  * is a fact about the fight, and a composition bonus is a reward for a decision only the player
  * makes.
  */
+/**
+ * Resolves a stage's archetypes into the formation that actually takes the field.
+ *
+ * The enemy-side counterpart of what `ui/` does to the roster before handing a party over, and it
+ * happens **inside** the simulation on purpose. A party is assembled by the caller and there is
+ * nowhere else it could be; an encounter is not, and letting a caller build one would mean every
+ * call site — the UI, three specs and a balance sweep — independently remembering to scale it.
+ * Forgetting would field level-1 fodder against a level-200 party, which reads as a tuning
+ * problem rather than as a missing call.
+ */
+function encounterAt(stage: StageData, rules: CombatRules): FormationData {
+  const resolve = (enemy: EnemyData): CombatantData =>
+    toEnemyCombatant(enemy, rules.growth, stage.level);
+
+  return {
+    front: stage.enemies.front.map(resolve),
+    back: stage.enemies.back.map(resolve),
+  };
+}
+
 function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fighter[] {
   const ranks: readonly (readonly [Row, readonly CombatantData[]])[] = ROWS.map((row) => [
     row,
@@ -354,7 +376,7 @@ export function simulateBattle(
   const draw = mulberry32(seed);
   const fighters = [
     ...buildSide(party, 'ally', rules),
-    ...buildSide(stage.enemies, 'enemy', rules),
+    ...buildSide(encounterAt(stage, rules), 'enemy', rules),
   ];
   const roster = fighters.map(snapshot);
   const events: BattleEvent[] = [];

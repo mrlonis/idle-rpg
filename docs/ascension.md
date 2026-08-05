@@ -57,8 +57,10 @@ Two consequences worth having in mind while reading the prices below:
   says which of the two the next rung is, because the price does not.
 
 This is what makes a rung the most valuable thing in the game — a skill is worth more than any stat
-multiplier — and it is the strongest answer available to "ascensions should feel more dramatic",
-which milestone 10 has to make good on some other way if it wants more.
+multiplier — and it was the strongest answer available to "ascensions should feel more dramatic"
+until milestone 10 made good on the rest of it: `perAscension` is `1.6`, so a rung is now a
+×1.6 stat multiplier as well, and the three that also hand over a skill are the ones a player
+plans around.
 
 ---
 
@@ -169,9 +171,6 @@ duplicate copies. Nothing about resonance touches the copies.
 
 _Not built. Recorded here so this page does not quietly go stale._
 
-- **`perAscension` gets much larger.** It is `1.12` today, worth ×4.36 across the full ladder. If
-  levelling is retuned toward ×10⁹ and ascension stays at ×4, the gacha stops mattering; see
-  milestone 10.
 - **Ascension costs may need to scale with chapter.** Summon crystals currently compound at ×1.25
   a stage against a flat pull price and a flat ascension price, which stops being a constraint
   entirely by chapter 2. Milestone 11 records the fix.

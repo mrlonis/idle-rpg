@@ -1,11 +1,19 @@
-import { type CombatantData, type StatBlockData } from '../battle/types';
+import { type CombatantData, type EnemyData, type StatBlockData } from '../battle/types';
+import { type CharacterTier, growthAt, type GrowthData } from '../growth';
 import { num, type Numeric, serialize } from '../numeric';
 import { type KitRulesData, unlockedSkills } from './kit';
 import { clampRarityIndex, startRarityIndex } from './rarity';
-import { type CharacterData, type CharacterTier, type OwnedCharacter } from './types';
+import { type CharacterData, type OwnedCharacter } from './types';
 
 /**
- * How a character's stats follow from its tier, its level and its rarity.
+ * How a combatant's stats follow from its tier, its level and its rarity.
+ *
+ * "A character's" until milestone 10. Enemies used to be hand-authored stat blocks that never
+ * grew, and this file was the roster's private business; now an enemy is a definition plus a
+ * level and climbs the same slopes, so {@link toEnemyCombatant} sits beside
+ * {@link toBattleCombatant} at the bottom of the file. The two are deliberately the same
+ * function with different paperwork — that symmetry is the milestone's whole thesis, since a
+ * player curve worth ×10⁹ against a fixed enemy is not a power fantasy, it is deleted content.
  *
  * ## Only the four quantities scale, and that is deliberate
  *
@@ -49,26 +57,20 @@ import { type CharacterData, type CharacterTier, type OwnedCharacter } from './t
  * consequence of the math** rather than as an assertion. A flat multiplier could not do this:
  * it would leave common tier a fixed percentage behind forever, always the same distance from
  * relevance no matter how long the run went on.
+ *
+ * That twenty times survived milestone 10 unchanged, which was a decision rather than an
+ * accident: the rescale multiplied every tier's multiplier-at-cap by the same factor, so the
+ * published ratios between the three are exactly what they were. Scaling the *exponents* by a
+ * common factor was the other candidate and would have blown the gap out to several thousand —
+ * a retune of milestone 3's central promise wearing the clothes of an arithmetic detail.
  */
-
-/** Growth rates as authored in `data/`. */
-export interface GrowthData {
-  /** Multiplier applied per level, per tier. Compounds — see the note above on divergence. */
-  readonly perLevel: Readonly<Record<CharacterTier, number>>;
-  /** Multiplier applied per rung climbed above the character's starting rarity. */
-  readonly perAscension: number;
-}
-
-/** A growth factor, guarded so damaged content cannot shrink a character to nothing. */
-function factor(value: number): number {
-  return Number.isFinite(value) && value >= 1 ? value : 1;
-}
 
 /**
  * The multiplier a character's quantities carry at a given level and rarity.
  *
- * Exported because the UI shows it: "×4.8 at Legendary 210" is a far more legible answer to
- * "is this ascension worth it" than two stat blocks side by side.
+ * The rarity-flavoured wrapper around {@link growthAt}, which counts rungs instead. Exported
+ * because the UI shows it: "×4.8 at Legendary 210" is a far more legible answer to "is this
+ * ascension worth it" than two stat blocks side by side.
  */
 export function growthMultiplier(
   growth: GrowthData,
@@ -76,14 +78,12 @@ export function growthMultiplier(
   level: number,
   rarityIndex: number,
 ): Numeric {
-  // `Math.max(NaN, 1)` is `NaN`, so a damaged level has to be screened out before the clamp
-  // rather than by it — otherwise every quantity on the character comes back `NaN` and the
-  // battle it walks into cannot resolve.
-  const levels = (Number.isFinite(level) ? Math.max(Math.floor(level), 1) : 1) - 1;
-  const rungs = Math.max(clampRarityIndex(rarityIndex) - startRarityIndex(tier), 0);
-  return num(factor(growth.perLevel[tier]))
-    .pow(levels)
-    .mul(num(factor(growth.perAscension)).pow(rungs));
+  return growthAt(
+    growth,
+    tier,
+    level,
+    Math.max(clampRarityIndex(rarityIndex) - startRarityIndex(tier), 0),
+  );
 }
 
 /**
@@ -154,5 +154,34 @@ export function toBattleCombatant(
     stats: scaleStats(character.stats, growth, character.tier, level, owned.rarity),
     basic: character.basic,
     skills: unlockedSkills(character.skills ?? [], kit, character.tier, owned.rarity),
+  };
+}
+
+/**
+ * Resolves one authored enemy into the combatant the simulation fights with.
+ *
+ * The other side of {@link toBattleCombatant}, and deliberately the smaller function: an enemy
+ * has no owner, so there is no invested level to reconcile and no kit to narrow. A stage names
+ * the archetype and the level; the archetype's own tier decides the slope.
+ *
+ * **There is no ascension rung on this side, and that is a decision rather than an omission.**
+ * Milestone 10 planned enemies as "a definition plus a level, tier and rarity". A rung is a flat
+ * multiplier, so a per-stage one is a ×1.6 cliff on the dial `level` already turns smoothly, and
+ * a per-archetype one is a multiplication of a stat block the author is writing anyway. Both
+ * spellings say what the block already says, so the block says it. `rungs` is passed as zero
+ * here rather than plumbed through as a parameter nothing supplies.
+ */
+export function toEnemyCombatant(
+  enemy: EnemyData,
+  growth: GrowthData,
+  level: number,
+): CombatantData {
+  return {
+    id: enemy.id,
+    name: enemy.name,
+    faction: enemy.faction,
+    stats: scaleStats(enemy.stats, growth, enemy.tier, level, startRarityIndex(enemy.tier)),
+    basic: enemy.basic,
+    skills: enemy.skills,
   };
 }

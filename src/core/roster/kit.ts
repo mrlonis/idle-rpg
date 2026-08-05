@@ -27,8 +27,13 @@ import { type CharacterTier } from './types';
  * "tier is a slope, not a head start" exactly. Absolute rarity modifies that promise twice over —
  * a capability gate *and* a head start on reaching it — and it is recorded here rather than left
  * to be discovered, because the thing that keeps it fair is a tuning target rather than a rule:
- * five common-tier characters at level 80 clear the hand-climbed half **with two skills each**,
- * which `data/stages.balance.ts` sweeps.
+ * the hand-climbed half falls to five common-tier characters **with one skill each**, and the
+ * second skill is what the Ashfall Reach asks for. `data/stages.balance.ts` sweeps both.
+ *
+ * That reference party was level 80 at `elite` — two skills each — until milestone 10 flattened
+ * the ladder and brought it down to level 40 at `rare-plus`. The gate reads better for it: what
+ * the second skill gates is now the *second half* of the ladder rather than the first, which is a
+ * capability arriving with the content that needs it instead of a toll on the opening.
  *
  * ## The ultimate is never gated
  *

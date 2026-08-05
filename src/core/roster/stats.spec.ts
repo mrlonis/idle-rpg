@@ -4,7 +4,8 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { toCombatStats } from '../battle/content';
-import { type SkillData } from '../battle/types';
+import { type EnemyData, type SkillData } from '../battle/types';
+import { type GrowthData } from '../growth';
 import { num } from '../numeric';
 import {
   owned,
@@ -13,7 +14,7 @@ import {
   TEST_GROWTH as GROWTH,
   TEST_KIT_RULES as KIT,
 } from './fixtures';
-import { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './stats';
+import { growthMultiplier, scaleStats, toBattleCombatant, toEnemyCombatant } from './stats';
 import { type CharacterData, MAX_RARITY_INDEX } from './types';
 
 const FLAT: GrowthData = {
@@ -248,5 +249,69 @@ describe('toBattleCombatant', () => {
 
     expect(rare.skills?.map((skill) => skill.id)).toEqual(['ult']);
     expect(elite.skills?.map((skill) => skill.id)).toEqual(['ult', 'second']);
+  });
+});
+
+describe('toEnemyCombatant', () => {
+  /** A stand-in archetype, authored at level 1 exactly as `data/enemies.ts` authors its own. */
+  const OGRE: EnemyData = {
+    id: 'ogre',
+    name: 'Ogre',
+    faction: 'monster',
+    tier: 'common',
+    stats: {
+      hp: 400,
+      atk: 30,
+      def: 12,
+      recovery: 5,
+      haste: 80,
+      critChance: 0.1,
+      critDamageAmp: 0.5,
+      dodge: 0.2,
+    },
+  };
+
+  it('fields an archetype as authored at level 1', () => {
+    const stats = toCombatStats(toEnemyCombatant(OGRE, GROWTH, 1).stats);
+
+    expect(stats.hp.eq(400)).toBe(true);
+    expect(stats.atk.eq(30)).toBe(true);
+  });
+
+  it('grows the four quantities with the level and nothing else', () => {
+    // The same rule the roster side follows, asserted separately because an enemy takes a
+    // different route into the simulation: a scheduling weight or a probability that quietly
+    // started growing on this side would be a termination bug rather than a balance one.
+    const stats = toCombatStats(toEnemyCombatant(OGRE, GROWTH, 200).stats);
+    const base = toCombatStats(toEnemyCombatant(OGRE, GROWTH, 1).stats);
+    const ratio = stats.hp.div(base.hp).toNumber();
+
+    expect(ratio).toBeGreaterThan(1);
+    expect(stats.atk.div(base.atk).toNumber()).toBeCloseTo(ratio);
+    expect(stats.def.div(base.def).toNumber()).toBeCloseTo(ratio);
+    expect(stats.recovery.div(base.recovery).toNumber()).toBeCloseTo(ratio);
+    expect(stats.haste).toBe(base.haste);
+    expect(stats.critChance).toBe(base.critChance);
+    expect(stats.dodge).toBe(base.dodge);
+  });
+
+  it('climbs the tier it declares', () => {
+    // Fodder is `common` and a gate is `ascended`, so the boss of an encounter pulls away from
+    // the escort standing in front of it as the ladder climbs rather than the two staying a
+    // fixed distance apart forever.
+    const fodder = toCombatStats(toEnemyCombatant(OGRE, GROWTH, 300).stats);
+    const gate = toCombatStats(toEnemyCombatant({ ...OGRE, tier: 'ascended' }, GROWTH, 300).stats);
+
+    expect(gate.hp.gt(fodder.hp)).toBe(true);
+  });
+
+  it('takes no ascension rungs, whatever its tier starts on', () => {
+    // An `ascended`-tier character starts two rungs up the ladder and is paid for them. An enemy
+    // has no owner and no duplicates behind it, so the only dial on this side is the level — see
+    // the note on `toEnemyCombatant` for why the rung was folded into the stat block instead.
+    const flat: GrowthData = { ...GROWTH, perLevel: { common: 1, legendary: 1, ascended: 1 } };
+    const gate = toCombatStats(toEnemyCombatant({ ...OGRE, tier: 'ascended' }, flat, 50).stats);
+
+    expect(gate.hp.eq(400)).toBe(true);
   });
 });

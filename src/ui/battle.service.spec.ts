@@ -172,7 +172,11 @@ describe('BattleService', () => {
     it('names the stage the player would enter', () => {
       const { battles } = build();
 
-      expect(battles.nextStage()).toEqual({ name: STAGES[0].name, number: 1 });
+      expect(battles.nextStage()).toEqual({
+        name: STAGES[0].name,
+        number: 1,
+        level: STAGES[0].level,
+      });
     });
 
     it('idles harmlessly until the run has loaded', () => {
@@ -194,7 +198,7 @@ describe('BattleService', () => {
       expect(battles.result()).not.toBeNull();
       expect(battles.isFighting()).toBe(true);
       expect(battles.isOpen()).toBe(true);
-      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
+      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1, level: STAGES[0].level });
     });
 
     it('opens with everyone at full HP and the outcome withheld', () => {
@@ -350,9 +354,13 @@ describe('BattleService', () => {
 
       fightToTheEnd(battles);
 
-      expect(battles.nextStage()).toEqual({ name: STAGES[1].name, number: 2 });
+      expect(battles.nextStage()).toEqual({
+        name: STAGES[1].name,
+        number: 2,
+        level: STAGES[1].level,
+      });
       // The board still names the stage that was just fought.
-      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1 });
+      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1, level: STAGES[0].level });
     });
 
     it('lets the player go again, on the next stage', () => {
@@ -363,7 +371,7 @@ describe('BattleService', () => {
       battles.fight(T0);
 
       expect(battles.result()).not.toBe(first);
-      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2 });
+      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2, level: STAGES[1].level });
       expect(loop.applied).toHaveLength(1);
     });
 
@@ -439,7 +447,7 @@ describe('BattleService', () => {
       battles.fight(T0);
 
       expect(battles.isOpen()).toBe(true);
-      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2 });
+      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2, level: STAGES[1].level });
     });
 
     it('is harmless when nothing is open', () => {
@@ -461,7 +469,7 @@ describe('BattleService', () => {
 
       battles.fight(T0);
 
-      expect(battles.stage()).toEqual({ name: STAGES[2].name, number: 3 });
+      expect(battles.stage()).toEqual({ name: STAGES[2].name, number: 3, level: STAGES[2].level });
     });
 
     it('pulls a stage number past the shipped content back into range', () => {
@@ -583,7 +591,11 @@ describe('BattleService', () => {
       battles.setAuto(true, T0);
       run(battles, 5_000);
 
-      expect(battles.autoStoppedAt()).toEqual({ name: STAGES[2].name, number: 3 });
+      expect(battles.autoStoppedAt()).toEqual({
+        name: STAGES[2].name,
+        number: 3,
+        level: STAGES[2].level,
+      });
     });
 
     it('clears that notice as soon as another fight starts', () => {

@@ -141,9 +141,9 @@ describe('where the curve lands, in hours of idle income', () => {
   });
 
   it('leaves the ceiling aspirational rather than a grind to schedule', () => {
-    // The cap should stay far out of reach at whatever the ladder currently pays — it is eight
-    // stages long, and a reachable level 1000 would mean the curve had been flattened or the
-    // rates inflated past what the content justifies.
+    // The cap should stay far out of reach at whatever the ladder currently pays — it is two
+    // dozen stages long, and a reachable level 1000 would mean the curve had been flattened or
+    // the rates inflated past what the content justifies.
     //
     // Because the rates are read from `stages.ts`, this is the assertion that fires when new
     // content raises income without the curve being revisited. It is meant to fail then: the
@@ -167,5 +167,39 @@ describe('growth', () => {
     // About a third of a percentage point apart. It looks like nothing, and compounded across a
     // thousand levels it is the entire design.
     expect(growth.perLevel.ascended - growth.perLevel.common).toBeLessThan(0.01);
+  });
+
+  it('compounds to roughly a billion across the level range', () => {
+    // Milestone 10's headline number, and the one every other quantity in the game is sized
+    // against — `battle/types.ts` reasons about health bars at this scale when it argues that
+    // energy gains have to be flat points rather than a share of damage. Three orders of magnitude
+    // was the old curve, and it is a gentle slope rather than an incremental game.
+    const atCap = Math.pow(growth.perLevel.common, curve.maxLevel - 1);
+
+    expect(atCap).toBeGreaterThan(1e8);
+    expect(atCap).toBeLessThan(1e10);
+  });
+
+  it('preserves the tier fall-off the rescale could have quietly destroyed', () => {
+    // ⚠️ The decision milestone 10 had to make on purpose. Multiplying each tier's *multiplier* by
+    // a common factor leaves this ratio where milestone 3 put it; multiplying each tier's
+    // *exponent* by a common factor looks like the same change and raises 19 to the power 2.8.
+    // That would make a common-tier character three thousand times behind at the cap rather than
+    // nineteen — a retune of "amazing early, falls off later" arriving as a side effect.
+    const common = Math.pow(growth.perLevel.common, curve.maxLevel - 1);
+    const ascended = Math.pow(growth.perLevel.ascended, curve.maxLevel - 1);
+
+    expect(ascended / common).toBeGreaterThan(10);
+    expect(ascended / common).toBeLessThan(40);
+  });
+
+  it('leaves ascension worth more than a garnish against it', () => {
+    // The other half of the same decision. Duplicates are this game's primary ascension path, so a
+    // rung ladder worth ×4 against a levelling path worth ×10⁹ would make the gacha decoration —
+    // milestone 10's words. Measured across the full ladder rather than per rung, because per rung
+    // the number is small enough to look harmless.
+    const ladder = Math.pow(growth.perAscension, MAX_RARITY_INDEX);
+
+    expect(ladder).toBeGreaterThan(100);
   });
 });

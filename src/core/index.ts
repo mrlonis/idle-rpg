@@ -90,6 +90,8 @@ export {
   type CombatRulesData,
   type CombatStats,
   type DamageType,
+  type EnemyData,
+  type EnemyFormationData,
   type FactionMatchupData,
   type FormationData,
   type LineupBonus,
@@ -138,6 +140,7 @@ export {
   type SummonRateCurve,
   type Wallet,
 } from './currency';
+export { CHARACTER_TIERS, growthAt, type CharacterTier, type GrowthData } from './growth';
 export { ascendedChance, pull } from './gacha/pull';
 export {
   isEligible,
@@ -225,9 +228,8 @@ export {
   type RosterFailure,
   type RosterResult,
 } from './roster/roster';
-export { growthMultiplier, scaleStats, toBattleCombatant, type GrowthData } from './roster/stats';
+export { growthMultiplier, scaleStats, toBattleCombatant, toEnemyCombatant } from './roster/stats';
 export {
-  CHARACTER_TIERS,
   MAX_RARITY_INDEX,
   RARITIES,
   RARITY_FAMILIES,
@@ -238,7 +240,6 @@ export {
   type AscensionScope,
   type CharacterData,
   type CharacterRole,
-  type CharacterTier,
   type CopyCost,
   type FactionData,
   type OwnedCharacter,

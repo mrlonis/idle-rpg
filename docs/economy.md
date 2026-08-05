@@ -137,12 +137,12 @@ the ceiling is still years away, which is where it belongs.
 
 Only the **quantities** scale — see [attributes](attributes.md) for why the rest may not.
 
-| Per level     | Common | Legendary | Ascended |
-| ------------- | ------ | --------- | -------- |
-| rate          | 1.0075 | 1.009     | 1.0105   |
-| at level 50   | ×1.4   | ×1.6      | ×1.7     |
-| at level 200  | ×4.4   | ×5.9      | ×8.0     |
-| at level 1000 | ×1745  | ×7714     | ×34024   |
+| Per level     | Common  | Legendary | Ascended |
+| ------------- | ------- | --------- | -------- |
+| rate          | 1.021   | 1.0225    | 1.024    |
+| at level 50   | ×2.8    | ×3.0      | ×3.2     |
+| at level 200  | ×62.6   | ×83.8     | ×112     |
+| at level 1000 | ×1.04e9 | ×4.5e9    | ×1.95e10 |
 
 **Those three numbers differ by about 0.3 percentage points, and that is the entire design.**
 Compounded across the level range it is the difference between a common-tier character being 20%
@@ -151,9 +151,22 @@ cap. Amazing early, falls off later, _as a consequence of the math_ rather than 
 flat multiplier would leave common tier the same fixed distance behind forever and never actually
 fall off.
 
-`perAscension` is `1.12`, worth ×4.36 across a full rare-start ladder and ×3.48 for an elite-start
+**Milestone 10 multiplied every cap multiplier by the same factor, not every exponent.** The rates
+were 1.0075 / 1.009 / 1.0105, worth ×1745 / ×7714 / ×34024. Scaling the exponents instead is the
+change that looks identical from here and is not: it would raise the ascended-over-common ratio
+from 19 to about 3,600, which is a retune of the paragraph above wearing an arithmetic detail's
+clothes. The right-hand column moved by six orders of magnitude and the ratios between the columns
+did not move at all.
+
+`perAscension` is `1.6`, worth ×450 across a full rare-start ladder and ×176 for an elite-start
 one. The ascended tier getting _less_ total ascension multiplier is intended: it skipped the two
 cheapest rungs for free, and its steeper per-level slope more than settles the account.
+
+**It was `1.12`, and against a billion-fold levelling curve ×4.36 end to end would have made the
+gacha decoration** — which matters here more than in most games, because duplicates are the primary
+ascension path by design. The size was picked against the levelling curve rather than in isolation:
+a rung raises the level cap by 20 to 100, itself worth ×1.5 to ×7.9 at 1.021, so a rung paying ×1.6
+sits inside the range of the headroom it unlocks rather than an order of magnitude below it.
 
 ---
 

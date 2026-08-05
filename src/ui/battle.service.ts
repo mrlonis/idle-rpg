@@ -44,10 +44,19 @@ export const PLAYBACK_SPEEDS = [1, 2, 4] as const;
 
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 
-/** A stage named for display: which number it is on the ladder, and what it is called. */
+/** A stage named for display: which number it is on the ladder, what it is called, and how hard. */
 export interface StageHeading {
   readonly name: string;
   readonly number: number;
+  /**
+   * The level its enemies fight at.
+   *
+   * Worth a place in the heading since milestone 10, because it is now the whole of what makes
+   * one stage harder than another — every archetype is authored at level 1 and fielded at this.
+   * A player looking at "Lv 59" against a party in the forties can read the wall they are about
+   * to hit, which no arrangement of enemy names ever told them.
+   */
+  readonly level: number;
 }
 
 /** A combatant as the view needs it: identity, live HP, and a ratio for the bar. */
@@ -267,7 +276,7 @@ export class BattleService {
       return null;
     }
     const { stage, number } = stageFor(snapshot.stage);
-    return { name: stage.name, number };
+    return { name: stage.name, number, level: stage.level };
   });
 
   /** Maps a combatant key to its display name, for narrating the log. */
@@ -341,7 +350,7 @@ export class BattleService {
       COMBAT,
     );
 
-    this.stage.set({ name: stage.name, number });
+    this.stage.set({ name: stage.name, number, level: stage.level });
     this.result.set(result);
     this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
     // Empty, matching the simulation's opening state. An ultimate is a payoff, not an opener.

@@ -33,6 +33,10 @@ export const TEST_COMBAT_RULES_DATA: CombatRulesData = {
   // Round numbers, and deliberately not the shipped ones: a spec asserting "the bar filled by
   // ten" should fail when this fixture changes, not when the ladder is retuned.
   energy: { onHit: 10, onHurt: 10, onHeal: 10 },
+  // Flat, so a battle spec fields exactly the stat block it authored. Every fixture encounter is
+  // `level: 1` and would be unscaled anyway; this is the belt to that pair of braces, and it also
+  // means a spec that *wants* to see scaling has to say so.
+  growth: { perLevel: { common: 1, legendary: 1, ascended: 1 }, perAscension: 1 },
   minHitChance: 0.1,
   maxPenetration: 0.9,
   maxResist: 0.9,
@@ -60,11 +64,13 @@ export const NEUTRAL_COMBAT_RULES: CombatRules = toCombatRules({
 });
 
 /** Rules with no row bonuses either, so a stat block arrives in the simulation as authored. */
-export const PLAIN_COMBAT_RULES: CombatRules = toCombatRules({
+export const PLAIN_COMBAT_RULES_DATA: CombatRulesData = {
   ...TEST_COMBAT_RULES_DATA,
   rows: { frontDefence: 1, frontCritDamageResist: 0, backAttack: 1, backCritDamageAmp: 0 },
   matchups: [],
-});
+};
+
+export const PLAIN_COMBAT_RULES: CombatRules = toCombatRules(PLAIN_COMBAT_RULES_DATA);
 
 /**
  * Rules with a composition ladder, for the specs that are about one.
