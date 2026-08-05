@@ -1181,13 +1181,38 @@ Two things fall out of it, and both are improvements:
   carries the same information at a fraction of the save footprint. Thousands of individual
   entries in a save that has to survive repair is a cost with nothing bought by it.
 
-#### Summon crystals must come off the exponential curve
+#### Summon crystals came off the exponential curve — **DONE**
+
+Shipped ahead of this milestone, on the same reasoning as the offline cap below: the rest of this
+section is the argument that produced it, kept as written.
+
+**What shipped.** `STAGES` no longer authors a `summons` rate at all. `SUMMON_RATE` in
+[`banners.ts`](../src/data/banners.ts) is a flat **100 crystals an hour**, plus **1 an hour for
+every stage ever cleared for the first time** — 100/hr on a save that has never fought, 124/hr
+with the whole ladder down. Three consequences worth knowing:
+
+- **The base pays before the first battle**, which is a real change to the opening. Gold, xp and
+  essence still start at zero, so the first fight is still the only thing worth doing; it is no
+  longer the only thing that pays. At a `PULL_COST` of 100 the number is legible on purpose — a
+  pull an hour, from install.
+- **The rate is derived from `clearedStages`, not stored per stage.** That is the shape this
+  milestone wanted anyway ("`reconcileClearedStages` gets simpler, not harder"), arriving one
+  currency early: the repair evaluates a function, and it is also what establishes the base for a
+  brand-new run, because `newGame` cannot see content.
+- **Linear was chosen over logarithmic** because it keeps the answer to "what is climbing worth"
+  a sentence long — a stage is worth a crystal an hour, forever — and because it stays sane at
+  chapter scale without a second mechanism. `banners.spec.ts` bounds the whole ladder's raise
+  between ×1.1 and ×2, so a chapter of 500 stages fails that assertion and gets retuned
+  deliberately rather than silently.
+
+The pull-price argument below said 8 crystals; the shipped price is 100, which changes the
+absolute numbers in the table and none of the reasoning.
 
 **A rate should compound only if what it buys compounds.** Gold, xp and essence buy levels, and
 level costs compound, so those three belong on the exponential. Summon crystals buy a pull at a
 flat 8 crystals, feeding an ascension at a flat 8 elite plus 180 rare copies. A compounding rate
-against a flat price outruns it exponentially, and the current curve does exactly that — summons
-climb ×1.25 a stage against gold's ×1.43, which looks conservative and is not:
+against a flat price outruns it exponentially, and the curve at the time did exactly that —
+summons climbed ×1.25 a stage against gold's ×1.43, which looks conservative and is not:
 
 | Stage                | Pulls per day |
 | -------------------- | ------------- |
@@ -1206,6 +1231,10 @@ options are to take summons off the exponential entirely (linear or logarithmic 
 to scale ascension costs with chapter, or both. **This is not a reason to be less generous.** The
 crystal rate is the most distinctive thing about this game's economy and it should stay
 extravagant; what has to change is that it stops compounding against a price that does not.
+
+The first option is the one that shipped, and generosity went **up** rather than down: the floor
+moved from 5.4 crystals an hour to 100. Ascension costs were left alone — one lever was enough,
+and scaling them with chapter is still available if chapters need it.
 
 ### The offline cap is gone — **DONE**
 

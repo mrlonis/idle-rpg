@@ -8,6 +8,8 @@ import {
   type GachaRulesData,
   rarityIndex,
   type ShopOfferData,
+  summonRatePerSecond,
+  type SummonRateCurve,
 } from '../core';
 import {
   BANNERS,
@@ -18,6 +20,7 @@ import {
   PULL_COST,
   SPARK_PER_COPY,
   SPARK_SHOP,
+  SUMMON_RATE,
   TIER_WEIGHTS,
 } from './banners';
 import { CHARACTERS } from './characters';
@@ -25,6 +28,20 @@ import { STAGES } from './stages';
 
 const banners: readonly BannerData[] = BANNERS;
 const offers: readonly ShopOfferData[] = SPARK_SHOP;
+
+/** The crystal curve, typed as `core/` takes it — which is what makes a malformed one a build error. */
+const summonRate: SummonRateCurve = SUMMON_RATE;
+
+/**
+ * Crystals per second after `cleared` first clears.
+ *
+ * Through `core/`'s own derivation rather than a re-implementation of it here: a spec that
+ * retyped the arithmetic would keep passing if the two ever disagreed, which is the one thing it
+ * is for.
+ */
+function crystalsPerSecond(cleared: number): number {
+  return summonRatePerSecond(summonRate, cleared).toNumber();
+}
 
 const RULES: GachaRulesData = {
   pullCost: PULL_COST,
@@ -126,13 +143,46 @@ describe('pull economy', () => {
     expect(total / PULL_COST).toBeGreaterThanOrEqual(20);
   });
 
-  it('accrues roughly a ten-pull a day at the top of the ladder', () => {
-    // The stated pacing target. Measured against the crystal rate the last stage unlocks.
-    const perSecond = Number(STAGES[STAGES.length - 1].rates.summons);
-    const pullsPerDay = (perSecond * 86_400) / PULL_COST;
+  it('pays a run that has cleared nothing about a pull an hour', () => {
+    // The one place idle income switches on for free, and the reason `PULL_COST` is 100: the base
+    // is meant to read as "a pull an hour" on a screen, which is a statement about the two
+    // numbers together rather than about either one.
+    const pullsPerHour = SUMMON_RATE.basePerHour / PULL_COST;
 
-    expect(pullsPerDay).toBeGreaterThan(8);
-    expect(pullsPerDay).toBeLessThan(20);
+    expect(pullsPerHour).toBeGreaterThanOrEqual(1);
+    expect(pullsPerHour).toBeLessThanOrEqual(2);
+  });
+
+  it('accrues roughly three ten-pulls a day with the ladder fully cleared', () => {
+    // The stated pacing target, measured where the rate actually comes from: the clear count.
+    // Derived from `STAGES.length` rather than restated, so adding stages re-runs this.
+    const pullsPerDay = (crystalsPerSecond(STAGES.length) * 86_400) / PULL_COST;
+
+    expect(pullsPerDay).toBeGreaterThan(20);
+    expect(pullsPerDay).toBeLessThan(40);
+  });
+
+  it('keeps the whole ladder worth climbing without letting it run away', () => {
+    // Two failure modes, one assertion. Below the floor the climb stops paying idle income at
+    // all and the crystal rate may as well be a constant; above the ceiling the linear step has
+    // outgrown the flat prices it is spent against, which is the exponential problem this curve
+    // exists to avoid — a chapter of 500 stages fails here, and the right answer then is to
+    // retune deliberately rather than to move this threshold.
+    const climbed = crystalsPerSecond(STAGES.length) / crystalsPerSecond(0);
+
+    expect(climbed).toBeGreaterThan(1.1);
+    expect(climbed).toBeLessThan(2);
+  });
+
+  it('never pays a crystal rate that falls, or one that a repeat clear can move', () => {
+    // The rate is a function of first clears only. Nothing in the curve may make it drop, and
+    // nothing but a new clear may make it rise.
+    let previous = 0;
+    for (let cleared = 0; cleared <= STAGES.length; cleared++) {
+      const rate = crystalsPerSecond(cleared);
+      expect(rate, `${cleared} cleared`).toBeGreaterThan(previous);
+      previous = rate;
+    }
   });
 });
 

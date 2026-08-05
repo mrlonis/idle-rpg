@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
-import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from '../src/data';
+import { summonRatePerSecond } from '../src/core';
+import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES, SUMMON_RATE } from '../src/data';
 
 /**
  * Auto-battle, driven through a real browser.
@@ -33,7 +34,10 @@ function unlockedRun(stage: number) {
       gold: String(top.rates.gold),
       xp: String(top.rates.xp),
       essence: String(top.rates.essence),
-      summons: String(top.rates.summons),
+      // Derived, not read off the stage: no stage authors a crystal rate. Seeding a wrong one
+      // here is not harmless — an unparseable rate makes the app draw a save-repair notice, and
+      // these tests read `.notice` to find out why auto-battle stopped.
+      summons: String(summonRatePerSecond(SUMMON_RATE, STAGES.length)),
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },

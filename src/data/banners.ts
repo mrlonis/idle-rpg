@@ -26,10 +26,40 @@
 /**
  * What one pull costs, in summon crystals.
  *
- * Priced at 100 rather than 1 so the idle rate is a legible number: about 50 crystals an hour
- * at the top of the current ladder reads better on screen than 0.014 of a pull per second.
+ * Priced at 100 rather than 1 so the idle rate is a legible number: {@link SUMMON_RATE} is
+ * then read as "a pull an hour, plus one more per hour for every stage you have ever cleared",
+ * where 0.0278 of a crystal per second reads as nothing at all.
  */
 export const PULL_COST = 100;
+
+/**
+ * How the idle crystal rate is earned, in crystals per hour.
+ *
+ * Unlike gold, xp and essence — each authored per stage in [`stages.ts`](./stages.ts) — this is a
+ * flat base plus a linear step per first clear. Two decisions are folded into that:
+ *
+ * **The base is paid from the first minute of a run, before anything has been cleared.** That is
+ * the one place this economy switches idle income on for free, and it is deliberate: at a
+ * {@link PULL_COST} of 100 it is a pull an hour for a player who has not fought yet, which is the
+ * game telling a new player that the roster is a thing that grows on its own. Gold, xp and
+ * essence still start at zero, so the first battle is still the only thing worth doing — it is
+ * just no longer the only thing that pays.
+ *
+ * **The step is linear, and per stage cleared for the first time.** A rate should compound only
+ * if what it buys compounds: levels compound, so gold does; a pull is a flat 100 crystals and an
+ * ascension a flat count of copies, so a compounding crystal rate would outrun its own prices and
+ * make pulls effectively unlimited a chapter or two into [milestone 11](../../docs/milestones.md).
+ * Linear keeps the full ladder worth climbing — 24 stages is +24% income — without ever getting
+ * ahead of what it is spent on.
+ *
+ * The step is paid **once per stage, ever**. Re-fighting a cleared stage, by hand or on
+ * auto-battle, moves it by nothing at all: a repeatable crystal payout would make tap-farming
+ * stage 1 the fastest way to pull, which is the incentive the whole ladder exists to avoid.
+ */
+export const SUMMON_RATE = {
+  basePerHour: 100,
+  perClearPerHour: 1,
+} as const;
 
 /** Pulls in a multi-pull. Ten is the genre convention and the pity counter is tuned to it. */
 export const MULTI_PULL_COUNT = 10;

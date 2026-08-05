@@ -22,7 +22,7 @@ flat fields would have been ten lines in every encoder, decoder and repair pass.
 | `gold`    | ✅         | Levels now; gear, gear levels and the shop later. |
 | `xp`      | ✅         | Levels, and nothing else.                         |
 | `essence` | ✅         | Breakthrough levels only — every tenth.           |
-| `summons` | ✅         | Pulls, at 8 crystals each.                        |
+| `summons` | ✅         | Pulls, at 100 crystals each.                      |
 | `spark`   | ❌         | A new character, or a targeted copy, in the shop. |
 
 **`spark` is the only currency with no rate at all**, and the `Rates` type enforces it. It is
@@ -38,19 +38,21 @@ on one number while two others pile up unspent.
 ## Where income comes from
 
 **Clearing a stage permanently raises all four idle rates, and that is the real reward.** A run
-starts at zero income and earns nothing at all until the first stage falls — which is what makes
-the first battle the only thing worth doing. The one-off `goldReward` is the smaller half, tuned
-to roughly forty seconds of the income it unlocks.
+starts at zero on gold, xp and essence and earns none of them until the first stage falls — which
+is what makes the first battle the only thing worth doing. The one-off `goldReward` is the smaller
+half, tuned to roughly forty seconds of the income it unlocks.
 
 Across the twenty-four authored stages:
 
-| Stage | gold/s | xp/s | essence/s | summons/s |
-| ----- | ------ | ---- | --------- | --------- |
-| 1     | 0.5    | 0.1  | 0.0015    | 0.0015    |
-| 6     | 5.5    | 1.05 | 0.017     | 0.008     |
-| 12    | 25     | 4.7  | 0.08      | 0.018     |
-| 18    | 54     | 10.1 | 0.175     | 0.0207    |
-| 24    | 90     | 16.8 | 0.33      | 0.0225    |
+| Stage | gold/s | xp/s | essence/s |
+| ----- | ------ | ---- | --------- |
+| 1     | 0.5    | 0.1  | 0.0015    |
+| 6     | 5.5    | 1.05 | 0.017     |
+| 12    | 25     | 4.7  | 0.08      |
+| 18    | 54     | 10.1 | 0.175     |
+| 24    | 90     | 16.8 | 0.33      |
+
+Three columns, not four: **the crystal rate is not authored per stage**. See below.
 
 `applyBattleResult` **only ever raises** a rate. Rates never fall, which is what lets load-time
 repair re-derive progress from the gold rate alone.
@@ -61,18 +63,41 @@ inside a fortnight — deleting the vertical axis that half of the ladder exists
 Milestone 11 makes level 1000 a chapter-100 goal, thousands of stages out, so the ceiling staying
 out of reach is the intent rather than a shortfall.
 
-**Summons are deliberately not a repeatable battle reward.** Stage 1 resolves in four seconds, so
-a repeatable crystal payout would make tap-farming the bottom of the ladder the fastest way to
-pull. They accrue idly, plus a **first-clear bonus** per stage.
+### The crystal rate is a formula, not a table
 
-**The crystal rate almost stops climbing over the second half, on purpose.** The stated pacing
-target is roughly a ten-pull a day at the top of the ladder, and
-[`banners.spec.ts`](../src/data/banners.spec.ts) measures it against whichever stage is last — so
-doubling the ladder at the old slope tripled it, and the spec said so. Crystals were never the
-bottleneck; growing them like gold would only shorten the one system meant to unfold over weeks.
-First-clear bonuses do the opposite and keep rising, totalling about 17,000 across the full climb
-— roughly 170 pulls — because duplicates are the primary ascension path and the top of the ladder
-is tuned to a party several rungs up.
+`SUMMON_RATE` in [`banners.ts`](../src/data/banners.ts) is the whole of it, in crystals per hour:
+
+```
+rate = basePerHour + perClearPerHour × clearedStages     // 100 + 1 × clears
+```
+
+| Cleared          | Crystals/hr | Pulls/day |
+| ---------------- | ----------- | --------- |
+| 0 (a fresh save) | 100         | 24        |
+| 12               | 112         | 27        |
+| 24 (the ladder)  | 124         | 30        |
+
+Four things about that are decisions rather than arithmetic:
+
+- **The base is paid before anything has been cleared.** It is the one place idle income switches
+  on for free, and at a `PULL_COST` of 100 it reads as a pull an hour for a player who has not
+  fought yet. Gold, xp and essence still start at zero, so the first battle is still the only
+  thing worth doing — it is just no longer the only thing that pays.
+- **The step is linear, not exponential.** A rate should compound only if what it buys compounds;
+  see [the section below](#the-economy-bug-that-was-fixed-here), which is the argument this
+  replaced a per-stage curve to settle.
+- **It is a function of `clearedStages`, so it is derived rather than authored.** `newGame` cannot
+  evaluate it — the curve is content and `core/` cannot see content — so `reconcileClearedStages`
+  establishes it on every load, including a run's first. `applyBattleResult` steps it after a
+  first clear. Both go through `raiseRates`, so it can never fall.
+- **The step is per stage, once, ever.** Stage 1 resolves in four seconds, so a per-victory step
+  would make tap-farming the bottom of the ladder the fastest way to pull. Re-fighting a cleared
+  stage, by hand or on auto-battle for an hour, moves the rate by nothing.
+
+**Summons are deliberately not a repeatable battle reward either**, for the same reason. They
+accrue idly, plus a **first-clear bonus** per stage — those keep rising and total about 17,000
+across the full climb, roughly 170 pulls, because duplicates are the primary ascension path and
+the top of the ladder is tuned to a party several rungs up.
 
 ---
 
@@ -181,23 +206,21 @@ solver.
 
 ---
 
-## The one economy bug already known about
+## The economy bug that was fixed here
 
-**Summon crystals compound against a flat price.** Gold, xp and essence buy levels whose costs
-compound, so those rates should compound. A pull costs a flat 8 crystals and an ascension a flat
-8 elite + 180 rare copies — so a compounding crystal rate outruns them exponentially:
+**Summon crystals used to compound against a flat price.** Gold, xp and essence buy levels whose
+costs compound, so those rates should compound. A pull costs a flat `PULL_COST` and an ascension a
+flat 8 elite + 180 rare copies — so the old per-stage crystal curve, climbing ×1.25 a stage
+against gold's ×1.43, outran its own prices exponentially. Extrapolated into
+[milestone 11](milestones.md)'s chapters it reached a million pulls a day by the end of chapter 1.
 
-| Stage                | Pulls per day |
-| -------------------- | ------------- |
-| 12 (today)           | 194           |
-| 24                   | 2,924         |
-| 50 (chapter 1 ends)  | 1,039,386     |
-| 110 (chapter 2 ends) | 8 × 10¹¹      |
+The damage was never to the gacha, it was to **ascension** — which stops being a constraint
+entirely, taking two later milestones' central arguments with it.
 
-The damage is not to the gacha, it is to **ascension** — which stops being a constraint entirely,
-taking two later milestones' central arguments with it.
-
-**The rule worth extracting: a rate should compound only if what it buys compounds.** Fix it when
-rates become a function in milestone 11. **This is not a reason to be less generous** — the idle
-crystal rate is the most distinctive thing about this economy and should stay extravagant. What
-has to change is that it stops compounding against a price that does not.
+**The rule worth extracting: a rate should compound only if what it buys compounds.** The fix was
+scheduled for milestone 11, when rates become a function, and landed early because the same
+question came up in tuning: crystals now accrue at a flat base plus a linear step per clear, and
+the exponential is gone rather than slowed. **It was not a reason to be less generous** — a fresh
+save earns a pull an hour, where the old curve paid a fifth of that at stage 1 and reached a
+ten-pull a day only at the very top of the ladder. Being extravagant and compounding are
+different things, and it is the second one that had to go.

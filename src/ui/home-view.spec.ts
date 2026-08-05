@@ -202,9 +202,12 @@ describe('HomeView', () => {
   });
 
   describe('the hint under the counter', () => {
-    it('explains why a fresh run earns nothing', async () => {
+    it('tells a fresh run which rate is already running and what starts the rest', async () => {
+      // Crystals accrue from the first minute; the other three wait for a clear. A line that
+      // said "idle earns nothing" would now be contradicted by the counter directly above it.
       const { el } = await render((game) => game.rates.set(zeroRates()));
 
+      expect(el.querySelector('.hint')?.textContent).toContain('Crystals are already accruing');
       expect(el.querySelector('.hint')?.textContent).toContain('Win a stage');
     });
 

@@ -16,7 +16,7 @@ import {
   ZERO,
 } from '../core';
 import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from '../data';
-import { COMBAT } from './content';
+import { COMBAT, SUMMON_RATE_CURVE } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -615,7 +615,7 @@ export class BattleService {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
-    this.game.apply((state) => applyBattleResult(state, result, STAGES.length));
+    this.game.apply((state) => applyBattleResult(state, result, STAGES.length, SUMMON_RATE_CURVE));
     void this.game.persist();
 
     if (!this.isAuto()) {

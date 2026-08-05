@@ -123,9 +123,9 @@ export class HomeView {
   /**
    * What to say under the counter.
    *
-   * A run that has never won earns nothing at all, so the first message has to explain why the
-   * number is not moving. Once income is flowing that sentence is simply untrue, and leaving it
-   * up would teach the player to ignore this line.
+   * A run that has never won earns crystals and nothing else, so the first message says which of
+   * the four numbers is moving and what starts the rest. Once income is flowing that sentence is
+   * simply untrue, and leaving it up would teach the player to ignore this line.
    */
   protected readonly hint = computed(() => {
     if (this.fieldedCount() === 0) {
@@ -135,7 +135,7 @@ export class HomeView {
       return 'Nobody is in your front row. Attacks reach the back row first when the front is empty.';
     }
     return this.game.goldPerSec().lte(0)
-      ? 'Idle earns nothing yet. Win a stage to start banking gold, XP, essence and crystals while you are away.'
+      ? 'Crystals are already accruing while you are away. Win a stage to start banking gold, XP and essence too.'
       : 'Every stage you clear raises all four idle rates for good.';
   });
 
