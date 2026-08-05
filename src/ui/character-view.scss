@@ -138,6 +138,17 @@
   @include t.numeric;
 }
 
+// Why this character is standing above what was paid for. Prose rather than a number, so it is
+// set as prose — the numeric face here would break up a sentence for the sake of two figures.
+.level__resonance {
+  margin: 0 0 0.5rem;
+  padding-left: 0.625rem;
+  border-left: 2px solid t.$accent;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: t.$muted;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

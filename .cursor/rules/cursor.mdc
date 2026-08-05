@@ -80,6 +80,19 @@ the two disagree, the code is right and both are stale.
     not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
 - **[docs/economy.md](../../docs/economy.md)** — the five currencies, income rates, the level curve,
   pull rates and pity, and offline accrual.
+- **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares, added
+  in milestone 9. Read it before writing anything that reads a character's level.
+  - **`OwnedCharacter.level` is the level the player _paid for_, not the level anything fights at.**
+    The effective level is `min(levelCapFor(rarity), max(investedLevel, resonanceFloor))`, derived
+    on read and stored nowhere. Reading `owned.level` where the effective level belongs is a bug
+    that presents as nothing at all — every screen keeps saying the right number while the battle
+    resolves at the wrong one. That is why `toBattleCombatant` takes the level as an **argument**
+    rather than reading it off the entry, and why the argument is required rather than defaulted.
+  - **Levelling is charged from the effective level**, so nobody pays twice for what the floor
+    already gave them. `levelUp`, `levelUpToAffordable` and `resonancePlan` all agree because all
+    three go through `effectiveLevel`.
+  - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
+    not relax it to make the bench feel better; it is the only thing resonance leaves individual.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
   fixtures.
 
@@ -145,7 +158,8 @@ do not disable that rule.
   `applyBattleResult(state, result, stageCount) => state`,
   `pull(state, banner, count, ...) => { state, results }`,
   `ascend(state, defId, plan, ...) => RosterResult`,
-  `levelUp(state, defId, targetLevel, curve) => RosterResult`. Nothing is planned but unbuilt —
+  `levelUp(state, defId, targetLevel, curve) => RosterResult`,
+  `raiseResonance(state, target, curve) => RosterResult`. Nothing is planned but unbuilt —
   `timeToClear(state, stage)` was, and is cancelled; see [milestone 5](../../docs/milestones.md).
 - Return new state; do not mutate arguments in place.
 - **Never call `Math.random()`.** Use the seeded PRNG in `core/rng.ts`. Seed and call

@@ -25,6 +25,7 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     rarityLabel: 'Rare',
     rarityFamily: 'rare',
     level: 10,
+    resonated: false,
     levelCap: 40,
     atLevelCap: false,
     isMaxRarity: false,

@@ -56,6 +56,7 @@ function member(name: string, row: Row, rowSlot: number): RosterEntryView {
     rarityLabel: 'Rare',
     rarityFamily: 'rare',
     level: 1,
+    resonated: false,
     levelCap: 40,
     atLevelCap: false,
     isMaxRarity: false,

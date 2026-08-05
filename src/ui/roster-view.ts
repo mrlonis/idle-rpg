@@ -1,7 +1,15 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BACK_ROW_SIZE, FRONT_ROW_SIZE, PARTY_SIZE, type RosterFailure, type Row } from '../core';
+import {
+  BACK_ROW_SIZE,
+  FRONT_ROW_SIZE,
+  PARTY_SIZE,
+  type RosterFailure,
+  type RosterResult,
+  type Row,
+} from '../core';
 import { COMBAT, factionName } from './content';
+import { formatAmounts } from './format-numeric';
 import { type ScreenId } from './navigation';
 import { type RosterEntryView, RosterService } from './roster.service';
 
@@ -25,6 +33,8 @@ const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'not-owned': 'You do not own that character.',
   'duplicate-party-member': 'That character is already in your formation.',
   'unknown-character': 'That character is no longer available.',
+  'insufficient-currency': 'Not enough gold, XP or essence to raise the shared level.',
+  'level-capped': `Your ${PARTY_SIZE}th-highest character is at its level cap. Ascend somebody to raise the shared level further.`,
 };
 
 /** What the next tap on a row's control will do. */
@@ -53,6 +63,45 @@ interface LineupPanel {
   /** Every stat the bonus moves, already formatted. Empty when the party qualified for nothing. */
   readonly effects: readonly string[];
   /** What to do about it — and what the rung counted the party as, when that differs. */
+  readonly hint: string;
+}
+
+/**
+ * The shared level, in words.
+ *
+ * Same split as {@link LineupPanel}: the numbers are resolved in the service through `core/`, and
+ * only the wording is decided here. The panel answers the three questions in the order a player
+ * asks them — what level is everybody at, who is holding it there, and what does the next one
+ * cost.
+ */
+interface ResonanceAnchor {
+  readonly defId: string;
+  readonly name: string;
+  readonly level: number;
+  /** Standing on the floor, so this is one of the characters the next step actually charges for. */
+  readonly lagging: boolean;
+}
+
+interface ResonancePanel {
+  readonly floor: number;
+  /**
+   * Who is setting the floor, named — the whole mechanic is invisible without this.
+   *
+   * **A list rather than a sentence, and character names are why.** "Azrathoth, Ruin Unbound" and
+   * "Ithuriel, Verse of Dawn" both contain commas, so a comma-joined roll-call reads as seven
+   * people. A middot would fix the ambiguity on screen and announce as nothing at all, which
+   * trades one unreadable line for another.
+   */
+  readonly anchors: readonly ResonanceAnchor[];
+  /** How many characters the floor is actually lifting. */
+  readonly carried: string;
+  /** The price of one more level of floor, or `null` when nothing can raise it. */
+  readonly stepCost: string | null;
+  readonly stepLabel: string;
+  readonly maxLabel: string;
+  readonly canStep: boolean;
+  readonly canMax: boolean;
+  /** What to do about it. */
   readonly hint: string;
 }
 
@@ -97,6 +146,7 @@ export class RosterView {
   protected readonly partySize = PARTY_SIZE;
   protected readonly entries = this.roster.entries;
   protected readonly openSlots = this.roster.openSlots;
+  protected readonly resonance = this.roster.resonance;
 
   /**
    * What this screen calls itself on links out to a character sheet. The roster is also where a
@@ -239,6 +289,54 @@ export class RosterView {
     };
   });
 
+  /**
+   * The shared level, as copy.
+   *
+   * **The anchors are named rather than counted.** A floor is a number with no visible cause, and
+   * "held up by Rin, Bram, Vess, Kel and Oda" is the sentence that turns it into something a
+   * player can act on — it is also the only place the screen says *which* five are doing the
+   * lifting, which is what stops the button feeling arbitrary when it charges for one character.
+   */
+  protected readonly resonancePanel = computed<ResonancePanel>(() => {
+    const { floor, anchors, carried, stepCost, affordable, ceiling, capped } = this.resonance();
+    const owned = this.entries().length;
+    // The pre-load window and a roster repaired down to nothing both land here, and every other
+    // line on this panel is a claim about characters. Answered first so none of them has to be
+    // written twice — "everybody already stands above the floor" is not true of nobody.
+    const empty = owned === 0;
+
+    return {
+      floor,
+      anchors: anchors.map((entry) => ({
+        defId: entry.defId,
+        name: entry.name,
+        level: entry.level,
+        // Marked because it is the actionable half of the mechanic: levelling somebody already
+        // above the floor buys that character's own power and moves the roster nothing.
+        lagging: entry.level <= floor,
+      })),
+      carried: empty
+        ? 'Nothing to share yet.'
+        : carried === 0
+          ? `Nobody is being carried yet — resonance starts working once you own more than ${PARTY_SIZE}.`
+          : `${carried} ${carried === 1 ? 'character is' : 'characters are'} being carried above what you paid for.`,
+      stepCost: stepCost === null ? null : formatAmounts(stepCost),
+      stepLabel: `Raise to ${floor + 1}`,
+      // Named rather than "Raise to max", because the two buttons differ by exactly one number
+      // and a label that hid it would make them look like the same control twice.
+      maxLabel: affordable > floor ? `Raise to ${affordable}` : 'Raise as far as I can',
+      canStep: !capped && stepCost !== null,
+      canMax: affordable > floor,
+      hint: empty
+        ? 'Your roster sets a level every character you own is carried to. It starts working as soon as there is a roster to set it.'
+        : capped
+          ? `Your ${PARTY_SIZE}th-highest character is at its rarity’s level cap. Ascend somebody — or level a sixth character past them — to raise this further.`
+          : owned <= PARTY_SIZE
+            ? `Raising this costs nothing you would not have spent anyway: with ${PARTY_SIZE} or fewer characters everybody already stands above the floor.`
+            : `Ascension is never carried. A character’s own rarity still caps how much of this it collects, and this roster tops out at ${ceiling}.`,
+    };
+  });
+
   /** The last refusal, cleared as soon as anything succeeds. */
   protected readonly message = signal<string | null>(null);
 
@@ -283,7 +381,20 @@ export class RosterView {
   }
 
   protected cycle(defId: string): void {
-    const result = this.roster.cyclePlacement(defId);
+    this.report(this.roster.cyclePlacement(defId));
+  }
+
+  /** Raises the shared level by one. */
+  protected resonateOnce(): void {
+    this.report(this.roster.resonateOnce());
+  }
+
+  /** Raises the shared level as far as the wallet reaches, all at once or not at all. */
+  protected resonateMax(): void {
+    this.report(this.roster.resonateMax());
+  }
+
+  private report(result: RosterResult): void {
     this.message.set(result.ok ? null : (FAILURE_MESSAGES[result.reason] ?? 'That did not work.'));
   }
 }

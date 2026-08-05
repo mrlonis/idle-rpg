@@ -51,6 +51,72 @@
   </div>
 </section>
 
+<!--
+  The shared level. Above the roster list rather than inside it, because it is a statement about
+  every row below it: a level shown against a character down there is this number or that
+  character's own, whichever is higher.
+-->
+<section class="resonance" aria-labelledby="resonance-heading">
+  <h2 id="resonance-heading" class="resonance__title">Resonance</h2>
+  <p class="resonance__floor">
+    <!--
+      The number and its unit are one phrase, not a label above a figure: "everyone fights at 214"
+      is the whole mechanic, and splitting it into a stat tile would make it read as a score.
+    -->
+    Everyone you own fights at level
+    <strong class="resonance__level">{{ resonancePanel().floor }}</strong>
+    or their own, whichever is higher.
+  </p>
+  @if (resonancePanel().anchors.length > 0) {
+    <p class="resonance__held" id="resonance-anchors">Held up by</p>
+    <!--
+      A list rather than a joined sentence: two shipped character names contain commas, so a
+      comma-separated roll-call reads as seven people. The lagging marker also says "moves the
+      floor" in words — colour is never the only signal.
+    -->
+    <ul class="resonance__anchors" aria-labelledby="resonance-anchors">
+      @for (anchor of resonancePanel().anchors; track anchor.defId) {
+        <li class="resonance__anchor" [class.resonance__anchor--lagging]="anchor.lagging">
+          {{ anchor.name }} <span class="resonance__anchor-level">{{ anchor.level }}</span>
+          <!--
+            `&ngsp;` rather than a plain space: Angular strips whitespace between elements, and
+            without it the accessible name runs together as "12moves the floor".
+          -->
+          @if (anchor.lagging) {
+            &ngsp;<span class="resonance__anchor-flag">moves the floor</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+  <p class="resonance__carried">{{ resonancePanel().carried }}</p>
+
+  @if (resonancePanel().stepCost; as cost) {
+    <p class="resonance__cost">Next level of shared power costs {{ cost }}</p>
+  }
+
+  <div class="resonance__actions">
+    <button
+      type="button"
+      class="button"
+      [disabled]="!resonancePanel().canStep"
+      (click)="resonateOnce()"
+    >
+      {{ resonancePanel().stepLabel }}
+    </button>
+    <button
+      type="button"
+      class="button button--primary"
+      [disabled]="!resonancePanel().canMax"
+      (click)="resonateMax()"
+    >
+      {{ resonancePanel().maxLabel }}
+    </button>
+  </div>
+
+  <p class="resonance__hint">{{ resonancePanel().hint }}</p>
+</section>
+
 @if (entries().length === 0) {
   <p class="empty" role="status">
     You do not own any characters yet. That should not happen — try reloading.
@@ -102,6 +168,14 @@
                 -->
                 <p class="roster__stats">
                   Level {{ entry.level }}/{{ entry.levelCap }}
+                  <!--
+                    One number, and a word for where it came from. The invested level is not shown
+                    beside it: the floor never falls, so a carried level can never revert, and a
+                    second figure would be defending against a state that cannot occur.
+                  -->
+                  @if (entry.resonated) {
+                    <span class="roster__carried">carried</span>
+                  }
                   @if (entry.copies > 0) {
                     ·
                     <span class="roster__copies" [class.roster__copies--ready]="entry.canAscend">

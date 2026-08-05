@@ -22,6 +22,8 @@ import {
   levelUp,
   levelUpToAffordable,
   placeInRow,
+  raiseResonance,
+  raiseResonanceToAffordable,
   repairOwned,
   setFormation,
 } from './roster';
@@ -335,6 +337,180 @@ describe('levelUpToAffordable', () => {
     const broke = { ...base, wallet: { ...base.wallet, gold: num(0) } };
 
     expect(levelUpToAffordable(broke, 'alpha', CURVE)).toEqual({
+      ok: false,
+      reason: 'insufficient-currency',
+    });
+  });
+});
+
+describe('levelling against the resonance floor', () => {
+  /** Five characters at `level`, at the top rung so nothing is clamped by a cap. */
+  function anchored(level: number): GameState['roster'] {
+    return Array.from({ length: PARTY_SIZE }, (_, index) => ({
+      defId: `anchor-${index}`,
+      rarity: MAX_RARITY_INDEX,
+      level,
+      copies: 0,
+    }));
+  }
+
+  it('charges a carried character from the floor, not from what it was bought at', () => {
+    // The whole of what "levels are free below the floor" means for the price. Charging from the
+    // invested level would sell those levels back — and the first thirty of them would buy
+    // nothing visible at all.
+    const carried = run({
+      roster: [...anchored(30), { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0 }],
+    });
+    const paid = run({
+      roster: [{ defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 30, copies: 0 }],
+    });
+
+    const one = levelUp(carried, 'alpha', 31, CURVE);
+    const other = levelUp(paid, 'alpha', 31, CURVE);
+
+    expect(one.ok && other.ok).toBe(true);
+    if (one.ok && other.ok) {
+      expect(findOwned(one.state, 'alpha')?.level).toBe(31);
+      expect(
+        carried.wallet.gold
+          .sub(one.state.wallet.gold)
+          .eq(paid.wallet.gold.sub(other.state.wallet.gold)),
+      ).toBe(true);
+    }
+  });
+
+  it('is a no-op below the floor rather than a level nobody can see', () => {
+    const state = run({
+      roster: [...anchored(30), { defId: 'alpha', rarity: MAX_RARITY_INDEX, level: 1, copies: 0 }],
+    });
+
+    const result = levelUp(state, 'alpha', 20, CURVE);
+
+    expect(result.ok && result.state).toBe(state);
+  });
+
+  it('reports the cap for a carried character already at its rarity’s ceiling', () => {
+    // A `rare` character under a floor of 30 stands at 10 and can go no further. Ascension is
+    // never carried, which is what keeps the bench worth spending on.
+    const state = run({ roster: [...anchored(30), owned(TEST_ALPHA)] });
+
+    expect(levelUpToAffordable(state, 'alpha', CURVE)).toEqual({
+      ok: false,
+      reason: 'level-capped',
+    });
+  });
+});
+
+describe('raiseResonance', () => {
+  function anchored(level: number, count = PARTY_SIZE): GameState['roster'] {
+    return Array.from({ length: count }, (_, index) => ({
+      defId: `anchor-${index}`,
+      rarity: MAX_RARITY_INDEX,
+      level,
+      copies: 0,
+    }));
+  }
+
+  it('raises every anchor and moves the floor with them', () => {
+    const state = run({ roster: anchored(20) });
+
+    const result = raiseResonance(state, 25, CURVE);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster.map((entry) => entry.level)).toEqual(
+        Array.from({ length: PARTY_SIZE }, () => 25),
+      );
+      expect(result.state.wallet.gold.lt(state.wallet.gold)).toBe(true);
+    }
+  });
+
+  it('levels only the laggard when only the laggard is holding the floor down', () => {
+    const roster = [
+      ...anchored(40, PARTY_SIZE - 1),
+      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0 },
+    ];
+    const state = run({ roster });
+
+    const result = raiseResonance(state, 21, CURVE);
+
+    expect(result.ok && findOwned(result.state, 'slow')?.level).toBe(21);
+    expect(result.ok && findOwned(result.state, 'anchor-0')?.level).toBe(40);
+  });
+
+  it('never drags an anchor already above the target back down to it', () => {
+    // `Math.max` rather than assignment, because invested levels only ever rise — the invariant
+    // the whole derived-floor design rests on.
+    const roster = [
+      ...anchored(40, PARTY_SIZE - 1),
+      { defId: 'slow', rarity: MAX_RARITY_INDEX, level: 20, copies: 0 },
+    ];
+
+    const result = raiseResonance(run({ roster }), 30, CURVE);
+
+    expect(result.ok && findOwned(result.state, 'anchor-0')?.level).toBe(40);
+  });
+
+  it('applies all five or none, rather than levelling as far as the wallet reaches', () => {
+    // A partial application is easy to write and is the wrong behaviour: it drifts the anchors
+    // apart and quietly breaks the model the whole feature teaches.
+    const base = run({ roster: anchored(20) });
+    const broke = { ...base, wallet: { ...base.wallet, gold: num(1) } };
+
+    expect(raiseResonance(broke, 40, CURVE)).toEqual({
+      ok: false,
+      reason: 'insufficient-currency',
+    });
+    expect(broke.roster.every((entry) => entry.level === 20)).toBe(true);
+  });
+
+  it('reports the cap when no five characters can stand on the target', () => {
+    const roster = [
+      ...anchored(20, PARTY_SIZE - 1),
+      { defId: 'rare', rarity: 0, level: 10, copies: 0 },
+    ];
+
+    expect(raiseResonance(run({ roster }), 11, CURVE)).toEqual({
+      ok: false,
+      reason: 'level-capped',
+    });
+  });
+
+  it('is a no-op for a target at or below the floor', () => {
+    const state = run({ roster: anchored(20) });
+
+    expect(raiseResonance(state, 20, CURVE).ok && raiseResonance(state, 20, CURVE)).toEqual({
+      ok: true,
+      state,
+    });
+  });
+
+  it('refuses when the player owns nobody', () => {
+    expect(raiseResonance(run(), 5, CURVE)).toEqual({ ok: false, reason: 'not-owned' });
+  });
+
+  it('spends everything it can in one call, and lands where the plan said it would', () => {
+    const base = run({ roster: anchored(10) });
+    const state = {
+      ...base,
+      wallet: { ...base.wallet, gold: num(20_000), xp: num(20_000), essence: num(20_000) },
+    };
+
+    const result = raiseResonanceToAffordable(state, CURVE);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const reached = result.state.roster[0].level;
+      expect(reached).toBeGreaterThan(10);
+      expect(result.state.roster.every((entry) => entry.level === reached)).toBe(true);
+    }
+  });
+
+  it('reports the wallet when it is the wallet that stops it', () => {
+    const base = run({ roster: anchored(20) });
+    const broke = { ...base, wallet: { ...base.wallet, gold: num(0) } };
+
+    expect(raiseResonanceToAffordable(broke, CURVE)).toEqual({
       ok: false,
       reason: 'insufficient-currency',
     });

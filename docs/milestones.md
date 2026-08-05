@@ -28,7 +28,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung   |
 | 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays     |
 | 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1       |
-| 9   | Resonance — levels the roster shares    | ⬜                                           |
+| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived  |
 | 10  | Power that compounds                    | ⬜                                           |
 | 11  | Chapters                                | ⬜                                           |
 | 12  | Gear                                    | ⬜                                           |
@@ -43,8 +43,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 These entries record **what each milestone decided and why**. The systems themselves are explained
 in the reference docs — [combat](combat.md), [attributes](attributes.md), [economy](economy.md),
-[ascension](ascension.md), [saves](saves.md), [glossary](glossary.md) — and where the two overlap,
-those files are the current statement and these are the history behind it.
+[ascension](ascension.md), [level resonance](level-resonance.md), [saves](saves.md),
+[glossary](glossary.md) — and where the two overlap, those files are the current statement and
+these are the history behind it.
 
 ## 1. Tick loop, one resource, save/load — **COMPLETE**
 
@@ -996,111 +997,69 @@ moves those by about **seventeen points of win rate**. The edges are already doi
 **This is the same roster pressure faction towers create in milestone 15**, which was a point in
 favour of doing it here. 15 now arrives with its prerequisite met.
 
-## 9. Resonance — levels the roster shares
+## 9. Resonance — levels the roster shares — **COMPLETE**
 
-**Invest in five characters; every other character you own is carried to the same level.** No
-resource gates it and no slots limit it — unlike the system it is modelled on, where emblems and
-slots meter how much of the roster benefits. Owning a character is the only requirement.
+**Invest in five characters; every other character you own is carried to the same level.** The
+mechanic, the derivation, the invariant it rests on and the reasoning behind each of them live in
+**[level-resonance](level-resonance.md)** rather than here. What follows is what this milestone
+decided.
 
-### The rule
+Shipped: `core/roster/resonance.ts`, `raiseResonance` and `raiseResonanceToAffordable` in
+`core/roster/roster.ts`, and a resonance panel on the roster screen. **No save migration**, because
+nothing about it is stored.
 
-Sort the roster by level, take the top `PARTY_SIZE`, and the **lowest of those five** is the
-resonance floor. Every character is treated as being at least that level.
+### Why here, and why it is not only quality of life
 
-```
-effectiveLevel = min(levelCapFor(rarity), max(investedLevel, resonanceFloor))
-```
-
-Three properties fall out of that formula, and they are the whole design:
-
-- **It cannot be gamed by hyper-levelling one character.** The floor is the _fifth_-highest level,
-  so it only rises once all five have been invested in. Pouring everything into a single favourite
-  moves nothing.
-- **Ties need no tiebreak.** The floor is a level, not a character, so equal levels produce the
-  same answer whatever order they sort in. The derivation is deterministic without anyone having
-  to decide what beats what.
-- **The rarity cap still binds, and that is what keeps ascension alive.** A `rare` character caps
-  at level 40; a floor of 200 lifts it to 40 and no further. So resonance makes _levels_ free and
-  leaves _ascension_ entirely individual — the bench still has something to spend on, and raising a
-  cap is the only way to collect more of the floor. Without this clause the feature would make
-  ascension pointless for everyone outside the top five.
-
-**The rule needs no edge case for a small roster, and it is worth understanding why rather than
-adding one.** With fewer than `PARTY_SIZE` characters owned the floor is the lowest invested level
-in the roster — so every character is already at or above it and nobody can benefit. The feature
-is self-neutralising: it does nothing until the roster exceeds five, at which point it starts
-working on its own. A special case here would be code that cannot change an outcome.
-
-### This is not only quality of life
-
-Milestone 8d shipped mono-faction lineup bonuses worth up to +25% attack and health, which are only
-reachable by fielding a _different_ five-character team per encounter — and 8e authors the roster
+Milestone 8d shipped mono-faction lineup bonuses worth up to +25% attack and health, reachable only
+by fielding a _different_ five-character team per encounter, and 8e authored the seven-deep roster
 that makes that possible. Milestone 15 does the same thing harder, with seven faction towers
 demanding thirty-five invested characters.
 
 **Neither is affordable without this.** Levelling thirty-five characters individually is seven
 times the cost of levelling five, against an economy tuned for one team. So resonance is closer to
-a prerequisite for milestone 8d's faction bonuses than a convenience that follows them — it is
-positioned after the rework only because the rework decides what a level is worth.
+a prerequisite for 8d's faction bonuses than a convenience that follows them — it is positioned
+after the rework only because the rework decides what a level is worth.
 
-What it deliberately does not cover: ascension, and milestone 16's per-character investment track.
-Those stay individual, which is what stops the roster becoming a single undifferentiated blob with
-one number attached.
+### Three decisions the rest of the project now rests on
 
-### Derived, never stored
+- **Derived, never stored.** `OwnedCharacter.level` stays the invested level and the floor is
+  computed on read. Baking a carried level into the save would be irreversible and wrong the moment
+  the top five changed. The cost of that choice is that **every reader has to derive** — so
+  `toBattleCombatant` now takes the level as an argument rather than reading it off the roster
+  entry, which is the one seam where a screen and a battle could otherwise have disagreed silently.
+- **The rarity cap still binds, and that is what keeps ascension alive.** Resonance makes _levels_
+  free and leaves _ascension_ entirely individual. Without that clause the feature would make
+  ascension pointless for everyone outside the top five, and the bench would have nothing left to
+  spend on. It also deliberately does not cover milestone 16's per-character investment track.
+- **Levelling is charged from the effective level, not the invested one.** A carried character pays
+  for the level above the floor and never for the climb to it. The alternative is a trap rather
+  than a balance decision: charging from the invested level would sell those levels back, and every
+  purchase below the floor would buy nothing the player could see.
 
-`OwnedCharacter.level` stays exactly what it is today — the **invested** level, the one the player
-paid for. The floor is computed from the roster on read and written nowhere.
+### The floor never falls, and it is cheaper to prove than to defend against
 
-**No save migration, and that is not a coincidence.** Baking a resonated level into the save would
-be irreversible and wrong the moment the top five changes: a character recorded at 200 because the
-floor was 200 has no way back to its real invested level once the floor drops. Storing what was
-paid for and deriving the rest is the only version that survives a reshuffle.
+Invested levels only rise, characters are never removed from the roster, and adding one can only
+raise or hold the `PARTY_SIZE`-th highest value. So the floor is monotonically non-decreasing and
+no displayed level can drop.
 
-### The floor never falls, and that is a provable invariant
+**That is why the roster screen shows one number and not two.** "Levelled to 6, carried to 200"
+would be defending against a state that cannot occur; the row says `carried` in words instead. The
+full argument, and the one exception — load-time repair dropping a character `data/` no longer
+ships — is in [level-resonance](level-resonance.md).
 
-**No character ever loses a level to resonance.** This is worth stating as an invariant and
-testing as one, because the obvious worry — bench levels dropping when the top five change — turns
-out to be impossible rather than merely unlikely. Three facts give it:
+### The button raises the floor, not a character
 
-1. **Invested levels only rise.** There is no de-level mechanic and no plan for one.
-2. **Characters are never removed from the roster.** Milestone 3 settled this for a different
-   reason: ascension consumes only spare copies, never a character that has been levelled. There
-   is no path that deletes a roster entry.
-3. **Adding a character can only raise or hold the `PARTY_SIZE`-th highest value.** A new level-1
-   entry sorts below the floor and cannot move it; a high-level one pushes the fifth-highest
-   upward.
+Only the lowest of the five moves the floor, so a control that levelled "the top five" by one step
+would charge for five levels to buy one. `raiseResonance` targets the floor and levels whoever it
+takes, atomically — a partial application drifts the anchors apart and breaks the model the whole
+feature teaches. It prices the operation in full first, because breakthrough levels are lumpy
+enough that discovering the shortfall partway through is a real outcome.
 
-So `floor` is monotonically non-decreasing, and since `effectiveLevel` is a `max` against it, no
-displayed level can fall. **The roster screen therefore needs one number, not two** — showing
-"levelled to" and "carried to" separately would be defending against a state that cannot occur.
-
-**The one exception is a damaged save.** Load-time repair drops unknown character ids, so a
-character removed from `data/` disappears from the roster — and if it was among the top five, the
-floor falls with it. That is rare, bounded, and strictly better than the alternative of refusing
-to load; it is recorded here so that a floor that moved backwards is recognised as a repair having
-run rather than a bug in this feature.
-
-### Levelling the five without visiting five screens
-
-A button that levels the whole top five together, because the alternative is five screens for one
-step of the floor.
-
-Worth knowing when building it: **only the lowest of the five moves the floor.** Levelling a
-character already above it buys that character's own power — they are in the party, so this is
-real — but buys nothing for the roster until the laggard catches up. Levelling all five together
-sidesteps the distinction entirely by keeping them equal, which makes the steady state "the top
-five share a level, and that level is the floor". That is the mental model worth protecting, and
-the button is what protects it.
-
-Two details that decide whether it feels good:
-
-- **Make it atomic.** `maxAffordableLevel` already exists, so a partial application is easy to
-  write and is the wrong behaviour: levelling three of five because the fourth is unaffordable
-  drifts them apart and quietly breaks the model above. Level all five or none.
-- **Breakthrough levels are lumpy.** Essence is charged only every tenth level, so the cost of one
-  step is uneven and occasionally five times its neighbours. The button should price the whole
-  operation before committing to it, rather than discovering the shortfall partway through.
+**The cap stall has two exits and the planner has to allow both.** When the fifth-highest character
+is at its rarity's ceiling the floor stops moving: ascend that character, _or_ level a sixth past
+it. Pinning the anchor set once would have supported only the first, while a player could watch the
+second work by hand — so the plan re-picks its five per target, filtered by which rarity caps allow
+it. [level-resonance](level-resonance.md) has why that pick is arithmetic rather than a search.
 
 ## 10. Power that compounds
 
@@ -1453,28 +1412,39 @@ worth questioning.
 
 **The problem here is not "more content".** Through milestone 12 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
-slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
+slots against forty-nine characters, fed by a gacha generous enough to produce roughly 190
 pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
 distinct niches, seven factions, two players clearing the same stage with different teams — is
 funded by a game that only ever asks for five characters. **The generosity is producing material
 with nowhere to go.**
 
 Seven towers, one per faction, five slots each, restricted to that faction. That is demand for
-**thirty-five invested characters against a roster of twenty-three**, so an unlucky pull becomes
-the answer to a tower instead of fodder, duplicates gain a second use, and a wall in chapter 3
-has somewhere to send the player.
+**thirty-five invested characters** — seven times what the campaign has ever asked for — so an
+unlucky pull becomes the answer to a tower instead of fodder, duplicates gain a second use, and a
+wall in chapter 3 has somewhere to send the player.
 
-Two consequences to design for rather than discover:
+One consequence to design for rather than discover, and one risk this milestone used to carry
+that has since been closed:
 
 - **A tower is a wall about who you own, in a game with no way to buy characters.** That is the
   failure mode role-locked formation slots were rejected for in milestone 4: an unlucky roster
   reaching a state where no legal party exists. Towers must therefore be skippable, never on the
   critical path, and never the only source of anything.
-- **The roster is smaller than the demand, and that is a decision to make on purpose.**
-  Twenty-three characters across seven factions is roughly three per faction against five slots,
-  so no tower is fully crewed the day it ships. That is a content driver, but it means this
-  milestone either arrives with more characters or arrives with towers that visibly cannot be
-  finished. Pick one; do not let it happen by accident.
+- **Every tower can be crewed, and milestone 8e is what made that true.** This bullet used to
+  warn that twenty-three characters over seven factions was roughly three each against five
+  slots, so no tower could be finished the day it shipped — and it ended "pick one; do not let it
+  happen by accident". **8e picked**, for its own reasons: forty-nine characters, seven per
+  faction. Five slots out of seven crews every tower with two to spare.
+
+  **What towers demand is per-faction depth, not roster size**, and that is the part of the
+  original reasoning still doing work. A hundred characters distributed unevenly would strand the
+  thin factions just as completely as twenty-three did. It is guarded rather than assumed:
+  `data/characters.spec.ts` asserts every faction can field a mono-faction party and reads
+  `PARTY_SIZE` off `core/`, so a formation that grew to six would fail that test rather than
+  quietly leaving six towers unfinishable. Two spare per faction is the entire margin — treat
+  anything that widens a tower past `PARTY_SIZE`, or narrows the roster shape, as re-opening this.
+
+  What is left is not bodies but **investment**, which the next section is about.
 
 ### Resonance is a hard prerequisite, and it already shipped
 
@@ -1485,7 +1455,7 @@ milestone is seven times the levelling cost of one team, against an economy tune
 What towers still cost is **ascension**, which resonance deliberately does not cover: the rarity
 cap is what limits how much of the floor a bench character can collect. So crewing a tower is a
 real investment decision, just not a levelling grind. That is the intended shape — if towers ever
-feel free, the cap clause in milestone 9 is the thing that has stopped working.
+feel free, the cap clause in [level resonance](level-resonance.md) is what has stopped working.
 
 ### Saved team presets
 

@@ -131,18 +131,27 @@ export function scaleStats(
  * decides which. Narrowing it here rather than inside the simulation is the same seam `scaleStats`
  * sits on: combat receives a combatant that is already exactly what the player owns, and knows
  * nothing about tiers or rungs.
+ *
+ * **`level` is passed rather than read off `owned`, and that is the milestone 9 seam.** Since
+ * resonance, `OwnedCharacter.level` is what the player *paid for* and the character fights at its
+ * **effective** level — see `core/roster/resonance.ts`. Reading the invested level here would
+ * send a bench character into a fight at the level it was bought at while every screen showed it
+ * carried, which is the one disagreement a derived-not-stored design has to be built against. So
+ * the caller resolves it, with `effectiveLevel`, and passes the answer in. Rarity is still
+ * read off `owned` because ascension is individual and nothing carries it.
  */
 export function toBattleCombatant(
   character: CharacterData,
   owned: OwnedCharacter,
   growth: GrowthData,
   kit: KitRulesData,
+  level: number,
 ): CombatantData {
   return {
     id: character.id,
     name: character.name,
     faction: character.faction,
-    stats: scaleStats(character.stats, growth, character.tier, owned.level, owned.rarity),
+    stats: scaleStats(character.stats, growth, character.tier, level, owned.rarity),
     basic: character.basic,
     skills: unlockedSkills(character.skills ?? [], kit, character.tier, owned.rarity),
   };

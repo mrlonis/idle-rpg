@@ -8,6 +8,7 @@ import {
   type CombatantData,
   type CopyCost,
   type CurrencyAmounts,
+  effectiveLevel,
   findOwned,
   fodderPool,
   type FodderOption,
@@ -21,13 +22,20 @@ import {
   type LineupSummary,
   MAX_RARITY_INDEX,
   maxAffordableLevel,
+  maxAffordableResonance,
   nextAscension,
   type OwnedCharacter,
   type PartyFormation,
   placeInRow,
+  raiseResonance,
+  raiseResonanceToAffordable,
   type RarityFamily,
   rarityFamily,
   rarityLabel,
+  resonanceAnchors,
+  resonanceCeiling,
+  resonanceFloor,
+  resonancePlan,
   type RosterResult,
   type Row,
   rowCapacity,
@@ -66,7 +74,17 @@ export interface RosterEntryView {
   readonly rarityLabel: string;
   /** Which of the five colour families this rung belongs to. */
   readonly rarityFamily: RarityFamily;
+  /**
+   * The **effective** level — what this character fights at, resonance included.
+   *
+   * One number, not two. Showing "levelled to 6" beside "carried to 200" would be defending
+   * against a state that cannot occur: the floor is monotonically non-decreasing, so a carried
+   * level never falls back to the invested one. {@link resonated} is the whole of what the
+   * second number would have said.
+   */
   readonly level: number;
+  /** `true` when the roster's floor is holding this character above what was paid for. */
+  readonly resonated: boolean;
   readonly levelCap: number;
   readonly atLevelCap: boolean;
   readonly isMaxRarity: boolean;
@@ -90,6 +108,36 @@ export interface RosterEntryView {
 }
 
 /**
+ * What the roster's shared level is, and what the next step of it costs.
+ *
+ * Assembled here for the same reason a {@link RosterEntryView} is: the floor, who is holding it
+ * up, what one more level of it costs and how far the wallet reaches are four calls into `core/`,
+ * and a template binding would run all four on every change-detection pass.
+ */
+export interface ResonanceView {
+  /** The level every owned character is carried to, capped by its own rarity. */
+  readonly floor: number;
+  /** The characters holding the floor up, highest first. */
+  readonly anchors: readonly RosterEntryView[];
+  /** How many characters are standing above their invested level right now. */
+  readonly carried: number;
+  /** What one more level of floor costs, or `null` when nothing can raise it. */
+  readonly stepCost: CurrencyAmounts | null;
+  /** The highest floor the wallet could pay for right now. Equal to {@link floor} when none. */
+  readonly affordable: number;
+  /** The highest floor this roster could ever reach without an ascension. */
+  readonly ceiling: number;
+  /**
+   * `true` when only an ascension can move the floor further.
+   *
+   * **Narrower than "the plan came back empty", deliberately.** `resonancePlan` also returns
+   * `null` for a roster with nobody in it, and a flag that conflated the two would put "your
+   * fifth-highest character is at its cap" on a screen with no characters on it.
+   */
+  readonly capped: boolean;
+}
+
+/**
  * The roster, and everything the player can do to it.
  *
  * Every mutation goes through `GameLoopService.apply`, which owns the single authoritative
@@ -109,10 +157,46 @@ export class RosterService {
     if (state === null) {
       return [];
     }
+    // Once per snapshot rather than once per row: the floor is a property of the whole roster,
+    // and deriving it inside `toView` would re-sort the roster for every character in it.
+    const floor = resonanceFloor(state.roster);
     return state.roster
-      .map((owned) => this.toView(owned))
+      .map((owned) => this.toView(owned, floor))
       .filter((entry): entry is RosterEntryView => entry !== null)
       .sort((a, b) => compareEntries(a, b, FACTION_RANK));
+  });
+
+  /**
+   * The shared level, and what moving it costs.
+   *
+   * The anchors are looked up in {@link entries} rather than rebuilt, so the resonance panel and
+   * the roster list below it can never disagree about what level somebody is.
+   */
+  readonly resonance = computed<ResonanceView>(() => {
+    const state = this.game.snapshot();
+    const rows = this.entries();
+    if (state === null) {
+      return EMPTY_RESONANCE;
+    }
+
+    const floor = resonanceFloor(state.roster);
+    const byId = new Map(rows.map((entry) => [entry.defId, entry]));
+    const anchors = resonanceAnchors(state.roster)
+      .map((owned) => byId.get(owned.defId))
+      .filter((entry): entry is RosterEntryView => entry !== undefined);
+    const step = resonancePlan(state.roster, LEVELS, floor + 1);
+
+    return {
+      floor,
+      anchors,
+      carried: rows.filter((entry) => entry.resonated).length,
+      stepCost: step?.cost ?? null,
+      affordable: maxAffordableResonance(state.roster, state.wallet, LEVELS),
+      ceiling: resonanceCeiling(state.roster, LEVELS),
+      // A roster with nobody in it has no plan either, and it is not cap-stalled — it has
+      // nothing to stall. See the note on the field.
+      capped: step === null && state.roster.length > 0,
+    };
   });
 
   /** The front rank, in slot order, as roster rows. Missing members are simply absent. */
@@ -185,13 +269,25 @@ export class RosterService {
     if (state === null) {
       return { front: [], back: [] };
     }
+    // Resolved here rather than left to `toBattleCombatant`, which is handed the answer: the
+    // party fights at its effective level, and the floor is a fact about the roster the party
+    // was drawn from rather than about any one member of it.
+    const floor = resonanceFloor(state.roster);
     const resolve = (ids: readonly string[]): CombatantData[] => {
       const combatants: CombatantData[] = [];
       for (const defId of ids) {
         const character = CHARACTERS_BY_ID.get(defId);
         const owned = findOwned(state, defId);
         if (character !== undefined && owned !== undefined) {
-          combatants.push(toBattleCombatant(character, owned, GROWTH_RULES, KIT));
+          combatants.push(
+            toBattleCombatant(
+              character,
+              owned,
+              GROWTH_RULES,
+              KIT,
+              effectiveLevel(LEVELS, owned, floor),
+            ),
+          );
         }
       }
       return combatants;
@@ -210,19 +306,40 @@ export class RosterService {
     return state === null ? [] : fodderPool(state, defId, ASCENSION, CHARACTERS_BY_ID);
   }
 
-  /** Raises a character by one level. */
+  /**
+   * Raises a character by one level.
+   *
+   * One above the **effective** level, so the button always buys a level the player can see. A
+   * character sitting on the resonance floor would otherwise spend gold moving its invested level
+   * from 6 to 7 while the screen kept saying 200.
+   */
   levelUpOnce(defId: string): RosterResult {
     return this.mutate((state) => {
       const owned = findOwned(state, defId);
       return owned === undefined
         ? { ok: false, reason: 'not-owned' }
-        : levelUp(state, defId, owned.level + 1, LEVELS);
+        : levelUp(
+            state,
+            defId,
+            effectiveLevel(LEVELS, owned, resonanceFloor(state.roster)) + 1,
+            LEVELS,
+          );
     });
   }
 
   /** Raises a character as far as the wallet and its rarity allow. */
   levelUpMax(defId: string): RosterResult {
     return this.mutate((state) => levelUpToAffordable(state, defId, LEVELS));
+  }
+
+  /** Raises the whole roster's shared level by one, levelling every anchor it takes. */
+  resonateOnce(): RosterResult {
+    return this.mutate((state) => raiseResonance(state, resonanceFloor(state.roster) + 1, LEVELS));
+  }
+
+  /** Raises the shared level as far as the wallet allows, in one atomic step. */
+  resonateMax(): RosterResult {
+    return this.mutate((state) => raiseResonanceToAffordable(state, LEVELS));
   }
 
   /**
@@ -310,17 +427,21 @@ export class RosterService {
     return result;
   }
 
-  private toView(owned: OwnedCharacter): RosterEntryView | null {
+  private toView(owned: OwnedCharacter, floor: number): RosterEntryView | null {
     const state = this.game.snapshot();
     const character = CHARACTERS_BY_ID.get(owned.defId);
     if (state === null || character === undefined) {
       return null;
     }
 
+    // Every level this row reports — what it is at, what the next one costs, how far the wallet
+    // reaches — is measured from the effective level, because that is the level the player is
+    // buying up from. See `levelUp` in `core/roster/roster.ts` for why the price agrees.
+    const level = effectiveLevel(LEVELS, owned, floor);
     const levelCap = levelCapFor(LEVELS, owned.rarity);
-    const atLevelCap = owned.level >= levelCap;
-    const cost = atLevelCap ? null : levelCost(LEVELS, owned.level);
-    const affordableLevel = maxAffordableLevel(LEVELS, state.wallet, owned.level, owned.rarity);
+    const atLevelCap = level >= levelCap;
+    const cost = atLevelCap ? null : levelCost(LEVELS, level);
+    const affordableLevel = maxAffordableLevel(LEVELS, state.wallet, level, owned.rarity);
 
     const ascensionCost =
       nextAscension(state, owned.defId, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID) ?? null;
@@ -344,7 +465,8 @@ export class RosterService {
       rarity: owned.rarity,
       rarityLabel: rarityLabel(owned.rarity),
       rarityFamily: rarityFamily(owned.rarity),
-      level: owned.level,
+      level,
+      resonated: level > owned.level,
       levelCap,
       atLevelCap,
       isMaxRarity: owned.rarity >= MAX_RARITY_INDEX,
@@ -353,7 +475,7 @@ export class RosterService {
       row,
       rowSlot,
       nextLevelCost: cost,
-      canLevel: affordableLevel > owned.level,
+      canLevel: affordableLevel > level,
       affordableLevel,
       ascensionCost,
       fodderAvailable,
@@ -367,6 +489,23 @@ export class RosterService {
 
 /** Structural stand-in so `mutate` does not have to import the state type by name twice. */
 type GameStateLike = Parameters<typeof levelUpToAffordable>[0];
+
+/**
+ * What the resonance panel shows before a save has loaded: a run with nobody in it.
+ *
+ * `capped` is **false** here for the same reason it is narrowed above — nothing about a run that
+ * has not loaded is waiting on an ascension. Both buttons are still disabled without it: there is
+ * no `stepCost` to spend and `affordable` does not exceed `floor`.
+ */
+const EMPTY_RESONANCE: ResonanceView = {
+  floor: 1,
+  anchors: [],
+  carried: 0,
+  stepCost: null,
+  affordable: 1,
+  ceiling: 1,
+  capped: false,
+};
 
 /** Built once: the authored faction order is static content, and the sort runs per snapshot. */
 const FACTION_RANK = factionRanker(FACTIONS_IN_ORDER);

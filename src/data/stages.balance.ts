@@ -136,11 +136,16 @@ interface Sweep {
  * and only at `elite` or above.
  */
 function at(character: CharacterData, level: number, rarity: number): CombatantData {
+  // The level is passed twice on purpose: the sweep fields parties at an *explicit* level, so
+  // the invested level and the effective one are the same number here. Resonance can only ever
+  // raise the second, which is a statement about what a player's roster costs rather than about
+  // what a party of a given power can clear — the thing this file measures.
   return toBattleCombatant(
     character,
     { defId: character.id, rarity, level, copies: 0 },
     growth,
     kit,
+    level,
   );
 }
 

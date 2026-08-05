@@ -195,6 +195,17 @@ export {
   startRarityIndex,
 } from './roster/rarity';
 export {
+  effectiveLevel,
+  isResonated,
+  maxAffordableResonance,
+  resonanceAnchors,
+  resonanceCeiling,
+  resonanceFloor,
+  resonancePlan,
+  type ResonancePlan,
+  type ResonanceRaise,
+} from './roster/resonance';
+export {
   benchMember,
   findOwned,
   grantCopies,
@@ -202,6 +213,8 @@ export {
   levelUp,
   levelUpToAffordable,
   placeInRow,
+  raiseResonance,
+  raiseResonanceToAffordable,
   repairOwned,
   setFormation,
   withoutMember,

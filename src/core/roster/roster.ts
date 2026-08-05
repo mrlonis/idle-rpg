@@ -14,6 +14,7 @@ import {
   maxAffordableLevel,
 } from './level';
 import { clampRarityIndex, startRarityIndex } from './rarity';
+import { effectiveLevel, maxAffordableResonance, resonanceFloor, resonancePlan } from './resonance';
 import { MAX_RARITY_INDEX, type CharacterData, type OwnedCharacter } from './types';
 
 /**
@@ -250,6 +251,14 @@ export function benchMember(
  * Levelling past the rarity's cap is refused rather than clamped. Silently stopping early
  * would spend the player's currency on fewer levels than they asked for, which is worse than
  * telling them to ascend first.
+ *
+ * **Charged from the character's effective level, not its invested one.** Resonance is what
+ * carries a bench character to the floor, and charging from the invested level would sell those
+ * levels back: a level-1 character under a floor of 200 would cost the full climb to reach 201,
+ * and — far worse — the first two hundred of those levels would buy nothing visible at all.
+ * Starting the meter at the effective level is what makes "levels are free below the floor" true
+ * of the price as well as of the display. It cannot let a character *lose* a level either, since
+ * the target is always above where the charging started.
  */
 export function levelUp(
   state: GameState,
@@ -262,8 +271,9 @@ export function levelUp(
     return fail('not-owned');
   }
 
+  const from = effectiveLevel(curve, owned, resonanceFloor(state.roster));
   const target = Math.floor(targetLevel);
-  if (target <= owned.level) {
+  if (target <= from) {
     return { ok: true, state };
   }
   if (target > levelCapFor(curve, owned.rarity)) {
@@ -271,7 +281,7 @@ export function levelUp(
   }
 
   let wallet = state.wallet;
-  for (let level = owned.level; level < target; level++) {
+  for (let level = from; level < target; level++) {
     const cost = levelCost(curve, level);
     if (!canAfford(wallet, cost)) {
       return fail('insufficient-currency');
@@ -295,13 +305,81 @@ export function levelUpToAffordable(
   if (owned === undefined) {
     return fail('not-owned');
   }
-  const target = maxAffordableLevel(curve, state.wallet, owned.level, owned.rarity);
-  if (target <= owned.level) {
+  const from = effectiveLevel(curve, owned, resonanceFloor(state.roster));
+  const target = maxAffordableLevel(curve, state.wallet, from, owned.rarity);
+  if (target <= from) {
     return fail(
-      owned.level >= levelCapFor(curve, owned.rarity) ? 'level-capped' : 'insufficient-currency',
+      from >= levelCapFor(curve, owned.rarity) ? 'level-capped' : 'insufficient-currency',
     );
   }
   return levelUp(state, defId, target, curve);
+}
+
+/**
+ * Raises the resonance floor to `target`, levelling everyone it takes in one transaction.
+ *
+ * **Atomic on purpose.** `maxAffordableLevel` makes a partial application easy to write and it
+ * is the wrong behaviour: levelling three of five because the fourth is unaffordable drifts the
+ * anchors apart and quietly breaks the model the whole feature teaches, which is that the top
+ * five share a level and that level is the floor. The plan is priced in full before anything is
+ * spent — breakthrough levels are lumpy enough that discovering the shortfall partway through is
+ * a real outcome rather than a hypothetical one.
+ *
+ * A target at or below the current floor is a no-op success. `level-capped` means no five
+ * characters can stand on `target` at all, which is a call to ascend somebody rather than to
+ * earn more.
+ */
+export function raiseResonance(
+  state: GameState,
+  target: number,
+  curve: LevelCurveData,
+): RosterResult {
+  if (state.roster.length === 0) {
+    return fail('not-owned');
+  }
+  if (Math.floor(target) <= resonanceFloor(state.roster)) {
+    return { ok: true, state };
+  }
+
+  const plan = resonancePlan(state.roster, curve, target);
+  if (plan === null) {
+    return fail('level-capped');
+  }
+  if (!canAfford(state.wallet, plan.cost)) {
+    return fail('insufficient-currency');
+  }
+
+  const reached = new Map(plan.raises.map((raise) => [raise.defId, raise.to]));
+  return {
+    ok: true,
+    state: {
+      ...state,
+      wallet: debit(state.wallet, plan.cost),
+      roster: state.roster.map((owned) => {
+        const to = reached.get(owned.defId);
+        // `max` rather than assignment: an anchor already above the target is in the plan's set
+        // and must not be dragged back down to it. Invested levels only ever rise.
+        return to === undefined ? owned : { ...owned, level: Math.max(owned.level, to) };
+      }),
+    },
+  };
+}
+
+/** Raises the floor as far as the wallet allows, in one call. */
+export function raiseResonanceToAffordable(state: GameState, curve: LevelCurveData): RosterResult {
+  if (state.roster.length === 0) {
+    return fail('not-owned');
+  }
+  const floor = resonanceFloor(state.roster);
+  const target = maxAffordableResonance(state.roster, state.wallet, curve);
+  if (target <= floor) {
+    return fail(
+      resonancePlan(state.roster, curve, floor + 1) === null
+        ? 'level-capped'
+        : 'insufficient-currency',
+    );
+  }
+  return raiseResonance(state, target, curve);
 }
 
 /**
