@@ -1,4 +1,5 @@
 import { type CombatantData, type StatBlockData } from '../battle/types';
+import { GEAR_ARCHETYPES, type GearArchetype, type GearLoadout } from '../gear/types';
 import { CHARACTER_TIERS, type CharacterTier } from '../growth';
 
 /**
@@ -147,19 +148,49 @@ export interface FactionData {
 }
 
 /**
- * What a character is *for*, in one word.
+ * What a character is *for*, in one word — and, since milestone 12, which gear it may wear.
  *
- * Display and authoring guidance rather than a rule: **nothing in the simulation reads this.**
- * A role does not decide which rank a character may stand in, what it may target, or how much
- * damage it takes — all of that follows from the stat block and the kit. It exists so the
- * roster screen can say "healer" instead of making a player infer it from `matk` and a skill
- * list, and so an author adding a character has a shape to aim at.
+ * **This stopped being inert, and the change was made deliberately rather than discovered.**
+ * Until gear it was display guidance only: nothing in the simulation read it, and the comment
+ * here said keeping it that way was the point, because a role that gates a **placement** lets an
+ * unlucky roster reach a state with no legal party — the failure milestone 4 rejected role-locked
+ * ranks over. Every word of that argument still holds and {@link CharacterRole} still does not
+ * decide which rank a character stands in, what it may target, or how much damage it takes.
  *
- * Keeping it inert is the point. The moment a role gates a placement, an unlucky roster
- * becomes a run that cannot legally form a party.
+ * What it now decides is which {@link GearArchetype} a piece of gear has to name before that
+ * character can equip it, and the reason that is a different question is the reason it is safe: a
+ * piece of gear the party cannot wear is **fodder**, not a dead end. It enhances something else,
+ * at full value, on the turn it drops. There is no roster this gate can make unplayable, because
+ * a character with no gear at all is a character, and a character with the wrong gear in the bag
+ * is a character plus enhancement material.
+ *
+ * ## Why there are five of these and there used to be eight
+ *
+ * The eight were `tank`, `bruiser`, `assassin`, `ranger`, `sniper`, `mage`, `healer`, `support`,
+ * and the extra three were distinctions with nothing downstream of them: an assassin is a bruiser
+ * that opens on the back rank, a sniper is a ranger with a longer reach, and a healer is the
+ * support that happens to restore health. All three of those are statements about a **kit**, and
+ * the kit is right there in the same file saying them more precisely than a label could.
+ *
+ * Collapsing to five is what makes a gear archetype and a role the same word rather than two
+ * vocabularies to keep in sync — and this project already carries three meanings of "rarity"
+ * (see [glossary](../../../docs/glossary.md)), which is the argument for not minting a fourth
+ * near-synonym when an existing field says the same thing.
+ *
+ * The cost is real and worth naming: the roster screen no longer says "healer" about the seven
+ * characters that heal. What it says instead is "support", and what tells a player that Cirien
+ * heals is Cirien's skill list, which is where they were going to look anyway.
+ *
+ * Re-exported from [`gear/types.ts`](../gear/types.ts) rather than declared here, and the direction
+ * is forced: {@link OwnedCharacter} carries a {@link GearLoadout}, so `roster/` depends on `gear/`
+ * and the shared list has to sit in the module underneath. Same arrangement, and the same reason,
+ * as {@link CHARACTER_TIERS} living in `core/growth.ts`. This alias is what keeps
+ * `import { type CharacterRole } from './types'` — the roster's own vocabulary — reading the way it
+ * always has.
  */
-export type CharacterRole =
-  'tank' | 'bruiser' | 'assassin' | 'ranger' | 'sniper' | 'mage' | 'healer' | 'support';
+export const CHARACTER_ROLES = GEAR_ARCHETYPES;
+
+export type CharacterRole = GearArchetype;
 
 /**
  * A playable character as authored in `data/`.
@@ -199,4 +230,13 @@ export interface OwnedCharacter {
    * storing a decision nobody has made.
    */
   readonly copies: number;
+  /**
+   * What this character is wearing, as ids into `GameState.gear`.
+   *
+   * Ids rather than the items themselves, so a piece exists once and is referenced from wherever
+   * it is worn — see {@link GameState.gear}. Every character has one of these including the ones
+   * on the bench, because gear is equipped from the character sheet rather than from the party
+   * screen and a bench character being kitted out ahead of being fielded is the normal case.
+   */
+  readonly gear: GearLoadout;
 }

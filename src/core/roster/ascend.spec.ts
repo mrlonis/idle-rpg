@@ -64,7 +64,7 @@ describe('nextAscension', () => {
 
   it('is undefined at the top of the ladder', () => {
     const state = run({
-      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99 }],
+      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
     });
 
     expect(nextAscension(state, 'gamma', RULES, TEST_CHARACTERS, TEST_FACTIONS)).toBeUndefined();
@@ -114,6 +114,7 @@ describe('ascend', () => {
     if (result.ok) {
       expect(findOwned(result.state, 'gamma')).toEqual({
         defId: 'gamma',
+        gear: {},
         rarity: 3,
         level: 1,
         copies: 2,
@@ -193,7 +194,7 @@ describe('ascend', () => {
 
   it('refuses at the top of the ladder', () => {
     const state = run({
-      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99 }],
+      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
     });
 
     expect(ascendGamma(state)).toEqual({ ok: false, reason: 'max-rarity' });
@@ -251,6 +252,7 @@ describe('ascend', () => {
 
     expect(findOwned(state, 'gamma')).toEqual({
       defId: 'gamma',
+      gear: {},
       rarity: 2,
       level: 1,
       copies: 3,

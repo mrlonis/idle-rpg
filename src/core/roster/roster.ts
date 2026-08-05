@@ -1,4 +1,5 @@
 import { canAfford, debit } from '../currency';
+import { emptyLoadout } from '../gear/types';
 import {
   formationMembers,
   formationSize,
@@ -106,6 +107,7 @@ export function grantCopies(
         rarityOverride === undefined ? start : Math.max(clampRarityIndex(rarityOverride), start),
       level: 1,
       copies: copies - 1,
+      gear: emptyLoadout(),
     };
     return {
       state: { ...state, roster: [...state.roster, entry] },
@@ -402,5 +404,11 @@ export function repairOwned(
     rarity,
     level: clampLevel(curve, owned.level, rarity),
     copies: Number.isFinite(owned.copies) ? Math.max(Math.floor(owned.copies), 0) : 0,
+    // Carried through rather than checked. A loadout is a set of ids into `GameState.gear`, and
+    // this function is handed one character — it cannot see the inventory, so it cannot know
+    // whether an id resolves, whether the piece is in the right slot, or whether two characters
+    // claim the same one. `repairLoadouts` in `core/gear/inventory.ts` is the pass that can, and
+    // it runs on every load beside `reconcileClearedStages`.
+    gear: owned.gear,
   };
 }

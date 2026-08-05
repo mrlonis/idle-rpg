@@ -122,25 +122,40 @@ describe('closed-form resume vs stepwise accrual', () => {
   // must agree. If these ever diverge, players are silently paid a different rate for time
   // spent away than for time spent watching, and every balance number derived from one is
   // wrong for the other.
+  //
+  // ⚠️ **The explicit timeout is about the instrumentation, not about the code.** The ten-hour
+  // case replays 360,000 ticks, and `ng test` runs with v8 coverage on, which costs this loop
+  // roughly fifteen times its uninstrumented cost — measured at ~310ms bare against the default
+  // 5s budget. Milestone 12 added a sixth currency, `credit` loops over the wallet, and 13% more
+  // work in a loop already sitting at ~98% of its budget is what tipped it over.
+  //
+  // Raising the ceiling is the honest fix rather than shrinking the replay: the sample size is
+  // what makes the agreement mean something, and the alternative — turning coverage off for this
+  // project — trades a real signal for a test-runner detail. **Do not reduce `durationMs` to make
+  // this fit.**
   it.each([
     { label: '1 minute at 10Hz', durationMs: 60_000, dtMs: 100, rate: '250' },
     { label: '1 hour at 10Hz', durationMs: 60 * 60 * 1000, dtMs: 100, rate: '1e6' },
     { label: '10 hours at 10Hz', durationMs: 10 * 60 * 60 * 1000, dtMs: 100, rate: '1' },
     { label: '1 hour at 6Hz', durationMs: 60 * 60 * 1000, dtMs: 160, rate: '1e18' },
-  ])('matches within 1e-12 relative error: $label', ({ durationMs, dtMs, rate }) => {
-    const start = stateWithRate(rate);
+  ])(
+    'matches within 1e-12 relative error: $label',
+    { timeout: 30_000 },
+    ({ durationMs, dtMs, rate }) => {
+      const start = stateWithRate(rate);
 
-    const { report } = resume(start, T0 + durationMs);
+      const { report } = resume(start, T0 + durationMs);
 
-    let stepwise = start;
-    for (let elapsed = 0; elapsed < durationMs; elapsed += dtMs) {
-      stepwise = tick(stepwise, Math.min(dtMs, durationMs - elapsed));
-    }
+      let stepwise = start;
+      for (let elapsed = 0; elapsed < durationMs; elapsed += dtMs) {
+        stepwise = tick(stepwise, Math.min(dtMs, durationMs - elapsed));
+      }
 
-    expect(
-      relativeError(report.earned.gold.toString(), stepwise.wallet.gold.toString()),
-    ).toBeLessThan(1e-12);
-  });
+      expect(
+        relativeError(report.earned.gold.toString(), stepwise.wallet.gold.toString()),
+      ).toBeLessThan(1e-12);
+    },
+  );
 
   it('agrees at magnitudes far past float64 exact-integer range', () => {
     // 1e30 is roughly where a 1.15x-per-stage curve lands by stage 500, and is 14 orders of

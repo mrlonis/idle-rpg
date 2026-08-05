@@ -48,6 +48,7 @@ export class App implements OnInit {
     { path: '/', label: 'Home', icon: '🏕', exact: true },
     { path: '/summon', label: 'Summon', icon: '🔮', exact: false },
     { path: '/roster', label: 'Roster', icon: '🛡', exact: false },
+    { path: '/gear', label: 'Gear', icon: '🧰', exact: false },
     { path: '/shop', label: 'Shop', icon: '✨', exact: false },
   ];
 

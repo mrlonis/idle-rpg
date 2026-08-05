@@ -1,0 +1,246 @@
+@use 'theme' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.head__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.head__unit {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  background: t.$surface;
+  font-size: 0.875rem;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+.shop,
+.bag {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shop__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section__heading {
+  margin: 0;
+  font-size: 1.0625rem;
+}
+
+.shop__restock {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.offers,
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.offer {
+  @include t.card;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+}
+
+// A bought offer is dimmed *and* its button says "Bought" — colour is never the only carrier of
+// meaning, which is the rule the whole palette is built on.
+.offer--taken {
+  opacity: 0.55;
+}
+
+.offer__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.offer__name,
+.item__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.offer__meta,
+.item__meta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.dot {
+  padding: 0 0.375rem;
+}
+
+.offer__buy {
+  @include t.button-primary;
+  flex-shrink: 0;
+  white-space: nowrap;
+  @include t.numeric;
+}
+
+.item {
+  @include t.card;
+  overflow: hidden;
+}
+
+.item__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: t.$tap-target;
+  padding: 0.75rem 1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  @include t.focus-ring;
+}
+
+.item__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.item__level {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 1rem 0.875rem;
+  border-top: 1px solid t.$border;
+  padding-top: 0.875rem;
+}
+
+.detail__cost {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.detail__amount {
+  color: t.$text;
+  font-weight: 600;
+  @include t.numeric;
+}
+
+.detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.detail__enhance {
+  @include t.button-primary;
+  flex: 1 1 8rem;
+}
+
+.detail__salvage {
+  @include t.button-quiet;
+  flex: 1 1 8rem;
+  @include t.numeric;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+  font-size: 0.8125rem;
+}
+
+.stats__label {
+  color: t.$muted;
+}
+
+.stats__value {
+  font-weight: 600;
+  @include t.numeric;
+}
+
+@include t.grade-colours;

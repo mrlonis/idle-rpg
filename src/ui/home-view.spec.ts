@@ -4,6 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import {
+  CURRENCY_IDS,
+  type CurrencyId,
   emptyWallet,
   num,
   type OfflineReport,
@@ -12,6 +14,7 @@ import {
   zeroRates,
 } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
+import { CURRENCY_LABELS } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 import { HomeView } from './home-view';
 import { type RosterEntryView, RosterService } from './roster.service';
@@ -43,7 +46,7 @@ class FakeGameLoop {
 }
 
 /** A wallet holding one currency, since most tests care about exactly one. */
-function walletWith(id: 'gold' | 'xp' | 'essence' | 'summons' | 'spark', amount: string) {
+function walletWith(id: CurrencyId, amount: string) {
   return { ...emptyWallet(), [id]: num(amount) };
 }
 
@@ -345,15 +348,23 @@ describe('HomeView', () => {
           essence: num('17'),
           summons: num('350'),
           spark: num('2'),
+          alloy: num('880'),
         });
       });
 
       const { labels, amounts } = walletStrip(el);
 
-      expect(labels).toEqual(['Gold', 'XP', 'Essence', 'Crystals', 'Spark']);
-      expect(amounts).toEqual(['100', '4.2K', '17', '350', '2']);
+      // Derived from `CURRENCY_IDS` rather than retyped, because the claim is "every currency" and
+      // a hardcoded list of five silently stops testing that the moment a sixth is added — which
+      // is exactly what milestone 12 did with `alloy`. The order matters as much as the contents:
+      // gold sits *among* the others rather than above them, which is what stops one currency
+      // reading as the score.
+      expect(labels.map((label) => label?.toLowerCase())).toEqual(
+        CURRENCY_IDS.map((id) => CURRENCY_LABELS[id].toLowerCase()),
+      );
+      expect(amounts).toEqual(['100', '4.2K', '17', '350', '2', '880']);
       // Nothing outside the strip is showing gold a second time.
-      expect(el.querySelectorAll('.wallet__item')).toHaveLength(5);
+      expect(el.querySelectorAll('.wallet__item')).toHaveLength(CURRENCY_IDS.length);
     });
 
     it('says where spark comes from rather than showing it a rate it does not have', async () => {

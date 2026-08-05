@@ -13,6 +13,7 @@ export const CURRENCY_LABELS: Readonly<Record<CurrencyId, string>> = {
   essence: 'essence',
   summons: 'crystals',
   spark: 'spark',
+  alloy: 'alloy',
 };
 
 /**

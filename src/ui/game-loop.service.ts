@@ -8,6 +8,7 @@ import {
   type OfflineReport,
   type PartyFormation,
   reconcileClearedStages,
+  repairLoadouts,
   type RepairIssue,
   resume,
   stampSaveTime,
@@ -18,6 +19,7 @@ import { STARTER_FORMATION } from '../data';
 import {
   CHAPTER_RULES,
   CHARACTERS_BY_ID,
+  GEAR,
   LADDER,
   STAGE_REWARD_CURVE,
   SUMMON_RATE_CURVE,
@@ -169,14 +171,22 @@ export class GameLoopService {
     // one: that rate is a function of `clearedStages` rather than a per-stage unlock, and
     // `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
     // arrives here earning nothing and leaves earning the base.
+    //
+    // `repairLoadouts` is the third of these and runs for the same reason: a loadout is a set of
+    // ids into the bag, and the checks that matter — does the id resolve, is the piece in the slot
+    // it claims, does its archetype still match its wearer — need both the bag and the content
+    // this build ships. The save layer can see neither, so it parses the shape and leaves the
+    // content check here. It only ever removes what cannot be rendered, so a healthy save comes
+    // back as the same object.
     const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
-    this.state = reconcileClearedStages(
+    const reconciled = reconcileClearedStages(
       repaired,
       LADDER,
       CHAPTER_RULES,
       STAGE_REWARD_CURVE,
       SUMMON_RATE_CURVE,
     );
+    this.state = repairLoadouts(reconciled, CHARACTERS_BY_ID, GEAR);
     this.settle(nowMs);
 
     this.running = true;

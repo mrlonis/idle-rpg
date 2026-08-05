@@ -12,22 +12,31 @@ reasoning behind each number.
 
 ---
 
-## The five currencies
+## The six currencies
 
-`GameState` carries a keyed **wallet** and **rate table** rather than a field per currency — ten
-flat fields would have been ten lines in every encoder, decoder and repair pass.
+`GameState` carries a keyed **wallet** and **rate table** rather than a field per currency — twelve
+flat fields would have been twelve lines in every encoder, decoder and repair pass.
 
-| Currency  | Idle rate? | Buys                                              |
-| --------- | ---------- | ------------------------------------------------- |
-| `gold`    | ✅         | Levels now; gear, gear levels and the shop later. |
-| `xp`      | ✅         | Levels, and nothing else.                         |
-| `essence` | ✅         | Breakthrough levels only — every tenth.           |
-| `summons` | ✅         | Pulls, at 100 crystals each.                      |
-| `spark`   | ❌         | A new character, or a targeted copy, in the shop. |
+| Currency  | Idle rate? | Buys                                                    |
+| --------- | ---------- | ------------------------------------------------------- |
+| `gold`    | ✅         | Levels, gear levels, and the forge.                     |
+| `xp`      | ✅         | Levels, and nothing else.                               |
+| `essence` | ✅         | Breakthrough levels only — every tenth.                 |
+| `summons` | ✅         | Pulls, at 100 crystals each.                            |
+| `spark`   | ❌         | A new character, or a targeted copy, in the spark shop. |
+| `alloy`   | ❌         | Gear levels, alongside gold.                            |
 
-**`spark` is the only currency with no rate at all**, and the `Rates` type enforces it. It is
-minted solely by copies of a character already at `ascended-5`, which makes it late-game overflow
-by construction.
+**Two currencies have no rate at all**, and the `Rates` type enforces it — `RATE_CURRENCY_IDS` is a
+narrower list than `CURRENCY_IDS`, so the offline solver cannot silently start paying either out.
+`spark` is minted solely by copies of a character already at `ascended-5`; `alloy` solely by
+salvaging gear. Both are what a duplicate becomes when there is nothing left to do with the object
+itself.
+
+**Gold's claim finally arrived.** Four places in this codebase said gold's level-curve coefficient
+was the shallowest of the three _because gear would spend it later_; milestone 12 is later.
+Levelling one character to 200 is about 6.4M gold; kitting a party of five in fully enhanced relics
+is about 32M. That roughly doubles what gold is for, taking it from the loosest of the three
+levelling currencies to comparable with essence. See [gear](gear.md).
 
 **The design target is that no currency is decorative.** Through level 140 all three levelling
 currencies land within about a third of each other in time-to-afford, so a player is never idling

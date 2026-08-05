@@ -1,0 +1,153 @@
+<header class="head">
+  <h1 class="head__title">Gear</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ format(alloy()) }}</span>
+    <span class="head__unit">alloy</span>
+  </p>
+</header>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<section class="shop" aria-labelledby="shop-label">
+  <div class="shop__head">
+    <h2 id="shop-label" class="section__heading">Forge</h2>
+    <p class="shop__restock">Restocks in {{ restockIn() }}</p>
+  </div>
+
+  <p class="intro">
+    Six pieces, priced against what your ladder earns. The same six until the hour turns — closing
+    the game will not change them.
+  </p>
+
+  <ul class="offers">
+    @for (offer of offers(); track offer.index) {
+      <li class="offer" [class.offer--taken]="offer.purchased">
+        <div class="offer__identity">
+          <h3 class="offer__name">
+            <span class="grade grade--{{ offer.item.gradeId }}">{{ offer.item.gradeName }}</span>
+            {{ offer.item.slotLabel }}
+          </h3>
+          <p class="offer__meta">
+            {{ offer.item.archetypeLabel }}
+            @if (offer.item.alignmentLabel; as faction) {
+              <span class="dot" aria-hidden="true">·</span>{{ faction }}
+            } @else {
+              <span class="dot" aria-hidden="true">·</span>Unaligned
+            }
+          </p>
+          <ul class="stats">
+            @for (bonus of offer.item.bonuses; track bonus.stat) {
+              <li class="stats__item">
+                <span class="stats__label">{{ bonus.label }}</span>
+                <span class="stats__value">+{{ bonus.percent }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          class="offer__buy"
+          [disabled]="offer.purchased || !offer.affordable"
+          (click)="buy(offer)"
+        >
+          @if (offer.purchased) {
+            Bought
+          } @else {
+            {{ format(offer.price) }} gold
+          }
+        </button>
+      </li>
+    }
+  </ul>
+</section>
+
+<section class="bag" aria-labelledby="bag-label">
+  <h2 id="bag-label" class="section__heading">Bag</h2>
+
+  @if (!hasGear()) {
+    <p class="empty" role="status">
+      Nothing spare yet. Every stage clear drops a piece — bosses drop several.
+    </p>
+  } @else {
+    <p class="intro">
+      Everything nobody is wearing. Equip a piece from its character’s sheet; enhance or salvage it
+      here.
+    </p>
+
+    <ul class="items">
+      @for (item of loose(); track item.id) {
+        <li class="item">
+          <button
+            type="button"
+            class="item__row"
+            [attr.aria-expanded]="openId() === item.id"
+            [attr.aria-controls]="'gear-' + item.id"
+            (click)="toggle(item.id)"
+          >
+            <span class="item__identity">
+              <span class="item__name">
+                <span class="grade grade--{{ item.gradeId }}">{{ item.gradeName }}</span>
+                {{ item.slotLabel }}
+              </span>
+              <span class="item__meta">
+                {{ item.archetypeLabel }}
+                <span class="dot" aria-hidden="true">·</span>
+                @if (item.alignmentLabel; as faction) {
+                  {{ faction }}
+                } @else {
+                  Unaligned
+                }
+              </span>
+            </span>
+            <span class="item__level">Lv {{ item.level }}/{{ item.maxLevel }}</span>
+          </button>
+
+          @if (openId() === item.id) {
+            <div class="detail" [id]="'gear-' + item.id">
+              <ul class="stats">
+                @for (bonus of item.bonuses; track bonus.stat) {
+                  <li class="stats__item">
+                    <span class="stats__label">{{ bonus.label }}</span>
+                    <span class="stats__value">+{{ bonus.percent }}%</span>
+                  </li>
+                }
+              </ul>
+
+              @if (costOf(item); as cost) {
+                <p class="detail__cost">
+                  Next level: <span class="detail__amount">{{ cost.alloy }}</span> alloy and
+                  <span class="detail__amount">{{ cost.gold }}</span> gold
+                </p>
+              } @else {
+                <p class="detail__cost">At this grade’s maximum level.</p>
+              }
+
+              <div class="detail__actions">
+                <button
+                  type="button"
+                  class="detail__enhance"
+                  [disabled]="item.atMaxLevel || !item.canAffordEnhance"
+                  (click)="enhance(item)"
+                >
+                  @if (item.atMaxLevel) {
+                    Maxed
+                  } @else if (!item.canAffordEnhance) {
+                    Cannot afford
+                  } @else {
+                    Enhance
+                  }
+                </button>
+                <button type="button" class="detail__salvage" (click)="salvage(item)">
+                  Salvage for {{ item.salvageValue }} alloy
+                </button>
+              </div>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

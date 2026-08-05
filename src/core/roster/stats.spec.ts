@@ -192,7 +192,7 @@ describe('toBattleCombatant', () => {
     const base = toBattleCombatant(TEST_GAMMA, owned(TEST_GAMMA), GROWTH, KIT, 1);
     const invested = toBattleCombatant(
       TEST_GAMMA,
-      { defId: 'gamma', rarity: 8, level: 200, copies: 0 },
+      { defId: 'gamma', rarity: 8, level: 200, copies: 0, gear: {} },
       GROWTH,
       KIT,
       200,
@@ -206,7 +206,7 @@ describe('toBattleCombatant', () => {
     // The milestone 9 seam. `OwnedCharacter.level` is what the player paid for; resonance can
     // carry a character above it, and a version of this that read the entry would send a bench
     // character into a fight at a level no screen was showing.
-    const entry = { defId: 'gamma', rarity: 8, level: 1, copies: 0 };
+    const entry = { defId: 'gamma', rarity: 8, level: 1, copies: 0, gear: {} };
 
     const invested = toBattleCombatant(TEST_GAMMA, entry, GROWTH, KIT, 1);
     const carried = toBattleCombatant(TEST_GAMMA, entry, GROWTH, KIT, 200);
@@ -217,7 +217,7 @@ describe('toBattleCombatant', () => {
   it('produces a combatant the simulation can parse without special-casing', () => {
     const combatant = toBattleCombatant(
       TEST_ALPHA,
-      { defId: 'alpha', rarity: 6, level: 300, copies: 0 },
+      { defId: 'alpha', rarity: 6, level: 300, copies: 0, gear: {} },
       GROWTH,
       KIT,
       300,
@@ -241,7 +241,7 @@ describe('toBattleCombatant', () => {
     const rare = toBattleCombatant(armed, owned(armed), GROWTH, KIT, 1);
     const elite = toBattleCombatant(
       armed,
-      { defId: armed.id, rarity: 2, level: 1, copies: 0 },
+      { defId: armed.id, rarity: 2, level: 1, copies: 0, gear: {} },
       GROWTH,
       KIT,
       1,

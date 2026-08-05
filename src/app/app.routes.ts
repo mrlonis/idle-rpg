@@ -39,6 +39,11 @@ export const routes: Routes = [
     title: 'Character — Idle RPG',
   },
   {
+    path: 'gear',
+    loadComponent: () => import('../ui/gear-view').then((m) => m.GearView),
+    title: 'Gear — Idle RPG',
+  },
+  {
     path: 'shop',
     loadComponent: () => import('../ui/shop-view').then((m) => m.ShopView),
     title: 'Spark Shop — Idle RPG',

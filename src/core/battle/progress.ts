@@ -1,4 +1,7 @@
 import { credit, raiseRates, type Rates, type SummonRateCurve, withSummonRate } from '../currency';
+import { addGear } from '../gear/inventory';
+import { rollDrops } from '../gear/roll';
+import { type GearRulesData } from '../gear/types';
 import {
   advancePosition,
   type ChapterCurveData,
@@ -12,6 +15,7 @@ import {
   totalStages,
 } from '../ladder';
 import { num, type Numeric, ZERO } from '../numeric';
+import { derivedStream } from '../rng';
 import { type GameState } from '../state';
 import { type AuthoredAmount, type BattleResult, type StageKind } from './types';
 
@@ -63,6 +67,7 @@ export function applyBattleResult(
   result: BattleResult,
   ladder: LadderShape,
   summonRate: SummonRateCurve,
+  gear?: GearAward,
 ): GameState {
   const won = result.outcome === 'victory';
 
@@ -92,7 +97,7 @@ export function applyBattleResult(
   // instead of waiting for a reload.
   const rates = withSummonRate(unlocked, summonRate, clearedStages);
 
-  return {
+  const advanced: GameState = {
     ...state,
     wallet,
     rates,
@@ -101,6 +106,35 @@ export function applyBattleResult(
     clearedStages,
     battleCount: state.battleCount + 1,
   };
+
+  if (!won || gear === undefined) {
+    return advanced;
+  }
+  // Rolled from a **derived** stream keyed on the battle that produced them, exactly as the fight
+  // itself is. Drawing from the main stream would make clearing a stage shift the pull sequence,
+  // which is the hazard `core/rng.ts` exists to remove; `state.battleCount` is in the label rather
+  // than `advanced.battleCount` so a drop belongs to the fight that dropped it.
+  const draw = derivedStream(state.rng.seed, `gear:${current}:${state.battleCount}`);
+  const specs = rollDrops(gear.rules, gear.factions, current, gear.kind, draw);
+  return addGear(advanced, specs, gear.rules).state;
+}
+
+/**
+ * What a stage clear drops, as the caller has to describe it.
+ *
+ * A bundle rather than three more parameters, and **optional** rather than required: the balance
+ * sweep and every combat spec fold results into a run without caring about the bag, and a required
+ * argument would make each of them construct gear content they have no use for.
+ *
+ * The stage `kind` is passed in rather than derived because `applyBattleResult` is handed a ladder
+ * *shape* — chapter lengths — and not the chapter curve that decides where the mini-bosses fall.
+ * The caller already resolved the stage it fought, so it already knows.
+ */
+export interface GearAward {
+  readonly rules: GearRulesData;
+  /** The factions a dropped piece may be aligned to. Content, so it arrives as an argument. */
+  readonly factions: readonly string[];
+  readonly kind: StageKind;
 }
 
 /**

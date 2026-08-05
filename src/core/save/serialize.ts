@@ -6,6 +6,7 @@ import {
   serializeWallet,
   type Wallet,
 } from '../currency';
+import { emptyGearShop, type GearItem, type GearShopState } from '../gear/types';
 import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
@@ -63,6 +64,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       rarity: owned.rarity,
       level: owned.level,
       copies: owned.copies,
+      gear: { ...owned.gear },
     })),
     formation: {
       front: [...state.formation.front],
@@ -70,8 +72,26 @@ export function toSaveData(state: GameState): CurrentSaveData {
     },
     pity: state.pity,
     pullCount: state.pullCount,
+    gear: state.gear.map((item) => ({
+      id: item.id,
+      slot: item.slot,
+      archetype: item.archetype,
+      grade: item.grade,
+      // Omitted rather than written as null, so an unaligned piece costs five bytes instead of
+      // twenty-two. The bag is the one collection in this save that runs to hundreds of entries.
+      ...(item.alignment === undefined ? {} : { alignment: item.alignment }),
+      level: item.level,
+    })),
+    gearMinted: state.gearMinted,
+    gearShop: {
+      slot: state.gearShop.slot,
+      purchased: [...state.gearShop.purchased],
+    },
   };
 }
+
+/** A field that could not be loaded as written, in the shape the repair pass reports it. */
+type Note = (field: string, problem: string, recovered: string) => void;
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
@@ -155,6 +175,9 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
 
   const roster = readRoster(record['roster'], options, note);
   const formation = readFormation(record['formation'], roster, note);
+  const gear = readGear(record['gear'], note);
+  const gearMinted = readGearMinted(record['gearMinted'], gear, note);
+  const gearShop = readGearShop(record['gearShop'], note);
 
   return {
     state: {
@@ -171,9 +194,155 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       formation,
       pity,
       pullCount,
+      gear,
+      gearMinted,
+      gearShop,
     },
     issues,
   };
+}
+
+/**
+ * Decodes the bag, dropping anything structurally unusable.
+ *
+ * ⚠️ **This checks shape, not content.** It does not know which slots, archetypes or grades the
+ * build ships — that is `data/`, and `core/save/` cannot see it any more than the rest of `core/`
+ * can. So an entry with a string slot survives here and is dropped later by `repairLoadouts`, which
+ * is handed the gear rules and can say whether `'greaves'` is a real slot. Splitting it that way is
+ * what keeps a save readable by a build whose content has moved on: the bytes parse, and then the
+ * content check decides what to keep.
+ *
+ * A piece with no usable id is dropped outright, because an id is how a loadout refers to it and
+ * a piece nothing can refer to is a piece nobody can equip. Duplicates go for the same reason
+ * `readRoster` drops them: two objects with one id is the damage that pays a bonus twice.
+ */
+function readGear(raw: unknown, note: Note): readonly GearItem[] {
+  if (raw === undefined || raw === null) {
+    return [];
+  }
+  if (!Array.isArray(raw)) {
+    note('gear', `not an array (${JSON.stringify(raw) ?? 'undefined'})`, 'no gear');
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const gear: GearItem[] = [];
+  for (const entry of raw) {
+    const record = asRecord(entry);
+    const id = record['id'];
+    const slot = record['slot'];
+    const archetype = record['archetype'];
+    if (
+      typeof id !== 'string' ||
+      id === '' ||
+      typeof slot !== 'string' ||
+      typeof archetype !== 'string'
+    ) {
+      note(
+        'gear[]',
+        `entry is not a gear item (${JSON.stringify(entry) ?? 'undefined'})`,
+        'dropped',
+      );
+      continue;
+    }
+    if (seen.has(id)) {
+      note('gear[]', `duplicate item id "${id}"`, 'dropped');
+      continue;
+    }
+    seen.add(id);
+
+    const alignment = record['alignment'];
+    const grade = record['grade'];
+    const level = record['level'];
+    gear.push({
+      id,
+      slot: slot as GearItem['slot'],
+      archetype: archetype as GearItem['archetype'],
+      grade: typeof grade === 'number' && Number.isInteger(grade) && grade >= 0 ? grade : 0,
+      alignment: typeof alignment === 'string' && alignment !== '' ? alignment : undefined,
+      level:
+        typeof level === 'number' && Number.isFinite(level) ? Math.max(Math.floor(level), 1) : 1,
+    });
+  }
+  return gear;
+}
+
+/**
+ * Decodes the mint counter, never below what the bag already proves has been minted.
+ *
+ * A counter that has fallen behind the ids in use is the one kind of damage here that produces a
+ * plausible wrong answer instead of a missing one: the next drop reissues a live id, and a loadout
+ * silently rebinds to a different object. So the recovered value is the larger of what was written
+ * and what the bag implies, read off the `g<n>` ids themselves rather than off the array length —
+ * a bag that has had pieces salvaged out of it is shorter than the number minted.
+ */
+function readGearMinted(raw: unknown, gear: readonly GearItem[], note: Note): number {
+  let highest = 0;
+  for (const item of gear) {
+    const parsed = /^g(\d+)$/.exec(item.id);
+    if (parsed?.[1] !== undefined) {
+      highest = Math.max(highest, Number(parsed[1]));
+    }
+  }
+
+  const written =
+    typeof raw === 'number' && Number.isInteger(raw) && raw >= 0
+      ? raw
+      : ((): number => {
+          note(
+            'gearMinted',
+            `not a non-negative integer (${JSON.stringify(raw) ?? 'undefined'})`,
+            String(highest),
+          );
+          return 0;
+        })();
+
+  if (written < highest) {
+    note('gearMinted', `below the highest minted id (${written} < ${highest})`, String(highest));
+    return highest;
+  }
+  return written;
+}
+
+/**
+ * Decodes the shop ledger.
+ *
+ * A damaged ledger costs nothing and self-heals: the stock is derived from the seed and the refresh
+ * slot, so all this holds is "which offers have already been taken from the stocking I am looking
+ * at". Defaulting to an empty list hands a player one extra shop, which is the harmless direction —
+ * the opposite mistake would silently mark offers sold that nobody bought.
+ */
+function readGearShop(raw: unknown, note: Note): GearShopState {
+  if (raw === undefined || raw === null) {
+    return emptyGearShop();
+  }
+  const record = asRecord(raw);
+  const slot = record['slot'];
+  const purchased = record['purchased'];
+  if (typeof slot !== 'number' || !Number.isInteger(slot) || slot < 0) {
+    note(
+      'gearShop.slot',
+      `not a non-negative integer (${JSON.stringify(slot) ?? 'undefined'})`,
+      '0',
+    );
+    return emptyGearShop();
+  }
+  if (!Array.isArray(purchased)) {
+    note(
+      'gearShop.purchased',
+      `not an array (${JSON.stringify(purchased) ?? 'undefined'})`,
+      'empty',
+    );
+    return { slot, purchased: [] };
+  }
+  const indices = purchased.filter(
+    (value: unknown): value is number =>
+      typeof value === 'number' && Number.isInteger(value) && value >= 0,
+  );
+  if (indices.length !== purchased.length) {
+    note('gearShop.purchased', 'contains non-index entries', 'those entries dropped');
+  }
+  return { slot, purchased: [...new Set(indices)].sort((a, b) => a - b) };
 }
 
 /**
@@ -228,6 +397,7 @@ function readRoster(
           rarity: typeof record['rarity'] === 'number' ? record['rarity'] : 0,
           level: typeof record['level'] === 'number' ? record['level'] : 1,
           copies: typeof record['copies'] === 'number' ? record['copies'] : 0,
+          gear: readLoadout(record['gear']),
         },
         character,
         options.levelCurve,
@@ -235,6 +405,26 @@ function readRoster(
     );
   }
   return roster;
+}
+
+/**
+ * Decodes one character's loadout: slot ids to item ids, and nothing else.
+ *
+ * Deliberately silent — it reports no issues. Every meaningful check on a loadout needs to see both
+ * the bag and the content this build ships (does the id resolve, is the piece in the slot it claims,
+ * does its archetype still match its wearer), and `repairLoadouts` is where all three are answerable.
+ * Noting "dropped an unresolvable reference" here would mean noting it again there, or noting it
+ * here on the basis of a check this function cannot actually perform.
+ */
+function readLoadout(raw: unknown): Record<string, string> {
+  const loadout: Record<string, string> = {};
+  const record = asRecord(raw);
+  for (const [slot, id] of Object.entries(record)) {
+    if (typeof id === 'string' && id !== '') {
+      loadout[slot] = id;
+    }
+  }
+  return loadout;
 }
 
 /**

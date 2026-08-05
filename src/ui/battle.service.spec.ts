@@ -66,6 +66,7 @@ function withStarters(state: GameState, level = 1): GameState {
     rarity: startRarityIndex(CHARACTERS_BY_ID.get(defId)?.tier ?? 'common'),
     level,
     copies: 0,
+    gear: {},
   }));
   return { ...state, roster, formation: STARTER_FORMATION };
 }

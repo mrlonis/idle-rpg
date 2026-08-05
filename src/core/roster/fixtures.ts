@@ -1,4 +1,5 @@
 import { type GachaRulesData } from '../gacha/types';
+import { emptyLoadout } from '../gear/types';
 import { type GrowthData } from '../growth';
 import { type FactionLookup } from './ascend';
 import { type KitRulesData } from './kit';
@@ -36,7 +37,7 @@ export const TEST_ALPHA: CharacterData = {
   name: 'Alpha',
   faction: 'test-mortal',
   tier: 'common',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 100,
     atk: 10,
@@ -52,7 +53,7 @@ export const TEST_BETA: CharacterData = {
   name: 'Beta',
   faction: 'test-mortal',
   tier: 'legendary',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 120,
     atk: 12,
@@ -68,7 +69,7 @@ export const TEST_GAMMA: CharacterData = {
   name: 'Gamma',
   faction: 'test-mortal',
   tier: 'ascended',
-  role: 'bruiser',
+  role: 'brawler',
   stats: {
     hp: 140,
     atk: 14,
@@ -227,5 +228,6 @@ export function owned(character: CharacterData, copies = 0, rarity?: number): Ow
     rarity: rarity ?? (character.tier === 'ascended' ? 2 : 0),
     level: 1,
     copies,
+    gear: emptyLoadout(),
   };
 }

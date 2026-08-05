@@ -14,12 +14,14 @@ import {
   type FodderOption,
   type FormationData,
   formationSize,
+  gearLookup,
   levelCapFor,
   levelCost,
   levelUp,
   levelUpToAffordable,
   lineupBonus,
   type LineupSummary,
+  loadoutBonus,
   MAX_RARITY_INDEX,
   maxAffordableLevel,
   maxAffordableResonance,
@@ -49,6 +51,7 @@ import {
   factionName,
   FACTIONS_BY_ID,
   FACTIONS_IN_ORDER,
+  GEAR,
   GROWTH_RULES,
   KIT,
   LEVELS,
@@ -273,6 +276,9 @@ export class RosterService {
     // party fights at its effective level, and the floor is a fact about the roster the party
     // was drawn from rather than about any one member of it.
     const floor = resonanceFloor(state.roster);
+    // One lookup for the whole party rather than one per member: a loadout holds ids into the
+    // bag, and the bag is the run's single list of pieces.
+    const gear = gearLookup(state.gear);
     const resolve = (ids: readonly string[]): CombatantData[] => {
       const combatants: CombatantData[] = [];
       for (const defId of ids) {
@@ -286,6 +292,11 @@ export class RosterService {
               GROWTH_RULES,
               KIT,
               effectiveLevel(LEVELS, owned, floor),
+              // Gear is the third axis and it enters here, on the same seam as the level and the
+              // rung. Resolved per member because the bonus depends on the wearer — an aligned
+              // piece is worth more on its own faction — which is why `loadoutBonus` takes the
+              // faction rather than looking it up.
+              loadoutBonus(GEAR, owned.gear, gear, character.faction),
             ),
           );
         }

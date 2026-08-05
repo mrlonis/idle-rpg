@@ -10,6 +10,7 @@ import {
   type FactionData,
   type FactionLookup,
   type GachaRulesData,
+  type GearRulesData,
   type GrowthData,
   type KitRulesData,
   type LadderShape,
@@ -31,6 +32,7 @@ import {
   COMBAT_RULES,
   ELITE_UPGRADE_CHANCE,
   FACTIONS,
+  GEAR_RULES,
   GROWTH,
   KIT_RULES,
   LEVEL_CURVE,
@@ -86,6 +88,24 @@ export const GROWTH_RULES: GrowthData = GROWTH;
 
 /** How many skills a tier may field, and which rung unlocks each one. */
 export const KIT: KitRulesData = KIT_RULES;
+
+/**
+ * The grade ladder, the stat profiles, and every gear price.
+ *
+ * The typed local is what turns a malformed profile into a compile error rather than a slot that
+ * silently contributes nothing — which is the failure mode a percentage table has, since a missing
+ * entry and a zero entry produce the same combatant.
+ */
+export const GEAR: GearRulesData = GEAR_RULES;
+
+/**
+ * The faction ids a dropped or stocked piece may be aligned to.
+ *
+ * Derived from {@link FACTIONS_IN_ORDER} rather than listed, so adding a faction widens the drop
+ * table without anybody remembering to. It is the ids alone because that is all `core/gear/` needs:
+ * alignment is compared against a character's `faction` string and never rendered from here.
+ */
+export const GEAR_ALIGNMENTS: readonly string[] = FACTIONS_IN_ORDER.map((faction) => faction.id);
 
 /**
  * The combat rules, parsed once.

@@ -31,7 +31,7 @@ describe('toSaveData', () => {
   it('encodes Numeric fields as strings and stamps the current version', () => {
     expect(toSaveData(withGold(99, '1.5e+25'))).toEqual({
       version: SAVE_VERSION,
-      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0' },
+      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
       rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
@@ -43,6 +43,9 @@ describe('toSaveData', () => {
       formation: { front: [], back: [] },
       pity: 0,
       pullCount: 0,
+      gear: [],
+      gearMinted: 0,
+      gearShop: { slot: 0, purchased: [] },
     });
   });
 
@@ -53,11 +56,13 @@ describe('toSaveData', () => {
   it('encodes the roster as plain records', () => {
     const state: GameState = {
       ...newGame({ seed: 3, nowMs: T0 }),
-      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }],
+      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} }],
       formation: { front: ['alpha'], back: [] },
     };
 
-    expect(toSaveData(state).roster).toEqual([{ defId: 'alpha', rarity: 4, level: 12, copies: 7 }]);
+    expect(toSaveData(state).roster).toEqual([
+      { defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} },
+    ]);
     expect(toSaveData(state).formation).toEqual({ front: ['alpha'], back: [] });
   });
 });
@@ -78,7 +83,7 @@ describe('round-trip', () => {
       chapter: 2,
       stage: 6,
       clearedStages: 5,
-      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2 }],
+      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2, gear: {} }],
       formation: { front: ['gamma'], back: [] },
       pity: 22,
       pullCount: 631,
@@ -206,7 +211,12 @@ describe('fromSaveData repair', () => {
       // The stated rule, and the reason the repair pass takes a character lookup at all: an id
       // nothing can render must not survive into the UI as a crash.
       const { state, issues } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }, { defId: 'ghost' }] },
+        {
+          roster: [
+            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+            { defId: 'ghost' },
+          ],
+        },
         OPTIONS,
       );
 
@@ -218,8 +228,8 @@ describe('fromSaveData repair', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [
-            { defId: 'alpha', rarity: 0, level: 5, copies: 1 },
-            { defId: 'alpha', rarity: 3, level: 9, copies: 4 },
+            { defId: 'alpha', rarity: 0, level: 5, copies: 1, gear: {} },
+            { defId: 'alpha', rarity: 3, level: 9, copies: 4, gear: {} },
           ],
         },
         OPTIONS,
@@ -234,7 +244,7 @@ describe('fromSaveData repair', () => {
       // The one recoverable kind of damage here. Keeping it is the difference between a player
       // losing one character's progress and losing the character.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4 }] },
+        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4, gear: {} }] },
         OPTIONS,
       );
 
@@ -247,7 +257,7 @@ describe('fromSaveData repair', () => {
       // `gamma` is ascended-tier and starts at Elite. At Rare its ascension costs would be
       // computed from a rung it could never have been on.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0 }] },
+        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {} }] },
         OPTIONS,
       );
 
@@ -256,7 +266,7 @@ describe('fromSaveData repair', () => {
 
     it('clamps a level above the rarity’s cap', () => {
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0 }] },
+        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0, gear: {} }] },
         OPTIONS,
       );
 
@@ -268,7 +278,7 @@ describe('fromSaveData repair', () => {
     it('drops members who are not owned', () => {
       const { state, issues } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
           formation: { front: ['alpha', 'beta'], back: ['ghost'] },
         },
         OPTIONS,
@@ -283,7 +293,7 @@ describe('fromSaveData repair', () => {
     it('drops a repeated member rather than letting it stand in both ranks', () => {
       const { state } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0 }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
           formation: { front: ['alpha'], back: ['alpha'] },
         },
         OPTIONS,

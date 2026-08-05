@@ -46,6 +46,36 @@ const unlockedSave = {
  */
 const awaySave = { ...unlockedSave, lastTickAt: Date.now() - 3_600_000 };
 
+/**
+ * A run with gear in the bag, one piece worn, and enough gold to buy from the forge.
+ *
+ * A fresh run's bag is empty, so no scan above would ever see a gear row, a grade badge, an
+ * expanded enhance panel or an affordable shop button. This is written at the **current** schema
+ * rather than migrated from v0, because the fields under test are the ones v1 added.
+ *
+ * Rin is a ranger and Bran a tank, so the pieces below are the archetypes those two can actually
+ * equip — a bag of gear nobody in the party can wear would scan the empty-picker branch and never
+ * reach the list.
+ */
+const gearedSave = {
+  ...unlockedSave,
+  version: 1,
+  wallet: { gold: '5e+7', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '250000' },
+  roster: [
+    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: { chest: 'g1' } },
+    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+  ],
+  gear: [
+    { id: 'g1', slot: 'chest', archetype: 'ranger', grade: 3, alignment: 'elf', level: 40 },
+    { id: 'g2', slot: 'chest', archetype: 'ranger', grade: 1, level: 8 },
+    { id: 'g3', slot: 'boots', archetype: 'ranger', grade: 4, alignment: 'human', level: 12 },
+    { id: 'g4', slot: 'head', archetype: 'tank', grade: 0, level: 1 },
+  ],
+  gearMinted: 4,
+  gearShop: { slot: 0, purchased: [] },
+};
+
 /** Writes a save the app will read on its next load. Capacitor's web backend is localStorage. */
 async function seedSave(page: Page, save: unknown): Promise<void> {
   await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
@@ -187,6 +217,47 @@ test.describe('Accessibility', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
 
     await scan(page, testInfo, 'character');
+  });
+
+  /**
+   * The gear screens carry two patterns nothing else here does: a disclosure whose expanded panel
+   * holds its own controls, and a grade that is drawn as a colour. Colour is never the only
+   * carrier of meaning in this project, so a scan that never expands a row would miss the half of
+   * that rule the markup is responsible for.
+   */
+  test('the gear screen has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, gearedSave);
+    await page.goto('/gear');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Gear' })).toBeVisible();
+    // The forge renders six offers whatever the run holds; the bag only renders rows when
+    // something is spare, so waiting on a bag row is what proves the seeded save was read.
+    await expect(page.getByRole('heading', { level: 2, name: 'Forge' })).toBeVisible();
+    await expect(page.locator('.item').first()).toBeVisible();
+
+    // Expanded, so the scan covers the enhance and salvage controls inside the panel rather than
+    // only the row that reveals them.
+    await page.locator('.item__row').first().click();
+    await expect(page.locator('.detail')).toBeVisible();
+
+    await scan(page, testInfo, 'gear');
+  });
+
+  test('a character sheet with its gear picker open has no AXE violations', async ({
+    page,
+  }, testInfo) => {
+    await seedSave(page, gearedSave);
+    await page.goto('/roster/rin');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Gear' })).toBeVisible();
+
+    // The chest slot is the one holding a piece *and* offering an alternative, so opening it
+    // scans the "take off" control and the option list together.
+    await page.getByRole('button', { name: /^Chest/ }).click();
+    await expect(page.locator('.picker')).toBeVisible();
+
+    await scan(page, testInfo, 'character-gear');
   });
 
   test('the spark shop has no AXE violations', async ({ page }, testInfo) => {

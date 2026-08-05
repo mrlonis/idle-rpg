@@ -14,6 +14,7 @@ function wallet(): Wallet {
     essence: num(300),
     summons: num(400),
     spark: num(500),
+    alloy: num(600),
   };
 }
 

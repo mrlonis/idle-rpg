@@ -1,4 +1,6 @@
 import { type CombatantData, type EnemyData, type StatBlockData } from '../battle/types';
+import { applyGearBonus } from '../gear/stats';
+import { type GearBonus } from '../gear/types';
 import { type CharacterTier, growthAt, type GrowthData } from '../growth';
 import { num, type Numeric, serialize } from '../numeric';
 import { type KitRulesData, unlockedSkills } from './kit';
@@ -146,12 +148,23 @@ export function toBattleCombatant(
   growth: GrowthData,
   kit: KitRulesData,
   level: number,
+  gear?: GearBonus,
 ): CombatantData {
+  const scaled = scaleStats(character.stats, growth, character.tier, level, owned.rarity);
   return {
     id: character.id,
     name: character.name,
     faction: character.faction,
-    stats: scaleStats(character.stats, growth, character.tier, level, owned.rarity),
+    // Gear is applied **after** growth rather than to the authored block, and the order is not
+    // arbitrary. A percentage of the level-1 block is a fixed quantity that the level curve then
+    // leaves behind within a few dozen levels; a percentage of the *scaled* block is worth the same
+    // proportion forever, which is the whole reason gear is expressed as a percentage. See
+    // `core/gear/stats.ts`.
+    //
+    // Both operations are multiplications, so they commute and the whole-board rescale identity
+    // that `simulate.spec.ts` asserts survives either way. The order matters for what the number
+    // *means*, not for whether the arithmetic works.
+    stats: gear === undefined ? scaled : applyGearBonus(scaled, gear),
     basic: character.basic,
     skills: unlockedSkills(character.skills ?? [], kit, character.tier, owned.rarity),
   };
