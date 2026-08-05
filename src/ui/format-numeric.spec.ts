@@ -78,8 +78,8 @@ describe('formatNumeric', () => {
 describe('formatRate on the slow currencies', () => {
   it('quotes a rate below 0.1/s per hour instead', () => {
     // Essence and summon crystals accrue in hundredths of a unit per second. Per second they
-    // read as "0.01/s" — true, and completely useless for answering "how long until I can pull".
-    expect(formatRate(num('0.014'))).toBe('50.4/hr');
+    // read as "0.03/s" — true, and completely useless for answering "how long until I can pull".
+    expect(formatRate(num(100 / 3600))).toBe('100/hr');
     expect(formatRate(num('0.05'))).toBe('180/hr');
   });
 

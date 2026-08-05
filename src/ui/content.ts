@@ -13,6 +13,7 @@ import {
   type LevelCurveData,
   type ShopOfferData,
   type StageProgressData,
+  type SummonRateCurve,
   toAmount,
   toCombatRules,
   toRates,
@@ -32,6 +33,7 @@ import {
   SPARK_PER_COPY,
   SPARK_SHOP,
   STAGES,
+  SUMMON_RATE,
   TIER_WEIGHTS,
 } from '../data';
 
@@ -120,6 +122,15 @@ export const STAGE_PROGRESS: readonly StageProgressData[] = STAGES.map((stage) =
   rates: toRates(stage.rates),
   firstClearSummons: toAmount(stage.firstClearSummons),
 }));
+
+/**
+ * How the idle crystal rate is earned: a flat base, plus a step per stage first cleared.
+ *
+ * The one rate that is not in {@link STAGE_PROGRESS}, because it is not per-stage content —
+ * `applyBattleResult` and `reconcileClearedStages` both derive it from `clearedStages`, and both
+ * need this to do it. The typed local is what makes a malformed curve a compile error.
+ */
+export const SUMMON_RATE_CURVE: SummonRateCurve = SUMMON_RATE;
 
 /** A character definition by id, for templates that hold only an id. */
 export function characterById(defId: string): CharacterData | undefined {

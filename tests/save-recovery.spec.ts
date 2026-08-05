@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
-import { num } from '../src/core';
-import { STAGES } from '../src/data';
+import { num, summonRatePerSecond } from '../src/core';
+import { STAGES, SUMMON_RATE } from '../src/data';
 import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 
 /**
@@ -42,6 +42,15 @@ async function seedSave(page: Page, save: unknown): Promise<void> {
  * numbers quietly started describing a different save than the one the test claimed to be about.
  */
 const top = STAGES[STAGES.length - 1];
+
+/**
+ * The crystal rate a fully cleared ladder earns, per second.
+ *
+ * Derived rather than read off `top`, because no stage authors a crystal rate: it is a function
+ * of the clear count, so repairing the count is what repairs this rate. That makes it the one
+ * number on this screen that proves the two halves of the repair agreed.
+ */
+const crystalRate = summonRatePerSecond(SUMMON_RATE, STAGES.length);
 
 /** Every first-clear bonus on the ladder, which is what a fully cleared run is owed. */
 const owedCrystals = STAGES.reduce(
@@ -98,7 +107,7 @@ test.describe('recovering a pre-gacha save', () => {
     await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
     await expect(rateOf(page, 'Essence')).toHaveText(shownRate(top.rates.essence));
-    await expect(rateOf(page, 'Crystals')).toHaveText(shownRate(top.rates.summons));
+    await expect(rateOf(page, 'Crystals')).toHaveText(formatRate(crystalRate));
   });
 
   test('pays the first-clear bonuses the ladder had already earned', async ({ page }) => {
@@ -143,7 +152,7 @@ test.describe('recovering a pre-gacha save', () => {
     await page.reload();
 
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
-    await expect(rateOf(page, 'Crystals')).toHaveText(shownRate(top.rates.summons));
+    await expect(rateOf(page, 'Crystals')).toHaveText(formatRate(crystalRate));
   });
 });
 
@@ -164,7 +173,7 @@ test.describe('re-fighting a cleared stage', () => {
       gold: String(top.rates.gold),
       xp: String(top.rates.xp),
       essence: String(top.rates.essence),
-      summons: String(top.rates.summons),
+      summons: String(crystalRate),
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
@@ -182,7 +191,7 @@ test.describe('re-fighting a cleared stage', () => {
   };
 
   test('pays the lump but never a second first-clear bonus', async ({ page }) => {
-    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 50.4/hr, so a bonus
+    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 124/hr, so a bonus
     // firing again is unmistakable: the balance would jump past 200 rather than creeping up by
     // a fraction over the few seconds this test takes.
     await seedSave(page, clearedEverything);

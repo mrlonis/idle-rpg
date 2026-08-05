@@ -16,7 +16,7 @@ import {
   ZERO,
 } from '../core';
 import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from '../data';
-import { COMBAT } from './content';
+import { COMBAT, SUMMON_RATE_CURVE } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -180,6 +180,20 @@ export class BattleService {
    * the moment another fight starts, because by then it is describing a run that is over.
    */
   readonly autoStoppedAt = signal<StageHeading | null>(null);
+
+  /**
+   * Closes the "auto-battle stopped" line on the home screen.
+   *
+   * The same clear {@link fight} performs on its way in, exposed for the player: the line
+   * describes a run that has already ended, so there is nothing to preserve by keeping it up.
+   *
+   * Cleared on the service rather than hidden by the screen because `HomeView` is lazily routed
+   * and re-created on every navigation, so a dismissal the component held would not survive a
+   * trip to the roster and back.
+   */
+  dismissAutoStopped(): void {
+    this.autoStoppedAt.set(null);
+  }
 
   private readonly liveHp = signal<ReadonlyMap<string, Numeric>>(new Map());
   private readonly liveEnergy = signal<ReadonlyMap<string, number>>(new Map());
@@ -601,7 +615,7 @@ export class BattleService {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
-    this.game.apply((state) => applyBattleResult(state, result, STAGES.length));
+    this.game.apply((state) => applyBattleResult(state, result, STAGES.length, SUMMON_RATE_CURVE));
     void this.game.persist();
 
     if (!this.isAuto()) {

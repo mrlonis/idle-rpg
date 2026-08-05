@@ -123,9 +123,9 @@ export class HomeView {
   /**
    * What to say under the counter.
    *
-   * A run that has never won earns nothing at all, so the first message has to explain why the
-   * number is not moving. Once income is flowing that sentence is simply untrue, and leaving it
-   * up would teach the player to ignore this line.
+   * A run that has never won earns crystals and nothing else, so the first message says which of
+   * the four numbers is moving and what starts the rest. Once income is flowing that sentence is
+   * simply untrue, and leaving it up would teach the player to ignore this line.
    */
   protected readonly hint = computed(() => {
     if (this.fieldedCount() === 0) {
@@ -135,7 +135,7 @@ export class HomeView {
       return 'Nobody is in your front row. Attacks reach the back row first when the front is empty.';
     }
     return this.game.goldPerSec().lte(0)
-      ? 'Idle earns nothing yet. Win a stage to start banking gold, XP, essence and crystals while you are away.'
+      ? 'Crystals are already accruing while you are away. Win a stage to start banking gold, XP and essence too.'
       : 'Every stage you clear raises all four idle rates for good.';
   });
 
@@ -159,5 +159,25 @@ export class HomeView {
     // The clock lives here, as it does everywhere else in `ui/`. Opening the battle screen is
     // the service's business: the screen's lifetime is the battle session.
     this.battles.fight(Date.now());
+  }
+
+  /**
+   * Closes one of the two notices that report something that already happened.
+   *
+   * Both delegate to the service that owns the signal rather than hiding the line locally: this
+   * screen is lazily routed and is destroyed and rebuilt on every navigation, so a flag held
+   * here would put the notice straight back on the player's next visit.
+   *
+   * Only these two are dismissible. The save-health notices above them describe a condition that
+   * is still true — a run whose save could not be read is not being written to disk for the rest
+   * of the session — and a warning that is still costing the player something should not be
+   * closable.
+   */
+  protected dismissAutoStopped(): void {
+    this.battles.dismissAutoStopped();
+  }
+
+  protected dismissOfflineSummary(): void {
+    this.game.dismissOfflineReport();
   }
 }

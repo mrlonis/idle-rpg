@@ -15,7 +15,7 @@ import {
   zeroRates,
 } from '../core';
 import { STARTER_FORMATION } from '../data';
-import { CHARACTERS_BY_ID, STAGE_PROGRESS } from './content';
+import { CHARACTERS_BY_ID, STAGE_PROGRESS, SUMMON_RATE_CURVE } from './content';
 import { SaveService } from './save.service';
 
 /**
@@ -96,6 +96,20 @@ export class GameLoopService {
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
   readonly offlineReport = signal<OfflineReport | null>(null);
 
+  /**
+   * Closes the "while you were away" panel.
+   *
+   * Lives here rather than as a flag on the screen because `HomeView` is lazily routed and
+   * re-created on every navigation — a dismissal held in the component would bring the panel
+   * back the moment the player looked at their roster and came home again.
+   *
+   * Discarding the report costs nothing: it is a receipt for income already banked in the
+   * wallet, not the income itself. The next genuine absence publishes a fresh one.
+   */
+  dismissOfflineReport(): void {
+    this.offlineReport.set(null);
+  }
+
   /** Fields recovered from a damaged save, so the UI can tell the player what happened. */
   readonly saveIssues = signal<readonly RepairIssue[]>([]);
 
@@ -141,8 +155,13 @@ export class GameLoopService {
     // also undercounted `clearedStages` at the top of the ladder, and paid none of the
     // first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
     // recoverable from the gold rate the save did keep.
+    //
+    // It is also where the crystal rate is established, for every run rather than only a damaged
+    // one: that rate is a function of `clearedStages` rather than a per-stage unlock, and
+    // `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
+    // arrives here earning nothing and leaves earning the base.
     const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
-    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS);
+    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS, SUMMON_RATE_CURVE);
     this.settle(nowMs);
 
     this.running = true;

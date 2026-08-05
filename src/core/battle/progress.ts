@@ -1,4 +1,4 @@
-import { credit, raiseRates, type Rates } from '../currency';
+import { credit, raiseRates, type Rates, type SummonRateCurve, withSummonRate } from '../currency';
 import { type Numeric, ZERO } from '../numeric';
 import { type GameState } from '../state';
 import { type BattleResult } from './types';
@@ -26,8 +26,11 @@ import { type BattleResult } from './types';
  *   describes something that happens once, and re-running it should not be reaching for the
  *   rate table at all.
  * - The first-clear summon bonus is likewise paid **once per stage, ever**.
+ * - The crystal rate is not read off the stage at all. It is a function of `clearedStages`
+ *   (see {@link SummonRateCurve}), so a first clear steps it up and a re-fight cannot: the
+ *   count is what moved, not the stage that was fought.
  *
- * `clearedStages` is what makes both of those answerable: `stage` stops climbing at the top of
+ * `clearedStages` is what makes all of those answerable: `stage` stops climbing at the top of
  * the ladder, so a player farming the last stage would otherwise re-earn its bonus on every win.
  *
  * `raiseRates` still guards against a rate ever falling, even though a first clear should never
@@ -35,13 +38,15 @@ import { type BattleResult } from './types';
  * from a build with a different curve cannot cut a player's income — see `reconcileClearedStages`
  * for the repair path that leans on the same guarantee.
  *
- * `stageCount` is passed in because `core/` cannot import `data/` — content reaches the
- * simulation as arguments, which is also what lets this be tested without shipped stages.
+ * `stageCount` and `summonRate` are passed in because `core/` cannot import `data/` — content
+ * reaches the simulation as arguments, which is also what lets this be tested without shipped
+ * stages.
  */
 export function applyBattleResult(
   state: GameState,
   result: BattleResult,
   stageCount: number,
+  summonRate: SummonRateCurve,
 ): GameState {
   const lastStage = Number.isFinite(stageCount) ? Math.max(Math.floor(stageCount), 1) : 1;
   const won = result.outcome === 'victory';
@@ -62,13 +67,22 @@ export function applyBattleResult(
     wallet = credit(wallet, { summons: bonus });
   }
 
+  const clearedStages = isFirstClear ? current : state.clearedStages;
+
+  // First clear only. A re-fight pays its lump and changes nothing about income.
+  const unlocked = isFirstClear ? raiseRates(state.rates, result.reward.rates) : state.rates;
+  // Applied on every battle rather than only on a first clear, because it is a function of a
+  // count that did not necessarily change. That costs one comparison on a loss and means a run
+  // whose crystal rate somehow sits below what its clears have earned heals on the next fight
+  // instead of waiting for a reload.
+  const rates = withSummonRate(unlocked, summonRate, clearedStages);
+
   return {
     ...state,
     wallet,
-    // First clear only. A re-fight pays its lump and changes nothing about income.
-    rates: isFirstClear ? raiseRates(state.rates, result.reward.rates) : state.rates,
+    rates,
     stage,
-    clearedStages: isFirstClear ? current : state.clearedStages,
+    clearedStages,
     battleCount: state.battleCount + 1,
   };
 }
@@ -115,19 +129,32 @@ export interface StageProgressData {
  * Stages already counted in `clearedStages` are not re-paid. That is what keeps it idempotent —
  * the second load credits nothing, so it owes nothing.
  *
+ * ## It is also where the crystal rate comes from
+ *
+ * The other three rates are unlocked by stages and so can only be rebuilt from a table. The
+ * crystal rate is a function of the clear count (see {@link SummonRateCurve}), which makes this
+ * the natural place to evaluate it — and the only place that can, for a run that has never
+ * fought: `newGame` cannot see content, so a brand-new save arrives with a zero crystal rate and
+ * leaves this function earning the base.
+ *
  * This only ever **raises** — `clearedStages` never falls, no rate is ever cut, no crystals are
  * ever taken, and a run that is already consistent comes back untouched. That is what lets it run
  * on every load, like `grantStarters`, rather than being a one-shot fix that needs its own
  * version gate.
  *
- * `stages` is passed in because `core/` cannot import `data/`.
+ * `stages` and `summonRate` are passed in because `core/` cannot import `data/`.
  */
 export function reconcileClearedStages(
   state: GameState,
   stages: readonly StageProgressData[],
+  summonRate: SummonRateCurve,
 ): GameState {
   if (stages.length === 0) {
-    return state;
+    // No ladder to reconcile against, but the crystal base does not come from the ladder — a
+    // build shipping no stages still earns it, and returning early without it would make the
+    // rate depend on content it has nothing to do with.
+    const rates = withSummonRate(state.rates, summonRate, state.clearedStages);
+    return rates === state.rates ? state : { ...state, rates };
   }
 
   // The highest stage whose gold rate this run already meets. Ascending rates make this the
@@ -147,6 +174,7 @@ export function reconcileClearedStages(
   for (let stage = 0; stage < cleared; stage++) {
     rates = raiseRates(rates, stages[stage].rates);
   }
+  rates = withSummonRate(rates, summonRate, cleared);
 
   // Only the stages this call is crediting for the first time. Anything already in
   // `clearedStages` was either fought under this build and paid, or credited by an earlier run

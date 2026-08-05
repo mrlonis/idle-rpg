@@ -36,11 +36,25 @@ class FakeGameLoop {
   readonly goldPerSec = computed(() => this.rates().gold);
   readonly summons = computed(() => this.wallet().summons);
   readonly spark = computed(() => this.wallet().spark);
+
+  dismissOfflineReport(): void {
+    this.offlineReport.set(null);
+  }
 }
 
 /** A wallet holding one currency, since most tests care about exactly one. */
 function walletWith(id: 'gold' | 'xp' | 'essence' | 'summons' | 'spark', amount: string) {
   return { ...emptyWallet(), [id]: num(amount) };
+}
+
+/** An hour away with something to show for it, which is the case the summary is drawn for. */
+function report(over: Partial<OfflineReport> = {}): OfflineReport {
+  return {
+    rawElapsedMs: 3_600_000,
+    elapsedMs: 3_600_000,
+    earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0) },
+    ...over,
+  };
 }
 
 /** One fielded character, which is all the home screen reads off the roster. */
@@ -90,6 +104,10 @@ class FakeBattles {
 
   fight(nowMs: number): void {
     this.fought.push(nowMs);
+  }
+
+  dismissAutoStopped(): void {
+    this.autoStoppedAt.set(null);
   }
 }
 
@@ -184,9 +202,12 @@ describe('HomeView', () => {
   });
 
   describe('the hint under the counter', () => {
-    it('explains why a fresh run earns nothing', async () => {
+    it('tells a fresh run which rate is already running and what starts the rest', async () => {
+      // Crystals accrue from the first minute; the other three wait for a clear. A line that
+      // said "idle earns nothing" would now be contradicted by the counter directly above it.
       const { el } = await render((game) => game.rates.set(zeroRates()));
 
+      expect(el.querySelector('.hint')?.textContent).toContain('Crystals are already accruing');
       expect(el.querySelector('.hint')?.textContent).toContain('Win a stage');
     });
 
@@ -200,13 +221,6 @@ describe('HomeView', () => {
   });
 
   describe('offline summary', () => {
-    const report = (over: Partial<OfflineReport>): OfflineReport => ({
-      rawElapsedMs: 3_600_000,
-      elapsedMs: 3_600_000,
-      earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0) },
-      ...over,
-    });
-
     it('reports what was earned while away', async () => {
       const { el } = await render((game) => game.offlineReport.set(report({})));
 
@@ -236,6 +250,72 @@ describe('HomeView', () => {
       );
 
       expect(el.textContent).not.toContain('While you were away');
+    });
+  });
+
+  describe('dismissing a notice', () => {
+    /** Clicks a close button and lets the removal render. */
+    async function dismiss(fixture: Awaited<ReturnType<typeof render>>['fixture'], label: string) {
+      const el = fixture.nativeElement as HTMLElement;
+      el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it('closes the offline summary and clears it on the service', async () => {
+      // Cleared on the service, not hidden by the screen: this component is lazily routed and
+      // is rebuilt on every navigation, so a flag held here would restore the banner on the
+      // player's next visit home.
+      const { el, fixture, game } = await render((loop) => loop.offlineReport.set(report()));
+      expect(el.textContent).toContain('While you were away');
+
+      await dismiss(fixture, 'Dismiss offline earnings notice');
+
+      expect(el.textContent).not.toContain('While you were away');
+      expect(game.offlineReport()).toBeNull();
+    });
+
+    it('closes the auto-battle notice and clears it on the service', async () => {
+      const { el, fixture, battles } = await render((_game, animator) =>
+        animator.autoStoppedAt.set({ name: 'Cutthroat Camp', number: 5 }),
+      );
+      expect(el.textContent).toContain('Auto-battle stopped');
+
+      await dismiss(fixture, 'Dismiss auto-battle notice');
+
+      expect(el.textContent).not.toContain('Auto-battle stopped');
+      expect(battles.autoStoppedAt()).toBeNull();
+    });
+
+    it('leaves the save-health notices with no way to close them', async () => {
+      // A run whose save could not be read is still not being written to disk, so that warning
+      // is describing something that is currently true rather than something that happened.
+      const { el } = await render((game) => game.loadFailure.set('unreadable'));
+
+      expect(el.querySelector('[role="alert"]')).not.toBeNull();
+      expect(el.querySelectorAll('.notice__close')).toHaveLength(0);
+    });
+
+    it('keeps the close button out of the live region', async () => {
+      // A live region announces its whole subtree on insertion, so a button inside one would
+      // have the player told "Dismiss" as part of the news itself.
+      const { el } = await render((game) => game.offlineReport.set(report()));
+
+      const status = el.querySelector('[role="status"]');
+      expect(status?.textContent).toContain('While you were away');
+      expect(status?.querySelector('.notice__close')).toBeNull();
+      expect(el.querySelector('.notice__close')).not.toBeNull();
+    });
+
+    it('gives the close button a name and a thumb-sized target', async () => {
+      const { el } = await render((game) => game.offlineReport.set(report()));
+
+      const close = el.querySelector<HTMLButtonElement>('.notice__close');
+      expect(close?.getAttribute('aria-label')).toBe('Dismiss offline earnings notice');
+      // `type` matters: a bare button inside a form would submit it.
+      expect(close?.getAttribute('type')).toBe('button');
+      // The glyph is decorative — the label above is what is announced.
+      expect(close?.querySelector('[aria-hidden="true"]')?.textContent).toBe('×');
     });
   });
 

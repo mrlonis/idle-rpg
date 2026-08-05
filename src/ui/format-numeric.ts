@@ -74,10 +74,11 @@ function trimTrailingZeros(text: string): string {
 /**
  * Below this, a rate is quoted per hour instead of per second.
  *
- * Summon crystals accrue at about 0.014/s at the top of the ladder and essence at 0.05/s. Per
- * second those read as "0.01/s" and "0.05/s" — technically true and completely useless, since
- * the number a player actually wants is "how long until I can pull". Per hour the same rates
- * are "50/hr" and "180/hr", which answers it directly.
+ * Summon crystals accrue at 0.0278/s on a fresh run and essence at 0.05/s at the top of the
+ * ladder. Per second those read as "0.03/s" and "0.05/s" — technically true and completely
+ * useless, since the number a player actually wants is "how long until I can pull". Per hour the
+ * same rates are "100/hr" and "180/hr", which answers it directly, and the crystal one is
+ * authored in exactly those units for exactly this reason.
  *
  * The threshold sits just under gold's opening rate of 0.5/s, so the currency a player watches
  * tick keeps its per-second reading and the two slow ones get a unit that suits them.

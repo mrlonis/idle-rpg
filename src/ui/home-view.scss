@@ -177,6 +177,52 @@
   color: t.$muted;
 }
 
+// Room for the close button reserved on *both* sides, with the button laid over the right-hand
+// gutter. A flex row would have been the obvious way to place it and is the wrong one: it pushes
+// the copy off-centre by the width of the button, which on a 32rem card is plainly visible next
+// to the save notices above, which stay centred.
+// The gutter is the button plus the 0.25rem it is inset by plus the 4px its focus ring reaches
+// past itself. Reserving only the button's own width looks right until the button is tabbed to,
+// at which point the ring lands on top of the last word.
+.notice--dismissible {
+  position: relative;
+  padding-left: calc(#{t.$tap-target} + 0.5rem);
+  padding-right: calc(#{t.$tap-target} + 0.5rem);
+}
+
+.notice__text {
+  margin: 0;
+}
+
+// The 44px floor applies here as much as to any control: this is a thumb target on a phone, and
+// it is small enough to be easy to miss without it. $muted is 6.1:1 on $surface, so the glyph
+// clears AA as text and not merely as an icon.
+.notice__close {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: t.$tap-target;
+  height: t.$tap-target;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: none;
+  color: t.$muted;
+  font: inherit;
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+  @include t.focus-ring;
+
+  &:hover {
+    color: t.$text;
+  }
+}
+
 .party__rank {
   margin: 0.5rem 0 0.25rem;
   font-size: 0.6875rem;

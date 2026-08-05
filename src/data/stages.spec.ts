@@ -75,7 +75,7 @@ describe('stage content', () => {
     }
   });
 
-  it.each(['gold', 'xp', 'essence', 'summons'] as const)(
+  it.each(['gold', 'xp', 'essence'] as const)(
     'raises the %s rate at every step, so no clear is ever a sidestep',
     (currency) => {
       // The rate is the real reward, and `applyBattleResult` only ever raises it. A stage
@@ -97,6 +97,16 @@ describe('stage content', () => {
       const secondsOfIncome = Number(stage.reward.gold) / Number(stage.rates.gold);
       expect(secondsOfIncome, stage.id).toBeGreaterThan(20);
       expect(secondsOfIncome, stage.id).toBeLessThan(60);
+    }
+  });
+
+  it('never authors a crystal rate per stage', () => {
+    // Three rates here, not four. The crystal rate is `SUMMON_RATE` in `banners.ts`, derived from
+    // the clear count — a stage that also authored one would put a second mechanism on the same
+    // number, and because `raiseRates` takes the larger of the two, whichever happened to be
+    // bigger would silently win.
+    for (const stage of stages) {
+      expect(stage.rates.summons, stage.id).toBeUndefined();
     }
   });
 

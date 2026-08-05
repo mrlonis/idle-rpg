@@ -128,11 +128,14 @@ export {
   RATE_CURRENCY_IDS,
   serializeRates,
   serializeWallet,
+  summonRatePerSecond,
+  withSummonRate,
   zeroRates,
   type CurrencyAmounts,
   type CurrencyId,
   type RateCurrencyId,
   type Rates,
+  type SummonRateCurve,
   type Wallet,
 } from './currency';
 export { ascendedChance, pull } from './gacha/pull';

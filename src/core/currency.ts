@@ -1,4 +1,4 @@
-import { type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric';
+import { num, type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric';
 
 /**
  * The run's currencies, and the wallet that holds them.
@@ -21,8 +21,10 @@ import { type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric';
  * - `essence` is the bottleneck on purpose. It is charged only at breakthrough levels, and
  *   it trickles in stingily enough that it, not gold, is what decides how fast a character
  *   climbs late.
- * - `summons` buys gacha pulls. A slow idle rate plus a bonus for each first-time stage
- *   clear, so progress is rewarded but a player stuck on a stage never stops earning pulls.
+ * - `summons` buys gacha pulls. Alone among the rates it is **not** authored per stage: it is a
+ *   flat base every run earns from the first minute, plus a permanent step for each first-time
+ *   stage clear — see {@link SummonRateCurve} — on top of the first-clear lump. So progress is
+ *   rewarded, and a player stuck on a stage never stops earning pulls.
  * - `spark` is the only currency with **no rate at all**. It exists solely as the overflow
  *   valve: copies of a character already at `Ascended★5` have nothing left to ascend, so
  *   they convert here and buy something from the shop instead of evaporating.
@@ -62,11 +64,77 @@ export function emptyWallet(): Wallet {
 /**
  * All rates at zero.
  *
- * A new run earns **nothing** while idle, which is what makes the first battle the only
- * thing worth doing. Clearing a stage is what switches each rate on.
+ * A new run earns **no gold, xp or essence** while idle, which is what makes the first battle
+ * the only thing worth doing. Clearing a stage is what switches each of those on.
+ *
+ * `summons` is the exception and it is deliberately still zero here: its base is content
+ * (`SUMMON_RATE` in `data/`), and `core/` cannot see content. `reconcileClearedStages` runs on
+ * every load — including the first, for a run that has just been created — and is where the base
+ * is established. Nothing between `newGame` and that repair pays a crystal, because nothing
+ * between them advances the clock.
  */
 export function zeroRates(): Rates {
   return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO };
+}
+
+/** Seconds in an hour. The crystal rate is authored per hour and stored per second. */
+const SECONDS_PER_HOUR = 3600;
+
+/**
+ * How summon crystals accrue: a flat base, plus a step for every stage ever cleared.
+ *
+ * The other three rates are authored per stage and applied with {@link raiseRates}. Crystals are
+ * a **formula over `clearedStages`** instead, for two reasons:
+ *
+ * - **A rate should compound only if what it buys compounds.** Gold, xp and essence buy levels,
+ *   and level costs compound, so those three belong on an exponential. A pull costs a flat
+ *   `PULL_COST` and an ascension a flat number of copies, so a compounding crystal rate outruns
+ *   its own prices exponentially — which is how pulls become effectively unlimited a chapter or
+ *   two in, and how ascension quietly stops being a constraint on anything.
+ * - **It survives content that has not been authored yet.** A per-stage table is a number
+ *   somebody types per stage; a linear step is one number that means the same thing at stage 24
+ *   and at stage 2,400.
+ *
+ * Authored in crystals **per hour** because that is the unit the number is legible in — a base
+ * of 100 against a `PULL_COST` of 100 reads as "a pull an hour", where 0.0278 per second reads
+ * as nothing at all.
+ */
+export interface SummonRateCurve {
+  /** Crystals per hour before anything has been cleared. Every run earns this from the start. */
+  readonly basePerHour: number;
+  /** Crystals per hour added permanently by each stage's **first** clear. */
+  readonly perClearPerHour: number;
+}
+
+/**
+ * The crystal rate a run with `clearedStages` clears has earned, per second.
+ *
+ * Total rather than incremental: the whole point of deriving it is that the answer depends on
+ * nothing but the clear count, so a save with a damaged or absent rate heals to exactly the
+ * value it should have had rather than to whatever it can reconstruct.
+ *
+ * Clamps its inputs rather than trusting them. `clearedStages` comes off a save that may have
+ * been damaged, and a negative or non-finite count must read as "nothing cleared" rather than
+ * producing a negative rate that then has to be repaired somewhere else.
+ */
+export function summonRatePerSecond(curve: SummonRateCurve, clearedStages: number): Numeric {
+  const cleared = Number.isFinite(clearedStages) ? Math.max(Math.floor(clearedStages), 0) : 0;
+  const base = Number.isFinite(curve.basePerHour) ? Math.max(curve.basePerHour, 0) : 0;
+  const step = Number.isFinite(curve.perClearPerHour) ? Math.max(curve.perClearPerHour, 0) : 0;
+  return num(base + step * cleared).div(SECONDS_PER_HOUR);
+}
+
+/**
+ * Raises the crystal rate to what `clearedStages` has earned.
+ *
+ * Goes through {@link raiseRates} rather than assigning, so the "income never falls" guarantee
+ * holds here too: a save written by a build with a more generous base keeps that base instead of
+ * being cut down to this one. It inherits the identity behaviour as well — an already-correct
+ * run comes back as the same object, which is what lets this run on every load and after every
+ * battle without republishing a snapshot that did not change.
+ */
+export function withSummonRate(rates: Rates, curve: SummonRateCurve, clearedStages: number): Rates {
+  return raiseRates(rates, { summons: summonRatePerSecond(curve, clearedStages) });
 }
 
 /** Adds a payout to a wallet. */
