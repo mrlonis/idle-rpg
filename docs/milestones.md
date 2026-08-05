@@ -1412,28 +1412,39 @@ worth questioning.
 
 **The problem here is not "more content".** Through milestone 12 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
-slots against twenty-three characters, fed by a gacha generous enough to produce roughly 190
+slots against forty-nine characters, fed by a gacha generous enough to produce roughly 190
 pulls a day at post-ladder crystal rates. Every decision in milestones 3 and 4 — sidegrades with
 distinct niches, seven factions, two players clearing the same stage with different teams — is
 funded by a game that only ever asks for five characters. **The generosity is producing material
 with nowhere to go.**
 
 Seven towers, one per faction, five slots each, restricted to that faction. That is demand for
-**thirty-five invested characters against a roster of twenty-three**, so an unlucky pull becomes
-the answer to a tower instead of fodder, duplicates gain a second use, and a wall in chapter 3
-has somewhere to send the player.
+**thirty-five invested characters** — seven times what the campaign has ever asked for — so an
+unlucky pull becomes the answer to a tower instead of fodder, duplicates gain a second use, and a
+wall in chapter 3 has somewhere to send the player.
 
-Two consequences to design for rather than discover:
+One consequence to design for rather than discover, and one risk this milestone used to carry
+that has since been closed:
 
 - **A tower is a wall about who you own, in a game with no way to buy characters.** That is the
   failure mode role-locked formation slots were rejected for in milestone 4: an unlucky roster
   reaching a state where no legal party exists. Towers must therefore be skippable, never on the
   critical path, and never the only source of anything.
-- **The roster is smaller than the demand, and that is a decision to make on purpose.**
-  Twenty-three characters across seven factions is roughly three per faction against five slots,
-  so no tower is fully crewed the day it ships. That is a content driver, but it means this
-  milestone either arrives with more characters or arrives with towers that visibly cannot be
-  finished. Pick one; do not let it happen by accident.
+- **Every tower can be crewed, and milestone 8e is what made that true.** This bullet used to
+  warn that twenty-three characters over seven factions was roughly three each against five
+  slots, so no tower could be finished the day it shipped — and it ended "pick one; do not let it
+  happen by accident". **8e picked**, for its own reasons: forty-nine characters, seven per
+  faction. Five slots out of seven crews every tower with two to spare.
+
+  **What towers demand is per-faction depth, not roster size**, and that is the part of the
+  original reasoning still doing work. A hundred characters distributed unevenly would strand the
+  thin factions just as completely as twenty-three did. It is guarded rather than assumed:
+  `data/characters.spec.ts` asserts every faction can field a mono-faction party and reads
+  `PARTY_SIZE` off `core/`, so a formation that grew to six would fail that test rather than
+  quietly leaving six towers unfinishable. Two spare per faction is the entire margin — treat
+  anything that widens a tower past `PARTY_SIZE`, or narrows the roster shape, as re-opening this.
+
+  What is left is not bodies but **investment**, which the next section is about.
 
 ### Resonance is a hard prerequisite, and it already shipped
 
