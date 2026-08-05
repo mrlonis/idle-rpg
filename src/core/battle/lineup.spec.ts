@@ -104,6 +104,42 @@ describe('the composition ladder', () => {
   });
 });
 
+describe('the roll-call', () => {
+  it('reports what was fielded, in the order it was fielded', () => {
+    expect(worth('b', 'a', 'a').counts).toEqual([
+      { faction: 'b', count: 1 },
+      { faction: 'a', count: 2 },
+    ]);
+  });
+
+  it('is empty for an empty formation', () => {
+    expect(worth().counts).toEqual([]);
+  });
+
+  it('counts wildcards as themselves, whatever rung they bought', () => {
+    // ⚠️ The distinction the whole field exists for. The rung says five of `a`; the roll-call says
+    // three of `a` and two wildcards, and **the roll-call is the one the flat tracks agree with**,
+    // because those only ever count real members. A screen given the rung alone would present an
+    // effect it could not attribute to anybody on the board.
+    const filled = worth('a', 'a', 'a', 'wild', 'wild');
+
+    expect(filled.tier?.count).toBe(5);
+    expect(filled.counts).toEqual([
+      { faction: 'a', count: 3 },
+      { faction: 'wild', count: 2 },
+    ]);
+  });
+
+  it('agrees with the flat tracks about how many are fielded', () => {
+    const mixed = worth('rally', 'rally', 'track', 'wild', 'wild');
+    const count = (faction: string): number =>
+      mixed.counts.find((entry) => entry.faction === faction)?.count ?? 0;
+
+    expect(count('rally')).toBe(mixed.rallyCount);
+    expect(count('track')).toBe(mixed.ladderCount);
+  });
+});
+
 describe('the wildcard faction', () => {
   it('reads three of a faction plus two wildcards as five of that faction', () => {
     // The worked example from the milestone's design note, and the reason the wildcard is the

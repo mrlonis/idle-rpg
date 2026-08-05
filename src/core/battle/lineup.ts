@@ -2,6 +2,7 @@ import { ATB_THRESHOLD } from './clock';
 import {
   type CombatStats,
   type LineupBonus,
+  type LineupFactionCount,
   type LineupLadderStepData,
   type LineupRules,
   type LineupRulesData,
@@ -61,6 +62,7 @@ export const NO_LINEUP_BONUS: LineupBonus = {
 export const NO_LINEUP: LineupSummary = {
   bonus: NO_LINEUP_BONUS,
   tier: null,
+  counts: [],
   rallyCount: 0,
   ladderCount: 0,
 };
@@ -129,12 +131,6 @@ export function toLineupRules(raw: LineupRulesData): LineupRules {
   };
 }
 
-/** One faction, how many are fielded, and the order it was first seen in the formation. */
-interface Tally {
-  readonly faction: string;
-  readonly count: number;
-}
-
 /**
  * The party's factions, counted, in the order they were fielded.
  *
@@ -142,7 +138,7 @@ interface Tally {
  * order is authored in `data/` and the simulation never sees it. It is used solely to break ties
  * between two factions that qualify a party equally, so it decides wording, never numbers.
  */
-function tally(factions: readonly string[]): readonly Tally[] {
+function tally(factions: readonly string[]): readonly LineupFactionCount[] {
   const counts = new Map<string, number>();
   for (const faction of factions) {
     counts.set(faction, (counts.get(faction) ?? 0) + 1);
@@ -157,7 +153,12 @@ function tally(factions: readonly string[]): readonly Tally[] {
  * subtraction: reaching *n* wildcards **spends** *n* of them, because there they are the members
  * rather than stand-ins. Three Angels are three Angels; they are not also three Humans.
  */
-function wildcardsFor(entry: Tally | undefined, faction: string, wildcard: string, n: number) {
+function wildcardsFor(
+  entry: LineupFactionCount | undefined,
+  faction: string,
+  wildcard: string,
+  n: number,
+) {
   if (faction === wildcard) {
     return n;
   }
@@ -192,7 +193,7 @@ function pays(a: LineupTierMatch, b: LineupTierMatch | null): boolean {
  */
 function bestTier(
   tiers: readonly LineupTierData[],
-  counts: readonly Tally[],
+  counts: readonly LineupFactionCount[],
   wildcard: string,
 ): LineupTierMatch | null {
   const wildcards = counts.find((entry) => entry.faction === wildcard)?.count ?? 0;
@@ -292,6 +293,7 @@ export function lineupBonus(factions: readonly string[], rules: LineupRules): Li
       injuredEnergyRegen: total((step) => step.injuredEnergyRegen),
     },
     tier,
+    counts,
     rallyCount,
     ladderCount,
   };

@@ -572,6 +572,12 @@ export interface LineupBonus {
   readonly injuredEnergyRegen: number;
 }
 
+/** One faction, and how many of it a party actually fielded. */
+export interface LineupFactionCount {
+  readonly faction: string;
+  readonly count: number;
+}
+
 /** Which rung a party reached, and on whom. Everything a screen needs to explain the bonus. */
 export interface LineupTierMatch {
   /** The faction the rung resolved on, wildcards included. */
@@ -596,6 +602,16 @@ export interface LineupSummary {
   readonly bonus: LineupBonus;
   /** The best-paying rung met, or `null` when the composition reached none. */
   readonly tier: LineupTierMatch | null;
+  /**
+   * What was actually fielded, per faction, in the order the factions were fielded.
+   *
+   * **Not the same numbers as {@link tier}, and the difference is the point.** A rung counts a
+   * wildcard as the faction it stood in for, so three Demons and two Angels reach `Demons ×5`
+   * while this still reports three Demons and two Angels — and the Demon track pays three rungs,
+   * because it counts real members. A screen that had only the rung to work from would have to
+   * present a bonus it could not attribute.
+   */
+  readonly counts: readonly LineupFactionCount[];
   /** Members of {@link LineupRulesData.rally} fielded. */
   readonly rallyCount: number;
   /** Members of {@link LineupRulesData.ladder} fielded. */

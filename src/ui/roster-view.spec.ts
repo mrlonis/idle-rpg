@@ -339,7 +339,9 @@ describe('RosterView', () => {
 
     it('credits Angels to the faction they stood in for', async () => {
       // The wildcard is what makes a mono five reachable at all on this roster, so the panel has
-      // to read as five of the faction the player was building towards rather than as a mix.
+      // to say the party counts as five Humans. It says it in the hint rather than in the
+      // roll-call, because the roll-call has to keep agreeing with the flat tracks — which count
+      // real members and would disagree with a headline of "Humans ×5".
       const { el } = await render((roster) =>
         roster.entries.set([
           fieldedOf('human', 0),
@@ -350,8 +352,65 @@ describe('RosterView', () => {
         ]),
       );
 
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×5');
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×3 · Angels ×2');
+      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Counts as Humans ×5');
       expect(effects(el)).toEqual(['+25% attack', '+25% health']);
+    });
+
+    it('does not claim a substitution when none happened', async () => {
+      // Five real Humans reach the same rung with no wildcard involved, so "counts as Humans ×5"
+      // under "Humans ×5" would be the panel explaining itself to itself.
+      const { el } = await render((roster) =>
+        roster.entries.set([0, 1, 2, 3, 4].map((index) => fieldedOf('human', index))),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×5');
+      expect(el.querySelector('.lineup__hint')?.textContent).not.toContain('Counts as');
+    });
+
+    it('names a faction once when it is both half of a rung and a flat track', async () => {
+      // Monsters here are the second half of a three-and-two *and* the rally track, and the panel
+      // has one line for both facts. Naming them twice makes the line read as though seven
+      // characters were fielded, which is the worst kind of wrong: plausible.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          fieldedOf('human', 0),
+          fieldedOf('human', 1),
+          fieldedOf('human', 2),
+          fieldedOf('monster', 3),
+          fieldedOf('monster', 4),
+        ]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe(
+        'Humans ×3 · Monsters ×2',
+      );
+    });
+
+    it('reports what was fielded rather than what the rung counted it as', async () => {
+      // Three Demons and two Angels reaches a mono five, but the Demon track only ever counts real
+      // Demons — so a line saying "Demons ×5" beside three rungs' worth of Demon effects invites
+      // the player to wonder where the other two rungs went. The rung goes in the hint instead.
+      const { el } = await render((roster) =>
+        roster.entries.set([
+          fieldedOf('demon', 0),
+          fieldedOf('demon', 1),
+          fieldedOf('demon', 2),
+          fieldedOf('angel', 3),
+          fieldedOf('angel', 4),
+        ]),
+      );
+
+      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Demons ×3 · Angels ×2');
+      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Demons ×5');
+      // Three Demons, so three rungs of the track and not five.
+      expect(effects(el)).toEqual([
+        '+25% attack',
+        '+25% health',
+        '+30% defence',
+        '+15% crit rating',
+        '+25% energy recovery while hurt',
+      ]);
     });
 
     it('names the flat tracks separately, so a bonus without a rung is still attributable', async () => {
