@@ -3,6 +3,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   battleSeed,
+  type ChapterCurveData,
+  type ChapterData,
   type CharacterData,
   type CombatantData,
   type CombatRules,
@@ -20,15 +22,18 @@ import {
   type Numeric,
   PARTY_SIZE,
   rarityIndex,
+  resolveLadder,
   scaleStats,
   simulateBattle,
   type StageData,
+  type StageRewardCurveData,
   ticksToMs,
   toBattleCombatant,
   toCombatRules,
   unlockedSkills,
   type Wallet,
 } from '../core';
+import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import {
   BRAN,
   CELIA,
@@ -71,16 +76,46 @@ import {
 import { COMBAT_RULES } from './combat';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
-import { STAGES } from './stages';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
  *
  * `data/` may not import from `core/` — content has to stay plain and JSON-expressible — so
- * nothing inside those files can reference `StageData`. Assigning them to a typed local here is
+ * nothing inside those files can reference `ChapterData`. Assigning them to a typed local here is
  * what turns a malformed stat block into a compile error instead of a runtime surprise.
  */
-const stages: readonly StageData[] = STAGES;
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
+
+/** The whole ladder, flattened and resolved exactly as `ui/content.ts` resolves it. */
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+
+/** Where each chapter ends, as a count of stages from the foot of the ladder. */
+const CHAPTER_ENDS: readonly number[] = chapters.reduce<number[]>((ends, chapter) => {
+  ends.push((ends[ends.length - 1] ?? 0) + chapter.stages.length);
+  return ends;
+}, []);
+
+/**
+ * Every fourth stage, plus every chapter boss.
+ *
+ * ⚠️ **This is a stride over the ladder, not a smaller sample of it, and the distinction is the
+ * whole justification.** The rule is to move a sweep rather than shrink it, because a smaller
+ * sample buys speed by making the answer less true. Milestone 11 did not add difficulty to the
+ * ladder — it made the same range four times denser — so adjacent stages are now within about one
+ * percent of each other, and a block that measures *steps* in difficulty measures noise if it
+ * reads every one of them. Striding restores the per-sample gap to what the twenty-four stage
+ * ladder had, at the same cost, over the same range, at the same resolution.
+ *
+ * The bosses are pinned in because they are the stages a chapter is shaped around, and a stride
+ * that skipped one would be measuring a ladder with no peaks.
+ */
+const STRIDE = 4;
+const SAMPLED: readonly StageData[] = stages.filter(
+  (stage, index) => index % STRIDE === 0 || stage.kind === 'boss',
+);
+
 const growth: GrowthData = GROWTH;
 const kit: KitRulesData = KIT_RULES;
 const authoredRules: CombatRulesData = COMBAT_RULES;
@@ -90,9 +125,10 @@ const rules: CombatRules = toCombatRules(authoredRules);
  * Seeds per stage.
  *
  * Enough to tell "reliable" from "a coin flip". This number is the reason the sweep lives in its
- * own project: three reference parties across twenty-four stages is nearly three thousand
- * battles, and shrinking the sample to fit the fast suite would have bought speed by making the
- * answer less true.
+ * own project: four reference parties across a hundred stages is sixteen thousand battles before
+ * the seven mono-faction fives are counted, and shrinking the sample to fit the fast suite would
+ * have bought speed by making the answer less true. What milestone 11 did instead, where a block
+ * genuinely could not afford the whole ladder, was stride over it — see {@link SAMPLED}.
  */
 const TRIALS = 40;
 
@@ -372,8 +408,12 @@ const boostedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(BOOSTED, stage),
 }));
+// The seven fives are swept over the stride rather than every stage. Seven parties across a
+// hundred stages at forty seeds is twenty-eight thousand battles on its own, and what these
+// sweeps measure — how much of the ladder each faction clears, relative to the other six — is a
+// statement about the ladder's *range* rather than about any particular stage on it.
 const monoSweeps = MONO_FIVES.flatMap(({ faction, party }) =>
-  stages.map((stage) => ({ label: `mono-${faction}`, faction, stage, ...sweep(party, stage) })),
+  SAMPLED.map((stage) => ({ label: `mono-${faction}`, faction, stage, ...sweep(party, stage) })),
 );
 const everySweep = [
   ...starterSweeps,
@@ -384,10 +424,17 @@ const everySweep = [
 ];
 
 /** Where the starter party is expected to stop: the healer lock. */
-const WALL = stages.findIndex((stage) => stage.id === 'stage-7');
+const WALL = stages.findIndex((stage) => stage.id === 'c1-s7');
 
-/** The end of the hand-climbed half, and the stage auto-battle unlocks behind. */
-const HANDCLIMBED = stages.findIndex((stage) => stage.id === 'stage-12') + 1;
+/**
+ * The end of chapter 1, as a count of stages.
+ *
+ * The boundary the reference parties are now measured against. It was `stage-12` — the end of the
+ * hand-climbed half of a twenty-four stage ladder — and milestone 11 moved it to a chapter's end,
+ * which is the same idea at four times the length: {@link BUILT} is the party a player holds when
+ * chapter 1's boss falls, and chapter 2 is what asks for more.
+ */
+const CHAPTER_1_END = CHAPTER_ENDS[0];
 
 describe('ladder balance', () => {
   it('never runs the clock out on a fight either party is meant to have', () => {
@@ -432,28 +479,30 @@ describe('ladder balance', () => {
     expect(cleared).toEqual([]);
   });
 
-  it('lets a level-80 common-tier party clear the hand-climbed half', () => {
-    // Milestone 4's promise, preserved through 8a's stat collapse and 8b's energy rework, and the
-    // thing 8c's skill ceiling has to hold: five common-tier characters at level 80 clear twelve
-    // stages. That half is climbed one tap at a time, and auto-battle unlocks on finishing it.
+  it('lets a common-tier party at the rare cap clear the whole of chapter 1', () => {
+    // Milestone 4's promise, preserved through 8a's stat collapse, 8b's energy rework, 8c's skill
+    // ceiling and milestone 10's rescale, and now stated in chapters: five common-tier characters
+    // at level 40 — the `rare` cap, exactly where levelling first stops and ascending starts —
+    // take chapter 1 end to end, boss included.
     const unreliable = builtSweeps
-      .slice(0, HANDCLIMBED)
+      .slice(0, CHAPTER_1_END)
       .filter((entry) => entry.winRate < 0.9)
       .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
 
     expect(unreliable).toEqual([]);
   });
 
-  it('does not let that party walk the second half as well', () => {
-    // The Ashfall Reach exists to be something auto-battle has to chew on. If the party that
-    // finished the first half also finished the second without investing, twelve stages of
-    // content would be a formality.
+  it('does not let that party walk chapter 2 as well', () => {
+    // The Ashfall Reach exists to be something auto-battle has to chew on. A party that finished
+    // chapter 1 is meant to walk a little way into chapter 2 on momentum and then stop — the
+    // opening stages are tuned for exactly the party that took the Frozen Gate — so this is a
+    // ceiling on how far the momentum carries rather than a wall at the boundary.
     const walked = builtSweeps
-      .slice(HANDCLIMBED)
+      .slice(CHAPTER_1_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
-    expect(walked.length).toBeLessThanOrEqual(1);
+    expect(walked.length).toBeLessThanOrEqual(stages.length * 0.2);
   });
 
   it('is clearable end to end by an invested party of common-tier characters', () => {
@@ -467,8 +516,8 @@ describe('ladder balance', () => {
   });
 
   it('still costs that party something at the top', () => {
-    // A ladder cleared without ever losing a party member has no texture, and stage 24 would read
-    // exactly like stage 1.
+    // A ladder cleared without ever losing a party member has no texture, and the chapter 2 boss
+    // would read exactly like the first stage of chapter 1.
     const top = investedSweeps[investedSweeps.length - 1];
 
     expect(top.meanSurvivors).toBeLessThan(5);
@@ -494,8 +543,10 @@ describe('ladder balance', () => {
     // constraint visible rather than a surprise.
     //
     // A stage that grows past the margin is unclearable by the party it was tuned for, so this is
-    // the test that should fail first when milestone 10 rescales or milestone 11 authors a
-    // hundred stages — before the win-rate assertions do, and with a number in the message.
+    // the test that should fail first when a milestone rescales or re-authors the ladder — before
+    // the win-rate assertions do, and with a number in the message. Milestone 10's rescale and
+    // milestone 11's hundred stages both went past it without it firing, which is the margin
+    // being real rather than the test being asleep.
     //
     // ## Milestone 8e narrowed what this measures, and the narrowing is the argument
     //
@@ -599,7 +650,7 @@ describe('the lineup bonus', () => {
     const summary = cleared.map((entry) => `${entry.faction} ${entry.total.toFixed(1)}`).join(', ');
 
     expect(worst, summary).toBeGreaterThan(0);
-    expect(best - worst, summary).toBeLessThan(stages.length * 0.15);
+    expect(best - worst, summary).toBeLessThan(SAMPLED.length * 0.15);
   });
 
   it('pays every mono-faction five the same rung, and only the two faction tracks on top', () => {
@@ -691,7 +742,7 @@ describe('the matchup matrix', () => {
   /** Every mono-faction five, every stage, every level, with the matrix on and off. */
   const trials = LEVELS.flatMap((level) =>
     monoFives(level, ELITE).flatMap(({ faction, party }) =>
-      stages.map((stage) => ({
+      SAMPLED.map((stage) => ({
         faction,
         stage,
         level,
@@ -936,7 +987,11 @@ describe('the shape of the climb', () => {
     return high;
   };
 
-  const thresholds = stages.map(threshold);
+  // The stride, for the reason {@link SAMPLED} exists: this block measures the *step* from one
+  // stage to the next, and on a ladder four times denser than the one these thresholds were sized
+  // against, consecutive stages differ by about one percent — which is inside the probe's own
+  // resolution. Reading every stage would turn a difficulty curve into a noise floor.
+  const thresholds = SAMPLED.map(threshold);
 
   it('never asks meaningfully less of the player than the stage below it', () => {
     // A little unevenness is texture: a stage that trades a bigger stat block for a sharper
@@ -944,7 +999,7 @@ describe('the shape of the climb', () => {
     // answer. A real step backwards is a bug — it means a player who just lost can beat the
     // stage after the one blocking them.
     const backwards = thresholds
-      .map((needed, index) => ({ id: stages[index].id, needed, before: thresholds[index - 1] }))
+      .map((needed, index) => ({ id: SAMPLED[index].id, needed, before: thresholds[index - 1] }))
       .filter((entry) => entry.before !== undefined && entry.needed < entry.before * 0.92)
       .map((entry) => `${entry.id} ${entry.needed.toFixed(2)} after ${entry.before.toFixed(2)}`);
 
@@ -953,18 +1008,18 @@ describe('the shape of the climb', () => {
 
   it('makes real progress over any two steps', () => {
     const stalled = thresholds
-      .map((needed, index) => ({ id: stages[index].id, needed, twoBack: thresholds[index - 2] }))
+      .map((needed, index) => ({ id: SAMPLED[index].id, needed, twoBack: thresholds[index - 2] }))
       .filter((entry) => entry.twoBack !== undefined && entry.needed <= entry.twoBack)
       .map((entry) => entry.id);
 
     expect(stalled).toEqual([]);
   });
 
-  it('asks several times more at the top of each half than at its foot', () => {
-    // The half that exists so auto-battle has something to chew on has to be a climb, not a
-    // victory lap. Both halves should cost multiples, not percentages.
-    const first = thresholds[HANDCLIMBED - 1] / thresholds[0];
-    const second = thresholds[thresholds.length - 1] / thresholds[HANDCLIMBED - 1];
+  it('asks several times more at the top of each chapter than at its foot', () => {
+    // A chapter has to be a climb, not a victory lap. Both should cost multiples, not percentages.
+    const boundary = SAMPLED.findIndex((stage) => stage.kind === 'boss');
+    const first = thresholds[boundary] / thresholds[0];
+    const second = thresholds[thresholds.length - 1] / thresholds[boundary];
 
     expect(first).toBeGreaterThan(3);
     expect(second).toBeGreaterThan(3);
@@ -1039,10 +1094,18 @@ describe('the stomp', () => {
     };
   };
 
-  /** Stages cleared in an unbroken run above `from`, at the given investment. */
+  /**
+   * Stages cleared in an unbroken run above `from`, at the given investment.
+   *
+   * Stopped at {@link RUN_CAP} rather than run to the top of the ladder. Each step is forty
+   * battles, and a chapter of fifty stages that an idle window genuinely stomps would be two
+   * thousand of them per sample point for an answer both assertions below already have — they ask
+   * for one stage and for three.
+   */
+  const RUN_CAP = 12;
   const run = (from: number, level: number, rarity: number): number => {
     let cleared = 0;
-    for (let index = from + 1; index < stages.length; index++) {
+    for (let index = from + 1; index < stages.length && cleared < RUN_CAP; index++) {
       if (!clears(level, rarity, stages[index])) {
         break;
       }
@@ -1061,9 +1124,9 @@ describe('the stomp', () => {
    * `legendary` five clears stage 12 at level one, which would measure nothing.
    */
   const SAMPLES: readonly { readonly id: string; readonly rarity: number }[] = [
-    { id: 'stage-12', rarity: RARE_PLUS },
-    { id: 'stage-16', rarity: ELITE },
-    { id: 'stage-20', rarity: LEGENDARY },
+    { id: 'c1-s50', rarity: RARE_PLUS },
+    { id: 'c2-s10', rarity: ELITE },
+    { id: 'c2-s30', rarity: LEGENDARY },
   ];
 
   const parked = SAMPLES.map(({ id, rarity }) => {

@@ -55,11 +55,7 @@ export {
   statusChance,
   type AttackRoll,
 } from './battle/damage';
-export {
-  applyBattleResult,
-  reconcileClearedStages,
-  type StageProgressData,
-} from './battle/progress';
+export { applyBattleResult, reconcileClearedStages } from './battle/progress';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
@@ -113,9 +109,32 @@ export {
   type SkillEffectData,
   type SkillTarget,
   type StageData,
+  type StageEncounterData,
+  type StageKind,
   type StatBlockData,
   type StatusData,
 } from './battle/types';
+export {
+  advancePosition,
+  chapterSize,
+  clampPosition,
+  ladderShape,
+  positionAt,
+  resolveLadder,
+  resolveStage,
+  stageIndex,
+  stageKindAt,
+  stagePayout,
+  stagesInChapter,
+  stagesThroughChapter,
+  totalStages,
+  type ChapterCurveData,
+  type ChapterData,
+  type LadderPosition,
+  type LadderShape,
+  type StagePayout,
+  type StageRewardCurveData,
+} from './ladder';
 export {
   accrue,
   canAfford,
@@ -276,14 +295,7 @@ export {
   type Migration,
   type RawSave,
 } from './save/migrate';
-export {
-  type AnySaveData,
-  type CurrentSaveData,
-  type SaveDataV1,
-  type SaveDataV2,
-  type SaveDataV3,
-  type SaveDataV4,
-} from './save/schema';
+export { type AnySaveData, type CurrentSaveData, type SaveDataV0 } from './save/schema';
 export {
   fromSaveData,
   toSaveData,

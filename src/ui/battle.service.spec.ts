@@ -1,12 +1,43 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
-import { formationMembers, type GameState, newGame, num, startRarityIndex } from '../core';
-import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES, STARTER_FORMATION } from '../data';
+import {
+  formationMembers,
+  type GameState,
+  newGame,
+  num,
+  positionAt,
+  stageIndex,
+  startRarityIndex,
+} from '../core';
+import { AUTO_BATTLE_UNLOCK_CLEARS, STARTER_FORMATION } from '../data';
 import { BattleService, type PlaybackSpeed } from './battle.service';
-import { CHARACTERS_BY_ID } from './content';
+import { CHAPTERS_IN_ORDER, CHARACTERS_BY_ID, LADDER, STAGES } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
+
+/**
+ * The heading the service should produce for the `index`th stage of the ladder, 0-based.
+ *
+ * Derived from the shipped content rather than retyped, so a re-cut chapter or a renamed stage
+ * re-runs every assertion below rather than silently describing a ladder that no longer exists.
+ */
+function heading(index: number): {
+  name: string;
+  chapter: number;
+  chapterName: string;
+  number: number;
+  level: number;
+} {
+  const position = positionAt(LADDER, index + 1);
+  return {
+    name: STAGES[index].name,
+    chapter: position.chapter,
+    chapterName: CHAPTERS_IN_ORDER[position.chapter - 1].name,
+    number: position.stage,
+    level: STAGES[index].level,
+  };
+}
 
 /** A run holding some gold, leaving every other currency at zero. */
 function withGold(state: GameState, gold: string): GameState {
@@ -172,11 +203,7 @@ describe('BattleService', () => {
     it('names the stage the player would enter', () => {
       const { battles } = build();
 
-      expect(battles.nextStage()).toEqual({
-        name: STAGES[0].name,
-        number: 1,
-        level: STAGES[0].level,
-      });
+      expect(battles.nextStage()).toEqual(heading(0));
     });
 
     it('idles harmlessly until the run has loaded', () => {
@@ -198,7 +225,7 @@ describe('BattleService', () => {
       expect(battles.result()).not.toBeNull();
       expect(battles.isFighting()).toBe(true);
       expect(battles.isOpen()).toBe(true);
-      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1, level: STAGES[0].level });
+      expect(battles.stage()).toEqual(heading(0));
     });
 
     it('opens with everyone at full HP and the outcome withheld', () => {
@@ -345,8 +372,8 @@ describe('BattleService', () => {
       expect(loop.current?.rates.gold.eq(0)).toBe(true);
       fightToTheEnd(battles);
 
-      expect(loop.current?.rates.gold.eq(STAGES[0].rates.gold)).toBe(true);
-      expect(loop.current?.wallet.gold.eq(STAGES[0].reward.gold)).toBe(true);
+      expect(loop.current?.rates.gold.eq(String(STAGES[0].rates.gold))).toBe(true);
+      expect(loop.current?.wallet.gold.eq(String(STAGES[0].reward.gold))).toBe(true);
     });
 
     it('points the next fight at the following stage after a win', () => {
@@ -354,13 +381,9 @@ describe('BattleService', () => {
 
       fightToTheEnd(battles);
 
-      expect(battles.nextStage()).toEqual({
-        name: STAGES[1].name,
-        number: 2,
-        level: STAGES[1].level,
-      });
+      expect(battles.nextStage()).toEqual(heading(1));
       // The board still names the stage that was just fought.
-      expect(battles.stage()).toEqual({ name: STAGES[0].name, number: 1, level: STAGES[0].level });
+      expect(battles.stage()).toEqual(heading(0));
     });
 
     it('lets the player go again, on the next stage', () => {
@@ -371,7 +394,7 @@ describe('BattleService', () => {
       battles.fight(T0);
 
       expect(battles.result()).not.toBe(first);
-      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2, level: STAGES[1].level });
+      expect(battles.stage()).toEqual(heading(1));
       expect(loop.applied).toHaveLength(1);
     });
 
@@ -436,7 +459,8 @@ describe('BattleService', () => {
 
       expect(loop.current).toBe(banked);
       expect(loop.current?.stage).toBe(2);
-      expect(loop.current?.rates.gold.eq(STAGES[0].rates.gold)).toBe(true);
+      expect(loop.current?.chapter).toBe(1);
+      expect(loop.current?.rates.gold.eq(String(STAGES[0].rates.gold))).toBe(true);
     });
 
     it('lets the player go straight back in', () => {
@@ -447,7 +471,7 @@ describe('BattleService', () => {
       battles.fight(T0);
 
       expect(battles.isOpen()).toBe(true);
-      expect(battles.stage()).toEqual({ name: STAGES[1].name, number: 2, level: STAGES[1].level });
+      expect(battles.stage()).toEqual(heading(1));
     });
 
     it('is harmless when nothing is open', () => {
@@ -463,21 +487,23 @@ describe('BattleService', () => {
     it('fights the stage the run left off on', () => {
       const { battles } = build({
         ...withGold(newGame({ seed: 0xc0ffee, nowMs: T0 }), '5000'),
+        chapter: 1,
         stage: 3,
         battleCount: 42,
       });
 
       battles.fight(T0);
 
-      expect(battles.stage()).toEqual({ name: STAGES[2].name, number: 3, level: STAGES[2].level });
+      expect(battles.stage()).toEqual(heading(2));
     });
 
-    it('pulls a stage number past the shipped content back into range', () => {
-      const { battles } = build({ ...newGame({ seed: 1, nowMs: T0 }), stage: 999 });
+    it('pulls a position past the shipped content back into range', () => {
+      const { battles } = build({ ...newGame({ seed: 1, nowMs: T0 }), chapter: 99, stage: 999 });
+      const last = heading(STAGES.length - 1);
 
-      expect(battles.nextStage()?.number).toBe(STAGES.length);
+      expect(battles.nextStage()).toEqual(last);
       battles.fight(T0);
-      expect(battles.stage()?.number).toBe(STAGES.length);
+      expect(battles.stage()).toEqual(last);
     });
 
     it('never lowers an income a returning player already had', () => {
@@ -529,7 +555,7 @@ describe('BattleService', () => {
     it('unlocks on the clear count, not on the stage number', () => {
       // `stage` stops climbing at the top of the ladder, so a run that had beaten everything
       // would answer "not yet" forever if this read that field instead.
-      const { battles } = build({ ...unlocked(fresh()), stage: STAGES.length });
+      const { battles } = build({ ...unlocked(fresh()), chapter: 2, stage: 50 });
 
       expect(battles.isAutoUnlocked()).toBe(true);
     });
@@ -567,7 +593,7 @@ describe('BattleService', () => {
       run(battles, 120_000);
 
       expect(loop.applied.length).toBeGreaterThan(3);
-      expect(loop.current?.stage).toBeGreaterThan(3);
+      expect(stageIndex(LADDER, loop.current ?? { chapter: 1, stage: 1 })).toBeGreaterThan(3);
       // One write per battle, still — the loop does not batch them up.
       expect(loop.persisted).toHaveLength(loop.applied.length);
     });
@@ -585,17 +611,13 @@ describe('BattleService', () => {
     });
 
     it('names the stage the run died on, since the board is gone by then', () => {
-      const { battles } = build({ ...unlocked(fresh()), stage: 3 }, { party: false });
+      const { battles } = build({ ...unlocked(fresh()), chapter: 1, stage: 3 }, { party: false });
 
       battles.fight(T0);
       battles.setAuto(true, T0);
       run(battles, 5_000);
 
-      expect(battles.autoStoppedAt()).toEqual({
-        name: STAGES[2].name,
-        number: 3,
-        level: STAGES[2].level,
-      });
+      expect(battles.autoStoppedAt()).toEqual(heading(2));
     });
 
     it('clears that notice as soon as another fight starts', () => {

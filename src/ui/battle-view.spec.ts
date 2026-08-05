@@ -28,7 +28,13 @@ import { GameLoopService } from './game-loop.service';
 /** A stand-in for the animator. The component only ever reads; it never drives a fight. */
 class FakeBattles {
   readonly playbackSpeed = signal<1 | 2 | 4>(1);
-  readonly stage = signal<StageHeading | null>({ name: 'Marsh Shrine', number: 7, level: 16 });
+  readonly stage = signal<StageHeading | null>({
+    name: 'Marsh Shrine',
+    chapter: 1,
+    chapterName: 'The Sunken Fen',
+    number: 7,
+    level: 14,
+  });
   readonly result = signal<BattleResult | null>(null);
   readonly outcome = signal<BattleOutcome | null>(null);
   readonly isFighting = signal(false);
@@ -40,7 +46,13 @@ class FakeBattles {
       ['enemy-0', 'Bog Hag'],
     ]),
   );
-  readonly nextStage = signal<StageHeading | null>({ name: 'Hagfen', number: 8, level: 16 });
+  readonly nextStage = signal<StageHeading | null>({
+    name: 'Hagfen',
+    chapter: 1,
+    chapterName: 'The Sunken Fen',
+    number: 8,
+    level: 15,
+  });
   readonly partyFront = signal<readonly BattleCombatantView[]>([]);
   readonly partyBack = signal<readonly BattleCombatantView[]>([]);
   readonly foesFront = signal<readonly BattleCombatantView[]>([]);

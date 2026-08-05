@@ -5,10 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
-import v1 from './fixtures/v1.json';
-import v2 from './fixtures/v2.json';
-import v3 from './fixtures/v3.json';
-import v4 from './fixtures/v4.json';
+import v0 from './fixtures/v0.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -21,17 +18,17 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
+ * **There is one fixture today because there is one version.** The chain was re-based to a v0
+ * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — so v1
+ * through v5 and their four migrations no longer exist to be exercised. That makes this file
+ * briefly thin and it is not a reason to delete it: the first time `SAVE_VERSION` moves, the
+ * coverage assertion below is what fails if a fixture is not added with it.
+ *
  * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
- * type-checks. Registering a new fixture is two lines, and the coverage assertion below
- * fails if you bump `SAVE_VERSION` and forget.
+ * type-checks. Registering a new fixture is two lines.
  */
-const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
-  [1, v1],
-  [2, v2],
-  [3, v3],
-  [4, v4],
-]);
+const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([[0, v0]]);
 
 const OPTIONS: RepairOptions = {
   fallbackSeed: 1,
@@ -44,7 +41,7 @@ const entries = [...FIXTURES.entries()];
 describe('save fixtures', () => {
   it('has a fixture registered for every version up to current', () => {
     const missing: number[] = [];
-    for (let version = 1; version <= SAVE_VERSION; version++) {
+    for (let version = 0; version <= SAVE_VERSION; version++) {
       if (!FIXTURES.has(version)) {
         missing.push(version);
       }
@@ -69,6 +66,7 @@ describe('save fixtures', () => {
     expect(Number.isFinite(state.lastTickAt)).toBe(true);
     expect(Number.isInteger(state.rng.calls)).toBe(true);
     expect(state.rng.calls).toBeGreaterThanOrEqual(0);
+    expect(state.chapter).toBeGreaterThanOrEqual(1);
     expect(state.stage).toBeGreaterThanOrEqual(1);
     expect(state.clearedStages).toBeGreaterThanOrEqual(0);
     expect(state.battleCount).toBeGreaterThanOrEqual(0);
@@ -77,100 +75,42 @@ describe('save fixtures', () => {
   });
 });
 
-describe('v1 fixture contents', () => {
+describe('v0 fixture contents', () => {
   it('loads its recorded values exactly', () => {
     // Pinned so a change in parsing or serialisation shows up as a failing assertion
     // rather than as a quietly different save.
-    const { state } = loadSave(v1, OPTIONS);
+    const { state } = loadSave(v0, OPTIONS);
 
-    expect(state.wallet.gold.eq('1.2345e+18')).toBe(true);
+    expect(state.wallet.gold.eq('8.675309e+21')).toBe(true);
+    expect(state.wallet.summons.eq('350')).toBe(true);
+    expect(state.wallet.spark.eq('12')).toBe(true);
     expect(state.rates.gold.eq('250')).toBe(true);
+    expect(state.rates.essence.eq('0.8')).toBe(true);
     expect(state.lastTickAt).toBe(1753574400000);
     expect(state.rng).toEqual({ seed: 3735928559, calls: 417 });
+    expect(state.pity).toBe(37);
+    expect(state.pullCount).toBe(139);
   });
 
   it('preserves a gold value past float64 exact-integer range', () => {
-    const { state } = loadSave(v1, OPTIONS);
+    const { state } = loadSave(v0, OPTIONS);
 
     expect(state.wallet.gold.toNumber()).toBeGreaterThan(Number.MAX_SAFE_INTEGER);
   });
 
-  it('starts a pre-combat save at the first stage rather than discarding it', () => {
-    // The whole point of the migration chain: a save written before combat existed keeps its
-    // gold and its RNG position, and simply joins the fight at the beginning.
-    const { state } = loadSave(v1, OPTIONS);
+  it('keeps the position as a chapter and a stage within it', () => {
+    // Not a linear index. A fixture parked on chapter 2 is what would catch a decoder that read
+    // the pair back as one number, which is the shape of bug milestone 11 made possible.
+    const { state } = loadSave(v0, OPTIONS);
 
-    expect(state.stage).toBe(1);
-    expect(state.battleCount).toBe(0);
-    expect(state.wallet.gold.eq('1.2345e+18')).toBe(true);
-  });
-
-  it('walks the whole chain to a wallet, keeping gold and inventing nothing else', () => {
-    // Two migrations deep. A pre-gacha save has no claim on the currencies that did not exist
-    // when it was written, and starting them anywhere but zero would hand out progress.
-    const { state } = loadSave(v1, OPTIONS);
-
-    expect(state.wallet.xp.eq(0)).toBe(true);
-    expect(state.wallet.essence.eq(0)).toBe(true);
-    expect(state.wallet.summons.eq(0)).toBe(true);
-    expect(state.wallet.spark.eq(0)).toBe(true);
-    expect(state.pity).toBe(0);
-  });
-});
-
-describe('v2 fixture contents', () => {
-  it('loads its recorded values exactly', () => {
-    const { state } = loadSave(v2, OPTIONS);
-
-    expect(state.wallet.gold.eq('8.675309e+21')).toBe(true);
-    expect(state.stage).toBe(5);
+    expect(state.chapter).toBe(2);
+    expect(state.stage).toBe(14);
+    expect(state.clearedStages).toBe(63);
     expect(state.battleCount).toBe(143);
-    expect(state.rng).toEqual({ seed: 3735928559, calls: 417 });
-  });
-
-  it('moves gold and its rate into the wallet without changing either', () => {
-    const { state } = loadSave(v2, OPTIONS);
-
-    expect(state.wallet.gold.eq('8.675309e+21')).toBe(true);
-    expect(state.rates.gold.eq('250')).toBe(true);
-  });
-
-  it('credits nothing on its own, leaving the clear count for the load-time repair', () => {
-    // Zero means "nothing credited yet", not "cleared nothing". The first-clear summon bonus did
-    // not exist in v2, so a returning player has been paid none of them however far they climbed
-    // — seeding the counter from `stage - 1` here would mark all of it settled and close the door
-    // on the whole 3,000 crystals. `reconcileClearedStages` re-derives the count from the gold
-    // rate and pays every bonus it credits.
-    const { state } = loadSave(v2, OPTIONS);
-
-    expect(state.clearedStages).toBe(0);
-    expect(state.stage).toBe(5);
-  });
-
-  it('arrives with an empty roster, for the load path to seed', () => {
-    // A migration cannot know who the starter characters are — `core/` cannot see `data/`. The
-    // UI's `grantStarters` fills this in on load, and is idempotent so it doubles as repair.
-    const { state } = loadSave(v2, OPTIONS);
-
-    expect(state.roster).toEqual([]);
-    expect(state.formation).toEqual({ front: [], back: [] });
-  });
-});
-
-describe('v3 fixture contents', () => {
-  it('loads the whole gacha state exactly', () => {
-    const { state } = loadSave(v3, OPTIONS);
-
-    expect(state.wallet.summons.eq('350')).toBe(true);
-    expect(state.wallet.spark.eq('12')).toBe(true);
-    expect(state.rates.essence.eq('0.8')).toBe(true);
-    expect(state.pity).toBe(37);
-    expect(state.pullCount).toBe(139);
-    expect(state.clearedStages).toBe(4);
   });
 
   it('round-trips the roster, keeping rarity, level and spare copies', () => {
-    const { state } = loadSave(v3, OPTIONS);
+    const { state } = loadSave(v0, OPTIONS);
 
     expect(state.roster).toEqual([
       { defId: 'alpha', rarity: 4, level: 46, copies: 11 },
@@ -182,7 +122,7 @@ describe('v3 fixture contents', () => {
   it('keeps the party in the slot order it was saved in', () => {
     // Slot order breaks ties in ATB turn order, so re-sorting it here would silently change how
     // every one of that player's battles resolves.
-    const { state } = loadSave(v3, OPTIONS);
+    const { state } = loadSave(v0, OPTIONS);
 
     expect(state.formation).toEqual({ front: ['gamma', 'alpha'], back: ['beta'] });
   });

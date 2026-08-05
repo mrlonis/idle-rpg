@@ -7,16 +7,19 @@ import {
   type BattleEvent,
   type BattleOutcome,
   type BattleResult,
+  clampPosition,
+  type LadderPosition,
   MAX_ENERGY,
   type Numeric,
   type Row,
   type Side,
   simulateBattle,
   type StageData,
+  stageIndex,
   ZERO,
 } from '../core';
-import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES } from '../data';
-import { COMBAT, SUMMON_RATE_CURVE } from './content';
+import { AUTO_BATTLE_UNLOCK_CLEARS } from '../data';
+import { CHAPTERS_IN_ORDER, COMBAT, LADDER, STAGES, SUMMON_RATE_CURVE } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -44,9 +47,20 @@ export const PLAYBACK_SPEEDS = [1, 2, 4] as const;
 
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 
-/** A stage named for display: which number it is on the ladder, what it is called, and how hard. */
+/**
+ * A stage named for display: where on the ladder it is, what it is called, and how hard.
+ *
+ * Since milestone 11 "where" is two numbers and a chapter name rather than one number. Both halves
+ * are carried because both are how a player says where they are: "chapter 2, stage 14" is the
+ * position, and "The Ashfall Reach" is the place.
+ */
 export interface StageHeading {
   readonly name: string;
+  /** The chapter this stage is in, 1-based. */
+  readonly chapter: number;
+  /** What that chapter is called. */
+  readonly chapterName: string;
+  /** The stage **within** the chapter, 1-based — not a position on the whole ladder. */
   readonly number: number;
   /**
    * The level its enemies fight at.
@@ -272,11 +286,7 @@ export class BattleService {
    */
   readonly nextStage = computed<StageHeading | null>(() => {
     const snapshot = this.game.snapshot();
-    if (snapshot === null) {
-      return null;
-    }
-    const { stage, number } = stageFor(snapshot.stage);
-    return { name: stage.name, number, level: stage.level };
+    return snapshot === null ? null : headingFor(snapshot);
   });
 
   /** Maps a combatant key to its display name, for narrating the log. */
@@ -337,7 +347,8 @@ export class BattleService {
     // Whatever stopped the last auto run is describing history the moment a new fight starts.
     this.autoStoppedAt.set(null);
 
-    const { stage, number } = stageFor(state.stage);
+    const heading = headingFor(state);
+    const stage = stageFor(state);
     const result = simulateBattle(
       // The formation the player has chosen, with stats already scaled for level and rarity —
       // which is the whole reason the roster exists. An empty formation resolves as an
@@ -350,7 +361,7 @@ export class BattleService {
       COMBAT,
     );
 
-    this.stage.set({ name: stage.name, number, level: stage.level });
+    this.stage.set(heading);
     this.result.set(result);
     this.liveHp.set(new Map(result.roster.map((combatant) => [combatant.key, combatant.maxHp])));
     // Empty, matching the simulation's opening state. An ultimate is a payoff, not an opener.
@@ -624,7 +635,7 @@ export class BattleService {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
-    this.game.apply((state) => applyBattleResult(state, result, STAGES.length, SUMMON_RATE_CURVE));
+    this.game.apply((state) => applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE));
     void this.game.persist();
 
     if (!this.isAuto()) {
@@ -645,17 +656,27 @@ export class BattleService {
 }
 
 /**
- * Resolves a run's stage number to the stage that will be fought.
+ * Resolves a run's position to the stage that will be fought.
  *
- * Clamped here rather than in `core/`, which cannot import `data/` and so has no way to know
- * how many stages exist. A save from a build with more content than this one still lands
+ * Clamped here rather than in `core/`, which cannot import `data/` and so has no way to know how
+ * long the chapters are. A save from a build with more content than this one still lands
  * somewhere sensible instead of on `undefined`.
  */
-function stageFor(stage: number): { stage: StageData; number: number } {
-  const clamped = Number.isFinite(stage)
-    ? Math.min(Math.max(Math.floor(stage), 1), STAGES.length)
-    : 1;
-  return { stage: STAGES[clamped - 1], number: clamped };
+function stageFor(position: LadderPosition): StageData {
+  return STAGES[stageIndex(LADDER, position) - 1];
+}
+
+/** The same stage, named for a heading: its chapter, its number within it, and its level. */
+function headingFor(position: LadderPosition): StageHeading {
+  const { chapter, stage } = clampPosition(LADDER, position);
+  const content = stageFor(position);
+  return {
+    name: content.name,
+    chapter,
+    chapterName: CHAPTERS_IN_ORDER[chapter - 1].name,
+    number: stage,
+    level: content.level,
+  };
 }
 
 /**

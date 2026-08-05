@@ -220,14 +220,18 @@ WKWebView local storage lives in a cache-class container the OS can purge under 
 pressure, which loses player saves.
 
 Every save carries a `version`. Bumping `SAVE_VERSION` without adding the matching migration
-is a bug, migrations are pure `(old) => (new)` steps, and old migrations are never deleted.
-Loading clamps and defaults on recoverable damage rather than throwing — a thrown error
-costs the player their entire run.
+is a bug, migrations are pure `(old) => (new)` steps, and a migration is never deleted once a
+build carrying it has reached a player. Loading clamps and defaults on recoverable damage rather
+than throwing — a thrown error costs the player their entire run.
 
-The current version is **3**: v1 was the gold counter, v2 added `stage` and `battleCount` when
-combat landed, and v3 turned the single gold pair into a keyed wallet and rate table and added
-the roster, the active party and the pity counter. Every historical version keeps a fixture in
-[`src/core/save/fixtures/`](src/core/save/fixtures/), and
+The current version is **0**, and the migration table is empty. There were five versions and four
+migrations; they were collapsed into this baseline while the game was still pre-release, on the
+one argument that licenses it — **no save any of them wrote has ever existed outside
+development**. See [saves](docs/saves.md) for the reset and the condition that closes the door on
+repeating it. A save this build cannot read is discarded and the run starts fresh, which then
+saves over it rather than leaving the game unable to write.
+
+Every version keeps a fixture in [`src/core/save/fixtures/`](src/core/save/fixtures/), and
 [`fixtures.spec.ts`](src/core/save/fixtures.spec.ts) migrates all of them to current on every
 run — that is the test that catches the migration written months ago and never exercised since.
 
@@ -237,8 +241,8 @@ an idempotent load-time repair instead — `grantStarters` seeds a missing roste
 `reconcileClearedStages` rebuilds the idle rates and first-clear bonuses a returning run had
 already earned. Both run on **every** load rather than behind a version gate, and both only ever
 raise, so a healthy save passes through untouched.
-[`tests/save-recovery.spec.ts`](tests/save-recovery.spec.ts) covers the whole path from a v2 save
-on disk to a working run.
+[`tests/save-recovery.spec.ts`](tests/save-recovery.spec.ts) covers the whole path from a damaged
+save on disk to a working run.
 
 ### Clearing your save during development
 

@@ -54,6 +54,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
     rates: serializeRates(state.rates),
     lastTickAt: state.lastTickAt,
     rng: { seed: state.rng.seed, calls: state.rng.calls },
+    chapter: state.chapter,
     stage: state.stage,
     clearedStages: state.clearedStages,
     battleCount: state.battleCount,
@@ -143,7 +144,9 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
 
   // Bounded integers, which is exactly why they are stored as counters rather than ids: they
   // can be repaired here without core/ knowing what content the build actually contains. The
-  // caller clamps `stage` to the stages it has.
+  // caller clamps the `chapter`/`stage` pair to the ladder it actually ships — see
+  // `clampPosition` — because how long a chapter is, is content.
+  const chapter = readCounter(record['chapter'], 'chapter', 1, note);
   const stage = readCounter(record['stage'], 'stage', 1, note);
   const clearedStages = readCounter(record['clearedStages'], 'clearedStages', 0, note);
   const battleCount = readCounter(record['battleCount'], 'battleCount', 0, note);
@@ -160,6 +163,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       rates,
       lastTickAt,
       rng: { seed, calls },
+      chapter,
       stage,
       clearedStages,
       battleCount,

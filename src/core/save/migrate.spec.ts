@@ -16,8 +16,11 @@ describe('MIGRATIONS table', () => {
   it('has a migration registered for every version below current', () => {
     // Bumping SAVE_VERSION without adding the matching migration is the classic way to
     // brick every existing save. This turns that mistake into a CI failure.
+    //
+    // Vacuous at the v0 baseline and deliberately kept: it is the assertion that stops the *next*
+    // bump from shipping without its step, which is exactly when nobody is thinking about it.
     const missing: number[] = [];
-    for (let version = 1; version < SAVE_VERSION; version++) {
+    for (let version = 0; version < SAVE_VERSION; version++) {
       if (!MIGRATIONS.has(version)) {
         missing.push(version);
       }
@@ -48,9 +51,11 @@ describe('migrate', () => {
     expect(save).toEqual({ version: SAVE_VERSION, gold: '100' });
   });
 
-  it('treats a save with no version as the earliest schema rather than discarding it', () => {
-    // Pre-versioning saves should still be recoverable.
-    expect(() => migrate({ gold: '100' })).not.toThrow();
+  it('discards a save with no version rather than guessing at one', () => {
+    // It used to be read as the earliest schema, because v1 predated versioning and guessing was
+    // strictly better than discarding a real run. The v0 reset removed the thing that guess was
+    // for: nothing below this baseline exists, so an absent version is damage.
+    expect(() => migrate({ gold: '100' })).toThrow(UnknownSaveVersionError);
   });
 
   it.each([
@@ -62,7 +67,7 @@ describe('migrate', () => {
     expect(() => migrate(raw)).toThrow(UnknownSaveVersionError);
   });
 
-  it.each([{ version: 0 }, { version: -1 }, { version: 1.5 }, { version: 'three' }])(
+  it.each([{ version: -1 }, { version: 1.5 }, { version: 'three' }])(
     'throws UnknownSaveVersionError for a nonsense version %p',
     (save) => {
       expect(() => migrate(save)).toThrow(UnknownSaveVersionError);
@@ -70,35 +75,27 @@ describe('migrate', () => {
   );
 
   it('throws FutureSaveVersionError when the save is newer than this build', () => {
-    // The player downgraded. Their save is not corrupt and must not be overwritten.
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it('splits a v3 active party into front and back ranks', () => {
-    const result = migrate({
-      version: 3,
-      wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
-      rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
-      lastTickAt: 1,
-      rng: { seed: 1, calls: 0 },
-      stage: 1,
-      clearedStages: 0,
-      battleCount: 0,
-      roster: [],
-      activeParty: ['gamma', 'alpha', 'beta'],
-      pity: 0,
-      pullCount: 0,
-    });
-
-    expect(result['activeParty']).toBeUndefined();
-    expect(result['formation']).toEqual({ front: ['gamma', 'alpha'], back: ['beta'] });
+  it.each([1, 2, 3, 4, 5])('discards a v%i save from before the baseline', (version) => {
+    // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
+    // collapsed into v0 while the game was pre-release, so a save written by any of them has no
+    // path to current and never will. It reads as newer-than-supported because the numbers were
+    // re-based; either way `loadSave` turns it into a fresh run, which is the whole intent.
+    expect(() => migrate({ version })).toThrow();
   });
 });
 
 describe('migration chaining', () => {
-  // The real MIGRATIONS map is empty at v1, so these drive the real `migrate` walk with a
-  // synthetic history. The algorithm is therefore covered before there is any history to
-  // migrate — on the day a v2 first ships, the chaining logic is already known good.
+  // The real MIGRATIONS map is empty, so these drive the real `migrate` walk with a synthetic
+  // history. The algorithm is therefore covered before there is any history to migrate — on the
+  // day a v1 first ships, the chaining logic is already known good.
+  //
+  // **This block is why the walker survived the v0 reset rather than being deleted with the four
+  // migrations it used to run.** It is proven machinery with no callers, which is a far better
+  // position than an unproven chain walker written on the day the first real migration is already
+  // urgent.
   const table = new Map<number, Migration>([
     [1, (s) => ({ ...s, version: 2, stamina: 0 })],
     [2, (s) => ({ ...s, version: 3, rng: { seed: 7, calls: 0 } })],

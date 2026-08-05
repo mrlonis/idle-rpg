@@ -1,6 +1,8 @@
 import {
   type AscensionRules,
   type BannerData,
+  type ChapterCurveData,
+  type ChapterData,
   type CharacterData,
   type CharacterLookup,
   type CombatRules,
@@ -10,17 +12,21 @@ import {
   type GachaRulesData,
   type GrowthData,
   type KitRulesData,
+  type LadderShape,
+  ladderShape,
   type LevelCurveData,
+  resolveLadder,
   type ShopOfferData,
-  type StageProgressData,
+  type StageData,
+  type StageRewardCurveData,
   type SummonRateCurve,
-  toAmount,
   toCombatRules,
-  toRates,
 } from '../core';
 import {
   ASCENSION_RULES,
   BANNERS,
+  CHAPTER_CURVE,
+  CHAPTERS,
   CHARACTERS,
   COMBAT_RULES,
   ELITE_UPGRADE_CHANCE,
@@ -32,7 +38,7 @@ import {
   PULL_COST,
   SPARK_PER_COPY,
   SPARK_SHOP,
-  STAGES,
+  STAGE_REWARDS,
   SUMMON_RATE,
   TIER_WEIGHTS,
 } from '../data';
@@ -108,27 +114,49 @@ export const GACHA_RULES: GachaRulesData = {
 /** The spark shop's offers, in the order they are displayed. */
 export const SHOP_OFFERS: readonly ShopOfferData[] = SPARK_SHOP;
 
-/** How many stages are authored. `applyBattleResult` clamps progression against this. */
-export const STAGE_COUNT = STAGES.length;
+/** Every chapter, in the order they are climbed. */
+export const CHAPTERS_IN_ORDER: readonly ChapterData[] = CHAPTERS;
+
+/** How long a chapter is, and where its mini-bosses fall. */
+export const CHAPTER_RULES: ChapterCurveData = CHAPTER_CURVE;
+
+/** What a stage pays, as coefficients over its position on the ladder. */
+export const STAGE_REWARD_CURVE: StageRewardCurveData = STAGE_REWARDS;
 
 /**
- * What each stage unlocks, parsed once, in ladder order.
+ * The ladder this build ships, as the length of each chapter.
  *
- * `reconcileClearedStages` needs these on every load to rebuild the income *and* the first-clear
- * bonuses a returning run has already earned. Parsing them per load would be the same answer
- * computed from static content every time the app opens.
+ * All `core/` ever needs of the chapters: progression is arithmetic over lengths, and nothing in
+ * the simulation cares what a chapter is called. It is the *authored* lengths rather than
+ * {@link CHAPTER_RULES} evaluated, deliberately — the formula says how long a chapter should be,
+ * and a build that ships two chapters must not be talked into believing it has a hundred.
  */
-export const STAGE_PROGRESS: readonly StageProgressData[] = STAGES.map((stage) => ({
-  rates: toRates(stage.rates),
-  firstClearSummons: toAmount(stage.firstClearSummons),
-}));
+export const LADDER: LadderShape = ladderShape(CHAPTERS_IN_ORDER);
+
+/**
+ * Every stage in the game, flattened into ladder order and resolved against the reward curve.
+ *
+ * Built once at module scope. The encounters are authored in `data/` and what they pay is a
+ * function of where they sit, so something has to put the two together — and this file is that
+ * seam. Doing it per battle would be the same answer recomputed from static content thousands of
+ * times over an auto-battle evening.
+ *
+ * The typed local is what makes a malformed encounter a compile error rather than a stage the
+ * simulation quietly fails to parse.
+ */
+export const STAGES: readonly StageData[] = resolveLadder(
+  CHAPTERS_IN_ORDER,
+  CHAPTER_RULES,
+  STAGE_REWARD_CURVE,
+);
 
 /**
  * How the idle crystal rate is earned: a flat base, plus a step per stage first cleared.
  *
- * The one rate that is not in {@link STAGE_PROGRESS}, because it is not per-stage content —
- * `applyBattleResult` and `reconcileClearedStages` both derive it from `clearedStages`, and both
- * need this to do it. The typed local is what makes a malformed curve a compile error.
+ * The one rate that is not in {@link STAGE_REWARD_CURVE}, because it is a function of the clear
+ * count rather than of a stage — `applyBattleResult` and `reconcileClearedStages` both derive it
+ * from `clearedStages`, and both need this to do it. The typed local is what makes a malformed
+ * curve a compile error.
  */
 export const SUMMON_RATE_CURVE: SummonRateCurve = SUMMON_RATE;
 

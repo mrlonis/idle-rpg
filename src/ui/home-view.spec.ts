@@ -97,7 +97,13 @@ class FakeRoster {
 
 /** Only the three things the home screen asks of the animator. */
 class FakeBattles {
-  readonly nextStage = signal<StageHeading | null>({ name: 'Mossy Hollow', number: 1, level: 1 });
+  readonly nextStage = signal<StageHeading | null>({
+    name: 'Mossy Hollow',
+    chapter: 1,
+    chapterName: 'The Sunken Fen',
+    number: 1,
+    level: 1,
+  });
   /** Set when an auto-battle run ended in a loss, which is what dropped the player back here. */
   readonly autoStoppedAt = signal<StageHeading | null>(null);
   readonly fought: number[] = [];
@@ -176,12 +182,16 @@ describe('HomeView', () => {
   describe('the way into a fight', () => {
     it('names the stage on the button', async () => {
       const { el } = await render((_game, battles) =>
-        battles.nextStage.set({ name: 'Cutthroat Camp', number: 5, level: 1 }),
+        battles.nextStage.set({
+          name: 'Cutthroat Camp',
+          chapter: 1,
+          chapterName: 'The Sunken Fen',
+          number: 5,
+          level: 6,
+        }),
       );
 
-      expect(el.querySelector('.fight')?.textContent?.trim()).toBe(
-        'Fight Stage 5 — Cutthroat Camp',
-      );
+      expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Fight 1-5 — Cutthroat Camp');
     });
 
     it('starts a battle when pressed, stamped with the current time', async () => {
@@ -277,7 +287,13 @@ describe('HomeView', () => {
 
     it('closes the auto-battle notice and clears it on the service', async () => {
       const { el, fixture, battles } = await render((_game, animator) =>
-        animator.autoStoppedAt.set({ name: 'Cutthroat Camp', number: 5, level: 1 }),
+        animator.autoStoppedAt.set({
+          name: 'Cutthroat Camp',
+          chapter: 1,
+          chapterName: 'The Sunken Fen',
+          number: 5,
+          level: 6,
+        }),
       );
       expect(el.textContent).toContain('Auto-battle stopped');
 
@@ -288,8 +304,9 @@ describe('HomeView', () => {
     });
 
     it('leaves the save-health notices with no way to close them', async () => {
-      // A run whose save could not be read is still not being written to disk, so that warning
-      // is describing something that is currently true rather than something that happened.
+      // The two dismissible notices report something that has finished; this one reports what
+      // this run *is* — started from nothing because the save on disk could not be read — and a
+      // player who closed it would have no way to find that out again.
       const { el } = await render((game) => game.loadFailure.set('unreadable'));
 
       expect(el.querySelector('[role="alert"]')).not.toBeNull();
@@ -405,8 +422,11 @@ describe('HomeView', () => {
 
       const alert = el.querySelector('[role="alert"]');
       expect(alert).not.toBeNull();
-      // The player needs to know their old save is intact, or they will assume it is gone.
-      expect(alert?.textContent).toContain('has not been overwritten');
+      // It says what happened rather than reassuring. This used to promise the old save was
+      // intact, which was true only while a failed load barred the way to the primary slot —
+      // since the v0 reset the fresh run replaces it, and copy that kept promising otherwise
+      // would be the worst kind of stale: the kind a player relies on.
+      expect(alert?.textContent).toContain('It has replaced the old one');
     });
 
     it('does not also show the recovery notice when the load failed outright', async () => {

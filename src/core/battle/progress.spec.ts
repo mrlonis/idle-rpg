@@ -10,14 +10,63 @@ import {
   type SummonRateCurve,
   zeroRates,
 } from '../currency';
+import {
+  type ChapterCurveData,
+  type LadderShape,
+  stagePayout,
+  type StageRewardCurveData,
+} from '../ladder';
 import { num, ZERO } from '../numeric';
 import { newGame, type GameState } from '../state';
 import { tick } from '../tick';
-import { applyBattleResult, reconcileClearedStages, type StageProgressData } from './progress';
+import { applyBattleResult, reconcileClearedStages } from './progress';
 import { type BattleOutcome, type BattleResult } from './types';
 
 const T0 = 1_700_000_000_000;
-const STAGE_COUNT = 8;
+
+/**
+ * Eight stages, cut into two chapters of five and three.
+ *
+ * Two chapters rather than one, because the whole of what milestone 11 changed here is that a
+ * position is a pair: a ladder of one chapter would let every `stageIndex` bug pass by looking
+ * like the identity. Uneven lengths for the same reason — five and five would hide a slip between
+ * "stages in chapter 1" and "stages in this chapter".
+ */
+const LADDER: LadderShape = { chapters: [5, 3] };
+
+/** The last stage of the fixture ladder, as a position. */
+const TOP = { chapter: 2, stage: 3 };
+
+/** How the fixture ladder is cut, for the mini-boss and boss rhythm. */
+const CHAPTER_RULES: ChapterCurveData = {
+  baseStages: 5,
+  stepStages: 0,
+  chaptersPerBand: 10,
+  maxStages: 5,
+  miniBossEvery: 4,
+};
+
+/**
+ * What a stage pays, with both boss multipliers at 1.
+ *
+ * A linear exponent so the eight gold rates are 0.5, 1, 1.5 … 4 and the eight first-clear bonuses
+ * are 200, 250 … 550 — numbers a reader can add up in their head, which is the point of a fixture.
+ * The multipliers are held at 1 so this file measures progression rather than the reward curve;
+ * `ladder.spec.ts` is where the curve itself is pinned, and one test below re-introduces a boss
+ * multiplier to check the repair pays it.
+ */
+const REWARDS: StageRewardCurveData = {
+  baseRates: { gold: 0.5, xp: 0.1, essence: 0.001 },
+  exponent: 1,
+  rewardSeconds: 40,
+  firstClearSummons: { base: 200, perStage: 50, miniBossMultiplier: 1, bossMultiplier: 1 },
+};
+
+/** The first-clear bonus for each of the eight stages, and the whole ladder's worth. */
+const BONUSES = [1, 2, 3, 4, 5, 6, 7, 8].map(
+  (index) => stagePayout(REWARDS, index).firstClearSummons,
+);
+const TOTAL_BONUS = BONUSES.reduce((sum, bonus) => sum + bonus, 0);
 
 /**
  * The crystal curve, as `data/` authors it.
@@ -26,7 +75,7 @@ const STAGE_COUNT = 8;
  * are that a run earns the base before it has fought anything and that a clear is worth a step —
  * and both read as arithmetic a person can check when the constants are the real ones.
  */
-const CRYSTALS: SummonRateCurve = { basePerHour: 100, perClearPerHour: 1 };
+const CRYSTALS: SummonRateCurve = { basePerHour: 100, perClearPerHour: 0.5 };
 
 /** What the crystal rate should be after `cleared` stages, per second. */
 function crystalsAfter(cleared: number): number {
@@ -77,24 +126,46 @@ function outcome(kind: BattleOutcome, reward: RewardSpec = {}): BattleResult {
 
 describe('applyBattleResult', () => {
   it('advances the stage on a victory and banks the reward', () => {
-    const state = withGold(run({ stage: 3 }), '500');
+    const state = withGold(run({ chapter: 1, stage: 3 }), '500');
 
     const next = applyBattleResult(
       state,
       outcome('victory', { gained: { gold: num(160) } }),
-      STAGE_COUNT,
+      LADDER,
       CRYSTALS,
     );
 
-    expect(next.stage).toBe(4);
+    expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 4 });
     expect(next.wallet.gold.eq(660)).toBe(true);
+  });
+
+  it('rolls into the next chapter rather than stopping at the end of one', () => {
+    // The seam milestone 11 added, and the one thing a flat stage number could never express. A
+    // player who takes a chapter's boss is on the next chapter's first stage, not stuck on the
+    // boss and not thrown back to the beginning.
+    const state = run({ chapter: 1, stage: 5 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+
+    expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 2, stage: 1 });
+  });
+
+  it('counts a clear by its place on the whole ladder, not within its chapter', () => {
+    // ⚠️ The bug a chapter-and-stage pair makes possible and a flat number could not: chapter 2
+    // stage 1 and chapter 1 stage 1 are the same `stage` field. Crediting the second stage of the
+    // ladder for a clear of its sixth would hand back five first-clear bonuses.
+    const state = run({ chapter: 2, stage: 1, clearedStages: 5 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+
+    expect(next.clearedStages).toBe(6);
   });
 
   it('banks every currency a stage pays, not just gold', () => {
     const next = applyBattleResult(
       run(),
       outcome('victory', { gained: { gold: num(650), xp: num(120), essence: num(5) } }),
-      STAGE_COUNT,
+      LADDER,
       CRYSTALS,
     );
 
@@ -104,11 +175,11 @@ describe('applyBattleResult', () => {
   });
 
   it.each<BattleOutcome>(['defeat'])('holds the stage on a %s', (kind) => {
-    const state = withGold(run({ stage: 3 }), '500');
+    const state = withGold(run({ chapter: 1, stage: 3 }), '500');
 
-    const next = applyBattleResult(state, outcome(kind), STAGE_COUNT, CRYSTALS);
+    const next = applyBattleResult(state, outcome(kind), LADDER, CRYSTALS);
 
-    expect(next.stage).toBe(3);
+    expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 3 });
     expect(next.wallet.gold.eq(500)).toBe(true);
   });
 
@@ -118,39 +189,41 @@ describe('applyBattleResult', () => {
     // reasons the player could never see.
     const state = run({ battleCount: 41 });
 
-    expect(applyBattleResult(state, outcome(kind), STAGE_COUNT, CRYSTALS).battleCount).toBe(42);
+    expect(applyBattleResult(state, outcome(kind), LADDER, CRYSTALS).battleCount).toBe(42);
   });
 
   it('stops at the last authored stage, which then repeats', () => {
-    const state = run({ stage: STAGE_COUNT });
+    const state = run(TOP);
 
     const next = applyBattleResult(
       state,
       outcome('victory', { gained: { gold: num(650) } }),
-      STAGE_COUNT,
+      LADDER,
       CRYSTALS,
     );
 
-    expect(next.stage).toBe(STAGE_COUNT);
+    expect({ chapter: next.chapter, stage: next.stage }).toEqual(TOP);
     expect(next.wallet.gold.eq(650)).toBe(true);
   });
 
   it('pulls a save from a content-richer build back into range', () => {
-    // Loading a save whose stage number is past what this build ships must land somewhere real
+    // Loading a save that names a chapter this build does not ship must land somewhere real
     // rather than on a stage that does not exist.
-    const state = run({ stage: 99 });
+    const state = run({ chapter: 9, stage: 40 });
 
-    expect(applyBattleResult(state, outcome('defeat'), STAGE_COUNT, CRYSTALS).stage).toBe(
-      STAGE_COUNT,
-    );
+    const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
+
+    expect({ chapter: next.chapter, stage: next.stage }).toEqual(TOP);
   });
 
-  it.each([0, -5, Number.NaN, Infinity])(
-    'treats an unusable stage count of %p as a single stage',
-    (stageCount) => {
-      const state = run({ stage: 4 });
+  it.each<LadderShape>([{ chapters: [] }, { chapters: [0] }])(
+    'treats a ladder with no stages in it as a single stage',
+    (empty) => {
+      const state = run({ chapter: 4, stage: 4 });
 
-      expect(applyBattleResult(state, outcome('victory'), stageCount, CRYSTALS).stage).toBe(1);
+      const next = applyBattleResult(state, outcome('victory'), empty, CRYSTALS);
+
+      expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 1 });
     },
   );
 
@@ -161,7 +234,7 @@ describe('applyBattleResult', () => {
       const next = applyBattleResult(
         run(),
         outcome('victory', { rates: { gold: num('0.5'), xp: num('0.1') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -172,20 +245,18 @@ describe('applyBattleResult', () => {
     it.each<BattleOutcome>(['defeat'])('leaves the rate alone on a %s', (kind) => {
       const state = withGoldRate(run(), '4');
 
-      expect(applyBattleResult(state, outcome(kind), STAGE_COUNT, CRYSTALS).rates.gold.eq(4)).toBe(
-        true,
-      );
+      expect(applyBattleResult(state, outcome(kind), LADDER, CRYSTALS).rates.gold.eq(4)).toBe(true);
     });
 
     it('raises nothing when the stage has been cleared before', () => {
       // The idle increase is a one-time unlock per stage, not a per-victory bonus. Re-running a
       // stage should not be reaching for the rate table at all.
-      const state = run({ stage: 3, clearedStages: 5 });
+      const state = run({ chapter: 1, stage: 3, clearedStages: 5 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { rates: { gold: num('99'), xp: num('99') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -196,12 +267,12 @@ describe('applyBattleResult', () => {
     it('still pays the one-off lump on a re-fight', () => {
       // Farming a stage you have already beaten is a legitimate way to spend an evening, and it
       // should pay — just not with permanent income.
-      const state = run({ stage: 3, clearedStages: 5 });
+      const state = run({ chapter: 1, stage: 3, clearedStages: 5 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { gained: { gold: num(65), xp: num(12) }, rates: { gold: num('99') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -212,13 +283,14 @@ describe('applyBattleResult', () => {
 
     it('never lowers a rate the run already had', () => {
       // Re-clearing an earlier stage, or loading a save written against a different curve, must
-      // not cut a player's income.
+      // not cut a player's income. Milestone 11 re-derived the whole rate curve, so the second
+      // half of that sentence stopped being hypothetical.
       const state = withGoldRate(run(), '16');
 
       const next = applyBattleResult(
         state,
         outcome('victory', { rates: { gold: num('0.5') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -233,7 +305,7 @@ describe('applyBattleResult', () => {
       const next = applyBattleResult(
         state,
         outcome('victory', { rates: { gold: num('0.5'), essence: num('0.05') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -254,7 +326,7 @@ describe('applyBattleResult', () => {
           applyBattleResult(
             untouched,
             outcome('victory', { rates: { gold: num('0.5') } }),
-            STAGE_COUNT,
+            LADDER,
             CRYSTALS,
           ),
           60_000,
@@ -264,10 +336,10 @@ describe('applyBattleResult', () => {
   });
 
   describe('the crystal rate', () => {
-    it('steps up by one an hour on a first clear', () => {
-      const state = run({ stage: 3, clearedStages: 2 });
+    it('steps up on a first clear', () => {
+      const state = run({ chapter: 1, stage: 3, clearedStages: 2 });
 
-      const next = applyBattleResult(state, outcome('victory'), STAGE_COUNT, CRYSTALS);
+      const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
 
       expect(next.clearedStages).toBe(3);
       expect(next.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(3), 12);
@@ -275,36 +347,36 @@ describe('applyBattleResult', () => {
 
     it('does not move however many times a cleared stage is farmed', () => {
       // The rule that keeps farming the fastest fight from being the fastest way to pull. This is
-      // the case auto-battle actually produces: parked at the top of the ladder, where `stage`
-      // has stopped climbing, winning the same fight for hours.
-      let state = run({ stage: STAGE_COUNT, clearedStages: STAGE_COUNT });
+      // the case auto-battle actually produces: parked at the top of the ladder, where the
+      // position has stopped climbing, winning the same fight for hours.
+      let state = run({ ...TOP, clearedStages: 8 });
 
       for (let fight = 0; fight < 50; fight++) {
-        state = applyBattleResult(state, outcome('victory'), STAGE_COUNT, CRYSTALS);
+        state = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
       }
 
-      expect(state.clearedStages).toBe(STAGE_COUNT);
-      expect(state.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(STAGE_COUNT), 12);
+      expect(state.clearedStages).toBe(8);
+      expect(state.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(8), 12);
     });
 
     it('steps once per stage across a whole climb, and no more', () => {
-      // Fifty fights from a standing start: eight of them are first clears and the rest are the
-      // top of the ladder repeating, so the rate lands on the ladder's length rather than on the
-      // number of battles won.
+      // Fifty fights from a standing start: eight of them are first clears — across both chapters
+      // — and the rest are the top of the ladder repeating, so the rate lands on the ladder's
+      // length rather than on the number of battles won.
       let state = run();
 
       for (let fight = 0; fight < 50; fight++) {
-        state = applyBattleResult(state, outcome('victory'), STAGE_COUNT, CRYSTALS);
+        state = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
       }
 
-      expect(state.clearedStages).toBe(STAGE_COUNT);
-      expect(state.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(STAGE_COUNT), 12);
+      expect(state.clearedStages).toBe(8);
+      expect(state.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(8), 12);
     });
 
     it('does not move on a loss', () => {
-      const state = run({ stage: 5, clearedStages: 4 });
+      const state = run({ chapter: 1, stage: 5, clearedStages: 4 });
 
-      const next = applyBattleResult(state, outcome('defeat'), STAGE_COUNT, CRYSTALS);
+      const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
 
       expect(next.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(4), 12);
     });
@@ -312,12 +384,12 @@ describe('applyBattleResult', () => {
     it('ignores whatever the stage itself claims to grant', () => {
       // Crystals are a function of the clear count, not a per-stage unlock. A stage authored with
       // a crystal rate — a save from an older build, or a fixture — must not be able to set one.
-      const state = run({ stage: 1, clearedStages: 0 });
+      const state = run({ chapter: 1, stage: 1, clearedStages: 0 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { rates: { gold: num('0.5'), summons: num('0.0015') } }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -329,7 +401,7 @@ describe('applyBattleResult', () => {
       // `raiseRates` every other currency goes through.
       const generous = { ...run(), rates: { ...zeroRates(), summons: num('9') } };
 
-      const next = applyBattleResult(generous, outcome('victory'), STAGE_COUNT, CRYSTALS);
+      const next = applyBattleResult(generous, outcome('victory'), LADDER, CRYSTALS);
 
       expect(next.rates.summons.eq(9)).toBe(true);
     });
@@ -348,12 +420,12 @@ describe('applyBattleResult', () => {
 
   describe('first-clear bonus', () => {
     it('pays the summon bonus the first time a stage falls', () => {
-      const state = run({ stage: 3, clearedStages: 2 });
+      const state = run({ chapter: 1, stage: 3, clearedStages: 2 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { firstClearSummons: '250' }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
@@ -362,42 +434,42 @@ describe('applyBattleResult', () => {
     });
 
     it('never pays it twice for the same stage', () => {
-      // The case `stage` alone cannot answer: at the top of the ladder `stage` stops climbing,
+      // The case the position alone cannot answer: at the top of the ladder it stops climbing,
       // so a player farming the last stage would re-earn its bonus on every single win.
-      const state = run({ stage: STAGE_COUNT, clearedStages: STAGE_COUNT });
+      const state = run({ ...TOP, clearedStages: 8 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { firstClearSummons: '800' }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
       expect(next.wallet.summons.eq(0)).toBe(true);
-      expect(next.clearedStages).toBe(STAGE_COUNT);
+      expect(next.clearedStages).toBe(8);
     });
 
     it('credits the stage actually fought when the save came from a richer build', () => {
-      // The UI clamps `stage` to the content it has before simulating, so this has to clamp it
-      // the same way. Crediting stage 99 would park the counter above anything reachable and
-      // silently withhold every remaining first-clear bonus.
-      const state = run({ stage: 99, clearedStages: 3 });
+      // The UI clamps the position to the content it has before simulating, so this has to clamp
+      // it the same way. Crediting a chapter this build does not ship would park the counter above
+      // anything reachable and silently withhold every remaining first-clear bonus.
+      const state = run({ chapter: 9, stage: 40, clearedStages: 3 });
 
       const next = applyBattleResult(
         state,
         outcome('victory', { firstClearSummons: '800' }),
-        STAGE_COUNT,
+        LADDER,
         CRYSTALS,
       );
 
-      expect(next.clearedStages).toBe(STAGE_COUNT);
+      expect(next.clearedStages).toBe(8);
       expect(next.wallet.summons.eq(800)).toBe(true);
     });
 
     it('pays nothing on a loss and leaves the cleared count alone', () => {
-      const state = run({ stage: 5, clearedStages: 4 });
+      const state = run({ chapter: 1, stage: 5, clearedStages: 4 });
 
-      const next = applyBattleResult(state, outcome('defeat'), STAGE_COUNT, CRYSTALS);
+      const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
 
       expect(next.wallet.summons.eq(0)).toBe(true);
       expect(next.clearedStages).toBe(4);
@@ -410,24 +482,15 @@ describe('applyBattleResult', () => {
     const state = run({ rng: { seed: 0xc0ffee, calls: 317 } });
 
     expect(
-      applyBattleResult(
-        state,
-        outcome('victory', { gained: { gold: num(100) } }),
-        STAGE_COUNT,
-        CRYSTALS,
-      ).rng,
+      applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CRYSTALS)
+        .rng,
     ).toEqual({ seed: 0xc0ffee, calls: 317 });
   });
 
   it('does not mutate the state it is given', () => {
-    const state = withGold(run({ stage: 2, battleCount: 5 }), '10');
+    const state = withGold(run({ chapter: 1, stage: 2, battleCount: 5 }), '10');
 
-    applyBattleResult(
-      state,
-      outcome('victory', { gained: { gold: num(100) } }),
-      STAGE_COUNT,
-      CRYSTALS,
-    );
+    applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CRYSTALS);
 
     expect(state.stage).toBe(2);
     expect(state.battleCount).toBe(5);
@@ -437,7 +500,7 @@ describe('applyBattleResult', () => {
   it('leaves the clock alone, because core has none', () => {
     const state = run({ lastTickAt: T0 });
 
-    expect(applyBattleResult(state, outcome('victory'), STAGE_COUNT, CRYSTALS).lastTickAt).toBe(T0);
+    expect(applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS).lastTickAt).toBe(T0);
   });
 });
 
@@ -447,45 +510,31 @@ describe('applyBattleResult', () => {
  * That migration carried `goldPerSec` across and started xp, essence and summons at zero, so a
  * returning player watched their gold tick up while nothing else moved — with no way back except
  * re-fighting the ladder. It also seeded `clearedStages` from `stage - 1`, which is one short at
- * the top because `stage` stops climbing there.
+ * the top because the position stops climbing there.
  *
  * Both are recoverable without asking the player to fight anything, because the surviving gold
- * rate says exactly how far the run got.
+ * rate says roughly how far the run got — bounded by how far it has actually travelled, which is
+ * the guard milestone 11 had to add when it re-derived the rate curve underneath every save.
  */
 describe('reconcileClearedStages', () => {
-  /** The shipped ladder's shape: ascending rates, and a first-clear bonus on every stage. */
-  const BONUSES = [200, 200, 250, 300, 350, 400, 500, 800];
-  const TOTAL_BONUS = BONUSES.reduce((sum, n) => sum + n, 0);
-
-  const LADDER: readonly StageProgressData[] = [0.5, 1, 1.5, 2.5, 4, 6, 10, 16].map(
-    (gold, index) => ({
-      // Three rates, matching the shipped shape: crystals are not a per-stage unlock, so a stage
-      // does not author one.
-      rates: {
-        gold: num(gold),
-        xp: num(gold / 5),
-        essence: num((index + 1) / 1000),
-      },
-      firstClearSummons: num(BONUSES[index]),
-    }),
-  );
+  const repair = (state: GameState, ladder: LadderShape = LADDER): GameState =>
+    reconcileClearedStages(state, ladder, CHAPTER_RULES, REWARDS, CRYSTALS);
 
   /** A save as the migration would have left it: gold intact, everything else zeroed. */
   function migrated(goldRate: string, clearedStages: number): GameState {
-    return run({
-      rates: { ...zeroRates(), gold: num(goldRate) },
-      clearedStages,
-      stage: 8,
-    });
+    return run({ rates: { ...zeroRates(), gold: num(goldRate) }, clearedStages, ...TOP });
   }
 
   /** A run that has genuinely earned everything the ladder grants, crystal rate included. */
   function settled(clearedStages: number): GameState {
+    const payout = stagePayout(REWARDS, clearedStages);
     return run({
+      ...TOP,
       clearedStages,
       rates: {
-        ...zeroRates(),
-        ...LADDER[clearedStages - 1].rates,
+        gold: num(payout.rates.gold ?? 0),
+        xp: num(payout.rates.xp ?? 0),
+        essence: num(payout.rates.essence ?? 0),
         summons: summonRatePerSecond(CRYSTALS, clearedStages),
       },
     });
@@ -493,15 +542,15 @@ describe('reconcileClearedStages', () => {
 
   it('restores every rate a run had already earned', () => {
     // The reported bug, exactly: gold accumulating and nothing else.
-    const broken = migrated('16', 7);
+    const broken = migrated('4', 7);
 
-    const fixed = reconcileClearedStages(broken, LADDER, CRYSTALS);
+    const fixed = repair(broken);
 
-    expect(fixed.rates.gold.eq(16)).toBe(true);
+    expect(fixed.rates.gold.eq(4)).toBe(true);
     expect(fixed.rates.xp.gt(0)).toBe(true);
     expect(fixed.rates.essence.gt(0)).toBe(true);
-    // Crystals come back too, but from the clear count rather than from the table — which is why
-    // this repair heals a rate no stage in `LADDER` grants.
+    // Crystals come back too, but from the clear count rather than from the curve — which is why
+    // this repair heals a rate no stage grants.
     expect(fixed.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(8), 12);
   });
 
@@ -511,7 +560,7 @@ describe('reconcileClearedStages', () => {
     // thing worth doing.
     const fresh = run();
 
-    const started = reconcileClearedStages(fresh, LADDER, CRYSTALS);
+    const started = repair(fresh);
 
     expect(started.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(0), 12);
     expect(started.rates.gold.eq(0)).toBe(true);
@@ -525,17 +574,18 @@ describe('reconcileClearedStages', () => {
     // The two repairs are one repair: the count is read off the gold rate, and the crystal rate
     // is read off the count. A save credited with seven of eight stages comes back earning the
     // eight-stage rate, not the seven-stage one.
-    const fixed = reconcileClearedStages(migrated('16', 7), LADDER, CRYSTALS);
+    const fixed = repair(migrated('4', 7));
 
     expect(fixed.clearedStages).toBe(8);
     expect(fixed.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(8), 12);
   });
 
   it('restores them to the highest cleared stage, not the first', () => {
-    const fixed = reconcileClearedStages(migrated('16', 7), LADDER, CRYSTALS);
+    const top = stagePayout(REWARDS, 8).rates;
+    const fixed = repair(migrated('4', 7));
 
-    expect(fixed.rates.xp.eq(LADDER[7].rates.xp ?? ZERO)).toBe(true);
-    expect(fixed.rates.essence.eq(LADDER[7].rates.essence ?? ZERO)).toBe(true);
+    expect(fixed.rates.xp.eq(num(top.xp ?? 0))).toBe(true);
+    expect(fixed.rates.essence.eq(num(top.essence ?? 0))).toBe(true);
   });
 
   it('pays the first-clear bonus for every stage it credits', () => {
@@ -543,59 +593,95 @@ describe('reconcileClearedStages', () => {
     // will never pay it either, so the crystals are gone for good and the player has no way to
     // even notice. A v2 save that had beaten the ladder is owed the whole 3,000 — the same as a
     // new player earns for climbing the same eight stages.
-    const fixed = reconcileClearedStages(migrated('16', 0), LADDER, CRYSTALS);
+    const fixed = repair(migrated('4', 0));
 
     expect(fixed.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
   });
 
   it('pays only for the stages it newly credits', () => {
     // A run already credited with five stages is owed the last three, not all eight.
-    const partly = migrated('16', 5);
-
-    const fixed = reconcileClearedStages(partly, LADDER, CRYSTALS);
+    const fixed = repair(migrated('4', 5));
 
     expect(fixed.wallet.summons.eq(BONUSES[5] + BONUSES[6] + BONUSES[7])).toBe(true);
+  });
+
+  it('pays a boss what a boss is worth, rather than an ordinary stage', () => {
+    // The one place the chapter rhythm reaches this function. A chapter boss is worth five
+    // ordinary stages in crystals, and the repair has to know that or a returning player is
+    // quietly shorted every boss they ever beat.
+    const generous: StageRewardCurveData = {
+      ...REWARDS,
+      firstClearSummons: { ...REWARDS.firstClearSummons, bossMultiplier: 5 },
+    };
+    const owed = reconcileClearedStages(migrated('4', 4), LADDER, CHAPTER_RULES, generous, CRYSTALS)
+      .wallet.summons;
+
+    // Stages 5 to 8: stage 5 closes chapter 1 and stage 8 closes chapter 2, so two of the four
+    // are bosses and pay five times over.
+    const expected = BONUSES[4] * 5 + BONUSES[5] + BONUSES[6] + BONUSES[7] * 5;
+    expect(owed.eq(expected)).toBe(true);
   });
 
   it('never pays the same bonus twice across loads', () => {
     // The property that lets this run on every load. The second pass credits nothing, so it
     // owes nothing.
-    const once = reconcileClearedStages(migrated('16', 0), LADDER, CRYSTALS);
-    const twice = reconcileClearedStages(once, LADDER, CRYSTALS);
+    const once = repair(migrated('4', 0));
+    const twice = repair(once);
 
     expect(twice.wallet.summons.eq(TOTAL_BONUS)).toBe(true);
     expect(twice).toBe(once);
   });
 
   it('pays nothing to a run that has already been credited for everything', () => {
-    expect(reconcileClearedStages(settled(8), LADDER, CRYSTALS).wallet.summons.eq(0)).toBe(true);
+    expect(repair(settled(8)).wallet.summons.eq(0)).toBe(true);
   });
 
   it('leaves a run able to afford a ten-pull, which is the point', () => {
     // The reported symptom underneath the symptom: a returning player with a fully cleared ladder
     // could not afford a single ten-pull, because none of the bonuses had ever been paid.
-    const fixed = reconcileClearedStages(migrated('16', 0), LADDER, CRYSTALS);
+    const fixed = repair(migrated('4', 0));
 
     expect(fixed.wallet.summons.gte(1000)).toBe(true);
   });
 
   it('corrects a clear count the migration undercounted at the top of the ladder', () => {
-    // `stage` stops at 8, so a player who beat everything was recorded as having beaten seven —
-    // which is why re-fighting the last stage counted as a first clear and paid its bonus again.
-    expect(reconcileClearedStages(migrated('16', 7), LADDER, CRYSTALS).clearedStages).toBe(8);
+    // The position stops at the last stage, so a player who beat everything was recorded as having
+    // beaten seven — which is why re-fighting the last stage counted as a first clear and paid its
+    // bonus again.
+    expect(repair(migrated('4', 7)).clearedStages).toBe(8);
   });
 
   it('reads mid-ladder progress off the gold rate too', () => {
-    const fixed = reconcileClearedStages(migrated('4', 0), LADDER, CRYSTALS);
+    const fixed = repair(migrated('2.5', 0));
 
     expect(fixed.clearedStages).toBe(5);
-    expect(fixed.rates.xp.eq(LADDER[4].rates.xp ?? ZERO)).toBe(true);
+    expect(fixed.rates.xp.eq(num(stagePayout(REWARDS, 5).rates.xp ?? 0))).toBe(true);
+  });
+
+  it('never credits more stages than the run has actually reached', () => {
+    // ⚠️ The guard milestone 11 had to add, and the reason is worth keeping. A receipt is
+    // denominated in whatever the rate curve said the day it was written, and that curve was
+    // re-derived from scratch when the ladder went from twenty-four stages to a hundred. A veteran
+    // arriving with the old ladder's top gold rate reads, against the new curve, as somebody who
+    // has cleared the entire game — and crediting that hands over every first-clear bonus on the
+    // ladder for stages they have never seen.
+    const veteran = run({
+      chapter: 1,
+      stage: 2,
+      clearedStages: 1,
+      rates: { ...zeroRates(), gold: num('999') },
+    });
+
+    const fixed = repair(veteran);
+
+    expect(fixed.clearedStages).toBe(2);
+    expect(fixed.wallet.summons.eq(BONUSES[1])).toBe(true);
   });
 
   it('credits a fresh run with no stages and owes it nothing', () => {
     const fresh = run();
 
-    const started = reconcileClearedStages(fresh, LADDER, CRYSTALS);
+    const started = repair(fresh);
 
     expect(started.clearedStages).toBe(0);
     expect(started.wallet).toBe(fresh.wallet);
@@ -605,12 +691,12 @@ describe('reconcileClearedStages', () => {
     // It runs on every load, so a clean save must not churn the snapshot and re-render the UI.
     const healthy = settled(8);
 
-    expect(reconcileClearedStages(healthy, LADDER, CRYSTALS)).toBe(healthy);
+    expect(repair(healthy)).toBe(healthy);
   });
 
   it('is idempotent', () => {
-    const once = reconcileClearedStages(migrated('16', 7), LADDER, CRYSTALS);
-    const twice = reconcileClearedStages(once, LADDER, CRYSTALS);
+    const once = repair(migrated('4', 7));
+    const twice = repair(once);
 
     expect(twice).toBe(once);
   });
@@ -620,40 +706,40 @@ describe('reconcileClearedStages', () => {
     // for the stages it cleared.
     const ahead = migrated('0.5', 6);
 
-    expect(reconcileClearedStages(ahead, LADDER, CRYSTALS).clearedStages).toBe(6);
+    expect(repair(ahead).clearedStages).toBe(6);
   });
 
   it('never cuts a rate that is already above what the ladder grants', () => {
-    const generous = run({ clearedStages: 2, rates: { ...zeroRates(), gold: num('999') } });
+    const generous = run({ ...TOP, clearedStages: 2, rates: { ...zeroRates(), gold: num('999') } });
 
-    expect(reconcileClearedStages(generous, LADDER, CRYSTALS).rates.gold.eq(999)).toBe(true);
+    expect(repair(generous).rates.gold.eq(999)).toBe(true);
   });
 
   it('does not credit stages beyond the content this build ships', () => {
-    const beyond = run({ clearedStages: 99, rates: { ...zeroRates(), gold: num('16') } });
+    const beyond = run({ ...TOP, clearedStages: 99, rates: { ...zeroRates(), gold: num('4') } });
 
-    expect(reconcileClearedStages(beyond, LADDER, CRYSTALS).clearedStages).toBe(LADDER.length);
+    expect(repair(beyond).clearedStages).toBe(8);
   });
 
   it('still pays the crystal base when the build ships no stages at all', () => {
     // There is nothing to reconcile without a ladder, but the crystal rate does not come from one
     // — it is a function of the clear count, and a build with no content still earns the base.
-    const state = migrated('16', 7);
+    const state = migrated('4', 7);
 
-    const fixed = reconcileClearedStages(state, [], CRYSTALS);
+    const fixed = repair(state, { chapters: [] });
 
     expect(fixed.clearedStages).toBe(7);
-    expect(fixed.rates.gold.eq(16)).toBe(true);
+    expect(fixed.rates.gold.eq(4)).toBe(true);
     expect(fixed.rates.xp.eq(0)).toBe(true);
     expect(fixed.wallet).toBe(state.wallet);
     expect(fixed.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(7), 12);
-    expect(reconcileClearedStages(fixed, [], CRYSTALS)).toBe(fixed);
+    expect(repair(fixed, { chapters: [] })).toBe(fixed);
   });
 
   it('does not mutate the state it is given', () => {
-    const broken = migrated('16', 7);
+    const broken = migrated('4', 7);
 
-    reconcileClearedStages(broken, LADDER, CRYSTALS);
+    repair(broken);
 
     expect(broken.rates.xp.eq(0)).toBe(true);
     expect(broken.clearedStages).toBe(7);
@@ -661,9 +747,9 @@ describe('reconcileClearedStages', () => {
   });
 
   it('touches nothing but the rates, the clear count and the crystals it owes', () => {
-    const broken = { ...migrated('16', 7), pullCount: 12, pity: 30 };
+    const broken = { ...migrated('4', 7), pullCount: 12, pity: 30 };
 
-    const fixed = reconcileClearedStages(broken, LADDER, CRYSTALS);
+    const fixed = repair(broken);
 
     expect(fixed.roster).toBe(broken.roster);
     expect(fixed.rng).toEqual(broken.rng);
@@ -679,16 +765,16 @@ describe('reconcileClearedStages', () => {
   it('leaves a repaired run with nothing left for a re-fight to give back', () => {
     // The end-to-end guarantee. After repair, re-fighting the last stage is worth its lump and
     // nothing more — no rate change, no second first-clear bonus.
-    const fixed = reconcileClearedStages(migrated('16', 7), LADDER, CRYSTALS);
+    const fixed = repair(migrated('4', 7));
 
     const after = applyBattleResult(
       fixed,
       outcome('victory', {
         gained: { gold: num(650) },
-        rates: { gold: num('16'), xp: num('3') },
+        rates: { gold: num('4'), xp: num('0.8') },
         firstClearSummons: '800',
       }),
-      LADDER.length,
+      LADDER,
       CRYSTALS,
     );
 

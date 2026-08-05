@@ -1,10 +1,20 @@
 import { expect, type Page, test } from '@playwright/test';
-import { num, summonRatePerSecond } from '../src/core';
-import { STAGES, SUMMON_RATE } from '../src/data';
+import {
+  type ChapterCurveData,
+  type ChapterData,
+  ladderShape,
+  num,
+  positionAt,
+  resolveLadder,
+  type StageRewardCurveData,
+  summonRatePerSecond,
+  totalStages,
+} from '../src/core';
+import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
 import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 
 /**
- * Regression cover for a real save-corrupting bug.
+ * Regression cover for a real save-corrupting bug, kept pointed at what still does that job.
  *
  * The `v2 → v3` migration carried `goldPerSec` into the wallet's gold rate and started xp,
  * essence and summons at zero. A player returning from a pre-gacha build watched their gold tick
@@ -12,9 +22,17 @@ import { formatNumeric, formatRate } from '../src/ui/format-numeric';
  * stage they had already beaten — which then also paid a first-clear bonus it should not have,
  * because the same migration undercounted `clearedStages` at the top of the ladder.
  *
- * These run against a real browser rather than a unit fake because the failure was in the
- * *load path*: migration, repair and the game loop composing correctly. The unit tests pin each
- * piece; this pins that a save on disk turns into a working run.
+ * **That migration no longer exists.** The chain was re-based to a v0 baseline while the game was
+ * pre-release, so the specific save that produced the bug is now discarded rather than repaired.
+ * `reconcileClearedStages` did not go with it, because the *shape* of damage it fixes has nothing
+ * to do with migrations: a save whose rates say it climbed further than its clear count admits is
+ * repairable from the rates alone, and the rule underneath it — crediting a stage and paying for
+ * it are the same operation — is what stops crystals disappearing silently. So these tests seed
+ * that damage directly instead of arriving at it through a migration.
+ *
+ * They run against a real browser rather than a unit fake because the failure was in the *load
+ * path*: decode, repair and the game loop composing correctly. The unit tests pin each piece;
+ * this pins that a save on disk turns into a working run.
  *
  * Capacitor's Preferences web backend is `localStorage` under a `CapacitorStorage.` prefix, so a
  * save is seeded by writing that key before the app boots.
@@ -33,30 +51,43 @@ async function seedSave(page: Page, save: unknown): Promise<void> {
   );
 }
 
-/**
- * The top of the ladder, read from `data/` rather than retyped.
- *
- * A v2 save carries exactly one thing repair can work from — the gold rate — so "a run that beat
- * everything" means "a run whose gold rate is the last stage's". Hard-coding 16/s and 3,000
- * crystals is what this file used to do, and the moment the ladder grew past eight stages both
- * numbers quietly started describing a different save than the one the test claimed to be about.
- */
-const top = STAGES[STAGES.length - 1];
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
+
+const LADDER = ladderShape(chapters);
+const STAGES = resolveLadder(chapters, chapterCurve, rewards);
+const CLEARS = totalStages(LADDER);
 
 /**
- * The crystal rate a fully cleared ladder earns, per second.
+ * How far the damaged save below had climbed, and the stage whose rates it therefore carries.
+ *
+ * ⚠️ **Well short of the whole ladder, and that is the point of the number.** The repair will not
+ * credit more clears than the position it is parked on has reached — a guard that exists because
+ * the rate curve can be re-derived underneath a save, so an old receipt read against a new curve
+ * says "cleared everything". Parking the save on stage 24 and seeding stage 24's rates is what
+ * exercises both halves: the receipt is believed, and it is believed only that far.
+ */
+const RECOVERED = 24;
+const top = STAGES[RECOVERED - 1];
+
+/**
+ * The crystal rate a run credited with `RECOVERED` clears earns, per second.
  *
  * Derived rather than read off `top`, because no stage authors a crystal rate: it is a function
  * of the clear count, so repairing the count is what repairs this rate. That makes it the one
  * number on this screen that proves the two halves of the repair agreed.
  */
-const crystalRate = summonRatePerSecond(SUMMON_RATE, STAGES.length);
+const crystalRate = summonRatePerSecond(SUMMON_RATE, RECOVERED);
 
-/** Every first-clear bonus on the ladder, which is what a fully cleared run is owed. */
-const owedCrystals = STAGES.reduce(
+/** Every first-clear bonus the repair is going to credit, which is what the run is owed. */
+const owedCrystals = STAGES.slice(0, RECOVERED).reduce(
   (total, stage) => total + Number(stage.firstClearSummons ?? 0),
   0,
 );
+
+/** Where `RECOVERED` stages in lands, as a chapter and a stage within it. */
+const parked = positionAt(LADDER, RECOVERED);
 
 /**
  * What the home screen will render for a rate or a balance.
@@ -84,16 +115,32 @@ function amountOf(page: Page, label: string) {
   return cardOf(page, label).locator('.wallet__amount');
 }
 
-test.describe('recovering a pre-gacha save', () => {
-  /** A v2 save from a player who had cleared the whole ladder. */
+test.describe('recovering a save whose clear count was lost', () => {
+  /**
+   * A run parked on stage 24 earning stage 24's income, with its clear count at zero.
+   *
+   * The exact state the `v2 → v3` migration used to produce, seeded directly now that the
+   * migration is gone: rates that say the ladder was climbed, and a counter that says none of it
+   * was ever credited or paid for.
+   */
   const v2AtTheTop = {
-    version: 2,
-    gold: '1500000',
-    goldPerSec: String(top.rates.gold),
+    version: 0,
+    wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
+    rates: { gold: String(top.rates.gold), xp: '0', essence: '0', summons: '0' },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
-    stage: STAGES.length,
+    chapter: parked.chapter,
+    stage: parked.stage,
+    clearedStages: 0,
     battleCount: 214,
+    roster: [
+      { defId: 'rin', rarity: 0, level: 1, copies: 0 },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0 },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+    ],
+    formation: { front: ['bran', 'mira'], back: ['rin'] },
+    pity: 0,
+    pullCount: 0,
   };
 
   test('restores every idle rate the run had already earned', async ({ page }) => {
@@ -102,7 +149,7 @@ test.describe('recovering a pre-gacha save', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
 
     await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
@@ -138,11 +185,11 @@ test.describe('recovering a pre-gacha save', () => {
 
     await expect(amountOf(page, 'Gold')).toHaveText('1.5M');
     await expect(
-      page.getByRole('button', { name: new RegExp(`^Fight Stage ${STAGES.length}`) }),
+      page.getByRole('button', { name: new RegExp(`^Fight ${parked.chapter}-${parked.stage} `) }),
     ).toBeVisible();
   });
 
-  test('leaves a save written by this build untouched', async ({ page }) => {
+  test('leaves a save written by this build alone on the second load', async ({ page }) => {
     // The repair runs on every load, so a healthy save has to pass through unchanged.
     await seedSave(page, v2AtTheTop);
     await page.goto('');
@@ -157,54 +204,56 @@ test.describe('recovering a pre-gacha save', () => {
 });
 
 test.describe('re-fighting a cleared stage', () => {
+  /** The last stage of the shipped ladder, which is what a fully cleared run's rates are. */
+  const atTheTop = STAGES[CLEARS - 1];
+
   /**
-   * A v3 save sitting on stage 1 with the whole ladder already cleared — so the next fight is
+   * A save sitting on stage 1 with the whole ladder already cleared — so the next fight is
    * unambiguously a re-fight, and it is the opening stage rather than the boss.
-   *
-   * Deliberately still written in the **v3** shape, `activeParty` and all. This is the only test
-   * in the suite that exercises the migration chain end to end against a real browser, and
-   * rewriting it into the current shape every time the schema moves would quietly convert it
-   * into a test of nothing.
    */
   const clearedEverything = {
-    version: 3,
+    version: 0,
     wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: {
-      gold: String(top.rates.gold),
-      xp: String(top.rates.xp),
-      essence: String(top.rates.essence),
-      summons: String(crystalRate),
+      gold: String(atTheTop.rates.gold),
+      xp: String(atTheTop.rates.xp),
+      essence: String(atTheTop.rates.essence),
+      summons: String(summonRatePerSecond(SUMMON_RATE, CLEARS)),
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
+    chapter: 1,
     stage: 1,
-    clearedStages: STAGES.length,
+    clearedStages: CLEARS,
     battleCount: 214,
     roster: [
       { defId: 'rin', rarity: 0, level: 1, copies: 0 },
       { defId: 'bran', rarity: 0, level: 1, copies: 0 },
       { defId: 'mira', rarity: 0, level: 1, copies: 0 },
     ],
-    activeParty: ['rin', 'bran', 'mira'],
+    formation: { front: ['bran', 'mira'], back: ['rin'] },
     pity: 0,
     pullCount: 0,
   };
 
   test('pays the lump but never a second first-clear bonus', async ({ page }) => {
-    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 124/hr, so a bonus
+    // Stage 1's first-clear bonus is 200 crystals against an idle rate of 150/hr, so a bonus
     // firing again is unmistakable: the balance would jump past 200 rather than creeping up by
     // a fraction over the few seconds this test takes.
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage 1/ }).click();
+    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
     });
 
-    // The one-off reward still lands — farming a beaten stage is meant to pay.
-    await expect(page.locator('.battle__outcome')).toContainText('25 gold');
+    // The one-off reward still lands — farming a beaten stage is meant to pay. Read off the
+    // shipped curve rather than typed, like everything else in this file.
+    await expect(page.locator('.battle__outcome')).toContainText(
+      `${shownAmount(STAGES[0].reward.gold ?? 0)} gold`,
+    );
 
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
@@ -215,7 +264,7 @@ test.describe('re-fighting a cleared stage', () => {
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage 1/ }).click();
+    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
@@ -223,8 +272,78 @@ test.describe('re-fighting a cleared stage', () => {
     await page.getByRole('button', { name: /^Close the battle/ }).click();
 
     // Still the top-of-ladder rates, not stage 1's.
-    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
-    await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
-    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(top.rates.essence));
+    await expect(rateOf(page, 'Gold')).toHaveText(shownRate(atTheTop.rates.gold));
+    await expect(rateOf(page, 'XP')).toHaveText(shownRate(atTheTop.rates.xp));
+    await expect(rateOf(page, 'Essence')).toHaveText(shownRate(atTheTop.rates.essence));
+  });
+});
+
+/**
+ * What happens to a save this build cannot read at all.
+ *
+ * ⚠️ **The behaviour reversed with the v0 reset, and this is where it is pinned.** An unreadable
+ * save used to leave the game playable and permanently unable to write, on the grounds that the
+ * bytes might belong to a newer build and would be good again after an update. That protects a
+ * downgrade and strands everybody else, so it went: the run starts fresh and saves over it.
+ *
+ * A pre-baseline version is the case that actually occurs — five schema versions were collapsed
+ * into v0 — so it is the one seeded here.
+ */
+test.describe('a save this build cannot read', () => {
+  const beforeTheBaseline = {
+    version: 3,
+    wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
+    rates: { gold: '90', xp: '0', essence: '0', summons: '0' },
+    lastTickAt: Date.now(),
+    rng: { seed: 3735928559, calls: 0 },
+    stage: 24,
+    clearedStages: 24,
+    battleCount: 214,
+    roster: [],
+    activeParty: [],
+    pity: 0,
+    pullCount: 0,
+  };
+
+  test('starts a fresh run and says why', async ({ page }) => {
+    await seedSave(page, beforeTheBaseline);
+    await page.goto('');
+
+    await expect(page.getByRole('alert')).toContainText('save could not be read');
+    // A fresh run: the opening stage, and none of the gold the old save was carrying.
+    await expect(page.getByRole('button', { name: /^Fight 1-1 / })).toBeVisible();
+    await expect(amountOf(page, 'Gold')).toHaveText('0');
+  });
+
+  test('writes the fresh run to disk rather than leaving the game unable to save', async ({
+    page,
+  }) => {
+    // The whole point of the reversal: before it, the unreadable bytes stayed on disk untouched
+    // and every future launch started fresh again, for ever.
+    //
+    // Asserted against the storage slot rather than by reloading, because `seedSave` uses
+    // `addInitScript` — which re-runs on every navigation, so a reload would put the bad save
+    // straight back and prove nothing.
+    await seedSave(page, beforeTheBaseline);
+    await page.goto('');
+    await expect(page.getByRole('alert')).toBeVisible();
+
+    // Fight once, so what lands on disk is recognisably the fresh run having made progress.
+    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
+    await page.getByRole('button', { name: '4×' }).click();
+    await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
+      timeout: 15_000,
+    });
+    await page.getByRole('button', { name: /^Close the battle/ }).click();
+    await expect(page.getByRole('button', { name: /^Fight 1-2 / })).toBeVisible();
+
+    const written = await page.evaluate((key) => localStorage.getItem(key), SAVE_KEY);
+    const saved = JSON.parse(written ?? '{}') as Record<string, unknown>;
+
+    expect(saved['version']).toBe(0);
+    expect(saved['chapter']).toBe(1);
+    expect(saved['stage']).toBe(2);
+    // The old save's gold did not survive, which is the honest half of "reset to nothing".
+    expect(saved['wallet']).not.toMatchObject({ gold: '1500000' });
   });
 });

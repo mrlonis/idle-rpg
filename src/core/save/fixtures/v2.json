@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "gold": "8.675309e+21",
-  "goldPerSec": "250",
-  "lastTickAt": 1753574400000,
-  "rng": { "seed": 3735928559, "calls": 417 },
-  "stage": 5,
-  "battleCount": 143
-}

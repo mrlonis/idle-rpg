@@ -36,7 +36,7 @@ test.describe('App', () => {
     test('sends an unknown route home rather than to a blank screen', async ({ page }) => {
       await page.goto('/nowhere');
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
     });
   });
 
@@ -54,7 +54,7 @@ test.describe('App', () => {
 
       await page.getByRole('link', { name: '← Home' }).click();
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
     });
 
     test('goes to the roster when the roster opened it', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('App', () => {
     test('disappears during a fight, which has no exit until it ends', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('button', { name: /^Fight Stage/ }).click();
+      await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
 
       await expect(page.locator('.battle')).toBeVisible();
       await expect(page.getByRole('navigation')).toHaveCount(0);
@@ -110,11 +110,12 @@ test.describe('App', () => {
   test.describe('dismissing a notice', () => {
     /** A run that has been away an hour, which is what draws the offline summary. */
     const awaySave = {
-      version: 4,
+      version: 0,
       wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
       rates: { gold: '4', xp: '2', essence: '1', summons: '0.5' },
       lastTickAt: Date.now() - 3_600_000,
       rng: { seed: 3735928559, calls: 0 },
+      chapter: 1,
       stage: 1,
       clearedStages: 1,
       battleCount: 1,
@@ -150,7 +151,7 @@ test.describe('App', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
       await tabs.getByRole('link', { name: 'Home' }).click();
 
-      await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
       await expect(notice).toBeHidden();
     });
   });

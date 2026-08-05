@@ -1,7 +1,0 @@
-{
-  "version": 1,
-  "gold": "1.2345e+18",
-  "goldPerSec": "250",
-  "lastTickAt": 1753574400000,
-  "rng": { "seed": 3735928559, "calls": 417 }
-}

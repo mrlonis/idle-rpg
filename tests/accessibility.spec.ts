@@ -1,27 +1,31 @@
 import { AxeBuilder } from '@axe-core/playwright';
 import { expect, type Page, test, type TestInfo } from '@playwright/test';
-import { STAGES } from '../src/data';
+import { ladderShape, stagePayout, totalStages } from '../src/core';
+import { CHAPTERS, STAGE_REWARDS } from '../src/data';
 
 /**
  * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
  *
- * The rates are the top of the ladder rather than an assertion of clears on their own, because
- * `reconcileClearedStages` re-derives the count from the gold rate on every load.
+ * The rates are the top of the ladder as well as the clear count, because `reconcileClearedStages`
+ * takes the larger of the two — and both are evaluated from the shipped curve rather than typed
+ * out, so a new chapter re-runs this rather than leaving it describing an old ladder.
  */
-const top = STAGES[STAGES.length - 1];
+const CLEARS = totalStages(ladderShape(CHAPTERS));
+const top = stagePayout(STAGE_REWARDS, CLEARS);
 const unlockedSave = {
-  version: 4,
+  version: 0,
   wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
   rates: {
     gold: String(top.rates.gold),
     xp: String(top.rates.xp),
     essence: String(top.rates.essence),
-    summons: String(top.rates.summons),
+    summons: '0',
   },
   lastTickAt: Date.now(),
   rng: { seed: 3735928559, calls: 0 },
+  chapter: 1,
   stage: 1,
-  clearedStages: STAGES.length,
+  clearedStages: CLEARS,
   battleCount: 214,
   roster: [
     { defId: 'rin', rarity: 0, level: 1, copies: 0 },
@@ -93,7 +97,7 @@ test.describe('Accessibility', () => {
 
     // The Fight control renders only once the run has loaded, so waiting on it also proves the
     // save path resolved — the scan covers a real home screen, not a loading shell.
-    await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
 
     await scan(page, testInfo, 'home');
   });
@@ -104,7 +108,7 @@ test.describe('Accessibility', () => {
     await seedSave(page, awaySave);
     await page.goto('');
 
-    await expect(page.getByRole('button', { name: /^Fight Stage/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Dismiss offline earnings notice' }),
     ).toBeVisible();
@@ -115,7 +119,7 @@ test.describe('Accessibility', () => {
   test('the battle screen has no AXE violations', async ({ page }, testInfo) => {
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage/ }).click();
+    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
     await expect(page.locator('.battle')).toBeVisible();
 
     // 4x so the wait below is about a second rather than four. Also exercises the one control
@@ -139,7 +143,7 @@ test.describe('Accessibility', () => {
     await seedSave(page, unlockedSave);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight Stage/ }).click();
+    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
     await expect(page.getByRole('button', { name: 'Auto' })).toBeVisible();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.locator('.actions')).toBeVisible({ timeout: 15_000 });

@@ -30,7 +30,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1       |
 | 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived  |
 | 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels  |
-| 11  | Chapters                                | ⬜                                           |
+| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived |
 | 12  | Gear                                    | ⬜                                           |
 | 13  | Settings, and the save-safety gap       | ⬜                                           |
 | 14  | Dailies, bounties and notifications     | ⬜                                           |
@@ -456,8 +456,10 @@ intent. So what got retuned was **the rate slope** — neither the level curve n
 | **24 as shipped** | **90**            | **~1,190h** |
 
 The slope decelerates smoothly from about ×1.4 a stage to about ×1.1. That is also the
-forward-compatible shape: milestone 11 replaces authored rates with a derived curve over ~100 stages
-a chapter, and ×1.4 compounded over a hundred stages is a number with fourteen zeros in it.
+forward-compatible shape: milestone 11 replaced authored rates with a derived curve over ~100 stages
+a chapter, and ×1.4 compounded over a hundred stages is a number with fourteen zeros in it. The
+curve that shipped is a power law, whose per-stage multiplier decays as `1 + 1.13 / index` — this
+deceleration as a closed form.
 
 **A second derived threshold fired for the same reason.**
 [`banners.spec.ts`](../src/data/banners.spec.ts) pins "roughly a ten-pull a day at the top of the
@@ -560,8 +562,9 @@ worth authoring.
 
 **Treat this milestone's stages as the last of the flat, hand-tuned ladder**: enough content to
 exercise auto-battle against something, and the opening stretch of what becomes chapter 1. Their
-rates get re-derived in milestone 11 when rates stop being an authored field, and the whole curve was
-retuned in milestone 10.
+rates were re-derived in milestone 11 when rates stopped being an authored field, and the whole
+curve was retuned in milestone 10. The stages themselves survived both: the twelve are chapter 1's
+opening and the Ashfall twelve are chapter 2's spine.
 
 ## 8. The combat rework
 
@@ -1179,7 +1182,8 @@ Three consequences of flattening, stated rather than discovered:
 
 - **The ladder is a shorter climb in wall-clock terms**, because level 90 across five characters is
   a fraction of what level 200 cost. That is the price of the stomp and it was paid knowingly;
-  milestone 11 is where the content to spend the rest of the curve on arrives.
+  milestone 11 is where the content to spend the rest of the curve on arrives, and it did — a
+  hundred stages spanning the same level range the old twenty-four did.
 - **The mid-game party sits below the skill gate**, at one skill each rather than two. The promise
   in milestone 8c came out stronger for it — see the note there.
 - **Nothing here fixes the density properly.** A 24-stage ladder cannot span the interesting level
@@ -1203,7 +1207,7 @@ hole milestone 7 diagnosed, moved further down the ladder rather than filled. **
 the intended answer**; it is that far out because nothing before it is close enough to the cap to
 care.
 
-## 11. Chapters
+## 11. Chapters — **COMPLETE**
 
 Stages group into chapters. Chapter size steps every ten chapters and caps at 200:
 
@@ -1220,25 +1224,33 @@ Stages group into chapters. Chapter size steps every ten chapters and caps at 20
 
 **Every tenth stage is a mini-boss formation and the last stage of a chapter is a true boss.** A
 50-stage chapter has mini-bosses at 10, 20, 30 and 40 with its boss at 50; a 200-stage chapter
-has nineteen mini-bosses. The level cap is sized against this: reaching level 1000 around chapter
-100 is roughly **9.5 stages per level**, which is the anchor to tune income and cost against.
+has nineteen mini-bosses. It is a **rule** rather than an authored field — `stageKindAt` — so the
+rhythm is the same at either length, and what `data/` authors is a line-up worthy of the slot it
+lands in. `chapters.spec.ts` checks it did: a chapter boss fields a full board of five with an
+ascended-tier body in it, a mini-boss fields at least four with something above fodder.
 
-### Idle income becomes a function, and that is what makes the scale survivable
+The level cap is sized against this: reaching level 1000 around chapter 100 is roughly **9.5
+stages per level**, which is the anchor to tune income and cost against. The shipped income curve
+lands it without being aimed at it — see below.
 
-`rates` is authored per stage today. Nine and a half thousand authored rate tables is not
-something anyone maintains, so income becomes a function of chapter and stage index. **Every
-clear still raises all four rates** — that contract is the whole idle loop and it is not up for
+### Idle income becomes a function, and that is what makes the scale survivable — **DONE**
+
+`rates` was authored per stage. Nine and a half thousand authored rate tables is not something
+anyone maintains, so income is now a function of the stage's position on the ladder. **Every clear
+still raises all four rates** — that contract is the whole idle loop and it was not up for
 negotiation at 50 stages a chapter any more than it was at 12.
 
-Two things fall out of it, and both are improvements:
+Two things fell out of it, and both were improvements, as predicted:
 
-- **`reconcileClearedStages` gets simpler, not harder.** Rates become a function of the
-  high-water mark, so the load-time repair evaluates a function instead of re-summing an authored
-  table — and the rule it exists to enforce (crediting progress and paying for it are the same
-  operation, see milestone 3) gets easier to hold, not harder.
-- **`clearedStages` stops being a per-stage record.** Progression is linear, so a high-water mark
-  carries the same information at a fraction of the save footprint. Thousands of individual
-  entries in a save that has to survive repair is a cost with nothing bought by it.
+- **`reconcileClearedStages` got simpler, not harder.** The rates are strictly increasing in the
+  stage index, so the top cleared stage's rates dominate every stage below it and one evaluation
+  replaced a `raiseRates` call per cleared stage. At a hundred stages that is tidiness; at
+  thousands it is the difference between a load that is free and one that is not. The rule it
+  exists to enforce — crediting progress and paying for it are the same operation, see milestone 3
+  — is unchanged, and it grew one guard: see "the receipt had to be capped" below.
+- **`clearedStages` was already a count**, so nothing had to change there. What was worth deciding
+  is that it _stayed_ one while the position became a pair — see "a position is a chapter and a
+  stage" below.
 
 #### Summon crystals came off the exponential curve — **DONE**
 
@@ -1259,13 +1271,16 @@ with the whole ladder down. Three consequences worth knowing:
   currency early: the repair evaluates a function, and it is also what establishes the base for a
   brand-new run, because `newGame` cannot see content.
 - **Linear was chosen over logarithmic** because it keeps the answer to "what is climbing worth"
-  a sentence long — a stage is worth a crystal an hour, forever — and because it stays sane at
-  chapter scale without a second mechanism. `banners.spec.ts` bounds the whole ladder's raise
-  between ×1.1 and ×2, so a chapter of 500 stages fails that assertion and gets retuned
-  deliberately rather than silently.
+  a sentence long — a stage is worth a fixed slice of a crystal an hour, forever — and because it
+  stays sane at chapter scale without a second mechanism. `banners.spec.ts` bounds the whole
+  ladder's raise between ×1.1 and ×2, so a chapter of 500 stages fails that assertion and gets
+  retuned deliberately rather than silently. **That is exactly what happened at a hundred stages**:
+  the step halved to 0.5 an hour a clear and the pacing target stayed where it was, which is the
+  spec doing the job it was written for.
 
 The pull-price argument below said 8 crystals; the shipped price is 100, which changes the
-absolute numbers in the table and none of the reasoning.
+absolute numbers in the table and none of the reasoning. The per-clear step was 1 an hour when
+this shipped and is 0.5 since the ladder reached a hundred stages.
 
 **A rate should compound only if what it buys compounds.** Gold, xp and essence buy levels, and
 level costs compound, so those three belong on the exponential. Summon crystals buy a pull at a
@@ -1329,6 +1344,10 @@ what made that viable, and it shipped: a stage is a short line naming archetypes
 set of hand-written stat blocks. Fifty such lines is an afternoon, and it buys deliberate pacing that a
 difficulty curve cannot.
 
+**A hundred of them turned out to be an afternoon, and the estimate is now measured rather than
+hoped for.** What it cost beyond the typing was four difficulty inversions, each named by the
+balance probe with its numbers attached and fixed by rewriting one encounter.
+
 The arithmetic is recorded here so the decision stays re-checkable instead of becoming folklore:
 **100 stages** for the first two chapters, **500** for the first band, **9,500** to reach chapter
 100, **18,000** by the time the 200-stage cap arrives at chapter 151. The first two chapters are
@@ -1343,6 +1362,12 @@ trigger, and the trigger is "authoring a chapter has stopped being an afternoon"
 count.
 
 ### Enemy tier and rarity across the bands
+
+**Not applied yet, and deliberately.** Chapters 1 and 2 reuse the twenty-four existing archetypes
+at their existing tiers, several of which are `legendary` or `ascended` where the table below says
+`common`. Re-tiering them would have re-tuned every lock on the ladder to satisfy a table nothing
+reads, so the trigger is chapter 11 — where the band actually changes and a new tier has to mean
+something.
 
 From the long-term vision, normalised — the original had chapter 20 in two bands:
 
@@ -1360,18 +1385,128 @@ underneath the whole way. That is what the vision's "enemies should have their o
 ascensions" actually buys: two axes that outlast the tier vocabulary, so the enemy side has
 somewhere to go for as long as the player side does.
 
-### Ship two chapters
+### Ship two chapters — **DONE**
 
-Chapters 1 and 2, 50 stages each. The existing twelve become chapter 1's opening.
+Chapters 1 and 2, 50 stages each. The existing twelve became chapter 1's opening, re-levelled; the
+Ashfall twelve became chapter 2's spine.
 
 **Both sit in the first band, so shipping them proves the chapter _flow_ but not the size
-formula** — the boundary, the boss, whatever unlocks on clearing a chapter, and income
-continuity across the seam all get exercised; the step to 60 stages does not arrive until chapter 11. Build the formula anyway and test it directly rather than inferring it from two chapters that
-happen to be the same length.
+formula** — the boundary, the boss, and income continuity across the seam all get exercised; the
+step to 60 stages does not arrive until chapter 11. So the formula was built and tested directly
+rather than inferred from two chapters that happen to be the same length:
+[`ladder.spec.ts`](../src/core/ladder.spec.ts) reproduces every running total in the table above,
+including the 20,000 at chapter 160 that no content will reach for years.
 
-Save v5: `stage` becomes a chapter and a stage within it. Existing saves map to chapter 1 — and
-per milestone 3's rule, the migration credits nothing it cannot pay for, leaving the load-time
-repair to settle rates from the high-water mark.
+Shipped: [`core/ladder.ts`](../src/core/ladder.ts) — the chapter geometry, the position type, the
+boss rhythm and the reward curve; `StageEncounterData` split out of `StageData` in
+[`battle/types.ts`](../src/core/battle/types.ts); `data/chapters.ts` with the two curves, and
+`data/chapter-1.ts` and `data/chapter-2.ts` with a hundred encounters; `chapter` on `GameState`
+and save **v5**; `LADDER` and a resolved `STAGES` in [`ui/content.ts`](../src/ui/content.ts); and
+the sweeps re-pointed at chapters in `data/chapters.balance.ts`.
+
+**The user's steer set the difficulty, and it is the one number worth restating.** Chapter 1 ends
+on level-40 enemies and chapter 2 opens on them — early chapters are early game, and are meant to
+be a breeze for anyone playing straight through. So the two chapters **stretch the old ladder's
+difficulty range over four times the stages** rather than extending it: the old ladder went from
+enemy level 1 to 126 in twenty-four stages, and these go the same distance in a hundred. That is
+also why the reference parties survived unchanged.
+
+| Party    | Composition                          | Clears                                       |
+| -------- | ------------------------------------ | -------------------------------------------- |
+| Starters | three at level 1                     | chapter 1 stages 1–6, stop at the lock       |
+| Built    | five common at level 40, `rare-plus` | all of chapter 1, then 8 stages of chapter 2 |
+| Invested | five common at level 90, `legendary` | everything, losing a member at the top       |
+
+### A position is a chapter and a stage, and a clear count is a number
+
+Save **v5** stores the pair. The asymmetry with `clearedStages`, which stayed a linear count, is
+the decision worth keeping: **a position is a _place_ and has to survive the ladder being re-cut
+around it**, whereas a clear count is a _quantity earned_ and means the same thing however the
+chapters are sliced. A linear index for the position would relocate every save mid-ladder the day
+a chapter's length is retuned; a pair for the count would buy nothing and cost a save field per
+stage at a scale where chapters run to hundreds.
+
+⚠️ **The bug shape that creates is worth naming before it happens.** `state.stage` changed meaning
+without changing its name, and chapter 2 stage 3 and chapter 1 stage 3 are the same number.
+`stageIndex(ladder, position)` is the only way to a linear index, and `GameState extends
+LadderPosition` so nothing has to unpack the pair by hand.
+
+The migration is the cleanest instance of "a migration's constants are written out" so far: every
+v4 save is a chapter 1 save, and that is _arithmetic_ rather than a convention — the v4 ladder was
+twenty-four stages and chapter 1 holds fifty, so no v4 position can have reached chapter 2.
+
+### The receipt had to be capped, and that is the sharp edge of this milestone
+
+`reconcileClearedStages` reads the surviving gold rate as a receipt for how far a run got. **That
+receipt is denominated in whatever the rate curve said the day it was written, and this milestone
+re-derived the curve from scratch.** A veteran arriving with the old ladder's 90 gold a second
+reads, against the new curve, as somebody who has cleared all hundred stages — and crediting that
+would have paid out every first-clear bonus on the ladder for stages they had never seen. The same
+class of harm as the milestone 3 migration bug, arriving from the opposite direction.
+
+The fix is a sentence that is true independently of any curve: **a run cannot have cleared more
+stages than it has reached.** The receipt is capped at the linear index of the position the save is
+parked on. It is a better repair than it was before — the old version would have over-credited any
+future rate retune too, silently.
+
+**Nothing else about save compatibility needed doing**, because `raiseRates` was already there. A
+returning player keeps the 90 gold a second they earned and simply arrives over-rich for the
+content, which the curve catches up with around stage 100.
+
+### Income is a function, and it is calibrated against enemy level
+
+`STAGE_REWARDS` is four numbers: `rate = base × stageIndex ^ 1.13`, a lump of forty seconds of that
+rate, and first-clear crystals linear in the index with ×2 on a mini-boss and ×5 on a chapter boss.
+
+**The exponent was chosen by matching the old hand-tuned ladder at equal enemy levels**, not by
+picking a shape. The old ladder paid 25 gold a second at level 40 and 90 at level 126; this pays
+about 42 and about 91 at the same two levels. That is the thing that stops "four times as many
+stages" from meaning "four times the income", and it is why
+[`levels.spec.ts`](../src/data/levels.spec.ts) — which asserts level 1000 costs more than a
+thousand hours at the top of the ladder — passed without being touched.
+
+**A power law is the only family that survives this ladder's length, and that is the argument for
+it.** Its per-stage multiplier is `1 + exponent / index`: ×2 across the first stage, ×1.1 by stage
+ten, ×1.01 by stage a hundred. Milestone 7 had already bent the authored gold slope from ×1.4 to
+×1.1 by hand for exactly this reason; a power law is that bend as a closed form. It also lands the
+roadmap's own anchor without being aimed at it — at stage 9,500 the curve pays about 15,600 gold a
+second, which puts level 1000 a few hours away, which is what "reachable around chapter 100" means.
+
+**One number was retuned deliberately: the crystal step halved, from 1 an hour a clear to 0.5.** A
+hundred stages at the old step is five ten-pulls a day against a pacing target of three, and
+[`banners.spec.ts`](../src/data/banners.spec.ts) said in advance that a longer ladder should fail
+there and be retuned rather than have the threshold moved. The base did not move — a pull an hour
+from install is what makes this economy legible.
+
+### The sweep got four times the ladder, and the answer was a stride
+
+The balance file now sweeps a hundred stages. Two blocks could not afford it, and the fix is worth
+distinguishing from the thing `AGENTS.md` forbids: **striding over the ladder is not shrinking the
+sample.** This milestone did not add difficulty, it made the same range four times denser, so
+adjacent stages now sit within about one percent of each other — and the difficulty probe and the
+matchup matrix both measure _steps_, which at that spacing is noise. Every fourth stage plus every
+chapter boss restores the per-sample gap to what the twenty-four stage ladder had, over the same
+range, at the same resolution, at the same cost. The load-bearing assertions — zero timeouts, the
+starter wall, the timer headroom — still read every stage for every tuned party.
+
+**Authoring a hundred encounters found four genuine difficulty inversions and nothing else.** The
+probe named them by id with the numbers attached, four stages were rewritten, and everything else
+— the win-rate assertions, the ninety-second headroom, the seven mono-faction fives, the stomp —
+passed on the first full run against re-authored content. That is the difficulty probe paying for
+itself, and it is the argument for keeping a curve-shaped assertion rather than a per-stage one.
+
+### What this leaves for later
+
+**The band table's enemy tiers were not applied.** Chapters 1–10 are supposed to be common-tier
+enemies with mini-bosses a step above; what shipped reuses the existing twenty-four archetypes at
+their existing tiers, several of which are `legendary` or `ascended`. Re-tiering them would have
+re-tuned every lock on the ladder to fix a table nothing reads yet. The trigger is chapter 11,
+where the band actually changes.
+
+**Nothing unlocks on clearing a chapter.** The plan listed it as something to exercise and there
+was nothing to exercise: auto-battle unlocks on a clear count and everything else is a rate. A
+chapter-completion reward is a real idea and belongs with something to spend it on — milestone 12
+or 14.
 
 ## 12. Gear
 
@@ -1605,6 +1740,43 @@ So it is last, and it is honestly the one item here a solo developer might decid
 It is written down because it is the thing that makes the genre's best games feel like more than
 a number going up — and skipping it should be a decision made on the cost, not a gap nobody
 noticed.
+
+## Not a milestone: the save chain was re-based to v0
+
+Housekeeping rather than a milestone, done straight after chapters shipped. `SAVE_VERSION` went
+from 5 to **0**, the four migrations and five historical shapes were deleted, and the five
+fixtures became one.
+
+**The one argument that licenses it, and the condition that closes the door.** No save written by
+v1 through v5 has ever existed outside development — nobody has played this game but its author,
+on dev servers whose storage does not survive the session — so the chain was four migrations, five
+schema interfaces and five fixtures maintained for an audience of zero, each a thing to keep
+working and to reason about on every schema change. The rule in `AGENTS.md` was therefore
+**scoped rather than softened**: _never delete or edit a migration once a build carrying it has
+reached a player._ That condition is what makes it enforceable, and it is what makes this
+unrepeatable — the moment anyone outside development loads a save, the chain is permanent.
+
+Three decisions inside it worth keeping:
+
+- **The chain walker survived the entries it used to run.** `migrate()` still walks a table and
+  `migrate.spec.ts` still drives that walk against a synthetic history. Proven machinery with no
+  callers is a far better position than an unproven walker written on the day the first real
+  migration is already urgent — which is exactly the day nobody wants to be debugging one.
+- ⚠️ **An unreadable save is now discarded and written over, which reverses the highest-stakes
+  rule the UI had.** `fatal` used to bar the way to the primary slot, on the grounds that the
+  bytes might belong to a newer build and would be readable again after an update. What that
+  bought was a run surviving a downgrade; what it cost was a game that boots, plays, and silently
+  never writes anything down — the worse failure of the two, and the one a player actually hits.
+  `fatal` still reports on the home screen and still drives the backup-slot fallback, so a
+  corrupted primary costs nothing and a genuine failure is visible rather than mysterious.
+- **A save with no `version` is now damage rather than the oldest schema.** Reading it as v1 was
+  right while v1 predated versioning and guessing beat discarding a real run. Nothing below the v0
+  baseline exists, so the guess had nothing left to be for.
+
+The load-time repair was untouched and is the reason this cost so little.
+`reconcileClearedStages` fixes a shape of damage — rates that say the run climbed further than its
+clear count admits — that has nothing to do with migrations, so the e2e cover for it simply seeds
+that damage directly instead of arriving at it through a v2 save.
 
 ## Not a milestone: the simulation harness is the only feedback loop
 

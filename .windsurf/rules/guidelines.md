@@ -75,7 +75,26 @@ the two disagree, the code is right and both are stale.
     same `defeat` on screen, so an outcome-based version of that guard silently tests nothing. Do
     not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
 - **[docs/economy.md](../../docs/economy.md)** — the five currencies, income rates, the level curve,
-  pull rates and pity, and offline accrual.
+  pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
+  income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
+  coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
+  old hand-tuned ladder paid at the same **enemy level**, which is what stops a longer ladder from
+  meaning a richer one.
+- **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
+  [`core/ladder.ts`](../../src/core/ladder.ts) before touching progression.
+  - ⚠️ **`GameState.stage` is the stage within its chapter, not a position on the whole ladder.**
+    It was one until milestone 11 and it kept its name, so reading it as a linear index is a bug
+    that presents as a player being teleported — chapter 2 stage 3 and chapter 1 stage 3 are the
+    same number. `stageIndex(ladder, position)` is the only way to a linear index, and it is what
+    the clear count, the crystal rate and the reward curve are all functions of.
+  - **The position is a pair and `clearedStages` is a count, and the asymmetry is deliberate.** A
+    position is a _place_ and has to survive the ladder being re-cut around it; a clear count is a
+    _quantity earned_ and means the same thing however the chapters are sliced.
+  - **The chapter-size formula and the authored chapters are two statements of one fact.**
+    `chapterSize` says how long a chapter should be and `LadderShape` says how long the authored
+    ones are; `chapters.spec.ts` is what keeps them equal. Never derive the shipped ladder's length
+    from the formula — a build that ships two chapters must not be talked into believing it has a
+    hundred.
 - **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares, added
   in milestone 9. Read it before writing anything that reads a character's level.
   - **`OwnedCharacter.level` is the level the player _paid for_, not the level anything fights at.**
@@ -197,7 +216,20 @@ The app is zoneless. The sim clock and the render clock are separate.
   under storage pressure, which loses player saves.
 - Every save carries a `version`. Bumping `SAVE_VERSION` without adding the matching
   migration is a bug.
-- Migrations are pure `(old) => (new)` steps, chained. **Never delete an old migration.**
+- Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
+  build carrying it has reached a player** — they can return after any number of releases and
+  their save has to walk the whole chain.
+  - **`SAVE_VERSION` is 0 and the table is empty, and that is the current state rather than an
+    oversight.** Five versions and four migrations were collapsed into a v0 baseline while the
+    game was pre-release, on the one argument that licenses it: no save any of them wrote has ever
+    existed outside development. [saves](../../docs/saves.md) records the reset and the condition — a
+    player loading a save — that closes the door on repeating it. The chain walker was kept and is
+    still tested against a synthetic history, so the next real migration lands on proven code.
+  - **A save this build cannot read is discarded and written over**, and the fresh run persists
+    normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
+    longer gates persistence. The protection it used to give — a newer build's save surviving a
+    downgrade — cost a game that boots, plays and silently never saves, which is the worse failure
+    and the one a player actually hits.
 - Loading must not throw on recoverable damage. Clamp and default (`NaN` gold becomes 0,
   unknown character IDs are dropped) rather than rejecting. A thrown error costs the
   player their entire run. Write to a backup slot before overwriting the primary.
@@ -367,7 +399,7 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
     forbids.
   - The premise is **true since milestone 8e**, which authored the roster it needed: seven
     characters per faction, so a mono-faction five is buildable everywhere without spending Angels
-    as wildcards. `data/stages.balance.ts` sweeps all seven and holds them within about a stage
+    as wildcards. `data/chapters.balance.ts` sweeps all seven and holds them within about a stage
     and a half of each other.
   - **The two faction mechanics answer different questions and are not rival levers.** The lineup
     rung pays every mono-faction five identically, so it cancels between them: it decides
@@ -402,6 +434,16 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   archetype's _shape_ and let the stage's level say how big it is; do not write a second, bigger
   stat block for a later band. There is deliberately no ascension rung on the enemy side — see
   `toEnemyCombatant` for why the third dial was folded into the block.
+- **A stage authors its line-up and its level and nothing else.** Since milestone 11 the rates, the
+  lump and the first-clear crystals are derived from where the stage sits — `StageEncounterData` is
+  what `data/` writes and `resolveStage` turns it into the `StageData` the simulation takes. Do not
+  add an authored payout back onto a stage: it would be a second mechanism on the same number, and
+  because `raiseRates` takes the larger of the two, whichever happened to be bigger would silently
+  win.
+- **Whether a stage is a mini-boss or a boss is a rule, not a field.** Every tenth stage of a
+  chapter and the last one, so the rhythm is identical in a fifty-stage chapter and a two-hundred
+  stage one. What `data/` authors is a line-up worthy of the slot it lands in, and
+  `chapters.spec.ts` checks it did.
 - **Scaling both sides by the same factor is an identity on the whole simulation.** Damage is
   `atk² / (atk + def)` and every status prices off the applier's `atk`, so the same hits land in the
   same order on the same tick. That is why the ninety-second timer, the faction matrix and every
@@ -568,10 +610,18 @@ not long-running and need none of this.
   and added a third reference party, at which point three parties across twenty-four stages at 40
   seeds was thousands of battles. **Moving the sweep was the answer, not shrinking the sample** —
   a smaller sample buys speed by making the answer less true.
-  - `data/stages.spec.ts` keeps what is fast and structural: ids, rank sizes, factions, and the
-    monotonicity of the rate and reward curves.
-  - `data/stages.balance.ts` holds what has to be simulated: the reference-party sweeps and the
+  - `data/chapters.spec.ts` keeps what is fast and structural: chapter lengths against the curve,
+    ids, rank sizes, factions, the boss rhythm, and the monotonicity of the level, rate and reward
+    curves.
+  - `data/chapters.balance.ts` holds what has to be simulated: the reference-party sweeps and the
     per-stage difficulty probe.
+  - **Striding over the ladder is not shrinking the sample, and milestone 11 is the one place that
+    distinction is licensed.** That milestone did not add difficulty, it made the same range four
+    times denser, so adjacent stages sit within about one percent of each other — and the blocks
+    that measure a _step_ (the difficulty probe, the matchup matrix) measure noise at that spacing.
+    Every fourth stage plus every chapter boss restores the per-sample gap to what the
+    twenty-four stage ladder had, over the same range, at the same resolution. The load-bearing
+    assertions — zero timeouts, the starter wall, the timer headroom — still read every stage.
   - `*.balance.ts` files are excluded from `tsconfig.app.json` so the app never bundles them, and
     included in `tsconfig.spec.json` so typed linting still covers them. A new one needs both.
 - When evaluating balance, look at the **5th percentile** player, not the mean. In a paid
@@ -582,13 +632,13 @@ not long-running and need none of this.
 - **Derive from the content, never retype it.** A spec in `data/` that copies a number out of a
   neighbouring file has turned a coupling into a comment: it keeps measuring the old value
   forever and passes happily while the thing it claimed to protect drifts. `data/levels.spec.ts`
-  reads its income rates off `STAGES` for exactly this reason — the level curve is tuned against
-  the top of the ladder, so adding a stage has to re-run every time-to-afford assertion. The same
-  applies to `data/ascension.spec.ts`, which derives its totals from the authored rungs rather
-  than restating "8 self, 180 fodder" as a constant.
+  evaluates the reward curve at the last stage of the ladder for exactly this reason — the level
+  curve is tuned against the top of the ladder, so adding a chapter has to re-run every
+  time-to-afford assertion. The same applies to `data/ascension.spec.ts`, which derives its totals
+  from the authored rungs rather than restating "8 self, 180 fodder" as a constant.
 - **Prefer a threshold that fails when content outgrows it** to one that documents an intention.
   When such a test fails after new content lands, the right response is to retune deliberately —
   not to move the threshold to make it green.
-- Conformance is asserted through **typed locals** (`const stages: readonly StageData[] = STAGES`)
-  rather than annotations on the data itself, because `data/` may not import `core/`. That
-  assignment is what turns a malformed stat block into a compile error.
+- Conformance is asserted through **typed locals** (`const chapters: readonly ChapterData[] =
+CHAPTERS`) rather than annotations on the data itself, because `data/` may not import `core/`.
+  That assignment is what turns a malformed stat block into a compile error.

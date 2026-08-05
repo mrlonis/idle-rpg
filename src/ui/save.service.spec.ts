@@ -149,8 +149,9 @@ describe('SaveService', () => {
   });
 
   it('surfaces a future-versioned save as fatal rather than silently resetting', async () => {
-    // The player downgraded the app. Their run is intact and becomes readable again on
-    // update, so this must not be mistaken for corruption.
+    // The player downgraded the app. Since the v0 reset the fresh run does write over their save
+    // rather than tiptoeing around it, so *reporting* is the whole of what is left — a run that
+    // vanished with no explanation is indistinguishable from a bug.
     store.entries.set('save', JSON.stringify({ version: SAVE_VERSION + 3, wallet: { gold: '5' } }));
 
     const loaded = await service.load(T0);

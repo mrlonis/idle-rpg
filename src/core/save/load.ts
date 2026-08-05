@@ -9,9 +9,22 @@ export interface LoadResult {
   /**
    * Set when the save could not be used at all and `state` is a fresh run.
    *
-   * The UI **must not** overwrite the primary save slot when this is set — the existing
-   * bytes are the player's only copy, and a future-versioned save (from a newer build)
-   * becomes readable again as soon as they update.
+   * ## It reports, and no longer forbids
+   *
+   * This used to mean "the UI must not overwrite the primary slot": the bytes were the player's
+   * only copy, and a future-versioned save from a newer build becomes readable again as soon as
+   * they update. That protection is retired along with the v0 reset, and the trade is worth being
+   * explicit about — **a save this build cannot read is now replaced by the fresh run that
+   * replaced it.** What it bought was a run that survives a downgrade; what it cost was a game
+   * that boots, plays, and silently never writes anything down, which is the worse failure of the
+   * two and the one a player would actually hit.
+   *
+   * Two jobs remain, and both are worth keeping:
+   *
+   * - **The backup slot is still tried first.** `SaveService.load` only falls through to a fresh
+   *   run once the backup is unreadable too, so a corrupted primary costs nothing.
+   * - **The player is told.** The home screen says the run is fresh because the save could not be
+   *   read, which is the difference between a bug you can report and a run that just vanished.
    */
   readonly fatal?: string;
 }

@@ -1,6 +1,21 @@
 import { expect, type Page, test } from '@playwright/test';
-import { summonRatePerSecond } from '../src/core';
-import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES, SUMMON_RATE } from '../src/data';
+import {
+  type ChapterCurveData,
+  type ChapterData,
+  ladderShape,
+  positionAt,
+  resolveLadder,
+  type StageRewardCurveData,
+  summonRatePerSecond,
+  totalStages,
+} from '../src/core';
+import {
+  AUTO_BATTLE_UNLOCK_CLEARS,
+  CHAPTER_CURVE,
+  CHAPTERS,
+  STAGE_REWARDS,
+  SUMMON_RATE,
+} from '../src/data';
 
 /**
  * Auto-battle, driven through a real browser.
@@ -17,18 +32,27 @@ import { AUTO_BATTLE_UNLOCK_CLEARS, STAGES, SUMMON_RATE } from '../src/data';
 const SAVE_KEY = 'CapacitorStorage.save';
 const BACKUP_KEY = 'CapacitorStorage.save.bak';
 
-const top = STAGES[STAGES.length - 1];
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
+
+const LADDER = ladderShape(chapters);
+const STAGES = resolveLadder(chapters, chapterCurve, rewards);
+const CLEARS = totalStages(LADDER);
+const top = STAGES[CLEARS - 1];
 
 /**
- * A run that has earned auto-battle, standing on `stage`.
+ * A run that has earned auto-battle, standing on the `index`th stage of the ladder, 1-based.
  *
- * The rates are the top of the ladder because `reconcileClearedStages` re-derives the clear count
- * from the gold rate on every load — a save claiming clears it cannot back up gets corrected, and
- * the unlock would go with it.
+ * The rates are the top of the ladder as well as the clear count, because
+ * `reconcileClearedStages` takes the larger of the two — a save claiming clears it cannot back up
+ * gets corrected, and the unlock would go with it.
  */
-function unlockedRun(stage: number) {
+function unlockedRun(index: number) {
+  const { chapter, stage } = positionAt(LADDER, index);
   return {
-    version: 4,
+    version: 0,
+    chapter,
     wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: {
       gold: String(top.rates.gold),
@@ -37,12 +61,12 @@ function unlockedRun(stage: number) {
       // Derived, not read off the stage: no stage authors a crystal rate. Seeding a wrong one
       // here is not harmless — an unparseable rate makes the app draw a save-repair notice, and
       // these tests read `.notice` to find out why auto-battle stopped.
-      summons: String(summonRatePerSecond(SUMMON_RATE, STAGES.length)),
+      summons: String(summonRatePerSecond(SUMMON_RATE, CLEARS)),
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
     stage,
-    clearedStages: STAGES.length,
+    clearedStages: CLEARS,
     battleCount: 214,
     roster: [
       { defId: 'rin', rarity: 0, level: 1, copies: 0 },
@@ -67,7 +91,7 @@ async function seed(page: Page, save: unknown): Promise<void> {
 
 /** Opens the battle screen at 4x, which is what makes these tests seconds rather than minutes. */
 async function enterBattle(page: Page): Promise<void> {
-  await page.getByRole('button', { name: /^Fight Stage/ }).click();
+  await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
   await expect(page.locator('.battle')).toBeVisible();
   await page.getByRole('button', { name: '4×' }).click();
 }
@@ -105,8 +129,8 @@ test.describe('auto-battle', () => {
       'aria-pressed',
       'true',
     );
-    await expect(page.locator('.battle__stage')).toContainText('Stage 2', { timeout: 30_000 });
-    await expect(page.locator('.battle__stage')).toContainText('Stage 3', { timeout: 30_000 });
+    await expect(page.locator('.battle__stage')).toContainText('1-2', { timeout: 30_000 });
+    await expect(page.locator('.battle__stage')).toContainText('1-3', { timeout: 30_000 });
   });
 
   test('drops the player back to the idle screen on a loss, and says where', async ({ page }) => {
@@ -136,7 +160,7 @@ test.describe('auto-battle', () => {
     });
 
     // Straight back in: the loop must not still be armed from the run that just ended.
-    await page.getByRole('button', { name: /^Fight Stage/ }).click();
+    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
 
     await expect(page.getByRole('button', { name: 'Auto' })).toHaveAttribute(
       'aria-pressed',
@@ -147,11 +171,11 @@ test.describe('auto-battle', () => {
   test('unlocks on the clear count rather than the stage number', async ({ page }) => {
     // A run parked at the top of the ladder still has it, which is the case a stage-number check
     // would get wrong forever.
-    await seed(page, unlockedRun(STAGES.length));
+    await seed(page, unlockedRun(CLEARS));
     await page.goto('');
     await enterBattle(page);
 
-    expect(STAGES.length).toBeGreaterThanOrEqual(AUTO_BATTLE_UNLOCK_CLEARS);
+    expect(CLEARS).toBeGreaterThanOrEqual(AUTO_BATTLE_UNLOCK_CLEARS);
     await expect(page.getByRole('button', { name: 'Auto' })).toBeVisible();
   });
 });

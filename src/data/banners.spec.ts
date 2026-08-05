@@ -5,11 +5,17 @@ import { describe, expect, it } from 'vitest';
 import {
   ascendedChance,
   type BannerData,
+  type ChapterCurveData,
+  type ChapterData,
   type GachaRulesData,
+  ladderShape,
   rarityIndex,
+  resolveLadder,
   type ShopOfferData,
+  type StageRewardCurveData,
   summonRatePerSecond,
   type SummonRateCurve,
+  totalStages,
 } from '../core';
 import {
   BANNERS,
@@ -23,11 +29,18 @@ import {
   SUMMON_RATE,
   TIER_WEIGHTS,
 } from './banners';
+import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
-import { STAGES } from './stages';
 
 const banners: readonly BannerData[] = BANNERS;
 const offers: readonly ShopOfferData[] = SPARK_SHOP;
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewards: StageRewardCurveData = STAGE_REWARDS;
+
+/** How many stages this build ships, and every one of them resolved against the reward curve. */
+const LADDER_LENGTH = totalStages(ladderShape(chapters));
+const LADDER = resolveLadder(chapters, chapterCurve, rewards);
 
 /** The crystal curve, typed as `core/` takes it — which is what makes a malformed one a build error. */
 const summonRate: SummonRateCurve = SUMMON_RATE;
@@ -138,7 +151,7 @@ describe('pull economy', () => {
   });
 
   it('pays enough first-clear crystals to build a real roster on the way up', () => {
-    const total = STAGES.reduce((sum, stage) => sum + Number(stage.firstClearSummons ?? 0), 0);
+    const total = LADDER.reduce((sum, stage) => sum + Number(stage.firstClearSummons ?? 0), 0);
 
     expect(total / PULL_COST).toBeGreaterThanOrEqual(20);
   });
@@ -155,8 +168,12 @@ describe('pull economy', () => {
 
   it('accrues roughly three ten-pulls a day with the ladder fully cleared', () => {
     // The stated pacing target, measured where the rate actually comes from: the clear count.
-    // Derived from `STAGES.length` rather than restated, so adding stages re-runs this.
-    const pullsPerDay = (crystalsPerSecond(STAGES.length) * 86_400) / PULL_COST;
+    // Derived from the ladder's length rather than restated, so adding a chapter re-runs this.
+    //
+    // ⚠️ **Milestone 11 retuned the curve rather than this threshold**, exactly as the note below
+    // says to: a hundred stages at the old crystal an hour a clear put this at 48 a day. The step
+    // halved and the pacing target stayed where it was.
+    const pullsPerDay = (crystalsPerSecond(LADDER_LENGTH) * 86_400) / PULL_COST;
 
     expect(pullsPerDay).toBeGreaterThan(20);
     expect(pullsPerDay).toBeLessThan(40);
@@ -168,7 +185,7 @@ describe('pull economy', () => {
     // outgrown the flat prices it is spent against, which is the exponential problem this curve
     // exists to avoid — a chapter of 500 stages fails here, and the right answer then is to
     // retune deliberately rather than to move this threshold.
-    const climbed = crystalsPerSecond(STAGES.length) / crystalsPerSecond(0);
+    const climbed = crystalsPerSecond(LADDER_LENGTH) / crystalsPerSecond(0);
 
     expect(climbed).toBeGreaterThan(1.1);
     expect(climbed).toBeLessThan(2);
@@ -178,7 +195,7 @@ describe('pull economy', () => {
     // The rate is a function of first clears only. Nothing in the curve may make it drop, and
     // nothing but a new clear may make it rise.
     let previous = 0;
-    for (let cleared = 0; cleared <= STAGES.length; cleared++) {
+    for (let cleared = 0; cleared <= LADDER_LENGTH; cleared++) {
       const rate = crystalsPerSecond(cleared);
       expect(rate, `${cleared} cleared`).toBeGreaterThan(previous);
       previous = rate;

@@ -64,29 +64,57 @@ to stop the loop and replace the in-memory state, not merely empty the slots.
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **4**. Every save carries its version.
+`SAVE_VERSION` is **0**, and the migration table is **empty**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
 asserts every version below current has a migration registered, so that mistake fails in CI rather
-than on a device.
+than on a device. That assertion is vacuous today and is kept for exactly that reason: it fires on
+the next bump, which is when nobody is thinking about it.
 
-| Step    | What it did                                                      |
-| ------- | ---------------------------------------------------------------- |
-| v1 → v2 | Added `stage` and `battleCount`. The first real migration.       |
-| v2 → v3 | Folded gold into the keyed wallet; added roster, party and pity. |
-| v3 → v4 | Replaced `activeParty` with `formation`, split in reading order. |
+### The chain was re-based, once, while nobody was playing
 
-Migrations are pure `(old) => (new)` steps, chained. **Never delete an old migration** — a save
-from any historical version must still reach current.
+There were five versions and four migrations:
+
+| Step    | What it did                                                               |
+| ------- | ------------------------------------------------------------------------- |
+| v1 → v2 | Added `stage` and `battleCount`. The first real migration.                |
+| v2 → v3 | Folded gold into the keyed wallet; added roster, party and pity.          |
+| v3 → v4 | Replaced `activeParty` with `formation`, split in reading order.          |
+| v4 → v5 | Cut the ladder into chapters: `stage` becomes a stage _within_ `chapter`. |
+
+All four were deleted and the current shape became **v0**. The argument is narrow and it is the
+only one that licenses this: **no save written by any of those versions has ever existed outside
+development.** Nobody has played this game but its author, on dev servers whose storage does not
+survive the session, so the chain was four migrations, five historical shapes and five fixtures
+maintained for an audience of zero — each one a thing to keep working and to reason about on the
+next schema change.
+
+⚠️ **The rule this suspends is scoped, not softened.** It now reads: _never delete or edit a
+migration once a build carrying it has reached a player._ That condition is what makes the rule
+enforceable rather than aspirational, and it is also what closes the door — the moment anyone
+outside development loads a save, the chain is permanent and the next version is v1.
+
+**The machinery survived the entries.** `migrate()` still walks a chain, and `migrate.spec.ts`
+still drives that walk against a synthetic history. Proven code with no callers is a far better
+position than an unproven chain walker written on the day the first real migration is urgent.
+
+### The rules that still apply
+
+Migrations are pure `(old) => (new)` steps, chained.
 
 **Order matters: migrate the raw JSON shape first, then decode and repair.** Migrations are
 written against historical shapes, so they have to run before anything tries to interpret fields.
 
-⚠️ **A migration's constants are written out, never imported.** The rank sizes in v3 → v4 are
-literals rather than `FRONT_ROW_SIZE`. A migration is _dated_: it describes the shape that existed
-the day it shipped, and a constant a later release is free to retune would silently change what
-that step means for every save that has not run it yet.
+⚠️ **A migration's constants are written out, never imported.** The rank sizes in the old v3 → v4
+step were literals rather than `FRONT_ROW_SIZE`. A migration is _dated_: it describes the shape
+that existed the day it shipped, and a constant a later release is free to retune would silently
+change what that step means for every save that has not run it yet.
+
+**A save with no version at all is now unreadable rather than assumed to be the oldest.** It used
+to be read as v1, because v1 predated versioning and guessing beat discarding a real player's run.
+The v0 reset removed the thing that guess was for: nothing below this baseline exists, so an
+absent version means damage.
 
 ---
 
@@ -96,9 +124,18 @@ that step means for every save that has not run it yet.
 `NaN` gold becomes 0; unknown character ids are dropped; out-of-range values clamp.
 
 `loadSave` never throws. When a save cannot be used at all it returns a fresh run with `fatal`
-set — and **the UI must not overwrite the primary slot in that case.** The existing bytes are the
-player's only copy, and a future-versioned save from a newer build becomes readable again as soon
-as they update.
+set, and **that fresh run is written over the unreadable bytes like any other.**
+
+That reversed with the v0 reset, and the trade is worth being explicit about. `fatal` used to bar
+the way to the primary slot, on the grounds that the bytes might be a newer build's save and would
+be good again after an update. What that bought was a run surviving a downgrade; what it cost was
+a game that boots, plays, and silently never writes anything down — the worse failure of the two,
+and the one a player actually hits. Two jobs remain and both earn their place:
+
+- **The backup slot is still tried first.** `SaveService.load` only reaches a fresh run once the
+  backup is unreadable too, so a corrupted primary costs nothing.
+- **The player is still told.** The home screen says the run is fresh because the save could not
+  be read, which is the difference between a bug you can report and a run that just vanished.
 
 ### Load-time repair is a separate thing from migration
 
@@ -108,6 +145,16 @@ Two functions run on **every load**, not behind a version gate:
 - **`reconcileClearedStages`** — re-derives the clear count from the surviving gold rate, restores
   every rate those stages unlock, and **pays the first-clear bonus for each stage it credits.** It
   only ever raises, so a healthy save passes through by reference and is not even republished.
+
+  ⚠️ **The receipt is only good as far as the run has travelled, and milestone 11 is when that
+  stopped being pedantry.** A gold rate is denominated in whatever the rate curve said the day it
+  was written, and that curve was re-derived from scratch when the ladder went from twenty-four
+  stages to a hundred — so a veteran arriving with the old ladder's top rate reads, against the new
+  curve, as somebody who has cleared the entire game, and crediting that would hand over every
+  first-clear bonus on the ladder for stages they have never seen. The repair now caps the receipt
+  at the linear index of the position the save is parked on: **a run cannot have cleared more
+  stages than it has reached.** That is true independently of any curve, which is why it is the
+  right guard rather than a version check.
 
 They live in `ui/` because they need `data/` — and `core/` may not import `data/`. **That
 constraint is the whole reason they exist**, and it produced three rules worth more than the fix
@@ -132,11 +179,12 @@ that prompted them:
 ## Fixtures
 
 [`src/core/save/fixtures/`](../src/core/save/fixtures/) holds one JSON save per historical
-version — `v1.json` through `v4.json` — and
+version — `v0.json` today, since the re-base left one version — and
 [`fixtures.spec.ts`](../src/core/save/fixtures.spec.ts) migrates every one of them to current.
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a
-version is a chain nobody has proved works from that version.
+version is a chain nobody has proved works from that version. The coverage assertion in that spec
+is what fails if the fixture is forgotten.
 
 ---
 

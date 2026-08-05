@@ -48,9 +48,15 @@ export const PULL_COST = 100;
  * **The step is linear, and per stage cleared for the first time.** A rate should compound only
  * if what it buys compounds: levels compound, so gold does; a pull is a flat 100 crystals and an
  * ascension a flat count of copies, so a compounding crystal rate would outrun its own prices and
- * make pulls effectively unlimited a chapter or two into [milestone 11](../../docs/milestones.md).
- * Linear keeps the full ladder worth climbing — 24 stages is +24% income — without ever getting
- * ahead of what it is spent on.
+ * make pulls effectively unlimited a chapter or two in. Linear keeps the full ladder worth
+ * climbing — a hundred stages is +50% income — without ever getting ahead of what it is spent on.
+ *
+ * **The step halved when milestone 11 shipped chapters, and that is the curve being retuned
+ * rather than a threshold being moved.** It was one crystal an hour a clear against a
+ * twenty-four stage ladder; a hundred stages at that step is three ten-pulls a day becoming five,
+ * which is past the pacing `banners.spec.ts` pins. The spec said in advance that a longer ladder
+ * should fail there and be retuned deliberately, and this is that retune. The base did not move:
+ * a pull an hour from install is the number that makes this economy legible.
  *
  * The step is paid **once per stage, ever**. Re-fighting a cleared stage, by hand or on
  * auto-battle, moves it by nothing at all: a repeatable crystal payout would make tap-farming
@@ -58,7 +64,7 @@ export const PULL_COST = 100;
  */
 export const SUMMON_RATE = {
   basePerHour: 100,
-  perClearPerHour: 1,
+  perClearPerHour: 0.5,
 } as const;
 
 /** Pulls in a multi-pull. Ten is the genre convention and the pity counter is tuned to it. */

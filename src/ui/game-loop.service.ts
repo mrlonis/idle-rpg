@@ -15,7 +15,13 @@ import {
   zeroRates,
 } from '../core';
 import { STARTER_FORMATION } from '../data';
-import { CHARACTERS_BY_ID, STAGE_PROGRESS, SUMMON_RATE_CURVE } from './content';
+import {
+  CHAPTER_RULES,
+  CHARACTERS_BY_ID,
+  LADDER,
+  STAGE_REWARD_CURVE,
+  SUMMON_RATE_CURVE,
+} from './content';
 import { SaveService } from './save.service';
 
 /**
@@ -114,9 +120,12 @@ export class GameLoopService {
   readonly saveIssues = signal<readonly RepairIssue[]>([]);
 
   /**
-   * Set when the save could not be read at all. While this is set the loop refuses to
-   * persist, because the on-disk bytes may be a newer build's save that is still perfectly
-   * good — overwriting it would destroy a working run.
+   * Set when the save could not be read at all and this run started fresh.
+   *
+   * **Informational, not a gate.** The loop used to refuse to persist while this was set, on the
+   * grounds that the on-disk bytes might be a newer build's save. That protection went with the
+   * v0 reset: a run that plays normally and silently never writes anything down is a worse
+   * failure than a downgrade losing a save, and it is the one a player would actually hit.
    */
   readonly loadFailure = signal<string | undefined>(undefined);
 
@@ -161,7 +170,13 @@ export class GameLoopService {
     // `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
     // arrives here earning nothing and leaves earning the base.
     const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
-    this.state = reconcileClearedStages(repaired, STAGE_PROGRESS, SUMMON_RATE_CURVE);
+    this.state = reconcileClearedStages(
+      repaired,
+      LADDER,
+      CHAPTER_RULES,
+      STAGE_REWARD_CURVE,
+      SUMMON_RATE_CURVE,
+    );
     this.settle(nowMs);
 
     this.running = true;
@@ -230,13 +245,17 @@ export class GameLoopService {
   }
 
   /**
-   * Persists the run, unless the save on disk could not be read.
+   * Persists the run.
    *
    * `lastTickAt` is already current — {@link advance} and {@link settle} maintain it — so
    * the state is written as-is rather than restamped here.
+   *
+   * **A failed load no longer stops this**, which is the whole of what {@link loadFailure}
+   * changed: a run that started fresh because the save was unreadable saves over it like any
+   * other. The old behaviour left the game playable and permanently unable to write.
    */
   async persist(): Promise<void> {
-    if (this.state === null || this.loadFailure() !== undefined) {
+    if (this.state === null) {
       return;
     }
     await this.saves.save(this.state);

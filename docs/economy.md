@@ -39,43 +39,67 @@ on one number while two others pile up unspent.
 
 **Clearing a stage permanently raises all four idle rates, and that is the real reward.** A run
 starts at zero on gold, xp and essence and earns none of them until the first stage falls — which
-is what makes the first battle the only thing worth doing. The one-off `goldReward` is the smaller
-half, tuned to roughly forty seconds of the income it unlocks.
+is what makes the first battle the only thing worth doing. The one-off lump is the smaller half,
+tuned to exactly forty seconds of the income it unlocks.
 
-Across the twenty-four authored stages:
+**Since milestone 11 none of that is authored per stage — it is a function of the stage's position
+on the ladder.** `STAGE_REWARDS` in [`chapters.ts`](../src/data/chapters.ts) is four numbers and
+`stagePayout` in [`core/ladder.ts`](../src/core/ladder.ts) evaluates them:
 
-| Stage | gold/s | xp/s | essence/s |
-| ----- | ------ | ---- | --------- |
-| 1     | 0.5    | 0.1  | 0.0015    |
-| 6     | 5.5    | 1.05 | 0.017     |
-| 12    | 25     | 4.7  | 0.08      |
-| 18    | 54     | 10.1 | 0.175     |
-| 24    | 90     | 16.8 | 0.33      |
+```
+rate = base * stageIndex ** 1.13      base: 0.5 gold, 0.1 xp, 0.0015 essence per second
+lump = 40 seconds of that rate
+crystals on a first clear = 200 + 6 per stage, ×2 on a mini-boss, ×5 on a chapter boss
+```
 
-Three columns, not four: **the crystal rate is not authored per stage**. See below.
+Across the hundred stages of chapters 1 and 2:
+
+| Stage | gold/s | xp/s | essence/s | enemy level |
+| ----- | ------ | ---- | --------- | ----------- |
+| 1     | 0.5    | 0.1  | 0.0015    | 1           |
+| 12    | 8.3    | 1.66 | 0.025     | 18          |
+| 25    | 19.0   | 3.8  | 0.057     | 25          |
+| 50    | 41.6   | 8.31 | 0.125     | 40          |
+| 75    | 65.7   | 13.2 | 0.197     | 78          |
+| 100   | 91.0   | 18.2 | 0.273     | 126         |
+
+Three columns, not four: **the crystal rate is not part of this**. See below.
+
+**The curve is calibrated against enemy level rather than stage count**, which is the thing to
+understand before retuning it. The old twenty-four stage ladder paid 25 gold a second at enemy
+level 40 and 90 at level 126; this pays about 42 and about 91 at the same two levels. That is what
+stops "four times as many stages" from meaning "four times the income".
 
 `applyBattleResult` **only ever raises** a rate. Rates never fall, which is what lets load-time
-repair re-derive progress from the gold rate alone.
+repair re-derive progress from the gold rate alone — and what kept every existing save whole when
+milestone 11 re-derived the whole curve underneath them.
 
-**The gold slope decelerates across the second half**, from about ×1.4 a stage to about ×1.1.
-Milestone 7 doubled the ladder, and continuing the old slope would have put the level-1000 ceiling
-inside a fortnight — deleting the vertical axis that half of the ladder exists to make reachable.
-Milestone 11 makes level 1000 a chapter-100 goal, thousands of stages out, so the ceiling staying
-out of reach is the intent rather than a shortfall.
+**A power law is a decelerating geometric curve, and the deceleration is the requirement.** The
+per-stage multiplier is `1 + 1.13 / index`: about ×2 across the first stage, ×1.1 by stage ten,
+×1.01 by stage a hundred. Milestone 7 already had to bend the authored gold slope from ×1.4 a stage
+down to ×1.1 for the same reason, and nothing constant survives this ladder's length — ×1.1
+compounded over the nine thousand stages that reach chapter 100 has three hundred digits in it.
 
 ### The crystal rate is a formula, not a table
 
 `SUMMON_RATE` in [`banners.ts`](../src/data/banners.ts) is the whole of it, in crystals per hour:
 
 ```
-rate = basePerHour + perClearPerHour × clearedStages     // 100 + 1 × clears
+rate = basePerHour + perClearPerHour × clearedStages     // 100 + 0.5 × clears
 ```
 
 | Cleared          | Crystals/hr | Pulls/day |
 | ---------------- | ----------- | --------- |
 | 0 (a fresh save) | 100         | 24        |
-| 12               | 112         | 27        |
-| 24 (the ladder)  | 124         | 30        |
+| 12               | 106         | 25        |
+| 50 (chapter 1)   | 125         | 30        |
+| 100 (the ladder) | 150         | 36        |
+
+**The step halved when milestone 11 shipped chapters, and that is the curve being retuned rather
+than a threshold being moved.** A hundred stages at the old crystal an hour a clear is five
+ten-pulls a day, past the pacing `banners.spec.ts` pins — and that spec says in advance that a
+longer ladder should fail there and be retuned deliberately. The base did not move: a pull an hour
+from install is the number that makes this economy legible.
 
 Four things about that are decisions rather than arithmetic:
 
@@ -95,8 +119,8 @@ Four things about that are decisions rather than arithmetic:
   stage, by hand or on auto-battle for an hour, moves the rate by nothing.
 
 **Summons are deliberately not a repeatable battle reward either**, for the same reason. They
-accrue idly, plus a **first-clear bonus** per stage — those keep rising and total about 17,000
-across the full climb, roughly 170 pulls, because duplicates are the primary ascension path and
+accrue idly, plus a **first-clear bonus** per stage — those rise linearly and total about 59,000
+across the full climb, roughly 590 pulls, because duplicates are the primary ascension path and
 the top of the ladder is tuned to a party several rungs up.
 
 ---
@@ -121,17 +145,17 @@ visible jumps instead of creeping up every level.
 - **Essence is the bottleneck and is supposed to be felt.** Cheapest of the three before level 60,
   most expensive by 200.
 
-**Level 1000 is aspirational, not a grind to schedule.** The ladder is twenty-four stages long and
-the curve is tuned against content that does not exist yet.
-[`levels.spec.ts`](../src/data/levels.spec.ts) reads its income rates off the top of `STAGES`
-rather than restating them, so **adding a stage re-runs every time-to-afford assertion**. When it
-fails, the curve and the economy have come apart, and the answer is to retune one of them
-deliberately — never to move the threshold.
+**Level 1000 is aspirational, not a grind to schedule.** It is a chapter-100 target and two
+chapters are shipped. [`levels.spec.ts`](../src/data/levels.spec.ts) evaluates the reward curve at
+the last stage of the ladder rather than restating its rates, so **adding a chapter re-runs every
+time-to-afford assertion**. When it fails, the curve and the economy have come apart, and the
+answer is to retune one of them deliberately — never to move the threshold.
 
 That is not hypothetical: doubling the ladder in milestone 7 is exactly what made it fire, and the
 thing that got retuned was the **rate slope**, not the curve and not the threshold. At the top of
-the ladder as it stands, one character from level 1 to 1000 costs about 1,190 hours of gold — so
-the ceiling is still years away, which is where it belongs.
+the ladder as it stands, one character from level 1 to 1000 costs about 1,175 hours of gold — and
+resonance means a party costs five times that — so the ceiling is still years away, which is where
+it belongs.
 
 ### Growth
 

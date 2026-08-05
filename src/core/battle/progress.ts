@@ -1,7 +1,19 @@
 import { credit, raiseRates, type Rates, type SummonRateCurve, withSummonRate } from '../currency';
-import { type Numeric, ZERO } from '../numeric';
+import {
+  advancePosition,
+  type ChapterCurveData,
+  type LadderShape,
+  positionAt,
+  stageIndex,
+  stageKindAt,
+  stagePayout,
+  stagesInChapter,
+  type StageRewardCurveData,
+  totalStages,
+} from '../ladder';
+import { num, type Numeric, ZERO } from '../numeric';
 import { type GameState } from '../state';
-import { type BattleResult } from './types';
+import { type AuthoredAmount, type BattleResult, type StageKind } from './types';
 
 /**
  * Folding a resolved battle back into the run.
@@ -18,7 +30,8 @@ import { type BattleResult } from './types';
  * - `battleCount` always advances, win or lose. It feeds the battle RNG label, so a retry has
  *   to be a different fight rather than a replay of the same loss — otherwise a stage the
  *   party narrowly fails becomes a permanent wall for reasons the player cannot see.
- * - A victory advances the stage, stopping at the last one authored, which then repeats.
+ * - A victory advances the position, rolling into the next chapter and stopping at the last stage
+ *   authored, which then repeats.
  * - The one-off `reward` is paid on **every** win, including a re-fight. Farming a stage you
  *   have already beaten is a legitimate way to spend an evening, and it should pay.
  * - The permanent idle-rate increase is paid on a **first clear only**. It is a one-time
@@ -30,34 +43,36 @@ import { type BattleResult } from './types';
  *   (see {@link SummonRateCurve}), so a first clear steps it up and a re-fight cannot: the
  *   count is what moved, not the stage that was fought.
  *
- * `clearedStages` is what makes all of those answerable: `stage` stops climbing at the top of
- * the ladder, so a player farming the last stage would otherwise re-earn its bonus on every win.
+ * `clearedStages` is what makes all of those answerable: the position stops climbing at the top
+ * of the ladder, so a player farming the last stage would otherwise re-earn its bonus on every
+ * win. It is compared against the **linear index** of the stage that was fought, which is the one
+ * place a chapter and a stage have to become a single number.
  *
  * `raiseRates` still guards against a rate ever falling, even though a first clear should never
  * offer less than the run already earns. It is one comparison per currency and it means a save
- * from a build with a different curve cannot cut a player's income — see `reconcileClearedStages`
- * for the repair path that leans on the same guarantee.
+ * from a build with a different curve cannot cut a player's income — which stopped being
+ * hypothetical in milestone 11, when the rates for a given stage number were re-derived from
+ * scratch. See `reconcileClearedStages` for the repair path that leans on the same guarantee.
  *
- * `stageCount` and `summonRate` are passed in because `core/` cannot import `data/` — content
+ * `ladder` and `summonRate` are passed in because `core/` cannot import `data/` — content
  * reaches the simulation as arguments, which is also what lets this be tested without shipped
  * stages.
  */
 export function applyBattleResult(
   state: GameState,
   result: BattleResult,
-  stageCount: number,
+  ladder: LadderShape,
   summonRate: SummonRateCurve,
 ): GameState {
-  const lastStage = Number.isFinite(stageCount) ? Math.max(Math.floor(stageCount), 1) : 1;
   const won = result.outcome === 'victory';
 
   // The stage actually fought, clamped to the content this build ships — which is what the UI
-  // clamped it to before simulating. Reading `state.stage` raw here would let a save from a
-  // content-richer build credit a clear for a stage number that does not exist, and the
-  // first-clear counter would then sit permanently above anything reachable, silently
-  // withholding every remaining bonus.
-  const current = Math.min(Math.max(Math.floor(state.stage), 1), lastStage);
-  const stage = won ? Math.min(current + 1, lastStage) : current;
+  // clamped it to before simulating. Reading the position raw here would let a save from a
+  // content-richer build credit a clear for a stage that does not exist, and the first-clear
+  // counter would then sit permanently above anything reachable, silently withholding every
+  // remaining bonus.
+  const current = stageIndex(ladder, state);
+  const position = won ? advancePosition(ladder, state) : positionAt(ladder, current);
 
   const isFirstClear = won && current > state.clearedStages;
   const bonus = isFirstClear ? result.reward.firstClearSummons : ZERO;
@@ -81,18 +96,11 @@ export function applyBattleResult(
     ...state,
     wallet,
     rates,
-    stage,
+    chapter: position.chapter,
+    stage: position.stage,
     clearedStages,
     battleCount: state.battleCount + 1,
   };
-}
-
-/** One stage's progression payload, as `reconcileClearedStages` needs it. */
-export interface StageProgressData {
-  /** The idle rates clearing this stage unlocks. */
-  readonly rates: Readonly<Partial<Rates>>;
-  /** Summon crystals paid the first time it falls, and never again. */
-  readonly firstClearSummons: Numeric;
 }
 
 /**
@@ -108,48 +116,66 @@ export interface StageProgressData {
  * player whose gold ticked up while nothing else moved, with no way back except re-fighting.
  *
  * It also seeded `clearedStages` from `stage - 1`. That is exact mid-ladder, and one short at the
- * top, because `stage` stops climbing there — so a player who had beaten every stage was recorded
- * as having beaten all but the last, and re-fighting it counted as a first clear.
+ * top, because the position stops climbing there — so a player who had beaten every stage was
+ * recorded as having beaten all but the last, and re-fighting it counted as a first clear.
  *
  * ## How the lost progress is recovered
  *
  * The surviving gold rate is the receipt. Rates only ever rise and each stage grants strictly
  * more than the one below it, so the highest stage whose gold rate the run already meets is
- * exactly how far it got. That is enough to rebuild everything the migration dropped, without
+ * roughly how far it got. That is enough to rebuild everything the migration dropped, without
  * asking the player to fight anything.
+ *
+ * ⚠️ **The receipt can only be trusted as far as the run has actually travelled, and milestone 11
+ * is when that stopped being pedantry.** A receipt is denominated in whatever the rate curve said
+ * on the day it was written, and that curve was re-derived from scratch when the ladder went from
+ * twenty-four stages to a hundred — so a veteran arriving with the old ladder's top gold rate
+ * reads, against the new curve, as somebody who has cleared the entire game. Crediting that would
+ * hand over every first-clear bonus on the ladder for stages they have never seen. So the receipt
+ * is capped at the linear index of the position the save is parked on: **a run cannot have
+ * cleared more stages than it has reached.** That is true independently of any curve, which is
+ * why it is the right guard rather than a version check.
  *
  * ## Crediting a stage means paying for it
  *
  * Marking a stage cleared without paying its first-clear bonus is worse than leaving it
  * uncredited, because `applyBattleResult` will then never pay it either — the door closes
  * silently and the crystals are gone for good. So this pays the bonus for **every stage it newly
- * credits**, which for a v2 save that had beaten the ladder is the whole 3,000: exactly what a
- * new player earns for climbing the same eight stages, which is the only fair place to land.
+ * credits**, which for a v2 save that had beaten the ladder is the whole of it: exactly what a
+ * new player earns for climbing the same stages, which is the only fair place to land.
  *
  * Stages already counted in `clearedStages` are not re-paid. That is what keeps it idempotent —
  * the second load credits nothing, so it owes nothing.
  *
- * ## It is also where the crystal rate comes from
+ * ## Rates are a function now, and that made this simpler rather than harder
  *
- * The other three rates are unlocked by stages and so can only be rebuilt from a table. The
- * crystal rate is a function of the clear count (see {@link SummonRateCurve}), which makes this
- * the natural place to evaluate it — and the only place that can, for a run that has never
- * fought: `newGame` cannot see content, so a brand-new save arrives with a zero crystal rate and
- * leaves this function earning the base.
+ * The three unlocked rates used to be re-summed out of an authored table, one `raiseRates` call
+ * per cleared stage. They are a function of the linear index and strictly increasing in it, so
+ * the top cleared stage's rates dominate every stage below it and one evaluation replaces the
+ * loop. At a hundred stages that is a tidiness; at the thousands this ladder is shaped for it is
+ * the difference between a load that is free and one that is not.
+ *
+ * The crystal rate is a function of the clear count in the same way, which makes this the natural
+ * place to evaluate it — and the only place that can, for a run that has never fought: `newGame`
+ * cannot see content, so a brand-new save arrives with a zero crystal rate and leaves this
+ * function earning the base.
  *
  * This only ever **raises** — `clearedStages` never falls, no rate is ever cut, no crystals are
  * ever taken, and a run that is already consistent comes back untouched. That is what lets it run
  * on every load, like `grantStarters`, rather than being a one-shot fix that needs its own
  * version gate.
  *
- * `stages` and `summonRate` are passed in because `core/` cannot import `data/`.
+ * Every piece of content it needs is passed in because `core/` cannot import `data/`.
  */
 export function reconcileClearedStages(
   state: GameState,
-  stages: readonly StageProgressData[],
+  ladder: LadderShape,
+  chapterCurve: ChapterCurveData,
+  rewards: StageRewardCurveData,
   summonRate: SummonRateCurve,
 ): GameState {
-  if (stages.length === 0) {
+  const total = totalStages(ladder);
+  if (total === 0) {
     // No ladder to reconcile against, but the crystal base does not come from the ladder — a
     // build shipping no stages still earns it, and returning early without it would make the
     // rate depend on content it has nothing to do with.
@@ -157,22 +183,25 @@ export function reconcileClearedStages(
     return rates === state.rates ? state : { ...state, rates };
   }
 
-  // The highest stage whose gold rate this run already meets. Ascending rates make this the
-  // count of stages cleared; a fresh run meets none of them and lands on zero.
+  // The highest stage whose gold rate this run already meets, never more than it has reached.
+  // Ascending rates make the first half a count of stages cleared; a fresh run meets none of them
+  // and lands on zero.
+  const reached = stageIndex(ladder, state);
   let earned = 0;
-  for (const [index, stage] of stages.entries()) {
-    const gold = stage.rates.gold;
-    if (gold !== undefined && gold.gt(ZERO) && state.rates.gold.gte(gold)) {
-      earned = index + 1;
+  for (let index = 1; index <= reached; index++) {
+    if (state.rates.gold.gte(num(stagePayout(rewards, index).rates.gold ?? 0))) {
+      earned = index;
     }
   }
 
-  const before = Math.min(Math.max(Math.floor(state.clearedStages), 0), stages.length);
-  const cleared = Math.min(Math.max(before, earned), stages.length);
+  const before = Math.min(Math.max(Math.floor(state.clearedStages), 0), total);
+  const cleared = Math.min(Math.max(before, earned), total);
 
+  // One evaluation rather than a sum: the rates are strictly increasing in the index, so the top
+  // cleared stage already grants at least what every stage below it did.
   let rates = state.rates;
-  for (let stage = 0; stage < cleared; stage++) {
-    rates = raiseRates(rates, stages[stage].rates);
+  if (cleared > 0) {
+    rates = raiseRates(rates, toRateAmounts(stagePayout(rewards, cleared).rates));
   }
   rates = withSummonRate(rates, summonRate, cleared);
 
@@ -180,8 +209,9 @@ export function reconcileClearedStages(
   // `clearedStages` was either fought under this build and paid, or credited by an earlier run
   // of this repair and paid then.
   let owed = ZERO;
-  for (let stage = before; stage < cleared; stage++) {
-    owed = owed.add(stages[stage].firstClearSummons);
+  for (let index = before + 1; index <= cleared; index++) {
+    const kind = kindOf(ladder, chapterCurve, index);
+    owed = owed.add(stagePayout(rewards, index, kind).firstClearSummons);
   }
 
   if (cleared === state.clearedStages && rates === state.rates && owed.lte(ZERO)) {
@@ -195,4 +225,36 @@ export function reconcileClearedStages(
     rates,
     wallet: owed.gt(ZERO) ? credit(state.wallet, { summons: owed }) : state.wallet,
   };
+}
+
+/** What kind of stage the `index`th stage of the ladder is, given how the chapters are cut. */
+function kindOf(ladder: LadderShape, chapterCurve: ChapterCurveData, index: number): StageKind {
+  const position = positionAt(ladder, index);
+  return stageKindAt(chapterCurve, stagesInChapter(ladder, position.chapter), position.stage);
+}
+
+/**
+ * A payout's authored rates, as the `Numeric` partial `raiseRates` compares against.
+ *
+ * Deliberately narrow: `raiseRates` is keyed by every rate-bearing currency including `summons`,
+ * and the crystal rate is emphatically not a per-stage unlock — letting one through here would
+ * put a second mechanism on the same number, with whichever happened to be larger silently
+ * winning.
+ */
+function toRateAmounts(rates: {
+  readonly gold?: AuthoredAmount;
+  readonly xp?: AuthoredAmount;
+  readonly essence?: AuthoredAmount;
+}): Readonly<Partial<Rates>> {
+  const offered: { gold?: Numeric; xp?: Numeric; essence?: Numeric } = {};
+  if (rates.gold !== undefined) {
+    offered.gold = num(rates.gold);
+  }
+  if (rates.xp !== undefined) {
+    offered.xp = num(rates.xp);
+  }
+  if (rates.essence !== undefined) {
+    offered.essence = num(rates.essence);
+  }
+  return offered;
 }

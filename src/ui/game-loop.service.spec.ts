@@ -120,10 +120,13 @@ describe('GameLoopService', () => {
     loop.stop();
   });
 
-  it('REFUSES to persist over a save it could not read', async () => {
-    // The highest-stakes rule in the UI. A save this build cannot read is usually a newer
-    // build's save, which is still perfectly good once the player updates. Writing over it
-    // would destroy a working run to no benefit.
+  it('persists over a save it could not read, and says that it could not', async () => {
+    // ⚠️ **This assertion is the inverse of the one it replaced, deliberately.** The loop used to
+    // refuse to write while `fatal` was set, on the grounds that the bytes were probably a newer
+    // build's save and would be good again after an update. The v0 reset retired that: a run that
+    // plays normally and silently never writes anything down is the worse failure of the two, and
+    // the one a player actually hits. `SaveService.load` has already tried the backup slot by
+    // this point, so what gets overwritten is a save neither slot could read.
     const { loop, saves } = build((s) => {
       s.loadResult = {
         state: newGame({ seed: 1, nowMs: T0 }),
@@ -135,7 +138,9 @@ describe('GameLoopService', () => {
 
     await loop.persist();
 
-    expect(saves.saved).toHaveLength(0);
+    expect(saves.saved).toHaveLength(1);
+    // Still reported, because the difference between "my run vanished" and "my save could not be
+    // read, here is a fresh one" is the difference between a bug report and a mystery.
     expect(loop.loadFailure()).toMatch(/newer than this build/);
     loop.stop();
   });

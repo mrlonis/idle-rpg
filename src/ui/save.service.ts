@@ -114,9 +114,10 @@ export class SaveService {
    * The state is written exactly as given — `lastTickAt` is maintained by the game loop as
    * it simulates, and restamping it here would silently discard the sub-step remainder.
    *
-   * `fatal` loads must not reach here: a save this build cannot read (because it came from a
-   * newer build) is still perfectly good once the player updates, and overwriting it would
-   * destroy a working run. `GameLoopService` enforces that.
+   * **A run that started fresh because the save was unreadable writes over it like any other.**
+   * That reversed with the v0 reset: `fatal` used to bar the way here, on the grounds that the
+   * bytes might belong to a newer build. {@link load} still tries the backup slot before ever
+   * reaching that point, so what is overwritten is a save neither slot could read.
    *
    * ## Two writes must never be in flight together
    *
