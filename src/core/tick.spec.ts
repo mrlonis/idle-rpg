@@ -80,6 +80,32 @@ describe('tick', () => {
 
     expect(tick(state, 5000).lastTickAt).toBe(T0);
   });
+
+  it('carries every field but the wallet through untouched', () => {
+    // `tick` writes its result out field by field rather than spreading, for the reason given in
+    // its doc comment. TypeScript catches a field that is *missing* from that literal; nothing but
+    // this catches one that is present and wrong — `pity: state.pullCount` type-checks perfectly.
+    //
+    // Distinct values per field, so a crossed pair cannot coincidentally agree.
+    const state: GameState = {
+      ...stateWithRate('10'),
+      lastTickAt: T0 + 11,
+      stage: 12,
+      clearedStages: 13,
+      battleCount: 14,
+      pity: 15,
+      pullCount: 16,
+      rng: { seed: 17, calls: 18 },
+      formation: { front: ['bran'], back: ['rin'] },
+    };
+
+    const next = tick(state, 1000);
+
+    expect(next.wallet.gold.toString()).toBe('10');
+    // Everything else, compared against the original as a whole: a new field added to `GameState`
+    // and mishandled here fails this without anyone having to remember to extend the list.
+    expect({ ...next, wallet: state.wallet }).toEqual(state);
+  });
 });
 
 describe('stampSaveTime', () => {
