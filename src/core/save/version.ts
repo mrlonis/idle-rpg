@@ -14,5 +14,11 @@
  *
  * **One above it because milestone 12 added gear.** v0 → v1 is additive and is the first entry the
  * chain walker has ever had to walk.
+ *
+ * **Two because the copies-only rewrite grew the ladder a bottom.** v1 → v2 is the first migration here that
+ * *reinterprets* a field rather than adding one: two rungs went in below `rare`, so every stored
+ * rarity index means a rung two lower than it did. That is the failure mode `RARITIES` is now
+ * commented against — an insert anywhere but the top of that array is a save migration, not a
+ * content edit.
  */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;

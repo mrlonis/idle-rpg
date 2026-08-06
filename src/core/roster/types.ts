@@ -18,23 +18,35 @@ import { CHARACTER_TIERS, type CharacterTier } from '../growth';
  * how fast it grows per level. Within a tier, characters are sidegrades — the best answer to
  * different encounters, not rungs above one another.
  *
- * **Rarity** is how far that character has been ascended, from `rare` to `ascended-5`, and it
+ * **Rarity** is how far that character has been ascended, from `common` to `ascended-5`, and it
  * is a genuine vertical power axis bought with duplicate copies.
  *
- * The two axes deliberately share two words: a `legendary`-tier character and the `legendary`
- * rarity are unrelated, and so are `ascended`-tier and the `ascended` rarity. That collision
- * is inherited from the genre's vocabulary and kept because renaming either one would make
- * every conversation about the game translate through a glossary. The type system keeps them
- * apart — {@link CharacterTier} and {@link RarityId} are not assignable to one another — so
+ * The two axes deliberately share all three tier words: a `legendary`-tier character and the
+ * `legendary` rarity are unrelated, and so are `common`/`common` and `ascended`/`ascended`. That
+ * collision is inherited from the genre's vocabulary and kept because renaming either one would
+ * make every conversation about the game translate through a glossary. The type system keeps
+ * them apart — {@link CharacterTier} and {@link RarityId} are not assignable to one another — so
  * the only place the ambiguity can bite is prose, and the prose says which one it means.
+ *
+ * `common` became the third collision when the ladder grew a bottom; before that it was the one
+ * tier word that was only ever a tier. The rule that survived it: **never write either word
+ * bare.** "A common-tier character", or "a character at common rarity" — never "a common".
  */
 
 /**
  * The ascension ladder, in order. An index into this array **is** a rarity: comparisons,
  * clamping and cost arithmetic are all done on the index, and the string is for display and
  * for authoring.
+ *
+ * ⚠️ **This array's indices are written into every save**, as `OwnedCharacter.rarity`. Inserting
+ * a rung anywhere but the top renumbers every rung above it, which turns every stored rarity
+ * into a claim about a different rung — silently, and in the player's favour or against it
+ * depending on the direction. That is what `migrateV1ToV2` exists for; a future insert needs
+ * the same treatment and is not a `data/` edit.
  */
 export const RARITIES = [
+  'common',
+  'common-plus',
   'rare',
   'rare-plus',
   'elite',
@@ -57,15 +69,26 @@ export type RarityId = (typeof RARITIES)[number];
 export const MAX_RARITY_INDEX = RARITIES.length - 1;
 
 /**
- * The five families the fourteen rungs group into, for anything that treats `rare` and
+ * The six families the sixteen rungs group into, for anything that treats `rare` and
  * `rare-plus` as the same kind of thing.
  *
  * A rung's suffix — `-plus`, or a star count — is a step *within* a family rather than a new
- * one, which is why the ladder has fourteen entries and this has five. `rarity.spec.ts`
+ * one, which is why the ladder has sixteen entries and this has six. `rarity.spec.ts`
  * asserts every entry in {@link RARITIES} strips to one of these, so adding a rung without
  * deciding which family it belongs to is a failing test rather than a silent gap downstream.
+ *
+ * **`common` is a family here and a {@link CharacterTier} elsewhere**, which makes it the third
+ * word this project spends on both axes. See [glossary](../../../docs/glossary.md); the prose
+ * rule is that neither word is ever written bare.
  */
-export const RARITY_FAMILIES = ['rare', 'elite', 'legendary', 'mythic', 'ascended'] as const;
+export const RARITY_FAMILIES = [
+  'common',
+  'rare',
+  'elite',
+  'legendary',
+  'mythic',
+  'ascended',
+] as const;
 
 export type RarityFamily = (typeof RARITY_FAMILIES)[number];
 
@@ -83,61 +106,46 @@ export { CHARACTER_TIERS, type CharacterTier };
 /**
  * Which ascension ladder a character walks, decided by its faction.
  *
- * - `mortal` — Humans, Dwarves, Elves, Undead and Monsters. Several rungs are paid for with
- *   **same-faction fodder**: other characters of that faction, themselves ascended to the
- *   required rarity and then consumed. This is the expensive path, and the reason a faction
- *   needs bodies in it rather than one favourite.
- * - `celestial` — Angels and Demons. Every rung is paid for with copies of the character
- *   itself. No fodder at any point, which makes them cheaper in bodies and far more
- *   expensive in luck.
+ * Both ladders are paid in copies of the character itself and nothing else. What separates them
+ * is how many:
+ *
+ * - `mortal` — Humans, Dwarves, Elves, Undead and Monsters. The cheaper climb.
+ * - `celestial` — Angels and Demons. Roughly twice the copies above `elite`, which is what the
+ *   celestial advantage in combat is paid for with.
+ *
+ * ## What this used to be, and why the difference is worth knowing
+ *
+ * The mortal ladder used to spend **same-faction fodder**: four of its rungs were paid with other
+ * characters of the faction, themselves ascended to a required rarity and then consumed. That was
+ * the single largest source of complexity in `core/roster/` — a rung's price was quoted in
+ * *ascended* copies and had to be resolved recursively into the base copies a player actually
+ * holds, which is why {@link AscensionLadder} was a nested structure and the cost type was a
+ * two-part sum.
+ *
+ * It bought one real thing: a spare copy of a character you would never play was still worth
+ * something, because it was fodder. The cost of removing it is that such a copy is now inert
+ * until that character is worth ascending on its own. The cost of keeping it was a system where
+ * `common`-tier characters — the ones with no fodder tier beneath them — were priced through a
+ * recursion nobody could evaluate by eye.
  */
 export type AscensionPath = 'mortal' | 'celestial';
 
-/** Where the copies for one rung come from. */
-export type AscensionScope =
-  /** Copies of the character being ascended. */
-  | 'self'
-  /** Copies of any character sharing its faction. The player chooses which. */
-  | 'faction';
-
-/** One clause of a rung's price: so many copies, of this kind, at this rarity. */
-export interface AscensionRequirement {
-  readonly scope: AscensionScope;
-  /** Index into {@link RARITIES} the consumed copies must already have reached. */
-  readonly rarity: number;
-  readonly count: number;
-}
-
 /**
- * The price of every rung, indexed by the rarity being ascended **from**.
+ * The price of every rung in **base copies of the character itself**, indexed by the rarity
+ * being ascended **from**.
  *
  * Length is `RARITIES.length - 1`: there is no step off the top of the ladder.
+ *
+ * A flat count, deliberately. The number authored here is the number of copies the player
+ * spends — there is no resolution step between the table and the cost, so retuning a rung is
+ * arithmetic anyone can do in their head against {@link RARITIES}.
  */
-export type AscensionLadder = readonly (readonly AscensionRequirement[])[];
+export type AscensionLadder = readonly number[];
 
 /** Both ladders, as authored in `data/`. */
 export interface AscensionRules {
   readonly mortal: AscensionLadder;
   readonly celestial: AscensionLadder;
-}
-
-/**
- * What it costs to produce one character at a given rarity, counted in **base copies** —
- * copies as they arrive from a pull, before any ascension.
- *
- * Split in two because the two halves are not interchangeable. `self` can only be satisfied
- * by copies of that exact character, which is what makes an unlucky banner painful; `faction`
- * can be satisfied by any faction-mate, which is what makes a broad roster valuable.
- */
-export interface CopyCost {
-  /** Base copies of the character itself. */
-  readonly self: number;
-  /**
-   * Base copies of same-faction characters, priced as `rare`-start fodder.
-   *
-   * Always zero on the `celestial` ladder, which never asks for fodder.
-   */
-  readonly faction: number;
 }
 
 /** A faction as authored in `data/`. Plain data: the path is a property of the faction. */

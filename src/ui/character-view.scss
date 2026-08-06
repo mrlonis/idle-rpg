@@ -196,10 +196,9 @@
   color: t.$accent;
 }
 
-// Every list on this screen is a stripped `<ul>` stacked vertically — the ascension price, the
-// fodder pool, the kit. Only the spacing differs, so only the spacing is written per list.
+// Every list on this screen is a stripped `<ul>` stacked vertically — the ascension price and
+// the kit. Only the spacing differs, so only the spacing is written per list.
 .ascend__costs,
-.ascend__pool,
 .skills {
   display: flex;
   flex-direction: column;
@@ -233,21 +232,6 @@
 .ascend__value {
   @include t.numeric;
   font-weight: 700;
-}
-
-.ascend__pool {
-  gap: 0.25rem;
-}
-
-.ascend__pool-item {
-  font-size: 0.8125rem;
-  color: t.$muted;
-  @include t.numeric;
-}
-
-.ascend__weight {
-  margin-left: 0.25rem;
-  font-style: italic;
 }
 
 .notice {

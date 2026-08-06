@@ -14,6 +14,7 @@ import {
   TEST_GACHA,
   TEST_GAMMA,
 } from '../roster/fixtures';
+import { startRarityIndex } from '../roster/rarity';
 import { MAX_RARITY_INDEX } from '../roster/types';
 import { newGame, type GameState } from '../state';
 import { ascendedChance, pull } from './pull';
@@ -217,7 +218,9 @@ describe('what a pull produces', () => {
     const { state, results } = draw(run(), 1, only(TEST_GAMMA.id));
 
     expect(results[0].isNew).toBe(true);
-    expect(state.roster).toEqual([{ defId: 'gamma', rarity: 2, level: 1, copies: 0, gear: {} }]);
+    expect(state.roster).toEqual([
+      { defId: 'gamma', rarity: startRarityIndex('ascended'), level: 1, copies: 0, gear: {} },
+    ]);
   });
 
   it('banks a duplicate as a spare copy rather than a second entry', () => {
@@ -307,43 +310,55 @@ describe('the elite upgrade', () => {
   const always: GachaRulesData = { ...TEST_GACHA, eliteUpgradeChance: 1 };
   const never: GachaRulesData = { ...TEST_GACHA, eliteUpgradeChance: 0 };
 
+  const ELITE = startRarityIndex('ascended');
+  const RARE = startRarityIndex('legendary');
+
   it('lands a new legendary-tier character at Elite rather than Rare', () => {
     const { state, results } = draw(run(), 1, only(TEST_BETA.id), always);
 
-    expect(results[0].rarity).toBe(2);
-    expect(state.roster[0].rarity).toBe(2);
+    expect(results[0].rarity).toBe(ELITE);
+    expect(state.roster[0].rarity).toBe(ELITE);
   });
 
   it('pays a duplicate the copies it would have taken to get there', () => {
-    // Quoted in the character's own copies, because that is the shortage the upgrade relieves —
-    // three on the mortal ladder, where the faction fodder is a separate problem.
+    // Worth a great deal: the rungs below Elite are deliberately the expensive stretch, because
+    // they are the only thing separating what a common-tier climb costs from an ascended-tier
+    // one. Five on the fixture ladder — the two rungs from Rare to Elite.
     const state = run({ roster: [owned(TEST_BETA, 0)] });
 
     const { state: next, results } = draw(state, 1, only(TEST_BETA.id), always);
 
-    expect(results[0].copies).toBe(3);
-    expect(next.roster[0].copies).toBe(3);
+    expect(results[0].copies).toBe(5);
+    expect(next.roster[0].copies).toBe(5);
   });
 
-  it('costs a celestial character more of its own copies, since its ladder is all self', () => {
-    const state = run({ roster: [owned(TEST_EPSILON, 0)] });
+  it('is worth the same on either ladder, because they only differ above Elite', () => {
+    // The two paths are identical below Elite on purpose: those rungs are the *tier* gap, not the
+    // path difference, and a celestial common-tier character is common-tier for the same reason
+    // everyone else's is. This used to be the opposite assertion — the celestial ladder charged
+    // 9 against the mortal ladder's 3, because only the celestial one paid in its own copies.
+    const mortal = draw(run({ roster: [owned(TEST_BETA, 0)] }), 1, only(TEST_BETA.id), always);
+    const celestial = draw(
+      run({ roster: [owned(TEST_EPSILON, 0)] }),
+      1,
+      only(TEST_EPSILON.id),
+      always,
+    );
 
-    const { results } = draw(state, 1, only(TEST_EPSILON.id), always);
-
-    expect(results[0].copies).toBe(9);
+    expect(celestial.results[0].copies).toBe(mortal.results[0].copies);
   });
 
   it('never upgrades an ascended-tier result, which already starts at Elite', () => {
     const { results } = draw(run(), 1, only(TEST_GAMMA.id), always);
 
-    expect(results[0].rarity).toBe(2);
+    expect(results[0].rarity).toBe(ELITE);
     expect(results[0].copies).toBe(1);
   });
 
   it('leaves a legendary-tier result at Rare when it does not fire', () => {
     const { results } = draw(run(), 1, only(TEST_BETA.id), never);
 
-    expect(results[0].rarity).toBe(0);
+    expect(results[0].rarity).toBe(RARE);
     expect(results[0].copies).toBe(1);
   });
 

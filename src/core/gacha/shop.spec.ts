@@ -4,12 +4,29 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
-import { owned, TEST_ALPHA, TEST_CHARACTERS, TEST_GAMMA, TEST_ZETA } from '../roster/fixtures';
+import {
+  owned,
+  TEST_ALPHA,
+  TEST_BETA,
+  TEST_CHARACTERS,
+  TEST_GAMMA,
+  TEST_ZETA,
+} from '../roster/fixtures';
+import { startRarityIndex } from '../roster/rarity';
 import { findOwned } from '../roster/roster';
 import { newGame, type GameState } from '../state';
 import { isEligible, offerTargets, purchase, type ShopOfferData } from './shop';
 
 const T0 = 1_700_000_000_000;
+
+const COMMON_COPY: ShopOfferData = {
+  id: 'common-copy',
+  name: 'Common copy',
+  description: '',
+  kind: 'copy',
+  rarity: 'common',
+  cost: 3,
+};
 
 const RARE_COPY: ShopOfferData = {
   id: 'rare-copy',
@@ -43,8 +60,16 @@ function run(spark: number, overrides: Partial<GameState> = {}): GameState {
 }
 
 describe('isEligible', () => {
-  it('lets a rare-copy offer target rare-start characters only', () => {
-    expect(isEligible(RARE_COPY, TEST_ALPHA)).toBe(true);
+  it('matches each copy offer to exactly the one tier that starts on its rung', () => {
+    // An equality test rather than a threshold, so the cheap offer can never be spent on a
+    // character the expensive one is priced for. The three tiers now start on three different
+    // rungs, so there is one offer each and no overlap anywhere.
+    expect(isEligible(COMMON_COPY, TEST_ALPHA)).toBe(true);
+    expect(isEligible(COMMON_COPY, TEST_BETA)).toBe(false);
+    expect(isEligible(COMMON_COPY, TEST_GAMMA)).toBe(false);
+
+    expect(isEligible(RARE_COPY, TEST_ALPHA)).toBe(false);
+    expect(isEligible(RARE_COPY, TEST_BETA)).toBe(true);
     expect(isEligible(RARE_COPY, TEST_GAMMA)).toBe(false);
   });
 
@@ -52,6 +77,7 @@ describe('isEligible', () => {
     expect(isEligible(ELITE_COPY, TEST_GAMMA)).toBe(true);
     expect(isEligible(ELITE_COPY, TEST_ZETA)).toBe(true);
     expect(isEligible(ELITE_COPY, TEST_ALPHA)).toBe(false);
+    expect(isEligible(ELITE_COPY, TEST_BETA)).toBe(false);
   });
 
   it('lets a character offer target anyone', () => {
@@ -64,7 +90,7 @@ describe('offerTargets', () => {
   it('offers copies only of characters already owned', () => {
     const state = run(0, { roster: [owned(TEST_ALPHA)] });
 
-    expect(offerTargets(state, RARE_COPY, TEST_CHARACTERS).map((c) => c.id)).toEqual(['alpha']);
+    expect(offerTargets(state, COMMON_COPY, TEST_CHARACTERS).map((c) => c.id)).toEqual(['alpha']);
   });
 
   it('offers recruits only of characters not yet owned', () => {
@@ -85,12 +111,12 @@ describe('purchase', () => {
   it('grants a copy and charges the spark', () => {
     const state = run(100, { roster: [owned(TEST_ALPHA, 2)] });
 
-    const result = purchase(state, RARE_COPY, 'alpha', TEST_CHARACTERS);
+    const result = purchase(state, COMMON_COPY, 'alpha', TEST_CHARACTERS);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(findOwned(result.state, 'alpha')?.copies).toBe(3);
-      expect(result.state.wallet.spark.eq(92)).toBe(true);
+      expect(result.state.wallet.spark.eq(97)).toBe(true);
     }
   });
 
@@ -99,15 +125,15 @@ describe('purchase', () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(findOwned(result.state, 'gamma')?.rarity).toBe(2);
+      expect(findOwned(result.state, 'gamma')?.rarity).toBe(startRarityIndex('ascended'));
       expect(result.state.wallet.spark.eq(60)).toBe(true);
     }
   });
 
   it('refuses without enough spark', () => {
-    const state = run(7, { roster: [owned(TEST_ALPHA)] });
+    const state = run(2, { roster: [owned(TEST_ALPHA)] });
 
-    expect(purchase(state, RARE_COPY, 'alpha', TEST_CHARACTERS)).toEqual({
+    expect(purchase(state, COMMON_COPY, 'alpha', TEST_CHARACTERS)).toEqual({
       ok: false,
       reason: 'insufficient-currency',
     });
@@ -123,7 +149,7 @@ describe('purchase', () => {
   });
 
   it('refuses to buy a copy of someone not owned', () => {
-    expect(purchase(run(100), RARE_COPY, 'alpha', TEST_CHARACTERS)).toEqual({
+    expect(purchase(run(100), COMMON_COPY, 'alpha', TEST_CHARACTERS)).toEqual({
       ok: false,
       reason: 'not-owned',
     });

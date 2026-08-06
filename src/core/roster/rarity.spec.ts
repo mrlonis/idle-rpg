@@ -7,8 +7,8 @@ import {
   ascensionCost,
   clampRarityIndex,
   copyCost,
-  fodderBaseCopies,
   fullAscensionCost,
+  growthFloor,
   rarityAt,
   rarityFamily,
   rarityIndex,
@@ -27,53 +27,27 @@ import {
  * A synthetic ladder, not the shipped one.
  *
  * `core/` may not import `data/` — content arrives as an argument precisely so the algorithm can
- * be driven from fixtures — so this spec proves the **cost resolution** and `data/ascension.spec.ts`
- * proves the shipped tables derive to their design targets. Splitting them that way means a
- * retune of the content cannot break a test of the arithmetic, or the other way round.
+ * be driven from fixtures — so this spec proves the **cost arithmetic** and `data/ascension.spec.ts`
+ * proves the shipped tables hit their design targets. Splitting them that way means a retune of
+ * the content cannot break a test of the arithmetic, or the other way round.
  *
- * The shape mirrors the real mortal ladder closely enough to exercise every branch: self clauses,
- * faction clauses, and a run of identical star rungs.
+ * The numbers are deliberately distinct per rung, so an off-by-one in the indexing shows up as a
+ * wrong total rather than hiding inside a run of equal values. They are also deliberately *not*
+ * the shipped ones, so a copy of the real table into a spec would be visible.
  */
 const FIXTURE: AscensionRules = {
-  mortal: [
-    [{ scope: 'self', rarity: 0, count: 2 }], // rare → rare+
-    [{ scope: 'faction', rarity: 1, count: 2 }], // rare+ → elite
-    [{ scope: 'self', rarity: 2, count: 1 }], // elite → elite+
-    [{ scope: 'faction', rarity: 3, count: 2 }], // elite+ → legendary
-    [{ scope: 'self', rarity: 3, count: 1 }], // legendary → legendary+
-    [{ scope: 'faction', rarity: 5, count: 1 }], // legendary+ → mythic
-    [{ scope: 'faction', rarity: 5, count: 1 }], // mythic → mythic+
-    [{ scope: 'self', rarity: 3, count: 2 }], // mythic+ → ascended
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-  ],
-  celestial: [
-    [{ scope: 'self', rarity: 0, count: 2 }],
-    [{ scope: 'self', rarity: 1, count: 2 }],
-    [{ scope: 'self', rarity: 2, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 2 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-  ],
+  //  common  common+  rare  rare+ │ elite  elite+  leg  leg+  myth  myth+ │ ★1 ★2 ★3 ★4 ★5
+  mortal: [7, 9, 3, 5, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
+  celestial: [7, 9, 3, 5, 1, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2],
 };
 
 const ELITE = rarityIndex('elite');
 const ASCENDED = rarityIndex('ascended');
 
 describe('the ladder', () => {
-  it('is fourteen rungs from rare to ascended-5', () => {
-    expect(RARITIES).toHaveLength(14);
-    expect(RARITIES[0]).toBe('rare');
+  it('is sixteen rungs from common to ascended-5', () => {
+    expect(RARITIES).toHaveLength(16);
+    expect(RARITIES[0]).toBe('common');
     expect(RARITIES[MAX_RARITY_INDEX]).toBe('ascended-5');
   });
 
@@ -84,13 +58,31 @@ describe('the ladder', () => {
     expect(clampRarityIndex(4.7)).toBe(4);
   });
 
-  it('starts ascended-tier characters at elite and everyone else at rare', () => {
+  it('starts each of the three tiers on a rung of its own', () => {
+    // The whole tier gap lives here. Every rung costs every character the same, so what a tier is
+    // worth in copies is exactly the rungs it never has to climb.
     expect(startRarityIndex('ascended')).toBe(ELITE);
-    expect(startRarityIndex('legendary')).toBe(0);
+    expect(startRarityIndex('legendary')).toBe(rarityIndex('rare'));
     expect(startRarityIndex('common')).toBe(0);
   });
 
+  it('anchors the stat ladder at rare, two rungs above where a common-tier character starts', () => {
+    // ⚠️ The load-bearing asymmetry. `startRarityIndex` says where a tier joins the ladder;
+    // `growthFloor` says where its multiplier starts counting. They differ only for common tier,
+    // and only because the two rungs below `rare` were added to make that tier cost more rather
+    // than to make it stronger. Paying them a multiplier would make every common-tier character
+    // ×perAscension² stronger at every rarity and put the whole stage ladder out of tune.
+    expect(growthFloor('common')).toBe(rarityIndex('rare'));
+    expect(startRarityIndex('common')).toBe(rarityIndex('common'));
+
+    // The other two tiers start at or above `rare`, so nothing about them moved.
+    expect(growthFloor('legendary')).toBe(startRarityIndex('legendary'));
+    expect(growthFloor('ascended')).toBe(startRarityIndex('ascended'));
+  });
+
   it('labels rungs the way the UI shows them', () => {
+    expect(rarityLabel(rarityIndex('common'))).toBe('Common');
+    expect(rarityLabel(rarityIndex('common-plus'))).toBe('Common+');
     expect(rarityLabel(rarityIndex('rare'))).toBe('Rare');
     expect(rarityLabel(rarityIndex('rare-plus'))).toBe('Rare+');
     expect(rarityLabel(rarityIndex('legendary-plus'))).toBe('Legendary+');
@@ -105,112 +97,93 @@ describe('the ladder', () => {
 });
 
 /**
- * The heart of it: rungs are quoted in **ascended** copies, and a player only ever holds base
- * ones. Every requirement therefore has to be resolved recursively, and these are the numbers
- * that recursion produces.
+ * A rung costs a flat number of copies of the character itself, so the whole of the arithmetic is
+ * a lookup and a sum over a slice. These are the properties that has to keep.
  */
-describe('resolving rungs into base copies', () => {
-  it('costs one copy to be at a rarity already reached', () => {
-    expect(copyCost(FIXTURE, 'mortal', ELITE, ELITE)).toEqual({ self: 1, faction: 0 });
-    expect(copyCost(FIXTURE, 'mortal', ELITE, 0)).toEqual({ self: 1, faction: 0 });
+describe('what a climb costs in base copies', () => {
+  it('costs nothing more to be at a rarity already reached', () => {
+    expect(copyCost(FIXTURE, 'mortal', ELITE, ELITE)).toBe(0);
+    expect(copyCost(FIXTURE, 'mortal', ELITE, 0)).toBe(0);
   });
 
-  it('resolves a self clause into the full cost of building that copy', () => {
-    // `rare → rare+` asks for 2 more copies at rare, each costing exactly itself.
-    expect(copyCost(FIXTURE, 'mortal', 0, 1)).toEqual({ self: 3, faction: 0 });
+  it('reads a single rung straight off the table', () => {
+    expect(ascensionCost(FIXTURE, 'mortal', 0)).toBe(7);
+    expect(ascensionCost(FIXTURE, 'mortal', 1)).toBe(9);
+    expect(ascensionCost(FIXTURE, 'celestial', ELITE)).toBe(1);
   });
 
-  it('resolves a faction clause into fodder priced from the bottom of the ladder', () => {
-    // `rare+ → elite` asks for 2 faction-mates at rare+, and each of those is 3 rare copies.
-    expect(copyCost(FIXTURE, 'mortal', 0, 2)).toEqual({ self: 3, faction: 6 });
+  it('sums a span of rungs', () => {
+    // The two rungs below rare, then the two below elite.
+    expect(copyCost(FIXTURE, 'mortal', 0, 2)).toBe(16);
+    expect(copyCost(FIXTURE, 'mortal', 0, ELITE)).toBe(24);
   });
 
-  it('keeps the two halves separate, because they are not interchangeable', () => {
-    // The `self` half can only ever be paid by that exact character — which is what makes an
-    // unlucky banner painful — and the `faction` half by anyone sharing its faction.
-    const cost = copyCost(FIXTURE, 'mortal', ELITE, ASCENDED);
-
-    expect(cost.self).toBeGreaterThan(0);
-    expect(cost.faction).toBeGreaterThan(0);
-  });
-
-  it('charges a celestial ladder entirely in the character itself', () => {
-    for (let from = 0; from < MAX_RARITY_INDEX; from++) {
-      expect(ascensionCost(FIXTURE, 'celestial', 0, from)?.faction).toBe(0);
-    }
-    expect(copyCost(FIXTURE, 'celestial', ELITE, ASCENDED).faction).toBe(0);
-  });
-
-  it('prices a rare-start character the same whether it is ascending or being fed', () => {
-    // A character being ascended and a character being fed to something else walk the same
-    // ladder, so the two prices have to agree. If they ever diverge, one of them is wrong.
-    for (let target = 0; target <= MAX_RARITY_INDEX; target++) {
-      const cost = copyCost(FIXTURE, 'mortal', 0, target);
-      expect(cost.self + cost.faction).toBe(fodderBaseCopies(FIXTURE, target));
-    }
+  it('charges the celestial ladder more above elite and the same below it', () => {
+    // The four rungs below elite are the tier gap, and a celestial common-tier character is
+    // common-tier for the same reason everyone else's is. Charging twice for that would be
+    // charging twice for one thing.
+    expect(copyCost(FIXTURE, 'celestial', 0, ELITE)).toBe(copyCost(FIXTURE, 'mortal', 0, ELITE));
+    expect(copyCost(FIXTURE, 'celestial', ELITE, ASCENDED)).toBeGreaterThan(
+      copyCost(FIXTURE, 'mortal', ELITE, ASCENDED),
+    );
   });
 
   it('rises monotonically up the ladder', () => {
     let previous = 0;
     for (let target = ELITE; target <= MAX_RARITY_INDEX; target++) {
-      const cost = copyCost(FIXTURE, 'mortal', ELITE, target);
-      const total = cost.self + cost.faction;
+      const total = copyCost(FIXTURE, 'mortal', ELITE, target);
       expect(total).toBeGreaterThanOrEqual(previous);
       previous = total;
     }
   });
 
   it('has no rung above the top of the ladder', () => {
-    expect(ascensionCost(FIXTURE, 'mortal', ELITE, MAX_RARITY_INDEX)).toBeUndefined();
+    expect(ascensionCost(FIXTURE, 'mortal', MAX_RARITY_INDEX)).toBeUndefined();
   });
 
-  it('sums the per-rung costs back to the cumulative cost', () => {
-    let self = 1;
-    let faction = 0;
+  it('sums the per-rung costs back to the full climb, plus the first copy', () => {
+    // `fullAscensionCost` counts the copy that got the character onto the ladder, because that is
+    // the number a player would count: how many of this character do I have to see in total.
+    let total = 1;
     for (let from = ELITE; from < MAX_RARITY_INDEX; from++) {
-      const step = ascensionCost(FIXTURE, 'mortal', ELITE, from);
-      self += step?.self ?? 0;
-      faction += step?.faction ?? 0;
+      total += ascensionCost(FIXTURE, 'mortal', from) ?? 0;
     }
-    expect({ self, faction }).toEqual(fullAscensionCost(FIXTURE, 'mortal', 'ascended'));
+    expect(total).toBe(fullAscensionCost(FIXTURE, 'mortal', 'ascended'));
   });
 
-  it('makes a rare-start character cost more than an elite-start one to max', () => {
-    // The ascended tier's head start is most of what it is worth: the two rungs it skips are the
-    // ones paid for with the largest volume of bodies.
-    const rareStart = fullAscensionCost(FIXTURE, 'mortal', 'common');
-    const eliteStart = fullAscensionCost(FIXTURE, 'mortal', 'ascended');
+  it('prices the three tiers apart by exactly the rungs each one skips', () => {
+    const common = fullAscensionCost(FIXTURE, 'mortal', 'common');
+    const legendary = fullAscensionCost(FIXTURE, 'mortal', 'legendary');
+    const ascended = fullAscensionCost(FIXTURE, 'mortal', 'ascended');
 
-    expect(rareStart.self).toBeGreaterThan(eliteStart.self);
-    expect(rareStart.faction).toBeGreaterThan(eliteStart.faction);
+    expect(common).toBeGreaterThan(legendary);
+    expect(legendary).toBeGreaterThan(ascended);
+    expect(common - legendary).toBe(copyCost(FIXTURE, 'mortal', 0, rarityIndex('rare')));
+    expect(legendary - ascended).toBe(copyCost(FIXTURE, 'mortal', rarityIndex('rare'), ELITE));
   });
 
-  it('ignores a rung with a non-positive count instead of charging for it', () => {
-    const zeroed: AscensionRules = {
-      mortal: [[{ scope: 'self', rarity: 0, count: 0 }], ...FIXTURE.mortal.slice(1)],
-      celestial: FIXTURE.celestial,
-    };
+  it('treats a rung a short ladder does not author as free rather than throwing', () => {
+    // A fixture ladder is allowed to be short. A missing rung that reads as free is a visibly
+    // wrong number a spec can catch, which is the better failure than a crash on a device.
+    const short: AscensionRules = { mortal: [4, 4], celestial: [] };
 
-    expect(copyCost(zeroed, 'mortal', 0, 1)).toEqual({ self: 1, faction: 0 });
+    expect(ascensionCost(short, 'mortal', 9)).toBe(0);
+    expect(copyCost(short, 'mortal', 0, MAX_RARITY_INDEX)).toBe(8);
   });
 
-  it('terminates on a malformed ladder instead of hanging', () => {
-    // A rung that asks for a copy at or above its own target rarity is a cycle. Authored content
-    // is repo content, so this is a bug for a spec to catch — but it must surface as a wrong
-    // number rather than as a frozen device.
-    const cyclic: AscensionRules = {
-      mortal: [[{ scope: 'self', rarity: 5, count: 1 }], [], [], [], [], [], [], [], [], [], []],
-      celestial: [],
-    };
+  it('never charges a negative or fractional number of copies', () => {
+    const damaged: AscensionRules = { mortal: [-5, 2.7, Number.NaN], celestial: [] };
 
-    expect(() => copyCost(cyclic, 'mortal', 0, 6)).not.toThrow();
+    expect(ascensionCost(damaged, 'mortal', 0)).toBe(0);
+    expect(ascensionCost(damaged, 'mortal', 1)).toBe(2);
+    expect(ascensionCost(damaged, 'mortal', 2)).toBe(0);
   });
 });
 
 describe('rarity families', () => {
   it('sorts every rung on the ladder into a known family', () => {
-    // Derived from RARITIES rather than from a retyped list, so a fourteenth-and-a-half rung
-    // added without deciding its family fails here instead of rendering uncoloured.
+    // Derived from RARITIES rather than from a retyped list, so a rung added without deciding
+    // its family fails here instead of rendering uncoloured.
     const families = RARITIES.map((_, index) => rarityFamily(index));
 
     expect(families).toHaveLength(RARITIES.length);
@@ -243,6 +216,8 @@ describe('rarity families', () => {
   it('names the family every rung starts in', () => {
     const at = (id: string): RarityFamily => rarityFamily(rarityIndex(id));
 
+    expect(at('common')).toBe('common');
+    expect(at('common-plus')).toBe('common');
     expect(at('rare')).toBe('rare');
     expect(at('elite-plus')).toBe('elite');
     expect(at('legendary')).toBe('legendary');
@@ -252,8 +227,8 @@ describe('rarity families', () => {
 
   it('clamps an out-of-range index rather than throwing', () => {
     // Same contract as rarityAt: a damaged save yields the bottom rung, not an exception.
-    expect(rarityFamily(-5)).toBe('rare');
+    expect(rarityFamily(-5)).toBe('common');
     expect(rarityFamily(999)).toBe('ascended');
-    expect(rarityFamily(Number.NaN)).toBe('rare');
+    expect(rarityFamily(Number.NaN)).toBe('common');
   });
 });

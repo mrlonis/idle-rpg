@@ -7,6 +7,7 @@ import { formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v0 from './fixtures/v0.json';
 import v1 from './fixtures/v1.json';
+import v2 from './fixtures/v2.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -19,12 +20,17 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * **There are two, and the second one is the point.** The chain was re-based to a v0 baseline while
- * the game was still pre-release — see [saves](../../../docs/saves.md) — leaving this file with a
- * single fixture and nothing to walk. Milestone 12 added gear and with it the v0 → v1 migration, so
- * the v0 fixture now exercises the chain rather than only the repair pass, and the v1 fixture pins
- * what a current save actually looks like. The coverage assertion below is what caught the missing
- * fixture the moment `SAVE_VERSION` moved, which is exactly the job it was left here to do.
+ * **There are three, and the v1 one now carries the most weight.** The chain was re-based to a v0
+ * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — leaving
+ * this file with a single fixture and nothing to walk. Milestone 12 added gear and the v0 → v1
+ * migration; the copies-only rewrite added the two rungs below `rare` and the v1 → v2 shift.
+ *
+ * **v1 → v2 changes no field, only what one means**, so a v1 fixture that failed to be migrated
+ * would still parse, still validate, and still produce a usable state — with every character
+ * demoted two rungs. Nothing structural can catch that, which makes the roster assertion further
+ * down the only thing standing between this migration and a silent regression. The coverage check
+ * below is what caught the missing fixture the moment `SAVE_VERSION` moved, which is exactly the
+ * job it was left here to do.
  *
  * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
@@ -33,6 +39,7 @@ import { SAVE_VERSION } from './version';
 const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
   [0, v0],
   [1, v1],
+  [2, v2],
 ]);
 
 const OPTIONS: RepairOptions = {
@@ -117,10 +124,14 @@ describe('v0 fixture contents', () => {
   it('round-trips the roster, keeping rarity, level and spare copies', () => {
     const { state } = loadSave(v0, OPTIONS);
 
+    // Every rarity is two higher than the fixture records, and that is the v1 → v2 migration
+    // doing its whole job: `common` and `common-plus` went in below `rare`, so a stored index of
+    // 4 has to become 6 to still mean Legendary. If this ever reads 4/2/3 again, the migration
+    // has stopped running and every returning player is being demoted two rungs.
     expect(state.roster).toEqual([
-      { defId: 'alpha', rarity: 4, level: 46, copies: 11, gear: {} },
-      { defId: 'beta', rarity: 2, level: 22, copies: 3, gear: {} },
-      { defId: 'gamma', rarity: 3, level: 31, copies: 6, gear: {} },
+      { defId: 'alpha', rarity: 6, level: 46, copies: 11, gear: {} },
+      { defId: 'beta', rarity: 4, level: 22, copies: 3, gear: {} },
+      { defId: 'gamma', rarity: 5, level: 31, copies: 6, gear: {} },
     ]);
   });
 

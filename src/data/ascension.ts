@@ -1,112 +1,107 @@
 /**
  * The two ascension ladders, and the factions that walk them.
  *
- * Plain data, as everything in `data/` is: the rungs are authored here and the arithmetic
- * they imply lives in `core/roster/rarity.ts`. Retuning a rung is an edit to this file and
- * nothing else.
+ * Plain data, as everything in `data/` is. A rung's entry is the number of **base copies of the
+ * character being ascended** that leaving that rung costs — the number the player actually
+ * spends, with nothing between this table and the price on screen. Retuning a rung is an edit
+ * to one integer in this file and nothing else.
  *
- * ## Reading a rung
+ * ## Reading the tables
  *
- * Each entry is the price of leaving the rarity it is named after, quoted in **ascended**
- * copies — "2 copies of any character of the same faction at Rare+". A player never holds an
- * ascended spare, so `core/` resolves each of those recursively into base copies. The
- * headline numbers that falls out of:
+ * Both arrays are indexed by **the rarity being left**, so entry 0 is the price of leaving
+ * `common` and the last entry is the price of leaving `ascended-4`. Length is
+ * `RARITIES.length - 1`: there is no step off the top.
  *
- * - A **mortal** ascended-tier character, Elite to Ascended: 8 Elite copies of itself, plus
- *   180 Rare copies of same-faction fodder. Five stars on top of that is 10 more Elite copies
- *   — 18 in total.
- * - A **celestial** ascended-tier character, Elite to Ascended: 14 Elite copies of itself and
- *   no fodder at all. 24 in total for five stars.
- * - Fodder priced in Rare copies: Rare+ 3, Elite 9, Elite+ 18, Legendary 54, Legendary+ 72.
+ * A character never starts at index 0 unless it is common-tier — see `startRarityIndex` in
+ * [`core/roster/rarity.ts`](../core/roster/rarity.ts) — so the first four entries are, in order,
+ * the two rungs only common-tier characters ever climb and the two only common- and
+ * legendary-tier ones do.
  *
- * Those are design targets, not commentary — `data/ascension.spec.ts` asserts every one of
- * them against what these tables actually derive to, so an edit here that moves a total shows
- * up as a failure naming the old and new number.
+ * ## The three totals this is tuned around
+ *
+ * Counting the first copy, so these are "how many of this character do I have to see":
+ *
+ * | Tier      | Starts at | To `ascended` | To `ascended-5` |
+ * | --------- | --------- | ------------- | --------------- |
+ * | common    | `common`  | 36 / 42       | 46 / 52         |
+ * | legendary | `rare`    | 16 / 22       | 26 / 32         |
+ * | ascended  | `elite`   | 8 / 14        | 18 / 24         |
+ *
+ * (mortal / celestial). `data/ascension.spec.ts` derives every one of those from the arrays
+ * below rather than restating them, so a retune that moves a total fails there naming the real
+ * number.
+ *
+ * ## Why the bottom of the ladder is the expensive part
+ *
+ * Every rung costs every character the same, so a tier is worth exactly the rungs it skips. That
+ * is the only lever left, and it is pointed at a real asymmetry: a pull produces a *specific*
+ * common-tier character about 3× more often than a specific legendary-tier one and about 10×
+ * more often than an ascended-tier one. Charging 20 copies below `rare` is what makes a full
+ * climb roughly the same commitment whichever tier you fell in love with — without it, a
+ * common-tier character maxes out in well under one climb's worth of pulls while an
+ * ascended-tier one takes nearly three.
  *
  * ## Why two ladders
  *
- * The mortal ladder spends **bodies**: four of its rungs are paid with same-faction fodder,
- * so a Human roster is only as ascendable as its bench is deep. That makes a common-tier
- * pull genuinely useful — it is both an early-game unit and future fodder for the
- * ascended-tier one standing next to it.
+ * They differ only above `elite`, and only in size: the celestial rungs are roughly double. That
+ * is what the celestial advantage in combat is paid for with, and it is the whole of the
+ * difference — Angels and Demons walk the same shape of ladder as everyone else.
  *
- * The celestial ladder spends **luck**: Angels and Demons ask for nothing but copies of
- * themselves, which makes them trivial to ascend if the banner is kind and impossible if it
- * is not. Neither path is cheaper overall; they are expensive in different resources, which
- * is the point.
+ * The ladders used to differ in *kind*: four mortal rungs were paid in same-faction fodder while
+ * the celestial ones never were, so the two were expensive in genuinely different resources.
+ * That distinction went when fodder did, and what is left is a straight price difference. Worth
+ * knowing before reading either table as though it still says something about bodies.
  */
-
-// Ladder indices, named. These mirror `RARITIES` in `core/roster/types.ts`, which `data/`
-// may not import — `ascension.spec.ts` asserts the two agree rather than trusting the
-// comment.
-const RARE = 0;
-const RARE_PLUS = 1;
-const ELITE = 2;
-const ELITE_PLUS = 3;
-const LEGENDARY_PLUS = 5;
-
-/** Rungs from `ascended` to `ascended-5`: one Elite+ copy of the character per star. */
-const STAR_RUNGS = [
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-] as const;
 
 /**
  * Humans, Dwarves, Elves, Undead and Monsters.
  *
- * Indexed by the rarity being left. Four rungs — Rare+, Elite+, Legendary+ and Mythic — are
- * paid in same-faction fodder, and those four are where the 180 Rare copies come from.
+ * ```
+ *  common  common+  rare  rare+ │ elite  elite+  leg  leg+  myth  myth+ │ ★1 ★2 ★3 ★4 ★5
+ * ```
  */
 export const MORTAL_LADDER = [
-  // Rare → Rare+
-  [{ scope: 'self', rarity: RARE, count: 2 }],
-  // Rare+ → Elite
-  [{ scope: 'faction', rarity: RARE_PLUS, count: 2 }],
-  // Elite → Elite+
-  [{ scope: 'self', rarity: ELITE, count: 1 }],
-  // Elite+ → Legendary
-  [{ scope: 'faction', rarity: ELITE_PLUS, count: 2 }],
-  // Legendary → Legendary+
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  // Legendary+ → Mythic
-  [{ scope: 'faction', rarity: LEGENDARY_PLUS, count: 1 }],
-  // Mythic → Mythic+
-  [{ scope: 'faction', rarity: LEGENDARY_PLUS, count: 1 }],
-  // Mythic+ → Ascended
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 2 }],
-  ...STAR_RUNGS,
+  8, // common → common+
+  12, // common+ → rare
+  2, // rare → rare+
+  6, // rare+ → elite
+  1, // elite → elite+
+  1, // elite+ → legendary
+  1, // legendary → legendary+
+  1, // legendary+ → mythic
+  1, // mythic → mythic+
+  2, // mythic+ → ascended
+  2, // ascended → ★1
+  2, // ★1 → ★2
+  2, // ★2 → ★3
+  2, // ★3 → ★4
+  2, // ★4 → ★5
 ] as const;
 
 /**
- * Angels and Demons. Every rung is copies of the character itself.
+ * Angels and Demons. Identical below `elite`, roughly double above it.
  *
- * The authored table starts at Elite, because the tier this path was designed around starts
- * there. The two rungs below it exist for common- and legendary-tier Angels and Demons, and
- * are derived rather than authored: the defining property of this path is that it never asks
- * for fodder, so `Rare+ → Elite` is the mortal rung with its faction clause turned into a
- * self clause. Everything from Elite up is the authored table verbatim.
+ * The four rungs below `elite` are shared with the mortal ladder rather than scaled, and that is
+ * deliberate: they are the tier gap (see the header), and a celestial common-tier character is
+ * common-tier for the same reason everyone else's is. Scaling them would be charging twice for
+ * one thing.
  */
 export const CELESTIAL_LADDER = [
-  // Rare → Rare+ — same as the mortal ladder, which asks for no fodder here either.
-  [{ scope: 'self', rarity: RARE, count: 2 }],
-  // Rare+ → Elite — derived: the mortal rung's faction clause, made self.
-  [{ scope: 'self', rarity: RARE_PLUS, count: 2 }],
-  // Elite → Elite+
-  [{ scope: 'self', rarity: ELITE, count: 1 }],
-  // Elite+ → Legendary
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  // Legendary → Legendary+
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  // Legendary+ → Mythic
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  // Mythic → Mythic+
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 1 }],
-  // Mythic+ → Ascended
-  [{ scope: 'self', rarity: ELITE_PLUS, count: 2 }],
-  ...STAR_RUNGS,
+  8, // common → common+
+  12, // common+ → rare
+  2, // rare → rare+
+  6, // rare+ → elite
+  1, // elite → elite+
+  2, // elite+ → legendary
+  2, // legendary → legendary+
+  2, // legendary+ → mythic
+  2, // mythic → mythic+
+  4, // mythic+ → ascended
+  2, // ascended → ★1
+  2, // ★1 → ★2
+  2, // ★2 → ★3
+  2, // ★3 → ★4
+  2, // ★4 → ★5
 ] as const;
 
 /** Both ladders, in the shape `core/roster/` takes as an argument. */

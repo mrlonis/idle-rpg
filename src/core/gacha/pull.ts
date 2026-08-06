@@ -63,11 +63,13 @@ function clamp01(value: number): number {
 /**
  * Base copies of a character it would take to reach `elite` from its own starting rarity.
  *
- * What an Elite-upgraded duplicate is worth. Quoted in the character's **own** copies rather
- * than in total ladder cost, because that is the shortage the upgrade actually relieves: a
- * mortal-faction character needs 3 of its own copies to reach Elite (the faction fodder is a
- * separate problem), while a celestial one needs 9, since its ladder is paid entirely in
- * itself.
+ * What an Elite-upgraded duplicate is worth, and it is worth a great deal: both ladders are
+ * identical below `elite`, and that stretch is deliberately the expensive one — it is the only
+ * thing separating what a common-tier climb costs from an ascended-tier one. A legendary-tier
+ * character skips 8 copies' worth by arriving upgraded.
+ *
+ * At least 1, so an upgrade always counts for something even against a fixture ladder that
+ * prices the stretch at nothing.
  */
 function eliteUpgradeCopies(
   rules: AscensionRules,
@@ -79,7 +81,7 @@ function eliteUpgradeCopies(
   if (elite <= start) {
     return 1;
   }
-  return Math.max(copyCost(rules, pathFor(character, factions), start, elite).self, 1);
+  return Math.max(copyCost(rules, pathFor(character, factions), start, elite), 1);
 }
 
 /** Picks a tier from the weights, with `chance` already decided for the ascended tier. */

@@ -12,6 +12,7 @@ import {
   MAX_ENERGY,
   MAX_PENETRATION,
   MAX_RARITY_INDEX,
+  rarityIndex,
   MAX_RESIST,
   PARTY_SIZE,
   rarityLabel,
@@ -467,9 +468,15 @@ describe('tier is a slope, not a head start', () => {
     expect(late.toNumber()).toBeGreaterThan(10);
   });
 
-  it('starts ascended tier at Elite and everyone else at Rare', () => {
+  it('starts each tier on a rung of its own', () => {
+    // Three tiers, three starting rungs, and the gap between them IS the cost difference — every
+    // rung charges every character the same, so a tier is worth exactly the rungs it skips.
     for (const character of characters) {
-      const expected = character.tier === 'ascended' ? 2 : 0;
+      const expected = {
+        ascended: rarityIndex('elite'),
+        legendary: rarityIndex('rare'),
+        common: rarityIndex('common'),
+      }[character.tier];
 
       expect(startRarityIndex(character.tier), character.id).toBe(expected);
     }

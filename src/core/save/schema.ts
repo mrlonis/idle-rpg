@@ -100,8 +100,30 @@ export interface SaveDataV1 {
   gearShop: { slot: number; purchased: number[] };
 }
 
+/**
+ * v2 — the ladder grew a bottom.
+ *
+ * **Structurally identical to {@link SaveDataV1}, and that is the point worth reading.** No field
+ * was added, removed or retyped. What changed is what `roster[].rarity` *denotes*: `common` and
+ * `common-plus` were inserted below `rare` in `RARITIES`, so index 2 stopped meaning `elite` and
+ * started meaning `rare`, and every index a v1 save holds is a claim about a rung two places
+ * lower than the player earned.
+ *
+ * That makes this the first version here whose migration cannot be checked by looking at the
+ * shape. A v1 save fed to a v2 reader parses perfectly, validates perfectly, and demotes the
+ * entire roster — so **a version bump was mandatory precisely because the schema did not change**.
+ * There is no structural signal to detect it by; the version number is the only evidence.
+ *
+ * Declared as its own interface rather than aliased to `SaveDataV1` deliberately. The alias would
+ * be correct today and would silently stop being correct the moment v2 gains a field, which is
+ * how a shipped shape gets edited by accident.
+ */
+export interface SaveDataV2 extends Omit<SaveDataV1, 'version'> {
+  version: 2;
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV1;
+export type CurrentSaveData = SaveDataV2;
 
 /** Any historical save shape. Widen this union as versions are added. */
-export type AnySaveData = SaveDataV0 | SaveDataV1;
+export type AnySaveData = SaveDataV0 | SaveDataV1 | SaveDataV2;

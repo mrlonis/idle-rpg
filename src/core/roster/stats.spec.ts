@@ -14,6 +14,7 @@ import {
   TEST_GROWTH as GROWTH,
   TEST_KIT_RULES as KIT,
 } from './fixtures';
+import { growthFloor, rarityIndex, startRarityIndex } from './rarity';
 import { growthMultiplier, scaleStats, toBattleCombatant, toEnemyCombatant } from './stats';
 import { type CharacterData, MAX_RARITY_INDEX } from './types';
 
@@ -36,11 +37,30 @@ describe('growthMultiplier', () => {
     expect(at100.gt(at50)).toBe(true);
   });
 
-  it('counts ascension rungs from the tier’s own floor, not from Rare', () => {
-    // An ascended-tier character starts at Elite. Counting from Rare would hand it two rungs of
-    // multiplier for a climb it never made.
-    expect(growthMultiplier(GROWTH, 'ascended', 1, 2).eq(1)).toBe(true);
-    expect(growthMultiplier(GROWTH, 'ascended', 1, 3).eq(GROWTH.perAscension)).toBe(true);
+  it('pays a common-tier character nothing for the two rungs below Rare', () => {
+    // ⚠️ Those two rungs are a **cap gate, not a power gate**: they exist so a common-tier
+    // character costs more to build, and a character at Rare is worth exactly what a freshly
+    // pulled one was worth before they were added. Every stage in `data/` is tuned against that
+    // equality — if this ever fails, the whole ladder needs re-deriving, not this test relaxing.
+    const at = (rarity: number) => growthMultiplier(GROWTH, 'common', 1, rarity);
+
+    expect(at(rarityIndex('common')).eq(1)).toBe(true);
+    expect(at(rarityIndex('common-plus')).eq(1)).toBe(true);
+    expect(at(rarityIndex('rare')).eq(1)).toBe(true);
+
+    // And the rungs above Rare are worth exactly what they always were.
+    expect(at(rarityIndex('rare-plus')).eq(GROWTH.perAscension)).toBe(true);
+    expect(at(rarityIndex('elite')).eq(Math.pow(GROWTH.perAscension, 2))).toBe(true);
+  });
+
+  it('counts ascension rungs from the tier’s own growth floor, not from the bottom', () => {
+    // An ascended-tier character starts at Elite. Counting from the bottom of the ladder would
+    // hand it four rungs of multiplier for a climb it never made.
+    const elite = growthFloor('ascended');
+
+    expect(elite).toBe(startRarityIndex('ascended'));
+    expect(growthMultiplier(GROWTH, 'ascended', 1, elite).eq(1)).toBe(true);
+    expect(growthMultiplier(GROWTH, 'ascended', 1, elite + 1).eq(GROWTH.perAscension)).toBe(true);
   });
 
   it('never shrinks a character for damaged growth content', () => {
@@ -241,7 +261,7 @@ describe('toBattleCombatant', () => {
     const rare = toBattleCombatant(armed, owned(armed), GROWTH, KIT, 1);
     const elite = toBattleCombatant(
       armed,
-      { defId: armed.id, rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: armed.id, rarity: startRarityIndex('ascended'), level: 1, copies: 0, gear: {} },
       GROWTH,
       KIT,
       1,

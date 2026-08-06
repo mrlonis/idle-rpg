@@ -83,7 +83,7 @@ migration in both directions. The bar for revisiting it is a key whose old and n
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **1**, and the migration table holds **one entry**. Every save carries its version.
+`SAVE_VERSION` is **2**, and the migration table holds **two entries**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
@@ -118,6 +118,34 @@ reason, and it is the reason the reset was licensed: **no save carrying the old 
 existed outside development.** It is not safe in general. It is the cost of re-basing that is easiest
 to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscovered by accident.
 
+**v2 re-issued the second of them**, on the same argument and with the same caveat.
+
+### v1 → v2: the ladder grew a bottom
+
+The copies-only rewrite inserted `common` and `common-plus` below `rare` in `RARITIES`. **No field changed
+shape.** What changed is what one _means_: `roster[].rarity` is an index into that array, so a
+stored `4` meant `legendary` before and means `elite` after.
+
+Left alone, a v1 save would parse cleanly, validate cleanly, and **demote the entire roster two
+rungs** — an `elite` character reading as `rare`, its level cap collapsing from 100 to 40 and its
+second skill disappearing. The migration adds two to every roster entry's rarity, which maps each
+rung to _itself_: nobody gains a rung and nobody loses one. Common-tier characters come out at
+`rare`, two rungs above the new floor they never paid for, and that is the intended reading — they
+earned their place on the old ladder and the new rungs are beneath where they already stand.
+
+⚠️ **This is the first migration here that cannot be checked structurally, and that is the thing to
+carry forward.** v0 → v1 _added_ fields, so getting it wrong loses something that was never there.
+v1 → v2 _reinterprets_ one, so getting it wrong silently rewrites progress a player earned, and no
+schema check can see it. The roster assertion in `fixtures.spec.ts` is the only evidence the shift
+ran at all — if it ever reads the fixture's own numbers back, the migration has stopped running.
+
+A damaged rarity is left alone rather than shifted: `serialize` clamps it to the character's
+starting rarity on load, which is a better answer than any this step could invent, and shifting a
+corrupt value only moves the corruption.
+
+**The rule this earns:** inserting a rung anywhere but the top of `RARITIES` is a save migration,
+not a content edit. `types.ts` carries that warning next to the array itself.
+
 ### The chain was re-based, once, while nobody was playing
 
 There were five versions and four migrations:
@@ -146,9 +174,10 @@ above.
 
 **The machinery survived the entries, and that is what it was for.** `migrate()` still walks a
 chain, and `migrate.spec.ts` still drives multi-step chaining against a synthetic history — the real
-table holds one entry, so it exercises a single step rather than a chain. Proven code with no callers
-was a far better position than an unproven chain walker written on the day the first real migration
-was urgent, which is precisely how v0 → v1 landed.
+table now holds two entries and a v0 save walks both of them. Proven code with no callers was a far
+better position than an unproven chain walker written on the day the first real migration was
+urgent, which is precisely how v0 → v1 landed, and v1 → v2 arrived two milestones later on the same
+proven walk.
 
 ### The rules that still apply
 

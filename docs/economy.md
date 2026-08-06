@@ -201,6 +201,12 @@ ascension path by design. The size was picked against the levelling curve rather
 a rung raises the level cap by 20 to 100, itself worth ×1.5 to ×7.9 at 1.021, so a rung paying ×1.6
 sits inside the range of the headroom it unlocks rather than an order of magnitude below it.
 
+⚠️ **The two `common` rungs added by the copies-only rewrite pay no multiplier at all** — they raise the cap
+from 20 to 30 to 40 and nothing else. `growthFloor` anchors this ladder at `rare` for every tier,
+which is what keeps a common-tier character at `rare` worth exactly what a freshly pulled one was
+worth before those rungs existed, and is why not one stage had to be retuned. See
+[ascension](ascension.md).
+
 ---
 
 ## Pulls
@@ -224,6 +230,18 @@ the tiers it can produce.
 
 **Pity is the escape valve for bad luck, not the shop.** Spark only accrues after something is
 maxed, so reading the shop as the bad-luck mechanism gets the economy backwards.
+
+**Spark is a currency players actually hold since the copies-only rewrite, and that is deliberate.** Maxing a
+common-tier character went from 216 base copies to 46 — inside what a single full climb of pulls
+delivers — so where spark was previously minted by almost nobody, it is now earned and spent. The
+prices did not move; what moved is how reachable `ascended-5` is. An unspendable currency was
+doing nothing for anyone.
+
+There is **one copy offer per tier** now, because the three tiers start on three different rungs.
+The 3 / 8 / 60 spread tracks how many pulls it takes to see one, derived in `banners.spec.ts` from
+`TIER_WEIGHTS` and the roster's tier counts rather than restated. It used to rest on the fodder
+exchange rate — an Elite copy was worth nine Rare ones — and fodder was the only thing that ever
+made copies of different characters interchangeable, so with it gone there is no rate to quote.
 
 ---
 

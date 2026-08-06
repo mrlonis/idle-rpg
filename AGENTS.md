@@ -47,9 +47,27 @@ the two disagree, the code is right and both are stale.
   terms collide by design and the collisions are listed there.
 - **[docs/attributes.md](docs/attributes.md)** — the combatant stat block, which stats may scale
   and why, and what the milestone 8a collapse to one `atk` and one `def` cost.
-- **[docs/ascension.md](docs/ascension.md)** — the rung ladder, the two ascension paths, and how
-  rung prices resolve recursively into base copies. Since milestone 8c three of the rungs also hand
-  over a skill.
+- **[docs/ascension.md](docs/ascension.md)** — the sixteen-rung ladder, the two ascension paths,
+  and what a rung costs. Since milestone 8c three of the rungs also hand over a skill.
+  - **A rung costs copies of the character being ascended and nothing else.** Same-faction
+    **fodder** was removed along with the recursion that priced it: rungs used to be quoted in
+    _ascended_ copies and resolved into base ones, and they are now a flat integer per rung in
+    [`data/ascension.ts`](src/data/ascension.ts). There is no `AscensionPlan`, no fodder pool, and
+    no solver. A spare copy of a character you will never ascend is now inert — that is the
+    known cost, and `docs/ascension.md` argues it.
+  - ⚠️ **The two rungs below `rare` buy level cap and pay no stat multiplier.** `growthFloor`
+    anchors the ×`perAscension` ladder at `rare` for **every** tier, which is why `common` tier
+    starting two rungs lower did not make it stronger. This is what kept the entire stage ladder in
+    tune across the change — all 32 balance sweeps pass with no stage edited — so paying those
+    rungs a multiplier means re-deriving the ladder from scratch, not adjusting a constant.
+  - **The bottom of the ladder is the whole of the tier gap.** Every rung charges every character
+    the same, so a tier is worth exactly the rungs it skips: 20 copies for `legendary`, 28 for
+    `ascended`. The old recursion produced that gap for free by compounding; a flat table does not,
+    so it is authored there deliberately and calibrated against how often a pull produces one.
+  - ⚠️ **A rarity id protects against the ladder being reordered, not against a rung being inserted
+    below it.** `chapters.balance.ts` fielded its reference parties at `rarityIndex('rare')` for
+    exactly that protection and every one of them silently gained ×1.6² anyway. Anything meaning
+    "how far has this been invested" must count rungs from a floor.
 - **[docs/combat.md](docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
   energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
   there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
@@ -136,8 +154,13 @@ the two disagree, the code is right and both are stale.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 1 since milestone 12**, and v0 → v1 is the first entry the chain
-  walker has ever had to walk.
+  fixtures. **`SAVE_VERSION` is 2**: v0 → v1 added gear in milestone 12, and v1 → v2 shifted every
+  stored rarity by two when the ladder grew a bottom.
+  - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
+    that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
+    demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only
+    evidence the shift ran. **Inserting a rung anywhere but the top of `RARITIES` is a save
+    migration, not a content edit.**
   - **Player settings are a second key, not a field on the save**, since milestone 13. A
     preference describes the app; a save describes a run. Keeping them apart is what lets a run
     reset leave the battle speed alone, and it keeps every future setting from being a
@@ -271,16 +294,17 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 1.** Five versions and four migrations were collapsed into a v0 baseline
+  - **`SAVE_VERSION` is 2.** Five versions and four migrations were collapsed into a v0 baseline
     while the game was pre-release, on the one argument that licenses it: no save any of them wrote
     has ever existed outside development. [saves](docs/saves.md) records the reset and the condition
     — a player loading a save — that closes the door on repeating it. The chain walker was kept and
     tested against a synthetic history through the whole v0 era so that the first real migration
     would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
-  - ⚠️ **The reset burned version numbers and v1 re-issued the first of them.** The old v1 was
-    milestone 1's gold counter; this v1 is the gear schema, and nothing can tell them apart from the
-    number alone. Safe only because no save carrying the old meaning exists outside development —
-    **not safe in general**, and the cost of re-basing that is easiest to forget.
+  - ⚠️ **The reset burned version numbers and both v1 and v2 have re-issued one.** The old v1 was
+    milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear schema and
+    this v2 is the ladder's new bottom, and nothing can tell either pair apart from the number
+    alone. Safe only because no save carrying the old meaning exists outside development — **not
+    safe in general**, and the cost of re-basing that is easiest to forget.
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a
@@ -475,8 +499,8 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   exception on sustain**: they carry `lifeLeech` and a siphon rather than a healer, because giving
   that faction a support would solve a composition problem by deleting the faction.
 - **The roster is three common, three legendary and at least one ascended per faction.** The first
-  two are exact and meant to stay exact — they are the bench a mono-faction team is built from and
-  the fodder the mortal ladder eats, and both jobs want a known depth. The third is a floor,
+  two are exact and meant to stay exact — they are the bench a mono-faction team is built from, and
+  that job wants a known depth. The third is a floor,
   because ascended tier is where new characters arrive. Changing the closed half is a design
   decision: edit the shape in `data/characters.spec.ts` and argue for it in `docs/milestones.md`,
   rather than letting it drift.
@@ -699,8 +723,8 @@ not long-running and need none of this.
   forever and passes happily while the thing it claimed to protect drifts. `data/levels.spec.ts`
   evaluates the reward curve at the last stage of the ladder for exactly this reason — the level
   curve is tuned against the top of the ladder, so adding a chapter has to re-run every
-  time-to-afford assertion. The same applies to `data/ascension.spec.ts`, which derives its totals
-  from the authored rungs rather than restating "8 self, 180 fodder" as a constant.
+  time-to-afford assertion. The same applies to `data/ascension.spec.ts`, which derives every
+  per-tier total from the authored rungs rather than restating them as constants.
 - **Prefer a threshold that fails when content outgrows it** to one that documents an intention.
   When such a test fails after new content lands, the right response is to retune deliberately —
   not to move the threshold to make it green.

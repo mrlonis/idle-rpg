@@ -4,6 +4,8 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
+import { startRarityIndex } from '../roster/rarity';
+import { MAX_RARITY_INDEX } from '../roster/types';
 import { newGame, type GameState } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import { fromSaveData, toSaveData, type RepairOptions } from './serialize';
@@ -248,8 +250,8 @@ describe('fromSaveData repair', () => {
         OPTIONS,
       );
 
-      expect(state.roster[0].rarity).toBe(13);
-      expect(state.roster[0].level).toBe(TEST_LEVEL_CURVE.caps[13]);
+      expect(state.roster[0].rarity).toBe(MAX_RARITY_INDEX);
+      expect(state.roster[0].level).toBe(TEST_LEVEL_CURVE.caps[MAX_RARITY_INDEX]);
       expect(state.roster[0].copies).toBe(0);
     });
 
@@ -261,7 +263,7 @@ describe('fromSaveData repair', () => {
         OPTIONS,
       );
 
-      expect(state.roster[0].rarity).toBe(2);
+      expect(state.roster[0].rarity).toBe(startRarityIndex('ascended'));
     });
 
     it('clamps a level above the rarity’s cap', () => {

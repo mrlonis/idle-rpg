@@ -83,7 +83,6 @@ function member(name: string, row: Row, rowSlot: number): RosterEntryView {
     canLevel: false,
     affordableLevel: 1,
     ascensionCost: null,
-    fodderAvailable: 0,
     canAscend: false,
   };
 }

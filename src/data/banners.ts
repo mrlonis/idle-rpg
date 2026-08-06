@@ -101,9 +101,11 @@ export const PITY = {
 /**
  * Chance that a legendary-tier pull arrives already at Elite rather than Rare.
  *
- * Worth far more than it looks: Elite is two rungs up a ladder whose bottom rungs cost the most
- * bodies, so this is the single most valuable non-ascended outcome on the banner. Kept at 8% so
- * it stays a genuinely good day rather than an expectation.
+ * Worth far more than it looks: Elite is two rungs up, and the rungs below it are deliberately the
+ * expensive stretch — they are the only thing separating what a common-tier climb costs from an
+ * ascended-tier one. Arriving upgraded skips 8 copies, which makes this the single most valuable
+ * non-ascended outcome on the banner. Kept at 8% so it stays a genuinely good day rather than an
+ * expectation.
  */
 export const ELITE_UPGRADE_CHANCE = 0.08;
 
@@ -122,19 +124,47 @@ export const SPARK_PER_COPY = {
 /**
  * The spark shop.
  *
- * Spark only ever accrues *after* a character is maxed, so this is late-game overflow and is
- * priced as such. It is explicitly **not** the escape valve for early bad luck — pity is.
+ * Spark accrues only from copies of a character already at `ascended-5`, so it is still gated
+ * behind maxing something. It is explicitly **not** the escape valve for early bad luck — pity
+ * is.
+ *
+ * **It stopped being purely late-game overflow when ascension became copies-only, and the prices deliberately did
+ * not move.** Maxing a common-tier character went from 216 base copies to 46, which is inside
+ * what a single full climb of pulls delivers — so where spark was previously a currency almost
+ * no player ever minted, it is now one they hold and spend. That is the intended outcome rather
+ * than a side effect: an unspendable currency was doing nothing for anyone.
  *
  * Both kinds of offer exist because the two shortages are different. A player short of copies
  * needs `copy` offers to finish an ascension; a player who simply never saw a unit needs
  * `character` to get one at all. Pricing a targeted Elite copy well above a new character is
  * deliberate: breadth is cheap, and finishing a specific ladder is the expensive thing.
+ *
+ * ## Why the copy offers are priced 3 / 8 / 60
+ *
+ * One offer per tier, because the three tiers start on three different rungs. The ratios track
+ * **how many pulls it takes to see one**, which is `TIER_WEIGHTS` divided by how many characters
+ * share each tier — a specific ascended-tier character is roughly 3× scarcer than a specific
+ * legendary-tier one and roughly 10× scarcer than a common-tier one. `banners.spec.ts` derives
+ * that from the weights and the roster rather than restating it here.
+ *
+ * That is a different argument from the one these prices used to rest on, which was the fodder
+ * exchange rate — an Elite copy was worth nine Rare ones, and 60:8 was that. Fodder was the only
+ * mechanism that ever made copies of different characters interchangeable, so when it went there
+ * was no rate left to quote and scarcity is what remains.
  */
 export const SPARK_SHOP = [
   {
+    id: 'common-copy',
+    name: 'Common copy',
+    description: 'A base copy of any common-tier character you already own.',
+    kind: 'copy',
+    rarity: 'common',
+    cost: 3,
+  },
+  {
     id: 'rare-copy',
     name: 'Rare copy',
-    description: 'A base copy of any character you already own. Ascension fodder, in bulk.',
+    description: 'A base copy of any legendary-tier character you already own.',
     kind: 'copy',
     rarity: 'rare',
     cost: 8,

@@ -48,6 +48,11 @@
  * five rungs hand out 200 levels between them and the last five hand out 500 — because the
  * early rungs are the ones a new player is actually climbing, and headroom they cannot reach
  * is not a reward.
+ *
+ * **The two `common` rungs are cheap in levels as well as early on the ladder**, at 20 and 30
+ * against `rare`'s 40. A common-tier character now spends its first two ascensions below where
+ * every other tier begins, and a ten-level step is what keeps those rungs feeling like rungs
+ * rather than like a delay before the ladder starts.
  */
 
 /** Level cost coefficients, rarity caps, and the ceiling. */
@@ -69,6 +74,8 @@ export const LEVEL_CURVE = {
 
   /** Indexed to match `RARITIES` in `core/roster/types.ts`. */
   caps: [
+    20, // common
+    30, // common-plus
     40, // rare
     60, // rare-plus
     100, // elite

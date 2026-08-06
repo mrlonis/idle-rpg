@@ -1,62 +1,48 @@
 import { type GameState } from '../state';
-import { ascensionCost, fodderBaseCopies, startRarityIndex } from './rarity';
+import { ascensionCost } from './rarity';
 import { type CharacterLookup, findOwned, type RosterResult } from './roster';
 import {
   type AscensionPath,
   type AscensionRules,
   type CharacterData,
-  type CopyCost,
   type FactionData,
   MAX_RARITY_INDEX,
 } from './types';
 
 /**
- * Ascension: spending duplicate copies to climb the rarity ladder.
+ * Ascension: spending duplicate copies of a character to climb its rarity ladder.
  *
- * ## Only spares are ever consumed, never a character you have levelled
+ * ## A rung costs copies of the character being ascended, and nothing else
  *
- * A rung quoted as "2 copies of any character of the same faction at Elite+" is paid here out
- * of faction-mates' **spare** copies, resolved into base copies by `rarity.ts`. The main copy
- * of a character — the one carrying its level — is never eligible as fodder.
+ * There is no second currency, no material, and no other character involved. That makes the
+ * whole of this file a bounds check and an arithmetic one: does the ladder have a next rung, and
+ * are there enough spare copies to pay for it.
  *
- * That is a deliberate departure from the genre, and it buys two things. A player can never
- * destroy the level-240 character they spent a week on by tapping the wrong row, so the whole
- * "are you sure?" confirmation dance around irreversible loss simply does not exist. And a
- * faction-mate stays simultaneously a playable character and an ascension resource, which is
- * what makes a common-tier pull genuinely good news rather than a consolation prize.
+ * It used to be considerably more. Four rungs of the mortal ladder were paid in **same-faction
+ * fodder** — other characters of the faction, ascended to a required rarity and consumed — which
+ * meant an ascension took a *plan* saying which faction-mates to burn, a pool query to build the
+ * options, a cheapest-first solver to fill it in for a player who did not want to choose, and
+ * three failure modes for a plan that named the wrong character, the player's own character, or
+ * not enough of either.
  *
- * ## Fodder is valued, not counted
+ * What that bought was a use for a spare copy of a character nobody wanted to play. What it cost
+ * was a price no player could evaluate: fodder was quoted in ascended copies, so "2 faction
+ * copies at Elite+" was really 36 base copies of somebody, and the number that mattered appeared
+ * nowhere. The trade was made deliberately — see [ascension](../../../docs/ascension.md).
  *
- * The fodder tables are quoted in Rare copies, so one base copy of a `rare`-start character is
- * worth exactly 1. A base copy of an `ascended`-tier character starts at Elite, which is 9
- * Rare copies deep, so it counts for 9. Feeding one is therefore legal, efficient by the
- * count, and a terrible idea by the value — which is why {@link autoFodderPlan} reaches for
- * the cheapest spares first and the UI shows what a plan actually costs.
+ * ## Only spare copies are ever consumed, never a character you have levelled
+ *
+ * The main copy of a character — the one carrying its level and its gear — is never spent. It was
+ * never spendable even when fodder existed, and the reason is unchanged: a player cannot destroy
+ * the level-240 character they spent a week on by tapping the wrong row, so the entire "are you
+ * sure?" confirmation dance around irreversible loss does not exist in this game.
+ *
+ * Nothing here removes a roster entry, which is also what keeps milestone 9's resonance floor
+ * monotonic.
  */
 
 /** Faction definitions, keyed by faction id. Built by `ui/` from `data/`. */
 export type FactionLookup = ReadonlyMap<string, FactionData>;
-
-/**
- * Which spares to burn, keyed by character id, counted in **base copies**.
- *
- * The player chooses. A rung's faction clause names no particular character, and picking
- * between "burn nine Mira copies" and "burn one Aurelia copy" is a real decision about what
- * the roster is for.
- */
-export interface AscensionPlan {
-  readonly fodder: Readonly<Record<string, number>>;
-}
-
-/** One eligible source of fodder, as the ascend screen lists them. */
-export interface FodderOption {
-  readonly defId: string;
-  readonly name: string;
-  /** Spare base copies the player holds. */
-  readonly available: number;
-  /** What one of those base copies is worth against the requirement, in Rare copies. */
-  readonly valuePerCopy: number;
-}
 
 /** The ascension path a character walks, defaulting to `mortal` for unknown factions. */
 export function pathFor(character: CharacterData, factions: FactionLookup): AscensionPath {
@@ -64,17 +50,8 @@ export function pathFor(character: CharacterData, factions: FactionLookup): Asce
 }
 
 /**
- * What one base copy of a character is worth against a faction requirement.
- *
- * Its starting rarity priced through the fodder table: 1 for a `rare`-start character, 9 for
- * an `elite`-start one.
- */
-export function fodderValue(rules: AscensionRules, character: CharacterData): number {
-  return fodderBaseCopies(rules, startRarityIndex(character.tier));
-}
-
-/**
- * What the next rung costs a character right now, or `undefined` if it is already at the top.
+ * What the next rung costs a character right now, in spare copies of itself, or `undefined` if
+ * it is already at the top of the ladder.
  */
 export function nextAscension(
   state: GameState,
@@ -82,110 +59,24 @@ export function nextAscension(
   rules: AscensionRules,
   characters: CharacterLookup,
   factions: FactionLookup,
-): CopyCost | undefined {
+): number | undefined {
   const owned = findOwned(state, defId);
   const character = characters.get(defId);
   if (owned === undefined || character === undefined) {
     return undefined;
   }
-  return ascensionCost(
-    rules,
-    pathFor(character, factions),
-    startRarityIndex(character.tier),
-    owned.rarity,
-  );
+  return ascensionCost(rules, pathFor(character, factions), owned.rarity);
 }
 
 /**
- * Every faction-mate whose spares could pay part of a rung.
+ * Ascends a character one rung, consuming that many of its own spare copies.
  *
- * Excludes the character being ascended: its own copies are already spent against the rung's
- * `self` clause, and letting them count twice would silently halve the price.
- */
-export function fodderPool(
-  state: GameState,
-  defId: string,
-  rules: AscensionRules,
-  characters: CharacterLookup,
-): readonly FodderOption[] {
-  const character = characters.get(defId);
-  if (character === undefined) {
-    return [];
-  }
-  const options: FodderOption[] = [];
-  for (const owned of state.roster) {
-    if (owned.defId === defId || owned.copies <= 0) {
-      continue;
-    }
-    const mate = characters.get(owned.defId);
-    if (mate?.faction !== character.faction) {
-      continue;
-    }
-    options.push({
-      defId: mate.id,
-      name: mate.name,
-      available: owned.copies,
-      valuePerCopy: fodderValue(rules, mate),
-    });
-  }
-  return options;
-}
-
-/**
- * Builds the cheapest plan that satisfies a rung, or `undefined` if the roster cannot.
- *
- * Cheapest by **value**, not by count: spares worth 1 Rare copy each are spent before spares
- * worth 9, so a player who taps "ascend" without thinking about it does not lose an
- * ascended-tier duplicate to a requirement that a handful of commons would have covered.
- *
- * Within an equal value, the deepest pile is drawn from first. Spreading the cost thin across
- * every faction-mate would leave several piles too small to be useful later, where taking it
- * from one leaves the rest intact.
- */
-export function autoFodderPlan(
-  state: GameState,
-  defId: string,
-  rules: AscensionRules,
-  characters: CharacterLookup,
-  factions: FactionLookup,
-): AscensionPlan | undefined {
-  const cost = nextAscension(state, defId, rules, characters, factions);
-  if (cost === undefined) {
-    return undefined;
-  }
-  if (cost.faction <= 0) {
-    return { fodder: {} };
-  }
-
-  const candidates = [...fodderPool(state, defId, rules, characters)].sort(
-    (a, b) => a.valuePerCopy - b.valuePerCopy || b.available - a.available,
-  );
-
-  const fodder: Record<string, number> = {};
-  let remaining = cost.faction;
-  for (const option of candidates) {
-    if (remaining <= 0) {
-      break;
-    }
-    const wanted = Math.min(option.available, Math.ceil(remaining / option.valuePerCopy));
-    if (wanted > 0) {
-      fodder[option.defId] = wanted;
-      remaining -= wanted * option.valuePerCopy;
-    }
-  }
-  return remaining > 0 ? undefined : { fodder };
-}
-
-/**
- * Ascends a character one rung, consuming its own spare copies and the planned fodder.
- *
- * The plan is checked in full before anything is consumed, so a rejected ascension leaves the
+ * Nothing is consumed unless the whole cost can be paid, so a rejected ascension leaves the
  * roster exactly as it was — there is no partial spend to reason about or refund.
  */
 export function ascend(
   state: GameState,
   defId: string,
-  plan: AscensionPlan,
   rules: AscensionRules,
   characters: CharacterLookup,
   factions: FactionLookup,
@@ -202,58 +93,19 @@ export function ascend(
     return { ok: false, reason: 'max-rarity' };
   }
 
-  const cost = ascensionCost(
-    rules,
-    pathFor(character, factions),
-    startRarityIndex(character.tier),
-    owned.rarity,
-  );
+  const cost = ascensionCost(rules, pathFor(character, factions), owned.rarity);
   if (cost === undefined) {
     return { ok: false, reason: 'max-rarity' };
   }
-  if (owned.copies < cost.self) {
+  if (owned.copies < cost) {
     return { ok: false, reason: 'insufficient-copies' };
   }
 
-  let contributed = 0;
-  const spend = new Map<string, number>();
-  for (const [fodderId, rawCount] of Object.entries(plan.fodder)) {
-    const count = Math.floor(rawCount);
-    if (!Number.isFinite(count) || count <= 0) {
-      continue;
-    }
-    if (fodderId === defId) {
-      return { ok: false, reason: 'fodder-is-self' };
-    }
-    const mate = characters.get(fodderId);
-    if (mate === undefined) {
-      return { ok: false, reason: 'unknown-character' };
-    }
-    if (mate.faction !== character.faction) {
-      return { ok: false, reason: 'wrong-faction' };
-    }
-    const ownedMate = findOwned(state, fodderId);
-    if (ownedMate === undefined) {
-      return { ok: false, reason: 'not-owned' };
-    }
-    if (ownedMate.copies < count) {
-      return { ok: false, reason: 'insufficient-fodder' };
-    }
-    spend.set(fodderId, count);
-    contributed += count * fodderValue(rules, mate);
-  }
-
-  if (contributed < cost.faction) {
-    return { ok: false, reason: 'insufficient-fodder' };
-  }
-
-  const roster = state.roster.map((entry) => {
-    if (entry.defId === defId) {
-      return { ...entry, rarity: entry.rarity + 1, copies: entry.copies - cost.self };
-    }
-    const burned = spend.get(entry.defId);
-    return burned === undefined ? entry : { ...entry, copies: entry.copies - burned };
-  });
+  const roster = state.roster.map((entry) =>
+    entry.defId === defId
+      ? { ...entry, rarity: entry.rarity + 1, copies: entry.copies - cost }
+      : entry,
+  );
 
   return { ok: true, state: { ...state, roster } };
 }

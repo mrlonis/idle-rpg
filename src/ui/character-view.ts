@@ -49,12 +49,9 @@ const GEAR_FAILURES: Readonly<Record<GearFailure, string>> = {
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'insufficient-currency': 'Not enough gold, XP or essence for that level.',
   'level-capped': 'Already at the level cap for this rarity. Ascend to raise it.',
-  'insufficient-copies': 'Not enough copies of this character.',
-  'insufficient-fodder': 'Not enough same-faction copies to pay for this ascension.',
+  'insufficient-copies': 'Not enough spare copies of this character.',
   'max-rarity': 'Already fully ascended.',
   'not-owned': 'You do not own this character.',
-  'wrong-faction': 'Fodder has to share this character’s faction.',
-  'fodder-is-self': 'A character cannot be fed to itself.',
 };
 
 /**
@@ -97,13 +94,16 @@ function skillMeter(skill: SkillData): string {
 /**
  * One character's sheet: what it is, what it costs to improve, and the two ways to do it.
  *
- * ## Ascension shows its price in the copies a player actually holds
+ * ## Ascension is one number against one number
  *
- * The authored ladder quotes rungs in ascended copies — "2 copies of any same-faction character
- * at Elite+". Nobody holds those; they hold base copies. So this screen shows the resolved
- * price, both halves separately, next to what the player has: the `self` half can only ever be
- * paid by this character, and the `faction` half by anyone sharing its faction, and confusing
- * the two is what makes a gacha ascension screen unreadable.
+ * A rung costs spare copies of this character and nothing else, so the price is shown as held
+ * against needed and there is nothing to choose.
+ *
+ * It used to be two prices — copies of this character *and* a quantity of same-faction fodder,
+ * each quoted in ascended copies nobody holds and resolved here into the base copies they do —
+ * over a list of which faction-mates could pay the second half. Keeping those two straight is
+ * what makes a gacha ascension screen unreadable, and the fix in the end was upstream of the
+ * screen rather than in it.
  */
 @Component({
   selector: 'app-character-view',
@@ -300,9 +300,6 @@ export class CharacterView {
     return cost === null || cost === undefined ? null : formatAmounts(cost);
   });
 
-  /** Faction-mates whose spares could pay the fodder half of the next rung. */
-  protected readonly fodder = computed(() => this.roster.fodderFor(this.defId()));
-
   /**
    * The five gear slots, and what this character's gear is currently worth.
    *
@@ -318,7 +315,7 @@ export class CharacterView {
 
   protected readonly gearBonus = computed(() => this.gear.bonusFor(this.defId()));
 
-  /** Which slot's picker is open, or `null`. One at a time, like the fodder list below. */
+  /** Which slot's picker is open, or `null`. One at a time. */
   protected readonly openSlot = signal<GearSlot | null>(null);
 
   protected toggleSlot(slot: GearSlot): void {

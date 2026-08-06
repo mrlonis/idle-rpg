@@ -2042,6 +2042,78 @@ one section, headed **Gear**, and the second heading arrives with the second kin
 **No redirect from `/gear`**, for the reason `/summon` got none: the game is pre-release. That
 licence expires the moment a URL exists outside development.
 
+## Not a milestone: ascension became copies of the hero alone
+
+Housekeeping in the same sense the v0 re-base was: no new system, one system made much smaller.
+**A rung now costs copies of the character being ascended and nothing else.** Same-faction
+**fodder** is gone, and with it four rungs of the mortal ladder, the plan naming which
+faction-mates to burn, the cheapest-first solver, the fodder picker on the character sheet, and
+three of `ascend()`'s six failure modes. `docs/ascension.md` carries the design; this records why.
+
+### The recursion was the thing worth deleting
+
+Rungs used to be quoted in _ascended_ copies — "2 faction copies at `elite-plus`" — against a
+player who only ever holds base ones. Pricing that took a memoised recursion with a cycle guard,
+a `{ self, faction }` cost type, and a spec whose job was proving the authored ladder was
+well-founded enough for the recursion to terminate. `data/ascension.ts` is now two arrays of
+fifteen integers and `ascensionCost` is an array lookup.
+
+**What fodder bought was real and is worth naming as a loss:** a spare copy of a character you
+would never play was still worth something. It is now inert until that character is worth
+investing in. **What it cost** was a price no player could evaluate — the headline numbers were 8
+elite copies plus 180 rare fodder, or 216 base copies for a common-tier character, and none of
+them appeared anywhere a person could read them.
+
+### The ladder grew a bottom, and that is the part with consequences
+
+`common` and `common-plus` went in below `rare`, so all three tiers now start on different rungs:
+common-tier at `common`, legendary-tier at `rare`, ascended-tier at `elite`.
+
+The reason is arithmetic. The old recursion made cost **compound** down the ladder, which produced
+a ~9× gap between a common-tier climb and an ascended-tier one _for free_ — and that gap was doing
+real work, because a pull produces a specific common-tier character roughly ten times as often as
+a specific ascended-tier one. A flat table gives the compounding up, so the gap had to be authored
+somewhere. It is the 20 copies below `rare`.
+
+⚠️ **The two new rungs pay level cap and no stat multiplier, and that is the load-bearing
+decision.** `growthFloor` anchors the ×`perAscension` ladder at `rare` for every tier. Paying them
+a multiplier would have made every common-tier character ×1.6² stronger at every rarity it can
+reach — a power grant the entire stage ladder would have needed retuning around, when the change
+was only ever about cost. **The evidence it was the right call: all 32 balance sweeps pass with no
+change to any stage.**
+
+### Three things the balance sweep caught that nothing else would have
+
+Worth recording because each one passed type-checking and the unit suite first.
+
+1. **The reference parties silently gained ×2.56.** `chapters.balance.ts` fielded them at
+   `rarityIndex('rare')`, which the file had adopted specifically to survive the ladder being
+   _reordered_. It does not survive the ladder gaining a rung _underneath_ — `rare` stopped
+   meaning "where a character starts" and started meaning "two ascensions in". The starter wall
+   evaporated and the sweep went on passing, describing a different game.
+2. **`BUILT`'s level was a literal.** It read 40 because 40 was the cap of the rung below it; that
+   cap is now two slots along. It is derived from `LEVEL_CURVE.caps` now, and the party it
+   describes stayed the party the prose describes.
+3. **The level-vs-ascension ratio used a rarity index as a rung count.** They were the same number
+   only while common-tier characters started at index 0.
+
+The general rule: **a rarity id protects against reordering, not against insertion.** Anything
+that means "how far has this been invested" has to count rungs from a floor.
+
+### It is also the first save migration that changes no shape
+
+`SAVE_VERSION` went to **2**. v1 → v2 adds no field — it shifts every `roster[].rarity` by two,
+because the index means a rung two lower than it did. A v1 save fed to a v2 reader parses cleanly,
+validates cleanly, and demotes the entire roster. See [saves](saves.md); the rule it earns is that
+inserting a rung anywhere but the top of `RARITIES` is a migration, not a content edit.
+
+### Spark stopped being theoretical
+
+Maxing a common-tier character went from 216 base copies to 46 — inside a single full climb's worth
+of pulls. Spark is minted only by copies of an `ascended-5` character, so it was previously a
+currency almost nobody ever saw. Prices did not move; the shop gained a third copy offer because
+the three tiers now start on three different rungs. See [economy](economy.md).
+
 ## Not a milestone: the save chain was re-based to v0
 
 Housekeeping rather than a milestone, done straight after chapters shipped. `SAVE_VERSION` went

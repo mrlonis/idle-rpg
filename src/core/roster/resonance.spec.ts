@@ -17,7 +17,7 @@ import {
   resonanceFloor,
   resonancePlan,
 } from './resonance';
-import { type OwnedCharacter } from './types';
+import { MAX_RARITY_INDEX, type OwnedCharacter } from './types';
 
 /**
  * A roster entry at an explicit level and rung.
@@ -31,7 +31,7 @@ function at(defId: string, level: number, rarity = 13): OwnedCharacter {
 }
 
 /** A roster of `count` characters at `level`, named `c0`, `c1`, … */
-function party(count: number, level: number, rarity = 13): readonly OwnedCharacter[] {
+function party(count: number, level: number, rarity = MAX_RARITY_INDEX): readonly OwnedCharacter[] {
   return Array.from({ length: count }, (_, index) => at(`c${index}`, level, rarity));
 }
 

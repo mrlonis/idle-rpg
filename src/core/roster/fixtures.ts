@@ -4,6 +4,7 @@ import { type GrowthData } from '../growth';
 import { type FactionLookup } from './ascend';
 import { type KitRulesData } from './kit';
 import { type LevelCurveData } from './level';
+import { startRarityIndex } from './rarity';
 import { type CharacterLookup } from './roster';
 import {
   type AscensionRules,
@@ -151,38 +152,17 @@ export const TEST_FACTIONS: FactionLookup = new Map(
   TEST_FACTION_LIST.map((faction) => [faction.id, faction]),
 );
 
-/** The same shape as the shipped ladders, so derived costs are representative. */
+/**
+ * The same shape as the shipped ladders, at deliberately small round numbers.
+ *
+ * Small so a spec can assert an exact total without the reader doing arithmetic, and *round* so
+ * the two paths stay distinguishable — celestial costs double above `elite`, exactly as shipped.
+ * Fifteen entries, one per step of `RARITIES`.
+ */
 export const TEST_ASCENSION: AscensionRules = {
-  mortal: [
-    [{ scope: 'self', rarity: 0, count: 2 }],
-    [{ scope: 'faction', rarity: 1, count: 2 }],
-    [{ scope: 'self', rarity: 2, count: 1 }],
-    [{ scope: 'faction', rarity: 3, count: 2 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'faction', rarity: 5, count: 1 }],
-    [{ scope: 'faction', rarity: 5, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 2 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-  ],
-  celestial: [
-    [{ scope: 'self', rarity: 0, count: 2 }],
-    [{ scope: 'self', rarity: 1, count: 2 }],
-    [{ scope: 'self', rarity: 2, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 2 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-    [{ scope: 'self', rarity: 3, count: 1 }],
-  ],
+  //  common  common+  rare  rare+ │ elite  elite+  leg  leg+  myth  myth+ │ ★1 ★2 ★3 ★4 ★5
+  mortal: [4, 6, 2, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
+  celestial: [4, 6, 2, 3, 1, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2],
 };
 
 /** A level curve with the shipped shape and far smaller caps, so specs stay legible. */
@@ -191,7 +171,7 @@ export const TEST_LEVEL_CURVE: LevelCurveData = {
   gold: { coefficient: 10, exponent: 1.5 },
   xp: { coefficient: 5, exponent: 1.4 },
   essence: { coefficient: 2, exponent: 2, every: 10 },
-  caps: [10, 20, 30, 40, 50, 55, 60, 65, 70, 80, 85, 90, 95, 100],
+  caps: [10, 15, 20, 25, 30, 40, 50, 55, 60, 65, 70, 80, 85, 90, 95, 100],
 };
 
 export const TEST_GROWTH: GrowthData = {
@@ -225,7 +205,7 @@ export const TEST_GACHA: GachaRulesData = {
 export function owned(character: CharacterData, copies = 0, rarity?: number): OwnedCharacter {
   return {
     defId: character.id,
-    rarity: rarity ?? (character.tier === 'ascended' ? 2 : 0),
+    rarity: rarity ?? startRarityIndex(character.tier),
     level: 1,
     copies,
     gear: emptyLoadout(),

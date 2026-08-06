@@ -245,38 +245,17 @@
       }
       <p class="ascend__intro">Next rung costs, in copies as they arrive from a banner:</p>
       <ul class="ascend__costs">
-        <li class="ascend__cost" [class.ascend__cost--short]="row.copies < cost.self">
-          <span class="ascend__label">Copies of {{ row.name }}</span>
-          <span class="ascend__value">{{ row.copies }} / {{ cost.self }}</span>
+        <li class="ascend__cost" [class.ascend__cost--short]="row.copies < cost">
+          <span class="ascend__label">Spare copies of {{ row.name }}</span>
+          <span class="ascend__value">{{ row.copies }} / {{ cost }}</span>
         </li>
-        @if (cost.faction > 0) {
-          <li class="ascend__cost" [class.ascend__cost--short]="row.fodderAvailable < cost.faction">
-            <span class="ascend__label">{{ row.factionName }} fodder</span>
-            <span class="ascend__value">{{ row.fodderAvailable }} / {{ cost.faction }}</span>
-          </li>
-        }
       </ul>
 
-      @if (cost.faction > 0) {
-        @if (fodder().length > 0) {
-          <p class="ascend__pool-label">Available fodder — cheapest is spent first:</p>
-          <ul class="ascend__pool">
-            @for (option of fodder(); track option.defId) {
-              <li class="ascend__pool-item">
-                {{ option.name }} — {{ option.available }}
-                {{ option.available === 1 ? 'copy' : 'copies' }}
-                @if (option.valuePerCopy > 1) {
-                  <span class="ascend__weight">worth {{ option.valuePerCopy }} each</span>
-                }
-              </li>
-            }
-          </ul>
-        } @else {
-          <p class="ascend__pool-label">
-            No spare {{ row.factionName }} copies yet. Pull more of this faction to feed this
-            ascension — only spares are consumed, never a character you have levelled.
-          </p>
-        }
+      @if (row.copies < cost) {
+        <p class="ascend__pool-label">
+          Pull more copies of {{ row.name }} to ascend. Only spares are ever consumed, never the
+          character you have levelled.
+        </p>
       }
 
       <button
