@@ -44,12 +44,21 @@ export class App implements OnInit {
   protected readonly isReady = this.game.isReady;
   protected readonly isBattleOpen = this.battles.isOpen;
 
+  /**
+   * The tab bar, and the last milestone where adding to it is free.
+   *
+   * Six is what fits across a small phone at a legible label size; a seventh has to either shrink
+   * the text below where it can be read or drop it, and a bar of unlabelled glyphs is a puzzle
+   * rather than navigation. **The next screen needs a different shape of navigation, not another
+   * entry here** — see the note in `docs/milestones.md`.
+   */
   protected readonly tabs: readonly Tab[] = [
     { path: '/', label: 'Home', icon: '🏕', exact: true },
     { path: '/summon', label: 'Summon', icon: '🔮', exact: false },
     { path: '/roster', label: 'Roster', icon: '🛡', exact: false },
     { path: '/gear', label: 'Gear', icon: '🧰', exact: false },
     { path: '/shop', label: 'Shop', icon: '✨', exact: false },
+    { path: '/settings', label: 'Settings', icon: '⚙', exact: false },
   ];
 
   ngOnInit(): void {

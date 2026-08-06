@@ -48,6 +48,11 @@ export const routes: Routes = [
     loadComponent: () => import('../ui/shop-view').then((m) => m.ShopView),
     title: 'Spark Shop — Idle RPG',
   },
+  {
+    path: 'settings',
+    loadComponent: () => import('../ui/settings-view').then((m) => m.SettingsView),
+    title: 'Settings — Idle RPG',
+  },
   // A stale or hand-typed URL lands home rather than on a blank screen.
   { path: '**', redirectTo: '' },
 ];

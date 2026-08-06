@@ -30,6 +30,7 @@ import {
 } from './content';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
+import { type PlaybackSpeed, SettingsService } from './settings.service';
 
 /**
  * How often the animator is stepped. This is a **presentation** clock: it decides how smoothly
@@ -49,11 +50,6 @@ const MAX_STEP_MS = 1000;
 
 /** Log entries kept for display. The full log lives on the result; this is what fits on screen. */
 const VISIBLE_LOG_LENGTH = 6;
-
-/** Playback speeds offered to the player. */
-export const PLAYBACK_SPEEDS = [1, 2, 4] as const;
-
-export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 
 /**
  * A stage named for display: where on the ladder it is, what it is called, and how hard.
@@ -153,10 +149,17 @@ export interface BattleCombatantView {
 export class BattleService {
   private readonly game = inject(GameLoopService);
   private readonly roster = inject(RosterService);
+  private readonly settings = inject(SettingsService);
 
-  /** Playback rate. Applies mid-battle: the animator integrates elapsed time, so changing this
-   * speeds up the remainder of the current fight rather than restarting it. */
-  readonly playbackSpeed = signal<PlaybackSpeed>(1);
+  /**
+   * Playback rate. Applies mid-battle: the animator integrates elapsed time, so changing this
+   * speeds up the remainder of the current fight rather than restarting it.
+   *
+   * **This is the setting itself, not a copy of it.** The speed the player picks here and the one
+   * they pick on the settings screen are one value read from two places, which is what makes the
+   * battle controls sticky without anything having to keep two signals in step.
+   */
+  readonly playbackSpeed = this.settings.combatSpeed;
 
   /** The battle being narrated, or `null` before the first one has been resolved. */
   readonly result = signal<BattleResult | null>(null);
@@ -426,8 +429,16 @@ export class BattleService {
     this.stepId = undefined;
   }
 
+  /**
+   * Changes the playback rate, for this fight and for every fight after it.
+   *
+   * Sticky rather than per-battle: the speed a player wants is a property of the player, not of
+   * the stage in front of them, and a 4× that had to be re-tapped every fight is a setting
+   * pretending to be a control. It writes through to {@link SettingsService}, so the settings
+   * screen shows the same value.
+   */
   setSpeed(speed: PlaybackSpeed): void {
-    this.playbackSpeed.set(speed);
+    this.settings.setCombatSpeed(speed);
   }
 
   /**

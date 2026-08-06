@@ -244,11 +244,15 @@ raise, so a healthy save passes through untouched.
 [`tests/save-recovery.spec.ts`](tests/save-recovery.spec.ts) covers the whole path from a damaged
 save on disk to a working run.
 
-### Clearing your save during development
+### Clearing your save
 
-There is deliberately **no reset button in the game yet** — a destructive, irreversible action
-belongs behind a settings menu, and there is no settings menu. Until there is, clear the save by
-hand.
+**Settings → This run → Reset run** does it from inside the game, which is where a destructive,
+irreversible action belongs — behind a screen you arrive at on purpose, and behind a confirmation.
+It stops the loop, empties both slots, replaces the in-memory run and writes the fresh one, so it
+sticks. Your settings are kept; only the run goes.
+
+That covers the ordinary case. The by-hand route below is still worth knowing, because it is also
+how you **edit** a save rather than delete it.
 
 The catch is that you cannot do it from a tab running the game. The app holds the authoritative
 state in memory and writes it back on autosave and on `visibilitychange` — which fires as you
@@ -271,7 +275,8 @@ Nothing was alive to write the save back, so you get a genuinely fresh run.
 
 The same trick is how you **edit** a save rather than delete it: read and write
 `CapacitorStorage.save` from that favicon tab and the change sticks. (Capacitor's Preferences web
-backend is `localStorage` under a `CapacitorStorage.` prefix.) Editing your own save is
+backend is `localStorage` under a `CapacitorStorage.` prefix; player settings are a separate
+`CapacitorStorage.settings` key that a run reset does not touch.) Editing your own save is
 explicitly fine — see the no-anti-cheat design constraint in [`AGENTS.md`](AGENTS.md) — it just
 has to happen while the game is not running.
 

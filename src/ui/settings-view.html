@@ -1,0 +1,58 @@
+<header class="head">
+  <h1 class="head__title">Settings</h1>
+</header>
+
+<section class="card" aria-labelledby="combat-heading">
+  <h2 class="card__heading" id="combat-heading">Combat</h2>
+
+  <!--
+    A real radio group rather than the battle screen's pressed-toggle buttons. These are the same
+    three options, but here they are a choice rather than a control being held down — and a
+    `fieldset` with named radios takes arrow-key selection, the group's accessible name and the
+    single-selection semantics from the platform instead of from hand-written ARIA.
+
+    The input carries the state and the span carries the look, so `:checked + span` styles it
+    without `:has()` — which iOS 15.0 lacks, and this project's browserslist floor still includes.
+  -->
+  <fieldset class="field">
+    <legend class="field__legend">Battle speed</legend>
+    <p class="field__hint" id="speed-hint">
+      How fast a fight plays out. Changing it during a battle changes it here too.
+    </p>
+
+    <div class="speeds">
+      @for (speed of speeds; track speed) {
+        <label class="speeds__option">
+          <input
+            class="speeds__input"
+            type="radio"
+            name="combat-speed"
+            aria-describedby="speed-hint"
+            [checked]="speed === combatSpeed()"
+            (change)="setCombatSpeed(speed)"
+          />
+          <span class="speeds__text">{{ speed }}&times;</span>
+        </label>
+      }
+    </div>
+  </fieldset>
+</section>
+
+<section class="card" aria-labelledby="run-heading">
+  <h2 class="card__heading" id="run-heading">This run</h2>
+
+  <p class="card__body" id="reset-description">
+    Starts over from stage 1-1. Your roster, gear, currencies and ladder progress are all deleted;
+    the settings above are kept.
+  </p>
+
+  <button
+    type="button"
+    class="reset"
+    aria-describedby="reset-description"
+    [disabled]="isResetting()"
+    (click)="confirmReset()"
+  >
+    {{ isResetting() ? 'Resetting…' : 'Reset run' }}
+  </button>
+</section>

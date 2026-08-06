@@ -1,0 +1,21 @@
+<h2 class="dialog__title" [id]="titleId">Reset this run?</h2>
+
+<p class="dialog__body">
+  This deletes your roster, your gear, every currency you hold and how far up the ladder you have
+  climbed. A new run starts straight away.
+</p>
+
+<p class="dialog__warning">There is no undo, and no backup left to restore from.</p>
+
+<!--
+  Cancel first, so CDK's initial focus lands on the harmless button rather than the destructive
+  one. See the note on `ResetDialog`.
+-->
+<div class="dialog__actions">
+  <button type="button" class="dialog__button dialog__button--quiet" (click)="cancel()">
+    Keep playing
+  </button>
+  <button type="button" class="dialog__button dialog__button--danger" (click)="confirm()">
+    Reset run
+  </button>
+</div>

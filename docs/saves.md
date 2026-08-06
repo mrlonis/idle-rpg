@@ -18,6 +18,7 @@ See [milestones](milestones.md) for the incidents that produced these rules.
 | ---------- | ---------------------------------------------------- |
 | `save`     | The primary save.                                    |
 | `save.bak` | The previous primary, written before each overwrite. |
+| `settings` | Player preferences. Not a save, and not versioned.   |
 
 **Never use `localStorage`.** On iOS, WKWebView local storage lives in a cache-class container the
 OS can purge under storage pressure — players have lost runs that way. Preferences is backed by
@@ -58,7 +59,25 @@ others. Overriding a provider cannot be.
 
 ⚠️ **The running game overwrites external edits.** It holds authoritative state in memory and
 persists on the way out, so clearing storage from inside the app is undone by the app. A reset has
-to stop the loop and replace the in-memory state, not merely empty the slots.
+to stop the loop and replace the in-memory state, not merely empty the slots. `GameLoopService.reset`
+is what does that, in an order that matters — see [milestone 13](milestones.md).
+
+### Settings are a third key, and deliberately not a save
+
+`ui/settings.service.ts` owns `settings`, and nothing about the save chain applies to it.
+
+**A preference describes the app; a save describes a run.** Keeping them apart is what lets the run
+reset leave the player's battle speed alone, and what stops a save this build cannot read from
+taking their preferences down with it. It also keeps every future setting from being a
+`SAVE_VERSION` bump and a migration and a fixture, for a value nothing in `core/` ever reads.
+
+**There is no version field on it, and that is a decision.** A save needs one because its fields are
+interdependent — a wallet without its rates is a broken run — so it needs a chain that can restate
+the whole object. Settings are the opposite shape: every field is independent, optional, and has a
+default that is always correct, so the repair is **per field, on read**. An unrecognised value
+becomes the default, an unknown field is ignored, and a missing field defaults; that subsumes
+migration in both directions. The bar for revisiting it is a key whose old and new meanings
+**collide** — the exact trap `SAVE_VERSION` 1 records below — and the answer there is a new key.
 
 ---
 

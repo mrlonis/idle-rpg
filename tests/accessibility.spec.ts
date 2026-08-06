@@ -267,4 +267,36 @@ test.describe('Accessibility', () => {
 
     await scan(page, testInfo, 'shop');
   });
+
+  /**
+   * The settings screen carries the only radio group in the app, and its inputs are visually
+   * hidden with the visible box beside them — which is exactly the arrangement that ends up with
+   * controls nothing can name.
+   */
+  test('the settings screen has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/settings');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: '1×' })).toBeChecked();
+
+    await scan(page, testInfo, 'settings');
+  });
+
+  /**
+   * The app's first modal, and the markup with the most ways to be wrong: a dialog role, a label
+   * that has to come from the visible heading, and everything behind it needing to leave the
+   * accessibility tree. CDK owns all three, so this is as much a check that the CDK path is wired
+   * up as it is a scan.
+   *
+   * Scanned with the dialog **open**, which also covers the screen underneath in its `aria-hidden`
+   * state — a violation there would be one no other scan could see.
+   */
+  test('the reset confirmation has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/settings');
+
+    await page.getByRole('button', { name: 'Reset run' }).click();
+    await expect(page.getByRole('dialog', { name: 'Reset this run?' })).toBeVisible();
+
+    await scan(page, testInfo, 'settings-reset-dialog');
+  });
 });

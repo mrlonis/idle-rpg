@@ -15,16 +15,27 @@ class FakeSaveService {
   loadResult: LoadResult = { state: newGame({ seed: 1, nowMs: T0 }), issues: [] };
   readonly saved: GameState[] = [];
 
+  /**
+   * Every write and wipe, in order.
+   *
+   * A reset is only a reset if the slots are emptied *before* the fresh run is written — the
+   * whole trap the method exists to avoid is an old run landing on top of a new one — so the
+   * sequence is what has to be asserted, not just the final contents.
+   */
+  readonly operations: string[] = [];
+
   load(): Promise<LoadResult> {
     return Promise.resolve(this.loadResult);
   }
 
   save(state: GameState): Promise<void> {
+    this.operations.push('save');
     this.saved.push(state);
     return Promise.resolve();
   }
 
   clear(): Promise<void> {
+    this.operations.push('clear');
     return Promise.resolve();
   }
 }
@@ -171,6 +182,112 @@ describe('GameLoopService', () => {
     await loop.persist();
 
     expect(saves.saved).toHaveLength(0);
+  });
+
+  /**
+   * The run reset, reachable from the settings screen since milestone 13.
+   *
+   * ⚠️ **Emptying the save slots is not a reset**, and every assertion here is about the half of
+   * the job that is easy to leave out. This service holds the authoritative run in memory and
+   * writes it back on autosave and on `visibilitychange`, so a reset that only cleared storage
+   * would be undone by the app on its way out — the player sees a fresh run until the next
+   * backgrounding hands the old one back.
+   */
+  describe('resetting the run', () => {
+    /** A run with something to lose: gold in the wallet and a stage climbed. */
+    async function progressedRun() {
+      const { loop, saves } = build();
+      await loop.start(T0);
+      loop.apply((state) => ({
+        ...withGoldRate(state, '10'),
+        wallet: { ...state.wallet, gold: num('5000') },
+        clearedStages: 12,
+        stage: 13,
+      }));
+      return { loop, saves };
+    }
+
+    it('replaces the run in memory, not only on disk', async () => {
+      const { loop } = await progressedRun();
+
+      await loop.reset(T0);
+
+      expect(stateOf(loop).wallet.gold.eq(0)).toBe(true);
+      expect(stateOf(loop).clearedStages).toBe(0);
+      expect(stateOf(loop).stage).toBe(1);
+      expect(stateOf(loop).chapter).toBe(1);
+      loop.stop();
+    });
+
+    it('leaves the fresh run playable, with a party and the base income', async () => {
+      // `newGame` cannot seed either: `core/` cannot see the content that decides who the starters
+      // are or what a cleared ladder pays. A reset that skipped the repairs would hand back a run
+      // with nobody in it.
+      const { loop } = await progressedRun();
+
+      await loop.reset(T0);
+
+      expect(stateOf(loop).roster.length).toBeGreaterThan(0);
+      expect(loop.formation().front.length + loop.formation().back.length).toBeGreaterThan(0);
+      loop.stop();
+    });
+
+    it('empties both slots before writing the new run', async () => {
+      const { loop, saves } = await progressedRun();
+      saves.operations.length = 0;
+
+      await loop.reset(T0);
+
+      expect(saves.operations).toEqual(['clear', 'save']);
+      loop.stop();
+    });
+
+    it('writes the fresh run rather than the one it replaced', async () => {
+      // The assertion that would fail if the reset stopped at clearing storage: whatever this
+      // service holds is what the next write puts back.
+      const { loop, saves } = await progressedRun();
+
+      await loop.reset(T0);
+      await loop.persist();
+
+      const written = saves.saved[saves.saved.length - 1];
+      expect(written.wallet.gold.eq(0)).toBe(true);
+      expect(written.clearedStages).toBe(0);
+      loop.stop();
+    });
+
+    it('takes down notices that describe the run it deleted', async () => {
+      const { loop } = build((saves) => {
+        saves.loadResult = {
+          state: { ...withGoldRate(newGame({ seed: 1, nowMs: T0 }), '10'), lastTickAt: T0 - 3.6e6 },
+          issues: [{ field: 'gold', problem: 'unparseable', recovered: '0' }],
+          fatal: 'Save version 9 is newer than this build supports',
+        };
+      });
+      await loop.start(T0);
+      expect(loop.offlineReport()).not.toBeNull();
+
+      await loop.reset(T0);
+
+      expect(loop.offlineReport()).toBeNull();
+      expect(loop.saveIssues()).toEqual([]);
+      expect(loop.loadFailure()).toBeUndefined();
+      loop.stop();
+    });
+
+    it('leaves the loop running, so the new run accrues and persists like any other', async () => {
+      const { loop } = await progressedRun();
+
+      await loop.reset(T0);
+      // A fresh run earns nothing until a stage is cleared, so give it a rate to measure. Half a
+      // second because five 100ms slices is the per-frame ceiling — a whole second would be the
+      // backlog guard rather than the accrual.
+      loop.apply((state) => withGoldRate(state, '10'));
+      loop.advance(500, T0 + 500);
+
+      expect(stateOf(loop).wallet.gold.eq('5')).toBe(true);
+      loop.stop();
+    });
   });
 });
 

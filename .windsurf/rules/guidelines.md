@@ -136,6 +136,19 @@ the two disagree, the code is right and both are stale.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
   fixtures. **`SAVE_VERSION` is 1 since milestone 12**, and v0 → v1 is the first entry the chain
   walker has ever had to walk.
+  - **Player settings are a second key, not a field on the save**, since milestone 13. A
+    preference describes the app; a save describes a run. Keeping them apart is what lets a run
+    reset leave the battle speed alone, and it keeps every future setting from being a
+    `SAVE_VERSION` bump for a value nothing in `core/` reads. `ui/settings.service.ts` repairs
+    **per field on read** rather than carrying a version — every setting is independent and always
+    has a correct default, so that subsumes migration in both directions. Add a new key rather
+    than re-using one whose meaning changed.
+  - ⚠️ **A run reset has to replace the state in memory, not just empty the slots.** The game loop
+    is the authoritative owner and writes back on autosave and on `visibilitychange`, so clearing
+    storage alone is undone by the app on its way out — the player sees a fresh run until the next
+    backgrounding hands the old one back. `GameLoopService.reset` stops the loop, clears, replaces,
+    persists, and only then restarts; the order is load-bearing and the reason it clears _before_
+    writing is that a write copies the primary slot into the backup first.
 
 ## Milestones
 
@@ -148,12 +161,17 @@ verify against the code.**
 
 Read it before starting a milestone, and specifically before:
 
-- reaching for **`@capacitor/app`** or a **run reset** — each is deliberately deferred, and the
-  doc records the condition that has to be met first. **Angular Material is not deferred, it is
-  removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to be
-  the cause of the app's broken first appearance on a real phone. Do not reinstall it.
+- reaching for **`@capacitor/app`** — deliberately deferred, and the doc records the condition
+  that has to be met first. The **run reset** is no longer on that list: it shipped in milestone
+  13, behind the settings screen it was always waiting for. **Angular Material is not deferred, it
+  is removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to
+  be the cause of the app's broken first appearance on a real phone. Do not reinstall it.
   `@angular/cdk` is a separate question and the answer is different — see the accessibility
   section below;
+- **adding a seventh tab.** The bar holds six as of milestone 13 and that is what fits across a
+  small phone at a legible label size; a seventh has to shrink the text past reading or drop it,
+  and a row of unlabelled glyphs is a puzzle rather than navigation. The next screen needs a
+  different shape of navigation, and the doc records the options;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the
@@ -508,18 +526,27 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   milestone 6, within a minute of it being written. When a fix and the accessibility suite
   disagree, the suite is usually telling you the fix was a reflex. Look for the option that
   satisfies both before reaching to silence one.
-- **`@angular/cdk` is installed and is the sanctioned answer for modals**, unlike Angular
-  Material, which is removed. It is not a UI framework — it is an accessibility primitives
-  library, and `cdkTrapFocus` / `Overlay` cover focus trapping, focus restoration, background
-  `inert` and scroll blocking. Those are where a hand-rolled dialog fails AXE, so do not
-  hand-roll them. Nothing imports CDK today; it is on hand deliberately, and its presence is
-  **not** a precedent for installing anything else speculatively.
-  - When that day comes, CDK wants two prebuilt global stylesheets — `a11y-prebuilt.css` for
-    `.cdk-visually-hidden`, `overlay-prebuilt.css` for overlay positioning. Add them
-    deliberately, at that point, and read them first: `overlay-prebuilt.css` declares
-    `.cdk-overlay-container { position: fixed; height: 100%; width: 100% }`, which is correct
-    only because the shell now guarantees the document fills the viewport. Wiring a global
-    stylesheet in without reading it is the exact mistake Material's scaffold made.
+- **`@angular/cdk` is the sanctioned answer for modals**, unlike Angular Material, which is
+  removed. It is not a UI framework — it is an accessibility primitives library. **It is in use
+  since milestone 13**: `ui/reset-dialog.ts` is the app's first and so far only overlay, opened
+  through the headless `Dialog` from `@angular/cdk/dialog`. Its presence is still **not** a
+  precedent for installing anything else speculatively.
+  - **Use `Dialog`, not a hand-rolled overlay.** Focus trapping, focus restoration to the control
+    that opened it, `aria-hidden` on everything behind it, and Escape to dismiss are four things a
+    hand-written dialog gets wrong and four things AXE and WCAG care about. `settings.spec.ts`
+    covers the restoration case, and it needs a **keyboard** open (`press('Enter')`) — WebKit does
+    not leave focus on a clicked button, so a mouse-driven version asserts nothing.
+  - ⚠️ **Override the scroll strategy with `createNoopScrollStrategy()`.** CDK defaults to
+    blocking, which works by putting `position: fixed; overflow-y: scroll` on `html` — a fix for a
+    document that scrolls, and this one deliberately never does. The backdrop already stops a touch
+    reaching the screen underneath.
+  - **The two prebuilt global stylesheets are no longer needed, and adding them is the mistake
+    now.** CDK 22 self-loads both through `_CdkPrivateStyleLoader` — `_CdkOverlayStyleLoader`
+    carries what was `overlay-prebuilt.css`, `_VisuallyHiddenLoader` what was `a11y-prebuilt.css`.
+    Nothing is wired into `angular.json`, and the overlay renders correctly without it. Advice to
+    add them is real but stale; read `node_modules/@angular/cdk/fesm2022/` before believing it.
+  - **Set `ariaModal: true` explicitly.** CDK gives `role="dialog"` and hides the background, but
+    leaves `aria-modal` off by default.
 
 ### Components
 

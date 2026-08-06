@@ -4,6 +4,7 @@ import {
   emptyWallet,
   type GameState,
   grantStarters,
+  newGame,
   type Numeric,
   type OfflineReport,
   type PartyFormation,
@@ -24,7 +25,7 @@ import {
   STAGE_REWARD_CURVE,
   SUMMON_RATE_CURVE,
 } from './content';
-import { SaveService } from './save.service';
+import { makeSeed, SaveService } from './save.service';
 
 /**
  * Stable empties for the pre-load window, so `wallet()` and `rates()` never hand a template a
@@ -153,32 +154,46 @@ export class GameLoopService {
     this.saveIssues.set(loaded.issues);
     this.loadFailure.set(loaded.fatal);
 
-    // Two idempotent repairs, both needing content that `core/` cannot see, and both running on
-    // every load rather than behind a version gate.
-    //
-    // `grantStarters` covers a save that arrives with an empty roster — a v2 save that predates
-    // characters, or one damaged badly enough that every entry was dropped — so the player lands
-    // with a party rather than a game they cannot play.
-    //
-    // `reconcileClearedStages` rebuilds the idle income a run has already earned. The v2 → v3
-    // migration moved gold across and started the other three rates at zero, which stranded
-    // returning players on gold-only income with no way back except re-fighting the ladder. It
-    // also undercounted `clearedStages` at the top of the ladder, and paid none of the
-    // first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
-    // recoverable from the gold rate the save did keep.
-    //
-    // It is also where the crystal rate is established, for every run rather than only a damaged
-    // one: that rate is a function of `clearedStages` rather than a per-stage unlock, and
-    // `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
-    // arrives here earning nothing and leaves earning the base.
-    //
-    // `repairLoadouts` is the third of these and runs for the same reason: a loadout is a set of
-    // ids into the bag, and the checks that matter — does the id resolve, is the piece in the slot
-    // it claims, does its archetype still match its wearer — need both the bag and the content
-    // this build ships. The save layer can see neither, so it parses the shape and leaves the
-    // content check here. It only ever removes what cannot be rendered, so a healthy save comes
-    // back as the same object.
-    const repaired = grantStarters(loaded.state, STARTER_FORMATION, CHARACTERS_BY_ID);
+    this.state = this.prepare(loaded.state);
+    this.settle(nowMs);
+
+    this.begin();
+  }
+
+  /**
+   * The three content-aware repairs every run goes through, loaded or freshly created.
+   *
+   * All three are idempotent and all three run on every run rather than behind a version gate,
+   * because each needs content that `core/` cannot see. That is also why {@link reset} goes
+   * through here rather than using `newGame` directly — a fresh run that skipped this would
+   * arrive with nobody in the party and no crystal rate.
+   *
+   * `grantStarters` covers a save that arrives with an empty roster — a v2 save that predates
+   * characters, or one damaged badly enough that every entry was dropped — so the player lands
+   * with a party rather than a game they cannot play. It is also what puts the starters in a
+   * brand-new run, which `newGame` cannot do.
+   *
+   * `reconcileClearedStages` rebuilds the idle income a run has already earned. The v2 → v3
+   * migration moved gold across and started the other three rates at zero, which stranded
+   * returning players on gold-only income with no way back except re-fighting the ladder. It
+   * also undercounted `clearedStages` at the top of the ladder, and paid none of the
+   * first-clear crystal bonuses for a ladder that had demonstrably been climbed. All of it is
+   * recoverable from the gold rate the save did keep.
+   *
+   * It is also where the crystal rate is established, for every run rather than only a damaged
+   * one: that rate is a function of `clearedStages` rather than a per-stage unlock, and
+   * `newGame` cannot evaluate it because the curve is content. A brand-new save therefore
+   * arrives here earning nothing and leaves earning the base.
+   *
+   * `repairLoadouts` is the third of these and runs for the same reason: a loadout is a set of
+   * ids into the bag, and the checks that matter — does the id resolve, is the piece in the slot
+   * it claims, does its archetype still match its wearer — need both the bag and the content
+   * this build ships. The save layer can see neither, so it parses the shape and leaves the
+   * content check here. It only ever removes what cannot be rendered, so a healthy save comes
+   * back as the same object.
+   */
+  private prepare(state: GameState): GameState {
+    const repaired = grantStarters(state, STARTER_FORMATION, CHARACTERS_BY_ID);
     const reconciled = reconcileClearedStages(
       repaired,
       LADDER,
@@ -186,15 +201,61 @@ export class GameLoopService {
       STAGE_REWARD_CURVE,
       SUMMON_RATE_CURVE,
     );
-    this.state = repairLoadouts(reconciled, CHARACTERS_BY_ID, GEAR);
-    this.settle(nowMs);
+    return repairLoadouts(reconciled, CHARACTERS_BY_ID, GEAR);
+  }
 
+  /** Starts the frame loop, the autosave and the visibility listener. */
+  private begin(): void {
     this.running = true;
     this.lastFrameAt = performance.now();
     this.rafId = requestAnimationFrame(this.frame);
 
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.autosaveId = setInterval(() => void this.persist(), AUTOSAVE_MS);
+  }
+
+  /**
+   * Throws the run away and starts a new one.
+   *
+   * **Emptying the two save slots is not a reset, and that is the trap this method exists to
+   * avoid.** This service holds the authoritative state in memory and writes it back on autosave
+   * and on `visibilitychange`, so a reset that only cleared storage would be undone by the app on
+   * its way out — the player would see a fresh run until the next backgrounding put the old one
+   * back. So the loop is stopped first, the in-memory state is replaced, and only then does
+   * anything start running again.
+   *
+   * The order is the argument:
+   *
+   * 1. **Stop the loop**, so no frame, autosave or visibility handler can write the old run back
+   *    between here and the end of the method.
+   * 2. **Clear both slots.** `SaveService.clear` drops anything queued and waits for a write
+   *    already in flight, so the old run cannot land after the wipe. Clearing before writing is
+   *    also what keeps the old run out of the *backup* slot — a write copies the primary across
+   *    first, and there is nothing to copy once both are gone.
+   * 3. **Replace the state**, through the same {@link prepare} a loaded run goes through.
+   * 4. **Persist immediately**, so the reset survives the app dying before the first autosave.
+   *
+   * Every published signal is cleared too. An offline receipt or a repair notice left standing
+   * would be describing a run that no longer exists.
+   *
+   * `nowMs` is supplied by the caller for the reason it always is: the clock lives at the edges.
+   */
+  async reset(nowMs: number): Promise<void> {
+    this.stop();
+    await this.saves.clear();
+
+    this.state = this.prepare(newGame({ seed: makeSeed(), nowMs }));
+    this.snapshot.set(this.state);
+    // A fresh run is stamped at `nowMs`, so there is no gap to settle — but the accumulators
+    // still hold whatever the old run had banked towards its next tick.
+    this.simAccMs = 0;
+    this.uiAccMs = 0;
+    this.offlineReport.set(null);
+    this.saveIssues.set([]);
+    this.loadFailure.set(undefined);
+
+    await this.persist();
+    this.begin();
   }
 
   stop(): void {
