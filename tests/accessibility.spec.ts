@@ -7,7 +7,14 @@ import {
   stagePayout,
   totalStages,
 } from '../src/core';
-import { ASCENSION_RULES, CHAPTERS, MORTAL_LADDER, QUEST_RULES, STAGE_REWARDS } from '../src/data';
+import {
+  ACHIEVEMENTS,
+  ASCENSION_RULES,
+  CHAPTERS,
+  MORTAL_LADDER,
+  QUEST_RULES,
+  STAGE_REWARDS,
+} from '../src/data';
 
 /**
  * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
@@ -107,6 +114,28 @@ const duplicatesSave = {
 };
 
 /**
+ * The track the fixture below partly claims: the one counted in stage clears, which
+ * {@link unlockedSave} has already taken to the top of the ladder.
+ *
+ * Found by its counter rather than named, so the seeded ledger key and the locator in the test
+ * both come from one place. Retyping either would turn the coupling into a comment — the fixture
+ * would go on claiming a track id nothing ships and quietly scan the unclaimed branch, which is
+ * the exact state this fixture exists to avoid.
+ */
+const CLAIMED_TRACK = ACHIEVEMENTS.find((track) => track.counter === 'clearedStages');
+if (CLAIMED_TRACK === undefined) {
+  throw new Error('No achievement track is counted in stage clears; `achievementsSave` is stale.');
+}
+
+/**
+ * Awards {@link CLAIMED_TRACK} has already taken.
+ *
+ * One, and it must stay the only track with a non-zero count: the test locates the partly-claimed
+ * row by this number, which is unambiguous precisely because every other track has claimed nothing.
+ */
+const CLAIMED_AWARDS = 1;
+
+/**
  * A run with achievement awards waiting, and one already taken.
  *
  * `clearedStages` is {@link CLEARS}, so what decides how many awards are outstanding is the ledger
@@ -130,7 +159,7 @@ const achievementsSave = {
   gear: [],
   gearMinted: 0,
   gearShop: { slot: 0, purchased: [] },
-  achievements: { 'stages-cleared': 1 },
+  achievements: { [CLAIMED_TRACK.id]: CLAIMED_AWARDS },
 };
 
 /**
@@ -438,9 +467,22 @@ test.describe('Accessibility', () => {
   /**
    * Achievements, seeded so a ready track and a claimed one are both on screen.
    *
-   * The row carries the app's only `role="progressbar"`, whose whole accessible description lives
-   * in `aria-valuetext` — markup that ends up announcing a bare percentage of nothing if it is
-   * wrong. A fresh run would scan the "first award at 5" branch and never reach a ready row.
+   * Every row carries a `role="progressbar"` whose whole accessible description lives in
+   * `aria-valuetext` — markup that ends up announcing a bare percentage of nothing if it is wrong.
+   * A fresh run would scan the "first award at 5" branch and never reach a ready row.
+   *
+   * ⚠️ **The bar is located by name, and it has to be.** This read `getByRole('progressbar')`
+   * bare, on a comment claiming the row carried the app's only one. That stopped being true the
+   * moment a second track shipped, and Playwright's strict mode then failed the locator — before
+   * {@link scan} on the next line ever ran, so the screen sat with no accessibility coverage at all
+   * while the suite reported a failure that looked like a markup regression. **A precondition guard
+   * that can be broken by unrelated content is worse than none**: it fails loudly for the wrong
+   * reason and hides the assertion it was guarding. Name the row this fixture is actually about.
+   *
+   * ⚠️ **A visible bar is not evidence the seeded ledger was read.** Every row draws one whatever
+   * its claim state, so the bare locator was never proving what the comment said it did — the
+   * strict-mode break only made a weak guard look like a broken one. The claim count in the hint
+   * text is the assertion that actually distinguishes the branches.
    *
    * ⚠️ It also scans the *quiet* rows, which is the point the Altar learned the hard way: dimming
    * a card with `opacity` dims its text with it, and `$muted` at 70% is under the 4.5:1 floor.
@@ -453,7 +495,14 @@ test.describe('Accessibility', () => {
     // A track with something waiting, which is what proves the seeded save was read rather than
     // scanning the empty-state branch.
     await expect(page.getByRole('button', { name: /^Claim all/ })).toBeEnabled();
-    await expect(page.getByRole('progressbar')).toBeVisible();
+    await expect(
+      page.getByRole('progressbar', { name: `${CLAIMED_TRACK.name} progress` }),
+    ).toBeVisible();
+    // The bar renders on every row whatever its state, so it proves a row was drawn and nothing
+    // more. The *partly claimed* branch — the row state this fixture exists for, and the one a
+    // fresh run and a fully claimed one both miss — is only legible in the hint text, and only the
+    // seeded ledger can put a non-zero claim count there.
+    await expect(page.getByText(new RegExp(`earned, ${CLAIMED_AWARDS} claimed`))).toBeVisible();
 
     await scan(page, testInfo, 'achievements');
   });
