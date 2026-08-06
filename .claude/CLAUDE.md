@@ -68,6 +68,17 @@ the two disagree, the code is right and both are stale.
     below it.** `chapters.balance.ts` fielded its reference parties at `rarityIndex('rare')` for
     exactly that protection and every one of them silently gained ×1.6² anyway. Anything meaning
     "how far has this been invested" must count rungs from a floor.
+  - **Ascending happens at the Altar (`ui/altar-view.ts`, `/town/altar`) and nowhere else.** The
+    character sheet keeps its Ascension panel — the price, and which skill the next rung unlocks —
+    and links there instead of carrying a button. Do not put an ascend control back on the sheet:
+    one rung per sheet meant a player holding duplicates of nine characters opened nine screens to
+    make nine decisions that had no alternative in them.
+  - **`ascendAll` climbs the whole roster greedily, and that is licensed by the pricing rather than
+    by convenience.** Copies are spent on the character they are copies of and have no other use,
+    so no two characters compete and nothing is foregone — which is why one press needs no
+    confirmation. ⚠️ **A rung priced in anything shared makes this a choice again** and it goes back
+    to the player rather than being resolved greedily. Its loop is bounded by the ladder, never by
+    the copies: a rung a short table does not author reads as free.
 - **[docs/combat.md](../docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
   energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
   there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
@@ -197,12 +208,15 @@ Read it before starting a milestone, and specifically before:
   seventh has to shrink the text past reading or drop it, and a row of unlabelled glyphs is a
   puzzle rather than navigation. **The bar holds five, and the spare slot is not for spending** —
   Summon and Shop gave it back when they moved behind **Town** (`/town`, with `/town/summon`,
-  `/town/shop` and `/town/gear-shop` nested under it so the tab stays lit inside them). Town _is_
-  the different shape of navigation that note used to promise the next screen would need: a hub
-  costs one tap and has no ceiling, so **every currency sink goes in Town** rather than on the bar.
-  The gear shop is the rule in action: it was half of the gear tab and moved, leaving that tab as
-  the **Bag** (`/bag`) — an inventory named for what it holds, so the next item type is a section
-  on a screen that exists rather than an argument for a sixth tab;
+  `/town/shop`, `/town/altar` and `/town/gear-shop` nested under it so the tab stays lit inside
+  them). Town _is_ the different shape of navigation that note used to promise the next screen
+  would need: a hub costs one tap and has no ceiling, so **anything a player goes to _do_ with what
+  they have earned goes in Town** rather than on the bar. The gear shop is the rule in action: it
+  was half of the gear tab and moved, leaving that tab as the **Bag** (`/bag`) — an inventory named
+  for what it holds, so the next item type is a section on a screen that exists rather than an
+  argument for a sixth tab. The **Altar** (`/town/altar`) is the rule generalising: it is not a
+  shop and spends no wallet currency, and it is still a Town card, because "somewhere you go
+  deliberately, with something you have earned" is the test rather than "a currency sink";
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

@@ -209,6 +209,43 @@ when it went there was no rate left to quote.
 
 ---
 
+## Where ascending happens: the Altar
+
+**One place, and it is not the character sheet.** `ui/altar-view.ts` at `/town/altar` is the only
+screen in the game that ascends anybody.
+
+It used to be a button on each sheet, which is the natural place for it and the wrong one at scale.
+A rung costs copies of one character and nothing else, so opening a sheet to ascend is opening a
+screen to make a decision that has no alternative in it — and a player holding duplicates of nine
+characters did that nine times. The sheet keeps the **panel**, because the half of a rung that is
+genuinely about this character — the price in its own copies, and which skill the next rung unlocks
+— does not fit on a list of twenty-three rows. It links to the Altar, focused on the row it came
+from; a panel that quotes a price and offers no way to pay it is a dead end.
+
+The screen offers both:
+
+- **one rung at a time**, per row, exactly as the sheet's button did; and
+- **Ascend all**, which climbs every character as far as its own spare copies reach.
+
+### Ascend all is one press with no confirmation, and the reason is the pricing
+
+Copies are spent on the character they are copies of, and have no other use until `ascended-5`
+turns them into spark. So no two characters compete for the same resource and spending a copy
+forecloses nothing — "ascend everything" is a well-defined answer rather than a strategy. A dialog
+would be asking the player to confirm the only move. There is nothing here to lose either: a rung
+never consumes a character, only spares, so the confirmation dance around irreversible loss stays
+absent for the same reason it always was.
+
+⚠️ **This is a property of copies-only pricing, not a permanent one.** If a rung ever costs
+something with a second claim on it — a currency, a material, another character — `ascendAll`
+stops being a loop and becomes a choice, and it belongs back with the player rather than resolved
+greedily in `core/`. The note is on the function.
+
+Everyone is listed, ready first, in two groups. Not a filtered list: a character three copies short
+is the reason to go summoning, and hiding it would leave the screen empty for most of a run.
+
+---
+
 ## Ascension is the only individual cost
 
 Since milestone 9, **levels are shared and rungs are not.** Resonance carries every character in

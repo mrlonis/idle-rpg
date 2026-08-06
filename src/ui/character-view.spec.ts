@@ -249,6 +249,38 @@ describe('CharacterView', () => {
 
       expect(el.querySelector('.ascend__unlock')).toBeNull();
     });
+
+    it('explains the rung without offering to buy it — the Altar is the only place that does', async () => {
+      const roster = new FakeRoster();
+      roster.at({ rarity: 2, ascensionCost: 2, copies: 9, canAscend: true });
+      const el = await open('/roster/rin', roster);
+
+      // The panel still quotes the price. What it no longer carries is a control that spends it.
+      expect(el.querySelector('.ascend__costs')).not.toBeNull();
+      expect(
+        [...el.querySelectorAll('button')].map((button) => button.textContent?.trim()),
+      ).not.toContain('Ascend to next rarity');
+    });
+
+    it('links to this character’s row at the Altar, so the price has a way to be paid', async () => {
+      const roster = new FakeRoster();
+      roster.at({ rarity: 2, ascensionCost: 2, copies: 9, canAscend: true });
+      const el = await open('/roster/rin', roster);
+
+      const link = el.querySelector<HTMLAnchorElement>('.ascend__link');
+      expect(link?.getAttribute('href')).toBe('/town/altar?focus=rin');
+      expect(link?.textContent?.trim()).toBe('Ascend at the Altar →');
+    });
+
+    it('still points at the Altar when the rung cannot be paid yet, but does not promise it', async () => {
+      const roster = new FakeRoster();
+      roster.at({ rarity: 2, ascensionCost: 6, copies: 1, canAscend: false });
+      const el = await open('/roster/rin', roster);
+
+      const link = el.querySelector<HTMLAnchorElement>('.ascend__link');
+      expect(link?.textContent?.trim()).toBe('See Rin at the Altar →');
+      expect(link?.classList.contains('ascend__link--ready')).toBe(false);
+    });
   });
 
   describe('the level card', () => {

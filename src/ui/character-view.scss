@@ -174,9 +174,30 @@
   color: t.$accent;
 }
 
-.button--wide {
-  width: 100%;
-  margin-top: 0.875rem;
+// The way out of the ascension card, now that the card explains a rung rather than selling one.
+// A link rather than a button, styled as neither: it is the last line of a panel of prose, so it
+// reads as the sentence that follows the price rather than as a second control competing with the
+// levelling buttons above it.
+.ascend__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$muted;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Payable right now, so the link is the accent green the rest of the app uses for "this is
+// available". It also says "Ascend at the Altar" rather than "See … at the Altar" — colour is
+// never the only carrier of meaning.
+.ascend__link--ready {
+  color: t.$accent;
 }
 
 .ascend__intro,

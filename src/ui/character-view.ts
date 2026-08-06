@@ -45,12 +45,16 @@ const GEAR_FAILURES: Readonly<Record<GearFailure, string>> = {
   'insufficient-currency': 'Not enough alloy or gold.',
 };
 
-/** Why an action was refused, in words a player can act on. */
+/**
+ * Why a levelling action was refused, in words a player can act on.
+ *
+ * Levelling is the only thing this sheet spends on since ascension moved to the Altar, so the
+ * ascension reasons are gone from here rather than kept "just in case" — a message for an outcome
+ * nothing on the screen can produce is a claim about the sheet that stopped being true.
+ */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'insufficient-currency': 'Not enough gold, XP or essence for that level.',
   'level-capped': 'Already at the level cap for this rarity. Ascend to raise it.',
-  'insufficient-copies': 'Not enough spare copies of this character.',
-  'max-rarity': 'Already fully ascended.',
   'not-owned': 'You do not own this character.',
 };
 
@@ -92,9 +96,15 @@ function skillMeter(skill: SkillData): string {
 }
 
 /**
- * One character's sheet: what it is, what it costs to improve, and the two ways to do it.
+ * One character's sheet: what it is, what it costs to improve, and where each of those happens.
  *
- * ## Ascension is one number against one number
+ * ## Ascension is explained here and performed at the Altar
+ *
+ * The panel stayed and its button left. What the panel is good at is the half of a rung that is
+ * *about this character* — the price in its own copies, and which skill the next rung unlocks —
+ * and none of that fits on a list of twenty-three rows. What the button was bad at is being the
+ * only way to ascend: a player holding duplicates of nine characters had nine sheets to open, each
+ * to make a decision with no alternative in it. See `altar-view.ts`.
  *
  * A rung costs spare copies of this character and nothing else, so the price is shown as held
  * against needed and there is nothing to choose.
@@ -354,10 +364,6 @@ export class CharacterView {
 
   protected levelMax(): void {
     this.report(this.roster.levelUpMax(this.defId()));
-  }
-
-  protected ascend(): void {
-    this.report(this.roster.ascendOnce(this.defId()));
   }
 
   private report(result: { ok: boolean; reason?: RosterFailure }): void {

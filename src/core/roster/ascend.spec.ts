@@ -4,7 +4,7 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { newGame, type GameState } from '../state';
-import { ascend, nextAscension, pathFor } from './ascend';
+import { ascend, ascendAll, nextAscension, pathFor } from './ascend';
 import {
   owned,
   TEST_ALPHA,
@@ -204,5 +204,126 @@ describe('ascend', () => {
     expect(fullAscensionCost(RULES, 'mortal', 'legendary')).toBeGreaterThan(
       fullAscensionCost(RULES, 'mortal', 'ascended'),
     );
+  });
+});
+
+describe('ascendAll', () => {
+  it('reaches exactly where tapping ascend until it refuses reaches', () => {
+    // The property the whole feature rests on: the batch is the manual climb, not a second
+    // ladder with its own arithmetic. If these ever disagree, one of them is charging a
+    // different price for the same rung.
+    const state = run({ roster: [owned(TEST_GAMMA, 7)] });
+
+    let manual = state;
+    for (;;) {
+      const result = ascendGamma(manual);
+      if (!result.ok) {
+        break;
+      }
+      manual = result.state;
+    }
+
+    expect(ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS).state.roster).toEqual(
+      manual.roster,
+    );
+  });
+
+  it('climbs every character it can afford, in one pass', () => {
+    // alpha is common-tier at the bottom of the ladder, where a rung costs 4 and the next costs
+    // 6, so it climbs once and stops. gamma starts at Elite where three rungs cost one apiece.
+    const state = run({ roster: [owned(TEST_ALPHA, 4), owned(TEST_GAMMA, 3)] });
+
+    const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(steps).toEqual([
+      { defId: 'alpha', from: 0, to: 1, copies: 4 },
+      { defId: 'gamma', from: ELITE, to: ELITE + 3, copies: 3 },
+    ]);
+    expect(findOwned(next, 'alpha')?.copies).toBe(0);
+    expect(findOwned(next, 'gamma')?.copies).toBe(0);
+  });
+
+  it('leaves a character that cannot pay its next rung exactly as it was', () => {
+    const state = run({ roster: [owned(TEST_ALPHA, 3)] });
+
+    const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(steps).toEqual([]);
+    expect(findOwned(next, 'alpha')).toEqual(findOwned(state, 'alpha'));
+  });
+
+  it('hands back the very same state when nothing could ascend', () => {
+    // Not merely an equal one. `ui/` publishes whatever it is handed, so a fresh object would
+    // redraw every screen watching the run in order to show it the numbers it already had.
+    const state = run({ roster: [owned(TEST_ALPHA, 3), owned(TEST_GAMMA, 0)] });
+
+    expect(ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS).state).toBe(state);
+  });
+
+  it('takes a character to the top of the ladder when the copies are there', () => {
+    // `fullAscensionCost` counts the copy that got the character onto the ladder, so the copies
+    // *spent* are one fewer — the same accounting the rung-by-rung climb above asserts.
+    const total = fullAscensionCost(RULES, 'celestial', 'ascended');
+    const state = run({ roster: [owned(TEST_ZETA, 100)] });
+
+    const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(findOwned(next, 'zeta')?.rarity).toBe(MAX_RARITY_INDEX);
+    expect(steps).toEqual([
+      {
+        defId: 'zeta',
+        from: startRarityIndex('ascended'),
+        to: MAX_RARITY_INDEX,
+        copies: total - 1,
+      },
+    ]);
+    expect(findOwned(next, 'zeta')?.copies).toBe(100 - (total - 1));
+  });
+
+  it('stops at the top of the ladder rather than spending the copies waiting to become spark', () => {
+    const state = run({
+      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
+    });
+
+    const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(steps).toEqual([]);
+    expect(findOwned(next, 'gamma')?.copies).toBe(99);
+  });
+
+  it('skips a character this build no longer ships rather than refusing the whole pass', () => {
+    // A batch has no single reason to refuse, and one unknown id in a save is not grounds for
+    // leaving the rest of the roster unascended.
+    const state = run({
+      roster: [{ defId: 'ghost', rarity: 0, level: 1, copies: 99, gear: {} }, owned(TEST_GAMMA, 3)],
+    });
+
+    const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(steps.map((step) => step.defId)).toEqual(['gamma']);
+    expect(findOwned(next, 'ghost')).toEqual(findOwned(state, 'ghost'));
+  });
+
+  it('never spends the main copy, only spares', () => {
+    const state = run({ roster: [owned(TEST_GAMMA, 3)] });
+
+    const { state: next } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(next.roster).toHaveLength(1);
+    expect(findOwned(next, 'gamma')?.level).toBe(1);
+  });
+
+  it('does not mutate the state it is given', () => {
+    const state = run({ roster: [owned(TEST_GAMMA, 3)] });
+
+    ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
+
+    expect(findOwned(state, 'gamma')).toEqual({
+      defId: 'gamma',
+      gear: {},
+      rarity: ELITE,
+      level: 1,
+      copies: 3,
+    });
   });
 });

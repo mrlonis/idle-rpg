@@ -258,7 +258,15 @@ export {
   type PullOutcome,
   type PullResult,
 } from './gacha/types';
-export { ascend, nextAscension, pathFor, type FactionLookup } from './roster/ascend';
+export {
+  ascend,
+  ascendAll,
+  nextAscension,
+  pathFor,
+  type AscensionStep,
+  type AscensionSummary,
+  type FactionLookup,
+} from './roster/ascend';
 export {
   kitSlots,
   nextSkillUnlock,

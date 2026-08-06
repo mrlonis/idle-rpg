@@ -258,14 +258,24 @@
         </p>
       }
 
-      <button
-        type="button"
-        class="button button--primary button--wide"
-        [disabled]="!row.canAscend"
-        (click)="ascend()"
+      <!--
+        A link, not a button: ascending happens at the Altar and nowhere else, so this changes
+        where the player is rather than what they own. It carries `focus` so they land on this
+        character's row instead of at the top of the roster — the panel above quotes a price, and
+        a price with no way to pay it is a dead end.
+      -->
+      <a
+        class="ascend__link"
+        routerLink="/town/altar"
+        [queryParams]="{ focus: row.defId }"
+        [class.ascend__link--ready]="row.canAscend"
       >
-        Ascend to next rarity
-      </button>
+        @if (row.canAscend) {
+          Ascend at the Altar →
+        } @else {
+          See {{ row.name }} at the Altar →
+        }
+      </a>
     }
   </section>
 } @else {

@@ -2114,6 +2114,65 @@ of pulls. Spark is minted only by copies of an `ascended-5` character, so it was
 currency almost nobody ever saw. Prices did not move; the shop gained a third copy offer because
 the three tiers now start on three different rungs. See [economy](economy.md).
 
+## Not a milestone: ascension moved to the Altar, and gained an Ascend all
+
+The screen the copies-only rewrite above should have got at the time. **`/town/altar` is now the
+only place in the game that ascends anybody**, and it does the whole roster in one press.
+
+The complaint was ordinary and correct: ascending meant opening a character sheet, tapping one
+button, going back, and opening the next one. With duplicates of nine characters that is nine
+screens for nine decisions — and the rewrite above is exactly what made those decisions empty. A
+rung costs copies of one character and nothing else, so there is no plan to choose, no fodder to
+pick, and no reason to be looking at the sheet while making it.
+
+### What the sheet keeps, and what it loses
+
+The **panel stays; the button goes.** The half of a rung that is genuinely about one character —
+its price in its own copies, whether it can pay, and which skill the next rung unlocks — is the
+thing a list of twenty-three rows has no room for, and it is already written. What the sheet is bad
+at is being the _only_ way to ascend.
+
+In its place is a link to the Altar carrying `?focus=<defId>`, which moves focus to that
+character's row on arrival. Focus rather than a scroll, because focus scrolls anyway _and_ tells a
+screen reader where the player now is. A panel that quotes a price and offers no way to pay it is a
+dead end, which is the one thing removing the button could have cost.
+
+### Ascend all needs no confirmation, and the reason is not convenience
+
+Copies are spent on the character they are copies of and have no other use until `ascended-5` turns
+them into spark. So no two characters compete for the same resource, and spending a copy forecloses
+nothing — "ascend everything" is a well-defined answer rather than a strategy, and a dialog would
+be asking the player to confirm the only move. Nothing is lost either: rungs consume spares, never
+a character, so the irreversible-loss confirmation this game does not have stays absent.
+
+⚠️ **That is a property of the pricing, not a licence.** `core/roster/ascend.ts` records the
+condition that ends it: a rung costing anything with a second claim on it makes this a choice
+again, and it belongs back with the player rather than resolved greedily. Any future "do it all"
+button has to make the same argument from scratch.
+
+Two smaller things worth keeping:
+
+- **The climb is bounded by the ladder, never by the copies.** A rung a short or damaged table does
+  not author reads as _free_, so a loop that stopped when the copies ran out would not stop.
+- **A pass that moves nothing returns the same state object**, not an equal one. `ui/` publishes
+  what it is handed, so a fresh object would redraw every screen watching the run to show it the
+  numbers it already had.
+
+### Town is not a row of shops
+
+The Altar is the first card in Town that spends no wallet currency, and its balance figure is a
+count of characters rather than a quantity of anything. That settles what the hub is: **somewhere
+you go deliberately, with something you have earned** — which is the test, rather than "a currency
+sink". The bar is still Home · Town · Roster · Bag · Settings, still five, still with a spare slot
+that is not for spending.
+
+### What AXE caught, within a minute, again
+
+The "Not yet" rows were dimmed with `opacity: 0.7`. Dimming a card dims its text with it, and
+`$muted` is 6.4:1 on `$surface` — 70% of that is under the 4.5:1 floor, and the scan failed in all
+three browsers. They are drawn as outlines on the page background instead, where `$muted` measures
+7.2:1. **Do not reach for opacity to quiet a row whose text is the whole of what it has to say.**
+
 ## Not a milestone: the save chain was re-based to v0
 
 Housekeeping rather than a milestone, done straight after chapters shipped. `SAVE_VERSION` went

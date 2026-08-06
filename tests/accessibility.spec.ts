@@ -1,7 +1,13 @@
 import { AxeBuilder } from '@axe-core/playwright';
 import { expect, type Page, test, type TestInfo } from '@playwright/test';
-import { ladderShape, stagePayout, totalStages } from '../src/core';
-import { CHAPTERS, STAGE_REWARDS } from '../src/data';
+import {
+  ascensionCost,
+  ladderShape,
+  MAX_RARITY_INDEX,
+  stagePayout,
+  totalStages,
+} from '../src/core';
+import { ASCENSION_RULES, CHAPTERS, MORTAL_LADDER, STAGE_REWARDS } from '../src/data';
 
 /**
  * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
@@ -74,6 +80,30 @@ const gearedSave = {
   ],
   gearMinted: 4,
   gearShop: { slot: 0, purchased: [] },
+};
+
+/**
+ * A run holding duplicates, so the Altar renders all three of the states a row can be in.
+ *
+ * The copies are **derived from the shipped ladder**, not typed out: retuning a rung would
+ * otherwise leave Rin one copy short and quietly scan the empty-ready branch instead of the rows
+ * this test exists for. The *most expensive* rung rather than the one Rin happens to be facing,
+ * because a v0 save's rarities are shifted up two by the v1 → v2 migration before this screen ever
+ * sees them — so the rung this pays for is not the one written below.
+ */
+const READY_COPIES = Math.max(
+  ...MORTAL_LADDER.map((_, from) => ascensionCost(ASCENSION_RULES, 'mortal', from) ?? 0),
+);
+const duplicatesSave = {
+  ...unlockedSave,
+  roster: [
+    // Ready: enough for any single rung, so the row's Ascend button is enabled.
+    { defId: 'rin', rarity: 0, level: 1, copies: READY_COPIES },
+    // Short: a row quoting a price it cannot pay, which is the "Not yet" group's ordinary case.
+    { defId: 'bran', rarity: 0, level: 1, copies: 1 },
+    // Done: the top of the ladder, where copies become spark and there is no next rung to name.
+    { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3 },
+  ],
 };
 
 /** Writes a save the app will read on its next load. Capacitor's web backend is localStorage. */
@@ -281,6 +311,27 @@ test.describe('Accessibility', () => {
     await expect(page.locator('.picker')).toBeVisible();
 
     await scan(page, testInfo, 'character-gear');
+  });
+
+  /**
+   * The Altar, seeded so every row state is on screen at once.
+   *
+   * Its markup is the pattern most likely to go wrong here: a list whose rows are focusable
+   * without being in the tab order — a character sheet links straight to one — beside buttons
+   * whose visible label ("Ascend") repeats down the whole list and whose accessible name has to
+   * come from somewhere else.
+   */
+  test('the altar has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, duplicatesSave);
+    await page.goto('/town/altar');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Altar' })).toBeVisible();
+    // A ready row and a waiting row both on screen, which is what proves the seeded save was read
+    // rather than scanning an empty-state branch.
+    await expect(page.getByRole('button', { name: /^Ascend Rin to / })).toBeEnabled();
+    await expect(page.locator('.character--waiting').first()).toBeVisible();
+
+    await scan(page, testInfo, 'altar');
   });
 
   test('the spark shop has no AXE violations', async ({ page }, testInfo) => {
