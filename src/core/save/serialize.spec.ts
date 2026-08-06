@@ -44,6 +44,7 @@ describe('toSaveData', () => {
       roster: [],
       formation: { front: [], back: [] },
       pity: 0,
+      legendaryPity: 0,
       pullCount: 0,
       gear: [],
       gearMinted: 0,

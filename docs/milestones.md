@@ -2711,6 +2711,74 @@ still fires when one side is retuned without the other. The old `expect(reward.s
 went too: it was a restatement of content, which the same rules warn against, and what replaced it
 measures the sum of both faucets in pulls.
 
+## Not a milestone: the gacha grew a second pity curve
+
+No new system, one more counter. The banner now makes two promises instead of one:
+
+- **legendary tier or better within 10 pulls** — new. Soft pity from pull 6 at +25 points, certain
+  at 9;
+- **ascended tier within 30 pulls**, down from 50. The ramp had to be **re-derived rather than
+  clipped**: it used to start at pull 30, which under a cap of 30 would have meant no ramp at all —
+  a flat 2.5% for twenty-nine pulls and then a cliff. It starts at 20 with a +15 point step, which
+  puts certainty at 27 and keeps the relationship the old curve had: two thirds of the cycle at base
+  rate, the last tenth guaranteed.
+
+`SAVE_VERSION` reached **6** — v5 → v6 adds `legendaryPity`, and is the first version number since
+the re-base that has only ever meant one thing.
+
+### What it is worth, and why the base weights did not move
+
+Measured over the stationary distribution rather than inferred from the weights: an ascended-tier
+character every **17.6 pulls** against 23.4, and a legendary-or-better every **3.36** against 3.79.
+`TIER_WEIGHTS` is untouched at 2.5 / 22.5 / 75.
+
+That split is the point rather than an omission. **A rate is what a player is promised and pity is
+what they actually get**, and this project has no reason to make the two agree — the whole argument
+in `banners.ts` is that generosity is free here because there is no bridge to sell. Lowering the base
+weights to hold the effective rate steady would have been a rate cut dressed as a floor.
+
+### The second curve is a floor under the same roll, not a second draw
+
+⚠️ It raises the **threshold** the single tier roll is compared against. A curve that drew a value of
+its own would have broken the three-draws-per-pull invariant the entire save layer leans on — and it
+would have broken it silently, because nothing about the results would look wrong. `pull.spec.ts`
+asserts consumption is unchanged with the floor active.
+
+⚠️ **At base rate the floor equals the proportional split exactly, and that is load-bearing rather
+than a coincidence worth admiring.** With `TIER_WEIGHTS` summing to 1, what the existing proportional
+rescale produces at the base ascended rate _is_ `ascended + legendary` — so a run inside the flat
+stretch of both curves draws precisely what it drew before this existed, and the floor can only ever
+raise the legendary threshold, never lower it. That is what stops deep ascended pity from being
+silently undone by a freshly cleared legendary counter, which is the one way two curves over one roll
+can fight each other. Weights summing to anything else put them quietly out of step from pull one, in
+whichever direction the total leaned; `banners.spec.ts` asserts the sum and the equality.
+
+### The specs stopped restating the curve and started deriving from it
+
+The pity block in `banners.spec.ts` was four assertions against `PITY.hardPity`. It is now the same
+four run over **both** curves through `describe.each`, quoted with the live rate function the draw
+itself uses.
+
+⚠️ **The "hard cap is a floor, not the mechanism" assertion had to become proportional.** It read
+`certainAt < hardPity - 2`. Three pulls of headroom is a tenth of a thirty-pull cycle and nearly a
+third of a ten-pull one — one number making two different claims, and it would have failed the
+legendary curve for being correctly shaped. It is now a fraction of the cycle.
+
+### Two counters, because a dry spell and a drought are different complaints
+
+One counter cannot bound both. The interval that keeps the top tier from feeling remote is far too
+long to keep a session from feeling empty, and an ascended cycle short enough to do that job would
+have made the top tier routine.
+
+The shorter cycle is sized to `MULTI_PULL_COUNT` deliberately: **a ten-pull is the unit a player
+actually experiences**, and one that came back entirely common was the worst thing this banner could
+produce. It is now unreachable rather than merely rare — asserted against the batch rather than
+against the counter, and across batches too, so pulling one at a time is not a way to walk past it.
+
+On screen both counters are shown and **only one gets a bar**. The legendary cycle clears three times
+inside one ascended cycle, so a second bar of equal weight would read as two competing goals rather
+than one goal and a floor beneath it; it gets a line carrying the same two facts the bar does.
+
 ## Not a milestone: the presentation track
 
 **Every milestone here is a system, and the genre's draw is at least half aesthetic.** Art,

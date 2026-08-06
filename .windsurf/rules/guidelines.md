@@ -30,7 +30,8 @@ gap it creates. There is no bridge to sell here, so generosity is free. When sug
 rates or pacing, err generous. Pity and duplicate-conversion are mandatory — an unlucky
 player has no escape valve, so bad luck must be bounded. Both shipped in milestone 3: pity is
 global and always on screen, and duplicates are the primary ascension path rather than a
-consolation prize — a pull can never produce nothing.
+consolation prize — a pull can never produce nothing. There are **two pity curves** now:
+legendary-or-better within 10 pulls and ascended within 30, both global and both on screen.
 
 ---
 
@@ -167,6 +168,29 @@ the two disagree, the code is right and both are stale.
     top-of-ladder idle income to 588, and `levels.spec.ts` was lowered from 1,000 to 500 rather
     than the level curve being steepened — because progression being twice as fast _was_ the
     change. **The next thing that raises income has to move the level curve, not that threshold.**
+  - **The banner keeps two pity curves, not one**: legendary-or-better within 10 pulls (soft from 6
+    at +25pt, certain at 9), ascended within 30 (soft from 20 at +15pt, certain at 27). They bound
+    different complaints — how long a run of nothing can get, against how far away the top tier can
+    be — and one counter cannot do both. `GameState` stores both; `state.pity` is still the
+    ascended one.
+    - ⚠️ **The legendary curve is a floor under the same roll, never a second draw.** It raises the
+      threshold the single tier roll is compared against, which is what keeps consumption at exactly
+      three draws per pull. A curve drawing its own value breaks the invariant `rng.calls` rests on,
+      and breaks it silently — nothing about the results would look wrong.
+    - ⚠️ **At base rate that floor equals the proportional split exactly, and `TIER_WEIGHTS` summing
+      to 1 is what makes it so.** A run inside the flat stretch of both curves therefore draws
+      precisely what it drew before the second curve existed, and the floor can only ever raise the
+      legendary threshold — which is what stops deep ascended pity being undone by a freshly cleared
+      legendary counter. Weights summing to anything else put the two mechanisms quietly out of step
+      from the first pull.
+    - ⚠️ **A hard cap moved is a soft ramp re-derived, not clipped.** Taking ascended pity from 50 to
+      30 left `softPityStart` at 30, which is a flat 2.5% for twenty-nine pulls and then a cliff —
+      no ramp at all. The "certainty arrives before the cap" assertion in `banners.spec.ts` is
+      **proportional to the cycle** for the same reason: three pulls of headroom is a tenth of a
+      thirty-pull cycle and nearly a third of a ten-pull one.
+    - **The base weights did not move, and holding them steady was the decision.** A rate is what a
+      player is promised and pity is what they actually get; lowering the weights to keep the
+      effective rate flat would be a rate cut dressed as a floor.
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../../src/core/ladder.ts) before touching progression.
   - ⚠️ **`GameState.stage` is the stage within its chapter, not a position on the whole ladder.**
@@ -290,14 +314,22 @@ the two disagree, the code is right and both are stale.
   Send". The failure is loud on screen and silent at authoring time. The same trap waits for any
   class a component assumes is global.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 5**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
-  stored rarity by two when the ladder grew a bottom, and milestone 14b added the achievement
-  ledger (v2 → v3), the quest windows (v3 → v4) and the bounty board (v4 → v5). The last three are
+  fixtures. **`SAVE_VERSION` is 6**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
+  stored rarity by two when the ladder grew a bottom, milestone 14b added the achievement
+  ledger (v2 → v3), the quest windows (v3 → v4) and the bounty board (v4 → v5), and v5 → v6 added
+  the legendary pity counter. All but v1 → v2 are
   additive and cheap for the same reason — every counter or field they read was already stored.
   - ⚠️ **The version burn is spent.** The v0 re-base freed numbers 1–5 and **all five have been
     re-issued**, so no number below `SAVE_VERSION` still means "pre-baseline". A save is unreadable
     now only by being _newer_ than this build. Any test for that case must **derive** its version
     from `SAVE_VERSION`, never write a literal — that fixture went stale twice in one milestone.
+    **v6 is the first number past that range** and so the first whose value has only ever meant one
+    thing; that is the burn being over rather than a new rule.
+  - ⚠️ **An additive migration's fixture must store a value the default would not produce.**
+    `v6.json` carries a mid-cycle `legendaryPity` because a fixture holding the empty value passes
+    identically whether the decoder reads the field or silently defaults it — which is the one
+    distinction the fixture exists to make. The empty value is the obvious thing to write, so this
+    trap waits for every additive step.
   - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
     that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
     demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only
@@ -439,18 +471,19 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 4.** Five versions and four migrations were collapsed into a v0 baseline
+  - **`SAVE_VERSION` is 6.** Five versions and four migrations were collapsed into a v0 baseline
     while the game was pre-release, on the one argument that licenses it: no save any of them wrote
     has ever existed outside development. [saves](../../docs/saves.md) records the reset and the condition
     — a player loading a save — that closes the door on repeating it. The chain walker was kept and
     tested against a synthetic history through the whole v0 era so that the first real migration
     would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
-  - ⚠️ **The reset burned version numbers and v1 through v4 have all re-issued one.** The old v1
+  - ⚠️ **The reset burned version numbers and v1 through v5 have all re-issued one.** The old v1
     was milestone 1's gold counter, v2 combat progression, v3 the rate table and v4 the formation;
     this v1 is the gear schema, this v2 is the ladder's new bottom, this v3 is the achievement
-    ledger and this v4 is the quest windows. Nothing can tell any pair apart from the number alone.
-    Safe only because no save carrying the old meaning exists outside development — **not safe in
-    general**, and the cost of re-basing that is easiest to forget.
+    ledger, this v4 is the quest windows and this v5 is the bounty board. Nothing can tell any pair
+    apart from the number alone. Safe only because no save carrying the old meaning exists outside
+    development — **not safe in general**, and the cost of re-basing that is easiest to forget.
+    **v6 is the first number clear of it.**
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a

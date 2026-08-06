@@ -11,6 +11,7 @@ import v2 from './fixtures/v2.json';
 import v3 from './fixtures/v3.json';
 import v4 from './fixtures/v4.json';
 import v5 from './fixtures/v5.json';
+import v6 from './fixtures/v6.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -23,12 +24,16 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * **There are six, and the v1 one now carries the most weight.** The chain was re-based to a v0
+ * **There are seven, and the v1 one now carries the most weight.** The chain was re-based to a v0
  * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — leaving
  * this file with a single fixture and nothing to walk. Milestone 12 added gear and the v0 → v1
  * migration; the copies-only rewrite added the two rungs below `rare` and the v1 → v2 shift;
  * milestone 14 added the achievement ledger (v2 → v3), the quest windows (v3 → v4) and the bounty
- * board (v4 → v5).
+ * board (v4 → v5); the two-curve gacha added the legendary pity counter (v5 → v6).
+ *
+ * **The v6 fixture carries a mid-cycle `legendaryPity`** rather than the zero every older fixture
+ * migrates to, which is what separates "the field was decoded" from "the field defaulted". A
+ * fixture that stored zero would pass identically whether the decoder read it or ignored it.
  *
  * The v3 fixture carries a **retired track id** alongside the live one, which is the one thing
  * about the ledger a shape check would not otherwise reach: a build that stops shipping a track
@@ -53,6 +58,7 @@ const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
   [3, v3],
   [4, v4],
   [5, v5],
+  [6, v6],
 ]);
 
 const OPTIONS: RepairOptions = {
@@ -96,7 +102,26 @@ describe('save fixtures', () => {
     expect(state.clearedStages).toBeGreaterThanOrEqual(0);
     expect(state.battleCount).toBeGreaterThanOrEqual(0);
     expect(state.pity).toBeGreaterThanOrEqual(0);
+    expect(state.legendaryPity).toBeGreaterThanOrEqual(0);
     expect(formationMembers(state.formation).length).toBeLessThanOrEqual(PARTY_SIZE);
+  });
+
+  it('opens a fresh legendary cycle for every save written before the counter existed', () => {
+    // v5 → v6 has no receipt to read: nothing below v6 records when the last legendary landed, and
+    // deriving it from `pity` would be a guess dressed as data. Zero is the generous answer and
+    // the only honest one.
+    for (const [version, fixture] of entries) {
+      if (version >= 6) {
+        continue;
+      }
+      expect(loadSave(fixture, OPTIONS).state.legendaryPity, `v${version}`).toBe(0);
+    }
+  });
+
+  it('decodes a legendary cycle already part way through', () => {
+    // The other half of the assertion above: a fixture that stored zero could not tell a decoder
+    // that reads the field from one that quietly defaults it.
+    expect(loadSave(v6, OPTIONS).state.legendaryPity).toBe(4);
   });
 });
 

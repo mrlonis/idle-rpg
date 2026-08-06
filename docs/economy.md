@@ -308,22 +308,48 @@ worth before those rungs existed, and is why not one stage had to be retuned. Se
 
 ## Pulls
 
-**2.5% base for an ascended-tier character, not 0.6%. Hard pity at 50, not 90.**
+**2.5% base for an ascended-tier character, not 0.6%. Hard pity at 30, not 90.**
 
-| Knob             | Value |
-| ---------------- | ----- |
-| base ascended    | 0.025 |
-| soft pity starts | 30    |
-| soft pity step   | +0.06 |
-| hard pity        | 50    |
+There are **two pity curves**, because a dry spell and a drought are different complaints and one
+counter cannot bound both. The interval that keeps the top tier from feeling remote is far too long
+to keep a session from feeling empty, and an ascended cycle short enough to do that job would have
+made the top tier routine.
 
-Soft pity ramps steeply enough that certainty arrives a few pulls before the hard cap, so **the
-guarantee is a floor rather than the mechanism.** Pity lives in `GameState`, is **global rather
-than per-banner**, and is on screen at all times.
+| Knob             | Ascended | Legendary or better |
+| ---------------- | -------- | ------------------- |
+| base             | 0.025    | 0.25                |
+| soft pity starts | 20       | 6                   |
+| soft pity step   | +0.15    | +0.25               |
+| certain at       | 27       | 9                   |
+| hard pity        | 30       | 10                  |
 
-As pity raises the ascended chance, the other two tiers scale down **in proportion to each other**
-rather than one absorbing the whole change — so a pity-inflated pull is still a fair draw between
-the tiers it can produce.
+Both ramp steeply enough that certainty arrives before the hard cap, so **each guarantee is a floor
+rather than the mechanism.** Both counters live in `GameState`, are **global rather than
+per-banner**, and are on screen at all times.
+
+The legendary cycle is sized to `MULTI_PULL_COUNT` deliberately: a ten-pull is the unit a player
+actually experiences, and one that came back entirely common was the worst thing this banner could
+produce. It is now unreachable rather than merely rare.
+
+What the two curves are worth, measured over the stationary distribution rather than from the base
+weights: an ascended-tier character every **17.6 pulls** (against 23.4 under the old single 30/+6/50
+curve), and a legendary-or-better every **3.36** (against 3.79).
+
+### The legendary curve is a floor under the same roll, not a second draw
+
+It raises the **threshold** the single tier roll is compared against. That is what keeps consumption
+at exactly three draws per pull however many curves are authored — a curve that drew a value of its
+own would have broken the invariant the whole save layer leans on, silently, since nothing about the
+results would look wrong.
+
+⚠️ **At base rate the floor equals the proportional split exactly, and that is load-bearing.** As
+pity raises the ascended chance, the other two tiers scale down **in proportion to each other**
+rather than one absorbing the whole change — and with `TIER_WEIGHTS` summing to 1, what that rescale
+produces at the base ascended rate _is_ `ascended + legendary`. So a run inside the flat stretch of
+both curves draws precisely what it drew before the legendary curve existed, and the floor can only
+ever raise the legendary threshold, never lower it. Weights summing to anything else would put the
+two mechanisms quietly out of step from the first pull; `banners.spec.ts` asserts both the sum and
+the coincidence.
 
 **Pity is the escape valve for bad luck, not the shop.** Spark only accrues after something is
 maxed, so reading the shop as the bad-luck mechanism gets the economy backwards.

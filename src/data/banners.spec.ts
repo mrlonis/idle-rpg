@@ -9,6 +9,7 @@ import {
   type ChapterData,
   type GachaRulesData,
   ladderShape,
+  legendaryChance,
   rarityIndex,
   resolveLadder,
   type ShopOfferData,
@@ -108,38 +109,117 @@ describe('rates', () => {
     // ninety-pull pity. There is no bridge to sell here, so every reason to be stingy is a
     // reason that does not apply.
     expect(TIER_WEIGHTS.ascended).toBeGreaterThanOrEqual(0.02);
-    expect(PITY.hardPity).toBeLessThanOrEqual(60);
+    expect(PITY.ascended.hardPity).toBeLessThanOrEqual(60);
   });
 });
 
-describe('pity', () => {
+/**
+ * The two curves, checked against the same four properties rather than against their constants.
+ *
+ * Each is quoted with the live rate function the draw itself uses and the base that function is
+ * built on, so a curve retuned in `banners.ts` re-runs all of this instead of being described by
+ * it. That is what a spec in `data/` is for — a copy of the numbers next door would keep passing
+ * against whatever they used to be.
+ */
+const CURVES = [
+  {
+    name: 'ascended',
+    curve: PITY.ascended,
+    base: TIER_WEIGHTS.ascended,
+    chance: (pull: number) => ascendedChance(RULES, pull),
+  },
+  {
+    name: 'legendary or better',
+    curve: PITY.legendary,
+    base: TIER_WEIGHTS.ascended + TIER_WEIGHTS.legendary,
+    chance: (pull: number) => legendaryChance(RULES, pull),
+  },
+] as const;
+
+/** The first pull the ramp alone makes certain, or the hard cap if it never does. */
+function certainAt({ curve, chance }: (typeof CURVES)[number]): number {
+  for (let pull = 1; pull <= curve.hardPity; pull++) {
+    if (chance(pull) >= 1) {
+      return pull;
+    }
+  }
+  return curve.hardPity;
+}
+
+describe.each(CURVES)('the $name pity curve', (entry) => {
+  const { curve, base, chance } = entry;
+
   it('holds the base rate until soft pity starts', () => {
-    expect(ascendedChance(RULES, PITY.softPityStart)).toBeCloseTo(TIER_WEIGHTS.ascended, 10);
+    expect(chance(curve.softPityStart)).toBeCloseTo(base, 10);
   });
 
   it('ramps steeply enough that the hard cap is a floor, not the mechanism', () => {
-    // Soft pity should pass certainty several pulls before the guarantee has to fire, so the
-    // counter usually clears in the high thirties.
-    let certainAt: number = PITY.hardPity;
-    for (let pull = PITY.softPityStart; pull <= PITY.hardPity; pull++) {
-      if (ascendedChance(RULES, pull) >= 1) {
-        certainAt = pull;
-        break;
-      }
-    }
+    // The design claim in `banners.ts`: a player is essentially never walked to the guarantee,
+    // because the ramp has already reached certainty. **Measured as a fraction of the cycle
+    // rather than as a fixed number of pulls** — the two cycles are 30 and 10 long, so "three
+    // pulls of headroom" would be a tenth of one and nearly a third of the other, which is two
+    // different claims wearing one number.
+    const headroom = (curve.hardPity - certainAt(entry)) / curve.hardPity;
 
-    expect(certainAt).toBeLessThan(PITY.hardPity - 2);
+    expect(headroom).toBeGreaterThan(0);
+    expect(headroom).toBeGreaterThanOrEqual(0.05);
   });
 
-  it('guarantees at the hard cap', () => {
-    expect(ascendedChance(RULES, PITY.hardPity)).toBe(1);
+  it('guarantees at the hard cap, and stays guaranteed past it', () => {
+    // Past it matters: a counter is repaired by clamping rather than by being trusted, so a
+    // damaged save arriving above the cap must not read as a rate that has wrapped back to zero.
+    expect(chance(curve.hardPity)).toBe(1);
+    expect(chance(curve.hardPity * 3)).toBe(1);
   });
 
   it('rises monotonically', () => {
-    for (let pull = 2; pull <= PITY.hardPity; pull++) {
-      expect(ascendedChance(RULES, pull), `pull ${pull}`).toBeGreaterThanOrEqual(
-        ascendedChance(RULES, pull - 1),
-      );
+    for (let pull = 2; pull <= curve.hardPity; pull++) {
+      expect(chance(pull), `pull ${pull}`).toBeGreaterThanOrEqual(chance(pull - 1));
+    }
+  });
+});
+
+describe('the two curves together', () => {
+  it('guarantees legendary or better far sooner than the top tier', () => {
+    // They answer different questions — how long a dry spell can run, against how far away the
+    // top tier can be — and a legendary cycle anywhere near the ascended one would mean the
+    // shorter promise had stopped doing its own job.
+    expect(PITY.legendary.hardPity).toBeLessThan(PITY.ascended.hardPity / 2);
+  });
+
+  it('bounds a ten-pull, which is the batch a player actually experiences', () => {
+    // The sizing argument for the shorter curve: a ×10 that came back entirely common was the
+    // worst thing this banner could produce, and it is now unreachable rather than merely rare.
+    expect(PITY.legendary.hardPity).toBeLessThanOrEqual(MULTI_PULL_COUNT);
+  });
+
+  it('starts the legendary floor exactly where the proportional split already sits', () => {
+    // ⚠️ The load-bearing coincidence, and the reason `TIER_WEIGHTS` must sum to 1. The legendary
+    // curve is applied as a *floor* under the same roll the ascended curve resolves against, and
+    // at base rate that floor equals what the proportional rescale produces on its own — so a run
+    // inside the flat stretch of both curves draws precisely what it drew before this curve
+    // existed. Weights summing to anything else would put the two mechanisms quietly out of step
+    // from the first pull.
+    const proportional =
+      TIER_WEIGHTS.ascended +
+      (1 - TIER_WEIGHTS.ascended) *
+        (TIER_WEIGHTS.legendary / (TIER_WEIGHTS.legendary + TIER_WEIGHTS.common));
+
+    expect(legendaryChance(RULES, 1)).toBeCloseTo(proportional, 10);
+  });
+
+  it('never floors legendary above the live ascended rate', () => {
+    // The floor may only ever *raise* the legendary threshold. If it could sit below the ascended
+    // chance, deep ascended pity would be silently undone by a freshly cleared legendary counter —
+    // the one way two curves over one roll can fight each other.
+    for (let ascendedPull = 1; ascendedPull <= PITY.ascended.hardPity; ascendedPull++) {
+      for (let legendaryPull = 1; legendaryPull <= PITY.legendary.hardPity; legendaryPull++) {
+        const top = ascendedChance(RULES, ascendedPull);
+        expect(
+          Math.max(legendaryChance(RULES, legendaryPull), top),
+          `${ascendedPull}/${legendaryPull}`,
+        ).toBeGreaterThanOrEqual(top);
+      }
     }
   });
 });

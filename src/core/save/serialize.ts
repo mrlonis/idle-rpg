@@ -74,6 +74,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       back: [...state.formation.back],
     },
     pity: state.pity,
+    legendaryPity: state.legendaryPity,
     pullCount: state.pullCount,
     gear: state.gear.map((item) => ({
       id: item.id,
@@ -189,6 +190,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const clearedStages = readCounter(record['clearedStages'], 'clearedStages', 0, note);
   const battleCount = readCounter(record['battleCount'], 'battleCount', 0, note);
   const pity = readCounter(record['pity'], 'pity', 0, note);
+  const legendaryPity = readCounter(record['legendaryPity'], 'legendaryPity', 0, note);
   const pullCount = readCounter(record['pullCount'], 'pullCount', 0, note);
 
   const roster = readRoster(record['roster'], options, note);
@@ -214,6 +216,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       roster,
       formation,
       pity,
+      legendaryPity,
       pullCount,
       gear,
       gearMinted,

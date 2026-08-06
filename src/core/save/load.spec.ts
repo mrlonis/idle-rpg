@@ -104,6 +104,7 @@ describe('loadSave', () => {
         roster: [],
         formation: { front: [], back: [] },
         pity: 12,
+        legendaryPity: 3,
         pullCount: 40,
         gear: [],
         gearMinted: 0,
@@ -120,6 +121,7 @@ describe('loadSave', () => {
     expect(result.state.stage).toBe(6);
     expect(result.state.battleCount).toBe(214);
     expect(result.state.pity).toBe(12);
+    expect(result.state.legendaryPity).toBe(3);
     expect(result.issues.map((issue) => issue.field)).toEqual(['rates.xp']);
   });
 });

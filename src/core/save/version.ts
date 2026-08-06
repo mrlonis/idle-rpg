@@ -32,10 +32,15 @@
  * **Five because the same milestone added the bounty board.** v4 → v5 is additive: a list of
  * running missions, each an id, a crew and a start time.
  *
- * ⚠️ **This exhausts the version burn.** The v0 re-base freed 1 through 5 and all five have now
+ * **Six because the gacha grew a second pity counter.** v5 → v6 is additive: pulls since the last
+ * legendary tier or better, alongside the ascended counter v0 already carried. It is the first
+ * version past the re-issued range, and so the first one whose number has only ever meant one
+ * thing.
+ *
+ * ⚠️ **The version burn is spent.** The v0 re-base freed 1 through 5 and all five have now
  * been re-issued, so **no number below `SAVE_VERSION` still means "written before the baseline"**.
  * `migrate.spec.ts` and `save-recovery.spec.ts` both used to test that case against a real
  * pre-baseline number; there is none left, and both now test it against a *future* version
  * instead — which is the only remaining way a save can be unreadable. See [saves](../../../docs/saves.md).
  */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;

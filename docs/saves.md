@@ -83,7 +83,7 @@ migration in both directions. The bar for revisiting it is a key whose old and n
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **5**, and the migration table holds **five entries**. Every save carries its version.
+`SAVE_VERSION` is **6**, and the migration table holds **six entries**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
@@ -124,6 +124,9 @@ to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscov
 so no number below `SAVE_VERSION` still means "written before the baseline". A save can be
 unreadable now only by being _newer_ than this build, or by carrying a version that is not a
 number at all.
+
+**v6 is the first number past that range**, and so the first since the reset whose value has only
+ever meant one thing. That is not a new rule — it is the burn simply being over.
 
 Two suites had been seeding a pre-baseline number to check that case. `migrate.spec.ts` now asserts
 the fact itself — every version from 0 to current migrates cleanly, and only a future one throws —
@@ -203,6 +206,25 @@ owned, and whether anybody is _also_ in the formation are questions about conten
 rest of the state, so they belong to `repairDispatches` on load — the same split `readGear` and
 `repairLoadouts` already use. That pass **pays nothing for what it drops**: paying would make
 damaging a save a way to collect instantly.
+
+### v5 → v6: the legendary pity counter
+
+Additive. The gacha grew a second pity curve, so the run keeps a second counter: `pity` is unchanged
+and still means pulls since the last ascended-tier character, and `legendaryPity` means pulls since
+the last legendary tier **or better**. Two counters rather than two readings of one, because they
+answer different questions — how long a run of nothing can get, against how far away the top tier
+can be.
+
+⚠️ **It arrives at zero rather than derived from `pity`.** The tempting reading is that a player deep
+in ascended pity has also gone a while without a legendary, and it is simply not sound: the two
+cycles are independent, and a v5 save sitting at `pity: 28` is far more likely to have pulled several
+legendaries along the way than none. Zero opens a fresh cycle — the generous answer and also the only
+honest one, since it promises the guarantee within ten pulls of loading rather than inventing a debt
+or cancelling one.
+
+**The v6 fixture stores a mid-cycle value**, not zero. A fixture storing zero would pass identically
+whether the decoder read the field or quietly defaulted it, which is the one thing the fixture is
+there to distinguish.
 
 ### The chain was re-based, once, while nobody was playing
 
@@ -324,14 +346,20 @@ that prompted them:
 ## Fixtures
 
 [`src/core/save/fixtures/`](../src/core/save/fixtures/) holds one JSON save per historical
-version — `v0.json` and `v1.json` — and
+version — `v0.json` through `v6.json` — and
 [`fixtures.spec.ts`](../src/core/save/fixtures.spec.ts) migrates every one of them to current.
 
-The second one is what the coverage assertion in that spec was left in place for: it fired the
-moment `SAVE_VERSION` moved, which is exactly the job it had. `v0.json` now exercises the chain
-rather than only the repair pass, and `v1.json` pins what a current save actually looks like —
+`v1.json` is what the coverage assertion in that spec was left in place for: it fired the moment
+`SAVE_VERSION` first moved, which is exactly the job it had. `v0.json` exercises the chain rather
+than only the repair pass, and the newest fixture pins what a current save actually looks like —
 including a worn piece, an unaligned piece, and a mint counter deliberately ahead of the bag, so the
 "a counter that has fallen behind the ids in use" repair has something to read.
+
+⚠️ **A fixture for the newest version should store values a default would not produce.** `v6.json`
+carries a mid-cycle `legendaryPity` for this reason: a fixture storing the empty value passes
+identically whether the decoder reads the field or silently defaults it, which is precisely the
+distinction the fixture exists to make. The same trap waits for every additive migration, because
+the empty value is the obvious thing to write.
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a
 version is a chain nobody has proved works from that version. The coverage assertion in that spec

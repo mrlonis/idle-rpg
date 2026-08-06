@@ -167,9 +167,22 @@ export interface SaveDataV5 extends Omit<SaveDataV4, 'version'> {
   dispatches: { bountyId: string; members: string[]; startedAt: number }[];
 }
 
+/**
+ * v6 — the legendary pity counter.
+ *
+ * Additive, and the second counter the gacha keeps. `pity` (present since v0) is unchanged and
+ * still means pulls since the last ascended-tier character; this one means pulls since the last
+ * legendary tier **or better**, which is a different question rather than a finer-grained version
+ * of the same one.
+ */
+export interface SaveDataV6 extends Omit<SaveDataV5, 'version'> {
+  version: 6;
+  legendaryPity: number;
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV5;
+export type CurrentSaveData = SaveDataV6;
 
 /** Any historical save shape. Widen this union as versions are added. */
 export type AnySaveData =
-  SaveDataV0 | SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4 | SaveDataV5;
+  SaveDataV0 | SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4 | SaveDataV5 | SaveDataV6;

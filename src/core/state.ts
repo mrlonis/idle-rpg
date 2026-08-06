@@ -164,12 +164,24 @@ export interface GameState extends LadderPosition {
    */
   readonly formation: PartyFormation;
   /**
-   * Pulls made since the last ascended-tier character, driving the pity curve.
+   * Pulls made since the last ascended-tier character, driving the ascended pity curve.
    *
    * **Global, not per-banner.** Per-banner pity is a monetisation pattern — it makes every new
-   * banner a fresh fifty-pull tax — and there is nothing here to monetise.
+   * banner a fresh thirty-pull tax — and there is nothing here to monetise.
    */
   readonly pity: number;
+  /**
+   * Pulls made since the last character of legendary tier **or better**.
+   *
+   * A second counter rather than a second reading of {@link pity}, because the two answer
+   * different questions: this one bounds how long a run of nothing can get, and `pity` bounds how
+   * far away the top tier can be. An ascended-tier result clears both — it is not a miss on the
+   * promise this one makes.
+   *
+   * Stored rather than derived for the reason `pity` is: nothing else in the save records what the
+   * recent pulls produced, and the alternative is a log of them.
+   */
+  readonly legendaryPity: number;
   /** Pulls made over the life of the run. Display only; the RNG position lives in `rng.calls`. */
   readonly pullCount: number;
   /**
@@ -259,6 +271,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     roster: [],
     formation: emptyFormation(),
     pity: 0,
+    legendaryPity: 0,
     pullCount: 0,
     gear: [],
     gearMinted: 0,

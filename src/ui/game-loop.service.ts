@@ -100,12 +100,13 @@ export class GameLoopService {
   readonly summons = computed(() => this.wallet().summons);
   readonly spark = computed(() => this.wallet().spark);
 
-  /** The roster, the party fighting from it, and the pity counter. */
+  /** The roster, the party fighting from it, and the two pity counters. */
   readonly roster = computed(() => this.snapshot()?.roster ?? []);
   readonly formation = computed<PartyFormation>(
     () => this.snapshot()?.formation ?? { front: [], back: [] },
   );
   readonly pity = computed(() => this.snapshot()?.pity ?? 0);
+  readonly legendaryPity = computed(() => this.snapshot()?.legendaryPity ?? 0);
 
   /** Offline earnings from the most recent resume, for a "while you were away" panel. */
   readonly offlineReport = signal<OfflineReport | null>(null);

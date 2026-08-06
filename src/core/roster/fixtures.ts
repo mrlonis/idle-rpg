@@ -196,7 +196,10 @@ export const TEST_KIT_RULES: KitRulesData = {
 export const TEST_GACHA: GachaRulesData = {
   pullCost: 100,
   tierWeights: { ascended: 0.025, legendary: 0.225, common: 0.75 },
-  pity: { softPityStart: 30, softPityStep: 0.06, hardPity: 50 },
+  pity: {
+    ascended: { softPityStart: 20, softPityStep: 0.15, hardPity: 30 },
+    legendary: { softPityStart: 6, softPityStep: 0.25, hardPity: 10 },
+  },
   eliteUpgradeChance: 0.08,
   sparkPerCopy: { common: 1, legendary: 3, ascended: 10 },
 };

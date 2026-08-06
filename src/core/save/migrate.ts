@@ -152,9 +152,29 @@ const migrateV3ToV4: Migration = (save) => ({
 const migrateV4ToV5: Migration = (save) => ({ ...save, version: 5, dispatches: [] });
 
 /**
+ * v5 → v6: the legendary pity counter.
+ *
+ * Additive. A v5 save records `pity` — pulls since the last ascended-tier character — and nothing
+ * at all about when the last *legendary* one landed, so there is no receipt to read here.
+ *
+ * **Zero rather than a guess derived from `pity`.** The tempting reading is that a player deep in
+ * ascended pity has also gone a while without a legendary, and it is simply not sound: the two
+ * counters are independent, and a v5 save sitting at `pity: 28` is far more likely to have pulled
+ * several legendaries along the way than none. Zero opens a fresh cycle, which is the generous
+ * answer and also the only honest one — it promises the guarantee within ten pulls of loading
+ * rather than inventing a debt or cancelling one. Same position {@link migrateV3ToV4} takes on a
+ * quest window.
+ *
+ * ⚠️ The literal is written out rather than read from `newGame()`, for the reason every migration
+ * above does the same: a migration is dated, and a helper a later release is free to change would
+ * silently alter what this step means for saves that have not run it yet.
+ */
+const migrateV5ToV6: Migration = (save) => ({ ...save, version: 6, legendaryPity: 0 });
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
- * **Five entries, and they are the first this table has held since the reset.** Five schema
+ * **Six entries, and they are the first this table has held since the reset.** Five schema
  * versions and four migrations were collapsed into a single v0 baseline while the game was still
  * pre-release — see [saves](../../../docs/saves.md) for the reset and the condition that closes
  * the door on repeating it. Everything from v0 upward is permanent.
@@ -164,7 +184,7 @@ const migrateV4ToV5: Migration = (save) => ({ ...save, version: 5, dispatches: [
  * possible time to be debugging one. `migrate.spec.ts` has proved the walk against a synthetic
  * history throughout; {@link migrateV0ToV1} is what it was being kept for.
  *
- * They differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: the other four
+ * They differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: the other five
  * *add* fields, so getting one wrong loses something that was never there, while v1 → v2
  * *reinterprets* one, so getting it wrong silently rewrites progress a player earned.
  */
@@ -174,6 +194,7 @@ export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migrat
   [2, migrateV2ToV3],
   [3, migrateV3ToV4],
   [4, migrateV4ToV5],
+  [5, migrateV5ToV6],
 ]);
 
 export class UnknownSaveVersionError extends Error {

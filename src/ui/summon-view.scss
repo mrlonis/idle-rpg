@@ -129,6 +129,21 @@
   @include t.numeric;
 }
 
+// The shorter cycle, sat under the bar rather than beside it. Same size as the counts line above
+// so it reads as a second fact about the same panel, with a rule to separate the two promises.
+.pity__floor {
+  margin: 0.5rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid t.$border;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+
+  strong {
+    color: t.$text;
+  }
+}
+
 .banner__name {
   margin: 0 0 0.25rem;
   font-size: 1.0625rem;

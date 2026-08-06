@@ -303,7 +303,7 @@ export {
   type GearStatProfile,
 } from './gear/types';
 export { CHARACTER_TIERS, growthAt, type CharacterTier, type GrowthData } from './growth';
-export { ascendedChance, pull } from './gacha/pull';
+export { ascendedChance, legendaryChance, pull } from './gacha/pull';
 export {
   isEligible,
   offerTargets,
@@ -315,6 +315,7 @@ export {
 export {
   type BannerData,
   type GachaRulesData,
+  type PityCurveData,
   type PityRulesData,
   type PullFailure,
   type PullOutcome,

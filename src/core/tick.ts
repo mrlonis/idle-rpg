@@ -20,7 +20,7 @@ import { type GameState } from './state';
  * The spread is the idiom everywhere else in `core/` and it should stay there. Here it is the
  * difference between a fast function and a slow one, because object spread is downleveled by the
  * dev and test pipeline into a helper that calls `Object.defineProperty` once per property — some
- * 25× the cost of a plain store, and this state has twelve of them. Spelling the object out took
+ * 25× the cost of a plain store, and this state has twenty of them. Spelling the object out took
  * this function from 1.6s to 0.3s over the 360,000 iterations `offline.spec.ts` runs to prove
  * that closed-form resume agrees with stepwise accrual. The shipped bundle keeps native spread,
  * so the app was never the thing being slowed down; the invariant was the thing being made
@@ -47,6 +47,7 @@ export function tick(state: GameState, dtMs: number): GameState {
     roster: state.roster,
     formation: state.formation,
     pity: state.pity,
+    legendaryPity: state.legendaryPity,
     pullCount: state.pullCount,
     gear: state.gear,
     gearMinted: state.gearMinted,

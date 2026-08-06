@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
 import {
   owned,
+  TEST_ALPHA,
   TEST_ASCENSION,
   TEST_BETA,
   TEST_CHARACTERS,
@@ -17,7 +18,7 @@ import {
 import { startRarityIndex } from '../roster/rarity';
 import { MAX_RARITY_INDEX } from '../roster/types';
 import { newGame, type GameState } from '../state';
-import { ascendedChance, pull } from './pull';
+import { ascendedChance, legendaryChance, pull } from './pull';
 import { type BannerData, type GachaRulesData, type PullResult } from './types';
 
 const T0 = 1_700_000_000_000;
@@ -54,22 +55,22 @@ function draw(
 describe('ascendedChance', () => {
   it('sits at the base rate until soft pity begins', () => {
     expect(ascendedChance(TEST_GACHA, 1)).toBeCloseTo(0.025, 10);
-    expect(ascendedChance(TEST_GACHA, 30)).toBeCloseTo(0.025, 10);
+    expect(ascendedChance(TEST_GACHA, 20)).toBeCloseTo(0.025, 10);
   });
 
   it('ramps once soft pity starts', () => {
-    expect(ascendedChance(TEST_GACHA, 31)).toBeCloseTo(0.085, 10);
-    expect(ascendedChance(TEST_GACHA, 35)).toBeCloseTo(0.325, 10);
+    expect(ascendedChance(TEST_GACHA, 21)).toBeCloseTo(0.175, 10);
+    expect(ascendedChance(TEST_GACHA, 25)).toBeCloseTo(0.775, 10);
   });
 
   it('reaches certainty before the hard cap ever has to fire', () => {
-    // The design intent: the guarantee is a floor, not the mechanism. Most cycles clear in the
-    // high thirties, and a player is never actually walked to fifty.
-    expect(ascendedChance(TEST_GACHA, 47)).toBe(1);
+    // The design intent: the guarantee is a floor, not the mechanism. A player is essentially
+    // never walked all the way to thirty.
+    expect(ascendedChance(TEST_GACHA, 27)).toBe(1);
   });
 
   it('guarantees an ascended-tier result at hard pity', () => {
-    expect(ascendedChance(TEST_GACHA, 50)).toBe(1);
+    expect(ascendedChance(TEST_GACHA, 30)).toBe(1);
     expect(ascendedChance(TEST_GACHA, 80)).toBe(1);
   });
 
@@ -77,7 +78,28 @@ describe('ascendedChance', () => {
     // Not a tuning assertion so much as a design one. There is nothing to sell here, so every
     // reason to be stingy is a reason that does not apply.
     expect(TEST_GACHA.tierWeights.ascended).toBeGreaterThanOrEqual(0.02);
-    expect(TEST_GACHA.pity.hardPity).toBeLessThanOrEqual(60);
+    expect(TEST_GACHA.pity.ascended.hardPity).toBeLessThanOrEqual(60);
+  });
+});
+
+describe('legendaryChance', () => {
+  it('starts at the combined weight of legendary and better', () => {
+    // Not `tierWeights.legendary` alone. An ascended-tier result is not a miss on the promise
+    // this curve makes, so counting it as one would tell a player who just pulled the best thing
+    // on the banner that they are owed a consolation prize for it.
+    expect(legendaryChance(TEST_GACHA, 1)).toBeCloseTo(0.25, 10);
+    expect(legendaryChance(TEST_GACHA, 6)).toBeCloseTo(0.25, 10);
+  });
+
+  it('ramps to certainty a pull before the guarantee', () => {
+    expect(legendaryChance(TEST_GACHA, 7)).toBeCloseTo(0.5, 10);
+    expect(legendaryChance(TEST_GACHA, 8)).toBeCloseTo(0.75, 10);
+    expect(legendaryChance(TEST_GACHA, 9)).toBe(1);
+  });
+
+  it('guarantees at the hard cap and stays guaranteed past it', () => {
+    expect(legendaryChance(TEST_GACHA, 10)).toBe(1);
+    expect(legendaryChance(TEST_GACHA, 40)).toBe(1);
   });
 });
 
@@ -150,11 +172,23 @@ describe('the RNG contract', () => {
   });
 
   it('consumes the same three draws when pity forces the result', () => {
-    const guaranteed = draw(run({ pity: 49 }), 1);
+    const guaranteed = draw(run({ pity: 29 }), 1);
     const ordinary = draw(run({ pity: 0 }), 1);
 
     expect(guaranteed.state.rng.calls).toBe(3);
     expect(ordinary.state.rng.calls).toBe(3);
+  });
+
+  it('consumes no extra draw for the second pity curve', () => {
+    // The legendary curve raises the *threshold* the single tier roll is compared against rather
+    // than drawing a value of its own. A second curve that drew a second value would have broken
+    // the three-draws-per-pull invariant the whole save layer leans on the moment it shipped —
+    // and it would have done it silently, because nothing about the results would look wrong.
+    const flooring = draw(run({ legendaryPity: 9 }), 4);
+    const ordinary = draw(run({ legendaryPity: 0 }), 4);
+
+    expect(flooring.state.rng.calls).toBe(12);
+    expect(ordinary.state.rng.calls).toBe(12);
   });
 
   it('produces an identical batch from an identical seed and call count', () => {
@@ -177,7 +211,7 @@ describe('the RNG contract', () => {
   });
 });
 
-describe('pity', () => {
+describe('ascended pity', () => {
   it('counts up on anything but an ascended-tier result', () => {
     // The banner here can only produce a legendary-tier character, so every pull misses.
     const { state, results } = draw(run(), 5, only(TEST_BETA.id));
@@ -187,7 +221,7 @@ describe('pity', () => {
   });
 
   it('resets to zero the moment an ascended-tier character lands', () => {
-    const { state, results } = draw(run({ pity: 49 }), 1, only(TEST_GAMMA.id));
+    const { state, results } = draw(run({ pity: 29 }), 1, only(TEST_GAMMA.id));
 
     expect(results[0].tier).toBe('ascended');
     expect(results[0].wasGuaranteed).toBe(true);
@@ -195,21 +229,112 @@ describe('pity', () => {
   });
 
   it('carries mid-batch, so a ten-pull can clear and start counting again', () => {
-    const { state, results } = draw(run({ pity: 45 }), 10, only(TEST_GAMMA.id));
+    // The pool holds both a legendary-tier and an ascended-tier character, so which pull clears
+    // the counter is genuinely up to the draw — what is not, is that one of the first two does.
+    // At a stored 25 the second pull of the batch is cycle pull 27, where the ramp has already
+    // reached certainty. A batch that evaluated pity once up front rather than per pull would
+    // either never clear here or never resume counting.
+    const both: BannerData = {
+      id: 'both',
+      name: 'Both',
+      description: '',
+      pool: [TEST_BETA.id, TEST_GAMMA.id],
+    };
 
-    // Pull 5 of the batch is pity pull 50 and is guaranteed; everything after restarts the count.
-    expect(results[4].pity).toBe(0);
+    const { state, results } = draw(run({ pity: 25 }), 10, both);
+
+    const cleared = results.findIndex((result) => result.pity === 0);
+    expect(cleared).toBeGreaterThanOrEqual(0);
+    expect(cleared).toBeLessThan(2);
+    // Everything after the reset counts from one again, and the stored counter is where the
+    // batch left it rather than where it started.
+    expect(results[results.length - 1].pity).toBe(state.pity);
     expect(state.pity).toBeLessThan(10);
   });
 
   it('is global rather than per-banner', () => {
     // Splitting pity per banner is a monetisation pattern — it makes each new banner a fresh
-    // fifty-pull tax — and there is nothing here to monetise.
+    // thirty-pull tax — and there is nothing here to monetise.
+    //
+    // Both banners are narrowed to a legendary-tier character so that neither can clear the
+    // counter, which is what makes the continuation an exact number rather than a draw. The
+    // second banner being a *different* one is the whole of what this asserts.
     const after = draw(run({ pity: 20 }), 3, only(TEST_BETA.id)).state;
 
-    const onAnother = draw(after, 1, { id: 'other', name: 'Other', description: '', pool: [] });
+    const onAnother = draw(after, 1, only(TEST_EPSILON.id));
 
+    expect(after.pity).toBe(23);
     expect(onAnother.results[0].pity).toBe(24);
+  });
+});
+
+describe('legendary pity', () => {
+  it('counts up only while pulls come back common', () => {
+    // The banner can produce nothing but a common-tier character, so every pull is a miss on the
+    // promise this counter makes.
+    const { state, results } = draw(run(), 5, only(TEST_ALPHA.id));
+
+    expect(state.legendaryPity).toBe(5);
+    expect(results.map((result) => result.legendaryPity)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it('is cleared by a legendary-tier result', () => {
+    const { state, results } = draw(run({ legendaryPity: 7 }), 1, only(TEST_BETA.id));
+
+    expect(results[0].tier).toBe('legendary');
+    expect(state.legendaryPity).toBe(0);
+  });
+
+  it('is cleared by an ascended-tier result too, which is the whole of "or better"', () => {
+    // A player who just pulled the best thing on the banner has not gone another pull without a
+    // legendary. Counting it as a miss would owe them a consolation prize for it.
+    const { state } = draw(run({ legendaryPity: 7 }), 1, only(TEST_GAMMA.id));
+
+    expect(state.legendaryPity).toBe(0);
+  });
+
+  it('never lets a ten-pull come back entirely common', () => {
+    // The sizing argument for this curve, asserted against the batch a player actually
+    // experiences rather than against the counter. Run over many batches because it is a claim
+    // about every possible draw, not about one lucky seed.
+    //
+    // The batch size is read off the curve rather than written as ten: `core/` cannot import
+    // `data/`, so `MULTI_PULL_COUNT` is not in scope here, and the two being equal is exactly the
+    // property this is about.
+    const batchSize = TEST_GACHA.pity.legendary.hardPity;
+    let state = run({ wallet: { ...run().wallet, summons: num(1_000_000) } });
+
+    for (let batch = 0; batch < 100; batch++) {
+      const drawn = draw(state, batchSize);
+      state = drawn.state;
+
+      const best = drawn.results.some((result) => result.tier !== 'common');
+      expect(best, `batch ${batch}`).toBe(true);
+    }
+  });
+
+  it('holds across batches, so ten singles are bounded like one ten-pull', () => {
+    // The counter is stored, not scoped to a call. Pulling one at a time must not be a way to
+    // walk past the guarantee — which is what a per-batch counter would silently allow.
+    let state = run({ wallet: { ...run().wallet, summons: num(1_000_000) } });
+    let sinceLegendary = 0;
+
+    for (let i = 0; i < 500; i++) {
+      const drawn = draw(state, 1);
+      state = drawn.state;
+      sinceLegendary = drawn.results[0].tier === 'common' ? sinceLegendary + 1 : 0;
+
+      expect(sinceLegendary, `pull ${i}`).toBeLessThan(TEST_GACHA.pity.legendary.hardPity);
+    }
+  });
+
+  it('is left alone by the ascended counter, and vice versa', () => {
+    // Two independent cycles. A legendary-only banner clears one on every pull and misses the
+    // other on every pull, which is the cleanest statement of that available.
+    const { state } = draw(run(), 8, only(TEST_BETA.id));
+
+    expect(state.legendaryPity).toBe(0);
+    expect(state.pity).toBe(8);
   });
 });
 
