@@ -124,7 +124,7 @@ describe('SettingsService', () => {
 
       expect(settings.combatSpeed()).toBe(speed);
       await settings.written;
-      expect(stored(store)).toEqual({ combatSpeed: speed });
+      expect(stored(store)).toEqual({ combatSpeed: speed, reminders: true });
     });
 
     /**
@@ -141,7 +141,7 @@ describe('SettingsService', () => {
 
       await settings.written;
 
-      expect(stored(store)).toEqual({ combatSpeed: 1 });
+      expect(stored(store)).toEqual({ combatSpeed: 1, reminders: true });
       // In order, so the assertion above is about sequencing rather than about the last call
       // happening to win a race.
       expect(store.operations.filter((op) => op.startsWith('set:'))).toHaveLength(3);
@@ -179,7 +179,7 @@ describe('SettingsService', () => {
       settings.setCombatSpeed(2);
       await settings.written;
 
-      expect(stored(store)).toEqual({ combatSpeed: 2 });
+      expect(stored(store)).toEqual({ combatSpeed: 2, reminders: true });
     });
 
     it('does not let a slow read overrule a choice already made', async () => {

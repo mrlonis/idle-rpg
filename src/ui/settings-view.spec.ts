@@ -21,6 +21,17 @@ class FakeSettings {
     this.chosen.push(speed);
     this.speed.set(speed);
   }
+
+  readonly remindersState = signal(true);
+  readonly reminders = this.remindersState.asReadonly();
+
+  /** Every reminders choice the screen asked for. */
+  readonly reminderChoices: boolean[] = [];
+
+  setReminders(enabled: boolean): void {
+    this.reminderChoices.push(enabled);
+    this.remindersState.set(enabled);
+  }
 }
 
 class FakeGameLoop {

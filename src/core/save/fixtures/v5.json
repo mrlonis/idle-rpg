@@ -1,0 +1,129 @@
+{
+  "version": 5,
+  "wallet": {
+    "gold": "8.675309e+21",
+    "xp": "412000",
+    "essence": "1840",
+    "summons": "350",
+    "spark": "12",
+    "alloy": "2450"
+  },
+  "rates": {
+    "gold": "250",
+    "xp": "48",
+    "essence": "0.8",
+    "summons": "0.22"
+  },
+  "lastTickAt": 1753574400000,
+  "rng": {
+    "seed": 3735928559,
+    "calls": 417
+  },
+  "chapter": 2,
+  "stage": 14,
+  "clearedStages": 63,
+  "battleCount": 143,
+  "roster": [
+    {
+      "defId": "alpha",
+      "rarity": 6,
+      "level": 46,
+      "copies": 11,
+      "gear": {
+        "head": "g1",
+        "chest": "g2",
+        "boots": "g4"
+      }
+    },
+    {
+      "defId": "beta",
+      "rarity": 4,
+      "level": 22,
+      "copies": 3,
+      "gear": {
+        "arms": "g3"
+      }
+    },
+    {
+      "defId": "gamma",
+      "rarity": 5,
+      "level": 31,
+      "copies": 6,
+      "gear": {}
+    }
+  ],
+  "formation": {
+    "front": ["gamma", "alpha"],
+    "back": ["beta"]
+  },
+  "pity": 37,
+  "pullCount": 139,
+  "gear": [
+    {
+      "id": "g1",
+      "slot": "head",
+      "archetype": "brawler",
+      "grade": 3,
+      "alignment": "test-mortal",
+      "level": 42
+    },
+    {
+      "id": "g2",
+      "slot": "chest",
+      "archetype": "brawler",
+      "grade": 4,
+      "level": 61
+    },
+    {
+      "id": "g3",
+      "slot": "arms",
+      "archetype": "brawler",
+      "grade": 2,
+      "alignment": "test-mortal",
+      "level": 18
+    },
+    {
+      "id": "g4",
+      "slot": "boots",
+      "archetype": "brawler",
+      "grade": 1,
+      "level": 7
+    },
+    {
+      "id": "g9",
+      "slot": "legs",
+      "archetype": "brawler",
+      "grade": 0,
+      "alignment": "test-celestial",
+      "level": 1
+    }
+  ],
+  "gearMinted": 11,
+  "gearShop": {
+    "slot": 486234,
+    "purchased": [0, 3]
+  },
+  "achievements": {
+    "stages-cleared": 9,
+    "retired-track": 4
+  },
+  "quests": {
+    "daily": {
+      "index": 20000,
+      "baseline": {
+        "battleCount": 140,
+        "pullCount": 135
+      },
+      "claimed": ["daily-skirmish"]
+    },
+    "weekly": {
+      "index": 2857,
+      "baseline": {
+        "battleCount": 100,
+        "pullCount": 90
+      },
+      "claimed": []
+    }
+  },
+  "dispatches": []
+}

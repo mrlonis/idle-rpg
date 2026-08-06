@@ -1919,7 +1919,7 @@ timeout for a ninety-second win, which is the same failure with a better outcome
 **defence** on the armour blocks did help and was kept — damage is `atk² / (atk + def)`, so it
 raises what a party lands without raising what it takes — but it was treating a symptom.
 
-## 14b. Achievements, dailies, and a reason to open the app tomorrow — **PARTIAL**
+## 14b. Achievements, dailies, and a reason to open the app tomorrow — **COMPLETE**
 
 Nothing rewarded opening the app except idle income the player would collect anyway.
 
@@ -1928,9 +1928,7 @@ stuck below a wall has exactly one income source, and it is the thing the wall i
 Dailies pay whether or not the ladder is moving, so being stuck stops meaning being stopped —
 which matters more in a game with no way to buy a way past.
 
-**Two of the three shipped.** Achievements and the daily/weekly quest tier are built, tested and
-on screen. **The bounty board is not started** — see the section at the end for what it still
-needs and why the machinery it was waiting for now exists.
+**All three shipped, and notifications came back from the dead** — see the last two sections.
 
 ### Both systems store a ledger and derive everything else
 
@@ -2068,41 +2066,149 @@ its pre-baseline row. **The next migration exhausts it**, at which point the "di
 before the baseline" case has no number left to test with. That is the cost of re-basing finally
 coming due, and it is worth knowing before it arrives rather than after.
 
-### The bounty board — **NOT STARTED**
+### The bounty board
 
-Dispatch characters on timed missions that pay out on a clock.
+Characters dispatched on timed missions that pay out on a clock. Four of them, opening at 5, 15,
+30 and 50 clears, running for one hour to a full day, wanting one to four characters.
 
 It earns its place for a reason neither system above covers: **it is the only thing that pays you
-for characters you are not fighting with.** Dispatched characters come off the bench, so a wide
-roster becomes worth something before towers ask for it, and a duplicate-heavy run has a use for
-breadth from the moment it starts. It is also the gentlest return hook in the genre — a mission
-finishing in four hours is a reason to come back that costs nothing if ignored.
+for characters you are not fighting with.** A wide roster becomes worth something before faction
+towers ask for it, and a duplicate-heavy run has a use for breadth from the moment it starts.
 
-Keep dispatch and the formation **disjoint**: a character cannot be both fighting and away. That
-is what makes it a bench sink rather than a free resource tap, and it is the whole of the design.
-⚠️ Note that this has to be enforced in **both** directions — dispatch must refuse somebody in the
-formation, and `placeInRow` must refuse somebody away — which is the part most likely to be built
-half of.
+#### ⚠️ Dispatch and the formation are disjoint, in both directions
 
-**What it was waiting for now exists.** This was scoped into the same milestone as dailies
-precisely because it needs a claim ledger and a caller-supplied time boundary, and building those
-twice would be the waste. Both are built and tested: `core/quests.ts` has the window machinery and
-the backwards-clock rule, and `core/achievements.ts` has the claim-and-ledger shape. What is left
-is the missions, the dispatch state, the disjointness invariant, a v4 → v5 migration and a screen.
+A character cannot be both fighting and away. Without it the board is not a bench sink at all — it
+is a free resource tap that a player's five best characters run on a timer while also winning every
+fight.
 
-### Local notifications — still the decision is to ship none
+**Enforcing one side only is the shape this is most likely to be built in**, and it leaves the hole
+wide open: guard the dispatch alone and a player sends somebody from the bench, then walks that same
+character into the formation. So there are three guards, not one:
 
-`@capacitor/local-notifications` schedules **on-device** — no network, no account, no server — so
-it is compatible with the offline constraint in a way push never could be.
+- `dispatchBounty` refuses anybody standing in the formation;
+- `setFormation` refuses anybody away — a new `character-away` failure, which the roster screen
+  turns into _"That character is away on a bounty. Collect the mission first."_ rather than the
+  generic refusal it first shipped with;
+- `repairDispatches` restores the invariant on load, because a hand-edited save is the one thing
+  neither write path can catch after the fact. It runs on every load beside `grantStarters`,
+  `reconcileClearedStages` and `repairLoadouts`, and **pays nothing for what it drops** — paying
+  would make damaging a save a way to collect instantly.
 
-**Removing the offline cap removed the only earned reason to send one.** The justification used to
-be that the ten-hour ceiling was a real event with a real cost to ignoring it. With no cap, staying
-away costs nothing, so there is nothing to warn about.
+#### ⚠️ A mission pays a duration, not an amount — and that is the opposite of what quests do
 
-A finished bounty is the only remaining candidate and it is a weak one: a completed mission sits
-there indefinitely, so the player loses nothing by not hearing about it. **The default is to ship
-no notifications at all** — a notification existing to manufacture a session is the pattern this
-project rejects, and once absence is free every notification is that pattern by definition.
+Every bounty pays **seconds of the run's own current idle income** in gold, xp and essence, using
+the same idiom `STAGE_REWARDS.rewardSeconds` already uses for a stage's lump. A flat quantity of
+those three is worthless a chapter or two later against a level curve worth ×10⁹; a duration of
+what the player _currently_ earns means the same thing at stage 5 and at stage 5,000 and never
+needs retuning.
+
+**That is deliberately a different answer from the one quests give**, and the pair is the
+interesting part:
+
+|              | Pays                         | Because                                          |
+| ------------ | ---------------------------- | ------------------------------------------------ |
+| **Quests**   | flat crystals                | they exist to help a player whose ladder stopped |
+| **Bounties** | a multiple of current income | they reward roster breadth, not being stuck      |
+
+A scaling reward would help a stuck player least, which is why quests do not scale. Being stuck is
+not what the board is for, which is why it does.
+
+⚠️ **No mission pays crystals, and none may.** The crystal rate is linear in the clear count
+precisely so it cannot outrun a flat `PULL_COST`; paying a multiple of it on a repeatable timer is
+exactly the compounding that rule exists to prevent.
+
+#### Every mission pays less than it runs for
+
+Roughly a third to a half. A bounty paying its own duration back would make dispatching strictly
+free — the characters are idle anyway — and the board would be a button rather than a decision.
+`data/bounties.spec.ts` derives the ratio from the authored durations and asserts it stays in
+`(0.2, 1)`, so a retune that made the board free would fail rather than ship.
+
+The same spec derives the crew sizes against `PARTY_SIZE` and the shipped roster, so a mission
+wanting more characters than a player could ever spare is a failing test rather than a row nobody
+can run.
+
+#### The crew picker is a toggle list, not a drag target
+
+A crew is a **set**, unlike the formation, where slot order breaks ties in ATB turn order. So the
+control is a set of toggles carrying `aria-pressed` — which is also the one that works with a
+keyboard and a screen reader without any of the pointer machinery a drag target needs. It offers
+only characters who can actually go, because offering somebody `core/` would refuse is how a player
+learns a rule by being told "no".
+
+#### ⚠️ A `visually-hidden` class that was not there
+
+The board shipped its first screenshot with a button reading _"Choose a crew for Village Errand
+Send"_ — the accessible-name span rendering inline. `.visually-hidden` was defined **per component**,
+in the Altar's stylesheet and again in the roster's, and Angular scopes component styles, so a third
+screen using the class got no rule at all.
+
+It is a `@mixin` in `ui/theme.scss` now, and both older copies were replaced with an include. Worth
+recording because of how it failed: not subtly — it puts a whole sentence on a button — but
+**silently at authoring time**, and the same trap is waiting for any class a screen assumes is
+global.
+
+### ⚠️ Local notifications — the decision reversed, deliberately
+
+**This project argued for shipping none, and now ships two.** The old argument is preserved rather
+than deleted, because it is still the reason the feature has the shape it has:
+
+> Removing the offline cap removed the only _earned_ reason to send one. With no cap, staying away
+> costs nothing — so nothing is lost, and there is nothing to warn about. A notification existing to
+> manufacture a session is the pattern this project rejects, and once absence is free every
+> notification is that pattern by definition.
+
+What changed is the product call above it, not the reasoning under it. **That is recorded as a
+reversal rather than folded away**, so that anybody who later wonders why this game nudges a player
+who has lost nothing finds the objection rather than a blank.
+
+What follows from keeping the objection in view is every constraint on the build:
+
+- **Two, at twelve and twenty-four hours. Ever.** Not a daily drumbeat, not one per finished
+  bounty, not an escalating series.
+- **Fixed ids**, so re-scheduling replaces rather than accumulates. Generated ids would queue twenty
+  notifications for a player who backgrounded ten times in a minute.
+- ⚠️ **Cancelled on foreground** — and on launch. _A player who has come back must not be told to
+  come back._ A notification arriving mid-session is what makes people turn notifications off for
+  good.
+- **The copy promises nothing is lost**, because nothing is. There is no expiring reward, no streak
+  and no penalty, so the text does not invent one — and `notifications.service.spec.ts` asserts
+  both halves, matching for _"nothing is lost"_ and against _"expire | last chance | hurry"_. That
+  guard caught the first draft, whose body read "Nothing expires and nothing is lost": true, and
+  unmatchable by a regex that cannot tell it from "expires soon". The copy was reworded rather than
+  the guard weakened.
+- **A setting, defaulting on.** Defaulting off would mean the feature does not exist — nobody opens
+  a settings screen to enable a notification they have never seen — so what makes it honest is that
+  the switch is easy to find, not that it starts silent. Turning it off also cancels anything
+  already queued.
+- **Permission is asked at the first backgrounding, never at launch.** A prompt in the first ten
+  seconds is the one most reliably denied, and a denial is permanent on both platforms.
+
+**The 24-hour reminder and the longest bounty are the same number, and that is not a coincidence.**
+A full day is where the board has nothing left to give, so it is the one moment the app has
+something concrete to say. `data/bounties.spec.ts` pins the pair.
+
+`@capacitor/local-notifications` schedules **on-device** — no push token, no account, no request —
+which is why it was installed milestones ago and left unused rather than rejected. Every call is
+wrapped and every failure swallowed: the web implementation is a stub, a device may have denied
+permission, and neither is worth surfacing from a `visibilitychange` handler.
+
+### The version burn is now spent
+
+`SAVE_VERSION` reached **5** — v4 → v5 adds the dispatch list. The v0 re-base freed numbers 1
+through 5 and **all five have now been re-issued**, so no number below current still means "written
+before the baseline".
+
+Two test suites had been seeding one of those numbers to check an unreadable save is discarded.
+Neither can any more:
+
+- `migrate.spec.ts` now asserts the _fact_ — every version from 0 to `SAVE_VERSION` migrates
+  cleanly, and only a future one throws — so the next person to try writing that test finds out why
+  they cannot.
+- `save-recovery.spec.ts` derives its unreadable fixture from `SAVE_VERSION + 1`. ⚠️ It had gone
+  stale **twice** in this milestone alone, each time because a literal quietly became a live
+  version. Both times the test failed loudly; either time it could have kept passing while testing
+  nothing.
 
 ## 15. Faction towers, and something for a roster to be
 

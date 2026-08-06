@@ -1,4 +1,5 @@
 import { type AchievementLedger, emptyAchievements } from './achievements';
+import { type Dispatch, emptyDispatches } from './bounties';
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
 import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
@@ -220,6 +221,15 @@ export interface GameState extends LadderPosition {
    * `core/quests.ts`.
    */
   readonly quests: QuestWindows;
+  /**
+   * Missions currently running, and who is away on each.
+   *
+   * ⚠️ **Disjoint from {@link formation} by invariant**: a character cannot be both fighting and
+   * away. That is what makes the bounty board a bench sink rather than a free resource tap, and it
+   * is enforced in both directions — `dispatchBounty` refuses anybody fielded, `setFormation`
+   * refuses anybody away, and `repairDispatches` restores it on load. See `core/bounties.ts`.
+   */
+  readonly dispatches: readonly Dispatch[];
 }
 
 export interface NewGameOptions {
@@ -255,6 +265,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     gearShop: emptyGearShop(),
     achievements: emptyAchievements(),
     quests: emptyQuestWindows(),
+    dispatches: emptyDispatches(),
   };
 }
 

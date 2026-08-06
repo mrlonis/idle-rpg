@@ -16,6 +16,7 @@ import {
   type KitRulesData,
   type LadderShape,
   ladderShape,
+  type BountyData,
   type LevelCurveData,
   type QuestCounter,
   type QuestData,
@@ -30,6 +31,7 @@ import {
 import {
   ACHIEVEMENTS,
   ASCENSION_RULES,
+  BOUNTIES,
   BANNERS,
   CHAPTER_CURVE,
   CHAPTERS,
@@ -71,6 +73,9 @@ import {
  * this assignment is what turns a track naming a counter nothing keeps into a compile error.
  */
 export const ACHIEVEMENT_TRACKS: readonly AchievementTrackData[] = ACHIEVEMENTS;
+
+/** The bounty board's missions, in the order the screen lists them — shortest first. */
+export const BOUNTY_LIST: readonly BountyData[] = BOUNTIES;
 
 /** The daily and weekly quests this build ships, in the order the screen lists them. */
 export const QUEST_LIST: readonly QuestData[] = QUESTS;

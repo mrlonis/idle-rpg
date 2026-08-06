@@ -38,6 +38,30 @@
   </fieldset>
 </section>
 
+<section class="card" aria-labelledby="reminders-heading">
+  <h2 class="card__heading" id="reminders-heading">Reminders</h2>
+
+  <p class="card__body" id="reminders-hint">
+    Two notifications while you are away — one after twelve hours, one after a day. Nothing in this
+    game expires, so they are only a nudge; ignoring them costs you nothing.
+  </p>
+
+  <!--
+    A checkbox rather than a switch role: this is a preference that is saved as you set it, which
+    is exactly what a checkbox means, and it needs no extra ARIA to be announced correctly.
+  -->
+  <label class="toggle">
+    <input
+      type="checkbox"
+      class="toggle__input"
+      aria-describedby="reminders-hint"
+      [checked]="reminders()"
+      (change)="setReminders(!reminders())"
+    />
+    <span class="toggle__text">Send me reminders</span>
+  </label>
+</section>
+
 <section class="card" aria-labelledby="run-heading">
   <h2 class="card__heading" id="run-heading">This run</h2>
 

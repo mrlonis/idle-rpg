@@ -154,8 +154,22 @@ export interface SaveDataV4 extends Omit<SaveDataV3, 'version'> {
   };
 }
 
+/**
+ * v5 — the bounty board.
+ *
+ * Additive: one list of running missions, each an id, a crew and the epoch millisecond it started
+ * at. There is no "finished" flag and no remaining-time field, because both are arithmetic against
+ * a `nowMs` the caller supplies — storing either would be a second source of truth that a device
+ * clock could put out of step with the first.
+ */
+export interface SaveDataV5 extends Omit<SaveDataV4, 'version'> {
+  version: 5;
+  dispatches: { bountyId: string; members: string[]; startedAt: number }[];
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV4;
+export type CurrentSaveData = SaveDataV5;
 
 /** Any historical save shape. Widen this union as versions are added. */
-export type AnySaveData = SaveDataV0 | SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4;
+export type AnySaveData =
+  SaveDataV0 | SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4 | SaveDataV5;

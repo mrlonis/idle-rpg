@@ -83,7 +83,7 @@ migration in both directions. The bar for revisiting it is a key whose old and n
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **4**, and the migration table holds **four entries**. Every save carries its version.
+`SAVE_VERSION` is **5**, and the migration table holds **five entries**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
@@ -120,12 +120,17 @@ to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscov
 
 **v2, v3 and v4 re-issued the next three**, on the same argument and with the same caveat.
 
-⚠️ **The burn is nearly spent.** The re-base freed 1 through 5; four of the five have now been
-re-issued, so the only version that still reliably means "written before the baseline" is **5**.
-`migrate.spec.ts` and `save-recovery.spec.ts` both test that case and both are down to that one
-number — **the next migration exhausts it**, and the pre-baseline case will have nothing left to
-be tested with. That is the cost of the re-base finally arriving, and it is better known in advance
-than discovered by a test that quietly starts asserting nothing.
+⚠️ **The burn is spent.** The re-base freed 1 through 5 and **all five have now been re-issued**,
+so no number below `SAVE_VERSION` still means "written before the baseline". A save can be
+unreadable now only by being _newer_ than this build, or by carrying a version that is not a
+number at all.
+
+Two suites had been seeding a pre-baseline number to check that case. `migrate.spec.ts` now asserts
+the fact itself — every version from 0 to current migrates cleanly, and only a future one throws —
+and `save-recovery.spec.ts` derives its fixture from `SAVE_VERSION + 1`. ⚠️ **That fixture went
+stale twice in one milestone**, each time because a literal quietly became a live version; both
+times it failed loudly, and either time it could instead have kept passing while testing nothing.
+Derive it, never write it down.
 
 ### v1 → v2: the ladder grew a bottom
 
@@ -182,6 +187,22 @@ held, and the ids claimed inside it. **No quest has a progress field**, because 
 Both windows arrive at index `-1`, below any real period index, so the first roll after load opens
 them against the counters as they stand. A returning player gets a fresh day rather than one
 already half spent, and nothing is owed for battles fought before quests existed.
+
+### v4 → v5: the bounty board
+
+Additive, and empty: a list of running missions, each an id, a crew and the epoch millisecond it
+started at. A save written before bounties existed has nobody away, which is what an empty list
+says — there is no receipt to read and nothing to reconstruct.
+
+⚠️ **There is no "finished" flag and no remaining-time field.** Both are arithmetic against a
+`nowMs` the caller supplies, and storing either would be a second source of truth that a device
+clock could put out of step with the first.
+
+Shape is checked here; **content is not**. Whether a mission id still exists, whether the crew is
+owned, and whether anybody is _also_ in the formation are questions about content and about the
+rest of the state, so they belong to `repairDispatches` on load — the same split `readGear` and
+`repairLoadouts` already use. That pass **pays nothing for what it drops**: paying would make
+damaging a save a way to collect instantly.
 
 ### The chain was re-based, once, while nobody was playing
 

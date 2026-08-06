@@ -1,4 +1,5 @@
 import { parseAchievements } from '../achievements';
+import { parseDispatches, serializeDispatches } from '../bounties';
 import {
   parseRates,
   parseWallet,
@@ -94,6 +95,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       daily: encodeWindow(state.quests.daily),
       weekly: encodeWindow(state.quests.weekly),
     },
+    dispatches: serializeDispatches(state.dispatches),
   };
 }
 
@@ -196,6 +198,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const gearShop = readGearShop(record['gearShop'], note);
   const achievements = parseAchievements(record['achievements'], note);
   const quests = parseQuestWindows(record['quests'], note);
+  const dispatches = parseDispatches(record['dispatches'], note);
 
   return {
     state: {
@@ -217,6 +220,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       gearShop,
       achievements,
       quests,
+      dispatches,
     },
     issues,
   };

@@ -288,19 +288,21 @@ test.describe('re-fighting a cleared stage', () => {
  * bytes might belong to a newer build and would be good again after an update. That protects a
  * downgrade and strands everybody else, so it went: the run starts fresh and saves over it.
  *
- * A pre-baseline version is the case that actually occurs — five schema versions were collapsed
- * into v0 — so it is the one seeded here.
+ * ⚠️ **This used to seed a pre-baseline version, and there is no longer one to seed.** The reset
+ * burned numbers 1 through 5, and each migration since has re-issued one — v3 was pre-baseline
+ * until milestone 14 made it the achievement ledger, and v5 until the same milestone made it the
+ * bounty board. **All five are now spent**, so the only way a save can be unreadable is by being
+ * *newer* than this build.
  *
- * ⚠️ **Seeded at 5 rather than 3, and the number has to keep moving.** The reset burned version
- * numbers and each new migration re-issues one: v3 was pre-baseline until milestone 14 made it the
- * achievement ledger, at which point this fixture stopped describing an unreadable save and
- * started describing a current one. Only versions **above** `SAVE_VERSION` are still reliably
- * unreadable, so this has to stay ahead of it — and once the chain reaches 5 there is no
- * pre-baseline number left, which is the cost of the re-base finally coming due.
+ * The version is therefore **derived from `SAVE_VERSION`** rather than written down. That is what
+ * stops this fixture going stale a third time: the previous two versions of this comment both
+ * named a literal that a later migration quietly turned into a live version, and the test failed
+ * only because the *behaviour* changed — it could just as easily have kept passing while testing
+ * nothing.
  */
 test.describe('a save this build cannot read', () => {
   const beforeTheBaseline = {
-    version: 5,
+    version: SAVE_VERSION + 1,
     wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: { gold: '90', xp: '0', essence: '0', summons: '0' },
     lastTickAt: Date.now(),

@@ -9,6 +9,7 @@ import {
   type OfflineReport,
   type PartyFormation,
   reconcileClearedStages,
+  repairDispatches,
   repairLoadouts,
   type RepairIssue,
   resume,
@@ -19,6 +20,7 @@ import {
 } from '../core';
 import { STARTER_FORMATION } from '../data';
 import {
+  BOUNTY_LIST,
   CHAPTER_RULES,
   CHARACTERS_BY_ID,
   GEAR,
@@ -204,7 +206,14 @@ export class GameLoopService {
       STAGE_REWARD_CURVE,
       SUMMON_RATE_CURVE,
     );
-    return repairLoadouts(reconciled, CHARACTERS_BY_ID, GEAR);
+    // Fourth and last, and it runs on every load for the same reason the other three do: it needs
+    // content `core/` cannot see, and it is idempotent. It restores the bounty board's disjointness
+    // invariant — a save with somebody both fielded and away is the one shape a hand-edit is most
+    // likely to produce, and the two write paths cannot catch it after the fact.
+    //
+    // ⚠️ **After `repairLoadouts` rather than before**, because it reads the formation, and the
+    // repairs above are what guarantee the formation only names characters this build ships.
+    return repairDispatches(repairLoadouts(reconciled, CHARACTERS_BY_ID, GEAR), BOUNTY_LIST);
   }
 
   /** Starts the frame loop, the autosave and the visibility listener. */

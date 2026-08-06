@@ -53,6 +53,7 @@ describe('toSaveData', () => {
         daily: { index: -1, baseline: {}, claimed: [] },
         weekly: { index: -1, baseline: {}, claimed: [] },
       },
+      dispatches: [],
     });
   });
 

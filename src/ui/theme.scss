@@ -112,6 +112,30 @@ $tap-target: 2.75rem;
   font-variant-numeric: tabular-nums;
 }
 
+// Available to assistive tech, invisible on screen.
+//
+// ⚠️ **Not `display: none`**, which removes the element from the accessibility tree along with
+// everything else — the whole point here is that a screen reader still reads it.
+//
+// A mixin rather than a global class for the same reason the palettes below are: Angular scopes
+// component styles, so a screen that writes `class="visually-hidden"` without this included gets
+// **no rule at all** and renders the text inline. That is not a subtle failure — it puts "Choose a
+// crew for Village Errand Send" on a button — but it is a silent one at authoring time, and it
+// shipped exactly once before this moved out of a single component's stylesheet.
+@mixin visually-hidden {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
 // The rarity palette as a block, for the four screens that show a rarity. Angular scopes
 // component styles, so a shared mixin is the only way to write these once — the same reason
 // the palette itself lives here rather than in a global stylesheet.

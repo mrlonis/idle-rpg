@@ -134,15 +134,18 @@ the top of the ladder is tuned to a party several rungs up.
 
 ---
 
-## The two faucets that are not stage-gated
+## The three faucets that are not the ladder
 
-Added in milestone 14b, and both pay **crystals only**.
+Added in milestone 14b.
 
-|                   | Pays                   | Over                                 |
-| ----------------- | ---------------------- | ------------------------------------ |
-| **Achievements**  | 250 per 5 stage clears | `clearedStages`, endlessly           |
-| **Daily quests**  | 200 + 150              | 5 battles, 1 pull — resets 04:00 UTC |
-| **Weekly quests** | 800 + 600              | 35 battles, 7 pulls                  |
+|                   | Pays                          | Over                                 |
+| ----------------- | ----------------------------- | ------------------------------------ |
+| **Achievements**  | 250 crystals per 5 clears     | `clearedStages`, endlessly           |
+| **Daily quests**  | 200 + 150 crystals            | 5 battles, 1 pull — resets 04:00 UTC |
+| **Weekly quests** | 800 + 600 crystals            | 35 battles, 7 pulls                  |
+| **Bounties**      | 20m–12h **of current income** | 1–4 bench characters, 1h–24h         |
+
+The first three pay **crystals only**.
 
 ⚠️ **Crystals rather than gold, xp or essence, and the reason is the level curve.** Those three are
 spent against a curve worth ×10⁹, so a flat quantity of any of them is invisible within a chapter
@@ -154,10 +157,31 @@ flat `PULL_COST` forever, so a flat crystal reward means the same thing at stage
 350 a day plus 1,400 a week, roughly 5.5 pulls a day, against the 20–40 a day a fully cleared ladder
 produces idly.
 
-**The asymmetry is the whole design.** Against a player whose ladder is moving, both are a modest
-top-up. Against a player walled below a stage — whose only income source is the thing the wall is
-throttling — they are most of what arrives. That is why neither scales with progress: a reward that
-grew with the stage index would help least exactly where help is needed.
+**The asymmetry is the whole design.** Against a player whose ladder is moving, achievements and
+quests are a modest top-up. Against a player walled below a stage — whose only income source is the
+thing the wall is throttling — they are most of what arrives. That is why neither scales with
+progress: a reward that grew with the stage index would help least exactly where help is needed.
+
+### ⚠️ Bounties are the deliberate exception, and pay a duration instead
+
+A mission pays **seconds of the run's own current idle income** in gold, xp and essence — the same
+idiom `STAGE_REWARDS.rewardSeconds` uses for a stage's lump, and for the same reason: those three
+are spent against a ×10⁹ level curve, so a flat quantity goes stale within a chapter or two while a
+multiple of the player's current rate never does.
+
+Scaling is right here and wrong above because the two answer different questions. Quests exist to
+pay a **stuck** player; bounties exist to reward **roster breadth**, which is not a stuck player's
+problem. The pair is the point rather than an inconsistency.
+
+⚠️ **No bounty pays crystals, and none may.** The crystal rate is linear in the clear count
+precisely so it cannot outrun a flat `PULL_COST`; a multiple of it on a repeatable timer is exactly
+that compounding. Crystals come from quests and achievements, idle income comes from bounties, and
+keeping the two faucets on different currencies is what stops either being the only one worth
+engaging with.
+
+**Every mission pays less than it runs for** — roughly a third to a half. One paying its own
+duration back would make dispatching free, since the characters are idle anyway, and the board
+would be a button rather than a decision.
 
 ## Levelling
 

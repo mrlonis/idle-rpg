@@ -32,6 +32,9 @@ const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'row-full': `Both rows are full — ${FRONT_ROW_SIZE} in front, ${BACK_ROW_SIZE} behind. Bench somebody first.`,
   'not-owned': 'You do not own that character.',
   'duplicate-party-member': 'That character is already in your formation.',
+  // The bounty board's disjointness invariant, seen from the other side. Naming the board is what
+  // makes this actionable — "that did not work" leaves the player with no idea where to go.
+  'character-away': 'That character is away on a bounty. Collect the mission first.',
   'unknown-character': 'That character is no longer available.',
   'insufficient-currency': 'Not enough gold, XP or essence to raise the shared level.',
   'level-capped': `Your ${PARTY_SIZE}th-highest character is at its level cap. Ascend somebody to raise the shared level further.`,

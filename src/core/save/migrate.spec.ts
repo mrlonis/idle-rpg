@@ -78,12 +78,20 @@ describe('migrate', () => {
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it.each([5])('discards a v%i save from before the baseline', (version) => {
-    // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
-    // collapsed into v0 while the game was pre-release, so a save written by any of them has no
-    // path to current and never will. It reads as newer-than-supported because the numbers were
-    // re-based; either way `loadSave` turns it into a fresh run, which is the whole intent.
-    expect(() => migrate({ version })).toThrow();
+  it('has no pre-baseline version left to discard, which is the burn finally spent', () => {
+    // ⚠️ **This assertion replaced a real one, and the replacement is the point.** Five schema
+    // versions were collapsed into v0 while the game was pre-release, and for several milestones
+    // this block seeded one of the numbers they had used and checked it was refused. Milestone 14
+    // re-issued the last of them, so **every number from 0 to `SAVE_VERSION` is now a live
+    // version** and there is nothing left to seed.
+    //
+    // What is asserted instead is the fact itself, so that the moment somebody tries to write
+    // "discard a pre-baseline save" again they find out why they cannot. A save is unreadable now
+    // only by being *newer* than this build or by carrying nonsense — both covered above.
+    for (let version = 0; version <= SAVE_VERSION; version++) {
+      expect(() => migrate({ version }), `v${version}`).not.toThrow();
+    }
+    expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
   it.each([1, 2, 3, 4])(

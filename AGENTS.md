@@ -200,15 +200,50 @@ the two disagree, the code is right and both are stale.
     clock moved backwards does nothing rather than handing out a second day. Clamp; do not detect.
   - **Nothing punishes a miss.** No streaks, no escalating bonus that resets, no countdown that
     costs anything. Unclaimed awards accumulate indefinitely.
+- **The bounty board dispatches bench characters on timed missions**, added in milestone 14b. Read
+  [`core/bounties.ts`](src/core/bounties.ts) before touching it.
+  - ⚠️ **Dispatch and the formation are disjoint, and it is enforced in three places.** A character
+    cannot be both fighting and away — without it the board is a free resource tap rather than a
+    bench sink. `dispatchBounty` refuses anybody fielded, `setFormation` refuses anybody away
+    (`character-away`), and `repairDispatches` restores the invariant on load. **Guarding only the
+    dispatch side leaves the hole open**: a player sends somebody from the bench and then walks
+    that character into the formation.
+  - ⚠️ **A mission pays a _duration_ of the run's current idle income, never a flat amount** — the
+    same idiom as `STAGE_REWARDS.rewardSeconds`. And **never crystals**: the crystal rate is linear
+    in the clear count so it cannot outrun a flat `PULL_COST`, and a multiple of it on a repeatable
+    timer is that compounding. The split with quests is deliberate — quests pay flat crystals
+    because they help a player whose ladder stopped; bounties scale because roster breadth is not a
+    stuck player's problem.
+  - **Every mission pays less than it runs for.** One paying its own duration back would make
+    dispatching free and the board a button rather than a decision. `data/bounties.spec.ts` derives
+    that ratio and the crew sizes rather than restating them.
+  - **`repairDispatches` pays nothing for what it drops**, because paying would make damaging a
+    save a way to collect instantly.
+- **Two local notifications ship, at 12h and 24h**, and milestone 14b records this as a
+  **deliberate reversal** of the earlier "ship none" decision rather than deleting that argument.
+  See [`ui/notifications.service.ts`](src/ui/notifications.service.ts).
+  - ⚠️ **Cancelled on foreground and on launch.** A player who has come back must not be told to
+    come back.
+  - **Two, ever** — not a daily drumbeat and not one per finished bounty. **Fixed ids**, so
+    re-scheduling replaces rather than accumulates.
+  - **The copy promises nothing is lost, because nothing is.** No expiring reward, no streak, no
+    penalty — and the spec asserts both the promise and the absence of urgency words.
+  - **A setting, defaulting on**, which also cancels anything queued when switched off. Permission
+    is requested at the first backgrounding, never at launch.
+- ⚠️ **`visually-hidden` is a `@mixin` in `ui/theme.scss`, not a global class.** Angular scopes
+  component styles, so a screen that writes the class without including the mixin gets **no rule at
+  all** and renders the text inline — it shipped a button reading "Choose a crew for Village Errand
+  Send". The failure is loud on screen and silent at authoring time. The same trap waits for any
+  class a component assumes is global.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 4**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
+  fixtures. **`SAVE_VERSION` is 5**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
   stored rarity by two when the ladder grew a bottom, and milestone 14b added the achievement
-  ledger (v2 → v3) and the quest windows (v3 → v4). The last two are additive and cheap for the
-  same reason — every counter either system is paid against was already stored.
-  - ⚠️ **The version burn is nearly spent.** The v0 re-base freed numbers 1–5 and four of them have
-    now been re-issued, so **5 is the only version left that reliably means "pre-baseline"**.
-    `migrate.spec.ts` and `save-recovery.spec.ts` both test that case against that one number, and
-    **the next migration exhausts it**. Know it before writing that migration, not after.
+  ledger (v2 → v3), the quest windows (v3 → v4) and the bounty board (v4 → v5). The last three are
+  additive and cheap for the same reason — every counter or field they read was already stored.
+  - ⚠️ **The version burn is spent.** The v0 re-base freed numbers 1–5 and **all five have been
+    re-issued**, so no number below `SAVE_VERSION` still means "pre-baseline". A save is unreadable
+    now only by being _newer_ than this build. Any test for that case must **derive** its version
+    from `SAVE_VERSION`, never write a literal — that fixture went stale twice in one milestone.
   - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
     that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
     demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only

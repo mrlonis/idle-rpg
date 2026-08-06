@@ -22,6 +22,7 @@ test.describe('App', () => {
       ['/town/gear-shop', /Gear Shop/],
       ['/town/achievements', /Achievements/],
       ['/town/quests', /Quests/],
+      ['/town/bounties', /Bounty Board/],
       ['/bag', /Bag/],
       ['/settings', /Settings/],
     ] as const) {
@@ -81,6 +82,7 @@ test.describe('App', () => {
     for (const [card, heading] of [
       [/^Summon/, 'Summon'],
       [/^Quests/, 'Quests'],
+      [/^Bounty Board/, 'Bounty Board'],
       [/^Achievements/, 'Achievements'],
       [/^Gear Shop/, 'Gear Shop'],
       [/^Spark Shop/, 'Spark Shop'],

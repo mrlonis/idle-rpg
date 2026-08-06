@@ -62,6 +62,11 @@ export const routes: Routes = [
     title: 'Quests — Idle RPG',
   },
   {
+    path: 'town/bounties',
+    loadComponent: () => import('../ui/bounties-view').then((m) => m.BountiesView),
+    title: 'Bounty Board — Idle RPG',
+  },
+  {
     path: 'town/achievements',
     loadComponent: () => import('../ui/achievements-view').then((m) => m.AchievementsView),
     title: 'Achievements — Idle RPG',

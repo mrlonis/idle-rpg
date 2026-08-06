@@ -140,9 +140,21 @@ const migrateV3ToV4: Migration = (save) => ({
 });
 
 /**
+ * v4 → v5: the bounty board.
+ *
+ * Additive, and empty: a save written before bounties existed has nobody away, which is exactly
+ * what an empty list says. There is no receipt to read and nothing to reconstruct.
+ *
+ * ⚠️ Written out as a literal rather than through `emptyDispatches()`, for the reason every
+ * migration above does the same: a migration is dated, and a helper a later release is free to
+ * change would silently alter what this step means for saves that have not run it yet.
+ */
+const migrateV4ToV5: Migration = (save) => ({ ...save, version: 5, dispatches: [] });
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
- * **Four entries, and they are the first this table has held since the reset.** Five schema
+ * **Five entries, and they are the first this table has held since the reset.** Five schema
  * versions and four migrations were collapsed into a single v0 baseline while the game was still
  * pre-release — see [saves](../../../docs/saves.md) for the reset and the condition that closes
  * the door on repeating it. Everything from v0 upward is permanent.
@@ -152,7 +164,7 @@ const migrateV3ToV4: Migration = (save) => ({
  * possible time to be debugging one. `migrate.spec.ts` has proved the walk against a synthetic
  * history throughout; {@link migrateV0ToV1} is what it was being kept for.
  *
- * They differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: the other three
+ * They differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: the other four
  * *add* fields, so getting one wrong loses something that was never there, while v1 → v2
  * *reinterprets* one, so getting it wrong silently rewrites progress a player earned.
  */
@@ -161,6 +173,7 @@ export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migrat
   [1, migrateV1ToV2],
   [2, migrateV2ToV3],
   [3, migrateV3ToV4],
+  [4, migrateV4ToV5],
 ]);
 
 export class UnknownSaveVersionError extends Error {

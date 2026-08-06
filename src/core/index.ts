@@ -153,6 +153,28 @@ export {
   type ClaimResult,
 } from './achievements';
 export {
+  allBountyProgress,
+  awayMembers,
+  bountyPayout,
+  bountyProgress,
+  collectBounty,
+  collectReadyBounties,
+  dispatchBounty,
+  dispatchOf,
+  emptyDispatches,
+  isPayoutEmpty,
+  isUnlocked,
+  parseDispatches,
+  repairDispatches,
+  serializeDispatches,
+  type BountyData,
+  type BountyFailure,
+  type BountyProgress,
+  type BountyResult,
+  type CollectAllResult,
+  type Dispatch,
+} from './bounties';
+export {
   allQuestProgress,
   claimQuests,
   emptyQuestWindows,

@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AchievementsService } from './achievements.service';
+import { BountiesService } from './bounties.service';
 import { formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 import { QuestsService } from './quests.service';
@@ -74,6 +75,7 @@ export class TownView {
   private readonly roster = inject(RosterService);
   private readonly achievements = inject(AchievementsService);
   private readonly quests = inject(QuestsService);
+  private readonly bounties = inject(BountiesService);
 
   /**
    * The places, rebuilt whenever a balance moves.
@@ -121,6 +123,14 @@ export class TownView {
       description: 'Daily and weekly goals. Missing a day costs nothing.',
       amount: String(this.quests.claimable()),
       unit: 'ready',
+    },
+    {
+      path: '/town/bounties',
+      name: 'Bounty Board',
+      icon: '🗺️',
+      description: 'Send the bench on timed missions. Your party stays home.',
+      amount: String(this.bounties.ready()),
+      unit: 'back',
     },
     {
       path: '/town/achievements',

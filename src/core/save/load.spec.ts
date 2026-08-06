@@ -60,11 +60,13 @@ describe('loadSave', () => {
     expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
-  it('reports a fatal error and a fresh run for a save from before the v0 baseline', () => {
-    // The five pre-release schema versions were collapsed into v0, so nothing they wrote has a
-    // path to current. A fresh run is the answer, and since the v0 reset the caller writes over
-    // it rather than leaving the game unable to save.
-    const result = loadSave({ version: 5, wallet: {} }, OPTIONS);
+  it('reports a fatal error and a fresh run for a version this build cannot reach', () => {
+    // ⚠️ **This used to seed a pre-baseline version and no longer can.** The five pre-release
+    // schema versions were collapsed into v0, and milestone 14 re-issued the last of the numbers
+    // they had used — so a save is unreadable now only by being *newer* than this build. The
+    // behaviour under test is unchanged: a fresh run, and since the v0 reset the caller writes
+    // over it rather than leaving the game unable to save.
+    const result = loadSave({ version: SAVE_VERSION + 1, wallet: {} }, OPTIONS);
 
     expect(result.fatal).toBeDefined();
     expect(result.state.wallet.gold.toString()).toBe('0');

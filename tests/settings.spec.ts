@@ -108,6 +108,38 @@ test.describe('Settings', () => {
     });
   });
 
+  test.describe('reminders', () => {
+    test('is on by default, and one tap from off', async ({ page }) => {
+      // ⚠️ On by default is the deliberate choice. Defaulting off would mean the feature does not
+      // exist — nobody opens a settings screen to enable a notification they have never seen — so
+      // what makes it honest is that the switch is easy to find, not that it starts silent.
+      await page.goto('/settings');
+
+      const toggle = page.getByRole('checkbox', { name: 'Send me reminders' });
+      await expect(toggle).toBeChecked();
+
+      await toggle.click();
+      await expect(toggle).not.toBeChecked();
+    });
+
+    test('is remembered across a reload', async ({ page }) => {
+      await page.goto('/settings');
+      await page.getByRole('checkbox', { name: 'Send me reminders' }).click();
+      await expect(page.getByRole('checkbox', { name: 'Send me reminders' })).not.toBeChecked();
+
+      await page.reload();
+
+      await expect(page.getByRole('checkbox', { name: 'Send me reminders' })).not.toBeChecked();
+    });
+
+    test('says plainly that ignoring them costs nothing', async ({ page }) => {
+      // Load-bearing copy: nothing in this game expires, so the screen must not imply otherwise.
+      await page.goto('/settings');
+
+      await expect(page.getByText(/costs you nothing/)).toBeVisible();
+    });
+  });
+
   test.describe('resetting the run', () => {
     test('asks first, and does nothing if the player backs out', async ({ page }) => {
       await seedSave(page, progressedSave);

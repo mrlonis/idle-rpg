@@ -174,6 +174,39 @@ function questsSave() {
   };
 }
 
+/**
+ * A run with one bounty finished, enough clears to unlock more, and a bench to crew them from.
+ *
+ * The errand is backdated two hours against a one-hour mission, so it has finished by the time the
+ * app loads however long the suite takes to get here — a fixed timestamp would go stale.
+ */
+function bountiesSave() {
+  return {
+    ...unlockedSave,
+    // Current schema rather than migrated from v0: the v4 → v5 migration writes an empty dispatch
+    // list unconditionally, so a v0 fixture would lose this on the way up.
+    version: 5,
+    clearedStages: CLEARS,
+    roster: [
+      { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
+    ],
+    // Two fielded, one on the bench — so the picker has somebody to offer and somebody to withhold.
+    formation: { front: ['bran'], back: ['mira'] },
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+    gear: [],
+    gearMinted: 0,
+    gearShop: { slot: 0, purchased: [] },
+    achievements: {},
+    quests: {
+      daily: { index: -1, baseline: {}, claimed: [] },
+      weekly: { index: -1, baseline: {}, claimed: [] },
+    },
+    dispatches: [{ bountyId: 'errand', members: ['rin'], startedAt: Date.now() - 2 * 3_600_000 }],
+  };
+}
+
 /** Writes a save the app will read on its next load. Capacitor's web backend is localStorage. */
 async function seedSave(page: Page, save: unknown): Promise<void> {
   await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
@@ -445,6 +478,36 @@ test.describe('Accessibility', () => {
     await expect(page.getByRole('progressbar').first()).toBeVisible();
 
     await scan(page, testInfo, 'quests');
+  });
+
+  /**
+   * The bounty board, seeded so a finished mission, a running one and a locked one are all on
+   * screen, with the crew picker open.
+   *
+   * ⚠️ The picker is the reason this scan matters most: it is a list of toggle buttons whose state
+   * lives entirely in `aria-pressed`, beside a Send control that is disabled until the crew is the
+   * right size. Both are the shape that ends up with controls nothing can name.
+   *
+   * The formation is left holding two characters so the picker has somebody to offer *and*
+   * somebody to withhold — which is the disjointness invariant visible on screen.
+   */
+  test('the bounty board has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, bountiesSave());
+    await page.goto('/town/bounties');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Bounty Board' })).toBeVisible();
+    // A finished mission, which proves the seeded dispatch was read rather than scanning an
+    // empty board.
+    await expect(page.getByRole('button', { name: /^Collect all/ })).toBeEnabled();
+
+    // Open a crew picker on a mission nobody is on, so the toggle list is in the scan.
+    await page
+      .getByRole('button', { name: /^Choose a crew for/ })
+      .first()
+      .click();
+    await expect(page.locator('.picker')).toBeVisible();
+
+    await scan(page, testInfo, 'bounties');
   });
 
   test('the spark shop has no AXE violations', async ({ page }, testInfo) => {

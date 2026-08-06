@@ -1,0 +1,287 @@
+@use 'theme' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+// The same head every Town screen wears, so a player who learned the shape on the Altar finds it
+// here unchanged.
+.head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 1rem;
+}
+
+.head__back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$accent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.head__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.head__unit {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+.collect-all {
+  @include t.button-primary;
+  width: 100%;
+}
+
+.collect-all__count {
+  @include t.numeric;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  background: t.$surface;
+  font-size: 0.875rem;
+}
+
+.missions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission {
+  @include t.card;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem;
+}
+
+// A mission that has come back is marked by its border **and** by the word "Back" in the header.
+//
+// ⚠️ Never `opacity` to quiet a locked or running row: dimming a card dims its text with it, and
+// `$muted` is 6.4:1 on `$surface` — 70% of that is under the 4.5:1 floor. That exact mistake failed
+// the AXE scan in all three browsers on the Altar's "Not yet" rows.
+.mission--ready {
+  border-color: t.$accent;
+}
+
+.mission__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.mission__name {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mission__state {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  @include t.numeric;
+}
+
+.mission__state--ready {
+  color: t.$accent;
+}
+
+.mission__state--out,
+.mission__state--locked {
+  color: t.$muted;
+}
+
+.mission__description {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  line-height: 1.45;
+}
+
+.mission__terms,
+.mission__payout,
+.mission__crew {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.mission__term {
+  color: t.$muted;
+}
+
+.mission__amount {
+  font-weight: 600;
+  @include t.numeric;
+}
+
+.mission__none {
+  color: t.$muted;
+}
+
+// The separator between payout entries. Hidden from assistive tech in the markup; the last one
+// would dangle, so it is removed visually rather than conditionally rendered.
+.dot {
+  color: t.$muted;
+
+  &:last-child {
+    display: none;
+  }
+}
+
+.mission__bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: t.$surface-raised;
+  overflow: hidden;
+}
+
+.mission__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: t.$accent;
+}
+
+.mission__crew-label {
+  color: t.$muted;
+}
+
+.mission__member {
+  font-weight: 600;
+}
+
+.mission__action {
+  @include t.button-quiet;
+  align-self: flex-start;
+}
+
+.mission--ready .mission__action {
+  @include t.button-primary;
+}
+
+// The crew picker, inline under the row it belongs to.
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid t.$border;
+}
+
+.picker__prompt {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.picker__empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  line-height: 1.45;
+}
+
+.picker__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A chosen member is marked by colour **and** by `aria-pressed`, which is what a screen reader
+// reads. Colour is never the only signal.
+.picker__member {
+  @include t.button-quiet;
+  min-height: t.$tap-target;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.picker__member--chosen {
+  border-color: t.$accent;
+  background: t.$accent-bg;
+  color: t.$accent;
+  font-weight: 700;
+}
+
+.picker__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.picker__send {
+  @include t.button-primary;
+  flex: 1;
+}
+
+.picker__cancel {
+  @include t.button-quiet;
+}
+
+// Drawn on the page background rather than as a dimmed card, for the contrast reason above:
+// `$muted` measures 7.2:1 on `$page`.
+.mission--empty {
+  background: none;
+  color: t.$muted;
+  font-size: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+@include t.visually-hidden;
