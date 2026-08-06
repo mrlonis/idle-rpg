@@ -112,7 +112,9 @@
   color: t.$accent;
 }
 
-// The ring has to move to the visible box, because the input it belongs to is a 1px sliver.
+// The ring has to move to the visible box. The input is the right size and in the right place —
+// it covers the whole option — but it is `opacity: 0`, so an outline drawn on it would be drawn
+// invisibly along with the rest of it.
 .speeds__input:focus-visible + .speeds__text {
   outline: 2px solid t.$text;
   outline-offset: 2px;

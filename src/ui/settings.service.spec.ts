@@ -17,6 +17,9 @@ class FakeStore implements KeyValueStore {
   private held: (() => void) | null = null;
   private gate: Promise<void> = Promise.resolve();
 
+  /** Set while writes should be refused, standing in for a store that is out of space or gone. */
+  failWrites = false;
+
   /** Makes the next read block until {@link release}. */
   holdReads(): void {
     this.gate = new Promise<void>((resolve) => {
@@ -37,6 +40,9 @@ class FakeStore implements KeyValueStore {
 
   set({ key, value }: { key: string; value: string }): Promise<void> {
     this.operations.push(`set:${key}`);
+    if (this.failWrites) {
+      return Promise.reject(new Error('store unavailable'));
+    }
     this.entries.set(key, value);
     return Promise.resolve();
   }
@@ -146,6 +152,36 @@ describe('SettingsService', () => {
      * arriving after the player has picked one would silently overrule them, which is the one
      * ordering bug this seam can have.
      */
+    /**
+     * `setCombatSpeed` fires the write and forgets it, so a chain that could reject would surface
+     * as an unhandled rejection from a control the player merely tapped. The failure is swallowed
+     * at the tail of the chain for exactly that reason — catching the *predecessor* instead would
+     * leave the write being made unprotected, which is the shape this test would still catch.
+     */
+    it('survives a store that refuses the write, without rejecting', async () => {
+      const settings = await build();
+      store.failWrites = true;
+
+      settings.setCombatSpeed(4);
+
+      await expect(settings.written).resolves.toBeUndefined();
+      // The screen still shows what the player picked. Only the disk missed it.
+      expect(settings.combatSpeed()).toBe(4);
+    });
+
+    it('keeps writing after a failure rather than wedging the chain', async () => {
+      const settings = await build();
+      store.failWrites = true;
+      settings.setCombatSpeed(4);
+      await settings.written;
+
+      store.failWrites = false;
+      settings.setCombatSpeed(2);
+      await settings.written;
+
+      expect(stored(store)).toEqual({ combatSpeed: 2 });
+    });
+
     it('does not let a slow read overrule a choice already made', async () => {
       store.entries.set('settings', JSON.stringify({ combatSpeed: 4 }));
       store.holdReads();

@@ -90,7 +90,13 @@ export class SettingsService {
   /** Resolves once the stored settings have been read. */
   readonly ready: Promise<void>;
 
-  /** Resolves once every write requested so far has landed. */
+  /**
+   * Resolves once every write requested so far has been attempted.
+   *
+   * Attempted rather than landed: {@link persist} swallows a failure, so this never rejects and a
+   * caller cannot tell a successful write from a store that refused one. That is the right shape
+   * for the app — nothing here has a recovery to run — and a test that cares checks the store.
+   */
   get written(): Promise<void> {
     return this.writing;
   }
@@ -145,14 +151,23 @@ export class SettingsService {
    * Writes the current settings.
    *
    * The value is serialised **before** joining the chain, so the write that lands last is the one
-   * that was requested last. A failed write is swallowed rather than left on the chain, since a
-   * rejection parked there would silently skip every write after it.
+   * that was requested last.
+   *
+   * ⚠️ **The `catch` is at the tail, and that placement is the whole of it.** A failed write is
+   * swallowed for two reasons: a rejection parked on the chain would silently skip every write
+   * after it, and {@link setCombatSpeed} fires this and forgets it — so a chain that could reject
+   * would surface as an unhandled rejection from a control the player merely tapped. Catching the
+   * *predecessor* instead protects only the write before this one, which is the half of the
+   * problem that is easy to write and the wrong half.
+   *
+   * Losing a preference to a failed write is a nuisance the next tap fixes. Taking the app's
+   * error reporting with it is not.
    */
   private persist(): Promise<void> {
     const value = JSON.stringify({ combatSpeed: this.combatSpeedState() });
     this.writing = this.writing
-      .catch(() => undefined)
-      .then(() => this.store.set({ key: SETTINGS_KEY, value }));
+      .then(() => this.store.set({ key: SETTINGS_KEY, value }))
+      .catch(() => undefined);
     return this.writing;
   }
 }
