@@ -2042,6 +2042,62 @@ one section, headed **Gear**, and the second heading arrives with the second kin
 **No redirect from `/gear`**, for the reason `/summon` got none: the game is pre-release. That
 licence expires the moment a URL exists outside development.
 
+## 14. The ladder retune — **IN PROGRESS**
+
+The shipped hundred stages were tuned to be climbed. This milestone re-aims them at a different
+brief: **the shipped content is a breeze, and the difficulty arrives with chapter 3.** Nothing
+structural changed — the chapters, the boss rhythm, the income curve and the stage count are all
+untouched — but almost every enemy level did.
+
+|                                    | Before                        | After                                               |
+| ---------------------------------- | ----------------------------- | --------------------------------------------------- |
+| Chapter 1 enemy levels             | 1 → 40                        | 1 → **16**                                          |
+| Chapter 2 enemy levels             | 40 → 126                      | 16 → **85**                                         |
+| The party chapter 1 is tuned for   | five at level 40, three rungs | five at level 30, **one rung**                      |
+| The party that finishes the ladder | level 90 at `legendary`       | level **85 at `elite`**, derived from the top stage |
+
+The tutorial ramp (stages 1–6) and the stage-7 healer lock are **untouched**, including the level-14
+step into the wall. That was the constraint everything else was authored around.
+
+### ⚠️ Levels are not the early power curve in this game — rungs are
+
+The first target was "chapter 1 is clearable with no ascensions at all", and it was measured and
+rejected. `perLevel.common` is **1.021** — it has to be, to reach ×10⁹ across a thousand levels — so
+a character taken from level 1 to its unascended cap of 20 is worth **×1.48**, against a wall built
+to stop ×1.00. That 48% is the entire margin and chapter 1's composition locks ate it: a five at
+level 20 with no rungs failed eight stages, one at a **5% win rate**, and the seven mono-faction
+fives spread twice as far apart as the guard allows.
+
+**One ascension is worth more than nineteen levels.** Any future statement of the form "a player at
+level N should be able to…" has to be checked against the rung count, not the level. Note the
+second half of that: `growthFloor` anchors the ×1.6 ladder at `rare`, so the first two rungs buy
+level cap and no multiplier at all — `common-plus` is worth ten more levels and nothing else.
+
+### ⚠️ A barrier that could never lapse
+
+The retune surfaced a latent bug rather than causing one. `BARRIER` lasts **70 ticks** and `BULWARK`
+recast it every **60**, so a Hierophant or a Bulwark kept a party-wide absorb shield up
+_permanently_. Every stall the retune exposed was a stage carrying one of those two.
+
+The old ladder hid it by killing parties before it mattered. A shield that cannot lapse is not a
+lock a party can answer with burst, which is what `BARRIER` is documented to be — so the cooldown is
+now 85, and **must stay above the status's duration**. That is a termination argument, not a balance
+knob.
+
+### What is not finished
+
+Four balance assertions are still red, all one root cause: on **two stages of a hundred**
+(`c2-s13`, `c2-s23`) a party that wins about 83% of the time occasionally runs the ninety seconds
+out — 3 and 5 runs in 40. Flattening the ladder widens the band where a party can neither close nor
+die, and that band is what remains to be closed.
+
+Two attempts are recorded because both failed and the failures are informative. A global 15% enemy
+HP cut **broke the starter wall** — starters cleared the stage-7 lock at 87.5% against a guard of
+20% — and was reverted. Weakening the Hierophant and the front ranks further made the headroom guard
+_worse_, converting timeouts into ninety-second wins. What did work was cutting **defence** on the
+armour blocks past the wall: damage is `atk² / (atk + def)`, so that raises what a party lands
+without raising what it takes.
+
 ## Not a milestone: ascension became copies of the hero alone
 
 Housekeeping in the same sense the v0 re-base was: no new system, one system made much smaller.

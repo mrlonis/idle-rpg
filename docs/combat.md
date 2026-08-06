@@ -394,6 +394,24 @@ is when the quantity is fixed anyway:
   and not bleeds, which would be a hole in the axis 8a moved onto the resists;
 - a `regen` is healing from somebody else, so the recipient's `receivedHealing` applies.
 
+### ⚠️ A skill's cooldown must exceed the duration of any status it applies
+
+Not a balance preference — a termination argument, and one this project has already shipped a bug
+against. `BARRIER` lasts 70 ticks and `BULWARK` was authored at a cooldown of **60**, so the shield
+was recast ten ticks before the one it replaced expired. The Ashen Hierophant and the Bulwark
+therefore kept a **party-wide absorb up permanently**, and a party doing steady damage into
+permanent absorb — while taking too little back to die — resolves nothing. Ninety seconds elapse.
+
+It was invisible for two milestones because the ladder was steep enough to kill the party first.
+Milestone 14 flattened the enemy levels, which removed the thing that was hiding it, and every
+stall the retune surfaced was a stage carrying one of those two enemies.
+
+The general rule is what to keep: **a lock the party is told to answer with burst has to have a
+window.** `BARRIER`'s own documentation says a barrier applied before the damage arrives cannot be
+raced by chip damage at all — which is exactly right, and exactly why it must be able to lapse.
+When authoring a status-applying skill, check its cooldown against `duration` on the status it
+applies; 100% uptime on an absorb or a regen is a fight the timer has to end.
+
 ---
 
 ## Determinism

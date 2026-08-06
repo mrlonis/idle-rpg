@@ -200,7 +200,7 @@ export const GOLEM = {
   stats: {
     hp: 1000,
     atk: 42,
-    def: 27,
+    def: 19,
     haste: 52,
     critChance: 0.02,
     critDamageAmp: 1,
@@ -221,7 +221,7 @@ export const WARDEN = {
   stats: {
     hp: 850,
     atk: 46,
-    def: 20,
+    def: 15,
     haste: 98,
     critChance: 0.1,
     critDamageAmp: 0.8,
@@ -322,7 +322,7 @@ export const BULWARK_ENEMY = {
   stats: {
     hp: 820,
     atk: 40,
-    def: 29,
+    def: 21,
     haste: 74,
     critChance: 0.03,
     critDamageAmp: 0.5,
@@ -347,7 +347,7 @@ export const RIMEPLATE = {
   stats: {
     hp: 1100,
     atk: 60,
-    def: 34,
+    def: 24,
     recovery: 6,
     haste: 60,
     critChance: 0.03,
@@ -460,7 +460,7 @@ export const SENTINEL = {
   stats: {
     hp: 780,
     atk: 70,
-    def: 46,
+    def: 38,
     recovery: 4,
     haste: 66,
     critChance: 0.03,
@@ -645,7 +645,7 @@ export const COLOSSUS = {
   stats: {
     hp: 1250,
     atk: 88,
-    def: 52,
+    def: 42,
     recovery: 7,
     haste: 58,
     critChance: 0.03,
