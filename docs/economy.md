@@ -94,21 +94,32 @@ compounded over the nine thousand stages that reach chapter 100 has three hundre
 `SUMMON_RATE` in [`banners.ts`](../src/data/banners.ts) is the whole of it, in crystals per hour:
 
 ```
-rate = basePerHour + perClearPerHour × clearedStages     // 100 + 0.5 × clears
+rate = basePerHour + perClearPerHour × clearedStages     // 100 + 1 × clears
 ```
 
 | Cleared          | Crystals/hr | Pulls/day |
 | ---------------- | ----------- | --------- |
 | 0 (a fresh save) | 100         | 24        |
-| 12               | 106         | 25        |
-| 50 (chapter 1)   | 125         | 30        |
-| 100 (the ladder) | 150         | 36        |
+| 12               | 112         | 27        |
+| 50 (chapter 1)   | 150         | 36        |
+| 100 (the ladder) | 200         | 48        |
 
-**The step halved when milestone 11 shipped chapters, and that is the curve being retuned rather
-than a threshold being moved.** A hundred stages at the old crystal an hour a clear is five
-ten-pulls a day, past the pacing `banners.spec.ts` pins — and that spec says in advance that a
-longer ladder should fail there and be retuned deliberately. The base did not move: a pull an hour
-from install is the number that makes this economy legible.
+**Milestone 11 halved the step to 0.5, and it has been put back to 1.** The halving was real
+tuning — a hundred stages at the full step is five ten-pulls a day where the twenty-four stage
+ladder had been paying three, which was past the band `banners.spec.ts` held. This time the band
+moved instead, deliberately: a cleared ladder pays **48 pulls a day** against 36, and the shape of
+the curve did not change at all. The failure mode this curve exists to prevent is a rate that
+**compounds** past a flat `PULL_COST`, and a linear step cannot do that at any size — being
+extravagant and compounding are different things, and only the second one was ever the bug.
+
+⚠️ **What binds the step is the ratio, and it is nearly spent.** The ladder's contribution is
+`step × stages` against a base of 100, so the shipped hundred stages now **double** the base where
+the half-step added 50%. A third chapter takes that to ×2.5 and a fourth to ×3, where
+`banners.spec.ts` fails — and the right answer there is to retune the step, not the threshold.
+Raising the step spent that headroom rather than finding it free.
+
+The base did not move either time: a pull an hour from install is the number that makes this
+economy legible.
 
 Four things about that are decisions rather than arithmetic:
 

@@ -218,7 +218,16 @@ the two disagree, the code is right and both are stale.
     when read together** — the ladder's first clears fell from ~58,800 to 29,000 and the tracks rose
     from 5,000 to 40,000. Retuning either half alone moves the pacing; `data/achievements.spec.ts`
     measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
-    the one thing still linear, in the **clear count**, and it did not move.
+    the one thing still linear, and it is linear in the **clear count** rather than the index.
+  - ⚠️ **`perClearPerHour` is back at 1, and the headroom that allowed it is nearly spent.** The
+    ladder's crystal contribution is `step × stages` against a base of 100, so the shipped hundred
+    stages now **double** the base rate (48 pulls a day at a full clear, against 36 at the old 0.5).
+    A third chapter takes that ratio to ×2.5 and a fourth to ×3, where `banners.spec.ts` fails —
+    and the right answer there is to retune the **step**, not the threshold. Both bands in that
+    spec were moved deliberately when the step went back up; do not read that as licence to move
+    them again. What is not negotiable is the shape: a flat base plus a **linear** step, paid once
+    per stage ever, never compounding — that is what a flat `PULL_COST` can survive at any size,
+    and extravagance was never the bug.
   - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
     consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
     targets rather than restating it.

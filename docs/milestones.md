@@ -2603,6 +2603,29 @@ total. What actually moved is _when_: the old curve paid least at the bottom of 
 is precisely where a run is three characters short of a full formation and has no other way to fix
 it. Crystals banked before the stage-7 healer lock went from 1,750 to 2,500.
 
+### The idle step went back to 1/hr, and that is a threshold moving rather than a curve
+
+A fourth edit, after the three above and on the same currency: `SUMMON_RATE.perClearPerHour` is **1
+again**, undoing milestone 11's halving. A fully cleared ladder pays 200 crystals an hour instead
+of 150 — **48 pulls a day against 36** — and a fresh save still earns the same pull an hour it
+always did, because the base did not move.
+
+⚠️ **This one is honestly a threshold being moved, and it is worth being plain about that** rather
+than dressing it as a retune. Milestone 11 halved the step _to stay inside_ the band
+`banners.spec.ts` held; this time the step won and the band followed. Two things license it. The
+failure mode the curve was ever guarding is a rate that **compounds** past a flat `PULL_COST` — the
+old per-stage crystal curve reached a million pulls a day by the end of chapter 1 — and a linear
+step cannot do that at any size, so the shape is intact and only the generosity moved. And
+generosity is the house position: this is a time economy with nothing to sell, so paying more is
+free in a way it would not be in a game with a bridge across the gap.
+
+**The ceiling that is left is the ratio, and it is nearly met.** The ladder's contribution is
+`step × stages` against a base of 100, so a hundred stages at a step of 1 exactly **double** the
+base where the half-step added 50%. Chapter 3 takes it to ×2.5, chapter 4 to ×3, and that is where
+the spec fails — at which point the step is what should give, not the threshold. The band was
+widened to 20–60 pulls a day and the ratio ceiling from 2 to 3, both sized so a _doubled_ ladder
+still fires them.
+
 ### The tier that was in the per-stage curve is still there, one level up
 
 Flattening the base did not flatten the ladder's rhythm — it moved the rhythm off the _stage index_

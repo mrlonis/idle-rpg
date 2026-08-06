@@ -49,14 +49,27 @@ export const PULL_COST = 100;
  * if what it buys compounds: levels compound, so gold does; a pull is a flat 100 crystals and an
  * ascension a flat count of copies, so a compounding crystal rate would outrun its own prices and
  * make pulls effectively unlimited a chapter or two in. Linear keeps the full ladder worth
- * climbing — a hundred stages is +50% income — without ever getting ahead of what it is spent on.
+ * climbing — clearing the shipped hundred stages **doubles** the rate — without ever getting ahead
+ * of what it is spent on.
  *
- * **The step halved when milestone 11 shipped chapters, and that is the curve being retuned
- * rather than a threshold being moved.** It was one crystal an hour a clear against a
- * twenty-four stage ladder; a hundred stages at that step is three ten-pulls a day becoming five,
- * which is past the pacing `banners.spec.ts` pins. The spec said in advance that a longer ladder
- * should fail there and be retuned deliberately, and this is that retune. The base did not move:
- * a pull an hour from install is the number that makes this economy legible.
+ * **The step halved when milestone 11 shipped chapters, and it has been put back.** Milestone 11
+ * cut it from 1 to 0.5 because a hundred stages at the full step is five ten-pulls a day where the
+ * ladder had been paying three, and that was past the band `banners.spec.ts` held at the time. The
+ * band is what moved instead, deliberately and with the numbers on the table: at the full step a
+ * cleared ladder pays **48 pulls a day** against 36, and the shape of the reward — flat base plus
+ * linear step, once per stage, ever — did not change at all. What licenses it is the thing this
+ * curve was ever actually guarding: the failure mode is a rate that **compounds** past a flat
+ * `PULL_COST`, and a linear step cannot do that at any size. Being extravagant and compounding are
+ * different things, and only the second one was ever the bug (see [economy](../../docs/economy.md)).
+ *
+ * ⚠️ **What still binds is the ratio, not the step.** The ladder's contribution is `step × stages`
+ * against a base of 100, so the full step means the shipped hundred stages exactly double the base
+ * — and a ladder twice as long would treble it. That is the number `banners.spec.ts` bounds, and
+ * a third and fourth chapter walk it toward the ceiling. Adding chapters is what should force this
+ * question again; the step is not free to raise a second time.
+ *
+ * The base did not move either way: a pull an hour from install is the number that makes this
+ * economy legible.
  *
  * The step is paid **once per stage, ever**. Re-fighting a cleared stage, by hand or on
  * auto-battle, moves it by nothing at all: a repeatable crystal payout would make tap-farming
@@ -64,7 +77,7 @@ export const PULL_COST = 100;
  */
 export const SUMMON_RATE = {
   basePerHour: 100,
-  perClearPerHour: 0.5,
+  perClearPerHour: 1,
 } as const;
 
 /** Pulls in a multi-pull. Ten is the genre convention and the pity counter is tuned to it. */
