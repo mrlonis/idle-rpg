@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { describe, expect, it } from 'vitest';
-import { emptyWallet, type FodderOption, GEAR_SLOTS } from '../core';
+import { emptyWallet, GEAR_SLOTS } from '../core';
 import { CharacterView } from './character-view';
 import { GameLoopService } from './game-loop.service';
 import { type GearBonusView, GearService, type GearSlotView } from './gear.service';
@@ -20,11 +20,11 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     tier: 'common',
     role: 'ranger',
     rarity: 0,
-    rarityLabel: 'Rare',
-    rarityFamily: 'rare',
+    rarityLabel: 'Common',
+    rarityFamily: 'common',
     level: 12,
     resonated: false,
-    levelCap: 40,
+    levelCap: 20,
     atLevelCap: false,
     isMaxRarity: false,
     copies: 0,
@@ -35,7 +35,6 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     canLevel: false,
     affordableLevel: 12,
     ascensionCost: null,
-    fodderAvailable: 0,
     canAscend: false,
     ...over,
   };
@@ -52,10 +51,6 @@ class FakeRoster {
 
   entry(defId: string): RosterEntryView | null {
     return this.rows().find((row) => row.defId === defId) ?? null;
-  }
-
-  fodderFor(): readonly FodderOption[] {
-    return [];
   }
 }
 
@@ -204,7 +199,7 @@ describe('CharacterView', () => {
 
     it('opens the whole kit once the character reaches the rung', async () => {
       const roster = new FakeRoster();
-      roster.at({ rarity: 2, rarityLabel: 'Elite', rarityFamily: 'elite' });
+      roster.at({ rarity: 4, rarityLabel: 'Elite', rarityFamily: 'elite' });
       const el = await open('/roster/rin', roster);
 
       expect(rows(el).every((row) => !row.locked)).toBe(true);
@@ -230,7 +225,7 @@ describe('CharacterView', () => {
       // The price is already shown in copies; this is the other half of the trade. The one rung
       // that unlocks a skill should not look like the four that do not.
       const roster = new FakeRoster();
-      roster.at({ rarity: 1, ascensionCost: { self: 2, faction: 0 } });
+      roster.at({ rarity: 3, ascensionCost: 6 });
       const el = await open('/roster/rin', roster);
 
       expect(unlockLine(el)).toBe('This rung unlocks Snare Arrow');
@@ -241,7 +236,7 @@ describe('CharacterView', () => {
       // a distant unlock phrased as an imminent one is a player paying for something they do not
       // get — which is the one thing this line must never do.
       const roster = new FakeRoster();
-      roster.at({ rarity: 0, ascensionCost: { self: 2, faction: 0 } });
+      roster.at({ rarity: 2, ascensionCost: 2 });
       const el = await open('/roster/rin', roster);
 
       expect(unlockLine(el)).toBe('Snare Arrow unlocks later, at Elite');
@@ -249,7 +244,7 @@ describe('CharacterView', () => {
 
     it('promises nothing once the kit is fully unlocked', async () => {
       const roster = new FakeRoster();
-      roster.at({ rarity: 2, ascensionCost: { self: 1, faction: 0 } });
+      roster.at({ rarity: 4, ascensionCost: 1 });
       const el = await open('/roster/rin', roster);
 
       expect(el.querySelector('.ascend__unlock')).toBeNull();

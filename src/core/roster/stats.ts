@@ -4,7 +4,7 @@ import { type GearBonus } from '../gear/types';
 import { type CharacterTier, growthAt, type GrowthData } from '../growth';
 import { num, type Numeric, serialize } from '../numeric';
 import { type KitRulesData, unlockedSkills } from './kit';
-import { clampRarityIndex, startRarityIndex } from './rarity';
+import { clampRarityIndex, growthFloor } from './rarity';
 import { type CharacterData, type OwnedCharacter } from './types';
 
 /**
@@ -84,7 +84,7 @@ export function growthMultiplier(
     growth,
     tier,
     level,
-    Math.max(clampRarityIndex(rarityIndex) - startRarityIndex(tier), 0),
+    Math.max(clampRarityIndex(rarityIndex) - growthFloor(tier), 0),
   );
 }
 
@@ -193,7 +193,10 @@ export function toEnemyCombatant(
     id: enemy.id,
     name: enemy.name,
     faction: enemy.faction,
-    stats: scaleStats(enemy.stats, growth, enemy.tier, level, startRarityIndex(enemy.tier)),
+    // `growthFloor`, not `startRarityIndex`: what this means is "an enemy has climbed no
+    // rungs", and since the copies-only rewrite the rung a multiplier is counted from is not always the rung
+    // a tier starts on. The two agree for every tier but `common`, where they differ by two.
+    stats: scaleStats(enemy.stats, growth, enemy.tier, level, growthFloor(enemy.tier)),
     basic: enemy.basic,
     skills: enemy.skills,
   };

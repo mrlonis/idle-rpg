@@ -61,18 +61,10 @@
   line-height: 1.5;
 }
 
-.shop,
 .bag {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.shop__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
 }
 
 .section__heading {
@@ -80,14 +72,6 @@
   font-size: 1.0625rem;
 }
 
-.shop__restock {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: t.$muted;
-  @include t.numeric;
-}
-
-.offers,
 .items {
   display: flex;
   flex-direction: column;
@@ -95,53 +79,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.offer {
-  @include t.card;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.875rem 1rem;
-}
-
-// A bought offer is dimmed *and* its button says "Bought" — colour is never the only carrier of
-// meaning, which is the rule the whole palette is built on.
-.offer--taken {
-  opacity: 0.55;
-}
-
-.offer__identity {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  min-width: 0;
-}
-
-.offer__name,
-.item__name {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-
-.offer__meta,
-.item__meta {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: t.$muted;
-}
-
-.dot {
-  padding: 0 0.375rem;
-}
-
-.offer__buy {
-  @include t.button-primary;
-  flex-shrink: 0;
-  white-space: nowrap;
-  @include t.numeric;
 }
 
 .item {
@@ -171,6 +108,22 @@
   flex-direction: column;
   gap: 0.25rem;
   min-width: 0;
+}
+
+.item__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.item__meta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.dot {
+  padding: 0 0.375rem;
 }
 
 .item__level {

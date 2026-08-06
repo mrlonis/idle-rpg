@@ -1,5 +1,5 @@
 <header class="head">
-  <h1 class="head__title">Gear</h1>
+  <h1 class="head__title">Bag</h1>
   <p class="head__balance">
     <span class="head__amount">{{ format(alloy()) }}</span>
     <span class="head__unit">alloy</span>
@@ -10,62 +10,8 @@
   <p class="notice" role="status">{{ text }}</p>
 }
 
-<section class="shop" aria-labelledby="shop-label">
-  <div class="shop__head">
-    <h2 id="shop-label" class="section__heading">Forge</h2>
-    <p class="shop__restock">Restocks in {{ restockIn() }}</p>
-  </div>
-
-  <p class="intro">
-    Six pieces, priced against what your ladder earns. The same six until the hour turns — closing
-    the game will not change them.
-  </p>
-
-  <ul class="offers">
-    @for (offer of offers(); track offer.index) {
-      <li class="offer" [class.offer--taken]="offer.purchased">
-        <div class="offer__identity">
-          <h3 class="offer__name">
-            <span class="grade grade--{{ offer.item.gradeId }}">{{ offer.item.gradeName }}</span>
-            {{ offer.item.slotLabel }}
-          </h3>
-          <p class="offer__meta">
-            {{ offer.item.archetypeLabel }}
-            @if (offer.item.alignmentLabel; as faction) {
-              <span class="dot" aria-hidden="true">·</span>{{ faction }}
-            } @else {
-              <span class="dot" aria-hidden="true">·</span>Unaligned
-            }
-          </p>
-          <ul class="stats">
-            @for (bonus of offer.item.bonuses; track bonus.stat) {
-              <li class="stats__item">
-                <span class="stats__label">{{ bonus.label }}</span>
-                <span class="stats__value">+{{ bonus.percent }}%</span>
-              </li>
-            }
-          </ul>
-        </div>
-
-        <button
-          type="button"
-          class="offer__buy"
-          [disabled]="offer.purchased || !offer.affordable"
-          (click)="buy(offer)"
-        >
-          @if (offer.purchased) {
-            Bought
-          } @else {
-            {{ format(offer.price) }} gold
-          }
-        </button>
-      </li>
-    }
-  </ul>
-</section>
-
 <section class="bag" aria-labelledby="bag-label">
-  <h2 id="bag-label" class="section__heading">Bag</h2>
+  <h2 id="bag-label" class="section__heading">Gear</h2>
 
   @if (!hasGear()) {
     <p class="empty" role="status">

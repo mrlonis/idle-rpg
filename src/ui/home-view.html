@@ -79,49 +79,6 @@
   </ul>
 </section>
 
-<section class="party" aria-labelledby="party-label">
-  <h2 id="party-label" class="section__heading">Your party</h2>
-  @if (fieldedCount() === 0) {
-    <p class="party__empty">Nobody is fielded yet.</p>
-  } @else {
-    @for (rank of partyRanks(); track rank.row) {
-      <h3 class="party__rank">{{ rank.label }}</h3>
-      @if (rank.members.length === 0) {
-        <p class="party__empty">Empty</p>
-      } @else {
-        <ul class="party__list">
-          @for (member of rank.members; track member.defId) {
-            <li class="party__member">
-              <!--
-                The name is the way straight to the character sheet, so levelling somebody up
-                is one tap from the idle screen rather than a trip through the roster. Same
-                target as the roster list's name, so both screens teach the same gesture.
-
-                `from` is how the sheet's back link finds its way here instead of to the roster,
-                which is a screen this player never passed through.
-              -->
-              <a
-                class="party__name"
-                [routerLink]="['/roster', member.defId]"
-                [queryParams]="{ from: screenId }"
-              >
-                {{ member.name }}
-              </a>
-              <span class="party__detail">
-                <span class="rarity rarity--{{ member.rarityFamily }}">
-                  {{ member.rarityLabel }}
-                </span>
-                · Level {{ member.level }}
-              </span>
-            </li>
-          }
-        </ul>
-      }
-    }
-  }
-  <a class="party__link" routerLink="/roster">Manage roster</a>
-</section>
-
 <button type="button" class="fight" [disabled]="!canFight()" (click)="fight()">
   {{ fightLabel() }}
 </button>

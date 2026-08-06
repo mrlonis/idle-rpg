@@ -8,11 +8,39 @@
   max-width: 32rem;
 }
 
+// Back link on its own row, title and balance sharing the one below it. A grid rather than a
+// wrapper element around the lower pair: the title and the balance already take the full width
+// between them, and a third thing on that line squeezes whichever of them wraps first.
 .head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
+  column-gap: 1rem;
+}
+
+// Both accent links on this screen: the way back to town, and the way on to the roster from a
+// results panel. They are the same control in two places, and grouping them writes the
+// `focus-ring` expansion once instead of twice — a whole `:focus-visible` block is the most
+// expensive thing to repeat in a stylesheet measured against a size budget.
+.head__back,
+.results__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$accent;
+  font-weight: 600;
+  @include t.focus-ring;
+}
+
+.head__back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-size: 0.875rem;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .head__title {
@@ -258,14 +286,9 @@
   gap: 0.75rem;
 }
 
+// The rest of it is grouped with `.head__back` at the top.
 .results__link {
-  display: inline-flex;
-  align-items: center;
-  min-height: t.$tap-target;
-  color: t.$accent;
-  font-weight: 600;
   font-size: 0.9375rem;
-  @include t.focus-ring;
 }
 
 // The rest of it is grouped with `.pull` above.

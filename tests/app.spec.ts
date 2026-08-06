@@ -15,9 +15,12 @@ test.describe('App', () => {
    */
   test.describe('deep links', () => {
     for (const [path, title] of [
-      ['/summon', /Summon/],
+      ['/town', /Town/],
+      ['/town/summon', /Summon/],
       ['/roster', /Roster/],
-      ['/shop', /Spark Shop/],
+      ['/town/shop', /Spark Shop/],
+      ['/town/gear-shop', /Gear Shop/],
+      ['/bag', /Bag/],
       ['/settings', /Settings/],
     ] as const) {
       test(`loads ${path} directly`, async ({ page }) => {
@@ -42,22 +45,12 @@ test.describe('App', () => {
   });
 
   /**
-   * The character sheet hangs off `/roster/:defId`, but the roster is not the only way in — the
-   * party on the home screen links straight to it. Its back link therefore reads the origin the
-   * link that opened it carried, rather than assuming everybody arrived through the roster.
+   * The character sheet hangs off `/roster/:defId`, but the route is not the same claim as the
+   * origin. Its back link reads the origin the link that opened it carried, and answers for a
+   * sheet that carries none — a bookmark, a reload, a hand-typed URL — rather than leaving the
+   * player with no way out.
    */
   test.describe('the way out of a character sheet', () => {
-    test('goes home when the party on the home screen opened it', async ({ page }) => {
-      await page.goto('');
-
-      await page.getByRole('link', { name: 'Rin' }).click();
-      await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
-
-      await page.getByRole('link', { name: '← Home' }).click();
-
-      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
-    });
-
     test('goes to the roster when the roster opened it', async ({ page }) => {
       await page.goto('/roster');
 
@@ -76,14 +69,56 @@ test.describe('App', () => {
     });
   });
 
+  /**
+   * Every currency sink is two taps away now rather than one, and the whole of what makes that
+   * acceptable is that the hub is honest about where it goes and the tab bar keeps saying where
+   * the player is. Both halves are checked through a real navigation, because both are claims
+   * about the router rather than about markup.
+   */
+  test.describe('town', () => {
+    for (const [card, heading] of [
+      [/^Summon/, 'Summon'],
+      [/^Gear Shop/, 'Gear Shop'],
+      [/^Spark Shop/, 'Spark Shop'],
+    ] as const) {
+      test(`reaches ${heading} and comes back`, async ({ page }) => {
+        await page.goto('/town');
+
+        await page.getByRole('link', { name: card }).click();
+        await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+
+        // The way out names its destination, the same as the character sheet's does.
+        await page.getByRole('link', { name: '← Town' }).click();
+
+        await expect(page.getByRole('heading', { level: 1, name: 'Town' })).toBeVisible();
+      });
+    }
+
+    test('keeps the Town tab current while the player is inside one of its screens', async ({
+      page,
+    }) => {
+      // The argument for nesting these under `/town` rather than leaving them at `/summon`. A
+      // flat path works as a destination and then darkens the tab that sent the player there,
+      // which reads as having navigated out of the app rather than into it.
+      await page.goto('/town/summon');
+
+      const tabs = page.getByRole('navigation', { name: 'Main' });
+
+      await expect(tabs.getByRole('link', { name: 'Town' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+    });
+  });
+
   test.describe('the tab bar', () => {
     test('navigates between screens and marks the current one', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('link', { name: 'Summon' }).click();
+      await page.getByRole('link', { name: 'Town' }).click();
 
-      await expect(page.getByRole('heading', { level: 1, name: 'Summon' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Summon' })).toHaveAttribute(
+      await expect(page.getByRole('heading', { level: 1, name: 'Town' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Town' })).toHaveAttribute(
         'aria-current',
         'page',
       );
@@ -145,8 +180,9 @@ test.describe('App', () => {
       await page.getByRole('button', { name: 'Dismiss offline earnings notice' }).click();
       await expect(notice).toBeHidden();
 
-      // Scoped to the tab bar: the home screen has a "Manage roster" link of its own, and an
-      // unscoped name matches both.
+      // Scoped to the tab bar. The home screen no longer carries a "Manage roster" link that an
+      // unscoped name would also match, but naming the navigation is what makes this step read as
+      // "leave and come back" rather than "click whatever says Roster".
       const tabs = page.getByRole('navigation', { name: 'Main' });
       await tabs.getByRole('link', { name: 'Roster' }).click();
       await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();

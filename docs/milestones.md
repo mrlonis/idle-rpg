@@ -1524,7 +1524,9 @@ four decisions that were not obvious going in.
 
 Shipped: `core/gear/` (`types`, `stats`, `inventory`, `roll`, `shop`), `data/gear.ts`, a sixth
 currency, the gear screen and the character sheet's equipment panel, two new accessibility scans,
-and **save v1** — the first entry the migration chain has ever had to walk.
+and **save v1** — the first entry the migration chain has ever had to walk. (That one screen is
+since two: the bag kept the tab and the shop moved to Town — see the entry near the end of this
+file. Nothing in `core/gear/` changed with it.)
 
 ### 1. Every bonus is a percentage, and that decision made the rest easy
 
@@ -1746,6 +1748,10 @@ a screen header — the second is what most games this size do, and it frees a s
 player uses more than once. That decision belongs with the milestone that needs the seventh screen,
 which is 14.
 
+> **Answered early, and differently — see [Town](#not-a-milestone-town-is-the-hub-the-tab-bar-needed)
+> below.** The shape that landed is a hub rather than either option above, and it arrived before 14
+> rather than with it.
+
 ### Saves are already backed up, which is not the same as safe
 
 Verified rather than assumed. `@capacitor/preferences` on iOS writes to `UserDefaults.standard`,
@@ -1958,6 +1964,155 @@ So it is last, and it is honestly the one item here a solo developer might decid
 It is written down because it is the thing that makes the genre's best games feel like more than
 a number going up — and skipping it should be a decision made on the cost, not a gap nobody
 noticed.
+
+## Not a milestone: Town is the hub the tab bar needed
+
+Milestone 13 ended with a bar at capacity and three named ways out — a "more" tab, moving settings
+off the bar, or a hub — deferred to whichever milestone needed the seventh screen. **The hub was
+built early instead**, because the two screens that most obviously belonged behind one were already
+on the bar: Summon and the spark shop.
+
+`/town` replaces both tabs, at Summon's old position, and the two screens move to `/town/summon` and
+`/town/shop`. The bar is Home · Town · Roster · Gear · Settings — five, with a spare slot that is
+deliberately not for spending. (The fourth entry is the **Bag** now, and the gear shop is a third
+card in Town; see the entry below.)
+
+**Why a hub beat the other two options.** A "more" tab spends a slot to say "there is more", which
+is a tab that is never the destination. Moving settings off the bar frees a slot and then leaves the
+next screen in the same position one screen later, because a bar with a ceiling of six is a queue
+whatever order it is filled in. A hub has no ceiling at all: the seventh sink is a card in Town, and
+so is the eighth.
+
+**Summon and the shop are the right two to demote**, and the argument is about how often a screen is
+_visited_ rather than how important it is. Both are places a player goes deliberately, having decided
+to spend something — unlike the roster or gear, which are read while deciding. A deliberate trip
+survives one extra tap; an idle glance does not.
+
+Three decisions inside it:
+
+- ⚠️ **The nesting under `/town` is load-bearing, not tidiness.** `routerLinkActive` marks the tab
+  non-exactly, so `/town/summon` keeps the Town tab lit and `aria-current="page"` on it. Left flat at
+  `/summon`, the tab would go dark the instant the player arrived where it sent them — which reads as
+  having navigated out of the app's structure rather than into it. `tests/app.spec.ts` asserts it.
+- **Each card carries its currency's balance**, which is the same argument the summon screen makes
+  for putting pity on screen before the pull: the number that decides whether the trip is worth
+  taking should be readable without taking it. Spark in particular is zero for most of a run.
+- **The icons are the ones the tabs wore** — 🔮 and ✨ — because a player who learned to find
+  summoning by its crystal ball should find the same crystal ball on the card rather than learning
+  the screen twice. Town takes 🏘, which is distinct from Home's 🏕 at tab size.
+
+**No compatibility route was added for `/summon` or `/shop`.** The game is pre-release, so no
+bookmark, deep link or reload carrying one of those paths exists. This is the same argument that
+licensed the v0 re-base below, and it expires the same way: the moment anyone outside development
+has a URL, a moved route needs a redirect.
+
+## Not a milestone: the gear tab became the Bag, and its shop moved to Town
+
+The hub above was built on the promise that **a new currency sink is a card in Town rather than a
+tab**. The gear shop is the first thing to test it, and it was not new — it was already on the bar,
+as the top half of the Gear tab, above the bag of loose pieces.
+
+Three changes, one argument:
+
+- the forge is now **`/town/gear-shop`**, a Town screen beside the spark shop, with the toolbox 🧰
+  it wore in the tab bar;
+- the tab that is left is the **Bag** at `/bag`, with 🎒 — named for what it holds rather than for a
+  system;
+- the bar is Home · Town · Roster · Bag · Settings. Still five, still with a spare slot that is not
+  for spending.
+
+**Splitting the two sections cost something real, and it is worth naming.** They were one screen on
+a good argument: the shop is where a specific piece is _chosen_ and the bag is where the random ones
+pile up, so a player weighing a Fine chest piece could see what they already held without leaving
+the offer. That argument was about **gear**, and it held while the tab was gear. It stops holding
+once the tab is an inventory. A shop is somewhere a player _goes_, having decided to spend — the
+same test that demoted Summon and the spark shop — and a bag is something they _carry_. Two of the
+three currency sinks were already in Town; leaving the third on the bar was the inconsistency.
+
+What blunts the cost is the hub's own rule: the card names the gold the shop spends, so the trip is
+judged before it is taken, and the stock is **fixed for the hour**, so the offer is still there on
+the way back. Neither would be true of a shop that rerolled.
+
+**Renaming the tab is the half that pays forward.** "Gear" was a tab named after a progression
+system, so the second item type the game mints — materials, consumables, whatever milestone 14's
+dailies hand out — would have had nowhere to land but a sixth tab. "Bag" is a container: a new item
+type is a section on a screen that already exists. Nothing empty ships for it, though. The bag is
+one section, headed **Gear**, and the second heading arrives with the second kind of item.
+
+**No redirect from `/gear`**, for the reason `/summon` got none: the game is pre-release. That
+licence expires the moment a URL exists outside development.
+
+## Not a milestone: ascension became copies of the hero alone
+
+Housekeeping in the same sense the v0 re-base was: no new system, one system made much smaller.
+**A rung now costs copies of the character being ascended and nothing else.** Same-faction
+**fodder** is gone, and with it four rungs of the mortal ladder, the plan naming which
+faction-mates to burn, the cheapest-first solver, the fodder picker on the character sheet, and
+three of `ascend()`'s six failure modes. `docs/ascension.md` carries the design; this records why.
+
+### The recursion was the thing worth deleting
+
+Rungs used to be quoted in _ascended_ copies — "2 faction copies at `elite-plus`" — against a
+player who only ever holds base ones. Pricing that took a memoised recursion with a cycle guard,
+a `{ self, faction }` cost type, and a spec whose job was proving the authored ladder was
+well-founded enough for the recursion to terminate. `data/ascension.ts` is now two arrays of
+fifteen integers and `ascensionCost` is an array lookup.
+
+**What fodder bought was real and is worth naming as a loss:** a spare copy of a character you
+would never play was still worth something. It is now inert until that character is worth
+investing in. **What it cost** was a price no player could evaluate — the headline numbers were 8
+elite copies plus 180 rare fodder, or 216 base copies for a common-tier character, and none of
+them appeared anywhere a person could read them.
+
+### The ladder grew a bottom, and that is the part with consequences
+
+`common` and `common-plus` went in below `rare`, so all three tiers now start on different rungs:
+common-tier at `common`, legendary-tier at `rare`, ascended-tier at `elite`.
+
+The reason is arithmetic. The old recursion made cost **compound** down the ladder, which produced
+a ~9× gap between a common-tier climb and an ascended-tier one _for free_ — and that gap was doing
+real work, because a pull produces a specific common-tier character roughly ten times as often as
+a specific ascended-tier one. A flat table gives the compounding up, so the gap had to be authored
+somewhere. It is the 20 copies below `rare`.
+
+⚠️ **The two new rungs pay level cap and no stat multiplier, and that is the load-bearing
+decision.** `growthFloor` anchors the ×`perAscension` ladder at `rare` for every tier. Paying them
+a multiplier would have made every common-tier character ×1.6² stronger at every rarity it can
+reach — a power grant the entire stage ladder would have needed retuning around, when the change
+was only ever about cost. **The evidence it was the right call: all 32 balance sweeps pass with no
+change to any stage.**
+
+### Three things the balance sweep caught that nothing else would have
+
+Worth recording because each one passed type-checking and the unit suite first.
+
+1. **The reference parties silently gained ×2.56.** `chapters.balance.ts` fielded them at
+   `rarityIndex('rare')`, which the file had adopted specifically to survive the ladder being
+   _reordered_. It does not survive the ladder gaining a rung _underneath_ — `rare` stopped
+   meaning "where a character starts" and started meaning "two ascensions in". The starter wall
+   evaporated and the sweep went on passing, describing a different game.
+2. **`BUILT`'s level was a literal.** It read 40 because 40 was the cap of the rung below it; that
+   cap is now two slots along. It is derived from `LEVEL_CURVE.caps` now, and the party it
+   describes stayed the party the prose describes.
+3. **The level-vs-ascension ratio used a rarity index as a rung count.** They were the same number
+   only while common-tier characters started at index 0.
+
+The general rule: **a rarity id protects against reordering, not against insertion.** Anything
+that means "how far has this been invested" has to count rungs from a floor.
+
+### It is also the first save migration that changes no shape
+
+`SAVE_VERSION` went to **2**. v1 → v2 adds no field — it shifts every `roster[].rarity` by two,
+because the index means a rung two lower than it did. A v1 save fed to a v2 reader parses cleanly,
+validates cleanly, and demotes the entire roster. See [saves](saves.md); the rule it earns is that
+inserting a rung anywhere but the top of `RARITIES` is a migration, not a content edit.
+
+### Spark stopped being theoretical
+
+Maxing a common-tier character went from 216 base copies to 46 — inside a single full climb's worth
+of pulls. Spark is minted only by copies of an `ascended-5` character, so it was previously a
+currency almost nobody ever saw. Prices did not move; the shop gained a third copy offer because
+the three tiers now start on three different rungs. See [economy](economy.md).
 
 ## Not a milestone: the save chain was re-based to v0
 

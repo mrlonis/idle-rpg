@@ -36,8 +36,8 @@ moves nothing.
 answer whatever order they sort in. The derivation is deterministic without anyone having to
 decide what beats what.
 
-**The rarity cap still binds, and that is what keeps ascension alive.** A `rare` character caps at
-level 40; a floor of 200 lifts it to 40 and no further. So resonance makes _levels_ free and
+**The rarity cap still binds, and that is what keeps ascension alive.** A character at `common`
+rarity caps at level 20; a floor of 200 lifts it to 20 and no further. So resonance makes _levels_ free and
 leaves _ascension_ entirely individual — the bench still has something to spend on, and raising a
 cap is the only way to collect more of the floor. Without this clause the feature would make
 ascension pointless for everyone outside the top five.

@@ -30,8 +30,8 @@ npm start
 Then open `http://localhost:4200/`. The app reloads automatically as you edit source files.
 You should see a gold counter at zero, your starting party of three, and a Fight button: win the
 first stage and the counter starts ticking — along with a first-clear payout of summon crystals.
-Spend those on the Summon tab, then level and ascend what you pull from the Roster. Refresh and
-the run resumes where it left off.
+Spend those on the Summon screen, behind the Town tab, then level and ascend what you pull from the
+Roster. Refresh and the run resumes where it left off.
 
 ---
 

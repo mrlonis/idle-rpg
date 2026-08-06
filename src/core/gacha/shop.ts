@@ -1,6 +1,6 @@
 import { canAfford, debit } from '../currency';
 import { num } from '../numeric';
-import { startRarityIndex } from '../roster/rarity';
+import { rarityAt, startRarityIndex } from '../roster/rarity';
 import { type CharacterLookup, findOwned, grantCopies, type RosterResult } from '../roster/roster';
 import { type CharacterData } from '../roster/types';
 import { type GameState } from '../state';
@@ -31,9 +31,14 @@ export interface ShopOfferData {
   /**
    * For `copy` offers, which characters are eligible — by the rarity they *start* at.
    *
-   * `rare` covers common- and legendary-tier characters, `elite` the ascended tier. A base
-   * copy of an ascended-tier character is nine Rare copies deep by the fodder table and is the
-   * scarcest thing in the game, which is what the price difference is measuring.
+   * One value per tier, because the three tiers now start on three different rungs: `common`
+   * covers common-tier characters, `rare` legendary-tier, `elite` ascended-tier.
+   *
+   * **What the price difference measures is banner scarcity, not an exchange rate.** It used to
+   * be the latter — a base copy of an ascended-tier character was nine Rare copies deep by the
+   * fodder table, and 60 spark against 8 was that ratio. Fodder was the only thing that ever made
+   * copies of different characters interchangeable, so with it gone there is no rate to quote and
+   * the prices answer a different question: how many pulls it takes to see one.
    */
   readonly rarity?: string;
   readonly cost: number;
@@ -50,16 +55,18 @@ export type ShopFailure =
 
 export type ShopResult = RosterResult | { readonly ok: false; readonly reason: ShopFailure };
 
-/** `true` when `character` may be bought through `offer`. */
+/**
+ * `true` when `character` may be bought through `offer`.
+ *
+ * A `copy` offer names a starting rarity and matches the tier that starts there — an equality
+ * test rather than a threshold, so each offer covers exactly one tier and the cheap one can never
+ * be spent on a character the expensive one is priced for.
+ */
 export function isEligible(offer: ShopOfferData, character: CharacterData): boolean {
-  if (offer.kind === 'character') {
+  if (offer.kind === 'character' || offer.rarity === undefined) {
     return true;
   }
-  if (offer.rarity === undefined) {
-    return true;
-  }
-  const wanted = offer.rarity === 'elite' ? startRarityIndex('ascended') : 0;
-  return startRarityIndex(character.tier) === wanted;
+  return rarityAt(startRarityIndex(character.tier)) === offer.rarity;
 }
 
 /** Every character this offer could currently be spent on. */

@@ -34,7 +34,6 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     canLevel: false,
     affordableLevel: 12,
     ascensionCost: null,
-    fodderAvailable: 0,
     canAscend: false,
     ...over,
   };
@@ -297,7 +296,7 @@ describe('RosterView', () => {
       // Four of the mortal ladder's rungs cost `self: 0` — nothing of the character itself. The
       // count is absent from the row entirely, so the words are the only signal there is.
       const { el } = await render((roster) =>
-        roster.entries.set([entry({ copies: 0, fodderAvailable: 12, canAscend: true })]),
+        roster.entries.set([entry({ copies: 0, canAscend: true })]),
       );
 
       expect(el.querySelector('.roster__copies')).toBeNull();

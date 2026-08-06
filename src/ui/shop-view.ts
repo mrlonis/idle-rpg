@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   type CharacterData,
   num,
@@ -40,6 +41,7 @@ interface OfferView {
  */
 @Component({
   selector: 'app-shop-view',
+  imports: [RouterLink],
   templateUrl: './shop-view.html',
   styleUrl: './shop-view.scss',
 })

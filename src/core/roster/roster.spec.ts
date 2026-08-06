@@ -15,6 +15,7 @@ import {
   TEST_LEVEL_CURVE as CURVE,
 } from './fixtures';
 import { levelCapFor } from './level';
+import { startRarityIndex } from './rarity';
 import {
   findOwned,
   grantCopies,
@@ -48,10 +49,10 @@ describe('grantCopies', () => {
     expect(state.roster).toEqual([{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }]);
   });
 
-  it('starts an ascended-tier character at Elite, skipping the two cheapest rungs', () => {
+  it('starts an ascended-tier character at Elite, skipping the four cheapest rungs', () => {
     const { state } = grantCopies(run(), TEST_GAMMA, 1);
 
-    expect(state.roster[0].rarity).toBe(2);
+    expect(state.roster[0].rarity).toBe(startRarityIndex('ascended'));
   });
 
   it('banks the remainder of a batch as spares rather than as extra entries', () => {
@@ -84,9 +85,11 @@ describe('grantCopies', () => {
   });
 
   it('lets a lucky pull arrive higher up the ladder', () => {
-    const { state } = grantCopies(run(), TEST_BETA, 1, 2);
+    // beta is legendary-tier and starts at Rare, so Elite is genuinely above its floor.
+    const elite = startRarityIndex('ascended');
+    const { state } = grantCopies(run(), TEST_BETA, 1, elite);
 
-    expect(state.roster[0].rarity).toBe(2);
+    expect(state.roster[0].rarity).toBe(elite);
   });
 
   it('never places a character below its tier’s floor, whatever the override says', () => {
@@ -94,7 +97,7 @@ describe('grantCopies', () => {
     // then be computed from a rung it was never on.
     const { state } = grantCopies(run(), TEST_GAMMA, 1, 0);
 
-    expect(state.roster[0].rarity).toBe(2);
+    expect(state.roster[0].rarity).toBe(startRarityIndex('ascended'));
   });
 
   it.each([0, -2, Number.NaN])('does nothing for a count of %p', (count) => {
@@ -543,7 +546,7 @@ describe('repairOwned', () => {
       CURVE,
     );
 
-    expect(repaired.rarity).toBe(2);
+    expect(repaired.rarity).toBe(startRarityIndex('ascended'));
   });
 
   it('clamps a level to the repaired rarity’s cap', () => {

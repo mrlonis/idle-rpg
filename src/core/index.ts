@@ -258,17 +258,7 @@ export {
   type PullOutcome,
   type PullResult,
 } from './gacha/types';
-export {
-  ascend,
-  autoFodderPlan,
-  fodderPool,
-  fodderValue,
-  nextAscension,
-  pathFor,
-  type AscensionPlan,
-  type FactionLookup,
-  type FodderOption,
-} from './roster/ascend';
+export { ascend, nextAscension, pathFor, type FactionLookup } from './roster/ascend';
 export {
   kitSlots,
   nextSkillUnlock,
@@ -292,8 +282,8 @@ export {
   ascensionCost,
   clampRarityIndex,
   copyCost,
-  fodderBaseCopies,
   fullAscensionCost,
+  growthFloor,
   rarityAt,
   rarityFamily,
   rarityIndex,
@@ -335,13 +325,10 @@ export {
   RARITY_FAMILIES,
   type AscensionLadder,
   type AscensionPath,
-  type AscensionRequirement,
   type AscensionRules,
-  type AscensionScope,
   CHARACTER_ROLES,
   type CharacterData,
   type CharacterRole,
-  type CopyCost,
   type FactionData,
   type OwnedCharacter,
   type RarityFamily,

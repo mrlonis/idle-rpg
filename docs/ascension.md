@@ -3,126 +3,172 @@
 Duplicates are the primary progression path, so a pull can never produce nothing. This is how a
 copy becomes power.
 
+**A rung costs copies of the character being ascended, and nothing else.** There is no second
+currency, no material, and no other character involved.
+
 Authored in [`data/ascension.ts`](../src/data/ascension.ts), resolved by
 [`core/roster/rarity.ts`](../src/core/roster/rarity.ts), and pinned against its design targets in
 [`data/ascension.spec.ts`](../src/data/ascension.spec.ts).
 
 See [glossary](glossary.md) if tier and rarity are running together; that distinction is the whole
-foundation of this page.
+foundation of this page, and since the copies-only rewrite all three tier words collide with rung names.
 
 ---
 
 ## The ladder
 
-Fourteen rungs, grouped into five families. An index into `RARITIES` **is** a rarity — all
+Sixteen rungs, grouped into six families. An index into `RARITIES` **is** a rarity — all
 comparison, clamping and cost arithmetic happens on the index.
 
-| #    | Rung                        | Family    | Level cap |
-| ---- | --------------------------- | --------- | --------- |
-| 0    | `rare`                      | rare      | 40        |
-| 1    | `rare-plus`                 | rare      | 60        |
-| 2    | `elite`                     | elite     | 100       |
-| 3    | `elite-plus`                | elite     | 140       |
-| 4    | `legendary`                 | legendary | 200       |
-| 5    | `legendary-plus`            | legendary | 260       |
-| 6    | `mythic`                    | mythic    | 340       |
-| 7    | `mythic-plus`               | mythic    | 420       |
-| 8    | `ascended`                  | ascended  | 500       |
-| 9–13 | `ascended-1` … `ascended-5` | ascended  | 600–1000  |
+| #     | Rung                        | Family    | Level cap |
+| ----- | --------------------------- | --------- | --------- |
+| 0     | `common`                    | common    | 20        |
+| 1     | `common-plus`               | common    | 30        |
+| 2     | `rare`                      | rare      | 40        |
+| 3     | `rare-plus`                 | rare      | 60        |
+| 4     | `elite`                     | elite     | 100       |
+| 5     | `elite-plus`                | elite     | 140       |
+| 6     | `legendary`                 | legendary | 200       |
+| 7     | `legendary-plus`            | legendary | 260       |
+| 8     | `mythic`                    | mythic    | 340       |
+| 9     | `mythic-plus`               | mythic    | 420       |
+| 10    | `ascended`                  | ascended  | 500       |
+| 11–15 | `ascended-1` … `ascended-5` | ascended  | 600–1000  |
 
 **Every cap is a multiple of ten**, so an ascension always lands a character directly in front of
-a breakthrough level rather than stranded between two. The caps are front-loaded — the first five
-rungs hand out 200 levels between them and the last five hand out 500 — because the early rungs
-are the ones a new player is actually climbing, and headroom they cannot reach is not a reward.
+a breakthrough level rather than stranded between two.
 
-**Where a character starts depends on its tier.** `common` and `legendary` tier start at `rare`;
-`ascended` tier starts at `elite`, skipping the two cheapest rungs for free. **Every tier can
-reach `ascended-5`** — deliberately, so an early favourite is a real investment rather than
-something the game later tells you was a waste.
+**Where a character starts depends on its tier, and all three now differ.** `common` tier starts
+at `common`, `legendary` tier at `rare`, `ascended` tier at `elite`. **Every tier can reach
+`ascended-5`** — deliberately, so an early favourite is a real investment rather than something the
+game later tells you was a waste.
 
 ### Three rungs also hand over a skill
 
-Since milestone 8c a rung buys more than a stat multiplier and a level cap. `elite`, `legendary` and
-`ascended` each unlock the next skill in a character's kit, up to the ceiling its tier allows — two
-skills at `common`, three at `legendary`, four at `ascended`. The ultimate is never gated. The rule
-is in [`core/roster/kit.ts`](../src/core/roster/kit.ts) and the table in
+A rung buys more than a stat multiplier and a level cap. `elite`, `legendary` and `ascended` each
+unlock the next skill in a character's kit, up to the ceiling its tier allows — two skills at
+`common`, three at `legendary`, four at `ascended`. The ultimate is never gated. The rule is in
+[`core/roster/kit.ts`](../src/core/roster/kit.ts) and the table in
 [`data/kits.ts`](../src/data/kits.ts); [combat](combat.md) covers what it means in a fight.
 
-Two consequences worth having in mind while reading the prices below:
-
-- **The thresholds are absolute rarity**, so the head start `ascended` tier gets by starting at
-  `elite` is now a skill as well as two rungs of cost.
-- **The rungs are not evenly rewarding.** `elite`, `legendary` and `ascended` are the ones a player
-  is saving toward; `elite-plus`, `mythic` and the five stars are stats alone. The character sheet
-  says which of the two the next rung is, because the price does not.
-
-This is what makes a rung the most valuable thing in the game — a skill is worth more than any stat
-multiplier — and it was the strongest answer available to "ascensions should feel more dramatic"
-until milestone 10 made good on the rest of it: `perAscension` is `1.6`, so a rung is now a
-×1.6 stat multiplier as well, and the three that also hand over a skill are the ones a player
-plans around.
+**The thresholds are absolute rarity**, which has a consequence worth stating plainly: a
+common-tier character now reaches its second skill **four rungs in** rather than two, because it
+starts two rungs lower and the threshold did not move. That is a real cost of the ladder growing a
+bottom, not an oversight.
 
 ---
 
-## Two paths, expensive in different things
+## ⚠️ The two `common` rungs are a cap gate, not a power gate
+
+**They raise the level ceiling — 20, then 30, then 40 — and hand over no stat multiplier at all.**
+`growthFloor` in [`rarity.ts`](../src/core/roster/rarity.ts) anchors the ×`perAscension` ladder at
+`rare` for every tier, so a common-tier character at `rare` is worth **exactly** what a freshly
+pulled one was worth before those rungs existed.
+
+This is the single most important thing on this page, because it is what the whole stage ladder
+rests on. The copies-only rewrite added those rungs to make common-tier characters **cost** more — a pull
+produces a specific common-tier character roughly ten times as often as a specific ascended-tier
+one. Paying them a multiplier as well would have made every common-tier character ×1.6² stronger
+at every rarity it can reach, which is a power grant the entire ladder would have to be retuned
+around and was not what the change was for.
+
+The evidence that this is the right anchor: every one of the 32 sweeps in
+[`data/chapters.balance.ts`](../src/data/chapters.balance.ts) passes with **no change to any
+stage**. If the two rungs are ever paid a multiplier, that stops being true and the ladder needs
+re-deriving from scratch.
+
+---
+
+## Two paths, one shape
 
 Faction decides the path, which is why it lives on the faction rather than on each character — a
 character cannot be authored onto the wrong ladder.
 
-### Mortal — Humans, Dwarves, Elves, Undead, Monsters
+Both ladders are paid in copies of the character itself. They are **identical below `elite`** and
+the celestial one is roughly double above it.
 
-Spends **bodies**. Four rungs are paid in same-faction **fodder**: other characters of that
-faction, themselves ascended to the required rarity and then consumed.
+| Rung transition        | Mortal | Celestial |
+| ---------------------- | ------ | --------- |
+| Common → Common+       | 8      | 8         |
+| Common+ → Rare         | 12     | 12        |
+| Rare → Rare+           | 2      | 2         |
+| Rare+ → Elite          | 6      | 6         |
+| Elite → Elite+         | 1      | 1         |
+| Elite+ → Legendary     | 1      | 2         |
+| Legendary → Legendary+ | 1      | 2         |
+| Legendary+ → Mythic    | 1      | 2         |
+| Mythic → Mythic+       | 1      | 2         |
+| Mythic+ → Ascended     | 2      | 4         |
+| each star              | 2      | 2         |
 
-| Rung transition        | Price                             |
-| ---------------------- | --------------------------------- |
-| Rare → Rare+           | 2 self copies at `rare`           |
-| Rare+ → Elite          | **2 faction** at `rare-plus`      |
-| Elite → Elite+         | 1 self at `elite`                 |
-| Elite+ → Legendary     | **2 faction** at `elite-plus`     |
-| Legendary → Legendary+ | 1 self at `elite-plus`            |
-| Legendary+ → Mythic    | **1 faction** at `legendary-plus` |
-| Mythic → Mythic+       | **1 faction** at `legendary-plus` |
-| Mythic+ → Ascended     | 2 self at `elite-plus`            |
-| each star              | 1 self at `elite-plus`            |
+**Mortal** — Humans, Dwarves, Elves, Undead, Monsters. The cheaper climb.
 
-This is what makes a bad pull genuinely useful: it is both an early-game unit and future fodder
-for the ascended-tier character standing next to it. **It is also why a faction needs bodies in it
-rather than one favourite.**
+**Celestial** — Angels, Demons. Spends **luck**: roughly twice the copies above `elite`, which is
+what the celestial advantage in combat is paid for with.
 
-### Celestial — Angels, Demons
-
-Spends **luck**. Every rung is copies of the character itself, and **no fodder at any point** —
-trivial to ascend if the banner is kind, impossible if it is not.
-
-The authored table starts at `elite`, because the tier this path was designed around starts there.
-The two rungs below exist for common- and legendary-tier celestials and are **derived rather than
-authored**: the defining property of the path is that it never asks for fodder, so `Rare+ → Elite`
-is the mortal rung with its faction clause turned into a self clause.
+**The four rungs below `elite` are shared rather than scaled**, and that is deliberate: they are
+the _tier_ gap, not the path difference. A celestial common-tier character is common-tier for the
+same reason everyone else's is, and charging it twice would be charging twice for one thing.
 
 ---
 
-## The totals, and why they are code rather than a table
+## The totals
 
-**Rungs are quoted in _ascended_ copies and a player only ever holds _base_ ones.** A price of
-"2 faction copies at `elite-plus`" means two copies that have themselves been ascended to
-`elite-plus`, each of which cost copies to get there. So every requirement is **resolved
-recursively down into base copies**. That recursion is the reason this is code and not a lookup
-table.
+Counting the first copy, so these are "how many of this character do I have to see":
 
-The design targets, each asserted in
-[`ascension.spec.ts`](../src/data/ascension.spec.ts) rather than restated as a constant:
+| Tier      | Starts at | To `ascended` | To `ascended-5` |
+| --------- | --------- | ------------- | --------------- |
+| common    | `common`  | 36 / 42       | 46 / 52         |
+| legendary | `rare`    | 16 / 22       | 26 / 32         |
+| ascended  | `elite`   | 8 / 14        | 18 / 24         |
 
-| Path      | Tier     | To `ascended`                    | To `ascended-5` |
-| --------- | -------- | -------------------------------- | --------------- |
-| Mortal    | ascended | 8 elite copies + 180 rare fodder | 18 elite copies |
-| Celestial | ascended | 14 elite copies, no fodder       | 24 elite copies |
+(mortal / celestial). Each one is **derived** in
+[`ascension.spec.ts`](../src/data/ascension.spec.ts) rather than restated as a constant, so a
+retune that moves a total fails there naming the real number.
 
-Stars add no fodder on either path, and cost two elite copies each. Common- and legendary-tier
-characters can reach the top too, for more — they start two rungs lower and pay for those rungs.
+### The bottom of the ladder is the whole of the tier gap
 
-**Neither path is cheaper overall.** They are expensive in different resources, which is the
-point: the celestial advantage in combat is paid for by the luck-only ladder.
+Every rung costs every character the same, so **a tier is worth exactly the rungs it skips** — 20
+copies for `legendary`, 28 for `ascended`. Those four numbers are the only thing separating what a
+common-tier climb costs from an ascended-tier one, and retuning them is retuning the gap.
+
+They are calibrated against how often a pull produces one: a specific common-tier character
+arrives roughly 3× more often than a specific legendary-tier one and roughly 10× more often than
+an ascended-tier one, so pricing the bottom is what keeps a full climb a comparable commitment at
+every tier rather than letting common-tier characters max out in a fraction of the time.
+
+---
+
+## What this replaced, and why
+
+Until the copies-only rewrite the mortal ladder spent **bodies**: four of its rungs were paid in same-faction
+**fodder** — other characters of that faction, themselves ascended to a required rarity and then
+consumed.
+
+That made the price **recursive**. A rung was quoted in _ascended_ copies ("2 faction copies at
+`elite-plus`") against a player who only ever holds base ones, so every requirement had to be
+resolved down into base copies by a memoised recursion with a cycle guard. The headline numbers it
+produced — 8 elite copies plus 180 rare fodder for a mortal ascended-tier character, 216 base
+copies for a common-tier one — appeared nowhere a person could read them.
+
+**What fodder bought:** a spare copy of a character you would never play was still worth
+something. **What it cost:** a price nobody could evaluate, a plan naming which faction-mates to
+burn, a cheapest-first solver for players who did not want to choose, and three failure modes for
+a plan that named the wrong character. It also made `common` tier the awkward case — there is no
+tier of fodder beneath it.
+
+Two properties of the old system are worth remembering because they explain the new numbers:
+
+- **Cost compounded down the ladder**, so the two rungs below `elite` priced everything above
+  them. That produced a ~9× gap between a common-tier climb and an ascended-tier one _for free_.
+  The flat table gives that up, which is why the rungs below `rare` are authored expensive — they
+  now carry that gap explicitly.
+- **The two paths were expensive in different resources.** That distinction went with fodder; what
+  is left is a straight price difference.
+
+**The cost of the change, stated plainly:** a spare copy of a character you will never ascend is
+now inert until that character is worth investing in. It is no longer fodder for the ascended-tier
+character standing next to it.
 
 ---
 
@@ -133,8 +179,6 @@ consequences worth keeping:
 
 - Nobody can destroy a week's investment by tapping the wrong row, so the confirmation dance
   around irreversible loss does not exist.
-- A faction-mate stays **both** a playable character and an ascension resource. It is never one or
-  the other.
 - Nothing removes a roster entry, which is what makes milestone 9's resonance floor monotonic.
 
 Copies are counted, not tracked individually — there is one record per character, not one per
@@ -147,9 +191,21 @@ copy. The only question ever asked of a spare is "how many do I have".
 A copy of a character already at `ascended-5` converts to **spark**, which buys a new character or
 a targeted copy in the shop.
 
-**Spark only accrues after something is maxed, so it is late-game overflow.** It is explicitly
-_not_ the answer to early bad luck — **pity is**, and pity is global rather than per-banner and
-visible at all times. Reading the shop as the bad-luck mechanism gets the economy backwards.
+**Spark stopped being unreachable with the copies-only rewrite.** Maxing a common-tier character went from 216
+base copies to 46, which is inside what a single full climb of pulls delivers — so a currency
+almost no player ever minted is now one they hold and spend. That is the intended outcome rather
+than a side effect; an unspendable currency was doing nothing for anyone.
+
+It is still explicitly _not_ the answer to early bad luck — **pity is**, and pity is global rather
+than per-banner and visible at all times. Reading the shop as the bad-luck mechanism gets the
+economy backwards.
+
+There is **one copy offer per tier**, because the three tiers now start on three different rungs.
+The prices track how many pulls it takes to see one, derived in `banners.spec.ts` from
+`TIER_WEIGHTS` and the roster's tier counts. That is a different argument from the one they used
+to rest on — 60:8 was the fodder exchange rate, an Elite copy being worth nine Rare ones — and
+fodder was the only mechanism that ever made copies of different characters interchangeable, so
+when it went there was no rate left to quote.
 
 ---
 
@@ -171,6 +227,5 @@ duplicate copies. Nothing about resonance touches the copies.
 
 _Not built. Recorded here so this page does not quietly go stale._
 
-- **Ascension costs may need to scale with chapter.** Summon crystals currently compound at ×1.25
-  a stage against a flat pull price and a flat ascension price, which stops being a constraint
-  entirely by chapter 2. Milestone 11 records the fix.
+- **Ascension costs may need to scale with chapter.** Summon crystals currently compound against a
+  flat pull price and a flat ascension price. Milestone 11 records the fix.

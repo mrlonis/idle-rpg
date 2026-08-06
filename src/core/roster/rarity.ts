@@ -1,8 +1,8 @@
 import {
+  type AscensionLadder,
   type AscensionPath,
   type AscensionRules,
   type CharacterTier,
-  type CopyCost,
   MAX_RARITY_INDEX,
   RARITIES,
   type RarityFamily,
@@ -14,19 +14,23 @@ import {
  *
  * ## The one idea in this file
  *
- * Rungs are authored in terms of *ascended* copies — "2 copies of any character of the same
- * faction at Elite+" — but a player never holds an ascended spare. They hold base copies, as
- * pulled. So every requirement is resolved **recursively into base copies**: an Elite+ fodder
- * unit is itself 18 base copies of some faction-mate, which is what makes the headline number
- * for a mortal ascended-tier character 8 of its own Elite copies plus 180 Rare copies of
- * fodder rather than the six copies the table appears to ask for.
+ * A rung costs a flat number of base copies of the character being ascended, and nothing else.
+ * `ascensionCost` is an array lookup and `fullAscensionCost` is a sum over a slice — which is
+ * the whole of the arithmetic, and is why this file is short.
  *
- * That recursion is the whole reason this is code rather than a lookup table. The authored
- * tables are short and readable; the numbers they imply are neither, and deriving them means
- * retuning a rung cannot silently leave a stale total behind.
+ * ## What it replaced, and the rule that came out of it
  *
- * `rarity.spec.ts` pins the derived totals against the authored design targets, so a change
- * to either table shows up as a failed expectation with the real number in it.
+ * Rungs used to be quoted in *ascended* copies — "2 copies of any character of the same faction
+ * at Elite+" — against a player who only ever holds base ones. Pricing that took a memoised
+ * recursion with a cycle guard, and the recursion had a property worth remembering: cost
+ * **compounded** down the ladder, so the two rungs below `elite` priced everything above them.
+ * A `common`-tier character came out at 216 base copies to reach `ascended-5` against an
+ * `ascended`-tier character's 24, and neither number appeared anywhere a person could read it.
+ *
+ * The flat table gives that up on purpose. It also gives up the 9× tier gap the compounding
+ * produced for free, which is why the two rungs below `rare` are authored expensive: they are
+ * now the *only* thing separating what a common-tier climb costs from what an ascended-tier one
+ * does. Retuning them is retuning the tier gap — see [ascension](../../../docs/ascension.md).
  */
 
 /** Turns a rarity id into its ladder index, or `-1` if it is not a rarity. */
@@ -48,14 +52,62 @@ export function clampRarityIndex(index: number): number {
 }
 
 /**
- * Where a tier starts on the ladder.
+ * Where a tier starts on the ladder. Three tiers, three distinct rungs.
  *
- * `ascended`-tier characters skip `rare` and `rare-plus` entirely and arrive at `elite`.
- * That head start is most of what makes them worth the pity counter: the two rungs they skip
- * are the ones paid for with the largest volume of bodies.
+ * | Tier        | Starts at | Skips                                |
+ * | ----------- | --------- | ------------------------------------ |
+ * | `common`    | `common`  | nothing                              |
+ * | `legendary` | `rare`    | the two `common` rungs               |
+ * | `ascended`  | `elite`   | those two, plus the two `rare` rungs |
+ *
+ * **This is the only place tier and cost meet, and it carries the whole tier gap.** Every rung
+ * costs every character the same, so what a tier is worth in copies is exactly the price of the
+ * rungs it never has to climb — 20 for `legendary`, 28 for `ascended`. That is deliberate and it
+ * is calibrated: a specific common-tier character arrives roughly 3× more often from a pull than
+ * a specific legendary-tier one and roughly 10× more often than an ascended-tier one, so pricing
+ * the bottom of the ladder is what keeps a full climb a comparable commitment at every tier.
+ *
+ * Before the ladder grew a bottom, `common` and `legendary` tier shared a start and therefore
+ * cost identically despite that 3× gap. They no longer do.
  */
 export function startRarityIndex(tier: CharacterTier): number {
-  return tier === 'ascended' ? rarityIndex('elite') : 0;
+  switch (tier) {
+    case 'ascended':
+      return rarityIndex('elite');
+    case 'legendary':
+      return rarityIndex('rare');
+    default:
+      return 0;
+  }
+}
+
+/**
+ * The rung a character's **stat multiplier** is counted from, which is not always where it starts.
+ *
+ * `startRarityIndex` says where a tier joins the ladder; this says where the ×`perAscension`
+ * ladder begins for it. They agree for `legendary` and `ascended` tier and differ for `common`,
+ * whose two rungs below `rare` are a **cap gate rather than a power gate** — they raise the level
+ * ceiling from 20 to 30 to 40 and hand over no multiplier at all.
+ *
+ * ## Why those two rungs are worth nothing in stats, deliberately
+ *
+ * The copies-only rewrite put them there to make common-tier characters *cost* more, not to make them
+ * stronger — a pull produces a specific common-tier character roughly ten times as often as a
+ * specific ascended-tier one, and the 20 copies below `rare` are what prices that in.
+ *
+ * Paying them a multiplier as well would have made every common-tier character ×1.6² stronger at
+ * every rarity it can reach, top to bottom. That is a power grant the whole stage ladder would
+ * have had to be retuned around, and it was not what the change was for. Anchoring the stat
+ * ladder at `rare` instead means a common-tier character at `rare` is exactly as strong as a
+ * freshly pulled one used to be — so the cost moved and nothing else did, and every stage in
+ * `data/` still means what it meant.
+ *
+ * ⚠️ **Level caps are indexed by rarity and are not affected by this.** `rare` still caps at 40
+ * and `legendary` still at 200; the two new rungs slot in underneath at 20 and 30. It is only the
+ * multiplier that starts late.
+ */
+export function growthFloor(tier: CharacterTier): number {
+  return Math.max(startRarityIndex(tier), rarityIndex('rare'));
 }
 
 /**
@@ -84,125 +136,82 @@ export function rarityLabel(index: number): string {
     .replace(/([a-z])\+/, '$1+');
 }
 
-function add(a: CopyCost, b: CopyCost, times = 1): CopyCost {
-  return { self: a.self + b.self * times, faction: a.faction + b.faction * times };
+/** The ladder a path walks. */
+function ladderFor(rules: AscensionRules, path: AscensionPath): AscensionLadder {
+  return path === 'celestial' ? rules.celestial : rules.mortal;
 }
 
 /**
- * Memo table, keyed first by the rules object so that two different rule sets — the shipped
- * one and a fixture — cannot contaminate each other's results. A `WeakMap` because the memo
- * should not be what keeps a test's rules object alive.
+ * One rung's price, defended against a table that does not have one.
+ *
+ * A rung a shorter ladder never authored, and a damaged one, both read as free. That is the
+ * deliberate choice over throwing: content arrives here as an argument, so a malformed table is a
+ * visibly wrong number a spec can catch rather than a crash on a device.
+ *
+ * `Math.max(NaN, 0)` is `NaN`, so the finite check has to come first — clamping alone would let a
+ * damaged entry through as a price nothing can ever afford.
  */
-const memo = new WeakMap<AscensionRules, Map<string, CopyCost>>();
-
-function cacheFor(rules: AscensionRules): Map<string, CopyCost> {
-  let cache = memo.get(rules);
-  if (cache === undefined) {
-    cache = new Map();
-    memo.set(rules, cache);
-  }
-  return cache;
+function rungCost(ladder: AscensionLadder, from: number): number {
+  const cost = ladder[from];
+  return cost === undefined || !Number.isFinite(cost) ? 0 : Math.max(Math.floor(cost), 0);
 }
 
 /**
- * Base copies needed to produce **one** unit at `targetIndex`, starting from base copies at
- * `startIndex`.
+ * What the **next single rung** costs, in base copies of the character itself, for a character
+ * currently at `fromIndex`. `undefined` at the top of the ladder, where there is no next rung.
  *
- * Returns `{ self: 1, faction: 0 }` when the target is at or below the start: a copy that is
- * already at the rarity you need costs exactly itself.
+ * A lookup. The rung a character is leaving indexes the table directly, and a rung a shorter
+ * table does not author costs nothing rather than throwing — a fixture ladder is allowed to be
+ * short, and a missing rung that reads as free is a visibly wrong number rather than a crash on
+ * a device.
+ */
+export function ascensionCost(
+  rules: AscensionRules,
+  path: AscensionPath,
+  fromIndex: number,
+): number | undefined {
+  const from = clampRarityIndex(fromIndex);
+  if (from >= MAX_RARITY_INDEX) {
+    return undefined;
+  }
+  return rungCost(ladderFor(rules, path), from);
+}
+
+/**
+ * Base copies to take a character from `startIndex` to `targetIndex`, **not** counting the copy
+ * it already is.
  *
- * Requirements always reference a rarity strictly below the rung's target, so the recursion
- * terminates on any well-formed ladder. `visiting` is a guard against a malformed authored
- * table turning that into a hang — a cycle yields a finite (wrong) answer that a spec can
- * catch, rather than freezing the device.
+ * Zero when the target is at or below the start: a character already at the rarity you asked
+ * about costs nothing more to get there.
  */
 export function copyCost(
   rules: AscensionRules,
   path: AscensionPath,
   startIndex: number,
   targetIndex: number,
-  visiting: ReadonlySet<string> = new Set(),
-): CopyCost {
+): number {
   const start = clampRarityIndex(startIndex);
   const target = clampRarityIndex(targetIndex);
-  if (target <= start) {
-    return { self: 1, faction: 0 };
-  }
+  const ladder = ladderFor(rules, path);
 
-  const key = `${path}:${start}:${target}`;
-  const cache = cacheFor(rules);
-  const cached = cache.get(key);
-  if (cached !== undefined) {
-    return cached;
+  let total = 0;
+  for (let from = start; from < target; from++) {
+    total += rungCost(ladder, from);
   }
-  if (visiting.has(key)) {
-    // A cycle in the authored ladder. Bail with the base case rather than recursing forever;
-    // `rarity.spec.ts` asserts the shipped tables are well-founded.
-    return { self: 1, faction: 0 };
-  }
-  const nested = new Set(visiting).add(key);
-
-  const ladder = path === 'celestial' ? rules.celestial : rules.mortal;
-  let total = copyCost(rules, path, start, target - 1, nested);
-
-  for (const requirement of ladder[target - 1] ?? []) {
-    const count = Math.max(Math.floor(requirement.count), 0);
-    if (count === 0) {
-      continue;
-    }
-    if (requirement.scope === 'self') {
-      total = add(total, copyCost(rules, path, start, requirement.rarity, nested), count);
-    } else {
-      total = add(total, { self: 0, faction: fodderBaseCopies(rules, requirement.rarity) }, count);
-    }
-  }
-
-  cache.set(key, total);
   return total;
 }
 
 /**
- * Base copies of a same-faction character needed to field one fodder unit at `rarityIndex`.
+ * Total base copies to take a character from its tier's starting rarity to `ascended-5`,
+ * **including** the first copy — the one that got it onto the ladder.
  *
- * Fodder is always priced as a `rare`-start character on the `mortal` ladder: only the mortal
- * ladder ever asks for fodder, and a player feeding an `elite`-start character into a rung
- * would be burning something far more expensive than the requirement asks for. The two halves
- * of the cost collapse into one number here because fodder is fungible — which faction-mate
- * supplied a copy stops mattering the moment it is consumed.
+ * Including it is what makes this the number a player would count: "how many of this character
+ * do I need to see, in total, to max it".
  */
-export function fodderBaseCopies(rules: AscensionRules, rarityIndex: number): number {
-  const cost = copyCost(rules, 'mortal', 0, rarityIndex);
-  return cost.self + cost.faction;
-}
-
-/**
- * What the **next single rung** costs, in base copies, for a character currently at
- * `fromIndex`.
- *
- * The difference of two cumulative costs rather than a sum over one rung's requirements,
- * because a rung's price is quoted in ascended copies and the player pays in base ones. This
- * is the number the ascend screen shows and the number {@link canAscend} checks.
- */
-export function ascensionCost(
-  rules: AscensionRules,
-  path: AscensionPath,
-  startIndex: number,
-  fromIndex: number,
-): CopyCost | undefined {
-  const from = clampRarityIndex(fromIndex);
-  if (from >= MAX_RARITY_INDEX) {
-    return undefined;
-  }
-  const current = copyCost(rules, path, startIndex, from);
-  const next = copyCost(rules, path, startIndex, from + 1);
-  return { self: next.self - current.self, faction: next.faction - current.faction };
-}
-
-/** Total base copies to take a character from its starting rarity to `ascended-5`. */
 export function fullAscensionCost(
   rules: AscensionRules,
   path: AscensionPath,
   tier: CharacterTier,
-): CopyCost {
-  return copyCost(rules, path, startRarityIndex(tier), MAX_RARITY_INDEX);
+): number {
+  return 1 + copyCost(rules, path, startRarityIndex(tier), MAX_RARITY_INDEX);
 }

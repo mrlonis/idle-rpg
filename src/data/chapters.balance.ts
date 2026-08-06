@@ -27,6 +27,7 @@ import {
   type Numeric,
   PARTY_SIZE,
   rarityIndex,
+  startRarityIndex,
   resolveLadder,
   scaleStats,
   simulateBattle,
@@ -151,9 +152,18 @@ const TRIALS = 40;
  * The names also carry what the numbers never did. `RARE_PLUS` is the first ascension anybody
  * buys and where {@link BUILT} sits; `ELITE` is the rung at which a common-tier character's
  * second skill arrives; `LEGENDARY` is where {@link INVESTED} sits; `ASCENDED` is where a fully
- * invested character ends up; `RARE` is where every character starts and where {@link STARTERS}
- * still is. Those are the facts the sweeps are actually about.
+ * invested character ends up; `RARE` is where the stat ladder begins, and `START` is where a
+ * common-tier character actually lands from a pull.
+ *
+ * ⚠️ **A rarity id fixes a party's power only because the stat ladder is anchored at `rare`.**
+ * The copies-only rewrite put two rungs below it, and a common-tier character now *starts* at `common`
+ * rather than here — but `growthFloor` counts multipliers from `rare` regardless, so those two
+ * rungs buy level cap and no stats. That is what makes every party in this file worth exactly
+ * what it was worth before the ladder grew, and it is why none of the stage content had to move.
+ * If the two `common` rungs are ever paid a multiplier, every number in this file changes and the
+ * whole ladder needs re-deriving.
  */
+const START = startRarityIndex('common');
 const RARE = rarityIndex('rare');
 const RARE_PLUS = rarityIndex('rare-plus');
 const ELITE = rarityIndex('elite');
@@ -297,18 +307,36 @@ function mono(
   };
 }
 
-/** The three characters a run starts with, at level 1, standing where the game puts them. */
+/**
+ * The three characters a run starts with, at level 1, standing where the game puts them.
+ *
+ * Fielded at {@link START} rather than at {@link RARE} — a common-tier character lands two rungs
+ * below `rare` now. At level 1 the two are the **same combatant**: `growthFloor` anchors the stat
+ * ladder at `rare`, so neither rung pays a multiplier, and a common-tier kit opens its second
+ * skill at `elite` either way. The rungs differ only in level cap, which nothing at level 1 can
+ * reach. Written as `START` anyway, because this party is defined by where a run begins and a
+ * reader should not have to reconstruct that equality to trust it.
+ */
 const STARTERS: FormationData = {
-  front: [at(BRAN, 1, RARE), at(MIRA, 1, RARE)],
-  back: [at(RIN, 1, RARE)],
+  front: [at(BRAN, 1, START), at(MIRA, 1, START)],
+  back: [at(RIN, 1, START)],
 };
 
-/** The level and rung {@link BUILT} is fielded at, and what the mono-faction fives match. */
-const BUILT_LEVEL = 40;
+/**
+ * The level and rung {@link BUILT} is fielded at, and what the mono-faction fives match.
+ *
+ * **The level is derived, not authored.** What this party *is* is "hit the first level wall, spent
+ * one ascension on it, has not levelled into the new headroom yet" — so the level is the cap of
+ * the rung below, whatever the curve says that is. It read 40 when the ladder started at `rare`;
+ * the copies-only rewrite put two rungs underneath and it now reads 20, without this line changing. Writing
+ * the number would have made this party quietly stop being the one the prose describes.
+ */
 const BUILT_RARITY = RARE_PLUS;
+const BUILT_LEVEL = LEVEL_CURVE.caps[BUILT_RARITY - 1];
 
 /**
- * The mid-game party: five common-tier characters at level 40, ascended once to `rare-plus`.
+ * The mid-game party: five common-tier characters ascended once, at the level cap they hit on
+ * the way there.
  *
  * Deliberately all `common` tier. If the ladder needed a lucky banner it would be a wall in front
  * of players who cannot buy their way past one, which in a game with no purchases is a wall with
@@ -316,8 +344,9 @@ const BUILT_RARITY = RARE_PLUS;
  *
  * **It was level 80 at `elite` until milestone 10**, and the two numbers came down together for
  * one reason: a rung is now worth ×1.6 rather than ×1.12, so two of them are ×2.56 of a party's
- * whole power rather than ×1.25. Forty is the `rare` cap, so this is the party a player has the
- * moment the level ladder first stops and the ascension one starts — which is a far more honest
+ * whole power rather than ×1.25. The level is the cap of the rung below, so this is the party a
+ * player has the moment the level ladder first stops and the ascension one starts — a far more
+ * honest
  * description of who finishes the hand-climbed half than a party three times further invested.
  */
 const BUILT_FRONT = [BRAN, GNASH];
@@ -754,10 +783,10 @@ describe('gear', () => {
     // the drop table is too generous at the bottom of the ladder and `gradeSoftness` is the dial.
     const kitted: FormationData = {
       front: [
-        at(BRAN, 1, RARE, { grade: 0, level: 1, aligned: false }),
-        at(MIRA, 1, RARE, { grade: 0, level: 1, aligned: false }),
+        at(BRAN, 1, START, { grade: 0, level: 1, aligned: false }),
+        at(MIRA, 1, START, { grade: 0, level: 1, aligned: false }),
       ],
-      back: [at(RIN, 1, RARE, { grade: 0, level: 1, aligned: false })],
+      back: [at(RIN, 1, START, { grade: 0, level: 1, aligned: false })],
     };
     const lock = stages[WALL];
 
@@ -1361,7 +1390,7 @@ describe('the stomp', () => {
     // — and if the second were, this whole block would be measuring a currency nobody earns by
     // waiting, because rungs are bought with duplicates rather than with time.
     const fromLevels = Math.pow(GROWTH.perLevel.common, INVESTED_LEVEL - 1);
-    const fromRungs = Math.pow(GROWTH.perAscension, LEGENDARY);
+    const fromRungs = Math.pow(GROWTH.perAscension, LEGENDARY - RARE);
     const ratio = fromLevels / fromRungs;
 
     expect(

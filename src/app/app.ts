@@ -22,10 +22,10 @@ interface Tab {
  *
  * ## Routes and one mode
  *
- * Home, summon, roster and shop are **routes**, because each describes saved state and survives
- * a reload — `/roster/rin` is somewhere a player can come back to. The battle screen is still a
- * signal-swapped **mode**, because everything it shows (a resolved log, an animator playhead)
- * lives only in memory; a `/battle` URL could never be anything but a broken bookmark.
+ * Home, town, roster, the bag and settings are **routes**, because each describes saved state and
+ * survives a reload — `/roster/rin` is somewhere a player can come back to. The battle screen is
+ * still a signal-swapped **mode**, because everything it shows (a resolved log, an animator
+ * playhead) lives only in memory; a `/battle` URL could never be anything but a broken bookmark.
  *
  * The tab bar disappears during a fight. A battle has no exit until it ends — leaving early
  * would discard rewards the player is moments from collecting — so showing navigation that
@@ -45,19 +45,32 @@ export class App implements OnInit {
   protected readonly isBattleOpen = this.battles.isOpen;
 
   /**
-   * The tab bar, and the last milestone where adding to it is free.
+   * The tab bar.
    *
    * Six is what fits across a small phone at a legible label size; a seventh has to either shrink
    * the text below where it can be read or drop it, and a bar of unlabelled glyphs is a puzzle
-   * rather than navigation. **The next screen needs a different shape of navigation, not another
-   * entry here** — see the note in `docs/milestones.md`.
+   * rather than navigation.
+   *
+   * **Five are used, and the spare slot is not for spending.** Summon and Shop gave it back by
+   * moving behind Town, which is the "different shape of navigation" the milestone-13 note said
+   * the next screen would need — a hub costs one tap and has no ceiling, and a tab has both a
+   * ceiling and a queue behind it. A new sink belongs in Town. A seventh tab still is not the
+   * answer, and now a sixth mostly is not either.
+   *
+   * Town takes Summon's old position deliberately: the destination behind it is the one a player
+   * reaches for most, and muscle memory for where the bar's second entry sits outlives what it
+   * was called.
+   *
+   * **The fourth tab is the Bag, and it is the one entry named for a category rather than a
+   * screen.** It was Gear, which was the third progression axis wearing a tab; the forge half of
+   * it went to Town with the other sinks, and what stayed is an inventory. Naming it for what it
+   * holds is what stops the next item type from arguing for a sixth tab.
    */
   protected readonly tabs: readonly Tab[] = [
     { path: '/', label: 'Home', icon: '🏕', exact: true },
-    { path: '/summon', label: 'Summon', icon: '🔮', exact: false },
+    { path: '/town', label: 'Town', icon: '🏘', exact: false },
     { path: '/roster', label: 'Roster', icon: '🛡', exact: false },
-    { path: '/gear', label: 'Gear', icon: '🧰', exact: false },
-    { path: '/shop', label: 'Shop', icon: '✨', exact: false },
+    { path: '/bag', label: 'Bag', icon: '🎒', exact: false },
     { path: '/settings', label: 'Settings', icon: '⚙', exact: false },
   ];
 

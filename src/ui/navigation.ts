@@ -1,10 +1,16 @@
 /**
  * Where a screen that can be arrived at from more than one place sends the player back to.
  *
- * The character sheet is the first of those: it is reachable from the roster list and from the
+ * The character sheet is the first of those. It was reachable from the roster list and from the
  * party on the home screen, and a back link that always said "Roster" sent half of those trips
  * somewhere the player had never been. So whoever opens the sheet **names where they came from**
  * in a `from` query parameter, and the sheet reads it back out.
+ *
+ * The home screen stopped linking to a sheet when its party section was removed — the roster
+ * already showed the same rows and is the only place they can be changed — so the roster is
+ * currently the only origin anything writes. `home` stays registered rather than being deleted:
+ * a URL carrying `?from=home` is still out there in a reload or a bookmark, and it costs one
+ * line to keep answering it correctly instead of quietly falling back.
  *
  * A query parameter rather than the browser's history, for two reasons:
  *
@@ -30,8 +36,8 @@ export interface Screen {
 /**
  * Every screen that can send a player to a detail view.
  *
- * Not the whole route table. Summon and the shop are absent because neither links to a character
- * sheet; add them here the day one of them does.
+ * Not the whole route table. Town, summon and the shop are absent because none of them links to a
+ * character sheet; add them here the day one of them does.
  */
 const SCREENS = {
   home: { path: '/', label: 'Home' },

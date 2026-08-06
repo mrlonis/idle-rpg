@@ -78,7 +78,7 @@ describe('migrate', () => {
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it.each([2, 3, 4, 5])('discards a v%i save from before the baseline', (version) => {
+  it.each([3, 4, 5])('discards a v%i save from before the baseline', (version) => {
     // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
     // collapsed into v0 while the game was pre-release, so a save written by any of them has no
     // path to current and never will. It reads as newer-than-supported because the numbers were
@@ -86,11 +86,12 @@ describe('migrate', () => {
     expect(() => migrate({ version })).toThrow();
   });
 
-  it('reads version 1 as the gear schema, not as the pre-baseline v1', () => {
-    // ⚠️ **The reset burned version numbers, and milestone 12 re-issued the first of them.** The
-    // old v1 was milestone 1's gold counter; this v1 is the gear schema, and a build cannot tell
-    // the two apart from the number alone — so a genuine pre-reset v1 save would now be read as a
-    // current one and repaired into something close to a fresh run rather than reported as
+  it.each([1, 2])('reads version %i as a post-baseline save, not as a pre-baseline one', (v) => {
+    // ⚠️ **The reset burned version numbers, and two milestones have now re-issued them.** The old
+    // v1 was milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear
+    // schema and this v2 is the ladder gaining a bottom. A build cannot tell either pair apart
+    // from the number alone — so a genuine pre-reset save at one of these versions would be read
+    // as a current one and repaired into something close to a fresh run rather than reported as
     // unreadable.
     //
     // That is safe here for exactly one reason, and it is the same reason the reset itself was
@@ -98,8 +99,42 @@ describe('migrate', () => {
     // not safe in general, and it is the cost of re-basing that is easiest to forget — every
     // number below `SAVE_VERSION` now means something different from what it meant before the
     // reset. Nothing else may be re-issued once a build reaches a player.
-    expect(() => migrate({ version: 1 })).not.toThrow();
-    expect(migrate({ version: 1 })).toEqual({ version: 1 });
+    expect(() => migrate({ version: v })).not.toThrow();
+    expect(migrate({ version: v })).toMatchObject({ version: SAVE_VERSION });
+  });
+
+  it('shifts every stored rarity by two on the way from v1 to v2', () => {
+    // The migration this file exists for. v1 → v2 adds no field, so nothing structural can tell a
+    // migrated save from an unmigrated one — this assertion is the only evidence that the shift
+    // ran, and without it every returning player is silently demoted two rungs.
+    const migrated = migrate({
+      version: 1,
+      roster: [
+        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'beta', rarity: 4, level: 9, copies: 2, gear: {} },
+      ],
+    });
+
+    expect(migrated).toMatchObject({
+      version: 2,
+      roster: [
+        { defId: 'alpha', rarity: 2, level: 1, copies: 0, gear: {} },
+        { defId: 'beta', rarity: 6, level: 9, copies: 2, gear: {} },
+      ],
+    });
+  });
+
+  it('leaves a damaged rarity for load-time repair rather than shifting it', () => {
+    // Shifting a corrupt value only moves the corruption. `serialize` clamps to the character's
+    // starting rarity, which is a better answer than any this step could invent.
+    const migrated = migrate({
+      version: 1,
+      roster: [{ defId: 'alpha', rarity: 'elite', level: 1, copies: 0, gear: {} }],
+    });
+
+    expect(migrated).toMatchObject({
+      roster: [{ defId: 'alpha', rarity: 'elite' }],
+    });
   });
 });
 

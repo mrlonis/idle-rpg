@@ -1,17 +1,12 @@
 import { computed, inject, Service } from '@angular/core';
 import {
   ascend,
-  type AscensionPlan,
-  autoFodderPlan,
   benchMember,
   type CharacterData,
   type CombatantData,
-  type CopyCost,
   type CurrencyAmounts,
   effectiveLevel,
   findOwned,
-  fodderPool,
-  type FodderOption,
   type FormationData,
   formationSize,
   gearLookup,
@@ -103,10 +98,8 @@ export interface RosterEntryView {
   readonly canLevel: boolean;
   /** The highest level the wallet could reach right now. */
   readonly affordableLevel: number;
-  /** What the next rung costs, or `null` at the top of the ladder. */
-  readonly ascensionCost: CopyCost | null;
-  /** Fodder value available from faction-mates' spares. */
-  readonly fodderAvailable: number;
+  /** Spare copies the next rung costs, or `null` at the top of the ladder. */
+  readonly ascensionCost: number | null;
   readonly canAscend: boolean;
 }
 
@@ -311,12 +304,6 @@ export class RosterService {
     return this.entries().find((row) => row.defId === defId) ?? null;
   }
 
-  /** Faction-mates whose spares could pay for an ascension. */
-  fodderFor(defId: string): readonly FodderOption[] {
-    const state = this.game.snapshot();
-    return state === null ? [] : fodderPool(state, defId, ASCENSION, CHARACTERS_BY_ID);
-  }
-
   /**
    * Raises a character by one level.
    *
@@ -354,21 +341,15 @@ export class RosterService {
   }
 
   /**
-   * Ascends a character one rung.
+   * Ascends a character one rung, spending that many of its own spare copies.
    *
-   * A plan may be supplied when the player picked their own fodder; otherwise the cheapest
-   * plan is built for them, which spends 1-value spares before 9-value ones so an absent-minded
-   * tap cannot feed an ascended-tier duplicate to a rung a handful of commons would cover.
+   * No plan argument, and there is nothing for the player to choose. A rung names one price in
+   * one resource; the only question is whether the copies are there.
    */
-  ascendOnce(defId: string, plan?: AscensionPlan): RosterResult {
-    return this.mutate((state) => {
-      const chosen =
-        plan ?? autoFodderPlan(state, defId, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID);
-      if (chosen === undefined) {
-        return { ok: false, reason: 'insufficient-fodder' };
-      }
-      return ascend(state, defId, chosen, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID);
-    });
+  ascendOnce(defId: string): RosterResult {
+    return this.mutate((state) =>
+      ascend(state, defId, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID),
+    );
   }
 
   /** Puts a character into a rank, taking it out of the other one first. */
@@ -456,11 +437,6 @@ export class RosterService {
 
     const ascensionCost =
       nextAscension(state, owned.defId, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID) ?? null;
-    const fodderAvailable = fodderPool(state, owned.defId, ASCENSION, CHARACTERS_BY_ID).reduce(
-      (total, option) => total + option.available * option.valuePerCopy,
-      0,
-    );
-
     const front = state.formation.front.indexOf(owned.defId);
     const back = state.formation.back.indexOf(owned.defId);
     const row: Row | null = front >= 0 ? 'front' : back >= 0 ? 'back' : null;
@@ -489,11 +465,7 @@ export class RosterService {
       canLevel: affordableLevel > level,
       affordableLevel,
       ascensionCost,
-      fodderAvailable,
-      canAscend:
-        ascensionCost !== null &&
-        owned.copies >= ascensionCost.self &&
-        fodderAvailable >= ascensionCost.faction,
+      canAscend: ascensionCost !== null && owned.copies >= ascensionCost,
     };
   }
 }

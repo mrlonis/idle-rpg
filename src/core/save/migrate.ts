@@ -50,20 +50,74 @@ const migrateV0ToV1: Migration = (save) => {
 };
 
 /**
+ * The two rungs the copies-only rewrite inserted below `rare`, and therefore the amount every stored rarity
+ * index is out by.
+ *
+ * ⚠️ **Written as a literal, not derived from `RARITIES`.** A migration is dated: it describes the
+ * ladder as it was the day it shipped. Deriving this from the live array would mean a *third*
+ * rung inserted later silently changed what this step does to saves that have not run it yet —
+ * they would be shifted by the new total instead of the old one, and every character would land
+ * on a rung it never earned. Same rule as the v0 → v1 gear literals above.
+ */
+const RUNGS_INSERTED_BELOW_RARE = 2;
+
+/**
+ * v1 → v2: the ladder grew a bottom.
+ *
+ * `common` and `common-plus` went in below `rare`, so `RARITIES` index 0 stopped meaning `rare`
+ * and started meaning `common`. Every rarity a v1 save recorded is therefore a claim about a rung
+ * two places lower than the one the player earned, and left alone it would demote the entire
+ * roster — an `elite` character reading as `rare`, with its level cap collapsing from 100 to 40
+ * and its second skill disappearing.
+ *
+ * Shifting every entry up by two maps each rung to *itself*: what was `rare` is `rare` again, what
+ * was `elite` is `elite` again. Nobody gains a rung and nobody loses one. Common-tier characters
+ * come out sitting at `rare` — two rungs above the new floor, which they never paid for — and that
+ * is the intended reading rather than an oversight: they earned their place on the old ladder, and
+ * the new rungs are beneath where they already stand.
+ *
+ * A missing or damaged rarity is left for load-time repair rather than guessed at here. `serialize`
+ * clamps it to the character's starting rarity, which is a better answer than any this step could
+ * invent, and shifting a corrupt value would only make it corrupt somewhere else.
+ */
+const migrateV1ToV2: Migration = (save) => {
+  const roster = Array.isArray(save['roster']) ? save['roster'] : [];
+  return {
+    ...save,
+    version: 2,
+    roster: roster.map((entry: unknown) => {
+      if (typeof entry !== 'object' || entry === null) {
+        return entry;
+      }
+      const record = entry as Record<string, unknown>;
+      const rarity = record['rarity'];
+      return typeof rarity === 'number' && Number.isFinite(rarity)
+        ? { ...record, rarity: rarity + RUNGS_INSERTED_BELOW_RARE }
+        : record;
+    }),
+  };
+};
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
- * **One entry, and it is the first this table has held since the reset.** Five schema versions and
- * four migrations were collapsed into a single v0 baseline while the game was still pre-release —
- * see [saves](../../../docs/saves.md) for the reset and the condition that closes the door on
- * repeating it. Everything from v0 upward is permanent.
+ * **Two entries, and they are the first this table has held since the reset.** Five schema
+ * versions and four migrations were collapsed into a single v0 baseline while the game was still
+ * pre-release — see [saves](../../../docs/saves.md) for the reset and the condition that closes
+ * the door on repeating it. Everything from v0 upward is permanent.
  *
  * **The machinery below was deliberately kept when the old entries went**, on the argument that an
  * untested chain walker written on the day the first real migration is already urgent is the worst
  * possible time to be debugging one. `migrate.spec.ts` has proved the walk against a synthetic
  * history throughout; {@link migrateV0ToV1} is what it was being kept for.
+ *
+ * The two differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: v0 → v1 *added*
+ * fields, so getting it wrong loses something that was never there, while v1 → v2 *reinterprets*
+ * one, so getting it wrong silently rewrites progress a player earned.
  */
 export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
   [0, migrateV0ToV1],
+  [1, migrateV1ToV2],
 ]);
 
 export class UnknownSaveVersionError extends Error {

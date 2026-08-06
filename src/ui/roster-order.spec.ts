@@ -37,7 +37,6 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     canLevel: false,
     affordableLevel: 10,
     ascensionCost: null,
-    fodderAvailable: 0,
     canAscend: false,
     ...over,
   };
