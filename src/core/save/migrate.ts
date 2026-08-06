@@ -99,9 +99,50 @@ const migrateV1ToV2: Migration = (save) => {
 };
 
 /**
+ * v2 → v3: the achievement claim ledger.
+ *
+ * Additive, and the cheapest step in the chain. Every counter an achievement track is paid against
+ * — `clearedStages`, `battleCount`, `pullCount` — was already stored by v2, so the only thing
+ * missing is the record of what has been *taken*, and for a save written before achievements
+ * existed the honest answer is nothing.
+ *
+ * **A returning player is therefore owed every award their clear count has already earned**, and
+ * that is the intended reading rather than an oversight. It is the same position `reconcileClearedStages`
+ * takes on a first-clear bonus the migration would otherwise have closed the door on: crediting
+ * progress the player demonstrably made is the only fair place to land, and here it costs nothing
+ * to get right because the earned side is derived rather than stored.
+ *
+ * ⚠️ The empty record is written out rather than imported from `core/achievements.ts`. A migration
+ * is *dated* — it describes the shape that existed the day it shipped — and `emptyAchievements()`
+ * is a function a later release is free to change. Same rule as the v0 → v1 gear literals above.
+ */
+const migrateV2ToV3: Migration = (save) => ({ ...save, version: 3, achievements: {} });
+
+/**
+ * v3 → v4: the daily and weekly quest windows.
+ *
+ * Additive. Both windows arrive at index `-1`, which is below any real period index, so the first
+ * roll after load opens them against the counters as they stand — a returning player gets a fresh
+ * day of quests rather than one that is already half spent, and nothing is owed for battles fought
+ * before quests existed.
+ *
+ * ⚠️ Written out as literals rather than through `emptyQuestWindows()`, for the reason the v0 → v1
+ * gear fields are: a migration is dated, and a helper a later release is free to change would
+ * silently alter what this step means for every save that has not run it yet.
+ */
+const migrateV3ToV4: Migration = (save) => ({
+  ...save,
+  version: 4,
+  quests: {
+    daily: { index: -1, baseline: {}, claimed: [] },
+    weekly: { index: -1, baseline: {}, claimed: [] },
+  },
+});
+
+/**
  * The migration chain, keyed by the version being migrated *from*.
  *
- * **Two entries, and they are the first this table has held since the reset.** Five schema
+ * **Four entries, and they are the first this table has held since the reset.** Five schema
  * versions and four migrations were collapsed into a single v0 baseline while the game was still
  * pre-release — see [saves](../../../docs/saves.md) for the reset and the condition that closes
  * the door on repeating it. Everything from v0 upward is permanent.
@@ -111,13 +152,15 @@ const migrateV1ToV2: Migration = (save) => {
  * possible time to be debugging one. `migrate.spec.ts` has proved the walk against a synthetic
  * history throughout; {@link migrateV0ToV1} is what it was being kept for.
  *
- * The two differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: v0 → v1 *added*
- * fields, so getting it wrong loses something that was never there, while v1 → v2 *reinterprets*
- * one, so getting it wrong silently rewrites progress a player earned.
+ * They differ in kind, and {@link migrateV1ToV2} is the more dangerous shape: the other three
+ * *add* fields, so getting one wrong loses something that was never there, while v1 → v2
+ * *reinterprets* one, so getting it wrong silently rewrites progress a player earned.
  */
 export const MIGRATIONS: ReadonlyMap<number, Migration> = new Map<number, Migration>([
   [0, migrateV0ToV1],
   [1, migrateV1ToV2],
+  [2, migrateV2ToV3],
+  [3, migrateV3ToV4],
 ]);
 
 export class UnknownSaveVersionError extends Error {

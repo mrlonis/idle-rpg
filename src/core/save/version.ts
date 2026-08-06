@@ -20,5 +20,13 @@
  * rarity index means a rung two lower than it did. That is the failure mode `RARITIES` is now
  * commented against — an insert anywhere but the top of that array is a save migration, not a
  * content edit.
+ *
+ * **Three because milestone 14 added achievements.** v2 → v3 is additive and is the cheapest
+ * migration in the chain — one empty record — because the counters the tracks are paid against
+ * were all already stored. A v2 save arrives having claimed nothing, which is the truth about it.
+ *
+ * **Four because the same milestone added quests.** v3 → v4 is additive for the same reason: a
+ * quest window stores a baseline of counters the save already held, so nothing had to start being
+ * recorded that was not already.
  */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 4;

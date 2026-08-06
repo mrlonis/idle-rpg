@@ -78,7 +78,7 @@ describe('migrate', () => {
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it.each([3, 4, 5])('discards a v%i save from before the baseline', (version) => {
+  it.each([5])('discards a v%i save from before the baseline', (version) => {
     // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
     // collapsed into v0 while the game was pre-release, so a save written by any of them has no
     // path to current and never will. It reads as newer-than-supported because the numbers were
@@ -86,22 +86,28 @@ describe('migrate', () => {
     expect(() => migrate({ version })).toThrow();
   });
 
-  it.each([1, 2])('reads version %i as a post-baseline save, not as a pre-baseline one', (v) => {
-    // ⚠️ **The reset burned version numbers, and two milestones have now re-issued them.** The old
-    // v1 was milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear
-    // schema and this v2 is the ladder gaining a bottom. A build cannot tell either pair apart
-    // from the number alone — so a genuine pre-reset save at one of these versions would be read
-    // as a current one and repaired into something close to a fresh run rather than reported as
-    // unreadable.
-    //
-    // That is safe here for exactly one reason, and it is the same reason the reset itself was
-    // licensed: **no save carrying the old meaning has ever existed outside development.** It is
-    // not safe in general, and it is the cost of re-basing that is easiest to forget — every
-    // number below `SAVE_VERSION` now means something different from what it meant before the
-    // reset. Nothing else may be re-issued once a build reaches a player.
-    expect(() => migrate({ version: v })).not.toThrow();
-    expect(migrate({ version: v })).toMatchObject({ version: SAVE_VERSION });
-  });
+  it.each([1, 2, 3, 4])(
+    'reads version %i as a post-baseline save, not as a pre-baseline one',
+    (v) => {
+      // ⚠️ **The reset burned version numbers, and milestone 14 has now re-issued the last of
+      // them.** The old v1 was milestone 1's gold counter, v2 was combat progression, v3 the rate
+      // table and v4 the formation; this v1 is the gear schema, this v2 is the ladder gaining a
+      // bottom, this v3 is the achievement ledger and this v4 is the quest windows. Only the old v5
+      // is left unclaimed, so the row above is down to one entry — and the next migration exhausts
+      // it. A build cannot tell any of those pairs apart
+      // from the number alone — so a genuine pre-reset save at one of these versions would be read
+      // as a current one and repaired into something close to a fresh run rather than reported as
+      // unreadable.
+      //
+      // That is safe here for exactly one reason, and it is the same reason the reset itself was
+      // licensed: **no save carrying the old meaning has ever existed outside development.** It is
+      // not safe in general, and it is the cost of re-basing that is easiest to forget — every
+      // number below `SAVE_VERSION` now means something different from what it meant before the
+      // reset. Nothing else may be re-issued once a build reaches a player.
+      expect(() => migrate({ version: v })).not.toThrow();
+      expect(migrate({ version: v })).toMatchObject({ version: SAVE_VERSION });
+    },
+  );
 
   it('shifts every stored rarity by two on the way from v1 to v2', () => {
     // The migration this file exists for. v1 → v2 adds no field, so nothing structural can tell a
@@ -115,8 +121,11 @@ describe('migrate', () => {
       ],
     });
 
+    // `SAVE_VERSION` rather than the literal 2: `migrate` walks all the way to current, so pinning
+    // the number here would turn every future migration into an edit of the one assertion that
+    // proves this one ran.
     expect(migrated).toMatchObject({
-      version: 2,
+      version: SAVE_VERSION,
       roster: [
         { defId: 'alpha', rarity: 2, level: 1, copies: 0, gear: {} },
         { defId: 'beta', rarity: 6, level: 9, copies: 2, gear: {} },

@@ -8,6 +8,8 @@ import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v0 from './fixtures/v0.json';
 import v1 from './fixtures/v1.json';
 import v2 from './fixtures/v2.json';
+import v3 from './fixtures/v3.json';
+import v4 from './fixtures/v4.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -20,10 +22,17 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * **There are three, and the v1 one now carries the most weight.** The chain was re-based to a v0
+ * **There are five, and the v1 one now carries the most weight.** The chain was re-based to a v0
  * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — leaving
  * this file with a single fixture and nothing to walk. Milestone 12 added gear and the v0 → v1
- * migration; the copies-only rewrite added the two rungs below `rare` and the v1 → v2 shift.
+ * migration; the copies-only rewrite added the two rungs below `rare` and the v1 → v2 shift;
+ * milestone 14 added the achievement ledger and the v2 → v3 step, then the quest windows and
+ * v3 → v4.
+ *
+ * The v3 fixture carries a **retired track id** alongside the live one, which is the one thing
+ * about the ledger a shape check would not otherwise reach: a build that stops shipping a track
+ * has to keep that entry rather than dropping it, because dropping it is what would re-pay every
+ * award on the track if it ever came back.
  *
  * **v1 → v2 changes no field, only what one means**, so a v1 fixture that failed to be migrated
  * would still parse, still validate, and still produce a usable state — with every character
@@ -40,6 +49,8 @@ const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
   [0, v0],
   [1, v1],
   [2, v2],
+  [3, v3],
+  [4, v4],
 ]);
 
 const OPTIONS: RepairOptions = {

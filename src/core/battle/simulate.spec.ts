@@ -1145,6 +1145,39 @@ describe('simulateBattle', () => {
       expect(ticksToMs(MAX_BATTLE_TICKS)).toBe(90_000);
     });
 
+    it('breaks a sustain loop that neither side can win, without the clock deciding it', () => {
+      // ⚠️ **The termination argument milestone 8b deleted and milestone 14 put back.** The MP
+      // pool used to guarantee that a fight against a healer resolves; energy only ever refills,
+      // so for six milestones this rested entirely on the ninety-second timer — which is not a
+      // termination argument, it is what fires when one is missing.
+      //
+      // Two combatants that each out-heal the other's damage is the whole failure in miniature,
+      // and it is exactly what the milestone-14 retune surfaced on `c2-s13` and `c2-s23`: a lone
+      // Hierophant topping itself up against a party that had already killed everything else.
+      // `pressureAt` amplifies damage and deliberately does not amplify healing, so the loop is
+      // broken by arithmetic rather than by a timeout being reported as a defeat.
+      // Tuned to a knife edge on purpose: at the neutral multiplier the heal just out-paces the
+      // damage, so this fight is a genuine stalemate for its first fifty seconds and resolves
+      // only because the multiplier climbs afterwards.
+      const selfMend: SkillData = {
+        id: 'self-mend',
+        name: 'Self Mend',
+        target: 'self',
+        effects: [{ kind: 'heal', power: 1.2 }],
+        cooldown: 25,
+        condition: { kind: 'self-hurt', fraction: 0.99 },
+        priority: 9,
+      };
+      const stats = { hp: 900, atk: 40, def: 40, haste: 100 };
+      const result = fight(
+        line([unit('warden', stats, { skills: [selfMend] })]),
+        stage(line([unit('abbot', stats, { skills: [selfMend] })])),
+      );
+
+      expect(result.timedOut).toBe(false);
+      expect(result.ticks).toBeLessThan(MAX_BATTLE_TICKS);
+    });
+
     it('still finishes against a combatant that dodges almost everything', () => {
       // The hit-chance floor is the reason. Without it, a stacked dodge pool would make every
       // fight against it a run to the tick cap.

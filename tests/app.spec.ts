@@ -20,6 +20,8 @@ test.describe('App', () => {
       ['/roster', /Roster/],
       ['/town/shop', /Spark Shop/],
       ['/town/gear-shop', /Gear Shop/],
+      ['/town/achievements', /Achievements/],
+      ['/town/quests', /Quests/],
       ['/bag', /Bag/],
       ['/settings', /Settings/],
     ] as const) {
@@ -78,6 +80,8 @@ test.describe('App', () => {
   test.describe('town', () => {
     for (const [card, heading] of [
       [/^Summon/, 'Summon'],
+      [/^Quests/, 'Quests'],
+      [/^Achievements/, 'Achievements'],
       [/^Gear Shop/, 'Gear Shop'],
       [/^Spark Shop/, 'Spark Shop'],
     ] as const) {

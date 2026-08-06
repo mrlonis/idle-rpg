@@ -189,6 +189,9 @@ export function statusChance(
  *
  * @param power the skill's multiplier, applied to the result rather than to the attack stat
  * @param matchup the faction multiplier from {@link factionMultiplier}
+ * @param pressure the closing multiplier from `pressureAt`, 1 for the first fifty seconds of a
+ *   fight. Passed in rather than computed here for the reason `matchup` is: this file stays a
+ *   pure function of two stat blocks and knows nothing about the clock.
  */
 export function rollAttack(
   attacker: CombatStats,
@@ -198,6 +201,7 @@ export function rollAttack(
   matchup: number,
   rules: CombatRules,
   draw: () => number,
+  pressure = 1,
 ): AttackRoll {
   const hitRoll = draw();
   const critRoll = draw();
@@ -209,6 +213,7 @@ export function rollAttack(
   const crit = critRoll < critChance(attacker, defender);
   const scale = num(Number.isFinite(power) ? Math.max(power, 0) : 0)
     .mul(Number.isFinite(matchup) ? Math.max(matchup, 0) : 1)
+    .mul(Number.isFinite(pressure) ? Math.max(pressure, 1) : 1)
     .mul(resistedShare(defender, type));
   const base = baseDamage(attacker.atk, effectiveDefence(attacker, defender, type)).mul(scale);
 

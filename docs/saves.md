@@ -83,7 +83,7 @@ migration in both directions. The bar for revisiting it is a key whose old and n
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **2**, and the migration table holds **two entries**. Every save carries its version.
+`SAVE_VERSION` is **4**, and the migration table holds **four entries**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
@@ -118,7 +118,14 @@ reason, and it is the reason the reset was licensed: **no save carrying the old 
 existed outside development.** It is not safe in general. It is the cost of re-basing that is easiest
 to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscovered by accident.
 
-**v2 re-issued the second of them**, on the same argument and with the same caveat.
+**v2, v3 and v4 re-issued the next three**, on the same argument and with the same caveat.
+
+⚠️ **The burn is nearly spent.** The re-base freed 1 through 5; four of the five have now been
+re-issued, so the only version that still reliably means "written before the baseline" is **5**.
+`migrate.spec.ts` and `save-recovery.spec.ts` both test that case and both are down to that one
+number — **the next migration exhausts it**, and the pre-baseline case will have nothing left to
+be tested with. That is the cost of the re-base finally arriving, and it is better known in advance
+than discovered by a test that quietly starts asserting nothing.
 
 ### v1 → v2: the ladder grew a bottom
 
@@ -145,6 +152,36 @@ corrupt value only moves the corruption.
 
 **The rule this earns:** inserting a rung anywhere but the top of `RARITIES` is a save migration,
 not a content edit. `types.ts` carries that warning next to the array itself.
+
+### v2 → v3: the achievement claim ledger
+
+Purely additive, and the cheapest step in the chain: one empty record, `achievements`, mapping a
+track id to how many awards have been claimed.
+
+It is cheap because **every counter an achievement track is paid against was already stored**.
+`clearedStages`, `battleCount` and `pullCount` are all v2 fields; what an achievement adds is only
+the record of what has been _taken_, because what has been _earned_ is a division over a counter —
+see [`core/achievements.ts`](../src/core/achievements.ts) for why the earned side is deliberately
+not stored beside it.
+
+**A returning player is therefore owed every award their clear count has already earned**, which is
+intended rather than an oversight. It is the position `reconcileClearedStages` takes on a
+first-clear bonus, and here it costs nothing to get right.
+
+⚠️ **An unknown track id is kept, not dropped** — the opposite of how the roster treats an unknown
+character. A character this build does not ship cannot be fielded; a claim count for a track it
+does not ship costs one integer, and dropping it is what would **re-pay every award on that track**
+if it ever came back. The v3 fixture carries a retired id for exactly this.
+
+### v3 → v4: the daily and weekly quest windows
+
+Additive for the same reason. A window is an index, a **baseline** of counters this save already
+held, and the ids claimed inside it. **No quest has a progress field**, because progress is
+`counter - baseline` — which is what keeps the whole system out of the battle path.
+
+Both windows arrive at index `-1`, below any real period index, so the first roll after load opens
+them against the counters as they stand. A returning player gets a fresh day rather than one
+already half spent, and nothing is owed for battles fought before quests existed.
 
 ### The chain was re-based, once, while nobody was playing
 

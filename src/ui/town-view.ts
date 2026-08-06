@@ -1,7 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AchievementsService } from './achievements.service';
 import { formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
+import { QuestsService } from './quests.service';
 import { RosterService } from './roster.service';
 
 /** One destination in town. */
@@ -70,6 +72,8 @@ interface Place {
 export class TownView {
   private readonly game = inject(GameLoopService);
   private readonly roster = inject(RosterService);
+  private readonly achievements = inject(AchievementsService);
+  private readonly quests = inject(QuestsService);
 
   /**
    * The places, rebuilt whenever a balance moves.
@@ -79,8 +83,19 @@ export class TownView {
    * by the card it sits on, so it stays readable on demand without being shouted continuously.
    *
    * Ordered by what a run reaches for soonest: crystals arrive from the first clear, the first
-   * duplicate follows out of the same banner, gold shortly after, and spark only from a duplicate
-   * of an `Ascended★5` — which is most of a run away.
+   * duplicate follows out of the same banner, the first achievement award lands five clears in,
+   * gold shortly after, and spark only from a duplicate of an `Ascended★5` — which is most of a
+   * run away.
+   *
+   * **Quests and Achievements both spend nothing**, like the Altar before them, and both quote a
+   * count of things waiting rather than a quantity of anything. Four of six cards now answer "what
+   * is here for me" rather than "what can I afford" — which settles what Town is. The hub's test
+   * was always "somewhere you go deliberately, with something you have earned"; a currency sink is
+   * one shape of that rather than the definition.
+   *
+   * ⚠️ **Six cards is not a tab-bar problem and must not become one.** The bar's ceiling is what
+   * makes a hub necessary; the hub itself has none, which is the whole reason the seventh sink was
+   * always going to land here. The bar is still Home · Town · Roster · Bag · Settings.
    */
   protected readonly places = computed<readonly Place[]>(() => [
     {
@@ -98,6 +113,22 @@ export class TownView {
       description: 'Spend duplicate copies to climb the rarity ladder. Ascend one, or all at once.',
       amount: String(this.roster.readyToAscend()),
       unit: 'ready',
+    },
+    {
+      path: '/town/quests',
+      name: 'Quests',
+      icon: '📜',
+      description: 'Daily and weekly goals. Missing a day costs nothing.',
+      amount: String(this.quests.claimable()),
+      unit: 'ready',
+    },
+    {
+      path: '/town/achievements',
+      name: 'Achievements',
+      icon: '🏆',
+      description: 'Crystals for progress already made. Nothing here expires.',
+      amount: String(this.achievements.unclaimed()),
+      unit: 'waiting',
     },
     {
       path: '/town/gear-shop',

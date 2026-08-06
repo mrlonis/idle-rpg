@@ -64,7 +64,7 @@ describe('loadSave', () => {
     // The five pre-release schema versions were collapsed into v0, so nothing they wrote has a
     // path to current. A fresh run is the answer, and since the v0 reset the caller writes over
     // it rather than leaving the game unable to save.
-    const result = loadSave({ version: 3, wallet: {} }, OPTIONS);
+    const result = loadSave({ version: 5, wallet: {} }, OPTIONS);
 
     expect(result.fatal).toBeDefined();
     expect(result.state.wallet.gold.toString()).toBe('0');

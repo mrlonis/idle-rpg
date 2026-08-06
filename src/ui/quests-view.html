@@ -1,0 +1,79 @@
+<header class="head">
+  <!-- Town is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/town">← Town</a>
+  <h1 class="head__title">Quests</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ claimable() }}</span>
+    <span class="head__unit">ready</span>
+  </p>
+</header>
+
+<p class="intro">
+  Quests pay whether or not the ladder is moving. Missing a day costs nothing — there is no streak
+  to break and nothing carries over as a debt.
+</p>
+
+<button type="button" class="claim-all" [disabled]="claimable() === 0" (click)="claimAll()">
+  @if (claimable() === 0) {
+    Nothing to claim
+  } @else {
+    Claim all<span class="claim-all__count">&ngsp;({{ claimable() }})</span>
+  }
+</button>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+@for (group of groups(); track group.period) {
+  <section class="group" [attr.aria-labelledby]="group.period + '-heading'">
+    <h2 class="group__title" [id]="group.period + '-heading'">{{ group.title }}</h2>
+
+    <ul class="quests">
+      @for (row of group.rows; track row.quest.id) {
+        <li class="quest" [class.quest--ready]="row.claimable" [class.quest--done]="row.claimed">
+          <div class="quest__head">
+            <h3 class="quest__name">{{ row.quest.name }}</h3>
+            @if (row.claimed) {
+              <p class="quest__state quest__state--done">Claimed</p>
+            } @else if (row.complete) {
+              <p class="quest__state quest__state--ready">Ready</p>
+            }
+          </div>
+
+          <p class="quest__description">{{ row.quest.description }}</p>
+
+          <p class="quest__reward">
+            @for (award of row.reward; track award.label) {
+              <span class="quest__amount">{{ award.amount }} {{ award.label }}</span>
+            }
+          </p>
+
+          <!--
+            A real `progressbar` rather than a styled div. `aria-valuetext` is what makes this
+            announce "3 of 5" instead of "60 percent", which is the number the player is actually
+            tracking.
+          -->
+          <div
+            class="quest__bar"
+            role="progressbar"
+            [attr.aria-valuenow]="row.done"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="row.target"
+            [attr.aria-valuetext]="row.done + ' of ' + row.target"
+            [attr.aria-label]="row.quest.name + ' progress'"
+          >
+            <span class="quest__fill" [style.width.%]="row.percent"></span>
+          </div>
+
+          <p class="quest__progress">
+            <span class="quest__now">{{ row.done }}</span>
+            <span class="quest__target">&ngsp;/ {{ row.target }}</span>
+          </p>
+        </li>
+      }
+    </ul>
+  </section>
+} @empty {
+  <p class="empty">This build ships no quests.</p>
+}

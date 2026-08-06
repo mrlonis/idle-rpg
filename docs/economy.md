@@ -134,6 +134,31 @@ the top of the ladder is tuned to a party several rungs up.
 
 ---
 
+## The two faucets that are not stage-gated
+
+Added in milestone 14b, and both pay **crystals only**.
+
+|                   | Pays                   | Over                                 |
+| ----------------- | ---------------------- | ------------------------------------ |
+| **Achievements**  | 250 per 5 stage clears | `clearedStages`, endlessly           |
+| **Daily quests**  | 200 + 150              | 5 battles, 1 pull — resets 04:00 UTC |
+| **Weekly quests** | 800 + 600              | 35 battles, 7 pulls                  |
+
+⚠️ **Crystals rather than gold, xp or essence, and the reason is the level curve.** Those three are
+spent against a curve worth ×10⁹, so a flat quantity of any of them is invisible within a chapter
+or two — the same argument [gear](gear.md) makes for gear bonuses being percentages. A pull costs a
+flat `PULL_COST` forever, so a flat crystal reward means the same thing at stage 5 and stage 5,000.
+
+**Sized to supplement, not replace.** Over the shipped hundred stages the achievement track pays
+5,000 crystals against the ~58,800 the ladder's first clears already pay — about **8%**. Quests add
+350 a day plus 1,400 a week, roughly 5.5 pulls a day, against the 20–40 a day a fully cleared ladder
+produces idly.
+
+**The asymmetry is the whole design.** Against a player whose ladder is moving, both are a modest
+top-up. Against a player walled below a stage — whose only income source is the thing the wall is
+throttling — they are most of what arrives. That is why neither scales with progress: a reward that
+grew with the stage index would help least exactly where help is needed.
+
 ## Levelling
 
 Cost from level `L` to `L + 1` is `coefficient × L ^ exponent`, per currency.

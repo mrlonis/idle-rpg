@@ -48,6 +48,11 @@ describe('toSaveData', () => {
       gear: [],
       gearMinted: 0,
       gearShop: { slot: 0, purchased: [] },
+      achievements: {},
+      quests: {
+        daily: { index: -1, baseline: {}, claimed: [] },
+        weekly: { index: -1, baseline: {}, claimed: [] },
+      },
     });
   });
 

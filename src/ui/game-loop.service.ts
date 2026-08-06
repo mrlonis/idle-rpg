@@ -12,6 +12,7 @@ import {
   repairLoadouts,
   type RepairIssue,
   resume,
+  rollQuestWindows,
   stampSaveTime,
   tick,
   zeroRates,
@@ -22,6 +23,8 @@ import {
   CHARACTERS_BY_ID,
   GEAR,
   LADDER,
+  QUEST_COUNTERS,
+  QUEST_WINDOW_RULES,
   STAGE_REWARD_CURVE,
   SUMMON_RATE_CURVE,
 } from './content';
@@ -283,8 +286,11 @@ export class GameLoopService {
       return;
     }
     const { state, report } = resume(this.state, nowMs);
-    this.state = state;
-    this.snapshot.set(state);
+    // Rolled here as well as in `advance`, because a settle is what runs on load and on returning
+    // from the background — which is when a window has most likely elapsed and when the player is
+    // about to look at the screen.
+    this.state = this.rollQuests(state, nowMs);
+    this.snapshot.set(this.state);
     this.simAccMs = 0;
 
     // Only a genuine absence gets a "while you were away" summary. Settles also happen for
@@ -368,6 +374,26 @@ export class GameLoopService {
       // second time, on top of everything already ticked.
       this.state = stampSaveTime(this.state, nowMs - this.simAccMs);
     }
+
+    this.state = this.rollQuests(this.state, nowMs);
+  }
+
+  /**
+   * Opens any elapsed daily or weekly quest window.
+   *
+   * **Here rather than on a timer of its own.** This is the one place in the app that already holds
+   * both the authoritative run and a real `nowMs`, which is exactly what a window boundary needs —
+   * and a `setInterval` firing at 04:00 would be a second clock to keep alive, would not survive
+   * the app being backgrounded across the boundary, and would have to be torn down on reset.
+   *
+   * ⚠️ It also cannot live in a `computed` on the quests service, which is where it most obviously
+   * belongs: Angular forbids writing a signal from inside one, and the write is the whole point.
+   *
+   * `rollQuestWindows` returns the same object when nothing moved, so this costs two comparisons on
+   * every advance and allocates nothing for the ~86,399 seconds a day when no window turns.
+   */
+  private rollQuests(state: GameState, nowMs: number): GameState {
+    return rollQuestWindows(state, QUEST_WINDOW_RULES, QUEST_COUNTERS, nowMs);
   }
 
   private readonly frame = (rafNow: number): void => {

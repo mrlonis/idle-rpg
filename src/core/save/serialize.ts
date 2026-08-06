@@ -1,3 +1,4 @@
+import { parseAchievements } from '../achievements';
 import {
   parseRates,
   parseWallet,
@@ -7,6 +8,7 @@ import {
   type Wallet,
 } from '../currency';
 import { emptyGearShop, type GearItem, type GearShopState } from '../gear/types';
+import { parseQuestWindows, type QuestWindow } from '../quests';
 import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
@@ -87,6 +89,20 @@ export function toSaveData(state: GameState): CurrentSaveData {
       slot: state.gearShop.slot,
       purchased: [...state.gearShop.purchased],
     },
+    achievements: { ...state.achievements },
+    quests: {
+      daily: encodeWindow(state.quests.daily),
+      weekly: encodeWindow(state.quests.weekly),
+    },
+  };
+}
+
+/** One quest window, as plain JSON. */
+function encodeWindow(window: QuestWindow): CurrentSaveData['quests']['daily'] {
+  return {
+    index: window.index,
+    baseline: { ...window.baseline },
+    claimed: [...window.claimed],
   };
 }
 
@@ -178,6 +194,8 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const gear = readGear(record['gear'], note);
   const gearMinted = readGearMinted(record['gearMinted'], gear, note);
   const gearShop = readGearShop(record['gearShop'], note);
+  const achievements = parseAchievements(record['achievements'], note);
+  const quests = parseQuestWindows(record['quests'], note);
 
   return {
     state: {
@@ -197,6 +215,8 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       gear,
       gearMinted,
       gearShop,
+      achievements,
+      quests,
     },
     issues,
   };

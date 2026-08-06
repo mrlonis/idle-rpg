@@ -1,6 +1,8 @@
+import { type AchievementLedger, emptyAchievements } from './achievements';
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
 import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
+import { emptyQuestWindows, type QuestWindows } from './quests';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
@@ -195,6 +197,29 @@ export interface GameState extends LadderPosition {
   readonly gearMinted: number;
   /** Which stocking of the gear shop this run is looking at, and what it has taken from it. */
   readonly gearShop: GearShopState;
+  /**
+   * How many achievement awards this run has claimed, keyed by track id.
+   *
+   * **A ledger of what was taken, not of what was earned.** What has been earned is a division
+   * over a counter the run already keeps — see `core/achievements.ts` — so storing it as well
+   * would be a second mechanism on the same number, with the two free to disagree after a repair.
+   * One integer per track is the whole of it.
+   *
+   * A keyed record rather than a field per track, for the reason {@link wallet} is one: milestone
+   * 1 carried a single quantity as flat fields and six currencies would have been twelve of them.
+   * A second track is an entry here and a line in `data/`, not a save migration.
+   */
+  readonly achievements: AchievementLedger;
+  /**
+   * The daily and weekly quest windows: when each opened, what the counters read then, and what
+   * has been claimed since.
+   *
+   * ⚠️ **No quest has a progress counter of its own**, and that is deliberate. A window stores a
+   * *baseline* of the totals this state already keeps, so progress is a subtraction and a reset is
+   * one assignment — which is what keeps quests entirely out of `applyBattleResult`. See
+   * `core/quests.ts`.
+   */
+  readonly quests: QuestWindows;
 }
 
 export interface NewGameOptions {
@@ -228,6 +253,8 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     gear: [],
     gearMinted: 0,
     gearShop: emptyGearShop(),
+    achievements: emptyAchievements(),
+    quests: emptyQuestWindows(),
   };
 }
 

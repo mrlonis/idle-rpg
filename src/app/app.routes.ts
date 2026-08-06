@@ -57,6 +57,16 @@ export const routes: Routes = [
     title: 'Gear Shop — Idle RPG',
   },
   {
+    path: 'town/quests',
+    loadComponent: () => import('../ui/quests-view').then((m) => m.QuestsView),
+    title: 'Quests — Idle RPG',
+  },
+  {
+    path: 'town/achievements',
+    loadComponent: () => import('../ui/achievements-view').then((m) => m.AchievementsView),
+    title: 'Achievements — Idle RPG',
+  },
+  {
     path: 'roster',
     loadComponent: () => import('../ui/roster-view').then((m) => m.RosterView),
     title: 'Roster — Idle RPG',

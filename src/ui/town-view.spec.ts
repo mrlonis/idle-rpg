@@ -4,7 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { num } from '../core';
+import { AchievementsService } from './achievements.service';
 import { GameLoopService } from './game-loop.service';
+import { QuestsService } from './quests.service';
 import { RosterService } from './roster.service';
 import { TownView } from './town-view';
 
@@ -25,9 +27,21 @@ class FakeRoster {
   readonly readyToAscend = signal(0);
 }
 
+/** Achievements counts awards waiting, which is a quantity of nothing spendable. */
+class FakeAchievements {
+  readonly unclaimed = signal(0);
+}
+
+/** Quests counts finished-and-unclaimed, which is likewise not a currency. */
+class FakeQuests {
+  readonly claimable = signal(0);
+}
+
 async function render() {
   const game = new FakeGameLoop();
   const roster = new FakeRoster();
+  const achievements = new FakeAchievements();
+  const quests = new FakeQuests();
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -37,13 +51,15 @@ async function render() {
       provideLocationMocks(),
       { provide: GameLoopService, useValue: game },
       { provide: RosterService, useValue: roster },
+      { provide: AchievementsService, useValue: achievements },
+      { provide: QuestsService, useValue: quests },
     ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(TownView);
   fixture.detectChanges();
 
-  return { game, roster, fixture, el: fixture.nativeElement as HTMLElement };
+  return { game, roster, achievements, quests, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
 function cards(el: HTMLElement): HTMLAnchorElement[] {
@@ -58,7 +74,14 @@ describe('TownView', () => {
   it('offers every place behind it', async () => {
     const { el } = await render();
 
-    expect(textOf(el, '.place__name')).toEqual(['Summon', 'Altar', 'Gear Shop', 'Spark Shop']);
+    expect(textOf(el, '.place__name')).toEqual([
+      'Summon',
+      'Altar',
+      'Quests',
+      'Achievements',
+      'Gear Shop',
+      'Spark Shop',
+    ]);
   });
 
   it('sends each card to a child of /town, which is what keeps the tab lit inside it', async () => {
@@ -69,6 +92,8 @@ describe('TownView', () => {
     expect(cards(el).map((card) => card.getAttribute('href'))).toEqual([
       '/town/summon',
       '/town/altar',
+      '/town/quests',
+      '/town/achievements',
       '/town/gear-shop',
       '/town/shop',
     ]);
@@ -80,7 +105,7 @@ describe('TownView', () => {
     // the exception that proves nothing — it never had a tab, so its candle is new.
     const { el } = await render();
 
-    expect(textOf(el, '.place__icon')).toEqual(['🔮', '🕯️', '🧰', '✨']);
+    expect(textOf(el, '.place__icon')).toEqual(['🔮', '🕯️', '📜', '🏆', '🧰', '✨']);
   });
 
   it('hides those glyphs from assistive tech, since every card is also named in text', async () => {
@@ -94,33 +119,42 @@ describe('TownView', () => {
   it('shows what each place spends, so a trip not worth taking can be seen before taking it', async () => {
     // The Altar's figure is not a wallet balance — copies are held per character, so what decides
     // the trip is how many characters could climb a rung right now.
-    const { el, game, roster, fixture } = await render();
+    const { el, game, roster, achievements, quests, fixture } = await render();
 
     game.summons.set(num(1234));
     roster.readyToAscend.set(3);
+    achievements.unclaimed.set(2);
+    quests.claimable.set(1);
     game.gold.set(num(89_000));
     game.spark.set(num(7));
     fixture.detectChanges();
 
-    expect(textOf(el, '.place__amount')).toEqual(['1.23K', '3', '89K', '7']);
-    expect(textOf(el, '.place__unit')).toEqual(['crystals', 'ready', 'gold', 'spark']);
+    expect(textOf(el, '.place__amount')).toEqual(['1.23K', '3', '1', '2', '89K', '7']);
+    expect(textOf(el, '.place__unit')).toEqual([
+      'crystals',
+      'ready',
+      'ready',
+      'waiting',
+      'gold',
+      'spark',
+    ]);
   });
 
   it('keeps the balances current as the wallet moves', async () => {
     const { el, game, fixture } = await render();
 
-    expect(textOf(el, '.place__amount')).toEqual(['0', '0', '0', '0']);
+    expect(textOf(el, '.place__amount')).toEqual(['0', '0', '0', '0', '0', '0']);
 
     game.summons.set(num(50));
     fixture.detectChanges();
 
-    expect(textOf(el, '.place__amount')).toEqual(['50', '0', '0', '0']);
+    expect(textOf(el, '.place__amount')).toEqual(['50', '0', '0', '0', '0', '0']);
   });
 
   it('draws the places as links rather than buttons, because they change where the player is', async () => {
     const { el } = await render();
 
-    expect(cards(el)).toHaveLength(4);
+    expect(cards(el)).toHaveLength(6);
     expect(el.querySelectorAll('.place button')).toHaveLength(0);
   });
 });

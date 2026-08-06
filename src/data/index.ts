@@ -12,6 +12,8 @@
  * Balance numbers live here rather than inside `core/` logic. Retuning a stage, a pull rate, a
  * level cost or an ascension rung should never mean editing the simulation.
  */
+export { ACHIEVEMENTS } from './achievements';
+export { QUEST_RULES, QUESTS } from './quests';
 export { ASCENSION_RULES, CELESTIAL_LADDER, FACTIONS, MORTAL_LADDER } from './ascension';
 export {
   BASIC_ATTACK,

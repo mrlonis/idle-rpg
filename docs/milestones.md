@@ -33,11 +33,18 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived |
 | 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots  |
 | 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal |
-| 14  | Dailies, bounties and notifications     | ⬜                                           |
+| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added     |
+| 14b | Achievements, dailies and bounties      | 🟨 **Partial** — bounty board not started    |
 | 15  | Faction towers                          | ⬜                                           |
 | 16  | Deep per-hero investment                | ⬜                                           |
 | 17  | The roguelite run                       | ⬜                                           |
 | 18  | Puzzle maps                             | ⬜                                           |
+
+> **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
+> twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
+> and once — later, in the code and in a section further down this file — by an in-progress ladder
+> retune. Both are real and both are written up below as **14a** and **14b**. Nothing above 14 was
+> renumbered, because nothing above it had started.
 
 ---
 
@@ -1798,62 +1805,304 @@ suite can stand in for. It costs one restore and it is the only way to know the 
 contact with a device — the same argument milestone 6 made for running on a phone early, which
 found a bug nothing else would have. Carry it forward rather than dropping it.
 
-## 14. Dailies, bounties, and a reason to open the app tomorrow
+## 14a. The ladder retune — **COMPLETE**
 
-Nothing currently rewards opening the app except idle income the player would collect anyway.
+The shipped hundred stages were tuned to be climbed. This milestone re-aims them at a different
+brief: **the shipped content is a breeze, and the difficulty arrives with chapter 3.** Nothing
+structural changed — the chapters, the boss rhythm, the income curve and the stage count are all
+untouched — but almost every enemy level did.
+
+|                                    | Before                        | After                                               |
+| ---------------------------------- | ----------------------------- | --------------------------------------------------- |
+| Chapter 1 enemy levels             | 1 → 40                        | 1 → **16**                                          |
+| Chapter 2 enemy levels             | 40 → 126                      | 16 → **85**                                         |
+| The party chapter 1 is tuned for   | five at level 40, three rungs | five at level 30, **one rung**                      |
+| The party that finishes the ladder | level 90 at `legendary`       | level **85 at `elite`**, derived from the top stage |
+
+The tutorial ramp (stages 1–6) and the stage-7 healer lock are **untouched**, including the level-14
+step into the wall. That was the constraint everything else was authored around.
+
+### ⚠️ Levels are not the early power curve in this game — rungs are
+
+The first target was "chapter 1 is clearable with no ascensions at all", and it was measured and
+rejected. `perLevel.common` is **1.021** — it has to be, to reach ×10⁹ across a thousand levels — so
+a character taken from level 1 to its unascended cap of 20 is worth **×1.48**, against a wall built
+to stop ×1.00. That 48% is the entire margin and chapter 1's composition locks ate it: a five at
+level 20 with no rungs failed eight stages, one at a **5% win rate**, and the seven mono-faction
+fives spread twice as far apart as the guard allows.
+
+**One ascension is worth more than nineteen levels.** Any future statement of the form "a player at
+level N should be able to…" has to be checked against the rung count, not the level. Note the
+second half of that: `growthFloor` anchors the ×1.6 ladder at `rare`, so the first two rungs buy
+level cap and no multiplier at all — `common-plus` is worth ten more levels and nothing else.
+
+### ⚠️ A barrier that could never lapse
+
+The retune surfaced a latent bug rather than causing one. `BARRIER` lasts **70 ticks** and `BULWARK`
+recast it every **60**, so a Hierophant or a Bulwark kept a party-wide absorb shield up
+_permanently_. Every stall the retune exposed was a stage carrying one of those two.
+
+The old ladder hid it by killing parties before it mattered. A shield that cannot lapse is not a
+lock a party can answer with burst, which is what `BARRIER` is documented to be — so the cooldown is
+now 85, and **must stay above the status's duration**. That is a termination argument, not a balance
+knob.
+
+### ⚠️ How it finished: the termination argument milestone 8b deleted, put back
+
+The retune ended with four red balance assertions, and the entry that used to sit here recorded
+them as a tuning problem with two failed content fixes behind it. **It was not a tuning problem.**
+Measuring the stalls rather than guessing at them found one cause, and it was structural.
+
+On `c2-s13` and `c2-s23` the fights that ran the clock out ended in exactly the same picture: a
+**lone healer** on one side or the other, topping itself up faster than what remained could chip
+it down. On `c2-s23` the party sat at 52% health against a single Hierophant at 10% — a fight the
+player had unambiguously won, reported as a defeat because the simulation could not finish it.
+
+That is not a stage that needs retuning. It is the hole milestone 8b left and wrote down at the
+time: the MP pool used to guarantee a fight against a healer resolves, energy only ever refills,
+and from 8b onward the guarantee rested **entirely** on `MAX_BATTLE_TICKS`. ⚠️ **A timer is not a
+termination argument — it is what fires when one is missing.**
+
+**Closing pressure** is the replacement, and it lives in `core/battle/clock.ts`:
+
+|                            |                                                               |
+| -------------------------- | ------------------------------------------------------------- |
+| Starts at                  | tick **500** — fifty seconds                                  |
+| Grows by                   | **2%** of base damage per tick, linearly and without bound    |
+| At the ninety-second timer | ×9                                                            |
+| Applies to                 | **damage only, both sides equally**; healing is not amplified |
+
+Every closed sustain loop is broken by arithmetic: HP is finite, the multiplier is not, and the
+heal that answered the damage does not grow with it. Both sides are amplified identically, so it
+decides nothing about _who_ wins — only that somebody does.
+
+Three properties made it safe to add to a shipped ladder without re-deriving anything:
+
+- ⚠️ **Every fight that resolves inside fifty seconds is bit-identical to what it was before.**
+  That is what let the whole hundred-stage ladder keep its tuning. The threshold is 500 rather
+  than lower for exactly this reason, and lowering it would start re-tuning content that is not
+  asking to be.
+- **It preserves the whole-board rescale identity.** The factor is a function of the tick alone,
+  so scaling both sides by a constant still lands the same hits in the same order on the same
+  tick — the property `simulate.spec.ts` asserts and that milestone 10 depends on.
+- **The ramp is linear, not geometric**, because linear is already unbounded and that is all
+  termination needs. It also reads off a log: at the timer the multiplier is exactly ×9.
+
+`clock.spec.ts` covers the shape; `simulate.spec.ts` has the property test that matters — two
+mutually-healing combatants, tuned to a knife edge, which **times out with the mechanism disabled
+and resolves with it on**.
+
+### What the measured numbers were, before and after
+
+Across all thirteen sweep parties over all hundred stages:
+
+|                              | Before              | After     |
+| ---------------------------- | ------------------- | --------- |
+| Timeouts                     | 9 (in 1,300 sweeps) | **0**     |
+| Longest fight a party clears | 75.1s (bar 67.5s)   | **62.7s** |
+| Longest fight of any kind    | 90.0s (bar 85.5s)   | **63.5s** |
+| Slowest mean fight           | 60.9s (bar 60s)     | **56.6s** |
+
+All 32 balance assertions pass. The timer's headroom over the longest cleared fight is **1.44×**.
+
+### Two content fixes that failed first, and why they are worth keeping
+
+Both predate the diagnosis above and both are informative about the shape of the problem.
+
+A global 15% enemy HP cut **broke the starter wall** — starters cleared the stage-7 lock at 87.5%
+against a guard of 20% — and was reverted. Weakening the Hierophant and the front ranks further
+made the headroom guard _worse_, converting timeouts into ninety-second wins.
+
+⚠️ **The general lesson is that neither could have worked.** A stall where neither side can finish
+is not made to resolve by making one side weaker; it is made to resolve _later_, or it swaps a
+timeout for a ninety-second win, which is the same failure with a better outcome attached. Cutting
+**defence** on the armour blocks did help and was kept — damage is `atk² / (atk + def)`, so it
+raises what a party lands without raising what it takes — but it was treating a symptom.
+
+## 14b. Achievements, dailies, and a reason to open the app tomorrow — **PARTIAL**
+
+Nothing rewarded opening the app except idle income the player would collect anyway.
 
 **The retention framing undersells it: quests are a faucet that is not stage-gated.** A player
-stuck below a wall has exactly one income source today, and it is the thing the wall is
-throttling. Dailies pay whether or not the ladder is moving, so being stuck stops meaning being
-stopped — which matters more in a game with no way to buy a way past.
+stuck below a wall has exactly one income source, and it is the thing the wall is throttling.
+Dailies pay whether or not the ladder is moving, so being stuck stops meaning being stopped —
+which matters more in a game with no way to buy a way past.
 
-Scope: daily quests that reset, a weekly tier, and one-off achievements over counters `GameState`
-already keeps — stages cleared, pulls made, characters ascended, levels reached. What is missing
-is the claim ledger and the reset clock.
+**Two of the three shipped.** Achievements and the daily/weekly quest tier are built, tested and
+on screen. **The bounty board is not started** — see the section at the end for what it still
+needs and why the machinery it was waiting for now exists.
 
-**The reset clock is the hard part, and it is a `core/` purity question.** Core has no clock —
-time is a parameter passed in from `ui/`, exactly as `resume(state, nowMs)` takes it. A daily
-reset boundary is therefore supplied by the caller and never read from `new Date()` inside the
-simulation. The backwards-clock rule applies unchanged: a device clock that moves back must not
-hand out a second day of rewards and must not punish either. Clamp; do not detect. There is
-nothing to protect.
+### Both systems store a ledger and derive everything else
 
-### The bounty board
+This is the decision the whole milestone rests on, and it is the same one twice.
 
-Dispatch characters on timed missions that pay out on a clock. It belongs in this milestone
-rather than its own because it needs exactly the machinery dailies already build — a claim ledger
-and a caller-supplied time boundary — and building that twice would be the waste.
+- An **achievement track** is an endless rule — _every 5 stage clears pays 250 crystals_ — over a
+  counter `GameState` already keeps. What is stored is **one integer per track**: how many awards
+  have been _taken_. What has been _earned_ is a division, and what is owed is a subtraction.
+- A **quest window** stores a **baseline**: what the run's counters read the moment the window
+  opened. Progress is `now - baseline`. Resetting is one assignment.
 
-It earns its place for a reason dailies do not cover: **it is the only system that pays you for
-characters you are not fighting with.** Dispatched characters come off the bench, so a wide roster
-becomes worth something before faction bonuses or towers ask for it, and a duplicate-heavy run has
-a use for breadth from the moment it starts. It is also the gentlest return hook in the genre — a
-mission finishing in four hours is a reason to come back that costs the player nothing if they
-do not.
+⚠️ **Neither adds a field to the battle path, and that is the point.** The obvious build gives
+every track and every quest a running total incremented from `applyBattleResult` — a write into
+the hottest path in the game, for a number that is derivable, creating a second place for progress
+to disagree with itself. Deriving instead means the simulation never learns that either system
+exists, and a save with a damaged counter heals by clamping rather than by reconstructing.
+
+It also keeps both cheap to extend: a second achievement track is an entry in `data/` and a key in
+a record, not a save migration.
+
+### The stage-clear track, and why it is flat and endless
+
+250 crystals every 5 clears, forever, claimed rather than credited.
+
+- **Endless rather than a list of authored tiers.** A bounded list is either finite content that
+  runs out or the per-stage authoring problem milestone 11 spent a milestone removing — the ladder
+  is a hundred stages now and shaped for thousands. A rule means the same thing at 5 clears and at
+  5,000.
+- **Flat rather than scaling with the stage index.** ⚠️ First-clear crystals are _already_ linear
+  in how far the run has come, so a second linear reward on the same counter is that curve counted
+  twice — and a track paying more later helps least exactly where help is needed. A flat award is
+  worth most when a run has fewest crystals.
+- **Claimed rather than credited.** Crediting silently would mix the crystals into a stage clear's
+  payout and read as part of it. The claim buys a _moment_, which is the same argument the Altar
+  makes for `ascendAll`.
+
+Sized against the ladder: 20 awards over the shipped hundred stages is 5,000 crystals, **about 8%**
+on top of the ~58,800 the ladder's first clears already pay. `data/achievements.spec.ts` derives
+both sides from the content, so adding a chapter re-runs the check.
+
+### Every quest reward is crystals, and it is the only currency that could work
+
+⚠️ Gold, xp and essence are spent against a level curve worth ×10⁹, so a flat quantity of any of
+them is invisible a chapter or two in — the same argument [gear](gear.md) makes for gear bonuses
+being percentages rather than quantities. A pull costs a flat `PULL_COST` forever, so crystals are
+the one payout that means the same thing at stage 5 and at stage 5,000.
+
+Paying a _percentage_ of income would fix the scaling and break the point: it would pay most to
+the player whose ladder is already moving, when the whole reason quests exist is to pay the one
+whose ladder is not.
+
+### ⚠️ There is no quest over `clearedStages`, and it is the one that looks most obviously right
+
+It counts _first_ clears, so it stops moving the moment a run reaches the top of the authored
+ladder — and a daily that a player at the end of the content can never finish is a permanent empty
+row that pays nothing. That is the failure role-locked formation slots were rejected for in
+milestone 4: content reaching a state where completing it is impossible.
+
+`battleCount` moves on every fight won or lost and `pullCount` on every pull, so both are always
+reachable by playing. The type forbids the third.
+
+### ⚠️ A weekly is exactly seven of its daily, and never more
+
+35 battles against five a day; 7 pulls against one. A player who does their dailies has therefore
+already finished the weeklies — the weekly tier is a **bonus for consistency, not a second
+obligation**. A weekly demanding more than the dailies add up to would be a chore with a deadline,
+which is the pattern this project rejects everywhere else.
+
+This was caught by its own test rather than by review: the first draft shipped 40 and 10 against
+dailies worth 35 and 7, and `quests.spec.ts` derives the bound from the daily targets. **The
+content was retuned rather than the threshold**, which is the rule `AGENTS.md` states for exactly
+this situation.
+
+### The reset clock, and where it ended up
+
+Core has no clock — time is a parameter, exactly as `resume(state, nowMs)` takes one. Two
+decisions came out of that:
+
+- **The boundary is a fixed moment, 04:00 UTC, not local midnight.** A reset following the device
+  would hand a second day to anyone flying east and take one from anyone flying west, and `core/`
+  has no timezone to read anyway. Four in the morning because a player still up at 00:30 is having
+  tonight's session, not tomorrow's.
+- ⚠️ **The roll lives in `GameLoopService.advance`, and it took two attempts to land there.** It
+  belongs most obviously in a `computed` on the quests service — and Angular forbids writing a
+  signal from inside one, which is what rolling is. A `setInterval` firing at 04:00 was the other
+  candidate: a second clock to keep alive, which would not survive the app being backgrounded
+  across the boundary and would need tearing down on reset. The game loop already holds both the
+  authoritative run and a real `nowMs`, so it is the only place that needs neither.
+
+**The backwards-clock rule applies unchanged and is asserted.** A window rolls only when the
+computed index is **greater** than the stored one — `>` rather than `!==`. Rolling on any
+difference would hand a fresh set of quests to anyone who wound their clock back; refusing to play
+would punish a timezone change. A clock that goes backwards does nothing at all, and the window
+resumes when real time catches up. Clamp; do not detect. There is nothing to protect.
+
+Coming back after a month is **one** new window, not thirty. There is no backlog and nothing was
+lost by being away.
+
+### Nothing here punishes a miss, and the screens say so
+
+No streak, no escalating bonus that resets, no countdown that costs anything. Those are scarcity
+mechanics wearing a generosity costume, and this file rules them out by name further down.
+Unclaimed achievement awards accumulate indefinitely and no clock touches them: a player who never
+opens the screen is owed exactly as much a year later.
+
+The quests screen carries that as copy — _"Missing a day costs nothing"_ — and `quests-view.spec.ts`
+asserts the sentence is there, because it is load-bearing rather than decorative.
+
+### Both screens are Town cards, and that settles what Town is
+
+`/town/quests` and `/town/achievements`, with 📜 and 🏆. Neither spends a wallet currency and both
+quote a count of things waiting rather than a quantity of anything.
+
+Four of Town's six cards now answer _"what is here for me"_ rather than _"what can I afford"_. The
+hub's test was always **"somewhere you go deliberately, with something you have earned"** — a
+currency sink is one shape of that rather than the definition, which the Altar established and
+these two confirm.
+
+⚠️ **Six cards is not a tab-bar problem and must not become one.** The bar's ceiling is what makes
+a hub necessary; the hub has none. The bar is still Home · Town · Roster · Bag · Settings.
+
+### Two save versions, both additive
+
+`SAVE_VERSION` went from 2 to **4**. v2 → v3 adds the achievement ledger; v3 → v4 adds the quest
+windows. Both are additive and both are cheap for the same reason — every counter either system is
+paid against was already stored.
+
+A returning player is **owed every achievement award their clear count has already earned**, which
+is intended rather than an oversight: it is the position `reconcileClearedStages` takes on a
+first-clear bonus, and it costs nothing to get right because the earned side is derived.
+
+⚠️ **The version burn is nearly spent.** The v0 re-base freed numbers 1–5, and 1, 2, 3 and 4 have
+now all been re-issued. Only the old v5 is left, and `migrate.spec.ts` is down to a single entry in
+its pre-baseline row. **The next migration exhausts it**, at which point the "discards a save from
+before the baseline" case has no number left to test with. That is the cost of re-basing finally
+coming due, and it is worth knowing before it arrives rather than after.
+
+### The bounty board — **NOT STARTED**
+
+Dispatch characters on timed missions that pay out on a clock.
+
+It earns its place for a reason neither system above covers: **it is the only thing that pays you
+for characters you are not fighting with.** Dispatched characters come off the bench, so a wide
+roster becomes worth something before towers ask for it, and a duplicate-heavy run has a use for
+breadth from the moment it starts. It is also the gentlest return hook in the genre — a mission
+finishing in four hours is a reason to come back that costs nothing if ignored.
 
 Keep dispatch and the formation **disjoint**: a character cannot be both fighting and away. That
 is what makes it a bench sink rather than a free resource tap, and it is the whole of the design.
+⚠️ Note that this has to be enforced in **both** directions — dispatch must refuse somebody in the
+formation, and `placeInRow` must refuse somebody away — which is the part most likely to be built
+half of.
 
-### Local notifications
+**What it was waiting for now exists.** This was scoped into the same milestone as dailies
+precisely because it needs a claim ledger and a caller-supplied time boundary, and building those
+twice would be the waste. Both are built and tested: `core/quests.ts` has the window machinery and
+the backwards-clock rule, and `core/achievements.ts` has the claim-and-ledger shape. What is left
+is the missions, the dispatch state, the disjointness invariant, a v4 → v5 migration and a screen.
+
+### Local notifications — still the decision is to ship none
 
 `@capacitor/local-notifications` schedules **on-device** — no network, no account, no server — so
-it is compatible with the offline constraint in a way push notifications never could be.
-Schedule on background, cancel on foreground.
+it is compatible with the offline constraint in a way push never could be.
 
-**Removing the offline cap removed the only earned reason to send one, and that is worth facing
-rather than working around.** The justification used to be that the ten-hour ceiling was a real
-event with a real cost to ignoring it — income you had stopped accruing. With no cap, staying
-away costs nothing. Nothing is lost, so there is nothing to warn about.
+**Removing the offline cap removed the only earned reason to send one.** The justification used to
+be that the ten-hour ceiling was a real event with a real cost to ignoring it. With no cap, staying
+away costs nothing, so there is nothing to warn about.
 
-What is left is weak and should be judged as weak. A finished bounty is the only candidate, and
-even that is not a real cost: a completed mission sits there indefinitely, so the player loses
-nothing by not hearing about it.
-
-**So the default is to ship no notifications at all.** The rule this project holds everywhere else
-is that a notification existing to manufacture a session is the pattern it rejects — and once
-absence is free, every notification is that pattern by definition. Reintroduce them only if some
-future system creates a genuine cost to being away, and note that such a system would itself be
-worth questioning.
+A finished bounty is the only remaining candidate and it is a weak one: a completed mission sits
+there indefinitely, so the player loses nothing by not hearing about it. **The default is to ship
+no notifications at all** — a notification existing to manufacture a session is the pattern this
+project rejects, and once absence is free every notification is that pattern by definition.
 
 ## 15. Faction towers, and something for a roster to be
 
@@ -2041,62 +2290,6 @@ one section, headed **Gear**, and the second heading arrives with the second kin
 
 **No redirect from `/gear`**, for the reason `/summon` got none: the game is pre-release. That
 licence expires the moment a URL exists outside development.
-
-## 14. The ladder retune — **IN PROGRESS**
-
-The shipped hundred stages were tuned to be climbed. This milestone re-aims them at a different
-brief: **the shipped content is a breeze, and the difficulty arrives with chapter 3.** Nothing
-structural changed — the chapters, the boss rhythm, the income curve and the stage count are all
-untouched — but almost every enemy level did.
-
-|                                    | Before                        | After                                               |
-| ---------------------------------- | ----------------------------- | --------------------------------------------------- |
-| Chapter 1 enemy levels             | 1 → 40                        | 1 → **16**                                          |
-| Chapter 2 enemy levels             | 40 → 126                      | 16 → **85**                                         |
-| The party chapter 1 is tuned for   | five at level 40, three rungs | five at level 30, **one rung**                      |
-| The party that finishes the ladder | level 90 at `legendary`       | level **85 at `elite`**, derived from the top stage |
-
-The tutorial ramp (stages 1–6) and the stage-7 healer lock are **untouched**, including the level-14
-step into the wall. That was the constraint everything else was authored around.
-
-### ⚠️ Levels are not the early power curve in this game — rungs are
-
-The first target was "chapter 1 is clearable with no ascensions at all", and it was measured and
-rejected. `perLevel.common` is **1.021** — it has to be, to reach ×10⁹ across a thousand levels — so
-a character taken from level 1 to its unascended cap of 20 is worth **×1.48**, against a wall built
-to stop ×1.00. That 48% is the entire margin and chapter 1's composition locks ate it: a five at
-level 20 with no rungs failed eight stages, one at a **5% win rate**, and the seven mono-faction
-fives spread twice as far apart as the guard allows.
-
-**One ascension is worth more than nineteen levels.** Any future statement of the form "a player at
-level N should be able to…" has to be checked against the rung count, not the level. Note the
-second half of that: `growthFloor` anchors the ×1.6 ladder at `rare`, so the first two rungs buy
-level cap and no multiplier at all — `common-plus` is worth ten more levels and nothing else.
-
-### ⚠️ A barrier that could never lapse
-
-The retune surfaced a latent bug rather than causing one. `BARRIER` lasts **70 ticks** and `BULWARK`
-recast it every **60**, so a Hierophant or a Bulwark kept a party-wide absorb shield up
-_permanently_. Every stall the retune exposed was a stage carrying one of those two.
-
-The old ladder hid it by killing parties before it mattered. A shield that cannot lapse is not a
-lock a party can answer with burst, which is what `BARRIER` is documented to be — so the cooldown is
-now 85, and **must stay above the status's duration**. That is a termination argument, not a balance
-knob.
-
-### What is not finished
-
-Four balance assertions are still red, all one root cause: on **two stages of a hundred**
-(`c2-s13`, `c2-s23`) a party that wins about 83% of the time occasionally runs the ninety seconds
-out — 3 and 5 runs in 40. Flattening the ladder widens the band where a party can neither close nor
-die, and that band is what remains to be closed.
-
-Two attempts are recorded because both failed and the failures are informative. A global 15% enemy
-HP cut **broke the starter wall** — starters cleared the stage-7 lock at 87.5% against a guard of
-20% — and was reverted. Weakening the Hierophant and the front ranks further made the headroom guard
-_worse_, converting timeouts into ninety-second wins. What did work was cutting **defence** on the
-armour blocks past the wall: damage is `atk² / (atk + def)`, so that raises what a party lands
-without raising what it takes.
 
 ## Not a milestone: ascension became copies of the hero alone
 

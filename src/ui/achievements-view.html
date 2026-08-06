@@ -1,0 +1,99 @@
+<header class="head">
+  <!-- Town is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/town">← Town</a>
+  <h1 class="head__title">Achievements</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ unclaimed() }}</span>
+    <span class="head__unit">waiting</span>
+  </p>
+</header>
+
+<p class="intro">
+  Rewards for progress you have already made. Nothing here expires, and nothing is lost by leaving
+  it — come back whenever.
+</p>
+
+<button type="button" class="claim-all" [disabled]="unclaimed() === 0" (click)="claimAll()">
+  @if (unclaimed() === 0) {
+    Nothing to claim
+  } @else {
+    <!--
+      The button says what it pays before it is pressed, which is the same argument the Town cards
+      make for carrying a balance: the number that decides whether to act should be readable
+      without acting.
+    -->
+    Claim all
+    @for (award of totalOwed(); track award.label) {
+      <span class="claim-all__amount">&ngsp;{{ award.amount }} {{ award.label }}</span>
+    }
+  }
+</button>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<ul class="tracks">
+  @for (row of rows(); track row.track.id) {
+    <li class="track" [class.track--ready]="row.unclaimed > 0">
+      <div class="track__head">
+        <h2 class="track__name">{{ row.track.name }}</h2>
+        @if (row.unclaimed > 0) {
+          <p class="track__owed">
+            <span class="track__count">{{ row.unclaimed }}</span>
+            <span class="track__unit">ready</span>
+          </p>
+        }
+      </div>
+
+      <p class="track__description">{{ row.track.description }}</p>
+
+      <!--
+        `&ngsp;` inside the trailing span rather than between the two, because Angular strips the
+        whitespace around a control-flow block's closing brace — which reads aloud as
+        "250 crystalsper award". The gap is drawn by the markup, so the space is there purely for
+        the accessible name.
+      -->
+      <p class="track__reward">
+        @for (award of row.perAward; track award.label) {
+          <span class="track__amount">{{ award.amount }} {{ award.label }}</span>
+        }
+        <span class="track__per">&ngsp;per award</span>
+      </p>
+
+      <!--
+        `progressbar` with the real values rather than a styled div: the bar is the only thing on
+        the row that says how close the next award is, and a decorative one would leave a screen
+        reader with the numbers in `track__progress` alone. `aria-valuetext` is what makes it
+        announce "63 of 65 stages cleared" instead of "97 percent".
+      -->
+      <div
+        class="track__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="row.total"
+        [attr.aria-valuemin]="row.nextAt - row.track.every"
+        [attr.aria-valuemax]="row.nextAt"
+        [attr.aria-valuetext]="row.total + ' of ' + row.nextAt + ' toward the next award'"
+        [attr.aria-label]="row.track.name + ' progress'"
+      >
+        <span class="track__fill" [style.width.%]="row.percent"></span>
+      </div>
+
+      <p class="track__progress">
+        <span class="track__now">{{ row.total }}</span>
+        &ngsp;<span class="track__next">/ {{ row.nextAt }}</span>
+        <span class="track__hint">
+          @if (row.earned === 0) {
+            &ngsp;— first award at {{ row.nextAt }}
+          } @else {
+            &ngsp;— {{ row.earned }} earned, {{ row.claimed }} claimed
+          }
+        </span>
+      </p>
+    </li>
+  } @empty {
+    <li class="track track--empty">
+      <p>This build ships no achievement tracks.</p>
+    </li>
+  }
+</ul>

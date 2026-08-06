@@ -29,11 +29,13 @@ attack** — so a high-attack-speed combatant machine-guns basics between its sk
 cast drops it back to plain haste for one turn. The two are summed and clamped together, never
 separately.
 
-| Constant           | Value | Meaning                                             |
-| ------------------ | ----- | --------------------------------------------------- |
-| `ATB_THRESHOLD`    | 1000  | Gauge required to act.                              |
-| `BATTLE_TICK_MS`   | 100   | Simulated milliseconds per tick.                    |
-| `MAX_BATTLE_TICKS` | 900   | ⚠️ The battle timer: ninety seconds, then a defeat. |
+| Constant               | Value | Meaning                                             |
+| ---------------------- | ----- | --------------------------------------------------- |
+| `ATB_THRESHOLD`        | 1000  | Gauge required to act.                              |
+| `BATTLE_TICK_MS`       | 100   | Simulated milliseconds per tick.                    |
+| `MAX_BATTLE_TICKS`     | 900   | ⚠️ The battle timer: ninety seconds, then a defeat. |
+| `PRESSURE_AFTER_TICKS` | 500   | ⚠️ Where damage starts climbing. See below.         |
+| `PRESSURE_PER_TICK`    | 0.02  | ⚠️ How fast it climbs — ×9 by the timer.            |
 
 **The simulation jumps straight to the tick of the next action** rather than stepping tick by
 tick — `ticksUntilReady()` in [`clock.ts`](../src/core/battle/clock.ts) computes the jump, and
@@ -77,16 +79,21 @@ wipe are the same thing to a player and very different things to a balance sweep
 sustain kit is invisible unless something records which one happened. Nothing in `ui/` reads the
 flag; the sweep reads nothing else.
 
-**The headroom is 1.40×, and that is a constraint on content rather than slack.** A stage tuned to
+**The headroom is 1.44×, and that is a constraint on content rather than slack.** A stage tuned to
 take longer than ninety seconds against the party it is meant for is a stage nobody can clear,
-which is why `stages.balance.ts` asserts the margin directly and should fail before the win-rate
+which is why `chapters.balance.ts` asserts the margin directly and should fail before the win-rate
 assertions do.
 
 It was 1.9× until milestone 8e, and the seven mono-faction fives it authored are what spent the
-difference — the longest fight anyone actually clears is now a mono-Dwarf five taking stage 16 in
-64.5 seconds, four walls and one attacker winning the way that faction wins. The same milestone
-narrowed the assertion to **fights a party clears**, because adding those parties revealed the old
-version was measuring losing fights too; losing fights are bounded separately, at 95% of the timer.
+difference. The same milestone narrowed the assertion to **fights a party clears**, because adding
+those parties revealed the old version was measuring losing fights too; losing fights are bounded
+separately, at 95% of the timer.
+
+**Milestone 14a handed some back rather than spending more.** Closing pressure ends the fights that
+used to run long, so across all thirteen sweep parties over all hundred stages the numbers are now:
+longest cleared fight **62.7s** (bar 67.5s), longest fight of any kind **63.5s** (bar 85.5s),
+slowest mean **56.6s** (bar 60s), and **zero timeouts**. The longest cleared fight is a fully geared
+party on `c2-s23` — the stage that used to stall.
 See [milestone 8e](milestones.md) for why that narrowing is the assertion's own sentence rather
 than a moved threshold.
 
@@ -345,11 +352,15 @@ land. The pacing difference between a short fight and a long one survived; it ch
 
 ⚠️ **What did not survive is a termination argument.** The MP pool was what guaranteed a fight
 against a healer resolves rather than grinding against a heal that never stops. A bar that only
-refills cannot run out, so that guarantee now rests **entirely** on the `MAX_BATTLE_TICKS` timer.
-This was recorded in milestone 8 before the work rather than discovered after it, and the thing
-standing where the pool used to is one assertion: the ladder sweep requires that **no reference
-party ever runs the clock out**, winning or losing, read off `timedOut` rather than off the
-outcome.
+refills cannot run out, so that guarantee rested **entirely** on the `MAX_BATTLE_TICKS` timer for
+six milestones. This was recorded in milestone 8 before the work rather than discovered after it,
+and the thing standing where the pool used to was one assertion: the ladder sweep requires that
+**no reference party ever runs the clock out**, winning or losing, read off `timedOut` rather than
+off the outcome.
+
+> **Milestone 14a put a real one back — see [closing pressure](#-closing-pressure-the-termination-argument)
+> below.** The assertion above is still the instrument, and it is still what caught the gap; what
+> changed is that it is no longer the only thing standing there.
 
 It showed up immediately and exactly where predicted. The Ashen Hierophant at stage 24 was the one
 enemy in the game its pool genuinely metered — two skills against 6 regen a turn — and losing it
@@ -393,6 +404,45 @@ is when the quantity is fixed anyway:
   is for now that it no longer chooses an attack stat; without it a wall could shrug off swords
   and not bleeds, which would be a hole in the axis 8a moved onto the resists;
 - a `regen` is healing from somebody else, so the recipient's `receivedHealing` applies.
+
+### ⚠️ Closing pressure: the termination argument
+
+Past `PRESSURE_AFTER_TICKS` (500 — fifty seconds), **every damage instance is multiplied by a
+factor rising `PRESSURE_PER_TICK` each tick**, without bound. At the ninety-second timer it is ×9.
+`pressureAt()` in [`clock.ts`](../src/core/battle/clock.ts) is the whole of it, and `rollAttack`
+takes it as a parameter the way it takes the faction matchup.
+
+**Healing is deliberately not amplified**, and that is the mechanism rather than an omission. Any
+closed sustain loop — a lone healer topping itself up, a shield recast faster than it lapses, two
+supports grinding against each other — is broken by damage that grows without bound while the heal
+answering it does not. HP is finite, so every fight ends because somebody died.
+
+**It applies to both sides equally**, so it decides nothing about who wins, only that somebody
+does. A fight the party was going to lose still loses, sooner.
+
+Four properties, all load-bearing:
+
+- ⚠️ **Every fight resolving inside fifty seconds is bit-identical to what it was without this.**
+  That is what let it be added to a shipped hundred-stage ladder without re-deriving a single
+  stage. Lowering the threshold starts re-tuning content that is not asking to be; the sweep's
+  headroom assertion is what would say so.
+- ⚠️ **It preserves the whole-board rescale identity.** The factor is a function of the **tick**
+  alone, so scaling both sides by a constant lands the same hits in the same order on the same
+  tick. Anything that made it a function of a _quantity_ would break that.
+- **The ramp is linear, not geometric.** Linear is already unbounded, which is all termination
+  needs, and ×9 at the timer reads off a log where a geometric curve does not.
+- **It is not a difficulty knob and not the genre's enrage-as-punishment.** Reaching for it to
+  make late content harder would spend the identity above and make the threshold load-bearing for
+  balance as well as for termination.
+
+Why this exists at all: milestone 8b deleted the MP pool that guaranteed a fight against a healer
+resolves, and for six milestones the guarantee rested entirely on the timer. ⚠️ **A timer is not a
+termination argument — it is what fires when one is missing**, and the difference is visible on a
+results screen: milestone 14a found a party at 52% health against a lone enemy at 10% being handed
+a defeat, which is the simulation's failure to resolve reported as the player's failure to fight.
+
+`simulate.spec.ts` carries the property test — two mutually-healing combatants that time out with
+the mechanism disabled and resolve with it on.
 
 ### ⚠️ A skill's cooldown must exceed the duration of any status it applies
 

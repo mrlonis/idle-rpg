@@ -91,7 +91,7 @@ the two disagree, the code is right and both are stale.
   return.
   - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
     outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
-    The headroom over the longest tuned fight is **1.66×**, so a stage that takes longer than
+    The headroom over the longest tuned fight is **1.44×**, so a stage that takes longer than
     ninety seconds against the party it is meant for is unclearable — treat the timer as a budget
     every encounter has to fit inside, and expect the balance sweep to say so first. It was 1.9×
     until milestone 8e spent most of it on the mono-faction fives, and milestone 10 handed some
@@ -104,6 +104,15 @@ the two disagree, the code is right and both are stale.
     timer, and by the zero-timeout guard below. Do not widen the headroom assertion back to every
     fight in the sweep: it would fail on parties nothing is tuned for, which is not what it is
     for.
+  - ⚠️ **Closing pressure is the termination argument, and it is not a difficulty knob.** Past
+    `PRESSURE_AFTER_TICKS` (500 — fifty seconds) every damage instance is multiplied by a factor
+    rising `PRESSURE_PER_TICK` each tick without bound; **healing is deliberately not amplified**,
+    which is what breaks any closed sustain loop. It applies to **both sides equally**, so it
+    decides only _that_ a fight ends, never _who_ wins. Three things must stay true: every fight
+    resolving inside the threshold stays bit-identical to what it was without this (which is what
+    let it land on a shipped ladder with no stage re-derived); the factor stays a function of the
+    **tick** alone, which is what preserves the whole-board rescale identity; and it is never
+    reached for to make late content harder. Added in milestone 14a — see [combat](../../docs/combat.md).
   - One termination argument lives outside `core/`: milestone 8b deleted the MP pool that
     guaranteed a fight against a healer resolves, so an assertion in the balance sweep stands in
     its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
@@ -170,9 +179,42 @@ the two disagree, the code is right and both are stale.
     three go through `effectiveLevel`.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
+- **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
+  14b. Read [`core/achievements.ts`](../../src/core/achievements.ts) and
+  [`core/quests.ts`](../../src/core/quests.ts) before touching either.
+  - ⚠️ **Neither adds a field to the battle path, and that is the whole design.** An achievement
+    track stores **one integer** — awards _taken_ — and derives what is earned by division. A quest
+    window stores a **baseline** of the counters as they stood when it opened, and progress is a
+    subtraction. Giving either a running total incremented from `applyBattleResult` is a write into
+    the hottest path in the game for a derivable number, and a second place for progress to
+    disagree with itself.
+  - ⚠️ **Every quest reward is crystals, and every achievement award is flat.** Gold, xp and
+    essence price against a level curve worth ×10⁹, so a flat quantity of any of them is invisible
+    within a chapter or two; a pull costs a flat `PULL_COST` forever. A reward that _scaled_ would
+    also pay most to the player whose ladder is already moving, which is the opposite of what these
+    exist for.
+  - ⚠️ **No quest may be measured against `clearedStages`.** It counts _first_ clears, so it stops
+    moving at the top of the authored ladder and the quest becomes permanently unfinishable. The
+    type forbids it; `battleCount` and `pullCount` always move.
+  - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
+    consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
+    targets rather than restating it.
+  - **The window roll lives in `GameLoopService.advance`**, which is the only place holding both
+    the authoritative run and a real `nowMs`. Not a `computed` (Angular forbids the signal write)
+    and not a `setInterval` (a second clock that would not survive backgrounding). ⚠️ **A window
+    rolls only when the computed index is _greater_ than the stored one** — `>`, never `!==` — so a
+    clock moved backwards does nothing rather than handing out a second day. Clamp; do not detect.
+  - **Nothing punishes a miss.** No streaks, no escalating bonus that resets, no countdown that
+    costs anything. Unclaimed awards accumulate indefinitely.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 2**: v0 → v1 added gear in milestone 12, and v1 → v2 shifted every
-  stored rarity by two when the ladder grew a bottom.
+  fixtures. **`SAVE_VERSION` is 4**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
+  stored rarity by two when the ladder grew a bottom, and milestone 14b added the achievement
+  ledger (v2 → v3) and the quest windows (v3 → v4). The last two are additive and cheap for the
+  same reason — every counter either system is paid against was already stored.
+  - ⚠️ **The version burn is nearly spent.** The v0 re-base freed numbers 1–5 and four of them have
+    now been re-issued, so **5 is the only version left that reliably means "pre-baseline"**.
+    `migrate.spec.ts` and `save-recovery.spec.ts` both test that case against that one number, and
+    **the next migration exhausts it**. Know it before writing that migration, not after.
   - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
     that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
     demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only
@@ -314,17 +356,18 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 2.** Five versions and four migrations were collapsed into a v0 baseline
+  - **`SAVE_VERSION` is 4.** Five versions and four migrations were collapsed into a v0 baseline
     while the game was pre-release, on the one argument that licenses it: no save any of them wrote
     has ever existed outside development. [saves](../../docs/saves.md) records the reset and the condition
     — a player loading a save — that closes the door on repeating it. The chain walker was kept and
     tested against a synthetic history through the whole v0 era so that the first real migration
     would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
-  - ⚠️ **The reset burned version numbers and both v1 and v2 have re-issued one.** The old v1 was
-    milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear schema and
-    this v2 is the ladder's new bottom, and nothing can tell either pair apart from the number
-    alone. Safe only because no save carrying the old meaning exists outside development — **not
-    safe in general**, and the cost of re-basing that is easiest to forget.
+  - ⚠️ **The reset burned version numbers and v1 through v4 have all re-issued one.** The old v1
+    was milestone 1's gold counter, v2 combat progression, v3 the rate table and v4 the formation;
+    this v1 is the gear schema, this v2 is the ladder's new bottom, this v3 is the achievement
+    ledger and this v4 is the quest windows. Nothing can tell any pair apart from the number alone.
+    Safe only because no save carrying the old meaning exists outside development — **not safe in
+    general**, and the cost of re-basing that is easiest to forget.
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a

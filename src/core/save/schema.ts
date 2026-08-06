@@ -122,8 +122,40 @@ export interface SaveDataV2 extends Omit<SaveDataV1, 'version'> {
   version: 2;
 }
 
+/**
+ * v3 — the achievement claim ledger.
+ *
+ * Purely additive, and the smallest field this save has ever gained: one integer per track, keyed
+ * by track id. Everything the screen shows is derived from counters v2 already stored, so what is
+ * recorded here is only *what has been taken* — see `core/achievements.ts` for why the earned side
+ * is deliberately not stored alongside it.
+ *
+ * A record rather than a field per track is what stops the next track being another version bump.
+ */
+export interface SaveDataV3 extends Omit<SaveDataV2, 'version'> {
+  version: 3;
+  /** Track id to awards claimed. Absent tracks have claimed nothing. */
+  achievements: Record<string, number>;
+}
+
+/**
+ * v4 — the daily and weekly quest windows.
+ *
+ * Additive, and additive in the cheapest possible way: a window is an index, a baseline of
+ * counters this save already stores, and the ids claimed inside it. **No quest has a progress
+ * field**, because progress is `counter - baseline` — see `core/quests.ts` for why that keeps the
+ * whole system out of the battle path.
+ */
+export interface SaveDataV4 extends Omit<SaveDataV3, 'version'> {
+  version: 4;
+  quests: {
+    daily: { index: number; baseline: Record<string, number>; claimed: string[] };
+    weekly: { index: number; baseline: Record<string, number>; claimed: string[] };
+  };
+}
+
 /** The shape written by the current `SAVE_VERSION`. */
-export type CurrentSaveData = SaveDataV2;
+export type CurrentSaveData = SaveDataV4;
 
 /** Any historical save shape. Widen this union as versions are added. */
-export type AnySaveData = SaveDataV0 | SaveDataV1 | SaveDataV2;
+export type AnySaveData = SaveDataV0 | SaveDataV1 | SaveDataV2 | SaveDataV3 | SaveDataV4;

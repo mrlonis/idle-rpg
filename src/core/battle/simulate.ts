@@ -2,7 +2,7 @@ import { mulberry32 } from '../mulberry32';
 import { type Numeric, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { toEnemyCombatant } from '../roster/stats';
-import { ATB_THRESHOLD, MAX_BATTLE_TICKS, ticksToMs, ticksUntilReady } from './clock';
+import { ATB_THRESHOLD, MAX_BATTLE_TICKS, pressureAt, ticksToMs, ticksUntilReady } from './clock';
 import { toAmount, toCombatant, toCurrencyAmounts, toRates } from './content';
 import { factionMultiplier, resistedShare, rollAttack, statusChance } from './damage';
 import { clampEnergy } from './energy';
@@ -492,6 +492,9 @@ export function simulateBattle(
         case 'drain': {
           // Rolled before the liveness check so the draw count depends on the line-up rather
           // than on whether an earlier clause happened to land a killing blow.
+          // `pressureAt(tick)` is what guarantees this fight ends. Past fifty seconds it climbs,
+          // and healing does not climb with it — so a sustain loop that neither side can break is
+          // resolved by arithmetic rather than by the ninety-second timer calling it a defeat.
           const roll = rollAttack(
             attacker,
             live(target),
@@ -500,6 +503,7 @@ export function simulateBattle(
             matchup,
             rules,
             draw,
+            pressureAt(tick),
           );
           if (!isAlive(target)) {
             break;

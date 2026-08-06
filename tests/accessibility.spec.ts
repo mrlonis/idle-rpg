@@ -7,7 +7,7 @@ import {
   stagePayout,
   totalStages,
 } from '../src/core';
-import { ASCENSION_RULES, CHAPTERS, MORTAL_LADDER, STAGE_REWARDS } from '../src/data';
+import { ASCENSION_RULES, CHAPTERS, MORTAL_LADDER, QUEST_RULES, STAGE_REWARDS } from '../src/data';
 
 /**
  * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
@@ -105,6 +105,74 @@ const duplicatesSave = {
     { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3 },
   ],
 };
+
+/**
+ * A run with achievement awards waiting, and one already taken.
+ *
+ * `clearedStages` is {@link CLEARS}, so what decides how many awards are outstanding is the ledger
+ * below rather than a second clear count — which keeps this fixture honest if the ladder is
+ * retuned. One claimed entry puts a *partly* claimed track on screen, which is the row state a
+ * fresh run and a fully claimed one both miss.
+ */
+const achievementsSave = {
+  ...unlockedSave,
+  // ⚠️ Written at the **current** schema rather than migrated from v0, for the reason
+  // `gearedSave` is: the v2 → v3 migration writes `achievements: {}` unconditionally — correct,
+  // because a v2 save cannot have one — so a v0 fixture would have this ledger overwritten on the
+  // way up and scan the unclaimed-everything branch instead.
+  version: 3,
+  roster: [
+    { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
+    { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
+    { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
+  ],
+  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+  gear: [],
+  gearMinted: 0,
+  gearShop: { slot: 0, purchased: [] },
+  achievements: { 'stages-cleared': 1 },
+};
+
+/**
+ * A run with one daily quest finished and the other still running.
+ *
+ * ⚠️ **The window index is computed rather than written**, and it has to be: `GameLoopService`
+ * rolls any window whose period has elapsed, so a hard-coded index would be behind the clock on
+ * every run after the day it was written, get rolled, and scan a board with nothing on it.
+ *
+ * The offset must match `QUEST_RULES.resetOffsetMinutes`; it is imported rather than restated so
+ * moving the reset moves this with it.
+ */
+function questsSave() {
+  const dayIndex = Math.floor((Date.now() - QUEST_RULES.resetOffsetMinutes * 60_000) / 86_400_000);
+  const weekIndex = Math.floor(
+    (Date.now() - QUEST_RULES.resetOffsetMinutes * 60_000) / (86_400_000 * 7),
+  );
+  return {
+    ...unlockedSave,
+    // Current schema rather than migrated from v0: the v3 → v4 migration writes empty windows
+    // unconditionally, so a v0 fixture would have these overwritten on the way up.
+    version: 4,
+    battleCount: 100,
+    pullCount: 20,
+    roster: [
+      { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
+    ],
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+    gear: [],
+    gearMinted: 0,
+    gearShop: { slot: 0, purchased: [] },
+    achievements: {},
+    quests: {
+      // 100 battles against a baseline of 95 finishes the five-battle daily; 20 pulls against 20
+      // leaves the pull daily untouched, so both row states are on screen at once.
+      daily: { index: dayIndex, baseline: { battleCount: 95, pullCount: 20 }, claimed: [] },
+      weekly: { index: weekIndex, baseline: { battleCount: 95, pullCount: 20 }, claimed: [] },
+    },
+  };
+}
 
 /** Writes a save the app will read on its next load. Capacitor's web backend is localStorage. */
 async function seedSave(page: Page, save: unknown): Promise<void> {
@@ -332,6 +400,51 @@ test.describe('Accessibility', () => {
     await expect(page.locator('.character--waiting').first()).toBeVisible();
 
     await scan(page, testInfo, 'altar');
+  });
+
+  /**
+   * Achievements, seeded so a ready track and a claimed one are both on screen.
+   *
+   * The row carries the app's only `role="progressbar"`, whose whole accessible description lives
+   * in `aria-valuetext` — markup that ends up announcing a bare percentage of nothing if it is
+   * wrong. A fresh run would scan the "first award at 5" branch and never reach a ready row.
+   *
+   * ⚠️ It also scans the *quiet* rows, which is the point the Altar learned the hard way: dimming
+   * a card with `opacity` dims its text with it, and `$muted` at 70% is under the 4.5:1 floor.
+   */
+  test('the achievements screen has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, achievementsSave);
+    await page.goto('/town/achievements');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Achievements' })).toBeVisible();
+    // A track with something waiting, which is what proves the seeded save was read rather than
+    // scanning the empty-state branch.
+    await expect(page.getByRole('button', { name: /^Claim all/ })).toBeEnabled();
+    await expect(page.getByRole('progressbar')).toBeVisible();
+
+    await scan(page, testInfo, 'achievements');
+  });
+
+  /**
+   * Quests, seeded so a finished quest and an unfinished one are both on screen.
+   *
+   * The screen carries two `role="progressbar"` rows and a state word that is the *only* signal a
+   * quest is done — colour is never allowed to carry that alone, which is what this scan is
+   * checking as much as the bar's labelling.
+   *
+   * ⚠️ The seeded window is pinned to the index the app will compute for "now", because a window
+   * whose stored index is behind the clock is rolled on load — which would reset the baseline and
+   * scan an empty board instead of the one this test is for.
+   */
+  test('the quests screen has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, questsSave());
+    await page.goto('/town/quests');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Quests' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Claim all/ })).toBeEnabled();
+    await expect(page.getByRole('progressbar').first()).toBeVisible();
+
+    await scan(page, testInfo, 'quests');
   });
 
   test('the spark shop has no AXE violations', async ({ page }, testInfo) => {

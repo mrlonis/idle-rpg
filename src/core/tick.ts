@@ -51,5 +51,7 @@ export function tick(state: GameState, dtMs: number): GameState {
     gear: state.gear,
     gearMinted: state.gearMinted,
     gearShop: state.gearShop,
+    achievements: state.achievements,
+    quests: state.quests,
   };
 }

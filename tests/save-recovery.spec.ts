@@ -290,10 +290,17 @@ test.describe('re-fighting a cleared stage', () => {
  *
  * A pre-baseline version is the case that actually occurs — five schema versions were collapsed
  * into v0 — so it is the one seeded here.
+ *
+ * ⚠️ **Seeded at 5 rather than 3, and the number has to keep moving.** The reset burned version
+ * numbers and each new migration re-issues one: v3 was pre-baseline until milestone 14 made it the
+ * achievement ledger, at which point this fixture stopped describing an unreadable save and
+ * started describing a current one. Only versions **above** `SAVE_VERSION` are still reliably
+ * unreadable, so this has to stay ahead of it — and once the chain reaches 5 there is no
+ * pre-baseline number left, which is the cost of the re-base finally coming due.
  */
 test.describe('a save this build cannot read', () => {
   const beforeTheBaseline = {
-    version: 3,
+    version: 5,
     wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: { gold: '90', xp: '0', essence: '0', summons: '0' },
     lastTickAt: Date.now(),
