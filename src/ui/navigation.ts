@@ -36,8 +36,8 @@ export interface Screen {
 /**
  * Every screen that can send a player to a detail view.
  *
- * Not the whole route table. Summon and the shop are absent because neither links to a character
- * sheet; add them here the day one of them does.
+ * Not the whole route table. Town, summon and the shop are absent because none of them links to a
+ * character sheet; add them here the day one of them does.
  */
 const SCREENS = {
   home: { path: '/', label: 'Home' },

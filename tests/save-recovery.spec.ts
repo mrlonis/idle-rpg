@@ -174,7 +174,8 @@ test.describe('recovering a save whose clear count was lost', () => {
     await seedSave(page, v2AtTheTop);
     await page.goto('');
 
-    await page.getByRole('link', { name: 'Summon' }).click();
+    await page.getByRole('link', { name: 'Town' }).click();
+    await page.getByRole('link', { name: /^Summon/ }).click();
 
     await expect(page.getByRole('button', { name: /Pull ×10/ })).toBeEnabled();
   });

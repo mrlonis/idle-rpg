@@ -168,10 +168,13 @@ Read it before starting a milestone, and specifically before:
   be the cause of the app's broken first appearance on a real phone. Do not reinstall it.
   `@angular/cdk` is a separate question and the answer is different — see the accessibility
   section below;
-- **adding a seventh tab.** The bar holds six as of milestone 13 and that is what fits across a
-  small phone at a legible label size; a seventh has to shrink the text past reading or drop it,
-  and a row of unlabelled glyphs is a puzzle rather than navigation. The next screen needs a
-  different shape of navigation, and the doc records the options;
+- **adding a tab at all.** Six is what fits across a small phone at a legible label size; a
+  seventh has to shrink the text past reading or drop it, and a row of unlabelled glyphs is a
+  puzzle rather than navigation. **The bar holds five, and the spare slot is not for spending** —
+  Summon and Shop gave it back when they moved behind **Town** (`/town`, with `/town/summon` and
+  `/town/shop` nested under it so the tab stays lit inside them). Town _is_ the different shape of
+  navigation that note used to promise the next screen would need: a hub costs one tap and has no
+  ceiling, so a new currency sink goes in Town rather than on the bar;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

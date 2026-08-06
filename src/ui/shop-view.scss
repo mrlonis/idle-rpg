@@ -8,11 +8,31 @@
   max-width: 32rem;
 }
 
+// Back link on its own row, title and balance sharing the one below it. A grid rather than a
+// wrapper element around the lower pair: the title and the balance already take the full width
+// between them, and a third thing on that line squeezes whichever of them wraps first.
 .head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
+  column-gap: 1rem;
+}
+
+.head__back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$accent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .head__title {

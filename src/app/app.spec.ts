@@ -181,7 +181,8 @@ describe('App', () => {
         node.textContent?.trim(),
       );
 
-      expect(labels).toEqual(['Home', 'Summon', 'Roster', 'Gear', 'Shop', 'Settings']);
+      // Five, not six: summoning and the shop moved behind Town, which took Summon's slot.
+      expect(labels).toEqual(['Home', 'Town', 'Roster', 'Gear', 'Settings']);
     });
 
     it('disappears during a fight', async () => {

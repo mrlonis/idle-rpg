@@ -188,8 +188,16 @@ test.describe('Accessibility', () => {
    * whose visible label repeats down a list, and a disclosure. None of that is covered by a scan
    * of another screen.
    */
+  test('the town screen has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/town');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Town' })).toBeVisible();
+
+    await scan(page, testInfo, 'town');
+  });
+
   test('the summon screen has no AXE violations', async ({ page }, testInfo) => {
-    await page.goto('/summon');
+    await page.goto('/town/summon');
 
     await expect(page.getByRole('heading', { level: 1, name: 'Summon' })).toBeVisible();
     await expect(page.getByRole('progressbar')).toBeVisible();
@@ -261,7 +269,7 @@ test.describe('Accessibility', () => {
   });
 
   test('the spark shop has no AXE violations', async ({ page }, testInfo) => {
-    await page.goto('/shop');
+    await page.goto('/town/shop');
 
     await expect(page.getByRole('heading', { level: 1, name: 'Spark Shop' })).toBeVisible();
 

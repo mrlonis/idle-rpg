@@ -1,0 +1,28 @@
+<header class="head">
+  <h1 class="head__title">Town</h1>
+</header>
+
+<p class="intro">
+  Where a currency gets spent. What you are holding is on each card, so a trip that is not worth
+  taking can be seen for what it is without taking it.
+</p>
+
+<ul class="places">
+  @for (place of places(); track place.path) {
+    <li class="places__item">
+      <!--
+        The whole card is the target, not the name inside it. On a phone the difference is a
+        comfortable thumb tap versus a precise one.
+      -->
+      <a class="place" [routerLink]="place.path">
+        <span class="place__icon" aria-hidden="true">{{ place.icon }}</span>
+        <span class="place__name">{{ place.name }}</span>
+        <span class="place__balance">
+          <span class="place__amount">{{ place.amount }}</span>
+          <span class="place__unit">{{ place.unit }}</span>
+        </span>
+        <span class="place__description">{{ place.description }}</span>
+      </a>
+    </li>
+  }
+</ul>

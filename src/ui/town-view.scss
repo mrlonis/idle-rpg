@@ -1,0 +1,95 @@
+@use 'theme' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+.places {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A grid rather than nested flex rows, so the name and the balance share a baseline while the
+// description runs the full width beneath both. Three flex boxes would have the description
+// either squeezed into a column or wrapping under the icon.
+.place {
+  @include t.card;
+  @include t.focus-ring;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'icon name balance'
+    'icon description description';
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  align-items: baseline;
+  // The card is the touch target, so it clears the floor on its own rather than relying on how
+  // much text happens to be in it.
+  min-height: t.$tap-target;
+  padding: 0.875rem 1rem;
+  color: t.$text;
+  text-decoration: none;
+
+  &:hover {
+    background: t.$surface-raised;
+  }
+}
+
+// Centred against the whole card rather than sharing the name's baseline: it spans both rows, so
+// a baseline would pin a 1.5rem glyph to the top line and leave the description beside nothing.
+.place__icon {
+  grid-area: icon;
+  align-self: center;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.place__name {
+  grid-area: name;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.place__balance {
+  grid-area: balance;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+}
+
+.place__amount {
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.place__unit {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.place__description {
+  grid-area: description;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}

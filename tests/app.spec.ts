@@ -15,9 +15,10 @@ test.describe('App', () => {
    */
   test.describe('deep links', () => {
     for (const [path, title] of [
-      ['/summon', /Summon/],
+      ['/town', /Town/],
+      ['/town/summon', /Summon/],
       ['/roster', /Roster/],
-      ['/shop', /Spark Shop/],
+      ['/town/shop', /Spark Shop/],
       ['/settings', /Settings/],
     ] as const) {
       test(`loads ${path} directly`, async ({ page }) => {
@@ -66,14 +67,55 @@ test.describe('App', () => {
     });
   });
 
+  /**
+   * Summoning and the shop are two taps away now rather than one, and the whole of what makes
+   * that acceptable is that the hub is honest about where it goes and the tab bar keeps saying
+   * where the player is. Both halves are checked through a real navigation, because both are
+   * claims about the router rather than about markup.
+   */
+  test.describe('town', () => {
+    for (const [card, heading] of [
+      [/^Summon/, 'Summon'],
+      [/^Spark Shop/, 'Spark Shop'],
+    ] as const) {
+      test(`reaches ${heading} and comes back`, async ({ page }) => {
+        await page.goto('/town');
+
+        await page.getByRole('link', { name: card }).click();
+        await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+
+        // The way out names its destination, the same as the character sheet's does.
+        await page.getByRole('link', { name: '← Town' }).click();
+
+        await expect(page.getByRole('heading', { level: 1, name: 'Town' })).toBeVisible();
+      });
+    }
+
+    test('keeps the Town tab current while the player is inside one of its screens', async ({
+      page,
+    }) => {
+      // The argument for nesting these under `/town` rather than leaving them at `/summon`. A
+      // flat path works as a destination and then darkens the tab that sent the player there,
+      // which reads as having navigated out of the app rather than into it.
+      await page.goto('/town/summon');
+
+      const tabs = page.getByRole('navigation', { name: 'Main' });
+
+      await expect(tabs.getByRole('link', { name: 'Town' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+    });
+  });
+
   test.describe('the tab bar', () => {
     test('navigates between screens and marks the current one', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('link', { name: 'Summon' }).click();
+      await page.getByRole('link', { name: 'Town' }).click();
 
-      await expect(page.getByRole('heading', { level: 1, name: 'Summon' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Summon' })).toHaveAttribute(
+      await expect(page.getByRole('heading', { level: 1, name: 'Town' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Town' })).toHaveAttribute(
         'aria-current',
         'page',
       );

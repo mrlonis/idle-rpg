@@ -8,6 +8,13 @@ import { Routes } from '@angular/router';
  * a character sheet all describe saved state, so `/roster/rin` is a place a player can be, come
  * back to, and link to.
  *
+ * **Summoning and the shop sit under `/town`, and the nesting is what makes the hub work.** The
+ * tab bar lights a tab with a non-exact `routerLinkActive`, so a player standing in
+ * `/town/summon` is still visibly in Town. Left at `/summon` the tab would go dark the moment the
+ * player arrived somewhere it sent them, which reads as having navigated out of the app's
+ * structure rather than into it. Nothing redirects the old flat paths: the game is pre-release,
+ * so no bookmark carrying one exists.
+ *
  * The battle screen is still not a route, for the same reason it never was. Everything it shows
  * — the resolved log, the animator's playhead — lives in memory and cannot survive a reload, so
  * a `/battle` URL could only ever be a broken bookmark that needed a guard to redirect home.
@@ -24,9 +31,19 @@ export const routes: Routes = [
     title: 'Idle RPG',
   },
   {
-    path: 'summon',
+    path: 'town',
+    loadComponent: () => import('../ui/town-view').then((m) => m.TownView),
+    title: 'Town — Idle RPG',
+  },
+  {
+    path: 'town/summon',
     loadComponent: () => import('../ui/summon-view').then((m) => m.SummonView),
     title: 'Summon — Idle RPG',
+  },
+  {
+    path: 'town/shop',
+    loadComponent: () => import('../ui/shop-view').then((m) => m.ShopView),
+    title: 'Spark Shop — Idle RPG',
   },
   {
     path: 'roster',
@@ -42,11 +59,6 @@ export const routes: Routes = [
     path: 'gear',
     loadComponent: () => import('../ui/gear-view').then((m) => m.GearView),
     title: 'Gear — Idle RPG',
-  },
-  {
-    path: 'shop',
-    loadComponent: () => import('../ui/shop-view').then((m) => m.ShopView),
-    title: 'Spark Shop — Idle RPG',
   },
   {
     path: 'settings',

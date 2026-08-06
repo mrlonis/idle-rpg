@@ -1746,6 +1746,10 @@ a screen header — the second is what most games this size do, and it frees a s
 player uses more than once. That decision belongs with the milestone that needs the seventh screen,
 which is 14.
 
+> **Answered early, and differently — see [Town](#not-a-milestone-town-is-the-hub-the-tab-bar-needed)
+> below.** The shape that landed is a hub rather than either option above, and it arrived before 14
+> rather than with it.
+
 ### Saves are already backed up, which is not the same as safe
 
 Verified rather than assumed. `@capacitor/preferences` on iOS writes to `UserDefaults.standard`,
@@ -1958,6 +1962,46 @@ So it is last, and it is honestly the one item here a solo developer might decid
 It is written down because it is the thing that makes the genre's best games feel like more than
 a number going up — and skipping it should be a decision made on the cost, not a gap nobody
 noticed.
+
+## Not a milestone: Town is the hub the tab bar needed
+
+Milestone 13 ended with a bar at capacity and three named ways out — a "more" tab, moving settings
+off the bar, or a hub — deferred to whichever milestone needed the seventh screen. **The hub was
+built early instead**, because the two screens that most obviously belonged behind one were already
+on the bar: Summon and the spark shop.
+
+`/town` replaces both tabs, at Summon's old position, and the two screens move to `/town/summon` and
+`/town/shop`. The bar is Home · Town · Roster · Gear · Settings — five, with a spare slot that is
+deliberately not for spending.
+
+**Why a hub beat the other two options.** A "more" tab spends a slot to say "there is more", which
+is a tab that is never the destination. Moving settings off the bar frees a slot and then leaves the
+next screen in the same position one screen later, because a bar with a ceiling of six is a queue
+whatever order it is filled in. A hub has no ceiling at all: the seventh sink is a card in Town, and
+so is the eighth.
+
+**Summon and the shop are the right two to demote**, and the argument is about how often a screen is
+_visited_ rather than how important it is. Both are places a player goes deliberately, having decided
+to spend something — unlike the roster or gear, which are read while deciding. A deliberate trip
+survives one extra tap; an idle glance does not.
+
+Three decisions inside it:
+
+- ⚠️ **The nesting under `/town` is load-bearing, not tidiness.** `routerLinkActive` marks the tab
+  non-exactly, so `/town/summon` keeps the Town tab lit and `aria-current="page"` on it. Left flat at
+  `/summon`, the tab would go dark the instant the player arrived where it sent them — which reads as
+  having navigated out of the app's structure rather than into it. `tests/app.spec.ts` asserts it.
+- **Each card carries its currency's balance**, which is the same argument the summon screen makes
+  for putting pity on screen before the pull: the number that decides whether the trip is worth
+  taking should be readable without taking it. Spark in particular is zero for most of a run.
+- **The icons are the ones the tabs wore** — 🔮 and ✨ — because a player who learned to find
+  summoning by its crystal ball should find the same crystal ball on the card rather than learning
+  the screen twice. Town takes 🏘, which is distinct from Home's 🏕 at tab size.
+
+**No compatibility route was added for `/summon` or `/shop`.** The game is pre-release, so no
+bookmark, deep link or reload carrying one of those paths exists. This is the same argument that
+licensed the v0 re-base below, and it expires the same way: the moment anyone outside development
+has a URL, a moved route needs a redirect.
 
 ## Not a milestone: the save chain was re-based to v0
 
