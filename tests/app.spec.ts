@@ -19,6 +19,8 @@ test.describe('App', () => {
       ['/town/summon', /Summon/],
       ['/roster', /Roster/],
       ['/town/shop', /Spark Shop/],
+      ['/town/gear-shop', /Gear Shop/],
+      ['/bag', /Bag/],
       ['/settings', /Settings/],
     ] as const) {
       test(`loads ${path} directly`, async ({ page }) => {
@@ -68,14 +70,15 @@ test.describe('App', () => {
   });
 
   /**
-   * Summoning and the shop are two taps away now rather than one, and the whole of what makes
-   * that acceptable is that the hub is honest about where it goes and the tab bar keeps saying
-   * where the player is. Both halves are checked through a real navigation, because both are
-   * claims about the router rather than about markup.
+   * Every currency sink is two taps away now rather than one, and the whole of what makes that
+   * acceptable is that the hub is honest about where it goes and the tab bar keeps saying where
+   * the player is. Both halves are checked through a real navigation, because both are claims
+   * about the router rather than about markup.
    */
   test.describe('town', () => {
     for (const [card, heading] of [
       [/^Summon/, 'Summon'],
+      [/^Gear Shop/, 'Gear Shop'],
       [/^Spark Shop/, 'Spark Shop'],
     ] as const) {
       test(`reaches ${heading} and comes back`, async ({ page }) => {

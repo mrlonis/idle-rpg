@@ -42,6 +42,10 @@ import { GameLoopService } from './game-loop.service';
  * that is five calls into `core/`, and a binding would run all five on every change-detection
  * pass.
  *
+ * One service across three screens — the bag, the gear shop in Town, and the character sheet's
+ * equipment panel — because a piece is the same object on all three and the resolution above is
+ * what none of them should be repeating.
+ *
  * ## The shop needs a clock, and this is where one exists
  *
  * `core/gear/shop.ts` takes a **refresh index** rather than a time, because `core/` has no clock —
@@ -82,8 +86,11 @@ export class GearService {
   /** The pieces nobody is wearing: what the bag lists and what enhancement may eat. */
   readonly loose = computed(() => this.items().filter((item) => item.wornBy === null));
 
-  /** How much enhancement material the run is holding. */
+  /** How much enhancement material the run is holding. What the bag spends. */
   readonly alloy = computed(() => this.game.wallet().alloy);
+
+  /** What the shop spends. Here beside {@link alloy} so a gear screen needs one dependency. */
+  readonly gold = computed(() => this.game.wallet().gold);
 
   /** The five slots for one character, with what is in each and what could be. */
   slots(defId: string): readonly GearSlotView[] {

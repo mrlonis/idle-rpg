@@ -181,8 +181,9 @@ describe('App', () => {
         node.textContent?.trim(),
       );
 
-      // Five, not six: summoning and the shop moved behind Town, which took Summon's slot.
-      expect(labels).toEqual(['Home', 'Town', 'Roster', 'Gear', 'Settings']);
+      // Five, not six: summoning and both shops sit behind Town, which took Summon's slot. The
+      // fourth entry is the Bag — what was the Gear tab, once the forge left for Town.
+      expect(labels).toEqual(['Home', 'Town', 'Roster', 'Bag', 'Settings']);
     });
 
     it('disappears during a fight', async () => {

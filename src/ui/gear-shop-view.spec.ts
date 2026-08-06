@@ -1,23 +1,19 @@
+import { provideLocationMocks } from '@angular/common/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { num } from '../core';
-import { GearView } from './gear-view';
-import {
-  type GearBonusView,
-  type GearItemView,
-  type GearOfferView,
-  GearService,
-  type GearSlotView,
-} from './gear.service';
+import { GearShopView } from './gear-shop-view';
+import { type GearItemView, type GearOfferView, GearService } from './gear.service';
 
 /**
- * The gear screen, driven from a fake service.
+ * The gear shop, driven from a fake service.
  *
- * The component's job is presentation: draw what it is handed, disable what cannot be done, and
- * say why when an action is refused. Driving the real `GearService` would pull in the whole grade
- * ladder and the run's state, and would end up testing `core/gear/` — which
- * [`gear.spec.ts`](../core/gear/gear.spec.ts) already does directly.
+ * The component's job is presentation: draw the six offers it is handed, disable what the wallet
+ * cannot cover, and say what a purchase actually did. Driving the real `GearService` would pull in
+ * the whole grade ladder and the derived stock, and would end up testing `core/gear/shop.ts` —
+ * which [`gear.spec.ts`](../core/gear/gear.spec.ts) already does directly.
  */
 function item(over: Partial<GearItemView> = {}): GearItemView {
   return {
@@ -62,35 +58,18 @@ class FakeGear {
   buyOutcome: { kept: boolean; salvaged: number } = { kept: true, salvaged: 0 };
 
   readonly offers = signal<readonly GearOfferView[]>([offer()]);
-  readonly loose = signal<readonly GearItemView[]>([item()]);
-  readonly alloy = signal(num(250_000));
+  readonly gold = signal(num(250_000));
   readonly msUntilRestock = signal(27 * 60_000);
 
   /** What each call was handed, so a test can assert the screen asked for the right thing. */
-  readonly enhanced: string[] = [];
-  readonly salvaged: string[][] = [];
   readonly bought: number[] = [];
   readonly clockTicks: number[] = [];
 
   /** Flipped by a test that wants the refusal path rather than the happy one. */
-  failWith: 'insufficient-currency' | 'item-equipped' | null = null;
+  failWith: 'insufficient-currency' | 'already-purchased' | null = null;
 
   refreshClock(): void {
     this.clockTicks.push(this.clockTicks.length);
-  }
-
-  enhance(itemId: string) {
-    this.enhanced.push(itemId);
-    return this.failWith === null
-      ? ({ ok: true, state: {} } as never)
-      : ({ ok: false, reason: this.failWith } as never);
-  }
-
-  salvage(itemIds: readonly string[]) {
-    this.salvaged.push([...itemIds]);
-    return this.failWith === null
-      ? ({ ok: true, state: {} } as never)
-      : ({ ok: false, reason: this.failWith } as never);
   }
 
   buy(index: number) {
@@ -98,14 +77,6 @@ class FakeGear {
     return this.failWith === null
       ? ({ ok: true, state: {}, ...this.buyOutcome } as never)
       : ({ ok: false, reason: this.failWith } as never);
-  }
-
-  slots(): readonly GearSlotView[] {
-    return [];
-  }
-
-  bonusFor(): readonly GearBonusView[] {
-    return [];
   }
 }
 
@@ -115,11 +86,15 @@ async function render(configure?: (gear: FakeGear) => void) {
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
-    imports: [GearView],
-    providers: [{ provide: GearService, useValue: gear }],
+    imports: [GearShopView],
+    providers: [
+      provideRouter([]),
+      provideLocationMocks(),
+      { provide: GearService, useValue: gear },
+    ],
   }).compileComponents();
 
-  const fixture = TestBed.createComponent(GearView);
+  const fixture = TestBed.createComponent(GearShopView);
   fixture.detectChanges();
   await fixture.whenStable();
   fixture.detectChanges();
@@ -133,12 +108,19 @@ function click(el: HTMLElement, selector: string, fixture: { detectChanges: () =
   fixture.detectChanges();
 }
 
-describe('GearView', () => {
-  it('lists the forge and the bag as separate sections', async () => {
+describe('GearShopView', () => {
+  it('is a place in town rather than half of the gear tab', async () => {
     const { el } = await render();
 
-    expect(el.querySelector('#shop-label')?.textContent).toBe('Forge');
-    expect(el.querySelector('#bag-label')?.textContent).toBe('Bag');
+    expect(el.querySelector('h1')?.textContent).toBe('Gear Shop');
+    expect(el.querySelector('.head__back')?.getAttribute('href')).toBe('/town');
+  });
+
+  it('shows the gold an offer is priced against, since gold is what it spends', async () => {
+    const { el } = await render();
+
+    expect(el.querySelector('.head__amount')?.textContent).toBe('250K');
+    expect(el.querySelector('.head__unit')?.textContent).toBe('gold');
   });
 
   it('shows the restock countdown in minutes rather than seconds', async () => {
@@ -146,13 +128,13 @@ describe('GearView', () => {
     // device sixty times as often to redraw the same string.
     const { el } = await render();
 
-    expect(el.querySelector('.shop__restock')?.textContent).toContain('27m');
+    expect(el.querySelector('.restock')?.textContent).toContain('27m');
   });
 
   it('rolls a countdown over an hour into hours and minutes', async () => {
     const { el } = await render((gear) => gear.msUntilRestock.set(95 * 60_000));
 
-    expect(el.querySelector('.shop__restock')?.textContent).toContain('1h 35m');
+    expect(el.querySelector('.restock')?.textContent).toContain('1h 35m');
   });
 
   it('samples the clock on init rather than reading it inside a computed', async () => {
@@ -238,134 +220,6 @@ describe('GearView', () => {
     click(el, '.offer__buy', fixture);
 
     expect(el.querySelector('[role="status"]')?.textContent).toContain('Not enough gold');
-  });
-
-  it('tells a run with nothing spare where gear comes from', async () => {
-    const { el } = await render((gear) => gear.loose.set([]));
-
-    expect(el.querySelector('.empty')?.textContent).toContain('Every stage clear drops a piece');
-    expect(el.querySelector('.item')).toBeNull();
-  });
-
-  it('keeps a bag row collapsed until it is opened', async () => {
-    // One open row at a time. Two hundred rows each carrying two buttons and a cost breakdown is
-    // a wall; a list of names with one open row is something a thumb can work through.
-    const { el, fixture } = await render();
-
-    expect(el.querySelector('.detail')).toBeNull();
-    expect(el.querySelector('.item__row')?.getAttribute('aria-expanded')).toBe('false');
-
-    click(el, '.item__row', fixture);
-
-    expect(el.querySelector('.detail')).not.toBeNull();
-    expect(el.querySelector('.item__row')?.getAttribute('aria-expanded')).toBe('true');
-  });
-
-  it('closes an open row when it is tapped again', async () => {
-    const { el, fixture } = await render();
-
-    click(el, '.item__row', fixture);
-    click(el, '.item__row', fixture);
-
-    expect(el.querySelector('.detail')).toBeNull();
-  });
-
-  it('quotes both halves of the enhancement price', async () => {
-    // Gear is the gold sink this milestone exists to create, so the gold half is not a footnote.
-    const { el, fixture } = await render();
-
-    click(el, '.item__row', fixture);
-
-    const cost = el.querySelector('.detail__cost')?.textContent;
-    expect(cost).toContain('118');
-    expect(cost).toContain('674');
-  });
-
-  it('enhances the piece whose row is open', async () => {
-    const { el, gear, fixture } = await render((fake) =>
-      fake.loose.set([item({ id: 'g7', level: 3 })]),
-    );
-
-    click(el, '.item__row', fixture);
-    click(el, '.detail__enhance', fixture);
-
-    expect(gear.enhanced).toEqual(['g7']);
-    expect(el.querySelector('[role="status"]')?.textContent).toContain('level 4');
-  });
-
-  it('disables enhancement at the grade cap and says so on the button', async () => {
-    const { el, fixture } = await render((gear) =>
-      gear.loose.set([item({ atMaxLevel: true, enhanceCost: null })]),
-    );
-
-    click(el, '.item__row', fixture);
-
-    expect(el.querySelector<HTMLButtonElement>('.detail__enhance')?.disabled).toBe(true);
-    expect(el.querySelector('.detail__enhance')?.textContent?.trim()).toBe('Maxed');
-    expect(el.querySelector('.detail__cost')?.textContent).toContain('maximum level');
-  });
-
-  it('disables enhancement the wallet cannot cover, and says which problem it is', async () => {
-    const { el, fixture } = await render((gear) =>
-      gear.loose.set([item({ canAffordEnhance: false })]),
-    );
-
-    click(el, '.item__row', fixture);
-
-    expect(el.querySelector('.detail__enhance')?.textContent?.trim()).toBe('Cannot afford');
-  });
-
-  it('names what salvage pays before it is tapped', async () => {
-    const { el, fixture } = await render();
-
-    click(el, '.item__row', fixture);
-
-    expect(el.querySelector('.detail__salvage')?.textContent).toContain('1.42K alloy');
-  });
-
-  it('quotes the same salvage figure on the button and in the confirmation', async () => {
-    // They disagreed once — one printing `3288` and the other `3,288`. The view model formats it
-    // at the seam now, so there is no second place for a convention to be chosen.
-    const { el, fixture } = await render();
-
-    click(el, '.item__row', fixture);
-    const onButton = el.querySelector('.detail__salvage')?.textContent ?? '';
-    click(el, '.detail__salvage', fixture);
-
-    expect(el.querySelector('[role="status"]')?.textContent).toContain('1.42K alloy');
-    expect(onButton).toContain('1.42K alloy');
-  });
-
-  it('closes the row it just salvaged, since the piece is gone', async () => {
-    const { el, gear, fixture } = await render();
-
-    click(el, '.item__row', fixture);
-    click(el, '.detail__salvage', fixture);
-
-    expect(gear.salvaged).toEqual([['g1']]);
-    expect(el.querySelector('.detail')).toBeNull();
-  });
-
-  it('explains a refused salvage in terms of the rule behind it', async () => {
-    // "Equipped gear is never consumed" is settled law rather than a validation quirk, so the
-    // message names the rule instead of just reporting the refusal.
-    const { el, fixture } = await render((gear) => {
-      gear.failWith = 'item-equipped';
-    });
-
-    click(el, '.item__row', fixture);
-    click(el, '.detail__salvage', fixture);
-
-    expect(el.querySelector('[role="status"]')?.textContent).toContain('never consumed');
-  });
-
-  it('wires each disclosure to the panel it controls', async () => {
-    // The attribute pair is what makes a disclosure announce as one; without it the panel is
-    // markup that appears out of nowhere for anybody not looking at the screen.
-    const { el } = await render();
-
-    const row = el.querySelector('.item__row');
-    expect(row?.getAttribute('aria-controls')).toBe('gear-g1');
   });
 
   it('stops its clock when it leaves the screen', async () => {

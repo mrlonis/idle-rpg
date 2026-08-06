@@ -47,7 +47,7 @@ const unlockedSave = {
 const awaySave = { ...unlockedSave, lastTickAt: Date.now() - 3_600_000 };
 
 /**
- * A run with gear in the bag, one piece worn, and enough gold to buy from the forge.
+ * A run with gear in the bag, one piece worn, and enough gold to buy from the gear shop.
  *
  * A fresh run's bag is empty, so no scan above would ever see a gear row, a grade badge, an
  * expanded enhance panel or an affordable shop button. This is written at the **current** schema
@@ -228,19 +228,21 @@ test.describe('Accessibility', () => {
   });
 
   /**
-   * The gear screens carry two patterns nothing else here does: a disclosure whose expanded panel
-   * holds its own controls, and a grade that is drawn as a colour. Colour is never the only
-   * carrier of meaning in this project, so a scan that never expands a row would miss the half of
-   * that rule the markup is responsible for.
+   * The bag carries two patterns nothing else here does: a disclosure whose expanded panel holds
+   * its own controls, and a grade that is drawn as a colour. Colour is never the only carrier of
+   * meaning in this project, so a scan that never expands a row would miss the half of that rule
+   * the markup is responsible for.
+   *
+   * Two scans rather than one since the forge moved to Town: they were one screen and are now two
+   * routes, and a scan of either would no longer see the other's markup.
    */
-  test('the gear screen has no AXE violations', async ({ page }, testInfo) => {
+  test('the bag has no AXE violations', async ({ page }, testInfo) => {
     await seedSave(page, gearedSave);
-    await page.goto('/gear');
+    await page.goto('/bag');
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Gear' })).toBeVisible();
-    // The forge renders six offers whatever the run holds; the bag only renders rows when
-    // something is spare, so waiting on a bag row is what proves the seeded save was read.
-    await expect(page.getByRole('heading', { level: 2, name: 'Forge' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Bag' })).toBeVisible();
+    // The bag only renders rows when something is spare, so waiting on one is what proves the
+    // seeded save was read rather than scanning an empty-state branch.
     await expect(page.locator('.item').first()).toBeVisible();
 
     // Expanded, so the scan covers the enhance and salvage controls inside the panel rather than
@@ -248,7 +250,20 @@ test.describe('Accessibility', () => {
     await page.locator('.item__row').first().click();
     await expect(page.locator('.detail')).toBeVisible();
 
-    await scan(page, testInfo, 'gear');
+    await scan(page, testInfo, 'bag');
+  });
+
+  test('the gear shop has no AXE violations', async ({ page }, testInfo) => {
+    await seedSave(page, gearedSave);
+    await page.goto('/town/gear-shop');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Gear Shop' })).toBeVisible();
+    // The stock is derived, so six offers render whatever the run holds; the seeded gold is what
+    // makes their buttons enabled rather than disabled, which is the state worth scanning.
+    await expect(page.locator('.offer').first()).toBeVisible();
+    await expect(page.locator('.offer__buy').first()).toBeEnabled();
+
+    await scan(page, testInfo, 'gear-shop');
   });
 
   test('a character sheet with its gear picker open has no AXE violations', async ({

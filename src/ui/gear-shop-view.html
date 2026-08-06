@@ -1,0 +1,62 @@
+<header class="head">
+  <!-- Town is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/town">← Town</a>
+  <h1 class="head__title">Gear Shop</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ format(gold()) }}</span>
+    <span class="head__unit">gold</span>
+  </p>
+</header>
+
+<p class="intro">
+  Six pieces, priced against what your ladder earns. The same six until the hour turns — closing the
+  game will not change them. Everything you buy lands in your bag.
+</p>
+
+<p class="restock">Restocks in {{ restockIn() }}</p>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<ul class="offers">
+  @for (offer of offers(); track offer.index) {
+    <li class="offer" [class.offer--taken]="offer.purchased">
+      <div class="offer__identity">
+        <h2 class="offer__name">
+          <span class="grade grade--{{ offer.item.gradeId }}">{{ offer.item.gradeName }}</span>
+          {{ offer.item.slotLabel }}
+        </h2>
+        <p class="offer__meta">
+          {{ offer.item.archetypeLabel }}
+          @if (offer.item.alignmentLabel; as faction) {
+            <span class="dot" aria-hidden="true">·</span>{{ faction }}
+          } @else {
+            <span class="dot" aria-hidden="true">·</span>Unaligned
+          }
+        </p>
+        <ul class="stats">
+          @for (bonus of offer.item.bonuses; track bonus.stat) {
+            <li class="stats__item">
+              <span class="stats__label">{{ bonus.label }}</span>
+              <span class="stats__value">+{{ bonus.percent }}%</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <button
+        type="button"
+        class="offer__buy"
+        [disabled]="offer.purchased || !offer.affordable"
+        (click)="buy(offer)"
+      >
+        @if (offer.purchased) {
+          Bought
+        } @else {
+          {{ format(offer.price) }} gold
+        }
+      </button>
+    </li>
+  }
+</ul>

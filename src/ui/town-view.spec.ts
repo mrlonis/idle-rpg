@@ -8,13 +8,14 @@ import { GameLoopService } from './game-loop.service';
 import { TownView } from './town-view';
 
 /**
- * Only the two balances the hub reads.
+ * Only the balances the hub reads.
  *
- * The screen owns no state of its own — it is two links and the numbers behind them — so a fake
- * that exposes anything more would be testing the loop rather than the screen.
+ * The screen owns no state of its own — it is a list of links and the numbers behind them — so a
+ * fake that exposes anything more would be testing the loop rather than the screen.
  */
 class FakeGameLoop {
   readonly summons = signal(num(0));
+  readonly gold = signal(num(0));
   readonly spark = signal(num(0));
 }
 
@@ -46,10 +47,10 @@ function textOf(el: HTMLElement, selector: string): string[] {
 }
 
 describe('TownView', () => {
-  it('offers both places behind it', async () => {
+  it('offers every place behind it', async () => {
     const { el } = await render();
 
-    expect(textOf(el, '.place__name')).toEqual(['Summon', 'Spark Shop']);
+    expect(textOf(el, '.place__name')).toEqual(['Summon', 'Gear Shop', 'Spark Shop']);
   });
 
   it('sends each card to a child of /town, which is what keeps the tab lit inside it', async () => {
@@ -59,14 +60,17 @@ describe('TownView', () => {
 
     expect(cards(el).map((card) => card.getAttribute('href'))).toEqual([
       '/town/summon',
+      '/town/gear-shop',
       '/town/shop',
     ]);
   });
 
   it('carries the glyph each destination used to wear in the tab bar', async () => {
+    // The toolbox included: it led to the forge when the forge was half of the gear tab, and it
+    // followed the forge here rather than staying on the tab that became the Bag.
     const { el } = await render();
 
-    expect(textOf(el, '.place__icon')).toEqual(['🔮', '✨']);
+    expect(textOf(el, '.place__icon')).toEqual(['🔮', '🧰', '✨']);
   });
 
   it('hides those glyphs from assistive tech, since every card is also named in text', async () => {
@@ -81,28 +85,29 @@ describe('TownView', () => {
     const { el, game, fixture } = await render();
 
     game.summons.set(num(1234));
+    game.gold.set(num(89_000));
     game.spark.set(num(7));
     fixture.detectChanges();
 
-    expect(textOf(el, '.place__amount')).toEqual(['1.23K', '7']);
-    expect(textOf(el, '.place__unit')).toEqual(['crystals', 'spark']);
+    expect(textOf(el, '.place__amount')).toEqual(['1.23K', '89K', '7']);
+    expect(textOf(el, '.place__unit')).toEqual(['crystals', 'gold', 'spark']);
   });
 
   it('keeps the balances current as the wallet moves', async () => {
     const { el, game, fixture } = await render();
 
-    expect(textOf(el, '.place__amount')).toEqual(['0', '0']);
+    expect(textOf(el, '.place__amount')).toEqual(['0', '0', '0']);
 
     game.summons.set(num(50));
     fixture.detectChanges();
 
-    expect(textOf(el, '.place__amount')).toEqual(['50', '0']);
+    expect(textOf(el, '.place__amount')).toEqual(['50', '0', '0']);
   });
 
   it('draws the places as links rather than buttons, because they change where the player is', async () => {
     const { el } = await render();
 
-    expect(cards(el)).toHaveLength(2);
+    expect(cards(el)).toHaveLength(3);
     expect(el.querySelectorAll('.place button')).toHaveLength(0);
   });
 });

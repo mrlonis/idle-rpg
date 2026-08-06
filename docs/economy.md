@@ -19,7 +19,7 @@ flat fields would have been twelve lines in every encoder, decoder and repair pa
 
 | Currency  | Idle rate? | Buys                                                    |
 | --------- | ---------- | ------------------------------------------------------- |
-| `gold`    | ✅         | Levels, gear levels, and the forge.                     |
+| `gold`    | ✅         | Levels, gear levels, and the gear shop.                 |
 | `xp`      | ✅         | Levels, and nothing else.                               |
 | `essence` | ✅         | Breakthrough levels only — every tenth.                 |
 | `summons` | ✅         | Pulls, at 100 crystals each.                            |

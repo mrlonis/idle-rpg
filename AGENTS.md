@@ -75,7 +75,9 @@ the two disagree, the code is right and both are stale.
     same `defeat` on screen, so an outcome-based version of that guard silently tests nothing. Do
     not rewrite it in terms of the outcome, and do not narrow it to the parties that win.
 - **[docs/gear.md](docs/gear.md)** — the third progression axis, added in milestone 12: five slots,
-  five archetypes, a five-rung grade ladder, and an hourly forge.
+  five archetypes, a five-rung grade ladder, and an hourly gear shop. The shop is a Town screen
+  (`ui/gear-shop-view.ts`) and the bag is the fourth tab (`ui/bag-view.ts`); they were one screen
+  until the tab became the Bag, and `docs/gear.md` records why the split was worth its one cost.
   - ⚠️ **Every gear bonus is a percentage of the wearer's own stat, never a flat quantity.** A flat
     bonus is invisible against a levelling curve worth ×10⁹, and — the stronger argument — it is an
     **addition**, which is exactly what the whole-board rescale identity forbids. Anything proposed
@@ -171,10 +173,13 @@ Read it before starting a milestone, and specifically before:
 - **adding a tab at all.** Six is what fits across a small phone at a legible label size; a
   seventh has to shrink the text past reading or drop it, and a row of unlabelled glyphs is a
   puzzle rather than navigation. **The bar holds five, and the spare slot is not for spending** —
-  Summon and Shop gave it back when they moved behind **Town** (`/town`, with `/town/summon` and
-  `/town/shop` nested under it so the tab stays lit inside them). Town _is_ the different shape of
-  navigation that note used to promise the next screen would need: a hub costs one tap and has no
-  ceiling, so a new currency sink goes in Town rather than on the bar;
+  Summon and Shop gave it back when they moved behind **Town** (`/town`, with `/town/summon`,
+  `/town/shop` and `/town/gear-shop` nested under it so the tab stays lit inside them). Town _is_
+  the different shape of navigation that note used to promise the next screen would need: a hub
+  costs one tap and has no ceiling, so **every currency sink goes in Town** rather than on the bar.
+  The gear shop is the rule in action: it was half of the gear tab and moved, leaving that tab as
+  the **Bag** (`/bag`) — an inventory named for what it holds, so the next item type is a section
+  on a screen that exists rather than an argument for a sixth tab;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

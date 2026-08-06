@@ -22,7 +22,7 @@ interface Tab {
  *
  * ## Routes and one mode
  *
- * Home, town, roster, gear and settings are **routes**, because each describes saved state and
+ * Home, town, roster, the bag and settings are **routes**, because each describes saved state and
  * survives a reload — `/roster/rin` is somewhere a player can come back to. The battle screen is
  * still a signal-swapped **mode**, because everything it shows (a resolved log, an animator
  * playhead) lives only in memory; a `/battle` URL could never be anything but a broken bookmark.
@@ -60,12 +60,17 @@ export class App implements OnInit {
    * Town takes Summon's old position deliberately: the destination behind it is the one a player
    * reaches for most, and muscle memory for where the bar's second entry sits outlives what it
    * was called.
+   *
+   * **The fourth tab is the Bag, and it is the one entry named for a category rather than a
+   * screen.** It was Gear, which was the third progression axis wearing a tab; the forge half of
+   * it went to Town with the other sinks, and what stayed is an inventory. Naming it for what it
+   * holds is what stops the next item type from arguing for a sixth tab.
    */
   protected readonly tabs: readonly Tab[] = [
     { path: '/', label: 'Home', icon: '🏕', exact: true },
     { path: '/town', label: 'Town', icon: '🏘', exact: false },
     { path: '/roster', label: 'Roster', icon: '🛡', exact: false },
-    { path: '/gear', label: 'Gear', icon: '🧰', exact: false },
+    { path: '/bag', label: 'Bag', icon: '🎒', exact: false },
     { path: '/settings', label: 'Settings', icon: '⚙', exact: false },
   ];
 

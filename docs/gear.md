@@ -202,9 +202,18 @@ worn piece from three in four to one in four.
 never from the main stream. Drawing from the main stream would make **fighting a stage shift the
 gacha sequence**, which is the hazard `core/rng.ts` exists to remove.
 
-### The forge
+### The gear shop
 
-Six pieces, gold-priced, restocked on the hour.
+Six pieces, gold-priced, restocked on the hour. It lives at `/town/gear-shop`, beside the spark
+shop; it was the top half of the gear tab until that tab became the **Bag**.
+
+The split is worth stating because the original arrangement had an argument behind it: the shop and
+the bag are the same subject read from opposite ends, so a player weighing a Fine chest piece could
+see what they already held without leaving the offer. That held while gear was a tab of its own. It
+stops holding once the tab is an inventory — a shop is somewhere a player _goes_, which is what Town
+is for, and a bag is something they _carry_, which is what a tab is for. What blunts the cost is
+Town's own rule: every card names the currency its destination spends, so the trip is judged before
+it is taken, and the stock is fixed for the hour, so the offer is still there on the way back.
 
 ⚠️ **Nothing about the stock is stored.** It is derived from the run's seed and the refresh index,
 so it is the same six items however many times the app is relaunched inside the hour. Force-quitting
@@ -304,7 +313,7 @@ if the offer is worse than all 240 pieces already held, the piece just bought is
 Gold is still spent and the offer is still marked taken, and that is correct — the value comes back
 as alloy — but a confirmation reading "added to the bag" would be the screen lying about a
 transaction the player just paid for. So `buyGear` reports `kept` and `salvaged` rather than only
-`ok`, and the gear screen says which of the three things happened: bagged, bagged after shedding
+`ok`, and the gear shop says which of the three things happened: bagged, bagged after shedding
 _n_ pieces, or salvaged on arrival.
 
 Refusing the purchase instead was the alternative and it loses on the same grounds `useAsMaterial`
@@ -342,7 +351,8 @@ has one fewer dial than the player side, and that argument applies here unchange
 | [`core/gear/shop.ts`](../src/core/gear/shop.ts)           | The derived hourly stock and its pricing               |
 | [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients    |
 | [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system             |
-| [`ui/gear-view.ts`](../src/ui/gear-view.ts)               | The forge and the bag                                  |
+| [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                  |
+| [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                               |
 
 Gear enters the simulation on the same seam as level and rung: `toBattleCombatant` takes a
 `GearBonus` and applies it **after** growth. Both operations are multiplications so they commute,

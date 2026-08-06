@@ -1524,7 +1524,9 @@ four decisions that were not obvious going in.
 
 Shipped: `core/gear/` (`types`, `stats`, `inventory`, `roll`, `shop`), `data/gear.ts`, a sixth
 currency, the gear screen and the character sheet's equipment panel, two new accessibility scans,
-and **save v1** — the first entry the migration chain has ever had to walk.
+and **save v1** — the first entry the migration chain has ever had to walk. (That one screen is
+since two: the bag kept the tab and the shop moved to Town — see the entry near the end of this
+file. Nothing in `core/gear/` changed with it.)
 
 ### 1. Every bonus is a percentage, and that decision made the rest easy
 
@@ -1972,7 +1974,8 @@ on the bar: Summon and the spark shop.
 
 `/town` replaces both tabs, at Summon's old position, and the two screens move to `/town/summon` and
 `/town/shop`. The bar is Home · Town · Roster · Gear · Settings — five, with a spare slot that is
-deliberately not for spending.
+deliberately not for spending. (The fourth entry is the **Bag** now, and the gear shop is a third
+card in Town; see the entry below.)
 
 **Why a hub beat the other two options.** A "more" tab spends a slot to say "there is more", which
 is a tab that is never the destination. Moving settings off the bar frees a slot and then leaves the
@@ -2002,6 +2005,42 @@ Three decisions inside it:
 bookmark, deep link or reload carrying one of those paths exists. This is the same argument that
 licensed the v0 re-base below, and it expires the same way: the moment anyone outside development
 has a URL, a moved route needs a redirect.
+
+## Not a milestone: the gear tab became the Bag, and its shop moved to Town
+
+The hub above was built on the promise that **a new currency sink is a card in Town rather than a
+tab**. The gear shop is the first thing to test it, and it was not new — it was already on the bar,
+as the top half of the Gear tab, above the bag of loose pieces.
+
+Three changes, one argument:
+
+- the forge is now **`/town/gear-shop`**, a Town screen beside the spark shop, with the toolbox 🧰
+  it wore in the tab bar;
+- the tab that is left is the **Bag** at `/bag`, with 🎒 — named for what it holds rather than for a
+  system;
+- the bar is Home · Town · Roster · Bag · Settings. Still five, still with a spare slot that is not
+  for spending.
+
+**Splitting the two sections cost something real, and it is worth naming.** They were one screen on
+a good argument: the shop is where a specific piece is _chosen_ and the bag is where the random ones
+pile up, so a player weighing a Fine chest piece could see what they already held without leaving
+the offer. That argument was about **gear**, and it held while the tab was gear. It stops holding
+once the tab is an inventory. A shop is somewhere a player _goes_, having decided to spend — the
+same test that demoted Summon and the spark shop — and a bag is something they _carry_. Two of the
+three currency sinks were already in Town; leaving the third on the bar was the inconsistency.
+
+What blunts the cost is the hub's own rule: the card names the gold the shop spends, so the trip is
+judged before it is taken, and the stock is **fixed for the hour**, so the offer is still there on
+the way back. Neither would be true of a shop that rerolled.
+
+**Renaming the tab is the half that pays forward.** "Gear" was a tab named after a progression
+system, so the second item type the game mints — materials, consumables, whatever milestone 14's
+dailies hand out — would have had nowhere to land but a sixth tab. "Bag" is a container: a new item
+type is a section on a screen that already exists. Nothing empty ships for it, though. The bag is
+one section, headed **Gear**, and the second heading arrives with the second kind of item.
+
+**No redirect from `/gear`**, for the reason `/summon` got none: the game is pre-release. That
+licence expires the moment a URL exists outside development.
 
 ## Not a milestone: the save chain was re-based to v0
 
