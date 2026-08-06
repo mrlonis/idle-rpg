@@ -58,14 +58,14 @@ export const CHAPTER_2 = {
       id: 'c2-s1',
       name: 'Ashfall Reach',
       enemies: { front: [REVENANT, REVENANT], back: [SKYSHRIKE, SKYSHRIKE] },
-      level: 40,
+      level: 16,
     },
     {
       // A fen board at four times the level it was fielded at, which is the point of it.
       id: 'c2-s2',
       name: 'Emberwake',
       enemies: { front: [REVENANT, BOAR], back: [SKYSHRIKE, PYRE] },
-      level: 41,
+      level: 17,
     },
     {
       // Grind, with a clock on it. Two Cairn Sentinels are the most armour on the ladder so far,
@@ -73,13 +73,13 @@ export const CHAPTER_2 = {
       id: 'c2-s3',
       name: 'The Cairn Line',
       enemies: { front: [SENTINEL, SENTINEL], back: [STORMCALLER, STORMCALLER] },
-      level: 43,
+      level: 19,
     },
     {
       id: 'c2-s4',
       name: 'Cinderpath',
       enemies: { front: [REVENANT, SENTINEL], back: [SKYSHRIKE, STORMCALLER] },
-      level: 44,
+      level: 20,
     },
     {
       // Penetration arrives. A Ravager ignores nearly half of whichever defence the party bought,
@@ -88,19 +88,19 @@ export const CHAPTER_2 = {
       id: 'c2-s5',
       name: 'Flensing Grounds',
       enemies: { front: [RAVAGER, REVENANT], back: [SKYSHRIKE, STORMCALLER] },
-      level: 46,
+      level: 22,
     },
     {
       id: 'c2-s6',
       name: 'The Scoured Rise',
       enemies: { front: [RAVAGER, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 47,
+      level: 23,
     },
     {
       id: 'c2-s7',
       name: 'Emberwatch',
       enemies: { front: [SENTINEL, REVENANT], back: [ACOLYTE, STORMCALLER] },
-      level: 49,
+      level: 24,
     },
     {
       // The escalation lock. Chipping the Wrathborn down is what turns it on, so the fight the
@@ -108,13 +108,13 @@ export const CHAPTER_2 = {
       id: 'c2-s8',
       name: 'The Kindled Span',
       enemies: { front: [WRATHBORN, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 50,
+      level: 26,
     },
     {
       id: 'c2-s9',
       name: 'Ashen Ford',
       enemies: { front: [WRATHBORN, REVENANT], back: [SKYSHRIKE, SKYSHRIKE, STORMCALLER] },
-      level: 52,
+      level: 27,
     },
     {
       // Mini-boss. Penetration twice over, with the escalation behind it, and the first stage
@@ -122,7 +122,7 @@ export const CHAPTER_2 = {
       id: 'c2-s10',
       name: 'Ravager’s Deep',
       enemies: { front: [RAVAGER, RAVAGER], back: [WRATHBORN, STORMCALLER, SKYSHRIKE] },
-      level: 55,
+      level: 29,
     },
 
     // -----------------------------------------------------------------------------------
@@ -132,19 +132,19 @@ export const CHAPTER_2 = {
       id: 'c2-s11',
       name: 'Cairnwatch',
       enemies: { front: [SENTINEL, SENTINEL], back: [SKYSHRIKE, STORMCALLER, REVENANT] },
-      level: 56,
+      level: 30,
     },
     {
       id: 'c2-s12',
       name: 'The Long Burn',
       enemies: { front: [WRATHBORN, RAVAGER], back: [STORMCALLER, SKYSHRIKE] },
-      level: 57,
+      level: 31,
     },
     {
       id: 'c2-s13',
       name: 'Hollow Ash',
       enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE] },
-      level: 59,
+      level: 33,
     },
     {
       // A healer and a shielder in one body, standing behind a wall. Chip damage loses to the
@@ -153,37 +153,37 @@ export const CHAPTER_2 = {
       id: 'c2-s14',
       name: 'The Hollow Choir',
       enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE, STORMCALLER] },
-      level: 60,
+      level: 34,
     },
     {
       id: 'c2-s15',
       name: 'Pyreholm',
       enemies: { front: [RAVAGER, WRATHBORN], back: [HIEROPHANT, STORMCALLER] },
-      level: 62,
+      level: 36,
     },
     {
       id: 'c2-s16',
       name: 'The Grey March',
       enemies: { front: [SENTINEL, RAVAGER], back: [SKYSHRIKE, SKYSHRIKE, HIEROPHANT] },
-      level: 63,
+      level: 37,
     },
     {
       id: 'c2-s17',
       name: 'Emberfall',
       enemies: { front: [WRATHBORN, WRATHBORN], back: [STORMCALLER, SKYSHRIKE] },
-      level: 65,
+      level: 39,
     },
     {
       id: 'c2-s18',
       name: 'The Cinder Line',
       enemies: { front: [SENTINEL, SENTINEL], back: [HIEROPHANT, STORMCALLER, SKYSHRIKE] },
-      level: 66,
+      level: 40,
     },
     {
       id: 'c2-s19',
       name: 'Ashmoor',
       enemies: { front: [RAVAGER, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 68,
+      level: 41,
     },
     {
       // Mini-boss. The execution lock: a Headsman ignores rank and goes for whoever is closest to
@@ -191,7 +191,7 @@ export const CHAPTER_2 = {
       id: 'c2-s20',
       name: 'Gallowmoor',
       enemies: { front: [OATHBREAKER, REVENANT], back: [HEADSMAN, HIEROPHANT] },
-      level: 71,
+      level: 43,
     },
 
     // -----------------------------------------------------------------------------------
@@ -201,13 +201,13 @@ export const CHAPTER_2 = {
       id: 'c2-s21',
       name: 'The Gallow Road',
       enemies: { front: [OATHBREAKER, SENTINEL], back: [HEADSMAN, SKYSHRIKE] },
-      level: 72,
+      level: 44,
     },
     {
       id: 'c2-s22',
       name: 'Ironwake',
       enemies: { front: [COLOSSUS, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 74,
+      level: 46,
     },
     {
       // The tenacity lock. Sunder, Weaken and Slow have answered every large thing below this,
@@ -216,19 +216,19 @@ export const CHAPTER_2 = {
       id: 'c2-s23',
       name: 'The Adamant Gate',
       enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, STORMCALLER] },
-      level: 75,
+      level: 47,
     },
     {
       id: 'c2-s24',
       name: 'Hangman’s Reach',
       enemies: { front: [OATHBREAKER, RAVAGER], back: [HEADSMAN, HIEROPHANT] },
-      level: 77,
+      level: 48,
     },
     {
       id: 'c2-s25',
       name: 'The Slag Fields',
       enemies: { front: [COLOSSUS, WRATHBORN], back: [STORMCALLER, SKYSHRIKE, HEADSMAN] },
-      level: 78,
+      level: 50,
     },
     {
       // The wall-breaker. A Tyrant attacks the party's largest HP pool rather than through the
@@ -236,25 +236,25 @@ export const CHAPTER_2 = {
       id: 'c2-s26',
       name: 'Boneash',
       enemies: { front: [TYRANT, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 80,
+      level: 51,
     },
     {
       id: 'c2-s27',
       name: 'The Cold Forge',
       enemies: { front: [COLOSSUS, SENTINEL], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 81,
+      level: 53,
     },
     {
       id: 'c2-s28',
       name: 'Bonefall',
       enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, STORMCALLER] },
-      level: 83,
+      level: 54,
     },
     {
       id: 'c2-s29',
       name: 'The Riven Span',
       enemies: { front: [TYRANT, RAVAGER], back: [SKYSHRIKE, HIEROPHANT, STORMCALLER] },
-      level: 84,
+      level: 55,
     },
     {
       // Mini-boss. Five bodies and three locks: a wall nothing sticks to, an executioner behind
@@ -262,7 +262,7 @@ export const CHAPTER_2 = {
       id: 'c2-s30',
       name: 'The Broken Oath',
       enemies: { front: [OATHBREAKER, COLOSSUS], back: [HEADSMAN, HIEROPHANT, STORMCALLER] },
-      level: 88,
+      level: 57,
     },
 
     // -----------------------------------------------------------------------------------
@@ -272,13 +272,13 @@ export const CHAPTER_2 = {
       id: 'c2-s31',
       name: 'Emberthrone',
       enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, SKYSHRIKE, HEADSMAN] },
-      level: 89,
+      level: 58,
     },
     {
       id: 'c2-s32',
       name: 'The Ashen Choir',
       enemies: { front: [SENTINEL, COLOSSUS], back: [HIEROPHANT, STORMCALLER, SKYSHRIKE] },
-      level: 91,
+      level: 60,
     },
     {
       // Two Headsmen. Nothing in the party's back rank is out of reach, and the one closest to
@@ -286,13 +286,13 @@ export const CHAPTER_2 = {
       id: 'c2-s33',
       name: 'Gallowfall',
       enemies: { front: [OATHBREAKER, TYRANT], back: [HEADSMAN, HEADSMAN] },
-      level: 92,
+      level: 61,
     },
     {
       id: 'c2-s34',
       name: 'The Last Cairn',
       enemies: { front: [COLOSSUS, COLOSSUS], back: [STORMCALLER, HIEROPHANT] },
-      level: 94,
+      level: 62,
     },
     {
       // The wall-breaker and the wall, together. Whatever the party puts in front dies to the
@@ -300,31 +300,31 @@ export const CHAPTER_2 = {
       id: 'c2-s35',
       name: 'Tyrant’s Rest',
       enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, OATHBREAKER, HEADSMAN] },
-      level: 95,
+      level: 64,
     },
     {
       id: 'c2-s36',
       name: 'The Scorched Vigil',
       enemies: { front: [OATHBREAKER, WRATHBORN], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 97,
+      level: 65,
     },
     {
       id: 'c2-s37',
       name: 'Ruinfall',
       enemies: { front: [TYRANT, RAVAGER], back: [HEADSMAN, STORMCALLER, HIEROPHANT] },
-      level: 99,
+      level: 67,
     },
     {
       id: 'c2-s38',
       name: 'The Iron Choir',
       enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, SKYSHRIKE] },
-      level: 100,
+      level: 68,
     },
     {
       id: 'c2-s39',
       name: 'Emberwatch Keep',
       enemies: { front: [TYRANT, COLOSSUS], back: [STORMCALLER, HEADSMAN] },
-      level: 102,
+      level: 70,
     },
     {
       // Mini-boss. The first sight of the thing the chapter is named for, standing behind a wall
@@ -332,7 +332,7 @@ export const CHAPTER_2 = {
       id: 'c2-s40',
       name: 'The Unmaking',
       enemies: { front: [UNMADE, SENTINEL], back: [HIEROPHANT, STORMCALLER] },
-      level: 106,
+      level: 71,
     },
 
     // -----------------------------------------------------------------------------------
@@ -342,55 +342,55 @@ export const CHAPTER_2 = {
       id: 'c2-s41',
       name: 'Ashen Reach',
       enemies: { front: [UNMADE, REVENANT], back: [HEADSMAN, SKYSHRIKE] },
-      level: 107,
+      level: 72,
     },
     {
       id: 'c2-s42',
       name: 'The Cinder Throne',
       enemies: { front: [TYRANT, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 109,
+      level: 74,
     },
     {
       id: 'c2-s43',
       name: 'Blackcairn',
       enemies: { front: [COLOSSUS, TYRANT], back: [HEADSMAN, HIEROPHANT] },
-      level: 110,
+      level: 75,
     },
     {
       id: 'c2-s44',
       name: 'The Sundered Oath',
       enemies: { front: [OATHBREAKER, UNMADE], back: [STORMCALLER, SKYSHRIKE, HEADSMAN] },
-      level: 112,
+      level: 77,
     },
     {
       id: 'c2-s45',
       name: 'Pyre of Kings',
       enemies: { front: [UNMADE, COLOSSUS], back: [HIEROPHANT, STORMCALLER] },
-      level: 114,
+      level: 78,
     },
     {
       id: 'c2-s46',
       name: 'The Hollow Crown',
       enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 115,
+      level: 79,
     },
     {
       id: 'c2-s47',
       name: 'Ashfall Keep',
       enemies: { front: [UNMADE, TYRANT], back: [STORMCALLER, HEADSMAN] },
-      level: 117,
+      level: 81,
     },
     {
       id: 'c2-s48',
       name: 'The Last Gate',
       enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 119,
+      level: 82,
     },
     {
       id: 'c2-s49',
       name: 'Ruin’s Edge',
       enemies: { front: [UNMADE, COLOSSUS], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 121,
+      level: 84,
     },
     {
       // ⚠️ The chapter boss, and the top of everything shipped. It takes the biggest thing the
@@ -400,7 +400,7 @@ export const CHAPTER_2 = {
       id: 'c2-s50',
       name: 'The Unmade',
       enemies: { front: [UNMADE, TYRANT], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 126,
+      level: 85,
     },
   ],
 } as const;

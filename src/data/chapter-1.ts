@@ -120,7 +120,7 @@ export const CHAPTER_1 = {
       id: 'c1-s8',
       name: 'Hagfen',
       enemies: { front: [BOAR, BANDIT], back: [HAG, ACOLYTE] },
-      level: 15,
+      level: 14,
     },
     {
       // The armour check. Almost nothing physical the party does lands for full value against a
@@ -129,7 +129,7 @@ export const CHAPTER_1 = {
       id: 'c1-s9',
       name: 'Broken Causeway',
       enemies: { front: [GOLEM], back: [WISP, PYRE] },
-      level: 15,
+      level: 14,
     },
     {
       // Mini-boss. The absorb lock: a Bulwark re-applies a party-wide barrier faster than chip
@@ -138,7 +138,7 @@ export const CHAPTER_1 = {
       id: 'c1-s10',
       name: 'Ashen Span',
       enemies: { front: [BULWARK_ENEMY, BOAR], back: [PYRE, WISP] },
-      level: 17,
+      level: 14,
     },
     {
       // The gate. A Warden takes turns away, a Shade dodges over half of what is aimed at it, and
@@ -146,7 +146,7 @@ export const CHAPTER_1 = {
       id: 'c1-s11',
       name: 'The Warden’s Gate',
       enemies: { front: [WARDEN, BANDIT], back: [ACOLYTE, SHADE] },
-      level: 17,
+      level: 14,
     },
     {
       // Both defences up in front, two things that punish patience behind. Winnable by a party
@@ -154,7 +154,7 @@ export const CHAPTER_1 = {
       id: 'c1-s12',
       name: 'Rimeplate Deep',
       enemies: { front: [RIMEPLATE, BULWARK_ENEMY], back: [HAG, PYRE] },
-      level: 18,
+      level: 14,
     },
 
     // -----------------------------------------------------------------------------------
@@ -167,32 +167,32 @@ export const CHAPTER_1 = {
       id: 'c1-s13',
       name: 'Drowned Steps',
       enemies: { front: [GOLEM, BOAR], back: [WISP, SLIME, PYRE] },
-      level: 18,
+      level: 14,
     },
     {
       id: 'c1-s14',
       name: 'Reedcutter Camp',
       enemies: { front: [BANDIT, BANDIT], back: [BANDIT, WISP] },
-      level: 19,
+      level: 14,
     },
     {
       // Absorb and heal together for the first time — neither is new, and the pair is.
       id: 'c1-s15',
       name: 'Fen Chapel',
       enemies: { front: [BOAR, BULWARK_ENEMY], back: [ACOLYTE, WISP] },
-      level: 19,
+      level: 14,
     },
     {
       id: 'c1-s16',
       name: 'Mirefall',
       enemies: { front: [GOLEM, BOAR], back: [PYRE, WISP] },
-      level: 20,
+      level: 14,
     },
     {
       id: 'c1-s17',
       name: 'The Shrouded Path',
       enemies: { front: [BANDIT, BULWARK_ENEMY], back: [SHADE, ACOLYTE, WISP] },
-      level: 20,
+      level: 14,
     },
     {
       // Two walls and nothing else worth hitting. A party with no answer to armour spends the
@@ -200,13 +200,13 @@ export const CHAPTER_1 = {
       id: 'c1-s18',
       name: 'Hollow Bank',
       enemies: { front: [GOLEM, GOLEM], back: [PYRE] },
-      level: 21,
+      level: 14,
     },
     {
       id: 'c1-s19',
       name: 'Widow’s Crossing',
       enemies: { front: [BOAR, BANDIT], back: [HAG, SHADE, WISP] },
-      level: 21,
+      level: 14,
     },
     {
       // Mini-boss. The Warden's stun on top of a Golem's armour and a Hag's debuff: three answers
@@ -214,7 +214,7 @@ export const CHAPTER_1 = {
       id: 'c1-s20',
       name: 'The Bogwarden',
       enemies: { front: [WARDEN, GOLEM], back: [HAG, PYRE] },
-      level: 23,
+      level: 14,
     },
 
     // -----------------------------------------------------------------------------------
@@ -225,64 +225,64 @@ export const CHAPTER_1 = {
       id: 'c1-s21',
       name: 'Sunken Chapel',
       enemies: { front: [BULWARK_ENEMY, BOAR], back: [ACOLYTE, ACOLYTE] },
-      level: 23,
+      level: 14,
     },
     {
       id: 'c1-s22',
       name: 'Blackwater Run',
       enemies: { front: [BANDIT, BANDIT], back: [SHADE, SHADE, WISP] },
-      level: 24,
+      level: 15,
     },
     {
       id: 'c1-s23',
       name: 'Cairnmoss',
       enemies: { front: [RIMEPLATE, BOAR], back: [PYRE, WISP] },
-      level: 24,
+      level: 15,
     },
     {
       id: 'c1-s24',
       name: 'The Weeping Fen',
       enemies: { front: [BOAR, BULWARK_ENEMY], back: [HAG, ACOLYTE, PYRE] },
-      level: 25,
+      level: 15,
     },
     {
       id: 'c1-s25',
       name: 'Gravelight',
       enemies: { front: [GOLEM, BANDIT], back: [SHADE, ACOLYTE] },
-      level: 25,
+      level: 15,
     },
     {
       id: 'c1-s26',
       name: 'Stonewatch',
       enemies: { front: [RIMEPLATE, GOLEM], back: [WISP, WISP] },
-      level: 26,
+      level: 15,
     },
     {
       // Two Hags is twice the debuff and twice the cleanse it takes to answer them.
       id: 'c1-s27',
       name: 'The Long Mire',
       enemies: { front: [BOAR, BOAR], back: [HAG, HAG, ACOLYTE] },
-      level: 26,
+      level: 15,
     },
     {
       id: 'c1-s28',
       name: 'Emberfen',
       enemies: { front: [BULWARK_ENEMY, BANDIT], back: [PYRE, PYRE] },
-      level: 27,
+      level: 15,
     },
     {
       // A Shade in the front rank, where its dodge is aimed at everything the party throws.
       id: 'c1-s29',
       name: 'Shadewater',
       enemies: { front: [BANDIT, SHADE], back: [SHADE, ACOLYTE, WISP] },
-      level: 27,
+      level: 15,
     },
     {
       // Mini-boss. Stun, barrier, heal, burn and dodge — the whole fen vocabulary on one board.
       id: 'c1-s30',
       name: 'The Iron Vigil',
       enemies: { front: [WARDEN, BULWARK_ENEMY], back: [ACOLYTE, PYRE, SHADE] },
-      level: 29,
+      level: 15,
     },
 
     // -----------------------------------------------------------------------------------
@@ -292,56 +292,56 @@ export const CHAPTER_1 = {
       id: 'c1-s31',
       name: 'Coldmire',
       enemies: { front: [RIMEPLATE, BULWARK_ENEMY], back: [WISP, PYRE] },
-      level: 29,
+      level: 15,
     },
     {
       id: 'c1-s32',
       name: 'The Sundered Ford',
       enemies: { front: [GOLEM, BOAR], back: [HAG, SHADE, ACOLYTE] },
-      level: 30,
+      level: 15,
     },
     {
       // Three Shades. Accuracy or volume; nothing else touches this.
       id: 'c1-s33',
       name: 'Wraithlight',
       enemies: { front: [BANDIT, BANDIT], back: [SHADE, SHADE, SHADE] },
-      level: 30,
+      level: 15,
     },
     {
       id: 'c1-s34',
       name: 'The Hag’s Table',
       enemies: { front: [BOAR, BULWARK_ENEMY], back: [HAG, HAG, PYRE] },
-      level: 31,
+      level: 15,
     },
     {
       id: 'c1-s35',
       name: 'Fen of Bones',
       enemies: { front: [RIMEPLATE, GOLEM], back: [ACOLYTE, PYRE] },
-      level: 31,
+      level: 15,
     },
     {
       id: 'c1-s36',
       name: 'Stillwater Shrine',
       enemies: { front: [BULWARK_ENEMY, BOAR], back: [ACOLYTE, ACOLYTE, WISP] },
-      level: 32,
+      level: 16,
     },
     {
       id: 'c1-s37',
       name: 'The Grey Causeway',
       enemies: { front: [GOLEM, RIMEPLATE], back: [PYRE, SHADE] },
-      level: 32,
+      level: 16,
     },
     {
       id: 'c1-s38',
       name: 'Nightreed',
       enemies: { front: [BOAR, BANDIT], back: [HAG, PYRE, SHADE] },
-      level: 33,
+      level: 16,
     },
     {
       id: 'c1-s39',
       name: 'The Drowned Court',
       enemies: { front: [WARDEN, BOAR], back: [ACOLYTE, HAG] },
-      level: 33,
+      level: 16,
     },
     {
       // Mini-boss. Two Rimeplates: both defences up, twice over, with a burn and a debuff behind
@@ -350,7 +350,7 @@ export const CHAPTER_1 = {
       id: 'c1-s40',
       name: 'Rimefall',
       enemies: { front: [RIMEPLATE, RIMEPLATE], back: [PYRE, HAG, WISP] },
-      level: 35,
+      level: 16,
     },
 
     // -----------------------------------------------------------------------------------
@@ -360,55 +360,55 @@ export const CHAPTER_1 = {
       id: 'c1-s41',
       name: 'Ashen Fen',
       enemies: { front: [BULWARK_ENEMY, GOLEM], back: [PYRE, PYRE, ACOLYTE] },
-      level: 35,
+      level: 16,
     },
     {
       id: 'c1-s42',
       name: 'The Quiet Deep',
       enemies: { front: [RIMEPLATE, BULWARK_ENEMY], back: [SHADE, ACOLYTE] },
-      level: 36,
+      level: 16,
     },
     {
       id: 'c1-s43',
       name: 'Thorn Gate',
       enemies: { front: [WARDEN, BANDIT], back: [SHADE, PYRE] },
-      level: 36,
+      level: 16,
     },
     {
       id: 'c1-s44',
       name: 'The Last Reeds',
       enemies: { front: [BOAR, BOAR], back: [HAG, ACOLYTE, SHADE] },
-      level: 37,
+      level: 16,
     },
     {
       id: 'c1-s45',
       name: 'Grimwater',
       enemies: { front: [GOLEM, RIMEPLATE], back: [PYRE, HAG, ACOLYTE] },
-      level: 37,
+      level: 16,
     },
     {
       id: 'c1-s46',
       name: 'The Broken Vigil',
       enemies: { front: [WARDEN, RIMEPLATE], back: [ACOLYTE, PYRE] },
-      level: 38,
+      level: 16,
     },
     {
       id: 'c1-s47',
       name: 'Deepmire',
       enemies: { front: [RIMEPLATE, GOLEM], back: [HAG, SHADE, ACOLYTE] },
-      level: 38,
+      level: 16,
     },
     {
       id: 'c1-s48',
       name: 'The Cold Shrine',
       enemies: { front: [BULWARK_ENEMY, RIMEPLATE], back: [ACOLYTE, ACOLYTE, PYRE] },
-      level: 39,
+      level: 16,
     },
     {
       id: 'c1-s49',
       name: 'Wardenmarch',
       enemies: { front: [WARDEN, GOLEM], back: [SHADE, HAG, PYRE] },
-      level: 39,
+      level: 16,
     },
     {
       // ⚠️ The chapter boss, and the party the whole chapter is tuned against: five common-tier
@@ -418,7 +418,7 @@ export const CHAPTER_1 = {
       id: 'c1-s50',
       name: 'The Frozen Gate',
       enemies: { front: [WARDEN, RIMEPLATE], back: [ACOLYTE, HAG, PYRE] },
-      level: 40,
+      level: 16,
     },
   ],
 } as const;

@@ -2137,7 +2137,12 @@ export const LITANY = {
   name: 'Litany',
   target: 'ally-lowest',
   effects: [{ kind: 'heal', power: 1.6 }],
-  cooldown: 32,
+  // ⚠️ 32 until the milestone-14 ladder retune. A heal every 3.2s priced off the Hierophant's own
+  // attack was a speed bump when chapter 2 ran to enemy level 126; against the flatter ladder it
+  // out-paced the damage of any party that had gear but had not yet out-levelled the stage, and
+  // that band ran the ninety-second clock out rather than resolving. The Hierophant is still the
+  // healer that has to be burst — it just cannot out-heal a party indefinitely.
+  cooldown: 44,
   condition: { kind: 'ally-hurt', fraction: 0.9 },
   priority: 3,
 } as const;
@@ -2201,7 +2206,16 @@ export const BULWARK = {
   name: 'Bulwark',
   target: 'ally-all',
   effects: [{ kind: 'status', status: BARRIER }],
-  cooldown: 60,
+  // ⚠️ **Must stay longer than `BARRIER.duration` (70), and that is a termination argument rather
+  // than a balance knob.** At 60 this recast ten ticks *before* the shield it applies expires, so
+  // a Hierophant or a Bulwark kept a party-wide absorb up permanently — and a party doing steady
+  // damage into permanent absorb, while taking little back, resolves nothing. Every stall the
+  // milestone-14 retune surfaced was a stage with one of those two on it.
+  //
+  // It was invisible before because the old ladder killed the party first; flattening the levels
+  // removed the thing that was hiding it. A shield that cannot lapse is not a lock the party can
+  // answer with burst, which is what `BARRIER` is documented to be.
+  cooldown: 85,
   priority: 3,
 } as const;
 

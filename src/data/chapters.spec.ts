@@ -23,6 +23,7 @@ import {
 import { AUTO_BATTLE_UNLOCK_CLEARS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { BRAN, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { ENEMIES } from './enemies';
+import { LEVEL_CURVE } from './levels';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -264,10 +265,23 @@ describe('the level curve', () => {
     // Two chapters must not consume the whole thousand-level curve — level 1000 is a chapter-100
     // target and there are ninety-eight chapters to author between here and there. A top stage
     // that had drifted into the high hundreds would mean these two chapters *are* the game.
+    //
+    // ⚠️ **Both bounds are derived from the rarity caps rather than written down, and the lower
+    // one used to be a flat `> 100`.** That number outlived its argument: the comment above only
+    // ever justified the ceiling, and the floor was quietly asserting a difficulty target — one
+    // the shipped ladder no longer has. The ladder is now tuned so chapter 1 closes at the cap a
+    // player reaches *without ascending* and chapter 2 closes at the `rare` cap, which is a
+    // deliberate statement that the shipped content is a breeze and the difficulty arrives with
+    // chapter 3. See `docs/milestones.md`.
+    //
+    // What is still worth asserting is the shape either side of that: the ladder has to ask for
+    // more than a player gets for free, and it has to leave the curve somewhere to go.
     const top = stages[stages.length - 1].level;
+    const caps = LEVEL_CURVE.caps;
+    const withoutAscending = caps[0];
 
-    expect(top).toBeGreaterThan(100);
-    expect(top).toBeLessThan(400);
+    expect(top, 'the ladder must ask for at least one ascension').toBeGreaterThan(withoutAscending);
+    expect(top, 'two chapters must not consume the curve').toBeLessThan(LEVEL_CURVE.maxLevel / 2);
   });
 });
 

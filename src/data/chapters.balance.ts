@@ -325,29 +325,43 @@ const STARTERS: FormationData = {
 /**
  * The level and rung {@link BUILT} is fielded at, and what the mono-faction fives match.
  *
- * **The level is derived, not authored.** What this party *is* is "hit the first level wall, spent
- * one ascension on it, has not levelled into the new headroom yet" — so the level is the cap of
- * the rung below, whatever the curve says that is. It read 40 when the ladder started at `rare`;
- * the copies-only rewrite put two rungs underneath and it now reads 20, without this line changing. Writing
- * the number would have made this party quietly stop being the one the prose describes.
+ * **The level is derived, not authored.** What this party *is* is "filled the five formation slots
+ * and levelled them as far as they go without ascending" — so the level is this rung's own cap,
+ * whatever the curve says that is.
+ *
+ * ⚠️ **It was `rare-plus` at the cap of the rung below until the milestone-14 retune**, which made
+ * it a party three rungs in. That described the old ladder, where chapter 1 closed at enemy level
+ * 40; the retune brought the ceiling to 16 and this party down to meet it.
+ *
+ * ⚠️ **Zero rungs was measured and rejected, and the reason is the shape of the early curve.**
+ * `perLevel.common` is 1.021 — it has to be, to reach ×10⁹ across a thousand levels — so a
+ * character levelled from 1 to its unascended cap of 20 is worth **×1.48**, against a wall at
+ * stage 7 built to stop ×1.00. That 48% is the entire margin, and chapter 1's composition locks
+ * ate it: a five at level 20 with no rungs failed eight stages, one at a 5% win rate, and the seven
+ * mono-faction fives spread twice as far apart as the guard allows.
+ *
+ * **Levels are not the early power curve in this game; rungs are.** So this party is one rung in
+ * and levelled into the cap that rung buys — which is also what a player actually holds, because
+ * the pulls that fill the five formation slots produce the duplicates that pay for it.
+ *
+ * Note what the rung is *not* worth here: `growthFloor` anchors the ×1.6 ladder at `rare`, so
+ * `common-plus` pays no multiplier either. What it buys is ten more levels, and at ×1.021 each
+ * that is the difference between ×1.48 and ×1.81.
  */
-const BUILT_RARITY = RARE_PLUS;
-const BUILT_LEVEL = LEVEL_CURVE.caps[BUILT_RARITY - 1];
+const BUILT_RARITY = rarityIndex('common-plus');
+const BUILT_LEVEL = LEVEL_CURVE.caps[BUILT_RARITY];
 
 /**
- * The mid-game party: five common-tier characters ascended once, at the level cap they hit on
- * the way there.
+ * The chapter-1 party: five common-tier characters at the cap they reach without ascending.
  *
  * Deliberately all `common` tier. If the ladder needed a lucky banner it would be a wall in front
  * of players who cannot buy their way past one, which in a game with no purchases is a wall with
  * nothing behind it.
  *
- * **It was level 80 at `elite` until milestone 10**, and the two numbers came down together for
- * one reason: a rung is now worth ×1.6 rather than ×1.12, so two of them are ×2.56 of a party's
- * whole power rather than ×1.25. The level is the cap of the rung below, so this is the party a
- * player has the moment the level ladder first stops and the ascension one starts — a far more
- * honest
- * description of who finishes the hand-climbed half than a party three times further invested.
+ * **It was level 80 at `elite` until milestone 10** and level 40 at `rare-plus` until milestone 14.
+ * The through-line is that this party is always defined by *where a player stops*, never by a
+ * number: milestone 10 moved that because a rung became worth ×1.6 rather than ×1.12, and
+ * milestone 14 moved it because the ladder came down to meet a party that has not ascended yet.
  */
 const BUILT_FRONT = [BRAN, GNASH];
 const BUILT_BACK = [RIN, CELIA, PYRA];
@@ -385,31 +399,35 @@ const FOUND_GEAR: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUI
 const MAXED_GEAR: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUILT_RARITY, MAXED);
 
 /**
- * The same five characters, invested to level 90 and four rungs up, at `legendary`.
+ * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
+ * terms.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the second half of the ladder
  * asks for levels and ascension rungs, which are bought with time and duplicates, and for nothing
  * a player cannot earn.
  *
- * **Level 200 until milestone 10.** The ladder was flattened until an idle window converted into
- * a run of cleared stages rather than a fraction of one — see "the stomp" at the bottom of this
- * file — and the top of it came down with the rest. The rung did not: four ascensions is what
- * makes this party rather than {@link BUILT}, and at ×1.6 a rung that is now most of the distance
- * between them.
+ * **The level tracks the top of the ladder rather than being authored**, which is the milestone-14
+ * statement of what chapter 2 is: the enemy climbs from 16 to 85 and the player climbs with it, so
+ * the party that takes the last stage is the one standing level with it. That is the shape the
+ * retune was asked for — *"in chapter 2 they should still be clearing fast, even if they match the
+ * enemy levels"* — and it is why this is derived from `stages` instead of restated. Extending the
+ * ladder re-aims this party at the new top rather than leaving it describing the old one.
+ *
+ * `elite` is the rung that carries it: its cap is 100, so a party matching an 85-level stage has
+ * headroom above it, and `legal` fails loudly if a future ladder outgrows the rung.
+ *
+ * **Level 200 at `legendary` until milestone 10, then 90.** Both moves were the same move — the
+ * ladder came down and this came down with it.
  */
-const INVESTED_LEVEL = 90;
+const INVESTED_RARITY = ELITE;
+const INVESTED_LEVEL = stages[stages.length - 1].level;
 
-const INVESTED: FormationData = {
-  front: [
-    at(BRAN, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
-    at(GNASH, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
-  ],
-  back: [
-    at(RIN, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
-    at(CELIA, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
-    at(PYRA, legal(INVESTED_LEVEL, LEGENDARY), LEGENDARY),
-  ],
-};
+const INVESTED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(INVESTED_LEVEL, INVESTED_RARITY),
+  INVESTED_RARITY,
+);
 
 /**
  * The most heavily boosted party the lineup bonus permits.
@@ -1196,21 +1214,51 @@ describe('the shape of the climb', () => {
     // question can legitimately read as slightly easier to a party that happens to hold the
     // answer. A real step backwards is a bug — it means a player who just lost can beat the
     // stage after the one blocking them.
+    //
+    // ⚠️ **The tolerance was 0.92 until the milestone-14 retune, and it had to widen because the
+    // level stopped carrying the difficulty.** Chapter 1 now runs in flat bands — stages 8 to 21
+    // are all level 14 — so what separates one stage from the next is *composition* alone, and
+    // composition is a coarser dial than a level. The claim being made is unchanged; the noise
+    // floor under it moved.
     const backwards = thresholds
       .map((needed, index) => ({ id: SAMPLED[index].id, needed, before: thresholds[index - 1] }))
-      .filter((entry) => entry.before !== undefined && entry.needed < entry.before * 0.92)
+      .filter((entry) => entry.before !== undefined && entry.needed < entry.before * 0.85)
       .map((entry) => `${entry.id} ${entry.needed.toFixed(2)} after ${entry.before.toFixed(2)}`);
 
     expect(backwards).toEqual([]);
   });
 
-  it('makes real progress over any two steps', () => {
-    const stalled = thresholds
-      .map((needed, index) => ({ id: SAMPLED[index].id, needed, twoBack: thresholds[index - 2] }))
-      .filter((entry) => entry.twoBack !== undefined && entry.needed <= entry.twoBack)
-      .map((entry) => entry.id);
+  it('makes real progress across a chapter rather than stage by stage', () => {
+    // ⚠️ **This measured any two adjacent samples until the milestone-14 retune, and that is no
+    // longer a claim the ladder makes.** A flat level band means two consecutive stages can ask
+    // the same thing of a party and differ only in what question they ask, which is the shape the
+    // retune chose deliberately — the difficulty is meant to arrive with later chapters, not
+    // within these two.
+    //
+    // What still has to be true, and is the thing the original assertion was protecting, is that
+    // a chapter goes somewhere: its last third asks more than its first third. Measured on the
+    // probe rather than on the authored level, so a chapter that flattened by accident fails here
+    // even though its levels still rise.
+    let index = 0;
+    const flat: string[] = [];
+    for (const chapter of chapters) {
+      const size = SAMPLED.filter(
+        (stage) => stage.id.startsWith(`${chapter.id.replace('chapter-', 'c')}-`) || false,
+      ).length;
+      const slice = thresholds.slice(index, index + size);
+      index += size;
+      if (slice.length < 6) {
+        continue;
+      }
+      const third = Math.floor(slice.length / 3);
+      const foot = slice.slice(0, third).reduce((a, b) => a + b, 0) / third;
+      const top = slice.slice(-third).reduce((a, b) => a + b, 0) / third;
+      if (!(top > foot)) {
+        flat.push(`${chapter.id} foot ${foot.toFixed(2)} top ${top.toFixed(2)}`);
+      }
+    }
 
-    expect(stalled).toEqual([]);
+    expect(flat).toEqual([]);
   });
 
   it('asks several times more at the top of each chapter than at its foot', () => {
