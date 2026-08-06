@@ -14,31 +14,31 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 ## Status
 
-| #   | Milestone                               | Status                                       |
-| --- | --------------------------------------- | -------------------------------------------- |
-| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                              |
-| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`         |
-| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing         |
-| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations      |
-| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out |
-| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material   |
-| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled         |
-| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`       |
-| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone   |
-| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung   |
-| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays     |
-| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1       |
-| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived  |
-| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels  |
-| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived |
-| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots  |
-| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal |
-| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added     |
-| 14b | Achievements, dailies and bounties      | 🟨 **Partial** — bounty board not started    |
-| 15  | Faction towers                          | ⬜                                           |
-| 16  | Deep per-hero investment                | ⬜                                           |
-| 17  | The roguelite run                       | ⬜                                           |
-| 18  | Puzzle maps                             | ⬜                                           |
+| #   | Milestone                               | Status                                         |
+| --- | --------------------------------------- | ---------------------------------------------- |
+| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                                |
+| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`           |
+| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing           |
+| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations        |
+| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out   |
+| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material     |
+| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled           |
+| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`         |
+| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone     |
+| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung     |
+| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays       |
+| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1         |
+| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived    |
+| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels    |
+| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived   |
+| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots    |
+| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal   |
+| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
+| 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
+| 15  | Faction towers                          | ⬜                                             |
+| 16  | Deep per-hero investment                | ⬜                                             |
+| 17  | The roguelite run                       | ⬜                                             |
+| 18  | Puzzle maps                             | ⬜                                             |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
 > twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
@@ -2037,18 +2037,18 @@ opens the screen is owed exactly as much a year later.
 The quests screen carries that as copy — _"Missing a day costs nothing"_ — and `quests-view.spec.ts`
 asserts the sentence is there, because it is load-bearing rather than decorative.
 
-### Both screens are Town cards, and that settles what Town is
+### All three screens are Town cards, and that settles what Town is
 
-`/town/quests` and `/town/achievements`, with 📜 and 🏆. Neither spends a wallet currency and both
-quote a count of things waiting rather than a quantity of anything.
+`/town/quests`, `/town/bounties` and `/town/achievements`, with 📜, 🗺️ and 🏆. None spends a wallet
+currency and all three quote a count of things waiting rather than a quantity of anything.
 
-Four of Town's six cards now answer _"what is here for me"_ rather than _"what can I afford"_. The
-hub's test was always **"somewhere you go deliberately, with something you have earned"** — a
+Four of Town's seven cards now answer _"what is here for me"_ rather than _"what can I afford"_.
+The hub's test was always **"somewhere you go deliberately, with something you have earned"** — a
 currency sink is one shape of that rather than the definition, which the Altar established and
-these two confirm.
+these three confirm.
 
-⚠️ **Six cards is not a tab-bar problem and must not become one.** The bar's ceiling is what makes
-a hub necessary; the hub has none. The bar is still Home · Town · Roster · Bag · Settings.
+⚠️ **Seven cards is not a tab-bar problem and must not become one.** The bar's ceiling is what
+makes a hub necessary; the hub has none. The bar is still Home · Town · Roster · Bag · Settings.
 
 ### Two save versions, both additive
 
@@ -2147,6 +2147,19 @@ It is a `@mixin` in `ui/theme.scss` now, and both older copies were replaced wit
 recording because of how it failed: not subtly — it puts a whole sentence on a button — but
 **silently at authoring time**, and the same trap is waiting for any class a screen assumes is
 global.
+
+#### ⚠️ A branch that could not be reached, guarding the wrong quantity
+
+`duration` in `ui/bounties.service.ts` documented that a mission under a minute out reads _"under a
+minute"_ rather than counting down — and then tested `Math.ceil(ms / 60_000) < 1`, which is false
+for every positive duration. The branch was dead, and a mission thirty seconds from home read
+"1m".
+
+The same shape as the class above and worth the same note: **the comment described the intended
+behaviour correctly and the code never had it**, with nothing failing to say so. A rounded
+quantity cannot answer a question about the quantity it was rounded from, so the guard now tests
+`ms` directly. `ui/bounties.service.spec.ts` covers `duration` on its own — it is pure and
+exported, so it needs none of the screen's scaffolding.
 
 ### ⚠️ Local notifications — the decision reversed, deliberately
 

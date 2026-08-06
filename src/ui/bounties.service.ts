@@ -184,10 +184,13 @@ export function duration(ms: number): string {
   if (!Number.isFinite(ms) || ms <= 0) {
     return '';
   }
-  const totalMinutes = Math.ceil(ms / 60_000);
-  if (totalMinutes < 1) {
+  // ⚠️ Tested against `ms`, not against the rounded minutes. `Math.ceil` of any positive duration
+  // is at least 1, so a `totalMinutes < 1` guard is unreachable and the sentence above quietly
+  // described behaviour the screen never had — a mission thirty seconds out read as "1m".
+  if (ms < 60_000) {
     return 'under a minute';
   }
+  const totalMinutes = Math.ceil(ms / 60_000);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (hours === 0) {

@@ -89,15 +89,15 @@ export class TownView {
    * gold shortly after, and spark only from a duplicate of an `Ascended★5` — which is most of a
    * run away.
    *
-   * **Quests and Achievements both spend nothing**, like the Altar before them, and both quote a
-   * count of things waiting rather than a quantity of anything. Four of six cards now answer "what
-   * is here for me" rather than "what can I afford" — which settles what Town is. The hub's test
-   * was always "somewhere you go deliberately, with something you have earned"; a currency sink is
-   * one shape of that rather than the definition.
+   * **Quests, the Bounty Board and Achievements all spend nothing**, like the Altar before them,
+   * and all three quote a count of things waiting rather than a quantity of anything. Four of
+   * seven cards now answer "what is here for me" rather than "what can I afford" — which settles
+   * what Town is. The hub's test was always "somewhere you go deliberately, with something you
+   * have earned"; a currency sink is one shape of that rather than the definition.
    *
-   * ⚠️ **Six cards is not a tab-bar problem and must not become one.** The bar's ceiling is what
-   * makes a hub necessary; the hub itself has none, which is the whole reason the seventh sink was
-   * always going to land here. The bar is still Home · Town · Roster · Bag · Settings.
+   * ⚠️ **Seven cards is not a tab-bar problem and must not become one.** The bar's ceiling is what
+   * makes a hub necessary; the hub itself has none, which is the whole reason each new sink lands
+   * here. The bar is still Home · Town · Roster · Bag · Settings.
    */
   protected readonly places = computed<readonly Place[]>(() => [
     {

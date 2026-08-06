@@ -259,9 +259,9 @@ answer is to retune one of them deliberately — never to move the threshold.
 
 That is not hypothetical: doubling the ladder in milestone 7 is exactly what made it fire, and the
 thing that got retuned was the **rate slope**, not the curve and not the threshold. At the top of
-the ladder as it stands, one character from level 1 to 1000 costs about 1,175 hours of gold — and
-resonance means a party costs five times that — so the ceiling is still years away, which is where
-it belongs.
+the ladder as it stands, one character from level 1 to 1000 costs about 588 hours of gold — half
+what it was before the base rates doubled, as recorded above — and resonance means a party costs
+five times that, so the ceiling is still years away, which is where it belongs.
 
 ### Growth
 
