@@ -66,11 +66,16 @@
         the row that says how close the next award is, and a decorative one would leave a screen
         reader with the numbers in `track__progress` alone. `aria-valuetext` is what makes it
         announce "63 of 65 stages cleared" instead of "97 percent".
+
+        `aria-valuenow` is `position` rather than `total` so it agrees with the fill: on a track
+        counted in chapters the run is part way through one, and `total` alone would announce a
+        number the bar visibly contradicts. It equals `total` on every other track. The text stays
+        in whole units, which is what a chapter track should read as aloud.
       -->
       <div
         class="track__bar"
         role="progressbar"
-        [attr.aria-valuenow]="row.total"
+        [attr.aria-valuenow]="row.position"
         [attr.aria-valuemin]="row.nextAt - row.track.every"
         [attr.aria-valuemax]="row.nextAt"
         [attr.aria-valuetext]="row.total + ' of ' + row.nextAt + ' toward the next award'"

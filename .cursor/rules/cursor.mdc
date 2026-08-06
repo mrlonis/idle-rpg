@@ -195,7 +195,30 @@ the two disagree, the code is right and both are stale.
     exist for.
   - ⚠️ **No quest may be measured against `clearedStages`.** It counts _first_ clears, so it stops
     moving at the top of the authored ladder and the quest becomes permanently unfinishable. The
-    type forbids it; `battleCount` and `pullCount` always move.
+    type forbids it; `battleCount` and `pullCount` always move. **An achievement measured against it
+    is fine and one is shipped** — a quest that stops moving is unfinishable, an achievement that
+    stops moving is one the player has finished.
+  - **"Counters the run already keeps" is a rule about the stored field, not about the counter.**
+    `clearedChapters` is **derived** — `clearedStages` resolved against the shipped `LadderShape` —
+    and adds no save field, no migration and nothing to the battle path, which is the whole of what
+    that rule protects. It is why `trackProgress`, `allProgress` and `claimAchievements` all take a
+    ladder, **required rather than defaulted**: a caller with no ladder would report the chapter
+    track as having earned nothing, on every screen, forever.
+    - ⚠️ **A chapter is not an interval of stages.** `every: 50` over `clearedStages` is the
+      obvious authoring and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty — it
+      pays a "chapter" award part way into the next chapter, silently, forever.
+    - **A coarse counter needs `AchievementProgress.position`, which is `total` plus how far into
+      the next unit the run has come.** A chapter is fifty fights, so a bar drawn from the whole
+      count alone sits empty through all of them and then jumps, on the largest reward in the game.
+      It equals `total` for every stored counter, and `aria-valuenow` follows it so the announced
+      value cannot contradict the fill.
+  - **Nothing in the crystal economy is linear in the stage index.** A first clear pays a flat 250
+    (×2 mini-boss, ×5 chapter boss), Stage Climber 1,000 per five clears, Chapter Conqueror 10,000
+    per chapter. ⚠️ **The flattening and the track raises are one redistribution and only balance
+    when read together** — the ladder's first clears fell from ~58,800 to 29,000 and the tracks rose
+    from 5,000 to 40,000. Retuning either half alone moves the pacing; `data/achievements.spec.ts`
+    measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
+    the one thing still linear, in the **clear count**, and it did not move.
   - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
     consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
     targets rather than restating it.

@@ -24,6 +24,7 @@ function row(overrides: Partial<AchievementRowView> = {}): AchievementRowView {
       reward: { summons: 250 },
     },
     total: 12,
+    position: 12,
     earned: 2,
     claimed: 0,
     unclaimed: 2,
@@ -157,6 +158,42 @@ describe('AchievementsView', () => {
     expect(bar?.getAttribute('aria-valuemax')).toBe('15');
     expect(bar?.getAttribute('aria-valuetext')).toBe('12 of 15 toward the next award');
     expect(bar?.getAttribute('aria-label')).toBe('Stage Climber progress');
+  });
+
+  it('draws a coarse counter part way through its unit rather than at empty', async () => {
+    // ⚠️ A chapter track counts in chapters and a chapter is fifty fights. `aria-valuenow` follows
+    // `position` so the announced value agrees with the fill — `total` alone would say "1" beside
+    // a bar the player can see is a quarter full. The text stays in whole chapters, which is what
+    // the row is actually counting.
+    const { el, achievements, fixture } = await render();
+
+    achievements.rows.set([
+      row({
+        track: {
+          id: 'chapters-cleared',
+          name: 'Chapter Conqueror',
+          description: 'Crystals for every chapter finished.',
+          counter: 'clearedChapters',
+          every: 1,
+          reward: { summons: 10_000 },
+        },
+        total: 1,
+        position: 1.24,
+        earned: 1,
+        claimed: 0,
+        unclaimed: 1,
+        nextAt: 2,
+        fraction: 0.24,
+        percent: 24,
+      }),
+    ]);
+    fixture.detectChanges();
+    const bar = el.querySelector('[role="progressbar"]');
+
+    expect(bar?.getAttribute('aria-valuenow')).toBe('1.24');
+    expect(bar?.getAttribute('aria-valuemin')).toBe('1');
+    expect(bar?.getAttribute('aria-valuemax')).toBe('2');
+    expect(bar?.getAttribute('aria-valuetext')).toBe('1 of 2 toward the next award');
   });
 
   it('offers a way back to Town, named rather than called "back"', async () => {

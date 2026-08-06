@@ -10,7 +10,7 @@ import {
   unclaimedReward,
   ZERO,
 } from '../core';
-import { ACHIEVEMENT_TRACKS } from './content';
+import { ACHIEVEMENT_TRACKS, LADDER } from './content';
 import { CURRENCY_LABELS, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 
@@ -64,7 +64,10 @@ export class AchievementsService {
     if (state === null) {
       return [];
     }
-    return allProgress(ACHIEVEMENT_TRACKS, state).map((progress) => ({
+    // `LADDER` is the shipped ladder's shape, which is what turns a chapter track's `clearedStages`
+    // into chapters — see `AchievementCounter`. Content, so it comes from `content.ts` rather than
+    // from the run.
+    return allProgress(ACHIEVEMENT_TRACKS, state, LADDER).map((progress) => ({
       ...progress,
       owed: awards(unclaimedReward(progress)),
       perAward: awards(progress.track.reward),
@@ -87,7 +90,7 @@ export class AchievementsService {
     if (state === null) {
       return { awards: 0, gained: [] };
     }
-    const result = claimAchievements(state, ACHIEVEMENT_TRACKS);
+    const result = claimAchievements(state, ACHIEVEMENT_TRACKS, LADDER);
     // `result.state === state` is the no-op signal `claimAchievements` documents. It can still
     // differ with zero awards, when the pass wrote an over-claimed ledger back down — that is a
     // repair worth persisting even though the player is owed nothing by it.

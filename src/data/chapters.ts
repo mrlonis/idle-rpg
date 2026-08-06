@@ -91,11 +91,24 @@ export const CHAPTER_CURVE = {
  * so it cannot drift away from the thing it is measured against — and it is deliberately the
  * smaller half of the deal, because a rate compounds with time away and a lump does not.
  *
- * First-clear crystals are linear in the stage index, for the reason the crystal *rate* is linear
- * in the clear count: a pull costs a flat price, so a compounding crystal income outruns what it
- * is spent on and makes ascension stop being a constraint. The two multipliers are where a
- * chapter's rhythm pays: a mini-boss is worth two ordinary stages and a chapter boss five, which
- * is a real payday without touching the income curve.
+ * First-clear crystals are **flat in the stage index** — 250 a stage, wherever the stage sits.
+ * They used to climb by 6 a stage off a base of 200, which was already the conservative choice
+ * against a flat `PULL_COST` (a compounding crystal income outruns what it is spent on, and
+ * ascension quietly stops being a constraint on anything). Flat is that argument taken the rest of
+ * the way, for the reason `achievements.ts` gives for a flat award: a linear payout is worth least
+ * exactly where a run is shortest of crystals. `perStage` is kept at zero rather than deleted
+ * because it is the knob that would have to move to undo this, and `ladder.spec.ts` still asserts
+ * the step is constant — which is what forbids a later retune from reaching for a geometric one.
+ *
+ * ⚠️ **Flattening the per-stage payout cut the ladder's first-clear crystals by more than half**
+ * (about 58,800 over the shipped hundred stages, down to 29,000). That was paid back deliberately
+ * on the achievement side rather than absorbed — see [`achievements.ts`](./achievements.ts), where
+ * the stage track quadrupled and a chapter track arrived. The two halves are one decision and the
+ * totals only balance when read together; `banners.spec.ts` pins what is left here.
+ *
+ * The two multipliers survive the flattening, and they are the whole of the chapter's rhythm now
+ * that the base does not move: a mini-boss is worth two ordinary stages and a chapter boss five,
+ * which is a real payday without touching the income curve.
  *
  * **Crystals are deliberately absent from the lump.** They accrue idly, and on a first clear, and
  * nowhere else — a repeatable crystal payout would make tap-farming the shortest stage the
@@ -118,8 +131,9 @@ export const STAGE_REWARDS = {
   exponent: 1.13,
   rewardSeconds: 40,
   firstClearSummons: {
-    base: 200,
-    perStage: 6,
+    base: 250,
+    /** Zero on purpose: the payout is flat. See the note above before making it climb again. */
+    perStage: 0,
     miniBossMultiplier: 2,
     bossMultiplier: 5,
   },

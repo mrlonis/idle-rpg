@@ -1,4 +1,5 @@
 import { credit, type CurrencyAmounts, type CurrencyId } from './currency';
+import { type LadderShape, stagesInChapter } from './ladder';
 import { num, type Numeric, ZERO } from './numeric';
 import { type GameState } from './state';
 
@@ -59,17 +60,31 @@ export interface AchievementTrackData {
 /**
  * The run totals a track may be paid against.
  *
- * Deliberately only the counters {@link GameState} already keeps for its own reasons. A track
- * that needed a *new* counter would be asking for a field whose only purpose is to be rewarded,
- * which is how a progression system starts measuring itself.
+ * Deliberately only counters {@link GameState} already keeps for its own reasons, or ones
+ * **derived** from them. A track that needed a *new stored field* would be asking for a number
+ * whose only purpose is to be rewarded, which is how a progression system starts measuring itself
+ * — and it is the field, not the counter, that the rule is about.
+ *
+ * The first three are read straight off the run. `clearedChapters` is the derived one: it is
+ * `clearedStages` measured against the shipped {@link LadderShape}, which is why everything here
+ * takes a ladder. See {@link readCounter} for why a chapter cannot be an interval of stages.
  */
-export type AchievementCounter = 'clearedStages' | 'battleCount' | 'pullCount';
+export type AchievementCounter = 'clearedStages' | 'battleCount' | 'pullCount' | 'clearedChapters';
 
 /** How far a track has come, and what it owes. */
 export interface AchievementProgress {
   readonly track: AchievementTrackData;
   /** The counter's current value, clamped to a whole number at or above zero. */
   readonly total: number;
+  /**
+   * {@link total} plus however far the run is into the next whole unit of the counter.
+   *
+   * Equal to `total` for every counter the run stores as an integer, and only ever differs for a
+   * derived one whose units are coarse — a chapter is fifty stages, so a counter of chapters moves
+   * once per chapter and a bar drawn from `total` alone would sit empty for fifty fights and then
+   * jump. This is the number the bar is drawn from; `total` is the number the screen prints.
+   */
+  readonly position: number;
   /** Awards the run has reached, claimed or not. */
   readonly earned: number;
   /** Awards already taken. */
@@ -80,6 +95,20 @@ export interface AchievementProgress {
   readonly nextAt: number;
   /** How far into the current interval the run is, in `[0, 1)`. */
   readonly fraction: number;
+}
+
+/**
+ * A counter's value, and how far past it the run has come toward the next whole unit.
+ *
+ * The second half exists for {@link AchievementProgress.position} and nothing else. It is always
+ * zero for a counter the run stores directly — those move one whole unit at a time, so there is no
+ * "part way to the next battle" to report.
+ */
+interface CounterReading {
+  /** Whole units of the counter, at or above zero. */
+  readonly total: number;
+  /** Progress toward the next whole unit, in `[0, 1)`. */
+  readonly partial: number;
 }
 
 /** The claim ledger: how many awards each track has paid out, keyed by track id. */
@@ -95,9 +124,57 @@ function wholeCount(value: number): number {
   return Number.isFinite(value) ? Math.max(Math.floor(value), 0) : 0;
 }
 
+/**
+ * The counter a track is paid against, as a whole value plus its sub-unit progress.
+ *
+ * ⚠️ **A chapter is not an interval of stages, and that is why this exists rather than a track
+ * authored `every: 50`.** Chapter length is a band function — fifty stages through chapter 10,
+ * sixty from chapter 11, up to the two hundred `CHAPTER_CURVE` caps at — so a fixed interval over
+ * `clearedStages` is correct only for the band it was written in and then drifts off the chapter
+ * boundary silently, paying a "chapter" award ten stages into the next one. Counting the chapters
+ * the run has actually finished is right at every size, and it costs no stored field: chapter
+ * lengths are content the ladder already carries.
+ *
+ * **It stops at the top of the authored ladder, and that is correct here** — the opposite of the
+ * rule for quests, which may never be measured against `clearedStages` for exactly this reason. A
+ * quest that stops moving is permanently unfinishable; an achievement that stops moving is one the
+ * player has finished, and it starts again the day a chapter ships.
+ */
+function readCounter(
+  state: GameState,
+  counter: AchievementCounter,
+  ladder: LadderShape,
+): CounterReading {
+  if (counter !== 'clearedChapters') {
+    return { total: wholeCount(state[counter]), partial: 0 };
+  }
+  const cleared = wholeCount(state.clearedStages);
+  let chapters = 0;
+  let consumed = 0;
+  for (let chapter = 1; chapter <= ladder.chapters.length; chapter++) {
+    const size = stagesInChapter(ladder, chapter);
+    // A chapter with nothing in it is skipped rather than counted. Content this malformed should
+    // not exist — `chapters.spec.ts` is what stops it — but counting it would hand over a
+    // chapter's award for clearing no stages at all, which is the one failure worth guarding.
+    if (size <= 0) {
+      continue;
+    }
+    if (consumed + size > cleared) {
+      return { total: chapters, partial: (cleared - consumed) / size };
+    }
+    consumed += size;
+    chapters++;
+  }
+  return { total: chapters, partial: 0 };
+}
+
 /** The value of the counter a track is paid against. */
-export function counterValue(state: GameState, counter: AchievementCounter): number {
-  return wholeCount(state[counter]);
+export function counterValue(
+  state: GameState,
+  counter: AchievementCounter,
+  ladder: LadderShape,
+): number {
+  return readCounter(state, counter, ladder).total;
 }
 
 /**
@@ -106,10 +183,18 @@ export function counterValue(state: GameState, counter: AchievementCounter): num
  * Clamps `every` to at least 1 rather than trusting it. A track authored with a zero or negative
  * interval would divide by zero and report an infinite number of unclaimed awards — which the
  * claim below would then pay.
+ *
+ * `ladder` is **required rather than defaulted**, for the reason `toBattleCombatant` takes a level
+ * rather than reading one: a caller that has no ladder to hand is a caller that would silently
+ * report a chapter track as having earned nothing, on every screen, forever.
  */
-export function trackProgress(track: AchievementTrackData, state: GameState): AchievementProgress {
+export function trackProgress(
+  track: AchievementTrackData,
+  state: GameState,
+  ladder: LadderShape,
+): AchievementProgress {
   const every = Number.isFinite(track.every) ? Math.max(Math.floor(track.every), 1) : 1;
-  const total = counterValue(state, track.counter);
+  const { total, partial } = readCounter(state, track.counter, ladder);
   const earned = Math.floor(total / every);
   // Clamped to `earned` at the top as well as to zero at the bottom: a ledger claiming more awards
   // than the run has reached is damage, and left alone it would silently withhold every future
@@ -118,11 +203,15 @@ export function trackProgress(track: AchievementTrackData, state: GameState): Ac
   return {
     track,
     total,
+    position: total + partial,
     earned,
     claimed,
     unclaimed: earned - claimed,
     nextAt: (earned + 1) * every,
-    fraction: (total % every) / every,
+    // `partial` is zero for every stored counter, so this is bit-identical to what it was for
+    // every track that existed before the derived one — which is what let a chapter track land
+    // without redrawing the bar on the stage track.
+    fraction: ((total % every) + partial) / every,
   };
 }
 
@@ -130,8 +219,9 @@ export function trackProgress(track: AchievementTrackData, state: GameState): Ac
 export function allProgress(
   tracks: readonly AchievementTrackData[],
   state: GameState,
+  ladder: LadderShape,
 ): readonly AchievementProgress[] {
-  return tracks.map((track) => trackProgress(track, state));
+  return tracks.map((track) => trackProgress(track, state, ladder));
 }
 
 /** What one track currently owes, as a wallet delta. */
@@ -177,13 +267,14 @@ export interface ClaimResult {
 export function claimAchievements(
   state: GameState,
   tracks: readonly AchievementTrackData[],
+  ladder: LadderShape,
 ): ClaimResult {
   let gained: CurrencyAmounts = {};
   let awards = 0;
   let repaired = false;
   const ledger: Record<string, number> = { ...state.achievements };
 
-  for (const progress of allProgress(tracks, state)) {
+  for (const progress of allProgress(tracks, state, ladder)) {
     const stored = state.achievements[progress.track.id];
     // ⚠️ **An over-claimed entry is written down even when nothing is owed, and that is a repair
     // rather than tidiness.** `trackProgress` clamps a ledger claiming more awards than the run

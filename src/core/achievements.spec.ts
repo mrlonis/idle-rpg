@@ -7,15 +7,26 @@ import {
   type AchievementTrackData,
   allProgress,
   claimAchievements,
+  counterValue,
   emptyAchievements,
   parseAchievements,
   trackProgress,
   unclaimedReward,
 } from './achievements';
+import { type LadderShape } from './ladder';
 import { type GameState, newGame } from './state';
 
 const SEED = 0xc0ffee;
 const T0 = 1_700_000_000_000;
+
+/**
+ * A ladder whose chapters are **not** all the same length.
+ *
+ * ⚠️ Deliberately uneven, and the third chapter is the whole point: the shipped ladder is two
+ * fifty-stage chapters, so a fixture that copied it would let a chapter track authored as a fixed
+ * fifty-stage interval pass every test here. Sixty is what chapter 11 is under `CHAPTER_CURVE`.
+ */
+const LADDER: LadderShape = { chapters: [50, 50, 60] };
 
 /** The shipped track's shape, restated as a fixture so retuning `data/` cannot rewrite the tests. */
 const CLIMBER: AchievementTrackData = {
@@ -25,6 +36,15 @@ const CLIMBER: AchievementTrackData = {
   counter: 'clearedStages',
   every: 5,
   reward: { summons: 250 },
+};
+
+const CHAPTERS: AchievementTrackData = {
+  id: 'chapters-cleared',
+  name: 'Chapter Conqueror',
+  description: 'Crystals for every chapter finished.',
+  counter: 'clearedChapters',
+  every: 1,
+  reward: { summons: 10_000 },
 };
 
 const PULLS: AchievementTrackData = {
@@ -42,7 +62,7 @@ function run(overrides: Partial<GameState> = {}): GameState {
 
 describe('trackProgress', () => {
   it('pays nothing before the first interval is complete', () => {
-    const progress = trackProgress(CLIMBER, run({ clearedStages: 4 }));
+    const progress = trackProgress(CLIMBER, run({ clearedStages: 4 }), LADDER);
 
     expect(progress.earned).toBe(0);
     expect(progress.unclaimed).toBe(0);
@@ -54,15 +74,16 @@ describe('trackProgress', () => {
     // The point of an endless rule over an authored list: this has to mean the same thing at five
     // clears and at five thousand, because the ladder is a hundred stages now and shaped for
     // thousands.
-    expect(trackProgress(CLIMBER, run({ clearedStages: 5 })).earned).toBe(1);
-    expect(trackProgress(CLIMBER, run({ clearedStages: 63 })).earned).toBe(12);
-    expect(trackProgress(CLIMBER, run({ clearedStages: 50_000 })).earned).toBe(10_000);
+    expect(trackProgress(CLIMBER, run({ clearedStages: 5 }), LADDER).earned).toBe(1);
+    expect(trackProgress(CLIMBER, run({ clearedStages: 63 }), LADDER).earned).toBe(12);
+    expect(trackProgress(CLIMBER, run({ clearedStages: 50_000 }), LADDER).earned).toBe(10_000);
   });
 
   it('subtracts what has already been taken', () => {
     const progress = trackProgress(
       CLIMBER,
       run({ clearedStages: 63, achievements: { 'stages-cleared': 9 } }),
+      LADDER,
     );
 
     expect(progress.earned).toBe(12);
@@ -76,6 +97,7 @@ describe('trackProgress', () => {
     const progress = trackProgress(
       CLIMBER,
       run({ clearedStages: 10, achievements: { 'stages-cleared': 999 } }),
+      LADDER,
     );
 
     expect(progress.claimed).toBe(2);
@@ -83,8 +105,8 @@ describe('trackProgress', () => {
   });
 
   it('reads a damaged counter as nothing cleared rather than paying out on it', () => {
-    expect(trackProgress(CLIMBER, run({ clearedStages: Number.NaN })).earned).toBe(0);
-    expect(trackProgress(CLIMBER, run({ clearedStages: -40 })).earned).toBe(0);
+    expect(trackProgress(CLIMBER, run({ clearedStages: Number.NaN }), LADDER).earned).toBe(0);
+    expect(trackProgress(CLIMBER, run({ clearedStages: -40 }), LADDER).earned).toBe(0);
   });
 
   it('survives a track authored with a zero interval', () => {
@@ -92,27 +114,128 @@ describe('trackProgress', () => {
     // below would then pay every one of them.
     const broken: AchievementTrackData = { ...CLIMBER, every: 0 };
 
-    expect(trackProgress(broken, run({ clearedStages: 7 })).earned).toBe(7);
-    expect(Number.isFinite(trackProgress(broken, run({ clearedStages: 7 })).unclaimed)).toBe(true);
+    expect(trackProgress(broken, run({ clearedStages: 7 }), LADDER).earned).toBe(7);
+    expect(
+      Number.isFinite(trackProgress(broken, run({ clearedStages: 7 }), LADDER).unclaimed),
+    ).toBe(true);
+  });
+
+  it('reports position as the plain total for every counter the run stores', () => {
+    // ⚠️ `position` only ever differs from `total` on a derived counter with coarse units. This is
+    // what says the chapter track landed without moving the bar on any track that predates it.
+    for (const cleared of [0, 4, 63, 50_000]) {
+      const progress = trackProgress(CLIMBER, run({ clearedStages: cleared }), LADDER);
+
+      expect(progress.position, `${cleared} cleared`).toBe(progress.total);
+    }
+  });
+});
+
+describe('the clearedChapters counter', () => {
+  const chapters = (clearedStages: number): number =>
+    counterValue(run({ clearedStages }), 'clearedChapters', LADDER);
+
+  it('counts a chapter only once every stage in it has fallen', () => {
+    expect(chapters(0)).toBe(0);
+    expect(chapters(49)).toBe(0);
+    expect(chapters(50)).toBe(1);
+    expect(chapters(99)).toBe(1);
+    expect(chapters(100)).toBe(2);
+  });
+
+  it('follows the chapter boundary rather than a fixed number of stages', () => {
+    // ⚠️ **The assertion this counter exists for.** Chapter 3 of the fixture is sixty stages, so a
+    // track authored `every: 50` over `clearedStages` would hand over a third chapter's award at
+    // 150 — ten stages before the chapter it is named for is finished. Chapter length is a band
+    // function and the shipped fifty is only the first band's value.
+    expect(chapters(150)).toBe(2);
+    expect(chapters(159)).toBe(2);
+    expect(chapters(160)).toBe(3);
+    expect(Math.floor(150 / 50)).toBe(3);
+  });
+
+  it('stops at the top of the authored ladder rather than running away', () => {
+    // Correct here, and the opposite of the rule for quests: an achievement that stops moving is
+    // one the player has finished, and it starts again the day a chapter ships. A quest that
+    // stopped moving would be permanently unfinishable.
+    expect(chapters(160)).toBe(3);
+    expect(chapters(5_000)).toBe(3);
+  });
+
+  it('reads a damaged clear count as nothing cleared', () => {
+    expect(chapters(Number.NaN)).toBe(0);
+    expect(chapters(-12)).toBe(0);
+  });
+
+  it('never credits a chapter that holds no stages', () => {
+    // Malformed content — `chapters.spec.ts` is what stops it existing — but counting it would
+    // hand over a chapter's award for clearing nothing at all.
+    const gappy: LadderShape = { chapters: [50, 0, 50] };
+
+    expect(counterValue(run({ clearedStages: 50 }), 'clearedChapters', gappy)).toBe(1);
+    expect(counterValue(run({ clearedStages: 100 }), 'clearedChapters', gappy)).toBe(2);
+  });
+
+  it('reports an empty ladder as nothing to clear', () => {
+    expect(counterValue(run({ clearedStages: 40 }), 'clearedChapters', { chapters: [] })).toBe(0);
+  });
+});
+
+describe('a track counted in chapters', () => {
+  it('earns one award per chapter finished', () => {
+    expect(trackProgress(CHAPTERS, run({ clearedStages: 49 }), LADDER).earned).toBe(0);
+    expect(trackProgress(CHAPTERS, run({ clearedStages: 50 }), LADDER).earned).toBe(1);
+    expect(trackProgress(CHAPTERS, run({ clearedStages: 160 }), LADDER).earned).toBe(3);
+  });
+
+  it('moves its bar on every stage rather than once a chapter', () => {
+    // ⚠️ The reason `position` and the sub-unit half of a counter reading exist. A chapter is
+    // fifty fights, and a bar drawn from the whole count alone would sit at empty through all of
+    // them and then jump — on the single largest reward in the game.
+    const quarter = trackProgress(CHAPTERS, run({ clearedStages: 62 }), LADDER);
+
+    expect(quarter.total).toBe(1);
+    expect(quarter.position).toBeCloseTo(1.24);
+    expect(quarter.fraction).toBeCloseTo(0.24);
+    expect(quarter.nextAt).toBe(2);
+  });
+
+  it('scales the bar to the chapter it is actually in, not to the first one', () => {
+    // Thirty stages into the sixty-stage third chapter is half way, where thirty into a
+    // fifty-stage one would be three fifths. The denominator is the chapter, not a constant.
+    const progress = trackProgress(CHAPTERS, run({ clearedStages: 130 }), LADDER);
+
+    expect(progress.total).toBe(2);
+    expect(progress.fraction).toBeCloseTo(0.5);
+  });
+
+  it('pays its award once, like every other track', () => {
+    const before = run({ clearedStages: 100 });
+    const first = claimAchievements(before, [CHAPTERS], LADDER);
+    const second = claimAchievements(first.state, [CHAPTERS], LADDER);
+
+    expect(first.awards).toBe(2);
+    expect(first.gained.summons?.toString()).toBe('20000');
+    expect(second.awards).toBe(0);
   });
 });
 
 describe('unclaimedReward', () => {
   it('multiplies the award by how many are owed', () => {
-    const progress = trackProgress(CLIMBER, run({ clearedStages: 15 }));
+    const progress = trackProgress(CLIMBER, run({ clearedStages: 15 }), LADDER);
 
     expect(unclaimedReward(progress).summons?.toString()).toBe('750');
   });
 
   it('is empty when nothing is owed', () => {
-    expect(unclaimedReward(trackProgress(CLIMBER, run({ clearedStages: 2 })))).toEqual({});
+    expect(unclaimedReward(trackProgress(CLIMBER, run({ clearedStages: 2 }), LADDER))).toEqual({});
   });
 });
 
 describe('claimAchievements', () => {
   it('credits the wallet and records what was taken', () => {
     const before = run({ clearedStages: 15 });
-    const { state, gained, awards } = claimAchievements(before, [CLIMBER]);
+    const { state, gained, awards } = claimAchievements(before, [CLIMBER], LADDER);
 
     expect(awards).toBe(3);
     expect(gained.summons?.toString()).toBe('750');
@@ -121,8 +244,8 @@ describe('claimAchievements', () => {
   });
 
   it('pays nothing the second time, which is what makes the ledger a ledger', () => {
-    const first = claimAchievements(run({ clearedStages: 15 }), [CLIMBER]);
-    const second = claimAchievements(first.state, [CLIMBER]);
+    const first = claimAchievements(run({ clearedStages: 15 }), [CLIMBER], LADDER);
+    const second = claimAchievements(first.state, [CLIMBER], LADDER);
 
     expect(second.awards).toBe(0);
     expect(second.state.wallet.summons.toString()).toBe('750');
@@ -133,13 +256,13 @@ describe('claimAchievements', () => {
     // the run in order to show it numbers it already had.
     const before = run({ clearedStages: 3 });
 
-    expect(claimAchievements(before, [CLIMBER]).state).toBe(before);
+    expect(claimAchievements(before, [CLIMBER], LADDER).state).toBe(before);
   });
 
   it('claims every track in one pass, summing currencies that overlap', () => {
     const before = run({ clearedStages: 10, pullCount: 30 });
     const goldToo: AchievementTrackData = { ...PULLS, reward: { gold: 100, summons: 5 } };
-    const { state, gained, awards } = claimAchievements(before, [CLIMBER, goldToo]);
+    const { state, gained, awards } = claimAchievements(before, [CLIMBER, goldToo], LADDER);
 
     expect(awards).toBe(5);
     // 2 climber awards at 250 crystals, plus 3 pull awards at 5 crystals.
@@ -149,7 +272,11 @@ describe('claimAchievements', () => {
   });
 
   it('leaves a track with nothing owed out of the ledger entirely', () => {
-    const { state } = claimAchievements(run({ clearedStages: 10, pullCount: 4 }), [CLIMBER, PULLS]);
+    const { state } = claimAchievements(
+      run({ clearedStages: 10, pullCount: 4 }),
+      [CLIMBER, PULLS],
+      LADDER,
+    );
 
     expect(state.achievements).toEqual({ 'stages-cleared': 2 });
   });
@@ -159,7 +286,7 @@ describe('claimAchievements', () => {
     // wrong: the run would owe nothing until it genuinely passed 999 awards, withholding every
     // award in between and never saying why.
     const before = run({ clearedStages: 10, achievements: { 'stages-cleared': 999 } });
-    const { state, awards, gained } = claimAchievements(before, [CLIMBER]);
+    const { state, awards, gained } = claimAchievements(before, [CLIMBER], LADDER);
 
     expect(awards).toBe(0);
     expect(gained).toEqual({});
@@ -167,12 +294,12 @@ describe('claimAchievements', () => {
     expect(state.achievements['stages-cleared']).toBe(2);
 
     const later = run({ clearedStages: 20, achievements: state.achievements });
-    expect(trackProgress(CLIMBER, later).unclaimed).toBe(2);
+    expect(trackProgress(CLIMBER, later, LADDER).unclaimed).toBe(2);
   });
 
   it('never spends anything, so claiming can be one press with no confirmation', () => {
     const before = run({ clearedStages: 15 });
-    const { state } = claimAchievements(before, [CLIMBER]);
+    const { state } = claimAchievements(before, [CLIMBER], LADDER);
 
     expect(state.roster).toBe(before.roster);
     expect(state.wallet.gold.toString()).toBe(before.wallet.gold.toString());
@@ -182,7 +309,11 @@ describe('claimAchievements', () => {
 
 describe('allProgress', () => {
   it('reports every track in the order they were authored', () => {
-    const progress = allProgress([CLIMBER, PULLS], run({ clearedStages: 5, pullCount: 10 }));
+    const progress = allProgress(
+      [CLIMBER, PULLS],
+      run({ clearedStages: 5, pullCount: 10 }),
+      LADDER,
+    );
 
     expect(progress.map((entry) => entry.track.id)).toEqual(['stages-cleared', 'pulls-made']);
     expect(progress.every((entry) => entry.unclaimed === 1)).toBe(true);

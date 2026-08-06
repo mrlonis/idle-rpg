@@ -58,7 +58,7 @@ on the ladder.** `STAGE_REWARDS` in [`chapters.ts`](../src/data/chapters.ts) is 
 ```
 rate = base * stageIndex ** 1.13      base: 0.5 gold, 0.1 xp, 0.0015 essence per second
 lump = 40 seconds of that rate
-crystals on a first clear = 200 + 6 per stage, ×2 on a mini-boss, ×5 on a chapter boss
+crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
 
 Across the hundred stages of chapters 1 and 2:
@@ -128,9 +128,15 @@ Four things about that are decisions rather than arithmetic:
   stage, by hand or on auto-battle for an hour, moves the rate by nothing.
 
 **Summons are deliberately not a repeatable battle reward either**, for the same reason. They
-accrue idly, plus a **first-clear bonus** per stage — those rise linearly and total about 59,000
-across the full climb, roughly 590 pulls, because duplicates are the primary ascension path and
-the top of the ladder is tuned to a party several rungs up.
+accrue idly, plus a **first-clear bonus** per stage — a flat 250, so 29,000 across the full climb,
+roughly 290 pulls.
+
+⚠️ **The first-clear bonus used to rise 6 a stage off a base of 200, totalling about 59,000, and
+flattening it halved that on purpose.** The missing 30,000 did not leave the economy — it moved to
+the achievement tracks below, which is where the same crystals now arrive on a schedule that pays
+the early game rather than the late one. **Read the two together or neither number means
+anything**: the whole climb is worth about 69,000 crystals, up a few percent from the 63,800 it was
+worth before the redistribution. `data/achievements.spec.ts` is what measures the sum.
 
 ---
 
@@ -140,7 +146,8 @@ Added in milestone 14b.
 
 |                   | Pays                          | Over                                 |
 | ----------------- | ----------------------------- | ------------------------------------ |
-| **Achievements**  | 250 crystals per 5 clears     | `clearedStages`, endlessly           |
+| **Stage Climber** | 1,000 crystals per 5 clears   | `clearedStages`, endlessly           |
+| **Chapter Conq.** | 10,000 crystals per chapter   | `clearedChapters`, endlessly         |
 | **Daily quests**  | 200 + 150 crystals            | 5 battles, 1 pull — resets 04:00 UTC |
 | **Weekly quests** | 800 + 600 crystals            | 35 battles, 7 pulls                  |
 | **Bounties**      | 20m–12h **of current income** | 1–4 bench characters, 1h–24h         |
@@ -152,10 +159,17 @@ spent against a curve worth ×10⁹, so a flat quantity of any of them is invisi
 or two — the same argument [gear](gear.md) makes for gear bonuses being percentages. A pull costs a
 flat `PULL_COST` forever, so a flat crystal reward means the same thing at stage 5 and stage 5,000.
 
-**Sized to supplement, not replace.** Over the shipped hundred stages the achievement track pays
-5,000 crystals against the ~58,800 the ladder's first clears already pay — about **8%**. Quests add
-350 a day plus 1,400 a week, roughly 5.5 pulls a day, against the 20–40 a day a fully cleared ladder
-produces idly.
+⚠️ **Achievements are a peer of the ladder now, not a top-up on it, and that is a reversal.** They
+paid 5,000 crystals against the ladder's ~58,800 when they shipped — about 8%, deliberately a
+garnish. Over the same hundred stages the two tracks now pay **40,000** against the flattened
+29,000, so more crystals reach a player through achievements than through first clears. The
+argument for the swap is the one the flat award was always making: _when_ a crystal arrives matters
+more than how many arrive in total, and the old shape paid least at the bottom of the ladder where
+a run is trying to fill three empty formation slots. `data/achievements.spec.ts` holds the ratio
+inside a factor of two either way, which is what catches one side being retuned without the other.
+
+Quests are still sized to supplement: 350 a day plus 1,400 a week, roughly 5.5 pulls a day, against
+the 20–40 a day a fully cleared ladder produces idly.
 
 **The asymmetry is the whole design.** Against a player whose ladder is moving, achievements and
 quests are a modest top-up. Against a player walled below a stage — whose only income source is the

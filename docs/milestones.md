@@ -2585,6 +2585,70 @@ Two things follow, and both are load-bearing:
   failure mode with no recovery, and the philosophy this project already holds is also its
   insurance policy.
 
+## Not a milestone: the crystal payout was flattened and redistributed
+
+No new system. One number curve replaced by a constant, and the difference handed to the
+achievement tracks that shipped in 14b. Three edits, one decision:
+
+- a stage's **first clear pays a flat 250** crystals instead of 200 rising 6 a stage. The ×2
+  mini-boss and ×5 chapter-boss multipliers survive untouched;
+- **Stage Climber pays 1,000** every five clears instead of 250;
+- **Chapter Conqueror** is new: **10,000 crystals for finishing a chapter**, the largest single
+  payout in the game.
+
+**Read as three changes it looks like a nerf followed by two buffs. It is one redistribution.**
+Over the shipped hundred stages the ladder's first clears fell from about 58,800 crystals to
+29,000, and the tracks rose from 5,000 to 40,000 — 69,000 against 63,800, a few percent more in
+total. What actually moved is _when_: the old curve paid least at the bottom of the ladder, which
+is precisely where a run is three characters short of a full formation and has no other way to fix
+it. Crystals banked before the stage-7 healer lock went from 1,750 to 2,500.
+
+### The tier that was in the per-stage curve is still there, one level up
+
+Flattening the base did not flatten the ladder's rhythm — it moved the rhythm off the _stage index_
+and onto the _stage kind_, where it was already half-expressed. A mini-boss is still worth two
+ordinary stages and a chapter boss five; what is gone is the part that paid a player more for
+standing further along, which is the same "worth least where it is needed most" objection the flat
+achievement award was authored against in the first place. **Nothing in the crystal economy is
+linear in the stage index any more.** The idle rate is still linear in the clear count, and that is
+the one place linearity earns its keep — see [economy](economy.md).
+
+### The chapter track needed a counter that does not exist, and got one without a save field
+
+The obvious authoring is `every: 50` over `clearedStages`, and it is wrong in a way that would not
+surface for a very long time. Chapters are fifty stages through chapter 10 and sixty from chapter
+11 — `CHAPTER_CURVE` is a band function — so a fixed stage interval is correct for exactly the band
+it was written in and then pays a "chapter" award ten stages into the next chapter, silently,
+forever.
+
+So `AchievementCounter` gained **`clearedChapters`**, which is derived from `clearedStages` against
+the shipped ladder rather than stored. ⚠️ **The rule that counters must be things the run already
+keeps is about the stored field, not about the counter** — a derived one adds no save version, no
+migration, and nothing to the battle path, which is the whole of what that rule protects. The cost
+is that `trackProgress`, `allProgress` and `claimAchievements` all take a `LadderShape` now, and it
+is **required rather than defaulted**, for the reason `toBattleCombatant` takes a level: a caller
+with no ladder to hand would report the chapter track as having earned nothing, on every screen,
+forever.
+
+**A coarse counter breaks the progress bar, and fixing that is why `AchievementProgress` grew a
+`position`.** A chapter is fifty fights; a bar drawn from the whole count alone sits at empty
+through all of them and then jumps, on the single largest reward in the game. So a counter reading
+is a whole value _plus_ how far into the next unit the run has come, and `position` is the sum. It
+equals `total` for every stored counter, which is what let this land without redrawing the bar on
+the track that predates it — and `aria-valuenow` follows `position` so the announced value cannot
+contradict a fill the player can see.
+
+### What the specs had to be re-authored to say
+
+`data/achievements.spec.ts` used to assert the track was **3–20% of** what first clears pay, and
+called it "a second faucet on progress, not a second income curve". That is now false by design:
+achievements pay more than the ladder does. Moving a threshold to make a test green is the thing
+this repo's testing rules forbid, so the assertion was **replaced rather than adjusted** — the ratio
+is now held within a factor of two either way, which states the new intent (the two are peers) and
+still fires when one side is retuned without the other. The old `expect(reward.summons).toBe(250)`
+went too: it was a restatement of content, which the same rules warn against, and what replaced it
+measures the sum of both faucets in pulls.
+
 ## Not a milestone: the presentation track
 
 **Every milestone here is a system, and the genre's draw is at least half aesthetic.** Art,
