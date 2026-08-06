@@ -57,7 +57,7 @@ the two disagree, the code is right and both are stale.
   and what a rung costs. Since milestone 8c three of the rungs also hand over a skill.
   - **A rung costs copies of the character being ascended and nothing else.** Same-faction
     **fodder** was removed along with the recursion that priced it: rungs used to be quoted in
-    *ascended* copies and resolved into base ones, and they are now a flat integer per rung in
+    _ascended_ copies and resolved into base ones, and they are now a flat integer per rung in
     [`data/ascension.ts`](../../src/data/ascension.ts). There is no `AscensionPlan`, no fodder pool, and
     no solver. A spare copy of a character you will never ascend is now inert — that is the
     known cost, and `docs/ascension.md` argues it.
