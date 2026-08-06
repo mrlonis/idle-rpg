@@ -42,22 +42,12 @@ test.describe('App', () => {
   });
 
   /**
-   * The character sheet hangs off `/roster/:defId`, but the roster is not the only way in — the
-   * party on the home screen links straight to it. Its back link therefore reads the origin the
-   * link that opened it carried, rather than assuming everybody arrived through the roster.
+   * The character sheet hangs off `/roster/:defId`, but the route is not the same claim as the
+   * origin. Its back link reads the origin the link that opened it carried, and answers for a
+   * sheet that carries none — a bookmark, a reload, a hand-typed URL — rather than leaving the
+   * player with no way out.
    */
   test.describe('the way out of a character sheet', () => {
-    test('goes home when the party on the home screen opened it', async ({ page }) => {
-      await page.goto('');
-
-      await page.getByRole('link', { name: 'Rin' }).click();
-      await expect(page.getByRole('heading', { level: 1, name: 'Rin' })).toBeVisible();
-
-      await page.getByRole('link', { name: '← Home' }).click();
-
-      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
-    });
-
     test('goes to the roster when the roster opened it', async ({ page }) => {
       await page.goto('/roster');
 
@@ -145,8 +135,9 @@ test.describe('App', () => {
       await page.getByRole('button', { name: 'Dismiss offline earnings notice' }).click();
       await expect(notice).toBeHidden();
 
-      // Scoped to the tab bar: the home screen has a "Manage roster" link of its own, and an
-      // unscoped name matches both.
+      // Scoped to the tab bar. The home screen no longer carries a "Manage roster" link that an
+      // unscoped name would also match, but naming the navigation is what makes this step read as
+      // "leave and come back" rather than "click whatever says Roster".
       const tabs = page.getByRole('navigation', { name: 'Main' });
       await tabs.getByRole('link', { name: 'Roster' }).click();
       await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();

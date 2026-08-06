@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
   CURRENCY_IDS,
   type CurrencyId,
@@ -16,7 +15,6 @@ import {
   formatRate,
 } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
-import { type ScreenId } from './navigation';
 import { RosterService } from './roster.service';
 
 /** One currency as the wallet strip shows it. */
@@ -41,14 +39,19 @@ function hasRate(id: CurrencyId): id is RateCurrencyId {
 }
 
 /**
- * The home screen: what the run is worth, who is fighting, and the way into a fight.
+ * The home screen: what the run is worth, and the way into a fight.
+ *
+ * Who is fighting is the roster screen's job and is not restated here. This screen used to
+ * carry a read-only copy of the formation, which said the same thing twice and could only ever
+ * be the poorer of the two — the roster shows the same rows, and is the only place they can be
+ * *changed*. What stays is the part the formation still decides here: whether a fight can start
+ * at all, and the hint that says why not.
  *
  * Everything here is idle-side. The battle screen replaces this one entirely rather than
  * appearing beneath it, so a fight is somewhere the player goes and then leaves.
  */
 @Component({
   selector: 'app-home-view',
-  imports: [RouterLink],
   templateUrl: './home-view.html',
   styleUrl: './home-view.scss',
 })
@@ -61,23 +64,9 @@ export class HomeView {
   protected readonly saveIssues = this.game.saveIssues;
 
   /**
-   * What this screen calls itself on links out to a character sheet, so the sheet's back link
-   * comes back here rather than to the roster. Typed, so a screen that is not registered in
-   * `navigation.ts` is a compile error rather than a link that silently lands on the fallback.
+   * Not shown, but read: it is what decides whether the Fight control is live, and what the hint
+   * underneath explains when it is not.
    */
-  protected readonly screenId: ScreenId = 'home';
-
-  /**
-   * The party, as the two ranks it fights in.
-   *
-   * Shown by rank rather than as one list because the rank is the decision: "who is standing in
-   * front" is the thing a player changes between attempts at a stage they just lost.
-   */
-  protected readonly partyRanks = computed(() => [
-    { row: 'front' as const, label: 'Front', members: this.roster.frontRow() },
-    { row: 'back' as const, label: 'Back', members: this.roster.backRow() },
-  ]);
-
   protected readonly fieldedCount = this.roster.fieldedCount;
 
   /**

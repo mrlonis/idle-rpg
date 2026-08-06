@@ -1,7 +1,5 @@
-import { provideLocationMocks } from '@angular/common/testing';
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import {
   CURRENCY_IDS,
@@ -132,9 +130,6 @@ async function render(
   await TestBed.configureTestingModule({
     imports: [HomeView],
     providers: [
-      // The screen links to the roster now, so `routerLink` needs a router to resolve against.
-      provideRouter([]),
-      provideLocationMocks(),
       { provide: GameLoopService, useValue: game },
       { provide: BattleService, useValue: battles },
       { provide: RosterService, useValue: roster },
@@ -211,6 +206,22 @@ describe('HomeView', () => {
       const { el } = await render((_game, battles) => battles.nextStage.set(null));
 
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Preparing…');
+    });
+
+    it('refuses to start a fight with nobody fielded', async () => {
+      // An empty party resolves as an immediate defeat, so the control says so instead of
+      // letting the player walk into it. This screen no longer shows the formation, so the
+      // disabled control and the hint under it are the whole of what tells the player why.
+      const { el, battles } = await render((_game, _battles, roster) => {
+        roster.frontRow.set([]);
+        roster.backRow.set([]);
+        roster.openSlots.set({ front: 2, back: 3 });
+      });
+
+      const button = el.querySelector<HTMLButtonElement>('.fight');
+      expect(button?.disabled).toBe(true);
+      expect(el.querySelector('.hint')?.textContent).toContain('formation is empty');
+      expect(battles.fought).toEqual([]);
     });
   });
 
@@ -372,48 +383,6 @@ describe('HomeView', () => {
       const { el } = await render();
 
       expect(el.querySelector('.wallet__list')?.textContent).toContain('from duplicate pulls');
-    });
-  });
-
-  describe('the party', () => {
-    it('names who is fighting', async () => {
-      const { el } = await render();
-
-      expect(el.querySelector('.party__list')?.textContent).toContain('Rin');
-    });
-
-    it('links each name to that character sheet, saying the trip started here', async () => {
-      // Levelling somebody up is the reason to tap a name here, and the character sheet is
-      // where that happens — going via the roster screen to reach it is a wasted step. The
-      // `from` is what sends the sheet's back link here rather than to a roster screen this
-      // player never passed through.
-      const { el } = await render((_game, _battles, roster) => {
-        roster.frontRow.set([member('Rin', 'front', 1)]);
-        roster.backRow.set([member('Wren', 'back', 1)]);
-      });
-
-      const links = [...el.querySelectorAll<HTMLAnchorElement>('.party__name')];
-
-      expect(links.map((link) => link.textContent?.trim())).toEqual(['Rin', 'Wren']);
-      expect(links.map((link) => link.getAttribute('href'))).toEqual([
-        '/roster/rin?from=home',
-        '/roster/wren?from=home',
-      ]);
-    });
-
-    it('refuses to start a fight with nobody fielded', async () => {
-      // An empty party resolves as an immediate defeat, so the control says so instead of
-      // letting the player walk into it.
-      const { el, battles } = await render((_game, _battles, roster) => {
-        roster.frontRow.set([]);
-        roster.backRow.set([]);
-        roster.openSlots.set({ front: 2, back: 3 });
-      });
-
-      const button = el.querySelector<HTMLButtonElement>('.fight');
-      expect(button?.disabled).toBe(true);
-      expect(el.querySelector('.hint')?.textContent).toContain('formation is empty');
-      expect(battles.fought).toEqual([]);
     });
   });
 

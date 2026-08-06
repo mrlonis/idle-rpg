@@ -135,9 +135,9 @@ export class CharacterView {
   /**
    * Where the back link goes and what it calls itself.
    *
-   * The sheet hangs off `/roster/:defId`, but it is not only reached from the roster — tapping a
-   * name in the party on the home screen lands here too, and sending that player to a screen
-   * they were never on is the confusion this resolves.
+   * The sheet hangs off `/roster/:defId`, but the route is not the same claim as the origin: a
+   * sheet opened from somewhere other than the roster would otherwise send the player to a
+   * screen they were never on, which is the confusion this resolves. See {@link backTo}.
    */
   protected readonly back = computed(() => backTo(this.from()));
 
