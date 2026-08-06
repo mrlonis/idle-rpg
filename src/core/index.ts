@@ -162,6 +162,7 @@ export {
 export {
   addGear,
   alloyStep,
+  autoEquip,
   canEnhance,
   enhance,
   enhanceCost,
@@ -179,6 +180,7 @@ export {
   unequip,
   unequippedGear,
   useAsMaterial,
+  type AutoEquipResult,
   type GearFailure,
   type GearResult,
   type GearSpec,
@@ -188,6 +190,7 @@ export {
   gradeWeights,
   rollDrops,
   rollGear,
+  unlockedGrades,
   weightedIndex,
   type Draw,
 } from './gear/roll';

@@ -181,6 +181,30 @@ export interface GearGradeData {
   readonly weight: number;
   /** How many seconds of the run's gold income one of these costs in the shop. */
   readonly priceSeconds: number;
+  /**
+   * The linear stage index at which this grade starts dropping and appearing in the shop.
+   *
+   * A **hard** gate, unlike {@link GearDropData.gradeSoftness}, which only skews odds that were
+   * already non-zero. Below this index the grade's weight is zero and the piece cannot arrive from
+   * either source.
+   *
+   * ⚠️ **This reverses the position `gradeWeights` used to argue**, and the reversal is deliberate
+   * rather than an oversight — the old comment there is preserved below with what changed. The
+   * argument against a gate was that it "turns the first stage of a band into a cliff and makes
+   * everything below it garbage the instant it is crossed". That is a statement about *drops*, and
+   * it is still true; what it misses is the opening hours, where a soft tilt means a new run's gear
+   * is a lottery whose good outcomes it cannot yet enhance and whose bad ones tell it nothing. A
+   * gated opening is legible instead: for the first stretch there is one grade, so every piece that
+   * drops is comparable to every other and the only question is which slot it fills.
+   *
+   * The cliff is paid for in one place and bounded there: the grade below never stops dropping, so
+   * crossing a gate widens the table rather than replacing it.
+   *
+   * ⚠️ **Grade 0 must be reachable from stage 1** — an index of 0 — or the opening ladder drops
+   * nothing at all. `gear.spec.ts` asserts it, along with the ladder being ascending and every gate
+   * landing inside the stages this build ships.
+   */
+  readonly unlockIndex: number;
 }
 
 /**

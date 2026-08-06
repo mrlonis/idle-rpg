@@ -54,18 +54,35 @@ export function weightedIndex(weights: readonly number[], draw: Draw): number {
 }
 
 /**
- * The grade weights at a given point on the ladder.
+ * The grade weights at a given point on the ladder: a hard unlock gate, then a soft tilt.
  *
- * A grade's authored weight is multiplied by `(1 + index / softness) ** gradeIndex`, so depth on
- * the ladder tilts the same ladder rather than replacing it. Three properties fall out of that
- * shape and each is a reason for it:
+ * ## The gate
  *
- * - **The authored weights are the stage-1 distribution**, because the tilt starts at 1 rather than
- *   at `1 / softness`. That is what the `1 +` buys, and it is not cosmetic: a bare ratio makes the
- *   top grade's weight `softness ** −4` at the bottom of the ladder — one in millions rather than
- *   one in hundreds — so the authored number stops describing anything a reader could predict from.
- * - **The top grade is reachable at stage 1**, merely rare. A hard band gate would make the first
- *   stage of each band a cliff, and everything earned below it garbage the instant it was crossed.
+ * A grade whose {@link GearGradeData.unlockIndex} is above this stage weighs nothing, so it cannot
+ * drop and cannot be stocked. That makes the opening of a run **one grade wide** — every piece that
+ * arrives is comparable to every other, and the only question a drop poses is which slot it fills.
+ *
+ * ⚠️ **This overrides a position this comment used to take, and the old argument is kept because it
+ * is still half right.** It read: *"The top grade is reachable at stage 1, merely rare. A hard band
+ * gate would make the first stage of each band a cliff, and everything earned below it garbage the
+ * instant it was crossed."* The cliff is real and it is the price paid here. What the argument
+ * missed is the opening: a soft tilt hands a new run a lottery ticket it cannot cash, because the
+ * gold to enhance a lucky relic is twenty hours away and the piece sits at level 1 meanwhile.
+ *
+ * Two things bound the cliff. A gate only ever **widens** the table — the grades below keep
+ * dropping at their authored weight, so nothing already earned becomes unobtainable — and the
+ * bottom grade is ungated by construction, so the ladder always drops something.
+ *
+ * ## The tilt, among what is unlocked
+ *
+ * A grade's authored weight is then multiplied by `(1 + index / softness) ** gradeIndex`, so depth
+ * tilts the same ladder rather than replacing it. Two properties still fall out of that shape:
+ *
+ * - **The authored weights are the distribution at stage 1**, because the tilt starts at 1 rather
+ *   than at `1 / softness`. That is what the `1 +` buys, and it is not cosmetic: a bare ratio makes
+ *   the top grade's weight `softness ** −4` at the bottom of the ladder — one in millions rather
+ *   than one in hundreds — so the authored number stops describing anything a reader could predict
+ *   from.
  * - **The bottom grade never becomes impossible**, it becomes rare — and a worn piece late in the
  *   run is still worth its salvage, so a drop is never a nothing.
  *
@@ -79,9 +96,33 @@ export function gradeWeights(rules: GearRulesData, stageIndex: number): readonly
   const depth = Number.isFinite(stageIndex) ? Math.max(stageIndex, 1) : 1;
   const tilt = 1 + depth / softness;
   return rules.grades.map((grade, index) => {
+    // An unauthored or damaged gate reads as ungated rather than as locked. A grade nobody can
+    // reach is a content bug that presents as a thinner drop table, which is exactly the class of
+    // failure that goes unnoticed for a milestone.
+    const unlock = Number.isFinite(grade.unlockIndex) ? Math.max(grade.unlockIndex, 0) : 0;
+    if (depth < unlock) {
+      return 0;
+    }
     const weight = Number.isFinite(grade.weight) ? Math.max(grade.weight, 0) : 0;
     return weight * Math.pow(tilt, index);
   });
+}
+
+/**
+ * The best grade this build will hand out at `stageIndex`, for the screens that explain the gate.
+ *
+ * `ui/` needs this to say *why* the shop is showing nothing but worn pieces, and a screen that
+ * recomputed it from the grade table would be a second place the gate is spelled out.
+ */
+export function unlockedGrades(rules: GearRulesData, stageIndex: number): number {
+  const weights = gradeWeights(rules, stageIndex);
+  let count = 0;
+  for (const weight of weights) {
+    if (weight > 0) {
+      count++;
+    }
+  }
+  return Math.max(count, 1);
 }
 
 /** How many pieces a stage of this kind drops on a win. */

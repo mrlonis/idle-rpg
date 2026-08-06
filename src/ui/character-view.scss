@@ -156,6 +156,12 @@
   margin-top: 0.75rem;
 }
 
+// The gear card's one action, so it spans rather than sitting in a half-width column with an
+// empty cell beside it.
+.actions--gear {
+  grid-template-columns: 1fr;
+}
+
 .button {
   @include t.button-quiet;
   font-size: 0.9375rem;

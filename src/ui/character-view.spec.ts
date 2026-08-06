@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { describe, expect, it } from 'vitest';
-import { emptyWallet, GEAR_SLOTS } from '../core';
+import { type AutoEquipResult, emptyWallet, GEAR_SLOTS } from '../core';
 import { CharacterView } from './character-view';
 import { GameLoopService } from './game-loop.service';
 import { type GearBonusView, GearService, type GearSlotView } from './gear.service';
@@ -72,12 +72,23 @@ class FakeGear {
     GEAR_SLOTS.map((slot) => ({ slot, label: slot, item: null, options: [] })),
   );
 
+  /** What the next `autoEquip` reports back. Set per test. */
+  autoEquipResult: AutoEquipResult = { ok: true, state: {} as never, equipped: 0 };
+
+  /** Which character ids `autoEquip` was called for, so the wiring itself is assertable. */
+  readonly autoEquipCalls: string[] = [];
+
   slots(): readonly GearSlotView[] {
     return this.slotViews();
   }
 
   bonusFor(): readonly GearBonusView[] {
     return [];
+  }
+
+  autoEquip(defId: string): AutoEquipResult {
+    this.autoEquipCalls.push(defId);
+    return this.autoEquipResult;
   }
 }
 
@@ -88,7 +99,11 @@ class FakeGear {
  * hands over `defId`, so a test that set the input directly would assert the mapping and skip the
  * binding that makes it work.
  */
-async function open(url: string, roster: FakeRoster = new FakeRoster()) {
+async function open(
+  url: string,
+  roster: FakeRoster = new FakeRoster(),
+  gear: FakeGear = new FakeGear(),
+) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     providers: [
@@ -99,7 +114,7 @@ async function open(url: string, roster: FakeRoster = new FakeRoster()) {
       provideLocationMocks(),
       { provide: RosterService, useValue: roster },
       { provide: GameLoopService, useValue: new FakeGameLoop() },
-      { provide: GearService, useValue: new FakeGear() },
+      { provide: GearService, useValue: gear },
     ],
   }).compileComponents();
 
@@ -314,6 +329,78 @@ describe('CharacterView', () => {
       const el = await open('/roster/rin');
 
       expect(el.querySelector('.level__resonance')).toBeNull();
+    });
+  });
+
+  describe('auto-equip', () => {
+    const button = (el: HTMLElement) =>
+      [...el.querySelectorAll<HTMLButtonElement>('.actions--gear .button')].find((node) =>
+        node.textContent?.includes('Auto-equip'),
+      );
+
+    const note = (el: HTMLElement) =>
+      el.querySelector('[role="status"]')?.textContent?.replace(/\s+/gu, ' ').trim();
+
+    it('equips from the bag for the character whose sheet is open', async () => {
+      const gear = new FakeGear();
+      gear.autoEquipResult = { ok: true, state: {} as never, equipped: 4 };
+      const el = await open('/roster/rin', new FakeRoster(), gear);
+
+      button(el)?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(gear.autoEquipCalls).toEqual(['rin']);
+    });
+
+    it('says how many pieces moved rather than leaving the rows to imply it', async () => {
+      const gear = new FakeGear();
+      gear.autoEquipResult = { ok: true, state: {} as never, equipped: 4 };
+      const el = await open('/roster/rin', new FakeRoster(), gear);
+
+      button(el)?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(note(el)).toBe('Equipped 4 pieces from your bag.');
+    });
+
+    it('singularises a one-piece result', async () => {
+      const gear = new FakeGear();
+      gear.autoEquipResult = { ok: true, state: {} as never, equipped: 1 };
+      const el = await open('/roster/rin', new FakeRoster(), gear);
+
+      button(el)?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(note(el)).toBe('Equipped 1 piece from your bag.');
+    });
+
+    it('explains a press that changed nothing, including why', async () => {
+      // ⚠️ The outcome that most needs saying. The button is enabled either way, so a press that
+      // moves no row is otherwise indistinguishable from a button that does not work — and the
+      // reason it moved nothing is usually that the best piece is on somebody else, which is a
+      // deliberate limit rather than a bug the player should go hunting for.
+      const gear = new FakeGear();
+      gear.autoEquipResult = { ok: true, state: {} as never, equipped: 0 };
+      const el = await open('/roster/rin', new FakeRoster(), gear);
+
+      button(el)?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(note(el)).toContain('Already wearing the best spare gear');
+      expect(note(el)).toContain('worn by other characters are left where they are');
+    });
+
+    it('reports a refusal in words rather than doing nothing', async () => {
+      const gear = new FakeGear();
+      gear.autoEquipResult = { ok: false, reason: 'not-owned' };
+      const el = await open('/roster/rin', new FakeRoster(), gear);
+
+      button(el)?.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(el.querySelector('.notice--error')?.textContent?.trim()).toBe(
+        'You do not own this character.',
+      );
     });
   });
 });

@@ -328,9 +328,42 @@ export class CharacterView {
   /** Which slot's picker is open, or `null`. One at a time. */
   protected readonly openSlot = signal<GearSlot | null>(null);
 
+  /**
+   * What the last auto-equip did, or `null` before one has been pressed.
+   *
+   * Announced through `role="status"` rather than left to the slot rows to imply, because the
+   * outcome a player most needs told about is the one where **nothing** moved: the button is
+   * enabled either way, and a press that changes no row is otherwise indistinguishable from a
+   * button that does not work.
+   */
+  protected readonly autoEquipNote = signal<string | null>(null);
+
   protected toggleSlot(slot: GearSlot): void {
     this.openSlot.update((open) => (open === slot ? null : slot));
     this.message.set(null);
+    this.autoEquipNote.set(null);
+  }
+
+  /**
+   * Fills every slot with the best spare piece in the bag.
+   *
+   * The wording names the constraint rather than hiding it — pieces worn by other characters are
+   * left alone, so a player who expected the best piece in the game to arrive here is told why it
+   * did not, on the screen where they would otherwise go looking.
+   */
+  protected autoEquip(): void {
+    const result = this.gear.autoEquip(this.defId());
+    if (!result.ok) {
+      this.message.set(GEAR_FAILURES[result.reason]);
+      return;
+    }
+    this.message.set(null);
+    this.openSlot.set(null);
+    this.autoEquipNote.set(
+      result.equipped === 0
+        ? 'Already wearing the best spare gear in your bag. Pieces worn by other characters are left where they are.'
+        : `Equipped ${result.equipped} ${result.equipped === 1 ? 'piece' : 'pieces'} from your bag.`,
+    );
   }
 
   protected equip(slot: GearSlot, item: GearItemView): void {

@@ -12,6 +12,7 @@ import { type GameState, newGame } from '../state';
 import {
   addGear,
   alloyStep,
+  autoEquip,
   canEnhance,
   enhance,
   enhanceCost,
@@ -28,7 +29,7 @@ import {
   unequippedGear,
   useAsMaterial,
 } from './inventory';
-import { dropCount, gradeWeights, rollDrops, weightedIndex } from './roll';
+import { dropCount, gradeWeights, rollDrops, unlockedGrades, weightedIndex } from './roll';
 import { buyGear, gearShopOffers, gearShopSlot, msUntilRestock, offerPrice } from './shop';
 import {
   applyGearBonus,
@@ -61,6 +62,8 @@ const RULES: GearRulesData = {
       salvage: 10,
       weight: 100,
       priceSeconds: 10,
+      // Ungated, as the bottom grade must be — a fixture that gated it would drop nothing at all.
+      unlockIndex: 1,
     },
     {
       id: 'good',
@@ -70,6 +73,7 @@ const RULES: GearRulesData = {
       salvage: 40,
       weight: 20,
       priceSeconds: 60,
+      unlockIndex: 4,
     },
   ],
   profiles: {
@@ -521,6 +525,144 @@ describe('equip and unequip', () => {
   });
 });
 
+describe('autoEquip', () => {
+  /** A run holding `gear`, with alpha (brawler) and delta (mage) owning nothing. */
+  const bagOf = (gear: readonly GearItem[], roster?: readonly OwnedCharacter[]): GameState =>
+    run({
+      gear,
+      gearMinted: gear.length,
+      roster: roster ?? [owner(TEST_ALPHA.id), owner(TEST_DELTA.id)],
+    });
+
+  it('fills every empty slot with the best spare piece for that archetype', () => {
+    const state = bagOf([
+      item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 0 }),
+      item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1 }),
+      item({ id: 'g3', slot: 'boots', archetype: 'brawler', grade: 0 }),
+    ]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // g2 over g1 on scale alone; the grade ladder does not have to be strictly ordered for this
+      // to be well defined, because every candidate for a slot shares one authored profile.
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g2', boots: 'g3' });
+      expect(result.equipped).toBe(2);
+    }
+  });
+
+  it('ranks on scale alone, so grade never overrides an enhancement that beat it', () => {
+    // ⚠️ The property that makes a strictly-ordered grade ladder unnecessary here. A candidate is
+    // whatever `gearScale` says is largest — the ladder is free to overlap, and the shipped one
+    // does. `data/gear.spec.ts` asserts the overlap against the shipped numbers; this asserts that
+    // the choice follows the scale rather than the grade index.
+    //
+    // The fixture ties exactly at these two points (plain caps at 5 and 0.25 per level, so
+    // 1 * (1 + 0.25 * 4) === 2 * 1), which is why the expectation is derived rather than written.
+    const enhanced = item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 0, level: 5 });
+    const fresh = item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1, level: 1 });
+    const enhancedScale = gearScale(RULES, enhanced, TEST_ALPHA.faction);
+    const freshScale = gearScale(RULES, fresh, TEST_ALPHA.faction);
+
+    const result = autoEquip(bagOf([enhanced, fresh]), TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const chosen = result.state.roster[0]?.gear.chest;
+      const chosenScale = chosen === 'g1' ? enhancedScale : freshScale;
+      expect(chosenScale).toBe(Math.max(enhancedScale, freshScale));
+    }
+  });
+
+  it('never takes a piece off another character', () => {
+    // ⚠️ The one place this deliberately does less than `equip`, which does steal. A bulk action
+    // carries no statement about one piece and one wearer, so stripping four other characters is
+    // not something a single press should be able to do.
+    const worn = item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 });
+    const spare = item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 0 });
+    const state = bagOf([worn, spare], [owner(TEST_ALPHA.id), owner('beta', { chest: 'g1' })]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g2' });
+      expect(result.state.roster[1]?.gear).toEqual({ chest: 'g1' });
+    }
+  });
+
+  it('skips pieces forged for another archetype', () => {
+    const state = bagOf([item({ id: 'g1', slot: 'chest', archetype: 'mage' })]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({});
+      expect(result.equipped).toBe(0);
+    }
+  });
+
+  it('leaves a better worn piece alone rather than downgrading it', () => {
+    const state = bagOf(
+      [
+        item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 }),
+        item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 0 }),
+      ],
+      [owner(TEST_ALPHA.id, { chest: 'g1' })],
+    );
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g1' });
+      expect(result.equipped).toBe(0);
+    }
+  });
+
+  it('is idempotent, so a second press is a no-op rather than a shuffle', () => {
+    // Equal scale never displaces, which is what makes this true when the bag holds duplicates.
+    const state = bagOf([
+      item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 }),
+      item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1 }),
+    ]);
+
+    const once = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+    expect(once.ok).toBe(true);
+    if (!once.ok) {
+      return;
+    }
+    const twice = autoEquip(once.state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(twice.ok).toBe(true);
+    if (twice.ok) {
+      expect(twice.equipped).toBe(0);
+      expect(twice.state.roster[0]?.gear).toEqual(once.state.roster[0]?.gear);
+    }
+  });
+
+  it('returns the state untouched when nothing moved', () => {
+    const state = bagOf([]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result).toEqual({ ok: true, state, equipped: 0 });
+  });
+
+  it('reports a character the run does not own rather than throwing', () => {
+    expect(autoEquip(bagOf([]), 'nobody', RULES, TEST_CHARACTERS)).toEqual({
+      ok: false,
+      reason: 'unknown-character',
+    });
+    expect(autoEquip(run({ roster: [] }), TEST_ALPHA.id, RULES, TEST_CHARACTERS)).toEqual({
+      ok: false,
+      reason: 'not-owned',
+    });
+  });
+});
+
 describe('repairLoadouts', () => {
   const bag = (gear: readonly GearItem[], roster: readonly OwnedCharacter[]): GameState =>
     run({ gear, roster, gearMinted: gear.length });
@@ -615,26 +757,51 @@ describe('drops', () => {
     expect(dropCount(RULES, 'boss')).toBe(3);
   });
 
-  it('keeps the authored weights as the stage-1 distribution', () => {
+  it('keeps the authored weights as the distribution at the stage a grade unlocks', () => {
     // The `1 +` in the tilt is what buys this. A bare ratio would make the top grade's weight
     // `softness ** -n` at the bottom of the ladder, so the authored number would stop describing
     // anything a reader could predict from.
-    const [plain, good] = gradeWeights(RULES, 1);
+    //
+    // Read at the gate rather than at stage 1, because below the gate the answer is zero and a
+    // ratio is not the thing being asserted there. The fixture gates `good` at 4.
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+    const [plain, good] = gradeWeights(RULES, gate);
 
-    expect((good ?? 0) / (plain ?? 1)).toBeCloseTo((20 / 100) * (1 + 1 / 10), 10);
+    expect((good ?? 0) / (plain ?? 1)).toBeCloseTo((20 / 100) * (1 + gate / 10), 10);
   });
 
-  it('tilts toward better grades with depth without ever gating one out', () => {
-    const shallow = gradeWeights(RULES, 1);
+  it('weighs a grade at nothing below its gate, and the bottom grade never at nothing', () => {
+    // ⚠️ The gate is a hard zero rather than a small number: a run below it cannot see the grade
+    // from a drop *or* from the shop, which is what makes the opening one grade wide. The bottom
+    // grade is ungated by construction — a ladder that gated it would drop nothing at all.
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+
+    expect(gradeWeights(RULES, gate - 1)[1]).toBe(0);
+    expect(gradeWeights(RULES, gate)[1]).toBeGreaterThan(0);
+    expect(gradeWeights(RULES, 1)[0]).toBeGreaterThan(0);
+    expect(gradeWeights(RULES, 500)[0]).toBeGreaterThan(0);
+  });
+
+  it('tilts toward better grades with depth once they are unlocked', () => {
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+    const shallow = gradeWeights(RULES, gate);
     const deep = gradeWeights(RULES, 500);
     const share = (weights: readonly number[]) =>
       (weights[1] ?? 0) / weights.reduce((sum, weight) => sum + weight, 0);
 
     expect(share(deep)).toBeGreaterThan(share(shallow));
-    // Neither end ever reaches zero: a top-grade piece is reachable at stage 1, and a bottom-grade
-    // one still drops (and is still worth its salvage) at the top.
+    // A grade that has opened never closes again, and the bottom one goes rare rather than
+    // impossible — so a drop is never a nothing at either end of the ladder.
     expect(share(shallow)).toBeGreaterThan(0);
     expect(deep[0]).toBeGreaterThan(0);
+  });
+
+  it('counts how many grades a run has unlocked, for the screens that explain the gate', () => {
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+
+    expect(unlockedGrades(RULES, 1)).toBe(1);
+    expect(unlockedGrades(RULES, gate - 1)).toBe(1);
+    expect(unlockedGrades(RULES, gate)).toBe(2);
   });
 
   it('rolls a grade per piece rather than once per batch', () => {

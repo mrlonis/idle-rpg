@@ -75,10 +75,33 @@
  * three meanings of "rarity". A sixth ladder sharing those words would be the collision that
  * finally makes a sentence about this game unparseable, so gear gets its own vocabulary.
  *
- * `weight` is the **stage-1** drop distribution, near enough: `gradeWeights` starts its tilt at 1
- * and multiplies it in with depth, so these are the numbers a reader can predict from. That makes a
- * relic roughly one drop in 107 at the bottom of the ladder and about one in 11 at the top of
- * chapter 2 — rare rather than gated, in both directions.
+ * `weight` is the drop distribution among the grades that are **unlocked**: `gradeWeights` starts
+ * its tilt at 1 and multiplies it in with depth, so these are the numbers a reader can predict from
+ * once a grade is available at all.
+ *
+ * ## `unlockIndex` gates the ladder, and the opening is one grade wide
+ *
+ * A grade cannot drop or be stocked below its `unlockIndex` on the linear stage index. Worn is
+ * ungated, so the first ten stages hand out nothing else — every piece is comparable to every other
+ * and a drop asks only which slot it fills. The gates then arrive roughly a band apart across the
+ * shipped hundred stages:
+ *
+ * | Grade      | Unlocks at | Which is                        |
+ * | ---------- | ---------- | ------------------------------- |
+ * | Worn       | 1          | the opening                     |
+ * | Sturdy     | 10         | the first mini-boss of ch. 1    |
+ * | Fine       | 25         | the middle of chapter 1         |
+ * | Masterwork | 45         | approaching chapter 1's boss    |
+ * | Relic      | 70         | the middle of chapter 2         |
+ *
+ * ⚠️ **All five are reachable inside the two chapters this build ships**, and that is the constraint
+ * the numbers are picked against rather than a happy accident. Gating a grade behind content that
+ * does not exist makes it unreachable content, and four of five grades sat behind chapter 3 in the
+ * first version of this idea. `gear.spec.ts` asserts every gate lands inside the shipped ladder, so
+ * a gate authored past the end of the ladder is a failing test rather than a silent deletion.
+ *
+ * The soft tilt still runs on top of the gate, so crossing one widens the table rather than
+ * replacing it — `gradeWeights` carries the full argument, including the position it reverses.
  */
 export const GEAR_GRADES = [
   {
@@ -89,6 +112,7 @@ export const GEAR_GRADES = [
     salvage: 100,
     weight: 100,
     priceSeconds: 60,
+    unlockIndex: 1,
   },
   {
     id: 'sturdy',
@@ -98,6 +122,7 @@ export const GEAR_GRADES = [
     salvage: 240,
     weight: 46,
     priceSeconds: 260,
+    unlockIndex: 10,
   },
   {
     id: 'fine',
@@ -107,6 +132,7 @@ export const GEAR_GRADES = [
     salvage: 560,
     weight: 18,
     priceSeconds: 900,
+    unlockIndex: 25,
   },
   {
     id: 'masterwork',
@@ -116,6 +142,7 @@ export const GEAR_GRADES = [
     salvage: 1250,
     weight: 6,
     priceSeconds: 2600,
+    unlockIndex: 45,
   },
   {
     id: 'relic',
@@ -125,6 +152,7 @@ export const GEAR_GRADES = [
     salvage: 2700,
     weight: 1.6,
     priceSeconds: 7200,
+    unlockIndex: 70,
   },
 ] as const;
 
