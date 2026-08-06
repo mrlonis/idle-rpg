@@ -249,14 +249,34 @@ export interface GearEnhanceData {
   readonly gold: { readonly coefficient: number; readonly exponent: number };
 }
 
+/**
+ * How many pieces one clear of a given kind of stage drops, as an inclusive range.
+ *
+ * ⚠️ **`min` is what enforces "a fight never produces nothing", and it is the one bound that is a
+ * rule rather than tuning.** A range of `0..n` would be the drop *chance* this project already
+ * declined — a pull can never produce nothing, so neither should a fight, and a piece the party
+ * cannot wear is still alloy. `dropCount` clamps `min` up to 1 rather than trusting content.
+ *
+ * A range rather than a count because a fixed number makes every ordinary clear identical: the
+ * variance is what makes a drop an event. It is drawn per fight, not per piece — the grade is the
+ * per-piece roll, and the two answer different questions ("was this fight lucky" against "was this
+ * piece lucky").
+ */
+export interface GearDropRange {
+  /** Fewest pieces this drops. Clamped up to 1: every win drops something. */
+  readonly min: number;
+  /** Most it drops. Clamped up to {@link min}, so an inverted range degrades to a fixed count. */
+  readonly max: number;
+}
+
 /** What clearing a stage drops. */
 export interface GearDropData {
   /** Pieces an ordinary stage drops on a win. */
-  readonly normal: number;
+  readonly normal: GearDropRange;
   /** Pieces a mini-boss drops. */
-  readonly miniBoss: number;
+  readonly miniBoss: GearDropRange;
   /** Pieces a chapter boss drops. */
-  readonly boss: number;
+  readonly boss: GearDropRange;
   /**
    * How sharply grade odds improve with the linear stage index.
    *

@@ -56,7 +56,7 @@ on the ladder.** `STAGE_REWARDS` in [`chapters.ts`](../src/data/chapters.ts) is 
 `stagePayout` in [`core/ladder.ts`](../src/core/ladder.ts) evaluates them:
 
 ```
-rate = base * stageIndex ** 1.13      base: 0.5 gold, 0.1 xp, 0.0015 essence per second
+rate = base * stageIndex ** 1.13      base: 1 gold, 0.2 xp, 0.003 essence per second
 lump = 40 seconds of that rate
 crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
@@ -65,19 +65,42 @@ Across the hundred stages of chapters 1 and 2:
 
 | Stage | gold/s | xp/s | essence/s | enemy level |
 | ----- | ------ | ---- | --------- | ----------- |
-| 1     | 0.5    | 0.1  | 0.0015    | 1           |
-| 12    | 8.3    | 1.66 | 0.025     | 18          |
-| 25    | 19.0   | 3.8  | 0.057     | 25          |
-| 50    | 41.6   | 8.31 | 0.125     | 40          |
-| 75    | 65.7   | 13.2 | 0.197     | 78          |
-| 100   | 91.0   | 18.2 | 0.273     | 126         |
+| 1     | 1.0    | 0.2  | 0.003     | 1           |
+| 12    | 16.6   | 3.32 | 0.050     | 18          |
+| 25    | 38.0   | 7.6  | 0.114     | 25          |
+| 50    | 83.2   | 16.6 | 0.250     | 40          |
+| 75    | 131.4  | 26.3 | 0.394     | 78          |
+| 100   | 182.0  | 36.4 | 0.546     | 126         |
 
 Three columns, not four: **the crystal rate is not part of this**. See below.
 
-**The curve is calibrated against enemy level rather than stage count**, which is the thing to
+**The base rates doubled from 0.5 / 0.1 / 0.0015, and all three doubled together.** That is what
+made it a safe edit rather than a re-derivation: every economy assertion in `levels.spec.ts` is
+either a ratio between the three currencies or a comparison among them, and a common factor cancels
+out of all of them. Essence still bites late and not early; gold is still the most comfortable; the
+three still land within a third of each other in time-to-afford. The gear shop and the bounty board
+are covered by the same cancellation, since both price in **seconds of the run's own income** rather
+than in amounts — a doubled rate buys a doubled price.
+
+⚠️ **The one thing that did move is the only number measured in absolute hours.** Levelling one
+character to the 1000 ceiling went from 1,175 hours of top-of-ladder idle income to **588**, and the
+guard in `levels.spec.ts` was lowered from 1,000 to 500 rather than the level curve being steepened
+to absorb it — because progression being twice as fast _was_ the change, and a curve retuned to
+cancel it would have left nothing but bigger numbers on screen. That threshold has now given way
+once; the next thing that raises income has to move the curve instead.
+
+**The curve was calibrated against enemy level rather than stage count**, which is the thing to
 understand before retuning it. The old twenty-four stage ladder paid 25 gold a second at enemy
-level 40 and 90 at level 126; this pays about 42 and about 91 at the same two levels. That is what
-stops "four times as many stages" from meaning "four times the income".
+level 40 and 90 at level 126; the curve that replaced it paid about 42 and about 91 at the same two
+levels — income tracking what the content asks of a party rather than how many stages the party has
+walked past, which is what stops "four times as many stages" from meaning "four times the income".
+
+⚠️ **The doubling broke that correspondence deliberately, and the shape is what survives.** The
+same two levels now pay about 83 and 182, so the curve no longer reproduces the hand-tuned ladder —
+it is that ladder times two. What still holds, and what the calibration was really protecting, is
+that income is a function of the stage's **position** rather than of the ladder's length: adding a
+chapter still cannot make the game richer at a given enemy level. Read the ×2 as the tuning
+decision it is, not as the calibration having drifted.
 
 `applyBattleResult` **only ever raises** a rate. Rates never fall, which is what lets load-time
 repair re-derive progress from the gold rate alone — and what kept every existing save whole when

@@ -145,12 +145,34 @@ the two disagree, the code is right and both are stale.
     with no anti-cheat. The refresh index is supplied by `ui/`; `core/` still has no clock.
   - **Drops roll from a derived sub-stream**, never the main one. Otherwise fighting a stage shifts
     the gacha sequence.
+  - **How many pieces a clear drops is a range, rolled once per fight** — 1–3 ordinary, 2–5
+    mini-boss, 4–8 boss. ⚠️ **The floor of 1 is a rule and the ceilings are tuning.** "A fight never
+    produces nothing" is the same rule that makes a pull always produce something, so `dropCount`
+    clamps the minimum up to 1 whatever `data/` authors — a range of `0..n` would reintroduce the
+    drop _chance_ this design rejected. The ranges are meant to overlap; what `gear.spec.ts` holds
+    is that each kind's floor **and** ceiling beat the rank below it.
+  - ⚠️ **The count draw is the first draw in `rollDrops`, and its position is load-bearing.** Every
+    later draw shifts by one, so moving it re-rolls every historical drop for a given seed —
+    invisible in play, and it turns every recorded balance figure into a different number. The count
+    is drawn once for the batch and the grade per piece, because they answer different questions:
+    whether the _fight_ was lucky against whether the _piece_ was.
 - **[docs/economy.md](../../docs/economy.md)** — the six currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
   income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
   coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
   old hand-tuned ladder paid at the same **enemy level**, which is what stops a longer ladder from
   meaning a richer one.
+  - **The base rates are 1 gold, 0.2 xp and 0.003 essence, doubled from the ladder they were
+    derived against.** ⚠️ **Scale all three together or none.** Every economy assertion in
+    `levels.spec.ts` is a ratio between the currencies or a comparison among them, and a common
+    factor cancels out of all of them — the gear shop and the bounty board too, since both price in
+    **seconds of the run's own income** rather than in amounts. Doubling one currency moves every
+    one of those; doubling all three moves none.
+  - ⚠️ **The one number not covered by that cancellation is the level ceiling in absolute hours,
+    and its guard has already been spent.** Doubling took level 1000 from 1,175 hours of
+    top-of-ladder idle income to 588, and `levels.spec.ts` was lowered from 1,000 to 500 rather
+    than the level curve being steepened — because progression being twice as fast _was_ the
+    change. **The next thing that raises income has to move the level curve, not that threshold.**
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../../src/core/ladder.ts) before touching progression.
   - ⚠️ **`GameState.stage` is the stage within its chapter, not a position on the whole ladder.**

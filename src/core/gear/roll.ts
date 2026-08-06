@@ -125,15 +125,32 @@ export function unlockedGrades(rules: GearRulesData, stageIndex: number): number
   return Math.max(count, 1);
 }
 
-/** How many pieces a stage of this kind drops on a win. */
-export function dropCount(rules: GearRulesData, kind: StageKind): number {
-  const authored =
+/**
+ * How many pieces a stage of this kind drops on a win: one uniform draw over its authored range.
+ *
+ * ⚠️ **The floor is 1 whatever `data/` authors**, because "a fight never produces nothing" is a
+ * rule and not a tuning knob — see {@link GearDropRange}. An inverted or damaged range degrades to
+ * a fixed count rather than throwing or dropping nothing.
+ *
+ * **One draw for the whole fight, taken before any piece is rolled.** Per-piece variance is the
+ * grade roll's job; this is the other question — whether the fight itself was lucky — and drawing
+ * it per piece would blur the two into one flat distribution.
+ */
+export function dropCount(rules: GearRulesData, kind: StageKind, draw: Draw): number {
+  const range =
     kind === 'boss'
       ? rules.drops.boss
       : kind === 'mini-boss'
         ? rules.drops.miniBoss
         : rules.drops.normal;
-  return Number.isFinite(authored) ? Math.max(Math.floor(authored), 0) : 0;
+  const min = Number.isFinite(range.min) ? Math.max(Math.floor(range.min), 1) : 1;
+  const max = Number.isFinite(range.max) ? Math.max(Math.floor(range.max), min) : min;
+  if (max === min) {
+    return min;
+  }
+  // Clamped at the top as well as scaled: `Draw` is documented as `[0, 1)`, and a caller handing
+  // over exactly 1 would otherwise buy a piece more than the range authorises.
+  return Math.min(min + Math.floor(draw() * (max - min + 1)), max);
 }
 
 /**
@@ -166,9 +183,15 @@ export function rollGear(rules: GearRulesData, factions: readonly string[], draw
 /**
  * Everything a stage clear drops, in order.
  *
- * The grade is drawn per piece rather than once for the batch, so a boss dropping three is three
+ * The grade is drawn per piece rather than once for the batch, so a boss dropping five is five
  * independent chances at the top grade rather than one chance repeated — which is what makes a
- * boss meaningfully better than three ordinary stages rather than merely faster.
+ * boss meaningfully better than five ordinary stages rather than merely faster.
+ *
+ * ⚠️ **The count draw comes first, and its position is load-bearing in the way every RNG sequence
+ * in this project is.** Every draw after it shifts by one, so moving it re-rolls every historical
+ * drop for a given seed: invisible in play, and it turns every recorded balance figure into a
+ * different number. It is first rather than last so that the pieces of a fight keep drawing from a
+ * contiguous run — a reader tracing a sequence should not have to skip a slot in the middle.
  */
 export function rollDrops(
   rules: GearRulesData,
@@ -177,7 +200,7 @@ export function rollDrops(
   kind: StageKind,
   draw: Draw,
 ): readonly GearSpec[] {
-  const count = dropCount(rules, kind);
+  const count = dropCount(rules, kind, draw);
   if (count === 0) {
     return [];
   }

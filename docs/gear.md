@@ -187,13 +187,39 @@ something to re-derive every time any other slot is retuned.
 
 ## Where gear comes from
 
-**Every win drops at least one piece** — one from an ordinary stage, two from a mini-boss, four from
-a chapter boss. A drop chance was the alternative and it loses on this project's own terms: a pull
-can never produce nothing, so neither should a fight, and a piece useless to the party is still
-alloy.
+**Every win drops at least one piece.** A drop chance was the alternative and it loses on this
+project's own terms: a pull can never produce nothing, so neither should a fight, and a piece
+useless to the party is still alloy.
 
-The grade is rolled **per piece**, so a boss dropping four is four independent chances at a relic
-rather than one chance counted four times.
+**How many is a range, drawn once per fight:**
+
+| Stage kind   | Pieces | Average |
+| ------------ | ------ | ------- |
+| Ordinary     | 1–3    | 2       |
+| Mini-boss    | 2–5    | 3.5     |
+| Chapter boss | 4–8    | 6       |
+
+The counts were fixed at 1 / 2 / 4 until the ranges landed, and the floors are those old numbers —
+so nothing pays less than it used to, and the ceilings roughly double the average haul. A fixed
+count makes every ordinary clear identical; the variance is what makes a drop an event rather than
+an increment, which is the same reason the grade is rolled rather than assigned.
+
+⚠️ **The floor of 1 is a rule and the ceilings are tuning**, and the distinction matters when
+retuning: `dropCount` clamps the minimum up to 1 whatever `data/` authors, so a range of `0..n`
+cannot reintroduce the drop _chance_ this design rejected.
+
+**The ranges overlap on purpose.** An unlucky boss and a lucky mini-boss can pay the same, which is
+what makes the count a roll rather than a rank readout. What `gear.spec.ts` holds is that each
+kind's floor and ceiling both beat the rank below it, so the chapter's rhythm survives the overlap.
+
+The grade is rolled **per piece**, so a boss dropping six is six independent chances at a relic
+rather than one chance counted six times. The two rolls answer different questions — the count asks
+whether the _fight_ was lucky, the grade whether the _piece_ was — which is why the count is drawn
+once for the batch rather than folded into the per-piece draw.
+
+⚠️ **More drops means more alloy and a faster-filling bag, and both are bounded already.**
+`inventoryLimit` caps the bag and the overflow salvages at full value, so a bigger haul costs the
+save nothing — see the note on why gear material is a currency rather than a pile of items.
 
 ### The unlock gate, then the tilt
 

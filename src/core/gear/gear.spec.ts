@@ -120,7 +120,14 @@ const RULES: GearRulesData = {
     alloy: { coefficient: 10, exponent: 1 },
     gold: { coefficient: 100, exponent: 2 },
   },
-  drops: { normal: 1, miniBoss: 2, boss: 3, gradeSoftness: 10 },
+  drops: {
+    normal: { min: 1, max: 1 },
+    miniBoss: { min: 2, max: 2 },
+    // The one ranged kind in the fixture, so the count draw is exercised without making every
+    // other test in this file depend on how many pieces a fight happened to roll.
+    boss: { min: 3, max: 5 },
+    gradeSoftness: 10,
+  },
   shop: { offers: 3, refreshMs: 1000, minGoldPerSecond: 1 },
   inventoryLimit: 4,
 };
@@ -752,9 +759,62 @@ describe('repairLoadouts', () => {
 
 describe('drops', () => {
   it('pays the chapter rhythm: more from a mini-boss, most from a boss', () => {
-    expect(dropCount(RULES, 'normal')).toBe(1);
-    expect(dropCount(RULES, 'mini-boss')).toBe(2);
-    expect(dropCount(RULES, 'boss')).toBe(3);
+    const lowest = (): number => 0;
+
+    expect(dropCount(RULES, 'normal', lowest)).toBe(1);
+    expect(dropCount(RULES, 'mini-boss', lowest)).toBe(2);
+    expect(dropCount(RULES, 'boss', lowest)).toBe(3);
+  });
+
+  it('spreads a ranged count uniformly across its whole range, ends included', () => {
+    // Both ends have to be reachable. An off-by-one at the top makes the authored ceiling a
+    // number that never occurs, which is the kind of thing nobody notices from play.
+    const at = (roll: number): number => dropCount(RULES, 'boss', () => roll);
+
+    expect(at(0)).toBe(3);
+    expect(at(0.5)).toBe(4);
+    expect(at(0.999)).toBe(5);
+  });
+
+  it('never drops nothing, whatever the content says', () => {
+    // ⚠️ "A fight never produces nothing" is a rule, not tuning — the same rule that makes a pull
+    // always produce something. Content authored at zero, or damaged, must still pay one piece.
+    const broken = {
+      ...RULES,
+      drops: {
+        ...RULES.drops,
+        normal: { min: 0, max: 0 },
+        miniBoss: { min: Number.NaN, max: Number.NaN },
+      },
+    };
+
+    expect(dropCount(broken, 'normal', () => 0.5)).toBe(1);
+    expect(dropCount(broken, 'mini-boss', () => 0.5)).toBe(1);
+    expect(rollDrops(broken, ['a'], 10, 'normal', () => 0.5)).toHaveLength(1);
+  });
+
+  it('degrades an inverted range to a fixed count rather than to nothing', () => {
+    const inverted = { ...RULES, drops: { ...RULES.drops, boss: { min: 4, max: 2 } } };
+
+    expect(dropCount(inverted, 'boss', () => 0.99)).toBe(4);
+  });
+
+  it('draws the count once for the fight rather than once per piece', () => {
+    // ⚠️ The two rolls answer different questions — "was this fight lucky" against "was this piece
+    // lucky" — and drawing the count per piece would blur them into one flat distribution. One
+    // draw for the batch is also what keeps the sequence position of every later draw predictable.
+    const rolls: number[] = [];
+    const draw = (): number => {
+      rolls.push(rolls.length);
+      return 0.999;
+    };
+
+    const specs = rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
+
+    // Five pieces at the top of the range, five draws each (slot, archetype, alignment gate,
+    // faction, grade), plus exactly one for the count itself.
+    expect(specs).toHaveLength(5);
+    expect(rolls).toHaveLength(1 + specs.length * 5);
   });
 
   it('keeps the authored weights as the distribution at the stage a grade unlocks', () => {
@@ -805,17 +865,23 @@ describe('drops', () => {
   });
 
   it('rolls a grade per piece rather than once per batch', () => {
-    // What makes a boss meaningfully better than three ordinary stages rather than merely faster.
-    let calls = 0;
-    const draw = () => {
-      calls += 1;
-      return 0.999;
-    };
+    // What makes a boss meaningfully better than the same number of ordinary stages rather than
+    // merely faster. Read off the specs rather than off a draw count, so it says the thing it
+    // means: two pieces from one fight landing on different grades.
+    //
+    // The sequence is hand-built: one draw for the count, then five per piece — slot, archetype,
+    // alignment gate, faction, grade — with the alignment gate above `unalignedChance` so the
+    // faction draw is always taken and the block stays a fixed five wide. Only the grade slot
+    // varies, between a roll inside the bottom grade's weight and one well past it.
+    let index = 0;
+    const piece = (grade: number): readonly number[] => [0.1, 0.1, 0.9, 0.1, grade];
+    const values = [0, ...piece(0.01), ...piece(0.99), ...piece(0.01)];
+    const draw = (): number => values[index++] ?? 0;
 
-    rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
+    const specs = rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
 
-    // Four draws per piece (slot, archetype, alignment gate, faction) plus one for the grade.
-    expect(calls).toBeGreaterThanOrEqual(dropCount(RULES, 'boss') * 4);
+    expect(specs).toHaveLength(3);
+    expect(specs.map((spec) => spec.grade)).toEqual([0, 1, 0]);
   });
 
   it('is deterministic for a given draw sequence', () => {

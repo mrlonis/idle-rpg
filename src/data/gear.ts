@@ -294,12 +294,23 @@ export const GEAR_RULES = {
    * this project's own terms: a pull can never produce nothing, so neither should a fight, and a
    * piece that is useless to the party is still alloy. The bosses pay the chapter's rhythm here the
    * same way first-clear crystals do — and because the grade is rolled per piece, a boss dropping
-   * four is four independent chances at a relic rather than one chance counted four times.
+   * six is six independent chances at a relic rather than one chance counted six times.
+   *
+   * **The count is a range rather than a number**, drawn once per fight. A fixed count makes every
+   * ordinary clear identical, and the variance is what makes a drop an event rather than an
+   * increment — the same reason the grade is rolled rather than assigned. The floors are the old
+   * fixed counts, so nothing pays less than it did; the ceilings roughly double the average haul
+   * (2 / 3.5 / 6 against 1 / 2 / 4).
+   *
+   * ⚠️ **This raises alloy income and fills the bag faster**, and both are bounded rather than
+   * open-ended: `inventoryLimit` caps the bag and the overflow salvages, so more drops means more
+   * material rather than a larger save. The floor of 1 is the part that is a rule — see
+   * `GearDropRange` — and the ceilings are the part that is tuning.
    */
   drops: {
-    normal: 1,
-    miniBoss: 2,
-    boss: 4,
+    normal: { min: 1, max: 3 },
+    miniBoss: { min: 2, max: 5 },
+    boss: { min: 4, max: 8 },
     /**
      * How sharply grade odds improve with the linear stage index.
      *
@@ -333,8 +344,12 @@ export const GEAR_RULES = {
      * without a floor the opening shop would be free. This is the rate the first stage of the
      * ladder unlocks, which is the smallest non-zero income the game can produce, so the floor
      * binds for exactly as long as a run has cleared nothing.
+     *
+     * ⚠️ **Derived from `STAGE_REWARDS.baseRates.gold`, and `gear.spec.ts` asserts the equality**
+     * rather than letting this drift into a number that used to be that rate. It moved from 0.5 to
+     * 1 when the ladder's rates doubled, and that spec is what caught it.
      */
-    minGoldPerSecond: 0.5,
+    minGoldPerSecond: 1,
   },
 
   /**

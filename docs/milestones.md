@@ -2603,6 +2603,45 @@ total. What actually moved is _when_: the old curve paid least at the bottom of 
 is precisely where a run is three characters short of a full formation and has no other way to fix
 it. Crystals banked before the stage-7 healer lock went from 1,750 to 2,500.
 
+### The levelling rates doubled, and gear drops became a range
+
+Two more edits on the same pass, neither of them about crystals:
+
+- **`STAGE_REWARDS.baseRates` doubled** — 1 gold, 0.2 xp, 0.003 essence a second at stage 1, from
+  0.5 / 0.1 / 0.0015. The lump followed automatically, being forty seconds of the rate.
+- **A stage clear drops a _range_ of gear** — 1–3 ordinary, 2–5 mini-boss, 4–8 boss, where all three
+  were fixed at 1 / 2 / 4. The floors are the old fixed counts, so nothing pays less than it did.
+
+**Doubling all three rates together is what made the first one cheap.** Every economy assertion in
+`levels.spec.ts` is either a ratio between the currencies or a comparison among them, and a common
+factor cancels out of every one: essence still bites late and not early, gold is still the most
+comfortable of the three, and all three still land within a third of each other in time-to-afford.
+The gear shop and the bounty board are covered by the same cancellation, because both price in
+**seconds of the run's own income** rather than in amounts — a doubled rate buys a doubled price.
+Doubling _one_ currency would have moved all of it.
+
+⚠️ **The exception is the only assertion denominated in absolute hours, and it is a guard that has
+now been spent.** Levelling one character to the 1000 ceiling fell from 1,175 hours of
+top-of-ladder idle income to 588, and `levels.spec.ts` says in its own comment that the right
+answer when it fires is to retune the curve rather than the threshold. The threshold moved anyway,
+to 500, on the one argument available: the _point_ of the change was that progression be twice as
+fast, so a level curve steepened to absorb it would have left nothing but larger numbers on screen.
+588 hours is still around twenty-five days of unbroken idle for one character, on content that is
+two percent of the planned ladder. **The next thing that raises income has to move the curve.**
+
+**The gear range is a rule and a knob wearing the same shape, and telling them apart is the point.**
+The floor of 1 is the rule — "a fight never produces nothing" is the same statement as "a pull never
+produces nothing", so `dropCount` clamps the minimum up to 1 whatever `data/` authors, and a range
+of `0..n` cannot smuggle back the drop _chance_ this design rejected in milestone 12. The ceilings
+are the knob. The ranges deliberately overlap, so an unlucky boss and a lucky mini-boss can pay the
+same; `gear.spec.ts` holds the rhythm by requiring each kind's floor _and_ ceiling to beat the rank
+below it rather than requiring the ranges to be disjoint.
+
+⚠️ **The count draw is the first draw in `rollDrops` and its position is load-bearing**, in the way
+every RNG sequence in this project is: every later draw shifts by one, so moving it re-rolls every
+historical drop for a given seed. One draw for the batch and a grade per piece, because the two
+answer different questions — whether the fight was lucky, and whether the piece was.
+
 ### The idle step went back to 1/hr, and that is a threshold moving rather than a curve
 
 A fourth edit, after the three above and on the same currency: `SUMMON_RATE.perClearPerHour` is **1

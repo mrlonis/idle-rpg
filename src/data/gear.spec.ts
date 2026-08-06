@@ -258,9 +258,20 @@ describe('the drop table', () => {
   it('pays the chapter rhythm, and every win pays something', () => {
     // A pull can never produce nothing, so neither should a fight. A piece that is useless to the
     // party is still alloy.
-    expect(RULES.drops.normal).toBeGreaterThan(0);
-    expect(RULES.drops.miniBoss).toBeGreaterThan(RULES.drops.normal);
-    expect(RULES.drops.boss).toBeGreaterThan(RULES.drops.miniBoss);
+    // ⚠️ Compared floor to floor and ceiling to ceiling. Ranges that *overlap* are the point — an
+    // unlucky boss and a lucky mini-boss can pay the same — but a kind whose guaranteed minimum
+    // or whose best case fell short of the rank below it would break the chapter's rhythm.
+    expect(RULES.drops.normal.min).toBeGreaterThan(0);
+    expect(RULES.drops.miniBoss.min).toBeGreaterThan(RULES.drops.normal.min);
+    expect(RULES.drops.boss.min).toBeGreaterThan(RULES.drops.miniBoss.min);
+    expect(RULES.drops.miniBoss.max).toBeGreaterThan(RULES.drops.normal.max);
+    expect(RULES.drops.boss.max).toBeGreaterThan(RULES.drops.miniBoss.max);
+
+    // Every kind is genuinely ranged rather than a fixed count wearing a range's shape, and no
+    // range is inverted — `dropCount` would silently swallow either.
+    for (const kind of ['normal', 'miniBoss', 'boss'] as const) {
+      expect(RULES.drops[kind].max, kind).toBeGreaterThan(RULES.drops[kind].min);
+    }
   });
 
   it('opens the ladder one grade wide and never gates the bottom grade', () => {

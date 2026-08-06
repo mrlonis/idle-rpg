@@ -68,12 +68,18 @@ export const CHAPTER_CURVE = {
  * `rate = base * index ** 1.13`, over the stage's position on the whole ladder. Two things about
  * that number are worth knowing before touching it.
  *
- * **It reproduces the hand-authored ladder at matching enemy levels, which is how it was
- * chosen.** The old twenty-four stage ladder paid 25 gold a second at enemy level 40 and 90 at
- * level 126; this curve pays about 42 at chapter 1's level-40 boss and about 91 at chapter 2's
- * level-126 one. Income tracks what the content asks of a party, not how many stages the party
- * has walked past — which is the only thing that stops "four times as many stages" from meaning
- * "four times the income".
+ * **The exponent was chosen to reproduce the hand-authored ladder at matching enemy levels.** The
+ * old twenty-four stage ladder paid 25 gold a second at enemy level 40 and 90 at level 126, and
+ * this curve paid about 42 at chapter 1's level-40 boss and about 91 at chapter 2's level-126 one.
+ * Income tracks what the content asks of a party, not how many stages the party has walked past —
+ * which is the only thing that stops "four times as many stages" from meaning "four times the
+ * income".
+ *
+ * ⚠️ **Doubling `baseRates` broke that correspondence on purpose; those two levels now pay about
+ * 83 and 182.** The exponent is untouched, so what the calibration was actually protecting still
+ * holds: income is a function of a stage's **position**, so a longer ladder still cannot make the
+ * game richer at a given enemy level. Do not "restore" the old figures by moving the exponent —
+ * that would change the curve's shape to undo a change to its scale.
  *
  * **A power law is a decelerating geometric curve, and deceleration is the whole requirement.**
  * The per-stage multiplier is `1 + 1.13 / index`: about ×2 across the first stage, ×1.1 by stage
@@ -84,6 +90,13 @@ export const CHAPTER_CURVE = {
  * ⚠️ **`levels.spec.ts` reads the top of this curve and asserts level 1000 stays out of reach.**
  * It is the assertion that fires when a new chapter raises income without the level curve being
  * revisited, and it is meant to: the right answer then is to retune deliberately.
+ *
+ * **It fired when the rates doubled, and the deliberate answer was to accept the halving.** Level
+ * 1000 went from 1,175 hours of top-of-ladder idle income to 588, and the threshold moved to 500
+ * rather than the level curve moving to absorb it — because the point of doubling was that
+ * progression be twice as fast, and a curve retuned to cancel that would have made the whole change
+ * a no-op on screen. See [milestones](../../docs/milestones.md); the threshold has now been moved
+ * once and is not free to move again.
  *
  * ## The two payouts
  *
@@ -119,14 +132,25 @@ export const STAGE_REWARDS = {
   /**
    * What the first stage of the ladder unlocks, per second.
    *
-   * Unchanged from the hand-authored ladder's opening stage, because the opening is the one part
-   * of the curve a player experiences at full resolution: a run starts at zero on all three and
-   * the first battle is what switches idle income on.
+   * **Doubled from the hand-authored ladder's opening stage** (0.5 / 0.1 / 0.0015), which it had
+   * matched until then — the opening is the one part of the curve a player experiences at full
+   * resolution, and a run still starts at zero on all three so the first battle is still what
+   * switches idle income on.
+   *
+   * ⚠️ **All three doubled together, and that is what made it safe.** Every assertion in
+   * `levels.spec.ts` about the economy is either a *ratio* between the three currencies or a
+   * comparison among them, and a common factor cancels out of all of them: essence still bites
+   * late and not early, gold is still the most comfortable, and the three still land within a third
+   * of each other in time-to-afford. Doubling one would have moved every one of those. The same
+   * cancellation covers the gear shop and the bounty board, both of which price in *seconds of the
+   * run's own income* rather than in amounts.
+   *
+   * What it did move is the one thing measured in absolute hours — see the ceiling note below.
    */
   baseRates: {
-    gold: 0.5,
-    xp: 0.1,
-    essence: 0.0015,
+    gold: 1,
+    xp: 0.2,
+    essence: 0.003,
   },
   exponent: 1.13,
   rewardSeconds: 40,
