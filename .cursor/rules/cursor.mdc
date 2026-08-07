@@ -67,10 +67,27 @@ the two disagree, the code is right and both are stale.
     starting two rungs lower did not make it stronger. This is what kept the entire stage ladder in
     tune across the change — all 32 balance sweeps pass with no stage edited — so paying those
     rungs a multiplier means re-deriving the ladder from scratch, not adjusting a constant.
-  - **The bottom of the ladder is the whole of the tier gap.** Every rung charges every character
-    the same, so a tier is worth exactly the rungs it skips: 20 copies for `legendary`, 28 for
-    `ascended`. The old recursion produced that gap for free by compounding; a flat table does not,
-    so it is authored there deliberately and calibrated against how often a pull produces one.
+  - **Tier is a head start, not a shorter climb.** Every rung charges every character the same, so a
+    tier is worth exactly the rungs it skips: 10 copies for `legendary`, 20 for `ascended`. But only
+    20 of the ladder's 92 copies sit below `elite` — the other 72 are the stretch every tier walks —
+    so the totals land within ×1.27 of each other (93 / 83 / 73 mortal). What separates the climbs
+    is the **stream**, not the price: measured through `pull()` with pity live, a specific
+    ascended-tier character arrives ×4.1 less often than a common-tier one, so a higher tier is the
+    **longer** investment (~2,800 / ~7,200 / ~9,000 pulls to ★5).
+    - ⚠️ **This inverts what the ladder said before, deliberately.** The bottom used to carry the
+      whole tier gap (28 of 45 copies) so every tier was a comparable commitment and ascended tier
+      maxed *fastest*. Rungs 0–3 are still the only lever on the head start's size.
+    - ⚠️ **Quote the tier rate ratio as ×4.1, not ×10.** ×10 is `TIER_WEIGHTS` alone; pity lifts the
+      effective ascended rate 2.5% → 5.69% and lifts common not at all. Only the measured figure
+      describes a banner anybody plays.
+    - **Pulls are shared, so a per-character figure is a whole-tier figure.** The ~2,800 pulls that
+      max one common-tier character max all twenty-one; the run-level number is the slowest case,
+      ~11,400 pulls for the full 49-character roster.
+  - ⚠️ **The celestial premium is sized against the total and lives on rungs 5–9 only.**
+    `elite → elite+` and all five stars are shared. It was ×2 per rung when those rungs were 1s and
+    2s (+6 copies, ~×1.2 on a climb); ×2 on today's rungs would cost +38 and reach ×1.5, the same
+    rule charging a much heavier tax because the rungs underneath grew. It is ×1.5 now, and
+    `ascension.spec.ts` holds the **ratio** rather than the factor for that reason.
   - ⚠️ **A rarity id protects against the ladder being reordered, not against a rung being inserted
     below it.** `chapters.balance.ts` fielded its reference parties at `rarityIndex('rare')` for
     exactly that protection and every one of them silently gained ×1.6² anyway. Anything meaning
