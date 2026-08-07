@@ -42,7 +42,11 @@ the two disagree, the code is right and both are stale.
 
 - **[docs/milestones.md](../../docs/milestones.md)** — the roadmap. The status of every milestone, what
   each one shipped, and the reasoning behind each decision. **Single source of truth for project
-  status**; nothing else restates it.
+  status**; nothing else restates it. It is the **numbered roadmap and nothing else** — work that
+  shipped without a milestone number lives in the reference doc that owns the system.
+- **[docs/navigation.md](../../docs/navigation.md)** — the tab bar's measured ceiling, Town as the hub,
+  the test for what belongs there, the Bag rename, and the routing rules. **Read it before adding a
+  screen**; the "adding a tab at all" section below is stated there with its reasons.
 - **[docs/rejected.md](../../docs/rejected.md)** — everything ruled out and why it stays ruled out:
   prestige, the segmented offline solver, `timeToClear`, `dropCarry`, the offline cap, role-locked
   placement, flat synergy bonuses, anti-cheat, and the genre systems this game will not have. It also

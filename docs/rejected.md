@@ -115,6 +115,15 @@ would have elsewhere.
 | Enemy tier/rarity bands applied      | Chapter 11, where the band actually changes            |
 | Generating stages from a curve       | "Authoring a chapter has stopped being an afternoon"   |
 | Scaling ascension costs with chapter | Chapters needing a second lever on the crystal economy |
+| Ambient sparring on the idle screen  | Nothing scheduled; it is presentation work             |
+| `@capacitor/app` lifecycle handling  | A missed event costing something _unbounded_           |
+
+⚠️ **"Auto-battle" means two features and only one is built.** The unlockable repeat shipped in
+milestone 7. **Ambient sparring — the party visibly fighting in the background while the player
+watches their income tick up — is still deferred, and it must never award anything**, advance a
+stage, or touch `GameState`. If it did, it would be a second progression path competing with the
+real one. It is presentation rather than simulation, and the event log a battle already produces is
+the natural thing to loop for it.
 
 **Export/import** covers every backup gap including cross-platform, needs no account and no network.
 The usual objection is save editing, and this project has no anti-cheat by design. It was declined

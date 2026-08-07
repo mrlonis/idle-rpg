@@ -49,8 +49,9 @@ here if tier, rarity and faction are running together), **[attributes](docs/attr
 the stat block, **[combat](docs/combat.md)** for how a battle resolves,
 **[economy](docs/economy.md)** for currencies and curves, **[ascension](docs/ascension.md)** for
 the rung ladders, **[gear](docs/gear.md)** for the third progression axis, **[level
-resonance](docs/level-resonance.md)** for the level the whole roster shares, and
-**[saves](docs/saves.md)** for persistence and migrations.
+resonance](docs/level-resonance.md)** for the level the whole roster shares,
+**[navigation](docs/navigation.md)** for where a screen goes, and **[saves](docs/saves.md)** for
+persistence and migrations.
 
 Three more cut across all of them: **[rejected](docs/rejected.md)** for everything this project
 decided _not_ to build and why it stays decided, **[platform](docs/platform.md)** for the Capacitor
@@ -66,8 +67,8 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
-docs/     Roadmap, rejected, platform, testing, glossary, attributes, combat, economy,
-          ascension, gear, resonance, saves.
+docs/     Roadmap, rejected, platform, testing, navigation, glossary, attributes, combat,
+          economy, ascension, gear, resonance, saves.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.

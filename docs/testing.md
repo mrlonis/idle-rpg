@@ -93,8 +93,23 @@ described a party that **cannot exist**. `at()` scales whatever it is handed; on
 the cap, and no sweep goes through it. Parties are now checked against their own rarity's cap on the
 way in.
 
-The same class of bug returned when the ascension ladder grew a bottom: `BUILT`'s level was a
-literal 40 because 40 _was_ the cap of the rung below. It derives from `LEVEL_CURVE.caps` now.
+### ⚠️ A rarity id protects against reordering, not against insertion
+
+When the ascension ladder grew two rungs below `rare`, the sweep caught three things nothing else
+would have — each of which passed type-checking and the unit suite first:
+
+1. **The reference parties silently gained ×2.56.** `chapters.balance.ts` fielded them at
+   `rarityIndex('rare')`, which the file had adopted specifically to survive the ladder being
+   _reordered_. It does not survive the ladder gaining a rung _underneath_: `rare` stopped meaning
+   "where a character starts" and started meaning "two ascensions in". **The starter wall evaporated
+   and the sweep went on passing, describing a different game.**
+2. **`BUILT`'s level was a literal** 40, because 40 _was_ the cap of the rung below. It derives from
+   `LEVEL_CURVE.caps` now, and the party it describes stayed the party the prose describes.
+3. **The level-vs-ascension ratio used a rarity index as a rung count.** They were the same number
+   only while common-tier characters started at index 0.
+
+**Anything meaning "how far has this been invested" has to count rungs from a floor**, never read an
+id. The same insertion is also a save migration rather than a content edit — see [saves](saves.md).
 
 ---
 
