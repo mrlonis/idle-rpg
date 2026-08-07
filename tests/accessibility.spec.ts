@@ -23,12 +23,19 @@ import {
  * The rates are the top of the ladder as well as the clear count, because `reconcileClearedStages`
  * takes the larger of the two — and both are evaluated from the shipped curve rather than typed
  * out, so a new chapter re-runs this rather than leaving it describing an old ladder.
+ *
+ * ⚠️ **Every field of the current shape is written, including the ones whose value is empty.** A
+ * field left out is damage: a missing `alloy`, `legendaryPity` or `gearMinted` is a reported repair
+ * issue, and the home screen draws a recovery banner for it — which put a second `.notice` on the
+ * page and broke a strict-mode locator in `auto-battle.spec.ts` that had nothing to do with gear.
+ * Every fixture below spreads this one rather than restating the baseline, so filling a new field
+ * in is a single edit.
  */
 const CLEARS = totalStages(ladderShape(CHAPTERS));
 const top = stagePayout(STAGE_REWARDS, CLEARS);
 const unlockedSave = {
   version: 0,
-  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
   rates: {
     gold: String(top.rates.gold),
     xp: String(top.rates.xp),
@@ -42,13 +49,23 @@ const unlockedSave = {
   clearedStages: CLEARS,
   battleCount: 214,
   roster: [
-    { defId: 'rin', rarity: 0, level: 1, copies: 0 },
-    { defId: 'bran', rarity: 0, level: 1, copies: 0 },
-    { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
   ],
   formation: { front: ['bran', 'mira'], back: ['rin'] },
   pity: 0,
+  legendaryPity: 0,
   pullCount: 0,
+  gear: [],
+  gearMinted: 0,
+  gearShop: { slot: 0, purchased: [] },
+  achievements: {},
+  quests: {
+    daily: { index: -1, baseline: {}, claimed: [] },
+    weekly: { index: -1, baseline: {}, claimed: [] },
+  },
+  dispatches: [],
 };
 
 /**
@@ -64,8 +81,7 @@ const awaySave = { ...unlockedSave, lastTickAt: Date.now() - 3_600_000 };
  * A run with gear in the bag, one piece worn, and enough gold to buy from the gear shop.
  *
  * A fresh run's bag is empty, so no scan above would ever see a gear row, a grade badge, an
- * expanded enhance panel or an affordable shop button. This is written at the **current** schema
- * rather than migrated from v0, because the fields under test are the ones v1 added.
+ * expanded enhance panel or an affordable shop button.
  *
  * Rin is a ranger and Bran a tank, so the pieces below are the archetypes those two can actually
  * equip — a bag of gear nobody in the party can wear would scan the empty-picker branch and never
@@ -73,8 +89,7 @@ const awaySave = { ...unlockedSave, lastTickAt: Date.now() - 3_600_000 };
  */
 const gearedSave = {
   ...unlockedSave,
-  version: 1,
-  wallet: { gold: '5e+7', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '250000' },
+  wallet: { ...unlockedSave.wallet, gold: '5e+7', alloy: '250000' },
   roster: [
     { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: { chest: 'g1' } },
     { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
@@ -87,7 +102,6 @@ const gearedSave = {
     { id: 'g4', slot: 'head', archetype: 'tank', grade: 0, level: 1 },
   ],
   gearMinted: 4,
-  gearShop: { slot: 0, purchased: [] },
 };
 
 /**
@@ -95,9 +109,9 @@ const gearedSave = {
  *
  * The copies are **derived from the shipped ladder**, not typed out: retuning a rung would
  * otherwise leave Rin one copy short and quietly scan the empty-ready branch instead of the rows
- * this test exists for. The *most expensive* rung rather than the one Rin happens to be facing,
- * because a v0 save's rarities are shifted up two by the v1 → v2 migration before this screen ever
- * sees them — so the rung this pays for is not the one written below.
+ * this test exists for. The *most expensive* rung rather than the one Rin is actually facing, so
+ * that inserting a rung below her — which moves what `rarity: 0` denotes — cannot make this short
+ * either.
  */
 const READY_COPIES = Math.max(
   ...MORTAL_LADDER.map((_, from) => ascensionCost(ASCENSION_RULES, 'mortal', from) ?? 0),
@@ -106,11 +120,11 @@ const duplicatesSave = {
   ...unlockedSave,
   roster: [
     // Ready: enough for any single rung, so the row's Ascend button is enabled.
-    { defId: 'rin', rarity: 0, level: 1, copies: READY_COPIES },
+    { defId: 'rin', rarity: 0, level: 1, copies: READY_COPIES, gear: {} },
     // Short: a row quoting a price it cannot pay, which is the "Not yet" group's ordinary case.
-    { defId: 'bran', rarity: 0, level: 1, copies: 1 },
+    { defId: 'bran', rarity: 0, level: 1, copies: 1, gear: {} },
     // Done: the top of the ladder, where copies become spark and there is no next rung to name.
-    { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3 },
+    { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3, gear: {} },
   ],
 };
 
@@ -146,20 +160,6 @@ const CLAIMED_AWARDS = 1;
  */
 const achievementsSave = {
   ...unlockedSave,
-  // ⚠️ Written at the **current** schema rather than migrated from v0, for the reason
-  // `gearedSave` is: the v2 → v3 migration writes `achievements: {}` unconditionally — correct,
-  // because a v2 save cannot have one — so a v0 fixture would have this ledger overwritten on the
-  // way up and scan the unclaimed-everything branch instead.
-  version: 3,
-  roster: [
-    { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
-    { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
-    { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
-  ],
-  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
-  gear: [],
-  gearMinted: 0,
-  gearShop: { slot: 0, purchased: [] },
   achievements: { [CLAIMED_TRACK.id]: CLAIMED_AWARDS },
 };
 
@@ -180,21 +180,8 @@ function questsSave() {
   );
   return {
     ...unlockedSave,
-    // Current schema rather than migrated from v0: the v3 → v4 migration writes empty windows
-    // unconditionally, so a v0 fixture would have these overwritten on the way up.
-    version: 4,
     battleCount: 100,
     pullCount: 20,
-    roster: [
-      { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
-      { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
-      { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
-    ],
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
-    gear: [],
-    gearMinted: 0,
-    gearShop: { slot: 0, purchased: [] },
-    achievements: {},
     quests: {
       // 100 battles against a baseline of 95 finishes the five-battle daily; 20 pulls against 20
       // leaves the pull daily untouched, so both row states are on screen at once.
@@ -237,34 +224,19 @@ if (REQUIRED_BOUNTY.crew !== 1) {
 function bountiesSave() {
   return {
     ...unlockedSave,
-    // Current schema rather than migrated from v0: the v4 → v5 migration writes an empty dispatch
-    // list unconditionally, so a v0 fixture would lose this on the way up.
-    version: 5,
-    clearedStages: CLEARS,
     roster: [
-      { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
-      { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
-      { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
+      ...unlockedSave.roster,
       // ⚠️ Two more, and they are what make the picker non-empty. `rin` is the only other bench
       // character and the seeded dispatch takes her, so a roster of three leaves the picker showing
       // its empty state — which scans, passes, and covers none of the toggle-list markup this test
       // exists for. `wren` is a Human and `dorn` a Dwarf, so the list holds both a member who can
       // count toward a faction requirement and one who cannot.
-      { defId: 'wren', rarity: 2, level: 1, copies: 0, gear: {} },
-      { defId: 'dorn', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'wren', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
     // Two fielded, two on the bench, one away — so the picker has somebody to offer *and* somebody
     // to withhold, which is the disjointness invariant visible on screen.
     formation: { front: ['bran'], back: ['mira'] },
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
-    gear: [],
-    gearMinted: 0,
-    gearShop: { slot: 0, purchased: [] },
-    achievements: {},
-    quests: {
-      daily: { index: -1, baseline: {}, claimed: [] },
-      weekly: { index: -1, baseline: {}, claimed: [] },
-    },
     dispatches: [
       {
         bountyId: REQUIRED_BOUNTY.id,

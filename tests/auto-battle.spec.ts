@@ -47,13 +47,20 @@ const top = STAGES[CLEARS - 1];
  * The rates are the top of the ladder as well as the clear count, because
  * `reconcileClearedStages` takes the larger of the two — a save claiming clears it cannot back up
  * gets corrected, and the unlock would go with it.
+ *
+ * ⚠️ **Every field of the current shape is written, including the empty ones.** A field left out
+ * is damage, not an absence: a missing `alloy`, `legendaryPity` or `gearMinted` is a reported
+ * repair issue, and the home screen draws a recovery banner for each. These tests read `.notice`
+ * to find out why auto-battle stopped, so a half-filled fixture puts a second `.notice` on the
+ * page and breaks that locator under strict mode — which is how this fixture failed, reporting a
+ * message about auto-battle that had nothing wrong with it.
  */
 function unlockedRun(index: number) {
   const { chapter, stage } = positionAt(LADDER, index);
   return {
     version: 0,
     chapter,
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
     rates: {
       gold: String(top.rates.gold),
       xp: String(top.rates.xp),
@@ -69,13 +76,23 @@ function unlockedRun(index: number) {
     clearedStages: CLEARS,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0 },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0 },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
     formation: { front: ['bran', 'mira'], back: ['rin'] },
     pity: 0,
+    legendaryPity: 0,
     pullCount: 0,
+    gear: [],
+    gearMinted: 0,
+    gearShop: { slot: 0, purchased: [] },
+    achievements: {},
+    quests: {
+      daily: { index: -1, baseline: {}, claimed: [] },
+      weekly: { index: -1, baseline: {}, claimed: [] },
+    },
+    dispatches: [],
   };
 }
 

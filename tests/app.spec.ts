@@ -150,10 +150,16 @@ test.describe('App', () => {
    * kept for itself would pass every unit test and still put the notice back on screen.
    */
   test.describe('dismissing a notice', () => {
-    /** A run that has been away an hour, which is what draws the offline summary. */
+    /**
+     * A run that has been away an hour, which is what draws the offline summary.
+     *
+     * ⚠️ **Every field of the current shape is written, including the empty ones.** A field left
+     * out is damage — a missing `alloy`, `legendaryPity` or `gearMinted` is a reported repair issue
+     * — and the recovery banner it draws is a second `.notice` beside the one this test dismisses.
+     */
     const awaySave = {
       version: 0,
-      wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+      wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
       rates: { gold: '4', xp: '2', essence: '1', summons: '0.5' },
       lastTickAt: Date.now() - 3_600_000,
       rng: { seed: 3735928559, calls: 0 },
@@ -162,13 +168,23 @@ test.describe('App', () => {
       clearedStages: 1,
       battleCount: 1,
       roster: [
-        { defId: 'rin', rarity: 0, level: 1, copies: 0 },
-        { defId: 'bran', rarity: 0, level: 1, copies: 0 },
-        { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+        { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
       ],
       formation: { front: ['bran', 'mira'], back: ['rin'] },
       pity: 0,
+      legendaryPity: 0,
       pullCount: 0,
+      gear: [],
+      gearMinted: 0,
+      gearShop: { slot: 0, purchased: [] },
+      achievements: {},
+      quests: {
+        daily: { index: -1, baseline: {}, claimed: [] },
+        weekly: { index: -1, baseline: {}, claimed: [] },
+      },
+      dispatches: [],
     };
 
     test('closes the offline summary, and it stays closed across a navigation', async ({
