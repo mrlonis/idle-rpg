@@ -283,6 +283,24 @@ describe('SaveService', () => {
   });
 });
 
+describe('KEY_VALUE_STORE', () => {
+  it('resolves to a plain object, so the injector finds no destroy hook on it', () => {
+    // ⚠️ The regression this exists for: `factory: () => Preferences` hands Angular the Capacitor
+    // plugin proxy, which answers *every* property with a callable. `R3Injector` decides a provider
+    // needs tearing down by testing `typeof value.ngOnDestroy === 'function'`, so it registers the
+    // plugin and calls `ngOnDestroy()` on teardown — a native method that does not exist, which
+    // rejects. It presents as a green suite that still exits 1, attributed to whichever spec was
+    // running. Asserting on the shape of the default is the only place it can be caught cheaply.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+
+    const store: KeyValueStore = TestBed.inject(KEY_VALUE_STORE);
+
+    expect((store as { ngOnDestroy?: unknown }).ngOnDestroy).toBeUndefined();
+    expect(Object.keys(store).sort()).toEqual(['get', 'remove', 'set']);
+  });
+});
+
 describe('makeSeed', () => {
   it('returns a uint32', () => {
     for (let i = 0; i < 50; i++) {

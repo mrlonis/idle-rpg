@@ -173,6 +173,19 @@ describe('NotificationsService', () => {
     await expect(service.cancel()).resolves.toBeUndefined();
   });
 
+  it('takes a scheduler that is a plain object, so the injector finds no destroy hook on it', () => {
+    // Same trap as `KEY_VALUE_STORE`, which carries the full argument: a Capacitor plugin proxy
+    // answers every property with a callable, so handing one to Angular gets `ngOnDestroy()` called
+    // on it at teardown and a rejected native call nobody is awaiting.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+
+    const scheduler: NotificationScheduler = TestBed.inject(NOTIFICATION_SCHEDULER);
+
+    expect((scheduler as { ngOnDestroy?: unknown }).ngOnDestroy).toBeUndefined();
+    expect(Object.keys(scheduler).sort()).toEqual(['cancel', 'requestPermissions', 'schedule']);
+  });
+
   it('schedules on hide and cancels on show, without anything calling it', async () => {
     // The listener is registered in the constructor, which is why `App` injects the service for
     // its side effect. A player who has come back must not be told to come back.

@@ -84,10 +84,23 @@ export interface NotificationScheduler {
  * green suite locally and a red one in CI. `KEY_VALUE_STORE` in `save.service.ts` is the worked
  * example and this follows it exactly: the default factory returns the real plugin, and a test
  * overrides the provider.
+ *
+ * ⚠️ **The factory forwards to the plugin rather than handing back the plugin object.** A Capacitor
+ * plugin is a `Proxy` that answers *every* property with a callable, so Angular's injector sees an
+ * `ngOnDestroy` on it and calls it when the injector is torn down — which bridges to a native
+ * method that does not exist and rejects. `KEY_VALUE_STORE` in `save.service.ts` carries the full
+ * argument; the shape to copy is this one, a plain object exposing exactly the interface above.
  */
 export const NOTIFICATION_SCHEDULER = new InjectionToken<NotificationScheduler>(
   'NOTIFICATION_SCHEDULER',
-  { providedIn: 'root', factory: () => LocalNotifications },
+  {
+    providedIn: 'root',
+    factory: (): NotificationScheduler => ({
+      schedule: (options) => LocalNotifications.schedule(options),
+      cancel: (options) => LocalNotifications.cancel(options),
+      requestPermissions: () => LocalNotifications.requestPermissions(),
+    }),
+  },
 );
 
 @Service()
