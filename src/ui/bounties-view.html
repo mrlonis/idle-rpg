@@ -13,13 +13,29 @@
   for the bench, and a mission pays a share of whatever you currently earn while idle.
 </p>
 
-<button type="button" class="collect-all" [disabled]="ready() === 0" (click)="collectAll()">
-  @if (ready() === 0) {
-    Nothing back yet
-  } @else {
-    Collect all<span class="collect-all__count">&ngsp;({{ ready() }})</span>
-  }
-</button>
+<!--
+  Rotation is announced rather than left to be inferred. A player who saw one set of missions
+  yesterday and another today would otherwise have no way to tell the design from a bug.
+-->
+<p class="rotates">New missions in {{ rotatesIn() }}. Anything already out stays out.</p>
+
+<div class="actions">
+  <button type="button" class="action" [disabled]="ready() === 0" (click)="collectAll()">
+    @if (ready() === 0) {
+      Nothing back yet
+    } @else {
+      Collect all<span class="action__count">&ngsp;({{ ready() }})</span>
+    }
+  </button>
+
+  <button type="button" class="action" [disabled]="sendable() === 0" (click)="dispatchAll()">
+    @if (sendable() === 0) {
+      Nothing to send
+    } @else {
+      Dispatch all<span class="action__count">&ngsp;({{ sendable() }})</span>
+    }
+  </button>
+</div>
 
 @if (notice(); as text) {
   <p class="notice" role="status">{{ text }}</p>
@@ -57,7 +73,24 @@
         </span>
         <span class="dot" aria-hidden="true">·</span>
         <span class="mission__term">{{ row.duration }}</span>
+        @if (row.requirement) {
+          <span class="dot" aria-hidden="true">·</span>
+          <!--
+            Marked up as an emphasis rather than coloured alone: the requirement is the one term
+            here that can make a mission unrunnable, and colour must never carry that by itself.
+          -->
+          <span class="mission__term mission__term--requires">
+            <span class="visually-hidden">Requires&ngsp;</span>{{ row.requirement }}
+          </span>
+        }
       </p>
+
+      @if (row.requirement && !row.running && row.unlocked && !row.crewable) {
+        <p class="mission__short">
+          Your bench cannot field {{ row.requirement }} right now. Another mission takes this rung
+          tomorrow.
+        </p>
+      }
 
       <p class="mission__payout">
         @for (award of row.payout; track award.label) {
@@ -129,6 +162,11 @@
           to back out of.
         -->
         <section class="picker" [attr.aria-label]="'Crew for ' + row.bounty.name">
+          <!--
+            The tally is one interpolation rather than a `@if` beside the text: a control-flow block
+            introduces whitespace either side of itself, which rendered "0 chosen , 0 of 1 Human"
+            with a space before the comma. Punctuation cannot be assembled out of template blocks.
+          -->
           <p class="picker__prompt">
             Choose {{ row.bounty.crew }}
             @if (row.bounty.crew === 1) {
@@ -136,7 +174,7 @@
             } @else {
               characters
             }
-            &ngsp;— {{ chosen().length }} chosen
+            &ngsp;— {{ tally() }}
           </p>
 
           @if (available().length === 0) {
@@ -156,10 +194,17 @@
                     type="button"
                     class="picker__member"
                     [class.picker__member--chosen]="isChosen(character.defId)"
+                    [class.picker__member--counts]="countsToward(character.defId)"
                     [attr.aria-pressed]="isChosen(character.defId)"
                     (click)="toggle(character.defId)"
                   >
                     {{ character.name }}
+                    <!--
+                      The faction rides along on every row rather than only on the ones that count,
+                      so the list reads the same whether or not the mission asks for one — and a
+                      player can see *why* a name does not count, not just that it does not.
+                    -->
+                    <span class="picker__faction">{{ character.factionName }}</span>
                   </button>
                 </li>
               }

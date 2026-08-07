@@ -231,6 +231,13 @@ engaging with.
 duration back would make dispatching free, since the characters are idle anyway, and the board
 would be a button rather than a decision.
 
+**Rotation costs the economy nothing, which is why it was affordable.** The board offers one
+variant of each tier per day out of a pool of twelve, and ⚠️ **every variant of a tier is worth
+exactly the same** — same duration, crew, payout and unlock. So the numbers in the table above
+describe the board on every day it can ever show, and what rotates is which faction a mission asks
+for. A variant that paid differently would make the daily draw a payout lottery, and would put a
+second, invisible variable into every figure on this page.
+
 ## Levelling
 
 Cost from level `L` to `L + 1` is `coefficient × L ^ exponent`, per currency.

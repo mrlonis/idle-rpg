@@ -10,7 +10,8 @@ import { BountiesService, type BountyRowView, type CrewMemberView } from './boun
 function row(overrides: Partial<BountyRowView> = {}): BountyRowView {
   return {
     bounty: {
-      id: 'patrol',
+      id: 'patrol-border',
+      tier: 'patrol',
       name: 'Border Patrol',
       description: 'Two characters walk the boundary.',
       durationMs: 4 * 3_600_000,
@@ -26,19 +27,36 @@ function row(overrides: Partial<BountyRowView> = {}): BountyRowView {
     duration: '4h',
     payout: [{ currency: 'gold', amount: '54K', label: 'gold' }],
     crew: [],
+    requirement: '',
+    requiredFaction: '',
+    crewable: true,
+    ...overrides,
+  };
+}
+
+/** The same row, wanting one Dwarf. */
+function dwarfRow(overrides: Partial<BountyRowView> = {}): BountyRowView {
+  const base = row(overrides);
+  return {
+    ...base,
+    bounty: { ...base.bounty, requires: { faction: 'dwarf', count: 1 } },
+    requirement: '1 Dwarf',
+    requiredFaction: 'dwarf',
     ...overrides,
   };
 }
 
 const BENCH: CrewMemberView[] = [
-  { defId: 'rin', name: 'Rin', factionName: 'elf' },
-  { defId: 'bran', name: 'Bran', factionName: 'dwarf' },
-  { defId: 'mira', name: 'Mira', factionName: 'human' },
+  { defId: 'rin', name: 'Rin', faction: 'elf', factionName: 'Elves' },
+  { defId: 'bran', name: 'Bran', faction: 'dwarf', factionName: 'Dwarves' },
+  { defId: 'mira', name: 'Mira', faction: 'human', factionName: 'Humans' },
 ];
 
 class FakeBounties {
   readonly rows = signal<readonly BountyRowView[]>([row()]);
   readonly ready = signal(0);
+  readonly sendable = signal(1);
+  readonly rotatesIn = signal('6h 30m');
   readonly available = signal<readonly CrewMemberView[]>(BENCH);
   /** Set to make the next dispatch refuse, so the screen's error path can be driven. */
   refusal: BountyFailure | null = null;
@@ -54,6 +72,9 @@ class FakeBounties {
     missions: 2,
     gained: [{ currency: 'gold' as const, amount: '120K', label: 'gold' }],
   }));
+  /** How many crews the next Dispatch all sends. */
+  sent = 2;
+  readonly dispatchAll = vi.fn(() => this.sent);
 }
 
 async function render() {
@@ -101,7 +122,9 @@ describe('BountiesView', () => {
     click(el, '.mission__action');
     fixture.detectChanges();
 
-    expect(crewButtons(el).map((button) => button.textContent?.trim())).toEqual([
+    // The name only — each button also carries the character's faction on a second line, which the
+    // faction-requirement tests below cover. This one is about *who* is offered.
+    expect(crewButtons(el).map((button) => button.firstChild?.textContent?.trim())).toEqual([
       'Rin',
       'Bran',
       'Mira',
@@ -137,6 +160,9 @@ describe('BountiesView', () => {
     fixture.detectChanges();
 
     expect(el.querySelector('.picker__prompt')?.textContent).toContain('2 chosen');
+    // ⚠️ No space before the comma. A `@if` block beside the text put one there, and punctuation
+    // assembled out of control-flow blocks is how that happens.
+    expect(el.querySelector('.picker__prompt')?.textContent).not.toContain(' ,');
     expect(crewButtons(el)[2].getAttribute('aria-pressed')).toBe('false');
   });
 
@@ -215,7 +241,7 @@ describe('BountiesView', () => {
     bounties.ready.set(2);
     fixture.detectChanges();
 
-    click(el, '.collect-all');
+    click(el, '.actions .action:first-child');
     fixture.detectChanges();
 
     expect(bounties.collectAll).toHaveBeenCalledOnce();
@@ -224,7 +250,7 @@ describe('BountiesView', () => {
 
   it('disables the collect-all when nothing is back, and says so', async () => {
     const { el } = await render();
-    const button = el.querySelector<HTMLButtonElement>('.collect-all');
+    const button = el.querySelector<HTMLButtonElement>('.actions .action:first-child');
 
     expect(button?.disabled).toBe(true);
     expect(button?.textContent?.trim()).toBe('Nothing back yet');
@@ -275,5 +301,158 @@ describe('BountiesView', () => {
     fixture.detectChanges();
 
     expect(el.querySelector('.mission--empty')).not.toBeNull();
+  });
+
+  it('says when the board rotates, so a changed mission list reads as design', async () => {
+    // A player who saw one set of missions yesterday and another today has no way to tell rotation
+    // from a bug unless the screen says so.
+    const { el } = await render();
+
+    expect(el.querySelector('.rotates')?.textContent).toContain('6h 30m');
+  });
+
+  it('promises a running mission is not swept away by the rotation', async () => {
+    const { el } = await render();
+
+    expect(el.querySelector('.rotates')?.textContent).toContain('stays out');
+  });
+
+  describe('a faction requirement', () => {
+    it('is counted off in the picker prompt, without a stray space before the comma', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow()]);
+      fixture.detectChanges();
+      click(el, '.mission__action');
+      fixture.detectChanges();
+
+      const prompt = el.querySelector('.picker__prompt')?.textContent ?? '';
+
+      expect(prompt).toContain('0 chosen, 0 of 1 Dwarf');
+      expect(prompt).not.toContain(' ,');
+    });
+
+    it('is stated on the row, in text rather than by colour alone', async () => {
+      // ⚠️ This is the one term that can make a mission unrunnable, so WCAG 1.4.1 forbids colour
+      // carrying it. The class is weighted, and the requirement is spelled out either way.
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.mission__term--requires')?.textContent).toContain('1 Dwarf');
+    });
+
+    it('is announced with the word "Requires", which the visual layout implies', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.mission__term--requires .visually-hidden')?.textContent).toContain(
+        'Requires',
+      );
+    });
+
+    it('marks who counts toward it in the picker, and shows every faction either way', async () => {
+      // ⚠️ Stating it only on the row leaves the player to remember which of their characters is a
+      // Dwarf while reading a list of names.
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow()]);
+      fixture.detectChanges();
+      click(el, '.mission__action');
+      fixture.detectChanges();
+
+      const counts = crewButtons(el).filter((button) =>
+        button.classList.contains('picker__member--counts'),
+      );
+
+      expect(counts).toHaveLength(1);
+      expect(counts[0].textContent).toContain('Bran');
+      // The faction rides along on every row, so a player can see *why* a name does not count.
+      expect(crewButtons(el).every((button) => button.textContent?.includes('s'))).toBe(true);
+      expect(el.textContent).toContain('Elves');
+    });
+
+    it('keeps Send disabled until the crew actually meets it', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow({ bounty: { ...dwarfRow().bounty, crew: 1 } })]);
+      fixture.detectChanges();
+      click(el, '.mission__action');
+      fixture.detectChanges();
+
+      // Rin is an Elf: the right number of characters, the wrong faction.
+      crewButtons(el)[0].click();
+      fixture.detectChanges();
+      expect(el.querySelector<HTMLButtonElement>('.picker__send')?.disabled).toBe(true);
+
+      // Swap to Bran, the Dwarf.
+      crewButtons(el)[0].click();
+      crewButtons(el)[1].click();
+      fixture.detectChanges();
+      expect(el.querySelector<HTMLButtonElement>('.picker__send')?.disabled).toBe(false);
+    });
+
+    it('tells a player whose bench cannot meet it that tomorrow brings another', async () => {
+      // Nothing is lost by being unable to run one — the rung rotates. Saying so is what stops the
+      // requirement reading as a dead end.
+      const { el, bounties, fixture } = await render();
+      bounties.rows.set([dwarfRow({ crewable: false })]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.mission__short')?.textContent).toContain('tomorrow');
+    });
+  });
+
+  describe('dispatch all', () => {
+    it('sends every open mission in one press and says how many went', async () => {
+      const { el, bounties, fixture } = await render();
+
+      click(el, '.actions .action:last-child');
+      fixture.detectChanges();
+
+      expect(bounties.dispatchAll).toHaveBeenCalledOnce();
+      expect(el.querySelector('.notice')?.textContent).toContain('Sent 2 crews out');
+    });
+
+    it('says "1 crew" rather than "1 crews"', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.sent = 1;
+
+      click(el, '.actions .action:last-child');
+      fixture.detectChanges();
+
+      expect(el.querySelector('.notice')?.textContent).toContain('Sent 1 crew out');
+    });
+
+    it('is disabled when nothing can be sent, and says so', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.sendable.set(0);
+      fixture.detectChanges();
+
+      const button = el.querySelector<HTMLButtonElement>('.actions .action:last-child');
+
+      expect(button?.disabled).toBe(true);
+      expect(button?.textContent?.trim()).toBe('Nothing to send');
+    });
+
+    it('explains a press that could send nothing rather than going quiet', async () => {
+      const { el, bounties, fixture } = await render();
+      bounties.sent = 0;
+
+      click(el, '.actions .action:last-child');
+      fixture.detectChanges();
+
+      expect(el.querySelector('.notice')?.textContent).toContain('Nothing could be sent');
+    });
+
+    it('closes an open picker, so the screen does not offer a crew already sent', async () => {
+      const { el, fixture } = await render();
+      click(el, '.mission__action');
+      fixture.detectChanges();
+      expect(el.querySelector('.picker')).not.toBeNull();
+
+      click(el, '.actions .action:last-child');
+      fixture.detectChanges();
+
+      expect(el.querySelector('.picker')).toBeNull();
+    });
   });
 });

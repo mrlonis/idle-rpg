@@ -1,7 +1,8 @@
 import { computed, inject, Service } from '@angular/core';
 import {
   allBountyProgress,
-  awayMembers,
+  benchMembers,
+  boardDayIndex,
   type BountyData,
   type BountyFailure,
   bountyPayout,
@@ -10,10 +11,13 @@ import {
   CURRENCY_IDS,
   type CurrencyAmounts,
   type CurrencyId,
+  dailyBoard,
   dispatchBounty,
+  dispatchOpenBounties,
+  msUntilRotation,
   type Numeric,
 } from '../core';
-import { BOUNTY_LIST, CHARACTERS_BY_ID } from './content';
+import { BOUNTY_BOARD_RULES, BOUNTY_LIST, CHARACTERS_BY_ID, FACTIONS_BY_ID } from './content';
 import { CURRENCY_LABELS, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 
@@ -28,6 +32,9 @@ export interface BountyAwardView {
 export interface CrewMemberView {
   readonly defId: string;
   readonly name: string;
+  /** The faction id, which is what a mission's requirement is matched against. */
+  readonly faction: string;
+  /** The faction as a player reads it — "Dwarves", never `dwarf`. */
   readonly factionName: string;
 }
 
@@ -47,6 +54,18 @@ export interface BountyRowView {
   readonly payout: readonly BountyAwardView[];
   /** Who is on it right now. */
   readonly crew: readonly CrewMemberView[];
+  /**
+   * The faction the mission insists on, already worded — "2 Dwarves". Empty when it asks for none.
+   *
+   * Worded here rather than in the template because the plural and the faction's display name are
+   * both lookups, and a template doing either would be the complex logic templates are meant not to
+   * carry.
+   */
+  readonly requirement: string;
+  /** The faction id the mission wants, so the picker can mark who counts toward it. */
+  readonly requiredFaction: string;
+  /** Whether the bench can currently satisfy that requirement at all. */
+  readonly crewable: boolean;
 }
 
 /** What a collection did. */
@@ -72,46 +91,78 @@ export interface BountyCollectSummary {
 export class BountiesService {
   private readonly game = inject(GameLoopService);
 
-  /** Every mission, in the order authored — shortest first. */
+  /**
+   * Today's board: one variant of every tier, in tier order — shortest first.
+   *
+   * ⚠️ **Derived on read, never stored.** `dailyBoard` is a pure function of the run's seed and the
+   * day index, so this recomputes to the same four missions all day and to a different four
+   * tomorrow, with nothing written to the save and nothing to reroll.
+   */
+  readonly board = computed<readonly BountyData[]>(() => {
+    const state = this.game.snapshot();
+    return state === null
+      ? []
+      : dailyBoard(state, BOUNTY_LIST, boardDayIndex(BOUNTY_BOARD_RULES, Date.now()));
+  });
+
+  /** Every mission on today's board, in the order the screen lists them. */
   readonly rows = computed<readonly BountyRowView[]>(() => {
     const state = this.game.snapshot();
     if (state === null) {
       return [];
     }
     const now = Date.now();
-    return allBountyProgress(BOUNTY_LIST, state, now).map((progress) => ({
-      bounty: progress.bounty,
-      running: progress.running,
-      ready: progress.ready,
-      unlocked: progress.unlocked,
-      percent: Math.round(progress.fraction * 100),
-      remaining: progress.running && !progress.ready ? duration(progress.remainingMs) : '',
-      duration: duration(progress.bounty.durationMs),
-      payout: awards(bountyPayout(progress.bounty, state.rates)),
-      crew: (progress.dispatch?.members ?? []).map((defId) => member(defId)),
-    }));
+    const bench = benchMembers(state);
+    return allBountyProgress(this.board(), state, now).map((progress) => {
+      const required = progress.bounty.requires;
+      const matching =
+        required === undefined
+          ? bench.length
+          : bench.filter((defId) => CHARACTERS_BY_ID.get(defId)?.faction === required.faction)
+              .length;
+      return {
+        bounty: progress.bounty,
+        running: progress.running,
+        ready: progress.ready,
+        unlocked: progress.unlocked,
+        percent: Math.round(progress.fraction * 100),
+        remaining: progress.running && !progress.ready ? duration(progress.remainingMs) : '',
+        duration: duration(progress.bounty.durationMs),
+        payout: awards(bountyPayout(progress.bounty, state.rates)),
+        crew: (progress.dispatch?.members ?? []).map((defId) => member(defId)),
+        requirement: requirementText(progress.bounty),
+        requiredFaction: required?.faction ?? '',
+        crewable: bench.length >= progress.bounty.crew && matching >= (required?.count ?? 0),
+      };
+    });
   });
 
   /** How many missions have finished and are waiting. Drives the Town card and the button. */
   readonly ready = computed(() => this.rows().filter((row) => row.ready).length);
+
+  /** How many missions could be sent right now, which is what Dispatch all would fill. */
+  readonly sendable = computed(
+    () => this.rows().filter((row) => row.unlocked && !row.running && row.crewable).length,
+  );
+
+  /** Time until the board rotates, already worded, for the line under the heading. */
+  readonly rotatesIn = computed(() => duration(msUntilRotation(BOUNTY_BOARD_RULES, Date.now())));
 
   /**
    * Everybody who could be sent right now: owned, not fighting, not already away.
    *
    * ⚠️ **Both exclusions are the disjointness invariant showing through to the UI**, and offering
    * a character the core layer would refuse is how a player learns a rule by being told "no". The
-   * list is what makes the rule visible instead.
+   * list is what makes the rule visible instead. `benchMembers` is the one place either rule is
+   * written, so the picker and Dispatch all cannot disagree about who is free.
    */
   readonly available = computed<readonly CrewMemberView[]>(() => {
     const state = this.game.snapshot();
     if (state === null) {
       return [];
     }
-    const fielded = new Set([...state.formation.front, ...state.formation.back]);
-    const out = awayMembers(state);
-    return state.roster
-      .filter((owned) => !fielded.has(owned.defId) && !out.has(owned.defId))
-      .map((owned) => member(owned.defId))
+    return benchMembers(state)
+      .map((defId) => member(defId))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
@@ -121,12 +172,43 @@ export class BountiesService {
     if (state === null) {
       return 'not-owned';
     }
-    const result = dispatchBounty(state, bounty, members, Date.now());
+    const result = dispatchBounty(
+      state,
+      bounty,
+      members,
+      BOUNTY_LIST,
+      CHARACTERS_BY_ID,
+      Date.now(),
+    );
     if (!result.ok) {
       return result.reason;
     }
     this.game.apply(() => result.state);
     return null;
+  }
+
+  /**
+   * Fills every open mission on today's board, in one press.
+   *
+   * Board order, top to bottom — the order on screen. See `dispatchOpenBounties` for why this one
+   * is predictable rather than optimal, and why it is offered at all when crews genuinely compete.
+   */
+  dispatchAll(): number {
+    const state = this.game.current;
+    if (state === null) {
+      return 0;
+    }
+    const result = dispatchOpenBounties(
+      state,
+      this.board(),
+      BOUNTY_LIST,
+      CHARACTERS_BY_ID,
+      Date.now(),
+    );
+    if (result.state !== state) {
+      this.game.apply(() => result.state);
+    }
+    return result.dispatched;
   }
 
   /** Collects one finished mission. */
@@ -162,13 +244,44 @@ export class BountiesService {
   }
 }
 
+/**
+ * What a mission's faction requirement says on screen — "1 Dwarf", "2 Elves", or nothing.
+ *
+ * The faction's **display** name comes from `FACTIONS_BY_ID`, so the screen never shows a raw id.
+ * Singular is derived by trimming the authored plural rather than by authoring both: every shipped
+ * faction name is its plural ("Dwarves", "Humans"), and a second field would be a second thing to
+ * keep in step for a string the screen uses once.
+ */
+function requirementText(bounty: BountyData): string {
+  const required = bounty.requires;
+  if (required === undefined) {
+    return '';
+  }
+  const count = Math.max(Math.floor(required.count), 0);
+  if (count === 0) {
+    return '';
+  }
+  const plural = FACTIONS_BY_ID.get(required.faction)?.name ?? required.faction;
+  return `${count} ${count === 1 ? singular(plural) : plural}`;
+}
+
+/** "Dwarves" → "Dwarf", "Humans" → "Human", "Undead" → "Undead". */
+function singular(plural: string): string {
+  if (plural.endsWith('ves')) {
+    return `${plural.slice(0, -3)}f`;
+  }
+  return plural.endsWith('s') ? plural.slice(0, -1) : plural;
+}
+
 /** A character id as the screen names it. */
 function member(defId: string): CrewMemberView {
   const character = CHARACTERS_BY_ID.get(defId);
+  const faction = character?.faction ?? '';
   return {
     defId,
     name: character?.name ?? defId,
-    factionName: character?.faction ?? '',
+    faction,
+    factionName: FACTIONS_BY_ID.get(faction)?.name ?? faction,
   };
 }
 

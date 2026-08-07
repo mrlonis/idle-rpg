@@ -296,7 +296,42 @@ the two disagree, the code is right and both are stale.
     dispatching free and the board a button rather than a decision. `data/bounties.spec.ts` derives
     that ratio and the crew sizes rather than restating them.
   - **`repairDispatches` pays nothing for what it drops**, because paying would make damaging a
-    save a way to collect instantly.
+    save a way to collect instantly. ⚠️ It deliberately does **not** check the faction requirement:
+    that gates _starting_ a mission, and dropping an in-flight crew because a later build retuned
+    the content would punish a player for a change they did not make.
+  - **The board rotates daily and is derived from the seed and the day index, never stored** —
+    `data/` authors a **pool**, and `dailyBoard` offers one variant of each tier. Same three
+    arguments as the gear shop's stock: no save field, nothing to migrate, and ⚠️ **rerolling is
+    impossible rather than merely detectable**. It rolls on the **same 04:00 UTC boundary the quest
+    windows use**, asserted equal against `QUEST_RULES` rather than restated — two daily clocks
+    would mean two "tomorrows" in one game.
+    - ⚠️ **Every tier draws, whether or not it is shown.** Skipping a locked tier's draw shifts
+      every later tier's variant, so crossing an unlock threshold would silently reshuffle the rest
+      of the day's board. Same discipline as the count draw in `rollDrops`.
+    - ⚠️ **A dispatch outlives the board it was sent from.** A 24-hour mission crosses a rotation
+      boundary by definition, so a tier with a mission out shows _that_ mission, and
+      `repairDispatches`, `collectReadyBounties` and the tier guard in `dispatchBounty` all take the
+      **whole pool** rather than the day's board. Wiring one to the board drops a mission a player
+      is eleven hours into, silently and unpaid.
+    - **Every variant of a tier is worth exactly the same** — duration, crew, payout and unlock.
+      Rotation changes _what is asked for_, never _what the day is worth_; a variant paying
+      differently makes the daily draw a payout lottery.
+    - ⚠️ **A tier runs one mission at a time**, because the board shows one row per tier — guarded
+      in `dispatchBounty`, skipped in `dispatchOpenBounties` and repaired on load, for the same
+      reason the disjointness invariant needs three.
+  - ⚠️ **A faction requirement never names a celestial faction.** Angels and Demons ascend on copies
+    of themselves alone, so an unlucky run can own none of either indefinitely — a mission requiring
+    one is a row that player can never run, which is the failure milestone 4 rejected role-locked
+    formation slots for. `data/bounties.spec.ts` derives the mortal/celestial split from `FACTIONS`
+    rather than listing it, and also holds that a requirement never exceeds the crew size or the
+    shipped roster's depth, and that **every tier keeps one variant asking for nothing**.
+  - ⚠️ **`dispatchOpenBounties` ("Dispatch all") is not `ascendAll`, and the licence is different.**
+    Crews compete for one bench, so it genuinely resolves a choice. What allows it with no
+    confirmation is that the stakes are a **wait rather than a loss** — nothing is consumed and
+    everybody comes back — and what that buys is an obligation to be **predictable rather than
+    clever**: board order top to bottom, roster order within a mission, and faction seats filled
+    before general ones. It is a convenience over `dispatchBounty`, never a second path with its own
+    rules, and the spec asserts one press equals dispatching each mission by hand.
 - **Two local notifications ship, at 12h and 24h**, and milestone 14b records this as a
   **deliberate reversal** of the earlier "ship none" decision rather than deleting that argument.
   See [`ui/notifications.service.ts`](../src/ui/notifications.service.ts).

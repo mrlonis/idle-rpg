@@ -13,7 +13,7 @@
  * level cost or an ascension rung should never mean editing the simulation.
  */
 export { ACHIEVEMENTS } from './achievements';
-export { BOUNTIES } from './bounties';
+export { BOUNTIES, BOUNTY_BOARD } from './bounties';
 export { QUEST_RULES, QUESTS } from './quests';
 export { ASCENSION_RULES, CELESTIAL_LADDER, FACTIONS, MORTAL_LADDER } from './ascension';
 export {

@@ -10,6 +10,7 @@ import {
 import {
   ACHIEVEMENTS,
   ASCENSION_RULES,
+  BOUNTIES,
   CHAPTERS,
   MORTAL_LADDER,
   QUEST_RULES,
@@ -204,10 +205,34 @@ function questsSave() {
 }
 
 /**
+ * The shortest mission that carries a faction requirement, derived rather than named.
+ *
+ * ⚠️ **Seeding a dispatch on this one is what makes the scan deterministic.** The board rotates
+ * daily, so which variant of a tier is offered is a function of the seed and the date — and an
+ * assertion about a requirement being on screen would pass or fail depending on the day it ran. A
+ * *running* mission holds its tier's row whatever the draw says, so dispatching this one puts the
+ * requirement markup in every scan, forever.
+ */
+const REQUIRED_BOUNTY = [...BOUNTIES]
+  .filter((bounty) => bounty.requires !== undefined)
+  .sort((a, b) => a.durationMs - b.durationMs)[0];
+
+if (REQUIRED_BOUNTY === undefined) {
+  throw new Error('No bounty carries a faction requirement; `bountiesSave` is stale.');
+}
+if (REQUIRED_BOUNTY.crew !== 1) {
+  // The fixture benches exactly one character — two are fielded, which is what gives the picker
+  // somebody to offer *and* somebody to withhold. A wider mission would need a wider bench.
+  throw new Error(
+    `The shortest mission with a requirement now wants ${REQUIRED_BOUNTY.crew} characters; widen the bench in \`bountiesSave\`.`,
+  );
+}
+
+/**
  * A run with one bounty finished, enough clears to unlock more, and a bench to crew them from.
  *
- * The errand is backdated two hours against a one-hour mission, so it has finished by the time the
- * app loads however long the suite takes to get here — a fixed timestamp would go stale.
+ * The mission is backdated to twice its own duration, so it has finished by the time the app loads
+ * however long the suite takes to get here — a fixed timestamp would go stale.
  */
 function bountiesSave() {
   return {
@@ -220,8 +245,16 @@ function bountiesSave() {
       { defId: 'rin', rarity: 2, level: 1, copies: 0, gear: {} },
       { defId: 'bran', rarity: 2, level: 1, copies: 0, gear: {} },
       { defId: 'mira', rarity: 2, level: 1, copies: 0, gear: {} },
+      // ⚠️ Two more, and they are what make the picker non-empty. `rin` is the only other bench
+      // character and the seeded dispatch takes her, so a roster of three leaves the picker showing
+      // its empty state — which scans, passes, and covers none of the toggle-list markup this test
+      // exists for. `wren` is a Human and `dorn` a Dwarf, so the list holds both a member who can
+      // count toward a faction requirement and one who cannot.
+      { defId: 'wren', rarity: 2, level: 1, copies: 0, gear: {} },
+      { defId: 'dorn', rarity: 2, level: 1, copies: 0, gear: {} },
     ],
-    // Two fielded, one on the bench — so the picker has somebody to offer and somebody to withhold.
+    // Two fielded, two on the bench, one away — so the picker has somebody to offer *and* somebody
+    // to withhold, which is the disjointness invariant visible on screen.
     formation: { front: ['bran'], back: ['mira'] },
     wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
     gear: [],
@@ -232,7 +265,13 @@ function bountiesSave() {
       daily: { index: -1, baseline: {}, claimed: [] },
       weekly: { index: -1, baseline: {}, claimed: [] },
     },
-    dispatches: [{ bountyId: 'errand', members: ['rin'], startedAt: Date.now() - 2 * 3_600_000 }],
+    dispatches: [
+      {
+        bountyId: REQUIRED_BOUNTY.id,
+        members: ['rin'],
+        startedAt: Date.now() - 2 * REQUIRED_BOUNTY.durationMs,
+      },
+    ],
   };
 }
 
@@ -548,6 +587,9 @@ test.describe('Accessibility', () => {
     // A finished mission, which proves the seeded dispatch was read rather than scanning an
     // empty board.
     await expect(page.getByRole('button', { name: /^Collect all/ })).toBeEnabled();
+    // The seeded mission carries a faction requirement, and a running mission holds its tier's
+    // row — so this markup is in the scan whatever the day's rotation drew.
+    await expect(page.locator('.mission__term--requires').first()).toBeVisible();
 
     // Open a crew picker on a mission nobody is on, so the toggle list is in the scan.
     await page
@@ -555,6 +597,12 @@ test.describe('Accessibility', () => {
       .first()
       .click();
     await expect(page.locator('.picker')).toBeVisible();
+
+    // ⚠️ And choose somebody, so the scan covers the *chosen* state. That is the one new colour
+    // pairing the faction line introduced — muted text on the accent background — and an unchosen
+    // picker would never put it in front of AXE.
+    await page.locator('.picker__member').first().click();
+    await expect(page.locator('.picker__member--chosen')).toHaveCount(1);
 
     await scan(page, testInfo, 'bounties');
   });

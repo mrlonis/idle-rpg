@@ -16,6 +16,7 @@ import {
   type KitRulesData,
   type LadderShape,
   ladderShape,
+  type BountyBoardRulesData,
   type BountyData,
   type LevelCurveData,
   type QuestCounter,
@@ -32,6 +33,7 @@ import {
   ACHIEVEMENTS,
   ASCENSION_RULES,
   BOUNTIES,
+  BOUNTY_BOARD,
   BANNERS,
   CHAPTER_CURVE,
   CHAPTERS,
@@ -74,8 +76,18 @@ import {
  */
 export const ACHIEVEMENT_TRACKS: readonly AchievementTrackData[] = ACHIEVEMENTS;
 
-/** The bounty board's missions, in the order the screen lists them — shortest first. */
+/**
+ * Every mission the board can ever offer, in tier order — shortest first.
+ *
+ * ⚠️ **The whole pool, not a day's board.** `dailyBoard` narrows this to one variant per tier;
+ * everything that has to honour a *running* mission — `repairDispatches`, `collectReadyBounties`,
+ * the tier guard in `dispatchBounty` — takes this instead, because a 24-hour campaign outlives the
+ * board it was sent from.
+ */
 export const BOUNTY_LIST: readonly BountyData[] = BOUNTIES;
+
+/** When the bounty board rotates. The same boundary the quest windows use. */
+export const BOUNTY_BOARD_RULES: BountyBoardRulesData = BOUNTY_BOARD;
 
 /** The daily and weekly quests this build ships, in the order the screen lists them. */
 export const QUEST_LIST: readonly QuestData[] = QUESTS;

@@ -2068,12 +2068,102 @@ coming due, and it is worth knowing before it arrives rather than after.
 
 ### The bounty board
 
-Characters dispatched on timed missions that pay out on a clock. Four of them, opening at 5, 15,
-30 and 50 clears, running for one hour to a full day, wanting one to four characters.
+Characters dispatched on timed missions that pay out on a clock. Four **tiers**, opening at 5, 15,
+30 and 50 clears, running for one hour to a full day, wanting one to four characters — and the
+board **rotates daily**, offering one variant of each tier out of a pool of twelve.
 
 It earns its place for a reason neither system above covers: **it is the only thing that pays you
 for characters you are not fighting with.** A wide roster becomes worth something before faction
 towers ask for it, and a duplicate-heavy run has a use for breadth from the moment it starts.
+
+#### The board is derived from the seed and the day, and stored nowhere
+
+The same trick the gear shop plays on the hour, and it earns its place for the same three reasons:
+no save field, nothing to migrate when the content changes, and ⚠️ **rerolling is impossible rather
+than merely detectable** — force-quitting cannot re-take a draw that is a pure function of the run's
+seed and the day index. In a project with **no anti-cheat by design**, removing the incentive
+structurally is worth far more than policing it.
+
+Two things about the draw are load-bearing:
+
+- ⚠️ **Every tier draws, whether or not it is shown.** Skipping a locked tier's draw would shift
+  every later tier's variant, so crossing an unlock threshold would silently reshuffle the rest of
+  today's board — a player would watch missions they had been reading change for no reason they
+  could see. Same discipline as the count draw in `rollDrops`: the position is what matters.
+- ⚠️ **A dispatch outlives the board it was sent from.** A 24-hour campaign crosses a rotation
+  boundary by definition, so a tier with a mission out shows _that_ mission in place of the day's
+  draw, and everything that has to honour a running mission — `repairDispatches`,
+  `collectReadyBounties`, the tier guard in `dispatchBounty` — takes the **whole pool** rather than
+  the board. Wiring any of the three to the board instead would drop a mission a player is eleven
+  hours into, silently, and pay nothing for it.
+
+**Every variant of a tier is worth exactly the same** — same duration, crew, payout and unlock —
+and only the flavour and the faction requirement differ. Rotation therefore changes _what you are
+asked for_ rather than _what the day is worth_; a variant that also paid differently would make the
+daily draw a payout lottery, which is the manufactured scarcity this project rejects everywhere
+else. The board also rolls on the **same 04:00 UTC boundary the quest windows use**, because two
+daily clocks four hours apart would mean two different "tomorrows" in one game with nothing on
+either screen explaining it. `data/bounties.spec.ts` derives that equality from `QUEST_RULES`
+rather than restating 240.
+
+#### ⚠️ A faction requirement never names a celestial faction
+
+A mission may ask that some of its crew be of one faction — one Human for Market Day, two Dwarves
+for Reclamation. That is what makes roster _breadth_ pay rather than roster _size_, which raw crew
+counts alone do not.
+
+**Angels and Demons are excluded, and the argument is milestone 4's.** They ascend on copies of
+themselves alone — no fodder path, no shop — so a run whose banners are unkind can own none of
+either indefinitely. A mission requiring one is a row that player cannot run for reasons no amount
+of play fixes, which is exactly the failure role-locked formation slots were rejected for. The five
+mortal factions are all reachable, so a requirement naming one is a question a player can always
+eventually answer. `data/bounties.spec.ts` derives the rule from the shipped ladders rather than
+listing which factions are mortal.
+
+Two smaller guards around it, both derived rather than restated: a requirement never asks for more
+of a faction than the mission has seats, and never for more than the shipped roster holds. And
+**each tier keeps one variant asking for nothing at all** — a tier whose every variant named a
+faction could roll one the player owns none of and leave that rung dead for the day.
+
+The cost is real and is paid on screen rather than hidden: a player whose bench cannot meet a
+requirement is told _"Another mission takes this rung tomorrow"_, because a requirement that read
+as a dead end would be worse than the same mission being merely expensive.
+
+#### Dispatch all is not `ascendAll`, and the difference is the interesting part
+
+The Altar's one-press climb needs no confirmation because **nothing is foregone** — copies are spent
+on the character they are copies of, so no two ascensions compete. ⚠️ **Crews genuinely do
+compete**: every character Dispatch all sends is one the next mission cannot have. So this really
+does resolve a choice rather than execute the only move, and the rule `ascendAll` established does
+not cover it.
+
+It ships anyway, on a different argument: the stakes are a **wait rather than a loss**. Nothing is
+consumed, everybody comes back, and the worst outcome is a mission crewed in an order the player
+would not have picked. What that buys is an obligation to be **predictable rather than clever**:
+
+- **Board order, top to bottom** — the order on screen. Filling the longest or the best-paying
+  first would be invisible cleverness a player cannot predict, and one who wants a particular
+  assignment already has the per-mission picker.
+- **Roster order within a mission**, so the same bench produces the same crews every time.
+- **Faction seats filled first.** Filling general seats first would let one of them take the only
+  Dwarf on the bench and fail a crew that was there all along — the ordinary shape of this bug.
+
+It is a convenience over `dispatchBounty` rather than a second path with its own rules, and
+`bounties.spec.ts` asserts exactly that: one press equals dispatching each mission by hand.
+
+#### ⚠️ A tier runs one mission at a time, and that needed a third guard too
+
+The board shows one row per tier, so a second mission running on a tier would be a crew with no
+visible way to collect it. The lesson from the disjointness invariant below applies unchanged —
+guarding only the path you happen to have built is how the hole stays open — so there are three
+again: `dispatchBounty` refuses it, `dispatchOpenBounties` skips it, and `repairDispatches` drops
+the second of two on load.
+
+**What `repairDispatches` deliberately does _not_ check is the faction requirement.** A requirement
+is a gate on _starting_ a mission, not a property of one already running, and dropping an in-flight
+crew because a later build retuned the content would punish a player for a change they did not
+make. Repair pays nothing for what it drops, so every drop has to be something genuinely
+unrecoverable.
 
 #### ⚠️ Dispatch and the formation are disjoint, in both directions
 
