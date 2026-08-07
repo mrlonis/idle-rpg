@@ -76,7 +76,7 @@ the two disagree, the code is right and both are stale.
     **longer** investment (~2,800 / ~7,200 / ~9,000 pulls to ★5).
     - ⚠️ **This inverts what the ladder said before, deliberately.** The bottom used to carry the
       whole tier gap (28 of 45 copies) so every tier was a comparable commitment and ascended tier
-      maxed *fastest*. Rungs 0–3 are still the only lever on the head start's size.
+      maxed _fastest_. Rungs 0–3 are still the only lever on the head start's size.
     - ⚠️ **Quote the tier rate ratio as ×4.1, not ×10.** ×10 is `TIER_WEIGHTS` alone; pity lifts the
       effective ascended rate 2.5% → 5.69% and lifts common not at all. Only the measured figure
       describes a banner anybody plays.
