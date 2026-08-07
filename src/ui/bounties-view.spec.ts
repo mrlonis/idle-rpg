@@ -402,6 +402,19 @@ describe('BountiesView', () => {
   });
 
   describe('dispatch all', () => {
+    it('counts what it will actually send, not what looks individually crewable', async () => {
+      // ⚠️ Crews compete for one bench, so the count comes from `dispatchOpenBounties` rather than
+      // from filtering rows. A board wanting more characters than the player has would otherwise
+      // promise six and deliver four.
+      const { el, bounties, fixture } = await render();
+      bounties.sendable.set(4);
+      fixture.detectChanges();
+
+      expect(
+        el.querySelector('.actions .action:last-child')?.textContent?.replace(/\s+/g, ' ').trim(),
+      ).toBe('Dispatch all (4)');
+    });
+
     it('sends every open mission in one press and says how many went', async () => {
       const { el, bounties, fixture } = await render();
 

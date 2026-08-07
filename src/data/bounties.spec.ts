@@ -137,6 +137,17 @@ describe('the rotating board', () => {
     expect(board.resetOffsetMinutes).toBe(QUEST_RULES.resetOffsetMinutes);
   });
 
+  it('holds more missions than any one tier has variants, so the board mixes tiers', () => {
+    // A board smaller than a tier's variant count could roll an all-errand day.
+    const widest = Math.max(...TIERS.map((tier) => variantsOf(tier).length));
+
+    expect(board.missions).toBeGreaterThan(widest);
+  });
+
+  it('never asks for more missions than the pool can supply', () => {
+    expect(board.missions).toBeLessThanOrEqual(bounties.length);
+  });
+
   it('gives every tier something to rotate between', () => {
     // A tier with one variant is a row that never changes, which is the board not rotating.
     for (const tier of TIERS) {
@@ -157,6 +168,28 @@ describe('the rotating board', () => {
         expect(variant.unlockClears, variant.id).toBe(first.unlockClears);
       }
     }
+  });
+
+  it('bounds what the whole board can pay at once, which missions stacking made a real number', () => {
+    // ⚠️ **This is the ceiling on the entire faucet.** Each mission pays `payoutSeconds` of idle
+    // income over `durationMs`, so while it runs it adds that *ratio* to what the player earns —
+    // and since missions stack, a full board adds the sum. The per-mission ratio is already held
+    // inside (0.2, 1) above; this is the same measurement taken across the board.
+    //
+    // Derived from the authored content and `missions` rather than restated, so adding a richer
+    // tier or widening the board re-runs it. It is deliberately a **worst case** — the richest
+    // missions in the pool, all running — because that is the number a player can actually reach.
+    const richest = [...bounties]
+      .map((bounty) => (bounty.payoutSeconds * 1000) / bounty.durationMs)
+      .sort((a, b) => b - a)
+      .slice(0, board.missions);
+    const ceiling = richest.reduce((sum, ratio) => sum + ratio, 0);
+
+    // Three times idle income is generous and meant to be — this is a time economy, and the board
+    // is paid for in roster breadth the player had to pull. What it must not become is a faucet
+    // that dwarfs the ladder it is a supplement to.
+    expect(ceiling).toBeGreaterThan(1);
+    expect(ceiling).toBeLessThan(4);
   });
 
   it('leaves every tier one variant that asks for no faction at all', () => {

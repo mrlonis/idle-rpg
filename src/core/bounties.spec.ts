@@ -35,7 +35,12 @@ const T0 = 1_700_000_000_000;
 const HOUR = 3_600_000;
 const DAY = 86_400_000;
 
-const BOARD_RULES: BountyBoardRulesData = { resetOffsetMinutes: 240 };
+const BOARD_RULES: BountyBoardRulesData = { resetOffsetMinutes: 240, missions: 6 };
+
+/** The same rules with a smaller board, for the assertions that are about the size limit. */
+function board(missions: number): BountyBoardRulesData {
+  return { ...BOARD_RULES, missions };
+}
 
 const ERRAND: BountyData = {
   id: 'errand',
@@ -121,7 +126,7 @@ describe('isUnlocked', () => {
 
 describe('dispatchBounty', () => {
   it('sends a crew and records when they left', () => {
-    const result = dispatchBounty(run(), ERRAND, ['alpha'], BOUNTIES, TEST_CHARACTERS, T0);
+    const result = dispatchBounty(run(), ERRAND, ['alpha'], TEST_CHARACTERS, T0);
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -141,58 +146,50 @@ describe('dispatchBounty', () => {
       return;
     }
 
-    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], BOUNTIES, TEST_CHARACTERS, T0)).toEqual(
-      {
-        ok: false,
-        reason: 'in-formation',
-      },
-    );
+    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0)).toEqual({
+      ok: false,
+      reason: 'in-formation',
+    });
   });
 
   it('refuses somebody already away on another mission', () => {
     const state = away(run(), ['alpha']);
 
-    expect(dispatchBounty(state, PATROL, ['alpha', 'beta'], BOUNTIES, TEST_CHARACTERS, T0)).toEqual(
-      {
-        ok: false,
-        reason: 'already-away',
-      },
-    );
+    expect(dispatchBounty(state, PATROL, ['alpha', 'beta'], TEST_CHARACTERS, T0)).toEqual({
+      ok: false,
+      reason: 'already-away',
+    });
   });
 
   it('refuses a second crew for a mission already running', () => {
     const state = away(run(), ['alpha']);
 
-    expect(dispatchBounty(state, ERRAND, ['beta'], BOUNTIES, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(state, ERRAND, ['beta'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'already-running',
     });
   });
 
   it('demands exactly the crew size, never fewer and never more', () => {
-    expect(dispatchBounty(run(), PATROL, ['alpha'], BOUNTIES, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(run(), PATROL, ['alpha'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'wrong-crew-size',
     });
-    expect(
-      dispatchBounty(run(), PATROL, ['alpha', 'beta', 'gamma'], BOUNTIES, TEST_CHARACTERS, T0),
-    ).toEqual({
+    expect(dispatchBounty(run(), PATROL, ['alpha', 'beta', 'gamma'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'wrong-crew-size',
     });
   });
 
   it('refuses the same character twice in one crew', () => {
-    expect(
-      dispatchBounty(run(), PATROL, ['alpha', 'alpha'], BOUNTIES, TEST_CHARACTERS, T0),
-    ).toEqual({
+    expect(dispatchBounty(run(), PATROL, ['alpha', 'alpha'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'duplicate-member',
     });
   });
 
   it('refuses a character the run does not own', () => {
-    expect(dispatchBounty(run(), ERRAND, ['nobody'], BOUNTIES, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(run(), ERRAND, ['nobody'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'not-owned',
     });
@@ -200,22 +197,39 @@ describe('dispatchBounty', () => {
 
   it('refuses a mission the run has not unlocked', () => {
     expect(
-      dispatchBounty(run({ clearedStages: 0 }), ERRAND, ['alpha'], BOUNTIES, TEST_CHARACTERS, T0),
+      dispatchBounty(run({ clearedStages: 0 }), ERRAND, ['alpha'], TEST_CHARACTERS, T0),
     ).toEqual({
       ok: false,
       reason: 'locked',
     });
   });
 
-  it('refuses a second mission on a tier that already has one out', () => {
-    // ⚠️ `dailyBoard` shows one row per tier, so a second mission on a tier would be a crew the
-    // player can see no way to collect. The UI cannot offer one; this is the guard that means a
-    // caller which does not go through the UI cannot create one either.
+  it('allows a second mission on a tier that already has one out', () => {
+    // ⚠️ Missions **stack**. A tier is an authoring group, not a limit — the only thing a second
+    // simultaneous mission costs is the crew it takes off the bench, which is the scarcity this
+    // system exists to create. An earlier build refused this, and that was a screen-layout rule
+    // wearing a game rule's clothes.
+    const state = away(run(), ['alpha']);
+    const result = dispatchBounty(state, ERRAND_MORTAL, ['beta'], TEST_CHARACTERS, T0);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.state.dispatches.map((entry) => entry.bountyId)).toEqual([
+      'errand',
+      'errand-mortal',
+    ]);
+  });
+
+  it('still refuses the same mission twice', () => {
+    // Stacking is about *different* missions. One dispatch per mission id is what makes a board row
+    // mean one crew.
     const state = away(run(), ['alpha']);
 
-    expect(dispatchBounty(state, ERRAND_MORTAL, ['beta'], POOL, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(state, ERRAND, ['beta'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
-      reason: 'tier-running',
+      reason: 'already-running',
     });
   });
 
@@ -225,29 +239,27 @@ describe('dispatchBounty', () => {
       roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} }],
     });
 
-    expect(dispatchBounty(state, ERRAND_MORTAL, ['delta'], POOL, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(state, ERRAND_MORTAL, ['delta'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'wrong-faction',
     });
   });
 
   it('accepts a crew that meets the faction', () => {
-    expect(dispatchBounty(run(), ERRAND_MORTAL, ['alpha'], POOL, TEST_CHARACTERS, T0).ok).toBe(
-      true,
-    );
+    expect(dispatchBounty(run(), ERRAND_MORTAL, ['alpha'], TEST_CHARACTERS, T0).ok).toBe(true);
   });
 
   it('counts the requirement across the whole crew rather than needing all of it', () => {
     // Two of two here, so the mission is satisfied exactly.
-    expect(
-      dispatchBounty(run(), PATROL_MORTAL, ['alpha', 'beta'], POOL, TEST_CHARACTERS, T0).ok,
-    ).toBe(true);
+    expect(dispatchBounty(run(), PATROL_MORTAL, ['alpha', 'beta'], TEST_CHARACTERS, T0).ok).toBe(
+      true,
+    );
   });
 
   it('reports an unowned character before a faction it also fails', () => {
     // The faction check runs last on purpose: a player told "wrong faction" about a character they
     // do not own has been given the problem they cannot act on.
-    expect(dispatchBounty(run(), ERRAND_MORTAL, ['nobody'], POOL, TEST_CHARACTERS, T0)).toEqual({
+    expect(dispatchBounty(run(), ERRAND_MORTAL, ['nobody'], TEST_CHARACTERS, T0)).toEqual({
       ok: false,
       reason: 'not-owned',
     });
@@ -310,77 +322,133 @@ describe('msUntilRotation', () => {
 });
 
 describe('dailyBoard', () => {
-  it('offers exactly one variant of every tier', () => {
-    const board = dailyBoard(run(), POOL, 0);
+  const ids = (board: readonly BountyData[]): readonly string[] => board.map((b) => b.id);
 
-    expect(board).toHaveLength(2);
-    expect(board.map((bounty) => bounty.tier)).toEqual(['errand', 'patrol']);
+  it('offers as many missions as the rules ask for', () => {
+    expect(dailyBoard(run(), POOL, board(3), 0)).toHaveLength(3);
+    expect(dailyBoard(run(), POOL, board(5), 0)).toHaveLength(5);
+  });
+
+  it('offers the whole pool rather than inventing rows when the board is bigger than it', () => {
+    expect(dailyBoard(run(), POOL, board(99), 0)).toHaveLength(POOL.length);
+  });
+
+  it('lists them in pool order, so the board still reads shortest-first', () => {
+    // The shuffle decides *which*; `data/` decides how they read.
+    const board6 = dailyBoard(run(), POOL, BOARD_RULES, 0);
+    const order = board6.map((bounty) => POOL.indexOf(bounty));
+
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  it('can offer two missions of the same tier at once', () => {
+    // ⚠️ A tier is an authoring group, not a limit. An earlier build offered one variant per tier,
+    // which was a screen-layout rule wearing a game rule's clothes.
+    const wholePool = dailyBoard(run(), POOL, board(POOL.length), 0);
+    const errands = wholePool.filter((bounty) => bounty.tier === 'errand');
+
+    expect(errands.length).toBeGreaterThan(1);
   });
 
   it('offers the same board all day, from the seed alone', () => {
     // ⚠️ Derived rather than stored, which is what makes rerolling impossible rather than merely
     // detectable: there is nothing to re-take.
-    expect(dailyBoard(run(), POOL, 7)).toEqual(dailyBoard(run(), POOL, 7));
+    expect(dailyBoard(run(), POOL, BOARD_RULES, 7)).toEqual(
+      dailyBoard(run(), POOL, BOARD_RULES, 7),
+    );
   });
 
   it('offers a different run a different board on the same day', () => {
     const other = run({ rng: { seed: 0xbeef, calls: 0 } });
     const days = [0, 1, 2, 3, 4, 5, 6, 7];
-    const mine = days.map((day) =>
-      dailyBoard(run(), POOL, day)
-        .map((b) => b.id)
-        .join(),
-    );
-    const theirs = days.map((day) =>
-      dailyBoard(other, POOL, day)
-        .map((b) => b.id)
-        .join(),
-    );
+    const mine = days.map((day) => ids(dailyBoard(run(), POOL, board(2), day)).join());
+    const theirs = days.map((day) => ids(dailyBoard(other, POOL, board(2), day)).join());
 
     expect(mine).not.toEqual(theirs);
   });
 
-  it('rotates: over a week it does not offer the same errand every day', () => {
+  it('rotates: over a week it does not offer the same missions every day', () => {
     const seen = new Set(
-      [0, 1, 2, 3, 4, 5, 6].map((day) => dailyBoard(run(), POOL, day)[0]?.id ?? ''),
+      [0, 1, 2, 3, 4, 5, 6].map((day) => ids(dailyBoard(run(), POOL, board(2), day)).join()),
     );
 
     expect(seen.size).toBeGreaterThan(1);
   });
 
-  it('draws for every tier whether or not it is unlocked', () => {
-    // ⚠️ Skipping a locked tier's draw would shift every later tier's variant, so crossing an
-    // unlock threshold would silently reshuffle the rest of today's board. The errand a player is
-    // looking at must not change because they cleared a stage.
+  it('shuffles the whole pool before filtering, so an unlock inserts rather than reshuffles', () => {
+    // ⚠️ Shuffling only the unlocked missions would make the draw a function of the clear count, so
+    // crossing a threshold would change every row. Shuffling everything first means the missions
+    // already on the board keep their relative order when a new tier opens.
     const early = run({ clearedStages: 5 });
     const later = run({ clearedStages: 50 });
 
-    expect(dailyBoard(early, POOL, 3).map((b) => b.id)).toEqual(
-      dailyBoard(later, POOL, 3).map((b) => b.id),
-    );
+    const before = ids(dailyBoard(early, POOL, board(POOL.length), 3));
+    const after = ids(dailyBoard(later, POOL, board(POOL.length), 3));
+
+    // Everything the early run could see is still there, in the same relative order.
+    expect(after.filter((id) => before.includes(id))).toEqual(before);
   });
 
-  it('shows a running mission in place of the day today would have drawn', () => {
+  it('offers only what the run has unlocked', () => {
+    const early = run({ clearedStages: 5 });
+
+    // Patrol opens at 15 clears.
+    expect(ids(dailyBoard(early, POOL, board(POOL.length), 0))).not.toContain('patrol');
+  });
+
+  it('keeps a running mission on the board whatever the day drew', () => {
     // ⚠️ A 24-hour campaign crosses a rotation boundary by definition. If the board dropped it, the
-    // row a player was eleven hours into would vanish at 04:00 with no way to collect it.
+    // crew a player was eleven hours into would be stranded with no way to collect them.
     const state: GameState = {
       ...run(),
       dispatches: [{ bountyId: 'errand-celestial', members: ['alpha'], startedAt: T0 }],
     };
 
-    // Every day, for a week: whatever the draw says, the running variant holds the row.
     for (const day of [0, 1, 2, 3, 4, 5, 6]) {
-      expect(dailyBoard(state, POOL, day)[0]?.id).toBe('errand-celestial');
+      expect(ids(dailyBoard(state, POOL, board(1), day))).toContain('errand-celestial');
     }
   });
 
-  it('reads a damaged day index as the first day rather than throwing', () => {
-    expect(dailyBoard(run(), POOL, Number.NaN)).toEqual(dailyBoard(run(), POOL, 0));
-    expect(dailyBoard(run(), POOL, -5)).toEqual(dailyBoard(run(), POOL, 0));
+  it('counts running missions against the board size', () => {
+    // Send everything and the board is full; collect one and a new mission takes its place. A
+    // running mission that did not count would let the board grow without bound.
+    const state: GameState = {
+      ...run(),
+      dispatches: [
+        { bountyId: 'errand-celestial', members: ['alpha'], startedAt: T0 },
+        { bountyId: 'patrol-mortal', members: ['beta', 'gamma'], startedAt: T0 },
+      ],
+    };
+
+    expect(dailyBoard(state, POOL, board(3), 0)).toHaveLength(3);
+    expect([...ids(dailyBoard(state, POOL, board(2), 0))].sort()).toEqual([
+      'errand-celestial',
+      'patrol-mortal',
+    ]);
   });
 
-  it('offers nothing when the build ships no missions', () => {
-    expect(dailyBoard(run(), [], 0)).toEqual([]);
+  it('never shows a mission twice when the day also drew a running one', () => {
+    const state: GameState = {
+      ...run(),
+      dispatches: [{ bountyId: 'errand', members: ['alpha'], startedAt: T0 }],
+    };
+    const shown = ids(dailyBoard(state, POOL, board(POOL.length), 0));
+
+    expect(new Set(shown).size).toBe(shown.length);
+  });
+
+  it('reads a damaged day index as the first day rather than throwing', () => {
+    expect(dailyBoard(run(), POOL, BOARD_RULES, Number.NaN)).toEqual(
+      dailyBoard(run(), POOL, BOARD_RULES, 0),
+    );
+    expect(dailyBoard(run(), POOL, BOARD_RULES, -5)).toEqual(
+      dailyBoard(run(), POOL, BOARD_RULES, 0),
+    );
+  });
+
+  it('offers nothing when the build ships no missions, or the board holds none', () => {
+    expect(dailyBoard(run(), [], BOARD_RULES, 0)).toEqual([]);
+    expect(dailyBoard(run(), POOL, board(0), 0)).toEqual([]);
   });
 });
 
@@ -407,7 +475,7 @@ describe('benchMembers', () => {
 describe('dispatchOpenBounties', () => {
   it('fills the board from the top down, in board order', () => {
     // Errand takes one and patrol takes two, which is exactly the three on the bench.
-    const result = dispatchOpenBounties(run(), BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0);
+    const result = dispatchOpenBounties(run(), BOUNTIES, TEST_CHARACTERS, T0);
 
     expect(result.dispatched).toBe(2);
     expect(result.state.dispatches).toEqual([
@@ -418,7 +486,7 @@ describe('dispatchOpenBounties', () => {
 
   it('skips a mission the bench cannot fill rather than sending a short crew', () => {
     const thin = run({ roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }] });
-    const result = dispatchOpenBounties(thin, BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0);
+    const result = dispatchOpenBounties(thin, BOUNTIES, TEST_CHARACTERS, T0);
 
     expect(result.dispatched).toBe(1);
     expect(result.state.dispatches.map((entry) => entry.bountyId)).toEqual(['errand']);
@@ -429,9 +497,9 @@ describe('dispatchOpenBounties', () => {
       roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} }],
     });
 
-    expect(
-      dispatchOpenBounties(celestial, [ERRAND_MORTAL], POOL, TEST_CHARACTERS, T0).dispatched,
-    ).toBe(0);
+    expect(dispatchOpenBounties(celestial, [ERRAND_MORTAL], TEST_CHARACTERS, T0).dispatched).toBe(
+      0,
+    );
   });
 
   it('takes the faction it needs before filling the rest of the crew', () => {
@@ -443,7 +511,7 @@ describe('dispatchOpenBounties', () => {
         { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
       ],
     });
-    const result = dispatchOpenBounties(mixed, [PATROL_MORTAL], POOL, TEST_CHARACTERS, T0);
+    const result = dispatchOpenBounties(mixed, [PATROL_MORTAL], TEST_CHARACTERS, T0);
 
     // `test-mortal` count of 2 cannot be met by one mortal, so nothing goes.
     expect(result.dispatched).toBe(0);
@@ -455,61 +523,65 @@ describe('dispatchOpenBounties', () => {
         { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {} },
       ],
     });
-    const filled = dispatchOpenBounties(enough, [PATROL_MORTAL], POOL, TEST_CHARACTERS, T0);
+    const filled = dispatchOpenBounties(enough, [PATROL_MORTAL], TEST_CHARACTERS, T0);
 
     expect(filled.dispatched).toBe(1);
     expect(filled.state.dispatches[0]?.members).toEqual(['alpha', 'beta']);
   });
 
   it('never sends the same character on two missions in one press', () => {
-    const result = dispatchOpenBounties(run(), BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0);
+    const result = dispatchOpenBounties(run(), BOUNTIES, TEST_CHARACTERS, T0);
     const sent = result.state.dispatches.flatMap((entry) => entry.members);
 
     expect(new Set(sent).size).toBe(sent.length);
   });
 
-  it('leaves a tier that already has a crew out alone', () => {
+  it('leaves a mission that already has a crew out alone', () => {
     const state = away(run(), ['alpha']);
-    const result = dispatchOpenBounties(state, BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0);
+    const result = dispatchOpenBounties(state, BOUNTIES, TEST_CHARACTERS, T0);
 
     expect(result.state.dispatches.map((entry) => entry.bountyId)).toEqual(['errand', 'patrol']);
     expect(result.dispatched).toBe(1);
   });
 
+  it('fills two missions of the same tier when the board offers both', () => {
+    // Stacking, through the one-press path. The bench is the only thing rationing this.
+    const result = dispatchOpenBounties(run(), [ERRAND, ERRAND_MORTAL], TEST_CHARACTERS, T0);
+
+    expect(result.dispatched).toBe(2);
+    expect(result.state.dispatches.map((entry) => entry.bountyId)).toEqual([
+      'errand',
+      'errand-mortal',
+    ]);
+  });
+
   it('skips a locked mission', () => {
     const early = run({ clearedStages: 5 });
 
-    expect(dispatchOpenBounties(early, BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0).dispatched).toBe(1);
+    expect(dispatchOpenBounties(early, BOUNTIES, TEST_CHARACTERS, T0).dispatched).toBe(1);
   });
 
   it('returns the same state object when nothing could be sent', () => {
     const empty = run({ roster: [] });
 
-    expect(dispatchOpenBounties(empty, BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0).state).toBe(empty);
+    expect(dispatchOpenBounties(empty, BOUNTIES, TEST_CHARACTERS, T0).state).toBe(empty);
   });
 
   it('is the same as dispatching each mission by hand', () => {
     // Dispatch all is a convenience over `dispatchBounty`, never a second code path with its own
     // rules — so the invariants tested above hold for it by construction.
-    const byHand = dispatchBounty(run(), ERRAND, ['alpha'], BOUNTIES, TEST_CHARACTERS, T0);
+    const byHand = dispatchBounty(run(), ERRAND, ['alpha'], TEST_CHARACTERS, T0);
     expect(byHand.ok).toBe(true);
     if (!byHand.ok) {
       return;
     }
-    const thenPatrol = dispatchBounty(
-      byHand.state,
-      PATROL,
-      ['beta', 'gamma'],
-      BOUNTIES,
-      TEST_CHARACTERS,
-      T0,
-    );
+    const thenPatrol = dispatchBounty(byHand.state, PATROL, ['beta', 'gamma'], TEST_CHARACTERS, T0);
     expect(thenPatrol.ok).toBe(true);
     if (!thenPatrol.ok) {
       return;
     }
 
-    expect(dispatchOpenBounties(run(), BOUNTIES, BOUNTIES, TEST_CHARACTERS, T0).state).toEqual(
+    expect(dispatchOpenBounties(run(), BOUNTIES, TEST_CHARACTERS, T0).state).toEqual(
       thenPatrol.state,
     );
   });
@@ -747,9 +819,10 @@ describe('repairDispatches', () => {
     ]);
   });
 
-  it('drops the second of two missions on the same tier', () => {
-    // ⚠️ The third side of the tier guard. `dailyBoard` shows one row per tier, so a save carrying
-    // two would leave the second uncollectable from the screen that owns it.
+  it('keeps two missions on the same tier, which is not damage', () => {
+    // ⚠️ An earlier build dropped one of these. Missions stack; a tier is an authoring group, not a
+    // limit, and repair pays nothing for what it drops — so dropping a healthy dispatch costs the
+    // player a wait for no reason.
     const state: GameState = {
       ...run(),
       dispatches: [
@@ -758,9 +831,7 @@ describe('repairDispatches', () => {
       ],
     };
 
-    expect(repairDispatches(state, POOL, swallow).dispatches.map((d) => d.bountyId)).toEqual([
-      'errand',
-    ]);
+    expect(repairDispatches(state, POOL, swallow)).toBe(state);
   });
 
   it('keeps two missions on different tiers', () => {

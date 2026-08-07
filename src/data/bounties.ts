@@ -19,11 +19,16 @@
  * from; bounties are where idle income comes from. Keeping the two faucets on different currencies
  * is what stops either from being the only one worth engaging with.
  *
- * ## Four tiers, three variants each, one of each tier offered per day
+ * ## Four tiers, three variants each, six of them on the board at a time
  *
- * The board **rotates daily**. What is authored here is a **pool**; what a player sees is one
- * variant of each unlocked tier, drawn from the run's own seed against the day index. Nothing about
- * the day's board is stored — see `dailyBoard` in `core/bounties.ts` for why that matters.
+ * The board **rotates daily**. What is authored here is a **pool** of twelve; what a player sees is
+ * `BOUNTY_BOARD.missions` of them, shuffled from the run's own seed against the day index. Nothing
+ * about the day's board is stored — see `dailyBoard` in `core/bounties.ts` for why that matters.
+ *
+ * ⚠️ **A tier is an authoring group, not a limit.** Two missions of the same tier can stand on the
+ * board and both run at once; what stops a player running everything is the **bench**, which is the
+ * scarcity this system exists to create. An earlier build allowed one mission per tier so the board
+ * could be four fixed rows — a screen-layout rule wearing a game rule's clothes, and dropped.
  *
  * | Tier | Runs for | Crew | Pays | Opens at |
  * | ------------- | -------- | ---- | ---------- | -------- |
@@ -71,16 +76,28 @@ const HOUR = 3_600_000;
 const MINUTE = 60;
 
 /**
- * When the board rotates.
+ * How the board is stocked, and when it rotates.
  *
  * ⚠️ **The same 04:00 UTC boundary the quest windows use, and it must stay the same.** Two daily
  * clocks four hours apart would mean two separate "tomorrows" in one game — a player who opened the
  * app at 02:00 would find their quests reset and their board not, with nothing on either screen to
  * explain it. `bounties.spec.ts` asserts equality against `QUEST_RULES` rather than restating 240,
  * so moving one moves both or fails.
+ *
+ * ⚠️ **`missions` is a balance number, not a layout one.** Every mission pays a fraction of the
+ * run's idle income for as long as it runs — a third to a half — and missions **stack**, so six of
+ * them is up to three times idle income arriving through the board. That is the ceiling on the
+ * entire faucet. `bounties.spec.ts` bounds the worst case rather than letting it be whatever number
+ * happened to fit on a phone screen; raising this is an economy change and should be argued as one.
+ *
+ * Six because it is what a mid-game roster can actually crew. The four tiers want 1 + 2 + 3 + 4 =
+ * ten characters between them, and six missions drawn across those tiers want roughly fifteen — so
+ * a full board is a real demand on roster breadth rather than a formality, which is the whole
+ * reason this system exists.
  */
 export const BOUNTY_BOARD = {
   resetOffsetMinutes: 240,
+  missions: 6,
 } as const;
 
 export const BOUNTIES = [

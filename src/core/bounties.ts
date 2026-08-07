@@ -107,7 +107,7 @@ export interface BountyData {
   readonly requires?: BountyRequirement;
 }
 
-/** When the board rotates, as authored in `data/`. */
+/** How the board is stocked and when it rotates, as authored in `data/`. */
 export interface BountyBoardRulesData {
   /**
    * How far after midnight UTC the day rolls, in minutes.
@@ -117,6 +117,15 @@ export interface BountyBoardRulesData {
    * not. `data/bounties.spec.ts` asserts the equality rather than restating the number.
    */
   readonly resetOffsetMinutes: number;
+  /**
+   * How many missions stand on the board at once, running ones included.
+   *
+   * ⚠️ **This is the ceiling on the whole faucet, so it is a balance number rather than a layout
+   * one.** Every mission pays a fraction of idle income for as long as it runs, so `missions`
+   * simultaneous ones multiply that fraction — `data/bounties.spec.ts` bounds the worst case rather
+   * than letting it be whatever the board happens to fit. Raising it is an economy change.
+   */
+  readonly missions: number;
 }
 
 /** A mission currently running. */
@@ -132,7 +141,6 @@ export interface Dispatch {
 export type BountyFailure =
   | 'unknown-bounty'
   | 'already-running'
-  | 'tier-running'
   | 'not-running'
   | 'wrong-crew-size'
   | 'wrong-faction'
@@ -190,21 +198,19 @@ export function dispatchOf(state: GameState, bountyId: string): Dispatch | undef
 }
 
 /**
- * The dispatch running any variant of `tier`, if there is one.
+ * Every mission currently out, in the pool's authored order.
  *
- * A tier runs **one mission at a time**, which is what keeps the board at one row per rung however
- * many variants the pool holds. Without it a player who dispatched a 24-hour campaign would be
- * offered a second one the next morning, and the screen would have to grow a row for it.
+ * ⚠️ **Missions stack, and nothing limits how many run at once except the bench.** An earlier build
+ * allowed one per tier so the board could be four fixed rows; that was dropped deliberately — a
+ * player with a wide roster should be able to run the whole board, which is the bench sink working
+ * rather than a hole in it. What bounds the faucet is `BountyBoardRulesData.missions` and the size
+ * of the bench, both of which cost the player something.
  */
-export function dispatchOfTier(
+export function runningBounties(
   state: GameState,
   bounties: readonly BountyData[],
-  tier: string,
-): Dispatch | undefined {
-  const inTier = new Set(
-    bounties.filter((bounty) => bounty.tier === tier).map((bounty) => bounty.id),
-  );
-  return state.dispatches.find((dispatch) => inTier.has(dispatch.bountyId));
+): readonly BountyData[] {
+  return bounties.filter((bounty) => dispatchOf(state, bounty.id) !== undefined);
 }
 
 /** Whether the run has cleared enough stages for this mission to be offered. */
@@ -254,7 +260,30 @@ export function msUntilRotation(rules: BountyBoardRulesData, nowMs: number): num
 }
 
 /**
- * The missions on offer today: one variant of every tier, in the order the tiers were authored.
+ * The day's shuffle of the **whole** pool, as indices into `bounties`.
+ *
+ * ⚠️ **Fisher–Yates over the entire pool, before anything is filtered.** Shuffling only the
+ * unlocked missions would make the draw a function of the clear count, so crossing an unlock
+ * threshold would reshuffle every mission on the board — a player would watch rows they had been
+ * reading change for no reason they could see. Shuffling everything and filtering afterwards means
+ * an unlock can only ever *insert*: the missions already on the board keep their relative order.
+ *
+ * The same discipline as the count draw in `rollDrops`. What matters is that the number of draws is
+ * fixed, not what they cost.
+ */
+function dayOrder(seed: number, size: number, dayIndex: number): readonly number[] {
+  const draw = derivedStream(seed, `bounties:${dayIndex}`);
+  const order = Array.from({ length: size }, (_, index) => index);
+  for (let index = size - 1; index > 0; index--) {
+    // `Math.min` guards the 1.0 a stream is not supposed to produce and an index would fall off.
+    const pick = Math.min(Math.floor(draw() * (index + 1)), index);
+    [order[index], order[pick]] = [order[pick], order[index]];
+  }
+  return order;
+}
+
+/**
+ * The missions standing on the board today.
  *
  * ## Derived from the seed and the day, never stored
  *
@@ -262,57 +291,51 @@ export function msUntilRotation(rules: BountyBoardRulesData, nowMs: number): num
  * ⚠️ **rerolling is impossible rather than merely detectable** — force-quitting cannot re-take a
  * draw that is a pure function of the run's seed and the day index.
  *
- * ## ⚠️ Every tier draws, whether or not it is shown
+ * ## ⚠️ Missions stack, and every running one holds a place
  *
- * The draw runs once per tier in authored order, **before** unlock or a running mission is
- * considered. Skipping a locked tier's draw would shift every later tier's variant, so crossing an
- * unlock threshold would silently reshuffle the rest of today's board — and a player would watch
- * missions they had been looking at change for no reason they could see. Same discipline as the
- * count draw in `rollDrops`: what matters is that the position is fixed, not what it costs.
+ * The board is `rules.missions` rows: **every mission currently out**, then filled up from the day's
+ * shuffle of what the run has unlocked. A 24-hour campaign crosses a rotation boundary by
+ * definition, so dropping it at 04:00 would strand a crew a player is eleven hours into with no way
+ * to collect them.
  *
- * ## A running mission holds its tier's row
+ * Running missions **count against the total**, which is what makes the board behave the way a
+ * player expects: send everything and the board is full, collect one and a new mission takes its
+ * place. Nothing caps how many run at once except the board size and the bench — an earlier build
+ * allowed one per tier, and that was a screen-layout rule masquerading as a game rule.
  *
- * A 24-hour campaign crosses a rotation boundary by definition, so a tier with a mission out shows
- * **that** mission rather than the day's draw. Otherwise the row a player is eleven hours into
- * would vanish at 04:00 and there would be no way to collect it from this screen.
+ * ## Order on screen is authored order, not draw order
+ *
+ * The shuffle decides *which* missions; `data/` decides how they read. Sorting back into pool order
+ * keeps the board shortest-first, so it still reads as a ladder rather than as a bag.
  */
 export function dailyBoard(
   state: GameState,
   bounties: readonly BountyData[],
+  rules: BountyBoardRulesData,
   dayIndex: number,
 ): readonly BountyData[] {
   const day = Number.isFinite(dayIndex) ? Math.max(Math.floor(dayIndex), 0) : 0;
-  const draw = derivedStream(state.rng.seed, `bounties:${day}`);
+  const size = Number.isFinite(rules.missions) ? Math.max(Math.floor(rules.missions), 0) : 0;
+  if (size === 0 || bounties.length === 0) {
+    return [];
+  }
 
-  const tiers: string[] = [];
-  const variants = new Map<string, BountyData[]>();
-  for (const bounty of bounties) {
-    const known = variants.get(bounty.tier);
-    if (known === undefined) {
-      tiers.push(bounty.tier);
-      variants.set(bounty.tier, [bounty]);
-    } else {
-      known.push(bounty);
+  const chosen = new Set<string>();
+  for (const bounty of runningBounties(state, bounties)) {
+    chosen.add(bounty.id);
+  }
+
+  for (const index of dayOrder(state.rng.seed, bounties.length, day)) {
+    if (chosen.size >= size) {
+      break;
+    }
+    const bounty = bounties[index];
+    if (isUnlocked(bounty, state)) {
+      chosen.add(bounty.id);
     }
   }
 
-  const board: BountyData[] = [];
-  for (const tier of tiers) {
-    const pool = variants.get(tier) ?? [];
-    if (pool.length === 0) {
-      continue;
-    }
-    // Drawn unconditionally — see the note above. `Math.min` guards the 1.0 that a stream is not
-    // supposed to produce and that an index would fall off the end of.
-    const drawn = pool[Math.min(Math.floor(draw() * pool.length), pool.length - 1)];
-    const running = dispatchOfTier(state, bounties, tier);
-    board.push(
-      running === undefined
-        ? drawn
-        : (pool.find((bounty) => bounty.id === running.bountyId) ?? drawn),
-    );
-  }
-  return board;
+  return bounties.filter((bounty) => chosen.has(bounty.id));
 }
 
 /**
@@ -449,20 +472,15 @@ export function bountyPayout(bounty: BountyData, rates: Rates): CurrencyAmounts 
  * `setFormation`, which refuses to field anybody away. Both are required: this one alone would let
  * a player dispatch from the bench and then walk the same character into the formation.
  *
- * ⚠️ **The tier check is the same shape of guard for rotation.** `dailyBoard` shows one row per
- * tier, so a second mission running on a tier would be invisible on the screen that is supposed to
- * own it. The UI cannot offer one, which is exactly why this refuses it too: the lesson the
- * formation invariant taught is that guarding only the path you happen to have built is how the
- * hole stays open. `repairDispatches` closes the third side, on load.
- *
- * `pool` is the whole authored set rather than the day's board, because a tier's running mission
- * may have rotated out of the board it was sent from.
+ * ⚠️ **Nothing here limits how many missions run at once**, and that is deliberate. The only thing
+ * a second simultaneous mission costs is the crew it takes off the bench, which is exactly the
+ * scarcity this system exists to create — a rule capping concurrency would be spending the player's
+ * roster breadth twice.
  */
 export function dispatchBounty(
   state: GameState,
   bounty: BountyData,
   members: readonly string[],
-  pool: readonly BountyData[],
   characters: ReadonlyMap<string, CharacterData>,
   nowMs: number,
 ): BountyResult {
@@ -471,9 +489,6 @@ export function dispatchBounty(
   }
   if (dispatchOf(state, bounty.id) !== undefined) {
     return fail('already-running');
-  }
-  if (dispatchOfTier(state, pool, bounty.tier) !== undefined) {
-    return fail('tier-running');
   }
   const crew = Number.isFinite(bounty.crew) ? Math.max(Math.floor(bounty.crew), 1) : 1;
   if (members.length !== crew) {
@@ -679,7 +694,6 @@ export interface DispatchAllResult {
 export function dispatchOpenBounties(
   state: GameState,
   board: readonly BountyData[],
-  pool: readonly BountyData[],
   characters: ReadonlyMap<string, CharacterData>,
   nowMs: number,
 ): DispatchAllResult {
@@ -687,7 +701,7 @@ export function dispatchOpenBounties(
   let dispatched = 0;
 
   for (const bounty of board) {
-    if (!isUnlocked(bounty, next) || dispatchOfTier(next, pool, bounty.tier) !== undefined) {
+    if (!isUnlocked(bounty, next) || dispatchOf(next, bounty.id) !== undefined) {
       continue;
     }
     // Recomputed per mission, so characters this pass has already sent are off the bench.
@@ -695,7 +709,7 @@ export function dispatchOpenBounties(
     if (crew === undefined) {
       continue;
     }
-    const result = dispatchBounty(next, bounty, crew, pool, characters, nowMs);
+    const result = dispatchBounty(next, bounty, crew, characters, nowMs);
     if (!result.ok) {
       continue;
     }
@@ -721,9 +735,10 @@ export function dispatchOpenBounties(
  * - a crew naming somebody the roster no longer holds;
  * - a crew naming somebody standing in the formation, which is the invariant this file exists to
  *   protect and the one thing a hand-edited save is most likely to break;
- * - the same character on two missions at once;
- * - two missions on the same tier, which {@link dailyBoard} shows one row for — so the second is a
- *   mission the player can see no way to collect.
+ * - the same character on two missions at once.
+ *
+ * ⚠️ **Two missions on the same tier is _not_ damage**, and an earlier build wrongly dropped one of
+ * them. Missions stack; a tier is an authoring group, not a limit.
  *
  * ⚠️ **A dropped dispatch pays nothing**, and that is the deliberate choice. Paying it would make
  * damaging a save a way to collect instantly, which in a game with no anti-cheat is not a security
@@ -743,34 +758,21 @@ export function repairDispatches(
   bounties: readonly BountyData[],
   note?: (field: string, problem: string, recovered: string) => void,
 ): GameState {
-  const tierOf = new Map(bounties.map((bounty) => [bounty.id, bounty.tier]));
+  const known = new Set(bounties.map((bounty) => bounty.id));
   const owned = new Set(state.roster.map((entry) => entry.defId));
   const fielded = fieldedMembers(state);
   const seen = new Set<string>();
-  const tiersRunning = new Set<string>();
   const kept: Dispatch[] = [];
 
   for (const dispatch of state.dispatches) {
-    const tier = tierOf.get(dispatch.bountyId);
-    // Checked on its own rather than as the first arm of the chain below, so `tier` is a `string`
-    // for the rest of the loop body — a nested ternary narrows inside itself and nowhere after it.
-    if (tier === undefined) {
-      note?.(
-        `dispatches.${dispatch.bountyId}`,
-        'names a mission this build does not ship',
-        'crew brought home',
-      );
-      continue;
-    }
-
-    const problem = dispatch.members.some((member) => !owned.has(member))
-      ? 'names a character the roster does not hold'
-      : dispatch.members.some((member) => fielded.has(member))
-        ? 'names a character standing in the formation'
-        : dispatch.members.some((member) => seen.has(member))
-          ? 'names a character already away on another mission'
-          : tiersRunning.has(tier)
-            ? 'is a second mission on a tier that shows one row'
+    const problem = !known.has(dispatch.bountyId)
+      ? 'names a mission this build does not ship'
+      : dispatch.members.some((member) => !owned.has(member))
+        ? 'names a character the roster does not hold'
+        : dispatch.members.some((member) => fielded.has(member))
+          ? 'names a character standing in the formation'
+          : dispatch.members.some((member) => seen.has(member))
+            ? 'names a character already away on another mission'
             : undefined;
 
     if (problem !== undefined) {
@@ -780,7 +782,6 @@ export function repairDispatches(
     for (const member of dispatch.members) {
       seen.add(member);
     }
-    tiersRunning.add(tier);
     kept.push(dispatch);
   }
 

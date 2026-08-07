@@ -7,7 +7,6 @@ import { type BountyRowView, BountiesService } from './bounties.service';
 const FAILURE_MESSAGES: Record<BountyFailure, string> = {
   'unknown-bounty': 'That mission is not in this build.',
   'already-running': 'That mission already has a crew out.',
-  'tier-running': 'That rung of the board already has a crew out. Collect it first.',
   'not-running': 'Nobody is on that mission.',
   'wrong-crew-size': 'That mission needs a different number of characters.',
   'wrong-faction': 'That mission needs more of the faction it asks for.',

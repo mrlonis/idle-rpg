@@ -2070,7 +2070,8 @@ coming due, and it is worth knowing before it arrives rather than after.
 
 Characters dispatched on timed missions that pay out on a clock. Four **tiers**, opening at 5, 15,
 30 and 50 clears, running for one hour to a full day, wanting one to four characters — and the
-board **rotates daily**, offering one variant of each tier out of a pool of twelve.
+board **rotates daily**, standing six missions out of a pool of twelve, all of which can run at
+once.
 
 It earns its place for a reason neither system above covers: **it is the only thing that pays you
 for characters you are not fighting with.** A wide roster becomes worth something before faction
@@ -2086,16 +2087,21 @@ structurally is worth far more than policing it.
 
 Two things about the draw are load-bearing:
 
-- ⚠️ **Every tier draws, whether or not it is shown.** Skipping a locked tier's draw would shift
-  every later tier's variant, so crossing an unlock threshold would silently reshuffle the rest of
-  today's board — a player would watch missions they had been reading change for no reason they
-  could see. Same discipline as the count draw in `rollDrops`: the position is what matters.
+- ⚠️ **The shuffle covers the whole pool, before anything is filtered.** Shuffling only the
+  _unlocked_ missions would make the draw a function of the clear count, so crossing an unlock
+  threshold would reshuffle every row — a player would watch missions they had been reading change
+  for no reason they could see. Shuffling everything and filtering afterwards means an unlock can
+  only ever **insert**: what was already on the board keeps its relative order. Same discipline as
+  the count draw in `rollDrops`, and the reason the draw is a Fisher–Yates over the pool rather
+  than a pick per slot.
 - ⚠️ **A dispatch outlives the board it was sent from.** A 24-hour campaign crosses a rotation
-  boundary by definition, so a tier with a mission out shows _that_ mission in place of the day's
-  draw, and everything that has to honour a running mission — `repairDispatches`,
-  `collectReadyBounties`, the tier guard in `dispatchBounty` — takes the **whole pool** rather than
-  the board. Wiring any of the three to the board instead would drop a mission a player is eleven
-  hours into, silently, and pay nothing for it.
+  boundary by definition, so **every running mission holds a place on the board**, and
+  `repairDispatches` and `collectReadyBounties` both take the **whole pool** rather than the day's
+  board. Wiring either to the board instead would strand a crew a player is eleven hours into,
+  silently, and pay nothing for it.
+
+**Running missions count against the board size**, which is what makes it behave the way a player
+expects: send everything and the board is full; collect one and a new mission takes its place.
 
 **Every variant of a tier is worth exactly the same** — same duration, crew, payout and unlock —
 and only the flavour and the faction requirement differ. Rotation therefore changes _what you are
@@ -2151,19 +2157,45 @@ would not have picked. What that buys is an obligation to be **predictable rathe
 It is a convenience over `dispatchBounty` rather than a second path with its own rules, and
 `bounties.spec.ts` asserts exactly that: one press equals dispatching each mission by hand.
 
-#### ⚠️ A tier runs one mission at a time, and that needed a third guard too
+#### ⚠️ Missions stack, and the rule that said otherwise was a layout rule in disguise
 
-The board shows one row per tier, so a second mission running on a tier would be a crew with no
-visible way to collect it. The lesson from the disjointness invariant below applies unchanged —
-guarding only the path you happen to have built is how the hole stays open — so there are three
-again: `dispatchBounty` refuses it, `dispatchOpenBounties` skips it, and `repairDispatches` drops
-the second of two on load.
+The board briefly allowed **one mission per tier**, guarded in three places the way the disjointness
+invariant is. That was wrong, and the way it was wrong is worth keeping:
 
-**What `repairDispatches` deliberately does _not_ check is the faction requirement.** A requirement
-is a gate on _starting_ a mission, not a property of one already running, and dropping an in-flight
-crew because a later build retuned the content would punish a player for a change they did not
-make. Repair pays nothing for what it drops, so every drop has to be something genuinely
-unrecoverable.
+> The board shows one row per tier, so a second mission running on a tier would be a crew with no
+> visible way to collect it.
+
+Every word of that is true, and it is an argument about **the screen**, not about the game. The
+premise it rests on — one row per tier — was itself a choice, made so the board could be four fixed
+rows. Having made it, it then justified a game rule capping how much of the board a player could
+use. ⚠️ **A constraint that argues for itself is the tell**: the fix was to drop the premise, and
+the rows and the cap went together.
+
+What actually rations the board is the **bench**, which is the scarcity this whole system exists to
+create. A cap on top of it spends the player's roster breadth twice — they pull for a wide roster,
+and then a rule tells them they may not use it. So `dispatchBounty` no longer refuses a second
+mission on a tier, `dispatchOpenBounties` no longer skips one, and ⚠️ **`repairDispatches` no
+longer drops one — it never was damage**, and repair pays nothing for what it drops.
+
+A tier is now purely an authoring group: the thing that fixes a duration, crew, payout and unlock
+for its variants. It says nothing about what may run.
+
+**What `repairDispatches` also deliberately does _not_ check is the faction requirement.** A
+requirement gates _starting_ a mission, not one already running, and dropping an in-flight crew
+because a later build retuned the content would punish a player for a change they did not make.
+Every drop has to be something genuinely unrecoverable.
+
+#### The board size is the ceiling on the faucet, so it is a balance number
+
+Six missions, authored in `BOUNTY_BOARD.missions`. With stacking, that is not a layout choice: each
+mission pays a third to a half of idle income for as long as it runs, so a full board pays the
+**sum**. The worst case a player can reach — the six richest missions all running — is **2.8× idle
+income**, and `data/bounties.spec.ts` derives that from the authored content and bounds it under 4×
+rather than letting it be whatever number happened to fit on a phone.
+
+That is deliberately generous. This is a **time economy**, the board is paid for in roster breadth
+the player had to pull for, and none of it is a currency a stuck player is short of. What it must
+not become is a faucet that dwarfs the ladder it supplements — which is what the bound is for.
 
 #### ⚠️ Dispatch and the formation are disjoint, in both directions
 

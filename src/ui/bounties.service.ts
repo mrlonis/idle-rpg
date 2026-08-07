@@ -92,17 +92,23 @@ export class BountiesService {
   private readonly game = inject(GameLoopService);
 
   /**
-   * Today's board: one variant of every tier, in tier order — shortest first.
+   * Today's board, in pool order — shortest first.
    *
    * ⚠️ **Derived on read, never stored.** `dailyBoard` is a pure function of the run's seed and the
-   * day index, so this recomputes to the same four missions all day and to a different four
-   * tomorrow, with nothing written to the save and nothing to reroll.
+   * day index, so this recomputes to the same missions all day and to a different set tomorrow,
+   * with nothing written to the save and nothing to reroll. Running missions hold their place, so
+   * the board changes under a player only where they have nothing at stake.
    */
   readonly board = computed<readonly BountyData[]>(() => {
     const state = this.game.snapshot();
     return state === null
       ? []
-      : dailyBoard(state, BOUNTY_LIST, boardDayIndex(BOUNTY_BOARD_RULES, Date.now()));
+      : dailyBoard(
+          state,
+          BOUNTY_LIST,
+          BOUNTY_BOARD_RULES,
+          boardDayIndex(BOUNTY_BOARD_RULES, Date.now()),
+        );
   });
 
   /** Every mission on today's board, in the order the screen lists them. */
@@ -140,10 +146,23 @@ export class BountiesService {
   /** How many missions have finished and are waiting. Drives the Town card and the button. */
   readonly ready = computed(() => this.rows().filter((row) => row.ready).length);
 
-  /** How many missions could be sent right now, which is what Dispatch all would fill. */
-  readonly sendable = computed(
-    () => this.rows().filter((row) => row.unlocked && !row.running && row.crewable).length,
-  );
+  /**
+   * How many missions Dispatch all would actually fill.
+   *
+   * ⚠️ **Asked of `dispatchOpenBounties` rather than counted off the rows**, because crews compete
+   * for one bench. Counting rows that are *individually* crewable overstates it the moment the board
+   * wants more characters than the player has — six missions wanting nineteen bodies from a bench of
+   * fifteen is an ordinary mid-game board — and the button would promise six and deliver four.
+   *
+   * The result state is discarded; `core/` returns new state rather than mutating, so running the
+   * assignment to count it is free of side effects.
+   */
+  readonly sendable = computed(() => {
+    const state = this.game.snapshot();
+    return state === null
+      ? 0
+      : dispatchOpenBounties(state, this.board(), CHARACTERS_BY_ID, Date.now()).dispatched;
+  });
 
   /** Time until the board rotates, already worded, for the line under the heading. */
   readonly rotatesIn = computed(() => duration(msUntilRotation(BOUNTY_BOARD_RULES, Date.now())));
@@ -172,14 +191,7 @@ export class BountiesService {
     if (state === null) {
       return 'not-owned';
     }
-    const result = dispatchBounty(
-      state,
-      bounty,
-      members,
-      BOUNTY_LIST,
-      CHARACTERS_BY_ID,
-      Date.now(),
-    );
+    const result = dispatchBounty(state, bounty, members, CHARACTERS_BY_ID, Date.now());
     if (!result.ok) {
       return result.reason;
     }
@@ -198,13 +210,7 @@ export class BountiesService {
     if (state === null) {
       return 0;
     }
-    const result = dispatchOpenBounties(
-      state,
-      this.board(),
-      BOUNTY_LIST,
-      CHARACTERS_BY_ID,
-      Date.now(),
-    );
+    const result = dispatchOpenBounties(state, this.board(), CHARACTERS_BY_ID, Date.now());
     if (result.state !== state) {
       this.game.apply(() => result.state);
     }

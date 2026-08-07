@@ -62,13 +62,13 @@ Fodder is `common`, a lock is `legendary`, a gate is `ascended` — the slope, a
 rungs, because there are none on that side. The word is shared because the mechanism is; see
 [`core/growth.ts`](../src/core/growth.ts), which is where both sides read it from.
 
-⚠️ **A bounty tier is a fourth meaning and shares nothing with the other three.** It is a **rung of
-the bounty board** — errand, patrol, expedition, campaign — and its values are those four words
-rather than `common`/`legendary`/`ascended`, which is the only reason the collision is survivable.
-`BountyData.tier` groups the variants that rotate through one row of the board and fixes that row's
-duration, crew, payout and unlock; it says nothing about power, growth or rungs. Write "the patrol
-tier" or "that rung of the board", never a bare "tier", in anything that also talks about
-characters. See [`core/bounties.ts`](../src/core/bounties.ts).
+⚠️ **A bounty tier is a fourth meaning and shares nothing with the other three.** It is a **band of
+bounty mission** — errand, patrol, expedition, campaign — and its values are those four words rather
+than `common`/`legendary`/`ascended`, which is the only reason the collision is survivable.
+`BountyData.tier` is purely an **authoring group**: it fixes the duration, crew, payout and unlock
+its variants share, and says nothing about power, growth, rungs, or how many may run at once. Write
+"the patrol tier", never a bare "tier", in anything that also talks about characters. See
+[`core/bounties.ts`](../src/core/bounties.ts).
 
 **Rarity** — how far a character has been ascended. Sixteen rungs, `common` → `ascended-5`, bought
 with duplicate copies of that same character. **This is the vertical power axis**, and every
@@ -218,9 +218,9 @@ somewhere. It is not a character's level and nothing derives one from the other.
 | **Archetype**        | Which kind of character a piece was forged for, and the same five values as `CharacterRole`. The one gate on equipping. A piece the party cannot wear is **fodder, not a dead end**.                                                                                                                                                                                                       |
 | **Alignment**        | The faction a gear piece pays 1.3× on. A **bonus, never a restriction** — anyone may wear anything. Does not favour mono-faction parties: matching one character is one chance in eight either way.                                                                                                                                                                                        |
 | **Repair**           | Load-time fixing that clamps and defaults rather than throwing. Runs on every load, not behind a version gate. A thrown error costs a player their whole run.                                                                                                                                                                                                                              |
-| **Bounty tier**      | A rung of the bounty board — `errand`, `patrol`, `expedition`, `campaign`. ⚠️ **A fourth meaning of "tier"** sharing nothing with character, enemy or rarity tiers; survivable only because its values are different words. Groups the variants that rotate through one row and fixes that row's duration, crew, payout and unlock.                                                        |
+| **Bounty tier**      | A band of bounty mission — `errand`, `patrol`, `expedition`, `campaign`. ⚠️ **A fourth meaning of "tier"** sharing nothing with character, enemy or rarity tiers; survivable only because its values are different words. Purely an **authoring group**: it fixes what its variants share, and is **not** a limit on how many may run at once.                                             |
 | **Variant**          | One authored mission within a bounty tier. All variants of a tier are worth **exactly the same** and differ only in flavour and faction requirement, so rotation changes what is asked for rather than what the day is worth.                                                                                                                                                              |
-| **Pool vs board**    | The **pool** is every mission the build ships; the **board** is the one variant of each tier offered today, derived from the seed and the day index and stored nowhere. ⚠️ Anything honouring a _running_ mission takes the pool — a dispatch outlives the board it was sent from.                                                                                                         |
+| **Pool vs board**    | The **pool** is every mission the build ships; the **board** is the `BOUNTY_BOARD.missions` of them standing today, derived from the seed and the day index and stored nowhere. ⚠️ Anything honouring a _running_ mission takes the pool — a dispatch outlives the board it was sent from — and running missions count against the board size.                                             |
 | **Dispatch**         | A crew away on a mission, and the one thing the bounty board stores. Disjoint from the formation in **both** directions: a character cannot be both fighting and away.                                                                                                                                                                                                                     |
 
 ---

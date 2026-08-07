@@ -231,12 +231,25 @@ engaging with.
 duration back would make dispatching free, since the characters are idle anyway, and the board
 would be a button rather than a decision.
 
-**Rotation costs the economy nothing, which is why it was affordable.** The board offers one
-variant of each tier per day out of a pool of twelve, and ⚠️ **every variant of a tier is worth
-exactly the same** — same duration, crew, payout and unlock. So the numbers in the table above
-describe the board on every day it can ever show, and what rotates is which faction a mission asks
-for. A variant that paid differently would make the daily draw a payout lottery, and would put a
-second, invisible variable into every figure on this page.
+**Rotation costs the economy nothing, which is why it was affordable.** The board stands six
+missions a day out of a pool of twelve, and ⚠️ **every variant of a tier is worth exactly the
+same** — same duration, crew, payout and unlock. So the numbers in the table above describe the
+board on every day it can ever show, and what rotates is which faction a mission asks for. A
+variant that paid differently would make the daily draw a payout lottery, and would put a second,
+invisible variable into every figure on this page.
+
+⚠️ **Stacking does not cost the economy nothing, and it is the one bounty number that needs
+watching.** Missions run simultaneously — nothing caps concurrency but the board size and the
+bench — so the faucet is the **sum** of the running missions' ratios rather than any one of them.
+The worst case a player can reach is the six richest missions at once, which is **2.8× idle
+income**. `data/bounties.spec.ts` derives that from the authored durations and payouts and holds it
+under 4×, so a richer tier or a wider board fails the check rather than quietly tripling the game's
+income.
+
+That is deliberately generous, and it does not touch the guard in `levels.spec.ts`: that threshold
+measures the **idle rate** against the level curve, and bounties are a bonus on top of it that costs
+a roster wide enough to crew them. The rule "the next thing that raises income has to move the level
+curve" is about the idle rate itself.
 
 ## Levelling
 
