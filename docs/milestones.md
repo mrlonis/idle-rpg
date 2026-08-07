@@ -1612,6 +1612,10 @@ highest-value invariant mean anything.
 
 ### The save chain has its first real migration
 
+> ⚠️ **Superseded.** This migration and the five after it were folded back into the v0 baseline —
+> see "the save chain was re-based to v0 a second time" below. What it decided is still the record
+> of this milestone; `SAVE_VERSION` is 0.
+
 `SAVE_VERSION` went 0 → 1, purely additive. The alternative was to widen v0 in place — nobody outside
 development has loaded one, so it would have been legal under the same argument the reset itself ran
 on — and it was declined. **The chain walker has been sitting proven and unused since the reset
@@ -2052,6 +2056,9 @@ makes a hub necessary; the hub has none. The bar is still Home · Town · Roster
 
 ### Two save versions, both additive
 
+> ⚠️ **Superseded**, along with every other version above the baseline — see "the save chain was
+> re-based to v0 a second time" below. `SAVE_VERSION` is 0.
+
 `SAVE_VERSION` went from 2 to **4**. v2 → v3 adds the achievement ledger; v3 → v4 adds the quest
 windows. Both are additive and both are cheap for the same reason — every counter either system is
 paid against was already stored.
@@ -2330,6 +2337,11 @@ permission, and neither is worth surfacing from a `visibilitychange` handler.
 
 ### The version burn is now spent
 
+> ⚠️ **Superseded, and then spent again.** The chain was re-based to v0 a second time — see the
+> section below — which burned 1 through 6 for the second time each. The two test-suite decisions
+> recorded here survived it, and one of them is why: deriving from `SAVE_VERSION` is what kept
+> `save-recovery.spec.ts` honest through a change that invalidated every literal in the project.
+
 `SAVE_VERSION` reached **5** — v4 → v5 adds the dispatch list. The v0 re-base freed numbers 1
 through 5 and **all five have now been re-issued**, so no number below current still means "written
 before the baseline".
@@ -2592,6 +2604,10 @@ that means "how far has this been invested" has to count rungs from a floor.
 
 ### It is also the first save migration that changes no shape
 
+> ⚠️ **Superseded** — this migration was folded into the v0 baseline with the rest; see "the save
+> chain was re-based to v0 a second time" below. **The rule it earned outlived the code**: inserting
+> a rung anywhere but the top of `RARITIES` is still a save migration, not a content edit.
+
 `SAVE_VERSION` went to **2**. v1 → v2 adds no field — it shifts every `roster[].rarity` by two,
 because the index means a rung two lower than it did. A v1 save fed to a v2 reader parses cleanly,
 validates cleanly, and demotes the entire roster. See [saves](saves.md); the rule it earns is that
@@ -2699,6 +2715,61 @@ The load-time repair was untouched and is the reason this cost so little.
 `reconcileClearedStages` fixes a shape of damage — rates that say the run climbed further than its
 clear count admits — that has nothing to do with migrations, so the e2e cover for it simply seeds
 that damage directly instead of arriving at it through a v2 save.
+
+## Not a milestone: the save chain was re-based to v0 a second time
+
+The same housekeeping, on the same argument, after six migrations had grown back on top of the
+first baseline. `SAVE_VERSION` went from 6 to **0**, the six migrations and six historical shapes
+were deleted, and the seven fixtures became one. **This supersedes every `SAVE_VERSION` figure in
+the milestone entries above**, all of which are left as the history of what those milestones
+decided.
+
+What was folded in, and what each step had been:
+
+| Step    | What it did                                                                      |
+| ------- | -------------------------------------------------------------------------------- |
+| v0 → v1 | Gear: `alloy`, the per-character loadout, the bag, the mint counter, the ledger. |
+| v1 → v2 | The ladder grew a bottom — every stored `roster[].rarity` shifted up by two.     |
+| v2 → v3 | The achievement claim ledger.                                                    |
+| v3 → v4 | The daily and weekly quest windows.                                              |
+| v4 → v5 | The bounty board's dispatch list.                                                |
+| v5 → v6 | The legendary pity counter.                                                      |
+
+Every field they wrote is simply part of the baseline shape now, so `schema.ts` is one interface
+again and `data`-facing behaviour is unchanged — the whole unit suite passed with no assertion
+retuned, which is what "the chain was maintained for an audience of zero" looks like from the
+inside.
+
+**The licence is unchanged and so is the condition that ends it.** No save any of those versions
+wrote has ever existed outside development. The rule stays scoped rather than softened: _never
+delete or edit a migration once a build carrying it has reached a player_ — and the moment one
+does, the chain is permanent and the next version is 1 forever.
+
+Three things worth carrying:
+
+- ⚠️ **The version numbers are now burned twice over.** 1 through 6 have each meant two different
+  things — the old v1 was milestone 1's gold counter and the second v1 was the gear schema — and a
+  build cannot tell any pair apart from the number alone. What it does with one is at least the
+  safe direction: a save at any of those numbers is _newer than this build_, so it is discarded and
+  reported rather than repaired into something plausible. It is still a run nothing can recover.
+  The previous re-base wrote that "nothing else may be re-issued once a build reaches a player";
+  that sentence was doing its job, and this is the second re-base spending exactly what it said was
+  spendable while the audience is zero.
+- ⚠️ **The tests that named a version number are the ones this breaks, and they broke quietly the
+  first time.** `save-recovery.spec.ts` had already gone stale twice by writing a literal, which is
+  why it derives from `SAVE_VERSION + 1` — and that derivation is the only reason it still tests
+  what it claims to. `migrate.spec.ts` gained the inverse assertion in the same spirit: 1 through 6
+  are now each _refused_, and the block says why rather than leaving the next person to rediscover
+  it.
+- **The chain walker survived a second time**, for the reason it survived the first. It is still
+  driven against a synthetic history, and gear's v0 → v1 is the proof that pays for it: the first
+  real migration in the project's life landed on tested code and worked immediately.
+
+The deleted steps left three rules behind, recorded in [saves](saves.md) rather than in the code
+that used to carry them: the rarity shift is the shape nothing structural can verify, so inserting
+a rung anywhere but the top of `RARITIES` is still a save migration; an additive step credits
+nothing unless there is a genuine receipt to read; and a migration's constants are written out,
+never imported, because a migration is dated.
 
 ## Not a milestone: the simulation harness is the only feedback loop
 
@@ -2858,8 +2929,10 @@ No new system, one more counter. The banner now makes two promises instead of on
   puts certainty at 27 and keeps the relationship the old curve had: two thirds of the cycle at base
   rate, the last tenth guaranteed.
 
-`SAVE_VERSION` reached **6** — v5 → v6 adds `legendaryPity`, and is the first version number since
-the re-base that has only ever meant one thing.
+`SAVE_VERSION` reached **6** — v5 → v6 adds `legendaryPity`, and was the first version number since
+the re-base that had only ever meant one thing. ⚠️ **Superseded**: the chain was re-based to v0 a
+second time and 6 has now meant two things like every number below it. `legendaryPity` is a baseline
+field, and the fixture still stores it mid-cycle for the reason that migration's fixture did.
 
 ### What it is worth, and why the base weights did not move
 

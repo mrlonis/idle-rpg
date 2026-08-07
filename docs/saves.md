@@ -77,158 +77,24 @@ the whole object. Settings are the opposite shape: every field is independent, o
 default that is always correct, so the repair is **per field, on read**. An unrecognised value
 becomes the default, an unknown field is ignored, and a missing field defaults; that subsumes
 migration in both directions. The bar for revisiting it is a key whose old and new meanings
-**collide** — the exact trap `SAVE_VERSION` 1 records below — and the answer there is a new key.
+**collide** — the exact trap the rarity shift below records for the save chain, where a stored value
+kept its shape and changed what it denoted — and the answer there is a new key.
 
 ---
 
 ## Versioning and migration
 
-`SAVE_VERSION` is **6**, and the migration table holds **six entries**. Every save carries its version.
+`SAVE_VERSION` is **0**, and the migration table is **empty**. Every save carries its version.
 
 **Bumping `SAVE_VERSION` without adding the matching migration is a bug.** The chain would stall
 on the old version and never reach current. [`migrate.spec.ts`](../src/core/save/migrate.spec.ts)
 asserts every version below current has a migration registered, so that mistake fails in CI rather
-than on a device. It was vacuous through the whole v0 era and was kept for exactly this reason — it
-fired the moment milestone 12 moved the version, which is when nobody is thinking about it.
+than on a device. It is vacuous at a one-version baseline and it is kept for exactly that reason —
+it fired the moment the version first moved off zero, which is when nobody is thinking about it.
 
-### v0 → v1: gear
+### The chain has been re-based twice, both times while nobody was playing
 
-Purely additive. `alloy` joins the wallet, each roster entry gains what it is wearing, and three
-top-level fields carry the bag, the mint counter and the shop ledger. Every value it writes is the
-empty value for something that did not exist, so a migrated save is a run that owns no gear — which
-is exactly what it is.
-
-It does **not** try to work out what gear a returning player "should" have. There is no receipt to
-read: nothing in a v0 save records a fight that would have dropped a piece, so the honest answer is
-none and the next stage clear is where the bag starts filling. That is the opposite situation to the
-v2 → v3 rate hole below, where the surviving gold rate _was_ a receipt for progress the migration had
-silently dropped.
-
-**The alternative was to widen v0 in place, and it was declined.** Nobody outside development has
-loaded a v0 save, so it would have been legal under the same argument the reset itself ran on. The
-chain walker had been sitting proven and unused since the reset specifically so that the first real
-migration would land on tested code, and taking the free option would have deferred that to a day
-when it was urgent.
-
-⚠️ **The reset burned version numbers, and this re-issued the first of them.** The old v1 was
-milestone 1's gold counter; this v1 is the gear schema, and a build cannot tell them apart from the
-number alone — so a genuine pre-reset v1 save would now be read as a current one and repaired into
-something close to a fresh run rather than reported as unreadable. That is safe for exactly one
-reason, and it is the reason the reset was licensed: **no save carrying the old meaning has ever
-existed outside development.** It is not safe in general. It is the cost of re-basing that is easiest
-to forget, and `migrate.spec.ts` states it as behaviour so it cannot be rediscovered by accident.
-
-**v2, v3 and v4 re-issued the next three**, on the same argument and with the same caveat.
-
-⚠️ **The burn is spent.** The re-base freed 1 through 5 and **all five have now been re-issued**,
-so no number below `SAVE_VERSION` still means "written before the baseline". A save can be
-unreadable now only by being _newer_ than this build, or by carrying a version that is not a
-number at all.
-
-**v6 is the first number past that range**, and so the first since the reset whose value has only
-ever meant one thing. That is not a new rule — it is the burn simply being over.
-
-Two suites had been seeding a pre-baseline number to check that case. `migrate.spec.ts` now asserts
-the fact itself — every version from 0 to current migrates cleanly, and only a future one throws —
-and `save-recovery.spec.ts` derives its fixture from `SAVE_VERSION + 1`. ⚠️ **That fixture went
-stale twice in one milestone**, each time because a literal quietly became a live version; both
-times it failed loudly, and either time it could instead have kept passing while testing nothing.
-Derive it, never write it down.
-
-### v1 → v2: the ladder grew a bottom
-
-The copies-only rewrite inserted `common` and `common-plus` below `rare` in `RARITIES`. **No field changed
-shape.** What changed is what one _means_: `roster[].rarity` is an index into that array, so a
-stored `4` meant `legendary` before and means `elite` after.
-
-Left alone, a v1 save would parse cleanly, validate cleanly, and **demote the entire roster two
-rungs** — an `elite` character reading as `rare`, its level cap collapsing from 100 to 40 and its
-second skill disappearing. The migration adds two to every roster entry's rarity, which maps each
-rung to _itself_: nobody gains a rung and nobody loses one. Common-tier characters come out at
-`rare`, two rungs above the new floor they never paid for, and that is the intended reading — they
-earned their place on the old ladder and the new rungs are beneath where they already stand.
-
-⚠️ **This is the first migration here that cannot be checked structurally, and that is the thing to
-carry forward.** v0 → v1 _added_ fields, so getting it wrong loses something that was never there.
-v1 → v2 _reinterprets_ one, so getting it wrong silently rewrites progress a player earned, and no
-schema check can see it. The roster assertion in `fixtures.spec.ts` is the only evidence the shift
-ran at all — if it ever reads the fixture's own numbers back, the migration has stopped running.
-
-A damaged rarity is left alone rather than shifted: `serialize` clamps it to the character's
-starting rarity on load, which is a better answer than any this step could invent, and shifting a
-corrupt value only moves the corruption.
-
-**The rule this earns:** inserting a rung anywhere but the top of `RARITIES` is a save migration,
-not a content edit. `types.ts` carries that warning next to the array itself.
-
-### v2 → v3: the achievement claim ledger
-
-Purely additive, and the cheapest step in the chain: one empty record, `achievements`, mapping a
-track id to how many awards have been claimed.
-
-It is cheap because **every counter an achievement track is paid against was already stored**.
-`clearedStages`, `battleCount` and `pullCount` are all v2 fields; what an achievement adds is only
-the record of what has been _taken_, because what has been _earned_ is a division over a counter —
-see [`core/achievements.ts`](../src/core/achievements.ts) for why the earned side is deliberately
-not stored beside it.
-
-**A returning player is therefore owed every award their clear count has already earned**, which is
-intended rather than an oversight. It is the position `reconcileClearedStages` takes on a
-first-clear bonus, and here it costs nothing to get right.
-
-⚠️ **An unknown track id is kept, not dropped** — the opposite of how the roster treats an unknown
-character. A character this build does not ship cannot be fielded; a claim count for a track it
-does not ship costs one integer, and dropping it is what would **re-pay every award on that track**
-if it ever came back. The v3 fixture carries a retired id for exactly this.
-
-### v3 → v4: the daily and weekly quest windows
-
-Additive for the same reason. A window is an index, a **baseline** of counters this save already
-held, and the ids claimed inside it. **No quest has a progress field**, because progress is
-`counter - baseline` — which is what keeps the whole system out of the battle path.
-
-Both windows arrive at index `-1`, below any real period index, so the first roll after load opens
-them against the counters as they stand. A returning player gets a fresh day rather than one
-already half spent, and nothing is owed for battles fought before quests existed.
-
-### v4 → v5: the bounty board
-
-Additive, and empty: a list of running missions, each an id, a crew and the epoch millisecond it
-started at. A save written before bounties existed has nobody away, which is what an empty list
-says — there is no receipt to read and nothing to reconstruct.
-
-⚠️ **There is no "finished" flag and no remaining-time field.** Both are arithmetic against a
-`nowMs` the caller supplies, and storing either would be a second source of truth that a device
-clock could put out of step with the first.
-
-Shape is checked here; **content is not**. Whether a mission id still exists, whether the crew is
-owned, and whether anybody is _also_ in the formation are questions about content and about the
-rest of the state, so they belong to `repairDispatches` on load — the same split `readGear` and
-`repairLoadouts` already use. That pass **pays nothing for what it drops**: paying would make
-damaging a save a way to collect instantly.
-
-### v5 → v6: the legendary pity counter
-
-Additive. The gacha grew a second pity curve, so the run keeps a second counter: `pity` is unchanged
-and still means pulls since the last ascended-tier character, and `legendaryPity` means pulls since
-the last legendary tier **or better**. Two counters rather than two readings of one, because they
-answer different questions — how long a run of nothing can get, against how far away the top tier
-can be.
-
-⚠️ **It arrives at zero rather than derived from `pity`.** The tempting reading is that a player deep
-in ascended pity has also gone a while without a legendary, and it is simply not sound: the two
-cycles are independent, and a v5 save sitting at `pity: 28` is far more likely to have pulled several
-legendaries along the way than none. Zero opens a fresh cycle — the generous answer and also the only
-honest one, since it promises the guarantee within ten pulls of loading rather than inventing a debt
-or cancelling one.
-
-**The v6 fixture stores a mid-cycle value**, not zero. A fixture storing zero would pass identically
-whether the decoder read the field or quietly defaulted it, which is the one thing the fixture is
-there to distinguish.
-
-### The chain was re-based, once, while nobody was playing
-
-There were five versions and four migrations:
+The first re-base collapsed five pre-release versions and four migrations:
 
 | Step    | What it did                                                               |
 | ------- | ------------------------------------------------------------------------- |
@@ -237,27 +103,81 @@ There were five versions and four migrations:
 | v3 → v4 | Replaced `activeParty` with `formation`, split in reading order.          |
 | v4 → v5 | Cut the ladder into chapters: `stage` becomes a stage _within_ `chapter`. |
 
-All four were deleted and the current shape became **v0**. The argument is narrow and it is the
-only one that licenses this: **no save written by any of those versions has ever existed outside
-development.** Nobody has played this game but its author, on dev servers whose storage does not
-survive the session, so the chain was four migrations, five historical shapes and five fixtures
-maintained for an audience of zero — each one a thing to keep working and to reason about on the
-next schema change.
+Six more accumulated on top of that baseline, and the second re-base collapsed all of them:
 
-⚠️ **The rule this suspends is scoped, not softened.** It now reads: _never delete or edit a
-migration once a build carrying it has reached a player._ That condition is what makes the rule
-enforceable rather than aspirational, and it is also what closes the door — the moment anyone
-outside development loads a save, the chain is permanent.
+| Step    | What it did                                                                      |
+| ------- | -------------------------------------------------------------------------------- |
+| v0 → v1 | Gear: `alloy`, the per-character loadout, the bag, the mint counter, the ledger. |
+| v1 → v2 | The ladder grew a bottom — every stored `roster[].rarity` shifted up by two.     |
+| v2 → v3 | The achievement claim ledger.                                                    |
+| v3 → v4 | The daily and weekly quest windows.                                              |
+| v4 → v5 | The bounty board's dispatch list.                                                |
+| v5 → v6 | The legendary pity counter.                                                      |
 
-**The next version was v1 and it arrived with gear**, as this section always said it would. See
-above.
+Everything those steps wrote is simply part of the baseline shape now, and the current shape is
+**v0** again.
 
-**The machinery survived the entries, and that is what it was for.** `migrate()` still walks a
-chain, and `migrate.spec.ts` still drives multi-step chaining against a synthetic history — the real
-table now holds two entries and a v0 save walks both of them. Proven code with no callers was a far
-better position than an unproven chain walker written on the day the first real migration was
-urgent, which is precisely how v0 → v1 landed, and v1 → v2 arrived two milestones later on the same
-proven walk.
+**The argument is narrow and it is the only one that licenses either re-base: no save written by any
+of those versions has ever existed outside development.** Nobody has played this game but its
+author, on dev servers whose storage does not survive the session — so the chain was six migrations,
+seven historical shapes and seven fixtures maintained for an audience of zero, each one a thing to
+keep working and to reason about on every subsequent schema change.
+
+⚠️ **The rule this suspends is scoped, not softened.** It reads: _never delete or edit a migration
+once a build carrying it has reached a player._ That condition is what makes the rule enforceable
+rather than aspirational, and it is also what closes the door — the moment anyone outside
+development loads a save, the chain is permanent and the next version is 1 forever.
+
+⚠️ **What a re-base costs is the version numbers, and this one spent them twice.** 1 through 6 have
+each meant two different things: the old v1 was milestone 1's gold counter and the second v1 was the
+gear schema; the old v3 was the rate table and the second v3 was the achievement ledger. A build
+cannot tell any pair apart from the number alone. What it does with one is at least the safe
+direction — a save at any of those numbers is _newer than this build_ and is discarded rather than
+repaired into something plausible — but it is still a run nothing can recover. That is harmless only
+while the audience is zero, and it is the part of re-basing that is easiest to forget.
+
+**A save is unreadable now only by being newer than this build**, or by carrying a version that is
+not a non-negative integer. `migrate.spec.ts` asserts the fact itself — the baseline migrates
+cleanly, and every number above it throws — and `save-recovery.spec.ts` derives its unreadable
+fixture from `SAVE_VERSION + 1`. ⚠️ **That fixture went stale twice while the chain was growing**,
+each time because a literal quietly became a live version; both times it failed loudly, and either
+time it could instead have kept passing while testing nothing. Derive it, never write it down.
+
+**The machinery survived the entries, both times, and that is what it was for.** `migrate()` still
+walks a chain, and `migrate.spec.ts` still drives multi-step chaining against a synthetic history.
+Proven code with no callers is a far better position than an unproven chain walker written on the
+day the first real migration is urgent — which is precisely the position v0 → v1 landed in, and it
+worked first time.
+
+### What the deleted steps are worth remembering for
+
+The migrations are gone; three of the things they taught are not.
+
+**Five of the six were additive, and one was not.** `alloy`, the ledger, the quest windows, the
+dispatch list and `legendaryPity` all _added_ a field, so getting one wrong loses something that was
+never there. The rarity shift _reinterpreted_ one: `common` and `common-plus` went in below `rare` in
+`RARITIES`, so a stored `4` meant `legendary` before and `elite` after, and an unmigrated save parsed
+cleanly, validated cleanly and **demoted the entire roster two rungs** with nothing structural able
+to see it. ⚠️ **Inserting a rung anywhere but the top of `RARITIES` is still a save migration, not a
+content edit** — the re-base removed the code, not the rule, and `roster/types.ts` carries the
+warning next to the array itself.
+
+**An additive migration credits nothing and owes nothing, unless there is a receipt to read.** Gear
+arrived empty because nothing in an older save recorded a fight that would have dropped a piece;
+the quest windows arrived at index `-1` so the first roll opens a fresh day; `legendaryPity` arrived
+at zero rather than derived from `pity`, because the two cycles are independent and a guess dressed
+as data is worse than a generous default. The counter-example is `reconcileClearedStages` below,
+where a surviving gold rate genuinely _is_ a receipt for progress that was silently dropped.
+
+⚠️ **A migration's constants are written out, never imported.** A migration is _dated_: it describes
+the shape that existed the day it shipped, and a constant a later release is free to retune would
+silently change what that step means for every save that has not run it yet. Every step in both
+chains was written that way, and the next one should be too.
+
+⚠️ **An unknown achievement track id is kept, not dropped** — the opposite of how the roster treats
+an unknown character. A character this build does not ship cannot be fielded; a claim count for a
+track it does not ship costs one integer, and dropping it is what would **re-pay every award on that
+track** if it ever came back. The fixture carries a retired id for exactly this.
 
 ### The rules that still apply
 
@@ -266,14 +186,9 @@ Migrations are pure `(old) => (new)` steps, chained.
 **Order matters: migrate the raw JSON shape first, then decode and repair.** Migrations are
 written against historical shapes, so they have to run before anything tries to interpret fields.
 
-⚠️ **A migration's constants are written out, never imported.** The rank sizes in the old v3 → v4
-step were literals rather than `FRONT_ROW_SIZE`. A migration is _dated_: it describes the shape
-that existed the day it shipped, and a constant a later release is free to retune would silently
-change what that step means for every save that has not run it yet.
-
 **A save with no version at all is now unreadable rather than assumed to be the oldest.** It used
 to be read as v1, because v1 predated versioning and guessing beat discarding a real player's run.
-The v0 reset removed the thing that guess was for: nothing below this baseline exists, so an
+The re-base removed the thing that guess was for: nothing below this baseline exists, so an
 absent version means damage.
 
 ---
@@ -286,7 +201,7 @@ absent version means damage.
 `loadSave` never throws. When a save cannot be used at all it returns a fresh run with `fatal`
 set, and **that fresh run is written over the unreadable bytes like any other.**
 
-That reversed with the v0 reset, and the trade is worth being explicit about. `fatal` used to bar
+That reversed with the first re-base, and the trade is worth being explicit about. `fatal` used to bar
 the way to the primary slot, on the grounds that the bytes might be a newer build's save and would
 be good again after an update. What that bought was a run surviving a downgrade; what it cost was
 a game that boots, plays, and silently never writes anything down — the worse failure of the two,
@@ -336,30 +251,28 @@ that prompted them:
    without paying it is strictly worse than leaving it uncredited, because the normal reward path
    will then skip it forever and nothing will ever notice.
 3. **A migration should default to crediting nothing.** Zero means "not yet settled", not "did not
-   happen". The v2 → v3 migration seeded `clearedStages` from `stage - 1`, which looked careful —
+   happen". A long-deleted migration seeded `clearedStages` from `stage - 1`, which looked careful —
    "do not pay a bonus they already earned" — and was exactly backwards: the first-clear bonus did
-   not exist in v2, so nothing had been earned, and marking those stages settled closed the door on
-   all 3,000 crystals silently and permanently.
+   not exist in the version it was reading, so nothing had been earned, and marking those stages
+   settled closed the door on all 3,000 crystals silently and permanently.
 
 ---
 
 ## Fixtures
 
 [`src/core/save/fixtures/`](../src/core/save/fixtures/) holds one JSON save per historical
-version — `v0.json` through `v6.json` — and
+version — currently just `v0.json` — and
 [`fixtures.spec.ts`](../src/core/save/fixtures.spec.ts) migrates every one of them to current.
 
-`v1.json` is what the coverage assertion in that spec was left in place for: it fired the moment
-`SAVE_VERSION` first moved, which is exactly the job it had. `v0.json` exercises the chain rather
-than only the repair pass, and the newest fixture pins what a current save actually looks like —
-including a worn piece, an unaligned piece, and a mint counter deliberately ahead of the bag, so the
-"a counter that has fallen behind the ids in use" repair has something to read.
+The coverage assertion in that spec is what the file is worth having for while there is nothing to
+chain: it is vacuous at a one-version baseline, and it fired the moment `SAVE_VERSION` first moved
+off zero, which is exactly the job it had. `v0.json` otherwise pins what a current save looks like.
 
-⚠️ **A fixture for the newest version should store values a default would not produce.** `v6.json`
-carries a mid-cycle `legendaryPity` for this reason: a fixture storing the empty value passes
+⚠️ **A fixture should store values a default would not produce.** `v0.json` carries a mid-cycle
+`legendaryPity`, a worn loadout, an unaligned piece, a mint counter deliberately ahead of the bag,
+and a retired achievement track alongside a live one. A fixture storing the empty value passes
 identically whether the decoder reads the field or silently defaults it, which is precisely the
-distinction the fixture exists to make. The same trap waits for every additive migration, because
-the empty value is the obvious thing to write.
+distinction it exists to make — and the empty value is always the obvious thing to write.
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a
 version is a chain nobody has proved works from that version. The coverage assertion in that spec

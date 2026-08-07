@@ -142,9 +142,9 @@ describe('newGame', () => {
   });
 
   it('carries the current save version so migrations always have a floor', () => {
-    // Against `SAVE_VERSION` rather than a literal floor: the chain was re-based to a v0 baseline
-    // when the game was still pre-release, so "at least 1" stopped being true without anything
-    // about the rule changing.
+    // Against `SAVE_VERSION` rather than a literal floor: the chain has been re-based to a v0
+    // baseline twice while the game was still pre-release, so any literal written here has twice
+    // stopped being true without anything about the rule changing.
     expect(newGame({ seed: SEED, nowMs: T0 }).version).toBe(SAVE_VERSION);
   });
 });

@@ -349,7 +349,9 @@ describe('fromSaveData repair', () => {
   });
 
   it('always returns a state stamped at the current version', () => {
-    expect(fromSaveData({ version: 1 }, OPTIONS).state.version).toBe(SAVE_VERSION);
+    // Derived rather than written down, so this keeps meaning "a version that is not the current
+    // one" however the chain moves.
+    expect(fromSaveData({ version: SAVE_VERSION + 1 }, OPTIONS).state.version).toBe(SAVE_VERSION);
   });
 
   describe('the gear mint counter', () => {

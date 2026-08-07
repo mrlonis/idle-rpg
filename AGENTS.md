@@ -356,27 +356,32 @@ the two disagree, the code is right and both are stale.
   Send". The failure is loud on screen and silent at authoring time. The same trap waits for any
   class a component assumes is global.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 6**: v0 → v1 added gear in milestone 12, v1 → v2 shifted every
-  stored rarity by two when the ladder grew a bottom, milestone 14b added the achievement
-  ledger (v2 → v3), the quest windows (v3 → v4) and the bounty board (v4 → v5), and v5 → v6 added
-  the legendary pity counter. All but v1 → v2 are
-  additive and cheap for the same reason — every counter or field they read was already stored.
-  - ⚠️ **The version burn is spent.** The v0 re-base freed numbers 1–5 and **all five have been
-    re-issued**, so no number below `SAVE_VERSION` still means "pre-baseline". A save is unreadable
-    now only by being _newer_ than this build. Any test for that case must **derive** its version
-    from `SAVE_VERSION`, never write a literal — that fixture went stale twice in one milestone.
-    **v6 is the first number past that range** and so the first whose value has only ever meant one
-    thing; that is the burn being over rather than a new rule.
-  - ⚠️ **An additive migration's fixture must store a value the default would not produce.**
-    `v6.json` carries a mid-cycle `legendaryPity` because a fixture holding the empty value passes
-    identically whether the decoder reads the field or silently defaults it — which is the one
-    distinction the fixture exists to make. The empty value is the obvious thing to write, so this
-    trap waits for every additive step.
-  - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
-    that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
-    demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only
-    evidence the shift ran. **Inserting a rung anywhere but the top of `RARITIES` is a save
-    migration, not a content edit.**
+  fixtures. **`SAVE_VERSION` is 0 and the migration table is empty.** The chain has been re-based
+  twice: five pre-release versions and four migrations the first time, and the six that accumulated
+  on top of that baseline the second — gear (v0 → v1), the ladder's new bottom (v1 → v2), the
+  achievement ledger, the quest windows, the bounty board and the legendary pity counter. Every
+  field they wrote is simply part of the baseline shape now.
+  - ⚠️ **A re-base is licensed by one argument and nothing else: no save any of those versions
+    wrote has ever existed outside development.** The rule it suspends is scoped rather than
+    softened — _never delete or edit a migration once a build carrying it has reached a player_ —
+    and the moment one does, the chain is permanent and the next version is 1 forever.
+  - ⚠️ **The re-base spent the version numbers twice.** 1 through 6 have each meant two different
+    things and now mean neither, so a save at any of them reads as _newer than this build_ and is
+    discarded rather than repaired. Discarding is the safe direction and still a run nothing can
+    recover. A save is unreadable now only by being newer or by carrying a version that is not a
+    non-negative integer; **any test for that case must derive its version from `SAVE_VERSION`,
+    never write a literal** — that fixture went stale twice while the chain was growing, and the
+    re-base has now made every such literal wrong again.
+  - ⚠️ **A fixture must store a value the default would not produce.** `v0.json` carries a
+    mid-cycle `legendaryPity`, a worn loadout and a mint counter ahead of the bag, because a fixture
+    holding the empty value passes identically whether the decoder reads the field or silently
+    defaults it — the one distinction the fixture exists to make. The empty value is always the
+    obvious thing to write.
+  - ⚠️ **The deleted rarity shift is the one worth remembering.** It changed no field, only what one
+    _means_, which makes it the shape nothing structural can verify: an unmigrated save parses
+    cleanly, validates cleanly and demotes the entire roster two rungs. **Inserting a rung anywhere
+    but the top of `RARITIES` is a save migration, not a content edit** — the re-base removed the
+    code, not the rule.
   - **Player settings are a second key, not a field on the save**, since milestone 13. A
     preference describes the app; a save describes a run. Keeping them apart is what lets a run
     reset leave the battle speed alone, and it keeps every future setting from being a
@@ -513,19 +518,19 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 6.** Five versions and four migrations were collapsed into a v0 baseline
-    while the game was pre-release, on the one argument that licenses it: no save any of them wrote
-    has ever existed outside development. [saves](docs/saves.md) records the reset and the condition
-    — a player loading a save — that closes the door on repeating it. The chain walker was kept and
-    tested against a synthetic history through the whole v0 era so that the first real migration
-    would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
-  - ⚠️ **The reset burned version numbers and v1 through v5 have all re-issued one.** The old v1
-    was milestone 1's gold counter, v2 combat progression, v3 the rate table and v4 the formation;
-    this v1 is the gear schema, this v2 is the ladder's new bottom, this v3 is the achievement
-    ledger, this v4 is the quest windows and this v5 is the bounty board. Nothing can tell any pair
-    apart from the number alone. Safe only because no save carrying the old meaning exists outside
-    development — **not safe in general**, and the cost of re-basing that is easiest to forget.
-    **v6 is the first number clear of it.**
+  - **`SAVE_VERSION` is 0, and the table is empty.** Two re-bases collapsed eleven versions and ten
+    migrations into this one shape, both on the one argument that licenses it: no save any of them
+    wrote has ever existed outside development. [saves](docs/saves.md) records the resets and the
+    condition — a player loading a save — that closes the door on repeating them. **The chain walker
+    survived both**, tested against a synthetic history the whole time so that the first real
+    migration would land on proven code; that is exactly how gear's v0 → v1 landed, and it worked
+    first time.
+  - ⚠️ **The re-bases burned version numbers 1 through 6, twice each.** The old v1 was milestone 1's
+    gold counter and the second v1 was the gear schema; the old v3 was the rate table and the second
+    v3 was the achievement ledger. Nothing can tell any pair apart from the number alone, so a save
+    at one of them is treated as newer than this build and discarded. Safe only because no save
+    carrying either meaning exists outside development — **not safe in general**, and the cost of
+    re-basing that is easiest to forget.
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a

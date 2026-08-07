@@ -17,19 +17,19 @@ import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 /**
  * Regression cover for a real save-corrupting bug, kept pointed at what still does that job.
  *
- * The `v2 → v3` migration carried `goldPerSec` into the wallet's gold rate and started xp,
+ * A long-deleted migration carried `goldPerSec` into the wallet's gold rate and started xp,
  * essence and summons at zero. A player returning from a pre-gacha build watched their gold tick
  * up while nothing else moved, and the only way to switch the other three on was to re-fight a
  * stage they had already beaten — which then also paid a first-clear bonus it should not have,
  * because the same migration undercounted `clearedStages` at the top of the ladder.
  *
- * **That migration no longer exists.** The chain was re-based to a v0 baseline while the game was
- * pre-release, so the specific save that produced the bug is now discarded rather than repaired.
- * `reconcileClearedStages` did not go with it, because the *shape* of damage it fixes has nothing
- * to do with migrations: a save whose rates say it climbed further than its clear count admits is
- * repairable from the rates alone, and the rule underneath it — crediting a stage and paying for
- * it are the same operation — is what stops crystals disappearing silently. So these tests seed
- * that damage directly instead of arriving at it through a migration.
+ * **That migration no longer exists.** The chain has twice been re-based to a v0 baseline while the
+ * game was pre-release, so the specific save that produced the bug is now discarded rather than
+ * repaired. `reconcileClearedStages` did not go with it, because the *shape* of damage it fixes has
+ * nothing to do with migrations: a save whose rates say it climbed further than its clear count
+ * admits is repairable from the rates alone, and the rule underneath it — crediting a stage and
+ * paying for it are the same operation — is what stops crystals disappearing silently. So these
+ * tests seed that damage directly instead of arriving at it through a migration.
  *
  * They run against a real browser rather than a unit fake because the failure was in the *load
  * path*: decode, repair and the game loop composing correctly. The unit tests pin each piece;
@@ -120,13 +120,19 @@ test.describe('recovering a save whose clear count was lost', () => {
   /**
    * A run parked on stage 24 earning stage 24's income, with its clear count at zero.
    *
-   * The exact state the `v2 → v3` migration used to produce, seeded directly now that the
-   * migration is gone: rates that say the ladder was climbed, and a counter that says none of it
-   * was ever credited or paid for.
+   * The exact state the old migration used to produce, seeded directly now that the migration is
+   * gone: rates that say the ladder was climbed, and a counter that says none of it was ever
+   * credited or paid for.
+   *
+   * ⚠️ **Damaged in that one way and healthy in every other**, which is what keeps these tests
+   * about `reconcileClearedStages`. A field left out is damage too — a missing `alloy` or
+   * `gearMinted` is a reported repair issue, and the home screen draws a banner for those — so a
+   * fixture that only half fills the current shape quietly tests the recovery banner as well as
+   * the thing it names.
    */
-  const v2AtTheTop = {
+  const lostItsClearCount = {
     version: 0,
-    wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
+    wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
     rates: { gold: String(top.rates.gold), xp: '0', essence: '0', summons: '0' },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
@@ -135,19 +141,29 @@ test.describe('recovering a save whose clear count was lost', () => {
     clearedStages: 0,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0 },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0 },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
     formation: { front: ['bran', 'mira'], back: ['rin'] },
     pity: 0,
+    legendaryPity: 0,
     pullCount: 0,
+    gear: [],
+    gearMinted: 0,
+    gearShop: { slot: 0, purchased: [] },
+    achievements: {},
+    quests: {
+      daily: { index: -1, baseline: {}, claimed: [] },
+      weekly: { index: -1, baseline: {}, claimed: [] },
+    },
+    dispatches: [],
   };
 
   test('restores every idle rate the run had already earned', async ({ page }) => {
     // The reported symptom: gold accumulating, nothing else. The surviving gold rate is enough
     // to know how far the run got, so none of this should need a fight to come back.
-    await seedSave(page, v2AtTheTop);
+    await seedSave(page, lostItsClearCount);
     await page.goto('');
 
     await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
@@ -162,7 +178,7 @@ test.describe('recovering a save whose clear count was lost', () => {
     // Marking those stages cleared without paying them would close the door for good —
     // `applyBattleResult` would never pay them either. A run that beat the whole ladder is owed
     // every bonus on it, the same as a new player earns for climbing the same stages.
-    await seedSave(page, v2AtTheTop);
+    await seedSave(page, lostItsClearCount);
     await page.goto('');
 
     await expect(amountOf(page, 'Crystals')).toHaveText(shownAmount(owedCrystals));
@@ -171,7 +187,7 @@ test.describe('recovering a save whose clear count was lost', () => {
   test('leaves enough crystals to actually pull', async ({ page }) => {
     // The symptom underneath the symptom: a returning player with a fully cleared ladder could
     // not afford a single ten-pull, because none of the bonuses had ever been paid.
-    await seedSave(page, v2AtTheTop);
+    await seedSave(page, lostItsClearCount);
     await page.goto('');
 
     await page.getByRole('link', { name: 'Town' }).click();
@@ -182,7 +198,7 @@ test.describe('recovering a save whose clear count was lost', () => {
 
   test('keeps the gold balance and the stage the run was on', async ({ page }) => {
     // Repair must not cost the player anything it was meant to give back.
-    await seedSave(page, v2AtTheTop);
+    await seedSave(page, lostItsClearCount);
     await page.goto('');
 
     await expect(amountOf(page, 'Gold')).toHaveText('1.5M');
@@ -193,7 +209,7 @@ test.describe('recovering a save whose clear count was lost', () => {
 
   test('leaves a save written by this build alone on the second load', async ({ page }) => {
     // The repair runs on every load, so a healthy save has to pass through unchanged.
-    await seedSave(page, v2AtTheTop);
+    await seedSave(page, lostItsClearCount);
     await page.goto('');
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
 
@@ -215,7 +231,7 @@ test.describe('re-fighting a cleared stage', () => {
    */
   const clearedEverything = {
     version: 0,
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0' },
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
     rates: {
       gold: String(atTheTop.rates.gold),
       xp: String(atTheTop.rates.xp),
@@ -229,13 +245,23 @@ test.describe('re-fighting a cleared stage', () => {
     clearedStages: CLEARS,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0 },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0 },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0 },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
     formation: { front: ['bran', 'mira'], back: ['rin'] },
     pity: 0,
+    legendaryPity: 0,
     pullCount: 0,
+    gear: [],
+    gearMinted: 0,
+    gearShop: { slot: 0, purchased: [] },
+    achievements: {},
+    quests: {
+      daily: { index: -1, baseline: {}, claimed: [] },
+      weekly: { index: -1, baseline: {}, claimed: [] },
+    },
+    dispatches: [],
   };
 
   test('pays the lump but never a second first-clear bonus', async ({ page }) => {
@@ -283,25 +309,26 @@ test.describe('re-fighting a cleared stage', () => {
 /**
  * What happens to a save this build cannot read at all.
  *
- * ⚠️ **The behaviour reversed with the v0 reset, and this is where it is pinned.** An unreadable
- * save used to leave the game playable and permanently unable to write, on the grounds that the
- * bytes might belong to a newer build and would be good again after an update. That protects a
- * downgrade and strands everybody else, so it went: the run starts fresh and saves over it.
+ * ⚠️ **The behaviour reversed with the first re-base, and this is where it is pinned.** An
+ * unreadable save used to leave the game playable and permanently unable to write, on the grounds
+ * that the bytes might belong to a newer build and would be good again after an update. That
+ * protects a downgrade and strands everybody else, so it went: the run starts fresh and saves over
+ * it.
  *
- * ⚠️ **This used to seed a pre-baseline version, and there is no longer one to seed.** The reset
- * burned numbers 1 through 5, and each migration since has re-issued one — v3 was pre-baseline
- * until milestone 14 made it the achievement ledger, and v5 until the same milestone made it the
- * bounty board. **All five are now spent**, so the only way a save can be unreadable is by being
- * *newer* than this build.
+ * ⚠️ **This used to seed a pre-baseline version, and there is no longer one to seed.** The chain
+ * has been folded into a single v0 twice over, so every number a save could carry is either the
+ * baseline itself or above it — and the only way a save can be unreadable is by being *newer* than
+ * this build.
  *
  * The version is therefore **derived from `SAVE_VERSION`** rather than written down. That is what
- * stops this fixture going stale a third time: the previous two versions of this comment both
- * named a literal that a later migration quietly turned into a live version, and the test failed
- * only because the *behaviour* changed — it could just as easily have kept passing while testing
- * nothing.
+ * stops this fixture going stale a third time: two earlier versions of this comment each named a
+ * literal that a later migration quietly turned into a live version, and the test failed only
+ * because the *behaviour* changed — it could just as easily have kept passing while testing
+ * nothing. The re-base has now made every such literal wrong again, which is the argument holding
+ * rather than an accident.
  */
 test.describe('a save this build cannot read', () => {
-  const beforeTheBaseline = {
+  const newerThanThisBuild = {
     version: SAVE_VERSION + 1,
     wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0' },
     rates: { gold: '90', xp: '0', essence: '0', summons: '0' },
@@ -317,7 +344,7 @@ test.describe('a save this build cannot read', () => {
   };
 
   test('starts a fresh run and says why', async ({ page }) => {
-    await seedSave(page, beforeTheBaseline);
+    await seedSave(page, newerThanThisBuild);
     await page.goto('');
 
     await expect(page.getByRole('alert')).toContainText('save could not be read');
@@ -335,7 +362,7 @@ test.describe('a save this build cannot read', () => {
     // Asserted against the storage slot rather than by reloading, because `seedSave` uses
     // `addInitScript` — which re-runs on every navigation, so a reload would put the bad save
     // straight back and prove nothing.
-    await seedSave(page, beforeTheBaseline);
+    await seedSave(page, newerThanThisBuild);
     await page.goto('');
     await expect(page.getByRole('alert')).toBeVisible();
 
@@ -352,8 +379,8 @@ test.describe('a save this build cannot read', () => {
     const saved = JSON.parse(written ?? '{}') as Record<string, unknown>;
 
     // Read off the constant rather than typed, so bumping the schema re-runs this rather than
-    // leaving it asserting a version the build stopped writing. Milestone 12's v1 is what made
-    // that difference real.
+    // leaving it asserting a version the build stopped writing. The version has moved off zero and
+    // back to it since, which is what made that difference real twice.
     expect(saved['version']).toBe(SAVE_VERSION);
     expect(saved['chapter']).toBe(1);
     expect(saved['stage']).toBe(2);

@@ -345,7 +345,8 @@ describe('parseAchievements', () => {
   });
 
   it('reads a missing ledger as nothing claimed, without reporting it as damage', () => {
-    // A v2 save has no such field, and a migrated one arrives with `{}`. Neither is an error.
+    // A save written before the ledger existed has no such field, and a fresh run arrives with
+    // `{}`. Neither is an error.
     const issues: string[] = [];
 
     expect(parseAchievements(undefined, (field) => issues.push(field))).toEqual({});

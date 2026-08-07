@@ -71,8 +71,9 @@ function toCombatSpeed(value: unknown): PlaybackSpeed {
  * has never heard of simply defaults. That subsumes both directions of migration for free, and a
  * version number would only be a number nothing consults.
  *
- * The bar for revisiting this is a setting whose old and new meanings **collide** at the same key
- * — which is exactly the trap `SAVE_VERSION` 1 records for the save chain. Add a new key instead.
+ * The bar for revisiting this is a setting whose old and new meanings **collide** at the same key —
+ * exactly the trap the save chain records against `RARITIES`, where a stored index kept its shape
+ * and changed what it denoted. Add a new key instead.
  */
 @Service()
 export class SettingsService {

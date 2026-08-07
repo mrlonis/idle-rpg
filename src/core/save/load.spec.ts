@@ -61,11 +61,11 @@ describe('loadSave', () => {
   });
 
   it('reports a fatal error and a fresh run for a version this build cannot reach', () => {
-    // ⚠️ **This used to seed a pre-baseline version and no longer can.** The five pre-release
-    // schema versions were collapsed into v0, and milestone 14 re-issued the last of the numbers
-    // they had used — so a save is unreadable now only by being *newer* than this build. The
-    // behaviour under test is unchanged: a fresh run, and since the v0 reset the caller writes
-    // over it rather than leaving the game unable to save.
+    // ⚠️ **This used to seed a pre-baseline version and no longer can.** The chain has twice been
+    // collapsed into a single v0 — five pre-release versions, then the six that grew on top of
+    // them — so a save is unreadable now only by being *newer* than this build. The behaviour
+    // under test is unchanged: a fresh run, and since the re-base the caller writes over it rather
+    // than leaving the game unable to save.
     const result = loadSave({ version: SAVE_VERSION + 1, wallet: {} }, OPTIONS);
 
     expect(result.fatal).toBeDefined();

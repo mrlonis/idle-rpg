@@ -41,8 +41,12 @@ import { CHARACTER_TIERS, type CharacterTier } from '../growth';
  * ⚠️ **This array's indices are written into every save**, as `OwnedCharacter.rarity`. Inserting
  * a rung anywhere but the top renumbers every rung above it, which turns every stored rarity
  * into a claim about a different rung — silently, and in the player's favour or against it
- * depending on the direction. That is what `migrateV1ToV2` exists for; a future insert needs
- * the same treatment and is not a `data/` edit.
+ * depending on the direction. An insert is therefore a **save migration**, not a `data/` edit, and
+ * the migration it needs is the dangerous kind: no field changes shape, so an unmigrated save
+ * parses cleanly, validates cleanly and demotes the whole roster. The two rungs below `rare` went
+ * in exactly this way and had a migration written for them; that migration has since been folded
+ * into the v0 baseline along with every other — see [saves](../../../docs/saves.md) — which removes
+ * the code, not the rule.
  */
 export const RARITIES = [
   'common',
