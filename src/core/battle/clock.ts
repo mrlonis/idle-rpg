@@ -58,6 +58,64 @@ export const BATTLE_TICK_MS = 100;
  */
 export const MAX_BATTLE_TICKS = 900;
 
+/**
+ * ⚠️ When damage starts climbing, and how fast — the termination argument the MP pool used to be.
+ *
+ * Milestone 8b deleted the pool that guaranteed a fight against a healer resolves, and left that
+ * job resting **entirely** on {@link MAX_BATTLE_TICKS}. A timer is not a termination argument: it
+ * is what fires when one is missing. The difference is visible on a results screen — a party at
+ * 52% health against a lone enemy at 10% is *winning*, and a clock that hands it a defeat is
+ * reporting the simulation's failure to resolve as the player's failure to fight.
+ *
+ * Past {@link PRESSURE_AFTER_TICKS}, every damage instance is multiplied by a factor rising
+ * {@link PRESSURE_PER_TICK} each tick. **Healing is deliberately not amplified**, which is the
+ * whole of the mechanism: any closed sustain loop — a lone healer topping itself up, a shield
+ * recast faster than it lapses, two supports grinding against each other — is broken by damage
+ * that grows without bound while the heal that answered it does not. HP is finite, so every fight
+ * now ends because somebody died.
+ *
+ * ## What this is *not*
+ *
+ * It is not a difficulty knob, and it is not the genre's enrage-as-punishment. It applies to
+ * **both sides equally**, so it decides nothing about who wins — it only decides that somebody
+ * does. A fight the party was going to lose still loses, sooner.
+ *
+ * ## Why the threshold is 500 and not lower
+ *
+ * ⚠️ **Every fight that resolves inside fifty seconds is bit-identical to what it was before this
+ * existed**, which is what let the whole shipped ladder keep its tuning through the milestone-14
+ * retune. The longest *cleared* fight the balance sweep has is comfortably under the mark, so this
+ * reaches only the fights that were already failing to resolve. Lowering it would start
+ * re-tuning content that is not asking to be re-tuned; the sweep's headroom assertion is what
+ * would say so.
+ *
+ * The ramp is linear rather than geometric because linear is already unbounded — which is all
+ * termination needs — and it is far easier to read off a log: at the timer the multiplier is
+ * exactly ×3.
+ *
+ * It preserves the whole-board rescale identity, which is the one property that had to survive.
+ * The factor is a function of the **tick** alone, so scaling both sides by the same constant
+ * leaves every hit landing in the same order on the same tick, exactly as before.
+ */
+export const PRESSURE_AFTER_TICKS = 500;
+
+/** How much of the base multiplier damage gains per tick past {@link PRESSURE_AFTER_TICKS}. */
+export const PRESSURE_PER_TICK = 0.02;
+
+/**
+ * The damage multiplier in force at `tick`, which is 1 for the first fifty seconds of every fight.
+ *
+ * Clamps a damaged or non-finite tick to the neutral multiplier rather than propagating it: this
+ * feeds a `Numeric` multiplication, and a `NaN` there silently poisons every HP comparison
+ * downstream.
+ */
+export function pressureAt(tick: number): number {
+  if (!Number.isFinite(tick)) {
+    return 1;
+  }
+  return 1 + Math.max(tick - PRESSURE_AFTER_TICKS, 0) * PRESSURE_PER_TICK;
+}
+
 /** Converts a tick count into game milliseconds. */
 export function ticksToMs(ticks: number): number {
   return ticks * BATTLE_TICK_MS;

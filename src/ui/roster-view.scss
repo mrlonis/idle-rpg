@@ -337,10 +337,13 @@
   font-weight: 600;
 }
 
-// A carried level, in the accent the resonance panel above already uses for the floor itself.
-// The word does the work; the colour only ties it back to where the number came from.
+// A carried level, in a hue of its own. It used to borrow $accent to tie itself back to the
+// resonance panel above, and that stopped working when the bottom of both ladders went green:
+// this word sits inches from a `common` tier chip and a `Common` rarity in the same line, so a
+// third green read as one more statement about the character rather than as a note about the
+// number beside it. The word does the work; the colour only separates it.
 .roster__carried {
-  color: t.$accent;
+  color: t.$carried;
   font-weight: 600;
 }
 
@@ -379,19 +382,7 @@
   font-size: 0.9375rem;
 }
 
-// Available to assistive tech, invisible on screen. Not `display: none`, which removes it from
-// the accessibility tree along with everything else.
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
+@include t.visually-hidden;
 
 @include t.rarity-palette;
 @include t.tier-palette;

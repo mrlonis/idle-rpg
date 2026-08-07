@@ -1,0 +1,144 @@
+<header class="head">
+  <!-- Town is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/town">← Town</a>
+  <h1 class="head__title">Altar</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ readyCount() }}</span>
+    <span class="head__unit">ready</span>
+  </p>
+</header>
+
+<p class="intro">
+  A rung costs spare copies of the character climbing it and nothing else. Only spares are ever
+  consumed — never the character you have levelled.
+</p>
+
+<button type="button" class="ascend-all" [disabled]="readyCount() === 0" (click)="ascendAll()">
+  Ascend all
+</button>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<section class="group" aria-labelledby="ready-heading">
+  <h2 class="group__title" id="ready-heading">
+    Ready
+    @if (readyCount() > 0) {
+      <span class="group__count">{{ readyCount() }}</span>
+    }
+  </h2>
+
+  @if (readyCount() === 0) {
+    <p class="group__empty">
+      Nobody is holding enough spare copies yet. Duplicates are the ascension path, so summoning is
+      what fills this in.
+    </p>
+  } @else {
+    <ul class="characters">
+      @for (row of ready(); track row.defId) {
+        <!--
+          `tabindex="-1"` so a link from a character sheet can move focus here without putting
+          every row of the roster into the tab order. `data-def-id` is what that link is matched
+          against — see the effect in the component.
+        -->
+        <li
+          #rowEl
+          class="character"
+          tabindex="-1"
+          [attr.data-def-id]="row.defId"
+          [class.character--focused]="row.defId === focus()"
+        >
+          <div class="character__identity">
+            <h3 class="character__name">{{ row.name }}</h3>
+            <!--
+              `&ngsp;` between every pair, not decoration: Angular strips whitespace between
+              elements, and without it this announces as "ElvesRareascends toRare+". The gap is
+              drawn by flexbox, so the space is there purely for the accessible name.
+            -->
+            <p class="character__meta">
+              <span>{{ row.factionName }}</span>
+              &ngsp;<span class="dot" aria-hidden="true">·</span> &ngsp;<span
+                class="rarity rarity--{{ row.rarityFamily }}"
+                >{{ row.rarityLabel }}</span
+              >
+              &ngsp;<span class="character__arrow" aria-hidden="true">→</span>
+              <!--
+                Spelled out for assistive tech, because "Rare → Rare+" read aloud is two rungs
+                with nothing between them. Colour is never the only signal here either.
+              -->
+              &ngsp;<span class="visually-hidden">ascends to</span> &ngsp;<span
+                class="rarity rarity--{{ row.nextFamily }}"
+                >{{ row.nextLabel }}</span
+              >
+            </p>
+            <p class="character__copies">
+              <span class="character__count">{{ row.copies }} / {{ row.cost }}</span>
+              spare copies
+            </p>
+          </div>
+
+          <button type="button" class="character__ascend" (click)="ascend(row)">
+            <!--
+              The visible label repeats down the whole list, so the accessible name says who it
+              applies to and where they end up.
+            -->
+            <span class="visually-hidden">Ascend {{ row.name }} to {{ row.nextLabel }}</span>
+            <span aria-hidden="true">Ascend</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<section class="group" aria-labelledby="waiting-heading">
+  <h2 class="group__title" id="waiting-heading">
+    Not yet
+    @if (waiting().length > 0) {
+      <span class="group__count">{{ waiting().length }}</span>
+    }
+  </h2>
+
+  @if (waiting().length === 0) {
+    <p class="group__empty">Everyone you own can climb a rung right now.</p>
+  } @else {
+    <ul class="characters">
+      @for (row of waiting(); track row.defId) {
+        <li
+          #rowEl
+          class="character character--waiting"
+          tabindex="-1"
+          [attr.data-def-id]="row.defId"
+          [class.character--focused]="row.defId === focus()"
+        >
+          <div class="character__identity">
+            <h3 class="character__name">{{ row.name }}</h3>
+            <p class="character__meta">
+              <span>{{ row.factionName }}</span>
+              &ngsp;<span class="dot" aria-hidden="true">·</span> &ngsp;<span
+                class="rarity rarity--{{ row.rarityFamily }}"
+                >{{ row.rarityLabel }}</span
+              >
+              @if (row.nextLabel) {
+                &ngsp;<span class="character__arrow" aria-hidden="true">→</span> &ngsp;<span
+                  class="visually-hidden"
+                  >ascends to</span
+                >
+                &ngsp;<span class="rarity rarity--{{ row.nextFamily }}">{{ row.nextLabel }}</span>
+              }
+            </p>
+            @if (row.maxed) {
+              <p class="character__copies">Fully ascended — further copies convert to spark.</p>
+            } @else {
+              <p class="character__copies">
+                <span class="character__count">{{ row.copies }} / {{ row.cost }}</span>
+                spare copies
+              </p>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

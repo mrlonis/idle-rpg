@@ -30,6 +30,25 @@ export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 const DEFAULT_COMBAT_SPEED: PlaybackSpeed = 1;
 
 /**
+ * Whether the app schedules its two come-back reminders.
+ *
+ * **On by default**, which is a deliberate choice rather than the easy one. The reminders are the
+ * only thing in this app that reaches a player who is not using it, so defaulting them off would
+ * be the safer-sounding option — and it would mean the feature effectively does not exist, since
+ * nobody opens a settings screen to turn on a notification they have never seen. Defaulting on and
+ * making the switch easy to find is the honest version of shipping it.
+ *
+ * ⚠️ It stays a **setting** rather than a constant precisely because of that: a player who does
+ * not want to be interrupted has to have one place to say so, and it must not be buried.
+ */
+const DEFAULT_REMINDERS = true;
+
+/** Coerces a stored value into a boolean, defaulting anything unrecognised. */
+function toReminders(value: unknown): boolean {
+  return typeof value === 'boolean' ? value : DEFAULT_REMINDERS;
+}
+
+/**
  * Coerces a stored value into a speed this build offers.
  *
  * Anything unrecognised — a damaged blob, a speed a later build removed — becomes the default
@@ -52,14 +71,16 @@ function toCombatSpeed(value: unknown): PlaybackSpeed {
  * has never heard of simply defaults. That subsumes both directions of migration for free, and a
  * version number would only be a number nothing consults.
  *
- * The bar for revisiting this is a setting whose old and new meanings **collide** at the same key
- * — which is exactly the trap `SAVE_VERSION` 1 records for the save chain. Add a new key instead.
+ * The bar for revisiting this is a setting whose old and new meanings **collide** at the same key —
+ * exactly the trap the save chain records against `RARITIES`, where a stored index kept its shape
+ * and changed what it denoted. Add a new key instead.
  */
 @Service()
 export class SettingsService {
   private readonly store = inject(KEY_VALUE_STORE);
 
   private readonly combatSpeedState = signal<PlaybackSpeed>(DEFAULT_COMBAT_SPEED);
+  private readonly remindersState = signal<boolean>(DEFAULT_REMINDERS);
 
   /**
    * The speed battles play at.
@@ -68,6 +89,9 @@ export class SettingsService {
    * screen without also reaching the disk.
    */
   readonly combatSpeed = this.combatSpeedState.asReadonly();
+
+  /** Whether the two come-back reminders are scheduled when the app goes to the background. */
+  readonly reminders = this.remindersState.asReadonly();
 
   /**
    * Set once the player has chosen a speed this session, so a slow read cannot undo them.
@@ -118,6 +142,7 @@ export class SettingsService {
       return;
     }
     this.combatSpeedState.set(toCombatSpeed(stored['combatSpeed']));
+    this.remindersState.set(toReminders(stored['reminders']));
   }
 
   private async read(): Promise<Record<string, unknown> | null> {
@@ -147,6 +172,13 @@ export class SettingsService {
     void this.persist();
   }
 
+  /** Turns the come-back reminders on or off, and writes the choice. */
+  setReminders(enabled: boolean): void {
+    this.chosen = true;
+    this.remindersState.set(enabled);
+    void this.persist();
+  }
+
   /**
    * Writes the current settings.
    *
@@ -164,7 +196,10 @@ export class SettingsService {
    * error reporting with it is not.
    */
   private persist(): Promise<void> {
-    const value = JSON.stringify({ combatSpeed: this.combatSpeedState() });
+    const value = JSON.stringify({
+      combatSpeed: this.combatSpeedState(),
+      reminders: this.remindersState(),
+    });
     this.writing = this.writing
       .then(() => this.store.set({ key: SETTINGS_KEY, value }))
       .catch(() => undefined);

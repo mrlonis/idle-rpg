@@ -47,9 +47,29 @@ export const routes: Routes = [
     title: 'Spark Shop — Idle RPG',
   },
   {
+    path: 'town/altar',
+    loadComponent: () => import('../ui/altar-view').then((m) => m.AltarView),
+    title: 'Altar — Idle RPG',
+  },
+  {
     path: 'town/gear-shop',
     loadComponent: () => import('../ui/gear-shop-view').then((m) => m.GearShopView),
     title: 'Gear Shop — Idle RPG',
+  },
+  {
+    path: 'town/quests',
+    loadComponent: () => import('../ui/quests-view').then((m) => m.QuestsView),
+    title: 'Quests — Idle RPG',
+  },
+  {
+    path: 'town/bounties',
+    loadComponent: () => import('../ui/bounties-view').then((m) => m.BountiesView),
+    title: 'Bounty Board — Idle RPG',
+  },
+  {
+    path: 'town/achievements',
+    loadComponent: () => import('../ui/achievements-view').then((m) => m.AchievementsView),
+    title: 'Achievements — Idle RPG',
   },
   {
     path: 'roster',

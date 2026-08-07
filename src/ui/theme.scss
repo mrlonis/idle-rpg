@@ -11,30 +11,54 @@ $page: #12121a;
 $surface: #1e1e2a;
 $surface-raised: #262636;
 $border: #33334a;
-$muted: #a0a0b0; // 7.3:1 on $page, 6.1:1 on $surface
+$muted: #a0a0b0; // 7.2:1 on $page, 6.4:1 on $surface, 5.8:1 on $surface-raised
 $text: #f2f2f7;
-$accent: #4ade80; // 8.4:1 on $accent-bg
+$accent: #4ade80; // 8.2:1 on $accent-bg
 $accent-bg: #143024;
-$danger: #ffb4a8; // 8.1:1 on $danger-bg
+$danger: #ffb4a8; // 9.8:1 on $danger-bg
 $danger-bg: #2a1a1a;
 
 // Tier colours. Each is paired with a text label in the markup — never the sole signal.
-$tier-common: #9fb4d0; // 6.9:1 on $surface
-$tier-legendary: #f0c674; // 9.6:1 on $surface
+//
+// `$tier-common` is also the `sturdy` grade below, referenced rather than repeated. That is the
+// bottom of two different ladders wearing one colour on purpose: a player learns "green is the
+// entry rung" once and it holds on the roster, in the rates table and in the bag. It replaced a
+// desaturated blue-grey that read as *absent* rather than as a rung — which is the failure mode
+// the whole palette exists to avoid, since a colour nobody perceives as a colour is not a signal.
+$tier-common: #7fd1ae; // 9.1:1 on $surface, 8.2:1 on $surface-raised
+$tier-legendary: #f0c674; // 10.2:1 on $surface
 $tier-ascended: #f5eafe; // 14.2:1 on $surface
 
 // Rarity colours: one hue per family, so `Rare` and `Rare+` read as the same kind of thing and
 // the label's own suffix carries the step within it. Ratios are quoted against $surface and
 // $surface-raised, the two backgrounds a rarity is ever drawn on.
 //
-// Legendary and Ascended deliberately share the tier tokens above. Tier and rarity are separate
-// axes — `types.ts` goes to some length to keep them apart — so this is the one place they are
-// allowed to look alike, and it is a decision rather than an accident.
+// Common, Legendary and Ascended deliberately share the tier tokens above. Tier and rarity are
+// separate axes — `types.ts` goes to some length to keep them apart — so this is the one place
+// they are allowed to look alike, and it is a decision rather than an accident.
+//
+// ⚠️ **There are six families and there must be six entries here.** `RARITY_FAMILIES` grew
+// `common` when the ladder grew a bottom, and this block was not extended with it — so
+// `.rarity--common` matched no rule at all and four screens drew the bottom rung in plain body
+// text. Nothing failed: an unstyled rarity is legible, correct, and invisible as a signal. A
+// family added here late is the same bug again, and the only cheap guard is that this list and
+// `RARITY_FAMILIES` are the same length.
+$rarity-common: $tier-common; // 9.1:1 / 8.2:1
 $rarity-rare: #6cb6ff; // 7.7:1 / 6.9:1
 $rarity-elite: #c08cf5; // 6.5:1 / 5.9:1
 $rarity-legendary: $tier-legendary; // 10.2:1 / 9.2:1
 $rarity-mythic: #ff7b72; // 6.5:1 / 5.9:1
 $rarity-ascended: $tier-ascended; // 14.2:1 / 12.8:1
+
+// A level a character did not pay for — the resonance floor carrying it. Its own hue rather than
+// a borrowed one, because it annotates a level *beside* a tier and a rarity in the same roster
+// line, so anything it borrowed would read as a fourth claim about the same character.
+//
+// 320°, which is the middle of the only span this palette leaves empty: elite sits at 270° and
+// mythic at 4°, and everything else is packed into the 40°–270° arc. Warm was the obvious first
+// instinct and is the one hue that was already taken — amber at 40° is legendary tier, legendary
+// rarity *and* relic gear, and it renders on the very same row.
+$carried: #f0a3d6; // 8.6:1 on $surface
 
 // The smallest comfortable touch target. Above the 44px floor because these are thumb targets
 // on a phone, not pointer targets.
@@ -88,6 +112,30 @@ $tap-target: 2.75rem;
   font-variant-numeric: tabular-nums;
 }
 
+// Available to assistive tech, invisible on screen.
+//
+// ⚠️ **Not `display: none`**, which removes the element from the accessibility tree along with
+// everything else — the whole point here is that a screen reader still reads it.
+//
+// A mixin rather than a global class for the same reason the palettes below are: Angular scopes
+// component styles, so a screen that writes `class="visually-hidden"` without this included gets
+// **no rule at all** and renders the text inline. That is not a subtle failure — it puts "Choose a
+// crew for Village Errand Send" on a button — but it is a silent one at authoring time, and it
+// shipped exactly once before this moved out of a single component's stylesheet.
+@mixin visually-hidden {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
 // The rarity palette as a block, for the four screens that show a rarity. Angular scopes
 // component styles, so a shared mixin is the only way to write these once — the same reason
 // the palette itself lives here rather than in a global stylesheet.
@@ -115,6 +163,10 @@ $tap-target: 2.75rem;
 }
 
 @mixin rarity-palette {
+  .rarity--common {
+    color: $rarity-common;
+  }
+
   .rarity--rare {
     color: $rarity-rare;
   }
@@ -138,32 +190,44 @@ $tap-target: 2.75rem;
 
 // Gear grade colours. One hue per rung of the grade ladder, ascending.
 //
-// Shared rather than declared per component because two screens draw a grade — the bag and the
-// character sheet's equipment panel — and a ladder whose colours disagreed between them would be
-// worse than no colour at all. Angular scopes component styles, so this is `@use`d rather than
-// living in a global stylesheet.
+// Shared rather than declared per component because three screens draw a grade — the bag, the gear
+// shop, and the character sheet's equipment panel — and a ladder whose colours disagreed between
+// them would be worse than no colour at all. Angular scopes component styles, so this is `@use`d
+// rather than living in a global stylesheet.
 //
 // Every one is paired with the grade's **name** in the markup. Colour is never the only carrier of
 // meaning here, which is the rule the whole palette is built on: a player who cannot distinguish
 // these still reads "Masterwork".
 //
-// Deliberately distinct from the rarity tokens above. A grade and a rarity are different ladders —
-// see docs/glossary.md, which goes to some length to keep them apart — so `relic` shares a hue with
-// `legendary` only because gold is what the top of a ladder looks like, not because they mean the
-// same thing.
+// A grade and a rarity are different ladders — see docs/glossary.md, which goes to some length to
+// keep them apart — but they are drawn in one colour language on purpose, because a player reading
+// a screen is asking "how far up is this" and should not have to know which ladder they are on to
+// answer it. Four of the five rungs already are the rarity hues: `sturdy`/`common` green,
+// `fine`/`rare` blue, `masterwork`/`elite` purple, `relic`/`legendary` gold. `worn` is the one
+// grade with nothing below `common` to match, and takes $muted.
 //
-// Ratios are quoted against $surface, the only background a grade name is drawn on.
+// ⚠️ **`sturdy` references `$tier-common`; the other three still repeat a literal.** Only the one
+// the ladders were explicitly aligned on is wired, so retuning it moves both together. The rest
+// match by measurement, not by construction — do not read their agreement as a guarantee, and do
+// not assume changing a rarity token above will move a grade.
+//
+// Ratios are quoted against $surface and $surface-raised, in that order — the same pairing the
+// rarity block uses, and for the same reason: a grade name is drawn on both. The bag's items, the
+// gear shop's offers and the character sheet's picker options are all `$surface`; the character
+// sheet's equipment slot rows are `$surface-raised`. This block used to quote one figure each and
+// name `$surface` as "the only background a grade name is drawn on", which was wrong twice over —
+// the slot rows are raised, and three of the five figures were the raised ones anyway.
 $grades: (
   'worn': #a0a0b0,
-  // 6.1:1
-  'sturdy': #7fd1ae,
-  // 7.9:1
+  // 6.4:1 / 5.8:1
+  'sturdy': $tier-common,
+  // 9.1:1 / 8.2:1
   'fine': #6cb6ff,
-  // 6.9:1
+  // 7.7:1 / 6.9:1
   'masterwork': #c08cf5,
-  // 5.9:1
+  // 6.5:1 / 5.9:1
   'relic': #f0c674,
-); // 9.6:1
+); // 10.2:1 / 9.2:1
 
 // Emits `.grade` and one `.grade--<id>` per rung. Used by any screen that names a grade.
 @mixin grade-colours {

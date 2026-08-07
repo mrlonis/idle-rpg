@@ -10,12 +10,17 @@ import {
   type GearRulesData,
   type GearStat,
   alloyStep,
+  type ChapterCurveData,
+  type ChapterData,
   goldStep,
   gradeWeights,
   maxGearLevel,
   maxLoadoutBonus,
+  resolveLadder,
+  type StageRewardCurveData,
+  unlockedGrades,
 } from '../core';
-import { STAGE_REWARDS } from './chapters';
+import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
 import { GEAR_RULES } from './gear';
 
@@ -32,6 +37,18 @@ const RULES: GearRulesData = GEAR_RULES;
 
 /** The top grade, fully enhanced — the strongest a piece can ever be. */
 const TOP_GRADE = RULES.grades.length - 1;
+
+/**
+ * How many stages this build ships, resolved the way `ui/content.ts` resolves them.
+ *
+ * Derived rather than written down, because the unlock gates are asserted against it: a gate past
+ * the end of the ladder is a grade no player can reach, and hardcoding 100 here would let a
+ * shortened ladder delete a grade silently. Adding a chapter re-runs these.
+ */
+const chapters: readonly ChapterData[] = CHAPTERS;
+const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
+const rewardCurve: StageRewardCurveData = STAGE_REWARDS;
+const LADDER_LENGTH = resolveLadder(chapters, chapterCurve, rewardCurve).length;
 
 describe('the grade ladder', () => {
   it('gets better on both axes at once, so a rung is worth having twice over', () => {
@@ -53,6 +70,26 @@ describe('the grade ladder', () => {
 
   it('tops out at level 100, which is the ceiling this milestone was given', () => {
     expect(maxGearLevel(RULES, TOP_GRADE)).toBe(100);
+  });
+
+  it('overlaps deliberately: an enhanced piece outgrows a fresh piece of the grade above', () => {
+    // ⚠️ **A settled design decision, asserted so it cannot drift into its opposite by accident.**
+    // The alternative was strict grade dominance — a piece at its cap always losing to a fresh
+    // piece one grade up — and it was measured and declined: at 100 levels per grade it needs each
+    // grade step to exceed the level span, which either multiplies the top of the ladder by ~575x
+    // or flattens enhancement to +0.8% a level. Overlap is what keeps enhancement worth doing.
+    //
+    // Auto-equip does not need dominance and never did: every candidate for a slot shares one
+    // authored profile, so `gearScale` is already a total order over them. See `autoEquip`.
+    for (const [index, grade] of RULES.grades.entries()) {
+      const above = RULES.grades[index + 1];
+      if (above === undefined) {
+        continue;
+      }
+      const atCap = grade.multiplier * (1 + RULES.perLevel * (grade.maxLevel - 1));
+
+      expect(atCap, `${grade.id} at cap vs a fresh ${above.id}`).toBeGreaterThan(above.multiplier);
+    }
   });
 
   it('uses no word the roster’s three rarity ladders already use', () => {
@@ -221,24 +258,65 @@ describe('the drop table', () => {
   it('pays the chapter rhythm, and every win pays something', () => {
     // A pull can never produce nothing, so neither should a fight. A piece that is useless to the
     // party is still alloy.
-    expect(RULES.drops.normal).toBeGreaterThan(0);
-    expect(RULES.drops.miniBoss).toBeGreaterThan(RULES.drops.normal);
-    expect(RULES.drops.boss).toBeGreaterThan(RULES.drops.miniBoss);
+    // ⚠️ Compared floor to floor and ceiling to ceiling. Ranges that *overlap* are the point — an
+    // unlucky boss and a lucky mini-boss can pay the same — but a kind whose guaranteed minimum
+    // or whose best case fell short of the rank below it would break the chapter's rhythm.
+    expect(RULES.drops.normal.min).toBeGreaterThan(0);
+    expect(RULES.drops.miniBoss.min).toBeGreaterThan(RULES.drops.normal.min);
+    expect(RULES.drops.boss.min).toBeGreaterThan(RULES.drops.miniBoss.min);
+    expect(RULES.drops.miniBoss.max).toBeGreaterThan(RULES.drops.normal.max);
+    expect(RULES.drops.boss.max).toBeGreaterThan(RULES.drops.miniBoss.max);
+
+    // Every kind is genuinely ranged rather than a fixed count wearing a range's shape, and no
+    // range is inverted — `dropCount` would silently swallow either.
+    for (const kind of ['normal', 'miniBoss', 'boss'] as const) {
+      expect(RULES.drops[kind].max, kind).toBeGreaterThan(RULES.drops[kind].min);
+    }
   });
 
-  it('leaves the top grade rare but reachable at the very bottom of the ladder', () => {
-    const top = share(gradeWeights(RULES, 1), TOP_GRADE);
-
-    expect(top).toBeGreaterThan(0.002);
-    expect(top).toBeLessThan(0.03);
+  it('opens the ladder one grade wide and never gates the bottom grade', () => {
+    // ⚠️ The property the whole gate rests on. A run at stage 1 sees exactly one grade, so every
+    // piece it finds is comparable to every other; and the bottom grade is reachable everywhere,
+    // so a drop is never a nothing.
+    expect(RULES.grades[0]?.unlockIndex).toBeLessThanOrEqual(1);
+    expect(unlockedGrades(RULES, 1)).toBe(1);
+    expect(share(gradeWeights(RULES, LADDER_LENGTH), 0)).toBeGreaterThan(0);
   });
 
-  it('makes the top grade a find rather than a routine drop by the top of chapter 2', () => {
-    // Not a gate that opens: the whole shipped ladder moves this from roughly one in a hundred to
-    // roughly one in ten, and the bottom grade goes rare rather than impossible.
-    const deep = gradeWeights(RULES, 100);
+  it('unlocks every grade inside the ladder this build actually ships', () => {
+    // ⚠️ **Derived from the shipped chapters rather than written as 100**, which is the rule this
+    // file follows everywhere: a gate authored past the end of the ladder is unreachable content,
+    // and the first version of this idea put four of the five grades behind a chapter 3 that does
+    // not exist. Shortening the ladder has to fail here rather than silently delete a grade.
+    for (const [index, grade] of RULES.grades.entries()) {
+      expect(grade.unlockIndex, `${grade.id} unlocks at ${grade.unlockIndex}`).toBeLessThanOrEqual(
+        LADDER_LENGTH,
+      );
+      expect(unlockedGrades(RULES, grade.unlockIndex), grade.id).toBeGreaterThanOrEqual(index + 1);
+    }
+  });
 
-    expect(share(deep, TOP_GRADE)).toBeGreaterThan(share(gradeWeights(RULES, 1), TOP_GRADE) * 5);
+  it('gates the grades in ladder order, so a better piece never arrives first', () => {
+    const gates = RULES.grades.map((grade) => grade.unlockIndex);
+
+    expect(gates).toEqual([...gates].sort((a, b) => a - b));
+  });
+
+  it('leaves the top grade rare but reachable the moment it unlocks', () => {
+    const gate = RULES.grades[TOP_GRADE]?.unlockIndex ?? 1;
+
+    expect(share(gradeWeights(RULES, gate - 1), TOP_GRADE)).toBe(0);
+    expect(share(gradeWeights(RULES, gate), TOP_GRADE)).toBeGreaterThan(0.002);
+    expect(share(gradeWeights(RULES, gate), TOP_GRADE)).toBeLessThan(0.1);
+  });
+
+  it('makes the top grade a find rather than a routine drop by the end of the ladder', () => {
+    // Once open, the tilt still runs: the remaining stages move it up several-fold, and the bottom
+    // grade goes rare rather than impossible.
+    const gate = RULES.grades[TOP_GRADE]?.unlockIndex ?? 1;
+    const deep = gradeWeights(RULES, LADDER_LENGTH);
+
+    expect(share(deep, TOP_GRADE)).toBeGreaterThan(share(gradeWeights(RULES, gate), TOP_GRADE));
     expect(share(deep, TOP_GRADE)).toBeLessThan(0.2);
     expect(share(deep, 0)).toBeGreaterThan(0.05);
   });

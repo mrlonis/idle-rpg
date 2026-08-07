@@ -16,6 +16,9 @@ export {
   ATB_THRESHOLD,
   BATTLE_TICK_MS,
   MAX_BATTLE_TICKS,
+  PRESSURE_AFTER_TICKS,
+  PRESSURE_PER_TICK,
+  pressureAt,
   ticksToMs,
   ticksUntilReady,
 } from './battle/clock';
@@ -136,6 +139,72 @@ export {
   type StageRewardCurveData,
 } from './ladder';
 export {
+  allProgress,
+  claimAchievements,
+  counterValue,
+  emptyAchievements,
+  parseAchievements,
+  trackProgress,
+  unclaimedReward,
+  type AchievementCounter,
+  type AchievementLedger,
+  type AchievementProgress,
+  type AchievementTrackData,
+  type ClaimResult,
+} from './achievements';
+export {
+  allBountyProgress,
+  awayMembers,
+  benchMembers,
+  boardDayIndex,
+  bountyPayout,
+  bountyProgress,
+  collectBounty,
+  collectReadyBounties,
+  dailyBoard,
+  dispatchBounty,
+  dispatchOf,
+  dispatchOpenBounties,
+  emptyDispatches,
+  isPayoutEmpty,
+  isUnlocked,
+  meetsRequirement,
+  msUntilRotation,
+  parseDispatches,
+  repairDispatches,
+  runningBounties,
+  serializeDispatches,
+  type BountyBoardRulesData,
+  type BountyData,
+  type BountyFailure,
+  type BountyProgress,
+  type BountyRequirement,
+  type BountyResult,
+  type CollectAllResult,
+  type Dispatch,
+  type DispatchAllResult,
+} from './bounties';
+export {
+  allQuestProgress,
+  claimQuests,
+  emptyQuestWindows,
+  emptyWindow,
+  periodIndex,
+  QUEST_PERIODS,
+  questProgress,
+  parseQuestWindows,
+  rollQuestWindows,
+  windowEndsAt,
+  type QuestClaimResult,
+  type QuestCounter,
+  type QuestData,
+  type QuestPeriod,
+  type QuestProgress,
+  type QuestRulesData,
+  type QuestWindow,
+  type QuestWindows,
+} from './quests';
+export {
   accrue,
   canAfford,
   credit,
@@ -162,6 +231,7 @@ export {
 export {
   addGear,
   alloyStep,
+  autoEquip,
   canEnhance,
   enhance,
   enhanceCost,
@@ -179,6 +249,7 @@ export {
   unequip,
   unequippedGear,
   useAsMaterial,
+  type AutoEquipResult,
   type GearFailure,
   type GearResult,
   type GearSpec,
@@ -188,6 +259,7 @@ export {
   gradeWeights,
   rollDrops,
   rollGear,
+  unlockedGrades,
   weightedIndex,
   type Draw,
 } from './gear/roll';
@@ -241,7 +313,7 @@ export {
   type GearStatProfile,
 } from './gear/types';
 export { CHARACTER_TIERS, growthAt, type CharacterTier, type GrowthData } from './growth';
-export { ascendedChance, pull } from './gacha/pull';
+export { ascendedChance, legendaryChance, pull } from './gacha/pull';
 export {
   isEligible,
   offerTargets,
@@ -253,12 +325,21 @@ export {
 export {
   type BannerData,
   type GachaRulesData,
+  type PityCurveData,
   type PityRulesData,
   type PullFailure,
   type PullOutcome,
   type PullResult,
 } from './gacha/types';
-export { ascend, nextAscension, pathFor, type FactionLookup } from './roster/ascend';
+export {
+  ascend,
+  ascendAll,
+  nextAscension,
+  pathFor,
+  type AscensionStep,
+  type AscensionSummary,
+  type FactionLookup,
+} from './roster/ascend';
 export {
   kitSlots,
   nextSkillUnlock,
@@ -364,12 +445,7 @@ export {
   type Migration,
   type RawSave,
 } from './save/migrate';
-export {
-  type AnySaveData,
-  type CurrentSaveData,
-  type SaveDataV0,
-  type SaveDataV1,
-} from './save/schema';
+export { type AnySaveData, type CurrentSaveData, type SaveDataV0 } from './save/schema';
 export {
   fromSaveData,
   toSaveData,

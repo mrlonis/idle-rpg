@@ -45,12 +45,16 @@ const GEAR_FAILURES: Readonly<Record<GearFailure, string>> = {
   'insufficient-currency': 'Not enough alloy or gold.',
 };
 
-/** Why an action was refused, in words a player can act on. */
+/**
+ * Why a levelling action was refused, in words a player can act on.
+ *
+ * Levelling is the only thing this sheet spends on since ascension moved to the Altar, so the
+ * ascension reasons are gone from here rather than kept "just in case" — a message for an outcome
+ * nothing on the screen can produce is a claim about the sheet that stopped being true.
+ */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'insufficient-currency': 'Not enough gold, XP or essence for that level.',
   'level-capped': 'Already at the level cap for this rarity. Ascend to raise it.',
-  'insufficient-copies': 'Not enough spare copies of this character.',
-  'max-rarity': 'Already fully ascended.',
   'not-owned': 'You do not own this character.',
 };
 
@@ -92,9 +96,15 @@ function skillMeter(skill: SkillData): string {
 }
 
 /**
- * One character's sheet: what it is, what it costs to improve, and the two ways to do it.
+ * One character's sheet: what it is, what it costs to improve, and where each of those happens.
  *
- * ## Ascension is one number against one number
+ * ## Ascension is explained here and performed at the Altar
+ *
+ * The panel stayed and its button left. What the panel is good at is the half of a rung that is
+ * *about this character* — the price in its own copies, and which skill the next rung unlocks —
+ * and none of that fits on a list of twenty-three rows. What the button was bad at is being the
+ * only way to ascend: a player holding duplicates of nine characters had nine sheets to open, each
+ * to make a decision with no alternative in it. See `altar-view.ts`.
  *
  * A rung costs spare copies of this character and nothing else, so the price is shown as held
  * against needed and there is nothing to choose.
@@ -318,9 +328,42 @@ export class CharacterView {
   /** Which slot's picker is open, or `null`. One at a time. */
   protected readonly openSlot = signal<GearSlot | null>(null);
 
+  /**
+   * What the last auto-equip did, or `null` before one has been pressed.
+   *
+   * Announced through `role="status"` rather than left to the slot rows to imply, because the
+   * outcome a player most needs told about is the one where **nothing** moved: the button is
+   * enabled either way, and a press that changes no row is otherwise indistinguishable from a
+   * button that does not work.
+   */
+  protected readonly autoEquipNote = signal<string | null>(null);
+
   protected toggleSlot(slot: GearSlot): void {
     this.openSlot.update((open) => (open === slot ? null : slot));
     this.message.set(null);
+    this.autoEquipNote.set(null);
+  }
+
+  /**
+   * Fills every slot with the best spare piece in the bag.
+   *
+   * The wording names the constraint rather than hiding it — pieces worn by other characters are
+   * left alone, so a player who expected the best piece in the game to arrive here is told why it
+   * did not, on the screen where they would otherwise go looking.
+   */
+  protected autoEquip(): void {
+    const result = this.gear.autoEquip(this.defId());
+    if (!result.ok) {
+      this.message.set(GEAR_FAILURES[result.reason]);
+      return;
+    }
+    this.message.set(null);
+    this.openSlot.set(null);
+    this.autoEquipNote.set(
+      result.equipped === 0
+        ? 'Already wearing the best spare gear in your bag. Pieces worn by other characters are left where they are.'
+        : `Equipped ${result.equipped} ${result.equipped === 1 ? 'piece' : 'pieces'} from your bag.`,
+    );
   }
 
   protected equip(slot: GearSlot, item: GearItemView): void {
@@ -354,10 +397,6 @@ export class CharacterView {
 
   protected levelMax(): void {
     this.report(this.roster.levelUpMax(this.defId()));
-  }
-
-  protected ascend(): void {
-    this.report(this.roster.ascendOnce(this.defId()));
   }
 
   private report(result: { ok: boolean; reason?: RosterFailure }): void {

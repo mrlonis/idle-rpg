@@ -1,5 +1,7 @@
 import { computed, inject, signal, Service } from '@angular/core';
 import {
+  autoEquip,
+  type AutoEquipResult,
   buyGear,
   canEnhance,
   type CurrencyAmounts,
@@ -188,6 +190,29 @@ export class GearService {
   }
 
   /** Takes a piece off, leaving it in the bag. */
+  /**
+   * Fills every slot with the best spare piece the bag holds, in one press.
+   *
+   * Returns the count as well as the result so the screen can tell "equipped four pieces" from
+   * "already wearing the best you have" — two outcomes that are both `ok` and that a player would
+   * read very differently from the same message. See `autoEquip` for why it never takes a piece off
+   * another character.
+   */
+  autoEquip(defId: string): AutoEquipResult {
+    const state = this.game.current;
+    if (state === null) {
+      return { ok: false, reason: 'not-owned' };
+    }
+    const result = autoEquip(state, defId, GEAR, CHARACTERS_BY_ID);
+    // Persisted only when something moved. `mutate` cannot be reused here because it is typed to
+    // `GearResult` and would drop the count, and a no-op write is a save round-trip for nothing.
+    if (result.ok && result.equipped > 0) {
+      this.game.apply(() => result.state);
+      void this.game.persist();
+    }
+    return result;
+  }
+
   unequip(defId: string, slot: GearSlot): GearResult {
     return this.mutate((state) => unequip(state, defId, slot));
   }

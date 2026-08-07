@@ -60,11 +60,13 @@ describe('loadSave', () => {
     expect(result.state.wallet.gold.toString()).toBe('0');
   });
 
-  it('reports a fatal error and a fresh run for a save from before the v0 baseline', () => {
-    // The five pre-release schema versions were collapsed into v0, so nothing they wrote has a
-    // path to current. A fresh run is the answer, and since the v0 reset the caller writes over
-    // it rather than leaving the game unable to save.
-    const result = loadSave({ version: 3, wallet: {} }, OPTIONS);
+  it('reports a fatal error and a fresh run for a version this build cannot reach', () => {
+    // ⚠️ **This used to seed a pre-baseline version and no longer can.** The chain has twice been
+    // collapsed into a single v0 — five pre-release versions, then the six that grew on top of
+    // them — so a save is unreadable now only by being *newer* than this build. The behaviour
+    // under test is unchanged: a fresh run, and since the re-base the caller writes over it rather
+    // than leaving the game unable to save.
+    const result = loadSave({ version: SAVE_VERSION + 1, wallet: {} }, OPTIONS);
 
     expect(result.fatal).toBeDefined();
     expect(result.state.wallet.gold.toString()).toBe('0');
@@ -102,6 +104,7 @@ describe('loadSave', () => {
         roster: [],
         formation: { front: [], back: [] },
         pity: 12,
+        legendaryPity: 3,
         pullCount: 40,
         gear: [],
         gearMinted: 0,
@@ -118,6 +121,7 @@ describe('loadSave', () => {
     expect(result.state.stage).toBe(6);
     expect(result.state.battleCount).toBe(214);
     expect(result.state.pity).toBe(12);
+    expect(result.state.legendaryPity).toBe(3);
     expect(result.issues.map((issue) => issue.field)).toEqual(['rates.xp']);
   });
 });

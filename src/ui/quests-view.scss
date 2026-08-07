@@ -1,0 +1,260 @@
+@use 'theme' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+// Back link on its own row, title and balance sharing the one below it — the same head every
+// Town screen wears, so a player who learned the shape on the Altar finds it here unchanged.
+.head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 1rem;
+}
+
+.head__back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: t.$tap-target;
+  color: t.$accent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.head__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.head__unit {
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.875rem;
+  color: t.$muted;
+  line-height: 1.5;
+}
+
+// Above the list rather than pinned to the bottom. A fixed element lays out against the visual
+// viewport while this document deliberately never scrolls — see the Capacitor notes in AGENTS.md.
+.claim-all {
+  @include t.button-primary;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.claim-all__count {
+  @include t.numeric;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  background: t.$surface;
+  font-size: 0.875rem;
+}
+
+.quests {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quest {
+  @include t.card;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem;
+}
+
+// A track with something waiting is marked by its border, not by dimming the others.
+//
+// ⚠️ **Do not reach for `opacity` to quiet the rows that are not ready.** Dimming a card dims its
+// text with it, and `$muted` is 6.4:1 on `$surface` — 70% of that is under the 4.5:1 floor. That
+// exact mistake failed the AXE scan in all three browsers on the Altar's "Not yet" rows.
+.quest--ready {
+  border-color: t.$accent;
+}
+
+.quest__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.quest__name {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.quest__owed {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+  color: t.$accent;
+}
+
+.quest__count {
+  font-size: 1.125rem;
+  font-weight: 700;
+  @include t.numeric;
+}
+
+.quest__unit {
+  font-size: 0.75rem;
+}
+
+.quest__description {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  line-height: 1.45;
+}
+
+.quest__reward {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.quest__amount {
+  font-weight: 600;
+  @include t.numeric;
+}
+
+.quest__per {
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.quest__bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: t.$surface-raised;
+  overflow: hidden;
+}
+
+.quest__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: t.$accent;
+}
+
+.quest__progress {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+}
+
+.quest__now {
+  font-weight: 600;
+  color: t.$text;
+  @include t.numeric;
+}
+
+.quest__next {
+  @include t.numeric;
+}
+
+.quest__hint {
+  font-size: 0.75rem;
+}
+
+// Drawn on the page background rather than as a dimmed card, for the contrast reason above:
+// `$muted` measures 7.2:1 on `$page`.
+.quest--empty {
+  background: none;
+  color: t.$muted;
+  font-size: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+// Period headings. A group is a section rather than a run of rows so the two windows are
+// distinguishable to a screen reader by heading, not only by where they sit on the page.
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.group__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+// A claimed quest is marked by a word, never by colour or opacity alone.
+//
+// ⚠️ The obvious styling here is `opacity` on the whole row, and it is the one that fails: dimming
+// a card dims its text with it, and `$muted` is 6.4:1 on `$surface` — 70% of that is under the
+// 4.5:1 floor. That exact mistake failed AXE in all three browsers on the Altar.
+.quest--done {
+  border-style: dashed;
+}
+
+.quest__state {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.quest__state--ready {
+  color: t.$accent;
+}
+
+.quest__state--done {
+  color: t.$muted;
+}
+
+.quest__target {
+  @include t.numeric;
+}
+
+.empty {
+  margin: 0;
+  color: t.$muted;
+  font-size: 0.875rem;
+}

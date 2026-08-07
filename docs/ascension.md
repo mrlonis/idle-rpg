@@ -66,11 +66,17 @@ bottom, not an oversight.
 pulled one was worth before those rungs existed.
 
 This is the single most important thing on this page, because it is what the whole stage ladder
-rests on. The copies-only rewrite added those rungs to make common-tier characters **cost** more — a pull
-produces a specific common-tier character roughly ten times as often as a specific ascended-tier
-one. Paying them a multiplier as well would have made every common-tier character ×1.6² stronger
-at every rarity it can reach, which is a power grant the entire ladder would have to be retuned
-around and was not what the change was for.
+rests on. The copies-only rewrite added those rungs to make common-tier characters **cost** more — a
+pull produces a specific common-tier character far more often than a specific ascended-tier one.
+Paying them a multiplier as well would have made every common-tier character ×1.6² stronger at
+every rarity it can reach, which is a power grant the entire ladder would have to be retuned around
+and was not what the change was for.
+
+⚠️ **Quote that ratio as ×4, not ×10, and know which one you are holding.** From `TIER_WEIGHTS`
+alone it is exactly ×10 — `0.75/21` against `0.025/7`. Measured through `pull()` with both pity
+curves live it is **×4.1**, because ascended pity lifts the effective ascended-tier rate from 2.5%
+to 5.69% and nothing lifts common. The base-rate figure describes a banner nobody plays; every
+pacing number on this page is derived from the measured one.
 
 The evidence that this is the right anchor: every one of the 32 sweeps in
 [`data/chapters.balance.ts`](../src/data/chapters.balance.ts) passes with **no change to any
@@ -84,27 +90,39 @@ re-deriving from scratch.
 Faction decides the path, which is why it lives on the faction rather than on each character — a
 character cannot be authored onto the wrong ladder.
 
-Both ladders are paid in copies of the character itself. They are **identical below `elite`** and
-the celestial one is roughly double above it.
+Both ladders are paid in copies of the character itself. They are **identical below `elite`**, and
+the celestial one is half again as expensive on the five rungs from `elite+` to `ascended`.
 
 | Rung transition        | Mortal | Celestial |
 | ---------------------- | ------ | --------- |
-| Common → Common+       | 8      | 8         |
-| Common+ → Rare         | 12     | 12        |
-| Rare → Rare+           | 2      | 2         |
-| Rare+ → Elite          | 6      | 6         |
-| Elite → Elite+         | 1      | 1         |
-| Elite+ → Legendary     | 1      | 2         |
-| Legendary → Legendary+ | 1      | 2         |
-| Legendary+ → Mythic    | 1      | 2         |
-| Mythic → Mythic+       | 1      | 2         |
-| Mythic+ → Ascended     | 2      | 4         |
-| each star              | 2      | 2         |
+| Common → Common+       | 4      | 4         |
+| Common+ → Rare         | 6      | 6         |
+| Rare → Rare+           | 3      | 3         |
+| Rare+ → Elite          | 7      | 7         |
+| Elite → Elite+         | 4      | 4         |
+| Elite+ → Legendary     | 8      | 12        |
+| Legendary → Legendary+ | 5      | 8         |
+| Legendary+ → Mythic    | 9      | 14        |
+| Mythic → Mythic+       | 6      | 9         |
+| Mythic+ → Ascended     | 10     | 15        |
+| each star              | 6      | 6         |
 
 **Mortal** — Humans, Dwarves, Elves, Undead, Monsters. The cheaper climb.
 
-**Celestial** — Angels, Demons. Spends **luck**: roughly twice the copies above `elite`, which is
-what the celestial advantage in combat is paid for with.
+**Celestial** — Angels, Demons. Spends **luck**: half again the copies on rungs 5–9, which is what
+the celestial advantage in combat is paid for with.
+
+⚠️ **The premium sits on rungs 5–9 and nowhere else.** `Elite → Elite+` and all five stars are
+shared, which "the celestial ladder is the expensive one above `elite`" does not say on its own.
+`ascension.spec.ts` asserts both halves — that the premium exists, and that it does not extend to
+those six rungs.
+
+⚠️ **The size of the premium is chosen against the totals, not by scaling each rung.** It was a
+flat ×2 per rung back when those rungs were 1s and 2s, which came to +6 copies and about ×1.2 on a
+finished climb. Applying ×2 to the current rungs would cost +38 and reach ×1.5 — the same rule
+charging a materially heavier tax, purely because the rungs underneath it grew. ×1.5 is what
+reproduces the premium celestials have always actually paid, and the spec holds the **ratio**
+rather than the factor for exactly that reason.
 
 **The four rungs below `elite` are shared rather than scaled**, and that is deliberate: they are
 the _tier_ gap, not the path difference. A celestial common-tier character is common-tier for the
@@ -118,24 +136,47 @@ Counting the first copy, so these are "how many of this character do I have to s
 
 | Tier      | Starts at | To `ascended` | To `ascended-5` |
 | --------- | --------- | ------------- | --------------- |
-| common    | `common`  | 36 / 42       | 46 / 52         |
-| legendary | `rare`    | 16 / 22       | 26 / 32         |
-| ascended  | `elite`   | 8 / 14        | 18 / 24         |
+| common    | `common`  | 63 / 83       | 93 / 113        |
+| legendary | `rare`    | 53 / 73       | 83 / 103        |
+| ascended  | `elite`   | 43 / 63       | 73 / 93         |
 
 (mortal / celestial). Each one is **derived** in
 [`ascension.spec.ts`](../src/data/ascension.spec.ts) rather than restated as a constant, so a
 retune that moves a total fails there naming the real number.
 
-### The bottom of the ladder is the whole of the tier gap
+### Tier is a head start, not a shorter climb
 
-Every rung costs every character the same, so **a tier is worth exactly the rungs it skips** — 20
-copies for `legendary`, 28 for `ascended`. Those four numbers are the only thing separating what a
-common-tier climb costs from an ascended-tier one, and retuning them is retuning the gap.
+Every rung costs every character the same, so **a tier is worth exactly the rungs it skips** — 10
+copies for `legendary`, 20 for `ascended`. But only 20 of the ladder's 92 copies sit below `elite`;
+the other 72 are the stretch that **every** tier walks. So the totals land close together, within
+×1.27 from top to bottom.
 
-They are calibrated against how often a pull produces one: a specific common-tier character
-arrives roughly 3× more often than a specific legendary-tier one and roughly 10× more often than
-an ascended-tier one, so pricing the bottom is what keeps a full climb a comparable commitment at
-every tier rather than letting common-tier characters max out in a fraction of the time.
+What actually separates the climbs is the stream feeding them. Measured against the shipped banner
+with pity live, a specific common-tier character arrives every ~30 pulls, a legendary-tier one
+every ~87, an ascended-tier one every ~123. Near-identical copy counts drawn from a stream four
+times thinner is what makes a higher tier the **longer** investment:
+
+| Tier      | copies to ★5 | pulls  | days at full-clear income |
+| --------- | ------------ | ------ | ------------------------- |
+| common    | 93           | ~2,800 | ~52                       |
+| legendary | 83           | ~7,200 | ~135                      |
+| ascended  | 73           | ~9,000 | ~168                      |
+
+(mortal; days assume ~53.5 pulls/day, which is endgame income — early-run is roughly half that, so
+read these as floors.)
+
+⚠️ **This inverts what this page used to argue, deliberately.** The bottom of the ladder used to
+carry the whole tier gap — 28 of 45 copies — so that a climb was a comparable commitment whichever
+tier you fell in love with, and an ascended-tier character maxed _fastest_. It now carries a fifth
+of the ladder, and tier buys a head start on the level cap rather than a shorter road. Rungs 0–3
+are still the only lever on how big that head start is; retuning them is retuning the gap.
+
+### Pulls are shared, which is what sets the real pace
+
+A copy of every character accrues from the same pulls, so "2,800 pulls to max a common-tier
+character" is also **the point at which all twenty-one of them max**. Nobody grinds one character
+at a time. The number that describes a run is therefore the slowest tier on the slowest ladder:
+the full 49-character roster reaches `ascended-5` at roughly 11,400 pulls.
 
 ---
 
@@ -191,10 +232,15 @@ copy. The only question ever asked of a spare is "how many do I have".
 A copy of a character already at `ascended-5` converts to **spark**, which buys a new character or
 a targeted copy in the shop.
 
-**Spark stopped being unreachable with the copies-only rewrite.** Maxing a common-tier character went from 216
-base copies to 46, which is inside what a single full climb of pulls delivers — so a currency
-almost no player ever minted is now one they hold and spend. That is the intended outcome rather
-than a side effect; an unspendable currency was doing nothing for anyone.
+**Spark stopped being unreachable with the copies-only rewrite**, and the retune that followed
+pushed it back out without undoing that. Maxing a common-tier character went 216 base copies → 46 →
+**93**, so the first spark of a run is minted at roughly 2,800 pulls rather than 1,400 — about
+seven weeks in at full-clear income rather than three and a half.
+
+⚠️ **That is the number to watch if the ladder is ever made more expensive again.** Spark is minted
+only by a copy arriving at a character already at `ascended-5`, so the cost of maxing a common-tier
+character is not one input to when spark appears — it _is_ the gate. 216 was the figure at which
+almost nobody ever saw any, and an unspendable currency does nothing for anyone.
 
 It is still explicitly _not_ the answer to early bad luck — **pity is**, and pity is global rather
 than per-banner and visible at all times. Reading the shop as the bad-luck mechanism gets the
@@ -206,6 +252,43 @@ The prices track how many pulls it takes to see one, derived in `banners.spec.ts
 to rest on — 60:8 was the fodder exchange rate, an Elite copy being worth nine Rare ones — and
 fodder was the only mechanism that ever made copies of different characters interchangeable, so
 when it went there was no rate left to quote.
+
+---
+
+## Where ascending happens: the Altar
+
+**One place, and it is not the character sheet.** `ui/altar-view.ts` at `/town/altar` is the only
+screen in the game that ascends anybody.
+
+It used to be a button on each sheet, which is the natural place for it and the wrong one at scale.
+A rung costs copies of one character and nothing else, so opening a sheet to ascend is opening a
+screen to make a decision that has no alternative in it — and a player holding duplicates of nine
+characters did that nine times. The sheet keeps the **panel**, because the half of a rung that is
+genuinely about this character — the price in its own copies, and which skill the next rung unlocks
+— does not fit on a list of twenty-three rows. It links to the Altar, focused on the row it came
+from; a panel that quotes a price and offers no way to pay it is a dead end.
+
+The screen offers both:
+
+- **one rung at a time**, per row, exactly as the sheet's button did; and
+- **Ascend all**, which climbs every character as far as its own spare copies reach.
+
+### Ascend all is one press with no confirmation, and the reason is the pricing
+
+Copies are spent on the character they are copies of, and have no other use until `ascended-5`
+turns them into spark. So no two characters compete for the same resource and spending a copy
+forecloses nothing — "ascend everything" is a well-defined answer rather than a strategy. A dialog
+would be asking the player to confirm the only move. There is nothing here to lose either: a rung
+never consumes a character, only spares, so the confirmation dance around irreversible loss stays
+absent for the same reason it always was.
+
+⚠️ **This is a property of copies-only pricing, not a permanent one.** If a rung ever costs
+something with a second claim on it — a currency, a material, another character — `ascendAll`
+stops being a loop and becomes a choice, and it belongs back with the player rather than resolved
+greedily in `core/`. The note is on the function.
+
+Everyone is listed, ready first, in two groups. Not a filtered list: a character three copies short
+is the reason to go summoning, and hiding it would leave the screen empty for most of a run.
 
 ---
 

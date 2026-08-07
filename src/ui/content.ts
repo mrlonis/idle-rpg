@@ -1,4 +1,5 @@
 import {
+  type AchievementTrackData,
   type AscensionRules,
   type BannerData,
   type ChapterCurveData,
@@ -15,7 +16,12 @@ import {
   type KitRulesData,
   type LadderShape,
   ladderShape,
+  type BountyBoardRulesData,
+  type BountyData,
   type LevelCurveData,
+  type QuestCounter,
+  type QuestData,
+  type QuestRulesData,
   resolveLadder,
   type ShopOfferData,
   type StageData,
@@ -24,7 +30,10 @@ import {
   toCombatRules,
 } from '../core';
 import {
+  ACHIEVEMENTS,
   ASCENSION_RULES,
+  BOUNTIES,
+  BOUNTY_BOARD,
   BANNERS,
   CHAPTER_CURVE,
   CHAPTERS,
@@ -38,6 +47,8 @@ import {
   LEVEL_CURVE,
   PITY,
   PULL_COST,
+  QUEST_RULES,
+  QUESTS,
   SPARK_PER_COPY,
   SPARK_SHOP,
   STAGE_REWARDS,
@@ -56,6 +67,44 @@ import {
  * at build time; rebuilding these maps per call would be work done thousands of times to
  * produce the same answer.
  */
+
+/**
+ * The achievement tracks this build ships, in the order the screen lists them.
+ *
+ * A typed local for the reason everything else here is one: `data/` cannot reference `core/`, so
+ * this assignment is what turns a track naming a counter nothing keeps into a compile error.
+ */
+export const ACHIEVEMENT_TRACKS: readonly AchievementTrackData[] = ACHIEVEMENTS;
+
+/**
+ * Every mission the board can ever offer, in tier order — shortest first.
+ *
+ * ⚠️ **The whole pool, not a day's board.** `dailyBoard` narrows this to one variant per tier;
+ * everything that has to honour a *running* mission — `repairDispatches`, `collectReadyBounties`,
+ * the tier guard in `dispatchBounty` — takes this instead, because a 24-hour campaign outlives the
+ * board it was sent from.
+ */
+export const BOUNTY_LIST: readonly BountyData[] = BOUNTIES;
+
+/** When the bounty board rotates. The same boundary the quest windows use. */
+export const BOUNTY_BOARD_RULES: BountyBoardRulesData = BOUNTY_BOARD;
+
+/** The daily and weekly quests this build ships, in the order the screen lists them. */
+export const QUEST_LIST: readonly QuestData[] = QUESTS;
+
+/** Where the quest day and week roll over. */
+export const QUEST_WINDOW_RULES: QuestRulesData = QUEST_RULES;
+
+/**
+ * The counters a quest window takes a baseline of.
+ *
+ * Derived from the shipped quests rather than listed, so a quest over a counter nobody baselined
+ * cannot ship — that quest would read the counter's whole lifetime total as today's progress and
+ * complete itself the moment the window opened.
+ */
+export const QUEST_COUNTERS: readonly QuestCounter[] = [
+  ...new Set(QUEST_LIST.map((quest) => quest.counter)),
+];
 
 /** Every playable character, keyed by id. */
 export const CHARACTERS_BY_ID: CharacterLookup = new Map<string, CharacterData>(

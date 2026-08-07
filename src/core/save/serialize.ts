@@ -1,3 +1,5 @@
+import { parseAchievements } from '../achievements';
+import { parseDispatches, serializeDispatches } from '../bounties';
 import {
   parseRates,
   parseWallet,
@@ -7,6 +9,7 @@ import {
   type Wallet,
 } from '../currency';
 import { emptyGearShop, type GearItem, type GearShopState } from '../gear/types';
+import { parseQuestWindows, type QuestWindow } from '../quests';
 import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
@@ -71,6 +74,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       back: [...state.formation.back],
     },
     pity: state.pity,
+    legendaryPity: state.legendaryPity,
     pullCount: state.pullCount,
     gear: state.gear.map((item) => ({
       id: item.id,
@@ -87,6 +91,21 @@ export function toSaveData(state: GameState): CurrentSaveData {
       slot: state.gearShop.slot,
       purchased: [...state.gearShop.purchased],
     },
+    achievements: { ...state.achievements },
+    quests: {
+      daily: encodeWindow(state.quests.daily),
+      weekly: encodeWindow(state.quests.weekly),
+    },
+    dispatches: serializeDispatches(state.dispatches),
+  };
+}
+
+/** One quest window, as plain JSON. */
+function encodeWindow(window: QuestWindow): CurrentSaveData['quests']['daily'] {
+  return {
+    index: window.index,
+    baseline: { ...window.baseline },
+    claimed: [...window.claimed],
   };
 }
 
@@ -171,6 +190,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const clearedStages = readCounter(record['clearedStages'], 'clearedStages', 0, note);
   const battleCount = readCounter(record['battleCount'], 'battleCount', 0, note);
   const pity = readCounter(record['pity'], 'pity', 0, note);
+  const legendaryPity = readCounter(record['legendaryPity'], 'legendaryPity', 0, note);
   const pullCount = readCounter(record['pullCount'], 'pullCount', 0, note);
 
   const roster = readRoster(record['roster'], options, note);
@@ -178,6 +198,9 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const gear = readGear(record['gear'], note);
   const gearMinted = readGearMinted(record['gearMinted'], gear, note);
   const gearShop = readGearShop(record['gearShop'], note);
+  const achievements = parseAchievements(record['achievements'], note);
+  const quests = parseQuestWindows(record['quests'], note);
+  const dispatches = parseDispatches(record['dispatches'], note);
 
   return {
     state: {
@@ -193,10 +216,14 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       roster,
       formation,
       pity,
+      legendaryPity,
       pullCount,
       gear,
       gearMinted,
       gearShop,
+      achievements,
+      quests,
+      dispatches,
     },
     issues,
   };

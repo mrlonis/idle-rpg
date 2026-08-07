@@ -3,7 +3,16 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
-import { ATB_THRESHOLD, BATTLE_TICK_MS, ticksToMs, ticksUntilReady } from './clock';
+import {
+  ATB_THRESHOLD,
+  BATTLE_TICK_MS,
+  MAX_BATTLE_TICKS,
+  PRESSURE_AFTER_TICKS,
+  PRESSURE_PER_TICK,
+  pressureAt,
+  ticksToMs,
+  ticksUntilReady,
+} from './clock';
 
 /** What `ticksUntilReady` claims, computed the slow, obvious way. */
 function ticksUntilReadyByStepping(gauge: number, spd: number): number {
@@ -60,6 +69,38 @@ describe('ticksUntilReady', () => {
 
   it('acts every tick at the threshold speed', () => {
     expect(ticksUntilReady(0, ATB_THRESHOLD)).toBe(1);
+  });
+});
+
+describe('pressureAt', () => {
+  it('leaves the first fifty seconds of every fight untouched', () => {
+    // ⚠️ The property the whole shipped ladder's tuning rests on. Milestone 14 added this without
+    // re-deriving a single stage, and that is only sound because a fight resolving inside the
+    // threshold is bit-identical to what it was before the mechanism existed.
+    expect(pressureAt(0)).toBe(1);
+    expect(pressureAt(PRESSURE_AFTER_TICKS - 1)).toBe(1);
+    expect(pressureAt(PRESSURE_AFTER_TICKS)).toBe(1);
+  });
+
+  it('climbs without bound once the threshold is passed', () => {
+    // The termination argument itself, stated as arithmetic: HP is finite and this is unbounded,
+    // so no sustain loop can outlast it. A ceiling here would be a stalemate waiting to happen.
+    expect(pressureAt(PRESSURE_AFTER_TICKS + 100)).toBeCloseTo(1 + 100 * PRESSURE_PER_TICK);
+    expect(pressureAt(PRESSURE_AFTER_TICKS + 10_000)).toBeGreaterThan(100);
+  });
+
+  it('is strictly increasing past the threshold', () => {
+    for (let tick = PRESSURE_AFTER_TICKS; tick < MAX_BATTLE_TICKS; tick += 10) {
+      expect(pressureAt(tick + 10)).toBeGreaterThan(pressureAt(tick));
+    }
+  });
+
+  it('treats a damaged tick as neutral rather than propagating it', () => {
+    // This feeds a `Numeric` multiplication, and a NaN there poisons every HP comparison
+    // downstream into a fight that can neither be won nor lost.
+    expect(pressureAt(Number.NaN)).toBe(1);
+    expect(pressureAt(Number.POSITIVE_INFINITY)).toBe(1);
+    expect(pressureAt(-1000)).toBe(1);
   });
 });
 

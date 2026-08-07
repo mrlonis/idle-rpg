@@ -56,28 +56,51 @@ on the ladder.** `STAGE_REWARDS` in [`chapters.ts`](../src/data/chapters.ts) is 
 `stagePayout` in [`core/ladder.ts`](../src/core/ladder.ts) evaluates them:
 
 ```
-rate = base * stageIndex ** 1.13      base: 0.5 gold, 0.1 xp, 0.0015 essence per second
+rate = base * stageIndex ** 1.13      base: 1 gold, 0.2 xp, 0.003 essence per second
 lump = 40 seconds of that rate
-crystals on a first clear = 200 + 6 per stage, ×2 on a mini-boss, ×5 on a chapter boss
+crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
 
 Across the hundred stages of chapters 1 and 2:
 
 | Stage | gold/s | xp/s | essence/s | enemy level |
 | ----- | ------ | ---- | --------- | ----------- |
-| 1     | 0.5    | 0.1  | 0.0015    | 1           |
-| 12    | 8.3    | 1.66 | 0.025     | 18          |
-| 25    | 19.0   | 3.8  | 0.057     | 25          |
-| 50    | 41.6   | 8.31 | 0.125     | 40          |
-| 75    | 65.7   | 13.2 | 0.197     | 78          |
-| 100   | 91.0   | 18.2 | 0.273     | 126         |
+| 1     | 1.0    | 0.2  | 0.003     | 1           |
+| 12    | 16.6   | 3.32 | 0.050     | 18          |
+| 25    | 38.0   | 7.6  | 0.114     | 25          |
+| 50    | 83.2   | 16.6 | 0.250     | 40          |
+| 75    | 131.4  | 26.3 | 0.394     | 78          |
+| 100   | 182.0  | 36.4 | 0.546     | 126         |
 
 Three columns, not four: **the crystal rate is not part of this**. See below.
 
-**The curve is calibrated against enemy level rather than stage count**, which is the thing to
+**The base rates doubled from 0.5 / 0.1 / 0.0015, and all three doubled together.** That is what
+made it a safe edit rather than a re-derivation: every economy assertion in `levels.spec.ts` is
+either a ratio between the three currencies or a comparison among them, and a common factor cancels
+out of all of them. Essence still bites late and not early; gold is still the most comfortable; the
+three still land within a third of each other in time-to-afford. The gear shop and the bounty board
+are covered by the same cancellation, since both price in **seconds of the run's own income** rather
+than in amounts — a doubled rate buys a doubled price.
+
+⚠️ **The one thing that did move is the only number measured in absolute hours.** Levelling one
+character to the 1000 ceiling went from 1,175 hours of top-of-ladder idle income to **588**, and the
+guard in `levels.spec.ts` was lowered from 1,000 to 500 rather than the level curve being steepened
+to absorb it — because progression being twice as fast _was_ the change, and a curve retuned to
+cancel it would have left nothing but bigger numbers on screen. That threshold has now given way
+once; the next thing that raises income has to move the curve instead.
+
+**The curve was calibrated against enemy level rather than stage count**, which is the thing to
 understand before retuning it. The old twenty-four stage ladder paid 25 gold a second at enemy
-level 40 and 90 at level 126; this pays about 42 and about 91 at the same two levels. That is what
-stops "four times as many stages" from meaning "four times the income".
+level 40 and 90 at level 126; the curve that replaced it paid about 42 and about 91 at the same two
+levels — income tracking what the content asks of a party rather than how many stages the party has
+walked past, which is what stops "four times as many stages" from meaning "four times the income".
+
+⚠️ **The doubling broke that correspondence deliberately, and the shape is what survives.** The
+same two levels now pay about 83 and 182, so the curve no longer reproduces the hand-tuned ladder —
+it is that ladder times two. What still holds, and what the calibration was really protecting, is
+that income is a function of the stage's **position** rather than of the ladder's length: adding a
+chapter still cannot make the game richer at a given enemy level. Read the ×2 as the tuning
+decision it is, not as the calibration having drifted.
 
 `applyBattleResult` **only ever raises** a rate. Rates never fall, which is what lets load-time
 repair re-derive progress from the gold rate alone — and what kept every existing save whole when
@@ -94,21 +117,32 @@ compounded over the nine thousand stages that reach chapter 100 has three hundre
 `SUMMON_RATE` in [`banners.ts`](../src/data/banners.ts) is the whole of it, in crystals per hour:
 
 ```
-rate = basePerHour + perClearPerHour × clearedStages     // 100 + 0.5 × clears
+rate = basePerHour + perClearPerHour × clearedStages     // 100 + 1 × clears
 ```
 
 | Cleared          | Crystals/hr | Pulls/day |
 | ---------------- | ----------- | --------- |
 | 0 (a fresh save) | 100         | 24        |
-| 12               | 106         | 25        |
-| 50 (chapter 1)   | 125         | 30        |
-| 100 (the ladder) | 150         | 36        |
+| 12               | 112         | 27        |
+| 50 (chapter 1)   | 150         | 36        |
+| 100 (the ladder) | 200         | 48        |
 
-**The step halved when milestone 11 shipped chapters, and that is the curve being retuned rather
-than a threshold being moved.** A hundred stages at the old crystal an hour a clear is five
-ten-pulls a day, past the pacing `banners.spec.ts` pins — and that spec says in advance that a
-longer ladder should fail there and be retuned deliberately. The base did not move: a pull an hour
-from install is the number that makes this economy legible.
+**Milestone 11 halved the step to 0.5, and it has been put back to 1.** The halving was real
+tuning — a hundred stages at the full step is five ten-pulls a day where the twenty-four stage
+ladder had been paying three, which was past the band `banners.spec.ts` held. This time the band
+moved instead, deliberately: a cleared ladder pays **48 pulls a day** against 36, and the shape of
+the curve did not change at all. The failure mode this curve exists to prevent is a rate that
+**compounds** past a flat `PULL_COST`, and a linear step cannot do that at any size — being
+extravagant and compounding are different things, and only the second one was ever the bug.
+
+⚠️ **What binds the step is the ratio, and it is nearly spent.** The ladder's contribution is
+`step × stages` against a base of 100, so the shipped hundred stages now **double** the base where
+the half-step added 50%. A third chapter takes that to ×2.5 and a fourth to ×3, where
+`banners.spec.ts` fails — and the right answer there is to retune the step, not the threshold.
+Raising the step spent that headroom rather than finding it free.
+
+The base did not move either time: a pull an hour from install is the number that makes this
+economy legible.
 
 Four things about that are decisions rather than arithmetic:
 
@@ -128,11 +162,94 @@ Four things about that are decisions rather than arithmetic:
   stage, by hand or on auto-battle for an hour, moves the rate by nothing.
 
 **Summons are deliberately not a repeatable battle reward either**, for the same reason. They
-accrue idly, plus a **first-clear bonus** per stage — those rise linearly and total about 59,000
-across the full climb, roughly 590 pulls, because duplicates are the primary ascension path and
-the top of the ladder is tuned to a party several rungs up.
+accrue idly, plus a **first-clear bonus** per stage — a flat 250, so 29,000 across the full climb,
+roughly 290 pulls.
+
+⚠️ **The first-clear bonus used to rise 6 a stage off a base of 200, totalling about 59,000, and
+flattening it halved that on purpose.** The missing 30,000 did not leave the economy — it moved to
+the achievement tracks below, which is where the same crystals now arrive on a schedule that pays
+the early game rather than the late one. **Read the two together or neither number means
+anything**: the whole climb is worth about 69,000 crystals, up a few percent from the 63,800 it was
+worth before the redistribution. `data/achievements.spec.ts` is what measures the sum.
 
 ---
+
+## The three faucets that are not the ladder
+
+Added in milestone 14b.
+
+|                   | Pays                          | Over                                 |
+| ----------------- | ----------------------------- | ------------------------------------ |
+| **Stage Climber** | 1,000 crystals per 5 clears   | `clearedStages`, endlessly           |
+| **Chapter Conq.** | 10,000 crystals per chapter   | `clearedChapters`, endlessly         |
+| **Daily quests**  | 200 + 150 crystals            | 5 battles, 1 pull — resets 04:00 UTC |
+| **Weekly quests** | 800 + 600 crystals            | 35 battles, 7 pulls                  |
+| **Bounties**      | 20m–12h **of current income** | 1–4 bench characters, 1h–24h         |
+
+The first three pay **crystals only**.
+
+⚠️ **Crystals rather than gold, xp or essence, and the reason is the level curve.** Those three are
+spent against a curve worth ×10⁹, so a flat quantity of any of them is invisible within a chapter
+or two — the same argument [gear](gear.md) makes for gear bonuses being percentages. A pull costs a
+flat `PULL_COST` forever, so a flat crystal reward means the same thing at stage 5 and stage 5,000.
+
+⚠️ **Achievements are a peer of the ladder now, not a top-up on it, and that is a reversal.** They
+paid 5,000 crystals against the ladder's ~58,800 when they shipped — about 8%, deliberately a
+garnish. Over the same hundred stages the two tracks now pay **40,000** against the flattened
+29,000, so more crystals reach a player through achievements than through first clears. The
+argument for the swap is the one the flat award was always making: _when_ a crystal arrives matters
+more than how many arrive in total, and the old shape paid least at the bottom of the ladder where
+a run is trying to fill three empty formation slots. `data/achievements.spec.ts` holds the ratio
+inside a factor of two either way, which is what catches one side being retuned without the other.
+
+Quests are still sized to supplement: 350 a day plus 1,400 a week, roughly 5.5 pulls a day, against
+the 20–40 a day a fully cleared ladder produces idly.
+
+**The asymmetry is the whole design.** Against a player whose ladder is moving, achievements and
+quests are a modest top-up. Against a player walled below a stage — whose only income source is the
+thing the wall is throttling — they are most of what arrives. That is why neither scales with
+progress: a reward that grew with the stage index would help least exactly where help is needed.
+
+### ⚠️ Bounties are the deliberate exception, and pay a duration instead
+
+A mission pays **seconds of the run's own current idle income** in gold, xp and essence — the same
+idiom `STAGE_REWARDS.rewardSeconds` uses for a stage's lump, and for the same reason: those three
+are spent against a ×10⁹ level curve, so a flat quantity goes stale within a chapter or two while a
+multiple of the player's current rate never does.
+
+Scaling is right here and wrong above because the two answer different questions. Quests exist to
+pay a **stuck** player; bounties exist to reward **roster breadth**, which is not a stuck player's
+problem. The pair is the point rather than an inconsistency.
+
+⚠️ **No bounty pays crystals, and none may.** The crystal rate is linear in the clear count
+precisely so it cannot outrun a flat `PULL_COST`; a multiple of it on a repeatable timer is exactly
+that compounding. Crystals come from quests and achievements, idle income comes from bounties, and
+keeping the two faucets on different currencies is what stops either being the only one worth
+engaging with.
+
+**Every mission pays less than it runs for** — roughly a third to a half. One paying its own
+duration back would make dispatching free, since the characters are idle anyway, and the board
+would be a button rather than a decision.
+
+**Rotation costs the economy nothing, which is why it was affordable.** The board stands six
+missions a day out of a pool of twelve, and ⚠️ **every variant of a tier is worth exactly the
+same** — same duration, crew, payout and unlock. So the numbers in the table above describe the
+board on every day it can ever show, and what rotates is which faction a mission asks for. A
+variant that paid differently would make the daily draw a payout lottery, and would put a second,
+invisible variable into every figure on this page.
+
+⚠️ **Stacking does not cost the economy nothing, and it is the one bounty number that needs
+watching.** Missions run simultaneously — nothing caps concurrency but the board size and the
+bench — so the faucet is the **sum** of the running missions' ratios rather than any one of them.
+The worst case a player can reach is the six richest missions at once, which is **2.8× idle
+income**. `data/bounties.spec.ts` derives that from the authored durations and payouts and holds it
+under 4×, so a richer tier or a wider board fails the check rather than quietly tripling the game's
+income.
+
+That is deliberately generous, and it does not touch the guard in `levels.spec.ts`: that threshold
+measures the **idle rate** against the level curve, and bounties are a bonus on top of it that costs
+a roster wide enough to crew them. The rule "the next thing that raises income has to move the level
+curve" is about the idle rate itself.
 
 ## Levelling
 
@@ -162,9 +279,9 @@ answer is to retune one of them deliberately — never to move the threshold.
 
 That is not hypothetical: doubling the ladder in milestone 7 is exactly what made it fire, and the
 thing that got retuned was the **rate slope**, not the curve and not the threshold. At the top of
-the ladder as it stands, one character from level 1 to 1000 costs about 1,175 hours of gold — and
-resonance means a party costs five times that — so the ceiling is still years away, which is where
-it belongs.
+the ladder as it stands, one character from level 1 to 1000 costs about 588 hours of gold — half
+what it was before the base rates doubled, as recorded above — and resonance means a party costs
+five times that, so the ceiling is still years away, which is where it belongs.
 
 ### Growth
 
@@ -211,22 +328,48 @@ worth before those rungs existed, and is why not one stage had to be retuned. Se
 
 ## Pulls
 
-**2.5% base for an ascended-tier character, not 0.6%. Hard pity at 50, not 90.**
+**2.5% base for an ascended-tier character, not 0.6%. Hard pity at 30, not 90.**
 
-| Knob             | Value |
-| ---------------- | ----- |
-| base ascended    | 0.025 |
-| soft pity starts | 30    |
-| soft pity step   | +0.06 |
-| hard pity        | 50    |
+There are **two pity curves**, because a dry spell and a drought are different complaints and one
+counter cannot bound both. The interval that keeps the top tier from feeling remote is far too long
+to keep a session from feeling empty, and an ascended cycle short enough to do that job would have
+made the top tier routine.
 
-Soft pity ramps steeply enough that certainty arrives a few pulls before the hard cap, so **the
-guarantee is a floor rather than the mechanism.** Pity lives in `GameState`, is **global rather
-than per-banner**, and is on screen at all times.
+| Knob             | Ascended | Legendary or better |
+| ---------------- | -------- | ------------------- |
+| base             | 0.025    | 0.25                |
+| soft pity starts | 20       | 6                   |
+| soft pity step   | +0.15    | +0.25               |
+| certain at       | 27       | 9                   |
+| hard pity        | 30       | 10                  |
 
-As pity raises the ascended chance, the other two tiers scale down **in proportion to each other**
-rather than one absorbing the whole change — so a pity-inflated pull is still a fair draw between
-the tiers it can produce.
+Both ramp steeply enough that certainty arrives before the hard cap, so **each guarantee is a floor
+rather than the mechanism.** Both counters live in `GameState`, are **global rather than
+per-banner**, and are on screen at all times.
+
+The legendary cycle is sized to `MULTI_PULL_COUNT` deliberately: a ten-pull is the unit a player
+actually experiences, and one that came back entirely common was the worst thing this banner could
+produce. It is now unreachable rather than merely rare.
+
+What the two curves are worth, measured over the stationary distribution rather than from the base
+weights: an ascended-tier character every **17.6 pulls** (against 23.4 under the old single 30/+6/50
+curve), and a legendary-or-better every **3.36** (against 3.79).
+
+### The legendary curve is a floor under the same roll, not a second draw
+
+It raises the **threshold** the single tier roll is compared against. That is what keeps consumption
+at exactly three draws per pull however many curves are authored — a curve that drew a value of its
+own would have broken the invariant the whole save layer leans on, silently, since nothing about the
+results would look wrong.
+
+⚠️ **At base rate the floor equals the proportional split exactly, and that is load-bearing.** As
+pity raises the ascended chance, the other two tiers scale down **in proportion to each other**
+rather than one absorbing the whole change — and with `TIER_WEIGHTS` summing to 1, what that rescale
+produces at the base ascended rate _is_ `ascended + legendary`. So a run inside the flat stretch of
+both curves draws precisely what it drew before the legendary curve existed, and the floor can only
+ever raise the legendary threshold, never lower it. Weights summing to anything else would put the
+two mechanisms quietly out of step from the first pull; `banners.spec.ts` asserts both the sum and
+the coincidence.
 
 **Pity is the escape valve for bad luck, not the shop.** Spark only accrues after something is
 maxed, so reading the shop as the bad-luck mechanism gets the economy backwards.

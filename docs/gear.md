@@ -89,13 +89,26 @@ ceiling. That is the arrangement `LEVEL_CURVE.caps` makes for characters: a rung
 partly because of the headroom it unlocks. A relic at level 1 is barely better than a fine piece at
 level 1; it is better because it can be taken to 100.
 
-| Grade      | Multiplier | Max level | Salvage | Drop weight | Price  |
-| ---------- | ---------- | --------- | ------- | ----------- | ------ |
-| Worn       | ×1.00      | 20        | 100     | 100         | 60s    |
-| Sturdy     | ×1.35      | 40        | 240     | 46          | 260s   |
-| Fine       | ×1.80      | 60        | 560     | 18          | 900s   |
-| Masterwork | ×2.35      | 80        | 1,250   | 6           | 2,600s |
-| Relic      | ×3.00      | 100       | 2,700   | 1.6         | 7,200s |
+| Grade      | Multiplier | Max level | Salvage | Drop weight | Price  | Unlocks at |
+| ---------- | ---------- | --------- | ------- | ----------- | ------ | ---------- |
+| Worn       | ×1.00      | 20        | 100     | 100         | 60s    | 1          |
+| Sturdy     | ×1.35      | 40        | 240     | 46          | 260s   | 10         |
+| Fine       | ×1.80      | 60        | 560     | 18          | 900s   | 25         |
+| Masterwork | ×2.35      | 80        | 1,250   | 6           | 2,600s | 45         |
+| Relic      | ×3.00      | 100       | 2,700   | 1.6         | 7,200s | 70         |
+
+### ⚠️ The ladder overlaps, and that is a decision rather than an oversight
+
+A piece at its grade's cap is worth **more** than a fresh piece one grade up — a worn piece at 20 is
+×2.05 against a sturdy piece at 1 at ×1.35. Strict grade dominance was proposed and measured:
+holding "a level-100 worn piece always loses to a level-1 sturdy one" requires each grade step to
+exceed the level span, which at 100 levels and 5.5% a level means either **×575 more gear power at
+the top** or flattening enhancement to +0.8% a level. Alignment's ×1.3 breaks it a second time.
+
+Overlap is what keeps enhancement worth doing, and it costs nothing: **auto-equip never needed
+dominance.** Every candidate for a slot is already filtered to one archetype and one slot, so they
+share an authored profile and `gearScale` is a total order over them. `data/gear.spec.ts` asserts
+the overlap so it cannot drift into its opposite.
 
 **The names deliberately avoid every word this project already overloads.** `rare`, `elite`,
 `legendary`, `mythic`, `ascended` and `common` are all spoken for by `CharacterTier`, `RarityId` or
@@ -174,29 +187,71 @@ something to re-derive every time any other slot is retuned.
 
 ## Where gear comes from
 
-**Every win drops at least one piece** — one from an ordinary stage, two from a mini-boss, four from
-a chapter boss. A drop chance was the alternative and it loses on this project's own terms: a pull
-can never produce nothing, so neither should a fight, and a piece useless to the party is still
-alloy.
+**Every win drops at least one piece.** A drop chance was the alternative and it loses on this
+project's own terms: a pull can never produce nothing, so neither should a fight, and a piece
+useless to the party is still alloy.
 
-The grade is rolled **per piece**, so a boss dropping four is four independent chances at a relic
-rather than one chance counted four times.
+**How many is a range, drawn once per fight:**
 
-Grade odds tilt with depth: a grade's authored weight is multiplied by
-`(1 + stageIndex / 90) ** gradeIndex`. Three properties fall out of that shape:
+| Stage kind   | Pieces | Average |
+| ------------ | ------ | ------- |
+| Ordinary     | 1–3    | 2       |
+| Mini-boss    | 2–5    | 3.5     |
+| Chapter boss | 4–8    | 6       |
 
-- **The authored weights are the stage-1 distribution.** That is what the `1 +` buys. A bare ratio
-  makes the top grade's weight `softness⁻⁴` at the bottom of the ladder — one in millions rather
-  than one in hundreds — and the authored number stops describing anything a reader could predict
-  from.
-- **The top grade is reachable at stage 1**, merely rare (about one drop in 107). A hard band gate
-  would make the first stage of each band a cliff and everything below it garbage the instant it was
-  crossed.
+The counts were fixed at 1 / 2 / 4 until the ranges landed, and the floors are those old numbers —
+so nothing pays less than it used to, and the ceilings roughly double the average haul. A fixed
+count makes every ordinary clear identical; the variance is what makes a drop an event rather than
+an increment, which is the same reason the grade is rolled rather than assigned.
+
+⚠️ **The floor of 1 is a rule and the ceilings are tuning**, and the distinction matters when
+retuning: `dropCount` clamps the minimum up to 1 whatever `data/` authors, so a range of `0..n`
+cannot reintroduce the drop _chance_ this design rejected.
+
+**The ranges overlap on purpose.** An unlucky boss and a lucky mini-boss can pay the same, which is
+what makes the count a roll rather than a rank readout. What `gear.spec.ts` holds is that each
+kind's floor and ceiling both beat the rank below it, so the chapter's rhythm survives the overlap.
+
+The grade is rolled **per piece**, so a boss dropping six is six independent chances at a relic
+rather than one chance counted six times. The two rolls answer different questions — the count asks
+whether the _fight_ was lucky, the grade whether the _piece_ was — which is why the count is drawn
+once for the batch rather than folded into the per-piece draw.
+
+⚠️ **More drops means more alloy and a faster-filling bag, and both are bounded already.**
+`inventoryLimit` caps the bag and the overflow salvages at full value, so a bigger haul costs the
+save nothing — see the note on why gear material is a currency rather than a pile of items.
+
+### The unlock gate, then the tilt
+
+A grade cannot drop or be stocked below its `unlockIndex`. Worn is ungated, so **the opening ten
+stages hand out one grade and nothing else** — every piece is comparable to every other and a drop
+asks only which slot it fills.
+
+⚠️ **This reverses a position this document used to hold**, and the old argument is worth keeping
+because it is still half right: _"a hard band gate would make the first stage of each band a cliff
+and everything below it garbage the instant it was crossed."_ The cliff is real and it is the price.
+What the argument missed is the opening, where a soft tilt hands a new run a lottery ticket it
+cannot cash — the gold to enhance a lucky relic is twenty hours away, and the piece sits at level 1
+meanwhile.
+
+Two things bound the cliff: a gate only ever **widens** the table, since the grades below keep
+dropping at their authored weight; and the bottom grade is ungated by construction, so the ladder
+always drops something.
+
+⚠️ **Every gate lands inside the hundred stages this build ships**, and that is the constraint the
+numbers are picked against. The first version of this idea gated Sturdy behind chapter 3 — which
+does not exist — leaving four of five grades unreachable. `gear.spec.ts` derives the ladder's length
+from the shipped chapters and asserts every gate falls inside it.
+
+Among what is unlocked, the odds still tilt with depth: a grade's authored weight is multiplied by
+`(1 + stageIndex / 90) ** gradeIndex`. Two properties fall out of that shape:
+
+- **The authored weights are the distribution at the stage a grade unlocks.** That is what the `1 +`
+  buys. A bare ratio makes the top grade's weight `softness⁻⁴` at the bottom of the ladder — one in
+  millions rather than one in hundreds — and the authored number stops describing anything a reader
+  could predict from.
 - **The bottom grade never becomes impossible**, it becomes rare — and a worn piece late in a run is
   still worth its salvage.
-
-Across the shipped hundred stages a relic goes from roughly one in 107 to about one in 11, and a
-worn piece from three in four to one in four.
 
 ⚠️ **Drops are rolled from a derived sub-stream**, keyed on the stage index and the battle count —
 never from the main stream. Drawing from the main stream would make **fighting a stage shift the
@@ -295,6 +350,26 @@ curve should be revisited with it.
 
 ---
 
+## Auto-equip
+
+One button on the character sheet fills all five slots with the best pieces in the bag. Five slots
+each needing a tap into a picker, times a roster, is what it answers.
+
+⚠️ **It draws only from unequipped gear and never takes a piece off another character** — the one
+place it deliberately does less than `equip`, which does steal. The asymmetry is the point: a manual
+equip is a player naming one piece and one wearer, so moving it is what they asked for; a bulk
+action carries no such statement, and one that silently stripped four other characters would be a
+button to be afraid of. The cost is real and the screen says it out loud: the best piece in the game
+for this character can sit on a benched character and this will not fetch it.
+
+A slot changes only when a candidate is **strictly** better, so a second press is a no-op rather
+than a shuffle between two identical pieces.
+
+**Ranking is one scalar, and the archetype gate is what makes it one.** Candidates are already
+filtered to this character's archetype and the slot in question, so they share an authored profile
+and `gearScale` totally orders them. This is why the ladder is free to overlap — see the grade
+ladder above — and why nothing here needs grades to be strictly ordered.
+
 ## Two rules that are not conveniences
 
 ⚠️ **Equipped gear can never be consumed.** Not by salvage, not as material, not indirectly through
@@ -352,6 +427,7 @@ has one fewer dial than the player side, and that argument applies here unchange
 | [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients    |
 | [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system             |
 | [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                  |
+| [`ui/character-view.ts`](../src/ui/character-view.ts)     | The equipment panel, and the auto-equip button         |
 | [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                               |
 
 Gear enters the simulation on the same seam as level and rung: `toBattleCombatant` takes a

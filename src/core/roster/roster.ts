@@ -1,3 +1,4 @@
+import { awayMembers } from '../bounties';
 import { canAfford, debit } from '../currency';
 import { emptyLoadout } from '../gear/types';
 import {
@@ -49,7 +50,8 @@ export type RosterFailure =
   | 'level-capped'
   | 'insufficient-currency'
   | 'row-full'
-  | 'duplicate-party-member';
+  | 'duplicate-party-member'
+  | 'character-away';
 
 export type RosterResult =
   | { readonly ok: true; readonly state: GameState }
@@ -190,12 +192,21 @@ export function setFormation(
   if (new Set(members).size !== members.length) {
     return fail('duplicate-party-member');
   }
+  // ⚠️ **Half of the bounty board's disjointness invariant**, and the half that is easy to forget:
+  // a character cannot be both fighting and away. `dispatchBounty` refuses anybody already
+  // fielded, and this refuses anybody already dispatched. Enforcing only the first would let a
+  // player send somebody from the bench and then walk that same character into the formation,
+  // which is exactly the free-resource-tap the bench-sink design exists to prevent.
+  const away = awayMembers(state);
   for (const id of members) {
     if (characters.get(id) === undefined) {
       return fail('unknown-character');
     }
     if (findOwned(state, id) === undefined) {
       return fail('not-owned');
+    }
+    if (away.has(id)) {
+      return fail('character-away');
     }
   }
 

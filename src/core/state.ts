@@ -1,6 +1,9 @@
+import { type AchievementLedger, emptyAchievements } from './achievements';
+import { type Dispatch, emptyDispatches } from './bounties';
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
 import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
+import { emptyQuestWindows, type QuestWindows } from './quests';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
@@ -161,12 +164,24 @@ export interface GameState extends LadderPosition {
    */
   readonly formation: PartyFormation;
   /**
-   * Pulls made since the last ascended-tier character, driving the pity curve.
+   * Pulls made since the last ascended-tier character, driving the ascended pity curve.
    *
    * **Global, not per-banner.** Per-banner pity is a monetisation pattern — it makes every new
-   * banner a fresh fifty-pull tax — and there is nothing here to monetise.
+   * banner a fresh thirty-pull tax — and there is nothing here to monetise.
    */
   readonly pity: number;
+  /**
+   * Pulls made since the last character of legendary tier **or better**.
+   *
+   * A second counter rather than a second reading of {@link pity}, because the two answer
+   * different questions: this one bounds how long a run of nothing can get, and `pity` bounds how
+   * far away the top tier can be. An ascended-tier result clears both — it is not a miss on the
+   * promise this one makes.
+   *
+   * Stored rather than derived for the reason `pity` is: nothing else in the save records what the
+   * recent pulls produced, and the alternative is a log of them.
+   */
+  readonly legendaryPity: number;
   /** Pulls made over the life of the run. Display only; the RNG position lives in `rng.calls`. */
   readonly pullCount: number;
   /**
@@ -195,6 +210,38 @@ export interface GameState extends LadderPosition {
   readonly gearMinted: number;
   /** Which stocking of the gear shop this run is looking at, and what it has taken from it. */
   readonly gearShop: GearShopState;
+  /**
+   * How many achievement awards this run has claimed, keyed by track id.
+   *
+   * **A ledger of what was taken, not of what was earned.** What has been earned is a division
+   * over a counter the run already keeps — see `core/achievements.ts` — so storing it as well
+   * would be a second mechanism on the same number, with the two free to disagree after a repair.
+   * One integer per track is the whole of it.
+   *
+   * A keyed record rather than a field per track, for the reason {@link wallet} is one: milestone
+   * 1 carried a single quantity as flat fields and six currencies would have been twelve of them.
+   * A second track is an entry here and a line in `data/`, not a save migration.
+   */
+  readonly achievements: AchievementLedger;
+  /**
+   * The daily and weekly quest windows: when each opened, what the counters read then, and what
+   * has been claimed since.
+   *
+   * ⚠️ **No quest has a progress counter of its own**, and that is deliberate. A window stores a
+   * *baseline* of the totals this state already keeps, so progress is a subtraction and a reset is
+   * one assignment — which is what keeps quests entirely out of `applyBattleResult`. See
+   * `core/quests.ts`.
+   */
+  readonly quests: QuestWindows;
+  /**
+   * Missions currently running, and who is away on each.
+   *
+   * ⚠️ **Disjoint from {@link formation} by invariant**: a character cannot be both fighting and
+   * away. That is what makes the bounty board a bench sink rather than a free resource tap, and it
+   * is enforced in both directions — `dispatchBounty` refuses anybody fielded, `setFormation`
+   * refuses anybody away, and `repairDispatches` restores it on load. See `core/bounties.ts`.
+   */
+  readonly dispatches: readonly Dispatch[];
 }
 
 export interface NewGameOptions {
@@ -224,10 +271,14 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     roster: [],
     formation: emptyFormation(),
     pity: 0,
+    legendaryPity: 0,
     pullCount: 0,
     gear: [],
     gearMinted: 0,
     gearShop: emptyGearShop(),
+    achievements: emptyAchievements(),
+    quests: emptyQuestWindows(),
+    dispatches: emptyDispatches(),
   };
 }
 

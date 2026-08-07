@@ -35,6 +35,14 @@ export class SettingsView {
   protected readonly speeds = PLAYBACK_SPEEDS;
   protected readonly combatSpeed = this.settings.combatSpeed;
 
+  /** Whether the two come-back reminders are scheduled. Defaults on; one tap from off. */
+  protected readonly reminders = this.settings.reminders;
+
+  /** Turns the come-back reminders on or off. */
+  protected setReminders(enabled: boolean): void {
+    this.settings.setReminders(enabled);
+  }
+
   /** Set while the run is being wiped and rebuilt, so the control cannot be tapped twice. */
   protected readonly isResetting = signal(false);
 

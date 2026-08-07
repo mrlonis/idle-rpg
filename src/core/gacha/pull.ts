@@ -6,7 +6,13 @@ import { copyCost, rarityIndex, startRarityIndex } from '../roster/rarity';
 import { type CharacterLookup, grantCopies } from '../roster/roster';
 import { type AscensionRules, type CharacterData, type CharacterTier } from '../roster/types';
 import { type GameState } from '../state';
-import { type BannerData, type GachaRulesData, type PullOutcome, type PullResult } from './types';
+import {
+  type BannerData,
+  type GachaRulesData,
+  type PityCurveData,
+  type PullOutcome,
+  type PullResult,
+} from './types';
 
 /**
  * The gacha draw.
@@ -28,29 +34,69 @@ import { type BannerData, type GachaRulesData, type PullOutcome, type PullResult
  *
  * ## Pity is global and always visible
  *
- * `state.pity` counts pulls since the last ascended-tier character and is shown in the UI at
- * all times, alongside the current live rate. A gacha that hides its pity counter is hiding it
- * to make the next pull feel more urgent than it is; there is nothing to sell here, so there is
- * nothing to hide.
+ * `state.pity` counts pulls since the last ascended-tier character, `state.legendaryPity` pulls
+ * since the last legendary-tier one **or better**, and both are shown in the UI at all times
+ * alongside the current live rate. A gacha that hides its pity counter is hiding it to make the
+ * next pull feel more urgent than it is; there is nothing to sell here, so there is nothing to
+ * hide.
+ *
+ * ## Two counters, and the second one is a floor rather than a second draw
+ *
+ * The legendary curve does not get a roll of its own. It raises the **threshold** the single tier
+ * roll is compared against, which is what keeps consumption at three draws per pull however many
+ * curves are authored — a second curve that drew a second value would have broken the invariant
+ * above the moment it shipped.
+ *
+ * ⚠️ **At base rate the floor is exactly the proportional split and therefore binds on nothing.**
+ * With weights summing to 1, `ascended + legendary` *is* what the proportional rescale in
+ * {@link pickTier} produces at the base ascended rate, so a run inside the flat stretch of both
+ * curves draws precisely what it drew before the legendary curve existed. The floor is a floor:
+ * it can only ever raise the legendary threshold, never lower it, so the two curves cannot fight
+ * over the same roll and deep ascended pity is never *undone* by shallow legendary pity.
  */
 
 /**
- * The live chance of an ascended-tier result on the given pull number.
+ * The live chance of a result at or above the tier `curve` guards, on the given pull number.
  *
- * `pullNumber` is 1-based within the current pity cycle: the pull immediately after an
- * ascended-tier result is pull 1. Exported because the summon screen shows it — a player
- * should be able to read their odds off the screen rather than infer them.
+ * `pullNumber` is 1-based within that curve's own cycle: the pull immediately after the counter
+ * cleared is pull 1.
  */
-export function ascendedChance(rules: GachaRulesData, pullNumber: number): number {
-  const { softPityStart, softPityStep, hardPity } = rules.pity;
-  const base = clamp01(rules.tierWeights.ascended);
+function pityChance(curve: PityCurveData, base: number, pullNumber: number): number {
+  const { softPityStart, softPityStep, hardPity } = curve;
   if (pullNumber >= hardPity) {
     return 1;
   }
   if (pullNumber <= softPityStart) {
-    return base;
+    return clamp01(base);
   }
   return clamp01(base + softPityStep * (pullNumber - softPityStart));
+}
+
+/**
+ * The live chance of an ascended-tier result on the given pull number.
+ *
+ * Exported because the summon screen shows it — a player should be able to read their odds off
+ * the screen rather than infer them.
+ */
+export function ascendedChance(rules: GachaRulesData, pullNumber: number): number {
+  return pityChance(rules.pity.ascended, rules.tierWeights.ascended, pullNumber);
+}
+
+/**
+ * The live floor under a legendary-**or-better** result on the given pull number.
+ *
+ * A floor rather than a rate: what a pull actually resolves against is the larger of this and the
+ * proportional split, which is why this is not simply "the chance of a legendary". At the base
+ * rate the two are equal by construction — see the note at the top of this file — so this reads as
+ * a rate everywhere it is displayed, and only diverges once the ramp has started.
+ *
+ * The base is `ascended + legendary` because an ascended-tier result is not a miss on the promise
+ * this curve makes. Counting it as one would let a player who just pulled the best thing on the
+ * banner be told they are owed a consolation prize for it.
+ */
+export function legendaryChance(rules: GachaRulesData, pullNumber: number): number {
+  const base = rules.tierWeights.ascended + rules.tierWeights.legendary;
+  return pityChance(rules.pity.legendary, base, pullNumber);
 }
 
 function clamp01(value: number): number {
@@ -84,11 +130,18 @@ function eliteUpgradeCopies(
   return Math.max(copyCost(rules, pathFor(character, factions), start, elite), 1);
 }
 
-/** Picks a tier from the weights, with `chance` already decided for the ascended tier. */
+/**
+ * Picks a tier from the weights, with both curves already evaluated for this pull.
+ *
+ * One roll, two thresholds. `ascendedChanceNow` is the first; the second is the larger of the
+ * proportional split and `legendaryFloorNow`, which is what makes the legendary curve a floor
+ * rather than a competing draw.
+ */
 function pickTier(
   rules: GachaRulesData,
   roll: number,
   ascendedChanceNow: number,
+  legendaryFloorNow: number,
 ): { tier: CharacterTier; wasGuaranteed: boolean } {
   if (roll < ascendedChanceNow) {
     return { tier: 'ascended', wasGuaranteed: ascendedChanceNow >= 1 };
@@ -99,12 +152,15 @@ function pickTier(
   const legendary = Math.max(rules.tierWeights.legendary, 0);
   const common = Math.max(rules.tierWeights.common, 0);
   const total = legendary + common;
-  if (total <= 0) {
-    return { tier: 'common', wasGuaranteed: false };
+  const proportional =
+    total > 0
+      ? ascendedChanceNow + (1 - ascendedChanceNow) * (legendary / total)
+      : ascendedChanceNow;
+  const legendaryChanceNow = Math.max(proportional, clamp01(legendaryFloorNow));
+  if (roll < legendaryChanceNow) {
+    return { tier: 'legendary', wasGuaranteed: legendaryChanceNow >= 1 };
   }
-  const span = 1 - ascendedChanceNow;
-  const within = span > 0 ? (roll - ascendedChanceNow) / span : 0;
-  return { tier: within < legendary / total ? 'legendary' : 'common', wasGuaranteed: false };
+  return { tier: 'common', wasGuaranteed: false };
 }
 
 /**
@@ -147,6 +203,7 @@ export function pull(
   const results: PullResult[] = [];
   let next: GameState = { ...state, wallet: debit(state.wallet, cost) };
   let pity = Math.max(Math.floor(next.pity), 0);
+  let legendaryPity = Math.max(Math.floor(next.legendaryPity), 0);
   let sparkEarned = 0;
 
   for (let i = 0; i < pulls; i++) {
@@ -156,7 +213,8 @@ export function pull(
     const upgradeRoll = stream.next();
 
     const chance = ascendedChance(rules, pity + 1);
-    const rolled = pickTier(rules, tierRoll, chance);
+    const floor = legendaryChance(rules, legendaryPity + 1);
+    const rolled = pickTier(rules, tierRoll, chance, floor);
 
     const candidates = pool.filter((character) => character.tier === rolled.tier);
     const from = candidates.length > 0 ? candidates : pool;
@@ -166,10 +224,12 @@ export function pull(
     // whenever a banner's pool has nobody at the rolled tier and the draw falls back to the
     // whole pool. Reporting the rolled tier there would be a lie with teeth: pity would reset on
     // a pull that produced no ascended-tier character at all, and a narrowed banner could hand
-    // out an ascended-tier reset for a common-tier unit. Everything downstream — pity, spark,
-    // the elite upgrade — keys off what the player actually received.
+    // out an ascended-tier reset for a common-tier unit. Everything downstream — both pity
+    // counters, spark, the elite upgrade — keys off what the player actually received.
     const tier = character.tier;
-    const wasGuaranteed = rolled.wasGuaranteed && tier === 'ascended';
+    // A guarantee the fallback did not honour is not a guarantee. Compared against the rolled
+    // tier rather than named outright, so this stays correct for whichever curve was certain.
+    const wasGuaranteed = rolled.wasGuaranteed && tier === rolled.tier;
 
     const upgraded = tier === 'legendary' && upgradeRoll < clamp01(rules.eliteUpgradeChance);
     const worth = upgraded ? eliteUpgradeCopies(ascensionRules, character, factions) : 1;
@@ -185,6 +245,8 @@ export function pull(
     const spark = granted.overflow * Math.max(rules.sparkPerCopy[tier] ?? 0, 0);
     sparkEarned += spark;
     pity = tier === 'ascended' ? 0 : pity + 1;
+    // Cleared by legendary **or better**. An ascended-tier result is not a miss on this promise.
+    legendaryPity = tier === 'common' ? legendaryPity + 1 : 0;
 
     results.push({
       defId: character.id,
@@ -195,6 +257,7 @@ export function pull(
       copies: granted.overflow > 0 ? 0 : worth,
       spark,
       pity,
+      legendaryPity,
       wasGuaranteed,
     });
   }
@@ -209,6 +272,7 @@ export function pull(
           : next.wallet,
       rng: stream.commit(),
       pity,
+      legendaryPity,
       pullCount: next.pullCount + pulls,
     },
     results,

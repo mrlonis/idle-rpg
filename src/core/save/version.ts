@@ -6,19 +6,25 @@
  * asserts that every version below this one has a migration registered, so that mistake
  * fails in CI rather than on a player's device.
  *
- * **The floor is zero because the chain was re-based, not because nothing has happened.** Five
- * versions and four migrations were collapsed into a v0 baseline while the game was still
- * pre-release — see [saves](../../../docs/saves.md). There is nothing below that floor and there
- * never will be; a save declaring a version outside `[0, SAVE_VERSION]` is discarded and the run
- * starts fresh.
+ * **Zero, and it has been re-based to zero twice.** The first re-base folded five pre-release
+ * versions and four migrations into a v0 baseline; the second folded the six that had accumulated
+ * on top of it — gear, the ladder's new bottom, the achievement ledger, the quest windows, the
+ * bounty board and the legendary pity counter — back into this one. Both ran on the single argument
+ * that licenses either: **no save any of those versions wrote has ever existed outside
+ * development.** See [saves](../../../docs/saves.md) for the reset and the condition that closes
+ * the door on repeating it.
  *
- * **One above it because milestone 12 added gear.** v0 → v1 is additive and is the first entry the
- * chain walker has ever had to walk.
+ * ⚠️ **The version numbers are burned again, and more thoroughly than the first time.** 1 through 6
+ * have each now meant two different things — the old v1 was milestone 1's gold counter and the
+ * second v1 was the gear schema — and a build cannot tell any pair apart from the number alone. A
+ * genuine save at one of those numbers would be read as *newer than this build* and discarded,
+ * which is at least the safe direction; it is still a save nothing can recover. That is harmless
+ * only while the audience is zero, and it is the cost of re-basing that is easiest to forget.
  *
- * **Two because the copies-only rewrite grew the ladder a bottom.** v1 → v2 is the first migration here that
- * *reinterprets* a field rather than adding one: two rungs went in below `rare`, so every stored
- * rarity index means a rung two lower than it did. That is the failure mode `RARITIES` is now
- * commented against — an insert anywhere but the top of that array is a save migration, not a
- * content edit.
+ * **A save is unreadable now only by being newer than this build**, or by carrying a version that
+ * is not a non-negative integer. There is nothing below this floor and there never will be. ⚠️ Any
+ * test for the unreadable case must **derive** its version from `SAVE_VERSION` rather than write a
+ * literal — a fixture naming a number went stale twice while the chain was growing, and a literal
+ * written today is a test that quietly stops testing anything the first time the chain grows again.
  */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 0;

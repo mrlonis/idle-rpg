@@ -127,3 +127,26 @@
   background: t.$danger-bg;
   color: t.$danger;
 }
+
+// The reminders toggle. A real checkbox, visually restyled but never hidden from the accessibility
+// tree — the same rule the speed radios follow.
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: t.$tap-target;
+  cursor: pointer;
+}
+
+.toggle__input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: t.$accent;
+  cursor: pointer;
+  @include t.focus-ring;
+}
+
+.toggle__text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}

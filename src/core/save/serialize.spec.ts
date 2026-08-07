@@ -44,10 +44,17 @@ describe('toSaveData', () => {
       roster: [],
       formation: { front: [], back: [] },
       pity: 0,
+      legendaryPity: 0,
       pullCount: 0,
       gear: [],
       gearMinted: 0,
       gearShop: { slot: 0, purchased: [] },
+      achievements: {},
+      quests: {
+        daily: { index: -1, baseline: {}, claimed: [] },
+        weekly: { index: -1, baseline: {}, claimed: [] },
+      },
+      dispatches: [],
     });
   });
 
@@ -342,7 +349,9 @@ describe('fromSaveData repair', () => {
   });
 
   it('always returns a state stamped at the current version', () => {
-    expect(fromSaveData({ version: 1 }, OPTIONS).state.version).toBe(SAVE_VERSION);
+    // Derived rather than written down, so this keeps meaning "a version that is not the current
+    // one" however the chain moves.
+    expect(fromSaveData({ version: SAVE_VERSION + 1 }, OPTIONS).state.version).toBe(SAVE_VERSION);
   });
 
   describe('the gear mint counter', () => {

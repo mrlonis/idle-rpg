@@ -156,10 +156,18 @@ describe('where the curve lands, in hours of idle income', () => {
     // a chapter-100 target and two chapters are shipped, so a reachable one would mean the curve
     // had been flattened or the rates inflated past what the content justifies.
     //
-    // Because the rates are read from `stages.ts`, this is the assertion that fires when new
-    // content raises income without the curve being revisited. It is meant to fail then: the
-    // right response is to retune deliberately, not to raise the threshold here.
-    expect(hoursTo(curve.maxLevel).gold).toBeGreaterThan(1000);
+    // Because the rates are read from `chapters.ts`, this is the assertion that fires when income
+    // rises without the curve being revisited. It is meant to fail then: the right response is to
+    // retune deliberately, not to raise the threshold here.
+    //
+    // ⚠️ **It fired, and the deliberate answer was to lower it from 1000 to 500 — once.** The
+    // ladder's rates doubled, which halved this from 1,175 hours to 588, and the level curve was
+    // left alone on purpose: the point of doubling was that progression be twice as fast, so a
+    // curve retuned to cancel it would have made the change a no-op. 588 hours is still ~25 days
+    // of unbroken idle income for one character, on content that is 2% of the planned ladder.
+    // **The next thing that raises income has to move the curve rather than this number** — a
+    // threshold that gives way every time is not a guard, and this one has now given way once.
+    expect(hoursTo(curve.maxLevel).gold).toBeGreaterThan(500);
   });
 });
 

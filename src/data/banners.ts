@@ -10,9 +10,18 @@
  * bridge to sell here — the game is free, permanently, with nothing to buy — so every reason
  * to be stingy is a reason that does not apply. Generosity costs nothing.
  *
- * So: **2.5% base for an ascended-tier character, not 0.6%. Hard pity at 50, not 90.** Soft
+ * So: **2.5% base for an ascended-tier character, not 0.6%. Hard pity at 30, not 90.** Soft
  * pity ramps steeply enough that the real average is well under the hard cap. An unlucky
  * player here has no wallet to escape with, which is exactly why the floor has to be a floor.
+ *
+ * ## Two floors, because a dry spell and a drought are different complaints
+ *
+ * A single counter cannot bound both. The interval that keeps the top tier from feeling remote is
+ * far too long to keep a *session* from feeling empty, and an ascended cycle short enough to do
+ * that job would have made the top tier routine. So there are two: legendary-or-better within ten
+ * pulls, ascended within thirty. The first is sized to {@link MULTI_PULL_COUNT} deliberately — a
+ * ten-pull is the unit a player actually experiences, and one that came back all-common was the
+ * worst thing this banner could produce.
  *
  * ## Duplicates are never wasted, at any point in a run
  *
@@ -49,14 +58,27 @@ export const PULL_COST = 100;
  * if what it buys compounds: levels compound, so gold does; a pull is a flat 100 crystals and an
  * ascension a flat count of copies, so a compounding crystal rate would outrun its own prices and
  * make pulls effectively unlimited a chapter or two in. Linear keeps the full ladder worth
- * climbing — a hundred stages is +50% income — without ever getting ahead of what it is spent on.
+ * climbing — clearing the shipped hundred stages **doubles** the rate — without ever getting ahead
+ * of what it is spent on.
  *
- * **The step halved when milestone 11 shipped chapters, and that is the curve being retuned
- * rather than a threshold being moved.** It was one crystal an hour a clear against a
- * twenty-four stage ladder; a hundred stages at that step is three ten-pulls a day becoming five,
- * which is past the pacing `banners.spec.ts` pins. The spec said in advance that a longer ladder
- * should fail there and be retuned deliberately, and this is that retune. The base did not move:
- * a pull an hour from install is the number that makes this economy legible.
+ * **The step halved when milestone 11 shipped chapters, and it has been put back.** Milestone 11
+ * cut it from 1 to 0.5 because a hundred stages at the full step is five ten-pulls a day where the
+ * ladder had been paying three, and that was past the band `banners.spec.ts` held at the time. The
+ * band is what moved instead, deliberately and with the numbers on the table: at the full step a
+ * cleared ladder pays **48 pulls a day** against 36, and the shape of the reward — flat base plus
+ * linear step, once per stage, ever — did not change at all. What licenses it is the thing this
+ * curve was ever actually guarding: the failure mode is a rate that **compounds** past a flat
+ * `PULL_COST`, and a linear step cannot do that at any size. Being extravagant and compounding are
+ * different things, and only the second one was ever the bug (see [economy](../../docs/economy.md)).
+ *
+ * ⚠️ **What still binds is the ratio, not the step.** The ladder's contribution is `step × stages`
+ * against a base of 100, so the full step means the shipped hundred stages exactly double the base
+ * — and a ladder twice as long would treble it. That is the number `banners.spec.ts` bounds, and
+ * a third and fourth chapter walk it toward the ceiling. Adding chapters is what should force this
+ * question again; the step is not free to raise a second time.
+ *
+ * The base did not move either way: a pull an hour from install is the number that makes this
+ * economy legible.
  *
  * The step is paid **once per stage, ever**. Re-fighting a cleared stage, by hand or on
  * auto-battle, moves it by nothing at all: a repeatable crystal payout would make tap-farming
@@ -64,7 +86,7 @@ export const PULL_COST = 100;
  */
 export const SUMMON_RATE = {
   basePerHour: 100,
-  perClearPerHour: 0.5,
+  perClearPerHour: 1,
 } as const;
 
 /** Pulls in a multi-pull. Ten is the genre convention and the pity counter is tuned to it. */
@@ -77,6 +99,13 @@ export const MULTI_PULL_COUNT = 10;
  * each other** rather than one absorbing the whole change — so a pity-inflated pull is still
  * roughly three common-tier characters for every legendary-tier one, and the shape of the pool
  * a player experiences does not lurch as the counter climbs.
+ *
+ * ⚠️ **They must sum to 1, and {@link PITY}'s legendary curve is why that stopped being cosmetic.**
+ * That curve's base is `ascended + legendary`, and it is applied as a *floor* under the same roll —
+ * so it binds on nothing at the base rate only because the proportional split above happens to
+ * land on exactly that number when the three weights total one. Weights summing to anything else
+ * would put the two mechanisms slightly out of step from pull one, quietly, in whichever direction
+ * the total leaned. `banners.spec.ts` asserts the sum.
  */
 export const TIER_WEIGHTS = {
   ascended: 0.025,
@@ -85,17 +114,50 @@ export const TIER_WEIGHTS = {
 } as const;
 
 /**
- * The pity curve, in pulls since the last ascended-tier character.
+ * The two pity curves.
  *
  * `softPityStart` is the last pull still at the base rate; every pull after it adds
- * `softPityStep`. With a 6-point step the chance passes 100% a few pulls before `hardPity`
- * ever has to fire, so the hard cap is a guarantee rather than the mechanism — the counter is
- * usually cleared in the high thirties.
+ * `softPityStep`, and `hardPity` is where the promise is kept outright.
+ *
+ * **Both are shaped the same way, and it is the shape that matters rather than the constants.**
+ * The ramp reaches certainty *before* the hard cap in each case — pull 27 of 30, pull 9 of 10 — so
+ * the cap is a guarantee rather than the mechanism, and a player is essentially never walked all
+ * the way to it. That is the property `banners.spec.ts` holds, proportionally, for whichever
+ * curves are authored here.
+ *
+ * ## What the numbers cost
+ *
+ * ⚠️ **The ascended ramp had to be re-derived when the cap moved from 50 to 30, not just clipped.**
+ * It used to start at pull 30, which under a cap of 30 would mean no ramp at all: a flat 2.5% for
+ * twenty-nine pulls and then a cliff. Starting at 20 with a 15-point step puts certainty at 27 and
+ * keeps the same relationship the old curve had — two thirds of the cycle at base rate, the last
+ * tenth guaranteed.
+ *
+ * The effect is a genuine raise rather than a re-labelling: an ascended-tier character now arrives
+ * every **17.6 pulls** on average against 23.4 before, and a legendary-or-better every **3.36**
+ * against 3.79. Both are far past what the base weights alone would give, which is the point —
+ * a rate is what a player is promised and pity is what they actually get.
  */
 export const PITY = {
-  softPityStart: 30,
-  softPityStep: 0.06,
-  hardPity: 50,
+  /** Pulls since the last ascended-tier character. */
+  ascended: {
+    softPityStart: 20,
+    softPityStep: 0.15,
+    hardPity: 30,
+  },
+  /**
+   * Pulls since the last character of legendary tier **or better**.
+   *
+   * Six pulls at the base 25%, then 50%, 75% and certainty — so the guarantee at ten is a promise
+   * the ramp keeps first. Deliberately not a scaled-down copy of the ascended curve: this one is
+   * short enough that a player feels it every session, so it is worth having the ramp do the work
+   * rather than the cap.
+   */
+  legendary: {
+    softPityStart: 6,
+    softPityStep: 0.25,
+    hardPity: 10,
+  },
 } as const;
 
 /**
@@ -191,8 +253,8 @@ export const SPARK_SHOP = [
  *
  * One for now. `bannerId` exists in the `pull()` signature and in the save from the start so
  * that adding a second — a faction banner, a rate-up — is content rather than a schema change.
- * Pity is **global**, not per-banner: splitting it is a monetisation pattern (it makes each new
- * banner a fresh 50-pull tax) and there is nothing here to monetise.
+ * Both pity counters are **global**, not per-banner: splitting them is a monetisation pattern (it
+ * makes each new banner a fresh thirty-pull tax) and there is nothing here to monetise.
  */
 export const BANNERS = [
   {

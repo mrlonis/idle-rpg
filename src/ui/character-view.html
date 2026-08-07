@@ -45,10 +45,29 @@
         }
       </ul>
     } @else {
+      <!--
+        This used to say a piece "is worth the same at level 1 and at level 1000", meaning the
+        *wearer's* level — and it sat three lines above rows labelled "Lv 20", so it read as a claim
+        that enhancing a piece does nothing. Both levels now get named.
+      -->
       <p class="card__footnote">
-        Nothing equipped. Gear is a percentage of this character’s own stats, so a piece is worth
-        the same at level 1 and at level 1000.
+        Nothing equipped. A piece adds a percentage of {{ row.name }}’s own stats, so it keeps its
+        value as they level — and enhancing the piece raises that percentage.
       </p>
+    }
+
+    <!--
+      Bulk before detail: five slots each needing a tap into a picker was the whole complaint this
+      answers. It sits above the slot list rather than below it because it is the action that makes
+      the list unnecessary in the common case.
+    -->
+    <div class="actions actions--gear">
+      <button type="button" class="button button--primary" (click)="autoEquip()">
+        Auto-equip best
+      </button>
+    </div>
+    @if (autoEquipNote(); as note) {
+      <p class="card__footnote" role="status">{{ note }}</p>
     }
 
     <ul class="slots">
@@ -258,14 +277,24 @@
         </p>
       }
 
-      <button
-        type="button"
-        class="button button--primary button--wide"
-        [disabled]="!row.canAscend"
-        (click)="ascend()"
+      <!--
+        A link, not a button: ascending happens at the Altar and nowhere else, so this changes
+        where the player is rather than what they own. It carries `focus` so they land on this
+        character's row instead of at the top of the roster — the panel above quotes a price, and
+        a price with no way to pay it is a dead end.
+      -->
+      <a
+        class="ascend__link"
+        routerLink="/town/altar"
+        [queryParams]="{ focus: row.defId }"
+        [class.ascend__link--ready]="row.canAscend"
       >
-        Ascend to next rarity
-      </button>
+        @if (row.canAscend) {
+          Ascend at the Altar →
+        } @else {
+          See {{ row.name }} at the Altar →
+        }
+      </a>
     }
   </section>
 } @else {

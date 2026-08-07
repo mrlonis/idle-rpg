@@ -36,7 +36,8 @@ gap it creates. There is no bridge to sell here, so generosity is free. When sug
 rates or pacing, err generous. Pity and duplicate-conversion are mandatory — an unlucky
 player has no escape valve, so bad luck must be bounded. Both shipped in milestone 3: pity is
 global and always on screen, and duplicates are the primary ascension path rather than a
-consolation prize — a pull can never produce nothing.
+consolation prize — a pull can never produce nothing. There are **two pity curves** now:
+legendary-or-better within 10 pulls and ascended within 30, both global and both on screen.
 
 ---
 
@@ -66,21 +67,49 @@ the two disagree, the code is right and both are stale.
     starting two rungs lower did not make it stronger. This is what kept the entire stage ladder in
     tune across the change — all 32 balance sweeps pass with no stage edited — so paying those
     rungs a multiplier means re-deriving the ladder from scratch, not adjusting a constant.
-  - **The bottom of the ladder is the whole of the tier gap.** Every rung charges every character
-    the same, so a tier is worth exactly the rungs it skips: 20 copies for `legendary`, 28 for
-    `ascended`. The old recursion produced that gap for free by compounding; a flat table does not,
-    so it is authored there deliberately and calibrated against how often a pull produces one.
+  - **Tier is a head start, not a shorter climb.** Every rung charges every character the same, so a
+    tier is worth exactly the rungs it skips: 10 copies for `legendary`, 20 for `ascended`. But only
+    20 of the ladder's 92 copies sit below `elite` — the other 72 are the stretch every tier walks —
+    so the totals land within ×1.27 of each other (93 / 83 / 73 mortal). What separates the climbs
+    is the **stream**, not the price: measured through `pull()` with pity live, a specific
+    ascended-tier character arrives ×4.1 less often than a common-tier one, so a higher tier is the
+    **longer** investment (~2,800 / ~7,200 / ~9,000 pulls to ★5).
+    - ⚠️ **This inverts what the ladder said before, deliberately.** The bottom used to carry the
+      whole tier gap (28 of 45 copies) so every tier was a comparable commitment and ascended tier
+      maxed _fastest_. Rungs 0–3 are still the only lever on the head start's size.
+    - ⚠️ **Quote the tier rate ratio as ×4.1, not ×10.** ×10 is `TIER_WEIGHTS` alone; pity lifts the
+      effective ascended rate 2.5% → 5.69% and lifts common not at all. Only the measured figure
+      describes a banner anybody plays.
+    - **Pulls are shared, so a per-character figure is a whole-tier figure.** The ~2,800 pulls that
+      max one common-tier character max all twenty-one; the run-level number is the slowest case,
+      ~11,400 pulls for the full 49-character roster.
+  - ⚠️ **The celestial premium is sized against the total and lives on rungs 5–9 only.**
+    `elite → elite+` and all five stars are shared. It was ×2 per rung when those rungs were 1s and
+    2s (+6 copies, ~×1.2 on a climb); ×2 on today's rungs would cost +38 and reach ×1.5, the same
+    rule charging a much heavier tax because the rungs underneath grew. It is ×1.5 now, and
+    `ascension.spec.ts` holds the **ratio** rather than the factor for that reason.
   - ⚠️ **A rarity id protects against the ladder being reordered, not against a rung being inserted
     below it.** `chapters.balance.ts` fielded its reference parties at `rarityIndex('rare')` for
     exactly that protection and every one of them silently gained ×1.6² anyway. Anything meaning
     "how far has this been invested" must count rungs from a floor.
+  - **Ascending happens at the Altar (`ui/altar-view.ts`, `/town/altar`) and nowhere else.** The
+    character sheet keeps its Ascension panel — the price, and which skill the next rung unlocks —
+    and links there instead of carrying a button. Do not put an ascend control back on the sheet:
+    one rung per sheet meant a player holding duplicates of nine characters opened nine screens to
+    make nine decisions that had no alternative in them.
+  - **`ascendAll` climbs the whole roster greedily, and that is licensed by the pricing rather than
+    by convenience.** Copies are spent on the character they are copies of and have no other use,
+    so no two characters compete and nothing is foregone — which is why one press needs no
+    confirmation. ⚠️ **A rung priced in anything shared makes this a choice again** and it goes back
+    to the player rather than being resolved greedily. Its loop is bounded by the ladder, never by
+    the copies: a rung a short table does not author reads as free.
 - **[docs/combat.md](../../docs/combat.md)** — the ATB loop, the damage formula, targeting, skills,
   energy and ultimates, statuses, the event log, and the RNG draw discipline. **Rules marked ⚠️
   there are termination arguments, not balance knobs** — relaxing one lets `simulateBattle` fail to
   return.
   - **A fight is ninety seconds and running the clock out is a defeat.** There is no draw
     outcome; `MAX_BATTLE_TICKS` is the timer, and it is a rule of the game as much as a guard.
-    The headroom over the longest tuned fight is **1.66×**, so a stage that takes longer than
+    The headroom over the longest tuned fight is **1.44×**, so a stage that takes longer than
     ninety seconds against the party it is meant for is unclearable — treat the timer as a budget
     every encounter has to fit inside, and expect the balance sweep to say so first. It was 1.9×
     until milestone 8e spent most of it on the mono-faction fives, and milestone 10 handed some
@@ -93,6 +122,15 @@ the two disagree, the code is right and both are stale.
     timer, and by the zero-timeout guard below. Do not widen the headroom assertion back to every
     fight in the sweep: it would fail on parties nothing is tuned for, which is not what it is
     for.
+  - ⚠️ **Closing pressure is the termination argument, and it is not a difficulty knob.** Past
+    `PRESSURE_AFTER_TICKS` (500 — fifty seconds) every damage instance is multiplied by a factor
+    rising `PRESSURE_PER_TICK` each tick without bound; **healing is deliberately not amplified**,
+    which is what breaks any closed sustain loop. It applies to **both sides equally**, so it
+    decides only _that_ a fight ends, never _who_ wins. Three things must stay true: every fight
+    resolving inside the threshold stays bit-identical to what it was without this (which is what
+    let it land on a shipped ladder with no stage re-derived); the factor stays a function of the
+    **tick** alone, which is what preserves the whole-board rescale identity; and it is never
+    reached for to make late content harder. Added in milestone 14a — see [combat](../../docs/combat.md).
   - One termination argument lives outside `core/`: milestone 8b deleted the MP pool that
     guaranteed a fight against a healer resolves, so an assertion in the balance sweep stands in
     its place. It reads **`BattleResult.timedOut`, not the outcome** — a timeout and a wipe are the
@@ -125,12 +163,57 @@ the two disagree, the code is right and both are stale.
     with no anti-cheat. The refresh index is supplied by `ui/`; `core/` still has no clock.
   - **Drops roll from a derived sub-stream**, never the main one. Otherwise fighting a stage shifts
     the gacha sequence.
+  - **How many pieces a clear drops is a range, rolled once per fight** — 1–3 ordinary, 2–5
+    mini-boss, 4–8 boss. ⚠️ **The floor of 1 is a rule and the ceilings are tuning.** "A fight never
+    produces nothing" is the same rule that makes a pull always produce something, so `dropCount`
+    clamps the minimum up to 1 whatever `data/` authors — a range of `0..n` would reintroduce the
+    drop _chance_ this design rejected. The ranges are meant to overlap; what `gear.spec.ts` holds
+    is that each kind's floor **and** ceiling beat the rank below it.
+  - ⚠️ **The count draw is the first draw in `rollDrops`, and its position is load-bearing.** Every
+    later draw shifts by one, so moving it re-rolls every historical drop for a given seed —
+    invisible in play, and it turns every recorded balance figure into a different number. The count
+    is drawn once for the batch and the grade per piece, because they answer different questions:
+    whether the _fight_ was lucky against whether the _piece_ was.
 - **[docs/economy.md](../../docs/economy.md)** — the six currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
   income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
   coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
   old hand-tuned ladder paid at the same **enemy level**, which is what stops a longer ladder from
   meaning a richer one.
+  - **The base rates are 1 gold, 0.2 xp and 0.003 essence, doubled from the ladder they were
+    derived against.** ⚠️ **Scale all three together or none.** Every economy assertion in
+    `levels.spec.ts` is a ratio between the currencies or a comparison among them, and a common
+    factor cancels out of all of them — the gear shop and the bounty board too, since both price in
+    **seconds of the run's own income** rather than in amounts. Doubling one currency moves every
+    one of those; doubling all three moves none.
+  - ⚠️ **The one number not covered by that cancellation is the level ceiling in absolute hours,
+    and its guard has already been spent.** Doubling took level 1000 from 1,175 hours of
+    top-of-ladder idle income to 588, and `levels.spec.ts` was lowered from 1,000 to 500 rather
+    than the level curve being steepened — because progression being twice as fast _was_ the
+    change. **The next thing that raises income has to move the level curve, not that threshold.**
+  - **The banner keeps two pity curves, not one**: legendary-or-better within 10 pulls (soft from 6
+    at +25pt, certain at 9), ascended within 30 (soft from 20 at +15pt, certain at 27). They bound
+    different complaints — how long a run of nothing can get, against how far away the top tier can
+    be — and one counter cannot do both. `GameState` stores both; `state.pity` is still the
+    ascended one.
+    - ⚠️ **The legendary curve is a floor under the same roll, never a second draw.** It raises the
+      threshold the single tier roll is compared against, which is what keeps consumption at exactly
+      three draws per pull. A curve drawing its own value breaks the invariant `rng.calls` rests on,
+      and breaks it silently — nothing about the results would look wrong.
+    - ⚠️ **At base rate that floor equals the proportional split exactly, and `TIER_WEIGHTS` summing
+      to 1 is what makes it so.** A run inside the flat stretch of both curves therefore draws
+      precisely what it drew before the second curve existed, and the floor can only ever raise the
+      legendary threshold — which is what stops deep ascended pity being undone by a freshly cleared
+      legendary counter. Weights summing to anything else put the two mechanisms quietly out of step
+      from the first pull.
+    - ⚠️ **A hard cap moved is a soft ramp re-derived, not clipped.** Taking ascended pity from 50 to
+      30 left `softPityStart` at 30, which is a flat 2.5% for twenty-nine pulls and then a cliff —
+      no ramp at all. The "certainty arrives before the cap" assertion in `banners.spec.ts` is
+      **proportional to the cycle** for the same reason: three pulls of headroom is a tenth of a
+      thirty-pull cycle and nearly a third of a ten-pull one.
+    - **The base weights did not move, and holding them steady was the decision.** A rate is what a
+      player is promised and pity is what they actually get; lowering the weights to keep the
+      effective rate flat would be a rate cut dressed as a floor.
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../../src/core/ladder.ts) before touching progression.
   - ⚠️ **`GameState.stage` is the stage within its chapter, not a position on the whole ladder.**
@@ -159,14 +242,169 @@ the two disagree, the code is right and both are stale.
     three go through `effectiveLevel`.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
+- **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
+  14b. Read [`core/achievements.ts`](../../src/core/achievements.ts) and
+  [`core/quests.ts`](../../src/core/quests.ts) before touching either.
+  - ⚠️ **Neither adds a field to the battle path, and that is the whole design.** An achievement
+    track stores **one integer** — awards _taken_ — and derives what is earned by division. A quest
+    window stores a **baseline** of the counters as they stood when it opened, and progress is a
+    subtraction. Giving either a running total incremented from `applyBattleResult` is a write into
+    the hottest path in the game for a derivable number, and a second place for progress to
+    disagree with itself.
+  - ⚠️ **Every quest reward is crystals, and every achievement award is flat.** Gold, xp and
+    essence price against a level curve worth ×10⁹, so a flat quantity of any of them is invisible
+    within a chapter or two; a pull costs a flat `PULL_COST` forever. A reward that _scaled_ would
+    also pay most to the player whose ladder is already moving, which is the opposite of what these
+    exist for.
+  - ⚠️ **No quest may be measured against `clearedStages`.** It counts _first_ clears, so it stops
+    moving at the top of the authored ladder and the quest becomes permanently unfinishable. The
+    type forbids it; `battleCount` and `pullCount` always move. **An achievement measured against it
+    is fine and one is shipped** — a quest that stops moving is unfinishable, an achievement that
+    stops moving is one the player has finished.
+  - **"Counters the run already keeps" is a rule about the stored field, not about the counter.**
+    `clearedChapters` is **derived** — `clearedStages` resolved against the shipped `LadderShape` —
+    and adds no save field, no migration and nothing to the battle path, which is the whole of what
+    that rule protects. It is why `trackProgress`, `allProgress` and `claimAchievements` all take a
+    ladder, **required rather than defaulted**: a caller with no ladder would report the chapter
+    track as having earned nothing, on every screen, forever.
+    - ⚠️ **A chapter is not an interval of stages.** `every: 50` over `clearedStages` is the
+      obvious authoring and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty — it
+      pays a "chapter" award part way into the next chapter, silently, forever.
+    - **A coarse counter needs `AchievementProgress.position`, which is `total` plus how far into
+      the next unit the run has come.** A chapter is fifty fights, so a bar drawn from the whole
+      count alone sits empty through all of them and then jumps, on the largest reward in the game.
+      It equals `total` for every stored counter, and `aria-valuenow` follows it so the announced
+      value cannot contradict the fill.
+  - **Nothing in the crystal economy is linear in the stage index.** A first clear pays a flat 250
+    (×2 mini-boss, ×5 chapter boss), Stage Climber 1,000 per five clears, Chapter Conqueror 10,000
+    per chapter. ⚠️ **The flattening and the track raises are one redistribution and only balance
+    when read together** — the ladder's first clears fell from ~58,800 to 29,000 and the tracks rose
+    from 5,000 to 40,000. Retuning either half alone moves the pacing; `data/achievements.spec.ts`
+    measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
+    the one thing still linear, and it is linear in the **clear count** rather than the index.
+  - ⚠️ **`perClearPerHour` is back at 1, and the headroom that allowed it is nearly spent.** The
+    ladder's crystal contribution is `step × stages` against a base of 100, so the shipped hundred
+    stages now **double** the base rate (48 pulls a day at a full clear, against 36 at the old 0.5).
+    A third chapter takes that ratio to ×2.5 and a fourth to ×3, where `banners.spec.ts` fails —
+    and the right answer there is to retune the **step**, not the threshold. Both bands in that
+    spec were moved deliberately when the step went back up; do not read that as licence to move
+    them again. What is not negotiable is the shape: a flat base plus a **linear** step, paid once
+    per stage ever, never compounding — that is what a flat `PULL_COST` can survive at any size,
+    and extravagance was never the bug.
+  - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
+    consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
+    targets rather than restating it.
+  - **The window roll lives in `GameLoopService.advance`**, which is the only place holding both
+    the authoritative run and a real `nowMs`. Not a `computed` (Angular forbids the signal write)
+    and not a `setInterval` (a second clock that would not survive backgrounding). ⚠️ **A window
+    rolls only when the computed index is _greater_ than the stored one** — `>`, never `!==` — so a
+    clock moved backwards does nothing rather than handing out a second day. Clamp; do not detect.
+  - **Nothing punishes a miss.** No streaks, no escalating bonus that resets, no countdown that
+    costs anything. Unclaimed awards accumulate indefinitely.
+- **The bounty board dispatches bench characters on timed missions**, added in milestone 14b. Read
+  [`core/bounties.ts`](../../src/core/bounties.ts) before touching it.
+  - ⚠️ **Dispatch and the formation are disjoint, and it is enforced in three places.** A character
+    cannot be both fighting and away — without it the board is a free resource tap rather than a
+    bench sink. `dispatchBounty` refuses anybody fielded, `setFormation` refuses anybody away
+    (`character-away`), and `repairDispatches` restores the invariant on load. **Guarding only the
+    dispatch side leaves the hole open**: a player sends somebody from the bench and then walks
+    that character into the formation.
+  - ⚠️ **A mission pays a _duration_ of the run's current idle income, never a flat amount** — the
+    same idiom as `STAGE_REWARDS.rewardSeconds`. And **never crystals**: the crystal rate is linear
+    in the clear count so it cannot outrun a flat `PULL_COST`, and a multiple of it on a repeatable
+    timer is that compounding. The split with quests is deliberate — quests pay flat crystals
+    because they help a player whose ladder stopped; bounties scale because roster breadth is not a
+    stuck player's problem.
+  - **Every mission pays less than it runs for.** One paying its own duration back would make
+    dispatching free and the board a button rather than a decision. `data/bounties.spec.ts` derives
+    that ratio and the crew sizes rather than restating them.
+  - **`repairDispatches` pays nothing for what it drops**, because paying would make damaging a
+    save a way to collect instantly. ⚠️ It deliberately does **not** check the faction requirement:
+    that gates _starting_ a mission, and dropping an in-flight crew because a later build retuned
+    the content would punish a player for a change they did not make.
+  - **The board rotates daily and is derived from the seed and the day index, never stored** —
+    `data/` authors a **pool** of twelve, and `dailyBoard` stands `BOUNTY_BOARD.missions` of them.
+    Same three arguments as the gear shop's stock: no save field, nothing to migrate, and ⚠️
+    **rerolling is impossible rather than merely detectable**. It rolls on the **same 04:00 UTC
+    boundary the quest windows use**, asserted equal against `QUEST_RULES` rather than restated —
+    two daily clocks would mean two "tomorrows" in one game.
+    - ⚠️ **The shuffle covers the whole pool before anything is filtered.** Shuffling only the
+      unlocked missions makes the draw a function of the clear count, so crossing an unlock
+      threshold reshuffles every row; shuffling everything first means an unlock can only
+      **insert**. Same discipline as the count draw in `rollDrops`.
+    - ⚠️ **A dispatch outlives the board it was sent from.** A 24-hour mission crosses a rotation
+      boundary by definition, so **every running mission holds a place on the board**, and
+      `repairDispatches` and `collectReadyBounties` take the **whole pool** rather than the day's
+      board. Wiring either to the board strands a crew a player is eleven hours into, silently and
+      unpaid. Running missions **count against the board size**, so collecting one frees a slot.
+    - **Every variant of a tier is worth exactly the same** — duration, crew, payout and unlock.
+      Rotation changes _what is asked for_, never _what the day is worth_; a variant paying
+      differently makes the daily draw a payout lottery.
+    - ⚠️ **Missions stack, and a tier is an authoring group rather than a limit.** An earlier build
+      allowed one per tier, guarded in three places — a **screen-layout rule wearing a game rule's
+      clothes**, since its whole premise ("the board shows one row per tier") was itself a choice.
+      What rations the board is the **bench**; a cap on top spends the player's roster breadth
+      twice. Two dispatches on one tier are **not damage** and `repairDispatches` must not drop one.
+    - ⚠️ **`BOUNTY_BOARD.missions` is a balance number, not a layout one.** Each mission pays a
+      third to a half of idle income while it runs, and they stack, so the board's ceiling is the
+      **sum** — 2.8× at six missions. `data/bounties.spec.ts` derives that worst case and bounds it
+      under 4×. Widening the board is an economy change.
+  - ⚠️ **A faction requirement never names a celestial faction.** Angels and Demons ascend on copies
+    of themselves alone, so an unlucky run can own none of either indefinitely — a mission requiring
+    one is a row that player can never run, which is the failure milestone 4 rejected role-locked
+    formation slots for. `data/bounties.spec.ts` derives the mortal/celestial split from `FACTIONS`
+    rather than listing it, and also holds that a requirement never exceeds the crew size or the
+    shipped roster's depth, and that **every tier keeps one variant asking for nothing**.
+  - ⚠️ **`dispatchOpenBounties` ("Dispatch all") is not `ascendAll`, and the licence is different.**
+    Crews compete for one bench, so it genuinely resolves a choice. What allows it with no
+    confirmation is that the stakes are a **wait rather than a loss** — nothing is consumed and
+    everybody comes back — and what that buys is an obligation to be **predictable rather than
+    clever**: board order top to bottom, roster order within a mission, and faction seats filled
+    before general ones. It is a convenience over `dispatchBounty`, never a second path with its own
+    rules, and the spec asserts one press equals dispatching each mission by hand.
+- **Two local notifications ship, at 12h and 24h**, and milestone 14b records this as a
+  **deliberate reversal** of the earlier "ship none" decision rather than deleting that argument.
+  See [`ui/notifications.service.ts`](../../src/ui/notifications.service.ts).
+  - ⚠️ **Cancelled on foreground and on launch.** A player who has come back must not be told to
+    come back.
+  - **Two, ever** — not a daily drumbeat and not one per finished bounty. **Fixed ids**, so
+    re-scheduling replaces rather than accumulates.
+  - **The copy promises nothing is lost, because nothing is.** No expiring reward, no streak, no
+    penalty — and the spec asserts both the promise and the absence of urgency words.
+  - **A setting, defaulting on**, which also cancels anything queued when switched off. Permission
+    is requested at the first backgrounding, never at launch.
+- ⚠️ **`visually-hidden` is a `@mixin` in `ui/theme.scss`, not a global class.** Angular scopes
+  component styles, so a screen that writes the class without including the mixin gets **no rule at
+  all** and renders the text inline — it shipped a button reading "Choose a crew for Village Errand
+  Send". The failure is loud on screen and silent at authoring time. The same trap waits for any
+  class a component assumes is global.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
-  fixtures. **`SAVE_VERSION` is 2**: v0 → v1 added gear in milestone 12, and v1 → v2 shifted every
-  stored rarity by two when the ladder grew a bottom.
-  - ⚠️ **v1 → v2 changes no field, only what one means**, which makes it the first migration here
-    that nothing structural can verify. An unmigrated v1 save parses cleanly, validates cleanly and
-    demotes the entire roster two rungs. The roster assertion in `fixtures.spec.ts` is the only
-    evidence the shift ran. **Inserting a rung anywhere but the top of `RARITIES` is a save
-    migration, not a content edit.**
+  fixtures. **`SAVE_VERSION` is 0 and the migration table is empty.** The chain has been re-based
+  twice: five pre-release versions and four migrations the first time, and the six that accumulated
+  on top of that baseline the second — gear (v0 → v1), the ladder's new bottom (v1 → v2), the
+  achievement ledger, the quest windows, the bounty board and the legendary pity counter. Every
+  field they wrote is simply part of the baseline shape now.
+  - ⚠️ **A re-base is licensed by one argument and nothing else: no save any of those versions
+    wrote has ever existed outside development.** The rule it suspends is scoped rather than
+    softened — _never delete or edit a migration once a build carrying it has reached a player_ —
+    and the moment one does, the chain is permanent and the next version is 1 forever.
+  - ⚠️ **The re-base spent the version numbers twice.** 1 through 6 have each meant two different
+    things and now mean neither, so a save at any of them reads as _newer than this build_ and is
+    discarded rather than repaired. Discarding is the safe direction and still a run nothing can
+    recover. A save is unreadable now only by being newer or by carrying a version that is not a
+    non-negative integer; **any test for that case must derive its version from `SAVE_VERSION`,
+    never write a literal** — that fixture went stale twice while the chain was growing, and the
+    re-base has now made every such literal wrong again.
+  - ⚠️ **A fixture must store a value the default would not produce.** `v0.json` carries a
+    mid-cycle `legendaryPity`, a worn loadout and a mint counter ahead of the bag, because a fixture
+    holding the empty value passes identically whether the decoder reads the field or silently
+    defaults it — the one distinction the fixture exists to make. The empty value is always the
+    obvious thing to write.
+  - ⚠️ **The deleted rarity shift is the one worth remembering.** It changed no field, only what one
+    _means_, which makes it the shape nothing structural can verify: an unmigrated save parses
+    cleanly, validates cleanly and demotes the entire roster two rungs. **Inserting a rung anywhere
+    but the top of `RARITIES` is a save migration, not a content edit** — the re-base removed the
+    code, not the rule.
   - **Player settings are a second key, not a field on the save**, since milestone 13. A
     preference describes the app; a save describes a run. Keeping them apart is what lets a run
     reset leave the battle speed alone, and it keeps every future setting from being a
@@ -203,12 +441,15 @@ Read it before starting a milestone, and specifically before:
   seventh has to shrink the text past reading or drop it, and a row of unlabelled glyphs is a
   puzzle rather than navigation. **The bar holds five, and the spare slot is not for spending** —
   Summon and Shop gave it back when they moved behind **Town** (`/town`, with `/town/summon`,
-  `/town/shop` and `/town/gear-shop` nested under it so the tab stays lit inside them). Town _is_
-  the different shape of navigation that note used to promise the next screen would need: a hub
-  costs one tap and has no ceiling, so **every currency sink goes in Town** rather than on the bar.
-  The gear shop is the rule in action: it was half of the gear tab and moved, leaving that tab as
-  the **Bag** (`/bag`) — an inventory named for what it holds, so the next item type is a section
-  on a screen that exists rather than an argument for a sixth tab;
+  `/town/shop`, `/town/altar` and `/town/gear-shop` nested under it so the tab stays lit inside
+  them). Town _is_ the different shape of navigation that note used to promise the next screen
+  would need: a hub costs one tap and has no ceiling, so **anything a player goes to _do_ with what
+  they have earned goes in Town** rather than on the bar. The gear shop is the rule in action: it
+  was half of the gear tab and moved, leaving that tab as the **Bag** (`/bag`) — an inventory named
+  for what it holds, so the next item type is a section on a screen that exists rather than an
+  argument for a sixth tab. The **Altar** (`/town/altar`) is the rule generalising: it is not a
+  shop and spends no wallet currency, and it is still a Town card, because "somewhere you go
+  deliberately, with something you have earned" is the test rather than "a currency sink";
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the
@@ -300,17 +541,19 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 2.** Five versions and four migrations were collapsed into a v0 baseline
-    while the game was pre-release, on the one argument that licenses it: no save any of them wrote
-    has ever existed outside development. [saves](../../docs/saves.md) records the reset and the condition
-    — a player loading a save — that closes the door on repeating it. The chain walker was kept and
-    tested against a synthetic history through the whole v0 era so that the first real migration
-    would land on proven code, and milestone 12's additive v0 → v1 is what it was kept for.
-  - ⚠️ **The reset burned version numbers and both v1 and v2 have re-issued one.** The old v1 was
-    milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear schema and
-    this v2 is the ladder's new bottom, and nothing can tell either pair apart from the number
-    alone. Safe only because no save carrying the old meaning exists outside development — **not
-    safe in general**, and the cost of re-basing that is easiest to forget.
+  - **`SAVE_VERSION` is 0, and the table is empty.** Two re-bases collapsed eleven versions and ten
+    migrations into this one shape, both on the one argument that licenses it: no save any of them
+    wrote has ever existed outside development. [saves](../../docs/saves.md) records the resets and the
+    condition — a player loading a save — that closes the door on repeating them. **The chain walker
+    survived both**, tested against a synthetic history the whole time so that the first real
+    migration would land on proven code; that is exactly how gear's v0 → v1 landed, and it worked
+    first time.
+  - ⚠️ **The re-bases burned version numbers 1 through 6, twice each.** The old v1 was milestone 1's
+    gold counter and the second v1 was the gear schema; the old v3 was the rate table and the second
+    v3 was the achievement ledger. Nothing can tell any pair apart from the number alone, so a save
+    at one of them is treated as newer than this build and discarded. Safe only because no save
+    carrying either meaning exists outside development — **not safe in general**, and the cost of
+    re-basing that is easiest to forget.
   - **A save this build cannot read is discarded and written over**, and the fresh run persists
     normally. `fatal` reports it on the home screen and drives the backup-slot fallback; it no
     longer gates persistence. The protection it used to give — a newer build's save surviving a
@@ -682,9 +925,21 @@ not long-running and need none of this.
   differs between machines, which makes this a green suite locally and a red one in CI. There are
   no `vi.mock` calls left in this repo, and adding one is how that class of failure comes back.
   - **Inject the seam instead.** A dependency that a test needs to replace should arrive through
-    an `InjectionToken` whose default factory returns the real thing, so the test overrides a
+    an `InjectionToken` whose default factory reaches the real thing, so the test overrides a
     provider rather than a module. `KEY_VALUE_STORE` in `ui/save.service.ts` is the worked
     example, and its doc comment records why the obvious alternative was rejected.
+  - ⚠️ **A token wrapping a Capacitor plugin must _forward_ to it, never hand back the plugin
+    object.** A plugin is a `Proxy` whose `get` trap answers **every** property with a callable, so
+    `typeof plugin.ngOnDestroy === 'function'` — which is exactly the test `R3Injector` uses to
+    decide a provider needs tearing down. Angular then calls `ngOnDestroy()` on it at teardown, that
+    reaches the bridge, finds no such native method, and rejects. `factory: () => Preferences` is
+    the obvious authoring and it is the bug. Both shipped tokens now return a plain object of
+    one-line forwarders, which is the whole reason to keep the interface beside them narrow.
+    - **It presents as a green suite that still fails the build.** Every test passes and vitest
+      exits 1 on unhandled rejections, one per injector teardown, attributed to whichever spec was
+      running rather than to the token. Nothing types wrong and no assertion fails, so the guard is
+      a test on the **shape of the resolved default** — in `save.service.spec.ts` and
+      `notifications.service.spec.ts`.
   - Raising `isolate` to true would also fix it, and was considered and rejected: it slows the
     suite that runs on save in order to paper over one file's design.
 

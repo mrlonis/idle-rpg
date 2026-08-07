@@ -1,6 +1,7 @@
 import { computed, inject, Service } from '@angular/core';
 import {
   ascend,
+  ascendAll,
   benchMember,
   type CharacterData,
   type CombatantData,
@@ -134,6 +135,22 @@ export interface ResonanceView {
 }
 
 /**
+ * What one press of Ascend All actually did.
+ *
+ * Three counts rather than the {@link AscensionStep} list `core/` returns, because that is the
+ * whole of what the screen says afterwards: naming twenty characters in a status line is not a
+ * sentence anybody reads, and the rows themselves have already redrawn to show their new rungs.
+ */
+export interface AscensionRunView {
+  /** How many characters climbed at least one rung. Zero when nothing could. */
+  readonly characters: number;
+  /** Rungs climbed across all of them. Never fewer than {@link characters}. */
+  readonly rungs: number;
+  /** Spare copies consumed. */
+  readonly copies: number;
+}
+
+/**
  * The roster, and everything the player can do to it.
  *
  * Every mutation goes through `GameLoopService.apply`, which owns the single authoritative
@@ -233,6 +250,16 @@ export class RosterService {
 
   /** How many characters are currently fielded, across both ranks. */
   readonly fieldedCount = computed(() => formationSize(this.game.formation()));
+
+  /**
+   * How many characters could climb a rung right now.
+   *
+   * Read by Town's Altar card, which is the same argument the spark shop's balance makes there:
+   * the number that decides whether the trip is worth taking should be readable before taking it.
+   * A count rather than a wallet figure, because copies are held per character and there is no
+   * single balance to show.
+   */
+  readonly readyToAscend = computed(() => this.entries().filter((entry) => entry.canAscend).length);
 
   /**
    * What the fielded party's faction composition is worth, resolved through `core/`.
@@ -352,6 +379,31 @@ export class RosterService {
     );
   }
 
+  /**
+   * Ascends the whole roster as far as its copies reach, in one commit.
+   *
+   * Not routed through {@link mutate}, and the difference is the return type rather than the
+   * mechanics: a batch has no single reason to refuse, so there is no `RosterResult` to hand back
+   * — "nobody could ascend" is an outcome the screen reports, not an error. One `apply` for the
+   * whole pass, so twenty ascensions publish one snapshot instead of twenty.
+   */
+  ascendAll(): AscensionRunView {
+    const state = this.game.current;
+    if (state === null) {
+      return NOTHING_ASCENDED;
+    }
+    const { state: next, steps } = ascendAll(state, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID);
+    if (steps.length === 0) {
+      return NOTHING_ASCENDED;
+    }
+    this.game.apply(() => next);
+    return {
+      characters: steps.length,
+      rungs: steps.reduce((total, step) => total + (step.to - step.from), 0),
+      copies: steps.reduce((total, step) => total + step.copies, 0),
+    };
+  }
+
   /** Puts a character into a rank, taking it out of the other one first. */
   placeIn(defId: string, row: Row): RosterResult {
     return this.mutate((state) => placeInRow(state, defId, row, CHARACTERS_BY_ID));
@@ -469,6 +521,9 @@ export class RosterService {
     };
   }
 }
+
+/** A pass that moved nothing: no run loaded, or nobody holding the copies for their next rung. */
+const NOTHING_ASCENDED: AscensionRunView = { characters: 0, rungs: 0, copies: 0 };
 
 /** Structural stand-in so `mutate` does not have to import the state type by name twice. */
 type GameStateLike = Parameters<typeof levelUpToAffordable>[0];

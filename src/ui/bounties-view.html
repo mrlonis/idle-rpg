@@ -1,0 +1,233 @@
+<header class="head">
+  <!-- Town is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/town">← Town</a>
+  <h1 class="head__title">Bounty Board</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ ready() }}</span>
+    <span class="head__unit">back</span>
+  </p>
+</header>
+
+<p class="intro">
+  Send characters you are not fighting with. Anyone in your party stays home — the board only pays
+  for the bench, and a mission pays a share of whatever you currently earn while idle.
+</p>
+
+<!--
+  Rotation is announced rather than left to be inferred. A player who saw one set of missions
+  yesterday and another today would otherwise have no way to tell the design from a bug.
+-->
+<p class="rotates">New missions in {{ rotatesIn() }}. Anything already out stays out.</p>
+
+<div class="actions">
+  <button type="button" class="action" [disabled]="ready() === 0" (click)="collectAll()">
+    @if (ready() === 0) {
+      Nothing back yet
+    } @else {
+      Collect all<span class="action__count">&ngsp;({{ ready() }})</span>
+    }
+  </button>
+
+  <button type="button" class="action" [disabled]="sendable() === 0" (click)="dispatchAll()">
+    @if (sendable() === 0) {
+      Nothing to send
+    } @else {
+      Dispatch all<span class="action__count">&ngsp;({{ sendable() }})</span>
+    }
+  </button>
+</div>
+
+@if (notice(); as text) {
+  <p class="notice" role="status">{{ text }}</p>
+}
+
+<ul class="missions">
+  @for (row of rows(); track row.bounty.id) {
+    <li class="mission" [class.mission--ready]="row.ready" [class.mission--out]="row.running">
+      <div class="mission__head">
+        <h2 class="mission__name">{{ row.bounty.name }}</h2>
+        @if (row.ready) {
+          <p class="mission__state mission__state--ready">Back</p>
+        } @else if (row.running) {
+          <p class="mission__state mission__state--out">{{ row.remaining }} left</p>
+        } @else if (!row.unlocked) {
+          <p class="mission__state mission__state--locked">
+            Locked
+            <span class="visually-hidden">
+              &ngsp;— clear {{ row.bounty.unlockClears }} stages to open this mission
+            </span>
+          </p>
+        }
+      </div>
+
+      <p class="mission__description">{{ row.bounty.description }}</p>
+
+      <p class="mission__terms">
+        <span class="mission__term"
+          >{{ row.bounty.crew }}
+          @if (row.bounty.crew === 1) {
+            character
+          } @else {
+            characters
+          }
+        </span>
+        <span class="dot" aria-hidden="true">·</span>
+        <span class="mission__term">{{ row.duration }}</span>
+        @if (row.requirement) {
+          <span class="dot" aria-hidden="true">·</span>
+          <!--
+            Marked up as an emphasis rather than coloured alone: the requirement is the one term
+            here that can make a mission unrunnable, and colour must never carry that by itself.
+          -->
+          <span class="mission__term mission__term--requires">
+            <span class="visually-hidden">Requires&ngsp;</span>{{ row.requirement }}
+          </span>
+        }
+      </p>
+
+      @if (row.requirement && !row.running && row.unlocked && !row.crewable) {
+        <p class="mission__short">
+          Your bench cannot field {{ row.requirement }} right now. Another mission takes this rung
+          tomorrow.
+        </p>
+      }
+
+      <p class="mission__payout">
+        @for (award of row.payout; track award.label) {
+          <span class="mission__amount">{{ award.amount }} {{ award.label }}</span>
+          <span class="dot" aria-hidden="true">·</span>
+        } @empty {
+          <span class="mission__none">Pays a share of your idle income — clear a stage first.</span>
+        }
+      </p>
+
+      @if (row.running) {
+        <!--
+          A real `progressbar` with `aria-valuetext` rather than a styled div, so the time left is
+          announced as time rather than as a bare percentage.
+        -->
+        <div
+          class="mission__bar"
+          role="progressbar"
+          [attr.aria-valuenow]="row.percent"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuemax]="100"
+          [attr.aria-valuetext]="row.ready ? 'finished' : row.remaining + ' left'"
+          [attr.aria-label]="row.bounty.name + ' progress'"
+        >
+          <span class="mission__fill" [style.width.%]="row.percent"></span>
+        </div>
+
+        <p class="mission__crew">
+          <span class="mission__crew-label">Away:</span>
+          @for (crew of row.crew; track crew.defId) {
+            <span class="mission__member">{{ crew.name }}</span>
+          }
+        </p>
+      }
+
+      @if (row.ready) {
+        <button type="button" class="mission__action" (click)="collect(row.bounty)">
+          <span class="visually-hidden">Collect {{ row.bounty.name }}</span>
+          <span aria-hidden="true">Collect</span>
+        </button>
+      } @else if (!row.running) {
+        <button
+          type="button"
+          class="mission__action"
+          [disabled]="!row.unlocked"
+          (click)="openPicker(row)"
+        >
+          <span class="visually-hidden">
+            @if (row.unlocked) {
+              Choose a crew for {{ row.bounty.name }}
+            } @else {
+              {{ row.bounty.name }} opens after {{ row.bounty.unlockClears }} stage clears
+            }
+          </span>
+          <span aria-hidden="true">
+            @if (row.unlocked) {
+              Send
+            } @else {
+              {{ row.bounty.unlockClears }} clears
+            }
+          </span>
+        </button>
+      }
+
+      @if (picking() === row.bounty.id) {
+        <!--
+          The picker is inline rather than an overlay: it belongs to the row it opened from, it is
+          short, and a modal would be the app's second CDK dialog for a choice that costs nothing
+          to back out of.
+        -->
+        <section class="picker" [attr.aria-label]="'Crew for ' + row.bounty.name">
+          <!--
+            The tally is one interpolation rather than a `@if` beside the text: a control-flow block
+            introduces whitespace either side of itself, which rendered "0 chosen , 0 of 1 Human"
+            with a space before the comma. Punctuation cannot be assembled out of template blocks.
+          -->
+          <p class="picker__prompt">
+            Choose {{ row.bounty.crew }}
+            @if (row.bounty.crew === 1) {
+              character
+            } @else {
+              characters
+            }
+            &ngsp;— {{ tally() }}
+          </p>
+
+          @if (available().length === 0) {
+            <p class="picker__empty">
+              Everybody you own is either fighting or already out. Bench somebody, or summon more.
+            </p>
+          } @else {
+            <ul class="picker__list">
+              @for (character of available(); track character.defId) {
+                <li>
+                  <!--
+                    `aria-pressed` rather than a checkbox: this is a toggle whose state is the whole
+                    of what it says, and a checkbox would need a visible label beside it that
+                    repeats the name already on the button.
+                  -->
+                  <button
+                    type="button"
+                    class="picker__member"
+                    [class.picker__member--chosen]="isChosen(character.defId)"
+                    [class.picker__member--counts]="countsToward(character.defId)"
+                    [attr.aria-pressed]="isChosen(character.defId)"
+                    (click)="toggle(character.defId)"
+                  >
+                    {{ character.name }}
+                    <!--
+                      The faction rides along on every row rather than only on the ones that count,
+                      so the list reads the same whether or not the mission asks for one — and a
+                      player can see *why* a name does not count, not just that it does not.
+                    -->
+                    <span class="picker__faction">{{ character.factionName }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+
+          <div class="picker__actions">
+            <button
+              type="button"
+              class="picker__send"
+              [disabled]="!crewComplete()"
+              (click)="send()"
+            >
+              Send
+            </button>
+            <button type="button" class="picker__cancel" (click)="closePicker()">Cancel</button>
+          </div>
+        </section>
+      }
+    </li>
+  } @empty {
+    <li class="mission mission--empty">
+      <p>This build ships no missions.</p>
+    </li>
+  }
+</ul>

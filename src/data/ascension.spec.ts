@@ -65,6 +65,29 @@ describe('the authored ladders', () => {
       copyCost(rules, 'mortal', ELITE, MAX_RARITY_INDEX),
     );
   });
+
+  it('keeps the celestial premium proportional rather than per-rung', () => {
+    // The premium is sized against the TOTAL, not by scaling each rung, and the distinction is
+    // the whole of this block. It was a flat x2 per rung when those rungs were 1s and 2s, which
+    // came to +6 copies; the same x2 on the current rungs costs +38 and roughly triples the tax
+    // in real terms. What is held is the ratio a celestial player actually experiences.
+    const premium =
+      fullAscensionCost(rules, 'celestial', 'ascended') /
+      fullAscensionCost(rules, 'mortal', 'ascended');
+
+    expect(premium).toBeGreaterThan(1.15);
+    expect(premium).toBeLessThan(1.4);
+  });
+
+  it('charges the celestial premium on rungs 5-9 and nowhere else', () => {
+    // `elite -> elite+` and the five stars are shared, which "expensive above elite" does not
+    // say on its own. Anything that widens the premium to the whole block above `elite` is a
+    // different ladder and should have to say so here.
+    expect(ascensionCost(rules, 'celestial', ELITE)).toBe(ascensionCost(rules, 'mortal', ELITE));
+    for (let star = ASCENDED; star < MAX_RARITY_INDEX; star++) {
+      expect(ascensionCost(rules, 'celestial', star)).toBe(ascensionCost(rules, 'mortal', star));
+    }
+  });
 });
 
 /**
@@ -76,18 +99,18 @@ describe('the authored ladders', () => {
  */
 describe('what a full ascension costs', () => {
   it.each([
-    ['common', 36, 46],
-    ['legendary', 16, 26],
-    ['ascended', 8, 18],
+    ['common', 63, 93],
+    ['legendary', 53, 83],
+    ['ascended', 43, 73],
   ] as const)('takes a mortal %s-tier character %i to Ascended and %i to ★5', (tier, to, max) => {
     expect(1 + copyCost(rules, 'mortal', startRarityIndex(tier), ASCENDED)).toBe(to);
     expect(fullAscensionCost(rules, 'mortal', tier)).toBe(max);
   });
 
   it.each([
-    ['common', 42, 52],
-    ['legendary', 22, 32],
-    ['ascended', 14, 24],
+    ['common', 83, 113],
+    ['legendary', 73, 103],
+    ['ascended', 63, 93],
   ] as const)(
     'takes a celestial %s-tier character %i to Ascended and %i to ★5',
     (tier, to, max) => {
@@ -96,35 +119,42 @@ describe('what a full ascension costs', () => {
     },
   );
 
-  it('charges two copies per star, on both ladders', () => {
+  it('charges six copies per star, on both ladders', () => {
     for (let star = ASCENDED; star < MAX_RARITY_INDEX; star++) {
-      expect(ascensionCost(rules, 'mortal', star)).toBe(2);
-      expect(ascensionCost(rules, 'celestial', star)).toBe(2);
+      expect(ascensionCost(rules, 'mortal', star)).toBe(6);
+      expect(ascensionCost(rules, 'celestial', star)).toBe(6);
     }
   });
 
-  it('puts 20 copies below rare, which is the whole of the tier gap', () => {
+  it('puts 20 copies below elite, which is the whole of the tier gap', () => {
     // Every rung costs every character the same, so a tier is worth exactly the rungs it skips.
     // These four numbers ARE the tier separation — retuning them is retuning the gap, and
     // nothing else in the ladder can substitute for them.
-    expect(copyCost(rules, 'mortal', COMMON, RARE)).toBe(20);
-    expect(copyCost(rules, 'mortal', RARE, ELITE)).toBe(8);
+    expect(copyCost(rules, 'mortal', COMMON, RARE)).toBe(10);
+    expect(copyCost(rules, 'mortal', RARE, ELITE)).toBe(10);
+    expect(copyCost(rules, 'mortal', COMMON, ELITE)).toBe(20);
   });
 
-  it('keeps every tier a comparable commitment against how often a pull produces one', () => {
-    // The calibration behind those numbers. A specific common-tier character arrives from a pull
-    // roughly 10× more often than a specific ascended-tier one and roughly 3× more often than a
-    // legendary-tier one, so the climbs are priced to land within a factor of each other rather
-    // than to be equal. Loose bounds on purpose: this is asserting the shape of the tuning, not
-    // pinning a number the other blocks already pin exactly.
+  it('puts most of a climb above elite, so tier is a head start rather than a shortcut', () => {
+    // The shape of the current tuning, and a deliberate inversion of what this ladder used to
+    // say. The bottom used to carry the whole tier gap so that every tier was a comparable
+    // commitment; it now carries a fifth of the ladder, and the stretch every tier walks carries
+    // the rest. What separates the climbs is the pull rate feeding them — a specific
+    // ascended-tier character arrives about 4× less often — rather than the copy counts, which
+    // is why these land close together and the time-to-max does not.
+    const belowElite = copyCost(rules, 'mortal', COMMON, ELITE);
+    const aboveElite = copyCost(rules, 'mortal', ELITE, MAX_RARITY_INDEX);
+    expect(aboveElite).toBeGreaterThan(belowElite * 3);
+
     const common = fullAscensionCost(rules, 'mortal', 'common');
     const legendary = fullAscensionCost(rules, 'mortal', 'legendary');
     const ascended = fullAscensionCost(rules, 'mortal', 'ascended');
 
-    expect(common / ascended).toBeLessThan(10);
-    expect(legendary / ascended).toBeLessThan(3);
+    // Still ordered — a lower tier always costs more copies — but within a narrow band, because
+    // the rungs they share dominate the rungs they do not.
     expect(common).toBeGreaterThan(legendary);
     expect(legendary).toBeGreaterThan(ascended);
+    expect(common / ascended).toBeLessThan(1.5);
   });
 
   it('lets a common-tier character reach Ascended★5 too, for more', () => {

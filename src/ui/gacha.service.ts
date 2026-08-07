@@ -2,6 +2,7 @@ import { computed, inject, Service, signal } from '@angular/core';
 import {
   ascendedChance,
   type BannerData,
+  legendaryChance,
   num,
   pull,
   type PullFailure,
@@ -49,14 +50,38 @@ export class GachaService {
   /** Pulls made since the last ascended-tier character. Always visible, never hidden. */
   readonly pity = computed(() => this.game.pity());
 
+  /** Pulls made since the last character of legendary tier or better. */
+  readonly legendaryPity = computed(() => this.game.legendaryPity());
+
   /** The live chance of an ascended-tier result on the very next pull. */
   readonly currentChance = computed(() => ascendedChance(GACHA_RULES, this.pity() + 1));
 
-  /** Pulls remaining until the guarantee fires. */
-  readonly pullsToGuarantee = computed(() => Math.max(PITY.hardPity - this.pity(), 0));
+  /**
+   * The live chance of a legendary-or-better result on the very next pull.
+   *
+   * The larger of the two thresholds the draw actually compares against, for the same reason
+   * {@link currentChance} is read off `ascendedChance`: what the screen says and what the draw
+   * does come from one function, so they cannot drift. Deep ascended pity raises this on its own
+   * — an ascended-tier result is legendary-or-better — which is why it is a maximum rather than
+   * the legendary curve alone.
+   */
+  readonly currentLegendaryChance = computed(() =>
+    Math.max(
+      legendaryChance(GACHA_RULES, this.legendaryPity() + 1),
+      ascendedChance(GACHA_RULES, this.pity() + 1),
+    ),
+  );
 
-  /** `true` once soft pity has started raising the rate above its base. */
-  readonly inSoftPity = computed(() => this.pity() >= PITY.softPityStart);
+  /** Pulls remaining until the ascended guarantee fires. */
+  readonly pullsToGuarantee = computed(() => Math.max(PITY.ascended.hardPity - this.pity(), 0));
+
+  /** Pulls remaining until the legendary-or-better guarantee fires. */
+  readonly pullsToLegendary = computed(() =>
+    Math.max(PITY.legendary.hardPity - this.legendaryPity(), 0),
+  );
+
+  /** `true` once soft pity has started raising the ascended rate above its base. */
+  readonly inSoftPity = computed(() => this.pity() >= PITY.ascended.softPityStart);
 
   readonly singleCost = computed(() => num(GACHA_RULES.pullCost));
   readonly multiCost = computed(() => num(GACHA_RULES.pullCost * MULTI_PULL_COUNT));

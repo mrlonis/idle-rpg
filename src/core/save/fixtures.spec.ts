@@ -6,8 +6,6 @@ import { describe, expect, it } from 'vitest';
 import { formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v0 from './fixtures/v0.json';
-import v1 from './fixtures/v1.json';
-import v2 from './fixtures/v2.json';
 import { loadSave } from './load';
 import { type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -20,27 +18,26 @@ import { SAVE_VERSION } from './version';
  * three months ago and never exercised since — the one that breaks silently and costs a
  * returning player their run.
  *
- * **There are three, and the v1 one now carries the most weight.** The chain was re-based to a v0
- * baseline while the game was still pre-release — see [saves](../../../docs/saves.md) — leaving
- * this file with a single fixture and nothing to walk. Milestone 12 added gear and the v0 → v1
- * migration; the copies-only rewrite added the two rungs below `rare` and the v1 → v2 shift.
+ * **There is one, for the second time.** Seven fixtures had accumulated as the chain grew from the
+ * v0 baseline to v6; all six migrations were folded back into v0 — see
+ * [saves](../../../docs/saves.md) — leaving this file with a single fixture and nothing to walk.
  *
- * **v1 → v2 changes no field, only what one means**, so a v1 fixture that failed to be migrated
- * would still parse, still validate, and still produce a usable state — with every character
- * demoted two rungs. Nothing structural can catch that, which makes the roster assertion further
- * down the only thing standing between this migration and a silent regression. The coverage check
- * below is what caught the missing fixture the moment `SAVE_VERSION` moved, which is exactly the
- * job it was left here to do.
+ * **The coverage assertion below is what keeps this file worth having while it has nothing to
+ * chain.** It is vacuous at a one-entry baseline, and it is exactly what fired the moment
+ * `SAVE_VERSION` first moved off zero — which is when nobody is thinking about fixtures.
+ *
+ * **The fixture stores values a default would not produce**, which is what separates "the field was
+ * decoded" from "the field defaulted": a mid-cycle `legendaryPity`, a gear loadout, a mint counter
+ * deliberately ahead of the bag, and a **retired achievement track** alongside a live one — the one
+ * thing about the ledger a shape check would not otherwise reach, since a build that stops shipping
+ * a track has to keep that entry rather than dropping it, and dropping it is what would re-pay every
+ * award on the track if it ever came back.
  *
  * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
  * type-checks. Registering a new fixture is two lines.
  */
-const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([
-  [0, v0],
-  [1, v1],
-  [2, v2],
-]);
+const FIXTURES: ReadonlyMap<number, unknown> = new Map<number, unknown>([[0, v0]]);
 
 const OPTIONS: RepairOptions = {
   fallbackSeed: 1,
@@ -83,6 +80,7 @@ describe('save fixtures', () => {
     expect(state.clearedStages).toBeGreaterThanOrEqual(0);
     expect(state.battleCount).toBeGreaterThanOrEqual(0);
     expect(state.pity).toBeGreaterThanOrEqual(0);
+    expect(state.legendaryPity).toBeGreaterThanOrEqual(0);
     expect(formationMembers(state.formation).length).toBeLessThanOrEqual(PARTY_SIZE);
   });
 });
@@ -96,12 +94,20 @@ describe('v0 fixture contents', () => {
     expect(state.wallet.gold.eq('8.675309e+21')).toBe(true);
     expect(state.wallet.summons.eq('350')).toBe(true);
     expect(state.wallet.spark.eq('12')).toBe(true);
+    expect(state.wallet.alloy.eq('2450')).toBe(true);
     expect(state.rates.gold.eq('250')).toBe(true);
     expect(state.rates.essence.eq('0.8')).toBe(true);
     expect(state.lastTickAt).toBe(1753574400000);
     expect(state.rng).toEqual({ seed: 3735928559, calls: 417 });
     expect(state.pity).toBe(37);
     expect(state.pullCount).toBe(139);
+  });
+
+  it('decodes a legendary cycle already part way through', () => {
+    // A fixture storing the empty value could not tell a decoder that reads the field from one that
+    // quietly defaults it — which is the one distinction a fixture for an optional counter exists to
+    // make. Every field this save carries is now a v0 field, so that trap applies to all of them.
+    expect(loadSave(v0, OPTIONS).state.legendaryPity).toBe(4);
   });
 
   it('preserves a gold value past float64 exact-integer range', () => {
@@ -121,18 +127,28 @@ describe('v0 fixture contents', () => {
     expect(state.battleCount).toBe(143);
   });
 
-  it('round-trips the roster, keeping rarity, level and spare copies', () => {
+  it('round-trips the roster, keeping rarity, level, spare copies and what is worn', () => {
     const { state } = loadSave(v0, OPTIONS);
 
-    // Every rarity is two higher than the fixture records, and that is the v1 → v2 migration
-    // doing its whole job: `common` and `common-plus` went in below `rare`, so a stored index of
-    // 4 has to become 6 to still mean Legendary. If this ever reads 4/2/3 again, the migration
-    // has stopped running and every returning player is being demoted two rungs.
     expect(state.roster).toEqual([
-      { defId: 'alpha', rarity: 6, level: 46, copies: 11, gear: {} },
-      { defId: 'beta', rarity: 4, level: 22, copies: 3, gear: {} },
+      {
+        defId: 'alpha',
+        rarity: 6,
+        level: 46,
+        copies: 11,
+        gear: { head: 'g1', chest: 'g2', boots: 'g4' },
+      },
+      { defId: 'beta', rarity: 4, level: 22, copies: 3, gear: { arms: 'g3' } },
       { defId: 'gamma', rarity: 5, level: 31, copies: 6, gear: {} },
     ]);
+  });
+
+  it('keeps a claim count for a track this build no longer ships', () => {
+    // The opposite of how the roster treats an unknown character. A claim count costs one integer,
+    // and dropping it is what would re-pay every award on that track if it ever came back.
+    const { state } = loadSave(v0, OPTIONS);
+
+    expect(state.achievements).toEqual({ 'stages-cleared': 9, 'retired-track': 4 });
   });
 
   it('keeps the party in the slot order it was saved in', () => {

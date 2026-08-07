@@ -16,8 +16,10 @@ const BACKUP_KEY = 'save.bak';
 /**
  * The three operations this service needs from a key/value store.
  *
- * Structurally what `@capacitor/preferences` already exposes, so the real plugin satisfies it
- * without an adapter.
+ * Structurally what `@capacitor/preferences` already exposes, so forwarding to the real plugin is
+ * three one-line methods rather than an adapter with anything to get wrong. Keep it this narrow:
+ * the forwarding object is what stops the plugin proxy reaching the injector — see
+ * {@link KEY_VALUE_STORE}.
  */
 export interface KeyValueStore {
   get(options: { key: string }): Promise<{ value: string | null }>;
@@ -39,10 +41,34 @@ export interface KeyValueStore {
  * Injecting the store makes the seam a provider rather than a module-graph side effect, so it
  * cannot depend on load order at all. Turning isolation on would also have worked, and was
  * rejected: it slows the suite that runs on save, to fix one file's design.
+ *
+ * ## ⚠️ The factory forwards to the plugin; it must never hand back the plugin object
+ *
+ * `factory: () => Preferences` is the obvious version and it is wrong, for a reason neither the
+ * types nor any assertion can catch. A Capacitor plugin is a `Proxy` whose `get` trap answers
+ * **every** property with a freshly built callable — there is no `has` trap and no allowlist, so
+ * `typeof Preferences.anything === 'function'` is true. Angular's `R3Injector` decides whether a
+ * provider needs tearing down with exactly that test (`typeof value.ngOnDestroy === 'function'`),
+ * so it registers the plugin as a destroy hook and calls `ngOnDestroy()` on it when the injector
+ * goes away. That reaches the bridge, finds no such native method, and rejects.
+ *
+ * On a device that is a stray unhandled rejection per injector teardown. In CI it is a **failing
+ * build with a green suite**: every spec passes and vitest still exits 1, because `TestBed`
+ * destroys an injector between tests and each teardown adds another unhandled rejection. Nothing
+ * points at this file — the errors are attributed to whichever spec was running.
+ *
+ * A plain object exposing exactly {@link KeyValueStore} has no `ngOnDestroy`, so the hook is never
+ * registered. The narrow interface above is what makes that cheap to write, and it is the reason
+ * to keep it narrow. Same shape in `NOTIFICATION_SCHEDULER`, and in anything that wraps a
+ * Capacitor plugin in a token later.
  */
 export const KEY_VALUE_STORE = new InjectionToken<KeyValueStore>('KEY_VALUE_STORE', {
   providedIn: 'root',
-  factory: () => Preferences,
+  factory: (): KeyValueStore => ({
+    get: (options) => Preferences.get(options),
+    set: (options) => Preferences.set(options),
+    remove: (options) => Preferences.remove(options),
+  }),
 });
 
 /**

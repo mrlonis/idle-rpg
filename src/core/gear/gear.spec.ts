@@ -12,6 +12,7 @@ import { type GameState, newGame } from '../state';
 import {
   addGear,
   alloyStep,
+  autoEquip,
   canEnhance,
   enhance,
   enhanceCost,
@@ -28,7 +29,7 @@ import {
   unequippedGear,
   useAsMaterial,
 } from './inventory';
-import { dropCount, gradeWeights, rollDrops, weightedIndex } from './roll';
+import { dropCount, gradeWeights, rollDrops, unlockedGrades, weightedIndex } from './roll';
 import { buyGear, gearShopOffers, gearShopSlot, msUntilRestock, offerPrice } from './shop';
 import {
   applyGearBonus,
@@ -61,6 +62,8 @@ const RULES: GearRulesData = {
       salvage: 10,
       weight: 100,
       priceSeconds: 10,
+      // Ungated, as the bottom grade must be — a fixture that gated it would drop nothing at all.
+      unlockIndex: 1,
     },
     {
       id: 'good',
@@ -70,6 +73,7 @@ const RULES: GearRulesData = {
       salvage: 40,
       weight: 20,
       priceSeconds: 60,
+      unlockIndex: 4,
     },
   ],
   profiles: {
@@ -116,7 +120,14 @@ const RULES: GearRulesData = {
     alloy: { coefficient: 10, exponent: 1 },
     gold: { coefficient: 100, exponent: 2 },
   },
-  drops: { normal: 1, miniBoss: 2, boss: 3, gradeSoftness: 10 },
+  drops: {
+    normal: { min: 1, max: 1 },
+    miniBoss: { min: 2, max: 2 },
+    // The one ranged kind in the fixture, so the count draw is exercised without making every
+    // other test in this file depend on how many pieces a fight happened to roll.
+    boss: { min: 3, max: 5 },
+    gradeSoftness: 10,
+  },
   shop: { offers: 3, refreshMs: 1000, minGoldPerSecond: 1 },
   inventoryLimit: 4,
 };
@@ -521,6 +532,144 @@ describe('equip and unequip', () => {
   });
 });
 
+describe('autoEquip', () => {
+  /** A run holding `gear`, with alpha (brawler) and delta (mage) owning nothing. */
+  const bagOf = (gear: readonly GearItem[], roster?: readonly OwnedCharacter[]): GameState =>
+    run({
+      gear,
+      gearMinted: gear.length,
+      roster: roster ?? [owner(TEST_ALPHA.id), owner(TEST_DELTA.id)],
+    });
+
+  it('fills every empty slot with the best spare piece for that archetype', () => {
+    const state = bagOf([
+      item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 0 }),
+      item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1 }),
+      item({ id: 'g3', slot: 'boots', archetype: 'brawler', grade: 0 }),
+    ]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // g2 over g1 on scale alone; the grade ladder does not have to be strictly ordered for this
+      // to be well defined, because every candidate for a slot shares one authored profile.
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g2', boots: 'g3' });
+      expect(result.equipped).toBe(2);
+    }
+  });
+
+  it('ranks on scale alone, so grade never overrides an enhancement that beat it', () => {
+    // ⚠️ The property that makes a strictly-ordered grade ladder unnecessary here. A candidate is
+    // whatever `gearScale` says is largest — the ladder is free to overlap, and the shipped one
+    // does. `data/gear.spec.ts` asserts the overlap against the shipped numbers; this asserts that
+    // the choice follows the scale rather than the grade index.
+    //
+    // The fixture ties exactly at these two points (plain caps at 5 and 0.25 per level, so
+    // 1 * (1 + 0.25 * 4) === 2 * 1), which is why the expectation is derived rather than written.
+    const enhanced = item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 0, level: 5 });
+    const fresh = item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1, level: 1 });
+    const enhancedScale = gearScale(RULES, enhanced, TEST_ALPHA.faction);
+    const freshScale = gearScale(RULES, fresh, TEST_ALPHA.faction);
+
+    const result = autoEquip(bagOf([enhanced, fresh]), TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const chosen = result.state.roster[0]?.gear.chest;
+      const chosenScale = chosen === 'g1' ? enhancedScale : freshScale;
+      expect(chosenScale).toBe(Math.max(enhancedScale, freshScale));
+    }
+  });
+
+  it('never takes a piece off another character', () => {
+    // ⚠️ The one place this deliberately does less than `equip`, which does steal. A bulk action
+    // carries no statement about one piece and one wearer, so stripping four other characters is
+    // not something a single press should be able to do.
+    const worn = item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 });
+    const spare = item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 0 });
+    const state = bagOf([worn, spare], [owner(TEST_ALPHA.id), owner('beta', { chest: 'g1' })]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g2' });
+      expect(result.state.roster[1]?.gear).toEqual({ chest: 'g1' });
+    }
+  });
+
+  it('skips pieces forged for another archetype', () => {
+    const state = bagOf([item({ id: 'g1', slot: 'chest', archetype: 'mage' })]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({});
+      expect(result.equipped).toBe(0);
+    }
+  });
+
+  it('leaves a better worn piece alone rather than downgrading it', () => {
+    const state = bagOf(
+      [
+        item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 }),
+        item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 0 }),
+      ],
+      [owner(TEST_ALPHA.id, { chest: 'g1' })],
+    );
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.state.roster[0]?.gear).toEqual({ chest: 'g1' });
+      expect(result.equipped).toBe(0);
+    }
+  });
+
+  it('is idempotent, so a second press is a no-op rather than a shuffle', () => {
+    // Equal scale never displaces, which is what makes this true when the bag holds duplicates.
+    const state = bagOf([
+      item({ id: 'g1', slot: 'chest', archetype: 'brawler', grade: 1 }),
+      item({ id: 'g2', slot: 'chest', archetype: 'brawler', grade: 1 }),
+    ]);
+
+    const once = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+    expect(once.ok).toBe(true);
+    if (!once.ok) {
+      return;
+    }
+    const twice = autoEquip(once.state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(twice.ok).toBe(true);
+    if (twice.ok) {
+      expect(twice.equipped).toBe(0);
+      expect(twice.state.roster[0]?.gear).toEqual(once.state.roster[0]?.gear);
+    }
+  });
+
+  it('returns the state untouched when nothing moved', () => {
+    const state = bagOf([]);
+
+    const result = autoEquip(state, TEST_ALPHA.id, RULES, TEST_CHARACTERS);
+
+    expect(result).toEqual({ ok: true, state, equipped: 0 });
+  });
+
+  it('reports a character the run does not own rather than throwing', () => {
+    expect(autoEquip(bagOf([]), 'nobody', RULES, TEST_CHARACTERS)).toEqual({
+      ok: false,
+      reason: 'unknown-character',
+    });
+    expect(autoEquip(run({ roster: [] }), TEST_ALPHA.id, RULES, TEST_CHARACTERS)).toEqual({
+      ok: false,
+      reason: 'not-owned',
+    });
+  });
+});
+
 describe('repairLoadouts', () => {
   const bag = (gear: readonly GearItem[], roster: readonly OwnedCharacter[]): GameState =>
     run({ gear, roster, gearMinted: gear.length });
@@ -610,45 +759,129 @@ describe('repairLoadouts', () => {
 
 describe('drops', () => {
   it('pays the chapter rhythm: more from a mini-boss, most from a boss', () => {
-    expect(dropCount(RULES, 'normal')).toBe(1);
-    expect(dropCount(RULES, 'mini-boss')).toBe(2);
-    expect(dropCount(RULES, 'boss')).toBe(3);
+    const lowest = (): number => 0;
+
+    expect(dropCount(RULES, 'normal', lowest)).toBe(1);
+    expect(dropCount(RULES, 'mini-boss', lowest)).toBe(2);
+    expect(dropCount(RULES, 'boss', lowest)).toBe(3);
   });
 
-  it('keeps the authored weights as the stage-1 distribution', () => {
+  it('spreads a ranged count uniformly across its whole range, ends included', () => {
+    // Both ends have to be reachable. An off-by-one at the top makes the authored ceiling a
+    // number that never occurs, which is the kind of thing nobody notices from play.
+    const at = (roll: number): number => dropCount(RULES, 'boss', () => roll);
+
+    expect(at(0)).toBe(3);
+    expect(at(0.5)).toBe(4);
+    expect(at(0.999)).toBe(5);
+  });
+
+  it('never drops nothing, whatever the content says', () => {
+    // ⚠️ "A fight never produces nothing" is a rule, not tuning — the same rule that makes a pull
+    // always produce something. Content authored at zero, or damaged, must still pay one piece.
+    const broken = {
+      ...RULES,
+      drops: {
+        ...RULES.drops,
+        normal: { min: 0, max: 0 },
+        miniBoss: { min: Number.NaN, max: Number.NaN },
+      },
+    };
+
+    expect(dropCount(broken, 'normal', () => 0.5)).toBe(1);
+    expect(dropCount(broken, 'mini-boss', () => 0.5)).toBe(1);
+    expect(rollDrops(broken, ['a'], 10, 'normal', () => 0.5)).toHaveLength(1);
+  });
+
+  it('degrades an inverted range to a fixed count rather than to nothing', () => {
+    const inverted = { ...RULES, drops: { ...RULES.drops, boss: { min: 4, max: 2 } } };
+
+    expect(dropCount(inverted, 'boss', () => 0.99)).toBe(4);
+  });
+
+  it('draws the count once for the fight rather than once per piece', () => {
+    // ⚠️ The two rolls answer different questions — "was this fight lucky" against "was this piece
+    // lucky" — and drawing the count per piece would blur them into one flat distribution. One
+    // draw for the batch is also what keeps the sequence position of every later draw predictable.
+    const rolls: number[] = [];
+    const draw = (): number => {
+      rolls.push(rolls.length);
+      return 0.999;
+    };
+
+    const specs = rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
+
+    // Five pieces at the top of the range, five draws each (slot, archetype, alignment gate,
+    // faction, grade), plus exactly one for the count itself.
+    expect(specs).toHaveLength(5);
+    expect(rolls).toHaveLength(1 + specs.length * 5);
+  });
+
+  it('keeps the authored weights as the distribution at the stage a grade unlocks', () => {
     // The `1 +` in the tilt is what buys this. A bare ratio would make the top grade's weight
     // `softness ** -n` at the bottom of the ladder, so the authored number would stop describing
     // anything a reader could predict from.
-    const [plain, good] = gradeWeights(RULES, 1);
+    //
+    // Read at the gate rather than at stage 1, because below the gate the answer is zero and a
+    // ratio is not the thing being asserted there. The fixture gates `good` at 4.
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+    const [plain, good] = gradeWeights(RULES, gate);
 
-    expect((good ?? 0) / (plain ?? 1)).toBeCloseTo((20 / 100) * (1 + 1 / 10), 10);
+    expect((good ?? 0) / (plain ?? 1)).toBeCloseTo((20 / 100) * (1 + gate / 10), 10);
   });
 
-  it('tilts toward better grades with depth without ever gating one out', () => {
-    const shallow = gradeWeights(RULES, 1);
+  it('weighs a grade at nothing below its gate, and the bottom grade never at nothing', () => {
+    // ⚠️ The gate is a hard zero rather than a small number: a run below it cannot see the grade
+    // from a drop *or* from the shop, which is what makes the opening one grade wide. The bottom
+    // grade is ungated by construction — a ladder that gated it would drop nothing at all.
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+
+    expect(gradeWeights(RULES, gate - 1)[1]).toBe(0);
+    expect(gradeWeights(RULES, gate)[1]).toBeGreaterThan(0);
+    expect(gradeWeights(RULES, 1)[0]).toBeGreaterThan(0);
+    expect(gradeWeights(RULES, 500)[0]).toBeGreaterThan(0);
+  });
+
+  it('tilts toward better grades with depth once they are unlocked', () => {
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+    const shallow = gradeWeights(RULES, gate);
     const deep = gradeWeights(RULES, 500);
     const share = (weights: readonly number[]) =>
       (weights[1] ?? 0) / weights.reduce((sum, weight) => sum + weight, 0);
 
     expect(share(deep)).toBeGreaterThan(share(shallow));
-    // Neither end ever reaches zero: a top-grade piece is reachable at stage 1, and a bottom-grade
-    // one still drops (and is still worth its salvage) at the top.
+    // A grade that has opened never closes again, and the bottom one goes rare rather than
+    // impossible — so a drop is never a nothing at either end of the ladder.
     expect(share(shallow)).toBeGreaterThan(0);
     expect(deep[0]).toBeGreaterThan(0);
   });
 
+  it('counts how many grades a run has unlocked, for the screens that explain the gate', () => {
+    const gate = RULES.grades[1]?.unlockIndex ?? 1;
+
+    expect(unlockedGrades(RULES, 1)).toBe(1);
+    expect(unlockedGrades(RULES, gate - 1)).toBe(1);
+    expect(unlockedGrades(RULES, gate)).toBe(2);
+  });
+
   it('rolls a grade per piece rather than once per batch', () => {
-    // What makes a boss meaningfully better than three ordinary stages rather than merely faster.
-    let calls = 0;
-    const draw = () => {
-      calls += 1;
-      return 0.999;
-    };
+    // What makes a boss meaningfully better than the same number of ordinary stages rather than
+    // merely faster. Read off the specs rather than off a draw count, so it says the thing it
+    // means: two pieces from one fight landing on different grades.
+    //
+    // The sequence is hand-built: one draw for the count, then five per piece — slot, archetype,
+    // alignment gate, faction, grade — with the alignment gate above `unalignedChance` so the
+    // faction draw is always taken and the block stays a fixed five wide. Only the grade slot
+    // varies, between a roll inside the bottom grade's weight and one well past it.
+    let index = 0;
+    const piece = (grade: number): readonly number[] => [0.1, 0.1, 0.9, 0.1, grade];
+    const values = [0, ...piece(0.01), ...piece(0.99), ...piece(0.01)];
+    const draw = (): number => values[index++] ?? 0;
 
-    rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
+    const specs = rollDrops(RULES, ['test-mortal'], 400, 'boss', draw);
 
-    // Four draws per piece (slot, archetype, alignment gate, faction) plus one for the grade.
-    expect(calls).toBeGreaterThanOrEqual(dropCount(RULES, 'boss') * 4);
+    expect(specs).toHaveLength(3);
+    expect(specs.map((spec) => spec.grade)).toEqual([0, 1, 0]);
   });
 
   it('is deterministic for a given draw sequence', () => {

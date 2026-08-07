@@ -2,7 +2,7 @@ import { canAfford, credit, debit, type CurrencyAmounts } from '../currency';
 import { num, ZERO } from '../numeric';
 import { type CharacterData, type OwnedCharacter } from '../roster/types';
 import { type GameState } from '../state';
-import { clampGearLevel, gradeAt, maxGearLevel } from './stats';
+import { clampGearLevel, gearScale, gradeAt, maxGearLevel } from './stats';
 import {
   emptyLoadout,
   GEAR_SLOTS,
@@ -414,6 +414,101 @@ export function equip(
         return withoutItem(entry, itemId);
       }),
     },
+  };
+}
+
+/**
+ * The outcome of an {@link autoEquip}, which reports how much it moved as well as the new state.
+ *
+ * Same shape and same reason as {@link GearShopResult}: a run of this can legitimately change
+ * nothing — a character already wearing the best the bag holds is the common case once the button
+ * has been pressed once — and `ok` alone cannot tell that apart from a change the screen should
+ * announce. A button that says "equipped" after doing nothing is the failure this field prevents.
+ */
+export type AutoEquipResult =
+  | { readonly ok: true; readonly state: GameState; readonly equipped: number }
+  | { readonly ok: false; readonly reason: GearFailure };
+
+/**
+ * Fills every slot with the best **spare** piece the bag holds for this character.
+ *
+ * ⚠️ **It draws only from unequipped gear, and never takes a piece off somebody else.** That is the
+ * one place this deliberately does less than {@link equip}, which does steal — and the asymmetry is
+ * the point. A manual equip is a player naming one piece and one wearer, so moving it is what they
+ * asked for. Auto-equip is a bulk action with no such statement in it, and a bulk action that
+ * silently stripped four other characters would make the button something to be afraid of. The cost
+ * is real and worth stating: the best piece in the game for this character can sit on a benched
+ * character and this will not fetch it. The picker still lists it, and equipping by hand still works.
+ *
+ * **Comparison is one scalar, and that is a property of the archetype gate rather than luck.** Every
+ * candidate for a slot has already been filtered to this character's archetype *and* that slot, so
+ * they all share an authored profile — which makes {@link gearScale} a total order over them and
+ * "the best piece" a well-defined thing rather than a weighting somebody has to choose. Nothing here
+ * needs the grade ladder to be strictly ordered by grade; a level-20 worn piece beating a level-1
+ * sturdy one is simply a bigger number.
+ *
+ * A slot only changes when a candidate is **strictly** better than what is worn. Equal scale leaves
+ * the piece alone, so pressing the button twice is a no-op rather than a shuffle between two
+ * identical pieces — and a player who deliberately equipped one of two identical pieces keeps theirs.
+ */
+export function autoEquip(
+  state: GameState,
+  defId: string,
+  rules: GearRulesData,
+  characters: ReadonlyMap<string, CharacterData>,
+): AutoEquipResult {
+  const character = characters.get(defId);
+  if (character === undefined) {
+    return { ok: false, reason: 'unknown-character' };
+  }
+  const owned = state.roster.find((entry) => entry.defId === defId);
+  if (owned === undefined) {
+    return { ok: false, reason: 'not-owned' };
+  }
+
+  const held = new Map(state.gear.map((item) => [item.id, item]));
+  const spare = unequippedGear(state).filter((item) => item.archetype === character.role);
+
+  const gear: Partial<Record<GearSlot, string>> = { ...owned.gear };
+  let equipped = 0;
+
+  for (const slot of GEAR_SLOTS) {
+    const wornId = owned.gear[slot];
+    const worn = wornId === undefined ? undefined : held.get(wornId);
+    let bestScale = worn === undefined ? 0 : gearScale(rules, worn, character.faction);
+    let best: GearItem | undefined;
+
+    for (const item of spare) {
+      if (item.slot !== slot) {
+        continue;
+      }
+      const scale = gearScale(rules, item, character.faction);
+      // Strictly better to displace what is worn; the id breaks a tie between two equally good
+      // spares so the same bag always produces the same loadout. Determinism here is not cosmetic —
+      // a save replayed through the repair pass has to land on the same answer twice.
+      if (scale > bestScale || (best !== undefined && scale === bestScale && item.id < best.id)) {
+        bestScale = scale;
+        best = item;
+      }
+    }
+
+    if (best !== undefined) {
+      gear[slot] = best.id;
+      equipped++;
+    }
+  }
+
+  if (equipped === 0) {
+    return { ok: true, state, equipped: 0 };
+  }
+
+  return {
+    ok: true,
+    state: {
+      ...state,
+      roster: state.roster.map((entry) => (entry.defId === defId ? { ...entry, gear } : entry)),
+    },
+    equipped,
   };
 }
 

@@ -47,6 +47,21 @@
       guaranteed on this pull
     }
   </p>
+
+  <!--
+    The second counter, as a line rather than a bar. It clears three times inside one ascended
+    cycle, so giving it equal visual weight would read as two competing goals rather than a floor
+    beneath the first one.
+  -->
+  <p class="pity__floor">
+    <strong>{{ currentLegendaryChance() }}</strong> for legendary tier or better ·
+    {{ legendaryPity() }} {{ legendaryPity() === 1 ? 'pull' : 'pulls' }} since your last ·
+    @if (pullsToLegendary() > 0) {
+      guaranteed within {{ pullsToLegendary() }}
+    } @else {
+      guaranteed on this pull
+    }
+  </p>
 </section>
 
 @if (banner(); as current) {

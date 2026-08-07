@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { BattleView } from '../ui/battle-view';
 import { BattleService } from '../ui/battle.service';
 import { GameLoopService } from '../ui/game-loop.service';
+import { NotificationsService } from '../ui/notifications.service';
 
 /** One entry in the tab bar. */
 interface Tab {
@@ -40,6 +41,13 @@ interface Tab {
 export class App implements OnInit {
   private readonly game = inject(GameLoopService);
   private readonly battles = inject(BattleService);
+  /**
+   * Injected for its side effect: the service registers its own `visibilitychange` listener in its
+   * constructor, so nothing here calls it. Named rather than left implicit because a DI container
+   * that never resolves a service never constructs it — deleting this line silently turns the
+   * reminders off.
+   */
+  private readonly notifications = inject(NotificationsService);
 
   protected readonly isReady = this.game.isReady;
   protected readonly isBattleOpen = this.battles.isOpen;
@@ -77,5 +85,8 @@ export class App implements OnInit {
   ngOnInit(): void {
     // The clock lives here: core takes time as a parameter and never reads one itself.
     void this.game.start(Date.now());
+    // Anything queued from a previous session is cancelled on the way in — a player who has come
+    // back must not be told to come back. See `notifications.service.ts`.
+    void this.notifications.cancel();
   }
 }

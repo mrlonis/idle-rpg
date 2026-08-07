@@ -53,7 +53,7 @@ describe('migrate', () => {
 
   it('discards a save with no version rather than guessing at one', () => {
     // It used to be read as the earliest schema, because v1 predated versioning and guessing was
-    // strictly better than discarding a real run. The v0 reset removed the thing that guess was
+    // strictly better than discarding a real run. The re-base removed the thing that guess was
     // for: nothing below this baseline exists, so an absent version is damage.
     expect(() => migrate({ gold: '100' })).toThrow(UnknownSaveVersionError);
   });
@@ -78,76 +78,53 @@ describe('migrate', () => {
     expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it.each([3, 4, 5])('discards a v%i save from before the baseline', (version) => {
-    // ⚠️ **The reset, stated as behaviour rather than as an absence.** Five schema versions were
-    // collapsed into v0 while the game was pre-release, so a save written by any of them has no
-    // path to current and never will. It reads as newer-than-supported because the numbers were
-    // re-based; either way `loadSave` turns it into a fresh run, which is the whole intent.
-    expect(() => migrate({ version })).toThrow();
-  });
-
-  it.each([1, 2])('reads version %i as a post-baseline save, not as a pre-baseline one', (v) => {
-    // ⚠️ **The reset burned version numbers, and two milestones have now re-issued them.** The old
-    // v1 was milestone 1's gold counter and the old v2 was combat progression; this v1 is the gear
-    // schema and this v2 is the ladder gaining a bottom. A build cannot tell either pair apart
-    // from the number alone — so a genuine pre-reset save at one of these versions would be read
-    // as a current one and repaired into something close to a fresh run rather than reported as
-    // unreadable.
+  it('has no version left below the baseline to discard, which is the burn spent twice over', () => {
+    // ⚠️ **This assertion replaced a real one, and the replacement is the point.** The chain has
+    // been re-based to a single v0 twice — five pre-release versions the first time, six more the
+    // second — and for several milestones this block seeded one of the numbers they had used and
+    // checked it was refused. Every one of those numbers is now either the baseline itself or above
+    // it, so there is nothing left to seed.
     //
-    // That is safe here for exactly one reason, and it is the same reason the reset itself was
-    // licensed: **no save carrying the old meaning has ever existed outside development.** It is
-    // not safe in general, and it is the cost of re-basing that is easiest to forget — every
-    // number below `SAVE_VERSION` now means something different from what it meant before the
-    // reset. Nothing else may be re-issued once a build reaches a player.
-    expect(() => migrate({ version: v })).not.toThrow();
-    expect(migrate({ version: v })).toMatchObject({ version: SAVE_VERSION });
+    // What is asserted instead is the fact itself, so that the moment somebody tries to write
+    // "discard a pre-baseline save" again they find out why they cannot. A save is unreadable now
+    // only by being *newer* than this build or by carrying nonsense — both covered above.
+    for (let version = 0; version <= SAVE_VERSION; version++) {
+      expect(() => migrate({ version }), `v${version}`).not.toThrow();
+    }
+    expect(() => migrate({ version: SAVE_VERSION + 1 })).toThrow(FutureSaveVersionError);
   });
 
-  it('shifts every stored rarity by two on the way from v1 to v2', () => {
-    // The migration this file exists for. v1 → v2 adds no field, so nothing structural can tell a
-    // migrated save from an unmigrated one — this assertion is the only evidence that the shift
-    // ran, and without it every returning player is silently demoted two rungs.
-    const migrated = migrate({
-      version: 1,
-      roster: [
-        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
-        { defId: 'beta', rarity: 4, level: 9, copies: 2, gear: {} },
-      ],
-    });
-
-    expect(migrated).toMatchObject({
-      version: 2,
-      roster: [
-        { defId: 'alpha', rarity: 2, level: 1, copies: 0, gear: {} },
-        { defId: 'beta', rarity: 6, level: 9, copies: 2, gear: {} },
-      ],
-    });
-  });
-
-  it('leaves a damaged rarity for load-time repair rather than shifting it', () => {
-    // Shifting a corrupt value only moves the corruption. `serialize` clamps to the character's
-    // starting rarity, which is a better answer than any this step could invent.
-    const migrated = migrate({
-      version: 1,
-      roster: [{ defId: 'alpha', rarity: 'elite', level: 1, copies: 0, gear: {} }],
-    });
-
-    expect(migrated).toMatchObject({
-      roster: [{ defId: 'alpha', rarity: 'elite' }],
-    });
+  it.each([1, 2, 3, 4, 5, 6])('refuses version %i, which twice meant something real', (v) => {
+    // ⚠️ **Each of these numbers has now meant two different things, and means neither.** The first
+    // re-base issued 1–5 to the pre-release chain; the second issued 1–6 again, to gear, the
+    // ladder's new bottom, the achievement ledger, the quest windows, the bounty board and the
+    // legendary pity counter. Both sets are folded into v0, so a save at any of them is *newer than
+    // this build* and is discarded rather than repaired into something plausible.
+    //
+    // Discarding is the safe direction and it is still a run nobody can recover, which is the whole
+    // cost of re-basing and the part easiest to forget. It is licensed here for exactly one reason:
+    // **no save carrying either meaning has ever existed outside development.** Nothing may be
+    // re-issued once a build reaches a player.
+    //
+    // ⚠️ **The literals are deliberate and this block fails at the next bump.** Everywhere else a
+    // version is derived from `SAVE_VERSION`, because a literal there goes stale silently; here the
+    // numbers *are* the history, and re-issuing one for a third time should mean reading this
+    // comment rather than editing an array.
+    expect(v).toBeGreaterThan(SAVE_VERSION);
+    expect(() => migrate({ version: v })).toThrow(FutureSaveVersionError);
   });
 });
 
 describe('migration chaining', () => {
-  // A synthetic history rather than the real MIGRATIONS map, which now holds one entry and so
-  // exercises a single step rather than a chain. Multi-step chaining is what has to keep working
-  // and what nothing shipped can currently demonstrate, so it is driven from here — through the
-  // real `migrate` walk, with a table of its own.
+  // A synthetic history rather than the real MIGRATIONS map, which is empty again and so exercises
+  // no steps at all. Chaining is what has to keep working and what nothing shipped can currently
+  // demonstrate, so it is driven from here — through the real `migrate` walk, with a table of its
+  // own.
   //
-  // **This block is why the walker survived the v0 reset rather than being deleted with the four
+  // **This block is why the walker survived both re-bases rather than being deleted with the
   // migrations it used to run.** It is proven machinery with no callers, which is a far better
   // position than an unproven chain walker written on the day the first real migration is already
-  // urgent.
+  // urgent — and it is the position the gear migration landed on and worked in first time.
   const table = new Map<number, Migration>([
     [1, (s) => ({ ...s, version: 2, stamina: 0 })],
     [2, (s) => ({ ...s, version: 3, rng: { seed: 7, calls: 0 } })],
