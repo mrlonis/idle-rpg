@@ -897,9 +897,21 @@ not long-running and need none of this.
   differs between machines, which makes this a green suite locally and a red one in CI. There are
   no `vi.mock` calls left in this repo, and adding one is how that class of failure comes back.
   - **Inject the seam instead.** A dependency that a test needs to replace should arrive through
-    an `InjectionToken` whose default factory returns the real thing, so the test overrides a
+    an `InjectionToken` whose default factory reaches the real thing, so the test overrides a
     provider rather than a module. `KEY_VALUE_STORE` in `ui/save.service.ts` is the worked
     example, and its doc comment records why the obvious alternative was rejected.
+  - ⚠️ **A token wrapping a Capacitor plugin must _forward_ to it, never hand back the plugin
+    object.** A plugin is a `Proxy` whose `get` trap answers **every** property with a callable, so
+    `typeof plugin.ngOnDestroy === 'function'` — which is exactly the test `R3Injector` uses to
+    decide a provider needs tearing down. Angular then calls `ngOnDestroy()` on it at teardown, that
+    reaches the bridge, finds no such native method, and rejects. `factory: () => Preferences` is
+    the obvious authoring and it is the bug. Both shipped tokens now return a plain object of
+    one-line forwarders, which is the whole reason to keep the interface beside them narrow.
+    - **It presents as a green suite that still fails the build.** Every test passes and vitest
+      exits 1 on unhandled rejections, one per injector teardown, attributed to whichever spec was
+      running rather than to the token. Nothing types wrong and no assertion fails, so the guard is
+      a test on the **shape of the resolved default** — in `save.service.spec.ts` and
+      `notifications.service.spec.ts`.
   - Raising `isolate` to true would also fix it, and was considered and rejected: it slows the
     suite that runs on save in order to paper over one file's design.
 
