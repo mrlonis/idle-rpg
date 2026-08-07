@@ -217,6 +217,11 @@ rather than one chance counted six times. The two rolls answer different questio
 whether the _fight_ was lucky, the grade whether the _piece_ was — which is why the count is drawn
 once for the batch rather than folded into the per-piece draw.
 
+⚠️ **The count draw is the first draw in `rollDrops`, and its position is load-bearing.** Every later
+draw shifts by one, so moving it re-rolls every historical drop for a given seed — invisible in play,
+and it turns every recorded balance figure into a different number. Same discipline as the bounty
+board shuffling its whole pool before filtering.
+
 ⚠️ **More drops means more alloy and a faster-filling bag, and both are bounded already.**
 `inventoryLimit` caps the bag and the overflow salvages at full value, so a bigger haul costs the
 save nothing — see the note on why gear material is a currency rather than a pile of items.

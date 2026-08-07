@@ -48,7 +48,25 @@ the two disagree, the code is right and both are stale.
 
 - **[docs/milestones.md](../../docs/milestones.md)** — the roadmap. The status of every milestone, what
   each one shipped, and the reasoning behind each decision. **Single source of truth for project
-  status**; nothing else restates it.
+  status**; nothing else restates it. It is the **numbered roadmap and nothing else** — work that
+  shipped without a milestone number lives in the reference doc that owns the system.
+- **[docs/navigation.md](../../docs/navigation.md)** — the tab bar's measured ceiling, Town as the hub,
+  the test for what belongs there, the Bag rename, and the routing rules. **Read it before adding a
+  screen**; the "adding a tab at all" section below is stated there with its reasons.
+- **[docs/rejected.md](../../docs/rejected.md)** — everything ruled out and why it stays ruled out:
+  prestige, the segmented offline solver, `timeToClear`, `dropCarry`, the offline cap, role-locked
+  placement, flat synergy bonuses, anti-cheat, and the genre systems this game will not have. It also
+  carries the items **declined with a named trigger** (export/import, enemy gear, the enemy tier
+  bands, stage generation) and the **fixes that were measured and failed**. Read it before proposing
+  anything on it; the arguments are recorded so they do not have to be re-derived.
+- **[docs/platform.md](../../docs/platform.md)** — the Capacitor shell, safe areas, the accessibility bar
+  and the incidents that set it, `@angular/cdk` overlays, and what platform backup does and does not
+  cover. The rules in "Mobile / Capacitor" and "Accessibility Requirements" below are stated there
+  with their reasons.
+- **[docs/testing.md](../../docs/testing.md)** — why the balance sweep exists and what it has caught: the
+  fast/balance split, striding versus shrinking the sample, the zero-timeout and timer-headroom
+  guards, derive-never-retype, the two traps in measuring a balance edge, and the single-slot
+  composition probe nobody has managed to write.
 - **[docs/glossary.md](../../docs/glossary.md)** — the vocabulary, and specifically the words that mean
   more than one thing. Read this before writing prose about tiers, rarities or factions — several
   terms collide by design and the collisions are listed there.
