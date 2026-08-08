@@ -77,7 +77,16 @@ $tap-target: 2.75rem;
   border-radius: 0.625rem;
 }
 
+// ⚠️ **`box-sizing` is part of the outfit, because this mixin is worn by anchors too.** Every
+// browser's UA sheet gives `<button>` `border-box`, so on a button this line is a no-op and it is
+// tempting to leave to the element — but an `<a>` is `content-box`, and this mixin adds 2rem of
+// padding and a 1px border. `width: 100%` on one therefore overflows its container by 34px. That
+// shipped: milestone 15a turned Home's Fight control into a link, and the campaign card has been
+// pushing a horizontal scrollbar onto every phone since. The failure is invisible on the screen
+// that owns the rule — the overflow lands on the scroll container in `app.scss` — so it presents
+// as "the app scrolls sideways" with nothing wrong anywhere near the element that causes it.
 @mixin button-base {
+  box-sizing: border-box;
   min-height: $tap-target;
   padding: 0 1rem;
   border-radius: 0.625rem;
