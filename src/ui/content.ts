@@ -1,5 +1,6 @@
 import {
   type AchievementTrackData,
+  type ActivityData,
   type AscensionRules,
   type BannerData,
   type ChapterCurveData,
@@ -19,18 +20,24 @@ import {
   type BountyBoardRulesData,
   type BountyData,
   type LevelCurveData,
+  matchedStageIndex,
   type QuestCounter,
   type QuestData,
   type QuestRulesData,
   resolveLadder,
+  resolveTower,
   type ShopOfferData,
   type StageData,
+  stagePayout,
   type StageRewardCurveData,
   type SummonRateCurve,
   toCombatRules,
+  type TowerData,
+  type TowerRulesData,
 } from '../core';
 import {
   ACHIEVEMENTS,
+  ACTIVITIES,
   ASCENSION_RULES,
   BOUNTIES,
   BOUNTY_BOARD,
@@ -54,6 +61,8 @@ import {
   STAGE_REWARDS,
   SUMMON_RATE,
   TIER_WEIGHTS,
+  TOWER_RULES,
+  TOWERS,
 } from '../data';
 
 /**
@@ -75,6 +84,22 @@ import {
  * this assignment is what turns a track naming a counter nothing keeps into a compile error.
  */
 export const ACHIEVEMENT_TRACKS: readonly AchievementTrackData[] = ACHIEVEMENTS;
+
+/**
+ * Everything a run can send a crew at, in the order the formations screen lists them.
+ *
+ * The campaign first and the towers after it, which is also the order Home draws them: the
+ * campaign is the spine and a tower is somewhere a player goes with a roster they have built.
+ *
+ * The typed local is what turns an activity naming a faction that does not exist, or a `kind`
+ * nothing handles, into a compile error rather than a locked door with no key.
+ */
+export const ACTIVITY_LIST: readonly ActivityData[] = ACTIVITIES;
+
+/** Every activity, keyed by id — which is also its {@link GameState.formations} key. */
+export const ACTIVITIES_BY_ID: ReadonlyMap<string, ActivityData> = new Map<string, ActivityData>(
+  ACTIVITY_LIST.map((activity) => [activity.id, activity]),
+);
 
 /**
  * Every mission the board can ever offer, in tier order — shortest first.
@@ -217,6 +242,86 @@ export const STAGES: readonly StageData[] = resolveLadder(
   CHAPTERS_IN_ORDER,
   CHAPTER_RULES,
   STAGE_REWARD_CURVE,
+);
+
+/**
+ * The enemy level of every stage on the ladder, in ladder order.
+ *
+ * Exists for {@link matchedStageIndex} and nothing else: a tower floor's lump and its gear grades are
+ * read off the campaign at the stage that fights at the **same level**, which is what stops floor 100
+ * (level 60) from being paid what stage 100 (level 85) is paid.
+ */
+export const CAMPAIGN_LEVELS: readonly number[] = STAGES.map((stage) => stage.level);
+
+/**
+ * How every tower is shaped: its height, its level line, its rhythm and its crystals.
+ *
+ * The typed local is what makes a malformed rule a compile error — the same job {@link CHAPTER_RULES}
+ * does for the chapters.
+ */
+export const TOWER_SHAPE: TowerRulesData = TOWER_RULES;
+
+/**
+ * The towers this build ships, in the order the screens list them.
+ *
+ * The typed local is what turns a floor naming an enemy nothing ships, or a rank wider than the
+ * board, into a compile error rather than a floor the simulation quietly fails to parse.
+ */
+export const TOWER_LIST: readonly TowerData[] = TOWERS;
+
+/** Every tower, keyed by id — which is also its `GameState.towers` and `formations` key. */
+export const TOWERS_BY_ID: ReadonlyMap<string, TowerData> = new Map<string, TowerData>(
+  TOWER_LIST.map((tower) => [tower.id, tower]),
+);
+
+/**
+ * Where a resolved tower floor sits: which tower, how high, and what the campaign pays for it.
+ *
+ * `matchedStage` is the **campaign** index this floor's level matches, and it is carried rather than
+ * recomputed because two things read it — the lump, already folded into {@link stage}, and the gear
+ * grade weights, which `applyTowerResult` needs at drop time.
+ */
+export interface TowerFloor {
+  readonly tower: TowerData;
+  /** 1-based, and always inside the tower's authored floors. */
+  readonly floor: number;
+  readonly stage: StageData;
+  readonly matchedStage: number;
+}
+
+/**
+ * Every floor of every tower, resolved once at module scope exactly as {@link STAGES} is.
+ *
+ * The floors are content and what they pay is a function of the level they fight at, so something
+ * has to put the two together — and this file is that seam. Doing it per battle would be the same
+ * answer recomputed from static content for every floor of an auto-battled climb.
+ */
+export const TOWER_FLOORS: ReadonlyMap<string, readonly TowerFloor[]> = new Map(
+  TOWER_LIST.map((tower) => [
+    tower.id,
+    resolveTower(
+      tower,
+      TOWER_SHAPE,
+      (level) => stagePayout(STAGE_REWARD_CURVE, matchedStageIndex(CAMPAIGN_LEVELS, level)).reward,
+    ).map((stage, offset) => ({
+      tower,
+      floor: offset + 1,
+      stage,
+      matchedStage: matchedStageIndex(CAMPAIGN_LEVELS, stage.level),
+    })),
+  ]),
+);
+
+/**
+ * Every tower floor, keyed by the stage id it carries.
+ *
+ * What `BattleService.settle` looks a finished fight up in. It reads the stage back **off the
+ * result** rather than remembering which floor it started — the animation can be a minute of
+ * playback later, and a field set at the top of `fight` is one more thing that has to still be true
+ * by then. Also what tells a tower fight from a campaign one: a stage id in here is a floor.
+ */
+export const TOWER_FLOOR_BY_STAGE: ReadonlyMap<string, TowerFloor> = new Map(
+  [...TOWER_FLOORS.values()].flat().map((floor) => [floor.stage.id, floor]),
 );
 
 /**

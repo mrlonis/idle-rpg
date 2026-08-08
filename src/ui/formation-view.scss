@@ -1,0 +1,326 @@
+@use 'theme' as t;
+
+// Deliberately a near-copy of `roster-view.scss` rather than a shared partial. The two screens
+// draw the same *kind* of list and are now free to diverge — this one is a crew editor and that
+// one is an investment screen — and a shared stylesheet between two screens with different jobs is
+// the thing that makes every later change to one of them a change to both.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.head__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: t.$muted;
+  font-size: 0.875rem;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    color: t.$text;
+    text-decoration: underline;
+  }
+}
+
+.head__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__summary {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+// What the lock admits. Accented rather than muted: it is the one line on the screen that explains
+// why most of the roster is missing from the list below, and a player who does not read it will
+// read the empty sections as a bug.
+.head__lock {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: t.$accent;
+}
+
+.formation {
+  @include t.card;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formation__title,
+.lineup__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: t.$muted;
+}
+
+.rank__label,
+.lineup__shape {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.lineup__shape {
+  margin-top: 0.25rem;
+}
+
+.rank__hint,
+.lineup__hint {
+  margin: 0.125rem 0 0.375rem;
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.lineup__hint {
+  margin: 0.375rem 0 0;
+}
+
+.rank__slots,
+.lineup__effects {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.lineup__effects {
+  margin-top: 0.375rem;
+}
+
+.slot {
+  padding: 0.3125rem 0.5rem;
+  border: 1px solid t.$border;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  min-width: 5.5rem;
+}
+
+.slot--empty {
+  // Dashed, and it also says "Empty" — the border alone would be the only signal for anyone who
+  // cannot see the difference between two thin greys.
+  border-style: dashed;
+  color: t.$muted;
+  font-style: italic;
+}
+
+.slot__name {
+  display: block;
+  font-weight: 600;
+}
+
+.slot__role {
+  display: block;
+  font-size: 0.6875rem;
+  color: t.$muted;
+  text-transform: capitalize;
+}
+
+// Taking somebody out from the slot itself, rather than scrolling back down to find their row. The
+// target is the full 44px even though the chip is smaller, because it sits between two other tap
+// targets.
+.slot__remove {
+  @include t.button-quiet;
+  margin-top: 0.25rem;
+  min-height: 2.75rem;
+  width: 100%;
+  font-size: 0.75rem;
+}
+
+.lineup {
+  border-top: 1px solid t.$border;
+  padding-top: 0.625rem;
+}
+
+.lineup__effect {
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 0.375rem;
+  background: t.$accent-bg;
+  color: t.$accent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  @include t.numeric;
+}
+
+.formation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.formation__blocked {
+  margin: 0;
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.button {
+  @include t.button-quiet;
+  flex: 1 1 8rem;
+  font-size: 0.875rem;
+}
+
+.button--primary {
+  @include t.button-primary;
+  flex: 1 1 8rem;
+  font-size: 0.875rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: t.$muted;
+}
+
+.group__count {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  @include t.numeric;
+}
+
+.group__empty {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed t.$border;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: t.$muted;
+}
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roster__row {
+  @include t.card;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.roster__identity {
+  min-width: 0;
+}
+
+.roster__name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  color: t.$text;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  @include t.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.roster__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0.1875rem 0 0;
+  font-size: 0.75rem;
+  color: t.$muted;
+}
+
+.tier {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.75rem;
+  background: t.$surface-raised;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.roster__stats {
+  margin: 0.1875rem 0 0;
+  font-size: 0.75rem;
+  color: t.$muted;
+  @include t.numeric;
+}
+
+.roster__carried {
+  color: t.$carried;
+  font-weight: 600;
+}
+
+// Already standing somewhere else. Muted rather than accented: it is a note, not a warning —
+// serving several crews is the normal case now, and colouring it as a conflict would be a lie.
+.roster__crews {
+  font-style: italic;
+}
+
+.roster__toggle {
+  white-space: nowrap;
+  @include t.button-quiet;
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+  font-size: 0.875rem;
+}
+
+.notice {
+  @include t.card;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notice--error {
+  background: t.$danger-bg;
+  border-color: #5a2a2a;
+  color: t.$danger;
+}
+
+.empty {
+  margin: 0;
+  color: t.$muted;
+  font-size: 0.9375rem;
+}
+
+// ⚠️ A mixin, not a global class — Angular scopes component styles, so a screen that writes
+// `visually-hidden` without including this gets no rule at all and renders the text inline.
+@include t.visually-hidden;
+
+@include t.rarity-palette;
+@include t.tier-palette;

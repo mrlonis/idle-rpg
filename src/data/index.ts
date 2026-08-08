@@ -13,6 +13,7 @@
  * level cost or an ascension rung should never mean editing the simulation.
  */
 export { ACHIEVEMENTS } from './achievements';
+export { ACTIVITIES } from './activities';
 export { BOUNTIES, BOUNTY_BOARD } from './bounties';
 export { QUEST_RULES, QUESTS } from './quests';
 export { ASCENSION_RULES, CELESTIAL_LADDER, FACTIONS, MORTAL_LADDER } from './ascension';
@@ -115,3 +116,11 @@ export { CHAPTER_1 } from './chapter-1';
 export { CHAPTER_2 } from './chapter-2';
 export { AUTO_BATTLE_UNLOCK_CLEARS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 export { STATUSES } from './statuses';
+export { TOWER_ANGEL } from './tower-angel';
+export { TOWER_DEMON } from './tower-demon';
+export { TOWER_DWARF } from './tower-dwarf';
+export { TOWER_ELF } from './tower-elf';
+export { TOWER_HUMAN } from './tower-human';
+export { TOWER_MONSTER } from './tower-monster';
+export { TOWER_UNDEAD } from './tower-undead';
+export { TOWER_RULES, TOWERS } from './towers';

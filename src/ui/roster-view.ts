@@ -1,81 +1,30 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  BACK_ROW_SIZE,
-  FRONT_ROW_SIZE,
-  PARTY_SIZE,
-  type RosterFailure,
-  type RosterResult,
-  type Row,
-} from '../core';
-import { COMBAT, factionName } from './content';
+import { PARTY_SIZE, type RosterFailure, type RosterResult } from '../core';
 import { formatAmounts } from './format-numeric';
 import { type ScreenId } from './navigation';
 import { type RosterEntryView, RosterService } from './roster.service';
 
 /**
- * The three factions the lineup rules name, read off the parsed rules rather than spelled out.
+ * Why a levelling action was refused, in words a player can act on.
  *
- * Copy is decided in this file; *which faction* is content, and a screen that hard-coded "Angels"
- * would keep saying it after the wildcard moved. Naming them here is what keeps the panel's words
- * and the simulation's behaviour the same statement.
+ * ⚠️ **The placement reasons are gone rather than kept "just in case".** Since milestone 15a this
+ * screen cannot change a crew, so `row-full`, `duplicate-party-member` and `character-away` name
+ * outcomes nothing here can produce — and a message for an impossible outcome is a claim about the
+ * screen that stopped being true. They live on the formation editor now.
  */
-const WILDCARD_FACTION = COMBAT.lineup.wildcard;
-const RALLY_FACTION = COMBAT.lineup.rally.faction;
-const LADDER_FACTION = COMBAT.lineup.ladder.faction;
-
-/** The smallest composition that pays anything, for the "nothing yet" hint. */
-const SMALLEST_RUNG = Math.min(...COMBAT.lineup.tiers.map((tier) => tier.largest));
-
-/** Why a formation change was refused, in words a player can act on. */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
-  'row-full': `Both rows are full — ${FRONT_ROW_SIZE} in front, ${BACK_ROW_SIZE} behind. Bench somebody first.`,
   'not-owned': 'You do not own that character.',
-  'duplicate-party-member': 'That character is already in your formation.',
-  // The bounty board's disjointness invariant, seen from the other side. Naming the board is what
-  // makes this actionable — "that did not work" leaves the player with no idea where to go.
-  'character-away': 'That character is away on a bounty. Collect the mission first.',
-  'unknown-character': 'That character is no longer available.',
   'insufficient-currency': 'Not enough gold, XP or essence to raise the shared level.',
   'level-capped': `Your ${PARTY_SIZE}th-highest character is at its level cap. Ascend somebody to raise the shared level further.`,
 };
 
-/** What the next tap on a row's control will do. */
-interface PlacementAction {
-  readonly label: string;
-  /** Spelled out for assistive technology, because the visible label repeats down the list. */
-  readonly description: string;
-}
-
-/**
- * The lineup bonus, in words.
- *
- * Three parts because the panel answers three questions in the order a player asks them: what
- * shape am I fielding, what is it worth, and what would be worth more. The last one is the point
- * of the panel — a bonus with no visible next rung is a number rather than a decision.
- */
-interface LineupPanel {
-  /**
-   * Who is actually fielded, among the factions doing something: "Dwarves ×3 · Elves ×2".
-   *
-   * **Real counts, never the rung's.** The two differ whenever a wildcard stood in for somebody,
-   * and the flat tracks pay on real members — so this is the line that has to agree with the
-   * effects beside it. Each faction appears at most once however many tracks it is feeding.
-   */
-  readonly shape: string;
-  /** Every stat the bonus moves, already formatted. Empty when the party qualified for nothing. */
-  readonly effects: readonly string[];
-  /** What to do about it — and what the rung counted the party as, when that differs. */
-  readonly hint: string;
-}
-
 /**
  * The shared level, in words.
  *
- * Same split as {@link LineupPanel}: the numbers are resolved in the service through `core/`, and
- * only the wording is decided here. The panel answers the three questions in the order a player
- * asks them — what level is everybody at, who is holding it there, and what does the next one
- * cost.
+ * The numbers are resolved in the service through `core/`, and only the wording is decided here.
+ * The panel answers the three questions in the order a player asks them — what level is everybody
+ * at, who is holding it there, and what does the next one cost.
  */
 interface ResonanceAnchor {
   readonly defId: string;
@@ -119,22 +68,24 @@ interface RosterSection {
 }
 
 /**
- * The roster: everyone owned, and where they are standing.
+ * The roster: everyone owned, and what each of them is worth.
  *
- * Placement is one control per row that **cycles** front → back → benched rather than three
- * buttons or a drag-and-drop board. Two rows of two and three is a small enough space that
- * cycling reaches every state in at most two taps, and a drag target is the worst possible
- * control on a phone — this whole screen is a list, and a list is a thing you tap.
+ * ## It stopped being a formation editor in milestone 15a
  *
- * Which row a character stands in is entirely the player's call. Nothing here consults a
- * character's role: role-locking would let an unlucky roster reach a state with no legal
- * formation, and a bad front row is a far better failure than no front row.
+ * It was one, and it was the right screen for it while there was one formation. Eight crews do not
+ * fit here — not because the markup could not hold them, but because the screen would then answer
+ * two unrelated questions at once: *who is worth levelling* and *who is going to which fight*. So
+ * placement moved out whole, to `/formations`, and this screen links there.
  *
- * The list is **grouped by faction under fixed headings**, with the fielded party pinned above
- * them as a group of its own. Faction is the axis the whole ascension system turns on — a
- * mortal rung is paid in faction-mates — so "how deep is my Dwarf bench" is a question the
- * screen should answer by being scrolled, not by being read. Every faction keeps its heading
- * even when nothing is under it, because a fixed shape is something a player can learn the
+ * What is left is the roster as an **investment** screen: the shared level, and every character
+ * with the level, rung and copies that decide whether to spend on them. Each row still says which
+ * crews it is standing for, because that is a fact about the character rather than about any one
+ * crew.
+ *
+ * The list is **grouped by faction under fixed headings**. Faction is the axis the whole ascension
+ * system turns on — a mortal rung is paid in faction-mates — so "how deep is my Dwarf bench" is a
+ * question the screen should answer by being scrolled, not by being read. Every faction keeps its
+ * heading even when nothing is under it, because a fixed shape is something a player can learn the
  * position of, and because an absent group and an empty one say different things about a run.
  */
 @Component({
@@ -148,7 +99,6 @@ export class RosterView {
 
   protected readonly partySize = PARTY_SIZE;
   protected readonly entries = this.roster.entries;
-  protected readonly openSlots = this.roster.openSlots;
   protected readonly resonance = this.roster.resonance;
 
   /**
@@ -158,139 +108,22 @@ export class RosterView {
    */
   protected readonly screenId: ScreenId = 'roster';
 
-  /** The two ranks, front first, for the formation panel above the list. */
-  protected readonly ranks = computed(() => [
-    {
-      row: 'front' as const,
-      label: 'Front row',
-      capacity: FRONT_ROW_SIZE,
-      hint: 'Attacks come here first. +5% defence, +0.05 crit damage resistance.',
-      members: this.roster.frontRow(),
-    },
-    {
-      row: 'back' as const,
-      label: 'Back row',
-      capacity: BACK_ROW_SIZE,
-      hint: 'Shielded while the front row holds. +5% attack, +0.05 crit damage.',
-      members: this.roster.backRow(),
-    },
-  ]);
-
   /**
-   * The list, as headings and their rows: the party first, then one section per faction.
+   * The list, as headings and their rows: one section per faction.
    *
    * The wording of an empty section is decided here rather than in the service, because it is
-   * copy. What the service supplies is the fact behind it — how many of that faction are owned
-   * — so a group emptied by fielding everybody says so instead of claiming you own none.
+   * copy. What the service supplies is the fact behind it — how many of that faction are owned.
+   * Both numbers agree on this screen, which includes every row; the formation editor is where
+   * they differ.
    */
-  protected readonly sections = computed<readonly RosterSection[]>(() => [
-    {
-      id: 'fielded',
-      // Not "Formation": the panel above already owns that heading, and two level-2 headings
-      // whose names differ by a preposition are indistinguishable to anyone navigating by
-      // heading. "Fielded" is the word the summary line at the top of the screen already uses.
-      label: 'Fielded',
-      members: this.roster.fielded(),
-      empty: 'Nobody is fielded. Field somebody from a faction below.',
-    },
-    ...this.roster.benchGroups().map((group) => ({
+  protected readonly sections = computed<readonly RosterSection[]>(() =>
+    this.roster.factionGroups().map((group) => ({
       id: group.factionId,
       label: group.label,
       members: group.members,
-      empty: group.owned === 0 ? 'None owned yet.' : 'Everyone you own is fielded.',
+      empty: 'None owned yet.',
     })),
-  ]);
-
-  /**
-   * What the fielded party's faction composition is worth, as copy.
-   *
-   * The numbers come from `core/` through the service — the same call the simulation makes — and
-   * only the wording is decided here. A screen that recomputed the ladder would eventually
-   * promise something a battle did not pay, which is the one failure a bonus meant to provoke a
-   * rebuild cannot afford.
-   */
-  protected readonly lineup = computed<LineupPanel>(() => {
-    const { bonus, tier, counts } = this.roster.lineup();
-    const percent = (value: number): string => `${Math.round(value * 100)}%`;
-
-    // Fixed order rather than the order the tracks resolved in, so the panel reads the same way
-    // every time and a player can learn where to look for the stat they care about.
-    const effects = [
-      bonus.attack > 0 ? `+${percent(bonus.attack)} attack` : null,
-      bonus.health > 0 ? `+${percent(bonus.health)} health` : null,
-      bonus.defence > 0 ? `+${percent(bonus.defence)} defence` : null,
-      bonus.critChance > 0 ? `+${percent(bonus.critChance)} crit rating` : null,
-      bonus.critDamageAmp > 0 ? `+${percent(bonus.critDamageAmp)} crit damage` : null,
-      bonus.haste > 0 ? `+${bonus.haste} haste` : null,
-      bonus.injuredEnergyRegen > 0
-        ? `+${percent(bonus.injuredEnergyRegen)} energy recovery while hurt`
-        : null,
-    ].filter((effect): effect is string => effect !== null);
-
-    // "Dwarves ×3" rather than "3 Dwarves", because the authored faction names are plural and
-    // irregular — a count of one would read "1 Monsters", and deriving "Monster" from "Monsters"
-    // is a rule that works until it meets "Undead". The multiplication sign also announces as
-    // "times" rather than being skipped, so the line reads correctly aloud as well.
-    const label = (faction: string, count: number): string => `${factionName(faction)} ×${count}`;
-    const fielded = (faction: string): number =>
-      counts.find((entry) => entry.faction === faction)?.count ?? 0;
-
-    // **The line reports what was fielded, never what a rung counted it as**, and the two are
-    // genuinely different numbers: a rung counts a wildcard as the faction it replaced, while both
-    // flat tracks only ever count real members. Three Demons and two Angels reach a mono five and
-    // pay three rungs of the Demon track — so a line saying "Demons ×5" beside those effects would
-    // invite the player to hunt for two rungs that were never earned. The rung is a derived claim
-    // about the party, so it goes in the hint underneath as one.
-    //
-    // Building it from real counts is also what makes duplication impossible rather than merely
-    // guarded against. A faction can be a rung's second half *and* a flat track at the same time —
-    // three Humans and two Monsters is both — and a version of this that appended each source in
-    // turn named Monsters twice, which reads as a party of seven.
-    const contributors: string[] = [];
-    const name = (faction: string): void => {
-      if (fielded(faction) > 0 && !contributors.includes(faction)) {
-        contributors.push(faction);
-      }
-    };
-    if (tier !== null) {
-      name(tier.faction);
-      if (tier.secondFaction !== null) {
-        name(tier.secondFaction);
-      }
-      // Whatever the wildcards were standing in for, they are why the rung was reached.
-      name(WILDCARD_FACTION);
-    }
-    // Named even without a rung: one Demon pays +30% defence and reaches nothing, and an effect a
-    // player cannot attribute to anybody is one they cannot go and get more of.
-    name(RALLY_FACTION);
-    name(LADDER_FACTION);
-
-    // Only worth saying when the rung and the roll-call disagree, which is exactly when wildcards
-    // were spent. Saying it unconditionally would put "counts as Humans ×5" under "Humans ×5".
-    const rung: string[] =
-      tier === null
-        ? []
-        : [
-            ...(tier.count > fielded(tier.faction) ? [label(tier.faction, tier.count)] : []),
-            ...(tier.secondFaction !== null && tier.secondCount > fielded(tier.secondFaction)
-              ? [label(tier.secondFaction, tier.secondCount)]
-              : []),
-          ];
-
-    return {
-      shape:
-        contributors.length > 0
-          ? contributors.map((faction) => label(faction, fielded(faction))).join(' · ')
-          : 'No faction bonus yet',
-      effects,
-      hint:
-        rung.length > 0
-          ? `Counts as ${rung.join(' and ')} — ${factionName(WILDCARD_FACTION)} fill a gap in any line-up.`
-          : tier === null
-            ? `Field ${SMALLEST_RUNG} of one faction for a bonus. ${factionName(WILDCARD_FACTION)} count as any faction.`
-            : `${factionName(WILDCARD_FACTION)} count as any faction, so they fill a gap in any line-up.`,
-    };
-  });
+  );
 
   /**
    * The shared level, as copy.
@@ -345,46 +178,19 @@ export class RosterView {
 
   protected readonly summary = computed(() => {
     const total = this.entries().length;
-    const fielded = this.roster.fieldedCount();
-    return `${fielded} of ${this.partySize} fielded · ${total} ${total === 1 ? 'character' : 'characters'} owned`;
+    const crewed = this.roster.crewedCount();
+    // A count of characters rather than of slots, and the wording says so: with eight crews the
+    // slot total runs to forty, which against a roster of forty-nine reads as a percentage of
+    // nothing meaningful. "How much of my bench is doing something" is the question this answers.
+    return `${total} ${total === 1 ? 'character' : 'characters'} · ${crewed} standing in a crew`;
   });
 
-  /** Where a character stands, in words, for the row's meta line. */
-  protected placementLabel(row: Row | null, slot: number | null): string {
-    if (row === null) {
-      return 'Benched';
+  /** How many crews a character is standing for, in words, for the row's meta line. */
+  protected crewLabel(count: number): string {
+    if (count === 0) {
+      return 'Not in a crew';
     }
-    return `${row === 'front' ? 'Front' : 'Back'} ${slot ?? 1}`;
-  }
-
-  /**
-   * What the next tap does, given where the character is now and what room is left.
-   *
-   * Computed rather than hard-coded so the button never promises something the cycle will not
-   * do: with a full back row, a front-row character's next tap benches it, and the label says
-   * so.
-   */
-  protected nextAction(row: Row | null, name: string): PlacementAction {
-    const open = this.openSlots();
-    if (row === 'front') {
-      return open.back > 0
-        ? { label: 'To back', description: `Move ${name} to the back row` }
-        : { label: 'Bench', description: `Bench ${name}` };
-    }
-    if (row === 'back') {
-      return { label: 'Bench', description: `Bench ${name}` };
-    }
-    if (open.front > 0) {
-      return { label: 'To front', description: `Field ${name} in the front row` };
-    }
-    if (open.back > 0) {
-      return { label: 'To back', description: `Field ${name} in the back row` };
-    }
-    return { label: 'Field', description: `Field ${name} — both rows are full` };
-  }
-
-  protected cycle(defId: string): void {
-    this.report(this.roster.cyclePlacement(defId));
+    return `In ${count} ${count === 1 ? 'crew' : 'crews'}`;
   }
 
   /** Raises the shared level by one. */

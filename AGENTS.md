@@ -45,8 +45,9 @@ the two disagree, the code is right and both are stale.
   status**; nothing else restates it. It is the **numbered roadmap and nothing else** — work that
   shipped without a milestone number lives in the reference doc that owns the system.
 - **[docs/navigation.md](docs/navigation.md)** — the tab bar's measured ceiling, Town as the hub,
-  the test for what belongs there, the Bag rename, and the routing rules. **Read it before adding a
-  screen**; the "adding a tab at all" section below is stated there with its reasons.
+  the test for what belongs there, the Bag rename, Home as the battle hub, and the routing rules.
+  **Read it before adding a screen**; the "adding a tab at all" section below is stated there with
+  its reasons.
 - **[docs/rejected.md](docs/rejected.md)** — everything ruled out and why it stays ruled out:
   prestige, the segmented offline solver, `timeToClear`, `dropCarry`, the offline cap, role-locked
   placement, flat synergy bonuses, anti-cheat, and the genre systems this game will not have. It also
@@ -254,6 +255,131 @@ the two disagree, the code is right and both are stale.
     three go through `effectiveLevel`.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
+- **There is no "the formation". There are eight crews, keyed by activity**, since milestone 15a.
+  Read [`core/activity.ts`](src/core/activity.ts) and `FormationBook` in
+  [`core/state.ts`](src/core/state.ts) before writing anything that reads who is fighting.
+  - ⚠️ **`GameState.formations` is a record, and `state.formation` no longer exists.** Every write
+    goes through `setFormation(state, activity, …)` with the activity **required rather than
+    defaulted** — for the reason `toBattleCombatant` takes a level rather than reading one: a caller
+    that forgot which crew it was editing would silently rewrite the campaign's, and every screen
+    would keep showing the right thing until the player started a fight with the wrong five.
+  - **An unknown activity key is kept on load, not dropped** — the same call `parseAchievements`
+    makes. A crew for a tower this build has not shipped costs two short arrays; dropping it costs a
+    player their line-up every time they move between builds.
+  - ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one
+    activity is fought at a time. What stays forbidden is standing twice _within_ one crew, which is
+    the state that would let a fighter act twice — so the decoder's dedupe set is scoped **per
+    formation** and must stay that way.
+  - **A faction lock is content, so `core/` does not enforce it — `partyMeetsLock` does, and both
+    the editor and the battle path call it.** Two implementations of one rule is how a screen ends
+    up promising a legal crew that the fight then refuses. The lock filters the pool rather than
+    refusing a tap: a character it forbids can never enter, so listing them above the ones who can
+    is a screen hiding its own answer.
+  - ⚠️ **Standing in a crew reserves nobody.** Milestone 15b inverted the bounty board's
+    disjointness rule, so a fielded character may be dispatched and a crew holding somebody away
+    cannot fight. See the bounty section below; the one thing to carry here is that neither
+    `setFormation` nor anything else in the formation path may refuse on the grounds that a
+    character is busy elsewhere.
+  - **Adding an activity is a row in [`data/activities.ts`](src/data/activities.ts) and nothing
+    else.** ⚠️ An `id` is a save key and is permanent once shipped — renaming one silently disbands
+    the crew standing in it. Change the `name` freely; never the `id`.
+- **Faction towers are a second thing to climb**, and **all seven ship** — the system in milestone
+  15b, the other six towers and the eighteen enemy archetypes they needed in 15c. Read
+  [`core/towers.ts`](src/core/towers.ts) before touching them. Each is a hundred floors at enemy
+  levels 1 to 60. Adding a tower is a row in [`data/towers.ts`](src/data/towers.ts), a matching row
+  in [`data/activities.ts`](src/data/activities.ts), two achievement tracks, and its floors;
+  `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in, and
+  holds **exactly one tower per faction** against `FACTIONS` rather than a literal.
+  - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
+    clear count drives the idle crystal rate, which `banners.spec.ts` bounds at about ×3 the base
+    where the shipped hundred stages already reach ×2 — seven towers of a hundred floors feeding it
+    would take that to ×8. Progress is one integer per tower in `GameState.towers`, and
+    `applyTowerResult` is a separate function from `applyBattleResult` rather than a branch inside
+    it, precisely so the campaign fields are not in reach.
+  - **A floor is climbed once.** `nextFloor` returns `null` at the top rather than clamping, which
+    is the whole difference from the campaign — whose position stops climbing so its last stage
+    stays farmable. Clamping instead would let a player re-clear the top floor and be paid again.
+    ⚠️ **That `null` propagates all the way to the controls**: `BattleService.nextFight` returns
+    `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
+    and the crew editor's Fight control are inert on it. A control that only asked whether the
+    _crew_ was legal would look live and silently do nothing.
+  - ⚠️ **A floor's level is derived, never authored.** `data/` authors who stands on each floor;
+    `floorLevel` draws the straight line from `baseLevel` to `topLevel`. Typing a hundred levels
+    that must follow a formula is the retyping [testing](docs/testing.md) forbids.
+  - **The lump and the gear grades are matched by _enemy level_, not by floor number.** Floor 100 is
+    level 60 where campaign stage 100 is level 85, so index-matching would pay the top of the ladder
+    for a fight two thirds as hard. `matchedStageIndex` scans the resolved campaign ladder, so
+    retuning the campaign carries every tower with it and no tower-side number can go stale.
+    ⚠️ **It does not follow that a floor always pays less than the stage of the same number** — the
+    campaign's level curve is nearly flat through chapter 1's tail where the tower's is linear, so
+    floor 26 (level 16) matches stage 36 and is paid more. That is correct: it is the harder fight.
+  - **A tower is faction-locked, and the lock lives in [`core/activity.ts`](src/core/activity.ts).**
+    `partyMeetsLock` is called by the editor **and** the battle path — two implementations of one
+    rule is how a screen promises a legal crew that the fight refuses.
+  - **All seven open at twelve clears, together.** Which tower a run enters is settled by who it
+    owns, not by where the ladder has carried it, so staggering the unlocks would gate a player
+    holding five Elves behind clears that have nothing to do with them. `towers.spec.ts` bounds the
+    unlock under a fifth of the shipped ladder.
+  - **Each tower leans on a different faction, and no two leans repeat.** Human←undead,
+    dwarf←human, elf←dwarf, undead←elf, angel←demon, demon←angel — the mortal cycle where it
+    applies and the celestial pairing where it does not. ⚠️ **The Monster Tower has no lean and that
+    _is_ its lean**: every faction counters Monsters, so "field what counters the crew" resolves to
+    all seven, and it ships as an even spread. `towers.spec.ts` derives that case off the matrix
+    (`countersOf(faction).length === FACTIONS.length - 1`) rather than naming `monster`, bounds the
+    spread on both sides instead of asserting a leader, and separately holds that no two towers that
+    _do_ lean lean on the same faction — seven towers leaning on Monsters would be one tower shipped
+    seven times.
+  - ⚠️ **The mirror control in `towers.balance.ts` is only valid for four of the seven, and both
+    exceptions are asserted rather than skipped.** The control rewrites every enemy to the tower's
+    own faction on the premise that a mono-faction board is matchup-neutral, and that premise fails
+    twice. **Celestials**: an Angel deals ×1.10 to every mortal with nothing coming back, so an
+    all-Angel board is the _hardest_ thing an Angel five can meet — `biased > mirrored` is false by
+    construction there, and the spec asserts the **inversion** so a future matrix edit that removes
+    the celestial advantage fails loudly. **Monsters**: `monster → monster` is the matrix's one
+    self-edge, so mirroring that tower turns the matrix _up_ rather than off and is not a control at
+    all; its exclusion is made load-bearing by asserting the self-edge exists.
+  - ⚠️ **Difficulty in a tower is the front rank's weight, and it is sharply non-linear.** Two
+    ascended blocks in front of three legendaries is the top band; pairing the two _heaviest_
+    (an Unmade beside a Tyrant) takes the reference crew from a clean clear to single-digit win
+    rates. **15c re-measured this against six more crews and the tolerance is narrower than it
+    looked**: the same medium-plus-heavy pair the Human roof clears at 90% is unwinnable for the
+    Dwarf five, which carries the lowest `atk` in the game, and for the Angel five, which is four
+    supports and a wall. So the anchors are sized **per tower against its own crew**, not to a
+    shared weight. Re-run `npm run test:balance` after touching any band in the top third.
+  - ⚠️ **A healer on a roof is a timeout wearing a boss's stat block.** The Dwarf Tower's boss was
+    `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five could close it inside ninety
+    seconds — an identical board ten floors lower, at six fewer enemy levels, cleared. Against a
+    party that cannot burst, the last floor is where sustain on the enemy side stops being a lock
+    and becomes the clock.
+  - **Every faction now has six archetypes — two `common`, three `legendary`, one `ascended`** —
+    which is what 15c's eighteen new blocks bought and what
+    [`data/enemies.spec.ts`](src/data/enemies.spec.ts) holds. The old note here recorded that there
+    was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that, and the Wyrdroot
+    Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the ones the campaign
+    already fields** rather than by an opinion — the Unmade is the ceiling and nothing may reach it,
+    asserted in `enemies.spec.ts`, because a third and fourth heavy anchor is what makes six towers
+    fail their sweep at once.
+  - ⚠️ **An archetype must be fielded somewhere, and "somewhere" is every ladder rather than the
+    campaign.** That rule lived in `chapters.spec.ts` while the campaign was the only content;
+    eighteen tower-only blocks would have failed it as orphans, so it moved whole to
+    `data/enemies.spec.ts`, which is the only spec that sees both. It was **widened, not relaxed**:
+    an archetype nobody ever meets is still a stat block with a comment attached.
+  - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear, clearing
+    every floor** — and ⚠️ **the level is derived from `topLevel`, not chosen**: `rare-plus`'s cap is
+    exactly 60, so the party tracks the content. What ramps across the climb is **what a floor
+    costs**, not whether it is possible: the crew clears all hundred, loses nobody below floor 80,
+    and finishes the roof in twenty-four seconds with two of the five dead. A floor the crew cannot
+    pass stops the tower outright, because a floor is climbed once and there is no way around one.
+  - **Home draws a row per tower and it has three states**, only one of which is a link:
+    `climbing` goes to `/prepare/:id`, and `locked` and `topped` are inert rows that say why. ⚠️ The
+    locked row is where 15a's "nothing empty ships for the towers" rule is deliberately spent — it
+    names the clears remaining and the faction it wants, because a visible destination is most of
+    what a tower is for.
+  - ⚠️ **`StageHeading` was generalised for this and carries the _rendered_ position, not its
+    parts.** A chapter-and-stage pair is a shape only the campaign has. `where` is the big line
+    (`2-14` or `F37`), `place` locates it, `label` names it on a button, and no screen asks which
+    kind of content it is drawing. `label` exists because the two kinds want opposite halves: a
+    floor's name already is its position, so a shared template would read "F40 — Floor 40".
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](src/core/achievements.ts) and
   [`core/quests.ts`](src/core/quests.ts) before touching either.
@@ -282,6 +408,19 @@ the two disagree, the code is right and both are stale.
     - ⚠️ **A chapter is not an interval of stages.** `every: 50` over `clearedStages` is the
       obvious authoring and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty — it
       pays a "chapter" award part way into the next chapter, silently, forever.
+    - ⚠️ **Fourteen of the sixteen shipped tracks share two names between them** — every tower has a
+      Spire Climber and a Spire Conqueror — so a track's `name` identifies a _kind_ of track rather
+      than a track. `AchievementsService` resolves the heading as `name — tower name`, reading the
+      tower off `TOWERS`; authoring the faction into each track would put it in two places and let
+      them disagree. It is load-bearing rather than cosmetic: seven identical `<h2>`s and seven
+      progress bars carrying the same accessible name is a WCAG failure.
+    - ⚠️ **`towerFloors` is the one counter that cannot identify itself, so `AchievementTrackData`
+      is a discriminated union rather than an interface with an optional `tower`.** Every other
+      counter is a single number on the run; a tower track has to say _which_ tower, and one that
+      forgot would read floor zero of nowhere — content that compiles, ships and silently never
+      pays. The typed local in `ui/content.ts` is what turns that into a compile error. Each tower
+      gets **two** tracks, and summing the seven is forbidden: it would make the completion award
+      payable by climbing a hundred floors spread across seven towers.
     - **A coarse counter needs `AchievementProgress.position`, which is `total` plus how far into
       the next unit the run has come.** A chapter is fifty fights, so a bar drawn from the whole
       count alone sits empty through all of them and then jumps, on the largest reward in the game.
@@ -294,6 +433,19 @@ the two disagree, the code is right and both are stale.
     from 5,000 to 40,000. Retuning either half alone moves the pacing; `data/achievements.spec.ts`
     measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
     the one thing still linear, and it is linear in the **clear count** rather than the index.
+    - **A tower's crystals are the same shape at a smaller size**: 100 a floor (×2 mini-boss, ×5
+      roof), 500 per five floors, 10,000 for topping it. ⚠️ **The per-floor figure is deliberately
+      _not_ the campaign's 250** — at parity the seven towers pay ~268,000 against the campaign's
+      ~69,000, which is 3.9× and makes the ladder's own rewards look pointless beside optional
+      content. At 100 it is ~219,000, a bit over 3× for 7× the content. `data/towers.spec.ts`
+      measures that ratio and bounds it, and ⚠️ **it compares both halves on both sides** — floors
+      and their tracks against first clears and theirs — because comparing against first clears
+      alone reads the campaign as five times poorer than it is. Since 15c it **sums the towers that
+      actually ship** rather than multiplying one tower by `FACTIONS.length`, which measured a
+      projection while six of them were unwritten.
+    - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
+      rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
+      payout" claim to the ladder, and `towers.spec.ts` holds the tie.
   - ⚠️ **`perClearPerHour` is back at 1, and the headroom that allowed it is nearly spent.** The
     ladder's crystal contribution is `step × stages` against a base of 100, so the shipped hundred
     stages now **double** the base rate (48 pulls a day at a full clear, against 36 at the old 0.5).
@@ -315,12 +467,27 @@ the two disagree, the code is right and both are stale.
     costs anything. Unclaimed awards accumulate indefinitely.
 - **The bounty board dispatches bench characters on timed missions**, added in milestone 14b. Read
   [`core/bounties.ts`](src/core/bounties.ts) before touching it.
-  - ⚠️ **Dispatch and the formation are disjoint, and it is enforced in three places.** A character
-    cannot be both fighting and away — without it the board is a free resource tap rather than a
-    bench sink. `dispatchBounty` refuses anybody fielded, `setFormation` refuses anybody away
-    (`character-away`), and `repairDispatches` restores the invariant on load. **Guarding only the
-    dispatch side leaves the hole open**: a player sends somebody from the bench and then walks
-    that character into the formation.
+  - ⚠️ **A character cannot be both fighting and away, and milestone 15b moved where that is
+    enforced.** It used to bite on the way _in_ — `dispatchBounty` refused anybody fielded,
+    `setFormation` refused anybody away, `repairDispatches` dropped a crew that was both. That was
+    right for one formation and wrong for eight: forty slots against a forty-nine character roster
+    means a player who has crewed every tower has no bench left, and the board starves exactly when
+    the roster breadth it rewards is at its widest.
+    - **The rule now bites on the way _out_: anybody may be dispatched, and a crew holding somebody
+      away cannot fight.** Enforced in **one** place — `CrewView.ready` for the screen and the away
+      guard in `BattleService.fight` for the loop, because auto-battle re-enters without passing the
+      pre-battle screen again. `dispatchBounty`, `setFormation` and `repairDispatches` no longer
+      check it at all, and `in-formation` and `character-away` are gone from the failure unions.
+    - ⚠️ **Do not put a refusal back on the dispatch side.** It reads as tightening an invariant and
+      it is the change that makes the board unusable. The invariant is unchanged; only its
+      enforcement point moved.
+    - ⚠️ **`repairDispatches` must keep a mission whose crew is also fielded.** That is an ordinary
+      state a player reached on purpose now, and dropping it would take back hours of a wait — the
+      pass never pays for what it drops.
+    - **The battle guard is the away case only, never `CrewView.ready`.** `ready` is also false for
+      an empty crew, and an empty party resolving as an immediate defeat is behaviour
+      `simulateBattle` owns and the specs use to make a loss deterministic. Widening the guard
+      replaces a fight the player loses with a control that silently does nothing.
   - ⚠️ **A mission pays a _duration_ of the run's current idle income, never a flat amount** — the
     same idiom as `STAGE_REWARDS.rewardSeconds`. And **never crystals**: the crystal rate is linear
     in the clear count so it cannot outrun a flat `PULL_COST`, and a multiple of it on a repeatable
@@ -461,7 +628,11 @@ Read it before starting a milestone, and specifically before:
   for what it holds, so the next item type is a section on a screen that exists rather than an
   argument for a sixth tab. The **Altar** (`/town/altar`) is the rule generalising: it is not a
   shop and spends no wallet currency, and it is still a Town card, because "somewhere you go
-  deliberately, with something you have earned" is the test rather than "a currency sink";
+  deliberately, with something you have earned" is the test rather than "a currency sink". ⚠️
+  **`/formations` is the counter-example and it belongs to neither**: a crew is not something a
+  player has earned, it is something they arrange about the roster they already hold, so it hangs
+  off the **Roster** rather than Town or the bar. **Home is the battle hub** — anything a player
+  goes to _fight_ is a card there;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

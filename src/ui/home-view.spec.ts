@@ -1,21 +1,24 @@
+import { provideLocationMocks } from '@angular/common/testing';
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import {
+  CAMPAIGN_FORMATION,
   CURRENCY_IDS,
   type CurrencyId,
   emptyWallet,
   num,
   type OfflineReport,
   type RepairIssue,
-  type Row,
   zeroRates,
 } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
 import { CURRENCY_LABELS } from './format-numeric';
+import { type CrewView, FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { HomeView } from './home-view';
-import { type RosterEntryView, RosterService } from './roster.service';
+import { TowerService, type TowerView } from './tower.service';
 
 /**
  * A stand-in for the real loop.
@@ -58,58 +61,84 @@ function report(over: Partial<OfflineReport> = {}): OfflineReport {
   };
 }
 
-/** One fielded character, which is all the home screen reads off the roster. */
-function member(name: string, row: Row, rowSlot: number): RosterEntryView {
+/**
+ * The campaign crew, which is the whole of what the home screen asks about the roster.
+ *
+ * A `CrewView` rather than a list of rows: since milestone 15a the screen reads `size` and `open`
+ * to write its hint and nothing else — placement moved to the formation editor, and so did every
+ * assertion about it.
+ */
+function crew(over: Partial<CrewView> = {}): CrewView {
   return {
-    defId: name.toLowerCase(),
-    name,
-    faction: 'elf',
-    factionName: 'Elves',
-    tier: 'common',
-    role: 'ranger',
-    rarity: 0,
-    rarityLabel: 'Rare',
-    rarityFamily: 'rare',
-    level: 1,
-    resonated: false,
-    levelCap: 40,
-    atLevelCap: false,
-    isMaxRarity: false,
-    copies: 0,
-    inParty: true,
-    row,
-    rowSlot,
-    nextLevelCost: null,
-    canLevel: false,
-    affordableLevel: 1,
-    ascensionCost: null,
-    canAscend: false,
+    activity: { id: CAMPAIGN_FORMATION, name: 'Campaign', kind: 'campaign' },
+    front: [],
+    back: [],
+    size: 1,
+    open: { front: 1, back: 3 },
+    lineup: { bonus: EMPTY_BONUS, tier: null, counts: [], rallyCount: 0, ladderCount: 0 },
+    eligible: [],
+    lockFaction: null,
+    away: [],
+    ready: true,
+    ...over,
   };
 }
 
-/** Only the formation, which is all the home screen asks of the roster. */
-class FakeRoster {
-  readonly frontRow = signal<readonly RosterEntryView[]>([member('Rin', 'front', 1)]);
-  readonly backRow = signal<readonly RosterEntryView[]>([]);
-  readonly fieldedCount = computed(() => this.frontRow().length + this.backRow().length);
-  readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 1, back: 3 });
+/** A lineup paying nothing, which is what a one-character crew earns. */
+const EMPTY_BONUS = {
+  attack: 0,
+  health: 0,
+  defence: 0,
+  critChance: 0,
+  critDamageAmp: 0,
+  haste: 0,
+  injuredEnergyRegen: 0,
+};
+
+/** Only the crew lookup, which is all the home screen asks of the formations. */
+class FakeFormations {
+  readonly campaign = signal<CrewView | null>(crew());
+
+  crew(activityId: string): CrewView | null {
+    return activityId === CAMPAIGN_FORMATION ? this.campaign() : null;
+  }
 }
 
-/** Only the three things the home screen asks of the animator. */
-class FakeBattles {
-  readonly nextStage = signal<StageHeading | null>({
+/** A campaign stage heading, in the shape the service publishes one. */
+function heading(over: Partial<StageHeading> = {}): StageHeading {
+  return {
+    activity: CAMPAIGN_FORMATION,
+    kind: 'campaign',
+    where: '1-1',
     name: 'Mossy Hollow',
-    chapter: 1,
-    chapterName: 'The Sunken Fen',
-    number: 1,
+    place: 'Chapter 1 · The Sunken Fen',
+    label: '1-1 — Mossy Hollow',
     level: 1,
-  });
-  /** Set when an auto-battle run ended in a loss, which is what dropped the player back here. */
+    ...over,
+  };
+}
+
+/** Only the four things the home screen asks of the animator. */
+class FakeBattles {
+  readonly nextStage = signal<StageHeading | null>(heading());
+  /** Set when an auto-battle run ended, which is what dropped the player back here. */
   readonly autoStoppedAt = signal<StageHeading | null>(null);
+  /**
+   * Which activities still have something to fight.
+   *
+   * Read by the auto-battle notice to tell a loss from a finished tower. Defaults to "the campaign
+   * always has one", which is true of the real service — its position stops climbing so the last
+   * stage stays farmable.
+   */
+  readonly hasNextFight = signal<ReadonlySet<string>>(new Set([CAMPAIGN_FORMATION]));
   readonly fought: number[] = [];
 
   fight(nowMs: number): void {
     this.fought.push(nowMs);
+  }
+
+  nextFight(activityId: string): StageHeading | null {
+    return this.hasNextFight().has(activityId) ? heading({ activity: activityId }) : null;
   }
 
   dismissAutoStopped(): void {
@@ -117,21 +146,60 @@ class FakeBattles {
   }
 }
 
+/** One tower, as `TowerService` reports it. */
+function towerView(over: Partial<TowerView> = {}): TowerView {
+  return {
+    tower: {
+      id: 'tower-human',
+      name: 'Human Tower',
+      faction: 'human',
+      unlockClears: 12,
+      floors: Array.from({ length: 100 }, (_, offset) => ({
+        id: `t-human-f${offset + 1}`,
+        name: `Floor ${offset + 1}`,
+        enemies: { front: [], back: [] },
+      })),
+    },
+    status: 'climbing',
+    cleared: 36,
+    floors: 100,
+    next: 37,
+    clearsNeeded: 0,
+    level: 22,
+    fraction: 0.36,
+    ...over,
+  };
+}
+
+/** Only the tower rows, which is all the home screen asks of the climb. */
+class FakeTowers {
+  readonly rows = signal<readonly TowerView[]>([towerView()]);
+}
+
 async function render(
-  configure?: (game: FakeGameLoop, battles: FakeBattles, roster: FakeRoster) => void,
+  configure?: (
+    game: FakeGameLoop,
+    battles: FakeBattles,
+    formations: FakeFormations,
+    towers: FakeTowers,
+  ) => void,
 ) {
   const game = new FakeGameLoop();
   const battles = new FakeBattles();
-  const roster = new FakeRoster();
-  configure?.(game, battles, roster);
+  const formations = new FakeFormations();
+  const towers = new FakeTowers();
+  configure?.(game, battles, formations, towers);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [HomeView],
     providers: [
+      provideRouter([]),
+      provideLocationMocks(),
       { provide: GameLoopService, useValue: game },
       { provide: BattleService, useValue: battles },
-      { provide: RosterService, useValue: roster },
+      { provide: FormationService, useValue: formations },
+      { provide: TowerService, useValue: towers },
     ],
   }).compileComponents();
 
@@ -140,7 +208,14 @@ async function render(
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { game, battles, roster, fixture, el: fixture.nativeElement as HTMLElement };
+  return {
+    game,
+    battles,
+    formations,
+    towers,
+    fixture,
+    el: fixture.nativeElement as HTMLElement,
+  };
 }
 
 /** The wallet strip, as three parallel lists in the order the cards are laid out. */
@@ -179,26 +254,17 @@ describe('HomeView', () => {
   describe('the way into a fight', () => {
     it('names the stage on the button', async () => {
       const { el } = await render((_game, battles) =>
-        battles.nextStage.set({
-          name: 'Cutthroat Camp',
-          chapter: 1,
-          chapterName: 'The Sunken Fen',
-          number: 5,
-          level: 6,
-        }),
+        battles.nextStage.set(
+          heading({
+            where: '1-5',
+            name: 'Cutthroat Camp',
+            label: '1-5 — Cutthroat Camp',
+            level: 6,
+          }),
+        ),
       );
 
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Fight 1-5 — Cutthroat Camp');
-    });
-
-    it('starts a battle when pressed, stamped with the current time', async () => {
-      const before = Date.now();
-      const { el, battles } = await render();
-
-      el.querySelector<HTMLButtonElement>('.fight')?.click();
-
-      expect(battles.fought).toHaveLength(1);
-      expect(battles.fought[0]).toBeGreaterThanOrEqual(before);
     });
 
     it('stays quiet about a stage it does not know yet', async () => {
@@ -207,20 +273,98 @@ describe('HomeView', () => {
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Preparing…');
     });
 
-    it('refuses to start a fight with nobody fielded', async () => {
-      // An empty party resolves as an immediate defeat, so the control says so instead of
-      // letting the player walk into it. This screen no longer shows the formation, so the
-      // disabled control and the hint under it are the whole of what tells the player why.
-      const { el, battles } = await render((_game, _battles, roster) => {
-        roster.frontRow.set([]);
-        roster.backRow.set([]);
-        roster.openSlots.set({ front: 2, back: 3 });
+    it('links to the crew editor rather than starting the fight itself', async () => {
+      // ⚠️ Every battle passes through the pre-battle screen now, so this control navigates and
+      // starts nothing. A version that still called `fight()` would skip the step the whole of
+      // milestone 15a exists to add.
+      const { el, battles } = await render();
+
+      const link = el.querySelector<HTMLAnchorElement>('.fight');
+      expect(link?.getAttribute('href')).toBe('/prepare/campaign');
+      expect(battles.fought).toEqual([]);
+    });
+
+    it('still points at the editor with nobody standing, and says why', async () => {
+      // An empty crew used to disable the control, which left a new player on a dead button with
+      // a hint pointing at another screen. The link is now the fix for the thing it reports.
+      const { el } = await render((_game, _battles, formations) => {
+        formations.campaign.set(crew({ size: 0, open: { front: 2, back: 3 }, ready: false }));
       });
 
-      const button = el.querySelector<HTMLButtonElement>('.fight');
-      expect(button?.disabled).toBe(true);
-      expect(el.querySelector('.hint')?.textContent).toContain('formation is empty');
-      expect(battles.fought).toEqual([]);
+      expect(el.querySelector<HTMLAnchorElement>('.fight')?.getAttribute('href')).toBe(
+        '/prepare/campaign',
+      );
+      expect(el.querySelector('.hint')?.textContent).toContain('crew is empty');
+    });
+  });
+
+  /**
+   * The tower rows, which is what milestone 15b put in the battle section beside the campaign.
+   *
+   * All three states have to read as a goal rather than as a fault, and exactly one of them is a
+   * link — a row that navigated to a Fight control which then silently refused would be worse than
+   * a row that plainly says why it cannot be entered yet.
+   */
+  describe('the tower rows', () => {
+    const towerRow = (el: HTMLElement) => ({
+      name: el.querySelector('.tower__name')?.textContent?.trim(),
+      detail: el.querySelector('.tower__detail')?.textContent?.trim(),
+      href: el.querySelector<HTMLAnchorElement>('a.tower')?.getAttribute('href') ?? null,
+      inert: el.querySelector('.tower--inert') !== null,
+    });
+
+    it('links a tower that is being climbed, and names the floor and the lock', async () => {
+      const { el } = await render();
+
+      expect(towerRow(el).name).toBe('Human Tower');
+      expect(towerRow(el).detail).toContain('Floor 37 of 100');
+      expect(towerRow(el).detail).toContain('enemy level 22');
+      expect(towerRow(el).detail).toContain('Humans only');
+      expect(towerRow(el).href).toBe('/prepare/tower-human');
+    });
+
+    it('shows a locked tower as a row that names its key rather than hiding it', async () => {
+      // ⚠️ The one place 15a's "nothing empty ships for the towers" rule is spent, and it is spent
+      // on a row with a countdown in it: twelve clears is early, and a visible destination is most
+      // of what a tower is for.
+      const { el } = await render((_game, _battles, _formations, towers) =>
+        towers.rows.set([towerView({ status: 'locked', cleared: 0, next: null, clearsNeeded: 5 })]),
+      );
+
+      expect(towerRow(el).inert).toBe(true);
+      expect(towerRow(el).href).toBeNull();
+      expect(towerRow(el).detail).toContain('Clear 5 more stages to open');
+      expect(towerRow(el).detail).toContain('Humans only');
+    });
+
+    it('counts a single remaining clear in the singular', async () => {
+      const { el } = await render((_game, _battles, _formations, towers) =>
+        towers.rows.set([towerView({ status: 'locked', next: null, clearsNeeded: 1 })]),
+      );
+
+      expect(towerRow(el).detail).toContain('Clear 1 more stage to open');
+    });
+
+    it('shows a topped tower as finished, and not as somewhere to go', async () => {
+      // A floor is climbed once, so there is genuinely nothing left to fight. The crew is still
+      // reachable from the Roster's formations index.
+      const { el } = await render((_game, _battles, _formations, towers) =>
+        towers.rows.set([towerView({ status: 'topped', cleared: 100, next: null, fraction: 1 })]),
+      );
+
+      expect(towerRow(el).inert).toBe(true);
+      expect(towerRow(el).href).toBeNull();
+      expect(towerRow(el).detail).toContain('Topped out');
+      expect(towerRow(el).detail).toContain('all 100 floors');
+    });
+
+    it('draws nothing for the towers until the run has loaded', async () => {
+      const { el } = await render((_game, _battles, _formations, towers) => towers.rows.set([]));
+
+      expect(el.querySelector('.tower')).toBeNull();
+      // The campaign card is still there, which is what makes this an empty list rather than an
+      // empty screen.
+      expect(el.querySelector('.fight')).not.toBeNull();
     });
   });
 
@@ -300,13 +444,7 @@ describe('HomeView', () => {
 
     it('closes the auto-battle notice and clears it on the service', async () => {
       const { el, fixture, battles } = await render((_game, animator) =>
-        animator.autoStoppedAt.set({
-          name: 'Cutthroat Camp',
-          chapter: 1,
-          chapterName: 'The Sunken Fen',
-          number: 5,
-          level: 6,
-        }),
+        animator.autoStoppedAt.set(heading({ where: '1-5', name: 'Cutthroat Camp', level: 6 })),
       );
       expect(el.textContent).toContain('Auto-battle stopped');
 
@@ -314,6 +452,51 @@ describe('HomeView', () => {
 
       expect(el.textContent).not.toContain('Auto-battle stopped');
       expect(battles.autoStoppedAt()).toBeNull();
+    });
+
+    it('reports a finished tower as finished rather than as a loss', async () => {
+      // ⚠️ **Two endings, not one.** An auto run stops because the party lost *or* because it ran out
+      // of floors, and calling the second a loss would take credit off the player at the moment they
+      // earned the most. Told apart by asking whether the activity has anything left to fight.
+      const { el } = await render((_game, battles) => {
+        battles.autoStoppedAt.set(
+          heading({
+            activity: 'tower-human',
+            kind: 'tower',
+            where: 'F100',
+            name: 'Floor 100 — The Oathbreaker',
+            place: 'Human Tower · Floor 100 of 100',
+            label: 'Floor 100 — The Oathbreaker',
+            level: 60,
+          }),
+        );
+        battles.hasNextFight.set(new Set([CAMPAIGN_FORMATION]));
+      });
+
+      expect(el.textContent).toContain('Auto-battle finished');
+      expect(el.textContent).toContain('Floor 100 — The Oathbreaker');
+      expect(el.textContent).not.toContain('your party lost');
+      // ⚠️ Named through `label` rather than `place` and `name`, which shipped once as "Floor 100 of
+      // 100 — Floor 100 — The Oathbreaker": a floor's name already carries its number.
+      expect(el.textContent).not.toContain('Floor 100 of 100');
+    });
+
+    it('still reports a loss in a tower as a loss', async () => {
+      const { el } = await render((_game, battles) => {
+        battles.autoStoppedAt.set(
+          heading({
+            activity: 'tower-human',
+            kind: 'tower',
+            where: 'F41',
+            name: 'Floor 41',
+            label: 'Floor 41',
+          }),
+        );
+        battles.hasNextFight.set(new Set([CAMPAIGN_FORMATION, 'tower-human']));
+      });
+
+      expect(el.textContent).toContain('your party lost');
+      expect(el.textContent).toContain('Floor 41');
     });
 
     it('leaves the save-health notices with no way to close them', async () => {

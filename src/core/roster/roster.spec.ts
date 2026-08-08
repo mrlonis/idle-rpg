@@ -4,7 +4,15 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
-import { formationMembers, newGame, PARTY_SIZE, type GameState } from '../state';
+import {
+  CAMPAIGN_FORMATION,
+  formationIn,
+  formationMembers,
+  newGame,
+  PARTY_SIZE,
+  type GameState,
+  type PartyFormation,
+} from '../state';
 import {
   owned,
   TEST_ALPHA,
@@ -39,6 +47,11 @@ function run(overrides: Partial<GameState> = {}): GameState {
     wallet: { ...base.wallet, gold: num(1e12), xp: num(1e12), essence: num(1e12) },
     ...overrides,
   };
+}
+
+/** The campaign's crew, which is the only one `core/` names and the one every test here edits. */
+function campaign(state: GameState): PartyFormation {
+  return formationIn(state.formations, CAMPAIGN_FORMATION);
 }
 
 describe('grantCopies', () => {
@@ -124,7 +137,7 @@ describe('grantStarters', () => {
     );
 
     expect(state.roster.map((entry) => entry.defId)).toEqual(['alpha', 'beta', 'gamma']);
-    expect(state.formation).toEqual({ front: ['alpha'], back: ['beta', 'gamma'] });
+    expect(campaign(state)).toEqual({ front: ['alpha'], back: ['beta', 'gamma'] });
   });
 
   it('is idempotent, so it doubles as repair on every load', () => {
@@ -135,17 +148,17 @@ describe('grantStarters', () => {
     const twice = grantStarters(once, starters, TEST_CHARACTERS);
 
     expect(twice.roster).toEqual(once.roster);
-    expect(twice.formation).toEqual(once.formation);
+    expect(campaign(twice)).toEqual(campaign(once));
   });
 
   it('leaves an existing party alone rather than re-fielding the starters', () => {
     const state = run({
       roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
-      formation: { front: [], back: ['beta'] },
+      formations: { [CAMPAIGN_FORMATION]: { front: [], back: ['beta'] } },
     });
 
     expect(
-      grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS).formation,
+      campaign(grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS)),
     ).toEqual({
       front: [],
       back: ['beta'],
@@ -155,11 +168,11 @@ describe('grantStarters', () => {
   it('rebuilds a party for a save whose roster survived but whose party did not', () => {
     const state = run({
       roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
-      formation: { front: [], back: [] },
+      formations: { [CAMPAIGN_FORMATION]: { front: [], back: [] } },
     });
 
     expect(
-      grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS).formation,
+      campaign(grantStarters(state, { front: ['alpha'], back: ['beta'] }, TEST_CHARACTERS)),
     ).toEqual({
       front: ['alpha'],
       back: ['beta'],
@@ -176,9 +189,9 @@ describe('grantStarters', () => {
       TEST_CHARACTERS,
     );
 
-    expect(formationMembers(state.formation)).toHaveLength(PARTY_SIZE);
-    expect(state.formation.front).toEqual(['alpha', 'beta']);
-    expect(state.formation.back).toEqual(['delta', 'epsilon', 'zeta']);
+    expect(formationMembers(campaign(state))).toHaveLength(PARTY_SIZE);
+    expect(campaign(state).front).toEqual(['alpha', 'beta']);
+    expect(campaign(state).back).toEqual(['delta', 'epsilon', 'zeta']);
   });
 
   it('skips a starter id this build no longer ships', () => {
@@ -194,20 +207,26 @@ describe('setFormation', () => {
 
   it('keeps the order it is given, because slot order decides turn-order ties', () => {
     const formation = { front: ['gamma', 'alpha'], back: ['beta'] };
-    const result = setFormation(stocked(), formation, TEST_CHARACTERS);
+    const result = setFormation(stocked(), CAMPAIGN_FORMATION, formation, TEST_CHARACTERS);
 
-    expect(result.ok && result.state.formation).toEqual(formation);
+    expect(result.ok && campaign(result.state)).toEqual(formation);
   });
 
   it('allows an empty party, since a player mid-reshuffle has done nothing wrong', () => {
-    const result = setFormation(stocked(), { front: [], back: [] }, TEST_CHARACTERS);
+    const result = setFormation(
+      stocked(),
+      CAMPAIGN_FORMATION,
+      { front: [], back: [] },
+      TEST_CHARACTERS,
+    );
 
-    expect(result.ok && result.state.formation).toEqual({ front: [], back: [] });
+    expect(result.ok && campaign(result.state)).toEqual({ front: [], back: [] });
   });
 
   it('refuses a rank larger than its capacity', () => {
     const result = setFormation(
       stocked(),
+      CAMPAIGN_FORMATION,
       { front: ['alpha', 'beta', 'gamma'], back: [] },
       TEST_CHARACTERS,
     );
@@ -216,21 +235,83 @@ describe('setFormation', () => {
   });
 
   it('refuses a repeated member', () => {
-    const result = setFormation(stocked(), { front: ['alpha'], back: ['alpha'] }, TEST_CHARACTERS);
+    const result = setFormation(
+      stocked(),
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: ['alpha'] },
+      TEST_CHARACTERS,
+    );
 
     expect(result).toEqual({ ok: false, reason: 'duplicate-party-member' });
   });
 
   it('refuses a character the player does not own', () => {
-    const result = setFormation(run(), { front: ['alpha'], back: [] }, TEST_CHARACTERS);
+    const result = setFormation(
+      run(),
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
 
     expect(result).toEqual({ ok: false, reason: 'not-owned' });
   });
 
   it('refuses a character this build does not ship', () => {
-    const result = setFormation(stocked(), { front: ['ghost'], back: [] }, TEST_CHARACTERS);
+    const result = setFormation(
+      stocked(),
+      CAMPAIGN_FORMATION,
+      { front: ['ghost'], back: [] },
+      TEST_CHARACTERS,
+    );
 
     expect(result).toEqual({ ok: false, reason: 'unknown-character' });
+  });
+
+  it('writes only the activity it was given, leaving every other crew alone', () => {
+    // The whole point of a keyed book. An implementation that replaced the record rather than
+    // spreading into it would pass every test above and silently disband seven crews.
+    const withCampaign = setFormation(
+      stocked(),
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
+    expect(withCampaign.ok).toBe(true);
+
+    const withTower = setFormation(
+      withCampaign.ok ? withCampaign.state : stocked(),
+      'tower:test',
+      { front: ['beta'], back: [] },
+      TEST_CHARACTERS,
+    );
+
+    expect(withTower.ok && campaign(withTower.state)).toEqual({ front: ['alpha'], back: [] });
+    expect(withTower.ok && formationIn(withTower.state.formations, 'tower:test')).toEqual({
+      front: ['beta'],
+      back: [],
+    });
+  });
+
+  it('lets one character stand in two activities at once', () => {
+    // Not damage: only one activity is ever fought at a time, so a Dwarf in the campaign five and
+    // the Dwarf tower five is one sensible decision made twice. `duplicate-party-member` guards
+    // against standing twice *within* a crew, which is the state that would let one fighter act
+    // twice, and it is deliberately not widened to cover this.
+    const first = setFormation(
+      stocked(),
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
+    const second = setFormation(
+      first.ok ? first.state : stocked(),
+      'tower:test',
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
+
+    expect(second.ok).toBe(true);
+    expect(second.ok && campaign(second.state).front).toEqual(['alpha']);
   });
 });
 
@@ -238,12 +319,12 @@ describe('placeInRow', () => {
   it('moves a character between ranks rather than duplicating it', () => {
     const state = run({
       roster: [owned(TEST_ALPHA), owned(TEST_BETA)],
-      formation: { front: ['alpha'], back: ['beta'] },
+      formations: { [CAMPAIGN_FORMATION]: { front: ['alpha'], back: ['beta'] } },
     });
 
-    const result = placeInRow(state, 'alpha', 'back', TEST_CHARACTERS);
+    const result = placeInRow(state, CAMPAIGN_FORMATION, 'alpha', 'back', TEST_CHARACTERS);
 
-    expect(result.ok && result.state.formation).toEqual({ front: [], back: ['beta', 'alpha'] });
+    expect(result.ok && campaign(result.state)).toEqual({ front: [], back: ['beta', 'alpha'] });
   });
 });
 

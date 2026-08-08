@@ -46,10 +46,12 @@ class FakeBattles {
   readonly outcome = signal<string | null>(null);
   readonly stage = signal<StageHeading | null>(null);
   readonly nextStage = signal<StageHeading | null>({
+    activity: 'campaign',
+    kind: 'campaign',
+    where: '1-1',
     name: 'Mossy Hollow',
-    chapter: 1,
-    chapterName: 'The Sunken Fen',
-    number: 1,
+    place: 'Chapter 1 · The Sunken Fen',
+    label: '1-1 — Mossy Hollow',
     level: 1,
   });
   readonly party = signal([]);

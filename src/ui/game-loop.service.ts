@@ -2,6 +2,8 @@ import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import {
   type CurrencyId,
   emptyWallet,
+  type FormationBook,
+  formationIn,
   type GameState,
   grantStarters,
   newGame,
@@ -100,11 +102,22 @@ export class GameLoopService {
   readonly summons = computed(() => this.wallet().summons);
   readonly spark = computed(() => this.wallet().spark);
 
-  /** The roster, the party fighting from it, and the two pity counters. */
+  /** The roster, every crew drawn from it, and the two pity counters. */
   readonly roster = computed(() => this.snapshot()?.roster ?? []);
-  readonly formation = computed<PartyFormation>(
-    () => this.snapshot()?.formation ?? { front: [], back: [] },
-  );
+
+  /**
+   * Every activity's crew, keyed by activity id.
+   *
+   * The whole book rather than one formation, because since milestone 15a there is no such thing
+   * as "the" formation — see `FormationBook` in `core/state.ts`. {@link formationFor} is how a
+   * caller that knows which activity it means gets the one it wants.
+   */
+  readonly formations = computed<FormationBook>(() => this.snapshot()?.formations ?? {});
+
+  /** One activity's crew, or an empty formation when it has never been crewed. */
+  formationFor(activity: string): PartyFormation {
+    return formationIn(this.formations(), activity);
+  }
   readonly pity = computed(() => this.snapshot()?.pity ?? 0);
   readonly legendaryPity = computed(() => this.snapshot()?.legendaryPity ?? 0);
 

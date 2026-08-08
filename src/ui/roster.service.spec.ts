@@ -2,16 +2,20 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 import {
+  CAMPAIGN_FORMATION,
   emptyWallet,
+  formationIn,
   type GameState,
   newGame,
   num,
   type OwnedCharacter,
   PARTY_SIZE,
+  type PartyFormation,
   toCombatStats,
 } from '../core';
 import { CHARACTERS } from '../data';
 import { LEVELS } from './content';
+import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 
@@ -29,22 +33,26 @@ import { RosterService } from './roster.service';
 class FakeLoop {
   state: GameState;
   readonly snapshot;
-  readonly formation;
+  readonly formations;
 
   constructor(state: GameState) {
     this.state = state;
     this.snapshot = signal<GameState | null>(state);
-    this.formation = signal(state.formation);
+    this.formations = signal(state.formations);
   }
 
   get current(): GameState | null {
     return this.state;
   }
 
+  formationFor(activity: string): PartyFormation {
+    return formationIn(this.formations(), activity);
+  }
+
   apply(update: (state: GameState) => GameState): void {
     this.state = update(this.state);
     this.snapshot.set(this.state);
-    this.formation.set(this.state.formation);
+    this.formations.set(this.state.formations);
   }
 }
 
@@ -64,13 +72,20 @@ function build(roster: readonly OwnedCharacter[], front: readonly string[] = [])
     ...base,
     wallet: { ...emptyWallet(), gold: num(1e18), xp: num(1e18), essence: num(1e18) },
     roster,
-    formation: { front: [...front], back: [] },
+    formations: { [CAMPAIGN_FORMATION]: { front: [...front], back: [] } },
   });
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({ providers: [{ provide: GameLoopService, useValue: loop }] });
 
-  return { loop, roster: TestBed.inject(RosterService) };
+  return {
+    loop,
+    roster: TestBed.inject(RosterService),
+    // The crew and the rows come from two services now. Both are returned so a test can keep
+    // asserting the seam end to end — the failure this file exists for is a screen and a battle
+    // disagreeing about a level, and that crosses exactly this boundary.
+    formations: TestBed.inject(FormationService),
+  };
 }
 
 /** Five anchors at `level`, plus one straggler at level 1 for resonance to carry. */
@@ -104,8 +119,12 @@ describe('RosterService and the resonance floor', () => {
     const carried = build(carriedRoster(60), [STRAGGLER]);
     const invested = build([entry(STRAGGLER, 1)], [STRAGGLER]);
 
-    const lifted = toCombatStats(carried.roster.battleFormation().front[0].stats);
-    const alone = toCombatStats(invested.roster.battleFormation().front[0].stats);
+    const lifted = toCombatStats(
+      carried.formations.battleFormation(CAMPAIGN_FORMATION).front[0].stats,
+    );
+    const alone = toCombatStats(
+      invested.formations.battleFormation(CAMPAIGN_FORMATION).front[0].stats,
+    );
 
     expect(lifted.hp.gt(alone.hp)).toBe(true);
     expect(lifted.atk.gt(alone.atk)).toBe(true);

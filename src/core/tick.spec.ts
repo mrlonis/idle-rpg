@@ -97,7 +97,7 @@ describe('tick', () => {
       pity: 15,
       pullCount: 16,
       rng: { seed: 17, calls: 18 },
-      formation: { front: ['bran'], back: ['rin'] },
+      formations: { campaign: { front: ['bran'], back: ['rin'] } },
     };
 
     const next = tick(state, 1000);

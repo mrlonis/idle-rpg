@@ -59,6 +59,33 @@
  * and sixty from chapter 11 — see `CHAPTER_CURVE` — so a fixed stage interval drifts off the
  * chapter boundary the moment the band steps, and pays a "chapter" award ten stages into the next
  * one. `core/achievements.ts` carries the argument in full.
+ *
+ * ## The two tower tracks, and why there are two per tower rather than two for all seven
+ *
+ * **Spire Climber** is the tower's version of Stage Climber: 500 crystals every five floors, which
+ * over a hundred floors is 10,000 — a little under what the floors themselves pay, so the rhythm of
+ * the climb and the climb are worth about the same.
+ *
+ * **Spire Conqueror** is the completion award, and ⚠️ **it needs no new mechanism**: a track with
+ * `every: 100` over a hundred-floor counter pays exactly once, so "finish the tower" is an interval
+ * like any other. That is the whole reason towers added no concept to this file.
+ *
+ * ⚠️ **A tower counter names its tower, so a track is per tower and cannot be shared.** Summing the
+ * seven would make the completion award payable by climbing a hundred floors spread over seven
+ * towers, which is the opposite of what it is for — and it would make the five-floor track pay for
+ * breadth twice, once here and once through the towers being crewable at all.
+ *
+ * ⚠️ **Every tower's pair is worth the same, and that is deliberate.** A tower is optional content
+ * gated behind roster depth; paying more for one faction than another would make the banner's luck
+ * decide which optional ladder is worth climbing. `towers.spec.ts` derives that from the shipped
+ * tracks rather than trusting this paragraph, and it also holds the tie between topping a tower and
+ * finishing a chapter — both pay 10,000, because a hundred floors and a fifty-stage chapter are
+ * comparable events.
+ *
+ * ⚠️ **The fourteen tower tracks share two names between them, and an `id` is what tells them
+ * apart.** Every Spire Climber is called Spire Climber; what says *which* spire is the `tower`
+ * field, and the achievements screen reads the tower's own name off `TOWERS` rather than off the
+ * track. Renaming them per faction would put the faction in two places and let them disagree.
  */
 export const ACHIEVEMENTS = [
   {
@@ -75,6 +102,135 @@ export const ACHIEVEMENTS = [
     description: 'Crystals for every chapter finished, however long that chapter runs.',
     counter: 'clearedChapters',
     every: 1,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-human-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-human-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    // ⚠️ **The tower's height, restated because `data/` holds no logic** — and therefore checked
+    // rather than trusted: `towers.spec.ts` asserts this equals `TOWER_RULES.floors`. Authored one
+    // short it would pay twice; one long, never.
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-dwarf-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Dwarf Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-dwarf',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-dwarf-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Dwarf Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-dwarf',
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-elf-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Elf Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-elf',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-elf-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Elf Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-elf',
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-undead-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Undead Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-undead',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-undead-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Undead Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-undead',
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-monster-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Monster Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-monster',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-monster-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Monster Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-monster',
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-angel-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Angel Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-angel',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-angel-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Angel Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-angel',
+    every: 100,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-demon-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Demon Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-demon',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-demon-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Demon Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-demon',
+    every: 100,
     reward: { summons: 10_000 },
   },
 ] as const;

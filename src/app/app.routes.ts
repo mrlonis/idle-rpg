@@ -82,6 +82,26 @@ export const routes: Routes = [
     title: 'Character — Idle RPG',
   },
   {
+    path: 'formations',
+    loadComponent: () => import('../ui/formations-view').then((m) => m.FormationsView),
+    title: 'Formations — Idle RPG',
+  },
+  {
+    path: 'formations/:activityId',
+    loadComponent: () => import('../ui/formation-view').then((m) => m.FormationView),
+    title: 'Formation — Idle RPG',
+  },
+  // The step every battle passes through. The **same component** as the route above with the Fight
+  // control switched on — a pre-battle picker that could do less than the editor would send the
+  // player to the editor and back. `prepare` is route data rather than a query parameter so it
+  // cannot be forged into a second entry point to the battle path from a hand-typed URL.
+  {
+    path: 'prepare/:activityId',
+    loadComponent: () => import('../ui/formation-view').then((m) => m.FormationView),
+    data: { prepare: true },
+    title: 'Before you fight — Idle RPG',
+  },
+  {
     path: 'bag',
     loadComponent: () => import('../ui/bag-view').then((m) => m.BagView),
     title: 'Bag — Idle RPG',

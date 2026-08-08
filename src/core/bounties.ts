@@ -14,12 +14,22 @@ import { type GameState } from './state';
  * roster becomes worth something before faction towers ask for it, and a duplicate-heavy run has a
  * use for breadth from the moment it starts.
  *
- * ⚠️ **Dispatch and the formation are disjoint, and that is the whole of the design.** A character
- * cannot be both fighting and away. Without it this is not a bench sink at all — it is a free
- * resource tap that the player's five best characters run on a timer while also winning every
- * fight. The invariant is enforced in **both** directions: {@link dispatchBounty} refuses anybody
- * standing in the formation, and `setFormation` refuses anybody away. Enforcing one side only is
- * the shape this is most likely to be built in, and it leaves the hole wide open.
+ * ⚠️ **A character cannot be both fighting and away, and milestone 15b inverted where that is
+ * enforced.** It used to be enforced on the way *in*: {@link dispatchBounty} refused anybody
+ * standing in the formation, and `setFormation` refused anybody away. That was correct while there
+ * was one formation — and it broke the moment there were eight. Eight crews is forty slots against
+ * a forty-nine character roster, so a player who had crewed every tower had almost nobody left to
+ * send, and the board stopped being a bench sink because there was no bench.
+ *
+ * So the rule now bites on the way *out*: **anybody may be dispatched, and a crew holding somebody
+ * away cannot fight.** The invariant is the same one — nobody is in two places at once — and it is
+ * enforced in exactly one place, the battle path, rather than two. What that costs the player is a
+ * crew they have to fill in rather than a mission they cannot start, which is the better half of
+ * the trade: a formation is edited in seconds and a mission runs for hours.
+ *
+ * ⚠️ **The consequence to keep in view: a formation is a _plan_, not a claim on anybody.** Standing
+ * in a crew reserves nothing. Nothing in this file or in `setFormation` may go back to refusing on
+ * the grounds that somebody is fielded — that is the change that starves the board.
  *
  * ## Why a bounty pays a duration rather than a quantity
  *
@@ -146,7 +156,6 @@ export type BountyFailure =
   | 'wrong-faction'
   | 'not-owned'
   | 'duplicate-member'
-  | 'in-formation'
   | 'already-away'
   | 'not-finished'
   | 'locked';
@@ -156,20 +165,6 @@ export type BountyResult =
   | { readonly ok: false; readonly reason: BountyFailure };
 
 const fail = (reason: BountyFailure): BountyResult => ({ ok: false, reason });
-
-/**
- * Everyone in the formation, as a set.
- *
- * ⚠️ **Spelled out rather than importing `formationMembers` from `state.ts`, and that is a real
- * constraint rather than a preference.** `state.ts` imports this module for {@link Dispatch} and
- * {@link emptyDispatches}, so importing a *value* back out of it closes a runtime dependency
- * cycle — which `import/no-cycle` rejects, and rightly: the two modules would then have an
- * initialisation order between them. `achievements.ts` and `quests.ts` avoid it by importing only
- * `type GameState`, and this file has to do the same. Two lines is the whole cost.
- */
-function fieldedMembers(state: GameState): ReadonlySet<string> {
-  return new Set([...state.formation.front, ...state.formation.back]);
-}
 
 /** No missions running. A new run starts here. */
 export function emptyDispatches(): readonly Dispatch[] {
@@ -468,9 +463,10 @@ export function bountyPayout(bounty: BountyData, rates: Rates): CurrencyAmounts 
  * sentence attached on screen — "they are already fighting" and "that mission is already running"
  * are not the same problem and do not have the same fix.
  *
- * ⚠️ **The formation check is half of the disjointness invariant.** The other half lives in
- * `setFormation`, which refuses to field anybody away. Both are required: this one alone would let
- * a player dispatch from the bench and then walk the same character into the formation.
+ * ⚠️ **There is deliberately no formation check.** Somebody standing in a crew may be sent, and the
+ * crew simply cannot fight until they are back — see the note at the top of this file for why the
+ * invariant moved to the battle path in milestone 15b. Re-adding a refusal here is the change that
+ * makes the board unusable once seven towers are crewed.
  *
  * ⚠️ **Nothing here limits how many missions run at once**, and that is deliberate. The only thing
  * a second simultaneous mission costs is the crew it takes off the bench, which is exactly the
@@ -498,14 +494,10 @@ export function dispatchBounty(
     return fail('duplicate-member');
   }
 
-  const fielded = fieldedMembers(state);
   const away = awayMembers(state);
   for (const member of members) {
     if (state.roster.every((owned) => owned.defId !== member)) {
       return fail('not-owned');
-    }
-    if (fielded.has(member)) {
-      return fail('in-formation');
     }
     if (away.has(member)) {
       return fail('already-away');
@@ -599,18 +591,19 @@ export function collectReadyBounties(
 }
 
 /**
- * Everybody who could be sent right now: owned, not fighting, not already away — in roster order.
+ * Everybody who could be sent right now: owned and not already away — in roster order.
  *
- * ⚠️ **Both exclusions are the disjointness invariant**, and this is the single place the screen
- * and {@link dispatchOpenBounties} both read it from. A picker offering somebody `dispatchBounty`
- * would refuse is how a player learns a rule by being told "no".
+ * ⚠️ **Standing in a crew stopped being an exclusion in milestone 15b**, which is the inversion seen
+ * from the picker. This is still the single place the screen and {@link dispatchOpenBounties} read
+ * availability from, and it has to keep agreeing with {@link dispatchBounty} exactly: a picker
+ * offering somebody dispatch would refuse is how a player learns a rule by being told "no".
+ *
+ * The name outlived its meaning slightly — it answers "who is available", and availability stopped
+ * being about the bench. Kept because it is what every caller already says.
  */
 export function benchMembers(state: GameState): readonly string[] {
-  const fielded = fieldedMembers(state);
   const away = awayMembers(state);
-  return state.roster
-    .map((owned) => owned.defId)
-    .filter((defId) => !fielded.has(defId) && !away.has(defId));
+  return state.roster.map((owned) => owned.defId).filter((defId) => !away.has(defId));
 }
 
 /**
@@ -733,8 +726,6 @@ export function dispatchOpenBounties(
  * - a mission id this build no longer ships — the duration and payout are gone with it, so there
  *   is no way to say when it finishes or what it owes;
  * - a crew naming somebody the roster no longer holds;
- * - a crew naming somebody standing in the formation, which is the invariant this file exists to
- *   protect and the one thing a hand-edited save is most likely to break;
  * - the same character on two missions at once.
  *
  * ⚠️ **Two missions on the same tier is _not_ damage**, and an earlier build wrongly dropped one of
@@ -760,7 +751,6 @@ export function repairDispatches(
 ): GameState {
   const known = new Set(bounties.map((bounty) => bounty.id));
   const owned = new Set(state.roster.map((entry) => entry.defId));
-  const fielded = fieldedMembers(state);
   const seen = new Set<string>();
   const kept: Dispatch[] = [];
 
@@ -769,11 +759,9 @@ export function repairDispatches(
       ? 'names a mission this build does not ship'
       : dispatch.members.some((member) => !owned.has(member))
         ? 'names a character the roster does not hold'
-        : dispatch.members.some((member) => fielded.has(member))
-          ? 'names a character standing in the formation'
-          : dispatch.members.some((member) => seen.has(member))
-            ? 'names a character already away on another mission'
-            : undefined;
+        : dispatch.members.some((member) => seen.has(member))
+          ? 'names a character already away on another mission'
+          : undefined;
 
     if (problem !== undefined) {
       note?.(`dispatches.${dispatch.bountyId}`, problem, 'crew brought home');

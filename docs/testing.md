@@ -35,6 +35,13 @@ sample buys speed by making the answer less true.
   rank sizes, factions, the boss rhythm, and the monotonicity of the level, rate and reward curves.
 - `data/chapters.balance.ts` holds what has to be simulated: the reference-party sweeps and the
   per-stage difficulty probe.
+- `data/towers.spec.ts` and `data/towers.balance.ts` are the same split for the towers, and milestone
+  15b drew the line in the same place twice over. Two blocks started life in the balance file and
+  moved: a "floor pays less than the campaign stage of the same number" check, which needs no
+  simulation _and_ turned out to be false — the tower's level line is steeper than the campaign's
+  early on, so floor 26 legitimately matches stage 36 — and the whole-tower crystal total, which is
+  arithmetic over resolved content. ⚠️ **The test to be suspicious of is the one in the balance
+  project that never calls `simulateBattle`.**
 
 `*.balance.ts` files are excluded from `tsconfig.app.json` so the app never bundles them, and
 included in `tsconfig.spec.json` so typed linting still covers them. A new one needs both.
@@ -162,6 +169,28 @@ Both were hit before milestone 8e got the matchup measurement right, and both ge
 **Win rate near a damage threshold is a step function** is the general form, and milestone 12 hit it
 again from the other side: a continuous power dial like gear will always land some configuration on
 a threshold, so what the zero-timeout guard really asserts is that no _reference_ party does.
+
+### A third trap, from the towers: the control has to change one variable
+
+Milestone 15b needed to show that a tower's counter-faction bias is worth something, and got there on
+the third attempt.
+
+- ⚠️ **Comparing a different party measures the party.** The obvious control for "is the Human tower
+  harder for Humans" is to sweep it with an Undead five at the same investment. It was slower on every
+  floor — because that five is simply a weaker party. Two variables, one number.
+- ⚠️ **Fight length is not difficulty when the mechanic cuts both ways.** The matchup matrix costs the
+  crew 5% against the Undead half of the tower and _pays_ it 5% against the Monsters and Dwarves
+  anchoring the front ranks, so the biased tower measured **faster** than a neutral one. An assertion
+  in seconds would have read as the bias making the tower easier.
+- **What worked is a counterfactual built from the same content**, in the currency the mechanic
+  actually charges: rewrite every enemy's faction to the tower's own — the mirror match the design
+  explicitly rejected — and measure **party members lost**. About 5% more over a full climb.
+
+⚠️ **And when a party is tuned to clear everything, win rate measures nothing.** A tower's reference
+crew clears all hundred floors by design, so the assertions that carry weight are about **cost** —
+fight length, survivors, and a ramp between the halves. The one contested measurement available is a
+_second_ legal five, which is also the honest question: does the tower ask for an investment or for
+one solution?
 
 ---
 

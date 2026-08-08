@@ -1,5 +1,6 @@
 import {
   BULWARK,
+  CHOIR_OF_ASH,
   CINDER_STORM,
   CUTPURSE,
   FADE,
@@ -8,15 +9,23 @@ import {
   GLACIAL_SLAM,
   GORE,
   HEADSMANS_ARC,
+  HERALDS_ANTHEM,
   LITANY,
   MEND,
   MIRE,
+  MOONSONG,
   MOTE_LANCE,
+  PALL_OF_YEARS,
+  PILLAR_OF_LIGHT,
   RUINOUS_ARC,
+  RUNEWARD,
+  SEVENFOLD_HEX,
   SHIELD_BASH,
   SHRIKE_DIVE,
   STONE_FIST,
+  THORNLASH,
   TYRANTS_CLAIM,
+  WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
@@ -731,6 +740,436 @@ export const UNMADE = {
   skills: [TYRANTS_CLAIM, CINDER_STORM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The tower blocks — milestone 15c
+//
+// ## Why eighteen archetypes arrived at once, and why they are spread the way they are
+//
+// A tower's enemies lean toward the faction that **counters** the one it admits, so the matchup
+// matrix stays live inside it rather than being switched off by a mirror match. That makes the
+// per-faction archetype count a hard constraint rather than a nicety: at the end of milestone 15b
+// it read monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1** — so the Undead tower
+// (countered by Elves) and the Demon tower (countered by Angels) had a single block to build a
+// hundred floors out of. That is not a lean, it is the same fight a hundred times.
+//
+// These bring every faction to **six**: two `common`, three `legendary` and one `ascended`, give or
+// take where a faction already sat above that. Two of each shape is what the towers actually spend
+// them on — commons for the low floors, legendaries for the locks in the middle, and one ascended
+// block per faction so a top band can anchor on the tower's own counter rather than borrowing an
+// anchor from somewhere the bias does not point.
+//
+// ⚠️ **The two new `ascended` blocks are sized against `OATHBREAKER` and `TYRANT`, not above
+// them.** 15b measured that difficulty in a tower is almost entirely the front rank's weight and
+// that it is sharply non-linear — pairing the two heaviest blocks in the game took the reference
+// crew from a clean clear to single digits. A third and fourth heavy anchor is exactly the kind of
+// content that makes six towers fail their sweep at once, so both land between the Oathbreaker and
+// the Tyrant rather than reaching for a new ceiling.
+//
+// **Commons mostly reuse the kits above.** A body is a body: what makes the low floors of six
+// towers different from each other is which faction is standing there and what the matchup matrix
+// says about it, not a ninth spelling of "hits the front rank". The locks are where the new
+// questions are, and those are the nine skills at the foot of `skills.ts`.
+// ---------------------------------------------------------------------------------------
+
+/** A Human body for the low floors, where the Dwarf Tower needs two of its counter and had one. */
+export const FREE_BLADE = {
+  id: 'free-blade',
+  name: 'Free Company Blade',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 44,
+    def: 16,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    physicalResist: 0.04,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * The Undead gate, and the faction's first `ascended` block.
+ *
+ * 15b recorded its absence as the constraint that shaped the Human Tower: with no ascended Undead
+ * the heavy anchors on its top floors had to be borrowed from factions the bias did not point at,
+ * which is why the lean is a share of the whole tower rather than a rule per floor. This is the
+ * block that closes it.
+ *
+ * What it asks is {@link PALL_OF_YEARS}: a drain off the whole party at once, so the largest health
+ * pool on the board is refilled by however much of the party is still standing. Sized under a
+ * Bonefall Tyrant deliberately — see the note above this section.
+ */
+export const BARROW_SOVEREIGN = {
+  id: 'barrow-sovereign',
+  name: 'Barrow Sovereign',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1350,
+    atk: 84,
+    def: 40,
+    recovery: 6,
+    haste: 90,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    lifeLeech: 0.25,
+    magicPierce: 0.25,
+    physicalResist: 0.04,
+  },
+  skills: [PALL_OF_YEARS, HEADSMANS_ARC],
+} as const;
+
+/** A Dwarven body: slow, armoured, and nothing else. The Elf Tower's fodder. */
+export const FORGE_THRALL = {
+  id: 'forge-thrall',
+  name: 'Forge Thrall',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 600,
+    atk: 33,
+    def: 18,
+    haste: 72,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    physicalResist: 0.1,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/** The other half of that pair: quicker, and it opens armour rather than standing behind it. */
+export const DEEPROCK_MINER = {
+  id: 'deeprock-miner',
+  name: 'Deeprock Miner',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 42,
+    def: 14,
+    haste: 88,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    physicalPierce: 0.2,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The cleanse lock, and the only enemy in the game that takes an answer back.
+ *
+ * Sunder, Weaken and Slow are how a party has opened every wall since milestone 4. A Colossus
+ * *refuses* them, which is a dice check the player can out-invest in `insight`; this removes them
+ * once they have landed, which no amount of insight helps with. See {@link RUNEWARD}.
+ */
+export const RUNEWARDEN = {
+  id: 'runewarden',
+  name: 'Runewarden',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 860,
+    atk: 52,
+    def: 28,
+    recovery: 4,
+    haste: 78,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    tenacity: 0.35,
+    physicalResist: 0.06,
+  },
+  skills: [RUNEWARD, GLACIAL_SLAM],
+} as const;
+
+/** An Elven body: fragile, quick, and it bleeds whatever it commits to. */
+export const THORNLING = {
+  id: 'thornling',
+  name: 'Thornling',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 300,
+    atk: 34,
+    def: 8,
+    haste: 122,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    magicResist: 0.05,
+  },
+  skills: [GORE],
+} as const;
+
+/** The Elven poke: it reaches past the gate from the first floor, which is what Elves are for. */
+export const GLADE_STALKER = {
+  id: 'glade-stalker',
+  name: 'Glade Stalker',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 360,
+    atk: 40,
+    def: 10,
+    haste: 116,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.2,
+    accuracy: 1.05,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * The regeneration lock: a healer with nothing to kill.
+ *
+ * A Marsh Acolyte is unreachable but mortal — get behind the front rank and the encounter is over.
+ * A Wilding Bloom is neither: the Warden that cast it can die and its whole side keeps healing to
+ * the end of the duration. So the answer moves from *reach* to out-damaging the tick, which is a
+ * different party rather than a better-placed one.
+ */
+export const THORNWEALD_WARDEN = {
+  id: 'thornweald-warden',
+  name: 'Thornweald Warden',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 720,
+    atk: 50,
+    def: 22,
+    recovery: 5,
+    haste: 86,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    healthRegen: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [WILDING_BLOOM, THORNLASH],
+} as const;
+
+/**
+ * The tempo lock, widened from the front rank to the party.
+ *
+ * A Bog Hag slows the two bodies the party had already decided were expendable. This takes a third
+ * of the gauge off all five, which is not durability — it is fewer turns in the fight, for the
+ * healer and the carry as much as the wall.
+ */
+export const MOONSONG_WEAVER = {
+  id: 'moonsong-weaver',
+  name: 'Moonsong Weaver',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 560,
+    atk: 62,
+    def: 16,
+    haste: 104,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    insight: 0.18,
+    magicResist: 0.08,
+  },
+  skills: [MOONSONG],
+} as const;
+
+/**
+ * The Elven gate, and the faction's answer to owning no wall.
+ *
+ * Every other big block on the board is durable because of what it *has* — armour, tenacity, a
+ * barrier. This one is durable because of what it gets back, which is the axis a party that
+ * arrived with penetration has no answer to. It holds the front rank still while it regrows, so
+ * the fight it wants is the long one and the way past it is to refuse to have that fight.
+ */
+export const WYRDROOT_ANCIENT = {
+  id: 'wyrdroot-ancient',
+  name: 'Wyrdroot Ancient',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 78,
+    def: 40,
+    recovery: 9,
+    haste: 56,
+    critChance: 0.03,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    healthRegen: 0.2,
+    physicalResist: 0.04,
+  },
+  skills: [THORNLASH, GLACIAL_SLAM],
+} as const;
+
+/** An Angelic body, and the faction's first thing that is not a Hierophant. */
+export const LUMEN_ACOLYTE = {
+  id: 'lumen-acolyte',
+  name: 'Lumen Acolyte',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 330,
+    atk: 38,
+    def: 11,
+    haste: 100,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    magicResist: 0.14,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/** The other half: the plain armoured body the Demon Tower's low floors are built out of. */
+export const GILDED_SENTRY = {
+  id: 'gilded-sentry',
+  name: 'Gilded Sentry',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 640,
+    atk: 35,
+    def: 17,
+    haste: 76,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    physicalResist: 0.1,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The priority lock: a small thing that makes everything standing beside it bigger.
+ *
+ * Every wall asks to be got past and every healer asks to be reached. A Herald asks to be killed
+ * **first**, which is a different decision — and the party that spends its opening on a 660-HP
+ * support is the party that has not yet touched the block in front of it. See
+ * {@link HERALDS_ANTHEM}.
+ */
+export const RADIANT_HERALD = {
+  id: 'radiant-herald',
+  name: 'Radiant Herald',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 660,
+    atk: 52,
+    def: 20,
+    haste: 98,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    insight: 0.12,
+    magicResist: 0.1,
+  },
+  skills: [HERALDS_ANTHEM, MOTE_LANCE],
+} as const;
+
+/**
+ * The absorb lock, spread across the whole board.
+ *
+ * An Iron Bulwark's barrier sits on the Iron Bulwark, so burst spent breaking it is burst spent on
+ * the thing the party wanted dead. This puts the same pool on the fodder as well, which means the
+ * cheap way through the board is exactly the way a shield is best at stopping.
+ */
+export const ASHEN_CHOIR = {
+  id: 'ashen-choir',
+  name: 'Ashen Choir',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 48,
+    def: 24,
+    recovery: 4,
+    haste: 88,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    magicResist: 0.12,
+  },
+  skills: [CHOIR_OF_ASH, SHIELD_BASH],
+} as const;
+
+/** The back-rank dive in the other damage type, so armour on the carries is not the answer. */
+export const SERAPH_ADJUDICANT = {
+  id: 'seraph-adjudicant',
+  name: 'Seraph Adjudicant',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 590,
+    atk: 68,
+    def: 18,
+    haste: 114,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    magicPierce: 0.3,
+    magicResist: 0.06,
+  },
+  skills: [PILLAR_OF_LIGHT],
+} as const;
+
+/** A Demon body: fast, fragile, and it burns whatever it can see. */
+export const CINDERLING = {
+  id: 'cinderling',
+  name: 'Cinderling',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 280,
+    atk: 34,
+    def: 8,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    magicResist: 0.08,
+  },
+  skills: [CINDER_STORM],
+} as const;
+
+/** The other half: it drains, so ignoring it while working on something else does not pay. */
+export const BLOODPACT_FIEND = {
+  id: 'bloodpact-fiend',
+  name: 'Bloodpact Fiend',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 41,
+    def: 14,
+    haste: 92,
+    critChance: 0.07,
+    critDamageAmp: 0.6,
+    lifeLeech: 0.25,
+    magicResist: 0.05,
+  },
+  skills: [WITHERING_TOUCH],
+} as const;
+
+/**
+ * The lock that charges a party twice for the answer it already owns.
+ *
+ * Every cleanse in the roster removes a **fixed count**, so one hostile status is cancelled and two
+ * are halved. This is the first thing in the game that lands two at once — the party still has its
+ * answer, and this is what makes spending it a choice rather than a formality.
+ */
+export const HEXBOUND_TORMENTOR = {
+  id: 'hexbound-tormentor',
+  name: 'Hexbound Tormentor',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 680,
+    atk: 58,
+    def: 20,
+    haste: 96,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    insight: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [SEVENFOLD_HEX, RUINOUS_ARC],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -758,4 +1197,22 @@ export const ENEMIES = [
   TYRANT,
   OATHBREAKER,
   UNMADE,
+  FREE_BLADE,
+  BARROW_SOVEREIGN,
+  FORGE_THRALL,
+  DEEPROCK_MINER,
+  RUNEWARDEN,
+  THORNLING,
+  GLADE_STALKER,
+  THORNWEALD_WARDEN,
+  MOONSONG_WEAVER,
+  WYRDROOT_ANCIENT,
+  LUMEN_ACOLYTE,
+  GILDED_SENTRY,
+  RADIANT_HERALD,
+  ASHEN_CHOIR,
+  SERAPH_ADJUDICANT,
+  CINDERLING,
+  BLOODPACT_FIEND,
+  HEXBOUND_TORMENTOR,
 ] as const;

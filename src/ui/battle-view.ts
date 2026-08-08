@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { type BattleEvent, MAX_ENERGY, ZERO } from '../core';
 import { type BattleCombatantView, BattleService } from './battle.service';
 import { formatAmounts, formatNumeric, formatRate } from './format-numeric';
@@ -24,6 +25,7 @@ import { PLAYBACK_SPEEDS, type PlaybackSpeed } from './settings.service';
 export class BattleView {
   private readonly battles = inject(BattleService);
   private readonly game = inject(GameLoopService);
+  private readonly router = inject(Router);
 
   protected readonly speeds = PLAYBACK_SPEEDS;
   /** The denominator on every energy bar. One number for the whole game since 8b. */
@@ -61,11 +63,27 @@ export class BattleView {
     () => !this.battles.isFighting() && this.battles.outcome() !== null,
   );
 
-  /** Names the stage the next fight enters: the one ahead after a win, the same one after a loss. */
+  /**
+   * Names the fight the Go Again control enters: the one ahead after a win, the same one after a loss.
+   *
+   * ⚠️ **Follows the session's activity, not the campaign.** A tower session's control has to name the
+   * next floor, and reading the campaign's next stage here would have this button offer the ladder
+   * from inside a tower. `null` at the top of a tower, where the control is inert — see
+   * {@link isFinished}.
+   */
   protected readonly fightLabel = computed(() => {
-    const next = this.battles.nextStage();
-    return next === null ? 'Fight again' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
+    const next = this.battles.nextInSession();
+    return next === null ? 'Nothing left to fight' : `Fight ${next.label}`;
   });
+
+  /**
+   * True when the activity just fought has nothing left to offer — the top of a tower.
+   *
+   * Gates the Go Again control, because the alternative is a button that navigates to a crew editor
+   * whose own Fight control then silently does nothing. The campaign is never finished: its position
+   * stops climbing so its last stage stays farmable.
+   */
+  protected readonly isFinished = computed(() => this.battles.nextInSession() === null);
 
   /**
    * The closing line, or `null` while the fight is still playing.
@@ -99,9 +117,23 @@ export class BattleView {
       .filter((line): line is string => line !== null);
   });
 
+  /**
+   * Goes again — through the crew editor, not straight into the next fight.
+   *
+   * ⚠️ **This used to call `fight()` directly, and both halves of that were wrong.** It skipped the
+   * pre-battle step every other route through the game now takes, which would have made "the crew
+   * is confirmed before every battle" a rule with one silent exception; and it called `fight()`
+   * with no activity, so once towers ship a tower session would have re-entered the **campaign**
+   * from this button. A player who wants the fast loop has auto-battle, which is the one thing that
+   * is meant to skip the step.
+   *
+   * Closes first. The battle screen is a mode swapped in over the router outlet, so leaving it open
+   * would put the board on top of the editor it is navigating to.
+   */
   protected fight(): void {
-    // The clock lives here, as it does everywhere else in `ui/`.
-    this.battles.fight(Date.now());
+    const activity = this.battles.activity();
+    this.battles.close();
+    void this.router.navigate(['/prepare', activity]);
   }
 
   protected close(): void {

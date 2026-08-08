@@ -8,48 +8,16 @@
 }
 
 <!--
-  The formation, drawn as the two ranks in the order attacks work through them. Empty slots are
-  rendered rather than implied, because "you have two more places to put somebody" is the whole
-  reason a new player summons.
+  The way to the crews, not the crews themselves. Placement moved to `/formations` in milestone
+  15a: eight of them do not fit here, and more to the point they are a different question from the
+  one this screen answers. A link rather than an inline summary, because a read-only copy of eight
+  crews would be the poorer of the two places that show them — the same argument that took the
+  formation off the home screen.
 -->
-<section class="formation" aria-labelledby="formation-heading">
-  <h2 id="formation-heading" class="formation__title">Formation</h2>
-  @for (rank of ranks(); track rank.row) {
-    <div class="rank">
-      <h3 class="rank__label">{{ rank.label }}</h3>
-      <p class="rank__hint">{{ rank.hint }}</p>
-      <ul class="rank__slots">
-        @for (member of rank.members; track member.defId) {
-          <li class="slot slot--filled">
-            <span class="slot__name">{{ member.name }}</span>
-            <span class="slot__role">{{ member.role }}</span>
-          </li>
-        }
-        @for (gap of [].constructor(rank.capacity - rank.members.length); track $index) {
-          <li class="slot slot--empty">Empty</li>
-        }
-      </ul>
-    </div>
-  }
-
-  <!--
-    What the party's faction composition is worth. Drawn inside the formation panel rather than
-    beside it because it is a property of the formation and changes with every placement — a
-    player cycling somebody into the back row should see the number move without looking away.
-  -->
-  <div class="lineup" aria-labelledby="lineup-heading">
-    <h3 id="lineup-heading" class="lineup__label">Lineup bonus</h3>
-    <p class="lineup__shape">{{ lineup().shape }}</p>
-    @if (lineup().effects.length > 0) {
-      <ul class="lineup__effects">
-        @for (effect of lineup().effects; track effect) {
-          <li class="lineup__effect">{{ effect }}</li>
-        }
-      </ul>
-    }
-    <p class="lineup__hint">{{ lineup().hint }}</p>
-  </div>
-</section>
+<a class="crews-link" routerLink="/formations">
+  <span class="crews-link__label">Formations</span>
+  <span class="crews-link__hint">Arrange a crew for each thing you fight.</span>
+</a>
 
 <!--
   The shared level. Above the roster list rather than inside it, because it is a statement about
@@ -123,10 +91,10 @@
   </p>
 } @else {
   <!--
-    One section per heading, the fielded party first and then the seven factions in the order
-    the matchup cycle names them. Empty sections still render: the headings are a fixed shape
-    to scroll through rather than a list that rearranges itself as the roster fills, and "none
-    owned yet" under Angels is information a player summoning for a healer wants.
+    One section per faction, in the order the matchup cycle names them. Empty sections still
+    render: the headings are a fixed shape to scroll through rather than a list that rearranges
+    itself as the roster fills, and "none owned yet" under Angels is information a player summoning
+    for a healer wants.
   -->
   @for (section of sections(); track section.id) {
     <section class="group" [attr.aria-labelledby]="'group-' + section.id">
@@ -142,7 +110,7 @@
       } @else {
         <ul class="roster">
           @for (entry of section.members; track entry.defId) {
-            <li class="roster__row" [class.roster__row--fielded]="entry.inParty">
+            <li class="roster__row" [class.roster__row--fielded]="entry.crewed">
               <div class="roster__identity">
                 <a
                   class="roster__name"
@@ -182,29 +150,17 @@
                       {{ entry.copies }} spare {{ entry.copies === 1 ? 'copy' : 'copies' }}
                     </span>
                   }
-                  · {{ placementLabel(entry.row, entry.rowSlot) }}
+                  <!--
+                    A count of crews rather than a rank and a slot. Which rank a character stands
+                    in is a fact about a *crew*, and this row belongs to none of the eight — the
+                    formation editor is where a placement is read and changed.
+                  -->
+                  · {{ crewLabel(entry.crews.length) }}
                   @if (entry.canAscend) {
                     · <span class="roster__ready">ready to ascend</span>
                   }
                 </p>
               </div>
-
-              @if (nextAction(entry.row, entry.name); as action) {
-                <button
-                  type="button"
-                  class="roster__toggle"
-                  [class.roster__toggle--remove]="entry.inParty"
-                  [attr.aria-pressed]="entry.inParty"
-                  (click)="cycle(entry.defId)"
-                >
-                  <!--
-                    The accessible name spells out both the action and who it applies to,
-                    because the visible label alone ("To back") repeats down the whole list.
-                  -->
-                  <span class="visually-hidden">{{ action.description }}</span>
-                  <span aria-hidden="true">{{ action.label }}</span>
-                </button>
-              }
             </li>
           }
         </ul>

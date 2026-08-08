@@ -7,6 +7,7 @@ import { emptyQuestWindows, type QuestWindows } from './quests';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
+import { emptyTowers, type TowerProgress } from './towers';
 
 /**
  * How many characters stand in the front rank.
@@ -46,6 +47,78 @@ export interface PartyFormation {
 /** An empty formation. A run mid-reshuffle is allowed to have one; a battle reads it as a loss. */
 export function emptyFormation(): PartyFormation {
   return { front: [], back: [] };
+}
+
+/**
+ * One shared empty formation, for the read path.
+ *
+ * {@link formationIn} answers for an activity the run has never crewed, and it is read from
+ * `computed()` values in `ui/`. Those compare by reference, so handing back a fresh
+ * `emptyFormation()` each call would republish every screen watching an empty formation on every
+ * change-detection pass. Everything on a formation is `readonly`, so one instance is safe to
+ * share.
+ */
+const NO_FORMATION: PartyFormation = { front: [], back: [] };
+
+/**
+ * Every formation the run holds, keyed by the activity it fights for.
+ *
+ * **Eight live formations rather than one live formation and seven saved templates**, which is the
+ * decision milestone 15a rests on. A template model would have kept `GameState.formation` as the
+ * single thing that fights and made the others inert copies loaded into it — cheaper, and wrong
+ * for the same reason a "more" tab is wrong: it spends a step of the player's attention on
+ * bookkeeping the game could have done. Eight activities means eight crews, and a crew that has to
+ * be *loaded* before it is real is a crew the player has to remember to load.
+ *
+ * A keyed record rather than a field per activity, for the reason {@link GameState.wallet} and
+ * {@link GameState.achievements} are records: an eighth activity is a key and a line in `data/`,
+ * not a save migration.
+ *
+ * ⚠️ **An unknown key is kept rather than dropped**, which is the opposite of how a formation
+ * treats an unknown *character* id and the same call {@link AchievementLedger} makes. A character
+ * this build does not ship cannot be fielded, so carrying it would mean carrying a fighter nothing
+ * can render; a crew for a tower this build has not shipped costs two short arrays and is exactly
+ * what a save needs to survive a build with less content than the one that wrote it. Nothing reads
+ * a key it was not asked for, so an unknown entry is inert.
+ */
+export type FormationBook = Readonly<Record<string, PartyFormation>>;
+
+/**
+ * The activity key the campaign's crew stands under.
+ *
+ * A constant in `core/` rather than a string in `data/`, and the same call {@link FRONT_ROW_SIZE}
+ * makes: the save layer has to be able to repair a damaged book and to seed a new run's starters
+ * without asking what content exists. Every *other* key is content — which towers this build ships
+ * — and reaches `core/` as an argument like everything else.
+ */
+export const CAMPAIGN_FORMATION = 'campaign';
+
+/** A run that has crewed nothing. `grantStarters` writes the campaign key on the first load. */
+export function emptyFormationBook(): FormationBook {
+  return {};
+}
+
+/** The crew standing for `activity`, or an empty formation when none has ever been set. */
+export function formationIn(book: FormationBook, activity: string): PartyFormation {
+  return book[activity] ?? NO_FORMATION;
+}
+
+/**
+ * Everybody standing in any formation, deduplicated.
+ *
+ * ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one
+ * activity is ever fought at a time, so a Dwarf in both the campaign five and the Dwarf tower five
+ * is a player who has made one sensible decision twice — not a fighter acting twice, which is the
+ * state {@link placeInRow} exists to prevent *within* a formation.
+ */
+export function allFormationMembers(book: FormationBook): readonly string[] {
+  const members = new Set<string>();
+  for (const formation of Object.values(book)) {
+    for (const id of formationMembers(formation)) {
+      members.add(id);
+    }
+  }
+  return [...members];
 }
 
 /** Everyone in the formation, front rank first. */
@@ -156,13 +229,16 @@ export interface GameState extends LadderPosition {
    */
   readonly roster: readonly OwnedCharacter[];
   /**
-   * The party that fights, in two rows.
+   * Every party that fights, one per activity, each in two rows.
    *
-   * See {@link PartyFormation}. Which rank a character stands in is the player's decision and
-   * is not constrained by what the character is — a run whose pulls are all Elves and Angels
-   * can still put two of them in front, just badly.
+   * See {@link FormationBook} for why there are eight of them and {@link PartyFormation} for why
+   * each is two lists. Which rank a character stands in is the player's decision and is not
+   * constrained by what the character is — a run whose pulls are all Elves and Angels can still
+   * put two of them in front, just badly. *Which activity* a character may stand for is a
+   * different question, and one `core/` deliberately does not answer: a tower's faction lock is
+   * content, so it is enforced by the caller that knows what a tower is.
    */
-  readonly formation: PartyFormation;
+  readonly formations: FormationBook;
   /**
    * Pulls made since the last ascended-tier character, driving the ascended pity curve.
    *
@@ -236,12 +312,31 @@ export interface GameState extends LadderPosition {
   /**
    * Missions currently running, and who is away on each.
    *
-   * ⚠️ **Disjoint from {@link formation} by invariant**: a character cannot be both fighting and
-   * away. That is what makes the bounty board a bench sink rather than a free resource tap, and it
-   * is enforced in both directions — `dispatchBounty` refuses anybody fielded, `setFormation`
-   * refuses anybody away, and `repairDispatches` restores it on load. See `core/bounties.ts`.
+   * ⚠️ **Not disjoint from {@link formations}, and since milestone 15b that is deliberate.** The
+   * invariant is unchanged — a character cannot be both fighting and away — but it bites on the way
+   * *out* rather than on the way in: anybody may be dispatched, and a crew holding somebody away
+   * cannot fight. Nothing in `core/` refuses a dispatch on these grounds, and `repairDispatches`
+   * keeps a mission whose crew is also fielded, because that is an ordinary state a player reached
+   * on purpose.
+   *
+   * The reason it moved: eight crews is forty slots against a forty-nine character roster, so a
+   * player who had crewed every tower had no bench left and the board starved exactly when the
+   * roster breadth it rewards was widest. See `core/bounties.ts`.
    */
   readonly dispatches: readonly Dispatch[];
+  /**
+   * How far each faction tower has been climbed, keyed by tower id.
+   *
+   * ⚠️ **Separate from {@link clearedStages}, and that separation is arithmetic rather than
+   * tidiness.** The clear count drives the idle crystal rate; seven towers of a hundred floors
+   * feeding it would take that rate to roughly ×8 the base, where `banners.spec.ts` bounds a fully
+   * cleared campaign at ×3. See `core/towers.ts`.
+   *
+   * **One integer per tower — the highest floor cleared — not a set of floors.** A tower is climbed
+   * strictly upward and a floor is never re-fought, so "how far" is the whole of what there is to
+   * know, and a per-floor record would be a hundred entries per tower saying what one number says.
+   */
+  readonly towers: TowerProgress;
 }
 
 export interface NewGameOptions {
@@ -269,7 +364,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     // characters are — the UI grants them with `grantStarters`, which also repairs a save that
     // somehow arrives with nobody in it.
     roster: [],
-    formation: emptyFormation(),
+    formations: emptyFormationBook(),
     pity: 0,
     legendaryPity: 0,
     pullCount: 0,
@@ -279,6 +374,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     achievements: emptyAchievements(),
     quests: emptyQuestWindows(),
     dispatches: emptyDispatches(),
+    towers: emptyTowers(),
   };
 }
 

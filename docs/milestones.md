@@ -35,7 +35,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal   |
 | 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
 | 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
-| 15  | Faction towers                          | ⬜                                             |
+| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
+| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors      |
+| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes  |
 | 16  | Deep per-hero investment                | ⬜                                             |
 | 17  | The roguelite run                       | ⬜                                             |
 | 18  | Puzzle maps                             | ⬜                                             |
@@ -715,6 +717,13 @@ soon": **the copy was reworded rather than the guard weakened.**
 
 ## 15. Faction towers, and something for a roster to be
 
+> **Split into three.** The milestone as planned was one entry; building it made the seam obvious.
+> **15a** is the plumbing every tower needs and the campaign wanted anyway — eight crews, one
+> editor, and Home as the place a fight is chosen. **15b** is the tower system end to end with a
+> single tower shipped, so the ladder, the rewards and the balance sweep are proven against content
+> that exists before six more are authored. **15c** is the remaining six and the enemy archetypes
+> they need. The reasoning below is the whole milestone's; each sub-entry records what it decided.
+
 **The problem here is not "more content".** Through milestone 12 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
 slots against forty-nine characters, fed by a gacha generous enough to produce roughly 190
@@ -762,15 +771,332 @@ cap is what limits how much of the floor a bench character can collect. So crewi
 real investment decision, just not a levelling grind. That is the intended shape — if towers ever
 feel free, the cap clause in [level resonance](level-resonance.md) is what has stopped working.
 
-### Saved team presets
+## 15a. Crews, and Home as the battle hub — **COMPLETE**
 
-Pure quality of life, and it becomes unavoidable precisely here. Seven towers plus the campaign is
-eight lineups, and by milestone 17 it is more than that — all reassembled slot by slot from a
-roster of dozens every time the player switches mode.
+The note this entry replaces called saved team presets "pure quality of life… the cheapest thing in
+this milestone and the one most likely to be cut for being unglamorous". **It was neither cheap nor
+optional.** Seven towers plus the campaign is eight line-ups, and the game had exactly one — not as
+a screen but as a _field_: `GameState.formation`, singular, read by the battle path, the bounty
+board, the roster screen and the save layer. Towers cannot be built on top of that, so this
+milestone rebuilt it and shipped no towers at all.
 
-**The absence of this is what makes multi-mode content feel like admin rather than depth.** It is
-the cheapest thing in this milestone and the one most likely to be cut for being unglamorous; the
-note is here so that cutting it is a decision rather than an oversight.
+**No content, no ladder, no reward.** What changed is where a crew lives, who edits it, and where a
+fight starts.
+
+- **Eight live formations, not one live formation and seven templates.** A template model keeps
+  `GameState.formation` as the thing that fights and makes the rest inert copies loaded into it —
+  cheaper, and it spends a step of the player's attention on bookkeeping the game could do. A crew
+  that has to be _loaded_ before it is real is a crew the player has to remember to load.
+  `FormationBook` is a keyed record for the reason the wallet and the achievement ledger are: an
+  eighth activity is a key and a row in `data/`, not a save migration.
+- ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one
+  activity is fought at a time. What is still forbidden is standing twice _within_ one crew, which
+  is the state that would let a fighter act twice — and the decoder's dedupe set is deliberately
+  scoped per formation for exactly that reason.
+- ⚠️ **The bounty board's disjointness rule was widened, and the widening is interim.**
+  `fieldedMembers` now reads every crew, which keeps the invariant exactly as strong as it was. It
+  also gets tighter as towers get crewed: eight crews is forty slots against forty-nine characters,
+  so a player who fills every tower has almost no bench left to dispatch, and the board stops being
+  a bench sink because there is no bench. **The agreed fix is to invert the rule rather than widen
+  it** — let anybody be dispatched, and refuse to _fight_ with somebody who is away. That moves the
+  check to the battle path, where it costs a crew the player must fill in rather than a mission they
+  cannot start, and it must land before 15c crews all seven towers.
+- **No save migration, and `SAVE_VERSION` stays 0.** A save written before the book carries the old
+  `formation` object; the decoder reads it into the campaign key as **load-time repair**. Defaulting
+  it away instead would have let `grantStarters` hand back the three starters and silently disband a
+  party the player assembled — the plausible-looking wrong answer, which is the class of damage the
+  save layer exists to prevent. See [saves](saves.md).
+- **The roster screen stopped being a formation editor.** Not because eight crews would not fit in
+  the markup, but because the screen would then answer two unrelated questions at once: _who is
+  worth levelling_ and _who is going to which fight_. Placement moved out whole to `/formations`,
+  and the roster kept the shared level, the faction groups and a link. The "Fielded" section and
+  the fielded-first sort went with it — both answered "who is actually fighting" while five of
+  forty-nine rows were in one formation, and with eight crews they would cover most of the roster
+  and distinguish nothing.
+- ⚠️ **The pre-battle step is a route, not a modal.** "Pop up the formation before every battle"
+  was the requirement and a CDK dialog was the obvious build. A route wins on three counts: a full
+  crew editor is more than a phone-sized overlay holds without scrolling inside a scroll container;
+  a route survives a reload, which is this project's own stated trigger for routing; and the dialog
+  would have to trap focus around forty-odd controls. `/formations/:activityId` and
+  `/prepare/:activityId` are **one component** — a picker that could do less than the editor would
+  send the player to the editor and back.
+- ⚠️ **`prepare` is route data rather than a query parameter**, so a hand-typed
+  `/formations/campaign?fight=1` cannot become a second, undocumented entry into the battle path.
+- **Home is the battle hub, and its Fight control is a link that is never disabled.** It used to go
+  inert with an empty formation, which left a new player on a dead button beside a hint pointing at
+  another screen. An empty crew is now the best reason to follow the link: the screen it opens is
+  where the crew is filled, and the Fight control _there_ is the one that waits.
+- **Nothing empty ships for the towers.** Home's battle section holds one card and the formations
+  index one row — the same call the Bag rename made, where the second heading arrives with the
+  second kind of item.
+
+The faction lock lives in `core/activity.ts` already, unused by any shipped activity: it is called
+by the editor **and** by the battle path, and two implementations of one rule is how a screen ends
+up promising a legal crew that the fight refuses.
+
+Shipped: `core/activity.ts`, `FormationBook` in `core/state.ts`, `data/activities.ts`,
+`ui/formation.service.ts`, `ui/lineup-copy.ts`, and the two screens.
+
+## 15b. The tower system, and the first tower — **COMPLETE**
+
+Everything a tower is, proven against one of them. A tower is **100 floors, enemy levels 1 to 60,
+linear** — deliberately gentle, and well inside the campaign's own range, which runs to 85 by the
+end of chapter 2.
+
+### What shipped
+
+- **`core/towers.ts`** — `floorLevel` (the derived linear curve), `floorKindAt` (the campaign's
+  mini-boss rhythm reused), `nextFloor` (returning `null` at the top rather than clamping, which is
+  the climb-once rule in one line), `matchedStageIndex` (level-matched lumps and gear grades),
+  `floorSummons`, `resolveFloor`/`resolveTower`, `applyTowerResult` and `parseTowers`.
+- **`GameState.towers`** — one integer per tower, the highest floor cleared. Serialized, parsed and
+  clamped; absent decodes to `{}`, so no `SAVE_VERSION` bump and no migration.
+- **The Human Tower** — a hundred authored floors in `data/tower-human.ts`, `TOWER_RULES` and
+  `TOWERS` in `data/towers.ts`, and the activity row that gives it a crew.
+- **Two achievement tracks** — Spire Climber every five floors, Spire Conqueror at the top — over a
+  new `towerFloors` counter.
+- **The battle path, generalised** — `StageHeading` now carries a rendered position rather than a
+  chapter and a stage, `BattleService` resolves either kind of content, and `TowerService` is the
+  read model three screens share. Home draws a row per tower.
+- **The balance sweep** — `data/towers.balance.ts`, plus the structural half in `data/towers.spec.ts`
+  and the unit spec for `core/towers.ts` the model had shipped without.
+- **The bounty inversion**, which was scheduled into this milestone. See below.
+
+### Where the difficulty landed, and what set it
+
+The reference crew is **five Humans at `rare-plus`, level 60, no gear** — and the level is derived
+rather than chosen, because `rare-plus`'s cap is exactly the tower's `topLevel`. It clears all
+hundred floors; what ramps is **what a floor costs**. Floor 1 resolves in a second, floor 50 in
+seven, floor 80 in twelve, and the roof in twenty-four with two of the five dead. Nobody dies below
+floor 80.
+
+**A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
+there is no way around one, so a floor the crew cannot pass stops the tower — which makes win rate
+the wrong dial and cost the right one. The one measurement that _is_ contested is a second Human
+five: it takes the roof 85% of the time, which is what says the tower is tuned against an investment
+rather than against one solution.
+
+⚠️ **The first pass was far too easy and the reason is worth keeping.** A `rare-plus` party has one
+ascension rung (×1.6) and the mono-faction bonus (+25% attack and health) that the enemy side has no
+equivalent of, so at _equal level_ it is comfortably ahead. Against a five-slot board the only lever
+left is archetype weight, and it turns out to sit almost entirely in the **front rank**: two ascended
+blocks in front of three legendaries is a real fight at level 60, while the same board with
+legendary anchors is a formality. It is also sharply non-linear — pairing the two heaviest hitters
+(an Unmade beside a Tyrant) takes the crew from a clean clear to a 3% win rate, so the top band
+deliberately uses neither.
+
+⚠️ **There is no ascended-tier Undead archetype**, which is the constraint that shaped the bias. An
+undead-only board caps at legendary, so the heavy anchors on the top floors have to come from other
+factions — which is why the counter-faction lean is a share of the **whole tower** (53% of enemy
+slots) rather than a rule applied per floor.
+
+### Measuring the bias took three attempts, and the two failures are the useful part
+
+The decision being defended is that a tower's enemies lean toward the faction that counters it, "so
+the matchup matrix stays live inside a tower rather than a mirror match, which would switch it off
+entirely". Proving that turned out to be harder than stating it.
+
+- ⚠️ **Comparing against another faction's five measures two things at once.** The obvious control is
+  to sweep the same floors with an Undead five at the same investment. It came out _slower on every
+  floor_ — because the Undead five available at that investment is simply a weaker party. That says
+  nothing about the matrix.
+- ⚠️ **Fight length is the wrong metric.** The matrix cuts both ways: the crew takes 5% more from the
+  Undead half of the tower _and_ deals 5% more to the Monsters and Dwarves anchoring its front ranks.
+  Measured in seconds the biased tower is marginally **faster** than a neutral one (780s against
+  785s), so an assertion in those terms would have read as the bias making the tower easier.
+- **What works is a mirror match, measured in party members lost.** Rewrite every enemy's faction to
+  the tower's own — exactly the counterfactual the design rejected — and the bias costs about 5% more
+  of the party over a full climb. Small in aggregate, because 95 of the 100 floors were never in
+  doubt; on the one floor that _is_, the alternate five goes from 90% on the mirror to 85% on the
+  real thing. That is the same reading `chapters.balance.ts` had to arrive at before the matchup
+  edges could be sized at all: **the matrix decides fights at a party's ceiling and nothing else.**
+
+### Three smaller things the wiring forced
+
+- **`StageHeading` had to be generalised, and it now carries the rendered position rather than its
+  parts.** A chapter and a stage within it is a shape only the campaign has; a floor is one number in
+  one tower, and the two do not reduce to each other. So `where` is the big line (`2-14` or `F37`),
+  `place` locates it, and no screen asks which kind it is drawing. ⚠️ **`label` is a fourth string
+  and it earns its place**: a campaign stage wants its position spelled out beside its name, and a
+  floor's name already _is_ its position, so one template would have read "F40 — Floor 40".
+- ⚠️ **"The crew is legal" and "there is a fight behind it" are independent, and the first cut
+  conflated them.** A tower the campaign has not opened, and a tower already topped, are both
+  activities with five perfectly good characters standing in them and nothing to send them at.
+  `BattleService.fight` refuses both, so a Fight control that only asked `CrewView.ready` would look
+  live and silently do nothing — the same failure the away-guard note below warns about, arriving
+  from the other direction.
+- **An auto run needed a second ending.** The loop stopped on a loss and reported the stage that
+  stopped it; a tower adds "ran out of floors", and reporting that as a loss would take credit off
+  the player at the moment they earned the most. Told apart by asking whether the activity has
+  anything left to fight.
+
+### The bounty rule inverted, which 15a scheduled and this milestone paid
+
+15a widened the disjointness check to read every crew, and recorded that as interim. It is now
+inverted, which is what the widening was always going to have to become.
+
+- **Anybody may be dispatched; a crew holding somebody away cannot fight.** The invariant is
+  unchanged — nobody is in two places at once — and it is enforced in one place instead of three.
+- **Why it had to move**: eight crews is forty slots against a forty-nine character roster, so a
+  player who had crewed every tower had no bench, and the board starved exactly when the roster
+  breadth it exists to reward was widest. The cost is now a crew the player fills in rather than a
+  mission they cannot start — a formation is edited in seconds and a mission runs for hours.
+- ⚠️ **`repairDispatches` now keeps a mission whose crew is also fielded.** That is an ordinary
+  state a player reached on purpose; dropping it would take back hours of a wait, unpaid.
+- ⚠️ **The battle guard is the away case only, never `CrewView.ready`.** The first cut used `ready`,
+  which is also false for an **empty** crew — and an empty party resolving as an immediate defeat is
+  behaviour `simulateBattle` owns and two auto-battle specs use to make a loss deterministic. The
+  broad guard replaced a fight the player loses with a control that silently did nothing. The specs
+  caught it.
+
+### The decisions this milestone settled, so 15c is authoring rather than design
+
+- ⚠️ **Tower clears may not feed `clearedStages`.** That counter drives the idle crystal rate, and
+  `banners.spec.ts` bounds a cleared ladder at ×3 the base where the shipped hundred stages already
+  put it at ×2. Seven towers at a hundred stages each would make it ×8. Towers keep their own
+  progress, per tower.
+- **A floor is climbed once.** No re-fighting a cleared floor, which keeps a tower a climb rather
+  than a second farm — and collapses the campaign's two payouts into one, since "paid on every
+  clear" and "paid on the first clear" describe the same event here.
+- **A tower clear pays a lump, gear, and flat crystals — and no idle rate.** The campaign stays the
+  income spine; a tower is the roster sink. The lump and the drop grades come off the campaign's own
+  curves, read at the **matched enemy level** rather than the matching floor number: floor 100 is
+  level 60 where campaign stage 100 is level 85, so index-matching would pay the top of the ladder
+  for a fight two thirds as hard.
+- **Enemies are drawn from every faction, biased toward the one that counters the tower's.** So the
+  matchup matrix stays live inside a tower and a mono-faction crew meets fights it is favoured in
+  and fights it is not — rather than a mirror match, which would switch the matrix off entirely.
+- **Faction-locked, and open early** — around the auto-battle unlock at 12 clears, so a player
+  walled at the chapter-1 healer lock already has somewhere to send an unlucky pull. A tower that
+  cannot yet be crewed shows which faction it wants.
+- **The Human tower ships first, and the choice is about content rather than theme.** Undead counter
+  Humans and already have five archetypes; Monsters (six) and both celestials counter mortals too.
+  It is the only tower that needs no new enemy blocks, which is what lets this milestone be about
+  the system. Contrast the Angel tower, countered by Demons alone — three archetypes, and the
+  thinnest pool of the seven.
+- **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear**, clearing
+  floor 100. Three rungs, sitting between chapter 1's party (`common-plus` at its cap) and the
+  ladder's finisher (`elite`, level 85). ⚠️ **The level is derived, not chosen**: `rare-plus`'s cap
+  is 60, which is exactly the tower's top enemy level, so the party tracks the content.
+  - **No gear, deliberately.** A player crewing seven towers has one bag to equip thirty-five
+    characters from, so tuning against a fully geared five would tune for a party nobody with seven
+    crews can field.
+- **Crystals: 100 a floor, plus 500 per five floors, plus 10,000 for topping a tower.** Roughly
+  149,000 across seven towers before the completion awards and about 219,000 with them, against the
+  campaign's ~69,000 — a bit over 3× the critical path for 7× the content, on optional ladders gated
+  behind roster depth. ⚠️ **The per-floor figure came down from the campaign's 250 for a reason
+  worth keeping**: at parity the seven towers pay ~268,000, which is 3.9× the campaign from stage
+  clears alone and makes the ladder's own rewards look pointless beside them.
+  - **The completion award needs no new mechanism.** A track with `every: 100` over a hundred-floor
+    counter pays exactly once, so "finish the tower" is an interval like any other.
+
+## 15c. The remaining six towers — **COMPLETE**
+
+Six more hundred-floor ladders, and the eighteen enemy archetypes they needed. The prediction above
+was that this milestone would be authoring rather than design, and that was **half right**: the six
+towers really are four files each, and the wiring took no new concept. What was not authoring is the
+part below.
+
+### What shipped
+
+- **Six towers** — Dwarf, Elf, Undead, Monster, Angel and Demon, in `FACTIONS` order, a hundred
+  floors each, all opening at twelve clears alongside the Human Tower. Every tower is now one row in
+  `data/towers.ts`, one in `data/activities.ts`, two achievement tracks and its floors.
+- **Eighteen enemy archetypes and nine skills**, taking every faction to six blocks — two `common`,
+  three `legendary`, one `ascended`. The counts were monster 6, undead 5, human 5, dwarf 3, demon 3,
+  **elf 1, angel 1**; the two ones were the Undead and Demon towers' whole lead faction.
+- **`data/enemies.spec.ts`**, which is where "fields every archetype it ships" went. It was in
+  `chapters.spec.ts` while the campaign was the only content, and it needed a file that can see
+  every ladder.
+- **Twelve achievement tracks**, and the heading resolution the fourteenth made necessary.
+- **The balance sweep, at seven towers** — seven reference crews, seven alternates, and the mirror
+  control regrouped. 65 seconds for the whole balance project, against 9 for one tower.
+
+### The archetype counts were the milestone, not a prerequisite for it
+
+Every tower leans toward the faction that counters the one it admits, so **the lead faction's
+archetype count is the tower's variety**. Elves and Angels had one block each, which would have made
+the Undead and Demon towers a Sky-Shrike and a Hierophant, a hundred times. Eighteen new blocks is
+what six towers actually cost.
+
+The tier split matters as much as the count. A tower runs from enemy level 1 to 60, so its lead has
+to supply both ends: commons for the low floors, an `ascended` block to anchor a top band. Four
+factions had no `common` at all and three had no `ascended`, which is why the shape is asserted per
+faction in `enemies.spec.ts` rather than the count alone.
+
+⚠️ **Two `ascended` blocks arrived and both are sized _under_ the campaign's heaviest, deliberately.**
+The Barrow Sovereign closed the gap 15b recorded — no ascended Undead — and the Wyrdroot Ancient did
+the same for Elves. Neither reaches the Unmade, and `enemies.spec.ts` holds that as a rule rather
+than a coincidence: 15b measured that a top band is almost entirely its front rank's weight and that
+the weight is sharply non-linear, so a third and fourth heavy anchor is the change that makes six
+towers fail their sweep at once.
+
+### The tolerance on a top band is narrower than 15b could see
+
+15b tuned one tower against one crew and concluded that "two ascended blocks in front of three
+legendaries" is the top band. Against seven crews that is **not a shared weight**, and three of the
+six new towers failed their first sweep on exactly it:
+
+- **The Dwarf five carries the lowest `atk` in the game.** `Oathbreaker + Colossus` — the Human
+  Tower's roof, cleared at 90% — is 0% for Dwarves. The anchors came down to `Oathbreaker + Warden`,
+  the lightest ascended pair in the game.
+- **The Monster five has no healer**, only leech, and no faction it is favoured against inside its
+  own tower. `Tyrant + Oathbreaker` was 33%.
+- **The Angel five is four supports and a wall.** `Unmade + Hierophant` was 3%.
+
+So anchors are sized **per tower against its own crew**, which is the thing the original note assumed
+would generalise. It does not.
+
+⚠️ **And one roof was a timeout rather than a fight.** The Dwarf boss at `Oathbreaker + Warden` behind
+a Marsh Acolyte was unclearable at 28% — while floor 90, an identical board six enemy levels lower,
+cleared cleanly. Against a party that cannot burst, a healer on the last floor stops being a lock and
+becomes the ninety-second clock. The roof dropped the Acolyte; the mini-bosses below it kept theirs.
+
+### Two towers the matchup matrix cannot point at, and one it points at from every direction
+
+The bias rule assumed every tower has a counter faction and that a mirror match is the neutral
+control. Both assumptions are false for three of the seven, and each exception is now **asserted**
+rather than filtered out — a skip would have left the only interesting property of those towers
+untested.
+
+- ⚠️ **The celestial towers invert the mirror control, by construction.** An Angel deals ×1.10 to
+  every mortal with nothing coming back, and only the other celestial trades evenly with one. So an
+  all-Angel board is the **hardest** thing an Angel five can be pointed at, and
+  `biased > mirrored` is not merely false there — it cannot be true. That is the celestial advantage
+  `combat.ts` documents and prices on the luck-only ascension ladder, not something a tower may claw
+  back, so `towers.balance.ts` asserts the inversion and a future matrix edit that removes the
+  asymmetry fails loudly.
+- ⚠️ **The Monster Tower has no lean, and that _is_ its lean.** Every faction counters Monsters —
+  four mortals at ×1.05, both celestials at ×1.10, and Monsters themselves at ×1.10 — so "field what
+  counters the crew" resolves to all seven and it ships as an even spread. `towers.spec.ts` derives
+  that case off the matrix (`countersOf(faction).length === FACTIONS.length - 1`) rather than naming
+  `monster`, and bounds the spread on both sides instead of asserting a leader.
+- ⚠️ **The mirror is not a control for it either**, and for a different reason: `monster → monster`
+  is the matrix's one self-edge, so mirroring that tower turns the matrix **up** rather than off. The
+  exclusion is made load-bearing by asserting the self-edge exists, so removing that edge puts the
+  tower back into the block where it would then belong.
+
+**No two towers lean on the same faction**, which is now its own assertion. Human←undead,
+dwarf←human, elf←dwarf, undead←elf, angel←demon, demon←angel, monster←everything. Seven towers
+leaning on Monsters — the only faction deep enough to lead more than one before this milestone —
+would have been one tower shipped seven times.
+
+### Three smaller things
+
+- **All seven open at twelve clears, together.** Which tower a run enters is meant to be settled by
+  who it owns; staggering the unlocks would gate a player holding five Elves behind clears that have
+  nothing to do with them.
+- **The fourteen tower tracks share two names between them**, so the achievements screen resolves
+  the heading as `Spire Climber — Dwarf Tower` from `TOWERS` rather than the faction being authored
+  into each track. Not cosmetic: seven identical `<h2>`s and seven progress bars with the same
+  accessible name is a WCAG failure.
+- **No save migration, and `SAVE_VERSION` stays 0.** `GameState.towers` and `GameState.formations`
+  are keyed records that already keep unknown keys on load — which is exactly what 15a and 15b built
+  them for — so six towers add no field, no migration and nothing to repair.
+
+**The bounty fix landed in 15b**, ahead of the towers that make it bite, so nothing here waited on
+it. Eight crews is forty slots against a forty-nine character roster, and that arithmetic is now
+real rather than projected.
 
 ## 16. Deep per-hero investment
 

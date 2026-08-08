@@ -52,9 +52,15 @@
       "gear": {}
     }
   ],
-  "formation": {
-    "front": ["gamma", "alpha"],
-    "back": ["beta"]
+  "formations": {
+    "campaign": {
+      "front": ["gamma", "alpha"],
+      "back": ["beta"]
+    },
+    "tower:test": {
+      "front": ["beta"],
+      "back": ["gamma"]
+    }
   },
   "pity": 37,
   "legendaryPity": 4,
@@ -126,5 +132,9 @@
       "claimed": []
     }
   },
-  "dispatches": []
+  "dispatches": [],
+  "towers": {
+    "tower-human": 36,
+    "tower-retired": 12
+  }
 }

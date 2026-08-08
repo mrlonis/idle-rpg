@@ -455,8 +455,20 @@ export {
 } from './save/serialize';
 export { SAVE_VERSION } from './save/version';
 export {
+  CAMPAIGN_ACTIVITY,
+  crewFor,
+  factionMeetsLock,
+  partyMeetsLock,
+  type ActivityData,
+  type ActivityKind,
+} from './activity';
+export {
+  allFormationMembers,
   BACK_ROW_SIZE,
+  CAMPAIGN_FORMATION,
   emptyFormation,
+  emptyFormationBook,
+  formationIn,
   formationMembers,
   formationSize,
   FRONT_ROW_SIZE,
@@ -464,8 +476,30 @@ export {
   PARTY_SIZE,
   rowCapacity,
   stampSaveTime,
+  type FormationBook,
   type GameState,
   type NewGameOptions,
   type PartyFormation,
 } from './state';
 export { tick } from './tick';
+export {
+  applyTowerResult,
+  clearedFloors,
+  emptyTowers,
+  floorKindAt,
+  floorLevel,
+  floorsClearedIn,
+  floorSummons,
+  isTowerUnlocked,
+  matchedStageIndex,
+  nextFloor,
+  parseTowers,
+  resolveFloor,
+  resolveTower,
+  type TowerBattleOutcome,
+  type TowerData,
+  type TowerFloorData,
+  type TowerGearAward,
+  type TowerProgress,
+  type TowerRulesData,
+} from './towers';

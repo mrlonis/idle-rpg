@@ -88,6 +88,53 @@ second kind of item.
 
 ---
 
+## Home is the battle hub, and crews have a screen of their own
+
+Milestone 15a added two screens and moved one job, and neither screen touched the tab bar.
+
+**Home is where a fight is chosen.** It carried one control — a Fight button into the campaign —
+and faction towers make that eight destinations. That choice is not a thing to bury behind a tab, so
+Home holds a battle section with the campaign as its first card and a row per tower beside it. It was
+one card until 15b, on the same argument the Bag rename made; the first tower's row arrived with its
+hundred floors, and the other six arrived in 15c.
+
+**A tower row has three states and only one of them is a link.** A tower being climbed goes to
+`/prepare/:id` exactly as the campaign card does. A tower already **topped** is an inert row — a
+floor is climbed once, so there is genuinely nothing left to fight, and a link to a Fight control
+that then refused would be worse than no link. A **locked** tower is also inert, and it names the
+clears remaining and the faction it wants.
+
+⚠️ **That locked row is where "nothing empty ships for the towers" is deliberately spent, and it is
+the one place.** The rule was written against a card for content that did not exist; a locked row
+points at content that does, twelve clears away. A tower is a destination a player builds a roster
+toward, so a row that names its own key is the thing doing the work — where a hidden row would mean
+the whole system is invisible until it opens.
+
+**`/formations` is reached from the Roster, not from the bar and not from Town.** It fails the Town
+test on purpose — Town is "somewhere you go deliberately, with something you have earned", and a
+crew is not earned, it is arranged about the roster you already have. The Roster is where a player
+is standing when they think about who is worth fielding, so that is where the link lives.
+
+**The roster screen stopped being a formation editor**, and the reason is not that eight crews would
+not fit. The screen would then answer two unrelated questions at once: _who is worth levelling_ and
+_who is going to which fight_. Placement moved out whole; the roster kept the shared level, the
+faction groups, and a link.
+
+⚠️ **The pre-battle step is a route rather than a modal.** "Pop up the formation before every
+battle" is the requirement and a CDK dialog is the obvious build — see [platform](platform.md) for
+why CDK is the sanctioned answer when a modal _is_ right. A route wins here on three counts: a crew
+editor is more than a phone-sized overlay holds without scrolling inside a scroll container; a route
+survives a reload, which is this file's own stated trigger for routing at all; and a dialog would
+have to trap focus around forty-odd controls. The transition reads the same to the player — tap
+Fight, arrange, tap Fight again.
+
+`/formations/:activityId` and `/prepare/:activityId` are **one component**. A picker that could do
+less than the editor would send the player to the editor and back, which is the admin-not-depth
+failure the whole change exists to remove. ⚠️ The difference between them is **route data**, never a
+query parameter: a forgeable `?fight=1` would be a second, undocumented entry into the battle path.
+
+---
+
 ## Routing
 
 Routing shipped with milestone 3, on the trigger the roadmap named: **a screen that survives a

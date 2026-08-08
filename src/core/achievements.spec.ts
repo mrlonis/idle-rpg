@@ -133,7 +133,7 @@ describe('trackProgress', () => {
 
 describe('the clearedChapters counter', () => {
   const chapters = (clearedStages: number): number =>
-    counterValue(run({ clearedStages }), 'clearedChapters', LADDER);
+    counterValue(run({ clearedStages }), CHAPTERS, LADDER);
 
   it('counts a chapter only once every stage in it has fallen', () => {
     expect(chapters(0)).toBe(0);
@@ -172,12 +172,95 @@ describe('the clearedChapters counter', () => {
     // hand over a chapter's award for clearing nothing at all.
     const gappy: LadderShape = { chapters: [50, 0, 50] };
 
-    expect(counterValue(run({ clearedStages: 50 }), 'clearedChapters', gappy)).toBe(1);
-    expect(counterValue(run({ clearedStages: 100 }), 'clearedChapters', gappy)).toBe(2);
+    expect(counterValue(run({ clearedStages: 50 }), CHAPTERS, gappy)).toBe(1);
+    expect(counterValue(run({ clearedStages: 100 }), CHAPTERS, gappy)).toBe(2);
   });
 
   it('reports an empty ladder as nothing to clear', () => {
-    expect(counterValue(run({ clearedStages: 40 }), 'clearedChapters', { chapters: [] })).toBe(0);
+    expect(counterValue(run({ clearedStages: 40 }), CHAPTERS, { chapters: [] })).toBe(0);
+  });
+});
+
+describe('the towerFloors counter', () => {
+  /** Two tracks over one tower: the rhythm of the climb, and topping it out. */
+  const SPIRE: AchievementTrackData = {
+    id: 'tower-human-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    every: 5,
+    reward: { summons: 500 },
+  };
+  const TOPPED: AchievementTrackData = {
+    id: 'tower-human-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for topping the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    every: 100,
+    reward: { summons: 10_000 },
+  };
+
+  it('reads the floors of the tower it names, and no other', () => {
+    const state = run({ towers: { 'tower-human': 37, 'tower-dwarf': 90 } });
+
+    expect(counterValue(state, SPIRE, LADDER)).toBe(37);
+    expect(trackProgress(SPIRE, state, LADDER).earned).toBe(7);
+  });
+
+  it('reports a tower the run has never entered as nothing climbed', () => {
+    expect(counterValue(run(), SPIRE, LADDER)).toBe(0);
+    expect(trackProgress(SPIRE, run(), LADDER).unclaimed).toBe(0);
+  });
+
+  it('pays a completion award exactly once, with no mechanism of its own', () => {
+    // ⚠️ The whole of "finish the tower": an interval the size of the tower pays on the last floor
+    // and never again, so the largest award on a tower needs no second concept behind it.
+    expect(trackProgress(TOPPED, run({ towers: { 'tower-human': 99 } }), LADDER).earned).toBe(0);
+    expect(trackProgress(TOPPED, run({ towers: { 'tower-human': 100 } }), LADDER).earned).toBe(1);
+    // A floor is climbed once, so the counter cannot pass the tower's height — but a save from a
+    // build with a taller tower can, and a second award would be paid for content this build has
+    // no floors for.
+    expect(trackProgress(TOPPED, run({ towers: { 'tower-human': 199 } }), LADDER).earned).toBe(1);
+  });
+
+  it('reads a damaged floor count as nothing climbed rather than paying out on it', () => {
+    expect(counterValue(run({ towers: { 'tower-human': Number.NaN } }), SPIRE, LADDER)).toBe(0);
+    expect(counterValue(run({ towers: { 'tower-human': -8 } }), SPIRE, LADDER)).toBe(0);
+  });
+
+  it('reports position as the plain total, because a floor is a whole unit', () => {
+    // The sub-unit half of a counter reading exists for `clearedChapters` alone. A tower floor is
+    // one fight, so this track's bar is drawn from the count exactly as the stage track's is.
+    const progress = trackProgress(SPIRE, run({ towers: { 'tower-human': 37 } }), LADDER);
+
+    expect(progress.position).toBe(progress.total);
+    expect(progress.fraction).toBeCloseTo(0.4);
+  });
+
+  it('is claimed and ledgered exactly like every other track', () => {
+    const before = run({ towers: { 'tower-human': 100 } });
+    const first = claimAchievements(before, [SPIRE, TOPPED], LADDER);
+    const second = claimAchievements(first.state, [SPIRE, TOPPED], LADDER);
+
+    // Twenty five-floor awards at 500, plus the 10,000 for topping it.
+    expect(first.gained.summons?.toString()).toBe('20000');
+    expect(first.state.achievements).toEqual({
+      'tower-human-floors': 20,
+      'tower-human-cleared': 1,
+    });
+    expect(second.awards).toBe(0);
+  });
+
+  it('leaves the tower progress it is paid against alone', () => {
+    // ⚠️ A ledger over a counter, never a second copy of it. Claiming must not touch the climb, and
+    // it must not reach the campaign fields a tower is deliberately kept out of.
+    const before = run({ towers: { 'tower-human': 40 }, clearedStages: 12 });
+    const { state } = claimAchievements(before, [SPIRE], LADDER);
+
+    expect(state.towers).toBe(before.towers);
+    expect(state.clearedStages).toBe(12);
   });
 });
 

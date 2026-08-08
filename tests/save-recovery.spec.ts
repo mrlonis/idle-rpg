@@ -13,6 +13,7 @@ import {
 } from '../src/core';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
 import { formatNumeric, formatRate } from '../src/ui/format-numeric';
+import { FIGHT_LINK, startFight } from './flows';
 
 /**
  * Regression cover for a real save-corrupting bug, kept pointed at what still does that job.
@@ -145,7 +146,7 @@ test.describe('recovering a save whose clear count was lost', () => {
       { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
       { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
-    formation: { front: ['bran', 'mira'], back: ['rin'] },
+    formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,
     legendaryPity: 0,
     pullCount: 0,
@@ -166,7 +167,7 @@ test.describe('recovering a save whose clear count was lost', () => {
     await seedSave(page, lostItsClearCount);
     await page.goto('');
 
-    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: FIGHT_LINK })).toBeVisible();
 
     await expect(rateOf(page, 'Gold')).toHaveText(shownRate(top.rates.gold));
     await expect(rateOf(page, 'XP')).toHaveText(shownRate(top.rates.xp));
@@ -203,7 +204,7 @@ test.describe('recovering a save whose clear count was lost', () => {
 
     await expect(amountOf(page, 'Gold')).toHaveText('1.5M');
     await expect(
-      page.getByRole('button', { name: new RegExp(`^Fight ${parked.chapter}-${parked.stage} `) }),
+      page.getByRole('link', { name: new RegExp(`^Fight ${parked.chapter}-${parked.stage} `) }),
     ).toBeVisible();
   });
 
@@ -249,7 +250,7 @@ test.describe('re-fighting a cleared stage', () => {
       { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
       { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
-    formation: { front: ['bran', 'mira'], back: ['rin'] },
+    formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,
     legendaryPity: 0,
     pullCount: 0,
@@ -271,7 +272,7 @@ test.describe('re-fighting a cleared stage', () => {
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
+    await startFight(page);
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
@@ -292,7 +293,7 @@ test.describe('re-fighting a cleared stage', () => {
     await seedSave(page, clearedEverything);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
+    await startFight(page);
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
@@ -349,7 +350,7 @@ test.describe('a save this build cannot read', () => {
 
     await expect(page.getByRole('alert')).toContainText('save could not be read');
     // A fresh run: the opening stage, and none of the gold the old save was carrying.
-    await expect(page.getByRole('button', { name: /^Fight 1-1 / })).toBeVisible();
+    await expect(page.getByRole('link', { name: /^Fight 1-1 / })).toBeVisible();
     await expect(amountOf(page, 'Gold')).toHaveText('0');
   });
 
@@ -367,13 +368,13 @@ test.describe('a save this build cannot read', () => {
     await expect(page.getByRole('alert')).toBeVisible();
 
     // Fight once, so what lands on disk is recognisably the fresh run having made progress.
-    await page.getByRole('button', { name: /^Fight 1-1 / }).click();
+    await startFight(page);
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.getByRole('button', { name: /^Close the battle/ })).toBeVisible({
       timeout: 15_000,
     });
     await page.getByRole('button', { name: /^Close the battle/ }).click();
-    await expect(page.getByRole('button', { name: /^Fight 1-2 / })).toBeVisible();
+    await expect(page.getByRole('link', { name: /^Fight 1-2 / })).toBeVisible();
 
     const written = await page.evaluate((key) => localStorage.getItem(key), SAVE_KEY);
     const saved = JSON.parse(written ?? '{}') as Record<string, unknown>;

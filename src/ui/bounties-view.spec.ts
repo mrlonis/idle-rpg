@@ -196,7 +196,7 @@ describe('BountiesView', () => {
 
   it('turns a refusal into a sentence the player can act on', async () => {
     const { el, bounties, fixture } = await render();
-    bounties.refusal = 'in-formation';
+    bounties.refusal = 'already-away';
     click(el, '.mission__action');
     fixture.detectChanges();
     crewButtons(el)[0].click();
@@ -206,7 +206,7 @@ describe('BountiesView', () => {
     click(el, '.picker__send');
     fixture.detectChanges();
 
-    expect(el.querySelector('.notice')?.textContent).toContain('Bench them first');
+    expect(el.querySelector('.notice')?.textContent).toContain('already out on another mission');
   });
 
   it('says who is away and how long is left while a mission runs', async () => {

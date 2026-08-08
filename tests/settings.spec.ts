@@ -8,6 +8,7 @@ import {
   summonRatePerSecond,
 } from '../src/core';
 import { CHAPTERS, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
+import { startFight } from './flows';
 
 /**
  * The settings screen, driven through a real browser.
@@ -75,7 +76,7 @@ const progressedSave = {
     { defId: 'bran', rarity: 0, level: 9, copies: 0, gear: {} },
     { defId: 'mira', rarity: 0, level: 9, copies: 0, gear: {} },
   ],
-  formation: { front: ['bran', 'mira'], back: ['rin'] },
+  formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
   pity: 3,
   legendaryPity: 0,
   pullCount: 7,
@@ -140,7 +141,7 @@ test.describe('Settings', () => {
     test('is the same setting the battle screen changes', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
+      await startFight(page);
       await page.getByRole('button', { name: '4×' }).click();
       await expect(page.locator('.actions')).toBeVisible({ timeout: 15_000 });
       await page.getByRole('button', { name: 'Close the battle and return home' }).click();
@@ -236,7 +237,7 @@ test.describe('Settings', () => {
       await page.getByRole('dialog').getByRole('button', { name: 'Reset run' }).click();
 
       // A fresh run is its own confirmation: stage 1-1 and an empty wallet.
-      await expect(page.getByRole('button', { name: /^Fight 1-1/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: /^Fight 1-1/ })).toBeVisible();
 
       // The old run is not hiding in the backup slot either — the slots are emptied before the
       // fresh run is written, so a write has nothing to copy across.
@@ -264,7 +265,7 @@ test.describe('Settings', () => {
 
       await page.getByRole('button', { name: 'Reset run' }).click();
       await page.getByRole('dialog').getByRole('button', { name: 'Reset run' }).click();
-      await expect(page.getByRole('button', { name: /^Fight 1-1/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: /^Fight 1-1/ })).toBeVisible();
 
       expect((await readKey(page, SETTINGS_KEY))?.['combatSpeed']).toBe(4);
     });
