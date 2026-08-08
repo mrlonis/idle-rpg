@@ -95,9 +95,10 @@
 // with a hyperlink in it. The role changed; the emphasis did not.
 //
 // It brings its own **box model** too, and that one was missed: `content-box` plus `width: 100%`
-// plus the mixin's padding and border put this card 34px wider than the tower rows under it and
-// gave the whole app a horizontal scrollbar on a phone. `button-base` now states `box-sizing`
-// itself — see the note there before removing it as redundant with the UA default.
+// plus the mixin's padding and border drew this card 34px wider than the tower rows under it, and
+// the 14px of that reaching past the screen gave the whole app a horizontal scrollbar on a phone.
+// `button-base` now states `box-sizing` itself — see the note there before removing it as
+// redundant with the UA default.
 .fight {
   @include t.button-primary;
   display: flex;
