@@ -96,7 +96,7 @@ Milestone 15a added two screens and moved one job, and neither screen touched th
 and faction towers make that eight destinations. That choice is not a thing to bury behind a tab, so
 Home holds a battle section with the campaign as its first card and a row per tower beside it. It was
 one card until 15b, on the same argument the Bag rename made; the first tower's row arrived with its
-hundred floors, and six more are 15c.
+hundred floors, and the other six arrived in 15c.
 
 **A tower row has three states and only one of them is a link.** A tower being climbed goes to
 `/prepare/:id` exactly as the campaign card does. A tower already **topped** is an inert row — a

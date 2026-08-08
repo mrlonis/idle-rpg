@@ -1,6 +1,7 @@
 import { computed, inject, Service } from '@angular/core';
 import {
   type AchievementProgress,
+  type AchievementTrackData,
   allProgress,
   claimAchievements,
   CURRENCY_IDS,
@@ -10,7 +11,7 @@ import {
   unclaimedReward,
   ZERO,
 } from '../core';
-import { ACHIEVEMENT_TRACKS, LADDER } from './content';
+import { ACHIEVEMENT_TRACKS, LADDER, TOWERS_BY_ID } from './content';
 import { CURRENCY_LABELS, formatNumeric } from './format-numeric';
 import { GameLoopService } from './game-loop.service';
 
@@ -25,6 +26,17 @@ export interface AwardView {
 
 /** One track as the screen draws it. */
 export interface AchievementRowView extends AchievementProgress {
+  /**
+   * The heading, which is the track's name plus the tower it belongs to.
+   *
+   * ⚠️ **Fourteen of the sixteen shipped tracks share two names between them** — every tower has a
+   * Spire Climber and a Spire Conqueror — so the track's own name identifies a *kind* of track
+   * rather than a track. Resolved here rather than authored per tower because the tower's name
+   * already lives in `TOWERS`, and a second copy in `data/achievements.ts` is a second thing to
+   * rename. It is also load-bearing for the screen: seven identical `<h2>`s and seven progress bars
+   * with the same accessible name is a WCAG failure, not just a readability one.
+   */
+  readonly name: string;
   /** What the whole outstanding balance on this track pays, already multiplied out. */
   readonly owed: readonly AwardView[];
   /** What a single award pays, for the row's subtitle. */
@@ -69,6 +81,7 @@ export class AchievementsService {
     // from the run.
     return allProgress(ACHIEVEMENT_TRACKS, state, LADDER).map((progress) => ({
       ...progress,
+      name: trackName(progress.track),
       owed: awards(unclaimedReward(progress)),
       perAward: awards(progress.track.reward),
       percent: Math.round(progress.fraction * 100),
@@ -99,6 +112,21 @@ export class AchievementsService {
     }
     return { awards: result.awards, gained: awards(result.gained) };
   }
+}
+
+/**
+ * A track's heading: its own name, and the tower it is about when it is about one.
+ *
+ * An unknown tower id falls back to the bare name rather than inventing one — the save layer keeps
+ * progress for towers this build does not ship, and a track pointing at one is content that will
+ * come back rather than an error.
+ */
+function trackName(track: AchievementTrackData): string {
+  if (track.counter !== 'towerFloors') {
+    return track.name;
+  }
+  const tower = TOWERS_BY_ID.get(track.tower);
+  return tower === undefined ? track.name : `${track.name} — ${tower.name}`;
 }
 
 /**

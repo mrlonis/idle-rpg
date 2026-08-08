@@ -202,8 +202,9 @@ test.describe('App', () => {
       await page.goto('');
 
       // Not a link, and it names both the key and the faction it wants — a tower that cannot yet be
-      // crewed should still say who it is for.
-      const row = page.locator('.tower--inert');
+      // crewed should still say who it is for. Scoped by name rather than by class alone: all seven
+      // towers draw an inert row on a fresh run, which is the point of them.
+      const row = page.locator('.tower--inert', { hasText: 'Human Tower' });
       await expect(row).toContainText('Human Tower');
       await expect(row).toContainText(/Clear \d+ more stages? to open/);
       await expect(row).toContainText('Humans only');

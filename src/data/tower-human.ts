@@ -53,10 +53,10 @@ import {
  * fights it is favoured in, rather than a mirror match that would switch the matrix off entirely.
  * [`towers.spec.ts`](./towers.spec.ts) measures the share rather than trusting this paragraph.
  *
- * ⚠️ **It needs no new enemy blocks, and that is why this tower shipped first.** Undead already have
- * five archetypes and the other six factions supply the variety — see
- * [milestones](../../docs/milestones.md) for why the Angel tower, countered by Demons alone, is the
- * one that had to wait.
+ * ⚠️ **It needed no new enemy blocks, and that is why this tower shipped first.** Undead already had
+ * five archetypes where Elves and Angels had one each, so the Human Tower is the only one milestone
+ * 15b could author without also authoring content. The other six, and the eighteen blocks that made
+ * them possible, are 15c — see [milestones](../../docs/milestones.md).
  *
  * ## Where the difficulty sits
  *

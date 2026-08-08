@@ -283,12 +283,13 @@ the two disagree, the code is right and both are stale.
   - **Adding an activity is a row in [`data/activities.ts`](src/data/activities.ts) and nothing
     else.** ⚠️ An `id` is a save key and is permanent once shipped — renaming one silently disbands
     the crew standing in it. Change the `name` freely; never the `id`.
-- **Faction towers are a second thing to climb**, and the first one shipped in milestone 15b. Read
-  [`core/towers.ts`](src/core/towers.ts) before touching them. **One of seven is authored** — the
-  Human Tower, a hundred floors at enemy levels 1 to 60 — and the remaining six plus the enemy
-  archetypes they need are 15c. Adding a tower is a row in [`data/towers.ts`](src/data/towers.ts), a
-  matching row in [`data/activities.ts`](src/data/activities.ts), two achievement tracks, and its
-  floors; `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in.
+- **Faction towers are a second thing to climb**, and **all seven ship** — the system in milestone
+  15b, the other six towers and the eighteen enemy archetypes they needed in 15c. Read
+  [`core/towers.ts`](src/core/towers.ts) before touching them. Each is a hundred floors at enemy
+  levels 1 to 60. Adding a tower is a row in [`data/towers.ts`](src/data/towers.ts), a matching row
+  in [`data/activities.ts`](src/data/activities.ts), two achievement tracks, and its floors;
+  `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in, and
+  holds **exactly one tower per faction** against `FACTIONS` rather than a literal.
   - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
     clear count drives the idle crystal rate, which `banners.spec.ts` bounds at about ×3 the base
     where the shipped hundred stages already reach ×2 — seven towers of a hundred floors feeding it
@@ -315,13 +316,54 @@ the two disagree, the code is right and both are stale.
   - **A tower is faction-locked, and the lock lives in [`core/activity.ts`](src/core/activity.ts).**
     `partyMeetsLock` is called by the editor **and** the battle path — two implementations of one
     rule is how a screen promises a legal crew that the fight refuses.
+  - **All seven open at twelve clears, together.** Which tower a run enters is settled by who it
+    owns, not by where the ladder has carried it, so staggering the unlocks would gate a player
+    holding five Elves behind clears that have nothing to do with them. `towers.spec.ts` bounds the
+    unlock under a fifth of the shipped ladder.
+  - **Each tower leans on a different faction, and no two leans repeat.** Human←undead,
+    dwarf←human, elf←dwarf, undead←elf, angel←demon, demon←angel — the mortal cycle where it
+    applies and the celestial pairing where it does not. ⚠️ **The Monster Tower has no lean and that
+    _is_ its lean**: every faction counters Monsters, so "field what counters the crew" resolves to
+    all seven, and it ships as an even spread. `towers.spec.ts` derives that case off the matrix
+    (`countersOf(faction).length === FACTIONS.length - 1`) rather than naming `monster`, bounds the
+    spread on both sides instead of asserting a leader, and separately holds that no two towers that
+    _do_ lean lean on the same faction — seven towers leaning on Monsters would be one tower shipped
+    seven times.
+  - ⚠️ **The mirror control in `towers.balance.ts` is only valid for four of the seven, and both
+    exceptions are asserted rather than skipped.** The control rewrites every enemy to the tower's
+    own faction on the premise that a mono-faction board is matchup-neutral, and that premise fails
+    twice. **Celestials**: an Angel deals ×1.10 to every mortal with nothing coming back, so an
+    all-Angel board is the _hardest_ thing an Angel five can meet — `biased > mirrored` is false by
+    construction there, and the spec asserts the **inversion** so a future matrix edit that removes
+    the celestial advantage fails loudly. **Monsters**: `monster → monster` is the matrix's one
+    self-edge, so mirroring that tower turns the matrix _up_ rather than off and is not a control at
+    all; its exclusion is made load-bearing by asserting the self-edge exists.
   - ⚠️ **Difficulty in a tower is the front rank's weight, and it is sharply non-linear.** Two
     ascended blocks in front of three legendaries is the top band; pairing the two _heaviest_
     (an Unmade beside a Tyrant) takes the reference crew from a clean clear to single-digit win
-    rates. There is also **no ascended-tier Undead archetype**, so an undead-only board caps at
-    legendary and the heavy anchors have to come from another faction — which is why the bias is a
-    share of the whole tower rather than a rule per floor. Re-run `npm run test:balance` after
-    touching any band in the top third.
+    rates. **15c re-measured this against six more crews and the tolerance is narrower than it
+    looked**: the same medium-plus-heavy pair the Human roof clears at 90% is unwinnable for the
+    Dwarf five, which carries the lowest `atk` in the game, and for the Angel five, which is four
+    supports and a wall. So the anchors are sized **per tower against its own crew**, not to a
+    shared weight. Re-run `npm run test:balance` after touching any band in the top third.
+  - ⚠️ **A healer on a roof is a timeout wearing a boss's stat block.** The Dwarf Tower's boss was
+    `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five could close it inside ninety
+    seconds — an identical board ten floors lower, at six fewer enemy levels, cleared. Against a
+    party that cannot burst, the last floor is where sustain on the enemy side stops being a lock
+    and becomes the clock.
+  - **Every faction now has six archetypes — two `common`, three `legendary`, one `ascended`** —
+    which is what 15c's eighteen new blocks bought and what
+    [`data/enemies.spec.ts`](src/data/enemies.spec.ts) holds. The old note here recorded that there
+    was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that, and the Wyrdroot
+    Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the ones the campaign
+    already fields** rather than by an opinion — the Unmade is the ceiling and nothing may reach it,
+    asserted in `enemies.spec.ts`, because a third and fourth heavy anchor is what makes six towers
+    fail their sweep at once.
+  - ⚠️ **An archetype must be fielded somewhere, and "somewhere" is every ladder rather than the
+    campaign.** That rule lived in `chapters.spec.ts` while the campaign was the only content;
+    eighteen tower-only blocks would have failed it as orphans, so it moved whole to
+    `data/enemies.spec.ts`, which is the only spec that sees both. It was **widened, not relaxed**:
+    an archetype nobody ever meets is still a stat block with a comment attached.
   - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear, clearing
     every floor** — and ⚠️ **the level is derived from `topLevel`, not chosen**: `rare-plus`'s cap is
     exactly 60, so the party tracks the content. What ramps across the climb is **what a floor
@@ -366,6 +408,12 @@ the two disagree, the code is right and both are stale.
     - ⚠️ **A chapter is not an interval of stages.** `every: 50` over `clearedStages` is the
       obvious authoring and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty — it
       pays a "chapter" award part way into the next chapter, silently, forever.
+    - ⚠️ **Fourteen of the sixteen shipped tracks share two names between them** — every tower has a
+      Spire Climber and a Spire Conqueror — so a track's `name` identifies a _kind_ of track rather
+      than a track. `AchievementsService` resolves the heading as `name — tower name`, reading the
+      tower off `TOWERS`; authoring the faction into each track would put it in two places and let
+      them disagree. It is load-bearing rather than cosmetic: seven identical `<h2>`s and seven
+      progress bars carrying the same accessible name is a WCAG failure.
     - ⚠️ **`towerFloors` is the one counter that cannot identify itself, so `AchievementTrackData`
       is a discriminated union rather than an interface with an optional `tower`.** Every other
       counter is a single number on the run; a tower track has to say _which_ tower, and one that
@@ -392,7 +440,9 @@ the two disagree, the code is right and both are stale.
       content. At 100 it is ~219,000, a bit over 3× for 7× the content. `data/towers.spec.ts`
       measures that ratio and bounds it, and ⚠️ **it compares both halves on both sides** — floors
       and their tracks against first clears and theirs — because comparing against first clears
-      alone reads the campaign as five times poorer than it is.
+      alone reads the campaign as five times poorer than it is. Since 15c it **sums the towers that
+      actually ship** rather than multiplying one tower by `FACTIONS.length`, which measured a
+      projection while six of them were unwritten.
     - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
       payout" claim to the ladder, and `towers.spec.ts` holds the tie.

@@ -123,18 +123,12 @@ describe('stage content', () => {
     expect(tiers.size).toBeGreaterThan(1);
   });
 
-  it('fields every enemy it ships somewhere on the ladder', () => {
-    // An archetype nobody ever meets is a stat block with a comment attached. Each one names a
-    // question, and a question that is never asked is not content.
-    const fielded = new Set(
-      stages.flatMap((stage) =>
-        [...stage.enemies.front, ...stage.enemies.back].map((enemy) => enemy.id),
-      ),
-    );
-    const orphans = ENEMIES.map((enemy) => enemy.id).filter((id) => !fielded.has(id));
-
-    expect(orphans).toEqual([]);
-  });
+  // ⚠️ **"Fields every archetype it ships" moved to [`enemies.spec.ts`](./enemies.spec.ts) in
+  // milestone 15c**, and the rule was widened rather than relaxed. It used to read the campaign
+  // alone because the campaign was the only content; eighteen of the forty-two blocks are now
+  // authored for the towers and would have failed it as orphans. What the rule protects — an
+  // archetype nobody ever meets is a stat block with a comment attached — is unchanged, and it
+  // needs a file that can see every shipped ladder rather than this one, which is about chapters.
 });
 
 describe('the boss rhythm', () => {

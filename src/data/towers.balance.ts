@@ -29,9 +29,60 @@ import {
   type TowerData,
   type TowerRulesData,
 } from '../core';
+import { FACTIONS } from './ascension';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
-import { AURELIA, HALRIC, IVO, MIRA, SEREN, WREN, YSOLDE } from './characters';
-import { COMBAT_RULES } from './combat';
+import {
+  AELRINDEL,
+  AURELIA,
+  AZRATHOTH,
+  BRAN,
+  CELIA,
+  CIRIEN,
+  DORN,
+  FAELEN,
+  GHAUL,
+  GHORRAK,
+  GNASH,
+  GRIMNA,
+  HALRIC,
+  HEDDA,
+  ILYRA,
+  ITHURIEL,
+  IVO,
+  KARSITH,
+  KORRIN,
+  LYSHA,
+  MALAKAR,
+  MIRA,
+  MORTLACH,
+  NAEL,
+  NAERIN,
+  NEKROS,
+  NYXARA,
+  ORIN,
+  OSSUARY,
+  OZZA,
+  PYRA,
+  RAZIEL,
+  RIN,
+  RUK,
+  SABLE,
+  SANGUINE,
+  SERAPHINE,
+  SEREN,
+  SKARN,
+  SYLVARA,
+  THRAUN,
+  THREX,
+  VESPER,
+  VEXIS,
+  VHAROK,
+  WREN,
+  YERRIK,
+  YSOLDE,
+  ZAPHIEL,
+} from './characters';
+import { COMBAT_RULES, FACTION_MATCHUPS } from './combat';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { TOWER_RULES, TOWERS } from './towers';
@@ -139,18 +190,36 @@ function five(front: readonly CharacterData[], back: readonly CharacterData[]): 
  */
 const CREWS: ReadonlyMap<string, FormationData> = new Map([
   ['tower-human', five([HALRIC, MIRA], [WREN, YSOLDE, IVO])],
+  ['tower-dwarf', five([BRAN, HEDDA], [DORN, GRIMNA, ORIN])],
+  ['tower-elf', five([CIRIEN, RIN], [FAELEN, NAERIN, SYLVARA])],
+  ['tower-undead', five([GHAUL, MORTLACH], [VESPER, OSSUARY, KARSITH])],
+  ['tower-monster', five([SKARN, YERRIK], [GNASH, GHORRAK, OZZA])],
+  ['tower-angel', five([NAEL, RAZIEL], [CELIA, ILYRA, ZAPHIEL])],
+  ['tower-demon', five([THREX, VEXIS], [PYRA, NYXARA, SANGUINE])],
 ]);
 
 /**
- * A second Human five, for the question a single reference party cannot answer.
+ * A second five per faction, for the question a single reference party cannot answer.
  *
- * A tower asks for five of one faction, and a player who owns seven Humans has choices — so the
- * interesting failure is not "the reference five cannot climb" but "only one arrangement of Humans
- * can". This is the other three plus two the first five also uses, which is as different as a
- * seven-deep bench gets.
+ * A tower asks for five of one faction, and a player who owns seven of them has choices — so the
+ * interesting failure is not "the reference five cannot climb" but "only one arrangement can". Each
+ * of these is the faction's other three plus two the reference five also uses, which is as
+ * different as a seven-deep bench gets.
+ *
+ * ⚠️ **Every one of them fields the faction's `ascended`-tier character, which the reference fives
+ * deliberately do not.** That is not a second investment level, it is the *other* thing a player
+ * might own: the reference five is what a run with no lucky banner can build, and this is what a run
+ * that got one builds instead. Both have to be able to climb, which is why this block's threshold is
+ * lower than the reference crew's rather than equal to it.
  */
 const ALTERNATES: ReadonlyMap<string, FormationData> = new Map([
   ['tower-human', five([AURELIA, SEREN], [WREN, MIRA, IVO])],
+  ['tower-dwarf', five([THRAUN, HEDDA], [GRIMNA, KORRIN, ORIN])],
+  ['tower-elf', five([LYSHA, CIRIEN], [FAELEN, AELRINDEL, RIN])],
+  ['tower-undead', five([GHAUL, KARSITH], [VESPER, NEKROS, SABLE])],
+  ['tower-monster', five([SKARN, VHAROK], [GNASH, RUK, YERRIK])],
+  ['tower-angel', five([RAZIEL, NAEL], [SERAPHINE, ITHURIEL, ILYRA])],
+  ['tower-demon', five([THREX, MALAKAR], [AZRATHOTH, VEXIS, SANGUINE])],
 ]);
 
 interface Sweep {
@@ -364,6 +433,49 @@ describe('tower balance', () => {
   });
 });
 
+/** The same floors with every enemy wearing the tower's own faction. */
+const mirror = (tower: TowerData, stage: StageData): StageData => ({
+  ...stage,
+  enemies: {
+    front: stage.enemies.front.map((enemy) => ({ ...enemy, faction: tower.faction })),
+    back: stage.enemies.back.map((enemy) => ({ ...enemy, faction: tower.faction })),
+  },
+});
+
+/** Party members lost across a whole climb, which is what the bias actually charges. */
+const losses = (tower: TowerData, party: FormationData, mirrored: boolean): number =>
+  floorsOf(tower).reduce((total, stage) => {
+    const fought = mirrored ? mirror(tower, stage) : stage;
+    return total + (PARTY_SIZE - sweep(party, fought).meanSurvivors);
+  }, 0);
+
+/**
+ * Both climbs, per tower, computed **once**.
+ *
+ * A full mirrored climb is a hundred floors at forty seeds, so recomputing it per assertion is four
+ * thousand battles a test. Hoisting it is what keeps the whole balance project inside its timeout
+ * now that there are seven towers rather than one.
+ */
+const BIAS = towers.map((tower) => {
+  const party = crewOf(tower, CREWS);
+  return {
+    tower,
+    biased: losses(tower, party, false),
+    mirrored: losses(tower, party, true),
+  };
+});
+
+/** Whether `faction` walks the celestial ascension ladder, derived rather than listed. */
+const CELESTIAL = new Set(
+  FACTIONS.filter((faction) => faction.ascensionPath === 'celestial').map(
+    (faction) => faction.id as string,
+  ),
+);
+
+/** Whether the matrix gives `faction` an edge against **itself**, which is true of exactly one. */
+const selfEdged = (faction: string): boolean =>
+  FACTION_MATCHUPS.some((edge) => edge.attacker === faction && edge.defender === faction);
+
 /**
  * The counter-faction bias, measured against the counterfactual the design rejected.
  *
@@ -392,49 +504,73 @@ describe('tower balance', () => {
  * were never in doubt. Where it shows up is at a party's ceiling: on the one floor that *is* in doubt,
  * the alternate five goes from 90% on the mirror to 85% on the real thing. That is the same reading
  * `chapters.balance.ts` had to arrive at before the edges could be sized at all.
+ *
+ * ## ⚠️ The control is only valid for four of the seven towers, and milestone 15c is where that bit
+ *
+ * The mirror is a control on one premise: **a board of the crew's own faction is matchup-neutral.**
+ * That premise fails twice in the shipped matrix, and both failures are documented decisions rather
+ * than gaps, so each gets an assertion of its own instead of a skip.
+ *
+ * - **Celestials.** An Angel deals ten percent more to every mortal with nothing coming back, and the
+ *   only faction that trades evenly with one is the other celestial. So an all-Angel board is the
+ *   **hardest** thing an Angel five can be pointed at, and `biased > mirrored` is not merely false
+ *   here, it is false by construction. That is the advantage `combat.ts` documents and prices on the
+ *   luck-only ascension ladder — not something a tower may claw back — so the inversion is asserted
+ *   in its own right below.
+ * - **Monsters.** Monster-on-monster is the matrix's one self-edge, at ten percent. Rewriting a
+ *   Monster Tower to its own faction therefore does not switch the matrix off, it turns both sides up
+ *   — so the mirror is a *different* board rather than a neutral one and cannot be a control at all.
+ *   The Monster Tower is authored as an even spread for the same underlying reason: everything
+ *   counters Monsters. See `tower-monster.ts`.
  */
 describe('the counter-faction bias', () => {
-  /** The same floors with every enemy wearing the tower's own faction. */
-  const mirror = (tower: TowerData, stage: StageData): StageData => ({
-    ...stage,
-    enemies: {
-      front: stage.enemies.front.map((enemy) => ({ ...enemy, faction: tower.faction })),
-      back: stage.enemies.back.map((enemy) => ({ ...enemy, faction: tower.faction })),
-    },
-  });
-
-  /** Party members lost across a whole climb, which is what the bias actually charges. */
-  const losses = (tower: TowerData, party: FormationData, mirrored: boolean): number =>
-    floorsOf(tower).reduce((total, stage) => {
-      const fought = mirrored ? mirror(tower, stage) : stage;
-      return total + (PARTY_SIZE - sweep(party, fought).meanSurvivors);
-    }, 0);
-
   it('costs the faction it admits more of its own party than a mirror match would', () => {
     // ⚠️ **The whole reason the enemies are biased at all.** A tower whose enemies were its own
     // faction would switch the matchup matrix off inside it, and the lock on the door would be the
     // only thing making it a *faction* tower. Deterministic rather than statistical: fixed seeds, so
     // this is a fact about the shipped content and not a sample of it.
-    for (const tower of towers) {
-      const party = crewOf(tower, CREWS);
-      const biased = losses(tower, party, false);
-      const mirrored = losses(tower, party, true);
-      const note = `${tower.id}: biased ${biased.toFixed(1)} lost, mirror ${mirrored.toFixed(1)}`;
+    for (const entry of BIAS.filter(
+      ({ tower }) => !CELESTIAL.has(tower.faction) && !selfEdged(tower.faction),
+    )) {
+      const note =
+        `${entry.tower.id}: biased ${entry.biased.toFixed(1)} lost, ` +
+        `mirror ${entry.mirrored.toFixed(1)}`;
 
-      expect(biased, note).toBeGreaterThan(mirrored);
+      expect(entry.biased, note).toBeGreaterThan(entry.mirrored);
     }
+  });
+
+  it('inverts on the celestial towers, which is the advantage they already paid for', () => {
+    // ⚠️ **Asserted rather than skipped.** A celestial five is favoured against everything mortal and
+    // level with the other celestial, so its own mirror is the hardest board it has — and the two
+    // celestial towers lean as hard as they legally can on the one faction that trades evenly with
+    // them. Holding the inversion here is what makes a future matrix edit that removes the celestial
+    // asymmetry fail loudly instead of quietly turning two towers into something else.
+    for (const entry of BIAS.filter(({ tower }) => CELESTIAL.has(tower.faction))) {
+      const note =
+        `${entry.tower.id}: biased ${entry.biased.toFixed(1)} lost, ` +
+        `mirror ${entry.mirrored.toFixed(1)}`;
+
+      expect(entry.biased, note).toBeLessThan(entry.mirrored);
+    }
+  });
+
+  it('leaves the mirror out of it entirely where the matrix has a self-edge', () => {
+    // The Monster Tower's exclusion, made load-bearing rather than left as a gap in a filter: the
+    // reason it is excluded is that `monster → monster` exists at all, so if that edge is ever
+    // removed this fails and the tower goes back into the block above where it would then belong.
+    const excluded = towers.filter((tower) => selfEdged(tower.faction));
+
+    expect(excluded.map((tower) => tower.id)).toEqual(['tower-monster']);
   });
 
   it('does not make it hopeless for them', () => {
     // The other side, and the clause that keeps a tower skippable rather than unwinnable: the bias is
     // a lean, not a wall, so it may not cost the crew a large multiple of what a neutral tower would.
-    // That the crew still clears every floor is asserted above; this bounds the price of getting there.
-    for (const tower of towers) {
-      const party = crewOf(tower, CREWS);
-      const biased = losses(tower, party, false);
-      const mirrored = losses(tower, party, true);
-
-      expect(biased / Math.max(mirrored, 1), tower.id).toBeLessThan(1.5);
+    // That the crew still clears every floor is asserted above; this bounds the price of getting
+    // there. Applied to every tower, because "not a wall" is true whichever way the comparison runs.
+    for (const entry of BIAS) {
+      expect(entry.biased / Math.max(entry.mirrored, 1), entry.tower.id).toBeLessThan(1.5);
     }
   });
 });

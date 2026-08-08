@@ -17,12 +17,17 @@
  * layer keeps the orphaned key rather than dropping it, but nothing will ever look at it again.
  * Change the `name` freely; never the `id`.
  *
- * **One of the seven faction towers ships; six are milestone 15c.** A locked door with nothing
- * behind it is the thing the Bag rename argued against — the second heading arrives with the second
- * kind of item — so a tower appears here on the day its hundred floors do. Adding one is this row
- * plus an entry in [`towers.ts`](./towers.ts), and the two `id`s must agree:
- * [`towers.spec.ts`](./towers.spec.ts) is what makes a mismatch a failing test rather than a tower
- * with no crew or a crew with no tower.
+ * **All seven faction towers ship, in `FACTIONS` order.** A locked door with nothing behind it is
+ * the thing the Bag rename argued against — the second heading arrives with the second kind of item
+ * — so a tower appears here on the day its hundred floors do, which for six of the seven was
+ * milestone 15c. Adding one is this row plus an entry in [`towers.ts`](./towers.ts), and the two
+ * `id`s must agree: [`towers.spec.ts`](./towers.spec.ts) is what makes a mismatch a failing test
+ * rather than a tower with no crew or a crew with no tower.
+ *
+ * ⚠️ **Eight rows is eight crews, which is forty of a forty-nine character roster.** That is the
+ * arithmetic milestone 15b inverted the bounty board's disjointness rule for: a player who has
+ * crewed every tower has almost no bench, so anybody may now be dispatched and a crew holding
+ * somebody away is what cannot fight. See [`bounties.ts`](./bounties.ts).
  */
 export const ACTIVITIES = [
   {
@@ -39,5 +44,41 @@ export const ACTIVITIES = [
     name: 'Human Tower',
     kind: 'tower',
     faction: 'human',
+  },
+  {
+    id: 'tower-dwarf',
+    name: 'Dwarf Tower',
+    kind: 'tower',
+    faction: 'dwarf',
+  },
+  {
+    id: 'tower-elf',
+    name: 'Elf Tower',
+    kind: 'tower',
+    faction: 'elf',
+  },
+  {
+    id: 'tower-undead',
+    name: 'Undead Tower',
+    kind: 'tower',
+    faction: 'undead',
+  },
+  {
+    id: 'tower-monster',
+    name: 'Monster Tower',
+    kind: 'tower',
+    faction: 'monster',
+  },
+  {
+    id: 'tower-angel',
+    name: 'Angel Tower',
+    kind: 'tower',
+    faction: 'angel',
+  },
+  {
+    id: 'tower-demon',
+    name: 'Demon Tower',
+    kind: 'tower',
+    faction: 'demon',
   },
 ] as const;

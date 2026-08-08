@@ -69,6 +69,36 @@ function countersOf(faction: string): readonly string[] {
   ).map((edge) => edge.attacker as string);
 }
 
+/**
+ * Whether **everything** beats this faction, which is true of exactly one of the seven.
+ *
+ * Monsters trade defence for reach: they hit every faction for five percent more and take it back
+ * from all four mortal factions, from both celestials, and from each other. So countering a Monster
+ * five is not a job for one faction — it is what the whole matrix does — and the Monster Tower is
+ * authored as an even spread rather than as a lean. That is the *same* decision every other tower
+ * makes (field what counters the crew), not an exception to it, which is why this is derived off
+ * the matrix rather than being a named special case for `monster`.
+ */
+function evenlyCountered(faction: string): boolean {
+  return new Set(countersOf(faction)).size === FACTIONS.length - 1;
+}
+
+/** What share of `tower`'s slots each faction takes. */
+function sharesIn(tower: TowerData): ReadonlyMap<string, number> {
+  const slots = slotsOf(tower);
+  const shares = new Map<string, number>();
+  for (const id of slots) {
+    const faction = ENEMY_FACTIONS.get(id) ?? '';
+    shares.set(faction, (shares.get(faction) ?? 0) + 1 / slots.length);
+  }
+  return shares;
+}
+
+/** The faction taking the most of `tower`'s slots. */
+function leaderOf(tower: TowerData): string {
+  return [...sharesIn(tower)].reduce((best, entry) => (entry[1] > best[1] ? entry : best))[0];
+}
+
 /** Every enemy slot in a tower, in climbing order. */
 function slotsOf(tower: TowerData): readonly string[] {
   return tower.floors.flatMap((floor) => [
@@ -159,8 +189,14 @@ describe('tower rules', () => {
 });
 
 describe('tower content', () => {
-  it('ships at least one tower, with unique ids and names', () => {
-    expect(towers.length).toBeGreaterThan(0);
+  it('ships exactly one tower per faction, with unique ids and names', () => {
+    // ⚠️ **"One per faction" is what a tower *is*** — the whole design is demand for five invested
+    // characters of every faction, so a build shipping six towers has a faction whose bench has
+    // nowhere to go, and one shipping eight has a tower two factions can crew. Derived from
+    // `FACTIONS` rather than restated, so adding a faction fails here rather than shipping a roster
+    // with no ladder behind it.
+    expect(towers.length).toBe(FACTIONS.length);
+    expect(new Set(towers.map((tower) => tower.faction)).size).toBe(towers.length);
     expect(new Set(towers.map((tower) => tower.id)).size).toBe(towers.length);
     expect(new Set(towers.map((tower) => tower.name)).size).toBe(towers.length);
   });
@@ -270,21 +306,49 @@ describe('the counter-faction bias', () => {
   it('leans on a faction that actually counters the tower', () => {
     // Derived from the matchup matrix rather than named here, so retuning the cycle cannot leave a
     // tower biased toward a faction that no longer beats it.
-    for (const tower of towers) {
-      const slots = slotsOf(tower);
-      const share = (faction: string): number =>
-        slots.filter((id) => ENEMY_FACTIONS.get(id) === faction).length / slots.length;
-      const leader = [...new Set(slots.map((id) => ENEMY_FACTIONS.get(id) ?? ''))].reduce(
-        (best, faction) => (share(faction) > share(best) ? faction : best),
-      );
+    for (const tower of towers.filter((entry) => !evenlyCountered(entry.faction))) {
+      const leader = leaderOf(tower);
+      const share = sharesIn(tower).get(leader) ?? 0;
 
       expect(countersOf(tower.faction), `${tower.id} leans on ${leader}`).toContain(leader);
       // ⚠️ **A lean, not a mirror.** Roughly half: enough that the tower reads as the answer to its
       // own faction, and far enough from all of it that the matchup matrix stays live in both
       // directions. A tower fielding one faction would switch the matrix off entirely.
-      expect(share(leader), `${tower.id} ${leader} share`).toBeGreaterThan(0.35);
-      expect(share(leader), `${tower.id} ${leader} share`).toBeLessThan(0.65);
+      expect(share, `${tower.id} ${leader} share`).toBeGreaterThan(0.35);
+      expect(share, `${tower.id} ${leader} share`).toBeLessThan(0.65);
     }
+  });
+
+  it('spreads the one tower everything counters evenly instead of leaning', () => {
+    // ⚠️ **The Monster Tower, and it is the rule rather than an exception to it.** Every faction
+    // counters Monsters, so "field what counters the crew" resolves to *all seven* — and picking one
+    // of them to lean on would field six percent of a tower against the faction it admits while
+    // calling the seventh its answer. Bounded on both sides: nothing may run away with it, and
+    // nothing may be token either, which is what stops "even" from meaning "five factions and a
+    // gesture".
+    const even = 1 / FACTIONS.length;
+
+    for (const tower of towers.filter((entry) => evenlyCountered(entry.faction))) {
+      for (const [faction, share] of sharesIn(tower)) {
+        const note = `${tower.id} ${faction} share ${(share * 100).toFixed(1)}%`;
+
+        expect(share, note).toBeLessThan(even * 1.75);
+        expect(share, note).toBeGreaterThan(even * 0.35);
+      }
+    }
+  });
+
+  it('never gives two towers the same climb', () => {
+    // ⚠️ **Seven towers leaning on the same faction would be one tower shipped seven times**, which
+    // is the failure the whole 15c enemy-authoring half exists to prevent — and it is exactly what
+    // would have happened without it, because Monsters were the only faction deep enough to lead
+    // more than one. Distinctness is checked over the towers that *have* a lead, since the evenly
+    // countered one has none to collide with.
+    const leads = towers
+      .filter((tower) => !evenlyCountered(tower.faction))
+      .map((tower) => leaderOf(tower));
+
+    expect(new Set(leads).size, leads.join(', ')).toBe(leads.length);
   });
 
   it('still draws on every faction, so the crew meets fights it is favoured in', () => {
@@ -350,9 +414,10 @@ describe('what a tower pays', () => {
   it('makes seven towers a multiple of the campaign rather than a replacement for it', () => {
     // Measured over the shipped content, both halves on both sides: floors and their tracks against
     // first clears and theirs. Seven towers is roughly 3× the critical path for 7× the content, on
-    // ladders gated behind roster depth. The seven is `FACTIONS.length` rather than a literal,
-    // because that is what "one tower per faction" means and 15c is what fills it in.
-    const seven = crystalsPerTower(towers[0]) * FACTIONS.length;
+    // ladders gated behind roster depth. **Summed over the towers that actually ship** since 15c
+    // filled the roster in — it was one tower's payout times `FACTIONS.length` while six of them
+    // were still unwritten, which measured a projection rather than the game.
+    const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
     const campaign = campaignCrystals();
     const note = `seven towers ${seven} against a campaign of ${campaign}`;
 

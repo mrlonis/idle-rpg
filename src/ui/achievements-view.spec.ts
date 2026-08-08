@@ -23,6 +23,7 @@ function row(overrides: Partial<AchievementRowView> = {}): AchievementRowView {
       every: 5,
       reward: { summons: 250 },
     },
+    name: 'Stage Climber',
     total: 12,
     position: 12,
     earned: 2,

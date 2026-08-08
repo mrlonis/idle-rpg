@@ -1,4 +1,10 @@
+import { TOWER_ANGEL } from './tower-angel';
+import { TOWER_DEMON } from './tower-demon';
+import { TOWER_DWARF } from './tower-dwarf';
+import { TOWER_ELF } from './tower-elf';
 import { TOWER_HUMAN } from './tower-human';
+import { TOWER_MONSTER } from './tower-monster';
+import { TOWER_UNDEAD } from './tower-undead';
 
 /**
  * How every tower is shaped, and the towers this build ships.
@@ -74,11 +80,16 @@ export const TOWER_RULES = {
 /**
  * The towers this build ships, in the order the screens list them.
  *
- * **One of seven.** The Human Tower shipped first because it is the only one that needs no new enemy
- * archetypes: Undead counter Humans and already have five blocks, which is what let milestone 15b be
- * about the *system* rather than about content. The remaining six and the roughly twenty new blocks
- * they need are 15c — today's counts are lopsided (monster 6, undead 5, human 5, dwarf 3, demon 3,
- * elf 1, angel 1), so a tower biased toward a thin faction has nothing to draw on.
+ * **Seven of seven, one per faction, in `FACTIONS` order** — which is also the order the roster
+ * screen groups by, so a player who knows where their Elves are knows where the Elf Tower is.
+ * `towers.spec.ts` holds the one-per-faction shape rather than this paragraph.
+ *
+ * The Human Tower shipped alone in milestone 15b because it is the only one that needed no new
+ * enemy archetypes: Undead counter Humans and already had five blocks, which is what let that
+ * milestone be about the *system*. 15c is the other six, and the eighteen blocks they needed — the
+ * counts were lopsided (monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1**) and a
+ * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
+ * has six. See [`enemies.ts`](./enemies.ts).
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change
@@ -87,4 +98,12 @@ export const TOWER_RULES = {
  * [`towers.spec.ts`](./towers.spec.ts) is what makes a missing one a failing test rather than a
  * tower with no way in.
  */
-export const TOWERS = [TOWER_HUMAN] as const;
+export const TOWERS = [
+  TOWER_HUMAN,
+  TOWER_DWARF,
+  TOWER_ELF,
+  TOWER_UNDEAD,
+  TOWER_MONSTER,
+  TOWER_ANGEL,
+  TOWER_DEMON,
+] as const;

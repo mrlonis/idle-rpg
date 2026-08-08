@@ -37,7 +37,7 @@
   @for (row of rows(); track row.track.id) {
     <li class="track" [class.track--ready]="row.unclaimed > 0">
       <div class="track__head">
-        <h2 class="track__name">{{ row.track.name }}</h2>
+        <h2 class="track__name">{{ row.name }}</h2>
         @if (row.unclaimed > 0) {
           <p class="track__owed">
             <span class="track__count">{{ row.unclaimed }}</span>
@@ -79,7 +79,7 @@
         [attr.aria-valuemin]="row.nextAt - row.track.every"
         [attr.aria-valuemax]="row.nextAt"
         [attr.aria-valuetext]="row.total + ' of ' + row.nextAt + ' toward the next award'"
-        [attr.aria-label]="row.track.name + ' progress'"
+        [attr.aria-label]="row.name + ' progress'"
       >
         <span class="track__fill" [style.width.%]="row.percent"></span>
       </div>

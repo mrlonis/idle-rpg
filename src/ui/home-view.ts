@@ -60,7 +60,7 @@ function hasRate(id: CurrencyId): id is RateCurrencyId {
  * Home used to carry one control, a Fight button that entered the campaign. Faction towers make
  * that eight destinations, and the choice of which to fight is not a thing to bury behind a tab —
  * so **Home is where a run picks what to do next**, with the campaign as the first card and the
- * towers beside it. The first tower landed in 15b and six more arrive in 15c as rows here, which is
+ * towers beside it. The first tower landed in 15b and the other six in 15c as rows here, which is
  * the whole of what building this section as a list bought.
  *
  * Who is fighting is deliberately not restated here. This screen carried a read-only copy of the

@@ -37,7 +37,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
 | 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
 | 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors      |
-| 15c | The remaining six towers                | ⬜                                             |
+| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes  |
 | 16  | Deep per-hero investment                | ⬜                                             |
 | 17  | The roguelite run                       | ⬜                                             |
 | 18  | Puzzle maps                             | ⬜                                             |
@@ -990,26 +990,113 @@ inverted, which is what the widening was always going to have to become.
   - **The completion award needs no new mechanism.** A track with `every: 100` over a hundred-floor
     counter pays exactly once, so "finish the tower" is an interval like any other.
 
-## 15c. The remaining six towers
+## 15c. The remaining six towers — **COMPLETE**
 
-Six more hundred-floor ladders, and the enemy archetypes they need. Today's archetype counts are
-lopsided — monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1** — so a tower biased
-toward a thin faction has nothing to draw on. Expect roughly 20–25 new blocks and their skills.
+Six more hundred-floor ladders, and the eighteen enemy archetypes they needed. The prediction above
+was that this milestone would be authoring rather than design, and that was **half right**: the six
+towers really are four files each, and the wiring took no new concept. What was not authoring is the
+part below.
 
-**The system is finished, so each tower is a row in `data/towers.ts`, a row in `data/activities.ts`,
-two achievement tracks and a hundred floors.** `data/towers.spec.ts` fails if any of those four are
-missing, and `data/towers.balance.ts` needs a reference five per tower — `CREWS` and `ALTERNATES`
-both throw rather than skip for a tower with no crew, so a tower cannot ship untuned.
+### What shipped
 
-⚠️ **Two things 15b measured that will bite here.** The counter of a thin faction has to reach four
-archetypes before a tower biased toward it stops being the same fight a hundred times — the Angel
-tower is countered by Demons alone, which is three today. And the heavy anchors on a top band come
-from **outside** the counter faction whenever that faction has no ascended-tier block, which is why
-the bias is a share of the whole tower rather than a per-floor rule; check the split rather than
-assuming, because `towers.spec.ts` bounds the leader between 35% and 65%.
+- **Six towers** — Dwarf, Elf, Undead, Monster, Angel and Demon, in `FACTIONS` order, a hundred
+  floors each, all opening at twelve clears alongside the Human Tower. Every tower is now one row in
+  `data/towers.ts`, one in `data/activities.ts`, two achievement tracks and its floors.
+- **Eighteen enemy archetypes and nine skills**, taking every faction to six blocks — two `common`,
+  three `legendary`, one `ascended`. The counts were monster 6, undead 5, human 5, dwarf 3, demon 3,
+  **elf 1, angel 1**; the two ones were the Undead and Demon towers' whole lead faction.
+- **`data/enemies.spec.ts`**, which is where "fields every archetype it ships" went. It was in
+  `chapters.spec.ts` while the campaign was the only content, and it needed a file that can see
+  every ladder.
+- **Twelve achievement tracks**, and the heading resolution the fourteenth made necessary.
+- **The balance sweep, at seven towers** — seven reference crews, seven alternates, and the mirror
+  control regrouped. 65 seconds for the whole balance project, against 9 for one tower.
 
-**The bounty fix landed in 15b**, ahead of the towers that make it bite, so nothing here waits on
-it.
+### The archetype counts were the milestone, not a prerequisite for it
+
+Every tower leans toward the faction that counters the one it admits, so **the lead faction's
+archetype count is the tower's variety**. Elves and Angels had one block each, which would have made
+the Undead and Demon towers a Sky-Shrike and a Hierophant, a hundred times. Eighteen new blocks is
+what six towers actually cost.
+
+The tier split matters as much as the count. A tower runs from enemy level 1 to 60, so its lead has
+to supply both ends: commons for the low floors, an `ascended` block to anchor a top band. Four
+factions had no `common` at all and three had no `ascended`, which is why the shape is asserted per
+faction in `enemies.spec.ts` rather than the count alone.
+
+⚠️ **Two `ascended` blocks arrived and both are sized _under_ the campaign's heaviest, deliberately.**
+The Barrow Sovereign closed the gap 15b recorded — no ascended Undead — and the Wyrdroot Ancient did
+the same for Elves. Neither reaches the Unmade, and `enemies.spec.ts` holds that as a rule rather
+than a coincidence: 15b measured that a top band is almost entirely its front rank's weight and that
+the weight is sharply non-linear, so a third and fourth heavy anchor is the change that makes six
+towers fail their sweep at once.
+
+### The tolerance on a top band is narrower than 15b could see
+
+15b tuned one tower against one crew and concluded that "two ascended blocks in front of three
+legendaries" is the top band. Against seven crews that is **not a shared weight**, and three of the
+six new towers failed their first sweep on exactly it:
+
+- **The Dwarf five carries the lowest `atk` in the game.** `Oathbreaker + Colossus` — the Human
+  Tower's roof, cleared at 90% — is 0% for Dwarves. The anchors came down to `Oathbreaker + Warden`,
+  the lightest ascended pair in the game.
+- **The Monster five has no healer**, only leech, and no faction it is favoured against inside its
+  own tower. `Tyrant + Oathbreaker` was 33%.
+- **The Angel five is four supports and a wall.** `Unmade + Hierophant` was 3%.
+
+So anchors are sized **per tower against its own crew**, which is the thing the original note assumed
+would generalise. It does not.
+
+⚠️ **And one roof was a timeout rather than a fight.** The Dwarf boss at `Oathbreaker + Warden` behind
+a Marsh Acolyte was unclearable at 28% — while floor 90, an identical board six enemy levels lower,
+cleared cleanly. Against a party that cannot burst, a healer on the last floor stops being a lock and
+becomes the ninety-second clock. The roof dropped the Acolyte; the mini-bosses below it kept theirs.
+
+### Two towers the matchup matrix cannot point at, and one it points at from every direction
+
+The bias rule assumed every tower has a counter faction and that a mirror match is the neutral
+control. Both assumptions are false for three of the seven, and each exception is now **asserted**
+rather than filtered out — a skip would have left the only interesting property of those towers
+untested.
+
+- ⚠️ **The celestial towers invert the mirror control, by construction.** An Angel deals ×1.10 to
+  every mortal with nothing coming back, and only the other celestial trades evenly with one. So an
+  all-Angel board is the **hardest** thing an Angel five can be pointed at, and
+  `biased > mirrored` is not merely false there — it cannot be true. That is the celestial advantage
+  `combat.ts` documents and prices on the luck-only ascension ladder, not something a tower may claw
+  back, so `towers.balance.ts` asserts the inversion and a future matrix edit that removes the
+  asymmetry fails loudly.
+- ⚠️ **The Monster Tower has no lean, and that _is_ its lean.** Every faction counters Monsters —
+  four mortals at ×1.05, both celestials at ×1.10, and Monsters themselves at ×1.10 — so "field what
+  counters the crew" resolves to all seven and it ships as an even spread. `towers.spec.ts` derives
+  that case off the matrix (`countersOf(faction).length === FACTIONS.length - 1`) rather than naming
+  `monster`, and bounds the spread on both sides instead of asserting a leader.
+- ⚠️ **The mirror is not a control for it either**, and for a different reason: `monster → monster`
+  is the matrix's one self-edge, so mirroring that tower turns the matrix **up** rather than off. The
+  exclusion is made load-bearing by asserting the self-edge exists, so removing that edge puts the
+  tower back into the block where it would then belong.
+
+**No two towers lean on the same faction**, which is now its own assertion. Human←undead,
+dwarf←human, elf←dwarf, undead←elf, angel←demon, demon←angel, monster←everything. Seven towers
+leaning on Monsters — the only faction deep enough to lead more than one before this milestone —
+would have been one tower shipped seven times.
+
+### Three smaller things
+
+- **All seven open at twelve clears, together.** Which tower a run enters is meant to be settled by
+  who it owns; staggering the unlocks would gate a player holding five Elves behind clears that have
+  nothing to do with them.
+- **The fourteen tower tracks share two names between them**, so the achievements screen resolves
+  the heading as `Spire Climber — Dwarf Tower` from `TOWERS` rather than the faction being authored
+  into each track. Not cosmetic: seven identical `<h2>`s and seven progress bars with the same
+  accessible name is a WCAG failure.
+- **No save migration, and `SAVE_VERSION` stays 0.** `GameState.towers` and `GameState.formations`
+  are keyed records that already keep unknown keys on load — which is exactly what 15a and 15b built
+  them for — so six towers add no field, no migration and nothing to repair.
+
+**The bounty fix landed in 15b**, ahead of the towers that make it bite, so nothing here waited on
+it. Eight crews is forty slots against a forty-nine character roster, and that arithmetic is now
+real rather than projected.
 
 ## 16. Deep per-hero investment
 

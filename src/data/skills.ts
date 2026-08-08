@@ -2391,6 +2391,198 @@ export const TYRANTS_CLAIM = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Enemy kits — the tower locks
+//
+// Milestone 15c authored six more towers, and the thing it needed was not more difficulty but
+// more *questions*: a tower biased toward a faction with one archetype is the same fight a
+// hundred times. Elves had one block and Angels had one, so the six new towers had nothing to
+// draw on until these existed.
+//
+// Each of these names a question nothing on the enemy side had asked before, which is the same
+// bar the late locks above were held to:
+//
+// | Skill          | The question                                        | The answer                    |
+// | -------------- | --------------------------------------------------- | ----------------------------- |
+// | Wilding Bloom  | what if the board heals without a healer to burst?  | reach, or out-damage the tick |
+// | Moonsong       | what if your *whole party* acts less often?         | a cleanse, or tenacity        |
+// | Thornlash      | what if the wall that slows you also outlives you?  | penetration, or going around  |
+// | Herald's Anthem| what if killing the small thing is the priority?    | reach, before the board grows |
+// | Choir of Ash   | a refreshed absorb on five bodies rather than one   | burst, and a lot of it        |
+// | Pillar of Light| the back-rank dive, magical                         | magic resist on the carries   |
+// | Sevenfold Hex  | what if a cleanse can only take one of two?         | sustain, or killing it        |
+// | Runeward       | what if *your* debuffs come off?                    | damage that needs no setup    |
+// | Pall of Years  | what if it drains all five of you at once?          | burst inside one cast cycle   |
+//
+// ⚠️ **Every recurring buff here has a cooldown longer than the status it applies**, which is the
+// rule {@link BULWARK} records in full and the one thing in this section that is a termination
+// argument rather than tuning. A shield or a regeneration that cannot lapse turns a fight into a
+// stalemate the ninety-second timer has to end.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The Elven answer to a healer being killable: do not have one.
+ *
+ * A Marsh Acolyte behind two bodies is a *target* — unreachable, but a thing that dies once
+ * reached. A regeneration is not a target at all: the Warden that applied it can be dead and its
+ * whole side is still healing. So the answer moves from "get to it" to "out-damage the tick", and
+ * a party built to burst one protected body finds nothing to burst.
+ *
+ * ⚠️ **65 against a 60-tick {@link REGENERATION}**, so it genuinely lapses. See {@link BULWARK}.
+ */
+export const WILDING_BLOOM = {
+  id: 'wilding-bloom',
+  name: 'Wilding Bloom',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: REGENERATION }],
+  cooldown: 65,
+  priority: 3,
+} as const;
+
+/**
+ * The tempo lock, pointed at the whole party rather than at the front rank.
+ *
+ * A Bog Hag's {@link MIRE} slows the two bodies standing in front, which the party has already
+ * decided are the expendable half. This takes a third of the gauge off all five, including the
+ * healer and the carry — so it is not a defensive debuff, it is fewer turns in the fight. Gated
+ * on the status being absent for the same reason `MIRE` is: a cleanse has to cost it a cast.
+ */
+export const MOONSONG = {
+  id: 'moonsong',
+  name: 'Moonsong',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.8 },
+    { kind: 'status', status: SLOW, chance: 0.85 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'status-absent', statusId: 'slow' },
+  priority: 3,
+} as const;
+
+/** The Wyrdroot's own turn: the front rank held still while the thing in front of it regrows. */
+export const THORNLASH = {
+  id: 'thornlash',
+  name: 'Thornlash',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: SLOW, chance: 0.7 },
+  ],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The priority lock: a small thing that makes everything beside it bigger.
+ *
+ * Every wall on the ladder asks to be got past and every healer asks to be reached. A Herald asks
+ * neither — it asks to be killed *first*, which is a different decision, because the party that
+ * spends its opening turns on a 640-HP support is the party that has not yet touched the two
+ * ascended blocks in front of it. The answer is reach, spent early.
+ *
+ * ⚠️ **70 against a 45-tick {@link RALLY}.** A permanent board-wide attack buff is not a lock.
+ */
+export const HERALDS_ANTHEM = {
+  id: 'heralds-anthem',
+  name: "Herald's Anthem",
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/**
+ * {@link BULWARK} widened from one body to five, which is a different problem rather than a
+ * bigger one.
+ *
+ * An Iron Bulwark's absorb sits on an Iron Bulwark, so burst spent on it is burst spent on the
+ * thing the party wanted dead anyway. This puts the same pool on the fodder as well, so the
+ * cheapest way through the board is the way the shield is best at stopping. Smaller per head than
+ * a Bulwark's for exactly that reason.
+ *
+ * ⚠️ **90 against a 70-tick {@link BARRIER}**, which is the rule `BULWARK`'s comment argues.
+ */
+export const CHOIR_OF_ASH = {
+  id: 'choir-of-ash',
+  name: 'Choir of Ash',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 90,
+  priority: 3,
+} as const;
+
+/** A Sky-Shrike's dive said in the other damage type, so armour on the carries is not the answer. */
+export const PILLAR_OF_LIGHT = {
+  id: 'pillar-of-light',
+  name: 'Pillar of Light',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.9 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * Two hostile statuses at once, which is what makes a cleanse a choice rather than an answer.
+ *
+ * Every cleanse in the roster removes a fixed count, so a single debuff is cancelled outright and
+ * two are halved. That is the whole of this lock: the party still has the answer it always had,
+ * and this is the first thing that charges it twice for using it. Priced small per tick, because
+ * two lingering procs on five bodies is already the widest damage-over-time in the game.
+ */
+export const SEVENFOLD_HEX = {
+  id: 'sevenfold-hex',
+  name: 'Sevenfold Hex',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'status', status: POISON, chance: 0.85 },
+    { kind: 'status', status: BURN, chance: 0.85 },
+  ],
+  cooldown: 65,
+  condition: { kind: 'status-absent', statusId: 'poison' },
+  priority: 3,
+} as const;
+
+/**
+ * The cleanse, pointed the other way — and the one enemy turn that takes an answer back.
+ *
+ * Sunder, Weaken and Slow have been the party's setup against every wall since milestone 4, and
+ * nothing on the enemy side had ever removed one. A Colossus refuses them with tenacity, which is
+ * a dice check the party can out-invest; this removes them after they land, which it cannot. What
+ * is left is damage that needs no setup — which is a real thing to own and not every party does.
+ *
+ * ⚠️ **60 against a 45-tick {@link GUARD}**, so the armour half lapses between casts.
+ */
+export const RUNEWARD = {
+  id: 'runeward',
+  name: 'Runeward',
+  target: 'ally-all',
+  effects: [
+    { kind: 'cleanse', count: 2 },
+    { kind: 'status', status: GUARD },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * The drain, widened to the whole party — the Sovereign's answer to being out-numbered.
+ *
+ * A Shade's {@link WITHERING_TOUCH} siphons off one target, so ignoring it is a decision about
+ * one exchange. This siphons off five at once, which means the board's largest health pool is
+ * refilled by whatever the party is still standing in — and the more of the party is alive, the
+ * faster it heals. The answer is burst inside one cast cycle, which is why the cooldown is long
+ * enough to have one.
+ */
+export const PALL_OF_YEARS = {
+  id: 'pall-of-years',
+  name: 'Pall of Years',
+  target: 'enemy-all',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 0.8, siphon: 0.3 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -2552,4 +2744,13 @@ export const SKILLS = [
   RUINOUS_ARC,
   HEADSMANS_ARC,
   TYRANTS_CLAIM,
+  WILDING_BLOOM,
+  MOONSONG,
+  THORNLASH,
+  HERALDS_ANTHEM,
+  CHOIR_OF_ASH,
+  PILLAR_OF_LIGHT,
+  SEVENFOLD_HEX,
+  RUNEWARD,
+  PALL_OF_YEARS,
 ] as const;

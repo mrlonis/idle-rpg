@@ -21,12 +21,13 @@ interface CrewRow {
 /**
  * Every crew, in one place.
  *
- * ## Why this screen exists before there is much on it
+ * ## Why this screen shipped a milestone before it had anything on it
  *
- * It has one row today. The seven faction towers land in milestones 15b and 15c, and this is where
- * they appear — so shipping it now is what makes each of those a row rather than a screen. The
- * alternative was to defer it and let the campaign crew stay on the roster screen, which is
- * precisely the arrangement milestone 15a was asked to undo.
+ * It has eight rows now — the campaign and the seven faction towers — and it had one when milestone
+ * 15a built it. That was the point: a list is what makes each new activity a *row* rather than a
+ * screen, so the six towers milestone 15c authored needed nothing here at all. The alternative was
+ * to defer it and let the campaign crew stay on the roster screen, which is precisely the
+ * arrangement 15a was asked to undo.
  *
  * It is reached from the Roster, which is where a player is when they are thinking about who is
  * worth fielding, and **not** from the tab bar. The bar is at five of a measured six and the spare
