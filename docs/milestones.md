@@ -36,7 +36,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
 | 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
 | 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
-| 15b | The tower system, and the first tower   | ⬜                                             |
+| 15b | The tower system, and the first tower   | 🚧 **In progress** — model built, no tower yet |
 | 15c | The remaining six towers                | ⬜                                             |
 | 16  | Deep per-hero investment                | ⬜                                             |
 | 17  | The roguelite run                       | ⬜                                             |
@@ -837,32 +837,87 @@ up promising a legal crew that the fight refuses.
 Shipped: `core/activity.ts`, `FormationBook` in `core/state.ts`, `data/activities.ts`,
 `ui/formation.service.ts`, `ui/lineup-copy.ts`, and the two screens.
 
-## 15b. The tower system, and the first tower
+## 15b. The tower system, and the first tower — **IN PROGRESS**
 
-Everything a tower is, proven against one of them. A tower is **100 stages, enemy levels 1 to 60,
+Everything a tower is, proven against one of them. A tower is **100 floors, enemy levels 1 to 60,
 linear** — deliberately gentle, and well inside the campaign's own range, which runs to 85 by the
 end of chapter 2.
 
-Decisions taken up front, so 15c is authoring rather than design:
+### What has landed
+
+The **model**, and nothing that uses it. `core/towers.ts` and `GameState.towers` are built, typed,
+serialized and green; no tower has shipped, so both are currently unreferenced by any screen.
+
+- **`core/towers.ts`** — `floorLevel` (the derived linear curve), `floorKindAt` (the campaign's
+  mini-boss rhythm reused), `nextFloor` (returning `null` at the top rather than clamping, which is
+  the climb-once rule in one line), `matchedStageIndex` (level-matched lumps and gear grades),
+  `floorSummons`, `resolveFloor`/`resolveTower`, `applyTowerResult` and `parseTowers`.
+- **`GameState.towers`** — one integer per tower, the highest floor cleared. Serialized, parsed and
+  clamped; absent decodes to `{}`, so no `SAVE_VERSION` bump and no migration.
+- **The bounty inversion**, which was scheduled into this milestone and is complete. See below.
+
+### The bounty rule inverted, which 15a scheduled and this milestone paid
+
+15a widened the disjointness check to read every crew, and recorded that as interim. It is now
+inverted, which is what the widening was always going to have to become.
+
+- **Anybody may be dispatched; a crew holding somebody away cannot fight.** The invariant is
+  unchanged — nobody is in two places at once — and it is enforced in one place instead of three.
+- **Why it had to move**: eight crews is forty slots against a forty-nine character roster, so a
+  player who had crewed every tower had no bench, and the board starved exactly when the roster
+  breadth it exists to reward was widest. The cost is now a crew the player fills in rather than a
+  mission they cannot start — a formation is edited in seconds and a mission runs for hours.
+- ⚠️ **`repairDispatches` now keeps a mission whose crew is also fielded.** That is an ordinary
+  state a player reached on purpose; dropping it would take back hours of a wait, unpaid.
+- ⚠️ **The battle guard is the away case only, never `CrewView.ready`.** The first cut used `ready`,
+  which is also false for an **empty** crew — and an empty party resolving as an immediate defeat is
+  behaviour `simulateBattle` owns and two auto-battle specs use to make a loss deterministic. The
+  broad guard replaced a fight the player loses with a control that silently did nothing. The specs
+  caught it.
+
+### What is left
+
+The first tower's 100 authored floors, the two achievement tracks per tower, the `StageHeading`
+generalisation with Home's tower card, and the balance sweep. The decisions below are all settled,
+so what remains is authoring and wiring rather than design.
+
+### Decisions taken up front, so 15c is authoring rather than design
 
 - ⚠️ **Tower clears may not feed `clearedStages`.** That counter drives the idle crystal rate, and
   `banners.spec.ts` bounds a cleared ladder at ×3 the base where the shipped hundred stages already
   put it at ×2. Seven towers at a hundred stages each would make it ×8. Towers keep their own
   progress, per tower.
-- **A tower clear pays a lump, gear, and flat first-clear crystals — and no idle rate.** The
-  campaign stays the income spine; a tower is the roster sink. The lump and the drops come off the
-  same curves the campaign uses, evaluated at the tower stage's matched enemy level.
+- **A floor is climbed once.** No re-fighting a cleared floor, which keeps a tower a climb rather
+  than a second farm — and collapses the campaign's two payouts into one, since "paid on every
+  clear" and "paid on the first clear" describe the same event here.
+- **A tower clear pays a lump, gear, and flat crystals — and no idle rate.** The campaign stays the
+  income spine; a tower is the roster sink. The lump and the drop grades come off the campaign's own
+  curves, read at the **matched enemy level** rather than the matching floor number: floor 100 is
+  level 60 where campaign stage 100 is level 85, so index-matching would pay the top of the ladder
+  for a fight two thirds as hard.
 - **Enemies are drawn from every faction, biased toward the one that counters the tower's.** So the
   matchup matrix stays live inside a tower and a mono-faction crew meets fights it is favoured in
   and fights it is not — rather than a mirror match, which would switch the matrix off entirely.
 - **Faction-locked, and open early** — around the auto-battle unlock at 12 clears, so a player
   walled at the chapter-1 healer lock already has somewhere to send an unlucky pull. A tower that
   cannot yet be crewed shows which faction it wants.
-- **The balance target is a mono-faction five at the resonance floor with two or three rungs and no
-  gear**, clearing stage 100. Easier than the campaign at matched levels, and still asking for the
-  ascension investment the roadmap says a tower should cost.
-- **Achievements pay 500 per five stages**, twenty awards a tower, 70,000 crystals across all seven
-  — the campaign's whole crystal payout again, spread over seven optional ladders.
+- **The Human tower ships first, and the choice is about content rather than theme.** Undead counter
+  Humans and already have five archetypes; Monsters (six) and both celestials counter mortals too.
+  It is the only tower that needs no new enemy blocks, which is what lets this milestone be about
+  the system. Contrast the Angel tower, countered by Demons alone — three archetypes, and the
+  thinnest pool of the seven.
+- **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear**, clearing
+  floor 100. Three rungs, sitting between chapter 1's party (`common-plus`, level 30) and the
+  ladder's finisher (`elite`, level 85). ⚠️ **The level is derived, not chosen**: `rare-plus`'s cap
+  is 60, which is exactly the tower's top enemy level, so the party tracks the content.
+- **Crystals: 100 a floor, plus 500 per five floors, plus 10,000 for topping a tower.** Roughly
+  149,000 across seven towers before the completion awards and about 219,000 with them, against the
+  campaign's ~69,000 — a bit over 3× the critical path for 7× the content, on optional ladders gated
+  behind roster depth. ⚠️ **The per-floor figure came down from the campaign's 250 for a reason
+  worth keeping**: at parity the seven towers pay ~268,000, which is 3.9× the campaign from stage
+  clears alone and makes the ladder's own rewards look pointless beside them.
+  - **The completion award needs no new mechanism.** A track with `every: 100` over a hundred-floor
+    counter pays exactly once, so "finish the tower" is an interval like any other.
 
 ## 15c. The remaining six towers
 
@@ -870,8 +925,8 @@ Six more hundred-stage ladders, and the enemy archetypes they need. Today's arch
 lopsided — monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1** — so a tower biased
 toward a thin faction has nothing to draw on. Expect roughly 20–25 new blocks and their skills.
 
-⚠️ **The bounty fix from 15a lands here at the latest.** Six crewed towers is when eight formations
-against forty-nine characters stops leaving a bench.
+**The bounty fix landed in 15b**, ahead of the towers that make it bite, so nothing here waits on
+it.
 
 ## 16. Deep per-hero investment
 

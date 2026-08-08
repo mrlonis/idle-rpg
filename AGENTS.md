@@ -275,13 +275,38 @@ the two disagree, the code is right and both are stale.
     up promising a legal crew that the fight then refuses. The lock filters the pool rather than
     refusing a tap: a character it forbids can never enter, so listing them above the ones who can
     is a screen hiding its own answer.
-  - ⚠️ **The bounty board's disjointness rule currently reads _every_ crew, and that is interim.**
-    It keeps the invariant exactly as strong as it was, and it tightens as towers get crewed —
-    eight crews is forty slots against forty-nine characters. The agreed fix is to **invert** it:
-    let anybody be dispatched and refuse to _fight_ with somebody away. Do not widen it further.
+  - ⚠️ **Standing in a crew reserves nobody.** Milestone 15b inverted the bounty board's
+    disjointness rule, so a fielded character may be dispatched and a crew holding somebody away
+    cannot fight. See the bounty section below; the one thing to carry here is that neither
+    `setFormation` nor anything else in the formation path may refuse on the grounds that a
+    character is busy elsewhere.
   - **Adding an activity is a row in [`data/activities.ts`](src/data/activities.ts) and nothing
     else.** ⚠️ An `id` is a save key and is permanent once shipped — renaming one silently disbands
     the crew standing in it. Change the `name` freely; never the `id`.
+- **Faction towers are a second thing to climb**, landing in milestone 15b. Read
+  [`core/towers.ts`](src/core/towers.ts) before touching them. ⚠️ **The model is built and no tower
+  has shipped yet** — `core/towers.ts` and `GameState.towers` exist and are unused, so the content,
+  the achievement tracks, the screens and the balance sweep are still open. See
+  [milestones](docs/milestones.md) for exactly what is done.
+  - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
+    clear count drives the idle crystal rate, which `banners.spec.ts` bounds at about ×3 the base
+    where the shipped hundred stages already reach ×2 — seven towers of a hundred floors feeding it
+    would take that to ×8. Progress is one integer per tower in `GameState.towers`, and
+    `applyTowerResult` is a separate function from `applyBattleResult` rather than a branch inside
+    it, precisely so the campaign fields are not in reach.
+  - **A floor is climbed once.** `nextFloor` returns `null` at the top rather than clamping, which
+    is the whole difference from the campaign — whose position stops climbing so its last stage
+    stays farmable. Clamping instead would let a player re-clear the top floor and be paid again.
+  - ⚠️ **A floor's level is derived, never authored.** `data/` authors who stands on each floor;
+    `floorLevel` draws the straight line from `baseLevel` to `topLevel`. Typing a hundred levels
+    that must follow a formula is the retyping [testing](docs/testing.md) forbids.
+  - **The lump and the gear grades are matched by _enemy level_, not by floor number.** Floor 100 is
+    level 60 where campaign stage 100 is level 85, so index-matching would pay the top of the ladder
+    for a fight two thirds as hard. `matchedStageIndex` scans the resolved campaign ladder, so
+    retuning the campaign carries every tower with it and no tower-side number can go stale.
+  - **A tower is faction-locked, and the lock lives in [`core/activity.ts`](src/core/activity.ts).**
+    `partyMeetsLock` is called by the editor **and** the battle path — two implementations of one
+    rule is how a screen promises a legal crew that the fight refuses.
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](src/core/achievements.ts) and
   [`core/quests.ts`](src/core/quests.ts) before touching either.
@@ -343,12 +368,27 @@ the two disagree, the code is right and both are stale.
     costs anything. Unclaimed awards accumulate indefinitely.
 - **The bounty board dispatches bench characters on timed missions**, added in milestone 14b. Read
   [`core/bounties.ts`](src/core/bounties.ts) before touching it.
-  - ⚠️ **Dispatch and the formation are disjoint, and it is enforced in three places.** A character
-    cannot be both fighting and away — without it the board is a free resource tap rather than a
-    bench sink. `dispatchBounty` refuses anybody fielded, `setFormation` refuses anybody away
-    (`character-away`), and `repairDispatches` restores the invariant on load. **Guarding only the
-    dispatch side leaves the hole open**: a player sends somebody from the bench and then walks
-    that character into the formation.
+  - ⚠️ **A character cannot be both fighting and away, and milestone 15b moved where that is
+    enforced.** It used to bite on the way _in_ — `dispatchBounty` refused anybody fielded,
+    `setFormation` refused anybody away, `repairDispatches` dropped a crew that was both. That was
+    right for one formation and wrong for eight: forty slots against a forty-nine character roster
+    means a player who has crewed every tower has no bench left, and the board starves exactly when
+    the roster breadth it rewards is at its widest.
+    - **The rule now bites on the way _out_: anybody may be dispatched, and a crew holding somebody
+      away cannot fight.** Enforced in **one** place — `CrewView.ready` for the screen and the away
+      guard in `BattleService.fight` for the loop, because auto-battle re-enters without passing the
+      pre-battle screen again. `dispatchBounty`, `setFormation` and `repairDispatches` no longer
+      check it at all, and `in-formation` and `character-away` are gone from the failure unions.
+    - ⚠️ **Do not put a refusal back on the dispatch side.** It reads as tightening an invariant and
+      it is the change that makes the board unusable. The invariant is unchanged; only its
+      enforcement point moved.
+    - ⚠️ **`repairDispatches` must keep a mission whose crew is also fielded.** That is an ordinary
+      state a player reached on purpose now, and dropping it would take back hours of a wait — the
+      pass never pays for what it drops.
+    - **The battle guard is the away case only, never `CrewView.ready`.** `ready` is also false for
+      an empty crew, and an empty party resolving as an immediate defeat is behaviour
+      `simulateBattle` owns and the specs use to make a loss deterministic. Widening the guard
+      replaces a fight the player loses with a control that silently does nothing.
   - ⚠️ **A mission pays a _duration_ of the run's current idle income, never a flat amount** — the
     same idiom as `STAGE_REWARDS.rewardSeconds`. And **never crystals**: the crystal rate is linear
     in the clear count so it cannot outrun a flat `PULL_COST`, and a multiple of it on a repeatable
