@@ -138,6 +138,14 @@ describe('FormationService', () => {
       // refuses an unknown one. What is under test is that a write to the campaign key spreads
       // into the book rather than replacing it — the failure that would silently disband seven
       // crews the first time a player edited the campaign five.
+      //
+      // ⚠️ **`tower:x` is a colon on purpose, and it is not the shipped id format.** Every real
+      // activity id is hyphenated (`tower-dwarf`), so the colon marks a key this build does *not*
+      // ship — which is the whole point of the keys in this file: the retention rule they cover
+      // only has something to say about an activity nothing can resolve. A well-meant tidy to
+      // `tower-dwarf` here would quietly turn these into tests of a *known* activity and stop
+      // covering the rule entirely. Where a fixture stands in for a real tower, as in
+      // `activity.spec.ts` and `formations-view.spec.ts`, the shipped format is the right one.
       const { formations, loop } = build({ 'tower:x': { front: [CAST[1].id], back: [] } });
 
       expect(formations.placeIn(CAMPAIGN_FORMATION, CAST[0].id, 'front').ok).toBe(true);

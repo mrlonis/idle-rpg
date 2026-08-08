@@ -13,7 +13,7 @@ import {
 import { CAMPAIGN_FORMATION, type PartyFormation } from './state';
 
 const TOWER: ActivityData = {
-  id: 'tower:dwarf',
+  id: 'tower-dwarf',
   name: 'The Deep Hold',
   kind: 'tower',
   faction: 'dwarf',
@@ -75,7 +75,7 @@ describe('crewFor', () => {
   it('reads the activity’s own key out of the book', () => {
     const book = {
       [CAMPAIGN_FORMATION]: crew(['rin']),
-      'tower:dwarf': crew(['dorn']),
+      'tower-dwarf': crew(['dorn']),
     };
 
     expect(crewFor(book, CAMPAIGN_ACTIVITY)).toEqual(crew(['rin']));

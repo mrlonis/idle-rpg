@@ -44,34 +44,46 @@ test.use({ viewport: { width: 320, height: 812 } });
  * The failure message names the offending elements rather than only the overflow width, because
  * the number on its own sends you looking at whichever screen you happened to be on: the overflow
  * is measured on the shell's scroll container, which no component stylesheet mentions. The bug this
- * file exists for was 34px reported against `main` and caused by a rule in `home-view.scss`.
+ * file exists for was 14px reported against `main` and caused by a rule in `home-view.scss`.
  */
 async function expectNoHorizontalOverflow(page: Page): Promise<void> {
   const report = await page.evaluate((selector) => {
     const scroller = document.querySelector(selector);
     if (scroller === null) {
-      return { overflow: -1, culprits: [`No element matched \`${selector}\`.`] };
+      return { overflow: -1, edge: 0, culprits: [`No element matched \`${selector}\`.`] };
     }
 
-    const limit = scroller.clientWidth;
-    const overflow = scroller.scrollWidth - limit;
+    const overflow = scroller.scrollWidth - scroller.clientWidth;
+
+    // ⚠️ **The culprit filter compares two viewport coordinates, and both halves of that are
+    // deliberate.** `clientWidth` is a *length*, so testing a rect's `right` against it is only
+    // correct while the scroller starts at x=0 — and the shell does not in landscape, where
+    // `env(safe-area-inset-left)` insets it. `getBoundingClientRect().right` is the obvious edge
+    // to use instead and is also wrong: it is the border box, which includes the vertical
+    // scrollbar `.game` draws, so anything overflowing by less than the scrollbar's width would be
+    // measured as innocent. `left + clientWidth` is the right edge of the content area itself.
+    //
+    // Taking both in viewport coordinates is also what makes this correct on a container that has
+    // already been scrolled sideways: the edge and the elements shift together.
+    const edge = scroller.getBoundingClientRect().left + scroller.clientWidth;
+
     const culprits =
       overflow <= 0
         ? []
         : [...scroller.querySelectorAll('*')]
-            .filter((element) => element.getBoundingClientRect().right > limit)
+            .filter((element) => element.getBoundingClientRect().right > edge)
             .map((element) => {
               const classes = [...element.classList].map((name) => `.${name}`).join('');
               const right = element.getBoundingClientRect().right.toFixed(1);
               return `${element.tagName.toLowerCase()}${classes} reaches ${right}px`;
             });
 
-    return { overflow, culprits };
+    return { overflow, edge, culprits };
   }, SCROLLER);
 
   expect(
     report.overflow,
-    `Content overflows ${SCROLLER} horizontally by ${report.overflow}px: ${report.culprits.join('; ')}`,
+    `Content overflows ${SCROLLER} horizontally by ${report.overflow}px (content edge at ${report.edge.toFixed(1)}px): ${report.culprits.join('; ')}`,
   ).toBeLessThanOrEqual(0);
 }
 

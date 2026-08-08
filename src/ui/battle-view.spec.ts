@@ -322,10 +322,10 @@ describe('going again from the results screen', () => {
   it('returns to the activity the session was on, never the campaign by default', async () => {
     // The bug this guards is invisible today and certain once towers ship: a tower session whose
     // Go Again dropped the player into the campaign's crew editor, and then into a campaign fight.
-    const { router, el } = await renderSettled('tower:dwarf');
+    const { router, el } = await renderSettled('tower-dwarf');
 
     el.querySelector<HTMLButtonElement>('.actions__fight')?.click();
 
-    expect(router.navigated).toEqual([['/prepare', 'tower:dwarf']]);
+    expect(router.navigated).toEqual([['/prepare', 'tower-dwarf']]);
   });
 });

@@ -93,7 +93,7 @@ describe('FormationsView', () => {
       formations.summaries.set([
         crew(),
         crew({
-          activity: { id: 'tower:dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
+          activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
           lockFaction: 'dwarf',
         }),
       ]),
@@ -102,7 +102,7 @@ describe('FormationsView', () => {
     const links = [...el.querySelectorAll<HTMLAnchorElement>('.crew__link')];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/formations/campaign',
-      '/formations/tower:dwarf',
+      '/formations/tower-dwarf',
     ]);
   });
 
@@ -132,7 +132,7 @@ describe('FormationsView', () => {
     const { el } = await render((formations) =>
       formations.summaries.set([
         crew({
-          activity: { id: 'tower:dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
+          activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
           lockFaction: 'dwarf',
         }),
       ]),
@@ -149,7 +149,7 @@ describe('FormationsView', () => {
       formations.summaries.set([
         crew({ front: [row('Bran')], size: 1, ready: true }),
         crew({
-          activity: { id: 'tower:dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
+          activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
           front: [row('Rin')],
           size: 1,
           lockFaction: 'dwarf',

@@ -349,7 +349,7 @@ describe('FormationView', () => {
       const { el } = await render((formations) =>
         formations.view.set(
           crew({
-            activity: { id: 'tower:dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
+            activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
             lockFaction: 'dwarf',
           }),
         ),
