@@ -74,13 +74,27 @@
   @include t.numeric;
 }
 
+// The battle section, which is where the seven faction towers arrive. One card until then.
+.battles {
+  width: 100%;
+}
+
+// ⚠️ **An anchor wearing the primary button's clothes.** It became a link in milestone 15a — it
+// navigates to the crew editor rather than starting a fight — and an `<a>` brings its own
+// underline and link colour, which made the app's single most important control read as body text
+// with a hyperlink in it. The role changed; the emphasis did not.
 .fight {
   @include t.button-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   // Comfortably past the touch-target floor: this is the main thing to do on this screen.
   min-height: 3.5rem;
   font-size: 1.0625rem;
   font-weight: 700;
+  text-align: center;
+  text-decoration: none;
 }
 
 .hint {

@@ -28,7 +28,7 @@ import {
 import { num } from './numeric';
 import { TEST_CHARACTERS } from './roster/fixtures';
 import { setFormation } from './roster/roster';
-import { type GameState, newGame } from './state';
+import { CAMPAIGN_FORMATION, type GameState, newGame } from './state';
 
 const SEED = 0xc0ffee;
 const T0 = 1_700_000_000_000;
@@ -140,7 +140,33 @@ describe('dispatchBounty', () => {
   it('refuses somebody standing in the formation', () => {
     // ⚠️ Half of the disjointness invariant. A character cannot be both fighting and away, and
     // without this the board is a free resource tap the best five characters run on a timer.
-    const fielded = setFormation(run(), { front: ['alpha'], back: [] }, TEST_CHARACTERS);
+    const fielded = setFormation(
+      run(),
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
+    expect(fielded.ok).toBe(true);
+    if (!fielded.ok) {
+      return;
+    }
+
+    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0)).toEqual({
+      ok: false,
+      reason: 'in-formation',
+    });
+  });
+
+  it('refuses somebody standing in a crew other than the campaign', () => {
+    // ⚠️ Milestone 15a widened the fielded set from one formation to all of them, and this is what
+    // holds it there. A version reading only the campaign key would pass every other test in this
+    // file and let a tower's crew be dispatched out from under it.
+    const fielded = setFormation(
+      run(),
+      'tower:test',
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
     expect(fielded.ok).toBe(true);
     if (!fielded.ok) {
       return;
@@ -462,7 +488,12 @@ describe('benchMembers', () => {
   });
 
   it('drops somebody standing in the formation', () => {
-    const fielded = setFormation(run(), { front: ['beta'], back: [] }, TEST_CHARACTERS);
+    const fielded = setFormation(
+      run(),
+      CAMPAIGN_FORMATION,
+      { front: ['beta'], back: [] },
+      TEST_CHARACTERS,
+    );
     expect(fielded.ok).toBe(true);
     if (!fielded.ok) {
       return;
@@ -594,7 +625,9 @@ describe('setFormation, against a dispatched character', () => {
     // character into the formation.
     const state = away(run(), ['alpha']);
 
-    expect(setFormation(state, { front: ['alpha'], back: [] }, TEST_CHARACTERS)).toEqual({
+    expect(
+      setFormation(state, CAMPAIGN_FORMATION, { front: ['alpha'], back: [] }, TEST_CHARACTERS),
+    ).toEqual({
       ok: false,
       reason: 'character-away',
     });
@@ -602,7 +635,12 @@ describe('setFormation, against a dispatched character', () => {
 
   it('still fields anybody who is not away', () => {
     const state = away(run(), ['alpha']);
-    const result = setFormation(state, { front: ['beta'], back: ['gamma'] }, TEST_CHARACTERS);
+    const result = setFormation(
+      state,
+      CAMPAIGN_FORMATION,
+      { front: ['beta'], back: ['gamma'] },
+      TEST_CHARACTERS,
+    );
 
     expect(result.ok).toBe(true);
   });
@@ -722,9 +760,14 @@ describe('collectBounty', () => {
       return;
     }
 
-    expect(setFormation(collected.state, { front: ['alpha'], back: [] }, TEST_CHARACTERS).ok).toBe(
-      true,
-    );
+    expect(
+      setFormation(
+        collected.state,
+        CAMPAIGN_FORMATION,
+        { front: ['alpha'], back: [] },
+        TEST_CHARACTERS,
+      ).ok,
+    ).toBe(true);
   });
 });
 
@@ -798,7 +841,7 @@ describe('repairDispatches', () => {
     // rather than trusting the two write paths.
     const state: GameState = {
       ...run(),
-      formation: { front: ['alpha'], back: [] },
+      formations: { [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] } },
       dispatches: [{ bountyId: 'errand', members: ['alpha'], startedAt: T0 }],
     };
 

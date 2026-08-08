@@ -455,8 +455,20 @@ export {
 } from './save/serialize';
 export { SAVE_VERSION } from './save/version';
 export {
+  CAMPAIGN_ACTIVITY,
+  crewFor,
+  factionMeetsLock,
+  partyMeetsLock,
+  type ActivityData,
+  type ActivityKind,
+} from './activity';
+export {
+  allFormationMembers,
   BACK_ROW_SIZE,
+  CAMPAIGN_FORMATION,
   emptyFormation,
+  emptyFormationBook,
+  formationIn,
   formationMembers,
   formationSize,
   FRONT_ROW_SIZE,
@@ -464,6 +476,7 @@ export {
   PARTY_SIZE,
   rowCapacity,
   stampSaveTime,
+  type FormationBook,
   type GameState,
   type NewGameOptions,
   type PartyFormation,

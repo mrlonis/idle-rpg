@@ -7,6 +7,7 @@ import {
   type BattleEvent,
   type BattleOutcome,
   type BattleResult,
+  CAMPAIGN_FORMATION,
   clampPosition,
   type LadderPosition,
   MAX_ENERGY,
@@ -28,8 +29,8 @@ import {
   STAGES,
   SUMMON_RATE_CURVE,
 } from './content';
+import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
-import { RosterService } from './roster.service';
 import { type PlaybackSpeed, SettingsService } from './settings.service';
 
 /**
@@ -148,8 +149,19 @@ export interface BattleCombatantView {
 @Service()
 export class BattleService {
   private readonly game = inject(GameLoopService);
-  private readonly roster = inject(RosterService);
+  private readonly formations = inject(FormationService);
   private readonly settings = inject(SettingsService);
+
+  /**
+   * Which activity the current session is fighting.
+   *
+   * Session state, not saved: it describes a battle in flight, and a battle does not survive a
+   * reload. Two things read it — the repeat loop, so auto-battle re-enters the **same** activity,
+   * and the battle screen's Go Again control, so it returns to the right crew editor. Both would
+   * silently fall back to the campaign without it, which is a bug that only appears once there is a
+   * second thing to fight.
+   */
+  readonly activity = signal(CAMPAIGN_FORMATION);
 
   /**
    * Playback rate. Applies mid-battle: the animator integrates elapsed time, so changing this
@@ -349,7 +361,7 @@ export class BattleService {
    *
    * Called by the player, and by {@link settle} when auto-battle is carrying the run forward.
    */
-  fight(nowMs: number): void {
+  fight(nowMs: number, activity: string = CAMPAIGN_FORMATION): void {
     const state = this.game.current;
     if (state === null || this.isFighting()) {
       return;
@@ -358,13 +370,19 @@ export class BattleService {
     // Whatever stopped the last auto run is describing history the moment a new fight starts.
     this.autoStoppedAt.set(null);
 
+    // Remembered for the whole session rather than read per fight, because auto-battle re-enters
+    // through {@link settle} with no activity in hand — a repeat loop continues the thing it
+    // started, and re-deriving that from the route would make it depend on where the player has
+    // navigated since.
+    this.activity.set(activity);
+
     const heading = headingFor(state);
     const stage = stageFor(state);
     const result = simulateBattle(
-      // The formation the player has chosen, with stats already scaled for level and rarity —
-      // which is the whole reason the roster exists. An empty formation resolves as an
+      // The crew the player has chosen for this activity, with stats already scaled for level,
+      // rung and gear — which is the whole reason the roster exists. An empty crew resolves as an
       // immediate defeat rather than being quietly substituted for the starters.
-      this.roster.battleFormation(),
+      this.formations.battleFormation(activity),
       stage,
       // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
       // replaying a battle cannot shift the pull sequence.
@@ -465,7 +483,10 @@ export class BattleService {
     }
     this.isAuto.set(true);
     if (!this.isFighting()) {
-      this.fight(nowMs);
+      // The activity the session is already on, never the default. The toggle only exists on the
+      // battle screen, so there is always one — and defaulting here would silently switch a tower
+      // run onto the campaign at the moment the player armed the loop.
+      this.fight(nowMs, this.activity());
     }
   }
 
@@ -677,7 +698,7 @@ export class BattleService {
       return;
     }
     if (result.outcome === 'victory') {
-      this.fight(nowMs);
+      this.fight(nowMs, this.activity());
       return;
     }
 

@@ -1,21 +1,23 @@
+import { provideLocationMocks } from '@angular/common/testing';
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import {
+  CAMPAIGN_FORMATION,
   CURRENCY_IDS,
   type CurrencyId,
   emptyWallet,
   num,
   type OfflineReport,
   type RepairIssue,
-  type Row,
   zeroRates,
 } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
 import { CURRENCY_LABELS } from './format-numeric';
+import { type CrewView, FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { HomeView } from './home-view';
-import { type RosterEntryView, RosterService } from './roster.service';
 
 /**
  * A stand-in for the real loop.
@@ -58,41 +60,47 @@ function report(over: Partial<OfflineReport> = {}): OfflineReport {
   };
 }
 
-/** One fielded character, which is all the home screen reads off the roster. */
-function member(name: string, row: Row, rowSlot: number): RosterEntryView {
+/**
+ * The campaign crew, which is the whole of what the home screen asks about the roster.
+ *
+ * A `CrewView` rather than a list of rows: since milestone 15a the screen reads `size` and `open`
+ * to write its hint and nothing else — placement moved to the formation editor, and so did every
+ * assertion about it.
+ */
+function crew(over: Partial<CrewView> = {}): CrewView {
   return {
-    defId: name.toLowerCase(),
-    name,
-    faction: 'elf',
-    factionName: 'Elves',
-    tier: 'common',
-    role: 'ranger',
-    rarity: 0,
-    rarityLabel: 'Rare',
-    rarityFamily: 'rare',
-    level: 1,
-    resonated: false,
-    levelCap: 40,
-    atLevelCap: false,
-    isMaxRarity: false,
-    copies: 0,
-    inParty: true,
-    row,
-    rowSlot,
-    nextLevelCost: null,
-    canLevel: false,
-    affordableLevel: 1,
-    ascensionCost: null,
-    canAscend: false,
+    activity: { id: CAMPAIGN_FORMATION, name: 'Campaign', kind: 'campaign' },
+    front: [],
+    back: [],
+    size: 1,
+    open: { front: 1, back: 3 },
+    lineup: { bonus: EMPTY_BONUS, tier: null, counts: [], rallyCount: 0, ladderCount: 0 },
+    eligible: [],
+    lockFaction: null,
+    away: [],
+    ready: true,
+    ...over,
   };
 }
 
-/** Only the formation, which is all the home screen asks of the roster. */
-class FakeRoster {
-  readonly frontRow = signal<readonly RosterEntryView[]>([member('Rin', 'front', 1)]);
-  readonly backRow = signal<readonly RosterEntryView[]>([]);
-  readonly fieldedCount = computed(() => this.frontRow().length + this.backRow().length);
-  readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 1, back: 3 });
+/** A lineup paying nothing, which is what a one-character crew earns. */
+const EMPTY_BONUS = {
+  attack: 0,
+  health: 0,
+  defence: 0,
+  critChance: 0,
+  critDamageAmp: 0,
+  haste: 0,
+  injuredEnergyRegen: 0,
+};
+
+/** Only the crew lookup, which is all the home screen asks of the formations. */
+class FakeFormations {
+  readonly campaign = signal<CrewView | null>(crew());
+
+  crew(activityId: string): CrewView | null {
+    return activityId === CAMPAIGN_FORMATION ? this.campaign() : null;
+  }
 }
 
 /** Only the three things the home screen asks of the animator. */
@@ -118,20 +126,22 @@ class FakeBattles {
 }
 
 async function render(
-  configure?: (game: FakeGameLoop, battles: FakeBattles, roster: FakeRoster) => void,
+  configure?: (game: FakeGameLoop, battles: FakeBattles, formations: FakeFormations) => void,
 ) {
   const game = new FakeGameLoop();
   const battles = new FakeBattles();
-  const roster = new FakeRoster();
-  configure?.(game, battles, roster);
+  const formations = new FakeFormations();
+  configure?.(game, battles, formations);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [HomeView],
     providers: [
+      provideRouter([]),
+      provideLocationMocks(),
       { provide: GameLoopService, useValue: game },
       { provide: BattleService, useValue: battles },
-      { provide: RosterService, useValue: roster },
+      { provide: FormationService, useValue: formations },
     ],
   }).compileComponents();
 
@@ -140,7 +150,7 @@ async function render(
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { game, battles, roster, fixture, el: fixture.nativeElement as HTMLElement };
+  return { game, battles, formations, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
 /** The wallet strip, as three parallel lists in the order the cards are laid out. */
@@ -191,36 +201,34 @@ describe('HomeView', () => {
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Fight 1-5 — Cutthroat Camp');
     });
 
-    it('starts a battle when pressed, stamped with the current time', async () => {
-      const before = Date.now();
-      const { el, battles } = await render();
-
-      el.querySelector<HTMLButtonElement>('.fight')?.click();
-
-      expect(battles.fought).toHaveLength(1);
-      expect(battles.fought[0]).toBeGreaterThanOrEqual(before);
-    });
-
     it('stays quiet about a stage it does not know yet', async () => {
       const { el } = await render((_game, battles) => battles.nextStage.set(null));
 
       expect(el.querySelector('.fight')?.textContent?.trim()).toBe('Preparing…');
     });
 
-    it('refuses to start a fight with nobody fielded', async () => {
-      // An empty party resolves as an immediate defeat, so the control says so instead of
-      // letting the player walk into it. This screen no longer shows the formation, so the
-      // disabled control and the hint under it are the whole of what tells the player why.
-      const { el, battles } = await render((_game, _battles, roster) => {
-        roster.frontRow.set([]);
-        roster.backRow.set([]);
-        roster.openSlots.set({ front: 2, back: 3 });
+    it('links to the crew editor rather than starting the fight itself', async () => {
+      // ⚠️ Every battle passes through the pre-battle screen now, so this control navigates and
+      // starts nothing. A version that still called `fight()` would skip the step the whole of
+      // milestone 15a exists to add.
+      const { el, battles } = await render();
+
+      const link = el.querySelector<HTMLAnchorElement>('.fight');
+      expect(link?.getAttribute('href')).toBe('/prepare/campaign');
+      expect(battles.fought).toEqual([]);
+    });
+
+    it('still points at the editor with nobody standing, and says why', async () => {
+      // An empty crew used to disable the control, which left a new player on a dead button with
+      // a hint pointing at another screen. The link is now the fix for the thing it reports.
+      const { el } = await render((_game, _battles, formations) => {
+        formations.campaign.set(crew({ size: 0, open: { front: 2, back: 3 }, ready: false }));
       });
 
-      const button = el.querySelector<HTMLButtonElement>('.fight');
-      expect(button?.disabled).toBe(true);
-      expect(el.querySelector('.hint')?.textContent).toContain('formation is empty');
-      expect(battles.fought).toEqual([]);
+      expect(el.querySelector<HTMLAnchorElement>('.fight')?.getAttribute('href')).toBe(
+        '/prepare/campaign',
+      );
+      expect(el.querySelector('.hint')?.textContent).toContain('crew is empty');
     });
   });
 

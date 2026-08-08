@@ -6,7 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { num } from '../numeric';
 import { startRarityIndex } from '../roster/rarity';
 import { MAX_RARITY_INDEX } from '../roster/types';
-import { newGame, type GameState } from '../state';
+import {
+  CAMPAIGN_FORMATION,
+  formationIn,
+  newGame,
+  type GameState,
+  type PartyFormation,
+} from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import { fromSaveData, toSaveData, type RepairOptions } from './serialize';
 import { SAVE_VERSION } from './version';
@@ -18,6 +24,11 @@ const OPTIONS: RepairOptions = {
   characters: TEST_CHARACTERS,
   levelCurve: TEST_LEVEL_CURVE,
 };
+
+/** The campaign's crew out of a decoded book. */
+function campaign(state: GameState): PartyFormation {
+  return formationIn(state.formations, CAMPAIGN_FORMATION);
+}
 
 function issueFields(raw: unknown): string[] {
   return fromSaveData(raw, OPTIONS).issues.map((issue) => issue.field);
@@ -42,7 +53,7 @@ describe('toSaveData', () => {
       clearedStages: 0,
       battleCount: 0,
       roster: [],
-      formation: { front: [], back: [] },
+      formations: {},
       pity: 0,
       legendaryPity: 0,
       pullCount: 0,
@@ -66,13 +77,15 @@ describe('toSaveData', () => {
     const state: GameState = {
       ...newGame({ seed: 3, nowMs: T0 }),
       roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} }],
-      formation: { front: ['alpha'], back: [] },
+      formations: { [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] } },
     };
 
     expect(toSaveData(state).roster).toEqual([
       { defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} },
     ]);
-    expect(toSaveData(state).formation).toEqual({ front: ['alpha'], back: [] });
+    expect(toSaveData(state).formations).toEqual({
+      [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] },
+    });
   });
 });
 
@@ -93,7 +106,10 @@ describe('round-trip', () => {
       stage: 6,
       clearedStages: 5,
       roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2, gear: {} }],
-      formation: { front: ['gamma'], back: [] },
+      formations: {
+        [CAMPAIGN_FORMATION]: { front: ['gamma'], back: [] },
+        'tower:test': { front: ['gamma'], back: [] },
+      },
       pity: 22,
       pullCount: 631,
     };
@@ -112,7 +128,7 @@ describe('round-trip', () => {
     expect(state.lastTickAt).toBe(original.lastTickAt);
     expect(state.rng).toEqual(original.rng);
     expect(state.roster).toEqual(original.roster);
-    expect(state.formation).toEqual(original.formation);
+    expect(state.formations).toEqual(original.formations);
     expect(state.pity).toBe(22);
     expect(state.pullCount).toBe(631);
     expect(state.clearedStages).toBe(5);
@@ -141,7 +157,7 @@ describe('fromSaveData repair', () => {
       { rng: 'no' },
       { roster: 'not an array' },
       { roster: [null, 5, 'x'] },
-      { formation: 'nope' },
+      { formations: 'nope' },
     ]) {
       expect(() => fromSaveData(raw, OPTIONS)).not.toThrow();
     }
@@ -288,14 +304,14 @@ describe('fromSaveData repair', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
-          formation: { front: ['alpha', 'beta'], back: ['ghost'] },
+          formations: { campaign: { front: ['alpha', 'beta'], back: ['ghost'] } },
         },
         OPTIONS,
       );
 
-      expect(state.formation).toEqual({ front: ['alpha'], back: [] });
+      expect(campaign(state)).toEqual({ front: ['alpha'], back: [] });
       expect(issues.map((issue) => issue.field)).toEqual(
-        expect.arrayContaining(['formation.front[]', 'formation.back[]']),
+        expect.arrayContaining(['formations.campaign.front[]', 'formations.campaign.back[]']),
       );
     });
 
@@ -303,12 +319,12 @@ describe('fromSaveData repair', () => {
       const { state } = fromSaveData(
         {
           roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
-          formation: { front: ['alpha'], back: ['alpha'] },
+          formations: { campaign: { front: ['alpha'], back: ['alpha'] } },
         },
         OPTIONS,
       );
 
-      expect(state.formation).toEqual({ front: ['alpha'], back: [] });
+      expect(campaign(state)).toEqual({ front: ['alpha'], back: [] });
     });
 
     it('trims a rank larger than its capacity', () => {
@@ -320,12 +336,61 @@ describe('fromSaveData repair', () => {
       }));
 
       const { state, issues } = fromSaveData(
-        { roster, formation: { front: ['alpha', 'beta', 'gamma'], back: [] } },
+        { roster, formations: { campaign: { front: ['alpha', 'beta', 'gamma'], back: [] } } },
         OPTIONS,
       );
 
-      expect(state.formation.front).toEqual(['alpha', 'beta']);
-      expect(issues.map((issue) => issue.field)).toContain('formation.front');
+      expect(campaign(state).front).toEqual(['alpha', 'beta']);
+      expect(issues.map((issue) => issue.field)).toContain('formations.campaign.front');
+    });
+
+    it('keeps a crew for an activity this build does not ship', () => {
+      // The same call `parseAchievements` makes about an unknown track id. Two short arrays is a
+      // cheap thing to carry, and dropping them would cost a player their line-up every time they
+      // moved between a build with towers and one without.
+      const { state } = fromSaveData(
+        {
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          formations: { 'tower:not-shipped': { front: ['alpha'], back: [] } },
+        },
+        OPTIONS,
+      );
+
+      expect(state.formations['tower:not-shipped']).toEqual({ front: ['alpha'], back: [] });
+    });
+
+    it('reads a pre-15a save’s single formation into the campaign crew', () => {
+      // ⚠️ Load-time repair, not a migration — which is what keeps `SAVE_VERSION` at 0 with an
+      // empty table. Without it a save written before the book existed would decode to an empty
+      // crew and `grantStarters` would hand back the three starters, silently disbanding a party
+      // the player assembled.
+      const { state } = fromSaveData(
+        {
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          formation: { front: ['alpha'], back: [] },
+        },
+        OPTIONS,
+      );
+
+      expect(campaign(state)).toEqual({ front: ['alpha'], back: [] });
+    });
+
+    it('prefers the book over the legacy field when a save somehow carries both', () => {
+      // Only reachable from a hand-edited save. The book is what this build writes, so it wins —
+      // and the alternative would let a stale field overwrite the crew the player last saved.
+      const { state } = fromSaveData(
+        {
+          roster: [
+            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+            { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {} },
+          ],
+          formations: { campaign: { front: ['beta'], back: [] } },
+          formation: { front: ['alpha'], back: [] },
+        },
+        OPTIONS,
+      );
+
+      expect(campaign(state)).toEqual({ front: ['beta'], back: [] });
     });
   });
 

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIGHT_LINK, startFight } from './flows';
 
 test.describe('App', () => {
   test('shows the application title in the document title', async ({ page }) => {
@@ -24,6 +25,9 @@ test.describe('App', () => {
       ['/town/quests', /Quests/],
       ['/town/bounties', /Bounty Board/],
       ['/bag', /Bag/],
+      ['/formations', /Formations/],
+      ['/formations/campaign', /Formation/],
+      ['/prepare/campaign', /Before you fight/],
       ['/settings', /Settings/],
     ] as const) {
       test(`loads ${path} directly`, async ({ page }) => {
@@ -43,7 +47,7 @@ test.describe('App', () => {
     test('sends an unknown route home rather than to a blank screen', async ({ page }) => {
       await page.goto('/nowhere');
 
-      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: FIGHT_LINK })).toBeVisible();
     });
   });
 
@@ -133,9 +137,8 @@ test.describe('App', () => {
     test('disappears during a fight, which has no exit until it ends', async ({ page }) => {
       await page.goto('');
 
-      await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
+      await startFight(page);
 
-      await expect(page.locator('.battle')).toBeVisible();
       await expect(page.getByRole('navigation')).toHaveCount(0);
     });
   });
@@ -172,7 +175,7 @@ test.describe('App', () => {
         { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
         { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
       ],
-      formation: { front: ['bran', 'mira'], back: ['rin'] },
+      formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
       pity: 0,
       legendaryPity: 0,
       pullCount: 0,
@@ -210,7 +213,7 @@ test.describe('App', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
       await tabs.getByRole('link', { name: 'Home' }).click();
 
-      await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: FIGHT_LINK })).toBeVisible();
       await expect(notice).toBeHidden();
     });
   });

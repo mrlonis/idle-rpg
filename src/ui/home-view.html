@@ -79,8 +79,28 @@
   </ul>
 </section>
 
-<button type="button" class="fight" [disabled]="!canFight()" (click)="fight()">
-  {{ fightLabel() }}
-</button>
+<!--
+  Where a fight starts. One section rather than a bare button, because this is the shape the seven
+  faction towers arrive into — the campaign is the first card here, not a special case beside a
+  list of towers.
+
+  ⚠️ **Nothing empty ships for the towers.** No "coming soon" card and no disabled row: the same
+  call the Bag rename made, where the second heading arrives with the second kind of item.
+-->
+<section class="battles" aria-labelledby="battles-label">
+  <h2 id="battles-label" class="section__heading">Battle</h2>
+
+  <!--
+    A link rather than a button, and the destination is the crew editor rather than the fight. Every
+    battle now passes through it, so the player arranges who is going and confirms from there — the
+    one exception is auto-battle, which never leaves the battle screen and so is never asked again.
+
+    ⚠️ **Never disabled, and that is the change routing bought.** This was a Fight button that went
+    inert with an empty formation, which left a new player on a dead control and a hint pointing at
+    another screen. An empty crew is now the single best reason to follow this link: the screen it
+    opens is where the crew is filled, and the Fight control *there* is the one that waits.
+  -->
+  <a class="fight" [routerLink]="campaignLink()">{{ fightLabel() }}</a>
+</section>
 
 <p class="hint">{{ hint() }}</p>

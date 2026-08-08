@@ -2,29 +2,19 @@ import { computed, inject, Service } from '@angular/core';
 import {
   ascend,
   ascendAll,
-  benchMember,
   type CharacterData,
-  type CombatantData,
   type CurrencyAmounts,
   effectiveLevel,
   findOwned,
-  type FormationData,
-  formationSize,
-  gearLookup,
   levelCapFor,
   levelCost,
   levelUp,
   levelUpToAffordable,
-  lineupBonus,
-  type LineupSummary,
-  loadoutBonus,
   MAX_RARITY_INDEX,
   maxAffordableLevel,
   maxAffordableResonance,
   nextAscension,
   type OwnedCharacter,
-  type PartyFormation,
-  placeInRow,
   raiseResonance,
   raiseResonanceToAffordable,
   type RarityFamily,
@@ -35,25 +25,17 @@ import {
   resonanceFloor,
   resonancePlan,
   type RosterResult,
-  type Row,
-  rowCapacity,
-  setFormation,
-  toBattleCombatant,
 } from '../core';
 import {
   ASCENSION,
   CHARACTERS_BY_ID,
-  COMBAT,
   factionName,
   FACTIONS_BY_ID,
   FACTIONS_IN_ORDER,
-  GEAR,
-  GROWTH_RULES,
-  KIT,
   LEVELS,
 } from './content';
 import { GameLoopService } from './game-loop.service';
-import { compareEntries, factionRanker, groupBench, type RosterGroup } from './roster-order';
+import { compareEntries, factionRanker, groupByFaction, type RosterGroup } from './roster-order';
 
 /**
  * One roster row, with everything the UI needs already resolved.
@@ -89,11 +71,18 @@ export interface RosterEntryView {
   readonly isMaxRarity: boolean;
   /** Spare base copies held as ascension material. */
   readonly copies: number;
-  readonly inParty: boolean;
-  /** Which rank this character is standing in, or `null` when benched. */
-  readonly row: Row | null;
-  /** Position within its rank, 1-based, or `null` when benched. */
-  readonly rowSlot: number | null;
+  /**
+   * The activities this character is standing for, in the order they are authored.
+   *
+   * ⚠️ **A list rather than the `inParty` boolean this was until milestone 15a.** With eight crews
+   * "is this character in the party" has no answer — a Dwarf can be in the campaign five and the
+   * Dwarf tower five at once, which is one sensible decision made twice rather than damage. Which
+   * *rank* they stand in is a property of a crew rather than of a character, so it lives on
+   * `CrewView` in `FormationService` and is deliberately absent here.
+   */
+  readonly crews: readonly string[];
+  /** Whether this character is standing for anything at all. */
+  readonly crewed: boolean;
   /** Cost of the next single level, or `null` at the cap. */
   readonly nextLevelCost: CurrencyAmounts | null;
   readonly canLevel: boolean;
@@ -212,44 +201,29 @@ export class RosterService {
     };
   });
 
-  /** The front rank, in slot order, as roster rows. Missing members are simply absent. */
-  readonly frontRow = computed<readonly RosterEntryView[]>(() =>
-    this.rank(this.game.formation().front),
-  );
-
-  /** The back rank, in slot order. */
-  readonly backRow = computed<readonly RosterEntryView[]>(() =>
-    this.rank(this.game.formation().back),
-  );
-
-  /** Everyone fielded, front rank then back — the same order the battle board draws. */
-  readonly fielded = computed<readonly RosterEntryView[]>(() => [
-    ...this.frontRow(),
-    ...this.backRow(),
-  ]);
-
   /**
-   * The bench, split into one group per faction.
+   * The whole roster, split into one group per faction.
    *
    * A partition of {@link entries} rather than a second sort: the order is decided once, in one
    * comparator, so the roster list and anything else reading `entries` can never disagree about
    * who comes first.
+   *
+   * ⚠️ **Every owned character, crewed ones included, since milestone 15a.** It used to exclude
+   * whoever was standing in the formation, because the roster screen pinned them in a section of
+   * their own above the factions. With eight crews that section would hold most of the roster and
+   * say nothing — a character standing somewhere is the normal case now, not the notable one.
    */
-  readonly benchGroups = computed<readonly RosterGroup[]>(() =>
-    groupBench(this.entries(), FACTIONS_IN_ORDER),
+  readonly factionGroups = computed<readonly RosterGroup[]>(() =>
+    groupByFaction(this.entries(), FACTIONS_IN_ORDER),
   );
 
-  /** Empty slots left in each rank, which is what the formation editor shows as gaps. */
-  readonly openSlots = computed<Readonly<Record<Row, number>>>(() => {
-    const formation = this.game.formation();
-    return {
-      front: Math.max(rowCapacity('front') - formation.front.length, 0),
-      back: Math.max(rowCapacity('back') - formation.back.length, 0),
-    };
-  });
-
-  /** How many characters are currently fielded, across both ranks. */
-  readonly fieldedCount = computed(() => formationSize(this.game.formation()));
+  /**
+   * How many characters are standing for at least one activity.
+   *
+   * A count of *characters*, not of slots: somebody in three crews is one busy character, and the
+   * question the roster screen asks with this is "how much of my bench is doing something".
+   */
+  readonly crewedCount = computed(() => this.entries().filter((entry) => entry.crewed).length);
 
   /**
    * How many characters could climb a rung right now.
@@ -260,71 +234,6 @@ export class RosterService {
    * single balance to show.
    */
   readonly readyToAscend = computed(() => this.entries().filter((entry) => entry.canAscend).length);
-
-  /**
-   * What the fielded party's faction composition is worth, resolved through `core/`.
-   *
-   * The **same function the simulation calls**, rather than a second reading of the same table.
-   * A formation screen promising +25% and a battle awarding something else is the worst possible
-   * failure for a mechanic whose entire job is to make the player rebuild their party, and two
-   * implementations of one ladder is how that happens.
-   *
-   * Derived from {@link fielded} so it follows the formation the screen is showing, and returns
-   * the whole summary rather than the numbers alone — a bonus a player cannot attribute to a
-   * faction is one they cannot chase.
-   */
-  readonly lineup = computed<LineupSummary>(() =>
-    lineupBonus(
-      this.fielded().map((entry) => entry.faction),
-      COMBAT.lineup,
-    ),
-  );
-
-  /**
-   * The party as a formation of combatants, with stats already scaled for level and rarity.
-   *
-   * This is what `BattleService` fights with. An empty formation is handed through empty rather
-   * than substituted for the starters: `simulateBattle` reads it as an immediate defeat, which
-   * is the honest outcome of sending nobody.
-   */
-  readonly battleFormation = computed<FormationData>(() => {
-    const state = this.game.snapshot();
-    if (state === null) {
-      return { front: [], back: [] };
-    }
-    // Resolved here rather than left to `toBattleCombatant`, which is handed the answer: the
-    // party fights at its effective level, and the floor is a fact about the roster the party
-    // was drawn from rather than about any one member of it.
-    const floor = resonanceFloor(state.roster);
-    // One lookup for the whole party rather than one per member: a loadout holds ids into the
-    // bag, and the bag is the run's single list of pieces.
-    const gear = gearLookup(state.gear);
-    const resolve = (ids: readonly string[]): CombatantData[] => {
-      const combatants: CombatantData[] = [];
-      for (const defId of ids) {
-        const character = CHARACTERS_BY_ID.get(defId);
-        const owned = findOwned(state, defId);
-        if (character !== undefined && owned !== undefined) {
-          combatants.push(
-            toBattleCombatant(
-              character,
-              owned,
-              GROWTH_RULES,
-              KIT,
-              effectiveLevel(LEVELS, owned, floor),
-              // Gear is the third axis and it enters here, on the same seam as the level and the
-              // rung. Resolved per member because the bonus depends on the wearer — an aligned
-              // piece is worth more on its own faction — which is why `loadoutBonus` takes the
-              // faction rather than looking it up.
-              loadoutBonus(GEAR, owned.gear, gear, character.faction),
-            ),
-          );
-        }
-      }
-      return combatants;
-    };
-    return { front: resolve(state.formation.front), back: resolve(state.formation.back) };
-  });
 
   /** One row by id, for the character sheet. */
   entry(defId: string): RosterEntryView | null {
@@ -404,55 +313,6 @@ export class RosterService {
     };
   }
 
-  /** Puts a character into a rank, taking it out of the other one first. */
-  placeIn(defId: string, row: Row): RosterResult {
-    return this.mutate((state) => placeInRow(state, defId, row, CHARACTERS_BY_ID));
-  }
-
-  /** Takes a character out of the formation entirely. */
-  bench(defId: string): RosterResult {
-    return this.mutate((state) => benchMember(state, defId, CHARACTERS_BY_ID));
-  }
-
-  /**
-   * Cycles a character through front, back and benched.
-   *
-   * One control rather than three, because the formation editor is a list and a row of three
-   * buttons per character would be forty-odd controls on a screen that already has a table. The
-   * cycle skips a full rank rather than refusing, so a tap always does something.
-   */
-  cyclePlacement(defId: string): RosterResult {
-    const formation = this.game.formation();
-    if (formation.front.includes(defId)) {
-      return formation.back.length < rowCapacity('back')
-        ? this.placeIn(defId, 'back')
-        : this.bench(defId);
-    }
-    if (formation.back.includes(defId)) {
-      return this.bench(defId);
-    }
-    if (formation.front.length < rowCapacity('front')) {
-      return this.placeIn(defId, 'front');
-    }
-    if (formation.back.length < rowCapacity('back')) {
-      return this.placeIn(defId, 'back');
-    }
-    return { ok: false, reason: 'row-full' };
-  }
-
-  /** Sets the whole formation at once, rank by rank. */
-  setFormation(formation: PartyFormation): RosterResult {
-    return this.mutate((state) => setFormation(state, formation, CHARACTERS_BY_ID));
-  }
-
-  /** Joins one rank's ids to the roster rows they name, dropping anything unresolvable. */
-  private rank(ids: readonly string[]): readonly RosterEntryView[] {
-    const byId = new Map(this.entries().map((entry) => [entry.defId, entry]));
-    return ids
-      .map((defId) => byId.get(defId))
-      .filter((entry): entry is RosterEntryView => entry !== undefined);
-  }
-
   /**
    * Runs a pure `core/` operation against the run and commits it only on success.
    *
@@ -489,10 +349,15 @@ export class RosterService {
 
     const ascensionCost =
       nextAscension(state, owned.defId, ASCENSION, CHARACTERS_BY_ID, FACTIONS_BY_ID) ?? null;
-    const front = state.formation.front.indexOf(owned.defId);
-    const back = state.formation.back.indexOf(owned.defId);
-    const row: Row | null = front >= 0 ? 'front' : back >= 0 ? 'back' : null;
-    const rowSlot = front >= 0 ? front + 1 : back >= 0 ? back + 1 : null;
+    // Every activity this character stands for. The book is at most eight short entries, so this
+    // is a scan rather than an index — an index would have to be rebuilt on every placement, which
+    // is the same work spread over more code.
+    const crews: string[] = [];
+    for (const [activity, formation] of Object.entries(state.formations)) {
+      if (formation.front.includes(owned.defId) || formation.back.includes(owned.defId)) {
+        crews.push(activity);
+      }
+    }
 
     return {
       defId: owned.defId,
@@ -510,9 +375,8 @@ export class RosterService {
       atLevelCap,
       isMaxRarity: owned.rarity >= MAX_RARITY_INDEX,
       copies: owned.copies,
-      inParty: row !== null,
-      row,
-      rowSlot,
+      crews,
+      crewed: crews.length > 0,
       nextLevelCost: cost,
       canLevel: affordableLevel > level,
       affordableLevel,

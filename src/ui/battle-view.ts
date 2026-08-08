@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { type BattleEvent, MAX_ENERGY, ZERO } from '../core';
 import { type BattleCombatantView, BattleService } from './battle.service';
 import { formatAmounts, formatNumeric, formatRate } from './format-numeric';
@@ -24,6 +25,7 @@ import { PLAYBACK_SPEEDS, type PlaybackSpeed } from './settings.service';
 export class BattleView {
   private readonly battles = inject(BattleService);
   private readonly game = inject(GameLoopService);
+  private readonly router = inject(Router);
 
   protected readonly speeds = PLAYBACK_SPEEDS;
   /** The denominator on every energy bar. One number for the whole game since 8b. */
@@ -99,9 +101,23 @@ export class BattleView {
       .filter((line): line is string => line !== null);
   });
 
+  /**
+   * Goes again — through the crew editor, not straight into the next fight.
+   *
+   * ⚠️ **This used to call `fight()` directly, and both halves of that were wrong.** It skipped the
+   * pre-battle step every other route through the game now takes, which would have made "the crew
+   * is confirmed before every battle" a rule with one silent exception; and it called `fight()`
+   * with no activity, so once towers ship a tower session would have re-entered the **campaign**
+   * from this button. A player who wants the fast loop has auto-battle, which is the one thing that
+   * is meant to skip the step.
+   *
+   * Closes first. The battle screen is a mode swapped in over the router outlet, so leaving it open
+   * would put the board on top of the editor it is navigating to.
+   */
   protected fight(): void {
-    // The clock lives here, as it does everywhere else in `ui/`.
-    this.battles.fight(Date.now());
+    const activity = this.battles.activity();
+    this.battles.close();
+    void this.router.navigate(['/prepare', activity]);
   }
 
   protected close(): void {

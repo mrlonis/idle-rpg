@@ -1,0 +1,41 @@
+<header class="head">
+  <a class="head__back" routerLink="/roster">← Roster</a>
+  <h1 class="head__title">Formations</h1>
+  <p class="head__summary">
+    A crew per activity, arranged ahead of time. Each one is asked for again before the fight.
+  </p>
+</header>
+
+<ul class="crews">
+  @for (row of rows(); track row.id) {
+    <li class="crew">
+      <a class="crew__link" [routerLink]="['/formations', row.id]">
+        <span class="crew__name">{{ row.name }}</span>
+        <span class="crew__status">
+          {{ row.status }}
+          @if (row.lock) {
+            · {{ row.lock }}
+          }
+        </span>
+        <!--
+          Who is standing, in slot order. Absent rather than replaced by a dash for an empty crew:
+          the status line above already says "0 of 5", and a second line saying nothing twice is
+          the kind of filler that teaches a player to skip the block.
+        -->
+        @if (row.members) {
+          <span class="crew__members">{{ row.members }}</span>
+        } @else {
+          <span class="crew__members crew__members--empty">Nobody standing yet.</span>
+        }
+        <!--
+          A crew can be five strong and still unable to fight, if a lock stopped being satisfied
+          after the crew was built. Said in words rather than shown as a colour, and only when it
+          is true — "ready" on every other row would be reassurance nobody asked for.
+        -->
+        @if (!row.ready && row.members) {
+          <span class="crew__blocked">Cannot fight as it stands.</span>
+        }
+      </a>
+    </li>
+  }
+</ul>

@@ -1,5 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
+  CAMPAIGN_FORMATION,
   CURRENCY_IDS,
   type CurrencyId,
   FRONT_ROW_SIZE,
@@ -14,8 +16,8 @@ import {
   formatNumeric,
   formatRate,
 } from './format-numeric';
+import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
-import { RosterService } from './roster.service';
 
 /** One currency as the wallet strip shows it. */
 interface CurrencyRow {
@@ -39,35 +41,48 @@ function hasRate(id: CurrencyId): id is RateCurrencyId {
 }
 
 /**
- * The home screen: what the run is worth, and the way into a fight.
+ * The home screen: what the run is worth, and where every fight starts.
  *
- * Who is fighting is the roster screen's job and is not restated here. This screen used to
- * carry a read-only copy of the formation, which said the same thing twice and could only ever
- * be the poorer of the two — the roster shows the same rows, and is the only place they can be
- * *changed*. What stays is the part the formation still decides here: whether a fight can start
- * at all, and the hint that says why not.
+ * ## It is the battle hub now, and that is milestone 15a
  *
- * Everything here is idle-side. The battle screen replaces this one entirely rather than
- * appearing beneath it, so a fight is somewhere the player goes and then leaves.
+ * Home used to carry one control, a Fight button that entered the campaign. Faction towers make
+ * that eight destinations, and the choice of which to fight is not a thing to bury behind a tab —
+ * so **Home is where a run picks what to do next**, with the campaign as the first card and the
+ * towers arriving beside it. Nothing empty ships for them; the section holds one card until 15b.
+ *
+ * Who is fighting is deliberately not restated here. This screen carried a read-only copy of the
+ * formation once, which said the same thing twice and could only ever be the poorer of the two.
+ * What replaced it is a link: the card leads to the crew editor, the crew is confirmed there, and
+ * the fight starts from that screen.
+ *
+ * Everything here is idle-side. The battle screen replaces this one entirely rather than appearing
+ * beneath it, so a fight is somewhere the player goes and then leaves.
  */
 @Component({
   selector: 'app-home-view',
+  imports: [RouterLink],
   templateUrl: './home-view.html',
   styleUrl: './home-view.scss',
 })
 export class HomeView {
   private readonly game = inject(GameLoopService);
   private readonly battles = inject(BattleService);
-  private readonly roster = inject(RosterService);
+  private readonly formations = inject(FormationService);
 
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
 
   /**
-   * Not shown, but read: it is what decides whether the Fight control is live, and what the hint
-   * underneath explains when it is not.
+   * The campaign crew, read for the hint underneath the battle card.
+   *
+   * ⚠️ **No longer read to decide whether the Fight control works.** The control is a link to the
+   * crew editor now, and an empty crew is the best possible reason to follow it — see the note in
+   * the template.
    */
-  protected readonly fieldedCount = this.roster.fieldedCount;
+  protected readonly campaign = computed(() => this.formations.crew(CAMPAIGN_FORMATION));
+
+  /** Where the battle card goes: the crew editor, in its pre-battle mode. */
+  protected readonly campaignLink = computed(() => ['/prepare', CAMPAIGN_FORMATION]);
 
   /**
    * Every currency, gold included and shown exactly like the rest.
@@ -104,9 +119,6 @@ export class HomeView {
     return next === null ? 'Preparing…' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
   });
 
-  /** A party of nobody loses instantly, so the control says so rather than letting it happen. */
-  protected readonly canFight = computed(() => this.fieldedCount() > 0);
-
   /**
    * Why the player is suddenly back on this screen.
    *
@@ -123,10 +135,11 @@ export class HomeView {
    * simply untrue, and leaving it up would teach the player to ignore this line.
    */
   protected readonly hint = computed(() => {
-    if (this.fieldedCount() === 0) {
-      return 'Your formation is empty. Place characters in the Roster before fighting.';
+    const crew = this.campaign();
+    if (crew === null || crew.size === 0) {
+      return 'Your crew is empty. Tap above to choose who fights.';
     }
-    if (this.roster.openSlots().front === FRONT_ROW_SIZE) {
+    if (crew.open.front === FRONT_ROW_SIZE) {
       return 'Nobody is in your front row. Attacks reach the back row first when the front is empty.';
     }
     return this.game.goldPerSec().lte(0)
@@ -149,12 +162,6 @@ export class HomeView {
       earned,
     };
   });
-
-  protected fight(): void {
-    // The clock lives here, as it does everywhere else in `ui/`. Opening the battle screen is
-    // the service's business: the screen's lifetime is the battle session.
-    this.battles.fight(Date.now());
-  }
 
   /**
    * Closes one of the two notices that report something that already happened.

@@ -45,7 +45,7 @@ export function tick(state: GameState, dtMs: number): GameState {
     clearedStages: state.clearedStages,
     battleCount: state.battleCount,
     roster: state.roster,
-    formation: state.formation,
+    formations: state.formations,
     pity: state.pity,
     legendaryPity: state.legendaryPity,
     pullCount: state.pullCount,

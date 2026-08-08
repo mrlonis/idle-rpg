@@ -238,6 +238,26 @@ Three functions run on **every load**, not behind a version gate:
   stages than it has reached.** That is true independently of any curve, which is why it is the
   right guard rather than a version check.
 
+A fourth runs inside the decoder rather than after it, and it is the one worth reading before the
+next schema change:
+
+- **The formation book's legacy read.** Milestone 15a replaced `GameState.formation` — one
+  formation — with `formations`, a record keyed by activity. A save written before that carries the
+  old field and no book, and the decoder reads it into the campaign key.
+
+  ⚠️ **This is repair, and choosing it over a migration is what kept `SAVE_VERSION` at 0 with an
+  empty table.** The alternative was not "do nothing": defaulting the book to empty would have left
+  the run with no crew, `grantStarters` would have re-seeded the three starters, and the player
+  would have found a party they did not assemble in place of the one they did. Nothing would have
+  thrown, no issue would have been reported, and every screen would have looked healthy — the
+  plausible-looking wrong answer, which is the class this layer exists to catch. Four lines of
+  fallback beat a version bump for a field whose old meaning maps exactly onto one key of the new
+  one.
+
+  **The book wins when a save somehow carries both.** Only a hand-edit produces that, and the book
+  is what this build writes, so letting a stale field overwrite it would be the same disbanding by
+  another route.
+
 They live in `ui/` because they need `data/` — and `core/` may not import `data/`. **That
 constraint is the whole reason they exist**, and it produced three rules worth more than the fix
 that prompted them:
@@ -273,6 +293,13 @@ off zero, which is exactly the job it had. `v0.json` otherwise pins what a curre
 and a retired achievement track alongside a live one. A fixture storing the empty value passes
 identically whether the decoder reads the field or silently defaults it, which is precisely the
 distinction it exists to make — and the empty value is always the obvious thing to write.
+
+**The formation book is the sharpest example of that rule and shows its second half.** `v0.json`
+holds **two** crews: the campaign's, and one under an activity this build does not ship. One crew
+would be the empty value in disguise — a book holding only `campaign` decodes identically against an
+implementation that reads that key and drops the rest, which is exactly the bug that would strand
+seven tower crews the first time a save round-tripped. The distinction a fixture makes is not just
+"is the field read" but "is it read _as the shape it is_".
 
 **Add a fixture whenever `SAVE_VERSION` is bumped.** A migration chain with no fixture for a
 version is a chain nobody has proved works from that version. The coverage assertion in that spec

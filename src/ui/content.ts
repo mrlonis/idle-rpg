@@ -1,5 +1,6 @@
 import {
   type AchievementTrackData,
+  type ActivityData,
   type AscensionRules,
   type BannerData,
   type ChapterCurveData,
@@ -31,6 +32,7 @@ import {
 } from '../core';
 import {
   ACHIEVEMENTS,
+  ACTIVITIES,
   ASCENSION_RULES,
   BOUNTIES,
   BOUNTY_BOARD,
@@ -75,6 +77,22 @@ import {
  * this assignment is what turns a track naming a counter nothing keeps into a compile error.
  */
 export const ACHIEVEMENT_TRACKS: readonly AchievementTrackData[] = ACHIEVEMENTS;
+
+/**
+ * Everything a run can send a crew at, in the order the formations screen lists them.
+ *
+ * The campaign first and the towers after it, which is also the order Home draws them: the
+ * campaign is the spine and a tower is somewhere a player goes with a roster they have built.
+ *
+ * The typed local is what turns an activity naming a faction that does not exist, or a `kind`
+ * nothing handles, into a compile error rather than a locked door with no key.
+ */
+export const ACTIVITY_LIST: readonly ActivityData[] = ACTIVITIES;
+
+/** Every activity, keyed by id — which is also its {@link GameState.formations} key. */
+export const ACTIVITIES_BY_ID: ReadonlyMap<string, ActivityData> = new Map<string, ActivityData>(
+  ACTIVITY_LIST.map((activity) => [activity.id, activity]),
+);
 
 /**
  * Every mission the board can ever offer, in tier order — shortest first.

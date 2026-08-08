@@ -9,18 +9,20 @@ import { type RosterEntryView } from './roster.service';
  * touches Angular.
  */
 
-/** One faction's worth of benched characters, plus what the group knows about itself. */
+/** One faction's worth of characters, plus what the group knows about itself. */
 export interface RosterGroup {
   readonly factionId: string;
   readonly label: string;
-  /** Benched members, in display order. Empty is a legitimate state and still renders. */
+  /** Members, in display order. Empty is a legitimate state and still renders. */
   readonly members: readonly RosterEntryView[];
   /**
-   * Owned characters of this faction, fielded ones included.
+   * Owned characters of this faction.
    *
-   * An empty group has two very different causes — you own none of this faction, or every one
-   * you own is standing in the formation — and a heading that said "none owned" over a faction
-   * whose only member is fighting would simply be wrong.
+   * ⚠️ **Equal to `members.length` on the roster screen and smaller on the formation editor**,
+   * which is the only reason it is still a separate field. The editor passes the rows a crew may
+   * still add, so a group can be empty because you own none of that faction *or* because all of
+   * them are already standing — and a heading reading "none owned" over a faction whose members
+   * are all in the crew below it would simply be wrong.
    */
   readonly owned: number;
 }
@@ -33,27 +35,24 @@ function tierRank(tier: CharacterTier): number {
 /**
  * Display order for the whole roster.
  *
- * Fielded characters come first in formation order — the roster's most common use is checking
- * on who is actually fighting. Everyone else is ordered faction by faction, and within a
- * faction by **level**, because level is what a player is deciding about when they open this
- * screen: who is worth taking further. Tier breaks a level tie, since at equal investment the
- * steeper growth slope is the better character, and rarity breaks a tier tie for the same
- * reason one rung further up the ladder is worth more than the same level below it. Name last,
- * so the order is total and a re-render never reshuffles two identical rows.
+ * Faction by faction, and within a faction by **level**, because level is what a player is
+ * deciding about when they open this screen: who is worth taking further. Tier breaks a level tie,
+ * since at equal investment the steeper growth slope is the better character, and rarity breaks a
+ * tier tie for the same reason one rung further up the ladder is worth more than the same level
+ * below it. Name last, so the order is total and a re-render never reshuffles two identical rows.
+ *
+ * ⚠️ **Fielded characters no longer sort to the top, and that is milestone 15a rather than a
+ * regression.** They did while there was one formation and five of forty-nine rows were in it —
+ * pinning them answered "who is actually fighting" at a glance. With eight crews the pin would
+ * cover most of the roster and distinguish nothing, and the question it answered has a better home:
+ * the formation editor, which shows one crew at a time in rank order. What the roster screen shows
+ * instead is `crews`, per row.
  */
 export function compareEntries(
   a: RosterEntryView,
   b: RosterEntryView,
   factionRank: (factionId: string) => number,
 ): number {
-  if (a.inParty !== b.inParty) {
-    return a.inParty ? -1 : 1;
-  }
-  if (a.inParty && b.inParty) {
-    // Front rank first, then order within the rank — the same order the battle board draws.
-    const rank = (entry: RosterEntryView): number => (entry.row === 'front' ? 0 : 1);
-    return rank(a) - rank(b) || (a.rowSlot ?? 0) - (b.rowSlot ?? 0);
-  }
   return (
     factionRank(a.faction) - factionRank(b.faction) ||
     b.level - a.level ||
@@ -70,7 +69,7 @@ export function factionRanker(factions: readonly FactionData[]): (factionId: str
 }
 
 /**
- * Splits the benched half of an already-ordered roster into one group per faction.
+ * Splits an already-ordered roster into one group per faction.
  *
  * Every authored faction gets a group whether or not anything is in it, so the seven factions
  * are a fixed shape a player can learn the position of rather than a list that reorders itself
@@ -78,24 +77,31 @@ export function factionRanker(factions: readonly FactionData[]): (factionId: str
  * something owned claims it — dropping those rows would lose a character off the screen
  * entirely, which is a far worse failure than an oddly-named heading.
  *
+ * `include` decides which rows become {@link RosterGroup.members} while every row still counts
+ * toward {@link RosterGroup.owned}. That split is what lets the formation editor list only the
+ * characters a crew may still add and still say "you own three Dwarves, all of them are already
+ * standing" rather than "none owned". The roster screen includes everything and the two numbers
+ * coincide.
+ *
  * `entries` must already be sorted by {@link compareEntries}; this preserves the order it finds
  * rather than sorting again.
  */
-export function groupBench(
+export function groupByFaction(
   entries: readonly RosterEntryView[],
   factions: readonly FactionData[],
+  include: (entry: RosterEntryView) => boolean = () => true,
 ): readonly RosterGroup[] {
-  const benched = new Map<string, RosterEntryView[]>();
+  const listed = new Map<string, RosterEntryView[]>();
   const owned = new Map<string, number>();
   const labels = new Map<string, string>();
 
   for (const entry of entries) {
     owned.set(entry.faction, (owned.get(entry.faction) ?? 0) + 1);
     labels.set(entry.faction, entry.factionName);
-    if (!entry.inParty) {
-      const members = benched.get(entry.faction);
+    if (include(entry)) {
+      const members = listed.get(entry.faction);
       if (members === undefined) {
-        benched.set(entry.faction, [entry]);
+        listed.set(entry.faction, [entry]);
       } else {
         members.push(entry);
       }
@@ -105,7 +111,7 @@ export function groupBench(
   const groups: RosterGroup[] = factions.map((faction) => ({
     factionId: faction.id,
     label: faction.name,
-    members: benched.get(faction.id) ?? [],
+    members: listed.get(faction.id) ?? [],
     owned: owned.get(faction.id) ?? 0,
   }));
 
@@ -115,7 +121,7 @@ export function groupBench(
       groups.push({
         factionId,
         label: labels.get(factionId) ?? factionId,
-        members: benched.get(factionId) ?? [],
+        members: listed.get(factionId) ?? [],
         owned: count,
       });
     }

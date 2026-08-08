@@ -13,7 +13,7 @@ import { parseQuestWindows, type QuestWindow } from '../quests';
 import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
-import { type GameState, type PartyFormation, rowCapacity } from '../state';
+import { CAMPAIGN_FORMATION, type GameState, type PartyFormation, rowCapacity } from '../state';
 import { type CurrentSaveData } from './schema';
 import { SAVE_VERSION } from './version';
 
@@ -69,10 +69,12 @@ export function toSaveData(state: GameState): CurrentSaveData {
       copies: owned.copies,
       gear: { ...owned.gear },
     })),
-    formation: {
-      front: [...state.formation.front],
-      back: [...state.formation.back],
-    },
+    formations: Object.fromEntries(
+      Object.entries(state.formations).map(([activity, formation]) => [
+        activity,
+        { front: [...formation.front], back: [...formation.back] },
+      ]),
+    ),
     pity: state.pity,
     legendaryPity: state.legendaryPity,
     pullCount: state.pullCount,
@@ -194,7 +196,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const pullCount = readCounter(record['pullCount'], 'pullCount', 0, note);
 
   const roster = readRoster(record['roster'], options, note);
-  const formation = readFormation(record['formation'], roster, note);
+  const formations = readFormations(record['formations'], record['formation'], roster, note);
   const gear = readGear(record['gear'], note);
   const gearMinted = readGearMinted(record['gearMinted'], gear, note);
   const gearShop = readGearShop(record['gearShop'], note);
@@ -214,7 +216,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       clearedStages,
       battleCount,
       roster,
-      formation,
+      formations,
       pity,
       legendaryPity,
       pullCount,
@@ -456,27 +458,75 @@ function readLoadout(raw: unknown): Record<string, string> {
 }
 
 /**
- * Decodes the formation, keeping only owned characters and trimming each rank to its capacity.
+ * Decodes every activity's formation, keyed by activity id.
+ *
+ * ⚠️ **`legacy` is the pre-15a single `formation` field, and reading it is repair rather than
+ * migration.** The book replaced one formation with a record of them; a save written before that
+ * has a crew the player assembled and no `formations` key to put it under. Defaulting it to an
+ * empty book would silently disband the campaign five and hand it back re-seeded with starters,
+ * which is exactly the "plausible-looking wrong answer" class of damage this layer exists to
+ * avoid. Reading the old field into {@link CAMPAIGN_FORMATION} costs four lines and keeps
+ * `SAVE_VERSION` at 0 with an empty migration table.
+ *
+ * **A key this build does not ship is kept**, matching {@link parseAchievements}: a crew for a
+ * tower that has not shipped yet costs two short arrays, and dropping it would cost a player their
+ * line-up every time they moved between builds.
+ *
+ * **An empty book is a legitimate answer, not a failure.** `grantStarters` runs on every load and
+ * writes the campaign crew for a run that has none.
+ */
+function readFormations(
+  raw: unknown,
+  legacy: unknown,
+  roster: readonly OwnedCharacter[],
+  note: (field: string, problem: string, recovered: string) => void,
+): Record<string, PartyFormation> {
+  const owned = new Set(roster.map((entry) => entry.defId));
+  const book: Record<string, PartyFormation> = {};
+
+  if (raw !== undefined && raw !== null) {
+    if (typeof raw !== 'object' || Array.isArray(raw)) {
+      note('formations', `not an object (${JSON.stringify(raw) ?? 'undefined'})`, 'no formations');
+    } else {
+      for (const [activity, value] of Object.entries(asRecord(raw))) {
+        book[activity] = readFormation(value, `formations.${activity}`, owned, note);
+      }
+    }
+  }
+
+  if (legacy !== undefined && legacy !== null && book[CAMPAIGN_FORMATION] === undefined) {
+    book[CAMPAIGN_FORMATION] = readFormation(legacy, 'formation', owned, note);
+  }
+  return book;
+}
+
+/**
+ * Decodes one activity's formation, keeping only owned characters and trimming each rank.
  *
  * The `placed` set is shared across both ranks rather than reset per rank, because a save that
  * names the same character in front and behind would otherwise produce a fighter that acts
  * twice — the one kind of damage here that a battle would happily run with and nobody would
  * report as a bug.
+ *
+ * ⚠️ **It is scoped to one formation and must stay that way.** Sharing it across the whole book
+ * would drop a character from the second crew they appear in, and standing in two *different*
+ * activities' crews is not damage — only one activity is ever fought at a time. See
+ * `allFormationMembers` in `core/state.ts`.
  */
 function readFormation(
   raw: unknown,
-  roster: readonly OwnedCharacter[],
+  field: string,
+  owned: ReadonlySet<string>,
   note: (field: string, problem: string, recovered: string) => void,
 ): PartyFormation {
   if (raw === undefined || raw === null) {
     return { front: [], back: [] };
   }
   if (typeof raw !== 'object' || Array.isArray(raw)) {
-    note('formation', `not an object (${JSON.stringify(raw) ?? 'undefined'})`, 'empty formation');
+    note(field, `not an object (${JSON.stringify(raw) ?? 'undefined'})`, 'empty formation');
     return { front: [], back: [] };
   }
 
-  const owned = new Set(roster.map((entry) => entry.defId));
   const placed = new Set<string>();
   const record = asRecord(raw);
 
@@ -486,7 +536,7 @@ function readFormation(
       return [];
     }
     if (!Array.isArray(value)) {
-      note(`formation.${row}`, `not an array (${JSON.stringify(value) ?? 'undefined'})`, 'empty');
+      note(`${field}.${row}`, `not an array (${JSON.stringify(value) ?? 'undefined'})`, 'empty');
       return [];
     }
 
@@ -495,14 +545,14 @@ function readFormation(
     for (const id of value) {
       if (typeof id !== 'string' || !owned.has(id) || placed.has(id)) {
         note(
-          `formation.${row}[]`,
+          `${field}.${row}[]`,
           `not an unplaced owned character (${JSON.stringify(id) ?? 'undefined'})`,
           'dropped',
         );
         continue;
       }
       if (rank.length >= capacity) {
-        note(`formation.${row}`, `more than ${capacity} members`, `trimmed to ${capacity}`);
+        note(`${field}.${row}`, `more than ${capacity} members`, `trimmed to ${capacity}`);
         break;
       }
       placed.add(id);

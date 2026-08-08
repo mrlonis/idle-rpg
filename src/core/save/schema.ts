@@ -57,7 +57,14 @@ export interface SaveDataV0 {
     /** Slot id to gear item id. Absent slots are empty. */
     gear: Record<string, string>;
   }[];
-  formation: { front: string[]; back: string[] };
+  /**
+   * Activity id to the crew standing for it. Absent activities have never been crewed.
+   *
+   * A record rather than the single `formation` object this was until milestone 15a. A save
+   * written before that carries the old field instead, and the decoder reads it into the campaign
+   * key — load-time repair rather than a migration, which is what keeps `SAVE_VERSION` at 0.
+   */
+  formations: Record<string, { front: string[]; back: string[] }>;
   /** Pulls since the last ascended-tier character. */
   pity: number;
   /** Pulls since the last legendary tier **or better**. A different question, not a finer one. */

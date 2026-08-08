@@ -158,17 +158,37 @@ export type BountyResult =
 const fail = (reason: BountyFailure): BountyResult => ({ ok: false, reason });
 
 /**
- * Everyone in the formation, as a set.
+ * Everyone standing in **any** formation, as a set.
  *
- * ⚠️ **Spelled out rather than importing `formationMembers` from `state.ts`, and that is a real
+ * ⚠️ **Spelled out rather than importing `allFormationMembers` from `state.ts`, and that is a real
  * constraint rather than a preference.** `state.ts` imports this module for {@link Dispatch} and
  * {@link emptyDispatches}, so importing a *value* back out of it closes a runtime dependency
  * cycle — which `import/no-cycle` rejects, and rightly: the two modules would then have an
  * initialisation order between them. `achievements.ts` and `quests.ts` avoid it by importing only
- * `type GameState`, and this file has to do the same. Two lines is the whole cost.
+ * `type GameState`, and this file has to do the same. A few lines is the whole cost.
+ *
+ * ⚠️ **Every formation rather than one, and this is the interim reading of the disjointness rule
+ * rather than its final one.** Milestone 15a turned one formation into eight, and the narrowest
+ * change that keeps the invariant exactly as strong as it was is to read all eight — a character
+ * standing anywhere is fighting somewhere, so they may not also be away.
+ *
+ * **It gets tighter as towers get crewed, and that is a known cost with a scheduled fix.** Eight
+ * crews is forty slots against a forty-nine character roster, so a player who has filled every
+ * tower has almost nobody left to dispatch, and the board stops being a bench sink because there
+ * is no bench. The agreed answer is to invert the rule rather than widen it: let anybody be
+ * dispatched, and refuse to *fight* with somebody who is away. That moves the check from
+ * "dispatch" to the battle path, where it costs the player a crew they must fill in rather than a
+ * mission they cannot start. Until it lands, this is the honest conservative reading — it can only
+ * refuse things, never let a character be in two places at once.
  */
 function fieldedMembers(state: GameState): ReadonlySet<string> {
-  return new Set([...state.formation.front, ...state.formation.back]);
+  const fielded = new Set<string>();
+  for (const formation of Object.values(state.formations)) {
+    for (const member of [...formation.front, ...formation.back]) {
+      fielded.add(member);
+    }
+  }
+  return fielded;
 }
 
 /** No missions running. A new run starts here. */
@@ -470,7 +490,9 @@ export function bountyPayout(bounty: BountyData, rates: Rates): CurrencyAmounts 
  *
  * ⚠️ **The formation check is half of the disjointness invariant.** The other half lives in
  * `setFormation`, which refuses to field anybody away. Both are required: this one alone would let
- * a player dispatch from the bench and then walk the same character into the formation.
+ * a player dispatch from the bench and then walk the same character into a formation. Since
+ * milestone 15a it reads **every** activity's crew — see {@link fieldedMembers} for why that is the
+ * interim reading and what replaces it.
  *
  * ⚠️ **Nothing here limits how many missions run at once**, and that is deliberate. The only thing
  * a second simultaneous mission costs is the crew it takes off the bench, which is exactly the
@@ -733,8 +755,8 @@ export function dispatchOpenBounties(
  * - a mission id this build no longer ships — the duration and payout are gone with it, so there
  *   is no way to say when it finishes or what it owes;
  * - a crew naming somebody the roster no longer holds;
- * - a crew naming somebody standing in the formation, which is the invariant this file exists to
- *   protect and the one thing a hand-edited save is most likely to break;
+ * - a crew naming somebody standing in **any** activity's formation, which is the invariant this
+ *   file exists to protect and the one thing a hand-edited save is most likely to break;
  * - the same character on two missions at once.
  *
  * ⚠️ **Two missions on the same tier is _not_ damage**, and an earlier build wrongly dropped one of

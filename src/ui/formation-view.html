@@ -1,0 +1,206 @@
+@if (crew(); as crew) {
+  <header class="head">
+    <!--
+      The back link names its destination rather than saying "Back". Where it goes depends on why
+      the screen was opened: preparing for a fight came from Home, and arranging a crew came from
+      the formations index. Both are real places the player was, so neither is history-dependent.
+    -->
+    <a class="head__back" [routerLink]="prepare() ? '/' : '/formations'">
+      ← {{ prepare() ? 'Home' : 'Formations' }}
+    </a>
+    <h1 class="head__title">{{ prepare() ? 'Before you fight' : crew.activity.name }}</h1>
+    <p class="head__summary">
+      @if (prepare()) {
+        {{ crew.activity.name }} ·
+      }
+      {{ summary() }}
+    </p>
+    @if (lockNote(); as note) {
+      <p class="head__lock">{{ note }}</p>
+    }
+  </header>
+
+  @if (message(); as text) {
+    <p class="notice notice--error" role="alert">{{ text }}</p>
+  }
+
+  <!--
+    A crew member who is away on a bounty cannot fight, and `setFormation` refuses to put one
+    here — so this is damage rather than a state the player can reach. It is reported instead of
+    silently fighting one short, which is the failure that reads as the game losing a character.
+  -->
+  @if (crew.away.length > 0) {
+    <p class="notice notice--error" role="alert">
+      {{ crew.away.length }} of this crew {{ crew.away.length === 1 ? 'is' : 'are' }} away on a
+      bounty and will not fight. Collect the mission, or take them out.
+    </p>
+  }
+
+  <!--
+    The crew, drawn as the two ranks in the order attacks work through them. Empty slots are
+    rendered rather than implied, because "you have two more places to put somebody" is the whole
+    reason a player is on this screen.
+  -->
+  <section class="formation" aria-labelledby="formation-heading">
+    <h2 id="formation-heading" class="formation__title">Crew</h2>
+    @for (rank of ranks(); track rank.row) {
+      <div class="rank">
+        <h3 class="rank__label">{{ rank.label }}</h3>
+        <p class="rank__hint">{{ rank.hint }}</p>
+        <ul class="rank__slots">
+          @for (member of rank.members; track member.defId) {
+            <li class="slot slot--filled">
+              <span class="slot__name">{{ member.name }}</span>
+              <span class="slot__role">{{ member.role }}</span>
+              <button
+                type="button"
+                class="slot__remove"
+                (click)="cycle(member.defId)"
+                [attr.aria-label]="nextAction(member.defId, member.name).description"
+              >
+                <span aria-hidden="true">{{ nextAction(member.defId, member.name).label }}</span>
+              </button>
+            </li>
+          }
+          @for (gap of [].constructor(rank.capacity - rank.members.length); track $index) {
+            <li class="slot slot--empty">Empty</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!--
+      What this crew's faction composition is worth. Drawn inside the panel rather than beside it
+      because it is a property of the crew and changes with every placement — a player cycling
+      somebody into the back row should see the number move without looking away.
+    -->
+    @if (lineup(); as lineup) {
+      <div class="lineup" aria-labelledby="lineup-heading">
+        <h3 id="lineup-heading" class="lineup__label">Lineup bonus</h3>
+        <p class="lineup__shape">{{ lineup.shape }}</p>
+        @if (lineup.effects.length > 0) {
+          <ul class="lineup__effects">
+            @for (effect of lineup.effects; track effect) {
+              <li class="lineup__effect">{{ effect }}</li>
+            }
+          </ul>
+        }
+        <p class="lineup__hint">{{ lineup.hint }}</p>
+      </div>
+    }
+
+    <div class="formation__actions">
+      @if (prepare()) {
+        <!--
+          The primary control on this route, and the reason the route exists. Disabled rather than
+          hidden when the crew cannot fight, so the player can see there is a fight to be had and
+          what is stopping it — the summary line above says how many are standing.
+        -->
+        <button
+          type="button"
+          class="button button--primary"
+          [disabled]="!crew.ready"
+          (click)="fight()"
+        >
+          Fight
+        </button>
+      }
+      <button
+        type="button"
+        class="button button--quiet"
+        [disabled]="crew.size === 0"
+        (click)="clear()"
+      >
+        Clear crew
+      </button>
+    </div>
+
+    @if (prepare() && !crew.ready) {
+      <p class="formation__blocked" role="status">Place at least one character before fighting.</p>
+    }
+  </section>
+
+  <!--
+    Everybody who could still join, one section per faction in the order the matchup cycle names
+    them. Empty sections still render: the headings are a fixed shape to scroll through rather than
+    a list that rearranges itself, and "none owned yet" under Angels is information a player
+    summoning for a healer wants.
+  -->
+  @for (section of sections(); track section.id) {
+    <section class="group" [attr.aria-labelledby]="'group-' + section.id">
+      <h2 class="group__title" [id]="'group-' + section.id">
+        {{ section.label }}
+        @if (section.members.length > 0) {
+          <span class="group__count">{{ section.members.length }}</span>
+        }
+      </h2>
+
+      @if (section.members.length === 0) {
+        <p class="group__empty">{{ section.empty }}</p>
+      } @else {
+        <ul class="roster">
+          @for (entry of section.members; track entry.defId) {
+            <li class="roster__row">
+              <div class="roster__identity">
+                <a
+                  class="roster__name"
+                  [routerLink]="['/roster', entry.defId]"
+                  [queryParams]="{ from: 'roster' }"
+                >
+                  {{ entry.name }}
+                </a>
+                <p class="roster__meta">
+                  <span class="tier tier--{{ entry.tier }}">{{ entry.tier }}</span>
+                  <span>{{ entry.factionName }}</span>
+                  <span>{{ entry.role }}</span>
+                  <span class="rarity rarity--{{ entry.rarityFamily }}">
+                    {{ entry.rarityLabel }}
+                  </span>
+                </p>
+                <p class="roster__stats">
+                  Level {{ entry.level }}/{{ entry.levelCap }}
+                  @if (entry.resonated) {
+                    <span class="roster__carried">carried</span>
+                  }
+                  <!--
+                    Which *other* crews this character is already standing for. The whole point of
+                    eight crews is that one character can serve several, so the question this row
+                    has to answer is "am I about to pull somebody out of somewhere" — and the
+                    answer is a count, because naming seven towers in a list item is not a line
+                    anybody reads.
+                  -->
+                  @if (entry.crews.length > 0) {
+                    ·
+                    <span class="roster__crews">
+                      in {{ entry.crews.length }} other
+                      {{ entry.crews.length === 1 ? 'crew' : 'crews' }}
+                    </span>
+                  }
+                </p>
+              </div>
+
+              @if (nextAction(entry.defId, entry.name); as action) {
+                <button type="button" class="roster__toggle" (click)="cycle(entry.defId)">
+                  <!--
+                    The accessible name spells out both the action and who it applies to, because
+                    the visible label alone ("To back") repeats down the whole list.
+                  -->
+                  <span class="visually-hidden">{{ action.description }}</span>
+                  <span aria-hidden="true">{{ action.label }}</span>
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+} @else {
+  <header class="head">
+    <a class="head__back" routerLink="/formations">← Formations</a>
+    <h1 class="head__title">No such activity</h1>
+  </header>
+  <p class="empty" role="status">
+    This build does not have that activity. It may have arrived with a later version of the game.
+  </p>
+}

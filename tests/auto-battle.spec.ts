@@ -16,6 +16,7 @@ import {
   STAGE_REWARDS,
   SUMMON_RATE,
 } from '../src/data';
+import { startFight } from './flows';
 
 /**
  * Auto-battle, driven through a real browser.
@@ -80,7 +81,7 @@ function unlockedRun(index: number) {
       { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
       { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
     ],
-    formation: { front: ['bran', 'mira'], back: ['rin'] },
+    formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,
     legendaryPity: 0,
     pullCount: 0,
@@ -108,8 +109,7 @@ async function seed(page: Page, save: unknown): Promise<void> {
 
 /** Opens the battle screen at 4x, which is what makes these tests seconds rather than minutes. */
 async function enterBattle(page: Page): Promise<void> {
-  await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
-  await expect(page.locator('.battle')).toBeVisible();
+  await startFight(page);
   await page.getByRole('button', { name: '4×' }).click();
 }
 
@@ -177,7 +177,7 @@ test.describe('auto-battle', () => {
     });
 
     // Straight back in: the loop must not still be armed from the run that just ended.
-    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
+    await startFight(page);
 
     await expect(page.getByRole('button', { name: 'Auto' })).toHaveAttribute(
       'aria-pressed',

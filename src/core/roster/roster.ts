@@ -2,6 +2,8 @@ import { awayMembers } from '../bounties';
 import { canAfford, debit } from '../currency';
 import { emptyLoadout } from '../gear/types';
 import {
+  CAMPAIGN_FORMATION,
+  formationIn,
   formationMembers,
   formationSize,
   type GameState,
@@ -155,13 +157,19 @@ export function grantStarters(
     next = grantCopies(next, character, 1).state;
   }
 
-  if (formationSize(next.formation) === 0) {
+  // The campaign key and only the campaign key. A new run has one thing to fight, and seeding a
+  // tower's crew here would be `core/` inventing content — it cannot see which towers this build
+  // ships, and a tower has a faction lock the starters would not satisfy anyway.
+  if (formationSize(formationIn(next.formations, CAMPAIGN_FORMATION)) === 0) {
     const owned = (id: string): boolean => findOwned(next, id) !== undefined;
     next = {
       ...next,
-      formation: {
-        front: starters.front.filter(owned).slice(0, rowCapacity('front')),
-        back: starters.back.filter(owned).slice(0, rowCapacity('back')),
+      formations: {
+        ...next.formations,
+        [CAMPAIGN_FORMATION]: {
+          front: starters.front.filter(owned).slice(0, rowCapacity('front')),
+          back: starters.back.filter(owned).slice(0, rowCapacity('back')),
+        },
       },
     };
   }
@@ -169,15 +177,27 @@ export function grantStarters(
 }
 
 /**
- * Sets the whole formation, rank by rank.
+ * Sets one activity's whole formation, rank by rank.
  *
  * Order within a rank is load-bearing — it breaks ties in ATB turn order and in targeting —
  * so this preserves the order given rather than sorting. An empty formation is allowed: a
  * player mid-reshuffle has not done anything wrong, and `simulateBattle` treats a party of
  * nobody as an immediate defeat rather than as an error.
+ *
+ * ⚠️ **`activity` is required rather than defaulted to the campaign**, for the reason
+ * `toBattleCombatant` takes a level rather than reading one off the entry: a caller that forgot
+ * which crew it was editing would silently rewrite the campaign's, and every screen would keep
+ * showing the right thing until the player started a fight with the wrong five. A defaulted
+ * argument makes that a typo; a required one makes it a compile error.
+ *
+ * **Nothing here checks whether a character is *allowed* in this activity.** A tower's faction
+ * lock is content, and `core/` cannot see content — the caller that knows what a tower is
+ * enforces it. What this owns is the rules that hold for every formation there will ever be:
+ * rank capacity, no duplicates within a crew, ownership, and the bounty invariant below.
  */
 export function setFormation(
   state: GameState,
+  activity: string,
   formation: PartyFormation,
   characters: CharacterLookup,
 ): RosterResult {
@@ -212,7 +232,13 @@ export function setFormation(
 
   return {
     ok: true,
-    state: { ...state, formation: { front: [...formation.front], back: [...formation.back] } },
+    state: {
+      ...state,
+      formations: {
+        ...state.formations,
+        [activity]: { front: [...formation.front], back: [...formation.back] },
+      },
+    },
   };
 }
 
@@ -232,26 +258,40 @@ export function withoutMember(formation: PartyFormation, defId: string): PartyFo
  */
 export function placeInRow(
   state: GameState,
+  activity: string,
   defId: string,
   row: 'front' | 'back',
   characters: CharacterLookup,
 ): RosterResult {
-  const base = withoutMember(state.formation, defId);
+  const base = withoutMember(formationIn(state.formations, activity), defId);
   const rank = [...base[row], defId];
   return setFormation(
     state,
+    activity,
     row === 'front' ? { front: rank, back: base.back } : { front: base.front, back: rank },
     characters,
   );
 }
 
-/** Takes a character out of the formation. Benching somebody who is not fielded is a no-op. */
+/**
+ * Takes a character out of one activity's formation. Benching somebody not fielded is a no-op.
+ *
+ * **Out of one crew, not out of all of them.** A character standing in the campaign five and the
+ * Dwarf tower five is two decisions, and benching them from one is not a statement about the
+ * other.
+ */
 export function benchMember(
   state: GameState,
+  activity: string,
   defId: string,
   characters: CharacterLookup,
 ): RosterResult {
-  return setFormation(state, withoutMember(state.formation, defId), characters);
+  return setFormation(
+    state,
+    activity,
+    withoutMember(formationIn(state.formations, activity), defId),
+    characters,
+  );
 }
 
 /**

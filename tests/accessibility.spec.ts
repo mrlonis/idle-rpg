@@ -16,6 +16,7 @@ import {
   QUEST_RULES,
   STAGE_REWARDS,
 } from '../src/data';
+import { FIGHT_LINK, startFight } from './flows';
 
 /**
  * A run that has cleared the ladder, so the battle screen renders its auto-battle control.
@@ -53,7 +54,7 @@ const unlockedSave = {
     { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
     { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
   ],
-  formation: { front: ['bran', 'mira'], back: ['rin'] },
+  formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
   pity: 0,
   legendaryPity: 0,
   pullCount: 0,
@@ -236,7 +237,7 @@ function bountiesSave() {
     ],
     // Two fielded, two on the bench, one away — so the picker has somebody to offer *and* somebody
     // to withhold, which is the disjointness invariant visible on screen.
-    formation: { front: ['bran'], back: ['mira'] },
+    formations: { campaign: { front: ['bran'], back: ['mira'] } },
     dispatches: [
       {
         bountyId: REQUIRED_BOUNTY.id,
@@ -298,7 +299,7 @@ test.describe('Accessibility', () => {
 
     // The Fight control renders only once the run has loaded, so waiting on it also proves the
     // save path resolved — the scan covers a real home screen, not a loading shell.
-    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: FIGHT_LINK })).toBeVisible();
 
     await scan(page, testInfo, 'home');
   });
@@ -309,7 +310,7 @@ test.describe('Accessibility', () => {
     await seedSave(page, awaySave);
     await page.goto('');
 
-    await expect(page.getByRole('button', { name: /^Fight \d+-\d+/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: FIGHT_LINK })).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Dismiss offline earnings notice' }),
     ).toBeVisible();
@@ -320,8 +321,7 @@ test.describe('Accessibility', () => {
   test('the battle screen has no AXE violations', async ({ page }, testInfo) => {
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
-    await expect(page.locator('.battle')).toBeVisible();
+    await startFight(page);
 
     // 4x so the wait below is about a second rather than four. Also exercises the one control
     // that exists mid-fight.
@@ -344,7 +344,7 @@ test.describe('Accessibility', () => {
     await seedSave(page, unlockedSave);
     await page.goto('');
 
-    await page.getByRole('button', { name: /^Fight \d+-\d+/ }).click();
+    await startFight(page);
     await expect(page.getByRole('button', { name: 'Auto' })).toBeVisible();
     await page.getByRole('button', { name: '4×' }).click();
     await expect(page.locator('.actions')).toBeVisible({ timeout: 15_000 });
@@ -380,14 +380,56 @@ test.describe('Accessibility', () => {
     await page.goto('/roster');
 
     await expect(page.getByRole('heading', { level: 1, name: 'Roster' })).toBeVisible();
-    // A fresh run fields three of five, so the placement control is scanned in both of its
-    // states — one row offering to move somebody who is standing, and the empty slots below.
-    await expect(page.getByRole('heading', { level: 2, name: 'Formation' })).toBeVisible();
+    // Placement moved to the formation editor in milestone 15a; what this screen owns now is the
+    // shared level, the faction groups and the link out.
+    await expect(page.getByRole('heading', { level: 2, name: 'Resonance' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Formations/ })).toBeVisible();
+
+    await scan(page, testInfo, 'roster');
+  });
+
+  test('the formations index has no AXE violations', async ({ page }, testInfo) => {
+    await page.goto('/formations');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Formations' })).toBeVisible();
+
+    await scan(page, testInfo, 'formations');
+  });
+
+  test('the crew editor has no AXE violations', async ({ page }, testInfo) => {
+    // ⚠️ Seeded with a spare character on purpose. A fresh run owns exactly three and stands all
+    // three, so the pool below the crew would be empty and the row-level placement control — the
+    // one whose accessible name has to spell out both the action and who it applies to — would
+    // never render for the scan to see.
+    await seedSave(page, {
+      ...unlockedSave,
+      roster: [...unlockedSave.roster, { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {} }],
+    });
+    await page.goto('/formations/campaign');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Campaign' })).toBeVisible();
+    // Both states of the control: a slot offering to move somebody who is standing, and a pool row
+    // offering to place somebody who is not.
     await expect(
       page.getByRole('button', { name: /^Move .* to the back row/ }).first(),
     ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /^Place .* in the back row/ }).first(),
+    ).toBeVisible();
 
-    await scan(page, testInfo, 'roster');
+    await scan(page, testInfo, 'formation-editor');
+  });
+
+  test('the pre-battle screen has no AXE violations', async ({ page }, testInfo) => {
+    // The same component with the Fight control switched on — scanned separately because that
+    // control is the one thing on it no other scan covers, and it is the screen every battle
+    // passes through.
+    await page.goto('/prepare/campaign');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Before you fight' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Fight', exact: true })).toBeEnabled();
+
+    await scan(page, testInfo, 'prepare');
   });
 
   test('a character sheet has no AXE violations', async ({ page }, testInfo) => {

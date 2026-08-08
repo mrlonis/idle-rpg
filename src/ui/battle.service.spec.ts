@@ -1,9 +1,12 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  CAMPAIGN_FORMATION,
+  formationIn,
   formationMembers,
   type GameState,
+  type PartyFormation,
   newGame,
   num,
   positionAt,
@@ -13,6 +16,7 @@ import {
 import { AUTO_BATTLE_UNLOCK_CLEARS, STARTER_FORMATION } from '../data';
 import { BattleService } from './battle.service';
 import { CHAPTERS_IN_ORDER, CHARACTERS_BY_ID, LADDER, STAGES } from './content';
+import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
 import { KEY_VALUE_STORE, type KeyValueStore } from './save.service';
@@ -89,7 +93,7 @@ function withStarters(state: GameState, level = 1): GameState {
     copies: 0,
     gear: {},
   }));
-  return { ...state, roster, formation: STARTER_FORMATION };
+  return { ...state, roster, formations: { [CAMPAIGN_FORMATION]: STARTER_FORMATION } };
 }
 
 /** A run far enough up the ladder to have earned auto-battle. */
@@ -128,8 +132,15 @@ class FakeGameLoop {
   /** Every state handed to `persist`, so "one write per battle" is checkable rather than assumed. */
   readonly persisted: GameState[] = [];
 
+  /** Derived from the snapshot rather than held apart, exactly as the real loop derives it. */
+  readonly formations = computed(() => this.snapshot()?.formations ?? {});
+
   get current(): GameState | null {
     return this.snapshot();
+  }
+
+  formationFor(activity: string): PartyFormation {
+    return formationIn(this.formations(), activity);
   }
 
   apply(update: (state: GameState) => GameState): void {
@@ -172,6 +183,7 @@ function build(
     providers: [
       BattleService,
       RosterService,
+      FormationService,
       { provide: GameLoopService, useValue: loop },
       // The playback speed is a persisted setting since milestone 13, so the animator now reaches
       // a store. Provided empty rather than left to the real plugin: two animators built in one

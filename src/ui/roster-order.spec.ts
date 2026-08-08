@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { type FactionData } from '../core';
-import { compareEntries, factionRanker, groupBench } from './roster-order';
+import { compareEntries, factionRanker, groupByFaction } from './roster-order';
 import { type RosterEntryView } from './roster.service';
 
 /** The authored factions, trimmed to the three the ordering tests need. */
@@ -12,7 +12,7 @@ const FACTIONS: readonly FactionData[] = [
 
 const rank = factionRanker(FACTIONS);
 
-/** One benched, unremarkable roster row, with only what a test cares about overridden. */
+/** One unremarkable roster row, standing in no crew, with only what a test overrides. */
 function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
   return {
     defId: over.name?.toLowerCase() ?? 'rin',
@@ -30,9 +30,8 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     atLevelCap: false,
     isMaxRarity: false,
     copies: 0,
-    inParty: false,
-    row: null,
-    rowSlot: null,
+    crews: [],
+    crewed: false,
     nextLevelCost: null,
     canLevel: false,
     affordableLevel: 10,
@@ -48,18 +47,19 @@ function order(entries: readonly RosterEntryView[]): readonly string[] {
 }
 
 describe('compareEntries', () => {
-  it('pins fielded characters above the bench, front rank first', () => {
+  it('does not pin crewed characters above the rest', () => {
+    // ⚠️ Milestone 15a removed that pin deliberately. It answered "who is actually fighting" while
+    // five of forty-nine rows were in one formation; with eight crews it would cover most of the
+    // roster and distinguish nothing. Faction and level decide the order now, whoever is standing.
     const names = order([
-      entry({ name: 'Benched', level: 999 }),
-      entry({ name: 'Back1', inParty: true, row: 'back', rowSlot: 1 }),
-      entry({ name: 'Front2', inParty: true, row: 'front', rowSlot: 2 }),
-      entry({ name: 'Front1', inParty: true, row: 'front', rowSlot: 1 }),
+      entry({ name: 'Idle', faction: 'human', level: 99, crews: [], crewed: false }),
+      entry({ name: 'Busy', faction: 'human', level: 1, crews: ['campaign'], crewed: true }),
     ]);
 
-    expect(names).toEqual(['Front1', 'Front2', 'Back1', 'Benched']);
+    expect(names).toEqual(['Idle', 'Busy']);
   });
 
-  it('groups the bench by faction in the authored order', () => {
+  it('groups the roster by faction in the authored order', () => {
     // Levels deliberately run against the faction order: faction wins, or the grouping the
     // list is built from would be interleaved with characters that belong elsewhere.
     const names = order([
@@ -122,35 +122,35 @@ describe('compareEntries', () => {
   });
 });
 
-describe('groupBench', () => {
+describe('groupByFaction', () => {
   it('emits every authored faction, in order, even with nothing in it', () => {
-    const groups = groupBench([entry({ name: 'Wren', faction: 'human' })], FACTIONS);
+    const groups = groupByFaction([entry({ name: 'Wren', faction: 'human' })], FACTIONS);
 
     expect(groups.map((group) => group.factionId)).toEqual(['human', 'dwarf', 'angel']);
     expect(groups.map((group) => group.label)).toEqual(['Humans', 'Dwarves', 'Angels']);
     expect(groups.map((group) => group.members.length)).toEqual([1, 0, 0]);
   });
 
-  it('leaves fielded characters out of their faction group', () => {
-    // They are pinned above the faction headings instead, so listing them twice would double
-    // every control on the screen.
-    const groups = groupBench(
+  it('lists every row when no predicate narrows it, which is the roster screen', () => {
+    const groups = groupByFaction(
       [
-        entry({ name: 'Fielded', faction: 'human', inParty: true, row: 'front', rowSlot: 1 }),
-        entry({ name: 'Benched', faction: 'human' }),
+        entry({ name: 'Standing', faction: 'human', crews: ['campaign'], crewed: true }),
+        entry({ name: 'Spare', faction: 'human' }),
       ],
       FACTIONS,
     );
 
-    expect(groups[0]?.members.map((member) => member.name)).toEqual(['Benched']);
+    expect(groups[0]?.members.map((member) => member.name)).toEqual(['Standing', 'Spare']);
   });
 
-  it('counts fielded characters towards the faction that owns them', () => {
-    // `owned` is what lets an empty heading say "everyone you own is fielded" rather than
-    // claiming you own none of that faction.
-    const groups = groupBench(
-      [entry({ name: 'Kestrel', faction: 'human', inParty: true, row: 'front', rowSlot: 1 })],
+  it('narrows the members by the predicate while still counting them as owned', () => {
+    // The split the formation editor needs: it lists only who a crew may still add, and `owned` is
+    // what lets an empty heading say "everyone you own is already standing" rather than claiming
+    // you own none of that faction.
+    const groups = groupByFaction(
+      [entry({ name: 'Kestrel', faction: 'human', crews: ['campaign'], crewed: true })],
       FACTIONS,
+      (member) => !member.crewed,
     );
 
     expect(groups[0]).toMatchObject({ factionId: 'human', owned: 1 });
@@ -158,13 +158,13 @@ describe('groupBench', () => {
   });
 
   it('reports nothing owned for a faction the player has never pulled', () => {
-    const groups = groupBench([entry({ faction: 'human' })], FACTIONS);
+    const groups = groupByFaction([entry({ faction: 'human' })], FACTIONS);
 
     expect(groups[2]).toMatchObject({ factionId: 'angel', owned: 0, members: [] });
   });
 
   it('preserves the order it is given rather than sorting again', () => {
-    const groups = groupBench(
+    const groups = groupByFaction(
       [
         entry({ name: 'First', faction: 'dwarf', level: 1 }),
         entry({ name: 'Second', faction: 'dwarf', level: 99 }),
@@ -178,7 +178,7 @@ describe('groupBench', () => {
   it('keeps a character whose faction the content no longer ships, in a trailing group', () => {
     // Dropping the row would lose a character off the roster screen entirely — a far worse
     // failure than a heading named after an id.
-    const groups = groupBench(
+    const groups = groupByFaction(
       [entry({ name: 'Stray', faction: 'wyrm', factionName: 'wyrm' })],
       FACTIONS,
     );

@@ -3,13 +3,12 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
-import { type FactionData, lineupBonus, num, type RosterResult, type Row } from '../core';
-import { COMBAT } from './content';
-import { groupBench } from './roster-order';
+import { type FactionData, num, type RosterResult } from '../core';
+import { groupByFaction } from './roster-order';
 import { RosterView } from './roster-view';
 import { type ResonanceView, type RosterEntryView, RosterService } from './roster.service';
 
-/** One roster row, benched and unremarkable, with only what a test cares about overridden. */
+/** One roster row, in no crew and unremarkable, with only what a test overrides. */
 function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
   return {
     defId: 'rin',
@@ -27,9 +26,8 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
     atLevelCap: false,
     isMaxRarity: false,
     copies: 0,
-    inParty: false,
-    row: null,
-    rowSlot: null,
+    crews: [],
+    crewed: false,
     nextLevelCost: null,
     canLevel: false,
     affordableLevel: 12,
@@ -48,26 +46,9 @@ function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
  */
 class FakeRoster {
   readonly entries = signal<readonly RosterEntryView[]>([entry()]);
-  readonly frontRow = computed(() => this.entries().filter((row) => row.row === 'front'));
-  readonly backRow = computed(() => this.entries().filter((row) => row.row === 'back'));
-  readonly fielded = computed(() => [...this.frontRow(), ...this.backRow()]);
-  readonly fieldedCount = computed(() => this.fielded().length);
-  readonly openSlots = signal<Readonly<Record<Row, number>>>({ front: 2, back: 3 });
+  readonly crewedCount = computed(() => this.entries().filter((row) => row.crewed).length);
   /** The real partition, so the template is exercised against the shape it actually receives. */
-  readonly benchGroups = computed(() => groupBench(this.entries(), FACTIONS));
-  /**
-   * The real resolver against the shipped rules, exactly as the service does it.
-   *
-   * Faked no further than the roster itself: the point of the panel is that the screen and the
-   * simulation agree about what a composition is worth, and a stub returning hand-written numbers
-   * would test the template against an agreement that does not exist.
-   */
-  readonly lineup = computed(() =>
-    lineupBonus(
-      this.fielded().map((row) => row.faction),
-      COMBAT.lineup,
-    ),
-  );
+  readonly factionGroups = computed(() => groupByFaction(this.entries(), FACTIONS));
   /**
    * The shared level, stubbed rather than derived.
    *
@@ -127,20 +108,28 @@ async function render(configure?: (roster: FakeRoster) => void) {
 
 describe('RosterView', () => {
   describe('the faction groups', () => {
-    it('pins the party above the factions and gives every faction a heading', async () => {
+    it('gives every faction a heading and lists crewed characters under their own', async () => {
+      // ⚠️ There is no "Fielded" section any more. It existed while one formation held five of
+      // forty-nine rows; with eight crews it would have held most of the roster, and placement
+      // moved to the formation editor with it.
       const { el } = await render((roster) =>
         roster.entries.set([
-          entry({ defId: 'kestrel', name: 'Kestrel', inParty: true, row: 'front', rowSlot: 1 }),
+          entry({
+            defId: 'kestrel',
+            name: 'Kestrel',
+            faction: 'elf',
+            factionName: 'Elves',
+            crews: ['campaign'],
+            crewed: true,
+          }),
           entry({ defId: 'rin', name: 'Rin', faction: 'elf', factionName: 'Elves' }),
         ]),
       );
 
-      expect(headings(el)).toEqual(['Fielded 1', 'Elves 1', 'Dwarves', 'Angels']);
+      expect(headings(el)).toEqual(['Elves 2', 'Dwarves', 'Angels']);
     });
 
-    it('does not reuse the formation panel’s heading for the fielded group', async () => {
-      // Two level-2 headings named "Formation" and "In your formation" are indistinguishable
-      // to anyone navigating this screen by heading, which is most of the point of having them.
+    it('keeps every level-2 heading distinct, so the regions are navigable by name', async () => {
       const { el } = await render();
 
       const level2 = [...el.querySelectorAll('h2')].map((node) =>
@@ -154,15 +143,16 @@ describe('RosterView', () => {
         roster.entries.set([entry({ faction: 'elf', factionName: 'Elves' })]),
       );
 
+      // The last of the three faction groups, which is the one nothing owned falls into.
       const groups = [...el.querySelectorAll('.group')];
-      expect(groups[3]?.querySelector('.group__empty')?.textContent?.trim()).toBe(
+      expect(groups[2]?.querySelector('.group__empty')?.textContent?.trim()).toBe(
         'None owned yet.',
       );
     });
 
-    it('distinguishes a faction emptied by fielding from one you own none of', async () => {
-      // The two look identical on screen and mean opposite things: one is a reason to summon,
-      // the other is a reason to look at your formation.
+    it('lists a crewed character in its faction group like any other', async () => {
+      // This screen shows every row now. "Everyone you own is standing" is a distinction the
+      // formation editor makes, because that is the screen whose list is narrowed by a crew.
       const { el } = await render((roster) =>
         roster.entries.set([
           entry({
@@ -170,29 +160,23 @@ describe('RosterView', () => {
             name: 'Dorn',
             faction: 'dwarf',
             factionName: 'Dwarves',
-            inParty: true,
-            row: 'front',
-            rowSlot: 1,
+            crews: ['campaign'],
+            crewed: true,
           }),
         ]),
       );
 
       const empties = [...el.querySelectorAll('.group__empty')].map((n) => n.textContent?.trim());
-      expect(empties).toEqual([
-        'None owned yet.',
-        'Everyone you own is fielded.',
-        'None owned yet.',
+      expect(empties).toEqual(['None owned yet.', 'None owned yet.']);
+      expect([...el.querySelectorAll('.roster__name')].map((n) => n.textContent?.trim())).toEqual([
+        'Dorn',
       ]);
     });
 
-    it('tells a player with nobody fielded what to do about it', async () => {
-      const { el } = await render((roster) =>
-        roster.entries.set([entry({ faction: 'elf', factionName: 'Elves' })]),
-      );
+    it('links out to the formations screen, which is where a crew is arranged now', async () => {
+      const { el } = await render();
 
-      expect(el.querySelector('.group__empty')?.textContent?.trim()).toBe(
-        'Nobody is fielded. Field somebody from a faction below.',
-      );
+      expect(el.querySelector('.crews-link')?.getAttribute('href')).toBe('/formations');
     });
 
     it('labels each section by its own heading, so the regions are navigable', async () => {
@@ -310,153 +294,6 @@ describe('RosterView', () => {
 
       expect(el.querySelector('.roster__ready')).toBeNull();
       expect(el.textContent).toContain('9 spare copies');
-    });
-  });
-
-  describe('the lineup bonus panel', () => {
-    /** A fielded character of a given faction, in whichever rank still has room. */
-    const fieldedOf = (faction: string, index: number): RosterEntryView =>
-      entry({
-        defId: `${faction}-${index}`,
-        name: `${faction} ${index}`,
-        faction,
-        factionName: faction,
-        inParty: true,
-        row: index < 2 ? 'front' : 'back',
-        rowSlot: index < 2 ? index + 1 : index - 1,
-      });
-
-    const effects = (el: HTMLElement): readonly string[] =>
-      [...el.querySelectorAll('.lineup__effect')].map((node) => (node.textContent ?? '').trim());
-
-    it('tells a party that qualified for nothing what would qualify', async () => {
-      // The panel's real job. A bonus with no visible next rung is a number rather than a
-      // decision, and this screen is where the decision is made.
-      const { el } = await render((roster) =>
-        roster.entries.set([fieldedOf('human', 0), fieldedOf('dwarf', 1)]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('No faction bonus yet');
-      expect(effects(el)).toEqual([]);
-      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Angels');
-    });
-
-    it('names the composition and what it is worth', async () => {
-      const { el } = await render((roster) =>
-        roster.entries.set([
-          fieldedOf('dwarf', 0),
-          fieldedOf('dwarf', 1),
-          fieldedOf('dwarf', 2),
-          fieldedOf('elf', 3),
-          fieldedOf('elf', 4),
-        ]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Dwarves ×3 · Elves ×2');
-      expect(effects(el)).toEqual(['+15% attack', '+15% health']);
-    });
-
-    it('credits Angels to the faction they stood in for', async () => {
-      // The wildcard is what makes a mono five reachable at all on this roster, so the panel has
-      // to say the party counts as five Humans. It says it in the hint rather than in the
-      // roll-call, because the roll-call has to keep agreeing with the flat tracks — which count
-      // real members and would disagree with a headline of "Humans ×5".
-      const { el } = await render((roster) =>
-        roster.entries.set([
-          fieldedOf('human', 0),
-          fieldedOf('human', 1),
-          fieldedOf('human', 2),
-          fieldedOf('angel', 3),
-          fieldedOf('angel', 4),
-        ]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×3 · Angels ×2');
-      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Counts as Humans ×5');
-      expect(effects(el)).toEqual(['+25% attack', '+25% health']);
-    });
-
-    it('does not claim a substitution when none happened', async () => {
-      // Five real Humans reach the same rung with no wildcard involved, so "counts as Humans ×5"
-      // under "Humans ×5" would be the panel explaining itself to itself.
-      const { el } = await render((roster) =>
-        roster.entries.set([0, 1, 2, 3, 4].map((index) => fieldedOf('human', index))),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Humans ×5');
-      expect(el.querySelector('.lineup__hint')?.textContent).not.toContain('Counts as');
-    });
-
-    it('names a faction once when it is both half of a rung and a flat track', async () => {
-      // Monsters here are the second half of a three-and-two *and* the rally track, and the panel
-      // has one line for both facts. Naming them twice makes the line read as though seven
-      // characters were fielded, which is the worst kind of wrong: plausible.
-      const { el } = await render((roster) =>
-        roster.entries.set([
-          fieldedOf('human', 0),
-          fieldedOf('human', 1),
-          fieldedOf('human', 2),
-          fieldedOf('monster', 3),
-          fieldedOf('monster', 4),
-        ]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe(
-        'Humans ×3 · Monsters ×2',
-      );
-    });
-
-    it('reports what was fielded rather than what the rung counted it as', async () => {
-      // Three Demons and two Angels reaches a mono five, but the Demon track only ever counts real
-      // Demons — so a line saying "Demons ×5" beside three rungs' worth of Demon effects invites
-      // the player to wonder where the other two rungs went. The rung goes in the hint instead.
-      const { el } = await render((roster) =>
-        roster.entries.set([
-          fieldedOf('demon', 0),
-          fieldedOf('demon', 1),
-          fieldedOf('demon', 2),
-          fieldedOf('angel', 3),
-          fieldedOf('angel', 4),
-        ]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('Demons ×3 · Angels ×2');
-      expect(el.querySelector('.lineup__hint')?.textContent).toContain('Demons ×5');
-      // Three Demons, so three rungs of the track and not five.
-      expect(effects(el)).toEqual([
-        '+25% attack',
-        '+25% health',
-        '+30% defence',
-        '+15% crit rating',
-        '+25% energy recovery while hurt',
-      ]);
-    });
-
-    it('names the flat tracks separately, so a bonus without a rung is still attributable', async () => {
-      // One Demon reaches no rung at all and is still worth fielding. "+30% defence" with no
-      // composition line beside it is a number a player cannot act on.
-      const { el } = await render((roster) =>
-        roster.entries.set([fieldedOf('demon', 0), fieldedOf('monster', 1), fieldedOf('elf', 2)]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe(
-        'Monsters ×1 · Demons ×1',
-      );
-      expect(effects(el)).toEqual(['+2% attack', '+2% health', '+30% defence']);
-    });
-
-    it('follows the formation rather than the whole roster', async () => {
-      // Three Dwarves owned, one fielded. A panel counting the bench would promise a bonus the
-      // battle does not pay, which is the one thing this screen must never do.
-      const { el } = await render((roster) =>
-        roster.entries.set([
-          fieldedOf('dwarf', 0),
-          entry({ defId: 'benched-1', faction: 'dwarf' }),
-          entry({ defId: 'benched-2', faction: 'dwarf' }),
-        ]),
-      );
-
-      expect(el.querySelector('.lineup__shape')?.textContent?.trim()).toBe('No faction bonus yet');
     });
   });
 

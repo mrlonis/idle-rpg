@@ -51,8 +51,9 @@ the two disagree, the code is right and both are stale.
   status**; nothing else restates it. It is the **numbered roadmap and nothing else** — work that
   shipped without a milestone number lives in the reference doc that owns the system.
 - **[docs/navigation.md](../../docs/navigation.md)** — the tab bar's measured ceiling, Town as the hub,
-  the test for what belongs there, the Bag rename, and the routing rules. **Read it before adding a
-  screen**; the "adding a tab at all" section below is stated there with its reasons.
+  the test for what belongs there, the Bag rename, Home as the battle hub, and the routing rules.
+  **Read it before adding a screen**; the "adding a tab at all" section below is stated there with
+  its reasons.
 - **[docs/rejected.md](../../docs/rejected.md)** — everything ruled out and why it stays ruled out:
   prestige, the segmented offline solver, `timeToClear`, `dropCarry`, the offline cap, role-locked
   placement, flat synergy bonuses, anti-cheat, and the genre systems this game will not have. It also
@@ -260,6 +261,33 @@ the two disagree, the code is right and both are stale.
     three go through `effectiveLevel`.
   - The **rarity cap still binds**, which is the clause that keeps ascension worth paying for. Do
     not relax it to make the bench feel better; it is the only thing resonance leaves individual.
+- **There is no "the formation". There are eight crews, keyed by activity**, since milestone 15a.
+  Read [`core/activity.ts`](../../src/core/activity.ts) and `FormationBook` in
+  [`core/state.ts`](../../src/core/state.ts) before writing anything that reads who is fighting.
+  - ⚠️ **`GameState.formations` is a record, and `state.formation` no longer exists.** Every write
+    goes through `setFormation(state, activity, …)` with the activity **required rather than
+    defaulted** — for the reason `toBattleCombatant` takes a level rather than reading one: a caller
+    that forgot which crew it was editing would silently rewrite the campaign's, and every screen
+    would keep showing the right thing until the player started a fight with the wrong five.
+  - **An unknown activity key is kept on load, not dropped** — the same call `parseAchievements`
+    makes. A crew for a tower this build has not shipped costs two short arrays; dropping it costs a
+    player their line-up every time they move between builds.
+  - ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one
+    activity is fought at a time. What stays forbidden is standing twice *within* one crew, which is
+    the state that would let a fighter act twice — so the decoder's dedupe set is scoped **per
+    formation** and must stay that way.
+  - **A faction lock is content, so `core/` does not enforce it — `partyMeetsLock` does, and both
+    the editor and the battle path call it.** Two implementations of one rule is how a screen ends
+    up promising a legal crew that the fight then refuses. The lock filters the pool rather than
+    refusing a tap: a character it forbids can never enter, so listing them above the ones who can
+    is a screen hiding its own answer.
+  - ⚠️ **The bounty board's disjointness rule currently reads _every_ crew, and that is interim.**
+    It keeps the invariant exactly as strong as it was, and it tightens as towers get crewed —
+    eight crews is forty slots against forty-nine characters. The agreed fix is to **invert** it:
+    let anybody be dispatched and refuse to *fight* with somebody away. Do not widen it further.
+  - **Adding an activity is a row in [`data/activities.ts`](../../src/data/activities.ts) and nothing
+    else.** ⚠️ An `id` is a save key and is permanent once shipped — renaming one silently disbands
+    the crew standing in it. Change the `name` freely; never the `id`.
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](../../src/core/achievements.ts) and
   [`core/quests.ts`](../../src/core/quests.ts) before touching either.
@@ -467,7 +495,11 @@ Read it before starting a milestone, and specifically before:
   for what it holds, so the next item type is a section on a screen that exists rather than an
   argument for a sixth tab. The **Altar** (`/town/altar`) is the rule generalising: it is not a
   shop and spends no wallet currency, and it is still a Town card, because "somewhere you go
-  deliberately, with something you have earned" is the test rather than "a currency sink";
+  deliberately, with something you have earned" is the test rather than "a currency sink". ⚠️
+  **`/formations` is the counter-example and it belongs to neither**: a crew is not something a
+  player has earned, it is something they arrange about the roster they already hold, so it hangs
+  off the **Roster** rather than Town or the bar. **Home is the battle hub** — anything a player
+  goes to _fight_ is a card there;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

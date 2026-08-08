@@ -3,7 +3,7 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
-import { formationMembers, PARTY_SIZE } from '../state';
+import { CAMPAIGN_FORMATION, formationIn, formationMembers, PARTY_SIZE } from '../state';
 import { TEST_CHARACTERS, TEST_LEVEL_CURVE } from './fixtures/content';
 import v0 from './fixtures/v0.json';
 import { loadSave } from './load';
@@ -81,7 +81,9 @@ describe('save fixtures', () => {
     expect(state.battleCount).toBeGreaterThanOrEqual(0);
     expect(state.pity).toBeGreaterThanOrEqual(0);
     expect(state.legendaryPity).toBeGreaterThanOrEqual(0);
-    expect(formationMembers(state.formation).length).toBeLessThanOrEqual(PARTY_SIZE);
+    for (const formation of Object.values(state.formations)) {
+      expect(formationMembers(formation).length).toBeLessThanOrEqual(PARTY_SIZE);
+    }
   });
 });
 
@@ -156,6 +158,22 @@ describe('v0 fixture contents', () => {
     // every one of that player's battles resolves.
     const { state } = loadSave(v0, OPTIONS);
 
-    expect(state.formation).toEqual({ front: ['gamma', 'alpha'], back: ['beta'] });
+    expect(formationIn(state.formations, CAMPAIGN_FORMATION)).toEqual({
+      front: ['gamma', 'alpha'],
+      back: ['beta'],
+    });
+  });
+
+  it('keeps every crew, not just the campaign’s', () => {
+    // ⚠️ Why the fixture carries a second crew at all. A book holding only `campaign` would decode
+    // identically against an implementation that read that one key and dropped the rest — which is
+    // exactly the distinction a fixture exists to make, and exactly the bug that would strand
+    // seven tower crews the first time a save round-tripped.
+    const { state } = loadSave(v0, OPTIONS);
+
+    expect(formationIn(state.formations, 'tower:test')).toEqual({
+      front: ['beta'],
+      back: ['gamma'],
+    });
   });
 });

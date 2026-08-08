@@ -1,6 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { type GameState, type LoadResult, newGame, num, type RepairIssue } from '../core';
+import {
+  CAMPAIGN_FORMATION,
+  type GameState,
+  type LoadResult,
+  newGame,
+  num,
+  type RepairIssue,
+} from '../core';
 import { GameLoopService } from './game-loop.service';
 import { SaveService } from './save.service';
 
@@ -228,7 +235,8 @@ describe('GameLoopService', () => {
       await loop.reset(T0);
 
       expect(stateOf(loop).roster.length).toBeGreaterThan(0);
-      expect(loop.formation().front.length + loop.formation().back.length).toBeGreaterThan(0);
+      const crew = loop.formationFor(CAMPAIGN_FORMATION);
+      expect(crew.front.length + crew.back.length).toBeGreaterThan(0);
       loop.stop();
     });
 

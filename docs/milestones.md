@@ -35,7 +35,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal   |
 | 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
 | 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
-| 15  | Faction towers                          | ⬜                                             |
+| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
+| 15b | The tower system, and the first tower   | ⬜                                             |
+| 15c | The remaining six towers                | ⬜                                             |
 | 16  | Deep per-hero investment                | ⬜                                             |
 | 17  | The roguelite run                       | ⬜                                             |
 | 18  | Puzzle maps                             | ⬜                                             |
@@ -715,6 +717,13 @@ soon": **the copy was reworded rather than the guard weakened.**
 
 ## 15. Faction towers, and something for a roster to be
 
+> **Split into three.** The milestone as planned was one entry; building it made the seam obvious.
+> **15a** is the plumbing every tower needs and the campaign wanted anyway — eight crews, one
+> editor, and Home as the place a fight is chosen. **15b** is the tower system end to end with a
+> single tower shipped, so the ladder, the rewards and the balance sweep are proven against content
+> that exists before six more are authored. **15c** is the remaining six and the enemy archetypes
+> they need. The reasoning below is the whole milestone's; each sub-entry records what it decided.
+
 **The problem here is not "more content".** Through milestone 12 the game has exactly one thing
 to do, so a wall in the campaign is a wall in the entire game. It also fields five formation
 slots against forty-nine characters, fed by a gacha generous enough to produce roughly 190
@@ -762,15 +771,107 @@ cap is what limits how much of the floor a bench character can collect. So crewi
 real investment decision, just not a levelling grind. That is the intended shape — if towers ever
 feel free, the cap clause in [level resonance](level-resonance.md) is what has stopped working.
 
-### Saved team presets
+## 15a. Crews, and Home as the battle hub — **COMPLETE**
 
-Pure quality of life, and it becomes unavoidable precisely here. Seven towers plus the campaign is
-eight lineups, and by milestone 17 it is more than that — all reassembled slot by slot from a
-roster of dozens every time the player switches mode.
+The note this entry replaces called saved team presets "pure quality of life… the cheapest thing in
+this milestone and the one most likely to be cut for being unglamorous". **It was neither cheap nor
+optional.** Seven towers plus the campaign is eight line-ups, and the game had exactly one — not as
+a screen but as a _field_: `GameState.formation`, singular, read by the battle path, the bounty
+board, the roster screen and the save layer. Towers cannot be built on top of that, so this
+milestone rebuilt it and shipped no towers at all.
 
-**The absence of this is what makes multi-mode content feel like admin rather than depth.** It is
-the cheapest thing in this milestone and the one most likely to be cut for being unglamorous; the
-note is here so that cutting it is a decision rather than an oversight.
+**No content, no ladder, no reward.** What changed is where a crew lives, who edits it, and where a
+fight starts.
+
+- **Eight live formations, not one live formation and seven templates.** A template model keeps
+  `GameState.formation` as the thing that fights and makes the rest inert copies loaded into it —
+  cheaper, and it spends a step of the player's attention on bookkeeping the game could do. A crew
+  that has to be _loaded_ before it is real is a crew the player has to remember to load.
+  `FormationBook` is a keyed record for the reason the wallet and the achievement ledger are: an
+  eighth activity is a key and a row in `data/`, not a save migration.
+- ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one
+  activity is fought at a time. What is still forbidden is standing twice _within_ one crew, which
+  is the state that would let a fighter act twice — and the decoder's dedupe set is deliberately
+  scoped per formation for exactly that reason.
+- ⚠️ **The bounty board's disjointness rule was widened, and the widening is interim.**
+  `fieldedMembers` now reads every crew, which keeps the invariant exactly as strong as it was. It
+  also gets tighter as towers get crewed: eight crews is forty slots against forty-nine characters,
+  so a player who fills every tower has almost no bench left to dispatch, and the board stops being
+  a bench sink because there is no bench. **The agreed fix is to invert the rule rather than widen
+  it** — let anybody be dispatched, and refuse to _fight_ with somebody who is away. That moves the
+  check to the battle path, where it costs a crew the player must fill in rather than a mission they
+  cannot start, and it must land before 15c crews all seven towers.
+- **No save migration, and `SAVE_VERSION` stays 0.** A save written before the book carries the old
+  `formation` object; the decoder reads it into the campaign key as **load-time repair**. Defaulting
+  it away instead would have let `grantStarters` hand back the three starters and silently disband a
+  party the player assembled — the plausible-looking wrong answer, which is the class of damage the
+  save layer exists to prevent. See [saves](saves.md).
+- **The roster screen stopped being a formation editor.** Not because eight crews would not fit in
+  the markup, but because the screen would then answer two unrelated questions at once: _who is
+  worth levelling_ and _who is going to which fight_. Placement moved out whole to `/formations`,
+  and the roster kept the shared level, the faction groups and a link. The "Fielded" section and
+  the fielded-first sort went with it — both answered "who is actually fighting" while five of
+  forty-nine rows were in one formation, and with eight crews they would cover most of the roster
+  and distinguish nothing.
+- ⚠️ **The pre-battle step is a route, not a modal.** "Pop up the formation before every battle"
+  was the requirement and a CDK dialog was the obvious build. A route wins on three counts: a full
+  crew editor is more than a phone-sized overlay holds without scrolling inside a scroll container;
+  a route survives a reload, which is this project's own stated trigger for routing; and the dialog
+  would have to trap focus around forty-odd controls. `/formations/:activityId` and
+  `/prepare/:activityId` are **one component** — a picker that could do less than the editor would
+  send the player to the editor and back.
+- ⚠️ **`prepare` is route data rather than a query parameter**, so a hand-typed
+  `/formations/campaign?fight=1` cannot become a second, undocumented entry into the battle path.
+- **Home is the battle hub, and its Fight control is a link that is never disabled.** It used to go
+  inert with an empty formation, which left a new player on a dead button beside a hint pointing at
+  another screen. An empty crew is now the best reason to follow the link: the screen it opens is
+  where the crew is filled, and the Fight control _there_ is the one that waits.
+- **Nothing empty ships for the towers.** Home's battle section holds one card and the formations
+  index one row — the same call the Bag rename made, where the second heading arrives with the
+  second kind of item.
+
+The faction lock lives in `core/activity.ts` already, unused by any shipped activity: it is called
+by the editor **and** by the battle path, and two implementations of one rule is how a screen ends
+up promising a legal crew that the fight refuses.
+
+Shipped: `core/activity.ts`, `FormationBook` in `core/state.ts`, `data/activities.ts`,
+`ui/formation.service.ts`, `ui/lineup-copy.ts`, and the two screens.
+
+## 15b. The tower system, and the first tower
+
+Everything a tower is, proven against one of them. A tower is **100 stages, enemy levels 1 to 60,
+linear** — deliberately gentle, and well inside the campaign's own range, which runs to 85 by the
+end of chapter 2.
+
+Decisions taken up front, so 15c is authoring rather than design:
+
+- ⚠️ **Tower clears may not feed `clearedStages`.** That counter drives the idle crystal rate, and
+  `banners.spec.ts` bounds a cleared ladder at ×3 the base where the shipped hundred stages already
+  put it at ×2. Seven towers at a hundred stages each would make it ×8. Towers keep their own
+  progress, per tower.
+- **A tower clear pays a lump, gear, and flat first-clear crystals — and no idle rate.** The
+  campaign stays the income spine; a tower is the roster sink. The lump and the drops come off the
+  same curves the campaign uses, evaluated at the tower stage's matched enemy level.
+- **Enemies are drawn from every faction, biased toward the one that counters the tower's.** So the
+  matchup matrix stays live inside a tower and a mono-faction crew meets fights it is favoured in
+  and fights it is not — rather than a mirror match, which would switch the matrix off entirely.
+- **Faction-locked, and open early** — around the auto-battle unlock at 12 clears, so a player
+  walled at the chapter-1 healer lock already has somewhere to send an unlucky pull. A tower that
+  cannot yet be crewed shows which faction it wants.
+- **The balance target is a mono-faction five at the resonance floor with two or three rungs and no
+  gear**, clearing stage 100. Easier than the campaign at matched levels, and still asking for the
+  ascension investment the roadmap says a tower should cost.
+- **Achievements pay 500 per five stages**, twenty awards a tower, 70,000 crystals across all seven
+  — the campaign's whole crystal payout again, spread over seven optional ladders.
+
+## 15c. The remaining six towers
+
+Six more hundred-stage ladders, and the enemy archetypes they need. Today's archetype counts are
+lopsided — monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1** — so a tower biased
+toward a thin faction has nothing to draw on. Expect roughly 20–25 new blocks and their skills.
+
+⚠️ **The bounty fix from 15a lands here at the latest.** Six crewed towers is when eight formations
+against forty-nine characters stops leaving a bench.
 
 ## 16. Deep per-hero investment
 
