@@ -25,15 +25,12 @@
   }
 
   <!--
-    A crew member who is away on a bounty cannot fight, and `setFormation` refuses to put one
-    here — so this is damage rather than a state the player can reach. It is reported instead of
-    silently fighting one short, which is the failure that reads as the game losing a character.
+    A crew holding somebody away on a bounty cannot fight. Since milestone 15b that is an ordinary
+    state rather than damage — dispatch no longer refuses a fielded character — so this names who,
+    and the Fight control below is disabled rather than the party quietly going one short.
   -->
-  @if (crew.away.length > 0) {
-    <p class="notice notice--error" role="alert">
-      {{ crew.away.length }} of this crew {{ crew.away.length === 1 ? 'is' : 'are' }} away on a
-      bounty and will not fight. Collect the mission, or take them out.
-    </p>
+  @if (awayNote(); as note) {
+    <p class="notice notice--error" role="alert">{{ note }}</p>
   }
 
   <!--
@@ -116,7 +113,7 @@
     </div>
 
     @if (prepare() && !crew.ready) {
-      <p class="formation__blocked" role="status">Place at least one character before fighting.</p>
+      <p class="formation__blocked" role="status">{{ blockedReason() }}</p>
     }
   </section>
 

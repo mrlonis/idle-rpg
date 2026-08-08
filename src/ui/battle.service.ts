@@ -366,6 +366,19 @@ export class BattleService {
     if (state === null || this.isFighting()) {
       return;
     }
+    // ⚠️ **The bounty invariant, enforced here and only here since milestone 15b.** Dispatch no
+    // longer refuses a fielded character, so "nobody is in two places at once" has to bite on the
+    // way out — and in the *service* rather than only on the pre-battle screen, because
+    // auto-battle re-enters through `settle` without passing that screen again.
+    //
+    // ⚠️ **Only the away condition, deliberately — not `CrewView.ready`.** `ready` is also false
+    // for an empty crew, and an empty party resolving as an immediate defeat is honest core
+    // behaviour that `simulateBattle` owns and the specs rely on to make a loss deterministic.
+    // Refusing it here would replace a fight the player loses with a button that does nothing.
+    if ((this.formations.crew(activity)?.away.length ?? 0) > 0) {
+      this.isAuto.set(false);
+      return;
+    }
 
     // Whatever stopped the last auto run is describing history the moment a new fight starts.
     this.autoStoppedAt.set(null);

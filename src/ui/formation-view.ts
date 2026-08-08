@@ -9,7 +9,7 @@ import {
   type Row,
 } from '../core';
 import { BattleService } from './battle.service';
-import { factionName } from './content';
+import { characterById, factionName } from './content';
 import { FormationService } from './formation.service';
 import { lineupPanel } from './lineup-copy';
 import { type RosterEntryView } from './roster.service';
@@ -19,9 +19,6 @@ const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
   'row-full': `Both rows are full — ${FRONT_ROW_SIZE} in front, ${BACK_ROW_SIZE} behind. Take somebody out first.`,
   'not-owned': 'You do not own that character.',
   'duplicate-party-member': 'That character is already in this crew.',
-  // The bounty board's disjointness invariant, seen from the other side. Naming the board is what
-  // makes this actionable — "that did not work" leaves the player with no idea where to go.
-  'character-away': 'That character is away on a bounty. Collect the mission first.',
   'unknown-character': 'That character is no longer available.',
   // Only reachable on a locked activity, and only from a stale row. The message names the lock
   // rather than the refusal, because "wrong faction" without saying which faction is not a fix.
@@ -169,6 +166,37 @@ export class FormationView {
     return faction === null
       ? null
       : `Only ${factionName(faction)} may enter. Everyone else is hidden below.`;
+  });
+
+  /**
+   * Who is away, named, or `null` when nobody is.
+   *
+   * Named rather than counted, because the fix is per character: "two are away" tells a player
+   * they are blocked and not who to take out.
+   */
+  protected readonly awayNote = computed(() => {
+    const crew = this.crew();
+    if (crew === null || crew.away.length === 0) {
+      return null;
+    }
+    const names = crew.away.map((defId) => characterById(defId)?.name ?? defId).join(', ');
+    const verb = crew.away.length === 1 ? 'is' : 'are';
+    return `${names} ${verb} away on a bounty and cannot fight. Collect the mission, or take them out of this crew.`;
+  });
+
+  /** Why the Fight control is inert, in the order the player can act on. */
+  protected readonly blockedReason = computed(() => {
+    const crew = this.crew();
+    if (crew === null) {
+      return '';
+    }
+    if (crew.size === 0) {
+      return 'Place at least one character before fighting.';
+    }
+    if (crew.away.length > 0) {
+      return 'Somebody in this crew is away on a bounty.';
+    }
+    return `Only ${factionName(crew.lockFaction ?? '')} may enter this tower.`;
   });
 
   protected readonly summary = computed(() => {

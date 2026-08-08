@@ -12,7 +12,6 @@ const FAILURE_MESSAGES: Record<BountyFailure, string> = {
   'wrong-faction': 'That mission needs more of the faction it asks for.',
   'not-owned': 'You do not own one of those characters.',
   'duplicate-member': 'A character cannot go twice.',
-  'in-formation': 'Somebody in that crew is in your party. Bench them first.',
   'already-away': 'Somebody in that crew is already out on another mission.',
   'not-finished': 'That mission is still running.',
   locked: 'Clear more stages to open that mission.',

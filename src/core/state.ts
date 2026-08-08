@@ -7,6 +7,7 @@ import { emptyQuestWindows, type QuestWindows } from './quests';
 import { type RngState } from './rng';
 import { type OwnedCharacter } from './roster/types';
 import { SAVE_VERSION } from './save/version';
+import { emptyTowers, type TowerProgress } from './towers';
 
 /**
  * How many characters stand in the front rank.
@@ -317,6 +318,19 @@ export interface GameState extends LadderPosition {
    * refuses anybody away, and `repairDispatches` restores it on load. See `core/bounties.ts`.
    */
   readonly dispatches: readonly Dispatch[];
+  /**
+   * How far each faction tower has been climbed, keyed by tower id.
+   *
+   * ⚠️ **Separate from {@link clearedStages}, and that separation is arithmetic rather than
+   * tidiness.** The clear count drives the idle crystal rate; seven towers of a hundred floors
+   * feeding it would take that rate to roughly ×8 the base, where `banners.spec.ts` bounds a fully
+   * cleared campaign at ×3. See `core/towers.ts`.
+   *
+   * **One integer per tower — the highest floor cleared — not a set of floors.** A tower is climbed
+   * strictly upward and a floor is never re-fought, so "how far" is the whole of what there is to
+   * know, and a per-floor record would be a hundred entries per tower saying what one number says.
+   */
+  readonly towers: TowerProgress;
 }
 
 export interface NewGameOptions {
@@ -354,6 +368,7 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     achievements: emptyAchievements(),
     quests: emptyQuestWindows(),
     dispatches: emptyDispatches(),
+    towers: emptyTowers(),
   };
 }
 

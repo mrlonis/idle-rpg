@@ -14,6 +14,7 @@ import { type LevelCurveData } from '../roster/level';
 import { type CharacterLookup, repairOwned } from '../roster/roster';
 import { type OwnedCharacter } from '../roster/types';
 import { CAMPAIGN_FORMATION, type GameState, type PartyFormation, rowCapacity } from '../state';
+import { parseTowers } from '../towers';
 import { type CurrentSaveData } from './schema';
 import { SAVE_VERSION } from './version';
 
@@ -99,6 +100,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       weekly: encodeWindow(state.quests.weekly),
     },
     dispatches: serializeDispatches(state.dispatches),
+    towers: { ...state.towers },
   };
 }
 
@@ -203,6 +205,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const achievements = parseAchievements(record['achievements'], note);
   const quests = parseQuestWindows(record['quests'], note);
   const dispatches = parseDispatches(record['dispatches'], note);
+  const towers = parseTowers(record['towers'], note);
 
   return {
     state: {
@@ -226,6 +229,7 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       achievements,
       quests,
       dispatches,
+      towers,
     },
     issues,
   };

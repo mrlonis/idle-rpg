@@ -71,13 +71,20 @@ export interface CrewView {
   /**
    * Crew members currently away on a bounty.
    *
-   * Should be empty — `setFormation` refuses to field anybody away and `repairDispatches` restores
-   * the invariant on load — so this is a **report**, not a mechanism. It exists because the one
-   * path that could produce it is a hand-edited save, and a crew silently one short is worse than
-   * a crew that says why.
+   * ⚠️ **An ordinary state since milestone 15b, not damage.** A crew may name somebody who is out
+   * on a mission — a formation is a plan, and `dispatchBounty` no longer refuses anybody fielded —
+   * and what the rule costs is that the crew cannot **fight** until they are back. This is the list
+   * the screen names them from, and it is why {@link ready} is false.
    */
   readonly away: readonly string[];
-  /** Whether this crew can start a fight: somebody is standing, and the lock is satisfied. */
+  /**
+   * Whether this crew can start a fight.
+   *
+   * Three conditions: somebody is standing, the faction lock is satisfied, and **nobody is away**.
+   * The third is the whole of the bounty invariant now that dispatch does not refuse a fielded
+   * character — see `core/bounties.ts`. Fighting shorthanded instead was considered and rejected:
+   * a silent 4-against-5 is a loss the player cannot explain.
+   */
   readonly ready: boolean;
 }
 
@@ -292,7 +299,8 @@ export class FormationService {
       eligible,
       lockFaction: activity.faction ?? null,
       away: [...standing].filter((defId) => away.has(defId)),
-      ready: formationSize(formation) > 0 && legal,
+      ready:
+        formationSize(formation) > 0 && legal && ![...standing].some((defId) => away.has(defId)),
     };
   }
 

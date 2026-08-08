@@ -66,6 +66,7 @@ describe('toSaveData', () => {
         weekly: { index: -1, baseline: {}, claimed: [] },
       },
       dispatches: [],
+      towers: {},
     });
   });
 

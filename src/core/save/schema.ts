@@ -84,6 +84,13 @@ export interface SaveDataV0 {
   gearMinted: number;
   /** Which shop stocking this run last bought from, and which offers it took. */
   gearShop: { slot: number; purchased: number[] };
+  /**
+   * Tower id to the highest floor cleared. Absent towers have not been entered.
+   *
+   * Deliberately not folded into `clearedStages` — see `core/towers.ts` for the arithmetic that
+   * forbids it. Absent decodes to `{}`, so no migration and no `SAVE_VERSION` bump.
+   */
+  towers: Record<string, number>;
   /** Track id to awards claimed. Absent tracks have claimed nothing. */
   achievements: Record<string, number>;
   /**

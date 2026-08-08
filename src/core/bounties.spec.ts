@@ -137,9 +137,12 @@ describe('dispatchBounty', () => {
     ]);
   });
 
-  it('refuses somebody standing in the formation', () => {
-    // ⚠️ Half of the disjointness invariant. A character cannot be both fighting and away, and
-    // without this the board is a free resource tap the best five characters run on a timer.
+  it('sends somebody standing in a crew, because a formation is a plan rather than a claim', () => {
+    // ⚠️ **The inversion, and the reason for it.** This refused until milestone 15b. Eight crews is
+    // forty slots against a forty-nine character roster, so keeping the refusal would leave a
+    // player who had crewed every tower with almost nobody to send — the board starves precisely
+    // when the roster it rewards is at its widest. The rule did not go away; it moved to the battle
+    // path, where a crew holding somebody away cannot fight.
     const fielded = setFormation(
       run(),
       CAMPAIGN_FORMATION,
@@ -151,16 +154,15 @@ describe('dispatchBounty', () => {
       return;
     }
 
-    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0)).toEqual({
-      ok: false,
-      reason: 'in-formation',
-    });
+    const result = dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0);
+
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.state.dispatches).toEqual([
+      { bountyId: 'errand', members: ['alpha'], startedAt: T0 },
+    ]);
   });
 
-  it('refuses somebody standing in a crew other than the campaign', () => {
-    // ⚠️ Milestone 15a widened the fielded set from one formation to all of them, and this is what
-    // holds it there. A version reading only the campaign key would pass every other test in this
-    // file and let a tower's crew be dispatched out from under it.
+  it('sends somebody standing in a tower crew too, not only the campaign', () => {
     const fielded = setFormation(
       run(),
       'tower:test',
@@ -172,10 +174,7 @@ describe('dispatchBounty', () => {
       return;
     }
 
-    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0)).toEqual({
-      ok: false,
-      reason: 'in-formation',
-    });
+    expect(dispatchBounty(fielded.state, ERRAND, ['alpha'], TEST_CHARACTERS, T0).ok).toBe(true);
   });
 
   it('refuses somebody already away on another mission', () => {
@@ -479,7 +478,7 @@ describe('dailyBoard', () => {
 });
 
 describe('benchMembers', () => {
-  it('lists everybody owned who is neither fielded nor away', () => {
+  it('lists everybody owned who is not away', () => {
     expect(benchMembers(run())).toEqual(['alpha', 'beta', 'gamma']);
   });
 
@@ -487,7 +486,7 @@ describe('benchMembers', () => {
     expect(benchMembers(away(run(), ['alpha']))).toEqual(['beta', 'gamma']);
   });
 
-  it('drops somebody standing in the formation', () => {
+  it('keeps somebody standing in a crew, since being fielded no longer blocks dispatch', () => {
     const fielded = setFormation(
       run(),
       CAMPAIGN_FORMATION,
@@ -499,7 +498,7 @@ describe('benchMembers', () => {
       return;
     }
 
-    expect(benchMembers(fielded.state)).toEqual(['alpha', 'gamma']);
+    expect(benchMembers(fielded.state)).toEqual(['alpha', 'beta', 'gamma']);
   });
 });
 
@@ -619,21 +618,24 @@ describe('dispatchOpenBounties', () => {
 });
 
 describe('setFormation, against a dispatched character', () => {
-  it('refuses to field somebody who is away', () => {
-    // ⚠️ The other half of the invariant, and the half most likely to be left out. Enforcing only
-    // the dispatch side would let a player send somebody from the bench and then walk that same
-    // character into the formation.
+  it('places somebody who is away, because a formation is a plan', () => {
+    // ⚠️ **The other half of the inversion.** This refused until milestone 15b, as the mirror of
+    // the dispatch-side check. Both halves together made eight crews starve the board, so a crew
+    // may now name somebody who is out — and `CrewView.ready` goes false until they are back, which
+    // is what stops the fight rather than what stops the plan.
     const state = away(run(), ['alpha']);
 
-    expect(
-      setFormation(state, CAMPAIGN_FORMATION, { front: ['alpha'], back: [] }, TEST_CHARACTERS),
-    ).toEqual({
-      ok: false,
-      reason: 'character-away',
-    });
+    const result = setFormation(
+      state,
+      CAMPAIGN_FORMATION,
+      { front: ['alpha'], back: [] },
+      TEST_CHARACTERS,
+    );
+
+    expect(result.ok).toBe(true);
   });
 
-  it('still fields anybody who is not away', () => {
+  it('still places anybody who is not away', () => {
     const state = away(run(), ['alpha']);
     const result = setFormation(
       state,
@@ -836,16 +838,18 @@ describe('repairDispatches', () => {
     expect(repairDispatches(state, BOUNTIES, swallow).dispatches).toEqual([]);
   });
 
-  it('restores the invariant when a save has somebody both fielded and away', () => {
-    // ⚠️ The one thing a hand-edited save is most likely to break, and the reason this pass exists
-    // rather than trusting the two write paths.
+  it('keeps a mission whose crew is also standing in a formation', () => {
+    // ⚠️ **This used to be repaired away, and repairing it now would be the bug.** Since milestone
+    // 15b a fielded character may be dispatched, so a save holding both is an ordinary state a
+    // player reached on purpose. Dropping the mission would take back hours of a wait and pay
+    // nothing for it — `repairDispatches` never pays for what it drops.
     const state: GameState = {
       ...run(),
       formations: { [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] } },
       dispatches: [{ bountyId: 'errand', members: ['alpha'], startedAt: T0 }],
     };
 
-    expect(repairDispatches(state, BOUNTIES, swallow).dispatches).toEqual([]);
+    expect(repairDispatches(state, BOUNTIES, swallow)).toBe(state);
   });
 
   it('drops the second of two missions claiming the same character', () => {
