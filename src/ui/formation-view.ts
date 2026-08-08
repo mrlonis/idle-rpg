@@ -13,6 +13,7 @@ import { characterById, factionName } from './content';
 import { FormationService } from './formation.service';
 import { lineupPanel } from './lineup-copy';
 import { type RosterEntryView } from './roster.service';
+import { TowerService } from './tower.service';
 
 /** Why a crew change was refused, in words a player can act on. */
 const FAILURE_MESSAGES: Partial<Record<RosterFailure, string>> = {
@@ -83,6 +84,7 @@ interface PoolSection {
 export class FormationView {
   private readonly formations = inject(FormationService);
   private readonly battles = inject(BattleService);
+  private readonly towers = inject(TowerService);
   private readonly router = inject(Router);
 
   /** Which activity's crew this screen is editing. Arrives from the route. */
@@ -184,6 +186,19 @@ export class FormationView {
     return `${names} ${verb} away on a bounty and cannot fight. Collect the mission, or take them out of this crew.`;
   });
 
+  /**
+   * Whether the Fight control works: the crew can fight, **and** there is something to fight.
+   *
+   * ⚠️ **Two independent questions, and neither subsumes the other.** `crew.ready` is about the five
+   * characters — somebody is standing, the lock is satisfied, nobody is away on a bounty. The second
+   * is about the content: a tower the campaign has not opened, and a tower already topped, are both
+   * activities with a legal crew and no fight behind them. `BattleService.fight` refuses either way,
+   * so a control that only asked the first would silently do nothing.
+   */
+  protected readonly canFight = computed(
+    () => this.crew()?.ready === true && this.battles.nextFight(this.activityId()) !== null,
+  );
+
   /** Why the Fight control is inert, in the order the player can act on. */
   protected readonly blockedReason = computed(() => {
     const crew = this.crew();
@@ -196,7 +211,23 @@ export class FormationView {
     if (crew.away.length > 0) {
       return 'Somebody in this crew is away on a bounty.';
     }
-    return `Only ${factionName(crew.lockFaction ?? '')} may enter this tower.`;
+    if (!crew.ready) {
+      return `Only ${factionName(crew.lockFaction ?? '')} may enter this tower.`;
+    }
+    // Content rather than crew, so it comes last: the tower is either not open yet or finished, and
+    // in both cases the line names the state instead of asking for a change nothing can make.
+    const tower = this.towers.view(this.activityId());
+    if (tower?.status === 'locked') {
+      const clears =
+        tower.clearsNeeded === 1
+          ? '1 more campaign stage'
+          : `${tower.clearsNeeded} more campaign stages`;
+      return `${tower.tower.name} opens once you have cleared ${clears}.`;
+    }
+    if (tower?.status === 'topped') {
+      return `You have cleared all ${tower.floors} floors. A floor is climbed once, so there is nothing left to fight here.`;
+    }
+    return 'There is nothing to fight here.';
   });
 
   protected readonly summary = computed(() => {
@@ -259,7 +290,7 @@ export class FormationView {
    * editor when the fight ends. So it navigates home first and lets the battle screen take over.
    */
   protected fight(): void {
-    if (this.crew()?.ready !== true) {
+    if (!this.canFight()) {
       return;
     }
     void this.router.navigateByUrl('/').then(() => {

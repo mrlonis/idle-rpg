@@ -30,10 +30,12 @@ import { GameLoopService } from './game-loop.service';
 class FakeBattles {
   readonly playbackSpeed = signal<1 | 2 | 4>(1);
   readonly stage = signal<StageHeading | null>({
+    activity: 'campaign',
+    kind: 'campaign',
+    where: '1-7',
     name: 'Marsh Shrine',
-    chapter: 1,
-    chapterName: 'The Sunken Fen',
-    number: 7,
+    place: 'Chapter 1 · The Sunken Fen',
+    label: '1-7 — Marsh Shrine',
     level: 14,
   });
   readonly result = signal<BattleResult | null>(null);
@@ -47,11 +49,18 @@ class FakeBattles {
       ['enemy-0', 'Bog Hag'],
     ]),
   );
-  readonly nextStage = signal<StageHeading | null>({
+  /**
+   * The fight the Go Again control names, which follows the **session's activity** rather than the
+   * campaign — a tower session's control has to name the next floor. `null` at the top of a tower,
+   * which is the one case where there is nothing to go again to.
+   */
+  readonly nextInSession = signal<StageHeading | null>({
+    activity: 'campaign',
+    kind: 'campaign',
+    where: '1-8',
     name: 'Hagfen',
-    chapter: 1,
-    chapterName: 'The Sunken Fen',
-    number: 8,
+    place: 'Chapter 1 · The Sunken Fen',
+    label: '1-8 — Hagfen',
     level: 15,
   });
   readonly partyFront = signal<readonly BattleCombatantView[]>([]);

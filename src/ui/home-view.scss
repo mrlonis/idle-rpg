@@ -74,9 +74,19 @@
   @include t.numeric;
 }
 
-// The battle section, which is where the seven faction towers arrive. One card until then.
+// The battle section: the campaign card, then a row per tower. A column rather than a grid, because
+// the rows are a *list of destinations* read top to bottom and the campaign is deliberately the
+// widest, tallest thing in it.
 .battles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
+
+  // The gap does the spacing now, so the heading's own bottom margin would double it.
+  .section__heading {
+    margin-bottom: 0;
+  }
 }
 
 // ⚠️ **An anchor wearing the primary button's clothes.** It became a link in milestone 15a — it
@@ -95,6 +105,45 @@
   font-weight: 700;
   text-align: center;
   text-decoration: none;
+}
+
+// A tower row. Quieter than the campaign card on purpose: a tower is optional content, and a row
+// that shouted as loudly as the Fight control would make the spine of the game look like one of
+// eight equal choices.
+//
+// The same rule serves the link and the inert paragraph, so a locked row is the same shape as an open
+// one — it is a destination the player does not have the key to yet, not a different kind of thing.
+.tower {
+  @include t.card;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: t.$tap-target;
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  color: t.$text;
+  text-decoration: none;
+  @include t.focus-ring;
+}
+
+// Not `opacity`, which would take the detail line — the part that says what opens the tower — below
+// the contrast floor along with everything else. The muted name is the whole signal, and the copy
+// beside it says the same thing in words.
+.tower--inert .tower__name {
+  color: t.$muted;
+}
+
+.tower__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.tower__detail {
+  font-size: 0.75rem;
+  color: t.$muted;
+  @include t.numeric;
 }
 
 .hint {

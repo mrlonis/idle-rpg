@@ -10,12 +10,22 @@ import {
   newGame,
   num,
   positionAt,
+  rarityIndex,
   stageIndex,
   startRarityIndex,
 } from '../core';
-import { AUTO_BATTLE_UNLOCK_CLEARS, STARTER_FORMATION } from '../data';
-import { BattleService } from './battle.service';
-import { CHAPTERS_IN_ORDER, CHARACTERS_BY_ID, LADDER, STAGES } from './content';
+import {
+  AUTO_BATTLE_UNLOCK_CLEARS,
+  HALRIC,
+  IVO,
+  MIRA,
+  STARTER_FORMATION,
+  TOWER_HUMAN,
+  WREN,
+  YSOLDE,
+} from '../data';
+import { BattleService, type StageHeading } from './battle.service';
+import { CHAPTERS_IN_ORDER, CHARACTERS_BY_ID, LADDER, LEVELS, STAGES } from './content';
 import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { RosterService } from './roster.service';
@@ -47,19 +57,16 @@ class MemoryStore implements KeyValueStore {
  * Derived from the shipped content rather than retyped, so a re-cut chapter or a renamed stage
  * re-runs every assertion below rather than silently describing a ladder that no longer exists.
  */
-function heading(index: number): {
-  name: string;
-  chapter: number;
-  chapterName: string;
-  number: number;
-  level: number;
-} {
+function heading(index: number): StageHeading {
   const position = positionAt(LADDER, index + 1);
+  const where = `${position.chapter}-${position.stage}`;
   return {
+    activity: CAMPAIGN_FORMATION,
+    kind: 'campaign',
+    where,
     name: STAGES[index].name,
-    chapter: position.chapter,
-    chapterName: CHAPTERS_IN_ORDER[position.chapter - 1].name,
-    number: position.stage,
+    place: `Chapter ${position.chapter} · ${CHAPTERS_IN_ORDER[position.chapter - 1].name}`,
+    label: `${where} — ${STAGES[index].name}`,
     level: STAGES[index].level,
   };
 }
@@ -94,6 +101,20 @@ function withStarters(state: GameState, level = 1): GameState {
     gear: {},
   }));
   return { ...state, roster, formations: { [CAMPAIGN_FORMATION]: STARTER_FORMATION } };
+}
+
+/**
+ * The run the fake is holding.
+ *
+ * Throws rather than asserting non-null, because the fake is always seeded before these read it —
+ * so a null here is a broken fixture and should say so rather than fail on a property access.
+ */
+function held(loop: FakeGameLoop): GameState {
+  const state = loop.current;
+  if (state === null) {
+    throw new Error('the fake loop is holding no run');
+  }
+  return state;
 }
 
 /** A run far enough up the ladder to have earned auto-battle. */
@@ -763,6 +784,169 @@ describe('BattleService', () => {
       for (const combatant of battles.combatants()) {
         expect(names.get(combatant.key), combatant.key).toBe(combatant.name);
       }
+    });
+  });
+
+  /**
+   * The tower path: the one place the two kinds of content diverge.
+   *
+   * Everything past `targetFor` — the animator, the RNG label, the gear roll, every screen — takes a
+   * stage and a heading and never asks which kind it came from. What these cover is the divergence
+   * itself: which floor is fought, and which of the two payout functions folds the result back in.
+   */
+  describe('a tower', () => {
+    /**
+     * A run that has opened the tower, with a crew standing in it.
+     *
+     * Fielded at the investment `towers.balance.ts` tunes the tower against — five Humans at
+     * `rare-plus`, levelled to that rung's cap — because several of these specs need the floor to
+     * actually *fall*. The starters at level 1 lose floor 40, which would make "the climb advances"
+     * a test of nothing.
+     */
+    function withTowerCrew(state: GameState, floors = 0): GameState {
+      const crew = { front: [HALRIC.id, MIRA.id], back: [WREN.id, YSOLDE.id, IVO.id] };
+      const rarity = rarityIndex('rare-plus');
+      const roster = [HALRIC, MIRA, WREN, YSOLDE, IVO].map((character) => ({
+        defId: character.id,
+        rarity,
+        level: LEVELS.caps[rarity],
+        copies: 0,
+        gear: {},
+      }));
+      return {
+        ...state,
+        roster,
+        clearedStages: Math.max(state.clearedStages, TOWER_HUMAN.unlockClears),
+        formations: { ...state.formations, [TOWER_HUMAN.id]: crew },
+        ...(floors > 0 ? { towers: { [TOWER_HUMAN.id]: floors } } : {}),
+      };
+    }
+
+    it('fights the floor above the highest one cleared', () => {
+      const { loop, battles } = build();
+      loop.snapshot.set(withTowerCrew(held(loop), 36));
+
+      battles.fight(T0, TOWER_HUMAN.id);
+
+      expect(battles.result()?.stageId).toBe(TOWER_HUMAN.floors[36].id);
+      expect(battles.stage()?.where).toBe('F37');
+      expect(battles.stage()?.kind).toBe('tower');
+      expect(battles.stage()?.activity).toBe(TOWER_HUMAN.id);
+    });
+
+    it('advances the climb and pays crystals, and touches no campaign field', () => {
+      // ⚠️ **The whole reason `applyTowerResult` is a separate function.** A tower clear feeding
+      // `clearedStages` would drive the idle crystal rate, which `banners.spec.ts` bounds at about ×3
+      // the base where the shipped hundred stages already reach ×2.
+      const { loop, battles } = build();
+      const before = withTowerCrew(held(loop));
+      loop.snapshot.set(before);
+
+      battles.fight(T0, TOWER_HUMAN.id);
+      run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+      const after = held(loop);
+
+      expect(after.towers[TOWER_HUMAN.id]).toBe(1);
+      expect(after.wallet.summons.gt(before.wallet.summons)).toBe(true);
+      expect(after.clearedStages).toBe(before.clearedStages);
+      expect(after.chapter).toBe(before.chapter);
+      expect(after.stage).toBe(before.stage);
+      expect(after.rates).toBe(before.rates);
+    });
+
+    it('refuses a tower the campaign has not opened yet', () => {
+      // Not an error, and not a fight the party loses either: there is nothing behind the door. The
+      // crew editor is what explains it — see `FormationView.blockedReason`.
+      const { loop, battles } = build();
+      const crewed = withTowerCrew(held(loop));
+      loop.snapshot.set({ ...crewed, clearedStages: TOWER_HUMAN.unlockClears - 1 });
+
+      battles.fight(T0, TOWER_HUMAN.id);
+
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.nextFight(TOWER_HUMAN.id)).toBeNull();
+    });
+
+    it('refuses a tower already topped, rather than re-fighting its roof', () => {
+      // ⚠️ **A floor is climbed once**, which is the whole difference from the campaign — whose
+      // position stops climbing so its last stage stays farmable. Clamping to the top floor here
+      // would let a player be paid for the boss for ever.
+      const { loop, battles } = build();
+      loop.snapshot.set(withTowerCrew(held(loop), TOWER_HUMAN.floors.length));
+
+      battles.fight(T0, TOWER_HUMAN.id);
+
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.nextFight(TOWER_HUMAN.id)).toBeNull();
+      // And the campaign is never finished, which is what makes the two answers different.
+      expect(battles.nextFight(CAMPAIGN_FORMATION)).not.toBeNull();
+    });
+
+    it('refuses an activity this build does not ship', () => {
+      const { battles } = build();
+
+      battles.fight(T0, 'tower-nowhere');
+
+      expect(battles.isOpen()).toBe(false);
+      expect(battles.nextFight('tower-nowhere')).toBeNull();
+    });
+
+    it('keeps auto-battle climbing the tower rather than switching to the campaign', () => {
+      const { loop, battles } = build();
+      loop.snapshot.set(unlocked(withTowerCrew(held(loop))));
+
+      battles.fight(T0, TOWER_HUMAN.id);
+      battles.setAuto(true, T0);
+      for (let fight = 0; fight < 3; fight++) {
+        run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+      }
+
+      expect(battles.activity()).toBe(TOWER_HUMAN.id);
+      expect(loop.current?.towers[TOWER_HUMAN.id]).toBeGreaterThan(1);
+      expect(loop.current?.clearedStages).toBe(TOWER_HUMAN.unlockClears);
+    });
+
+    it('ends an auto run at the top and says why, rather than spinning on a refusal', () => {
+      // A win that leaves nothing to fight is the one ending the loop had no word for: the loss path
+      // reports the stage that stopped the run, and reporting a finished tower the same way would
+      // take credit off the player at the moment they earned the most.
+      const { loop, battles } = build();
+      const floors = TOWER_HUMAN.floors.length;
+      loop.snapshot.set(unlocked(withTowerCrew(held(loop), floors - 1)));
+
+      battles.fight(T0, TOWER_HUMAN.id);
+      battles.setAuto(true, T0);
+      run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+
+      expect(loop.current?.towers[TOWER_HUMAN.id]).toBe(floors);
+      expect(battles.isAuto()).toBe(false);
+      expect(battles.autoStoppedAt()?.where).toBe(`F${floors}`);
+      expect(battles.nextFight(TOWER_HUMAN.id)).toBeNull();
+    });
+
+    it('names the next floor on the session control, not the next campaign stage', () => {
+      const { loop, battles } = build();
+      loop.snapshot.set(withTowerCrew(held(loop), 39));
+
+      battles.fight(T0, TOWER_HUMAN.id);
+      run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+
+      // The floor above the one just cleared, and the campaign's own next stage is unmoved.
+      expect(battles.nextInSession()?.where).toBe('F41');
+      expect(battles.nextStage()?.kind).toBe('campaign');
+    });
+
+    it('draws its gear from a stream the pull sequence never sees', () => {
+      const { loop, battles } = build();
+      const before = withTowerCrew(held(loop));
+      loop.snapshot.set(before);
+
+      battles.fight(T0, TOWER_HUMAN.id);
+      run(battles, (battles.result()?.durationMs ?? 0) + 1_000);
+      const after = held(loop);
+
+      expect(after.gear.length).toBeGreaterThan(0);
+      expect(after.rng.calls).toBe(before.rng.calls);
     });
   });
 });

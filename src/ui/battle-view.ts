@@ -63,11 +63,27 @@ export class BattleView {
     () => !this.battles.isFighting() && this.battles.outcome() !== null,
   );
 
-  /** Names the stage the next fight enters: the one ahead after a win, the same one after a loss. */
+  /**
+   * Names the fight the Go Again control enters: the one ahead after a win, the same one after a loss.
+   *
+   * ⚠️ **Follows the session's activity, not the campaign.** A tower session's control has to name the
+   * next floor, and reading the campaign's next stage here would have this button offer the ladder
+   * from inside a tower. `null` at the top of a tower, where the control is inert — see
+   * {@link isFinished}.
+   */
   protected readonly fightLabel = computed(() => {
-    const next = this.battles.nextStage();
-    return next === null ? 'Fight again' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
+    const next = this.battles.nextInSession();
+    return next === null ? 'Nothing left to fight' : `Fight ${next.label}`;
   });
+
+  /**
+   * True when the activity just fought has nothing left to offer — the top of a tower.
+   *
+   * Gates the Go Again control, because the alternative is a button that navigates to a crew editor
+   * whose own Fight control then silently does nothing. The campaign is never finished: its position
+   * stops climbing so its last stage stays farmable.
+   */
+  protected readonly isFinished = computed(() => this.battles.nextInSession() === null);
 
   /**
    * The closing line, or `null` while the fight is still playing.

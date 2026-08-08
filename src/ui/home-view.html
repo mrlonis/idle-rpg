@@ -30,10 +30,7 @@
 -->
 @if (autoStoppedAt(); as stopped) {
   <div class="notice notice--dismissible">
-    <p class="notice__text" role="status">
-      Auto-battle stopped: your party lost on Chapter {{ stopped.chapter }}, Stage
-      {{ stopped.number }} — {{ stopped.name }}.
-    </p>
+    <p class="notice__text" role="status">{{ autoStoppedText() }}</p>
     <button
       type="button"
       class="notice__close"
@@ -80,12 +77,8 @@
 </section>
 
 <!--
-  Where a fight starts. One section rather than a bare button, because this is the shape the seven
-  faction towers arrive into — the campaign is the first card here, not a special case beside a
-  list of towers.
-
-  ⚠️ **Nothing empty ships for the towers.** No "coming soon" card and no disabled row: the same
-  call the Bag rename made, where the second heading arrives with the second kind of item.
+  Where a fight starts. The campaign is the first card here, not a special case beside a list of
+  towers — which is the shape milestone 15a built this section into and 15b filled in.
 -->
 <section class="battles" aria-labelledby="battles-label">
   <h2 id="battles-label" class="section__heading">Battle</h2>
@@ -101,6 +94,31 @@
     opens is where the crew is filled, and the Fight control *there* is the one that waits.
   -->
   <a class="fight" [routerLink]="campaignLink()">{{ fightLabel() }}</a>
+
+  <!--
+    One row per tower. A tower is optional content gated behind roster depth, so all three of its
+    states have to read as a goal rather than as a fault:
+
+    - **climbing** is a link, exactly like the campaign card;
+    - **locked** is deliberately *not* a link and says what opens it. Twelve clears is early, and a
+      visible destination is most of what a tower is for — this is the one place the "nothing empty
+      ships for the towers" rule is spent, and it is spent on a row that names its own key;
+    - **topped** is not a link either, because a floor is climbed once and there is genuinely nothing
+      left to fight. The crew is still reachable from the Roster's formations index.
+  -->
+  @for (tower of towers(); track tower.id) {
+    @if (tower.link === null) {
+      <p class="tower tower--inert">
+        <span class="tower__name">{{ tower.name }}</span>
+        <span class="tower__detail">{{ tower.detail }}</span>
+      </p>
+    } @else {
+      <a class="tower" [routerLink]="tower.link">
+        <span class="tower__name">{{ tower.name }}</span>
+        <span class="tower__detail">{{ tower.detail }}</span>
+      </a>
+    }
+  }
 </section>
 
 <p class="hint">{{ hint() }}</p>

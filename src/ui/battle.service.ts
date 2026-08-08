@@ -1,7 +1,9 @@
 import { computed, DestroyRef, inject, Service, signal } from '@angular/core';
 import {
   type ActiveStatus,
+  type ActivityKind,
   applyBattleResult,
+  applyTowerResult,
   BATTLE_TICK_MS,
   battleSeed,
   type BattleEvent,
@@ -9,8 +11,11 @@ import {
   type BattleResult,
   CAMPAIGN_FORMATION,
   clampPosition,
+  type GameState,
+  isTowerUnlocked,
   type LadderPosition,
   MAX_ENERGY,
+  nextFloor,
   type Numeric,
   type Row,
   type Side,
@@ -21,6 +26,7 @@ import {
 } from '../core';
 import { AUTO_BATTLE_UNLOCK_CLEARS } from '../data';
 import {
+  ACTIVITIES_BY_ID,
   CHAPTERS_IN_ORDER,
   COMBAT,
   GEAR,
@@ -28,6 +34,11 @@ import {
   LADDER,
   STAGES,
   SUMMON_RATE_CURVE,
+  TOWER_FLOOR_BY_STAGE,
+  TOWER_FLOORS,
+  TOWER_SHAPE,
+  TOWERS_BY_ID,
+  type TowerFloor,
 } from './content';
 import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
@@ -53,20 +64,43 @@ const MAX_STEP_MS = 1000;
 const VISIBLE_LOG_LENGTH = 6;
 
 /**
- * A stage named for display: where on the ladder it is, what it is called, and how hard.
+ * A fight named for display: which activity it belongs to, where in it, and how hard.
  *
- * Since milestone 11 "where" is two numbers and a chapter name rather than one number. Both halves
- * are carried because both are how a player says where they are: "chapter 2, stage 14" is the
- * position, and "The Ashfall Reach" is the place.
+ * ## Milestone 15b generalised this, and the generalisation is the whole of it
+ *
+ * It used to be a chapter, a stage number and a chapter name — a shape only the campaign has. A tower
+ * floor is one number in one tower, and the two do not reduce to each other, so what is carried now
+ * is the **rendered** position rather than its parts: `2-14` and `F37` both go on the same big line,
+ * and neither screen has to know which kind of content it is drawing.
+ *
+ * Four strings for one heading looks like a lot and each has exactly one job — a big line, a
+ * headline, a subtitle, and a button. Assembling any of them per screen is how the battle screen and
+ * Home start naming the same fight two different ways.
  */
 export interface StageHeading {
+  /**
+   * The activity this fight belongs to, which is also the crew's `FormationBook` key.
+   *
+   * Carried so a heading is self-describing: `autoStoppedAt` outlives the session field that produced
+   * it, and a notice on Home that had to ask the service what it was about would be describing
+   * whatever the player did next.
+   */
+  readonly activity: string;
+  readonly kind: ActivityKind;
+  /** The short position, for the big line: `2-14` on the ladder, `F37` in a tower. */
+  readonly where: string;
+  /** The headline: a campaign stage's own name, or a floor's — `Floor 40 — The Ninth Oath`. */
   readonly name: string;
-  /** The chapter this stage is in, 1-based. */
-  readonly chapter: number;
-  /** What that chapter is called. */
-  readonly chapterName: string;
-  /** The stage **within** the chapter, 1-based — not a position on the whole ladder. */
-  readonly number: number;
+  /** The subtitle that locates it: `Chapter 2 · The Ashfall Reach`, or `Human Tower · Floor 40 of 100`. */
+  readonly place: string;
+  /**
+   * One line naming this fight for a control: `2-14 — Thornwood Clearing`, or `Floor 40`.
+   *
+   * A field rather than something a component assembles, because the two kinds want opposite halves
+   * — a campaign stage needs its position spelled out beside its name, and a floor's name already
+   * *is* its position, so the same template would read "F40 — Floor 40".
+   */
+  readonly label: string;
   /**
    * The level its enemies fight at.
    *
@@ -219,7 +253,7 @@ export class BattleService {
   );
 
   /**
-   * The stage an auto-battle run lost on, or `null`.
+   * The stage an auto-battle run stopped on, or `null`.
    *
    * A loss drops the player back to the idle screen — which means the board that explained the
    * loss is gone by the time they can read it. This is what the home screen says instead. Cleared
@@ -301,16 +335,47 @@ export class BattleService {
   }
 
   /**
-   * The stage the next {@link fight} will enter, or `null` before the run has loaded.
+   * The campaign stage the next campaign {@link fight} will enter, or `null` before the run has
+   * loaded.
    *
    * Read off the run rather than off the last battle, so after a win it names the stage ahead
    * and after a loss it names the one to try again. Distinct from {@link stage}, which stays
    * pointed at the fight currently on screen.
+   *
+   * ⚠️ **Explicitly the campaign's, not {@link activity}'s.** Home's campaign card reads this, and
+   * `activity` is a session field that may still be pointing at a tower the player fought ten minutes
+   * ago — which would have the campaign card naming a tower floor.
    */
   readonly nextStage = computed<StageHeading | null>(() => {
     const snapshot = this.game.snapshot();
-    return snapshot === null ? null : headingFor(snapshot);
+    return snapshot === null ? null : campaignHeading(snapshot);
   });
+
+  /**
+   * The fight the Go Again control on the battle screen names, or `null` when there is none.
+   *
+   * Follows {@link activity} rather than the campaign, which is the point: a tower session's control
+   * has to name the next floor. `null` at the top of a tower, where there is nothing left to fight —
+   * see {@link nextFight}.
+   */
+  readonly nextInSession = computed<StageHeading | null>(() => this.nextFight(this.activity()));
+
+  /**
+   * The fight `activityId` would enter next, or `null` when it has none to offer.
+   *
+   * Three ways to have none, and every one of them is a screen's business rather than an error: an
+   * activity this build does not ship, a tower the campaign has not opened yet, and a tower already
+   * topped. A caller drawing a control has to be able to tell those apart from "the run has not
+   * loaded" — `TowerService.view` is what says which — but every one of them means the same thing
+   * here, which is that {@link fight} will refuse.
+   *
+   * Reads the sampled snapshot, because every caller is a screen. {@link fight} resolves its own
+   * target from the authoritative run.
+   */
+  nextFight(activityId: string): StageHeading | null {
+    const snapshot = this.game.snapshot();
+    return snapshot === null ? null : (this.targetFor(snapshot, activityId)?.heading ?? null);
+  }
 
   /** Maps a combatant key to its display name, for narrating the log. */
   readonly names = computed<ReadonlyMap<string, string>>(() => {
@@ -366,6 +431,16 @@ export class BattleService {
     if (state === null || this.isFighting()) {
       return;
     }
+    // Resolved from the **authoritative** run rather than the sampled snapshot: this is the call that
+    // decides which floor a tower is paid for, and a stale read is a run paying for the same floor
+    // twice. `null` means there is nothing to fight — an unknown activity, a tower the campaign has
+    // not opened, or a tower already topped — and auto is switched off rather than left spinning on a
+    // call that does nothing.
+    const target = this.targetFor(state, activity);
+    if (target === null) {
+      this.isAuto.set(false);
+      return;
+    }
     // ⚠️ **The bounty invariant, enforced here and only here since milestone 15b.** Dispatch no
     // longer refuses a fielded character, so "nobody is in two places at once" has to bite on the
     // way out — and in the *service* rather than only on the pre-battle screen, because
@@ -389,8 +464,7 @@ export class BattleService {
     // navigated since.
     this.activity.set(activity);
 
-    const heading = headingFor(state);
-    const stage = stageFor(state);
+    const { heading, stage } = target;
     const result = simulateBattle(
       // The crew the player has chosen for this activity, with stats already scaled for level,
       // rung and gear — which is the whole reason the roster exists. An empty crew resolves as an
@@ -688,30 +762,55 @@ export class BattleService {
     this.isFighting.set(false);
     this.stop();
     this.playbackMs = 0;
-    // The gear bundle is what turns a win into a drop. It is optional on `applyBattleResult` so
-    // the balance sweep and the combat specs need not construct content they have no use for;
-    // here it is always supplied, and the stage kind comes off the resolved stage rather than
-    // being re-derived, because `LADDER` is chapter lengths and does not know where the
-    // mini-bosses fall.
     // Read back off the result rather than remembered from the start of the fight. `settle` runs
     // when the *animation* ends, which can be a minute of playback later, and a field set at the
     // top of `fight` is one more thing that has to still be true by then. The result names the
-    // stage it was fought against, so the lookup cannot disagree with it.
-    const kind = STAGES.find((stage) => stage.id === result.stageId)?.kind ?? 'normal';
-    this.game.apply((state) =>
-      applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE, {
-        rules: GEAR,
-        factions: GEAR_ALIGNMENTS,
-        kind,
-      }),
-    );
+    // stage it was fought against, so the lookup cannot disagree with it — and a stage id that is a
+    // tower floor is also what tells the two payout paths apart.
+    const floor = TOWER_FLOOR_BY_STAGE.get(result.stageId);
+    if (floor === undefined) {
+      // The gear bundle is what turns a win into a drop. It is optional on `applyBattleResult` so
+      // the balance sweep and the combat specs need not construct content they have no use for;
+      // here it is always supplied, and the stage kind comes off the resolved stage rather than
+      // being re-derived, because `LADDER` is chapter lengths and does not know where the
+      // mini-bosses fall.
+      const kind = STAGES.find((stage) => stage.id === result.stageId)?.kind ?? 'normal';
+      this.game.apply((state) =>
+        applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE, {
+          rules: GEAR,
+          factions: GEAR_ALIGNMENTS,
+          kind,
+        }),
+      );
+    } else {
+      // ⚠️ **A separate function, not a branch inside `applyBattleResult`.** A tower clear may not
+      // touch `clearedStages`, the ladder position or an idle rate, and `applyTowerResult` is where
+      // that is true by construction rather than by a flag being honoured. `stageIndex` is the
+      // **campaign** index this floor's level matched, so a floor drops the grades the campaign drops
+      // where the fight is the same size — see `matchedStageIndex`.
+      this.game.apply((state) =>
+        applyTowerResult(state, floor.tower, TOWER_SHAPE, floor.floor, result, {
+          rules: GEAR,
+          factions: GEAR_ALIGNMENTS,
+          stageIndex: floor.matchedStage,
+        }),
+      );
+    }
     void this.game.persist();
 
     if (!this.isAuto()) {
       return;
     }
     if (result.outcome === 'victory') {
+      // Read before the next fight starts, because `fight` clears it. A win that leaves nothing to
+      // fight — the top of a tower — is what this covers: the loop has to end, and it has to say
+      // why, or the player is left on a settled board with a control that does nothing.
+      const finished = this.stage();
       this.fight(nowMs, this.activity());
+      if (!this.isFighting()) {
+        this.isAuto.set(false);
+        this.autoStoppedAt.set(finished);
+      }
       return;
     }
 
@@ -721,6 +820,40 @@ export class BattleService {
     this.isAuto.set(false);
     this.close();
     this.autoStoppedAt.set(stoppedAt);
+  }
+
+  /**
+   * What `activityId` would fight next: the stage, and the heading that names it.
+   *
+   * The one place the two kinds of content diverge, and it is deliberately the *only* one — the
+   * animator, the gear roll, the RNG label and every screen past this point take a `StageData` and a
+   * {@link StageHeading} and never ask which kind they came from.
+   *
+   * `null` for an activity this build does not ship, for a tower the campaign has not opened, and for
+   * a tower already topped. The campaign never returns `null`: its position stops climbing at the top
+   * of the ladder so its last stage stays farmable, which is exactly the difference `nextFloor`
+   * refuses to paper over for a tower.
+   */
+  private targetFor(
+    state: GameState,
+    activityId: string,
+  ): { readonly stage: StageData; readonly heading: StageHeading } | null {
+    const activity = ACTIVITIES_BY_ID.get(activityId);
+    if (activity === undefined) {
+      return null;
+    }
+    if (activity.kind !== 'tower') {
+      return { stage: stageFor(state), heading: campaignHeading(state) };
+    }
+    const tower = TOWERS_BY_ID.get(activity.id);
+    if (tower === undefined || !isTowerUnlocked(state, tower)) {
+      return null;
+    }
+    const floor = nextFloor(state, tower);
+    const resolved = floor === null ? undefined : TOWER_FLOORS.get(tower.id)?.[floor - 1];
+    return resolved === undefined
+      ? null
+      : { stage: resolved.stage, heading: towerHeading(resolved) };
   }
 }
 
@@ -735,16 +868,40 @@ function stageFor(position: LadderPosition): StageData {
   return STAGES[stageIndex(LADDER, position) - 1];
 }
 
-/** The same stage, named for a heading: its chapter, its number within it, and its level. */
-function headingFor(position: LadderPosition): StageHeading {
+/** The same stage, named for a heading: where on the ladder, what it is called, and how hard. */
+function campaignHeading(position: LadderPosition): StageHeading {
   const { chapter, stage } = clampPosition(LADDER, position);
   const content = stageFor(position);
+  const where = `${chapter}-${stage}`;
   return {
+    activity: CAMPAIGN_FORMATION,
+    kind: 'campaign',
+    where,
     name: content.name,
-    chapter,
-    chapterName: CHAPTERS_IN_ORDER[chapter - 1].name,
-    number: stage,
+    place: `Chapter ${chapter} · ${CHAPTERS_IN_ORDER[chapter - 1].name}`,
+    label: `${where} — ${content.name}`,
     level: content.level,
+  };
+}
+
+/**
+ * A tower floor, named for a heading.
+ *
+ * `F37` on the big line rather than `37`, so the number is never mistaken for a chapter's stage — the
+ * two headings sit in the same slot on the same screen, and a bare integer beside a `2-14` reads as a
+ * truncation.
+ */
+function towerHeading(floor: TowerFloor): StageHeading {
+  return {
+    activity: floor.tower.id,
+    kind: 'tower',
+    where: `F${floor.floor}`,
+    name: floor.stage.name,
+    place: `${floor.tower.name} · Floor ${floor.floor} of ${floor.tower.floors.length}`,
+    // The floor's name already carries its number, so spelling the position out again would read
+    // "F40 — Floor 40 — The Ninth Oath".
+    label: floor.stage.name,
+    level: floor.stage.level,
   };
 }
 

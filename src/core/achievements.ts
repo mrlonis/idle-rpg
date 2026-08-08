@@ -2,6 +2,7 @@ import { credit, type CurrencyAmounts, type CurrencyId } from './currency';
 import { type LadderShape, stagesInChapter } from './ladder';
 import { num, type Numeric, ZERO } from './numeric';
 import { type GameState } from './state';
+import { floorsClearedIn } from './towers';
 
 /**
  * Achievements: a reward for progress the run has already made, claimed rather than credited.
@@ -36,26 +37,43 @@ import { type GameState } from './state';
  * every other piece of content does. What `core/` owns is the arithmetic and the ledger.
  */
 
+/** Everything every track carries, whichever counter it is paid against. */
+interface AchievementTrackBase {
+  readonly id: string;
+  /** What the screen calls it. */
+  readonly name: string;
+  /** What the player is being paid for, in a line. */
+  readonly description: string;
+  /** How many units of the track's counter one award costs. */
+  readonly every: number;
+  /** What one award pays. */
+  readonly reward: Readonly<Partial<Record<CurrencyId, number>>>;
+}
+
 /**
  * One endless achievement track: a counter, an interval, and what each interval pays.
  *
  * `counter` names which of the run's totals this reads. It is a closed union rather than a free
  * string because `core/` is what resolves it against {@link GameState} — a track naming a counter
  * nothing keeps would be content that silently never pays.
+ *
+ * ⚠️ **A union of two shapes rather than one interface with an optional field**, because
+ * `towerFloors` is the one counter that does not identify itself: every other counter is a single
+ * number on the run, and a tower track has to say *which* tower. Written as an optional `tower`, a
+ * track that forgot it would read floor zero of nowhere — content that compiles, ships, and
+ * silently never pays. The discriminated union makes it a compile error at the typed local in
+ * `ui/content.ts`, which is where every other malformed piece of content is caught.
  */
-export interface AchievementTrackData {
-  readonly id: string;
-  /** What the screen calls it. */
-  readonly name: string;
-  /** What the player is being paid for, in a line. */
-  readonly description: string;
-  /** Which of the run's running totals this track reads. */
-  readonly counter: AchievementCounter;
-  /** How many units of {@link counter} one award costs. */
-  readonly every: number;
-  /** What one award pays. */
-  readonly reward: Readonly<Partial<Record<CurrencyId, number>>>;
-}
+export type AchievementTrackData =
+  | (AchievementTrackBase & {
+      /** Which of the run's running totals this track reads. */
+      readonly counter: Exclude<AchievementCounter, 'towerFloors'>;
+    })
+  | (AchievementTrackBase & {
+      readonly counter: 'towerFloors';
+      /** Which tower's floors are counted. The same id `GameState.towers` is keyed by. */
+      readonly tower: string;
+    });
 
 /**
  * The run totals a track may be paid against.
@@ -68,8 +86,15 @@ export interface AchievementTrackData {
  * The first three are read straight off the run. `clearedChapters` is the derived one: it is
  * `clearedStages` measured against the shipped {@link LadderShape}, which is why everything here
  * takes a ladder. See {@link readCounter} for why a chapter cannot be an interval of stages.
+ *
+ * `towerFloors` is the one counter that needs a second field to be answerable — see
+ * {@link AchievementTrackData}. It reads `GameState.towers`, which is a stored field the run keeps
+ * for its own reasons, so it is on the right side of the rule above; what it is emphatically **not**
+ * is a share of `clearedStages`, which drives the idle crystal rate and which a tower may never
+ * touch (see `core/towers.ts`).
  */
-export type AchievementCounter = 'clearedStages' | 'battleCount' | 'pullCount' | 'clearedChapters';
+export type AchievementCounter =
+  'clearedStages' | 'battleCount' | 'pullCount' | 'clearedChapters' | 'towerFloors';
 
 /** How far a track has come, and what it owes. */
 export interface AchievementProgress {
@@ -139,14 +164,27 @@ function wholeCount(value: number): number {
  * rule for quests, which may never be measured against `clearedStages` for exactly this reason. A
  * quest that stops moving is permanently unfinishable; an achievement that stops moving is one the
  * player has finished, and it starts again the day a chapter ships.
+ *
+ * A tower's floor count is read through `floorsClearedIn` rather than off `state.towers` directly,
+ * which is the **unclamped** reading on purpose: a track for a tower this build no longer ships has
+ * no floor list to clamp against, and reporting zero would take back a climb the save still records.
+ * It reaches its ceiling for the same reason `clearedChapters` does — a finished tower is a track
+ * the player has finished — and `every: 100` over a hundred-floor counter is how "top the tower"
+ * becomes an interval like any other rather than a second mechanism.
+ *
+ * Takes the whole track rather than its `counter`, because `towerFloors` is the one counter that
+ * needs the track to say which tower. See {@link AchievementTrackData}.
  */
 function readCounter(
   state: GameState,
-  counter: AchievementCounter,
+  track: AchievementTrackData,
   ladder: LadderShape,
 ): CounterReading {
-  if (counter !== 'clearedChapters') {
-    return { total: wholeCount(state[counter]), partial: 0 };
+  if (track.counter === 'towerFloors') {
+    return { total: floorsClearedIn(state.towers, track.tower), partial: 0 };
+  }
+  if (track.counter !== 'clearedChapters') {
+    return { total: wholeCount(state[track.counter]), partial: 0 };
   }
   const cleared = wholeCount(state.clearedStages);
   let chapters = 0;
@@ -168,13 +206,13 @@ function readCounter(
   return { total: chapters, partial: 0 };
 }
 
-/** The value of the counter a track is paid against. */
+/** The value of the counter `track` is paid against. */
 export function counterValue(
   state: GameState,
-  counter: AchievementCounter,
+  track: AchievementTrackData,
   ladder: LadderShape,
 ): number {
-  return readCounter(state, counter, ladder).total;
+  return readCounter(state, track, ladder).total;
 }
 
 /**
@@ -194,7 +232,7 @@ export function trackProgress(
   ladder: LadderShape,
 ): AchievementProgress {
   const every = Number.isFinite(track.every) ? Math.max(Math.floor(track.every), 1) : 1;
-  const { total, partial } = readCounter(state, track.counter, ladder);
+  const { total, partial } = readCounter(state, track, ladder);
   const earned = Math.floor(total / every);
   // Clamped to `earned` at the top as well as to zero at the bottom: a ledger claiming more awards
   // than the run has reached is damage, and left alone it would silently withhold every future

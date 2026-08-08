@@ -17,15 +17,27 @@
  * layer keeps the orphaned key rather than dropping it, but nothing will ever look at it again.
  * Change the `name` freely; never the `id`.
  *
- * **The seven faction towers are milestone 15b and 15c and are deliberately absent.** A locked
- * door with nothing behind it is the thing the Bag rename argued against: the second heading
- * arrives with the second kind of item. Adding a tower here is one row plus the ladder it points
- * at.
+ * **One of the seven faction towers ships; six are milestone 15c.** A locked door with nothing
+ * behind it is the thing the Bag rename argued against — the second heading arrives with the second
+ * kind of item — so a tower appears here on the day its hundred floors do. Adding one is this row
+ * plus an entry in [`towers.ts`](./towers.ts), and the two `id`s must agree:
+ * [`towers.spec.ts`](./towers.spec.ts) is what makes a mismatch a failing test rather than a tower
+ * with no crew or a crew with no tower.
  */
 export const ACTIVITIES = [
   {
     id: 'campaign',
     name: 'Campaign',
     kind: 'campaign',
+  },
+  {
+    // The faction lock is the whole of what a tower asks for. It filters the crew editor's pool
+    // rather than refusing a tap — `partyMeetsLock` in `core/activity.ts` is called by the editor
+    // *and* by the battle path, because two implementations of one rule is how a screen ends up
+    // promising a legal crew that the fight then refuses.
+    id: 'tower-human',
+    name: 'Human Tower',
+    kind: 'tower',
+    faction: 'human',
   },
 ] as const;

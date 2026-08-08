@@ -312,10 +312,16 @@ export interface GameState extends LadderPosition {
   /**
    * Missions currently running, and who is away on each.
    *
-   * ⚠️ **Disjoint from {@link formation} by invariant**: a character cannot be both fighting and
-   * away. That is what makes the bounty board a bench sink rather than a free resource tap, and it
-   * is enforced in both directions — `dispatchBounty` refuses anybody fielded, `setFormation`
-   * refuses anybody away, and `repairDispatches` restores it on load. See `core/bounties.ts`.
+   * ⚠️ **Not disjoint from {@link formations}, and since milestone 15b that is deliberate.** The
+   * invariant is unchanged — a character cannot be both fighting and away — but it bites on the way
+   * *out* rather than on the way in: anybody may be dispatched, and a crew holding somebody away
+   * cannot fight. Nothing in `core/` refuses a dispatch on these grounds, and `repairDispatches`
+   * keeps a mission whose crew is also fielded, because that is an ordinary state a player reached
+   * on purpose.
+   *
+   * The reason it moved: eight crews is forty slots against a forty-nine character roster, so a
+   * player who had crewed every tower had no bench left and the board starved exactly when the
+   * roster breadth it rewards was widest. See `core/bounties.ts`.
    */
   readonly dispatches: readonly Dispatch[];
   /**

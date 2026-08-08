@@ -28,10 +28,11 @@ import { SAVE_VERSION } from './version';
  *
  * **The fixture stores values a default would not produce**, which is what separates "the field was
  * decoded" from "the field defaulted": a mid-cycle `legendaryPity`, a gear loadout, a mint counter
- * deliberately ahead of the bag, and a **retired achievement track** alongside a live one — the one
- * thing about the ledger a shape check would not otherwise reach, since a build that stops shipping
- * a track has to keep that entry rather than dropping it, and dropping it is what would re-pay every
- * award on the track if it ever came back.
+ * deliberately ahead of the bag, a part-climbed tower, and a **retired achievement track** alongside
+ * a live one — plus a retired *tower* alongside a live one, which is the same distinction one level
+ * down. Those two are the one thing about a keyed ledger a shape check would not otherwise reach,
+ * since a build that stops shipping a track or a tower has to keep the entry rather than drop it:
+ * dropping it re-pays every award on the track, and costs a returning player a hundred floors.
  *
  * Fixtures are registered statically rather than scanned off disk: the spec then has no
  * dependency on the working directory or on the test runner's module resolution, and it
@@ -103,6 +104,16 @@ describe('v0 fixture contents', () => {
     expect(state.rng).toEqual({ seed: 3735928559, calls: 417 });
     expect(state.pity).toBe(37);
     expect(state.pullCount).toBe(139);
+  });
+
+  it('decodes a part-climbed tower, and keeps one this build no longer ships', () => {
+    // Two things at once, both of which an empty record would hide: that the field is read at all,
+    // and that an unknown tower id survives — a crew and a climb filed under a tower a later build
+    // dropped cost two short arrays and one integer, and dropping them costs a player the climb.
+    const { state } = loadSave(v0, OPTIONS);
+
+    expect(state.towers['tower-human']).toBe(36);
+    expect(state.towers['tower-retired']).toBe(12);
   });
 
   it('decodes a legendary cycle already part way through', () => {

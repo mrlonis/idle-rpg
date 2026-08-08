@@ -9,6 +9,7 @@ import {
   type RateCurrencyId,
 } from '../core';
 import { BattleService } from './battle.service';
+import { factionName } from './content';
 import {
   CURRENCY_LABELS,
   formatAmounts,
@@ -18,6 +19,7 @@ import {
 } from './format-numeric';
 import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
+import { TowerService, type TowerView } from './tower.service';
 
 /** One currency as the wallet strip shows it. */
 interface CurrencyRow {
@@ -26,6 +28,16 @@ interface CurrencyRow {
   readonly amount: string;
   /** `null` for spark, which is minted by duplicate pulls and has no rate at all. */
   readonly rate: string | null;
+}
+
+/** One tower's card in the battle section. */
+interface TowerRow {
+  readonly id: string;
+  readonly name: string;
+  /** What the row says under its name: the next floor, the key it wants, or that it is finished. */
+  readonly detail: string;
+  /** Where the row goes, or `null` for a row that is not a link — locked, or topped out. */
+  readonly link: readonly string[] | null;
 }
 
 /** Sentence case for a label that reads mid-sentence elsewhere. */
@@ -48,7 +60,8 @@ function hasRate(id: CurrencyId): id is RateCurrencyId {
  * Home used to carry one control, a Fight button that entered the campaign. Faction towers make
  * that eight destinations, and the choice of which to fight is not a thing to bury behind a tab —
  * so **Home is where a run picks what to do next**, with the campaign as the first card and the
- * towers arriving beside it. Nothing empty ships for them; the section holds one card until 15b.
+ * towers beside it. The first tower landed in 15b and six more arrive in 15c as rows here, which is
+ * the whole of what building this section as a list bought.
  *
  * Who is fighting is deliberately not restated here. This screen carried a read-only copy of the
  * formation once, which said the same thing twice and could only ever be the poorer of the two.
@@ -68,6 +81,7 @@ export class HomeView {
   private readonly game = inject(GameLoopService);
   private readonly battles = inject(BattleService);
   private readonly formations = inject(FormationService);
+  private readonly towerRuns = inject(TowerService);
 
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
@@ -116,8 +130,42 @@ export class HomeView {
    */
   protected readonly fightLabel = computed(() => {
     const next = this.battles.nextStage();
-    return next === null ? 'Preparing…' : `Fight ${next.chapter}-${next.number} — ${next.name}`;
+    return next === null ? 'Preparing…' : `Fight ${next.label}`;
   });
+
+  /**
+   * One card per tower, in the order `data/` authors them.
+   *
+   * The copy lives here rather than in `TowerService` for the reason the crew editor writes its own
+   * empty-section wording: the service supplies the fact behind a sentence — locked, climbing, topped
+   * — and this decides what the sentence is.
+   */
+  protected readonly towers = computed<readonly TowerRow[]>(() =>
+    this.towerRuns.rows().map((view) => ({
+      id: view.tower.id,
+      name: view.tower.name,
+      detail: this.towerDetail(view),
+      // ⚠️ Only a climbing tower is a link. A locked one has nothing behind it yet and a topped one
+      // has nothing left, and a link to a Fight control that silently refuses is worse than no link.
+      link: view.status === 'climbing' ? ['/prepare', view.tower.id] : null,
+    })),
+  );
+
+  private towerDetail(view: TowerView): string {
+    if (view.status === 'locked') {
+      // Names the key rather than the door. `clearsNeeded` counts down, so the row is a target that
+      // visibly approaches instead of a flat refusal — and it names the faction, because a tower a
+      // player cannot yet crew should still say who it wants.
+      const clears = view.clearsNeeded === 1 ? '1 more stage' : `${view.clearsNeeded} more stages`;
+      return `Clear ${clears} to open · ${factionName(view.tower.faction)} only`;
+    }
+    if (view.status === 'topped') {
+      return `Topped out · all ${view.floors} floors cleared`;
+    }
+    return `Floor ${view.next} of ${view.floors} · enemy level ${view.level} · ${factionName(
+      view.tower.faction,
+    )} only`;
+  }
 
   /**
    * Why the player is suddenly back on this screen.
@@ -126,6 +174,27 @@ export class HomeView {
    * is already gone. Without this line the transition reads as the app having lost their place.
    */
   protected readonly autoStoppedAt = this.battles.autoStoppedAt;
+
+  /**
+   * What that line says.
+   *
+   * Two endings rather than one since towers: a loop stops because the party lost, **or** because it
+   * ran out of floors. Reporting a finished tower as a loss would be the app taking credit away from
+   * the player at the moment they earned the most.
+   *
+   * ⚠️ **Names the fight through `label`, not `place` and `name`.** The pair reads well for a campaign
+   * stage and badly for a floor, whose name already carries its number — it shipped once as "Floor
+   * 100 of 100 — Floor 100 — The Oathbreaker". `label` is the field that exists for a single line.
+   */
+  protected readonly autoStoppedText = computed(() => {
+    const stopped = this.autoStoppedAt();
+    if (stopped === null) {
+      return '';
+    }
+    return this.battles.nextFight(stopped.activity) === null
+      ? `Auto-battle finished: there is nothing left to fight past ${stopped.label}.`
+      : `Auto-battle stopped: your party lost on ${stopped.label}.`;
+  });
 
   /**
    * What to say under the counter.

@@ -4,10 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { CAMPAIGN_FORMATION, type RosterResult } from '../core';
-import { BattleService } from './battle.service';
+import { BattleService, type StageHeading } from './battle.service';
 import { FormationView } from './formation-view';
 import { type CrewView, FormationService } from './formation.service';
 import { type RosterEntryView } from './roster.service';
+import { TowerService, type TowerView } from './tower.service';
 
 /** A lineup paying nothing, which is what most of these crews earn. */
 const NO_BONUS = {
@@ -101,18 +102,49 @@ class FakeFormations {
 class FakeBattles {
   readonly fought: { at: number; activity: string }[] = [];
 
+  /**
+   * Whether the activity has a fight behind it, which the Fight control asks about separately from
+   * the crew.
+   *
+   * `null` is a real answer rather than an error — a tower the campaign has not opened, and a tower
+   * already topped, are both activities with a legal crew and nothing to fight.
+   */
+  readonly next = signal<StageHeading | null>({
+    activity: CAMPAIGN_FORMATION,
+    kind: 'campaign',
+    where: '1-1',
+    name: 'Mossy Hollow',
+    place: 'Chapter 1 · The Sunken Fen',
+    label: '1-1 — Mossy Hollow',
+    level: 1,
+  });
+
   fight(nowMs: number, activity: string): void {
     this.fought.push({ at: nowMs, activity });
+  }
+
+  nextFight(): StageHeading | null {
+    return this.next();
+  }
+}
+
+/** Only the tower states, which is all the crew editor asks about the climb. */
+class FakeTowers {
+  readonly tower = signal<TowerView | null>(null);
+
+  view(): TowerView | null {
+    return this.tower();
   }
 }
 
 async function render(
-  configure?: (formations: FakeFormations) => void,
+  configure?: (formations: FakeFormations, battles: FakeBattles, towers: FakeTowers) => void,
   inputs: { activityId?: string; prepare?: boolean } = {},
 ) {
   const formations = new FakeFormations();
   const battles = new FakeBattles();
-  configure?.(formations);
+  const towers = new FakeTowers();
+  configure?.(formations, battles, towers);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -122,6 +154,7 @@ async function render(
       provideLocationMocks(),
       { provide: FormationService, useValue: formations },
       { provide: BattleService, useValue: battles },
+      { provide: TowerService, useValue: towers },
     ],
   }).compileComponents();
 
@@ -132,7 +165,7 @@ async function render(
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { formations, battles, fixture, el: fixture.nativeElement as HTMLElement };
+  return { formations, battles, towers, fixture, el: fixture.nativeElement as HTMLElement };
 }
 
 describe('FormationView', () => {
@@ -204,6 +237,81 @@ describe('FormationView', () => {
         'Place at least one character',
       );
       expect(battles.fought).toEqual([]);
+    });
+
+    /**
+     * The second question the control has to ask, which arrived with towers.
+     *
+     * ⚠️ **A legal crew and a fight behind it are independent.** A tower the campaign has not opened,
+     * and a tower already topped, are both activities with five perfectly good characters standing in
+     * them and nothing to send them at — and `BattleService.fight` refuses both. A control that asked
+     * only about the crew would look live and do nothing.
+     */
+    describe('when there is nothing to fight', () => {
+      const tower = (over: Partial<TowerView> = {}): TowerView => ({
+        tower: {
+          id: 'tower-human',
+          name: 'Human Tower',
+          faction: 'human',
+          unlockClears: 12,
+          floors: [],
+        },
+        status: 'climbing',
+        cleared: 0,
+        floors: 100,
+        next: 1,
+        clearsNeeded: 0,
+        level: 1,
+        fraction: 0,
+        ...over,
+      });
+
+      it('refuses a tower the campaign has not opened, and names the key', async () => {
+        const { el, battles } = await render(
+          (formations, animator, towers) => {
+            formations.view.set(crew({ size: 5, ready: true }));
+            animator.next.set(null);
+            towers.tower.set(tower({ status: 'locked', next: null, clearsNeeded: 4 }));
+          },
+          { prepare: true, activityId: 'tower-human' },
+        );
+
+        expect(el.querySelector<HTMLButtonElement>('.button--primary')?.disabled).toBe(true);
+        expect(el.querySelector('.formation__blocked')?.textContent).toContain(
+          'cleared 4 more campaign stages',
+        );
+        expect(battles.fought).toEqual([]);
+      });
+
+      it('refuses a tower already topped, and says a floor is climbed once', async () => {
+        const { el } = await render(
+          (formations, animator, towers) => {
+            formations.view.set(crew({ size: 5, ready: true }));
+            animator.next.set(null);
+            towers.tower.set(tower({ status: 'topped', cleared: 100, next: null, fraction: 1 }));
+          },
+          { prepare: true, activityId: 'tower-human' },
+        );
+
+        expect(el.querySelector<HTMLButtonElement>('.button--primary')?.disabled).toBe(true);
+        expect(el.querySelector('.formation__blocked')?.textContent).toContain('all 100 floors');
+        expect(el.querySelector('.formation__blocked')?.textContent).toContain('climbed once');
+      });
+
+      it('puts a crew problem first, because that is the one a player can fix', async () => {
+        // An away crew member and a finished tower can both be true. Naming the tower first would
+        // tell the player nothing they can act on.
+        const { el } = await render(
+          (formations, animator, towers) => {
+            formations.view.set(crew({ front: [row()], size: 1, away: ['rin'] }));
+            animator.next.set(null);
+            towers.tower.set(tower({ status: 'topped', next: null }));
+          },
+          { prepare: true, activityId: 'tower-human' },
+        );
+
+        expect(el.querySelector('.formation__blocked')?.textContent).toContain('away on a bounty');
+      });
     });
   });
 

@@ -36,7 +36,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
 | 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
 | 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
-| 15b | The tower system, and the first tower   | 🚧 **In progress** — model built, no tower yet |
+| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors      |
 | 15c | The remaining six towers                | ⬜                                             |
 | 16  | Deep per-hero investment                | ⬜                                             |
 | 17  | The roguelite run                       | ⬜                                             |
@@ -837,16 +837,13 @@ up promising a legal crew that the fight refuses.
 Shipped: `core/activity.ts`, `FormationBook` in `core/state.ts`, `data/activities.ts`,
 `ui/formation.service.ts`, `ui/lineup-copy.ts`, and the two screens.
 
-## 15b. The tower system, and the first tower — **IN PROGRESS**
+## 15b. The tower system, and the first tower — **COMPLETE**
 
 Everything a tower is, proven against one of them. A tower is **100 floors, enemy levels 1 to 60,
 linear** — deliberately gentle, and well inside the campaign's own range, which runs to 85 by the
 end of chapter 2.
 
-### What has landed
-
-The **model**, and nothing that uses it. `core/towers.ts` and `GameState.towers` are built, typed,
-serialized and green; no tower has shipped, so both are currently unreferenced by any screen.
+### What shipped
 
 - **`core/towers.ts`** — `floorLevel` (the derived linear curve), `floorKindAt` (the campaign's
   mini-boss rhythm reused), `nextFloor` (returning `null` at the top rather than clamping, which is
@@ -854,7 +851,84 @@ serialized and green; no tower has shipped, so both are currently unreferenced b
   `floorSummons`, `resolveFloor`/`resolveTower`, `applyTowerResult` and `parseTowers`.
 - **`GameState.towers`** — one integer per tower, the highest floor cleared. Serialized, parsed and
   clamped; absent decodes to `{}`, so no `SAVE_VERSION` bump and no migration.
-- **The bounty inversion**, which was scheduled into this milestone and is complete. See below.
+- **The Human Tower** — a hundred authored floors in `data/tower-human.ts`, `TOWER_RULES` and
+  `TOWERS` in `data/towers.ts`, and the activity row that gives it a crew.
+- **Two achievement tracks** — Spire Climber every five floors, Spire Conqueror at the top — over a
+  new `towerFloors` counter.
+- **The battle path, generalised** — `StageHeading` now carries a rendered position rather than a
+  chapter and a stage, `BattleService` resolves either kind of content, and `TowerService` is the
+  read model three screens share. Home draws a row per tower.
+- **The balance sweep** — `data/towers.balance.ts`, plus the structural half in `data/towers.spec.ts`
+  and the unit spec for `core/towers.ts` the model had shipped without.
+- **The bounty inversion**, which was scheduled into this milestone. See below.
+
+### Where the difficulty landed, and what set it
+
+The reference crew is **five Humans at `rare-plus`, level 60, no gear** — and the level is derived
+rather than chosen, because `rare-plus`'s cap is exactly the tower's `topLevel`. It clears all
+hundred floors; what ramps is **what a floor costs**. Floor 1 resolves in a second, floor 50 in
+seven, floor 80 in twelve, and the roof in twenty-four with two of the five dead. Nobody dies below
+floor 80.
+
+**A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
+there is no way around one, so a floor the crew cannot pass stops the tower — which makes win rate
+the wrong dial and cost the right one. The one measurement that _is_ contested is a second Human
+five: it takes the roof 85% of the time, which is what says the tower is tuned against an investment
+rather than against one solution.
+
+⚠️ **The first pass was far too easy and the reason is worth keeping.** A `rare-plus` party has one
+ascension rung (×1.6) and the mono-faction bonus (+25% attack and health) that the enemy side has no
+equivalent of, so at _equal level_ it is comfortably ahead. Against a five-slot board the only lever
+left is archetype weight, and it turns out to sit almost entirely in the **front rank**: two ascended
+blocks in front of three legendaries is a real fight at level 60, while the same board with
+legendary anchors is a formality. It is also sharply non-linear — pairing the two heaviest hitters
+(an Unmade beside a Tyrant) takes the crew from a clean clear to a 3% win rate, so the top band
+deliberately uses neither.
+
+⚠️ **There is no ascended-tier Undead archetype**, which is the constraint that shaped the bias. An
+undead-only board caps at legendary, so the heavy anchors on the top floors have to come from other
+factions — which is why the counter-faction lean is a share of the **whole tower** (53% of enemy
+slots) rather than a rule applied per floor.
+
+### Measuring the bias took three attempts, and the two failures are the useful part
+
+The decision being defended is that a tower's enemies lean toward the faction that counters it, "so
+the matchup matrix stays live inside a tower rather than a mirror match, which would switch it off
+entirely". Proving that turned out to be harder than stating it.
+
+- ⚠️ **Comparing against another faction's five measures two things at once.** The obvious control is
+  to sweep the same floors with an Undead five at the same investment. It came out _slower on every
+  floor_ — because the Undead five available at that investment is simply a weaker party. That says
+  nothing about the matrix.
+- ⚠️ **Fight length is the wrong metric.** The matrix cuts both ways: the crew takes 5% more from the
+  Undead half of the tower _and_ deals 5% more to the Monsters and Dwarves anchoring its front ranks.
+  Measured in seconds the biased tower is marginally **faster** than a neutral one (780s against
+  785s), so an assertion in those terms would have read as the bias making the tower easier.
+- **What works is a mirror match, measured in party members lost.** Rewrite every enemy's faction to
+  the tower's own — exactly the counterfactual the design rejected — and the bias costs about 5% more
+  of the party over a full climb. Small in aggregate, because 95 of the 100 floors were never in
+  doubt; on the one floor that _is_, the alternate five goes from 90% on the mirror to 85% on the
+  real thing. That is the same reading `chapters.balance.ts` had to arrive at before the matchup
+  edges could be sized at all: **the matrix decides fights at a party's ceiling and nothing else.**
+
+### Three smaller things the wiring forced
+
+- **`StageHeading` had to be generalised, and it now carries the rendered position rather than its
+  parts.** A chapter and a stage within it is a shape only the campaign has; a floor is one number in
+  one tower, and the two do not reduce to each other. So `where` is the big line (`2-14` or `F37`),
+  `place` locates it, and no screen asks which kind it is drawing. ⚠️ **`label` is a fourth string
+  and it earns its place**: a campaign stage wants its position spelled out beside its name, and a
+  floor's name already _is_ its position, so one template would have read "F40 — Floor 40".
+- ⚠️ **"The crew is legal" and "there is a fight behind it" are independent, and the first cut
+  conflated them.** A tower the campaign has not opened, and a tower already topped, are both
+  activities with five perfectly good characters standing in them and nothing to send them at.
+  `BattleService.fight` refuses both, so a Fight control that only asked `CrewView.ready` would look
+  live and silently do nothing — the same failure the away-guard note below warns about, arriving
+  from the other direction.
+- **An auto run needed a second ending.** The loop stopped on a loss and reported the stage that
+  stopped it; a tower adds "ran out of floors", and reporting that as a loss would take credit off
+  the player at the moment they earned the most. Told apart by asking whether the activity has
+  anything left to fight.
 
 ### The bounty rule inverted, which 15a scheduled and this milestone paid
 
@@ -875,13 +949,7 @@ inverted, which is what the widening was always going to have to become.
   broad guard replaced a fight the player loses with a control that silently did nothing. The specs
   caught it.
 
-### What is left
-
-The first tower's 100 authored floors, the two achievement tracks per tower, the `StageHeading`
-generalisation with Home's tower card, and the balance sweep. The decisions below are all settled,
-so what remains is authoring and wiring rather than design.
-
-### Decisions taken up front, so 15c is authoring rather than design
+### The decisions this milestone settled, so 15c is authoring rather than design
 
 - ⚠️ **Tower clears may not feed `clearedStages`.** That counter drives the idle crystal rate, and
   `banners.spec.ts` bounds a cleared ladder at ×3 the base where the shipped hundred stages already
@@ -907,9 +975,12 @@ so what remains is authoring and wiring rather than design.
   the system. Contrast the Angel tower, countered by Demons alone — three archetypes, and the
   thinnest pool of the seven.
 - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear**, clearing
-  floor 100. Three rungs, sitting between chapter 1's party (`common-plus`, level 30) and the
+  floor 100. Three rungs, sitting between chapter 1's party (`common-plus` at its cap) and the
   ladder's finisher (`elite`, level 85). ⚠️ **The level is derived, not chosen**: `rare-plus`'s cap
   is 60, which is exactly the tower's top enemy level, so the party tracks the content.
+  - **No gear, deliberately.** A player crewing seven towers has one bag to equip thirty-five
+    characters from, so tuning against a fully geared five would tune for a party nobody with seven
+    crews can field.
 - **Crystals: 100 a floor, plus 500 per five floors, plus 10,000 for topping a tower.** Roughly
   149,000 across seven towers before the completion awards and about 219,000 with them, against the
   campaign's ~69,000 — a bit over 3× the critical path for 7× the content, on optional ladders gated
@@ -921,9 +992,21 @@ so what remains is authoring and wiring rather than design.
 
 ## 15c. The remaining six towers
 
-Six more hundred-stage ladders, and the enemy archetypes they need. Today's archetype counts are
+Six more hundred-floor ladders, and the enemy archetypes they need. Today's archetype counts are
 lopsided — monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1** — so a tower biased
 toward a thin faction has nothing to draw on. Expect roughly 20–25 new blocks and their skills.
+
+**The system is finished, so each tower is a row in `data/towers.ts`, a row in `data/activities.ts`,
+two achievement tracks and a hundred floors.** `data/towers.spec.ts` fails if any of those four are
+missing, and `data/towers.balance.ts` needs a reference five per tower — `CREWS` and `ALTERNATES`
+both throw rather than skip for a tower with no crew, so a tower cannot ship untuned.
+
+⚠️ **Two things 15b measured that will bite here.** The counter of a thin faction has to reach four
+archetypes before a tower biased toward it stops being the same fight a hundred times — the Angel
+tower is countered by Demons alone, which is three today. And the heavy anchors on a top band come
+from **outside** the counter faction whenever that faction has no ascended-tier block, which is why
+the bias is a share of the whole tower rather than a per-floor rule; check the split rather than
+assuming, because `towers.spec.ts` bounds the leader between 35% and 65%.
 
 **The bounty fix landed in 15b**, ahead of the towers that make it bite, so nothing here waits on
 it.

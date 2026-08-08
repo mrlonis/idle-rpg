@@ -96,7 +96,7 @@
         <button
           type="button"
           class="button button--primary"
-          [disabled]="!crew.ready"
+          [disabled]="!canFight()"
           (click)="fight()"
         >
           Fight
@@ -112,7 +112,7 @@
       </button>
     </div>
 
-    @if (prepare() && !crew.ready) {
+    @if (prepare() && !canFight()) {
       <p class="formation__blocked" role="status">{{ blockedReason() }}</p>
     }
   </section>

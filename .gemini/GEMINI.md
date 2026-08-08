@@ -283,11 +283,12 @@ the two disagree, the code is right and both are stale.
   - **Adding an activity is a row in [`data/activities.ts`](../src/data/activities.ts) and nothing
     else.** ⚠️ An `id` is a save key and is permanent once shipped — renaming one silently disbands
     the crew standing in it. Change the `name` freely; never the `id`.
-- **Faction towers are a second thing to climb**, landing in milestone 15b. Read
-  [`core/towers.ts`](../src/core/towers.ts) before touching them. ⚠️ **The model is built and no tower
-  has shipped yet** — `core/towers.ts` and `GameState.towers` exist and are unused, so the content,
-  the achievement tracks, the screens and the balance sweep are still open. See
-  [milestones](../docs/milestones.md) for exactly what is done.
+- **Faction towers are a second thing to climb**, and the first one shipped in milestone 15b. Read
+  [`core/towers.ts`](../src/core/towers.ts) before touching them. **One of seven is authored** — the
+  Human Tower, a hundred floors at enemy levels 1 to 60 — and the remaining six plus the enemy
+  archetypes they need are 15c. Adding a tower is a row in [`data/towers.ts`](../src/data/towers.ts), a
+  matching row in [`data/activities.ts`](../src/data/activities.ts), two achievement tracks, and its
+  floors; `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in.
   - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
     clear count drives the idle crystal rate, which `banners.spec.ts` bounds at about ×3 the base
     where the shipped hundred stages already reach ×2 — seven towers of a hundred floors feeding it
@@ -297,6 +298,10 @@ the two disagree, the code is right and both are stale.
   - **A floor is climbed once.** `nextFloor` returns `null` at the top rather than clamping, which
     is the whole difference from the campaign — whose position stops climbing so its last stage
     stays farmable. Clamping instead would let a player re-clear the top floor and be paid again.
+    ⚠️ **That `null` propagates all the way to the controls**: `BattleService.nextFight` returns
+    `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
+    and the crew editor's Fight control are inert on it. A control that only asked whether the
+    _crew_ was legal would look live and silently do nothing.
   - ⚠️ **A floor's level is derived, never authored.** `data/` authors who stands on each floor;
     `floorLevel` draws the straight line from `baseLevel` to `topLevel`. Typing a hundred levels
     that must follow a formula is the retyping [testing](../docs/testing.md) forbids.
@@ -304,9 +309,35 @@ the two disagree, the code is right and both are stale.
     level 60 where campaign stage 100 is level 85, so index-matching would pay the top of the ladder
     for a fight two thirds as hard. `matchedStageIndex` scans the resolved campaign ladder, so
     retuning the campaign carries every tower with it and no tower-side number can go stale.
+    ⚠️ **It does not follow that a floor always pays less than the stage of the same number** — the
+    campaign's level curve is nearly flat through chapter 1's tail where the tower's is linear, so
+    floor 26 (level 16) matches stage 36 and is paid more. That is correct: it is the harder fight.
   - **A tower is faction-locked, and the lock lives in [`core/activity.ts`](../src/core/activity.ts).**
     `partyMeetsLock` is called by the editor **and** the battle path — two implementations of one
     rule is how a screen promises a legal crew that the fight refuses.
+  - ⚠️ **Difficulty in a tower is the front rank's weight, and it is sharply non-linear.** Two
+    ascended blocks in front of three legendaries is the top band; pairing the two _heaviest_
+    (an Unmade beside a Tyrant) takes the reference crew from a clean clear to single-digit win
+    rates. There is also **no ascended-tier Undead archetype**, so an undead-only board caps at
+    legendary and the heavy anchors have to come from another faction — which is why the bias is a
+    share of the whole tower rather than a rule per floor. Re-run `npm run test:balance` after
+    touching any band in the top third.
+  - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear, clearing
+    every floor** — and ⚠️ **the level is derived from `topLevel`, not chosen**: `rare-plus`'s cap is
+    exactly 60, so the party tracks the content. What ramps across the climb is **what a floor
+    costs**, not whether it is possible: the crew clears all hundred, loses nobody below floor 80,
+    and finishes the roof in twenty-four seconds with two of the five dead. A floor the crew cannot
+    pass stops the tower outright, because a floor is climbed once and there is no way around one.
+  - **Home draws a row per tower and it has three states**, only one of which is a link:
+    `climbing` goes to `/prepare/:id`, and `locked` and `topped` are inert rows that say why. ⚠️ The
+    locked row is where 15a's "nothing empty ships for the towers" rule is deliberately spent — it
+    names the clears remaining and the faction it wants, because a visible destination is most of
+    what a tower is for.
+  - ⚠️ **`StageHeading` was generalised for this and carries the _rendered_ position, not its
+    parts.** A chapter-and-stage pair is a shape only the campaign has. `where` is the big line
+    (`2-14` or `F37`), `place` locates it, `label` names it on a button, and no screen asks which
+    kind of content it is drawing. `label` exists because the two kinds want opposite halves: a
+    floor's name already is its position, so a shared template would read "F40 — Floor 40".
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](../src/core/achievements.ts) and
   [`core/quests.ts`](../src/core/quests.ts) before touching either.
@@ -335,6 +366,13 @@ the two disagree, the code is right and both are stale.
     - ⚠️ **A chapter is not an interval of stages.** `every: 50` over `clearedStages` is the
       obvious authoring and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty — it
       pays a "chapter" award part way into the next chapter, silently, forever.
+    - ⚠️ **`towerFloors` is the one counter that cannot identify itself, so `AchievementTrackData`
+      is a discriminated union rather than an interface with an optional `tower`.** Every other
+      counter is a single number on the run; a tower track has to say _which_ tower, and one that
+      forgot would read floor zero of nowhere — content that compiles, ships and silently never
+      pays. The typed local in `ui/content.ts` is what turns that into a compile error. Each tower
+      gets **two** tracks, and summing the seven is forbidden: it would make the completion award
+      payable by climbing a hundred floors spread across seven towers.
     - **A coarse counter needs `AchievementProgress.position`, which is `total` plus how far into
       the next unit the run has come.** A chapter is fifty fights, so a bar drawn from the whole
       count alone sits empty through all of them and then jumps, on the largest reward in the game.
@@ -347,6 +385,17 @@ the two disagree, the code is right and both are stale.
     from 5,000 to 40,000. Retuning either half alone moves the pacing; `data/achievements.spec.ts`
     measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
     the one thing still linear, and it is linear in the **clear count** rather than the index.
+    - **A tower's crystals are the same shape at a smaller size**: 100 a floor (×2 mini-boss, ×5
+      roof), 500 per five floors, 10,000 for topping it. ⚠️ **The per-floor figure is deliberately
+      _not_ the campaign's 250** — at parity the seven towers pay ~268,000 against the campaign's
+      ~69,000, which is 3.9× and makes the ladder's own rewards look pointless beside optional
+      content. At 100 it is ~219,000, a bit over 3× for 7× the content. `data/towers.spec.ts`
+      measures that ratio and bounds it, and ⚠️ **it compares both halves on both sides** — floors
+      and their tracks against first clears and theirs — because comparing against first clears
+      alone reads the campaign as five times poorer than it is.
+    - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
+      rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
+      payout" claim to the ladder, and `towers.spec.ts` holds the tie.
   - ⚠️ **`perClearPerHour` is back at 1, and the headroom that allowed it is nearly spent.** The
     ladder's crystal contribution is `step × stages` against a base of 100, so the shipped hundred
     stages now **double** the base rate (48 pulls a day at a full clear, against 36 at the old 0.5).

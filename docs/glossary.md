@@ -40,6 +40,20 @@ starts at common rarity" is a true sentence that reads like a tautology. The rul
 is the same one, applied without exception: **never write either word bare.** Not "a common" —
 "a common-tier character", or "a character at common rarity".
 
+**"Floor" is the fourth collision, and milestone 15b added the third meaning.** It is a _place_ in a
+tower, a _lower bound_ in two progression systems, and neither reading suggests the other:
+
+| Written                 | Means                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| **a tower floor**       | One of a tower's hundred fights. `Floor 37`, climbed once, at a derived level |
+| **the growth floor**    | The rung a stat multiplier counts from — `rare` for every tier                |
+| **the resonance floor** | The fifth-highest invested level, which the whole roster is carried to        |
+| **the pity floor**      | The bad-luck bound under a pull's tier roll                                   |
+
+The rule is the same shape as the one above: **the two bounds are never written bare.** "The floor"
+on its own means a tower floor now, and "the growth floor" or "the resonance floor" is spelled out —
+which is what the code already does (`growthFloor`, `resonanceFloor`, and `floorLevel` for the place).
+
 ---
 
 ## Tier vs rarity
@@ -190,7 +204,11 @@ somewhere. It is not a character's level and nothing derives one from the other.
 | **Chapter**          | A group of stages, and where a run is: a save stores a **chapter and a stage within it**, never a linear index, so re-cutting a chapter cannot relocate a player. Chapters 1–10 hold 50 stages each, stepping +10 every ten chapters, capped at 200. Two are shipped.                                                                                                                      |
 | **Stage index**      | A stage's 1-based position on the **whole** ladder, derived by `stageIndex` and stored nowhere. The clear count, the crystal rate and the reward curve are all functions of this. ⚠️ Reading `state.stage` where this belongs is the milestone 11 bug shape: chapter 2 stage 3 and chapter 1 stage 3 are the same number.                                                                  |
 | **Stage kind**       | `normal`, `mini-boss` or `boss` — a rule, not an authored field. Every tenth stage of a chapter is a mini-boss and the last one is a boss, so the rhythm is the same in a fifty-stage chapter and a two-hundred stage one. It pays out in first-clear crystals (×2 and ×5) and nowhere else.                                                                                               |
-| **Formation**        | The party: two front slots, three back. `PARTY_SIZE` is 5. Placement is free — any character in either row.                                                                                                                                                                                                                                                                                |
+| **Formation**        | One party: two front slots, three back. `PARTY_SIZE` is 5. Placement is free — any character in either row. ⚠️ **There is no longer "the" formation.** Since milestone 15a a run holds a `FormationBook` — one formation per activity — and `state.formation` does not exist. "The formation" in older prose means the campaign's.                                                         |
+| **Crew**             | A formation, said the way the screens say it. The word exists because "formation" reads as a singular and there are eight of them; `CrewView` is the resolved read model, and `/formations` lists one row per crew. ⚠️ **Standing in a crew reserves nobody** — one character may stand in several, and being away on a bounty stops the crew fighting rather than stopping the placement. |
+| **Activity**         | A thing a run can send a crew at, and the key its crew is filed under: the campaign, plus one per tower. Authored as five short fields in [`data/activities.ts`](../src/data/activities.ts). ⚠️ An `id` is a save key twice over — the crew _and_ the tower's progress hang off it — so it is permanent once shipped.                                                                      |
+| **Tower**            | A second thing to climb: a hundred **floors** locked to one faction, whose enemies lean toward the faction that counters it. One of seven is authored. A tower is a demand on the **roster** rather than on investment, is always skippable, and ⚠️ **never touches `clearedStages`, the ladder position or an idle rate.** See [milestones](milestones.md).                               |
+| **Floor**            | One fight in a tower — the tower's answer to a **stage**, with three differences: it is climbed **once**, its level is derived rather than authored, and what it pays is read off the campaign at the **matched enemy level**. ⚠️ Not the same word as the growth, resonance or pity **floor**; see the collisions above.                                                                  |
 | **Row / rank**       | Front or back. Front gets +5% `def` and +0.05 crit damage resistance; back gets +5% `atk` and +0.05 crit damage amplification. Each rank sharpens the role it already has. Ordinary attacks go through the front rank first.                                                                                                                                                               |
 | **Lineup bonus**     | What the party's own faction composition is worth — see the three jobs of "faction" above. Applied to the **party only**, never to an enemy formation. Not the same as a **row bonus**, which is about where one character stands rather than about who else you brought.                                                                                                                  |
 | **Wildcard**         | Angels, on the composition ladder only. Three Humans and two Angels reads as five Humans. Deliberately not a wildcard for the Monster or Demon tracks, where it would make one faction strictly the best thing to own.                                                                                                                                                                     |

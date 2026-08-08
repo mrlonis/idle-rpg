@@ -290,9 +290,16 @@ off zero, which is exactly the job it had. `v0.json` otherwise pins what a curre
 
 ⚠️ **A fixture should store values a default would not produce.** `v0.json` carries a mid-cycle
 `legendaryPity`, a worn loadout, an unaligned piece, a mint counter deliberately ahead of the bag,
-and a retired achievement track alongside a live one. A fixture storing the empty value passes
-identically whether the decoder reads the field or silently defaults it, which is precisely the
-distinction it exists to make — and the empty value is always the obvious thing to write.
+a part-climbed tower, and a retired achievement track alongside a live one. A fixture storing the
+empty value passes identically whether the decoder reads the field or silently defaults it, which is
+precisely the distinction it exists to make — and the empty value is always the obvious thing to
+write.
+
+**`towers` shipped with that trap already set and it took a milestone to notice.** The field arrived
+in 15b's model half, serialized and parsed and green, and the fixture was not extended — so nothing
+distinguished a decoder that read it from one that defaulted it to `{}`. It now carries a live tower
+at floor 36 **and** a retired one, for the same two reasons the achievement ledger does: one integer
+is cheap to carry, and dropping an unknown key costs a returning player a hundred floors.
 
 **The formation book is the sharpest example of that rule and shows its second half.** `v0.json`
 holds **two** crews: the campaign's, and one under an activity this build does not ship. One crew

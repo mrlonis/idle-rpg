@@ -482,3 +482,24 @@ export {
   type PartyFormation,
 } from './state';
 export { tick } from './tick';
+export {
+  applyTowerResult,
+  clearedFloors,
+  emptyTowers,
+  floorKindAt,
+  floorLevel,
+  floorsClearedIn,
+  floorSummons,
+  isTowerUnlocked,
+  matchedStageIndex,
+  nextFloor,
+  parseTowers,
+  resolveFloor,
+  resolveTower,
+  type TowerBattleOutcome,
+  type TowerData,
+  type TowerFloorData,
+  type TowerGearAward,
+  type TowerProgress,
+  type TowerRulesData,
+} from './towers';

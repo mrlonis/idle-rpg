@@ -132,5 +132,9 @@
       "claimed": []
     }
   },
-  "dispatches": []
+  "dispatches": [],
+  "towers": {
+    "tower-human": 36,
+    "tower-retired": 12
+  }
 }

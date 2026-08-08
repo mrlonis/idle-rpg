@@ -26,6 +26,18 @@ const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
 const LADDER: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
 
+/**
+ * The tracks measured against the **campaign**, which is what every derived figure below is about.
+ *
+ * A tower's tracks are counted in floors, so they pay nothing for climbing the ladder and belong to
+ * a different economy — the one [`towers.spec.ts`](./towers.spec.ts) measures, and which is bounded
+ * as a multiple of this one. Folding them in here would read as the ladder's own tracks having
+ * doubled, and the ratio below would then pass for a reason that has nothing to do with the ladder.
+ */
+const LADDER_TRACKS: readonly AchievementTrackData[] = tracks.filter(
+  (track) => track.counter !== 'towerFloors',
+);
+
 /** Where the starter party stops — the stage-7 healer lock. */
 const WALL = LADDER.findIndex((stage) => stage.id === 'c1-s7');
 
@@ -51,8 +63,8 @@ function crystalsOverLadder(track: AchievementTrackData): number {
   return awardsOverLadder(track) * (track.reward.summons ?? 0);
 }
 
-/** What every track together pays over the shipped ladder, in crystals. */
-const FROM_TRACKS = tracks.reduce((sum, track) => sum + crystalsOverLadder(track), 0);
+/** What every campaign track together pays over the shipped ladder, in crystals. */
+const FROM_TRACKS = LADDER_TRACKS.reduce((sum, track) => sum + crystalsOverLadder(track), 0);
 
 /** What the ladder's own first clears pay over the same stretch. */
 const FROM_FIRST_CLEARS = LADDER.reduce(
@@ -132,9 +144,13 @@ describe('the chapter-clear track', () => {
     expect(CHAPTER_CURVE.stepStages).toBeGreaterThan(0);
   });
 
-  it('is the largest single payout in the game', () => {
+  it('is the largest single payout the ladder has', () => {
     // A chapter is fifty fights and its award is the ladder's punctuation. If a stage ever paid
     // more on its own, finishing a chapter would be an anticlimax on the fight that ends it.
+    //
+    // **The ladder, not the game.** Topping a tower matches this exactly, which is deliberate — a
+    // hundred floors and a fifty-stage chapter are comparable events — and `towers.spec.ts` holds
+    // the tie so it stays a decision rather than a coincidence.
     const biggestStage = Math.max(
       ...LADDER.map((stage) => Number(stage.firstClearSummons ?? 0)),
       ...(CLIMBER === undefined ? [] : [CLIMBER.reward.summons ?? 0]),

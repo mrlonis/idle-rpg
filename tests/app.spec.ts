@@ -27,6 +27,7 @@ test.describe('App', () => {
       ['/bag', /Bag/],
       ['/formations', /Formations/],
       ['/formations/campaign', /Formation/],
+      ['/formations/tower-human', /Formation/],
       ['/prepare/campaign', /Before you fight/],
       ['/settings', /Settings/],
     ] as const) {
@@ -140,6 +141,95 @@ test.describe('App', () => {
       await startFight(page);
 
       await expect(page.getByRole('navigation')).toHaveCount(0);
+    });
+  });
+
+  /**
+   * The tower path, end to end through a real browser.
+   *
+   * Every part of this is covered by a unit spec somewhere; what only a browser can show is that the
+   * three screens agree — Home's row, the crew editor's lock, and a battle heading that names a
+   * *floor* rather than a chapter and a stage. A fresh run is used deliberately, so the tower starts
+   * locked and the row has to say so.
+   */
+  test.describe('a faction tower', () => {
+    /**
+     * A run past the tower's unlock, holding four Humans with a crew already standing in the tower.
+     *
+     * ⚠️ **Every field of the current shape is written, including the empty ones.** A field left out
+     * is reported as damage, and the recovery banner it draws would sit on the screen this walks.
+     * The crew is pre-arranged rather than assembled by clicking: what this test is for is that the
+     * three screens agree about a *tower*, and the placement control is covered by its own specs.
+     */
+    const towerSave = {
+      version: 0,
+      wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+      rates: { gold: '4', xp: '2', essence: '1', summons: '0.5' },
+      lastTickAt: Date.now(),
+      rng: { seed: 3735928559, calls: 0 },
+      chapter: 1,
+      stage: 20,
+      clearedStages: 19,
+      battleCount: 19,
+      roster: [
+        { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'wren', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'halric', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'ysolde', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
+      ],
+      formations: {
+        campaign: { front: ['bran', 'mira'], back: ['rin'] },
+        'tower-human': { front: ['halric', 'mira'], back: ['wren', 'ysolde'] },
+      },
+      pity: 0,
+      legendaryPity: 0,
+      pullCount: 0,
+      gear: [],
+      gearMinted: 0,
+      gearShop: { slot: 0, purchased: [] },
+      achievements: {},
+      quests: {
+        daily: { index: -1, baseline: {}, claimed: [] },
+        weekly: { index: -1, baseline: {}, claimed: [] },
+      },
+      dispatches: [],
+      towers: {},
+    };
+
+    test('starts locked, and the row says what opens it', async ({ page }) => {
+      await page.goto('');
+
+      // Not a link, and it names both the key and the faction it wants — a tower that cannot yet be
+      // crewed should still say who it is for.
+      const row = page.locator('.tower--inert');
+      await expect(row).toContainText('Human Tower');
+      await expect(row).toContainText(/Clear \d+ more stages? to open/);
+      await expect(row).toContainText('Humans only');
+      await expect(page.getByRole('link', { name: /Human Tower/ })).toHaveCount(0);
+    });
+
+    test('arranges a crew from the Humans only, and fights a floor', async ({ page }) => {
+      // Seeded past the unlock with three Humans owned, which is what makes the tower enterable and
+      // the pool non-trivial. Written through the same storage key the app reads on load.
+      await page.addInitScript(([key, value]) => localStorage.setItem(key, value), [
+        'CapacitorStorage.save',
+        JSON.stringify(towerSave),
+      ] as const);
+      await page.goto('');
+
+      await page.getByRole('link', { name: /Human Tower/ }).click();
+
+      await expect(page.getByRole('heading', { level: 1, name: 'Before you fight' })).toBeVisible();
+      await expect(page.locator('.head__lock')).toContainText('Humans');
+
+      await page.getByRole('button', { name: 'Fight', exact: true }).click();
+
+      // The generalised heading: a floor, not a chapter and a stage.
+      await expect(page.locator('.battle__stage')).toContainText('F1');
+      await expect(page.locator('.battle__stage-chapter')).toContainText('Human Tower');
+      await expect(page.locator('.battle__stage-chapter')).toContainText('Floor 1 of 100');
     });
   });
 

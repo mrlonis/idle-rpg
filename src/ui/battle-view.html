@@ -1,12 +1,15 @@
 @if (stage(); as current) {
   <section class="battle" aria-labelledby="battle-heading">
     <header class="battle__header">
+      <!--
+        The same four lines for a campaign stage and a tower floor. `where` is the big one (`2-14`
+        or `F37`), `place` locates it, and neither this template nor its stylesheet knows which kind
+        of content it is drawing — see `StageHeading`.
+      -->
       <h1 id="battle-heading" class="battle__stage">
-        {{ current.chapter }}-{{ current.number }}
+        {{ current.where }}
         <span class="battle__stage-name">{{ current.name }}</span>
-        <span class="battle__stage-chapter">
-          Chapter {{ current.chapter }} · {{ current.chapterName }}
-        </span>
+        <span class="battle__stage-chapter">{{ current.place }}</span>
         <span class="battle__stage-level">Enemy level {{ current.level }}</span>
       </h1>
       <div class="controls">
@@ -177,7 +180,14 @@
     -->
     @if (isSettled()) {
       <div class="actions">
-        <button type="button" class="actions__fight" (click)="fight()">{{ fightLabel() }}</button>
+        <!--
+          Disabled only at the top of a tower, which is the one place there is genuinely nothing to
+          go again *to*. Without it this navigates to a crew editor whose own Fight control then
+          silently does nothing — see `isFinished`.
+        -->
+        <button type="button" class="actions__fight" [disabled]="isFinished()" (click)="fight()">
+          {{ fightLabel() }}
+        </button>
         <!--
           The accessible name contains the visible label, so voice control still matches on
           "Close" while a screen reader gets the destination too.

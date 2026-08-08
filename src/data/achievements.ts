@@ -59,6 +59,25 @@
  * and sixty from chapter 11 — see `CHAPTER_CURVE` — so a fixed stage interval drifts off the
  * chapter boundary the moment the band steps, and pays a "chapter" award ten stages into the next
  * one. `core/achievements.ts` carries the argument in full.
+ *
+ * ## The two tower tracks, and why there are two per tower rather than two for all seven
+ *
+ * **Spire Climber** is the tower's version of Stage Climber: 500 crystals every five floors, which
+ * over a hundred floors is 10,000 — a little under what the floors themselves pay, so the rhythm of
+ * the climb and the climb are worth about the same.
+ *
+ * **Spire Conqueror** is the completion award, and ⚠️ **it needs no new mechanism**: a track with
+ * `every: 100` over a hundred-floor counter pays exactly once, so "finish the tower" is an interval
+ * like any other. That is the whole reason towers added no concept to this file.
+ *
+ * ⚠️ **A tower counter names its tower, so a track is per tower and cannot be shared.** Summing the
+ * seven would make the completion award payable by climbing a hundred floors spread over seven
+ * towers, which is the opposite of what it is for — and it would make the five-floor track pay for
+ * breadth twice, once here and once through the towers being crewable at all.
+ *
+ * ⚠️ **Every tower's pair is worth the same, and that is deliberate.** A tower is optional content
+ * gated behind roster depth; paying more for one faction than another would make the banner's luck
+ * decide which optional ladder is worth climbing.
  */
 export const ACHIEVEMENTS = [
   {
@@ -75,6 +94,27 @@ export const ACHIEVEMENTS = [
     description: 'Crystals for every chapter finished, however long that chapter runs.',
     counter: 'clearedChapters',
     every: 1,
+    reward: { summons: 10_000 },
+  },
+  {
+    id: 'tower-human-floors',
+    name: 'Spire Climber',
+    description: 'Crystals for every five floors of the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    every: 5,
+    reward: { summons: 500 },
+  },
+  {
+    id: 'tower-human-cleared',
+    name: 'Spire Conqueror',
+    description: 'Crystals for reaching the top of the Human Tower.',
+    counter: 'towerFloors',
+    tower: 'tower-human',
+    // ⚠️ **The tower's height, restated because `data/` holds no logic** — and therefore checked
+    // rather than trusted: `towers.spec.ts` asserts this equals `TOWER_RULES.floors`. Authored one
+    // short it would pay twice; one long, never.
+    every: 100,
     reward: { summons: 10_000 },
   },
 ] as const;

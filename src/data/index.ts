@@ -116,3 +116,5 @@ export { CHAPTER_1 } from './chapter-1';
 export { CHAPTER_2 } from './chapter-2';
 export { AUTO_BATTLE_UNLOCK_CLEARS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 export { STATUSES } from './statuses';
+export { TOWER_HUMAN } from './tower-human';
+export { TOWER_RULES, TOWERS } from './towers';

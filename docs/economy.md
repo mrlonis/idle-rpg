@@ -210,6 +210,39 @@ quests are a modest top-up. Against a player walled below a stage — whose only
 thing the wall is throttling — they are most of what arrives. That is why neither scales with
 progress: a reward that grew with the stage index would help least exactly where help is needed.
 
+### A tower is a fourth faucet, at a deliberately smaller size
+
+Added in milestone 15b, and shaped exactly like the ladder's own: a flat payout per floor plus two
+achievement tracks over the floors climbed.
+
+|                   | Pays                            | Over                    |
+| ----------------- | ------------------------------- | ----------------------- |
+| **A floor clear** | 100 crystals (×2 mini, ×5 roof) | Once per floor, ever    |
+| **Spire Climber** | 500 crystals per 5 floors       | One tower's floors      |
+| **Spire Conq.**   | 10,000 crystals at the top      | One tower, exactly once |
+| **The lump**      | Gold, xp, essence — no rate     | The **matched** level   |
+
+One tower is 11,400 crystals from floors and 20,000 from its two tracks; seven come to about
+219,000, against the campaign's ~69,000. A bit over 3× the critical path for 7× the content, on
+optional ladders gated behind roster depth.
+
+⚠️ **The per-floor figure is 100 rather than the campaign's 250, and that gap is load-bearing.** At
+parity the seven towers pay ~268,000 — 3.9× the campaign from stage clears alone — which makes the
+ladder's own rewards look pointless beside optional content. `data/towers.spec.ts` bounds the ratio,
+and ⚠️ **it compares both halves on both sides**: floors and their tracks against first clears and
+theirs. Comparing against the campaign's first clears alone reads it as five times poorer than it is,
+because the flattening moved most of that side onto the tracks.
+
+⚠️ **A tower clear never raises an idle rate, and never touches `clearedStages`.** The campaign stays
+the income spine and a tower is the roster sink. The arithmetic is not a preference: the crystal rate
+is linear in the clear count, so seven hundred-floor towers feeding that counter would take the idle
+rate to roughly ×8 the base where `banners.spec.ts` bounds a fully cleared ladder at ×3.
+
+**The lump is read off the campaign's own curve at the stage that fights at the same enemy level.**
+⚠️ It does not follow that a floor pays less than the stage of the same number — the campaign's level
+curve is nearly flat through chapter 1's tail where a tower's is linear, so floor 26 (level 16)
+matches stage 36 and is paid more. That is the level match working: it is the harder fight.
+
 ### ⚠️ Bounties are the deliberate exception, and pay a duration instead
 
 A mission pays **seconds of the run's own current idle income** in gold, xp and essence — the same

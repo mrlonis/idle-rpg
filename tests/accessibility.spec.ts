@@ -420,6 +420,20 @@ test.describe('Accessibility', () => {
     await scan(page, testInfo, 'formation-editor');
   });
 
+  test('a tower crew editor has no AXE violations', async ({ page }, testInfo) => {
+    // ⚠️ Scanned separately from the campaign's editor because a locked activity renders two things
+    // that one never does: the line naming the faction it admits, and a pool filtered down to it.
+    // The seeded roster is one Dwarf, one Human and one Elf, so the Human tower's pool has exactly
+    // one row in it and every other faction's section renders its empty state.
+    await seedSave(page, unlockedSave);
+    await page.goto('/formations/tower-human');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Human Tower' })).toBeVisible();
+    await expect(page.locator('.head__lock')).toContainText('Humans');
+
+    await scan(page, testInfo, 'formation-editor-tower');
+  });
+
   test('the pre-battle screen has no AXE violations', async ({ page }, testInfo) => {
     // The same component with the Fight control switched on — scanned separately because that
     // control is the one thing on it no other scan covers, and it is the screen every battle
