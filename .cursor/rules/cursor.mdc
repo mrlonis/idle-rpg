@@ -202,7 +202,7 @@ the two disagree, the code is right and both are stale.
     every field `GearItem` carries in order to be addressable would be dead weight. The character
     sheet drawing it as a slot is presentation.
   - **Ascended tier only, and both halves of the gate are enforced in `core/`.** `signatureUnlocked`
-    checks the **tier** (which character was pulled) *and* the **rung** (how far it was ascended) —
+    checks the **tier** (which character was pulled) _and_ the **rung** (how far it was ascended) —
     the collision `docs/glossary.md` warns about, and here they are genuinely two different
     questions. An item pointed at a legendary-tier character is **inert** rather than an exception.
   - ⚠️ **A stored level survives a character no longer being eligible, and is not repaired away.**
@@ -248,7 +248,7 @@ the two disagree, the code is right and both are stale.
     legitimate achievement counter. As a **quest** counter it is the failure `clearedStages` is
     banned for and worse: it stops at 210 once all seven are maxed, and it does not move at all for
     the tens of thousands of pulls before the first item unlocks.
-  - ⚠️ **No quest may be measured against emblems *held* either**, for a different reason: a quest
+  - ⚠️ **No quest may be measured against emblems _held_ either**, for a different reason: a quest
     window stores a baseline and progress is a subtraction, so a balance that falls when spent
     reports negative progress. Every valid quest counter is monotonic and a wallet balance is not.
     See [rejected](../../docs/rejected.md) for the third candidate and the trigger that revisits all of it.
