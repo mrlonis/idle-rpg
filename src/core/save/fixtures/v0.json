@@ -6,13 +6,15 @@
     "essence": "1840",
     "summons": "350",
     "spark": "12",
-    "alloy": "2450"
+    "alloy": "2450",
+    "emblem": "318"
   },
   "rates": {
     "gold": "250",
     "xp": "48",
     "essence": "0.8",
-    "summons": "0.22"
+    "summons": "0.22",
+    "emblem": "0.0002777777777777778"
   },
   "lastTickAt": 1753574400000,
   "rng": {
@@ -33,7 +35,8 @@
         "head": "g1",
         "chest": "g2",
         "boots": "g4"
-      }
+      },
+      "signature": 14
     },
     {
       "defId": "beta",
@@ -42,14 +45,16 @@
       "copies": 3,
       "gear": {
         "arms": "g3"
-      }
+      },
+      "signature": 0
     },
     {
       "defId": "gamma",
       "rarity": 5,
       "level": 31,
       "copies": 6,
-      "gear": {}
+      "gear": {},
+      "signature": 0
     }
   ],
   "formations": {

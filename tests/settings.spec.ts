@@ -58,12 +58,21 @@ const earned = stagePayout(rewards, CLEARED);
  */
 const progressedSave = {
   version: 0,
-  wallet: { gold: '123456', xp: '900', essence: '40', summons: '5', spark: '0', alloy: '0' },
+  wallet: {
+    gold: '123456',
+    xp: '900',
+    essence: '40',
+    summons: '5',
+    spark: '0',
+    alloy: '0',
+    emblem: '0',
+  },
   rates: {
     gold: String(earned.rates.gold),
     xp: String(earned.rates.xp),
     essence: String(earned.rates.essence),
     summons: String(summonRatePerSecond(SUMMON_RATE, CLEARED)),
+    emblem: '0',
   },
   lastTickAt: Date.now(),
   rng: { seed: 3735928559, calls: 7 },
@@ -72,9 +81,9 @@ const progressedSave = {
   clearedStages: CLEARED,
   battleCount: 20,
   roster: [
-    { defId: 'rin', rarity: 0, level: 9, copies: 2, gear: {} },
-    { defId: 'bran', rarity: 0, level: 9, copies: 0, gear: {} },
-    { defId: 'mira', rarity: 0, level: 9, copies: 0, gear: {} },
+    { defId: 'rin', rarity: 0, level: 9, copies: 2, gear: {}, signature: 0 },
+    { defId: 'bran', rarity: 0, level: 9, copies: 0, gear: {}, signature: 0 },
+    { defId: 'mira', rarity: 0, level: 9, copies: 0, gear: {}, signature: 0 },
   ],
   formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
   pity: 3,

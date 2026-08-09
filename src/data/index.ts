@@ -108,6 +108,8 @@ export {
   WARDEN,
   WISP,
 } from './enemies';
+export { EMBLEM_DROPS, EMBLEM_RATE } from './emblems';
+export { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
 export { GEAR_GRADES, GEAR_PROFILES, GEAR_RULES } from './gear';
 export { KIT_RULES } from './kits';
 export { GROWTH, LEVEL_CURVE } from './levels';

@@ -152,7 +152,7 @@ function run(over: Partial<GameState> = {}): GameState {
 }
 
 function owner(defId: string, gear: Record<string, string> = {}): OwnedCharacter {
-  return { defId, rarity: 0, level: 1, copies: 0, gear };
+  return { defId, rarity: 0, level: 1, copies: 0, gear, signature: 0 };
 }
 
 describe('gearScale', () => {

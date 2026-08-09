@@ -68,7 +68,7 @@ const LOCKED_FACTION = CAST[0].faction;
 const OTHER_FACTION = CAST.find((member) => member.faction !== LOCKED_FACTION)?.faction ?? '';
 
 function own(defId: string): OwnedCharacter {
-  return { defId, rarity: 0, level: 1, copies: 0, gear: {} };
+  return { defId, rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 };
 }
 
 function build(formations: Record<string, PartyFormation> = {}) {

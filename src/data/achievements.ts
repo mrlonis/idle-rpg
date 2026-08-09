@@ -99,10 +99,42 @@ export const ACHIEVEMENTS = [
   {
     id: 'chapters-cleared',
     name: 'Chapter Conqueror',
-    description: 'Crystals for every chapter finished, however long that chapter runs.',
+    description: 'Crystals and emblems for every chapter finished, however long that chapter runs.',
     counter: 'clearedChapters',
     every: 1,
-    reward: { summons: 10_000 },
+    // The one track paying two currencies, and it is the right one to: finishing a chapter is
+    // already what turns the emblem idle rate up a step, so paying a lump of them here is the same
+    // event saying the same thing twice rather than a second mechanism. 100 is a tenth of a
+    // signature item's 996 — enough to be worth the moment, nowhere near enough to skip the climb.
+    //
+    // ⚠️ Flat, like every achievement award. The reasoning that keeps the others in crystals holds
+    // for emblems too: both price against flat costs — a pull is 100 forever and a signature level
+    // is a fixed number forever — so a flat award stays worth the same at every point in a run.
+    reward: { summons: 10_000, emblem: 100 },
+  },
+  {
+    id: 'signature-levels',
+    name: 'Signature Bearer',
+    description: 'Crystals for every five signature item levels bought, across your whole roster.',
+    counter: 'signatureLevels',
+    every: 5,
+    // ⚠️ Pays **crystals**, not emblems. An emblem award on an emblem-spending track is a partial
+    // refund — it would make the last levels cheaper than the first and quietly flatten the cost
+    // curve `data/signature.ts` is careful to keep linear. Crystals are the currency with no claim
+    // on this track at all, which is exactly why they are the right reward for it.
+    reward: { summons: 2000 },
+  },
+  {
+    id: 'signature-mastered',
+    name: 'Signature Master',
+    description: 'Crystals for every signature item taken to its highest level.',
+    counter: 'signatureLevels',
+    // One award per 30 levels — a maxed item's worth. ⚠️ Not the same as "one item maxed": a run
+    // holding two items at level 15 collects this too. That is deliberate rather than sloppy,
+    // because the alternative needs a per-character counter, and the only honest thing this track
+    // can measure without one is **total investment**, which is what it is named for.
+    every: 30,
+    reward: { summons: 15_000 },
   },
   {
     id: 'tower-human-floors',

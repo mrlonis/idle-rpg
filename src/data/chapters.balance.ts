@@ -210,7 +210,7 @@ function at(
   // what a party of a given power can clear — the thing this file measures.
   return toBattleCombatant(
     character,
-    { defId: character.id, rarity, level, copies: 0, gear: {} },
+    { defId: character.id, rarity, level, copies: 0, gear: {}, signature: 0 },
     growth,
     kit,
     level,

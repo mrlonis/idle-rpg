@@ -44,8 +44,16 @@ describe('toSaveData', () => {
   it('encodes Numeric fields as strings and stamps the current version', () => {
     expect(toSaveData(withGold(99, '1.5e+25'))).toEqual({
       version: SAVE_VERSION,
-      wallet: { gold: '1.5e+25', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
-      rates: { gold: '0', xp: '0', essence: '0', summons: '0' },
+      wallet: {
+        gold: '1.5e+25',
+        xp: '0',
+        essence: '0',
+        summons: '0',
+        spark: '0',
+        alloy: '0',
+        emblem: '0',
+      },
+      rates: { gold: '0', xp: '0', essence: '0', summons: '0', emblem: '0' },
       lastTickAt: T0,
       rng: { seed: 99, calls: 0 },
       chapter: 1,
@@ -77,12 +85,12 @@ describe('toSaveData', () => {
   it('encodes the roster as plain records', () => {
     const state: GameState = {
       ...newGame({ seed: 3, nowMs: T0 }),
-      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} }],
+      roster: [{ defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {}, signature: 0 }],
       formations: { [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] } },
     };
 
     expect(toSaveData(state).roster).toEqual([
-      { defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {} },
+      { defId: 'alpha', rarity: 4, level: 12, copies: 7, gear: {}, signature: 0 },
     ]);
     expect(toSaveData(state).formations).toEqual({
       [CAMPAIGN_FORMATION]: { front: ['alpha'], back: [] },
@@ -106,7 +114,7 @@ describe('round-trip', () => {
       chapter: 2,
       stage: 6,
       clearedStages: 5,
-      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2, gear: {} }],
+      roster: [{ defId: 'gamma', rarity: 5, level: 40, copies: 2, gear: {}, signature: 0 }],
       formations: {
         [CAMPAIGN_FORMATION]: { front: ['gamma'], back: [] },
         'tower:test': { front: ['gamma'], back: [] },
@@ -239,7 +247,7 @@ describe('fromSaveData repair', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [
-            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
             { defId: 'ghost' },
           ],
         },
@@ -254,8 +262,8 @@ describe('fromSaveData repair', () => {
       const { state, issues } = fromSaveData(
         {
           roster: [
-            { defId: 'alpha', rarity: 0, level: 5, copies: 1, gear: {} },
-            { defId: 'alpha', rarity: 3, level: 9, copies: 4, gear: {} },
+            { defId: 'alpha', rarity: 0, level: 5, copies: 1, gear: {}, signature: 0 },
+            { defId: 'alpha', rarity: 3, level: 9, copies: 4, gear: {}, signature: 0 },
           ],
         },
         OPTIONS,
@@ -270,7 +278,9 @@ describe('fromSaveData repair', () => {
       // The one recoverable kind of damage here. Keeping it is the difference between a player
       // losing one character's progress and losing the character.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4, gear: {} }] },
+        {
+          roster: [{ defId: 'alpha', rarity: 99, level: 9999, copies: -4, gear: {}, signature: 0 }],
+        },
         OPTIONS,
       );
 
@@ -283,7 +293,7 @@ describe('fromSaveData repair', () => {
       // `gamma` is ascended-tier and starts at Elite. At Rare its ascension costs would be
       // computed from a rung it could never have been on.
       const { state } = fromSaveData(
-        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {} }] },
+        { roster: [{ defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }] },
         OPTIONS,
       );
 
@@ -292,7 +302,7 @@ describe('fromSaveData repair', () => {
 
     it('clamps a level above the rarity’s cap', () => {
       const { state } = fromSaveData(
-        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0, gear: {} }] },
+        { roster: [{ defId: 'alpha', rarity: 0, level: 500, copies: 0, gear: {}, signature: 0 }] },
         OPTIONS,
       );
 
@@ -304,7 +314,7 @@ describe('fromSaveData repair', () => {
     it('drops members who are not owned', () => {
       const { state, issues } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
           formations: { campaign: { front: ['alpha', 'beta'], back: ['ghost'] } },
         },
         OPTIONS,
@@ -319,7 +329,7 @@ describe('fromSaveData repair', () => {
     it('drops a repeated member rather than letting it stand in both ranks', () => {
       const { state } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
           formations: { campaign: { front: ['alpha'], back: ['alpha'] } },
         },
         OPTIONS,
@@ -351,7 +361,7 @@ describe('fromSaveData repair', () => {
       // moved between a build with towers and one without.
       const { state } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
           formations: { 'tower:not-shipped': { front: ['alpha'], back: [] } },
         },
         OPTIONS,
@@ -367,7 +377,7 @@ describe('fromSaveData repair', () => {
       // the player assembled.
       const { state } = fromSaveData(
         {
-          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }],
+          roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
           formation: { front: ['alpha'], back: [] },
         },
         OPTIONS,
@@ -382,8 +392,8 @@ describe('fromSaveData repair', () => {
       const { state } = fromSaveData(
         {
           roster: [
-            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
-            { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {} },
+            { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+            { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
           ],
           formations: { campaign: { front: ['beta'], back: [] } },
           formation: { front: ['alpha'], back: [] },

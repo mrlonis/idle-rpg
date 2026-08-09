@@ -139,8 +139,14 @@ function campaignCrystals(): number {
   const clears = stages
     .map((stage, index) => stagePayout(rewards, index + 1, stage.kind).firstClearSummons)
     .reduce((total, value) => total + value, 0);
+  // ⚠️ **Only the tracks measured against campaign progress**, named rather than inferred from
+  // "not a tower track". That inference was what this did, and milestone 16 broke it: the two
+  // signature tracks are neither campaign nor tower, and being read as campaign ones meant their
+  // interval was measured against `stages.length` — inventing 85,000 crystals the ladder does not
+  // pay and taking this ratio from 3.2 to 1.4. A track counting something else entirely is a third
+  // category, and the honest thing is for this to say which two it means.
   const awards = tracks.reduce((total, track) => {
-    if (track.counter === 'towerFloors') {
+    if (track.counter !== 'clearedStages' && track.counter !== 'clearedChapters') {
       return total;
     }
     const counter = track.counter === 'clearedChapters' ? chapters.length : stages.length;

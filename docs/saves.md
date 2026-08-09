@@ -92,7 +92,7 @@ asserts every version below current has a migration registered, so that mistake 
 than on a device. It is vacuous at a one-version baseline and it is kept for exactly that reason —
 it fired the moment the version first moved off zero, which is when nobody is thinking about it.
 
-### The chain has been re-based twice, both times while nobody was playing
+### The chain has been re-based three times, always while nobody was playing
 
 The first re-base collapsed five pre-release versions and four migrations:
 
@@ -114,8 +114,28 @@ Six more accumulated on top of that baseline, and the second re-base collapsed a
 | v4 → v5 | The bounty board's dispatch list.                                                |
 | v5 → v6 | The legendary pity counter.                                                      |
 
-Everything those steps wrote is simply part of the baseline shape now, and the current shape is
-**v0** again.
+The third re-base is [milestone 16](milestones.md#16-signature-items--complete)'s, and it is the
+smallest by a wide margin — three fields, no step worth tabulating:
+
+| Field                | What it holds                                                  |
+| -------------------- | -------------------------------------------------------------- |
+| `wallet.emblem`      | Emblems held. Defaults to 0 — a balance nobody has earned.     |
+| `rates.emblem`       | The emblem idle rate. Defaults to 0 — nothing until a chapter. |
+| `roster[].signature` | Signature item level. Defaults to 0, which **is** locked.      |
+
+⚠️ **This is the least defensible use of the licence precisely because it was the cheapest.** All
+three fields default correctly to the value the decoder already produces for a missing key, so the
+migration they did not need would have been three assignments of zero — and a version bump would
+have cost almost nothing. The reason not to take it is consistency with a chain that is still empty,
+not any property of these three fields. The next schema change should weigh that.
+
+**One visible cost, dev-only:** a save written by a build from before this change is missing
+`wallet.emblem` and `rates.emblem`, so it now reports **two repair issues on load**. It loads
+correctly and heals to zero, which is the right answer, but the notices are real and will appear
+once per pre-existing dev save.
+
+Everything all three re-bases wrote is simply part of the baseline shape now, and the current shape
+is **v0** again.
 
 **The argument is narrow and it is the only one that licenses either re-base: no save written by any
 of those versions has ever existed outside development.** Nobody has played this game but its

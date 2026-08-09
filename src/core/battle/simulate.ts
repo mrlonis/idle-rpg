@@ -273,7 +273,11 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
         energy: 0,
         gauge: 0,
         swinging: false,
-        statuses: [],
+        // Opening statuses land at tick 0, applied against the combatant's **own** stats — the
+        // wearer is who granted them, so a shield or a regeneration here is sized by the wearer.
+        // This is where a signature item's passive half arrives; nothing in this file knows that,
+        // because what it receives is an ordinary `StatusData` list on the combatant.
+        statuses: (combatant.opening ?? []).map((status) => toActiveStatus(status, stats, 0)),
         cooldowns: new Map<string, number>(),
       });
     }

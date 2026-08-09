@@ -62,7 +62,9 @@ describe('nextAscension', () => {
 
   it('is undefined at the top of the ladder', () => {
     const state = run({
-      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
+      roster: [
+        { defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {}, signature: 0 },
+      ],
     });
 
     expect(nextAscension(state, 'gamma', RULES, TEST_CHARACTERS, TEST_FACTIONS)).toBeUndefined();
@@ -84,6 +86,7 @@ describe('ascend', () => {
       expect(findOwned(result.state, 'gamma')).toEqual({
         defId: 'gamma',
         gear: {},
+        signature: 0,
         rarity: ELITE + 1,
         level: 1,
         copies: 2,
@@ -128,7 +131,9 @@ describe('ascend', () => {
 
   it('refuses at the top of the ladder', () => {
     const state = run({
-      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
+      roster: [
+        { defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {}, signature: 0 },
+      ],
     });
 
     expect(ascendGamma(state)).toEqual({ ok: false, reason: 'max-rarity' });
@@ -140,7 +145,7 @@ describe('ascend', () => {
 
   it('refuses a character this build no longer ships', () => {
     const state = run({
-      roster: [{ defId: 'ghost', rarity: 0, level: 1, copies: 99, gear: {} }],
+      roster: [{ defId: 'ghost', rarity: 0, level: 1, copies: 99, gear: {}, signature: 0 }],
     });
 
     expect(ascend(state, 'ghost', RULES, TEST_CHARACTERS, TEST_FACTIONS)).toEqual({
@@ -167,6 +172,7 @@ describe('ascend', () => {
     expect(findOwned(state, 'gamma')).toEqual({
       defId: 'gamma',
       gear: {},
+      signature: 0,
       rarity: ELITE,
       level: 1,
       copies: 3,
@@ -282,7 +288,9 @@ describe('ascendAll', () => {
 
   it('stops at the top of the ladder rather than spending the copies waiting to become spark', () => {
     const state = run({
-      roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {} }],
+      roster: [
+        { defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 99, gear: {}, signature: 0 },
+      ],
     });
 
     const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
@@ -295,7 +303,10 @@ describe('ascendAll', () => {
     // A batch has no single reason to refuse, and one unknown id in a save is not grounds for
     // leaving the rest of the roster unascended.
     const state = run({
-      roster: [{ defId: 'ghost', rarity: 0, level: 1, copies: 99, gear: {} }, owned(TEST_GAMMA, 3)],
+      roster: [
+        { defId: 'ghost', rarity: 0, level: 1, copies: 99, gear: {}, signature: 0 },
+        owned(TEST_GAMMA, 3),
+      ],
     });
 
     const { state: next, steps } = ascendAll(state, RULES, TEST_CHARACTERS, TEST_FACTIONS);
@@ -321,6 +332,7 @@ describe('ascendAll', () => {
     expect(findOwned(state, 'gamma')).toEqual({
       defId: 'gamma',
       gear: {},
+      signature: 0,
       rarity: ELITE,
       level: 1,
       copies: 3,

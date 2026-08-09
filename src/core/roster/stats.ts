@@ -3,6 +3,8 @@ import { applyGearBonus } from '../gear/stats';
 import { type GearBonus } from '../gear/types';
 import { type CharacterTier, growthAt, type GrowthData } from '../growth';
 import { num, type Numeric, serialize } from '../numeric';
+import { applySignatureAbility, mergeBonus } from '../signature/signature';
+import { type SignatureAbilityTierData, type SignatureBonus } from '../signature/types';
 import { type KitRulesData, unlockedSkills } from './kit';
 import { clampRarityIndex, growthFloor } from './rarity';
 import { type CharacterData, type OwnedCharacter } from './types';
@@ -141,6 +143,13 @@ export function scaleStats(
  * carried, which is the one disagreement a derived-not-stored design has to be built against. So
  * the caller resolves it, with `effectiveLevel`, and passes the answer in. Rarity is still
  * read off `owned` because ascension is individual and nothing carries it.
+ *
+ * **The signature item is the third thing resolved here, and it arrives already resolved.** The
+ * caller passes a {@link SignatureAward} — the bonus and the ability rung it has worked out — for
+ * the reason `level` arrives resolved: eligibility is a question about tier and rung that
+ * `signatureUnlocked` owns, and a version that looked it up from inside the stat pipeline would
+ * have to reach for the rules table from a function whose whole job is arithmetic on a stat block.
+ * Absent means no signature item, which is the case for forty-two of the forty-nine characters.
  */
 export function toBattleCombatant(
   character: CharacterData,
@@ -149,9 +158,10 @@ export function toBattleCombatant(
   kit: KitRulesData,
   level: number,
   gear?: GearBonus,
+  signature?: SignatureAward,
 ): CombatantData {
   const scaled = scaleStats(character.stats, growth, character.tier, level, owned.rarity);
-  return {
+  const combatant: CombatantData = {
     id: character.id,
     name: character.name,
     faction: character.faction,
@@ -164,10 +174,50 @@ export function toBattleCombatant(
     // Both operations are multiplications, so they commute and the whole-board rescale identity
     // that `simulate.spec.ts` asserts survives either way. The order matters for what the number
     // *means*, not for whether the arithmetic works.
-    stats: gear === undefined ? scaled : applyGearBonus(scaled, gear),
+    // Gear and the signature item are **summed** into one bonus rather than applied one after the
+    // other. Both are percentages of the same scaled block, so summing is what makes "+60% from
+    // gear, +150% from the signature item" add up to the +210% the sheet shows — applying them in
+    // sequence would compound to +300% and make whichever went last the more valuable one, which
+    // is a property no panel can explain.
+    stats: applyTotalBonus(scaled, gear, signature?.bonus),
     basic: character.basic,
     skills: unlockedSkills(character.skills ?? [], kit, character.tier, owned.rarity),
   };
+  return signature === undefined ? combatant : applySignatureAbility(combatant, signature.tier);
+}
+
+/**
+ * What a character's signature item contributes to a fight: its stats, and the ability rung it has
+ * reached.
+ *
+ * A bundle rather than two parameters because the two are always resolved together from the same
+ * level, and a caller that passed one without the other would field a character with the stats of
+ * a maxed item and the ability of a fresh one — a discrepancy nothing on screen would reveal.
+ */
+export interface SignatureAward {
+  readonly bonus: SignatureBonus;
+  /** The ability rung, or absent when the item is locked or content authors no tier for it. */
+  readonly tier?: SignatureAbilityTierData;
+}
+
+/**
+ * Applies gear and signature percentages to a scaled stat block as one multiplication per stat.
+ *
+ * Returns the block untouched when neither contributes anything, which keeps the common case — a
+ * character with no gear and no signature item — free of an allocation it would not use.
+ */
+function applyTotalBonus(
+  scaled: StatBlockData,
+  gear: GearBonus | undefined,
+  signature: SignatureBonus | undefined,
+): StatBlockData {
+  if (gear === undefined && signature === undefined) {
+    return scaled;
+  }
+  if (signature === undefined) {
+    return applyGearBonus(scaled, gear ?? {});
+  }
+  return applyGearBonus(scaled, mergeBonus(gear ?? {}, signature));
 }
 
 /**

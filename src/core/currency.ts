@@ -33,6 +33,22 @@ import { num, type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric
  *   player does not want salvages into alloy, and alloy plus gold is what enhances the pieces they
  *   do. It has no rate because it is minted by drops rather than by time, and a rate would make
  *   the bag fill itself.
+ * - `emblem` levels signature items, and it is the **only** currency whose rate steps per
+ *   *chapter* rather than per stage — see {@link EmblemRateCurve}. It is also the narrowest: seven
+ *   ascended-tier characters can spend it and nothing else in the game can, which is what makes a
+ *   shared pool a real decision rather than an accounting step.
+ *
+ * ## Why `emblem` is universal rather than one per faction
+ *
+ * The reference system this is built from spends a *faction* emblem per faction. That shape needs
+ * a roster with several top-tier characters per faction to mean anything, and this one ships
+ * exactly **one ascended-tier character per faction**. Seven faction emblems would therefore give
+ * each of those seven characters a private currency that nothing else could spend — no two heroes
+ * would ever compete for a pool, and the only decision the resource creates would be gone.
+ *
+ * It stays *shaped* for that change: every spend resolves the currency from the character rather
+ * than naming `emblem` literally, so making it per-faction later is entries in this array plus a
+ * different resolver, not a rewrite of the spend path.
  *
  * ## Why gear material is a currency rather than a pile of items
  *
@@ -50,7 +66,15 @@ import { num, type Numeric, parseOr, serialize, tryParse, ZERO } from './numeric
  */
 
 /** Every currency the run can hold. */
-export const CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons', 'spark', 'alloy'] as const;
+export const CURRENCY_IDS = [
+  'gold',
+  'xp',
+  'essence',
+  'summons',
+  'spark',
+  'alloy',
+  'emblem',
+] as const;
 
 export type CurrencyId = (typeof CURRENCY_IDS)[number];
 
@@ -61,8 +85,14 @@ export type CurrencyId = (typeof CURRENCY_IDS)[number];
  * minted by duplicate pulls and `alloy` by salvaged gear, and nothing else mints either. Keeping
  * them out of `Rates` at the type level means the offline solver cannot silently start paying one
  * out, which is the failure this split exists to prevent.
+ *
+ * `emblem` is in, and it is the entry worth pausing on: it means signature-item material accrues
+ * **offline**, over the full uncapped window, exactly as gold does. That is deliberate — an
+ * emblem's whole pacing argument is that it arrives with time rather than with attention — but it
+ * is also why {@link emblemRatePerSecond} steps per chapter instead of per stage. A per-stage step
+ * over a hundred stages would have made the offline faucet a hundred times the opening one.
  */
-export const RATE_CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons'] as const;
+export const RATE_CURRENCY_IDS = ['gold', 'xp', 'essence', 'summons', 'emblem'] as const;
 
 export type RateCurrencyId = (typeof RATE_CURRENCY_IDS)[number];
 
@@ -77,7 +107,15 @@ export type CurrencyAmounts = Readonly<Partial<Record<CurrencyId, Numeric>>>;
 
 /** A wallet with nothing in it. A new run starts here and earns its way out. */
 export function emptyWallet(): Wallet {
-  return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO, spark: ZERO, alloy: ZERO };
+  return {
+    gold: ZERO,
+    xp: ZERO,
+    essence: ZERO,
+    summons: ZERO,
+    spark: ZERO,
+    alloy: ZERO,
+    emblem: ZERO,
+  };
 }
 
 /**
@@ -91,9 +129,14 @@ export function emptyWallet(): Wallet {
  * every load — including the first, for a run that has just been created — and is where the base
  * is established. Nothing between `newGame` and that repair pays a crystal, because nothing
  * between them advances the clock.
+ *
+ * `emblem` is **not** an exception in the way `summons` is: its base is genuinely zero, because
+ * nothing accrues until a whole chapter has been cleared. A run that has never finished a chapter
+ * earns emblems at exactly the rate this function reports, and that is the correct answer rather
+ * than a value waiting to be repaired.
  */
 export function zeroRates(): Rates {
-  return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO };
+  return { gold: ZERO, xp: ZERO, essence: ZERO, summons: ZERO, emblem: ZERO };
 }
 
 /** Seconds in an hour. The crystal rate is authored per hour and stored per second. */
@@ -154,6 +197,94 @@ export function summonRatePerSecond(curve: SummonRateCurve, clearedStages: numbe
  */
 export function withSummonRate(rates: Rates, curve: SummonRateCurve, clearedStages: number): Rates {
   return raiseRates(rates, { summons: summonRatePerSecond(curve, clearedStages) });
+}
+
+/**
+ * How emblems accrue: nothing at all until a chapter is finished, then a step per **chapter**.
+ *
+ * ## Why the step is per chapter and not per stage
+ *
+ * Every other stepped rate in the game moves on a stage clear. This one moves on a chapter, and
+ * the difference is the whole of its pacing. A signature item costs a flat number of emblems
+ * forever — the same argument that keeps the crystal rate linear against a flat `PULL_COST` — so
+ * the faucet has to grow slowly enough that a flat price still means something a hundred stages
+ * later. Stepping per stage over the shipped hundred would multiply the faucet by fifty; stepping
+ * per chapter multiplies it by two.
+ *
+ * It also puts the *unlock* somewhere legible. There is no separate "emblems are unlocked now"
+ * flag anywhere in the save: the rate is zero until `clearedChapters` reaches one, which is the
+ * same fact expressed as arithmetic rather than as state. A run that somehow loses the flag cannot
+ * exist, because there is no flag.
+ *
+ * ## Why there is no base
+ *
+ * `SUMMON_RATE` pays a base from the first minute, deliberately, so a new player sees the roster
+ * grow before they have done anything. Emblems are the opposite kind of thing: nothing can spend
+ * one until a character reaches `mythic`, which is tens of thousands of pulls away, so a base
+ * would be a number ticking up in a wallet with no screen able to explain what it was for.
+ *
+ * Authored **per hour** for the reason the crystal rate is: "1 per hour per chapter" is a sentence,
+ * and 0.000278 per second is not.
+ */
+export interface EmblemRateCurve {
+  /** Emblems per hour added permanently by each **whole chapter** cleared. */
+  readonly perChapterPerHour: number;
+}
+
+/**
+ * The emblem rate a run that has finished `clearedChapters` chapters has earned, per second.
+ *
+ * Total rather than incremental, and clamping rather than trusting, for the same two reasons
+ * {@link summonRatePerSecond} is both: the answer depends on nothing but the count, so a damaged
+ * or absent rate heals to exactly the value it should have had; and the count arrives off a save
+ * that may be damaged, where a negative must read as "nothing cleared" rather than as a negative
+ * rate somebody else has to repair.
+ *
+ * ⚠️ **`clearedChapters` is derived, never stored** — see `chaptersCleared` in
+ * [`core/ladder.ts`](./ladder.ts). Passing `clearedStages` here by mistake type-checks and is
+ * wrong by a factor of the chapter size, which is the one error worth naming: it presents as an
+ * income fifty times too large rather than as anything that looks broken.
+ */
+export function emblemRatePerSecond(curve: EmblemRateCurve, clearedChapters: number): Numeric {
+  const cleared = Number.isFinite(clearedChapters) ? Math.max(Math.floor(clearedChapters), 0) : 0;
+  const step = Number.isFinite(curve.perChapterPerHour) ? Math.max(curve.perChapterPerHour, 0) : 0;
+  return num(step * cleared).div(SECONDS_PER_HOUR);
+}
+
+/**
+ * Raises the emblem rate to what `clearedChapters` finished chapters have earned.
+ *
+ * Goes through {@link raiseRates} for the reasons {@link withSummonRate} does — income never
+ * falls, and an already-correct run comes back as the same object so a load does not republish a
+ * snapshot that did not change.
+ */
+export function withEmblemRate(
+  rates: Rates,
+  curve: EmblemRateCurve,
+  clearedChapters: number,
+): Rates {
+  return raiseRates(rates, { emblem: emblemRatePerSecond(curve, clearedChapters) });
+}
+
+/**
+ * The rate curves that are **derived from progress** rather than authored per stage.
+ *
+ * A bundle rather than a parameter each, for the reason `GearRulesData` and `GachaRulesData` are
+ * bundles: `applyBattleResult` and `reconcileClearedStages` both need all of it, and a signature
+ * that grows a parameter per coefficient is one nobody can call without reading it first. It was
+ * a single `SummonRateCurve` argument until milestone 16 added the second curve, which is exactly
+ * the growth this shape exists to absorb — a third derived rate is a field here and nothing else.
+ *
+ * Gold, xp and essence are deliberately absent: those three are functions of the **stage**, so
+ * they arrive through `stagePayout` on the reward the fight produced. What is collected here is
+ * the other kind — a rate that is a function of *how far the run has come* rather than of what it
+ * just fought.
+ */
+export interface IdleRateCurves {
+  /** Crystals: a flat base plus a step per stage ever cleared. */
+  readonly summons: SummonRateCurve;
+  /** Emblems: nothing until a chapter is finished, then a step per whole chapter. */
+  readonly emblem: EmblemRateCurve;
 }
 
 /**

@@ -212,5 +212,6 @@ export function owned(character: CharacterData, copies = 0, rarity?: number): Ow
     level: 1,
     copies,
     gear: emptyLoadout(),
+    signature: 0,
   };
 }

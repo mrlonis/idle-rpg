@@ -10,9 +10,11 @@ import {
   type StageData,
   type StageRewardCurveData,
 } from '../core';
+import { maxSignatureLevel, signatureTotalCost } from '../core';
 import { ACHIEVEMENTS } from './achievements';
 import { PULL_COST } from './banners';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
+import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
 
 /**
  * Conformance through a typed local, because `data/` may not import `core/`.
@@ -33,9 +35,16 @@ const LADDER: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewar
  * a different economy — the one [`towers.spec.ts`](./towers.spec.ts) measures, and which is bounded
  * as a multiple of this one. Folding them in here would read as the ladder's own tracks having
  * doubled, and the ratio below would then pass for a reason that has nothing to do with the ladder.
+ *
+ * ⚠️ **Named positively rather than as "not a tower track", which is what it was.** Milestone 16
+ * added two tracks counted in signature levels — a third economy, neither ladder nor tower — and
+ * the old filter swept them in here, where `awardsOverLadder` promptly threw. That throw is the
+ * design working: a track measured against the wrong thing reports a number that means nothing, and
+ * this file would rather stop than publish one. Listing the two counters this measurement is
+ * actually about is what keeps a fourth economy failing loudly instead of being absorbed.
  */
 const LADDER_TRACKS: readonly AchievementTrackData[] = tracks.filter(
-  (track) => track.counter !== 'towerFloors',
+  (track) => track.counter === 'clearedStages' || track.counter === 'clearedChapters',
 );
 
 /** Where the starter party stops — the stage-7 healer lock. */
@@ -200,5 +209,61 @@ describe('the crystal economy the tracks are half of', () => {
     const fromTrack = Math.floor(WALL / CLIMBER.every) * (CLIMBER.reward.summons ?? 0);
 
     expect((fromStages + fromTrack) / PULL_COST).toBeGreaterThanOrEqual(20);
+  });
+});
+
+describe('the emblem and signature tracks', () => {
+  const SIGNATURE_TRACKS = tracks.filter((track) => track.counter === 'signatureLevels');
+
+  it('pays emblems on the chapter track and on no other', () => {
+    // ⚠️ One track pays two currencies, and it is the right one: finishing a chapter is already
+    // what steps the emblem idle rate, so a lump here is the same event saying the same thing
+    // twice rather than a second mechanism. Anywhere else it would be a faucet nobody accounted
+    // for — see `docs/economy.md`, where the two emblem sources are enumerated.
+    const paying = tracks.filter((track) => (track.reward.emblem ?? 0) > 0);
+
+    expect(paying.map((track) => track.id)).toEqual(['chapters-cleared']);
+  });
+
+  it('keeps the chapter track worth far less in emblems than a signature item costs', () => {
+    // A chapter's lump must not skip the climb. Derived against the real cost rather than a
+    // literal, so retuning `SIGNATURE_RULES.cost` moves this bound with it.
+    const perChapter = CONQUEROR?.reward.emblem ?? 0;
+    const toMax = signatureTotalCost(SIGNATURE_RULES, maxSignatureLevel(SIGNATURE_RULES));
+
+    expect(perChapter).toBeGreaterThan(0);
+    expect(perChapter).toBeLessThan(toMax / 5);
+  });
+
+  it('never pays emblems on a track measured in signature levels', () => {
+    // ⚠️ An emblem award on an emblem-spending track is a partial refund: it would make the last
+    // levels cheaper than the first and quietly flatten a cost curve `data/signature.ts` keeps
+    // linear on purpose.
+    for (const track of SIGNATURE_TRACKS) {
+      expect(track.reward.emblem ?? 0, track.id).toBe(0);
+    }
+  });
+
+  it('ships a signature track a run can actually finish', () => {
+    // The ceiling is seven items at thirty levels. A track whose interval outran that would be a
+    // row that can never pay, which is content that compiles and ships and does nothing.
+    const ceiling = SIGNATURE_ITEMS.length * maxSignatureLevel(SIGNATURE_RULES);
+
+    expect(SIGNATURE_TRACKS.length).toBeGreaterThan(0);
+    for (const track of SIGNATURE_TRACKS) {
+      expect(track.every, track.id).toBeLessThanOrEqual(ceiling);
+    }
+  });
+
+  it('gives the signature tracks names of their own', () => {
+    // ⚠️ Unlike the tower tracks, which share two names between fourteen of them and are
+    // disambiguated by `AchievementsService`. These are one-of-a-kind, so a shared name would be
+    // two headings and two progress bars carrying the same accessible name — a WCAG failure.
+    const names = SIGNATURE_TRACKS.map((track) => track.name);
+
+    expect(new Set(names).size).toBe(names.length);
+    for (const name of names) {
+      expect(tracks.filter((track) => track.name === name)).toHaveLength(1);
+    }
   });
 });

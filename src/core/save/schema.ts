@@ -4,17 +4,26 @@
  * JSON-safe: `Numeric` values are stored as exponential-notation strings, which round-trip
  * exactly and stay readable when inspecting a save from a bug report.
  *
- * ## There is one shape here, and it has been re-based to one twice
+ * ## There is one shape here, and it has been re-based to one three times
  *
  * The first re-base folded five pre-release shapes — the gold counter, combat progression, the
  * keyed wallet and roster, the two ranks, and chapters — into a v0 baseline. Six more accumulated
  * on top of it: gear (`alloy`, the loadouts, the bag, the mint counter and the shop ledger), the
  * ladder gaining a bottom (no field, only a change in what `roster[].rarity` denotes), the
  * achievement ledger, the quest windows, the bounty board and the legendary pity counter. **All six
- * were folded back into this one shape**, on the argument that licenses either re-base and nothing
+ * were folded back into this one shape**, on the argument that licenses every re-base and nothing
  * else: nobody outside development has ever loaded a save written by any of them.
  * [saves](../../../docs/saves.md) records the reset and the condition that closes the door on doing
  * it again.
+ *
+ * The third re-base is milestone 16's, and it is the smallest: `wallet.emblem`, `rates.emblem` and
+ * `roster[].signature`. Three fields, all of which default correctly to zero — an emblem balance
+ * nobody has earned and a signature item nobody has unlocked — so the migration it did not need
+ * would have been three assignments of the value the decoder already produces for a missing key.
+ * It rides on the same licence as the other two, and it is worth naming that this is the **least**
+ * defensible use of that licence precisely because it was the cheapest: a version bump here would
+ * have cost almost nothing, and the reason not to take it is consistency with a chain that is
+ * still empty rather than any property of these three fields.
  *
  * **From here the old rule applies without exception: never edit or delete a shipped shape.** A
  * migration is written against the shape that existed when it was authored, and changing one
@@ -40,8 +49,9 @@ export interface SaveDataV0 {
     summons: string;
     spark: string;
     alloy: string;
+    emblem: string;
   };
-  rates: { gold: string; xp: string; essence: string; summons: string };
+  rates: { gold: string; xp: string; essence: string; summons: string; emblem: string };
   lastTickAt: number;
   rng: { seed: number; calls: number };
   chapter: number;
@@ -56,6 +66,8 @@ export interface SaveDataV0 {
     copies: number;
     /** Slot id to gear item id. Absent slots are empty. */
     gear: Record<string, string>;
+    /** Signature item level. Zero is locked, which is what every ineligible character stores. */
+    signature: number;
   }[];
   /**
    * Activity id to the crew standing for it. Absent activities have never been crewed.

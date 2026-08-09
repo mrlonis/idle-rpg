@@ -187,7 +187,75 @@ the two disagree, the code is right and both are stale.
     invisible in play, and it turns every recorded balance figure into a different number. The count
     is drawn once for the batch and the grade per piece, because they answer different questions:
     whether the _fight_ was lucky against whether the _piece_ was.
-- **[docs/economy.md](../../docs/economy.md)** — the six currencies, income rates, the level curve,
+- **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth progression axis, added in
+  milestone 16: one **signature item** per ascended-tier character, unlocked at the `mythic` rung,
+  thirty levels bought with **emblems**. Read it before touching `core/signature/` or
+  `data/signature.ts`.
+  - ⚠️ **A signature item is one integer on `OwnedCharacter`, not an object.** Zero is locked. There
+    is exactly one per character, it can never move between them, be duplicated or be salvaged — so
+    every field `GearItem` carries in order to be addressable would be dead weight. The character
+    sheet drawing it as a slot is presentation.
+  - **Ascended tier only, and both halves of the gate are enforced in `core/`.** `signatureUnlocked`
+    checks the **tier** (which character was pulled) _and_ the **rung** (how far it was ascended) —
+    the collision `docs/glossary.md` warns about, and here they are genuinely two different
+    questions. An item pointed at a legendary-tier character is **inert** rather than an exception.
+  - ⚠️ **A stored level survives a character no longer being eligible, and is not repaired away.**
+    The emblems were spent; zeroing it would take back an investment to enforce a rule the player
+    did not break. `repairOwned` keeps it and every consumer gates on `signatureUnlocked`, so it
+    reads as inert. Both halves are needed.
+  - **Stats every level, an ability at 1/10/20/30.** Neither works alone: thirty levels of stats is
+    a treadmill with three interesting moments, and an ability with nothing between the marks makes
+    twenty-seven levels purchases with nothing to show. ⚠️ Bonuses are **percentages summed with
+    gear**, never flat and never compounded — same rule and same reason as `docs/gear.md`.
+  - ⚠️ **An ability rung replaces the rung below it rather than stacking**, so each restates
+    everything the earlier rungs did. That is why `skills` and `opening` are lists. The failure it
+    makes possible: a rung that forgets a clause silently removes an upgrade the player just paid
+    for, and nothing on screen shows it. `data/signature.balance.ts` measures reach at every rung.
+  - ⚠️ **`effects` on an override replaces rather than appends.** "The same hit, harder" has to
+    restate every clause including the status. An override naming a skill the kit lacks is inert.
+  - **Merged at kit-build time in `toBattleCombatant`, never per tick** — the simulation loop never
+    learns signature items exist, which is what makes an ability free at runtime.
+  - ⚠️ **No signature item may multiply healing, and this is the least intuitive rule in the
+    project.** Closing pressure amplifies damage without bound and deliberately does **not** amplify
+    healing, so a party made unkillable by a sustain item does not win — it stalls, the ninety-second
+    clock runs out, and a timeout is a **defeat**. The obvious signature item for a healer is the one
+    that makes her lose. Seraphine's spends its rungs on shield uptime, dropped conditions and
+    damage instead. A **shield is safe where a regeneration is not**: it banks a pool once and
+    depletes, so it cannot outrun rising damage. `data/signature.spec.ts` asserts no opening status
+    is a `regen`.
+  - ⚠️ **No shipped content can measure one.** `mythic` caps at level **340**; the hardest authored
+    stage is level **85**. A party at the unlock rung is four times past the top of the ladder, so
+    every campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
+    encounter to the party's own level — the same move `core/towers.ts` makes. A signature item has
+    no authored content to matter in until chapter 3 or a tower reaching that band.
+  - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
+    contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
+    any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
+    zero for two opposite reasons. In reach a maxed item is worth **+3% to +8%**; in win rate at a
+    contested level the same item takes four of seven characters from **0.00 to 1.00**. Both are
+    honest; never cite the reach figure as evidence the item is small.
+  - **A new ascended-tier character needs a row in `data/signature.ts` and nothing else.**
+    `data/signature.spec.ts` derives the count from `CHARACTERS`, so one without an item is a
+    failing test rather than a permanently empty panel.
+  - **`signatureLevels` is an achievement counter and must never be a quest one.** It is derived —
+    the sum of `roster[].signature`, monotonic, storing nothing new — which is what makes it a
+    legitimate achievement counter. As a **quest** counter it is the failure `clearedStages` is
+    banned for and worse: it stops at 210 once all seven are maxed, and it does not move at all for
+    the tens of thousands of pulls before the first item unlocks.
+  - ⚠️ **No quest may be measured against emblems _held_ either**, for a different reason: a quest
+    window stores a baseline and progress is a subtraction, so a balance that falls when spent
+    reports negative progress. Every valid quest counter is monotonic and a wallet balance is not.
+    See [rejected](../../docs/rejected.md) for the third candidate and the trigger that revisits all of it.
+  - **Emblems are paid by exactly one achievement track — Chapter Conqueror, 100 a chapter.** ⚠️
+    The two signature tracks pay **crystals**: an emblem award on an emblem-spending track is a
+    partial refund that would make the last levels cheaper than the first and flatten a cost curve
+    kept linear on purpose.
+  - ⚠️ **"Not a tower track" is no longer a safe way to mean "a campaign track".** Signature tracks
+    are a third economy, and both `data/achievements.spec.ts` and `data/towers.spec.ts` had helpers
+    that inferred the campaign from that negation — one threw and the other silently measured
+    signature awards against `stages.length`, inventing 85,000 crystals and taking the tower ratio
+    from 3.2 to 1.4. Both now name the two campaign counters positively.
+- **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
   income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
   coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
@@ -204,6 +272,34 @@ the two disagree, the code is right and both are stale.
     top-of-ladder idle income to 588, and `levels.spec.ts` was lowered from 1,000 to 500 rather
     than the level curve being steepened — because progression being twice as fast _was_ the
     change. **The next thing that raises income has to move the level curve, not that threshold.**
+  - **Emblems are the seventh currency and the fifth rate**, added in milestone 16, and they buy
+    signature item levels and nothing else. ⚠️ **The idle rate steps per _chapter_, not per stage** —
+    a signature level costs a flat number of emblems forever, so a per-stage step over the shipped
+    hundred would multiply the faucet by fifty where a per-chapter step multiplies it by two.
+    - **There is no unlock flag anywhere in the save.** The rate is zero below one cleared chapter,
+      which is the same fact expressed as arithmetic — nothing to lose, migrate or repair. There is
+      no base either, unlike crystals: nothing can spend an emblem until a character reaches
+      `mythic`, so a base would be a number climbing in a wallet with no screen able to explain it.
+    - ⚠️ **`RATE_CURRENCY_IDS` and what a stage may _author_ are now two different lists.** `emblem`
+      has a rate and no stage may pay one; `STAGE_CURRENCY_IDS` in `core/battle/types.ts` is the
+      authorable set and `satisfies` the keys of `AuthoredCurrencies` so they cannot drift. Adding
+      `emblem` there would be a third mechanism on one currency, and a **silent** one — `raiseRates`
+      takes the larger of the two, so whichever happened to be bigger would quietly win.
+    - ⚠️ **Drops dominate the idle rate by roughly ×7, and the intuitive reading is backwards.** The
+      naive sum is `60 fights/hr × 2% = 1.2/hr`, but the stage an auto-battler grinds is the **last**
+      one — the position stops climbing so the top stage stays farmable, and the last stage of a
+      chapter is a **boss**, the 25% row. That is ~15/hr. Retuning a drop chance is an economy change
+      of the same size as retuning the rate, and `data/emblems.spec.ts` measures the **boss** case
+      for that reason.
+    - ⚠️ **Emblems roll from their own derived stream (`emblem:…`), never from the gear sequence.**
+      The count draw in `rollDrops` is its first draw, so adding a draw there re-rolls every
+      historical gear drop for a given seed. A miss is not "a fight that produced nothing" — the gear
+      drop already pays unconditionally — but that licence is narrow and would need a floor if gear
+      drops ever became conditional.
+    - **`chaptersCleared` lives in `core/ladder.ts` and is derived, never stored.** Both the emblem
+      rate and the achievement chapter track read it; two implementations is how a progress bar ends
+      up disagreeing with the income drawn beside it. ⚠️ Passing `clearedStages` where the chapter
+      count belongs type-checks and is wrong by the size of a chapter.
   - **The banner keeps two pity curves, not one**: legendary-or-better within 10 pulls (soft from 6
     at +25pt, certain at 9), ascended within 30 (soft from 20 at +15pt, certain at 27). They bound
     different complaints — how long a run of nothing can get, against how far away the top tier can
@@ -552,6 +648,21 @@ the two disagree, the code is right and both are stale.
     penalty — and the spec asserts both the promise and the absence of urgency words.
   - **A setting, defaulting on**, which also cancels anything queued when switched off. Permission
     is requested at the first backgrounding, never at launch.
+- ⚠️ **Per-screen state on a component bound to a route parameter must be a `linkedSignal` keyed
+  on that parameter, never a plain `signal`.** Angular's default reuse strategy keeps the **same
+  component instance** when only a parameter changes, so `/roster/rin` → `/roster/wren` updates the
+  input and leaves every local signal exactly as it was. A refusal message, an open picker or a
+  status note then carries onto the next screen, where it is a statement about a character or crew
+  the player is no longer looking at.
+  - It shipped on `character-view` (four signals: the refusal, the open gear slot, the auto-equip
+    note and the signature refusal) and on `formation-view`, which serves **two** parameterised
+    routes — `/formations/:activityId` and `/prepare/:activityId`.
+  - **`linkedSignal({ source, computation: () => null })` rather than an `effect` that resets
+    them.** It is declarative, needs no scheduling, and cannot be reached stale: an effect runs
+    _after_ the change that triggered it, so there is a frame in which the old value still renders.
+  - The test that catches it drives the parameter directly — `setInput`, or a router harness
+    navigating between two parameterised URLs — because that is exactly what the router does to a
+    reused component.
 - ⚠️ **`visually-hidden` is a `@mixin` in `ui/theme.scss`, not a global class.** Angular scopes
   component styles, so a screen that writes the class without including the mixin gets **no rule at
   all** and renders the text inline — it shipped a button reading "Choose a crew for Village Errand
@@ -559,10 +670,18 @@ the two disagree, the code is right and both are stale.
   class a component assumes is global.
 - **[docs/saves.md](../../docs/saves.md)** — storage, the migration chain, load-time repair, and
   fixtures. **`SAVE_VERSION` is 0 and the migration table is empty.** The chain has been re-based
-  twice: five pre-release versions and four migrations the first time, and the six that accumulated
-  on top of that baseline the second — gear (v0 → v1), the ladder's new bottom (v1 → v2), the
-  achievement ledger, the quest windows, the bounty board and the legendary pity counter. Every
-  field they wrote is simply part of the baseline shape now.
+  three times: five pre-release versions and four migrations the first time; the six that
+  accumulated on top of that baseline the second — gear (v0 → v1), the ladder's new bottom
+  (v1 → v2), the achievement ledger, the quest windows, the bounty board and the legendary pity
+  counter; and milestone 16's three fields the third — `wallet.emblem`, `rates.emblem` and
+  `roster[].signature`. Every field they wrote is simply part of the baseline shape now.
+  - ⚠️ **The third re-base is the least defensible use of the licence, precisely because it was the
+    cheapest.** All three fields default correctly to zero, so the migration they did not need would
+    have been three assignments of the value the decoder already produces for a missing key — and a
+    version bump would have cost almost nothing. The reason not to take it was consistency with an
+    empty chain, not any property of those fields. **Weigh that before re-basing a fourth time.**
+    One visible cost, dev-only: a save from before it reports two repair issues on load, heals to
+    zero, and is otherwise fine.
   - ⚠️ **A re-base is licensed by one argument and nothing else: no save any of those versions
     wrote has ever existed outside development.** The rule it suspends is scoped rather than
     softened — _never delete or edit a migration once a build carrying it has reached a player_ —

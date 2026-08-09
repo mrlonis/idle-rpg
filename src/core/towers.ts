@@ -5,6 +5,7 @@ import {
   type StageKind,
 } from './battle/types';
 import { credit, type CurrencyAmounts } from './currency';
+import { type EmblemDropData, rollEmblems } from './emblems';
 import { addGear } from './gear/inventory';
 import { rollDrops } from './gear/roll';
 import { type GearRulesData } from './gear/types';
@@ -245,19 +246,35 @@ export function resolveTower(
 /**
  * What a cleared floor drops, as the caller has to describe it.
  *
- * A mirror of `GearAward` on the campaign path, optional for the same reason: the balance sweep
+ * A mirror of `DropAward` on the campaign path, optional for the same reason: the balance sweep
  * folds results into a run without caring about the bag, and a required argument would make it
- * construct gear content it has no use for.
+ * construct drop content it has no use for.
  *
  * `stageIndex` is the **campaign** index this floor matched — see {@link matchedStageIndex} — so a
  * floor drops the grades the campaign drops where the fight is the same size, rather than the
  * grades its own floor number would imply.
  */
-export interface TowerGearAward {
+export interface TowerDropAward {
   readonly rules: GearRulesData;
   /** The factions a dropped piece may be aligned to. Content, so it arrives as an argument. */
   readonly factions: readonly string[];
   readonly stageIndex: number;
+  /**
+   * Whole **campaign** chapters the run has cleared, which is what gates an emblem drop.
+   *
+   * A second campaign-derived fact beside {@link stageIndex}, and it arrives the same way and for
+   * the same reason: a tower knows its own floors and nothing about the ladder, and `core/` has no
+   * route from one to the other that does not involve handing `applyTowerResult` a `LadderShape`
+   * it has no other use for.
+   *
+   * ⚠️ **The pre-fight count is the correct one here, unlike on the campaign path.** A tower clear
+   * may never touch `clearedStages`, so no tower fight can ever change how many chapters have been
+   * cleared — the count before and after are the same number, and there is no chapter-boss case to
+   * be generous about.
+   */
+  readonly clearedChapters: number;
+  /** The emblem drop table, or absent to drop no emblems. Optional separately from the bundle. */
+  readonly emblems?: EmblemDropData;
 }
 
 /**
@@ -296,7 +313,7 @@ export function applyTowerResult(
   rules: TowerRulesData,
   floor: number,
   result: TowerBattleOutcome,
-  gear?: TowerGearAward,
+  drops?: TowerDropAward,
 ): GameState {
   const advanced: GameState = { ...state, battleCount: state.battleCount + 1 };
   if (result.outcome !== 'victory') {
@@ -323,22 +340,38 @@ export function applyTowerResult(
     towers: { ...state.towers, [tower.id]: Math.max(cleared, index) },
   };
 
-  if (gear === undefined) {
+  if (drops === undefined) {
     return banked;
   }
   // Rolled from a **derived** stream keyed on the fight that produced them, exactly as the campaign
   // does it and exactly as the battle itself is. The label carries the tower id, so two towers on
   // the same floor at the same battle count are still different draws; `state.battleCount` rather
   // than the advanced one, so a drop belongs to the fight that dropped it.
+  const kind = floorKindAt(rules, index);
   const draw = derivedStream(state.rng.seed, `gear:${tower.id}:${index}:${state.battleCount}`);
-  const specs = rollDrops(
-    gear.rules,
-    gear.factions,
-    gear.stageIndex,
-    floorKindAt(rules, index),
-    draw,
+  const specs = rollDrops(drops.rules, drops.factions, drops.stageIndex, kind, draw);
+  const withGear = addGear(banked, specs, drops.rules).state;
+
+  if (drops.emblems === undefined) {
+    return withGear;
+  }
+  // A separate stream from the gear one, for the reason the campaign path uses a separate one: a
+  // draw added to the gear sequence re-rolls every historical gear drop for a given seed.
+  //
+  // The **kind** is the floor's own — a roof is a boss and pays a boss's odds — while the
+  // **grades** above are matched by campaign index. That split is not an inconsistency: a grade is
+  // a question about how hard the fight was, and an emblem chance is a question about what rank of
+  // fight it was. Floor 100 is a roof whether or not it matches a campaign stage two thirds as
+  // hard.
+  const emblemDraw = derivedStream(
+    state.rng.seed,
+    `emblem:${tower.id}:${index}:${state.battleCount}`,
   );
-  return addGear(banked, specs, gear.rules).state;
+  const earned = rollEmblems(drops.emblems, kind, drops.clearedChapters, emblemDraw);
+  if (earned <= 0) {
+    return withGear;
+  }
+  return { ...withGear, wallet: credit(withGear.wallet, { emblem: num(earned) }) };
 }
 
 /**

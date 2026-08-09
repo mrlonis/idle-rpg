@@ -11,6 +11,7 @@ import {
   type BattleResult,
   CAMPAIGN_FORMATION,
   clampPosition,
+  chaptersCleared,
   type GameState,
   isTowerUnlocked,
   type LadderPosition,
@@ -29,11 +30,12 @@ import {
   ACTIVITIES_BY_ID,
   CHAPTERS_IN_ORDER,
   COMBAT,
+  EMBLEM_DROP_RULES,
   GEAR,
   GEAR_ALIGNMENTS,
+  IDLE_RATE_CURVES,
   LADDER,
   STAGES,
-  SUMMON_RATE_CURVE,
   TOWER_FLOOR_BY_STAGE,
   TOWER_FLOORS,
   TOWER_SHAPE,
@@ -776,10 +778,11 @@ export class BattleService {
       // mini-bosses fall.
       const kind = STAGES.find((stage) => stage.id === result.stageId)?.kind ?? 'normal';
       this.game.apply((state) =>
-        applyBattleResult(state, result, LADDER, SUMMON_RATE_CURVE, {
+        applyBattleResult(state, result, LADDER, IDLE_RATE_CURVES, {
           rules: GEAR,
           factions: GEAR_ALIGNMENTS,
           kind,
+          emblems: EMBLEM_DROP_RULES,
         }),
       );
     } else {
@@ -793,6 +796,10 @@ export class BattleService {
           rules: GEAR,
           factions: GEAR_ALIGNMENTS,
           stageIndex: floor.matchedStage,
+          // The pre-fight count is the right one: a tower clear may never touch `clearedStages`,
+          // so no floor can change how many chapters have been cleared.
+          clearedChapters: chaptersCleared(LADDER, state.clearedStages).total,
+          emblems: EMBLEM_DROP_RULES,
         }),
       );
     }

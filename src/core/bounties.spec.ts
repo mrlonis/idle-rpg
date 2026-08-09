@@ -102,11 +102,11 @@ function run(overrides: Partial<GameState> = {}): GameState {
   return {
     ...base,
     clearedStages: 50,
-    rates: { gold: num(10), xp: num(2), essence: num(0.5), summons: num(0.03) },
+    rates: { gold: num(10), xp: num(2), essence: num(0.5), summons: num(0.03), emblem: num(0) },
     roster: [
-      { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'gamma', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
     ],
     ...overrides,
   };
@@ -261,7 +261,7 @@ describe('dispatchBounty', () => {
   it('refuses a crew that does not meet the faction the mission asks for', () => {
     // `delta` is `test-celestial`, and this mission wants a `test-mortal`.
     const state = run({
-      roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} }],
+      roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
     });
 
     expect(dispatchBounty(state, ERRAND_MORTAL, ['delta'], TEST_CHARACTERS, T0)).toEqual({
@@ -515,7 +515,9 @@ describe('dispatchOpenBounties', () => {
   });
 
   it('skips a mission the bench cannot fill rather than sending a short crew', () => {
-    const thin = run({ roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} }] });
+    const thin = run({
+      roster: [{ defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
+    });
     const result = dispatchOpenBounties(thin, BOUNTIES, TEST_CHARACTERS, T0);
 
     expect(result.dispatched).toBe(1);
@@ -524,7 +526,7 @@ describe('dispatchOpenBounties', () => {
 
   it('skips a mission whose faction the bench cannot meet', () => {
     const celestial = run({
-      roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} }],
+      roster: [{ defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 }],
     });
 
     expect(dispatchOpenBounties(celestial, [ERRAND_MORTAL], TEST_CHARACTERS, T0).dispatched).toBe(
@@ -537,8 +539,8 @@ describe('dispatchOpenBounties', () => {
     // mission wants, failing a crew that was there all along.
     const mixed = run({
       roster: [
-        { defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} },
-        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
       ],
     });
     const result = dispatchOpenBounties(mixed, [PATROL_MORTAL], TEST_CHARACTERS, T0);
@@ -548,9 +550,9 @@ describe('dispatchOpenBounties', () => {
 
     const enough = run({
       roster: [
-        { defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {} },
-        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {} },
-        { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {} },
+        { defId: 'delta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+        { defId: 'alpha', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+        { defId: 'beta', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
       ],
     });
     const filled = dispatchOpenBounties(enough, [PATROL_MORTAL], TEST_CHARACTERS, T0);
@@ -704,7 +706,13 @@ describe('bountyPayout', () => {
 
   it('scales with the run rather than with the mission', () => {
     const rich = run({
-      rates: { gold: num(1e9), xp: num(2e8), essence: num(5e7), summons: num(0.03) },
+      rates: {
+        gold: num(1e9),
+        xp: num(2e8),
+        essence: num(5e7),
+        summons: num(0.03),
+        emblem: num(0),
+      },
     });
 
     expect(bountyPayout(ERRAND, rich.rates).gold?.gt(num(1e12))).toBe(true);
@@ -717,7 +725,9 @@ describe('bountyPayout', () => {
   });
 
   it('drops a currency that rounds to nothing rather than paying a zero', () => {
-    const poor = run({ rates: { gold: num(1), xp: num(0), essence: num(0), summons: num(0) } });
+    const poor = run({
+      rates: { gold: num(1), xp: num(0), essence: num(0), summons: num(0), emblem: num(0) },
+    });
     const payout = bountyPayout(ERRAND, poor.rates);
 
     expect(payout.gold?.toString()).toBe('1200');

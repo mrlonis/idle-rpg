@@ -58,7 +58,33 @@ export {
   statusChance,
   type AttackRoll,
 } from './battle/damage';
-export { applyBattleResult, reconcileClearedStages, type GearAward } from './battle/progress';
+export { applyBattleResult, reconcileClearedStages, type DropAward } from './battle/progress';
+export { emblemDropChance, rollEmblems, type EmblemDropData } from './emblems';
+export {
+  applySignatureAbility,
+  clampSignatureLevel,
+  levelSignature,
+  maxSignatureLevel,
+  mergeBonus,
+  nextSignatureTierAt,
+  signatureBonus,
+  signatureCost,
+  signatureTier,
+  signatureTierIndex,
+  signatureTotalCost,
+  signatureUnlocked,
+  type SignatureLookup,
+  type SignatureResult,
+} from './signature/signature';
+export {
+  NO_SIGNATURE_BONUS,
+  type SignatureAbilityTierData,
+  type SignatureBonus,
+  type SignatureFailure,
+  type SignatureItemData,
+  type SignatureRulesData,
+  type SkillOverrideData,
+} from './signature/types';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
@@ -119,6 +145,7 @@ export {
 } from './battle/types';
 export {
   advancePosition,
+  chaptersCleared,
   chapterSize,
   clampPosition,
   ladderShape,
@@ -133,6 +160,7 @@ export {
   totalStages,
   type ChapterCurveData,
   type ChapterData,
+  type ChaptersCleared,
   type LadderPosition,
   type LadderShape,
   type StagePayout,
@@ -210,6 +238,7 @@ export {
   credit,
   CURRENCY_IDS,
   debit,
+  emblemRatePerSecond,
   emptyWallet,
   isEmpty,
   parseRates,
@@ -219,10 +248,13 @@ export {
   serializeRates,
   serializeWallet,
   summonRatePerSecond,
+  withEmblemRate,
   withSummonRate,
   zeroRates,
   type CurrencyAmounts,
   type CurrencyId,
+  type EmblemRateCurve,
+  type IdleRateCurves,
   type RateCurrencyId,
   type Rates,
   type SummonRateCurve,
@@ -399,7 +431,13 @@ export {
   type RosterFailure,
   type RosterResult,
 } from './roster/roster';
-export { growthMultiplier, scaleStats, toBattleCombatant, toEnemyCombatant } from './roster/stats';
+export {
+  growthMultiplier,
+  scaleStats,
+  toBattleCombatant,
+  toEnemyCombatant,
+  type SignatureAward,
+} from './roster/stats';
 export {
   MAX_RARITY_INDEX,
   RARITIES,
@@ -499,7 +537,7 @@ export {
   type TowerBattleOutcome,
   type TowerData,
   type TowerFloorData,
-  type TowerGearAward,
+  type TowerDropAward,
   type TowerProgress,
   type TowerRulesData,
 } from './towers';

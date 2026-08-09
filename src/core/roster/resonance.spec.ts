@@ -27,7 +27,7 @@ import { MAX_RARITY_INDEX, type OwnedCharacter } from './types';
  * was not about.
  */
 function at(defId: string, level: number, rarity = 13): OwnedCharacter {
-  return { defId, rarity, level, copies: 0, gear: {} };
+  return { defId, rarity, level, copies: 0, gear: {}, signature: 0 };
 }
 
 /** A roster of `count` characters at `level`, named `c0`, `c1`, … */

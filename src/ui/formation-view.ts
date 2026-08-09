@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   BACK_ROW_SIZE,
@@ -102,8 +102,23 @@ export class FormationView {
 
   protected readonly partySize = PARTY_SIZE;
 
-  /** The last refusal, cleared as soon as anything succeeds. */
-  protected readonly message = signal<string | null>(null);
+  /**
+   * The last refusal, cleared as soon as anything succeeds — **and whenever the screen changes
+   * crew**.
+   *
+   * ⚠️ **A `linkedSignal` keyed on {@link activityId}, not a plain `signal`.** Angular's default
+   * reuse strategy keeps the *same component instance* when only a route parameter changes, and
+   * this component serves two parameterised routes — `/formations/:activityId` and
+   * `/prepare/:activityId`. So a refusal earned arranging the Dwarf crew survives onto the Elf
+   * crew's screen, where it is a statement about a crew the player is no longer looking at.
+   *
+   * The character sheet carries the same note on its own state, and for the same reason; that is
+   * where the trade against an `effect` is argued.
+   */
+  protected readonly message = linkedSignal<string, string | null>({
+    source: this.activityId,
+    computation: () => null,
+  });
 
   /**
    * The crew, or `null` for an activity this build does not ship.

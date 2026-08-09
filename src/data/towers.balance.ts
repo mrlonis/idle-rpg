@@ -164,7 +164,14 @@ function at(character: CharacterData): CombatantData {
   );
   return toBattleCombatant(
     character,
-    { defId: character.id, rarity: CREW_RARITY, level: CREW_LEVEL, copies: 0, gear: {} },
+    {
+      defId: character.id,
+      rarity: CREW_RARITY,
+      level: CREW_LEVEL,
+      copies: 0,
+      gear: {},
+      signature: 0,
+    },
     growth,
     kit,
     CREW_LEVEL,

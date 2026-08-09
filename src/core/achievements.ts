@@ -1,5 +1,5 @@
 import { credit, type CurrencyAmounts, type CurrencyId } from './currency';
-import { type LadderShape, stagesInChapter } from './ladder';
+import { chaptersCleared, type LadderShape } from './ladder';
 import { num, type Numeric, ZERO } from './numeric';
 import { type GameState } from './state';
 import { floorsClearedIn } from './towers';
@@ -87,6 +87,15 @@ export type AchievementTrackData =
  * `clearedStages` measured against the shipped {@link LadderShape}, which is why everything here
  * takes a ladder. See {@link readCounter} for why a chapter cannot be an interval of stages.
  *
+ * `signatureLevels` is the second derived one: the sum of `roster[].signature` across every
+ * character owned. It stores nothing new, adds nothing to the battle path, and is monotonic —
+ * a signature level is never refunded — which is what makes a division over it well defined.
+ *
+ * ⚠️ **It is fine here and would be forbidden as a *quest* counter, for the same reason
+ * `clearedStages` is.** It stops moving at 210 once all seven items are maxed, and it does not move
+ * at all for the tens of thousands of pulls before the first one unlocks. An achievement that stops
+ * moving is one the player has finished; a daily quest that stops moving is a permanent empty row.
+ *
  * `towerFloors` is the one counter that needs a second field to be answerable — see
  * {@link AchievementTrackData}. It reads `GameState.towers`, which is a stored field the run keeps
  * for its own reasons, so it is on the right side of the rule above; what it is emphatically **not**
@@ -94,7 +103,12 @@ export type AchievementTrackData =
  * touch (see `core/towers.ts`).
  */
 export type AchievementCounter =
-  'clearedStages' | 'battleCount' | 'pullCount' | 'clearedChapters' | 'towerFloors';
+  | 'clearedStages'
+  | 'battleCount'
+  | 'pullCount'
+  | 'clearedChapters'
+  | 'towerFloors'
+  | 'signatureLevels';
 
 /** How far a track has come, and what it owes. */
 export interface AchievementProgress {
@@ -160,6 +174,11 @@ function wholeCount(value: number): number {
  * the run has actually finished is right at every size, and it costs no stored field: chapter
  * lengths are content the ladder already carries.
  *
+ * The traversal itself is {@link chaptersCleared} in [`core/ladder.ts`](./ladder.ts) rather than
+ * code here, because milestone 16 gave it a second caller: the emblem rate steps per chapter and
+ * needs the same answer. Two implementations of "how many chapters is this" is how a progress bar
+ * ends up disagreeing with the income it is drawn beside.
+ *
  * **It stops at the top of the authored ladder, and that is correct here** — the opposite of the
  * rule for quests, which may never be measured against `clearedStages` for exactly this reason. A
  * quest that stops moving is permanently unfinishable; an achievement that stops moving is one the
@@ -183,27 +202,20 @@ function readCounter(
   if (track.counter === 'towerFloors') {
     return { total: floorsClearedIn(state.towers, track.tower), partial: 0 };
   }
+  if (track.counter === 'signatureLevels') {
+    // Summed over the roster rather than stored. Monotonic — a signature level is never refunded —
+    // so a division over it is well defined, and an ineligible character contributes whatever it
+    // holds because `repairOwned` deliberately keeps a paid-for level rather than zeroing it.
+    let levels = 0;
+    for (const owned of state.roster) {
+      levels += wholeCount(owned.signature);
+    }
+    return { total: levels, partial: 0 };
+  }
   if (track.counter !== 'clearedChapters') {
     return { total: wholeCount(state[track.counter]), partial: 0 };
   }
-  const cleared = wholeCount(state.clearedStages);
-  let chapters = 0;
-  let consumed = 0;
-  for (let chapter = 1; chapter <= ladder.chapters.length; chapter++) {
-    const size = stagesInChapter(ladder, chapter);
-    // A chapter with nothing in it is skipped rather than counted. Content this malformed should
-    // not exist — `chapters.spec.ts` is what stops it — but counting it would hand over a
-    // chapter's award for clearing no stages at all, which is the one failure worth guarding.
-    if (size <= 0) {
-      continue;
-    }
-    if (consumed + size > cleared) {
-      return { total: chapters, partial: (cleared - consumed) / size };
-    }
-    consumed += size;
-    chapters++;
-  }
-  return { total: chapters, partial: 0 };
+  return chaptersCleared(ladder, state.clearedStages);
 }
 
 /** The value of the counter `track` is paid against. */

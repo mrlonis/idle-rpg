@@ -487,3 +487,88 @@
 }
 
 @include t.grade-colours;
+
+// ---------------------------------------------------------------------------------------
+// Signature item
+// ---------------------------------------------------------------------------------------
+//
+// Drawn between the kit and the level, which is where it sits in the fiction as well as on the
+// page: it modifies the kit above it and is bought with a currency the level below it does not
+// spend. The panel deliberately reuses the gear panel's shapes — a wrapped row of percentages and
+// a muted price line — because it is the same *kind* of thing to a player, and a second visual
+// language for "a percentage bonus you buy" would be two things to learn for one idea.
+
+.signature__name {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.625rem;
+  margin: 0 0 0.5rem;
+}
+
+.signature__level {
+  color: t.$muted;
+  font-size: 0.8125rem;
+  @include t.numeric;
+}
+
+.signature__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.875rem;
+  margin: 0 0 0.625rem;
+  padding: 0;
+  list-style: none;
+}
+
+.signature__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+  font-size: 0.875rem;
+}
+
+.signature__label {
+  color: t.$muted;
+}
+
+.signature__value {
+  font-weight: 700;
+  @include t.numeric;
+}
+
+// The ability in force. Bordered rather than muted because it is the half of the item that is not
+// a number, and the half a player levels toward — the same treatment `.ascend__unlock` gets for
+// the same reason.
+.signature__ability {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  margin: 0 0 0.625rem;
+  padding-left: 0.625rem;
+  border-left: 2px solid t.$accent;
+}
+
+.signature__abilityName {
+  color: t.$accent;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.signature__abilityText,
+.signature__next,
+.signature__locked,
+.signature__done {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: t.$muted;
+}
+
+.signature__wallet,
+.signature__cost {
+  margin: 0 0 0.375rem;
+  font-size: 0.8125rem;
+  color: t.$muted;
+  @include t.numeric;
+}

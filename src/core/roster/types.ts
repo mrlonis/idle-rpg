@@ -251,4 +251,27 @@ export interface OwnedCharacter {
    * screen and a bench character being kitted out ahead of being fielded is the normal case.
    */
   readonly gear: GearLoadout;
+  /**
+   * How far this character's signature item has been levelled. **Zero means locked.**
+   *
+   * The whole save footprint of milestone 16 on the roster side, and the reason a signature item
+   * is one integer rather than an object: unlike a {@link GearItem} there is exactly one per
+   * character, it can never move between them, it can never be duplicated and it can never be
+   * salvaged — so every field `GearItem` carries in order to be an addressable *object* would be
+   * dead weight. See [`core/signature/types.ts`](../signature/types.ts).
+   *
+   * Present on **every** entry, including the common- and legendary-tier characters that can never
+   * unlock one, for the reason {@link gear} is present on every entry: a field that exists only on
+   * some entries is a field every reader has to test for, and the value it would be missing is the
+   * value it already holds. Eligibility is a question about the character's tier and rung, asked
+   * by `signatureUnlocked`, not a question about whether this field is here.
+   *
+   * ⚠️ **A stored level survives a character no longer being eligible.** Rarity never falls, so in
+   * ordinary play that cannot happen — but a hand-edited save, or a build that moved the unlock
+   * rung, can produce one. It is deliberately **not** repaired to zero on load: the level was paid
+   * for, the emblems are gone, and zeroing it would take back an investment to enforce a rule the
+   * player did not break. What the ineligible case does instead is read as inert — no bonus, no
+   * ability — because every path that reads this goes through `signatureUnlocked` first.
+   */
+  readonly signature: number;
 }

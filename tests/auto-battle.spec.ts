@@ -50,18 +50,22 @@ const top = STAGES[CLEARS - 1];
  * gets corrected, and the unlock would go with it.
  *
  * ⚠️ **Every field of the current shape is written, including the empty ones.** A field left out
- * is damage, not an absence: a missing `alloy`, `legendaryPity` or `gearMinted` is a reported
- * repair issue, and the home screen draws a recovery banner for each. These tests read `.notice`
- * to find out why auto-battle stopped, so a half-filled fixture puts a second `.notice` on the
- * page and breaks that locator under strict mode — which is how this fixture failed, reporting a
- * message about auto-battle that had nothing wrong with it.
+ * is damage, not an absence: a missing `alloy`, `legendaryPity`, `gearMinted`, `wallet.emblem` or
+ * `rates.emblem` is a reported repair issue, and the home screen draws a recovery banner for each.
+ * These tests read `.notice` to find out why auto-battle stopped, so a half-filled fixture puts a
+ * second `.notice` on the page and breaks that locator under strict mode — which is how this
+ * fixture failed, reporting a message about auto-battle that had nothing wrong with it.
+ *
+ * ⚠️ **And it has now failed that way twice.** Milestone 16 added the two emblem fields and every
+ * fixture here went stale at once — the unit suite stayed green, because none of it loads a save
+ * through the browser. **A currency or rate added to the save shape is a change to this file.**
  */
 function unlockedRun(index: number) {
   const { chapter, stage } = positionAt(LADDER, index);
   return {
     version: 0,
     chapter,
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0', emblem: '0' },
     rates: {
       gold: String(top.rates.gold),
       xp: String(top.rates.xp),
@@ -70,6 +74,7 @@ function unlockedRun(index: number) {
       // here is not harmless — an unparseable rate makes the app draw a save-repair notice, and
       // these tests read `.notice` to find out why auto-battle stopped.
       summons: String(summonRatePerSecond(SUMMON_RATE, CLEARS)),
+      emblem: '0',
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
@@ -77,9 +82,9 @@ function unlockedRun(index: number) {
     clearedStages: CLEARS,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
     ],
     formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,
