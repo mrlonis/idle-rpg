@@ -114,7 +114,7 @@ Six more accumulated on top of that baseline, and the second re-base collapsed a
 | v4 → v5 | The bounty board's dispatch list.                                                |
 | v5 → v6 | The legendary pity counter.                                                      |
 
-The third re-base is [milestone 16](milestones.md#16-signature-items--in-progress)'s, and it is the
+The third re-base is [milestone 16](milestones.md#16-signature-items--complete)'s, and it is the
 smallest by a wide margin — three fields, no step worth tabulating:
 
 | Field                | What it holds                                                  |

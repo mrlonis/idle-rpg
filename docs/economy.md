@@ -297,7 +297,7 @@ curve" is about the idle rate itself.
 
 ## Emblems
 
-Added in [milestone 16](milestones.md#16-signature-items--in-progress). Emblems buy
+Added in [milestone 16](milestones.md#16-signature-items--complete). Emblems buy
 [signature item](signature-items.md) levels and nothing else in the game spends them: no shop sells
 them, no bounty pays them, and duplicate characters still convert to spark.
 

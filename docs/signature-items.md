@@ -1,7 +1,7 @@
 # Signature items
 
 The fourth progression axis, alongside levels, ascension rungs and gear. Added in
-[milestone 16](milestones.md#16-signature-items--in-progress).
+[milestone 16](milestones.md#16-signature-items--complete).
 
 One per **ascended-tier** character — seven of the forty-nine, one per faction. It unlocks at the
 `mythic` rung, runs thirty levels, and is bought with **emblems**, a currency that buys nothing

@@ -14,33 +14,33 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 ## Status
 
-| #   | Milestone                               | Status                                         |
-| --- | --------------------------------------- | ---------------------------------------------- |
-| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                                |
-| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`           |
-| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing           |
-| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations        |
-| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out   |
-| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material     |
-| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled           |
-| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`         |
-| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone     |
-| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung     |
-| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays       |
-| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1         |
-| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived    |
-| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels    |
-| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived   |
-| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots    |
-| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal   |
-| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added       |
-| 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders |
-| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor |
-| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors      |
-| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes  |
-| 16  | Deep per-hero investment                | ⬜                                             |
-| 17  | The roguelite run                       | ⬜                                             |
-| 18  | Puzzle maps                             | ⬜                                             |
+| #   | Milestone                               | Status                                           |
+| --- | --------------------------------------- | ------------------------------------------------ |
+| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                                  |
+| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`             |
+| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing             |
+| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations          |
+| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out     |
+| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material       |
+| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled             |
+| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`           |
+| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone       |
+| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung       |
+| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays         |
+| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1           |
+| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived      |
+| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels      |
+| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived     |
+| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots      |
+| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal     |
+| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added         |
+| 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders   |
+| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor   |
+| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors        |
+| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes    |
+| 16  | Signature items                         | ✅ **Complete** — emblems, seven signature items |
+| 17  | The roguelite run                       | ⬜                                               |
+| 18  | Puzzle maps                             | ⬜                                               |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
 > twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
@@ -53,8 +53,8 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 These entries record **what each milestone decided and why**, in the shortest form that keeps the
 reason recoverable. The systems are explained in the reference docs — [combat](combat.md),
 [attributes](attributes.md), [economy](economy.md), [ascension](ascension.md),
-[level resonance](level-resonance.md), [gear](gear.md), [saves](saves.md),
-[navigation](navigation.md), [glossary](glossary.md) — and three cross-cutting files carry what used
+[level resonance](level-resonance.md), [gear](gear.md), [signature items](signature-items.md),
+[saves](saves.md), [navigation](navigation.md), [glossary](glossary.md) — and three cross-cutting files carry what used
 to be spread across these entries: [rejected](rejected.md) for everything ruled out,
 [platform](platform.md) for the shell and accessibility, [testing](testing.md) for the balance sweep.
 Where any of them overlaps an entry here, that file is the current statement and this is the history
