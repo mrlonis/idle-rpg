@@ -3,8 +3,12 @@ import {
   BARRIER,
   BLEED,
   BURN,
+  CHAINBOND,
+  DOOMBRAND,
+  EMBER_SEED,
   GUARD,
   HASTE,
+  OATHSHIELD,
   POISON,
   RALLY,
   REGENERATION,
@@ -2583,6 +2587,81 @@ export const PALL_OF_YEARS = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bound Marches — milestone 17
+//
+// Four turns, one per new mechanic. Three of them do no damage at all, which is unusual for an
+// enemy kit and is the chapter's whole thesis: what these spend a turn on is **where the party's
+// damage is allowed to go**, and that is worth more than a hit at this end of the ladder.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The wall steps forward, and nothing can be aimed past it.
+ *
+ * ⚠️ **60 against a 45-tick {@link OATHSHIELD}**, which is the duty-cycle rule its comment argues:
+ * a party with no way to reach a whole row has to be given a window at whatever is standing
+ * behind this, and a cooldown at or under the duration would never open one.
+ */
+export const DRAW_THE_OATH = {
+  id: 'draw-the-oath',
+  name: 'Draw the Oath',
+  target: 'self',
+  effects: [{ kind: 'status', status: OATHSHIELD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The board is bound together, so no one thing on it can be removed on its own.
+ *
+ * The Cantor's whole contribution, and it deals nothing: what it buys its side is that the party's
+ * opening — kill the support, then the wall — stops resolving. The answer is to kill the Cantor,
+ * which is the one body the link cannot protect from a party that has noticed.
+ *
+ * ⚠️ **80 against a 60-tick {@link CHAINBOND}.** Same rule, and here the window is what lets a
+ * party bank a kill it has already earned.
+ */
+export const BIND_THE_CONCORD = {
+  id: 'bind-the-concord',
+  name: 'Bind the Concord',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 80,
+  priority: 3,
+} as const;
+
+/**
+ * Seeds the back rank, where the party keeps everything that cannot take a hit.
+ *
+ * Aimed there rather than at the front on purpose: a payload on a wall is a payload the party was
+ * always going to survive, and the decision this asks for — spend the cleanse now or trust the
+ * heal to arrive — only exists when the thing carrying it would die.
+ */
+export const EMBERSEED = {
+  id: 'emberseed',
+  name: 'Emberseed',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'status', status: EMBER_SEED, chance: 0.9 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Five payloads at once, on a fifty-tick fuse.
+ *
+ * The chapter's closing question, and it is a question about the party's *answer* rather than about
+ * its damage: every cleanse in the roster removes a fixed count from one ally, so a brand on all
+ * five is the first thing in the game that cannot be fully answered — only triaged.
+ */
+export const DOOMKNELL = {
+  id: 'doomknell',
+  name: 'Doomknell',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: DOOMBRAND, chance: 0.85 }],
+  cooldown: 75,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -2753,4 +2832,8 @@ export const SKILLS = [
   SEVENFOLD_HEX,
   RUNEWARD,
   PALL_OF_YEARS,
+  DRAW_THE_OATH,
+  BIND_THE_CONCORD,
+  EMBERSEED,
+  DOOMKNELL,
 ] as const;

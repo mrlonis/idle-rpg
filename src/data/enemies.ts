@@ -1,8 +1,12 @@
 import {
+  BIND_THE_CONCORD,
   BULWARK,
   CHOIR_OF_ASH,
   CINDER_STORM,
   CUTPURSE,
+  DOOMKNELL,
+  DRAW_THE_OATH,
+  EMBERSEED,
   FADE,
   FLENSE,
   GATE_SLAM,
@@ -30,6 +34,7 @@ import {
   WITHERING_TOUCH,
   WRATH_UNBOUND,
 } from './skills';
+import { THORNMAIL } from './statuses';
 
 /**
  * Enemy archetypes: a stat block at **level 1**, a kit, and the slope it grows on.
@@ -1170,6 +1175,254 @@ export const HEXBOUND_TORMENTOR = {
   skills: [SEVENFOLD_HEX, RUINOUS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bound Marches — milestone 17
+//
+// ## Eight blocks, and what makes them a chapter rather than a level band
+//
+// Chapter 2 argued that a new archetype is only worth authoring when it asks something the
+// vocabulary could express and nothing had used. Milestone 17 has the harder version of that
+// problem: **every targeting, status and effect kind in `core/battle/types.ts` was already in
+// use**, so a ninth spelling of "hits the front rank harder" is all that was left inside the
+// existing vocabulary.
+//
+// So the vocabulary grew, once, by four — taunt, reflect, link and a delayed payload — and these
+// eight are what field them. Three of the four are about **where a hit is allowed to go** rather
+// than about how big it is, which is a lever nothing in the game had and the reason this reads as
+// a different place rather than as the Ashfall Reach at a higher level.
+//
+// | Enemy               | The question                                    | The answer                    |
+// | ------------------- | ----------------------------------------------- | ----------------------------- |
+// | Oathshield Vanguard | what if you cannot choose what to hit?          | a row attack, or kill it      |
+// | Bramblehide Ravener | what does the swing itself cost you?            | fewer, bigger hits; sustain   |
+// | Concord Cantor      | what if nothing can be removed one at a time?   | kill the Cantor, or go wide   |
+// | Emberseed Warlock   | can the cleanse arrive before the fuse does?    | a cleanse, spent at the right time |
+// | Riven Marchwarden   | both of the first two at once, late             | reach that is not single-target |
+// | The Chainsworn      | all of it, on a board that answers back         | everything above, in one fight |
+//
+// ⚠️ **No opening carries a taunt, here or ever.** A permanent one would take a single-target
+// party's access to a back rank away for a whole fight rather than for a while; the taunts here are
+// cast, on a cooldown longer than the status, and `enemies.spec.ts` holds that rule against the
+// content rather than against a comment.
+//
+// ## Scale
+//
+// Sized against the Ashfall legendaries rather than above them, and the boss sized **under** The
+// Unmade. The chapter is harder because the `level` on its stages is higher and because these ask
+// questions the party has never been asked, not because the blocks are bigger — which is the
+// distinction milestone 10 bought and the reason a lock does not decay into an empty square.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The taunt lock, and the first thing in the game that chooses the party's target for it.
+ *
+ * Reach has been the answer to a protected healer since milestone 4 — put the sniper behind the
+ * wall and shoot past it. This closes that door for as long as the Oathshield is up, so the party
+ * either brings something that hits a whole row or spends the fight on the wall. It carries little
+ * offence on purpose: what it costs the party is turns, not health.
+ */
+export const OATHSHIELD_VANGUARD = {
+  id: 'oathshield-vanguard',
+  name: 'Oathshield Vanguard',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 64,
+    def: 40,
+    recovery: 5,
+    haste: 74,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    tenacity: 0.25,
+    physicalResist: 0.06,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * Spines. The first enemy that charges the party for attacking at all.
+ *
+ * Every lock below this is answered by doing more of something. This one is answered by doing
+ * *less* of it — a party of many small hits pays the quarter over and over, and a party with one
+ * big swing pays it once. It is the clearest statement the ladder makes that how damage is shaped
+ * matters as much as how much of it there is.
+ */
+export const BRAMBLEHIDE_RAVENER = {
+  id: 'bramblehide-ravener',
+  name: 'Bramblehide Ravener',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 980,
+    atk: 74,
+    def: 28,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.1,
+    physicalResist: 0.05,
+  },
+  opening: [THORNMAIL],
+  skills: [GORE],
+} as const;
+
+/**
+ * The link, and a support whose entire contribution is that nothing can be killed on its own.
+ *
+ * It deals almost nothing and is the most important body on any board it stands in: while the
+ * Concord is up, two fifths of every hit is spread across whatever else is standing, so the
+ * party's opening — remove the support, then the wall — simply stops resolving. Fragile, because
+ * the answer is meant to be *kill the Cantor* and an answer nobody can reach is not one.
+ */
+export const CONCORD_CANTOR = {
+  id: 'concord-cantor',
+  name: 'Concord Cantor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 58,
+    def: 24,
+    haste: 100,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.15,
+    magicResist: 0.12,
+  },
+  skills: [BIND_THE_CONCORD, MOTE_LANCE],
+} as const;
+
+/**
+ * The fuse. A payload on the back rank that lands in one piece forty ticks later.
+ *
+ * A poison asks whether the party can afford the attrition; this asks whether the answer arrives
+ * in time — and because a cleanse spent early removes the whole thing, the decision is *when*
+ * rather than *whether*. Everything the party keeps behind its wall is what it lands on.
+ */
+export const EMBERSEED_WARLOCK = {
+  id: 'emberseed-warlock',
+  name: 'Emberseed Warlock',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 740,
+    atk: 68,
+    def: 22,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    insight: 0.18,
+    magicResist: 0.08,
+  },
+  skills: [EMBERSEED, CINDER_STORM],
+} as const;
+
+/** A body for the marches: armoured, slow, and nothing else. What the locks stand behind. */
+export const MARCHWARD_PIKEMAN = {
+  id: 'marchward-pikeman',
+  name: 'Marchward Pikeman',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 700,
+    atk: 50,
+    def: 22,
+    haste: 78,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/** The other half of that pair: quick, fragile, and hard to pin down. */
+export const BRAMBLEWALK_SCOUT = {
+  id: 'bramblewalk-scout',
+  name: 'Bramblewalk Scout',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 460,
+    atk: 52,
+    def: 13,
+    haste: 120,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.18,
+    accuracy: 1.05,
+    magicResist: 0.05,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * Both of the chapter's first two locks in one body, and the reason they were authored apart.
+ *
+ * A Vanguard says "hit me". A Ravener says "hitting costs you". Together they say "hit me, and it
+ * costs you" — which is not a harder version of either, it is the first encounter where a party's
+ * usual answer to one lock is the thing the other lock punishes. Late-chapter on purpose: it is
+ * only a fair question once the party has met both halves separately.
+ */
+export const RIVEN_MARCHWARDEN = {
+  id: 'riven-marchwarden',
+  name: 'Riven Marchwarden',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 66,
+    def: 40,
+    recovery: 6,
+    haste: 68,
+    critChance: 0.03,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    physicalResist: 0.05,
+  },
+  opening: [THORNMAIL],
+  skills: [DRAW_THE_OATH, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The end of the Bound Marches, and the only body on the ladder fielded on exactly one stage.
+ *
+ * ⚠️ **Every other chapter boss is an archetype the chapter has already been fielding** — The
+ * Unmade stands in nine stages before the one it names. This one appears at `c3-s50` and nowhere
+ * else, which is the whole of what "a boss is unique" buys: the last encounter of a chapter is the
+ * one a player remembers, and a stat block they have already beaten four times is a stage number.
+ *
+ * It fields three of the chapter's four mechanics at once and leaves the fourth to the wall
+ * standing in front of it: the board is bound, so nothing can be removed alone; it is thorned, so
+ * working through it costs; and the Doomknell brands all five at once against a cleanse that can
+ * only ever answer one. Sized **under** The Unmade rather than above it — `enemies.spec.ts` holds
+ * that ceiling, and what makes this the harder fight is the questions rather than the numbers.
+ */
+export const CHAINSWORN = {
+  id: 'chainsworn',
+  name: 'The Chainsworn',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1700,
+    atk: 98,
+    def: 52,
+    recovery: 7,
+    haste: 92,
+    critChance: 0.12,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.2,
+    tenacity: 0.45,
+    lifeLeech: 0.15,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [THORNMAIL],
+  skills: [BIND_THE_CONCORD, DOOMKNELL, TYRANTS_CLAIM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -1215,4 +1468,12 @@ export const ENEMIES = [
   CINDERLING,
   BLOODPACT_FIEND,
   HEXBOUND_TORMENTOR,
+  OATHSHIELD_VANGUARD,
+  BRAMBLEHIDE_RAVENER,
+  CONCORD_CANTOR,
+  EMBERSEED_WARLOCK,
+  MARCHWARD_PIKEMAN,
+  BRAMBLEWALK_SCOUT,
+  RIVEN_MARCHWARDEN,
+  CHAINSWORN,
 ] as const;

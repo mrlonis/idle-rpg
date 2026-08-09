@@ -243,10 +243,11 @@ Two things bound the cliff: a gate only ever **widens** the table, since the gra
 dropping at their authored weight; and the bottom grade is ungated by construction, so the ladder
 always drops something.
 
-⚠️ **Every gate lands inside the hundred stages this build ships**, and that is the constraint the
-numbers are picked against. The first version of this idea gated Sturdy behind chapter 3 — which
-does not exist — leaving four of five grades unreachable. `gear.spec.ts` derives the ladder's length
-from the shipped chapters and asserts every gate falls inside it.
+⚠️ **Every gate lands inside the stages this build ships**, and that is the constraint the numbers
+are picked against. The first version of this idea gated Sturdy behind chapter 3 — which did not
+exist at the time — leaving four of five grades unreachable. `gear.spec.ts` derives the ladder's
+length from the shipped chapters and asserts every gate falls inside it, so the rule survived
+chapter 3 arriving without anything here needing to change.
 
 Among what is unlocked, the odds still tilt with depth: a grade's authored weight is multiplied by
 `(1 + stageIndex / 90) ** gradeIndex`. Two properties fall out of that shape:

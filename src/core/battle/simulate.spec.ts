@@ -25,6 +25,7 @@ import {
   type SkillData,
   type StageData,
   type StatBlockData,
+  type StatusData,
 } from './types';
 
 const SEED = 0xc0ffee;
@@ -32,7 +33,7 @@ const SEED = 0xc0ffee;
 function unit(
   id: string,
   stats: Partial<StatBlockData> = {},
-  extra: Partial<Pick<CombatantData, 'faction' | 'basic' | 'skills'>> = {},
+  extra: Partial<Pick<CombatantData, 'faction' | 'basic' | 'skills' | 'opening'>> = {},
 ): CombatantData {
   return {
     id,
@@ -40,6 +41,10 @@ function unit(
     faction: extra.faction ?? 'neutral',
     basic: extra.basic,
     skills: extra.skills,
+    // An opening status is the cheapest way to put a taunt, a thorn or a link on the board without
+    // spending turns getting one applied — which is how the enemy archetypes that carry them are
+    // authored too, so the fixture matches the content rather than approximating it.
+    opening: extra.opening,
     stats: {
       hp: 100,
       atk: 20,
@@ -971,6 +976,304 @@ describe('simulateBattle', () => {
     });
   });
 
+  describe('taunt', () => {
+    /** A board with one body in front and something fragile standing behind it. */
+    const guarded = (opening?: readonly StatusData[]): StageData =>
+      stage(
+        line(
+          [unit('brute', { hp: 100_000, atk: 0, haste: 1 }, { opening })],
+          [unit('mage', { hp: 100_000, atk: 0, haste: 1 })],
+        ),
+      );
+
+    it('draws a back-rank bypass onto the taunter', () => {
+      // ⚠️ **The whole point of the mechanic, and the one thing in the game that can close the
+      // back door.** Reach has been the answer to a protected healer since milestone 4, so a
+      // sniper aimed past the front rank is exactly the case that has to change — otherwise a
+      // taunt is a status the party's best answer walks around.
+      const sniper = line([unit('rin', { hp: 2000, atk: 60, haste: 100 }, { skills: [SNIPE] })]);
+
+      expect(new Set(attackTargets(fight(sniper, guarded())))).toEqual(new Set(['enemy-1']));
+      expect(new Set(attackTargets(fight(sniper, guarded([TAUNT]))))).toEqual(new Set(['enemy-0']));
+    });
+
+    it('is ignored by a skill that reaches a whole row', () => {
+      // The clause that keeps an encounter built on a taunt answerable. A party with no way past
+      // it at all would be the "no legal party" failure milestone 4 rejected role-locked slots
+      // for — so the door closes on single targets and on nothing else.
+      const volleyer = line([unit('rin', { hp: 2000, atk: 60, haste: 100 }, { skills: [VOLLEY] })]);
+
+      expect(attackTargets(fight(volleyer, guarded([TAUNT])))).toContain('enemy-1');
+    });
+
+    it('can be put up mid-fight, and redirects only while it is running', () => {
+      // Applied by a skill rather than carried from the opening, because the two are genuinely
+      // different code paths — `toActiveStatus` against the applier, then `applyStatus` onto the
+      // target — and an opening-only test would leave the second one unproven.
+      // Rin is faster than the brute on purpose, so the fight has a window before the taunt is up
+      // — otherwise the first swing already lands into one and the test proves only half of what
+      // it claims.
+      const sniper = line([unit('rin', { hp: 4000, atk: 40, haste: 200 }, { skills: [SNIPE] })]);
+      const board = stage(
+        line(
+          [unit('brute', { hp: 100_000, atk: 0, haste: 100 }, { skills: [PROVOKE] })],
+          [unit('mage', { hp: 100_000, atk: 0, haste: 1 })],
+        ),
+      );
+
+      const targets = attackTargets(fight(sniper, board));
+
+      // The first swing goes past the brute, because nothing is taunting yet; a later one does
+      // not, because by then something is.
+      expect(targets[0]).toBe('enemy-1');
+      expect(targets).toContain('enemy-0');
+    });
+  });
+
+  describe('reflect', () => {
+    const thorned = (extra: Partial<StatBlockData> = {}): StageData =>
+      stage(
+        line([unit('bramble', { hp: 100_000, atk: 0, haste: 1, ...extra }, { opening: [THORNS] })]),
+      );
+
+    /** Every hit a status landed, by the status that landed it. */
+    const statusHits = (result: BattleResult, statusId: string): Numeric[] =>
+      result.events
+        .filter((event) => event.kind === 'tick-damage' && event.statusId === statusId)
+        .map((event) => (event.kind === 'tick-damage' ? event.damage : ZERO));
+
+    it('returns a share of the damage it took to whoever dealt it', () => {
+      const result = fight(line([unit('hero', { hp: 100_000, atk: 60, haste: 100 })]), thorned());
+      const answered = statusHits(result, 'test-thorns');
+
+      expect(answered.length).toBeGreaterThan(0);
+      expect(answered[0].toNumber()).toBeCloseTo(firstHit(result).mul(0.5).toNumber(), 6);
+    });
+
+    it('answers the killing blow as well as every other one', () => {
+      // ⚠️ Read off the target **before** the blow lands, because a fighter that falls drops
+      // everything it was carrying. Without that, a party with enough burst to finish the job in
+      // one swing would step around thorns entirely — taxing exactly the parties this is not
+      // aimed at and sparing the one it is.
+      const result = fight(
+        line([unit('hero', { hp: 100_000, atk: 400, haste: 100 })]),
+        stage(line([unit('bramble', { hp: 20, atk: 0, haste: 1 }, { opening: [THORNS] })])),
+      );
+
+      expect(result.outcome).toBe('victory');
+      expect(statusHits(result, 'test-thorns')).toHaveLength(1);
+    });
+
+    it('is swallowed by a shield along with the blow that earned it', () => {
+      // Measured against what reached HP rather than against what was dealt — the opposite of the
+      // rule life leech follows, and deliberately: a siphon is the attacker's reward for the blow
+      // it struck, and this is the answer to a blow that landed.
+      const result = fight(
+        line([unit('hero', { hp: 100_000, atk: 20, haste: 100 })]),
+        stage(
+          line([
+            // A real `atk`, because the barrier's pool is sized off it — at zero the shield is
+            // zero and the spec would be measuring an absorb that never happened.
+            unit(
+              'bramble',
+              { hp: 100_000, atk: 50, haste: 100 },
+              { opening: [THORNS], skills: [BARRIER_SKILL] },
+            ),
+          ]),
+        ),
+      );
+
+      const shielded = result.events.findIndex(
+        (event) => event.kind === 'status' && event.status.id === 'test-shield',
+      );
+      const afterwards = result.events
+        .slice(shielded)
+        .filter((event) => event.kind === 'attack' && event.absorbed.gt(ZERO));
+
+      expect(shielded).toBeGreaterThanOrEqual(0);
+      expect(afterwards.length).toBeGreaterThan(0);
+      for (const hit of afterwards) {
+        // Whatever the shield ate is not returned; only what got past it is.
+        const answer = result.events.find(
+          (event) =>
+            event.kind === 'tick-damage' &&
+            event.statusId === 'test-thorns' &&
+            event.tick === hit.tick,
+        );
+        const returned = answer?.kind === 'tick-damage' ? answer.damage.toNumber() : 0;
+
+        expect(returned).toBeCloseTo(hit.kind === 'attack' ? hit.damage.mul(0.5).toNumber() : 0, 6);
+      }
+    });
+
+    it('never answers an answer, so two thorned combatants still resolve', () => {
+      // ⚠️ **The termination argument, and it is structural rather than a depth counter.**
+      // Reflected damage is applied as status damage, which cannot re-enter the attack path — so
+      // there is no volley to bound. A cascade would not fail this assertion, it would blow the
+      // stack before reaching it.
+      const stats = { hp: 4000, atk: 60, haste: 100 };
+      const result = fight(
+        line([unit('hero', stats, { opening: [THORNS] })]),
+        stage(line([unit('bramble', stats, { opening: [THORNS] })])),
+      );
+
+      expect(result.timedOut).toBe(false);
+      expect(result.ticks).toBeLessThan(MAX_BATTLE_TICKS);
+      // One answer per landed blow, from each side. Anything more is a cascade.
+      const blows = result.events.filter((event) => event.kind === 'attack').length;
+      expect(statusHits(result, 'test-thorns')).toHaveLength(blows);
+    });
+
+    it('can kill the attacker inside its own action, and stops the swing when it does', () => {
+      // Nothing could kill an actor mid-action before this existed. A corpse must not finish
+      // swinging through the rest of a row.
+      const result = fight(
+        line([unit('glass', { hp: 30, atk: 400, haste: 100 }, { skills: [VOLLEY] })]),
+        stage(
+          line(
+            [unit('front', { hp: 100_000, atk: 0, haste: 1 })],
+            [
+              unit('bramble-a', { hp: 100_000, atk: 0, haste: 1 }, { opening: [THORNS] }),
+              unit('bramble-b', { hp: 100_000, atk: 0, haste: 1 }, { opening: [THORNS] }),
+            ],
+          ),
+        ),
+      );
+
+      // The first thorn kills the attacker, so the second bramble is never reached.
+      expect(result.outcome).toBe('defeat');
+      expect(attackTargets(result)).toEqual(['enemy-1']);
+    });
+  });
+
+  describe('the damage link', () => {
+    /** Three bound bodies, so a hit has two places to go. */
+    const bound = (count: number): StageData => {
+      const bodies = Array.from({ length: count }, (_, index) =>
+        unit(`bound-${index}`, { hp: 100_000, atk: 0, haste: 1 }, { opening: [BOND] }),
+      );
+      return stage(line(bodies.slice(0, 1), bodies.slice(1)));
+    };
+
+    const spread = (result: BattleResult): Numeric[] =>
+      result.events
+        .filter((event) => event.kind === 'tick-damage' && event.statusId === 'test-bond')
+        .map((event) => (event.kind === 'tick-damage' ? event.damage : ZERO));
+
+    it('moves a share of the hit onto the linked allies and invents none of it', () => {
+      // ⚠️ **Conservation is the termination argument.** The board's aggregate health falls by
+      // exactly what the roll produced, so a link changes the order things die in and never how
+      // long the side survives — which is what makes it safe to hand a whole enemy board.
+      const result = fight(line([unit('hero', { hp: 100_000, atk: 60, haste: 100 })]), bound(3));
+
+      // ⚠️ **The `attack` event reports what the target *took*, not what the roll produced** — the
+      // link has already moved its share by the time the blow lands. So with a share of a half the
+      // roll was twice this, and each of the two partners was handed half of the other half.
+      const took = firstHit(result);
+      const shares = spread(result).slice(0, 2);
+
+      expect(shares).toHaveLength(2);
+      for (const share of shares) {
+        expect(share.toNumber()).toBeCloseTo(took.div(2).toNumber(), 6);
+      }
+      // Conservation, stated as arithmetic: the board lost exactly the roll, no more and no less.
+      const total = shares.reduce((sum, share) => sum.add(share), took);
+      expect(total.toNumber()).toBeCloseTo(took.mul(2).toNumber(), 6);
+    });
+
+    it('hands the whole hit to a holder with nobody left to share it with', () => {
+      // ⚠️ Without this clause a lone survivor still carrying a link would shed a share of every
+      // blow into nothing and become unkillable — a fight the ninety-second clock would have to
+      // end, which is precisely the failure closing pressure exists to prevent.
+      const result = fight(line([unit('hero', { hp: 100_000, atk: 60, haste: 100 })]), bound(1));
+      const control = fight(
+        line([unit('hero', { hp: 100_000, atk: 60, haste: 100 })]),
+        stage(line([unit('bound-0', { hp: 100_000, atk: 0, haste: 1 })])),
+      );
+
+      expect(spread(result)).toEqual([]);
+      expect(firstHit(result).toString()).toBe(firstHit(control).toString());
+    });
+
+    it('does not spread a share it was handed', () => {
+      // The partners hold the same link, so a cascading implementation would move a share of
+      // their share back and forth. Two events per blow is the whole of what one hit may produce.
+      const result = fight(line([unit('hero', { hp: 100_000, atk: 60, haste: 100 })]), bound(3));
+
+      const blows = result.events.filter((event) => event.kind === 'attack').length;
+      expect(spread(result)).toHaveLength(blows * 2);
+    });
+  });
+
+  describe('delayed detonation', () => {
+    it('does nothing until it expires, and then lands in one piece', () => {
+      const result = fight(
+        line([unit('sapper', { hp: 100_000, atk: 50, haste: 20 }, { skills: [SEEDED_CHARGE] })]),
+        stage(line([unit('mook', { hp: 100_000, atk: 0, haste: 1 })])),
+      );
+
+      const planted = result.events.find(
+        (event) => event.kind === 'status' && event.status.id === 'test-bomb',
+      );
+      const landed = result.events.filter(
+        (event) => event.kind === 'tick-damage' && event.statusId === 'test-bomb',
+      );
+
+      expect(planted).toBeDefined();
+      expect(landed).toHaveLength(1);
+      // Thirty ticks after it was planted, and worth four times the applier's `atk` in one go —
+      // which is the difference from a poison of the same total, not a difference in size.
+      expect(landed[0].tick - (planted?.tick ?? 0)).toBe(30);
+      expect(landed[0].kind === 'tick-damage' ? landed[0].damage.toNumber() : 0).toBeCloseTo(
+        200,
+        6,
+      );
+    });
+
+    it('is removed entirely by a cleanse spent before it lands', () => {
+      // ⚠️ The counterplay, and the reason this is not simply a poison that pays late: a cleanse
+      // against a poison saves whatever was left of it, and a cleanse against this saves all of
+      // it. That is what makes *when* to spend the answer the decision.
+      const result = fight(
+        line([
+          unit('mook', { hp: 100_000, atk: 0, haste: 1 }),
+          unit('priest', { hp: 100_000, atk: 10, haste: 100 }, { skills: [PURIFY] }),
+        ]),
+        stage(
+          line([unit('sapper', { hp: 100_000, atk: 50, haste: 20 }, { skills: [SEEDED_CHARGE] })]),
+        ),
+      );
+
+      expect(
+        result.events.some((event) => event.kind === 'status' && event.status.id === 'test-bomb'),
+      ).toBe(true);
+      expect(
+        result.events.some(
+          (event) => event.kind === 'tick-damage' && event.statusId === 'test-bomb',
+        ),
+      ).toBe(false);
+    });
+
+    it('ends the fight when the detonation is what finishes the last body', () => {
+      // ⚠️ **The reason `decide` is called after the expiry pass at all.** Before bombs nothing
+      // could kill at an expiry, so the last combatant could fall to one and the fight would run
+      // on until somebody's turn came around to notice.
+      const result = fight(
+        line([unit('sapper', { hp: 100_000, atk: 50, haste: 20 }, { skills: [SEEDED_CHARGE] })]),
+        stage(line([unit('mook', { hp: 150, atk: 0, haste: 1 })])),
+      );
+
+      expect(result.outcome).toBe('victory');
+      const end = result.events.at(-1);
+      const detonation = result.events
+        .filter((event) => event.kind === 'tick-damage' && event.statusId === 'test-bomb')
+        .at(-1);
+
+      expect(detonation).toBeDefined();
+      expect(end?.tick).toBe(detonation?.tick);
+    });
+  });
+
   describe('the event log', () => {
     it('reproduces the final standings exactly when replayed', () => {
       // The log is the only thing the UI is given, so it has to be complete: replaying it must
@@ -990,6 +1293,33 @@ describe('simulateBattle', () => {
           line(
             [unit('slime', { hp: 900, atk: 22 }, { skills: [POISON_DART] })],
             [unit('shaman', { hp: 600, atk: 70, haste: 80 }, { skills: [BARRIER_SKILL] })],
+          ),
+        ),
+      );
+
+      const board = replay(result);
+
+      expect(board.hp).toEqual(boardOf(result.final).hp);
+      expect(board.energy).toEqual(boardOf(result.final).energy);
+      expect(board.shield).toEqual(boardOf(result.final).shield);
+      expect(board.statuses).toEqual(boardOf(result.final).statuses);
+    });
+
+    it('replays a board carrying thorns, a link and a delayed payload', () => {
+      // The same promise against the milestone-17 statuses, and the reason it is a second fight
+      // rather than a bigger first one: three of the four produce damage from **outside a turn** —
+      // thorns answering a blow, a link paying an ally mid-hit, a bomb going off at an expiry —
+      // and all three reach the animator as `tick-damage` on somebody who is not acting. An event
+      // stream that dropped any of them would leave the board full of health the run had spent.
+      const result = fight(
+        line(
+          [unit('bran', { hp: 1400, atk: 70, haste: 90 }, { skills: [SEEDED_CHARGE] })],
+          [unit('rin', { hp: 500, atk: 55, haste: 110 }, { skills: [SNIPE] })],
+        ),
+        stage(
+          line(
+            [unit('warden', { hp: 1200, atk: 40, haste: 80 }, { opening: [TAUNT, THORNS, BOND] })],
+            [unit('choir', { hp: 900, atk: 45, haste: 95 }, { opening: [BOND] })],
           ),
         ),
       );
@@ -1529,5 +1859,99 @@ const PURIFY: SkillData = {
   effects: [{ kind: 'cleanse', count: 2 }],
   cooldown: 20,
   condition: { kind: 'ally-afflicted' },
+  priority: 5,
+};
+
+// ---------------------------------------------------------------------------------------
+// The four milestone-17 statuses
+//
+// Authored as long-running openings wherever a spec only needs one on the board, because what
+// almost every assertion below is about is what happens to a *hit*, not how the status got there.
+// The two skills exist for the two questions that are about application: whether a taunt can be
+// put up mid-fight, and whether a bomb can be cleansed off before it lands.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Durations deliberately outlast the ninety-second timer.
+ *
+ * A status that expires mid-fight would make every assertion below a statement about the first
+ * `duration` ticks and about nothing afterwards — which is how the first draft of these specs
+ * quietly measured a taunt for two thirds of a fight and untaunted targeting for the rest.
+ */
+const FOREVER = MAX_BATTLE_TICKS * 2;
+
+const TAUNT: StatusData = {
+  kind: 'taunt',
+  id: 'test-taunt',
+  name: 'Taunting',
+  hostile: false,
+  duration: FOREVER,
+};
+
+const THORNS: StatusData = {
+  kind: 'reflect',
+  id: 'test-thorns',
+  name: 'Thorned',
+  hostile: false,
+  duration: FOREVER,
+  share: 0.5,
+};
+
+const BOND: StatusData = {
+  kind: 'link',
+  id: 'test-bond',
+  name: 'Bound',
+  hostile: false,
+  duration: FOREVER,
+  share: 0.5,
+};
+
+/** Reaches a whole row, so the spec can show a taunt does not touch multi-target selection. */
+const VOLLEY: SkillData = {
+  id: 'volley',
+  name: 'Volley',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 20,
+  priority: 6,
+};
+
+const PROVOKE: SkillData = {
+  id: 'provoke',
+  name: 'Provoke',
+  target: 'self',
+  effects: [{ kind: 'status', status: TAUNT }],
+  cooldown: 400,
+  priority: 5,
+};
+
+/**
+ * A charge that lands nothing now and a great deal in thirty ticks.
+ *
+ * Deliberately far bigger than a poison of the same total: the whole question a bomb asks is
+ * whether the answer arrives before the tick does, and a payload small enough to eat is a payload
+ * nobody has to answer.
+ */
+const SEEDED_CHARGE: SkillData = {
+  id: 'seeded-charge',
+  name: 'Seeded Charge',
+  target: 'enemy-front',
+  effects: [
+    {
+      kind: 'status',
+      status: {
+        kind: 'bomb',
+        id: 'test-bomb',
+        name: 'Seeded',
+        hostile: true,
+        duration: 30,
+        damageType: 'physical',
+        power: 4,
+      },
+    },
+  ],
+  // Longer than the fight, so a spec watching one payload is watching one payload. At 400 it was
+  // cast three times inside the ninety seconds and "fires exactly once" measured three bombs.
+  cooldown: FOREVER,
   priority: 5,
 };

@@ -246,20 +246,35 @@ describe('pull economy', () => {
     expect(pullsPerHour).toBeLessThanOrEqual(2);
   });
 
-  it('accrues roughly five ten-pulls a day with the ladder fully cleared', () => {
+  it('accrues roughly seven ten-pulls a day with the ladder fully cleared', () => {
     // The stated pacing target, measured where the rate actually comes from: the clear count.
     // Derived from the ladder's length rather than restated, so adding a chapter re-runs this.
     //
-    // ⚠️ **This band was 20–40 and it was moved on purpose, which is the case the rule against
-    // moving thresholds carves out.** Milestone 11 halved the step to stay inside it; the step is
-    // back at 1 and the band followed, so a cleared ladder now pays about 48 pulls a day against
-    // 36. The band did not simply widen to fit — the ceiling is set where a *doubled* ladder at
-    // this step lands (72 a day), so growing the content still fires this rather than sailing
-    // past it. What is not negotiable is the shape, asserted below and in the two tests after it.
+    // ⚠️ **This band has now been moved twice, and the second move is a deferral rather than a
+    // fix.** It was 20–40; milestone 11 halved the step to stay inside it; the step went back to 1
+    // and the band followed to 20–60, with the ceiling deliberately placed where a *doubled* ladder
+    // would land so that growing the content still fired it.
+    //
+    // Chapter 3 landed on exactly 60 — 250 crystals an hour against a 100-crystal pull — and this
+    // file's own advice, and `docs/economy.md`'s, was to retune `perClearPerHour` rather than the
+    // band. **That advice was overruled deliberately**, by the person whose game it is, on the
+    // grounds that the pull economy is going to be retuned as a whole once the roster's ascended
+    // tier is finished, and that cutting a shipped rate twice in the meantime buys nothing. The
+    // reasoning is recorded here rather than folded away, because the argument for retuning the
+    // step is still the right argument and will be the one to reach for when that retune happens.
+    //
+    // What that costs, stated plainly: the ceiling is 75 rather than 72, so a *doubled* ladder no
+    // longer fires this — the property that made the last move defensible is the property this
+    // move spends. Chapter 4 sails past a band it should have tripped, and the next thing to
+    // notice will be a player with more crystals than there is anything to spend them on.
+    //
+    // ⚠️ **The shape is not what was deferred.** A flat base plus a *linear* step, paid once per
+    // stage ever and never compounding, is what a flat `PULL_COST` survives at any size; the three
+    // assertions below hold it and none of them moved.
     const pullsPerDay = (crystalsPerSecond(LADDER_LENGTH) * 86_400) / PULL_COST;
 
     expect(pullsPerDay).toBeGreaterThan(20);
-    expect(pullsPerDay).toBeLessThan(60);
+    expect(pullsPerDay).toBeLessThanOrEqual(75);
   });
 
   it('keeps the whole ladder worth climbing without letting it run away', () => {

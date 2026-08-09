@@ -1,5 +1,6 @@
 import { CHAPTER_1 } from './chapter-1';
 import { CHAPTER_2 } from './chapter-2';
+import { CHAPTER_3 } from './chapter-3';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -166,8 +167,14 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Two of them, fifty stages each. [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the
- * length {@link CHAPTER_CURVE} says it should be, so a chapter authored at forty-nine stages is a
- * failing test rather than a boss that quietly lands on the wrong square.
+ * Three of them, fifty stages each. [`chapters.spec.ts`](./chapters.spec.ts) checks each one is
+ * the length {@link CHAPTER_CURVE} says it should be, so a chapter authored at forty-nine stages
+ * is a failing test rather than a boss that quietly lands on the wrong square.
+ *
+ * ⚠️ **Adding one is an economy change as much as a content one.** Three guards are functions of
+ * how long the ladder is — the idle crystal rate in `banners.spec.ts`, everything a clear pays in
+ * `achievements.spec.ts`, and the level ceiling's cost in hours in `levels.spec.ts` — and all
+ * three fired on chapter 3. See [economy](../../docs/economy.md) for what each one was answered
+ * with and which of the answers is a deferral rather than a fix.
  */
-export const CHAPTERS = [CHAPTER_1, CHAPTER_2] as const;
+export const CHAPTERS = [CHAPTER_1, CHAPTER_2, CHAPTER_3] as const;

@@ -4,9 +4,9 @@
 //
 // **The simulated sweeps live in [`chapters.balance.ts`](./chapters.balance.ts)**, in the separate
 // balance project `AGENTS.md` describes. They moved there when milestone 7 doubled the ladder and
-// added a third reference party, and milestone 11 quadrupled it again — a hundred stages across
-// eleven parties at forty seeds is tens of thousands of battles, and the rule is to move the sweep
-// rather than shrink the sample.
+// added a third reference party, and milestone 11 quadrupled it again — a hundred and fifty stages
+// across twelve parties at forty seeds is tens of thousands of battles, and the rule is to move the
+// sweep rather than shrink the sample.
 import { describe, expect, it } from 'vitest';
 import {
   BACK_ROW_SIZE,

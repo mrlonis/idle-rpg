@@ -202,11 +202,74 @@ describe('the status library', () => {
 
   it('marks every damaging status hostile and every restorative one not', () => {
     for (const status of statuses) {
-      if (status.kind === 'dot') {
+      if (status.kind === 'dot' || status.kind === 'bomb') {
         expect(status.hostile, status.id).toBe(true);
       }
-      if (status.kind === 'regen' || status.kind === 'shield') {
+      if (
+        status.kind === 'regen' ||
+        status.kind === 'shield' ||
+        status.kind === 'taunt' ||
+        status.kind === 'reflect' ||
+        status.kind === 'link'
+      ) {
+        // The three milestone-17 protective kinds sit here for the same reason a shield does: a
+        // cleanse only ever reaches its holder's own allies, so `hostile` on one of these would
+        // mean the side that cast it could dispel it and the side it is used against could not.
         expect(status.hostile, status.id).toBe(false);
+      }
+    }
+  });
+
+  it('leaves a window at whatever is standing behind a taunt', () => {
+    // ⚠️ **The duty-cycle rule, and it is about an encounter staying answerable rather than about
+    // termination.** A taunt overrides the row gate, so while it is up a party whose only reach is
+    // single-target cannot touch the back rank at all. A cooldown at or under the duration would
+    // hold that door shut for a whole fight. Same shape as `BULWARK`'s "cooldown above the
+    // barrier's duration", and derived from both numbers rather than restating either.
+    for (const skill of skills) {
+      for (const effect of skill.effects) {
+        if (effect.kind === 'status' && effect.status.kind === 'taunt') {
+          expect(skill.cooldown ?? 0, `${skill.id}/${effect.status.id}`).toBeGreaterThan(
+            effect.status.duration,
+          );
+        }
+      }
+    }
+  });
+
+  it('keeps a reflect or a link to a minority share of the hit', () => {
+    // Both are shares of somebody else's damage, and both stop being a lock and start being a rule
+    // of the game somewhere near a half. A reflect at 1 would answer every blow in full — a fight
+    // decided by who swings, not by who is stronger — and a link at 1 would move the entire hit off
+    // its target, so the thing the party is aiming at is the one thing that never takes damage.
+    for (const status of statuses) {
+      if (status.kind === 'reflect' || status.kind === 'link') {
+        expect(status.share, status.id).toBeGreaterThan(0);
+        expect(status.share, status.id).toBeLessThanOrEqual(0.5);
+      }
+    }
+  });
+
+  it('makes a delayed payload bigger than a tick and smaller than a swing', () => {
+    // Derived from the library at both ends rather than written down. **Bigger than any
+    // damage-over-time proc**, because the whole difference is that it arrives in one piece — a
+    // bomb the size of a tick is a poison that is worse at being a poison. **No bigger than the
+    // largest single-target hit anybody carries**, because past that a payload the party failed to
+    // cleanse is not a punishment, it is a deletion.
+    const dots = statuses.filter((status) => status.kind === 'dot').map((status) => status.power);
+    const wide = ['enemy-all', 'enemy-row-front', 'enemy-row-back'];
+    const swings = skills
+      .filter((skill) => !wide.includes(skill.target))
+      .flatMap((skill) =>
+        skill.effects.map((effect) =>
+          effect.kind === 'damage' || effect.kind === 'drain' ? effect.power : 0,
+        ),
+      );
+
+    for (const status of statuses) {
+      if (status.kind === 'bomb') {
+        expect(status.power, status.id).toBeGreaterThan(Math.max(...dots));
+        expect(status.power, status.id).toBeLessThanOrEqual(Math.max(...swings));
       }
     }
   });

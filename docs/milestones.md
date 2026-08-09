@@ -39,14 +39,20 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors        |
 | 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes    |
 | 16  | Signature items                         | ✅ **Complete** — emblems, seven signature items |
-| 17  | The roguelite run                       | ⬜                                               |
-| 18  | Puzzle maps                             | ⬜                                               |
+| 17a | Four mechanics and eight archetypes     | ✅ **Complete** — taunt, reflect, link, bomb     |
+| 17b | Chapter 3 — The Bound Marches           | ✅ **Complete** — 150 stages, three guards moved |
+| 18  | The roguelite run                       | ⬜                                               |
+| 19  | Puzzle maps                             | ⬜                                               |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
 > twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
 > and once — later, and in the code — by an in-progress ladder retune. Both are real and both are
 > written up below as **14a** and **14b**. Nothing above 14 was renumbered, because nothing above it
 > had started.
+>
+> **17 was the roguelite run and is now chapter 3; the roguelite and the puzzle maps moved down one.**
+> Renumbering was safe for exactly the reason it was refused at 14: neither entry had started. The
+> rule is about **work in progress**, not about the numbers.
 
 ---
 
@@ -1150,13 +1156,19 @@ every fight a player has not already won sits.
 ### ⚠️ Two things this milestone exposed that are not about signature items
 
 - **There is no shipped content a signature item can be measured against.** `mythic` caps at level
-  **340**; the hardest authored stage is the chapter 2 boss at level **85**. A party at the unlock
+  **340**; the hardest authored stage was the chapter 2 boss at level **85**. A party at the unlock
   rung is four times past the top of the ladder, so every campaign fight it takes is a walkover.
   The balance probe has to re-level the hardest encounter to the party's own level to make a
   contest at all — the same move `core/towers.ts` makes. Nothing is wrong; the gate is deliberately
-  deep and the ladder is deliberately two chapters. But **a signature item has no authored content
-  to matter in until chapter 3, or a tower reaching that band**, and no sweep over shipped stages
-  can ever bound one.
+  deep. But **a signature item has no authored content to matter in**, and no sweep over shipped
+  stages can ever bound one.
+
+  ⚠️ **Chapter 3 was named here as the thing that would close this, and it does not.** The Bound
+  Marches top out at enemy level **160** against a `mythic` cap of 340, so the gap narrowed from
+  ×4 to ×2 and the conclusion is unchanged. What would close it is a chapter reaching the low
+  three hundreds — roughly chapter 6 or 7 at the current pacing — or a tower band that does.
+  `data/signature.balance.ts` still re-levels its encounter and still has to.
+
 - **The emblem faucet is dominated by drops, not by the idle rate.** The idle rate is the half with
   the pacing argument attached and it is the smaller half by roughly ×7 for anybody running
   auto-battle — because the campaign position stops at the last stage so it stays farmable, and the
@@ -1185,7 +1197,92 @@ is not a counter, because a quest measures a delta from a baseline and a balance
 spent; and a quest _paying_ emblems is decorative beside a drop faucet already worth ~15/hr. See
 [rejected](rejected.md), which records the trigger that would revisit it.
 
-## 17. The roguelite run
+## 17. Chapter 3, and the vocabulary it needed
+
+> **Split into two.** **17a** is four new mechanics in `core/battle` and the eight archetypes that
+> field them — provable against the shipped ladder and the seven towers before a single stage is
+> authored. **17b** is the fifty stages and the three economy guards a longer ladder trips. The
+> reasoning below is the whole milestone's.
+
+**The chapter is the deliverable; the mechanics are what made it worth authoring.** Chapter 2's
+argument for new archetypes was that `core/battle/types.ts` held vocabulary nothing had used —
+`enemy-row-back`, `enemy-lowest`, the `self-hurt` condition. By milestone 17 **every targeting,
+status and effect kind was in use**, so the honest options were a ninth spelling of "hits the front
+rank harder" or growing the vocabulary once, deliberately.
+
+### 17a. Four mechanics and eight archetypes — **COMPLETE**
+
+Four new `StatusData` kinds, chosen so all four ride the existing `status` effect rather than adding
+effect kinds: **taunt**, **reflect**, **link** and **bomb**. Three of the four are about _where a hit
+is allowed to go_ rather than how big it is, which is the lever nothing in the game had — and the
+reason the chapter reads as a different place rather than as the Ashfall Reach at a higher level.
+[combat](combat.md) carries what each one does and the termination argument under it.
+
+- ⚠️ **A taunt is the only thing in the game that can close the back door**, and that is both why it
+  is worth having and the whole of its risk. Reach has answered a protected healer since milestone
+  4; this takes that answer away. Two clauses keep it fair and both are held by specs: multi-target
+  selections ignore it entirely, and the skill applying it has a **cooldown longer than the status**
+  so a single-target party always gets a window. ⚠️ **No `opening` may carry one** — a permanent
+  taunt in front of a healer is a ninety-second clock, which is a defeat rather than a hard fight.
+- ⚠️ **Reflect and link cannot cascade, and the argument is structural rather than a depth counter.**
+  Both resolve through the same `statusDamage` path, which never re-enters the attack path — so
+  thorns cannot answer thorns and a link cannot spread a share it was handed. A link **conserves**
+  damage rather than multiplying it, and a lone holder takes the whole hit; without that second
+  clause the last survivor of a linked board would be unkillable.
+- **A bomb is the mirror of a poison and asks the opposite question.** A poison punishes a slow kill
+  continuously; a bomb punishes it once, at a known tick, and a cleanse spent before that tick
+  removes the whole thing. So the decision is _when_ to spend the answer rather than whether to.
+- ⚠️ **Two things in the engine changed shape and both were invisible until now.** `toEnemyCombatant`
+  **dropped `opening`** — the field arrived for signature items and nothing on the enemy side had
+  used one — so an archetype could not state a passive; and `act()` had no liveness check, because
+  before reflect nothing could kill an actor inside its own action. Neither was a bug anybody could
+  have hit; both are now.
+- **The whole change is bit-identical for shipped content.** All 1,961 unit tests and all 32 balance
+  assertions passed before a stage was authored, which is what the split was for.
+
+### 17b. Chapter 3 — The Bound Marches — **COMPLETE**
+
+Fifty stages, enemy levels 85 to 160, thirty-two archetypes — **eight new, twenty-four returning**,
+a quarter new. Twelve of the returning ones were authored for the towers in 15c and had never
+appeared in the campaign at all. The four mini-bosses and the boss field boards that appear nowhere
+else, and the boss fields a **block** that appears nowhere else: The Chainsworn stands on `c3-s50`
+and on no other stage in the game.
+
+- ⚠️ **A chapter that asks for a new rung has to out-climb the rung it asks for**, and this is the
+  arithmetic that made the first draft a walkover. It was authored at 85 → 130 with the reference
+  party at `elite-plus` and **every stage fell to the party it was meant for**. An ascension rung is
+  worth ×1.6 and the enemy side has **no rungs at all** — `toEnemyCombatant` never grew that third
+  dial — so a party matching the enemy's level from one rung higher is ×1.6 ahead of it. Twenty-three
+  levels is what ×1.6 costs at `perLevel.common`, and that is where the extra thirty at the top came
+  from. Chapters 1 and 2 never met this because each ran inside a cap the party already had.
+- **So the ladder now climbs past the cap of the rung it asks for**, and the reference party finishes
+  it **twenty levels below the thing it is fighting**. That is the difficulty statement rather than
+  an accident: `INVESTED` is `Math.min(top stage, the rung's cap)` for the first time.
+- **A third reference party arrived with it.** `ARRIVED` is the five that just took The Unmade,
+  unchanged, and it makes the seam measurable from both sides — it clears chapter 2 end to end and
+  is bounded on how far it walks into chapter 3, exactly as `BUILT` is against chapter 2.
+- ⚠️ **Only one board in the chapter puts a healer behind a taunt**, and it is the stage-10 mini-boss
+  where the lock is stated and the party is far above the level. 15c's Dwarf Tower roof is why:
+  sustain behind something the party cannot aim past is the clock, not a fight.
+- ⚠️ **The difficulty probe found a blind spot the ladder had always had.** A chapter boss is a peak
+  and the next chapter opens at the level the last one closed on, so the step down across a boundary
+  is the ladder working — and it had never fired only because the stride's phase happens to skip
+  `c2-s1` and happens to sample `c3-s1`. The case is now named and excluded rather than tolerated.
+- ⚠️ **A retyped constant in the balance sweep survived six milestones and chapter 3 found it.**
+  "Levelling and ascension are worth about the same" measured `INVESTED`'s level against
+  `LEGENDARY - RARE` rungs — and `INVESTED` has never stood at `legendary`, so the two halves
+  described **different parties**. It passed at level 85 by coincidence. Both halves are the climb
+  from `BUILT` to `INVESTED` now.
+
+**Three economy guards fire on any third chapter, and each was answered differently** — see
+[economy](economy.md), which carries all three with their numbers. In short: the idle crystal band
+was **widened as a deliberate deferral** rather than the step retuned, which is a decision recorded
+against this project's own advice and with its cost stated; the ladder's total pull payout became a
+**per-stage** band, because a fixed band on a total is a cap on how much content may ship; and the
+level-ceiling guard was **re-derived**, because measuring the ceiling in absolute hours at the top of
+a growing ladder is a number guaranteed to fall on every chapter forever.
+
+## 18. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1201,7 +1298,7 @@ a question mid-flight.
 structural, and taking it first would be choosing the fun problem over the one blocking
 everything else.
 
-## 18. Puzzle maps
+## 19. Puzzle maps
 
 **The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
 roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
@@ -1232,4 +1329,4 @@ state, and it gates nothing. It is written down because a solo developer without
 constraint most likely to decide whether this ships, and it is this one rather than any system above.
 
 Equally absent and equally unnumbered: **onboarding**. There is no first-session experience anywhere
-in this plan, and the first ninety seconds decide more than milestones 13 through 17 combined.
+in this plan, and the first ninety seconds decide more than milestones 13 through 19 combined.

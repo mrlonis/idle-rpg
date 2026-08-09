@@ -118,6 +118,36 @@ would have — each of which passed type-checking and the unit suite first:
 **Anything meaning "how far has this been invested" has to count rungs from a floor**, never read an
 id. The same insertion is also a save migration rather than a content edit — see [saves](saves.md).
 
+### ⚠️ Two halves of one assertion must describe the same party
+
+Chapter 3 found a fourth thing, of the same family and worse: "levelling and ascension are worth
+about the same" measured `INVESTED`'s **level** against `LEGENDARY - RARE` **rungs** — and `INVESTED`
+has never stood at `legendary`. The two halves of one ratio described **different parties**, and it
+passed for six milestones because at level 85 the mismatch happened to cancel.
+
+Nothing structural could have caught it: both halves type-check, both are derived from named
+constants rather than literals, and the test's own prose ("the four rungs it also holds") reads as
+though it had been checked. What exposed it was moving the ladder underneath it, which is the same
+mechanism as everything above — content growing until a coincidence stops holding.
+
+**The rule that generalises: when an assertion compares two quantities, derive both from the same
+subject.** Both halves are now the climb from `BUILT` to `INVESTED`, so a party that changes moves
+both of them or neither.
+
+### ⚠️ A guard measured in absolute time will rot on a growing ladder
+
+The third one chapter 3 tripped, and the only one where the right answer was to delete the
+measurement rather than retune the content. `levels.spec.ts` held "level 1000 costs more than 500
+hours of top-of-ladder income" — but income at the top of the ladder rises with every chapter **by
+design**, so that figure has to fall forever: 1,175 → 588 → 372 across two changes, reaching a
+weekend around chapter twelve with nothing wrong.
+
+A threshold guaranteed to fail on all ninety-seven remaining chapters is not a guard being tripped;
+it is a guard pointed at the wrong quantity. **Before retuning content to satisfy a failing
+threshold, check whether the quantity it measures is one the roadmap requires to move.** If it is,
+the fix is a ratio between two things the content supplies — income cancels out of those, which is
+usually the tell that you have found the invariant.
+
 ---
 
 ## Derive, never retype

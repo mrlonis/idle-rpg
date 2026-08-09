@@ -249,5 +249,12 @@ export function toEnemyCombatant(
     stats: scaleStats(enemy.stats, growth, enemy.tier, level, growthFloor(enemy.tier)),
     basic: enemy.basic,
     skills: enemy.skills,
+    // Carried through, which it was not until milestone 17. `opening` arrived for the passive half
+    // of a signature item and nothing on this side had ever used one, so dropping it here was
+    // invisible rather than intended — and it is exactly how an archetype states a **passive**:
+    // thorns that are simply true of the thing, a link that binds a board from the first tick. The
+    // alternative is a turn-one skill with a cooldown longer than the fight, which spends an action
+    // to say something the stat block should have said on its own.
+    opening: enemy.opening,
   };
 }

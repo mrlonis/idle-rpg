@@ -138,9 +138,15 @@ expected gear budget into the enemy's stat block or its level rather than buildi
 equipment system on that side of the board.
 
 **Stage generation** would keep mini-bosses and bosses authored and generate ordinary stages against
-a tuned reference. Do not build it speculatively. The arithmetic that sets the trigger: 100 stages
-for the first two chapters, 500 for the first band, 9,500 to reach chapter 100. The first band is a
-real but finite job; chapter 100 is not hand-authorable by anyone.
+a tuned reference. Do not build it speculatively. The arithmetic that sets the trigger: 150 stages
+for the three chapters that ship, 500 for the first band, 9,500 to reach chapter 100. The first band
+is a real but finite job; chapter 100 is not hand-authorable by anyone.
+
+⚠️ **Chapter 3 is the first data point on what a chapter actually costs, and it argues against
+generating one.** Fifty stages was an afternoon's authoring; what took the work was the _spine_ —
+which stages teach which lock, where a healer may stand, and the fact that the difficulty probe
+reads every fourth stage, so those thirteen have to escalate. A generator producing ordinary stages
+against a tuned reference would produce exactly the part that was cheap.
 
 ---
 
