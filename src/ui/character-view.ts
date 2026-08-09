@@ -1,5 +1,5 @@
 import { LowerCasePipe } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   type GearFailure,
@@ -153,8 +153,26 @@ export class CharacterView {
    */
   protected readonly back = computed(() => backTo(this.from()));
 
-  /** The last refusal, cleared as soon as anything succeeds. */
-  protected readonly message = signal<string | null>(null);
+  /**
+   * The last refusal, cleared as soon as anything succeeds — **and whenever the sheet changes
+   * character**.
+   *
+   * ⚠️ **A `linkedSignal` keyed on {@link defId}, not a plain `signal`, and every piece of
+   * per-sheet state on this component is one for the same reason.** Angular's default reuse
+   * strategy keeps the *same component instance* when only a route parameter changes, so
+   * navigating `/roster/rin` → `/roster/wren` updates the input and leaves every local signal
+   * exactly as it was. A refusal earned on one character is a statement about that character, and
+   * carrying it onto the next sheet tells the player something untrue about a screen they have
+   * only just opened.
+   *
+   * `linkedSignal` rather than an `effect` that resets these: it is declarative, it needs no
+   * scheduling, and it cannot be reached before the first read — an effect runs *after* the change
+   * that triggered it, so there is a frame in which the stale message is still rendered.
+   */
+  protected readonly message = linkedSignal<string, string | null>({
+    source: this.defId,
+    computation: () => null,
+  });
 
   protected readonly entry = computed(() => this.roster.entry(this.defId()));
   protected readonly definition = computed(() => characterById(this.defId()) ?? null);
@@ -327,8 +345,17 @@ export class CharacterView {
 
   protected readonly gearBonus = computed(() => this.gear.bonusFor(this.defId()));
 
-  /** Which slot's picker is open, or `null`. One at a time. */
-  protected readonly openSlot = signal<GearSlot | null>(null);
+  /**
+   * Which slot's picker is open, or `null`. One at a time.
+   *
+   * Keyed on {@link defId} for the reason {@link message} is: an open picker is a list of *this*
+   * character's spare pieces, and carrying it to the next sheet leaves the player looking at a
+   * picker they did not open, filled from a roster row that is no longer on screen.
+   */
+  protected readonly openSlot = linkedSignal<string, GearSlot | null>({
+    source: this.defId,
+    computation: () => null,
+  });
 
   /**
    * What the last auto-equip did, or `null` before one has been pressed.
@@ -338,7 +365,10 @@ export class CharacterView {
    * enabled either way, and a press that changes no row is otherwise indistinguishable from a
    * button that does not work.
    */
-  protected readonly autoEquipNote = signal<string | null>(null);
+  protected readonly autoEquipNote = linkedSignal<string, string | null>({
+    source: this.defId,
+    computation: () => null,
+  });
 
   protected toggleSlot(slot: GearSlot): void {
     this.openSlot.update((open) => (open === slot ? null : slot));
@@ -411,8 +441,16 @@ export class CharacterView {
   /** Emblems the run holds, formatted. */
   protected readonly emblemsHeld = computed(() => formatNumeric(this.signatures.held(), 0));
 
-  /** What refused the last signature purchase, or `null`. Kept apart from {@link message}. */
-  protected readonly signatureMessage = signal<string | null>(null);
+  /**
+   * What refused the last signature purchase, or `null`. Kept apart from {@link message}.
+   *
+   * Keyed on {@link defId}, like every other piece of per-sheet state here — see {@link message}
+   * for why a plain `signal` is wrong on a component the router reuses across parameters.
+   */
+  protected readonly signatureMessage = linkedSignal<string, string | null>({
+    source: this.defId,
+    computation: () => null,
+  });
 
   protected levelSignatureOnce(): void {
     const result = this.signatures.levelUp(this.defId());

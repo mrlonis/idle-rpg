@@ -455,5 +455,28 @@ describe('FormationView', () => {
 
       expect(el.querySelector('.notice--error')?.textContent).toContain('Both rows are full');
     });
+
+    it('does not carry onto the next crew this screen is pointed at', async () => {
+      // ⚠️ This component serves two parameterised routes — `/formations/:activityId` and
+      // `/prepare/:activityId` — and Angular's default reuse strategy keeps the **same instance**
+      // when only the parameter changes. So a refusal earned arranging one crew survives onto the
+      // next, where it is a statement about a crew the player is no longer looking at.
+      //
+      // Driven with `setInput` rather than a router harness because that is precisely what the
+      // router does to a reused component, with none of the navigation in the way.
+      const { el, fixture } = await render();
+
+      el.querySelector<HTMLButtonElement>('.roster__toggle')?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.querySelector('.notice--error')).not.toBeNull();
+
+      fixture.componentRef.setInput('activityId', 'tower-human');
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.querySelector('.notice--error')).toBeNull();
+    });
   });
 });

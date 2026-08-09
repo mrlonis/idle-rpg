@@ -654,6 +654,21 @@ the two disagree, the code is right and both are stale.
     penalty — and the spec asserts both the promise and the absence of urgency words.
   - **A setting, defaulting on**, which also cancels anything queued when switched off. Permission
     is requested at the first backgrounding, never at launch.
+- ⚠️ **Per-screen state on a component bound to a route parameter must be a `linkedSignal` keyed
+  on that parameter, never a plain `signal`.** Angular's default reuse strategy keeps the **same
+  component instance** when only a parameter changes, so `/roster/rin` → `/roster/wren` updates the
+  input and leaves every local signal exactly as it was. A refusal message, an open picker or a
+  status note then carries onto the next screen, where it is a statement about a character or crew
+  the player is no longer looking at.
+  - It shipped on `character-view` (four signals: the refusal, the open gear slot, the auto-equip
+    note and the signature refusal) and on `formation-view`, which serves **two** parameterised
+    routes — `/formations/:activityId` and `/prepare/:activityId`.
+  - **`linkedSignal({ source, computation: () => null })` rather than an `effect` that resets
+    them.** It is declarative, needs no scheduling, and cannot be reached stale: an effect runs
+    *after* the change that triggered it, so there is a frame in which the old value still renders.
+  - The test that catches it drives the parameter directly — `setInput`, or a router harness
+    navigating between two parameterised URLs — because that is exactly what the router does to a
+    reused component.
 - ⚠️ **`visually-hidden` is a `@mixin` in `ui/theme.scss`, not a global class.** Angular scopes
   component styles, so a screen that writes the class without including the mixin gets **no rule at
   all** and renders the text inline — it shipped a button reading "Choose a crew for Village Errand

@@ -598,3 +598,71 @@ describe('the signature item panel', () => {
     expect(panel(el)?.textContent).toContain('Fully levelled');
   });
 });
+
+describe('state that belongs to one sheet', () => {
+  /**
+   * Navigating straight from one character's sheet to another's.
+   *
+   * ⚠️ Angular's default reuse strategy keeps the **same component instance** when only a route
+   * parameter changes, so `defId` updates and every component-local signal survives. That is the
+   * whole of what these tests are about.
+   */
+  async function openTwo(first: string, second: string, signatures: FakeSignature) {
+    const roster = new FakeRoster();
+    roster.rows.set([entry({ defId: 'rin' }), entry({ defId: 'wren', name: 'Wren of the Ninth' })]);
+
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      providers: [
+        provideRouter(
+          [{ path: 'roster/:defId', component: CharacterView }],
+          withComponentInputBinding(),
+        ),
+        provideLocationMocks(),
+        { provide: RosterService, useValue: roster },
+        { provide: GameLoopService, useValue: new FakeGameLoop() },
+        { provide: GearService, useValue: new FakeGear() },
+        { provide: SignatureService, useValue: signatures },
+      ],
+    }).compileComponents();
+
+    const harness = await RouterTestingHarness.create();
+    const before = await harness.navigateByUrl(first, CharacterView);
+    return { harness, before };
+  }
+
+  it('does not carry a refusal message onto the next character opened', async () => {
+    // The reported bug: a refusal earned on Rin's sheet is a statement about Rin, and showing it
+    // above Wren's stats is the component telling the player something untrue about a character
+    // they have only just opened.
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+    signatures.levelResult = { ok: false, reason: 'insufficient' };
+
+    const { harness } = await openTwo('/roster/rin', '/roster/wren', signatures);
+    harness.routeNativeElement
+      ?.querySelector<HTMLButtonElement>('[aria-labelledby="signature-label"] button')
+      ?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(harness.routeNativeElement?.textContent).toContain('Not enough emblems');
+
+    await harness.navigateByUrl('/roster/wren', CharacterView);
+
+    expect(harness.routeNativeElement?.textContent).not.toContain('Not enough emblems');
+  });
+
+  it('closes an open gear slot rather than opening the next sheet mid-picker', async () => {
+    const signatures = new FakeSignature();
+    const { harness } = await openTwo('/roster/rin', '/roster/wren', signatures);
+
+    harness.routeNativeElement?.querySelector<HTMLButtonElement>('.slot__row')?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(harness.routeNativeElement?.querySelector('.picker')).not.toBeNull();
+
+    await harness.navigateByUrl('/roster/wren', CharacterView);
+
+    expect(harness.routeNativeElement?.querySelector('.picker')).toBeNull();
+  });
+});
