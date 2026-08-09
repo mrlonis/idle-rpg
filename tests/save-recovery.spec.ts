@@ -126,15 +126,23 @@ test.describe('recovering a save whose clear count was lost', () => {
    * credited or paid for.
    *
    * ⚠️ **Damaged in that one way and healthy in every other**, which is what keeps these tests
-   * about `reconcileClearedStages`. A field left out is damage too — a missing `alloy` or
-   * `gearMinted` is a reported repair issue, and the home screen draws a banner for those — so a
-   * fixture that only half fills the current shape quietly tests the recovery banner as well as
-   * the thing it names.
+   * about `reconcileClearedStages`. A field left out is damage too — a missing `alloy`,
+   * `gearMinted`, `wallet.emblem` or `rates.emblem` is a reported repair issue, and the home
+   * screen draws a banner for those — so a fixture that only half fills the current shape quietly
+   * tests the recovery banner as well as the thing it names.
    */
   const lostItsClearCount = {
     version: 0,
-    wallet: { gold: '1500000', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
-    rates: { gold: String(top.rates.gold), xp: '0', essence: '0', summons: '0' },
+    wallet: {
+      gold: '1500000',
+      xp: '0',
+      essence: '0',
+      summons: '0',
+      spark: '0',
+      alloy: '0',
+      emblem: '0',
+    },
+    rates: { gold: String(top.rates.gold), xp: '0', essence: '0', summons: '0', emblem: '0' },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
     chapter: parked.chapter,
@@ -142,9 +150,9 @@ test.describe('recovering a save whose clear count was lost', () => {
     clearedStages: 0,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
     ],
     formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,
@@ -232,12 +240,13 @@ test.describe('re-fighting a cleared stage', () => {
    */
   const clearedEverything = {
     version: 0,
-    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+    wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0', emblem: '0' },
     rates: {
       gold: String(atTheTop.rates.gold),
       xp: String(atTheTop.rates.xp),
       essence: String(atTheTop.rates.essence),
       summons: String(summonRatePerSecond(SUMMON_RATE, CLEARS)),
+      emblem: '0',
     },
     lastTickAt: Date.now(),
     rng: { seed: 3735928559, calls: 0 },
@@ -246,9 +255,9 @@ test.describe('re-fighting a cleared stage', () => {
     clearedStages: CLEARS,
     battleCount: 214,
     roster: [
-      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
     ],
     formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
     pity: 0,

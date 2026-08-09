@@ -36,12 +36,13 @@ const CLEARS = totalStages(ladderShape(CHAPTERS));
 const top = stagePayout(STAGE_REWARDS, CLEARS);
 const unlockedSave = {
   version: 0,
-  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0' },
+  wallet: { gold: '0', xp: '0', essence: '0', summons: '0', spark: '0', alloy: '0', emblem: '0' },
   rates: {
     gold: String(top.rates.gold),
     xp: String(top.rates.xp),
     essence: String(top.rates.essence),
     summons: '0',
+    emblem: '0',
   },
   lastTickAt: Date.now(),
   rng: { seed: 3735928559, calls: 0 },
@@ -50,9 +51,9 @@ const unlockedSave = {
   clearedStages: CLEARS,
   battleCount: 214,
   roster: [
-    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {} },
-    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
-    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
   ],
   formations: { campaign: { front: ['bran', 'mira'], back: ['rin'] } },
   pity: 0,
@@ -92,9 +93,9 @@ const gearedSave = {
   ...unlockedSave,
   wallet: { ...unlockedSave.wallet, gold: '5e+7', alloy: '250000' },
   roster: [
-    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: { chest: 'g1' } },
-    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {} },
-    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {} },
+    { defId: 'rin', rarity: 0, level: 1, copies: 0, gear: { chest: 'g1' }, signature: 0 },
+    { defId: 'bran', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+    { defId: 'mira', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
   ],
   gear: [
     { id: 'g1', slot: 'chest', archetype: 'ranger', grade: 3, alignment: 'elf', level: 40 },
@@ -121,11 +122,11 @@ const duplicatesSave = {
   ...unlockedSave,
   roster: [
     // Ready: enough for any single rung, so the row's Ascend button is enabled.
-    { defId: 'rin', rarity: 0, level: 1, copies: READY_COPIES, gear: {} },
+    { defId: 'rin', rarity: 0, level: 1, copies: READY_COPIES, gear: {}, signature: 0 },
     // Short: a row quoting a price it cannot pay, which is the "Not yet" group's ordinary case.
-    { defId: 'bran', rarity: 0, level: 1, copies: 1, gear: {} },
+    { defId: 'bran', rarity: 0, level: 1, copies: 1, gear: {}, signature: 0 },
     // Done: the top of the ladder, where copies become spark and there is no next rung to name.
-    { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3, gear: {} },
+    { defId: 'mira', rarity: MAX_RARITY_INDEX, level: 1, copies: 3, gear: {}, signature: 0 },
   ],
 };
 
@@ -232,8 +233,8 @@ function bountiesSave() {
       // its empty state — which scans, passes, and covers none of the toggle-list markup this test
       // exists for. `wren` is a Human and `dorn` a Dwarf, so the list holds both a member who can
       // count toward a faction requirement and one who cannot.
-      { defId: 'wren', rarity: 0, level: 1, copies: 0, gear: {} },
-      { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {} },
+      { defId: 'wren', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
     ],
     // Two fielded, two on the bench, one away — so the picker has somebody to offer *and* somebody
     // to withhold, which is the disjointness invariant visible on screen.
@@ -403,7 +404,10 @@ test.describe('Accessibility', () => {
     // never render for the scan to see.
     await seedSave(page, {
       ...unlockedSave,
-      roster: [...unlockedSave.roster, { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {} }],
+      roster: [
+        ...unlockedSave.roster,
+        { defId: 'dorn', rarity: 0, level: 1, copies: 0, gear: {}, signature: 0 },
+      ],
     });
     await page.goto('/formations/campaign');
 
