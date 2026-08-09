@@ -24,6 +24,7 @@ import { GameLoopService } from './game-loop.service';
 import { type GearItemView, type GearSlotView, GearService } from './gear.service';
 import { backTo } from './navigation';
 import { RosterService } from './roster.service';
+import { SIGNATURE_FAILURES, SignatureService } from './signature.service';
 
 /**
  * Why a gear action was refused.
@@ -125,6 +126,7 @@ export class CharacterView {
   private readonly roster = inject(RosterService);
   private readonly game = inject(GameLoopService);
   private readonly gear = inject(GearService);
+  private readonly signatures = inject(SignatureService);
 
   /** How many characters set the shared level, for the resonance note under the level. */
   protected readonly partySize = PARTY_SIZE;
@@ -390,6 +392,32 @@ export class CharacterView {
     const wallet = this.game.wallet();
     return `${formatNumeric(wallet.gold)} gold · ${formatNumeric(wallet.xp)} XP · ${formatNumeric(wallet.essence)} essence`;
   });
+
+  /**
+   * The signature item panel, or `null` when this character has none.
+   *
+   * `null` is the common case — forty-two of the forty-nine characters — and the template draws
+   * nothing at all for it. A permanently empty section reads as content that is missing rather
+   * than as a rule the player has understood.
+   */
+  protected readonly signature = computed(() => {
+    // Read through the snapshot signal so the panel recomputes when emblems are spent; the service
+    // reads the same snapshot, and calling it without touching one here would leave the price and
+    // the wallet line stale until something else moved.
+    this.game.snapshot();
+    return this.signatures.view(this.defId());
+  });
+
+  /** Emblems the run holds, formatted. */
+  protected readonly emblemsHeld = computed(() => formatNumeric(this.signatures.held(), 0));
+
+  /** What refused the last signature purchase, or `null`. Kept apart from {@link message}. */
+  protected readonly signatureMessage = signal<string | null>(null);
+
+  protected levelSignatureOnce(): void {
+    const result = this.signatures.levelUp(this.defId());
+    this.signatureMessage.set(result.ok ? null : SIGNATURE_FAILURES[result.reason]);
+  }
 
   protected levelOnce(): void {
     this.report(this.roster.levelUpOnce(this.defId()));

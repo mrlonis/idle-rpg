@@ -211,6 +211,133 @@ export const AEGIS = {
  * Kept as one list rather than derived from the exports above, because `data/` is plain data
  * and `Object.values(module)` is a function call.
  */
+// ---------------------------------------------------------------------------------------
+// Signature passives — the opening half of a signature ability's vocabulary
+// ---------------------------------------------------------------------------------------
+
+/**
+ * How long a permanent passive runs, in ticks.
+ *
+ * ⚠️ **Longer than a fight can last, which is what "permanent" means here.** `MAX_BATTLE_TICKS` is
+ * 900, so anything above it is permanent in every sense the simulation can observe. There is
+ * deliberately no infinity value: keeping the field a plain number means nothing downstream — the
+ * expiry sweep, the status panel, the event log — has to special-case a sentinel.
+ *
+ * It is not derived from `MAX_BATTLE_TICKS` because `data/` may not import `core/`;
+ * `data/signature.spec.ts` asserts the relationship instead, so raising the tick cap without
+ * raising this is a failing test rather than a passive that quietly expires late in long fights.
+ */
+const PERMANENT = 1000;
+
+/**
+ * The passives a signature item's top rungs grant, applied to the **wearer** at tick 0.
+ *
+ * ## Why these are `stat-mod` and `shield` and never `regen`
+ *
+ * A permanent regeneration was the obvious fourth kind and it is deliberately absent. Closing
+ * pressure amplifies every damage instance without bound past `PRESSURE_AFTER_TICKS` and
+ * **deliberately does not amplify healing**, which is what breaks a closed sustain loop — so
+ * permanent healing does not win fights, it stalls them, and a stalled fight runs the
+ * ninety-second clock out into a **defeat**. A sustain passive that made a party unkillable would
+ * therefore make it lose, which is the least intuitive failure this system can produce.
+ *
+ * A shield is safe where a regeneration is not, and the distinction is exactly the one closing
+ * pressure cares about: a shield banks a pool once at tick 0 and depletes, so it cannot outrun
+ * rising damage. A stat multiplier is safe because it is a multiplication on a board both sides
+ * scale on.
+ */
+
+/** Aurelia, at the top of her banner: the Ninth still forming up behind her. */
+export const SIG_RESOLVE = {
+  kind: 'stat-mod',
+  id: 'sig-resolve',
+  name: 'Resolve',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.25,
+} as const;
+
+/**
+ * Thraun, set before the first blow lands. The deepest permanent defence in the game.
+ *
+ * At the library's ceiling of 1.4 rather than above it. 1.5 was authored first and failed
+ * `skills.spec.ts`, and the tempting reading was that the bound does not apply here — its stated
+ * reason is turn economy ("spending a turn on it beats swinging") and a passive costs no turn.
+ * That reasoning is what turns a real guard into a loophole, and the honest version is that a
+ * permanent multiplier is *more* dangerous than a cast one rather than less: it is up for the
+ * whole fight and cannot be played around. So it was retuned to fit the bound rather than the
+ * bound widened to fit it, and the tenth of a point that cost is not worth an exception.
+ */
+export const SIG_BULWARK = {
+  kind: 'stat-mod',
+  id: 'sig-bulwark',
+  name: 'Bulwark',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'def',
+  multiplier: 1.4,
+} as const;
+
+/** Aelrindel, already drawn. Modest by design — he carries the highest `haste` in the game. */
+export const SIG_QUICKENING = {
+  kind: 'stat-mod',
+  id: 'sig-quickening',
+  name: 'Quickening',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'haste',
+  multiplier: 1.2,
+} as const;
+
+/**
+ * Nekros, warded by what he has already taken.
+ *
+ * A shield rather than the defence buff the other casters get, because his `def` is 7 — the
+ * lowest in the game — and a multiplier on nearly nothing is nearly nothing. An absorb pool priced
+ * off his `atk` is the version that means anything on this stat block.
+ */
+export const SIG_SOULGUARD = {
+  kind: 'shield',
+  id: 'sig-soulguard',
+  name: 'Soulguard',
+  hostile: false,
+  duration: PERMANENT,
+  power: 2.0,
+} as const;
+
+/** Vharok, hungry before the fight starts. */
+export const SIG_HUNGER = {
+  kind: 'stat-mod',
+  id: 'sig-hunger',
+  name: 'Hunger',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.3,
+} as const;
+
+/** Seraphine's own ward, which is the one sustain passive shaped so it cannot stall a fight. */
+export const SIG_SANCTUARY = {
+  kind: 'shield',
+  id: 'sig-sanctuary',
+  name: 'Sanctuary',
+  hostile: false,
+  duration: PERMANENT,
+  power: 2.5,
+} as const;
+
+/** Azrathoth, unbound from the start. */
+export const SIG_ENTROPY = {
+  kind: 'stat-mod',
+  id: 'sig-entropy',
+  name: 'Entropy',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.3,
+} as const;
+
 export const STATUSES = [
   SUNDER,
   WEAKEN,
@@ -225,4 +352,11 @@ export const STATUSES = [
   REGENERATION,
   BARRIER,
   AEGIS,
+  SIG_RESOLVE,
+  SIG_BULWARK,
+  SIG_QUICKENING,
+  SIG_SOULGUARD,
+  SIG_HUNGER,
+  SIG_SANCTUARY,
+  SIG_ENTROPY,
 ] as const;

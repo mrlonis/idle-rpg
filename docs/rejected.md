@@ -117,6 +117,7 @@ would have elsewhere.
 | Scaling ascension costs with chapter | Chapters needing a second lever on the crystal economy |
 | Ambient sparring on the idle screen  | Nothing scheduled; it is presentation work             |
 | `@capacitor/app` lifecycle handling  | A missed event costing something _unbounded_           |
+| Any emblem or signature quest        | A monotonic emblem counter existing for another reason |
 
 ⚠️ **"Auto-battle" means two features and only one is built.** The unlockable repeat shipped in
 milestone 7. **Ambient sparring — the party visibly fighting in the background while the player
@@ -142,6 +143,30 @@ for the first two chapters, 500 for the first band, 9,500 to reach chapter 100. 
 real but finite job; chapter 100 is not hand-authorable by anyone.
 
 ---
+
+### Emblem and signature quests — every available shape is forbidden or decorative
+
+Milestone 16 was asked for quests alongside the achievement tracks, and there is no version of one
+worth shipping. The three candidates and why each fails:
+
+- **A quest over `signatureLevels`.** It is a fine _achievement_ counter and a forbidden _quest_
+  one, for the exact reason `clearedStages` is banned from quests: it stops moving at 210 once all
+  seven items are maxed, and — worse — it does not move at all for the tens of thousands of pulls
+  before the first item unlocks. A daily row that cannot be finished on day one _or_ at the end of
+  the content is a permanent empty row.
+- **A quest over emblems held.** Not a counter at all. A quest window stores a **baseline** and
+  progress is a subtraction, so a balance that goes _down_ when the player spends it reports
+  negative progress. Every valid quest counter is monotonic; a wallet balance is not.
+- **A quest paying emblems.** The rule is that every quest reward is crystals, and its stated
+  reasoning — flat rewards for currencies that price against flat costs — would actually permit
+  emblems, since a signature level costs a fixed number forever. It fails on size instead: drops
+  already pay about **15 emblems an hour** to anyone auto-battling, so a daily award small enough
+  not to distort that is decorative, and "no currency is decorative" is its own rule.
+
+**The trigger that revisits this:** a monotonic emblems-earned counter existing for some other
+reason. If one ever does — a lifetime-earned total kept for a statistics screen, say — the first
+candidate becomes viable and this is worth reopening. Adding a stored field _for the quest_ is not
+that trigger; it is the thing `core/achievements.ts` forbids.
 
 ## Fixes that were measured and failed
 

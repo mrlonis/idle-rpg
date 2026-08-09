@@ -41,21 +41,27 @@ const ITEM: SignatureItemData = {
   perLevel: { atk: 0.04, hp: 0.01 },
   tiers: [
     { name: 'I', description: 'base' },
-    { name: 'II', description: 'wider', skill: { skillId: 'strike', target: 'enemy-row-front' } },
-    { name: 'III', description: 'faster', skill: { skillId: 'strike', cooldown: 20 } },
+    {
+      name: 'II',
+      description: 'wider',
+      skills: [{ skillId: 'strike', target: 'enemy-row-front' }],
+    },
+    { name: 'III', description: 'faster', skills: [{ skillId: 'strike', cooldown: 20 }] },
     {
       name: 'IV',
       description: 'and a ward',
-      skill: { skillId: 'strike', target: 'enemy-all' },
-      opening: {
-        kind: 'stat-mod',
-        id: 'test-ward',
-        name: 'Ward',
-        hostile: false,
-        duration: 9999,
-        stat: 'def',
-        multiplier: 1.5,
-      },
+      skills: [{ skillId: 'strike', target: 'enemy-all' }],
+      opening: [
+        {
+          kind: 'stat-mod',
+          id: 'test-ward',
+          name: 'Ward',
+          hostile: false,
+          duration: 9999,
+          stat: 'def',
+          multiplier: 1.5,
+        },
+      ],
     },
   ],
 };
@@ -240,7 +246,7 @@ describe('applySignatureAbility', () => {
   it('is inert when the override names a skill the kit does not have', () => {
     // Keeps a stale `skillId` a content bug for `data/signature.spec.ts` to catch rather than a
     // runtime surprise — and specifically does not invent a skill nobody authored.
-    const stale = { name: 'X', description: 'x', skill: { skillId: 'missing', cooldown: 1 } };
+    const stale = { name: 'X', description: 'x', skills: [{ skillId: 'missing', cooldown: 1 }] };
 
     expect(applySignatureAbility(COMBATANT, stale)).toBe(COMBATANT);
   });

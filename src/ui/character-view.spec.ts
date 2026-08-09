@@ -4,11 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { describe, expect, it } from 'vitest';
-import { type AutoEquipResult, emptyWallet, GEAR_SLOTS } from '../core';
+import { type AutoEquipResult, emptyWallet, GEAR_SLOTS, num, type SignatureResult } from '../core';
 import { CharacterView } from './character-view';
 import { GameLoopService } from './game-loop.service';
 import { type GearBonusView, GearService, type GearSlotView } from './gear.service';
 import { type RosterEntryView, RosterService } from './roster.service';
+import { SignatureService, type SignatureView } from './signature.service';
 
 /** One owned row. `rin` and `wren` are real ids, because the sheet resolves its own definition. */
 function entry(over: Partial<RosterEntryView> = {}): RosterEntryView {
@@ -53,9 +54,75 @@ class FakeRoster {
   }
 }
 
-/** Only the wallet, which is all the sheet reads off the loop. */
+/**
+ * The wallet, plus a snapshot the signature panel's `computed` reads to stay live.
+ *
+ * `snapshot` returns `null` rather than a state: nothing on this sheet reads a field off it — the
+ * panel's own data comes from {@link FakeSignature} — and it is touched only so the panel
+ * recomputes when emblems are spent.
+ */
 class FakeGameLoop {
   readonly wallet = signal(emptyWallet());
+
+  snapshot(): null {
+    return null;
+  }
+}
+
+/**
+ * The signature panel's seam, faked for the reason `GearService` is: the real one reaches for the
+ * shipped roster and the authored items, and the sheet's job is to render what it is handed.
+ *
+ * `null` by default, which is the common case — forty-two of the forty-nine characters have no
+ * signature item — and the case in which the panel must not be drawn at all.
+ */
+class FakeSignature {
+  readonly panel = signal<SignatureView | null>(null);
+  readonly held = signal(num(0));
+
+  /** Which character ids `levelUp` was called for, so the wiring itself is assertable. */
+  readonly levelCalls: string[] = [];
+
+  /** What the next `levelUp` reports back. Set per test. */
+  levelResult: SignatureResult = { ok: false, reason: 'insufficient' };
+
+  view(): SignatureView | null {
+    return this.panel();
+  }
+
+  levelUp(defId: string): SignatureResult {
+    this.levelCalls.push(defId);
+    return this.levelResult;
+  }
+}
+
+/** A signature panel view, unlocked and mid-climb unless overridden. */
+function signatureView(over: Partial<SignatureView> = {}): SignatureView {
+  return {
+    defId: 'rin',
+    characterName: 'Rin',
+    item: {
+      id: 'test-item',
+      defId: 'rin',
+      name: 'Test Signature',
+      description: 'A test signature item.',
+      perLevel: { atk: 0.05 },
+      tiers: [],
+    },
+    locked: false,
+    unlocksAt: 'Mythic',
+    level: 12,
+    maxLevel: 30,
+    atMax: false,
+    bonuses: [{ stat: 'atk', label: 'Attack', percent: 60 }],
+    nextBonuses: [{ stat: 'atk', label: 'Attack', percent: 65 }],
+    tier: { name: 'Second Rung', description: 'Does a second thing.', at: 10 },
+    nextTier: { name: 'Third Rung', description: 'Does a third thing.', at: 20 },
+    cost: 28,
+    held: num(500),
+    canBuy: true,
+    ...over,
+  };
 }
 
 /**
@@ -102,6 +169,7 @@ async function open(
   url: string,
   roster: FakeRoster = new FakeRoster(),
   gear: FakeGear = new FakeGear(),
+  signatures: FakeSignature = new FakeSignature(),
 ) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -114,6 +182,7 @@ async function open(
       { provide: RosterService, useValue: roster },
       { provide: GameLoopService, useValue: new FakeGameLoop() },
       { provide: GearService, useValue: gear },
+      { provide: SignatureService, useValue: signatures },
     ],
   }).compileComponents();
 
@@ -401,5 +470,131 @@ describe('CharacterView', () => {
         'You do not own this character.',
       );
     });
+  });
+});
+
+describe('the signature item panel', () => {
+  /** The panel's own section, or `null` when the sheet drew none. */
+  function panel(el: HTMLElement): HTMLElement | null {
+    return el.querySelector<HTMLElement>('[aria-labelledby="signature-label"]');
+  }
+
+  it('draws nothing at all for a character with no signature item', async () => {
+    // ⚠️ Absent is not the same as locked. Forty-two of the forty-nine characters will never have
+    // one, and a permanently empty section reads as content that is missing rather than as a rule.
+    const el = await open('/roster/rin');
+
+    expect(panel(el)).toBeNull();
+  });
+
+  it('names the rung that unlocks it while locked, rather than showing an empty slot', async () => {
+    // A locked panel is a destination — the same job the locked tower row on Home does. Showing a
+    // slot with nothing in it and no explanation is the version that reads as broken.
+    const signatures = new FakeSignature();
+    signatures.panel.set(
+      signatureView({ locked: true, level: 0, bonuses: [], tier: null, cost: 10 }),
+    );
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    const text = panel(el)?.textContent ?? '';
+
+    expect(text).toContain('Test Signature');
+    expect(text).toContain('Mythic');
+  });
+
+  it('shows the level, the bonuses and the ability in force once unlocked', async () => {
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    const text = panel(el)?.textContent ?? '';
+
+    expect(text).toContain('12 / 30');
+    expect(text).toContain('Attack');
+    expect(text).toContain('+60%');
+    expect(text).toContain('Second Rung');
+  });
+
+  it('names the level at which the ability next gets stronger', async () => {
+    // "What do the next ten levels buy" is the question somebody levelling this is actually
+    // asking, and a bare level counter does not answer it.
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    const text = panel(el)?.textContent ?? '';
+
+    expect(text).toContain('Third Rung');
+    expect(text).toContain('20');
+  });
+
+  it('quotes the price in emblems', async () => {
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+
+    expect(panel(el)?.textContent).toContain('28 emblems');
+  });
+
+  it('offers exactly one control, and never a buy-as-far-as-I-can-afford', async () => {
+    // ⚠️ Load-bearing rather than cosmetic. Emblems are shared across every ascended-tier
+    // character, so spending them *is* the decision the currency exists to create — a control that
+    // resolved it greedily would make it for the player. Unlike a character level, which competes
+    // with nobody, and unlike `ascendAll`, whose copies are spendable on one character.
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    const buttons = panel(el)?.querySelectorAll('button') ?? [];
+
+    expect(buttons.length).toBe(1);
+  });
+
+  it('levels the character the sheet is showing', async () => {
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+    signatures.levelResult = { ok: true, state: {} as never };
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    panel(el)?.querySelector('button')?.click();
+
+    expect(signatures.levelCalls).toEqual(['rin']);
+  });
+
+  it('disables the control when the next level is unaffordable', async () => {
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView({ canBuy: false }));
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+
+    expect(panel(el)?.querySelector('button')?.disabled).toBe(true);
+  });
+
+  it('reports a refusal in words rather than doing nothing', async () => {
+    // The whole reason `levelSignature` returns a reason instead of a bare boolean: a button that
+    // silently does nothing is the failure the result type exists to prevent.
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView());
+    signatures.levelResult = { ok: false, reason: 'insufficient' };
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+    panel(el)?.querySelector('button')?.click();
+    // A macrotask rather than a microtask: the app is zoneless, so the signal write from the click
+    // handler is flushed by the scheduler rather than by awaiting a resolved promise. Every other
+    // post-click assertion in this file waits the same way.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(el.textContent).toContain('Not enough emblems');
+  });
+
+  it('offers no control at all once the item is maxed', async () => {
+    const signatures = new FakeSignature();
+    signatures.panel.set(signatureView({ atMax: true, level: 30, cost: null, nextTier: null }));
+
+    const el = await open('/roster/rin', new FakeRoster(), new FakeGear(), signatures);
+
+    expect(panel(el)?.querySelector('button')).toBeNull();
+    expect(panel(el)?.textContent).toContain('Fully levelled');
   });
 });

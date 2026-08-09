@@ -135,10 +135,28 @@ export interface SignatureAbilityTierData {
   readonly name: string;
   /** One line describing what it does now, for the character sheet. */
   readonly description: string;
-  /** The skill this rung rewrites, if it rewrites one. */
-  readonly skill?: SkillOverrideData;
   /**
-   * A status applied to the wearer at the start of every fight, if this rung grants one.
+   * The skills this rung rewrites, if it rewrites any.
+   *
+   * ⚠️ **A list rather than one override, because a tier *replaces* the rung below it rather than
+   * stacking on top of it.** Only the reached tier is ever applied — so with a single override,
+   * "tier 4 keeps what tier 1 did and adds something" is inexpressible, and every ability would
+   * have to be a single skill getting numerically bigger four times. Restating the earlier
+   * clauses in each later tier is more to author and is what makes a tier readable on its own:
+   * the record says exactly what the ability does at that rung, with nothing inherited.
+   *
+   * An entry naming a skill the kit does not have is inert rather than an error, so a stale
+   * `skillId` stays a content bug for `data/signature.spec.ts` to catch.
+   */
+  readonly skills?: readonly SkillOverrideData[];
+  /**
+   * Statuses applied to the wearer at the start of every fight, if this rung grants any.
+   *
+   * ⚠️ **The wearer only.** These reach the fight as `CombatantData.opening`, which is a property
+   * of one combatant — there is no way to spell "and my whole party starts with this". That is a
+   * real limit on what a passive can say and it is deliberate: applying a status to somebody else
+   * at setup means picking targets before the first tick, which is the job of a skill, and a skill
+   * is what the override half of this vocabulary is for.
    *
    * The **passive** half of the vocabulary, and it reuses {@link StatusData} whole rather than
    * inventing a passive language. Everything a passive would want to say — a lasting stat
@@ -151,7 +169,7 @@ export interface SignatureAbilityTierData {
    * duration above it is permanent in every sense the simulation can observe, and keeping the
    * field a plain number means nothing downstream has to special-case infinity.
    */
-  readonly opening?: StatusData;
+  readonly opening?: readonly StatusData[];
 }
 
 /**

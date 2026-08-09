@@ -19,6 +19,7 @@ import {
   type KitRulesData,
   type LadderShape,
   ladderShape,
+  type OwnedCharacter,
   type BountyBoardRulesData,
   type BountyData,
   type LevelCurveData,
@@ -29,6 +30,14 @@ import {
   resolveLadder,
   resolveTower,
   type ShopOfferData,
+  signatureBonus,
+  signatureTier,
+  signatureUnlocked,
+  clampSignatureLevel,
+  type SignatureAward,
+  type SignatureItemData,
+  type SignatureLookup,
+  type SignatureRulesData,
   type StageData,
   stagePayout,
   type StageRewardCurveData,
@@ -60,6 +69,8 @@ import {
   PULL_COST,
   QUEST_RULES,
   QUESTS,
+  SIGNATURE_ITEMS,
+  SIGNATURE_RULES,
   SPARK_PER_COPY,
   SPARK_SHOP,
   STAGE_REWARDS,
@@ -362,6 +373,51 @@ export const IDLE_RATE_CURVES: IdleRateCurves = {
  * [`data/emblems.ts`](../data/emblems.ts).
  */
 export const EMBLEM_DROP_RULES: EmblemDropData = EMBLEM_DROPS;
+
+/** When a signature item unlocks, how far it goes, and what a level costs. */
+export const SIGNATURE: SignatureRulesData = SIGNATURE_RULES;
+
+/**
+ * Every signature item, keyed by the character it belongs to.
+ *
+ * A map rather than the list, because every read is "does this character have one" — the sheet
+ * asks it once per character and the battle path once per crew member per fight.
+ */
+export const SIGNATURE_BY_DEF: SignatureLookup = new Map<string, SignatureItemData>(
+  SIGNATURE_ITEMS.map((item) => [item.defId, item]),
+);
+
+/**
+ * What a character's signature item contributes to a fight, or nothing when it contributes
+ * nothing.
+ *
+ * The one place eligibility is resolved for the battle path, and it returns `undefined` in three
+ * different situations that are worth keeping distinct in one's head even though the simulation
+ * treats them identically: this build ships no item for the character, the character is not
+ * ascended tier or not yet at `mythic`, or the item is authored but has never been levelled.
+ *
+ * ⚠️ **A stored level on an ineligible character reads as nothing here rather than being repaired
+ * away.** `repairOwned` deliberately keeps the number — the emblems were spent — so this is the
+ * gate that makes it inert. Both halves are needed: repairing would take back an investment, and
+ * not gating would let a hand-edited save field an ability the rules do not allow.
+ */
+export function signatureAward(
+  character: CharacterData,
+  owned: OwnedCharacter,
+): SignatureAward | undefined {
+  const item = SIGNATURE_BY_DEF.get(character.id);
+  if (item === undefined || !signatureUnlocked(SIGNATURE, character.tier, owned.rarity)) {
+    return undefined;
+  }
+  const level = clampSignatureLevel(SIGNATURE, owned.signature);
+  if (level <= 0) {
+    return undefined;
+  }
+  return {
+    bonus: signatureBonus(SIGNATURE, item, level),
+    tier: signatureTier(SIGNATURE, item, level),
+  };
+}
 
 /** A character definition by id, for templates that hold only an id. */
 export function characterById(defId: string): CharacterData | undefined {

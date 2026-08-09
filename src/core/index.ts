@@ -60,6 +60,31 @@ export {
 } from './battle/damage';
 export { applyBattleResult, reconcileClearedStages, type DropAward } from './battle/progress';
 export { emblemDropChance, rollEmblems, type EmblemDropData } from './emblems';
+export {
+  applySignatureAbility,
+  clampSignatureLevel,
+  levelSignature,
+  maxSignatureLevel,
+  mergeBonus,
+  nextSignatureTierAt,
+  signatureBonus,
+  signatureCost,
+  signatureTier,
+  signatureTierIndex,
+  signatureTotalCost,
+  signatureUnlocked,
+  type SignatureLookup,
+  type SignatureResult,
+} from './signature/signature';
+export {
+  NO_SIGNATURE_BONUS,
+  type SignatureAbilityTierData,
+  type SignatureBonus,
+  type SignatureFailure,
+  type SignatureItemData,
+  type SignatureRulesData,
+  type SkillOverrideData,
+} from './signature/types';
 export { battleSeed, simulateBattle } from './battle/simulate';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
@@ -406,7 +431,13 @@ export {
   type RosterFailure,
   type RosterResult,
 } from './roster/roster';
-export { growthMultiplier, scaleStats, toBattleCombatant, toEnemyCombatant } from './roster/stats';
+export {
+  growthMultiplier,
+  scaleStats,
+  toBattleCombatant,
+  toEnemyCombatant,
+  type SignatureAward,
+} from './roster/stats';
 export {
   MAX_RARITY_INDEX,
   RARITIES,

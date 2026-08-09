@@ -1098,21 +1098,92 @@ would have been one tower shipped seven times.
 it. Eight crews is forty slots against a forty-nine character roster, and that arithmetic is now
 real rather than projected.
 
-## 16. Deep per-hero investment
+## 16. Signature items — **COMPLETE**
 
-**The answer to the question milestone 10 leaves open** — what grows once a character reaches
-level 1000. A per-character track that unlocks late, is fed by duplicates, and modifies
-**behaviour rather than adding stats**: an extra target, a condition dropped from a skill, a
-cooldown crossing a threshold that changes what the kit does.
+**The answer to the question milestone 10 leaves open** — what a run invests in once a character
+has nothing left to ascend. A per-character track that unlocks deep into the ladder, bought with a
+currency that exists for nothing else, and worth both **stats and an ability**.
 
-Behaviour rather than stats, for a reason milestone 10 makes sharp. At ×10⁹ raw power another
-multiplier is invisible and another _ability_ is not. It is also the only way composition can
-keep mattering late, which the long-term vision asks for explicitly: a stat track makes the late
-game a bigger version of the early game, and a behaviour track makes it a different one.
+⚠️ **This entry used to describe a different feature and the difference is worth recording rather
+than overwritten.** It specified a track that modified **behaviour rather than adding stats**, fed
+by **duplicate copies**. Both halves were reversed deliberately:
 
-Duplicate-fed, because copies past `ascended-5` currently convert to spark and spark buys more
-characters — which at this point in a run is a loop with no exit. This gives late duplicates
-somewhere to go that is not the shop.
+- **Stats _and_ behaviour**, not behaviour alone. The old argument was that "at ×10⁹ raw power
+  another multiplier is invisible", and that is simply not true of a _percentage_ — gear proved it
+  two milestones earlier, where a relic set is worth the same +216% health at level 1 and at level 1000. What the argument was really reaching for is that thirty levels of pure stats is a
+  treadmill, and the answer to that is the ability track, not the absence of stats. So a signature
+  level buys a slice of stats **and** the tier marks buy an ability, and each is the reason the
+  other is worth paying for.
+- **Emblem-fed, not duplicate-fed.** The old reasoning was that copies past `ascended-5` convert to
+  spark and spark buys more characters, "a loop with no exit". True, and this does not close it —
+  duplicates still convert to spark. The fix for too many duplicates is more ascended-tier
+  characters as the roster grows, which is content rather than a sink.
+
+### What shipped
+
+Read [signature items](signature-items.md) for the system. In short: an **Emblem** currency, and a
+one-integer track per ascended-tier character.
+
+- **Ascended tier only.** Seven of the forty-nine characters, one per faction. Common- and
+  legendary-tier characters have no signature item by design.
+- **Unlocks at `mythic`** — four rungs above where an ascended-tier character starts, which is 27
+  copies for a mortal and 39 for an Angel or Demon.
+- **Thirty levels**, costing `10 + 1.6 × (L − 1)` emblems each, **996 for the climb**. Level 1 is
+  the unlock and is bought, never granted.
+- **Stats every level**, roughly +150% split across two or three stats by level 30, authored per
+  character to sharpen the niche it already has.
+- **An ability at levels 1, 10, 20 and 30**, expressed as partial overrides merged over the
+  character's own skills plus an opening status on the wearer. Merged once when the combatant is
+  built, so the simulation loop never learns signature items exist.
+
+### What it is worth, measured
+
+`data/signature.balance.ts` fields each of the seven at the unlock rung and bisects for the highest
+enemy level the party clears. A maxed item is worth **+11 to +35 enemy levels of reach**, ×1.03 to
+×1.08.
+
+⚠️ **That reads modest and is not, and the gap is the step function.** Measured instead as win rate
+at a fixed contested level, the same items take four of the seven from **0.00 to 1.00**. An item
+worth a few percent of reach is worth the entire fight at the margin, because the margin is where
+every fight a player has not already won sits.
+
+### ⚠️ Two things this milestone exposed that are not about signature items
+
+- **There is no shipped content a signature item can be measured against.** `mythic` caps at level
+  **340**; the hardest authored stage is the chapter 2 boss at level **85**. A party at the unlock
+  rung is four times past the top of the ladder, so every campaign fight it takes is a walkover.
+  The balance probe has to re-level the hardest encounter to the party's own level to make a
+  contest at all — the same move `core/towers.ts` makes. Nothing is wrong; the gate is deliberately
+  deep and the ladder is deliberately two chapters. But **a signature item has no authored content
+  to matter in until chapter 3, or a tower reaching that band**, and no sweep over shipped stages
+  can ever bound one.
+- **The emblem faucet is dominated by drops, not by the idle rate.** The idle rate is the half with
+  the pacing argument attached and it is the smaller half by roughly ×7 for anybody running
+  auto-battle — because the campaign position stops at the last stage so it stays farmable, and the
+  last stage of a chapter is a **boss**, which is the 25% drop row. See
+  [economy](economy.md#emblems).
+
+### Where it surfaces
+
+- **A panel on the character sheet**, drawn only for the seven. ⚠️ Absent is not the same as
+  locked: a locked panel names the rung that unlocks it, and a character that can never have one
+  gets no section at all, because a permanently empty panel reads as content that is missing.
+  **No "buy as far as I can afford" control** — emblems are shared across every ascended-tier
+  character, so spending them _is_ the decision, unlike a character level, which competes with
+  nobody, and unlike `ascendAll`, whose copies are spendable on one character.
+- **Two achievement tracks** over a new derived counter, `signatureLevels` — the sum of
+  `roster[].signature`. It stores nothing new and is monotonic. Both pay **crystals**: an emblem
+  award on an emblem-spending track is a partial refund that would flatten the cost curve.
+- **Emblems on Chapter Conqueror**, 100 a chapter. The one track paying two currencies, and the
+  right one — finishing a chapter is already what steps the emblem rate.
+
+### No quests, and that is a decision rather than an omission
+
+All three available shapes fail: a quest over `signatureLevels` stops moving at 210 and does not
+move at all before the first unlock (the ban `clearedStages` carries); a quest over emblems _held_
+is not a counter, because a quest measures a delta from a baseline and a balance goes down when
+spent; and a quest _paying_ emblems is decorative beside a drop faucet already worth ~15/hr. See
+[rejected](rejected.md), which records the trigger that would revisit it.
 
 ## 17. The roguelite run
 

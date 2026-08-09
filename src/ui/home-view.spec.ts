@@ -383,7 +383,9 @@ describe('HomeView', () => {
       const { el } = await render((game) => game.rates.set({ ...zeroRates(), gold: num('1.5') }));
 
       expect(el.querySelector('.hint')?.textContent).not.toContain('Win a stage');
-      expect(el.querySelector('.hint')?.textContent).toContain('raises all four idle rates');
+      expect(el.querySelector('.hint')?.textContent).toContain(
+        'raises your gold, XP and essence income',
+      );
     });
   });
 

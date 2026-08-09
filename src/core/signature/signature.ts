@@ -229,20 +229,25 @@ export function applySignatureAbility(
     return combatant;
   }
   const withOpening =
-    tier.opening === undefined
+    tier.opening === undefined || tier.opening.length === 0
       ? combatant
-      : { ...combatant, opening: [...(combatant.opening ?? []), tier.opening] };
+      : { ...combatant, opening: [...(combatant.opening ?? []), ...tier.opening] };
 
-  const override = tier.skill;
-  if (override === undefined) {
+  const overrides = tier.skills ?? [];
+  if (overrides.length === 0) {
     return withOpening;
   }
+  // Keyed by skill id so the merge is one pass over the kit rather than one pass per override, and
+  // so a tier naming the same skill twice resolves to the last entry rather than to whichever the
+  // loop happened to reach first.
+  const byId = new Map(overrides.map((override) => [override.skillId, override]));
   const skills = withOpening.skills ?? [];
-  if (!skills.some((skill) => skill.id === override.skillId)) {
+  if (!skills.some((skill) => byId.has(skill.id))) {
     return withOpening;
   }
   const rewritten: SkillData[] = skills.map((skill) => {
-    if (skill.id !== override.skillId) {
+    const override = byId.get(skill.id);
+    if (override === undefined) {
       return skill;
     }
     return {

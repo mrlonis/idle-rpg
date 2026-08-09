@@ -192,6 +192,49 @@ fight length, survivors, and a ramp between the halves. The one contested measur
 _second_ legal five, which is also the honest question: does the tower ask for an investment or for
 one solution?
 
+### A fourth trap, from signature items: the band may be narrower than the content
+
+Milestone 16 hit the step function a third time, from a direction the earlier two do not cover, and
+it took **three attempts** to measure a signature item at all.
+
+- ⚠️ **A fixed enemy level measures nothing when the party outclasses every stage.** `mythic` caps
+  at level **340**; the hardest authored stage is level **85**. A party at the signature unlock rung
+  is four times past the top of the ladder, so the first probe — win rate against the nearest stage
+  — reported a gain of exactly **zero on all seven characters**, because both sides of the
+  comparison were pinned at 100%.
+- ⚠️ **Re-levelling the encounter is necessary and not sufficient.** Fielding the hardest line-up at
+  the party's own level produced zero again, this time with everything at 100%; doubling it produced
+  zero with everything at 0%. The contested band turned out to sit about **20% above** the party's
+  level and to be roughly **forty levels wide** out of a thousand-level range. Any fixed choice is
+  either a walkover or a wipe, and a level picked to make one measurement work stops measuring on
+  the next retune.
+- **What worked is bisecting for the edge**: the highest enemy level the party clears at least half
+  the time. That answers the question that actually matters — how much further up the curve does
+  this carry a party — in a unit that survives retuning. It is the same conclusion milestone 8e
+  reached ("measure the edge in levels of investment"), arrived at independently because the earlier
+  lesson was written about **averaging**, and this failure was about **choosing a point**.
+
+⚠️ **The two units disagree wildly and both are honest.** In reach, a maxed signature item is worth
+**+3% to +8%**. In win rate at a contested level, the same item takes four of seven characters from
+**0.00 to 1.00**. Neither is the "real" number: a small gain in reach is the whole fight at the
+margin, and the margin is where every fight a player has not already won sits. Quote whichever the
+question calls for, and never cite the reach figure as evidence a mechanic is small.
+
+**The corollary is a content fact rather than a testing one:** a mechanic gated far beyond the
+authored ladder has nothing to be swept against, and no sweep over shipped stages can ever bound it.
+
+### Scope a timeout guard to fights the party wins
+
+⚠️ Milestone 16 re-learned this the direct way. The signature probe's ninety-second guard read the
+longest fight of **every** trial, and Thraun broke it immediately: a five of him carries 29 `atk`,
+so five walls do not lose a fight — they fail to finish one, and every losing trial is a timeout by
+construction. The guard reported the wall as breaking the timer.
+
+A mono-Thraun five is not a party anybody can field, since the roster ships one of him. So that was
+the **control** failing, not the content — and the fix is the scope `chapters.balance.ts` already
+uses and [combat](combat.md) already argues for: **measure the longest fight the party wins.** A
+fight the party loses has no tuning claim on it.
+
 ---
 
 ## `core/` specs

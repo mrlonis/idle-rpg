@@ -12,10 +12,10 @@ reasoning behind each number.
 
 ---
 
-## The six currencies
+## The seven currencies
 
-`GameState` carries a keyed **wallet** and **rate table** rather than a field per currency — twelve
-flat fields would have been twelve lines in every encoder, decoder and repair pass.
+`GameState` carries a keyed **wallet** and **rate table** rather than a field per currency — fourteen
+flat fields would have been fourteen lines in every encoder, decoder and repair pass.
 
 | Currency  | Idle rate? | Buys                                                    |
 | --------- | ---------- | ------------------------------------------------------- |
@@ -23,6 +23,7 @@ flat fields would have been twelve lines in every encoder, decoder and repair pa
 | `xp`      | ✅         | Levels, and nothing else.                               |
 | `essence` | ✅         | Breakthrough levels only — every tenth.                 |
 | `summons` | ✅         | Pulls, at 100 crystals each.                            |
+| `emblem`  | ✅         | Signature item levels, and nothing else.                |
 | `spark`   | ❌         | A new character, or a targeted copy, in the spark shop. |
 | `alloy`   | ❌         | Gear levels, alongside gold.                            |
 
@@ -31,6 +32,14 @@ narrower list than `CURRENCY_IDS`, so the offline solver cannot silently start p
 `spark` is minted solely by copies of a character already at `ascended-5`; `alloy` solely by
 salvaging gear. Both are what a duplicate becomes when there is nothing left to do with the object
 itself.
+
+⚠️ **`RATE_CURRENCY_IDS` and what a stage may _author_ are also now two different lists.** `emblem`
+has a rate and no stage may pay one, as a lump or as an income raise — its two sources are the
+chapter-stepped idle curve and a drop chance, both functions of how far the run has come rather than
+of any one encounter. `STAGE_CURRENCY_IDS` in `core/battle/types.ts` is the authorable set, and it
+`satisfies` the keys of `AuthoredCurrencies` so the two cannot drift. Adding `emblem` there would be
+a third mechanism on one currency, and a silent one: `raiseRates` takes the larger of what it is
+offered and what a run already earns, so whichever source happened to be bigger would quietly win.
 
 **Gold's claim finally arrived.** Four places in this codebase said gold's level-curve coefficient
 was the shallowest of the three _because gear would spend it later_; milestone 12 is later.
@@ -283,6 +292,93 @@ That is deliberately generous, and it does not touch the guard in `levels.spec.t
 measures the **idle rate** against the level curve, and bounties are a bonus on top of it that costs
 a roster wide enough to crew them. The rule "the next thing that raises income has to move the level
 curve" is about the idle rate itself.
+
+---
+
+## Emblems
+
+Added in [milestone 16](milestones.md#16-signature-items--in-progress). Emblems buy
+[signature item](signature-items.md) levels and nothing else in the game spends them: no shop sells
+them, no bounty pays them, and duplicate characters still convert to spark.
+
+**One universal emblem, not one per faction.** The reference system this is built from spends a
+faction emblem per faction. That shape needs several top-tier characters per faction to mean
+anything, and this roster ships exactly **one ascended-tier character per faction** — so seven
+faction emblems would give each of those seven a private currency nothing else could spend. No two
+heroes would ever compete for a pool, which deletes the only decision the resource creates. The
+spend path resolves the currency from the character rather than naming `emblem` literally, so making
+it per-faction later is entries in one array plus a different resolver.
+
+### Two faucets, and the smaller one is the one with the argument attached
+
+| Source    | Rate                                         | Gated on          |
+| --------- | -------------------------------------------- | ----------------- |
+| **Idle**  | 1/hr per **whole chapter** cleared           | 1 chapter cleared |
+| **Drops** | 2% ordinary, 10% mini-boss, 25% chapter boss | 1 chapter cleared |
+
+**The idle rate steps per chapter, not per stage**, and that is the whole of its pacing. A signature
+level costs a flat number of emblems forever — the same relationship a crystal has to a flat
+`PULL_COST` — so the faucet has to grow slowly enough that a flat price still means something a
+hundred stages later. Per stage over the shipped hundred would multiply it by fifty; per chapter
+multiplies it by two.
+
+**There is no base and no unlock flag.** `SUMMON_RATE` pays a base from the first minute so a new
+player watches the roster grow; nothing can spend an emblem until a character reaches `mythic`, so a
+base here would be a number climbing in a wallet with no screen able to explain it. And the unlock
+_is_ the rate being zero below one chapter — there is no boolean in the save to lose, migrate or
+repair.
+
+### ⚠️ Drops dominate, by roughly ×7, and the intuitive reading is backwards
+
+Auto-battle clears roughly a stage a minute. The naive sum is `60 × 2% = 1.2/hr` from drops against
+1–2/hr idle, which looks balanced. It is wrong, because **the stage an auto-battler actually grinds
+is the last one** — the campaign position stops climbing so the top stage stays farmable, and the
+last stage of a chapter is a **chapter boss**. That is the 25% row: **about 15 emblems an hour**.
+
+This is accepted rather than tuned away, because the binding constraint on the system is not the
+currency — it is the `mythic` gate on the other side, tens of thousands of pulls deep. A faster
+faucet makes the stockpile waiting at that gate larger; it does not make anything arrive sooner.
+
+⚠️ **Retuning a drop chance is an economy change of the same size as retuning the rate.** The naive
+reading — "drops are the garnish, the rate is the pacing" — is how it gets moved carelessly.
+`data/emblems.spec.ts` measures the **boss** case rather than the ordinary one, so the figure the
+bound is written against is the one a real run produces.
+
+### The stockpile at the gate is deliberate
+
+The faucet opens at one chapter cleared — days into a run. The first signature item unlocks around
+day 70 for a mortal and day 100 for a celestial. So a run banks thousands of emblems before it has
+anywhere to spend one, and the first two or three items get maxed the instant they unlock.
+
+That is the accepted outcome rather than an oversight: seventy days of climbing paying out in one
+moment is the point, and emblems only become a real decision on the fourth character.
+
+### A third source, deliberately small
+
+**Chapter Conqueror pays 100 emblems a chapter**, alongside its 10,000 crystals — the one
+achievement track paying two currencies. It is the right one to: finishing a chapter is already
+what steps the emblem idle rate, so the lump is the same event saying the same thing twice rather
+than a mechanism nobody accounted for. A tenth of a signature item's 996 is enough to be worth the
+moment and nowhere near enough to skip the climb.
+
+⚠️ **No other track pays emblems, and the two _signature_ tracks deliberately pay crystals.** An
+emblem award on an emblem-spending track is a partial refund — it would make the last levels
+cheaper than the first and quietly flatten the linear cost curve.
+
+### The draw is its own stream
+
+⚠️ Emblems roll from a stream labelled `emblem:<stage>:<battleCount>`, **never** from the gear
+sequence. The count draw in `rollDrops` is its first draw and every later draw shifts by one, so
+adding a draw there re-rolls every historical gear drop for a given seed — invisible in play, and it
+turns every recorded balance figure into a different number.
+
+A miss is not "a fight that produced nothing": the gear drop is unconditional with a floor of one, so
+emblems sit on top of a payout that already happened. ⚠️ That licence is narrow — if gear drops ever
+became conditional, this would need a floor of its own.
+
+**Tower floors drop them too**, using the floor's own kind for the odds (a roof is a boss) and the
+campaign-matched index for everything else. Both halves already existed: `floorKindAt` and
+`matchedStageIndex`.
 
 ## Levelling
 

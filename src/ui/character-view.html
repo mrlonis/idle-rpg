@@ -193,6 +193,86 @@
     </section>
   }
 
+  <!--
+    Drawn only for the seven ascended-tier characters. Absent is not the same as locked: a locked
+    panel names a destination the character will reach, and no panel at all is the honest answer
+    for a character that will never have one — a permanently empty section reads as content that
+    is missing rather than as a rule.
+  -->
+  @if (signature(); as sig) {
+    <section class="card" aria-labelledby="signature-label">
+      <h2 id="signature-label" class="section__heading">Signature item</h2>
+
+      @if (sig.locked) {
+        <p class="signature__locked">
+          <strong>{{ sig.item.name }}</strong> unlocks at {{ sig.unlocksAt }}.
+        </p>
+        <p class="card__footnote">{{ sig.item.description }}</p>
+      } @else {
+        <p class="signature__name">
+          <strong>{{ sig.item.name }}</strong>
+          <span class="signature__level">{{ sig.level }} / {{ sig.maxLevel }}</span>
+        </p>
+
+        @if (sig.bonuses.length > 0) {
+          <ul class="signature__totals">
+            @for (bonus of sig.bonuses; track bonus.stat) {
+              <li class="signature__total">
+                <span class="signature__label">{{ bonus.label }}</span>
+                <span class="signature__value">+{{ bonus.percent }}%</span>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (sig.tier; as tier) {
+          <p class="signature__ability">
+            <span class="signature__abilityName">{{ tier.name }}</span>
+            <span class="signature__abilityText">{{ tier.description }}</span>
+          </p>
+        }
+      }
+
+      @if (sig.nextTier; as next) {
+        <p class="signature__next">
+          At level {{ next.at }}: <strong>{{ next.name }}</strong> — {{ next.description }}
+        </p>
+      }
+
+      @if (sig.atMax) {
+        <p class="signature__done">Fully levelled. Nothing further to buy.</p>
+      } @else {
+        <p class="signature__wallet">You hold {{ emblemsHeld() }} emblems</p>
+        @if (sig.cost !== null) {
+          <p class="signature__cost">Next level costs {{ sig.cost }} emblems</p>
+        }
+        <div class="actions">
+          <!--
+            One level per press, and deliberately no "buy as far as I can afford". Emblems are
+            shared across every ascended-tier character, so spending them *is* the decision the
+            currency exists to create — unlike a character level, which competes with nobody.
+          -->
+          <button
+            type="button"
+            class="button button--primary"
+            [disabled]="!sig.canBuy"
+            (click)="levelSignatureOnce()"
+          >
+            @if (sig.locked) {
+              Unlock for {{ sig.cost }} emblems
+            } @else {
+              Level up
+            }
+          </button>
+        </div>
+      }
+
+      @if (signatureMessage(); as note) {
+        <p class="notice notice--error" role="alert">{{ note }}</p>
+      }
+    </section>
+  }
+
   <section class="card" aria-labelledby="level-label">
     <h2 id="level-label" class="section__heading">Level</h2>
     <p class="level__current">

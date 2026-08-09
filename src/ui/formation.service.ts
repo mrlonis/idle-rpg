@@ -34,6 +34,7 @@ import {
   GROWTH_RULES,
   KIT,
   LEVELS,
+  signatureAward,
 } from './content';
 import { GameLoopService } from './game-loop.service';
 import { groupByFaction, type RosterGroup } from './roster-order';
@@ -172,6 +173,7 @@ export class FormationService {
               KIT,
               effectiveLevel(LEVELS, owned, floor),
               loadoutBonus(GEAR, owned.gear, gear, character.faction),
+              signatureAward(character, owned),
             ),
           );
         }

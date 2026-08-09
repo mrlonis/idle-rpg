@@ -87,6 +87,15 @@ export type AchievementTrackData =
  * `clearedStages` measured against the shipped {@link LadderShape}, which is why everything here
  * takes a ladder. See {@link readCounter} for why a chapter cannot be an interval of stages.
  *
+ * `signatureLevels` is the second derived one: the sum of `roster[].signature` across every
+ * character owned. It stores nothing new, adds nothing to the battle path, and is monotonic —
+ * a signature level is never refunded — which is what makes a division over it well defined.
+ *
+ * ⚠️ **It is fine here and would be forbidden as a *quest* counter, for the same reason
+ * `clearedStages` is.** It stops moving at 210 once all seven items are maxed, and it does not move
+ * at all for the tens of thousands of pulls before the first one unlocks. An achievement that stops
+ * moving is one the player has finished; a daily quest that stops moving is a permanent empty row.
+ *
  * `towerFloors` is the one counter that needs a second field to be answerable — see
  * {@link AchievementTrackData}. It reads `GameState.towers`, which is a stored field the run keeps
  * for its own reasons, so it is on the right side of the rule above; what it is emphatically **not**
@@ -94,7 +103,12 @@ export type AchievementTrackData =
  * touch (see `core/towers.ts`).
  */
 export type AchievementCounter =
-  'clearedStages' | 'battleCount' | 'pullCount' | 'clearedChapters' | 'towerFloors';
+  | 'clearedStages'
+  | 'battleCount'
+  | 'pullCount'
+  | 'clearedChapters'
+  | 'towerFloors'
+  | 'signatureLevels';
 
 /** How far a track has come, and what it owes. */
 export interface AchievementProgress {
@@ -187,6 +201,16 @@ function readCounter(
 ): CounterReading {
   if (track.counter === 'towerFloors') {
     return { total: floorsClearedIn(state.towers, track.tower), partial: 0 };
+  }
+  if (track.counter === 'signatureLevels') {
+    // Summed over the roster rather than stored. Monotonic — a signature level is never refunded —
+    // so a division over it is well defined, and an ineligible character contributes whatever it
+    // holds because `repairOwned` deliberately keeps a paid-for level rather than zeroing it.
+    let levels = 0;
+    for (const owned of state.roster) {
+      levels += wholeCount(owned.signature);
+    }
+    return { total: levels, partial: 0 };
   }
   if (track.counter !== 'clearedChapters') {
     return { total: wholeCount(state[track.counter]), partial: 0 };

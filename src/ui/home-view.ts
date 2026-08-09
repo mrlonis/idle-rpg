@@ -26,8 +26,17 @@ interface CurrencyRow {
   readonly id: CurrencyId;
   readonly label: string;
   readonly amount: string;
-  /** `null` for spark, which is minted by duplicate pulls and has no rate at all. */
-  readonly rate: string | null;
+  /**
+   * What the row says under the amount: a rate when the run earns one, and otherwise a line
+   * naming where the currency comes from.
+   *
+   * One field rather than a rate plus a fallback in the template, which is what it was. That
+   * template hardcoded "from duplicate pulls" for **every** rateless currency — true of spark,
+   * false of alloy, and useless for emblems, whose rate reads `0/s` until a chapter is finished
+   * with nothing on screen to say why. A row that explains itself is the same rule Home already
+   * spends on a locked tower.
+   */
+  readonly source: string;
 }
 
 /** One tower's card in the battle section. */
@@ -46,6 +55,22 @@ function titleCase(label: string): string {
 }
 
 const RATE_BEARING = new Set<CurrencyId>(RATE_CURRENCY_IDS);
+
+/**
+ * Where each currency comes from, for a row that is not currently earning one per second.
+ *
+ * Exhaustive over `CurrencyId` rather than partial, so a currency added later is a compile error
+ * here rather than a row that silently claims to come from duplicate pulls.
+ */
+const CURRENCY_SOURCES: Readonly<Record<CurrencyId, string>> = {
+  gold: 'from clearing stages',
+  xp: 'from clearing stages',
+  essence: 'from clearing stages',
+  summons: 'while you are away',
+  spark: 'from duplicate pulls',
+  alloy: 'from salvaged gear',
+  emblem: 'after clearing a chapter',
+};
 
 /** Narrows to the currencies `Rates` is keyed by, so reading a rate needs no cast. */
 function hasRate(id: CurrencyId): id is RateCurrencyId {
@@ -117,7 +142,9 @@ export class HomeView {
       id,
       label: titleCase(CURRENCY_LABELS[id]),
       amount: formatNumeric(wallet[id]),
-      rate: hasRate(id) ? formatRate(rates[id]) : null,
+      // The rate only when there is one to show. A zero rate is not "0/s" to a player, it is a
+      // thing that has not started yet — and saying which is what the source line is for.
+      source: hasRate(id) && rates[id].gt(0) ? formatRate(rates[id]) : CURRENCY_SOURCES[id],
     }));
   });
 
@@ -213,7 +240,11 @@ export class HomeView {
     }
     return this.game.goldPerSec().lte(0)
       ? 'Crystals are already accruing while you are away. Win a stage to start banking gold, XP and essence too.'
-      : 'Every stage you clear raises all four idle rates for good.';
+      : // ⚠️ "all four" was true until milestone 16 and is not now: there are five rate currencies,
+        // and emblems are the one a stage clear does **not** move — that rate steps per whole
+        // chapter. Naming the three the sentence is actually about is the version that stays true
+        // whatever else gains a rate later.
+        'Every stage you clear raises your gold, XP and essence income for good.';
   });
 
   /** Only worth showing when the player was away long enough to have earned something. */

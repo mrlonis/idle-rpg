@@ -56,6 +56,20 @@ const PULLS: AchievementTrackData = {
   reward: { gold: 100 },
 };
 
+const SIGNATURES: AchievementTrackData = {
+  id: 'signature-levels',
+  name: 'Signature Bearer',
+  description: 'Crystals for every five signature levels.',
+  counter: 'signatureLevels',
+  every: 5,
+  reward: { summons: 2000 },
+};
+
+/** A roster entry carrying `signature` levels. Everything else is inert for this counter. */
+function owned(defId: string, signature: number) {
+  return { defId, rarity: 0, level: 1, copies: 0, gear: {}, signature };
+}
+
 function run(overrides: Partial<GameState> = {}): GameState {
   return { ...newGame({ seed: SEED, nowMs: T0 }), ...overrides };
 }
@@ -448,5 +462,43 @@ describe('emptyAchievements', () => {
   it('starts a new run having claimed nothing', () => {
     expect(emptyAchievements()).toEqual({});
     expect(newGame({ seed: SEED, nowMs: T0 }).achievements).toEqual({});
+  });
+});
+
+describe('the signatureLevels counter', () => {
+  const levels = (roster: readonly ReturnType<typeof owned>[]): number =>
+    counterValue(run({ roster }), SIGNATURES, LADDER);
+
+  it('sums across the whole roster rather than reading one character', () => {
+    // The track is named for total investment and this is what makes that true: two items at
+    // level 15 count the same as one at 30. Anything per-character would need a counter that
+    // could say *which* character, which is the shape `towerFloors` had to grow a field for.
+    expect(levels([owned('a', 12), owned('b', 7), owned('c', 0)])).toBe(19);
+  });
+
+  it('reads an empty roster as nothing rather than as a missing counter', () => {
+    expect(levels([])).toBe(0);
+  });
+
+  it('clamps a damaged level rather than propagating it into the division', () => {
+    // A negative would subtract from another character's investment, and a fractional one would
+    // make `earned` a non-integer — both silently wrong in the player's favour or against it.
+    expect(levels([owned('a', -5), owned('b', 3.7), owned('c', Number.NaN)])).toBe(3);
+  });
+
+  it('is monotonic, which is what makes a division over it well defined', () => {
+    // ⚠️ The property that separates this from a wallet balance. Emblems go down when spent, so a
+    // track over the *currency* would take awards back; a signature level is never refunded.
+    const before = levels([owned('a', 4)]);
+    const after = levels([owned('a', 9)]);
+
+    expect(after).toBeGreaterThan(before);
+  });
+
+  it('counts a level on a character no longer eligible for one', () => {
+    // ⚠️ Deliberate, and it follows `repairOwned`: a stored level survives a character becoming
+    // ineligible because the emblems were spent. Excluding it here would take back an award the
+    // player already earned, to enforce a rule they did not break.
+    expect(levels([owned('a', 30)])).toBe(30);
   });
 });
