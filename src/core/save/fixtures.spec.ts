@@ -150,9 +150,14 @@ describe('v0 fixture contents', () => {
         level: 46,
         copies: 11,
         gear: { head: 'g1', chest: 'g2', boots: 'g4' },
+        // ⚠️ Non-zero on purpose. A fixture holding the default passes identically whether the
+        // decoder reads the field or silently defaults it, which is the one distinction it exists
+        // to make. It also carries the ineligible case: `alpha` sits at rarity 6, below the
+        // `mythic` unlock, and the level is kept rather than repaired away — see `repairOwned`.
+        signature: 14,
       },
-      { defId: 'beta', rarity: 4, level: 22, copies: 3, gear: { arms: 'g3' } },
-      { defId: 'gamma', rarity: 5, level: 31, copies: 6, gear: {} },
+      { defId: 'beta', rarity: 4, level: 22, copies: 3, gear: { arms: 'g3' }, signature: 0 },
+      { defId: 'gamma', rarity: 5, level: 31, copies: 6, gear: {}, signature: 0 },
     ]);
   });
 

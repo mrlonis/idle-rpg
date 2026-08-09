@@ -56,7 +56,7 @@ function report(over: Partial<OfflineReport> = {}): OfflineReport {
   return {
     rawElapsedMs: 3_600_000,
     elapsedMs: 3_600_000,
-    earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0) },
+    earned: { gold: num('900'), xp: num('180'), essence: num(0), summons: num(0), emblem: num(0) },
     ...over,
   };
 }
@@ -410,7 +410,7 @@ describe('HomeView', () => {
       const { el } = await render((game) =>
         game.offlineReport.set(
           report({
-            earned: { gold: num(0), xp: num(0), essence: num(0), summons: num(0) },
+            earned: { gold: num(0), xp: num(0), essence: num(0), summons: num(0), emblem: num(0) },
             elapsedMs: 0,
           }),
         ),
@@ -542,6 +542,7 @@ describe('HomeView', () => {
           summons: num('350'),
           spark: num('2'),
           alloy: num('880'),
+          emblem: num('64'),
         });
       });
 
@@ -555,7 +556,7 @@ describe('HomeView', () => {
       expect(labels.map((label) => label?.toLowerCase())).toEqual(
         CURRENCY_IDS.map((id) => CURRENCY_LABELS[id].toLowerCase()),
       );
-      expect(amounts).toEqual(['100', '4.2K', '17', '350', '2', '880']);
+      expect(amounts).toEqual(['100', '4.2K', '17', '350', '2', '880', '64']);
       // Nothing outside the strip is showing gold a second time.
       expect(el.querySelectorAll('.wallet__item')).toHaveLength(CURRENCY_IDS.length);
     });

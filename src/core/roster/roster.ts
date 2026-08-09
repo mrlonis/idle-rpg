@@ -110,6 +110,10 @@ export function grantCopies(
       level: 1,
       copies: copies - 1,
       gear: emptyLoadout(),
+      // A freshly pulled character has no signature item, whatever tier it is and whatever rung
+      // an override placed it on. Level 1 is bought with emblems and is never granted — see
+      // `core/signature/`.
+      signature: 0,
     };
     return {
       state: { ...state, roster: [...state.roster, entry] },
@@ -456,5 +460,12 @@ export function repairOwned(
     // claim the same one. `repairLoadouts` in `core/gear/inventory.ts` is the pass that can, and
     // it runs on every load beside `reconcileClearedStages`.
     gear: owned.gear,
+    // Clamped to a whole non-negative number and otherwise carried through **unchecked**, for a
+    // reason worth stating: this function knows the character's tier and rung, so it *could* zero
+    // a level on a character no longer eligible for one — and must not. The level was paid for and
+    // the emblems are gone, so zeroing it would take back an investment to enforce a rule the
+    // player did not break. An ineligible character reads as inert instead, because every path
+    // that consumes this goes through `signatureUnlocked` first.
+    signature: Number.isFinite(owned.signature) ? Math.max(Math.floor(owned.signature), 0) : 0,
   };
 }

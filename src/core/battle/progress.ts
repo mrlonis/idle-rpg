@@ -1,10 +1,19 @@
-import { credit, raiseRates, type Rates, type SummonRateCurve, withSummonRate } from '../currency';
+import {
+  credit,
+  type IdleRateCurves,
+  raiseRates,
+  type Rates,
+  withEmblemRate,
+  withSummonRate,
+} from '../currency';
+import { type EmblemDropData, rollEmblems } from '../emblems';
 import { addGear } from '../gear/inventory';
 import { rollDrops } from '../gear/roll';
 import { type GearRulesData } from '../gear/types';
 import {
   advancePosition,
   type ChapterCurveData,
+  chaptersCleared,
   type LadderShape,
   positionAt,
   stageIndex,
@@ -58,16 +67,15 @@ import { type AuthoredAmount, type BattleResult, type StageKind } from './types'
  * hypothetical in milestone 11, when the rates for a given stage number were re-derived from
  * scratch. See `reconcileClearedStages` for the repair path that leans on the same guarantee.
  *
- * `ladder` and `summonRate` are passed in because `core/` cannot import `data/` — content
- * reaches the simulation as arguments, which is also what lets this be tested without shipped
- * stages.
+ * `ladder` and `curves` are passed in because `core/` cannot import `data/` — content reaches the
+ * simulation as arguments, which is also what lets this be tested without shipped stages.
  */
 export function applyBattleResult(
   state: GameState,
   result: BattleResult,
   ladder: LadderShape,
-  summonRate: SummonRateCurve,
-  gear?: GearAward,
+  curves: IdleRateCurves,
+  drops?: DropAward,
 ): GameState {
   const won = result.outcome === 'victory';
 
@@ -91,11 +99,20 @@ export function applyBattleResult(
 
   // First clear only. A re-fight pays its lump and changes nothing about income.
   const unlocked = isFirstClear ? raiseRates(state.rates, result.reward.rates) : state.rates;
-  // Applied on every battle rather than only on a first clear, because it is a function of a
-  // count that did not necessarily change. That costs one comparison on a loss and means a run
-  // whose crystal rate somehow sits below what its clears have earned heals on the next fight
-  // instead of waiting for a reload.
-  const rates = withSummonRate(unlocked, summonRate, clearedStages);
+  // Both applied on every battle rather than only on a first clear, because both are functions of
+  // a count that did not necessarily change. That costs one comparison per currency on a loss and
+  // means a run whose crystal or emblem rate somehow sits below what its clears have earned heals
+  // on the next fight instead of waiting for a reload.
+  //
+  // The emblem rate steps per **chapter**, so it is fed the derived chapter count rather than
+  // `clearedStages`. Handing it the stage count type-checks and is wrong by the size of a chapter
+  // — an income fifty times too large, which presents as a generous run rather than as a bug.
+  const withCrystals = withSummonRate(unlocked, curves.summons, clearedStages);
+  const rates = withEmblemRate(
+    withCrystals,
+    curves.emblem,
+    chaptersCleared(ladder, clearedStages).total,
+  );
 
   const advanced: GameState = {
     ...state,
@@ -107,7 +124,7 @@ export function applyBattleResult(
     battleCount: state.battleCount + 1,
   };
 
-  if (!won || gear === undefined) {
+  if (!won || drops === undefined) {
     return advanced;
   }
   // Rolled from a **derived** stream keyed on the battle that produced them, exactly as the fight
@@ -115,26 +132,58 @@ export function applyBattleResult(
   // which is the hazard `core/rng.ts` exists to remove; `state.battleCount` is in the label rather
   // than `advanced.battleCount` so a drop belongs to the fight that dropped it.
   const draw = derivedStream(state.rng.seed, `gear:${current}:${state.battleCount}`);
-  const specs = rollDrops(gear.rules, gear.factions, current, gear.kind, draw);
-  return addGear(advanced, specs, gear.rules).state;
+  const specs = rollDrops(drops.rules, drops.factions, current, drops.kind, draw);
+  const withGear = addGear(advanced, specs, drops.rules).state;
+
+  if (drops.emblems === undefined) {
+    return withGear;
+  }
+  // ⚠️ **A separate stream, not another draw from the gear one.** The count draw in `rollDrops` is
+  // the first draw it takes and every later draw shifts by one, so adding a draw to that sequence
+  // re-rolls every historical gear drop for a given seed — invisible in play, and it turns every
+  // recorded balance figure into a different number. A different label costs nothing and makes the
+  // two faucets independent forever.
+  const emblemDraw = derivedStream(state.rng.seed, `emblem:${current}:${state.battleCount}`);
+  // The chapter count **after** this clear is credited, so the chapter boss that finishes chapter 1
+  // is itself able to drop. Gating on the count before it would make the clear that unlocks emblems
+  // the one clear that cannot produce one.
+  const earned = rollEmblems(
+    drops.emblems,
+    drops.kind,
+    chaptersCleared(ladder, clearedStages).total,
+    emblemDraw,
+  );
+  if (earned <= 0) {
+    return withGear;
+  }
+  return { ...withGear, wallet: credit(withGear.wallet, { emblem: num(earned) }) };
 }
 
 /**
  * What a stage clear drops, as the caller has to describe it.
  *
- * A bundle rather than three more parameters, and **optional** rather than required: the balance
+ * A bundle rather than four more parameters, and **optional** rather than required: the balance
  * sweep and every combat spec fold results into a run without caring about the bag, and a required
- * argument would make each of them construct gear content they have no use for.
+ * argument would make each of them construct drop content they have no use for.
  *
  * The stage `kind` is passed in rather than derived because `applyBattleResult` is handed a ladder
  * *shape* — chapter lengths — and not the chapter curve that decides where the mini-bosses fall.
- * The caller already resolved the stage it fought, so it already knows.
+ * The caller already resolved the stage it fought, so it already knows. Both drop tables read it,
+ * which is most of the argument for one bundle rather than two.
  */
-export interface GearAward {
+export interface DropAward {
   readonly rules: GearRulesData;
   /** The factions a dropped piece may be aligned to. Content, so it arrives as an argument. */
   readonly factions: readonly string[];
   readonly kind: StageKind;
+  /**
+   * The emblem drop table, or absent to drop no emblems at all.
+   *
+   * Optional **separately** from the bundle it sits in, so a caller can take gear without emblems.
+   * That is not hypothetical tidiness: it is what lets the gear specs keep asserting exactly what
+   * they asserted before milestone 16, against a state whose wallet this cannot have touched.
+   */
+  readonly emblems?: EmblemDropData;
 }
 
 /**
@@ -194,6 +243,12 @@ export interface GearAward {
  * cannot see content, so a brand-new save arrives with a zero crystal rate and leaves this
  * function earning the base.
  *
+ * The emblem rate is the same kind of thing one level up: a function of the **chapter** count,
+ * itself derived from the clear count against this ladder. That it is derived here rather than
+ * stored is what makes a re-cut ladder safe — a save mid-way through a chapter that a later build
+ * lengthened comes out of this with the rate its clears actually earn under the new shape, with
+ * nothing to migrate.
+ *
  * This only ever **raises** — `clearedStages` never falls, no rate is ever cut, no crystals are
  * ever taken, and a run that is already consistent comes back untouched. That is what lets it run
  * on every load, like `grantStarters`, rather than being a one-shot fix that needs its own
@@ -206,14 +261,18 @@ export function reconcileClearedStages(
   ladder: LadderShape,
   chapterCurve: ChapterCurveData,
   rewards: StageRewardCurveData,
-  summonRate: SummonRateCurve,
+  curves: IdleRateCurves,
 ): GameState {
   const total = totalStages(ladder);
   if (total === 0) {
     // No ladder to reconcile against, but the crystal base does not come from the ladder — a
     // build shipping no stages still earns it, and returning early without it would make the
     // rate depend on content it has nothing to do with.
-    const rates = withSummonRate(state.rates, summonRate, state.clearedStages);
+    //
+    // The emblem rate is not in the same position and deliberately gets no such exception: it has
+    // no base, and with no chapters there is no chapter to have cleared, so zero is the true
+    // answer rather than a value waiting to be repaired.
+    const rates = withSummonRate(state.rates, curves.summons, state.clearedStages);
     return rates === state.rates ? state : { ...state, rates };
   }
 
@@ -237,7 +296,8 @@ export function reconcileClearedStages(
   if (cleared > 0) {
     rates = raiseRates(rates, toRateAmounts(stagePayout(rewards, cleared).rates));
   }
-  rates = withSummonRate(rates, summonRate, cleared);
+  rates = withSummonRate(rates, curves.summons, cleared);
+  rates = withEmblemRate(rates, curves.emblem, chaptersCleared(ladder, cleared).total);
 
   // Only the stages this call is crediting for the first time. Anything already in
   // `clearedStages` was either fought under this build and paid, or credited by an earlier run

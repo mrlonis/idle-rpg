@@ -30,7 +30,7 @@ import {
   QUEST_COUNTERS,
   QUEST_WINDOW_RULES,
   STAGE_REWARD_CURVE,
-  SUMMON_RATE_CURVE,
+  IDLE_RATE_CURVES,
 } from './content';
 import { makeSeed, SaveService } from './save.service';
 
@@ -218,7 +218,7 @@ export class GameLoopService {
       LADDER,
       CHAPTER_RULES,
       STAGE_REWARD_CURVE,
-      SUMMON_RATE_CURVE,
+      IDLE_RATE_CURVES,
     );
     // Fourth and last, and it runs on every load for the same reason the other three do: it needs
     // content `core/` cannot see, and it is idempotent. It restores the bounty board's disjointness

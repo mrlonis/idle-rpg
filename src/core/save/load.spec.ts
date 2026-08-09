@@ -93,8 +93,16 @@ describe('loadSave', () => {
     const result = loadSave(
       {
         version: SAVE_VERSION,
-        wallet: { gold: '4e+10', xp: '900', essence: '3', summons: '120', spark: '0', alloy: '0' },
-        rates: { gold: '4', xp: 'broken', essence: '0.01', summons: '0.005' },
+        wallet: {
+          gold: '4e+10',
+          xp: '900',
+          essence: '3',
+          summons: '120',
+          spark: '0',
+          alloy: '0',
+          emblem: '0',
+        },
+        rates: { gold: '4', xp: 'broken', essence: '0.01', summons: '0.005', emblem: '0' },
         lastTickAt: T0 - 1000,
         rng: { seed: 5, calls: 3 },
         chapter: 2,

@@ -457,7 +457,16 @@ describe('applyTowerResult', () => {
       inventoryLimit: 200,
     };
 
-    const award = { rules: gearRules, factions: ['human', 'undead'], stageIndex: 40 };
+    // No `emblems`, so these keep asserting exactly what they asserted before milestone 16 —
+    // against a state whose wallet the emblem path cannot have touched. `clearedChapters` is still
+    // required, because a bundle that defaulted it would let a caller forget which run it was
+    // describing and silently gate every drop off.
+    const award = {
+      rules: gearRules,
+      factions: ['human', 'undead'],
+      stageIndex: 40,
+      clearedChapters: 2,
+    };
 
     it('drops gear on a win, and is reproducible from the same seed and floor', () => {
       const before = run();

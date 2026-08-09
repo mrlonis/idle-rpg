@@ -69,6 +69,7 @@ export function toSaveData(state: GameState): CurrentSaveData {
       level: owned.level,
       copies: owned.copies,
       gear: { ...owned.gear },
+      signature: owned.signature,
     })),
     formations: Object.fromEntries(
       Object.entries(state.formations).map(([activity, formation]) => [
@@ -432,6 +433,7 @@ function readRoster(
           level: typeof record['level'] === 'number' ? record['level'] : 1,
           copies: typeof record['copies'] === 'number' ? record['copies'] : 0,
           gear: readLoadout(record['gear']),
+          signature: typeof record['signature'] === 'number' ? record['signature'] : 0,
         },
         character,
         options.levelCurve,

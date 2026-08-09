@@ -63,7 +63,7 @@ const CAST = CHARACTERS.slice(0, PARTY_SIZE + 1);
 const TOP = LEVELS.caps.length - 1;
 
 function entry(defId: string, level: number, rarity = TOP): OwnedCharacter {
-  return { defId, rarity, level, copies: 0, gear: {} };
+  return { defId, rarity, level, copies: 0, gear: {}, signature: 0 };
 }
 
 function build(roster: readonly OwnedCharacter[], front: readonly string[] = []) {

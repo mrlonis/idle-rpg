@@ -369,6 +369,28 @@ export interface CombatantData {
   readonly basic?: SkillData;
   /** Everything above the basic attack, in any order; parsing sorts them by priority. */
   readonly skills?: readonly SkillData[];
+  /**
+   * Statuses this combatant is already carrying when the first tick runs.
+   *
+   * Added in milestone 16 as the **passive** half of the signature-ability vocabulary, and
+   * expressed as ordinary {@link StatusData} rather than as a new passive language. Everything a
+   * passive would want to say — a lasting stat multiplier, a regeneration, a shield, an aura — is
+   * already a status, and statuses already carry a duration, a hostile flag, a cleanse
+   * interaction, and a display name every screen knows how to draw.
+   *
+   * ⚠️ **A permanent passive is written as a duration longer than a fight can last.** There is
+   * deliberately no "forever" value: `MAX_BATTLE_TICKS` bounds every battle, so a duration above it
+   * is permanent in every sense the simulation can observe — and keeping this a plain number means
+   * nothing downstream has to special-case an infinity.
+   *
+   * Applied at tick 0 against the combatant's **own** stats, which matters for the kinds that
+   * price off the applier: a shield or a regeneration granted here is sized by the wearer, because
+   * the wearer is who granted it.
+   *
+   * General rather than signature-specific: an enemy archetype could declare one, and nothing here
+   * knows what a signature item is. That is the same latitude `basic` and `skills` have.
+   */
+  readonly opening?: readonly StatusData[];
 }
 
 /** One side's line-up, in two rows. */
@@ -406,13 +428,42 @@ export interface EnemyFormationData {
 /** A quantity as authored in `data/`, before it becomes a `Numeric`. */
 export type AuthoredAmount = number | string;
 
-/** Per-currency quantities as authored in `data/`. Absent keys mean zero. */
+/**
+ * Per-currency quantities as authored in `data/`. Absent keys mean zero.
+ *
+ * ⚠️ **This is deliberately narrower than the set of currencies that have a rate.** Since
+ * milestone 16 `RATE_CURRENCY_IDS` also carries `emblem`, and `emblem` is **not** here: an emblem
+ * is never authored onto a stage, as a lump or as a rate. Its two sources are the chapter-stepped
+ * idle curve and a drop chance, both of which are functions of *where the run has got to* rather
+ * than of any one encounter.
+ *
+ * Adding `emblem` here would be a third mechanism on the same currency, and a silent one — because
+ * `raiseRates` takes the larger of what it is offered and what a run already earns, whichever
+ * source happened to be bigger would quietly win with nothing on screen to say which. That is the
+ * same trap milestone 11 removed from gold, xp and essence when it stopped stages authoring their
+ * own payouts.
+ */
 export interface AuthoredCurrencies {
   readonly gold?: AuthoredAmount;
   readonly xp?: AuthoredAmount;
   readonly essence?: AuthoredAmount;
   readonly summons?: AuthoredAmount;
 }
+
+/**
+ * The currencies a stage may author, as a list to iterate.
+ *
+ * Exists so that {@link AuthoredCurrencies} being narrower than `RATE_CURRENCY_IDS` is a fact the
+ * parsers read rather than one they can fall out of step with. It is `satisfies` against the
+ * interface's own keys, so adding a field there without adding it here — or the reverse — is a
+ * compile error rather than an authored quantity that is silently never parsed.
+ */
+export const STAGE_CURRENCY_IDS = [
+  'gold',
+  'xp',
+  'essence',
+  'summons',
+] as const satisfies readonly (keyof AuthoredCurrencies)[];
 
 /** One faction's edge over another, as authored in `data/`. */
 export interface FactionMatchupData {
@@ -910,6 +961,15 @@ export interface Combatant {
   readonly basic: Skill;
   /** Sorted by descending priority, so selection is a linear scan. */
   readonly skills: readonly Skill[];
+  /**
+   * Statuses this combatant starts the fight already carrying.
+   *
+   * Carried through **unparsed**, unlike every other field here, and the asymmetry is deliberate:
+   * a status is parsed by `toActiveStatus` at the moment it is applied, against the stats of
+   * whoever applied it. Parsing it here would mean doing it twice, or doing it against stats that
+   * have not had the row bonus applied yet.
+   */
+  readonly opening: readonly StatusData[];
 }
 
 /** The combat rules, with the matchup matrix resolved for lookup. */

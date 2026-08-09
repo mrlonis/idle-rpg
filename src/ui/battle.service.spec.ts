@@ -99,6 +99,7 @@ function withStarters(state: GameState, level = 1): GameState {
     level,
     copies: 0,
     gear: {},
+    signature: 0,
   }));
   return { ...state, roster, formations: { [CAMPAIGN_FORMATION]: STARTER_FORMATION } };
 }
@@ -812,6 +813,7 @@ describe('BattleService', () => {
         level: LEVELS.caps[rarity],
         copies: 0,
         gear: {},
+        signature: 0,
       }));
       return {
         ...state,

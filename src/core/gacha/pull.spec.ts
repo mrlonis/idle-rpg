@@ -344,7 +344,14 @@ describe('what a pull produces', () => {
 
     expect(results[0].isNew).toBe(true);
     expect(state.roster).toEqual([
-      { defId: 'gamma', rarity: startRarityIndex('ascended'), level: 1, copies: 0, gear: {} },
+      {
+        defId: 'gamma',
+        rarity: startRarityIndex('ascended'),
+        level: 1,
+        copies: 0,
+        gear: {},
+        signature: 0,
+      },
     ]);
   });
 
@@ -403,7 +410,11 @@ describe('what a pull produces', () => {
 
 describe('duplicates of a maxed character', () => {
   const maxed = (): GameState =>
-    run({ roster: [{ defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 0, gear: {} }] });
+    run({
+      roster: [
+        { defId: 'gamma', rarity: MAX_RARITY_INDEX, level: 1, copies: 0, gear: {}, signature: 0 },
+      ],
+    });
 
   it('mints spark instead of a copy that has nowhere to go', () => {
     const { state, results } = draw(maxed(), 1, only(TEST_GAMMA.id));

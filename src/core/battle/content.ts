@@ -1,4 +1,4 @@
-import { type CurrencyAmounts, type CurrencyId, type Rates, RATE_CURRENCY_IDS } from '../currency';
+import { type CurrencyAmounts, type CurrencyId, type Rates } from '../currency';
 import { type Numeric, ONE, parseOr, ZERO } from '../numeric';
 import { ATB_THRESHOLD } from './clock';
 import { MAX_ENERGY, toEnergyRules } from './energy';
@@ -15,6 +15,7 @@ import {
   type RowBonusData,
   type Skill,
   type SkillData,
+  STAGE_CURRENCY_IDS,
   type StatBlockData,
 } from './types';
 
@@ -223,6 +224,7 @@ export function toCombatant(raw: CombatantData, rules: CombatRules, row: Row): C
     ),
     basic: raw.basic === undefined ? rules.basicAttack : toSkill(raw.basic),
     skills: (raw.skills ?? []).map(toSkill).sort((a, b) => b.priority - a.priority),
+    opening: raw.opening ?? [],
   };
 }
 
@@ -282,7 +284,9 @@ export function toAmount(raw: AuthoredAmount | undefined): Numeric {
  */
 export function toCurrencyAmounts(raw: AuthoredCurrencies): CurrencyAmounts {
   const parsed: Partial<Record<CurrencyId, Numeric>> = {};
-  for (const id of RATE_CURRENCY_IDS) {
+  // `STAGE_CURRENCY_IDS` rather than `RATE_CURRENCY_IDS`: the two stopped being the same list in
+  // milestone 16, when `emblem` gained a rate that no stage may author. See `AuthoredCurrencies`.
+  for (const id of STAGE_CURRENCY_IDS) {
     const value = raw[id];
     if (value !== undefined) {
       parsed[id] = toAmount(value);

@@ -4,19 +4,24 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import {
+  emblemRatePerSecond,
   summonRatePerSecond,
   type CurrencyAmounts,
+  type EmblemRateCurve,
+  type IdleRateCurves,
   type Rates,
   type SummonRateCurve,
   zeroRates,
 } from '../currency';
+import { type GearRulesData, type GearSlot, type GearStatProfile } from '../gear/types';
 import {
   type ChapterCurveData,
+  chaptersCleared,
   type LadderShape,
   stagePayout,
   type StageRewardCurveData,
 } from '../ladder';
-import { num, ZERO } from '../numeric';
+import { num, type Numeric, ZERO } from '../numeric';
 import { newGame, type GameState } from '../state';
 import { tick } from '../tick';
 import { applyBattleResult, reconcileClearedStages } from './progress';
@@ -77,10 +82,89 @@ const TOTAL_BONUS = BONUSES.reduce((sum, bonus) => sum + bonus, 0);
  */
 const CRYSTALS: SummonRateCurve = { basePerHour: 100, perClearPerHour: 0.5 };
 
+/**
+ * The emblem curve.
+ *
+ * A step of 2 rather than the shipped 1, chosen so that "one chapter cleared" and "two chapters
+ * cleared" produce rates a reader cannot confuse with the chapter *count* itself — at a step of 1
+ * the rate and the count are the same number, and an assertion that passes for the wrong reason is
+ * exactly what a spec over two similar integers invites.
+ */
+const EMBLEMS: EmblemRateCurve = { perChapterPerHour: 2 };
+
+/** Both derived curves, in the shape `applyBattleResult` takes. */
+const CURVES: IdleRateCurves = { summons: CRYSTALS, emblem: EMBLEMS };
+
 /** What the crystal rate should be after `cleared` stages, per second. */
 function crystalsAfter(cleared: number): number {
   return (CRYSTALS.basePerHour + CRYSTALS.perClearPerHour * cleared) / 3600;
 }
+
+/**
+ * What the emblem rate should be after `chapters` whole chapters, per second.
+ *
+ * Built through `emblemRatePerSecond` rather than as `perChapterPerHour * chapters / 3600`, which
+ * looks like circular reasoning and is not: what these tests measure is **which count is fed to
+ * the curve**, not what the curve computes — `currency.spec.ts` owns the second question. Writing
+ * the division out here would make every assertion below depend on `Decimal.div` and float64 `/`
+ * agreeing in the last bit, which they do not.
+ */
+function emblemsAfter(chapters: number): Numeric {
+  return emblemRatePerSecond(EMBLEMS, chapters);
+}
+
+/**
+ * A gear table that always drops exactly one plain piece, so an emblem assertion is never reading
+ * a bag that happened to vary.
+ *
+ * Every number here is chosen to be inert rather than realistic: one grade, one profile, a fixed
+ * drop count. What these tests measure is which **stream** a draw came from and whether a gate
+ * bit, and a gear table with any variance in it would put noise into both readings.
+ */
+const PLAIN_PROFILE: Readonly<Record<GearSlot, GearStatProfile>> = {
+  head: { hp: 0.1 },
+  arms: { atk: 0.1 },
+  chest: { hp: 0.2 },
+  legs: { def: 0.1 },
+  boots: { haste: 0.05 },
+};
+
+const EMPTY_GEAR_RULES: GearRulesData = {
+  grades: [
+    {
+      id: 'plain',
+      name: 'Plain',
+      multiplier: 1,
+      maxLevel: 5,
+      salvage: 10,
+      weight: 100,
+      priceSeconds: 10,
+      unlockIndex: 0,
+    },
+  ],
+  profiles: {
+    tank: PLAIN_PROFILE,
+    brawler: PLAIN_PROFILE,
+    mage: PLAIN_PROFILE,
+    ranger: PLAIN_PROFILE,
+    support: PLAIN_PROFILE,
+  },
+  perLevel: 0.25,
+  alignmentBonus: 1.5,
+  unalignedChance: 1,
+  enhance: {
+    alloy: { coefficient: 10, exponent: 1 },
+    gold: { coefficient: 100, exponent: 2 },
+  },
+  drops: {
+    normal: { min: 1, max: 1 },
+    miniBoss: { min: 2, max: 2 },
+    boss: { min: 4, max: 4 },
+    gradeSoftness: 10,
+  },
+  shop: { offers: 3, refreshMs: 1000, minGoldPerSecond: 1 },
+  inventoryLimit: 200,
+};
 
 function run(overrides: Partial<GameState> = {}): GameState {
   return { ...newGame({ seed: 0xc0ffee, nowMs: T0 }), ...overrides };
@@ -132,7 +216,7 @@ describe('applyBattleResult', () => {
       state,
       outcome('victory', { gained: { gold: num(160) } }),
       LADDER,
-      CRYSTALS,
+      CURVES,
     );
 
     expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 4 });
@@ -145,7 +229,7 @@ describe('applyBattleResult', () => {
     // boss and not thrown back to the beginning.
     const state = run({ chapter: 1, stage: 5 });
 
-    const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
 
     expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 2, stage: 1 });
   });
@@ -156,7 +240,7 @@ describe('applyBattleResult', () => {
     // ladder for a clear of its sixth would hand back five first-clear bonuses.
     const state = run({ chapter: 2, stage: 1, clearedStages: 5 });
 
-    const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
 
     expect(next.clearedStages).toBe(6);
   });
@@ -166,7 +250,7 @@ describe('applyBattleResult', () => {
       run(),
       outcome('victory', { gained: { gold: num(650), xp: num(120), essence: num(5) } }),
       LADDER,
-      CRYSTALS,
+      CURVES,
     );
 
     expect(next.wallet.gold.eq(650)).toBe(true);
@@ -177,7 +261,7 @@ describe('applyBattleResult', () => {
   it.each<BattleOutcome>(['defeat'])('holds the stage on a %s', (kind) => {
     const state = withGold(run({ chapter: 1, stage: 3 }), '500');
 
-    const next = applyBattleResult(state, outcome(kind), LADDER, CRYSTALS);
+    const next = applyBattleResult(state, outcome(kind), LADDER, CURVES);
 
     expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 3 });
     expect(next.wallet.gold.eq(500)).toBe(true);
@@ -189,7 +273,7 @@ describe('applyBattleResult', () => {
     // reasons the player could never see.
     const state = run({ battleCount: 41 });
 
-    expect(applyBattleResult(state, outcome(kind), LADDER, CRYSTALS).battleCount).toBe(42);
+    expect(applyBattleResult(state, outcome(kind), LADDER, CURVES).battleCount).toBe(42);
   });
 
   it('stops at the last authored stage, which then repeats', () => {
@@ -199,7 +283,7 @@ describe('applyBattleResult', () => {
       state,
       outcome('victory', { gained: { gold: num(650) } }),
       LADDER,
-      CRYSTALS,
+      CURVES,
     );
 
     expect({ chapter: next.chapter, stage: next.stage }).toEqual(TOP);
@@ -211,7 +295,7 @@ describe('applyBattleResult', () => {
     // rather than on a stage that does not exist.
     const state = run({ chapter: 9, stage: 40 });
 
-    const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
+    const next = applyBattleResult(state, outcome('defeat'), LADDER, CURVES);
 
     expect({ chapter: next.chapter, stage: next.stage }).toEqual(TOP);
   });
@@ -221,7 +305,7 @@ describe('applyBattleResult', () => {
     (empty) => {
       const state = run({ chapter: 4, stage: 4 });
 
-      const next = applyBattleResult(state, outcome('victory'), empty, CRYSTALS);
+      const next = applyBattleResult(state, outcome('victory'), empty, CURVES);
 
       expect({ chapter: next.chapter, stage: next.stage }).toEqual({ chapter: 1, stage: 1 });
     },
@@ -235,7 +319,7 @@ describe('applyBattleResult', () => {
         run(),
         outcome('victory', { rates: { gold: num('0.5'), xp: num('0.1') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.rates.gold.eq('0.5')).toBe(true);
@@ -245,7 +329,7 @@ describe('applyBattleResult', () => {
     it.each<BattleOutcome>(['defeat'])('leaves the rate alone on a %s', (kind) => {
       const state = withGoldRate(run(), '4');
 
-      expect(applyBattleResult(state, outcome(kind), LADDER, CRYSTALS).rates.gold.eq(4)).toBe(true);
+      expect(applyBattleResult(state, outcome(kind), LADDER, CURVES).rates.gold.eq(4)).toBe(true);
     });
 
     it('raises nothing when the stage has been cleared before', () => {
@@ -257,7 +341,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { rates: { gold: num('99'), xp: num('99') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.rates.gold.eq(0)).toBe(true);
@@ -273,7 +357,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { gained: { gold: num(65), xp: num(12) }, rates: { gold: num('99') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.wallet.gold.eq(65)).toBe(true);
@@ -291,7 +375,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { rates: { gold: num('0.5') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.rates.gold.eq(16)).toBe(true);
@@ -306,7 +390,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { rates: { gold: num('0.5'), essence: num('0.05') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.rates.gold.eq(16)).toBe(true);
@@ -327,7 +411,7 @@ describe('applyBattleResult', () => {
             untouched,
             outcome('victory', { rates: { gold: num('0.5') } }),
             LADDER,
-            CRYSTALS,
+            CURVES,
           ),
           60_000,
         ).wallet.gold.eq(30),
@@ -339,7 +423,7 @@ describe('applyBattleResult', () => {
     it('steps up on a first clear', () => {
       const state = run({ chapter: 1, stage: 3, clearedStages: 2 });
 
-      const next = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+      const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
 
       expect(next.clearedStages).toBe(3);
       expect(next.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(3), 12);
@@ -352,7 +436,7 @@ describe('applyBattleResult', () => {
       let state = run({ ...TOP, clearedStages: 8 });
 
       for (let fight = 0; fight < 50; fight++) {
-        state = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+        state = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
       }
 
       expect(state.clearedStages).toBe(8);
@@ -366,7 +450,7 @@ describe('applyBattleResult', () => {
       let state = run();
 
       for (let fight = 0; fight < 50; fight++) {
-        state = applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS);
+        state = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
       }
 
       expect(state.clearedStages).toBe(8);
@@ -376,7 +460,7 @@ describe('applyBattleResult', () => {
     it('does not move on a loss', () => {
       const state = run({ chapter: 1, stage: 5, clearedStages: 4 });
 
-      const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
+      const next = applyBattleResult(state, outcome('defeat'), LADDER, CURVES);
 
       expect(next.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(4), 12);
     });
@@ -390,7 +474,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { rates: { gold: num('0.5'), summons: num('0.0015') } }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.rates.summons.toNumber()).toBeCloseTo(crystalsAfter(1), 12);
@@ -401,7 +485,7 @@ describe('applyBattleResult', () => {
       // `raiseRates` every other currency goes through.
       const generous = { ...run(), rates: { ...zeroRates(), summons: num('9') } };
 
-      const next = applyBattleResult(generous, outcome('victory'), LADDER, CRYSTALS);
+      const next = applyBattleResult(generous, outcome('victory'), LADDER, CURVES);
 
       expect(next.rates.summons.eq(9)).toBe(true);
     });
@@ -426,7 +510,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { firstClearSummons: '250' }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.wallet.summons.eq(250)).toBe(true);
@@ -442,7 +526,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { firstClearSummons: '800' }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.wallet.summons.eq(0)).toBe(true);
@@ -459,7 +543,7 @@ describe('applyBattleResult', () => {
         state,
         outcome('victory', { firstClearSummons: '800' }),
         LADDER,
-        CRYSTALS,
+        CURVES,
       );
 
       expect(next.clearedStages).toBe(8);
@@ -469,7 +553,7 @@ describe('applyBattleResult', () => {
     it('pays nothing on a loss and leaves the cleared count alone', () => {
       const state = run({ chapter: 1, stage: 5, clearedStages: 4 });
 
-      const next = applyBattleResult(state, outcome('defeat'), LADDER, CRYSTALS);
+      const next = applyBattleResult(state, outcome('defeat'), LADDER, CURVES);
 
       expect(next.wallet.summons.eq(0)).toBe(true);
       expect(next.clearedStages).toBe(4);
@@ -482,7 +566,7 @@ describe('applyBattleResult', () => {
     const state = run({ rng: { seed: 0xc0ffee, calls: 317 } });
 
     expect(
-      applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CRYSTALS)
+      applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CURVES)
         .rng,
     ).toEqual({ seed: 0xc0ffee, calls: 317 });
   });
@@ -490,7 +574,7 @@ describe('applyBattleResult', () => {
   it('does not mutate the state it is given', () => {
     const state = withGold(run({ chapter: 1, stage: 2, battleCount: 5 }), '10');
 
-    applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CRYSTALS);
+    applyBattleResult(state, outcome('victory', { gained: { gold: num(100) } }), LADDER, CURVES);
 
     expect(state.stage).toBe(2);
     expect(state.battleCount).toBe(5);
@@ -500,7 +584,7 @@ describe('applyBattleResult', () => {
   it('leaves the clock alone, because core has none', () => {
     const state = run({ lastTickAt: T0 });
 
-    expect(applyBattleResult(state, outcome('victory'), LADDER, CRYSTALS).lastTickAt).toBe(T0);
+    expect(applyBattleResult(state, outcome('victory'), LADDER, CURVES).lastTickAt).toBe(T0);
   });
 });
 
@@ -518,14 +602,24 @@ describe('applyBattleResult', () => {
  */
 describe('reconcileClearedStages', () => {
   const repair = (state: GameState, ladder: LadderShape = LADDER): GameState =>
-    reconcileClearedStages(state, ladder, CHAPTER_RULES, REWARDS, CRYSTALS);
+    reconcileClearedStages(state, ladder, CHAPTER_RULES, REWARDS, CURVES);
 
   /** A save as the migration would have left it: gold intact, everything else zeroed. */
   function migrated(goldRate: string, clearedStages: number): GameState {
     return run({ rates: { ...zeroRates(), gold: num(goldRate) }, clearedStages, ...TOP });
   }
 
-  /** A run that has genuinely earned everything the ladder grants, crystal rate included. */
+  /**
+   * A run that has genuinely earned everything the ladder grants — every rate, both derived ones
+   * included.
+   *
+   * Every rate is **derived** from `clearedStages` rather than written out, which is what makes
+   * the identity assertion below mean something: if any rate here were a literal, `settled` would
+   * drift from what the repair actually computes and the test would report a repair that changed
+   * something when the truth was that the fixture was wrong. The emblem rate is the case that
+   * proved it — eight stages of a `[5, 3]` ladder is two whole chapters, so a hardcoded zero made
+   * a healthy run look damaged.
+   */
   function settled(clearedStages: number): GameState {
     const payout = stagePayout(REWARDS, clearedStages);
     return run({
@@ -536,6 +630,7 @@ describe('reconcileClearedStages', () => {
         xp: num(payout.rates.xp ?? 0),
         essence: num(payout.rates.essence ?? 0),
         summons: summonRatePerSecond(CRYSTALS, clearedStages),
+        emblem: emblemRatePerSecond(EMBLEMS, chaptersCleared(LADDER, clearedStages).total),
       },
     });
   }
@@ -613,7 +708,7 @@ describe('reconcileClearedStages', () => {
       ...REWARDS,
       firstClearSummons: { ...REWARDS.firstClearSummons, bossMultiplier: 5 },
     };
-    const owed = reconcileClearedStages(migrated('4', 4), LADDER, CHAPTER_RULES, generous, CRYSTALS)
+    const owed = reconcileClearedStages(migrated('4', 4), LADDER, CHAPTER_RULES, generous, CURVES)
       .wallet.summons;
 
     // Stages 5 to 8: stage 5 closes chapter 1 and stage 8 closes chapter 2, so two of the four
@@ -775,11 +870,144 @@ describe('reconcileClearedStages', () => {
         firstClearSummons: '800',
       }),
       LADDER,
-      CRYSTALS,
+      CURVES,
     );
 
     expect(after.rates).toBe(fixed.rates);
     expect(after.wallet.summons.eq(fixed.wallet.summons)).toBe(true);
     expect(after.wallet.gold.eq(fixed.wallet.gold.add(650))).toBe(true);
+  });
+});
+
+describe('the emblem rate', () => {
+  it('pays nothing until a whole chapter has been cleared', () => {
+    // The fixture ladder's first chapter is five stages, so a run four deep has finished none.
+    const state = run({ chapter: 1, stage: 4, clearedStages: 3 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
+
+    expect(next.clearedStages).toBe(4);
+    expect(next.rates.emblem.eq(0)).toBe(true);
+  });
+
+  it('switches on with the clear that finishes a chapter, not the one after', () => {
+    // ⚠️ The off-by-one worth guarding: the chapter count is read **after** this clear is
+    // credited, so the boss that finishes chapter 1 is the fight that turns the faucet on. Reading
+    // it before would delay the whole system by a stage, silently.
+    const state = run({ chapter: 1, stage: 5, clearedStages: 4 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
+
+    expect(next.rates.emblem.eq(emblemsAfter(1))).toBe(true);
+  });
+
+  it('steps again on the next whole chapter and not in between', () => {
+    // A clear in the middle of chapter 2 moves the count and not the rate.
+    const midway = run({ chapter: 2, stage: 2, clearedStages: 6 });
+    const stepped = applyBattleResult(midway, outcome('victory'), LADDER, CURVES);
+
+    expect(stepped.clearedStages).toBe(7);
+    expect(stepped.rates.emblem.eq(emblemsAfter(1))).toBe(true);
+
+    // The clear that finishes chapter 2 moves both.
+    const closing = run({ chapter: 2, stage: 3, clearedStages: 7 });
+
+    expect(
+      applyBattleResult(closing, outcome('victory'), LADDER, CURVES).rates.emblem.eq(
+        emblemsAfter(2),
+      ),
+    ).toBe(true);
+    expect(
+      applyBattleResult(closing, outcome('defeat'), LADDER, CURVES).rates.emblem.eq(
+        emblemsAfter(1),
+      ),
+    ).toBe(true);
+  });
+
+  it('is a function of chapters rather than of stages', () => {
+    // The bug this exists to catch is passing `clearedStages` where `clearedChapters` belongs. It
+    // type-checks, and on this eight-stage ladder it would report a rate seven steps too high.
+    const state = run({ ...TOP, clearedStages: 7 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES);
+
+    expect(next.rates.emblem.eq(emblemsAfter(2))).toBe(true);
+  });
+});
+
+describe('emblem drops', () => {
+  /** The drop table with every kind certain, so a miss is a gate rather than a coin flip. */
+  const CERTAIN = { normal: 1, miniBoss: 1, boss: 1, unlockChapters: 1 };
+  const GEAR_FREE = { rules: EMPTY_GEAR_RULES, factions: [], kind: 'normal' as const };
+
+  it('credits an emblem on a win once the gate is met', () => {
+    const state = run({ ...TOP, clearedStages: 7 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES, {
+      ...GEAR_FREE,
+      emblems: CERTAIN,
+    });
+
+    expect(next.wallet.emblem.eq(1)).toBe(true);
+  });
+
+  it('drops nothing before the gate, however certain the table is', () => {
+    const state = run({ chapter: 1, stage: 2, clearedStages: 1 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES, {
+      ...GEAR_FREE,
+      emblems: CERTAIN,
+    });
+
+    expect(next.wallet.emblem.eq(0)).toBe(true);
+  });
+
+  it('drops nothing on a defeat', () => {
+    const state = run({ ...TOP, clearedStages: 7 });
+
+    const next = applyBattleResult(state, outcome('defeat'), LADDER, CURVES, {
+      ...GEAR_FREE,
+      emblems: CERTAIN,
+    });
+
+    expect(next.wallet.emblem.eq(0)).toBe(true);
+  });
+
+  it('leaves the wallet alone when the bundle carries no emblem table', () => {
+    // The `emblems` field is optional separately from the bundle so a caller can take gear without
+    // emblems, which is what lets every gear spec keep asserting what it asserted before.
+    const state = run({ ...TOP, clearedStages: 7 });
+
+    const next = applyBattleResult(state, outcome('victory'), LADDER, CURVES, GEAR_FREE);
+
+    expect(next.wallet.emblem.eq(0)).toBe(true);
+  });
+
+  it('rolls from a stream the gear drop cannot shift', () => {
+    // ⚠️ The whole reason emblems draw from `emblem:` rather than from the gear sequence. If they
+    // shared a stream, changing how many pieces a fight drops would silently re-roll every
+    // historical emblem for a given seed — and the reverse.
+    const state = run({ ...TOP, clearedStages: 7 });
+    const table = { normal: 0.5, miniBoss: 0.5, boss: 0.5, unlockChapters: 1 };
+
+    const lean = applyBattleResult(state, outcome('victory'), LADDER, CURVES, {
+      ...GEAR_FREE,
+      rules: {
+        ...EMPTY_GEAR_RULES,
+        drops: { ...EMPTY_GEAR_RULES.drops, normal: { min: 1, max: 1 } },
+      },
+      emblems: table,
+    });
+    const fat = applyBattleResult(state, outcome('victory'), LADDER, CURVES, {
+      ...GEAR_FREE,
+      rules: {
+        ...EMPTY_GEAR_RULES,
+        drops: { ...EMPTY_GEAR_RULES.drops, normal: { min: 5, max: 5 } },
+      },
+      emblems: table,
+    });
+
+    expect(lean.gear.length).not.toBe(fat.gear.length);
+    expect(lean.wallet.emblem.eq(fat.wallet.emblem)).toBe(true);
   });
 });

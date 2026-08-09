@@ -1,5 +1,5 @@
 import { credit, type CurrencyAmounts, type CurrencyId } from './currency';
-import { type LadderShape, stagesInChapter } from './ladder';
+import { chaptersCleared, type LadderShape } from './ladder';
 import { num, type Numeric, ZERO } from './numeric';
 import { type GameState } from './state';
 import { floorsClearedIn } from './towers';
@@ -160,6 +160,11 @@ function wholeCount(value: number): number {
  * the run has actually finished is right at every size, and it costs no stored field: chapter
  * lengths are content the ladder already carries.
  *
+ * The traversal itself is {@link chaptersCleared} in [`core/ladder.ts`](./ladder.ts) rather than
+ * code here, because milestone 16 gave it a second caller: the emblem rate steps per chapter and
+ * needs the same answer. Two implementations of "how many chapters is this" is how a progress bar
+ * ends up disagreeing with the income it is drawn beside.
+ *
  * **It stops at the top of the authored ladder, and that is correct here** — the opposite of the
  * rule for quests, which may never be measured against `clearedStages` for exactly this reason. A
  * quest that stops moving is permanently unfinishable; an achievement that stops moving is one the
@@ -186,24 +191,7 @@ function readCounter(
   if (track.counter !== 'clearedChapters') {
     return { total: wholeCount(state[track.counter]), partial: 0 };
   }
-  const cleared = wholeCount(state.clearedStages);
-  let chapters = 0;
-  let consumed = 0;
-  for (let chapter = 1; chapter <= ladder.chapters.length; chapter++) {
-    const size = stagesInChapter(ladder, chapter);
-    // A chapter with nothing in it is skipped rather than counted. Content this malformed should
-    // not exist — `chapters.spec.ts` is what stops it — but counting it would hand over a
-    // chapter's award for clearing no stages at all, which is the one failure worth guarding.
-    if (size <= 0) {
-      continue;
-    }
-    if (consumed + size > cleared) {
-      return { total: chapters, partial: (cleared - consumed) / size };
-    }
-    consumed += size;
-    chapters++;
-  }
-  return { total: chapters, partial: 0 };
+  return chaptersCleared(ladder, state.clearedStages);
 }
 
 /** The value of the counter `track` is paid against. */

@@ -52,6 +52,14 @@ export interface LadderShape {
   readonly chapters: readonly number[];
 }
 
+/** How many whole chapters a run has finished, and how far into the next one it stands. */
+export interface ChaptersCleared {
+  /** Chapters cleared end to end. Stops at the top of the authored ladder. */
+  readonly total: number;
+  /** Progress through the chapter in hand, in `[0, 1)`. Zero once the ladder runs out. */
+  readonly partial: number;
+}
+
 /** A chapter as authored in `data/`: a name, and the encounters in it, in order. */
 export interface ChapterData {
   readonly id: string;
@@ -209,6 +217,51 @@ export function totalStages(shape: LadderShape): number {
 export function stagesInChapter(shape: LadderShape, chapter: number): number {
   const size = shape.chapters[Math.floor(chapter) - 1];
   return size !== undefined && Number.isFinite(size) ? Math.max(Math.floor(size), 0) : 0;
+}
+
+/**
+ * How many whole chapters a run with `clearedStages` clears has finished, and how far into the
+ * next one it has come.
+ *
+ * ## Derived, and that is the whole point
+ *
+ * There is no `clearedChapters` field in the save and there must not be one. Chapter lengths are
+ * content the ladder already carries, so resolving a clear count against the shipped
+ * {@link LadderShape} is right at every size — including after a retune that re-cuts the chapters
+ * around a save already sitting mid-ladder, which a stored count could not survive.
+ *
+ * ⚠️ **A chapter is not a fixed interval of stages.** `every: 50` over `clearedStages` is the
+ * obvious shorthand and it is wrong from chapter 11, where `CHAPTER_CURVE` steps to sixty: it
+ * drifts off the boundary and then reports a chapter finished ten stages into the next one,
+ * silently and forever. Walking the authored sizes is what keeps the answer true at any band.
+ *
+ * ## Why the partial comes back too
+ *
+ * Two callers need two different things from one traversal. The emblem rate needs {@link total}
+ * alone — a rate steps on a boundary or not at all. An achievement bar needs {@link partial},
+ * because a chapter is fifty fights and a bar drawn from the whole count sits empty through every
+ * one of them and then jumps, on the largest reward in the game.
+ *
+ * A chapter with no stages in it is **skipped rather than counted**. Content that malformed should
+ * not exist — `chapters.spec.ts` is what stops it — but counting it would hand over a chapter's
+ * award for clearing nothing at all, which is the one failure worth guarding against here.
+ */
+export function chaptersCleared(shape: LadderShape, clearedStages: number): ChaptersCleared {
+  const cleared = Number.isFinite(clearedStages) ? Math.max(Math.floor(clearedStages), 0) : 0;
+  let chapters = 0;
+  let consumed = 0;
+  for (let chapter = 1; chapter <= shape.chapters.length; chapter++) {
+    const size = stagesInChapter(shape, chapter);
+    if (size <= 0) {
+      continue;
+    }
+    if (consumed + size > cleared) {
+      return { total: chapters, partial: (cleared - consumed) / size };
+    }
+    consumed += size;
+    chapters++;
+  }
+  return { total: chapters, partial: 0 };
 }
 
 /**

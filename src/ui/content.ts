@@ -9,11 +9,13 @@ import {
   type CharacterLookup,
   type CombatRules,
   type CombatRulesData,
+  type EmblemDropData,
   type FactionData,
   type FactionLookup,
   type GachaRulesData,
   type GearRulesData,
   type GrowthData,
+  type IdleRateCurves,
   type KitRulesData,
   type LadderShape,
   ladderShape,
@@ -47,6 +49,8 @@ import {
   CHARACTERS,
   COMBAT_RULES,
   ELITE_UPGRADE_CHANCE,
+  EMBLEM_DROPS,
+  EMBLEM_RATE,
   FACTIONS,
   GEAR_RULES,
   GROWTH,
@@ -333,6 +337,31 @@ export const TOWER_FLOOR_BY_STAGE: ReadonlyMap<string, TowerFloor> = new Map(
  * curve a compile error.
  */
 export const SUMMON_RATE_CURVE: SummonRateCurve = SUMMON_RATE;
+
+/**
+ * The rates derived from **how far the run has come** rather than authored per stage.
+ *
+ * Crystals step per stage cleared and emblems per whole chapter, and both are evaluated by
+ * `applyBattleResult` and `reconcileClearedStages`. Bundled because both of those need all of it —
+ * it was a bare `SummonRateCurve` argument until emblems made it two curves, which is exactly the
+ * growth the bundle exists to absorb.
+ */
+export const IDLE_RATE_CURVES: IdleRateCurves = {
+  summons: SUMMON_RATE_CURVE,
+  emblem: EMBLEM_RATE,
+};
+
+/**
+ * How often a clear drops an emblem, and what gates it.
+ *
+ * ⚠️ **This is much the larger of the two emblem faucets, which is the opposite of how it reads.**
+ * The idle rate is the one with the pacing argument attached, but auto-battle clears roughly a
+ * stage a minute — and the stage it grinds is the **last** one, which is a chapter boss, because
+ * the campaign position stops climbing so the top stage stays farmable. That is the 25% row.
+ * Retuning these is an economy change of the same size as retuning the rate. See
+ * [`data/emblems.ts`](../data/emblems.ts).
+ */
+export const EMBLEM_DROP_RULES: EmblemDropData = EMBLEM_DROPS;
 
 /** A character definition by id, for templates that hold only an id. */
 export function characterById(defId: string): CharacterData | undefined {
