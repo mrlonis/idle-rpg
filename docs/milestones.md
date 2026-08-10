@@ -1282,7 +1282,105 @@ against this project's own advice and with its cost stated; the ladder's total p
 level-ceiling guard was **re-derived**, because measuring the ceiling in absolute hours at the top of
 a growing ladder is a number guaranteed to fall on every chapter forever.
 
-## 18. The roguelite run
+## 18. Chapter 4 — The Sundered Vault — **COMPLETE**
+
+Fifty stages, enemy levels 160 to 225, thirty-five archetypes — **eight new, twenty-seven
+returning**. It asks for the `legendary` rung, which is thirty-two duplicate copies of each of the
+five against chapter 3's twenty-four, and it closes **twenty-five levels above the cap that rung
+buys**.
+
+### ⚠️ No new mechanics, and that is the milestone's central decision
+
+Milestone 17 grew the combat vocabulary once and recorded that it was the last time: every
+targeting, status and effect kind is now in use, and a ninth spelling of an existing skill is
+exactly what that milestone refused to ship. Chapter 4 holds to that. What it is built from
+instead is two things that were always available and had never been spent:
+
+- **Pairs.** A taunt welded to an absorb pool (the Sealward Custodian), a cleanse welded to a tempo
+  buff (the Antiphon Archon), a wide hit that switches off once the party has lost somebody (the
+  Riftborn Harrower), a body that only becomes lethal after it has been wounded (the Covenant
+  Breaker). Each is two known parts on one block, and each asks something neither part asks alone.
+- ⚠️ **The matchup matrix, pointed one way.** An Angel or a Demon deals ×1.10 to every mortal and
+  **nothing comes back** — the matrix has no mortal → celestial row, by design. Everywhere else on
+  the ladder the matrix is a tiebreak a party answers by choosing who to bring; in a celestial-led
+  chapter it is a **standing tax no mortal composition can answer**, worth roughly nine levels of
+  investment. That is the Vault's difficulty signature, and it is why the lean is moderate rather
+  than total: at every board it stops being a texture and becomes a second level dial stacked on
+  the first.
+
+**Be honest about what this means for future chapters.** "New bodies asking old questions in new
+pairs" is a real well of content and it is not bottomless. The next chapter that cannot find an
+unspent pair is the one that has to argue for growing the vocabulary again, on its own merits.
+
+### The safe inversion of chapter 3's forbidden shape
+
+⚠️ Chapter 3 fields exactly one healer behind a taunt, at stage 10, where the party is far above the
+level — because sustain the party cannot aim at is a ninety-second clock and a timeout is scored a
+**defeat**. The Sealward Custodian puts the durability **on the taunting body itself**, which
+inverts the failure rather than repeating it: the one thing the party is permitted to hit is the
+one thing it needs to kill. **No board in this chapter fields a healer at all**, and the boss board
+deliberately has no heal, no regeneration and no ally shield on it — three of its five make the
+party live longer than it can kill, and every pool on it depletes.
+
+### What the sweep and the guards found
+
+- ⚠️ **The difficulty probe caught a step backwards at `c4-s31`** — 84.4 after 100.9, inside its
+  0.85 tolerance. A band opener authored as a teaching board (four bodies, two of them commons) that
+  happened to land on a sampled stage. Chapter 3 wrote this rule down and chapter 4 broke it anyway:
+  the sampled stages are the chapter's spine, composition moves difficulty by far more than six
+  levels do, and a light board after a heavy one is a step down however the levels read. Fixed by
+  weight, not by level.
+- **Four guards fired, and only one of them was about chapter 4.** The gear tilt genuinely outgrew
+  its threshold and was retuned. The other three were **ratios between quantities that grow at
+  different rates by construction**, and all three were re-derived rather than widened — see below.
+
+### ⚠️ Three guards that were measuring the ladder's length, not the game
+
+This is the same failure milestone 17 named when it retired "level 1000 costs more than 500 hours of
+top-of-ladder income". A guard whose value moves every chapter regardless of whether anything is
+wrong is not guarding; it is a number somebody has to widen on a schedule.
+
+- **Levelling versus ascension** was a ratio of the two multipliers bounded to (0.5, 2). A chapter
+  adds ~65 levels and exactly **one** rung, and a rung only pays for `ln(1.6) / ln(1.021)` ≈ 22.6
+  levels — so it multiplied by ~2.2 every chapter: 0.77, 1.50, **3.26**, 7.10. It is now the
+  **rungs' share of the climb in log space**, which is the space multipliers compose in: 55%, 45%,
+  40%, asymptotic to ~26%. Bounded both ends, because either axis becoming the whole game is a
+  failure.
+- **The tower payout ratio** compares seven fixed ladders against a campaign that grows: 3.17, 2.12,
+  **1.59**, 1.27. Its floor moved 2 → 1.5, which buys this chapter and no more — deliberately, as a
+  reminder scheduled for chapter 5. ⚠️ **The right answer there is to grow the towers**, not to nudge
+  the number again.
+- **The idle crystal ceiling** was two bounds — pulls a day at full clear, and the ladder's
+  contribution as a multiple of the base — and both are `base + step × stages` in disguise. The
+  second landed on **exactly** its ceiling of 3.0, and its own comment predicted the chapter and
+  prescribed cutting `perClearPerHour` from 1. ⚠️ **That prescription was declined, on the owner's
+  call, and the reasoning is in `banners.ts` already**: the failure mode was ever only a rate that
+  **compounds** past a flat `PULL_COST`, and a linear step cannot do that at any size. Extravagant
+  and compounding are different things. The step stays at 1, "a pull an hour plus one an hour per
+  stage ever cleared" survives as the legible sentence it was chosen to be, and the ceiling is now
+  stated **against the roster**: a full clear must not buy the roster's 4,487 copies in under thirty
+  days. That tracks both sides — a roster that grows raises it exactly as a ladder that grows lowers
+  it — and it fires when income has genuinely outrun the gacha's whole purpose, at roughly chapter
+  twelve.
+
+### The gear tilt was the one real retune
+
+`gradeSoftness` is a **rate per stage**, so a longer ladder tilts further: the top grade went from
+14.8% of end-of-ladder drops at a hundred and fifty stages to **21.3%** at two hundred, past the
+`< 0.2` bound that keeps a relic a find rather than routine. Retuned 90 → 100, which is 18.7% over
+two hundred. ⚠️ Raising it is safe for the starter wall and lowering it would not be — that guard
+fields grade 0 at level 1 explicitly, and the dial that would move it is Worn's own multiplier,
+which sits at 0.175 against a 0.2 limit.
+
+### A fourth reference party, and why they accumulate
+
+`MARCHED` is chapter 3's `INVESTED` kept under a new name rather than re-pointed. Every chapter from
+here adds one — a party defined by the chapter it has just finished — because re-aiming a single
+"arrived" party would silently stop checking that the chapter below is still finishable by the party
+it was tuned for. Two named parties per seam is what makes "clears the chapter behind it, walks only
+a little way into the one ahead" checkable at both boundaries at once.
+
+## 19. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1298,7 +1396,7 @@ a question mid-flight.
 structural, and taking it first would be choosing the fun problem over the one blocking
 everything else.
 
-## 19. Puzzle maps
+## 20. Puzzle maps
 
 **The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
 roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
@@ -1329,4 +1427,4 @@ state, and it gates nothing. It is written down because a solo developer without
 constraint most likely to decide whether this ships, and it is this one rather than any system above.
 
 Equally absent and equally unnumbered: **onboarding**. There is no first-session experience anywhere
-in this plan, and the first ninety seconds decide more than milestones 13 through 19 combined.
+in this plan, and the first ninety seconds decide more than milestones 13 through 20 combined.

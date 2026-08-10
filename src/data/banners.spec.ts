@@ -4,9 +4,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   ascendedChance,
+  type AscensionRules,
   type BannerData,
   type ChapterCurveData,
   type ChapterData,
+  type FactionData,
+  fullAscensionCost,
   type GachaRulesData,
   ladderShape,
   legendaryChance,
@@ -18,6 +21,7 @@ import {
   type SummonRateCurve,
   totalStages,
 } from '../core';
+import { ASCENSION_RULES, FACTIONS } from './ascension';
 import {
   BANNERS,
   DEFAULT_BANNER_ID,
@@ -45,6 +49,26 @@ const LADDER = resolveLadder(chapters, chapterCurve, rewards);
 
 /** The crystal curve, typed as `core/` takes it — which is what makes a malformed one a build error. */
 const summonRate: SummonRateCurve = SUMMON_RATE;
+
+const ascensionRules: AscensionRules = ASCENSION_RULES;
+const factions: readonly FactionData[] = FACTIONS;
+
+/**
+ * Every copy the shipped roster needs to be finished, derived rather than counted.
+ *
+ * The hard floor on what the gacha is *for*: a pull yields one copy, so this is the smallest number
+ * of pulls that could ever max the roster, reached only by a player whose every pull landed on the
+ * character they needed. The real figure is a few times larger once the tier weights are counted —
+ * which is exactly why this is the right side to bound from. A guard that cannot be beaten by good
+ * luck is one nobody can argue with.
+ *
+ * Through `fullAscensionCost` and the authored `FACTIONS` table rather than an arithmetic of rungs
+ * repeated here: a new character, a new faction or a retuned rung has to move this.
+ */
+const ROSTER_COPIES = CHARACTERS.reduce((total, character) => {
+  const path = factions.find((faction) => faction.id === character.faction)?.ascensionPath;
+  return total + (path === undefined ? 0 : fullAscensionCost(ascensionRules, path, character.tier));
+}, 0);
 
 /**
  * Crystals per second after `cleared` first clears.
@@ -246,53 +270,67 @@ describe('pull economy', () => {
     expect(pullsPerHour).toBeLessThanOrEqual(2);
   });
 
-  it('accrues roughly seven ten-pulls a day with the ladder fully cleared', () => {
+  it('never pays out the whole roster faster than a run can enjoy it', () => {
+    // ⚠️ **The ceiling on idle crystals, and it replaced two bounds that could not hold.** Both of
+    // the old ones measured the ladder against *itself* — pulls a day at full clear, and the
+    // ladder's contribution as a multiple of the base — and the rate is `base + step × stages`, so
+    // both grow linearly with the ladder and fire on every chapter forever whether or not anything
+    // is wrong. They had already been moved twice, and chapter 4 was where the second one landed on
+    // exactly its ceiling.
+    //
+    // **What was actually ever at risk is different, and `banners.ts` says so: a rate that
+    // *compounds* past a flat `PULL_COST`.** A linear step cannot do that at any size — being
+    // extravagant and compounding are different things, and only the second was the bug. So the step
+    // stays at 1, "a pull an hour plus one an hour per stage ever cleared" survives as the legible
+    // sentence it was chosen to be, and what is bounded instead is the thing that genuinely goes
+    // wrong: a player holding more crystals than there is anything to spend them on.
+    //
+    // Measured against the roster rather than against the ladder, so it does not decay with content
+    // — and it tracks **both** sides, because a roster that grows raises the ceiling exactly as a
+    // ladder that grows lowers the floor under it. It fires when idle income really has outrun the
+    // gacha's whole purpose, which at the current cadence is somewhere around chapter twelve, and
+    // the answer then is to look at whether the roster has kept up rather than at this number.
+    const perDay = (crystalsPerSecond(LADDER_LENGTH) * 86_400) / PULL_COST;
+    const days = ROSTER_COPIES / perDay;
+
+    expect(
+      days,
+      `${ROSTER_COPIES} copies at ${perDay.toFixed(0)} pulls a day is ${days.toFixed(0)} days`,
+    ).toBeGreaterThan(30);
+  });
+
+  it('accrues enough with the ladder fully cleared to be worth having cleared it', () => {
     // The stated pacing target, measured where the rate actually comes from: the clear count.
     // Derived from the ladder's length rather than restated, so adding a chapter re-runs this.
     //
-    // ⚠️ **This band has now been moved twice, and the second move is a deferral rather than a
-    // fix.** It was 20–40; milestone 11 halved the step to stay inside it; the step went back to 1
-    // and the band followed to 20–60, with the ceiling deliberately placed where a *doubled* ladder
-    // would land so that growing the content still fired it.
+    // ⚠️ **Only the floor is left, and losing the ceiling was milestone 18's decision rather than
+    // an omission.** The band was 20–40, then 20–60, then 20–75 — moved once per chapter, each time
+    // because `base + step × stages` had grown, which is what it does. A bound that has to be
+    // widened every chapter is not measuring anything; the ceiling moved to the assertion above,
+    // where it is stated against the roster instead of against the ladder.
     //
-    // Chapter 3 landed on exactly 60 — 250 crystals an hour against a 100-crystal pull — and this
-    // file's own advice, and `docs/economy.md`'s, was to retune `perClearPerHour` rather than the
-    // band. **That advice was overruled deliberately**, by the person whose game it is, on the
-    // grounds that the pull economy is going to be retuned as a whole once the roster's ascended
-    // tier is finished, and that cutting a shipped rate twice in the meantime buys nothing. The
-    // reasoning is recorded here rather than folded away, because the argument for retuning the
-    // step is still the right argument and will be the one to reach for when that retune happens.
-    //
-    // What that costs, stated plainly: the ceiling is 75 rather than 72, so a *doubled* ladder no
-    // longer fires this — the property that made the last move defensible is the property this
-    // move spends. Chapter 4 sails past a band it should have tripped, and the next thing to
-    // notice will be a player with more crystals than there is anything to spend them on.
-    //
-    // ⚠️ **The shape is not what was deferred.** A flat base plus a *linear* step, paid once per
-    // stage ever and never compounding, is what a flat `PULL_COST` survives at any size; the three
-    // assertions below hold it and none of them moved.
+    // What this half still says is worth keeping and does not decay: clearing the whole ladder has
+    // to be worth materially more than not clearing it. Below twenty a day the climb has stopped
+    // paying idle income in any noticeable way and the crystal rate may as well be the flat base.
     const pullsPerDay = (crystalsPerSecond(LADDER_LENGTH) * 86_400) / PULL_COST;
 
     expect(pullsPerDay).toBeGreaterThan(20);
-    expect(pullsPerDay).toBeLessThanOrEqual(75);
   });
 
-  it('keeps the whole ladder worth climbing without letting it run away', () => {
-    // Two failure modes, one assertion. Below the floor the climb stops paying idle income at
-    // all and the crystal rate may as well be a constant; above the ceiling the linear step has
-    // outgrown the flat prices it is spent against, which is the exponential problem this curve
-    // exists to avoid.
+  it('keeps the whole ladder worth climbing', () => {
+    // The other half of the same claim, from the other end: the ladder's contribution has to be a
+    // real share of the rate rather than a rounding error on the base.
     //
-    // ⚠️ **The ceiling is the real constraint on the step, and it is now nearly met.** The
-    // ladder's contribution is `step × stages` against a base of 100, so the shipped hundred
-    // stages at a step of 1 double the base exactly — where the old half-step added 50%. A third
-    // chapter takes this to ×2.5 and a fourth to ×3, at which point it fails and the right answer
-    // is to retune the step deliberately rather than to move this again. **Raising the step was
-    // spending this headroom**, not discovering it was free.
+    // ⚠️ **This had a ceiling of 3 and chapter 4 landed on exactly 3.0, which is what finally made
+    // the shape of the bound visible.** `climbed` is `1 + step × stages / base` — it is the ladder's
+    // length in disguise, so it rises without limit as chapters ship and says nothing at all about
+    // whether the economy is sound. Its own comment predicted the failure to the chapter and
+    // prescribed cutting the step; that prescription was declined, because the quantity it was
+    // protecting turned out not to be one the roadmap requires to hold still. See the roster-relative
+    // ceiling above, which is where "without letting it run away" now lives.
     const climbed = crystalsPerSecond(LADDER_LENGTH) / crystalsPerSecond(0);
 
     expect(climbed).toBeGreaterThan(1.1);
-    expect(climbed).toBeLessThan(3);
   });
 
   it('never pays a crystal rate that falls, or one that a repeat clear can move', () => {

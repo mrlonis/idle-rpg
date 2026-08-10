@@ -1,5 +1,7 @@
 import {
+  ANTIPHON,
   BIND_THE_CONCORD,
+  BROKEN_COVENANT,
   BULWARK,
   CHOIR_OF_ASH,
   CINDER_STORM,
@@ -21,14 +23,17 @@ import {
   MOTE_LANCE,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
+  RIFTFALL,
   RUINOUS_ARC,
   RUNEWARD,
   SEVENFOLD_HEX,
   SHIELD_BASH,
   SHRIKE_DIVE,
   STONE_FIST,
+  THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
+  WARD_THE_SEAL,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
@@ -1423,6 +1428,261 @@ export const CHAINSWORN = {
   skills: [BIND_THE_CONCORD, DOOMKNELL, TYRANTS_CLAIM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Sundered Vault — milestone 18
+//
+// ## Eight blocks, no new mechanics, and why that is the honest framing
+//
+// Milestone 17 grew the vocabulary once and recorded that it was the last time — every targeting,
+// status and effect kind is in use, and a ninth spelling of an existing skill is the thing that
+// milestone refused to ship. So this chapter does not claim a new lever. What it has instead is
+// **two things nothing has combined before**:
+//
+// 1. **Pairs.** A taunt welded to an absorb pool; a cleanse welded to a tempo buff; a wide hit
+//    that switches off once the party has lost somebody. Each is two known parts on one body, and
+//    each asks a question neither part asks alone.
+// 2. **The matchup matrix, pointed one way.** An Angel or a Demon deals 1.10 to every mortal and
+//    **nothing comes back** — there is no `human → angel` row, by design. A celestial-led chapter
+//    is therefore the one place on the ladder where the matrix is a standing tax rather than a
+//    tiebreak, and no mortal party can answer it with composition. That is the Vault's difficulty
+//    signature, and it is why the lean is *moderate*: at every board it would stop being a texture
+//    and become a second level dial stacked on the first.
+//
+// | Enemy                | The question                                          | The answer                     |
+// | -------------------- | ----------------------------------------------------- | ------------------------------ |
+// | Sealward Custodian   | what if the wall you must hit is wearing a shield?    | burst inside the gap, or go wide |
+// | Antiphon Archon      | what if your setup is removed *and* paid for?         | damage that needs no setup     |
+// | Riftborn Harrower    | what if the fight is hardest while you are whole?     | open fast; do not trade slowly |
+// | Covenant Breaker     | what if wounding it is what points it at your carry?  | burst it, or do not start      |
+// | The Hollow Seraph    | all three at once, on something that cannot be slowed | everything above, in one fight |
+//
+// ## Scale
+//
+// Sized inside the Bound Marches band rather than above it, and the boss sized **under** The
+// Unmade on both `hp` and `atk` exactly as The Chainsworn is. `enemies.spec.ts` holds that
+// ceiling. What makes the Vault harder is the level its stages are fielded at, the pairs above,
+// and the matrix — not bigger blocks, which is the distinction milestone 10 bought.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The jailer that steps in front of its own board wearing the pool it was saving for the door.
+ *
+ * ⚠️ **The safe inversion of the shape chapter 3 is forbidden from repeating.** The Bound Marches
+ * field exactly one healer behind a taunt, at stage 10, where the party is far above the level —
+ * because sustain the party cannot aim at is a ninety-second clock and a timeout is a defeat. This
+ * puts the durability **on the taunting body itself**, which flips the whole argument: the one
+ * thing the party is allowed to hit is the one thing it needs to kill. Nothing here is unreachable
+ * and nothing refills, so the fight resolves however the party plays it.
+ *
+ * Little offence, like the Vanguard it is descended from: what it costs the party is turns.
+ */
+export const SEALWARD_CUSTODIAN = {
+  id: 'sealward-custodian',
+  name: 'Sealward Custodian',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1080,
+    atk: 60,
+    def: 42,
+    recovery: 5,
+    haste: 72,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.06,
+    magicResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, WARD_THE_SEAL],
+} as const;
+
+/**
+ * The Vault's answer to being debuffed, and the first enemy that takes tempo as well.
+ *
+ * A Runewarden already removes the party's setup, so that lock is not new. What is new is what
+ * this spends the turn on afterwards: a Runewarden buys **armour** and this buys **speed**, so the
+ * board that just shrugged off the opening starts acting more often than the party does. Fragile
+ * on purpose — the answer is to kill it, and an answer nobody can reach is not one.
+ */
+export const ANTIPHON_ARCHON = {
+  id: 'antiphon-archon',
+  name: 'Antiphon Archon',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 720,
+    atk: 56,
+    def: 22,
+    haste: 102,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.16,
+    magicResist: 0.12,
+  },
+  skills: [ANTIPHON],
+} as const;
+
+/** Light kept burning in a place nobody has walked for an age. Celestial filler, and cheap. */
+export const VAULTLIGHT_CENSER = {
+  id: 'vaultlight-censer',
+  name: 'Vaultlight Censer',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 44,
+    def: 14,
+    haste: 104,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * What came through when the seal gave, and it is worst in the first ten seconds.
+ *
+ * Every other wide threat on the ladder eases as the party thins. {@link RIFTFALL} switches off
+ * once the party is down to three, so this is the one encounter that is hardest while the party is
+ * **intact** — it cannot be out-lasted, only out-opened. A party that spends its first two turns
+ * setting up has already taken the worst of it.
+ */
+export const RIFTBORN_HARROWER = {
+  id: 'riftborn-harrower',
+  name: 'Riftborn Harrower',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 70,
+    def: 20,
+    haste: 100,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    insight: 0.18,
+    magicPierce: 0.15,
+    magicResist: 0.08,
+  },
+  skills: [RIFTFALL, GORE],
+} as const;
+
+/** What was in the lesser cells: quick, starving, and not individually a problem. */
+export const UNSEALED_WRETCH = {
+  id: 'unsealed-wretch',
+  name: 'Unsealed Wretch',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 480,
+    atk: 46,
+    def: 10,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    dodge: 0.12,
+    lifeLeech: 0.08,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * An oath that means nothing until it is broken, and then means the party's carry.
+ *
+ * A Wrathborn is the roster's other `self-hurt` body and it buffs itself, so chipping one is a step
+ * toward killing it through a window. This answers being chipped by **reaching past the front
+ * rank at whatever is biggest** — so wounding it is not progress, it is the thing that turns it
+ * around. The party either commits and bursts it or leaves it alone, and there is no third option
+ * where it is slowly worn down safely.
+ */
+export const COVENANT_BREAKER = {
+  id: 'covenant-breaker',
+  name: 'Covenant Breaker',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 68,
+    def: 26,
+    haste: 94,
+    critChance: 0.09,
+    critDamageAmp: 0.8,
+    tenacity: 0.3,
+    lifeLeech: 0.12,
+    physicalPierce: 0.15,
+  },
+  skills: [BROKEN_COVENANT, FLENSE],
+} as const;
+
+/**
+ * Still at its post, some centuries after there was anything to guard.
+ *
+ * The mortal body the Vault's boards are built on, and the reason the celestial lean is a texture
+ * rather than a second level dial: a board of nothing but Angels and Demons taxes a mortal party
+ * 1.10 on every incoming hit with nothing coming back, and at every stage that stops being a
+ * flavour and becomes arithmetic the party cannot answer.
+ */
+export const VAULTBOUND_GAOLER = {
+  id: 'vaultbound-gaoler',
+  name: 'Vaultbound Gaoler',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 760,
+    atk: 48,
+    def: 26,
+    haste: 76,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    physicalResist: 0.08,
+  },
+  skills: [GATE_SLAM],
+} as const;
+
+/**
+ * What the chains were holding, and the second body on the ladder fielded on exactly one stage.
+ *
+ * The Chainsworn set that precedent one chapter ago and the argument is unchanged: the last
+ * encounter of a chapter is the one a player remembers, and a stat block they have already beaten
+ * four times is a stage number. It stands on `c4-s50` and nowhere else.
+ *
+ * Its three turns are the chapter's three pairs on one body — it wears the pool ({@link
+ * WARD_THE_SEAL}), it takes the party's setup back and quickens its own board ({@link ANTIPHON}),
+ * and it asks the one question a cleanse cannot answer ({@link THE_SEAL_BREAKS}, whose stun is not
+ * removable).
+ *
+ * ⚠️ **Deliberately no healing, no regeneration and no ally shield.** Three things on this board
+ * make a party live longer than it can kill — an absorb, a tempo buff and a stun — and every one
+ * of them is a step toward the ninety-second timeout that is scored as a **defeat**. What keeps it
+ * resolving is that the absorb is on **one** body and depletes, and that nothing anywhere in the
+ * encounter puts health back.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes
+ * this the harder fight is the level it is fielded at and the questions it asks.
+ */
+export const HOLLOW_SERAPH = {
+  id: 'hollow-seraph',
+  name: 'The Hollow Seraph',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1760,
+    atk: 99,
+    def: 54,
+    recovery: 7,
+    haste: 98,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    physicalPierce: 0.25,
+    magicPierce: 0.3,
+  },
+  skills: [WARD_THE_SEAL, ANTIPHON, THE_SEAL_BREAKS],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -1476,4 +1736,12 @@ export const ENEMIES = [
   BRAMBLEWALK_SCOUT,
   RIVEN_MARCHWARDEN,
   CHAINSWORN,
+  SEALWARD_CUSTODIAN,
+  ANTIPHON_ARCHON,
+  VAULTLIGHT_CENSER,
+  RIFTBORN_HARROWER,
+  UNSEALED_WRETCH,
+  COVENANT_BREAKER,
+  VAULTBOUND_GAOLER,
+  HOLLOW_SERAPH,
 ] as const;

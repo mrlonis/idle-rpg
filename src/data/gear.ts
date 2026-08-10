@@ -314,12 +314,24 @@ export const GEAR_RULES = {
     /**
      * How sharply grade odds improve with the linear stage index.
      *
-     * Ninety, which puts the tilt at ×2.1 by the top of chapter 2: a relic goes from roughly one
-     * drop in 107 to about one in 11 across the shipped ladder, and a worn piece from three in four
-     * to one in four. Lower makes the ladder's bottom worthless faster; higher makes depth stop
-     * meaning anything.
+     * A hundred. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this is a **rate per
+     * stage** and the ladder's length is the other half of every number it produces. Lower makes the
+     * ladder's bottom worthless faster; higher makes depth stop meaning anything.
+     *
+     * ⚠️ **It was ninety, and chapter 4 is what moved it — deliberately, rather than by moving the
+     * threshold that caught it.** At ninety the top grade was 14.8% of drops over a hundred and
+     * fifty stages and **21.3%** over two hundred, past the `< 0.2` bound in `gear.spec.ts` that
+     * exists to keep a relic a find rather than a routine drop. A softness tuned against one ladder
+     * length silently gets more generous every time a chapter ships, which is the thing that test
+     * is for. At a hundred it is 18.7% over two hundred stages and 12.9% over a hundred and fifty.
+     *
+     * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
+     * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
+     * their way through the stage-7 lock is untouched — that test fields grade 0 at level 1
+     * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
+     * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 90,
+    gradeSoftness: 100,
   },
 
   /**

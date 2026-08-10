@@ -250,7 +250,7 @@ length from the shipped chapters and asserts every gate falls inside it, so the 
 chapter 3 arriving without anything here needing to change.
 
 Among what is unlocked, the odds still tilt with depth: a grade's authored weight is multiplied by
-`(1 + stageIndex / 90) ** gradeIndex`. Two properties fall out of that shape:
+`(1 + stageIndex / gradeSoftness) ** gradeIndex`. Two properties fall out of that shape:
 
 - **The authored weights are the distribution at the stage a grade unlocks.** That is what the `1 +`
   buys. A bare ratio makes the top grade's weight `softness⁻⁴` at the bottom of the ladder — one in
@@ -258,6 +258,24 @@ Among what is unlocked, the odds still tilt with depth: a grade's authored weigh
   could predict from.
 - **The bottom grade never becomes impossible**, it becomes rare — and a worn piece late in a run is
   still worth its salvage.
+
+⚠️ **`gradeSoftness` is a rate _per stage_, so the ladder's length is the other half of every number
+it produces — and chapter 4 is what made that visible.** At 90 the top grade was 14.8% of
+end-of-ladder drops over a hundred and fifty stages and **21.3%** over two hundred, past the `< 0.2`
+bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It is **100**
+now: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
+
+This is the one guard chapter 4 tripped where the content genuinely had outgrown the threshold, and
+it is worth contrasting with the three it tripped that had not — see
+[testing](testing.md), which sets out how to tell the two cases apart. Here the number was doing
+exactly its job: a softness tuned against one ladder length silently gets more generous every time a
+chapter ships, and nothing else would have said so.
+
+⚠️ **Raising this is safe for the starter wall; lowering it would not be.** `gradeWeights` tilts the
+whole distribution, and the guard that three level-1 starters cannot gear their way through the
+stage-7 lock fields grade 0 at level 1 **explicitly** rather than rolling for it. The dial that
+would move that guard is Worn's own multiplier, which sits at 0.175 against a 0.2 limit and is not
+free.
 
 ⚠️ **Drops are rolled from a derived sub-stream**, keyed on the stage index and the battle count —
 never from the main stream. Drawing from the main stream would make **fighting a stage shift the

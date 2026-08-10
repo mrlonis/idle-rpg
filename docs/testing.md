@@ -148,6 +148,41 @@ threshold, check whether the quantity it measures is one the roadmap requires to
 the fix is a ratio between two things the content supplies — income cancels out of those, which is
 usually the tell that you have found the invariant.
 
+### ⚠️ A ratio rots too, whenever only one side grows
+
+Chapter 4 is where the lesson above stopped being about absolute quantities. **Three guards fired at
+once and none of them was about chapter 4** — each was a ratio whose numerator and denominator grow
+at different rates by construction, which is the same disease as measuring in hours and is much
+harder to see, because a ratio _looks_ like the fix for the previous case.
+
+| Guard                  | Ratio of                       | 2 ch | 3 ch | 4 ch     | 5 ch |
+| ---------------------- | ------------------------------ | ---- | ---- | -------- | ---- |
+| Levelling vs ascension | levels gained ÷ rungs gained   | 0.77 | 1.50 | **3.26** | 7.10 |
+| Tower payout           | 7 fixed towers ÷ campaign      | 3.17 | 2.12 | **1.59** | 1.27 |
+| Idle crystals          | rate at full clear ÷ base rate | 2.0  | 2.5  | **3.0**  | 3.5  |
+
+The tell is the same in all three: **one side is a function of the ladder's length and the other is
+not.** A chapter adds ~65 levels and exactly one rung; it adds fifty stages and no tower floors; it
+adds a hundred crystals an hour to a base that never moves. Nothing is wrong in any of the three —
+the number moves because a chapter shipped, which is what chapters do.
+
+Three ways out, and which one applies is worth thinking about rather than guessing:
+
+- **Change the space.** Levelling-versus-ascension became the rungs' _share_ of the climb, measured
+  in logs — the space multipliers actually compose in. The share falls slowly and asymptotes (55%,
+  45%, 40%, → ~26%), so a floor under it holds indefinitely and still fails if ascension is ever
+  reduced to a formality.
+- **Change the denominator to something that grows with the numerator.** The crystal ceiling became
+  "a full clear must not buy the roster's copies in under thirty days". A roster that grows raises
+  it exactly as a ladder that grows lowers it.
+- **Accept the decay and schedule the reminder.** The tower floor moved 2 → 1.5, which buys one
+  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really is
+  becoming a smaller share of the game — and the honest response is a note that fires again soon
+  rather than a bound engineered to stop asking.
+
+⚠️ **What is not on that list is widening the band.** Every one of these had already been widened at
+least once, and each widening bought exactly one chapter and hid the diagnosis for another milestone.
+
 ---
 
 ## Derive, never retype

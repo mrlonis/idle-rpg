@@ -1,6 +1,7 @@
 import { CHAPTER_1 } from './chapter-1';
 import { CHAPTER_2 } from './chapter-2';
 import { CHAPTER_3 } from './chapter-3';
+import { CHAPTER_4 } from './chapter-4';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -167,7 +168,7 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Three of them, fifty stages each. [`chapters.spec.ts`](./chapters.spec.ts) checks each one is
+ * Four of them, fifty stages each. [`chapters.spec.ts`](./chapters.spec.ts) checks each one is
  * the length {@link CHAPTER_CURVE} says it should be, so a chapter authored at forty-nine stages
  * is a failing test rather than a boss that quietly lands on the wrong square.
  *
@@ -176,5 +177,13 @@ export const STAGE_REWARDS = {
  * `achievements.spec.ts`, and the level ceiling's cost in hours in `levels.spec.ts` — and all
  * three fired on chapter 3. See [economy](../../docs/economy.md) for what each one was answered
  * with and which of the answers is a deferral rather than a fix.
+ *
+ * ⚠️ **Chapter 4 added a fourth, and it is not an economy guard.** "Levelling and ascension are
+ * worth about the same across the ladder" in `chapters.balance.ts` is a **ratio between two
+ * quantities that grow at different rates by construction** — a chapter adds about sixty-five
+ * levels and exactly one rung, and one rung only pays for twenty-three levels — so it climbs every
+ * chapter forever and the rungs run out at sixteen while the levels run to a thousand. It was
+ * re-derived rather than widened, the same move milestone 17 made on the level ceiling's
+ * cost-in-hours. See [milestones](../../docs/milestones.md).
  */
-export const CHAPTERS = [CHAPTER_1, CHAPTER_2, CHAPTER_3] as const;
+export const CHAPTERS = [CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4] as const;

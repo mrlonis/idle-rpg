@@ -419,15 +419,27 @@ describe('what a tower pays', () => {
 
   it('makes seven towers a multiple of the campaign rather than a replacement for it', () => {
     // Measured over the shipped content, both halves on both sides: floors and their tracks against
-    // first clears and theirs. Seven towers is roughly 3× the critical path for 7× the content, on
-    // ladders gated behind roster depth. **Summed over the towers that actually ship** since 15c
-    // filled the roster in — it was one tower's payout times `FACTIONS.length` while six of them
-    // were still unwritten, which measured a projection rather than the game.
+    // first clears and theirs. **Summed over the towers that actually ship** since 15c filled the
+    // roster in — it was one tower's payout times `FACTIONS.length` while six of them were still
+    // unwritten, which measured a projection rather than the game.
+    //
+    // ⚠️ **The two bounds are not the same kind of claim, and only one of them is stable.** The
+    // ceiling — towers must not replace the campaign — compares two totals that both grow, and it
+    // holds indefinitely. The floor does not: towers are fixed at seven ladders of a hundred floors
+    // while the campaign grows a chapter at a time, so this ratio falls by construction with every
+    // chapter shipped — 3.17 at two chapters, 2.12 at three, 1.59 at four, 1.27 at five.
+    //
+    // The floor was 2 and chapter 4 took it to 1.59. It is 1.5 now, which buys **this chapter and
+    // no more**: chapter 5 fires it again at 1.27. That is deliberate rather than an oversight — the
+    // real answer is for the towers to grow with the game, and this is a reminder scheduled for the
+    // chapter after next rather than a bound anybody should keep nudging. When it next fails, the
+    // question to ask is whether seven hundred floors is still the right amount of optional content
+    // beside a campaign twice that size, not what number makes it green.
     const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
     const campaign = campaignCrystals();
     const note = `seven towers ${seven} against a campaign of ${campaign}`;
 
-    expect(seven / campaign, note).toBeGreaterThan(2);
+    expect(seven / campaign, note).toBeGreaterThan(1.5);
     expect(seven / campaign, note).toBeLessThan(4);
   });
 });

@@ -153,6 +153,12 @@ the two disagree, the code is right and both are stale.
     are the last additions to a vocabulary that was fully in use.** All four ride the existing
     `status` effect rather than adding effect kinds, and the UI needed no change at all because
     `tick-damage` already says everything three of them produce.
+    - **Milestone 18 held to that and shipped a whole chapter with no new mechanic**, which is what
+      makes the claim above a rule rather than an intention. What it built from instead were
+      **pairs** — two known parts on one block, asking what neither asks alone — and the matchup
+      matrix leaned on hard enough to be a standing tax. ⚠️ **That well is real and it is not
+      bottomless.** The next chapter that cannot find an unspent pair is the one that has to argue
+      for growing the vocabulary again, on its own merits; "17 did it" is not the argument.
     - ⚠️ **A taunt overrides the row gate, which nothing else in the game does.** It narrows the
       pool **before** the row rule is consulted, so while one is up a back-rank bypass is worth
       nothing. Three clauses keep it answerable and all three are held by specs: multi-target
@@ -256,13 +262,13 @@ the two disagree, the code is right and both are stale.
     depletes, so it cannot outrun rising damage. `data/signature.spec.ts` asserts no opening status
     is a `regen`.
   - ⚠️ **No shipped content can measure one.** `mythic` caps at level **340**; the hardest authored
-    stage is level **160**. A party at the unlock rung is twice past the top of the ladder, so every
-    campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
-    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **Chapter 3 was
-    the named trigger for this changing and it did not**: it narrowed the gap from ×4 to ×2 and no
-    more. What closes it is a chapter reaching the low three hundreds, roughly chapter 6 or 7 at the
-    current pacing, or a tower band that does — check the number rather than assuming the next
-    chapter is enough.
+    stage is level **225**. A party at the unlock rung is half again past the top of the ladder, so
+    every campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
+    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **Chapters 3 and 4
+    were each expected to close this and neither did**: the gap went ×4 → ×2 → ×1.5, narrowing by
+    less each time because the level band flattens as chapters lengthen. What closes it is a chapter
+    reaching the low three hundreds, roughly chapter 6 or 7 at the current pacing, or a tower band
+    that does — check the number rather than assuming the next chapter is enough.
   - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
     contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
     any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
@@ -371,23 +377,25 @@ the two disagree, the code is right and both are stale.
   - **The chapter-size formula and the authored chapters are two statements of one fact.**
     `chapterSize` says how long a chapter should be and `LadderShape` says how long the authored
     ones are; `chapters.spec.ts` is what keeps them equal. Never derive the shipped ladder's length
-    from the formula — a build that ships three chapters must not be talked into believing it has a
+    from the formula — a build that ships four chapters must not be talked into believing it has a
     hundred.
   - ⚠️ **A chapter that asks for a new ascension rung has to out-climb the rung it asks for**, and
     chapter 3 is the first content where that bites. A rung is worth ×1.6 and the enemy side has
     **no rungs at all**, so a party matching the enemy's level from one rung higher is ×1.6 ahead of
     it — every stage a walkover, with nothing in the numbers looking wrong. Twenty-three levels is
     what ×1.6 costs at `perLevel.common`. The Bound Marches therefore close at enemy level **160**
-    against `elite-plus`'s cap of 140, and the reference party finishes the ladder twenty levels
-    below the thing it is fighting. Chapters 1 and 2 never met this because each ran inside a cap
-    the party already had.
-  - **Adding a chapter is an economy change as much as a content one.** Three guards are functions
-    of the ladder's length and all three fire: the idle crystal band in `banners.spec.ts`, what a
-    clear pays in `achievements.spec.ts`, and the level ceiling in `levels.spec.ts`. See
-    [economy](../docs/economy.md) for what each was answered with — and ⚠️ **one of the three is a
-    deferral rather than a fix**: the crystal band was widened rather than `perClearPerHour`
-    retuned, on the owner's explicit call, so a _doubled_ ladder no longer trips it. That property
-    was the whole reason the previous ceiling was defensible.
+    against `elite-plus`'s cap of 140, and the Sundered Vault at **225** against `legendary`'s cap
+    of 200 — the reference party finishes each twenty and twenty-five levels below the thing it is
+    fighting. Chapters 1 and 2 never met this because each ran inside a cap the party already had.
+  - **One rung per chapter is the cadence**, and it is load-bearing well beyond the ladder: 20 copies
+    for chapter 2, 24 for 3, 32 for 4. ⚠️ **It is the assumption under the levelling-versus-ascension
+    guard** — a chapter climbs ~65 levels and a rung only pays for 22.6, so the two axes drift apart
+    by construction and the guard measures the **share** rather than the ratio for that reason.
+  - **Adding a chapter is an economy change as much as a content one**, and expect roughly four
+    guards to fire. Only some of them will be about the chapter. ⚠️ **Sort them first into "content
+    outgrew a threshold" and "this ratio moves every chapter regardless"** — the first is a real
+    retune and the second is a guard that needs re-deriving, and milestone 18 found three of the
+    second kind at once. See [economy](../docs/economy.md) and [testing](../docs/testing.md).
 - **[docs/level-resonance.md](../docs/level-resonance.md)** — the level the whole roster shares, added
   in milestone 9. Read it before writing anything that reads a character's level.
   - **`OwnedCharacter.level` is the level the player _paid for_, not the level anything fights at.**
@@ -437,9 +445,10 @@ the two disagree, the code is right and both are stale.
   `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in, and
   holds **exactly one tower per faction** against `FACTIONS` rather than a literal.
   - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
-    clear count drives the idle crystal rate, which `banners.spec.ts` bounds at about ×3 the base
-    where the shipped hundred and fifty stages already reach ×2.5 — seven towers of a hundred floors
-    feeding it would take that past ×8. Progress is one integer per tower in `GameState.towers`, and
+    clear count drives the idle crystal rate, and the shipped two hundred stages already take it to
+    ×3 the base — seven towers of a hundred floors feeding it would reach ×10, and the roster-relative
+    ceiling in `banners.spec.ts` would put the whole roster inside three weeks. Progress is one
+    integer per tower in `GameState.towers`, and
     `applyTowerResult` is a separate function from `applyBattleResult` rather than a branch inside
     it, precisely so the campaign fields are not in reach.
   - **A floor is climbed once.** `nextFloor` returns `null` at the top rather than clamping, which
@@ -497,16 +506,19 @@ the two disagree, the code is right and both are stale.
     seconds — an identical board ten floors lower, at six fewer enemy levels, cleared. Against a
     party that cannot burst, the last floor is where sustain on the enemy side stops being a lock
     and becomes the clock.
-  - **Every faction now has six archetypes — two `common`, three `legendary`, one `ascended`** —
-    which is what 15c's eighteen new blocks bought and what
-    [`data/enemies.spec.ts`](../src/data/enemies.spec.ts) holds. The old note here recorded that there
-    was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that, and the Wyrdroot
-    Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the ones the campaign
-    already fields** rather than by an opinion — the Unmade is the ceiling and nothing may reach it,
-    asserted in `enemies.spec.ts`, because a third and fourth heavy anchor is what makes six towers
-    fail their sweep at once. **Milestone 17's chapter-3 boss respects that ceiling rather than
-    raising it**: the Chainsworn is authored under the Unmade on both stats, and what makes it the
-    harder fight is the questions it asks and the level it is fielded at.
+  - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
+    eighteen new blocks bought and what [`data/enemies.spec.ts`](../src/data/enemies.spec.ts) holds — a
+    floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
+    Fifty-eight ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
+    and Demons to ten, because a chapter leaning on a faction needs depth in it. The old note here
+    recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that,
+    and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the
+    ones the campaign already fields** rather than by an opinion — the Unmade is the ceiling and
+    nothing may reach it, asserted in `enemies.spec.ts`, because a third and fourth heavy anchor is
+    what makes six towers fail their sweep at once. **Both chapter bosses since respect that ceiling
+    rather than raising it**: the Chainsworn and the Hollow Seraph are each authored under the Unmade
+    on both stats, and what makes them the harder fights is the questions they ask and the level they
+    are fielded at.
   - ⚠️ **An archetype must be fielded somewhere, and "somewhere" is every ladder rather than the
     campaign.** That rule lived in `chapters.spec.ts` while the campaign was the only content;
     eighteen tower-only blocks would have failed it as orphans, so it moved whole to
@@ -585,35 +597,43 @@ the two disagree, the code is right and both are stale.
       roof), 500 per five floors, 10,000 for topping it. ⚠️ **The per-floor figure is deliberately
       _not_ the campaign's 250** — at parity the seven towers pay ~268,000 against the campaign's
       ~69,000, which is 3.9× and makes the ladder's own rewards look pointless beside optional
-      content. At 100 it is ~219,000, a bit over 3× for 7× the content. `data/towers.spec.ts`
-      measures that ratio and bounds it, and ⚠️ **it compares both halves on both sides** — floors
-      and their tracks against first clears and theirs — because comparing against first clears
-      alone reads the campaign as five times poorer than it is. Since 15c it **sums the towers that
-      actually ship** rather than multiplying one tower by `FACTIONS.length`, which measured a
-      projection while six of them were unwritten.
+      content. At 100 it is ~219,000. `data/towers.spec.ts` measures that ratio and bounds it, and
+      ⚠️ **it compares both halves on both sides** — floors and their tracks against first clears and
+      theirs — because comparing against first clears alone reads the campaign as five times poorer
+      than it is. Since 15c it **sums the towers that actually ship** rather than multiplying one
+      tower by `FACTIONS.length`, which measured a projection while six of them were unwritten.
+    - ⚠️ **Only the ceiling on that ratio is stable; the floor falls every chapter by construction.**
+      Towers are fixed at seven hundred floors while the campaign grows, so it reads 3.17 at two
+      chapters, 2.12 at three, **1.59** at four and 1.27 at five. The floor moved 2 → 1.5 in
+      milestone 18, which buys one chapter deliberately — it is a reminder scheduled for chapter 5
+      rather than a bound to keep nudging. **The real answer when it next fires is to grow the
+      towers**, and that is milestone-sized work.
     - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
       payout" claim to the ladder, and `towers.spec.ts` holds the tie.
-  - ⚠️ **`perClearPerHour` is 1, the headroom that allowed it is spent, and the guard was widened
-    rather than the step retuned.** The ladder's crystal contribution is `step × stages` against a
-    base of 100, so the shipped hundred stages doubled the base rate; chapter 3 took a full clear to
-    exactly **60 pulls a day**, the ceiling of the band in `banners.spec.ts`.
-    - **The band moved, against this project's own advice, and the decision is the owner's**: the
-      pull economy is to be retuned as a whole once the roster's ascended tier is finished, and
-      cutting a shipped rate twice in the meantime buys nothing. The argument for retuning the
-      **step** is still the right argument and is the one to reach for then.
-    - ⚠️ **What it cost is the property that made the last move defensible.** The old ceiling sat
-      where a _doubled_ ladder would land, so growing the content still fired the guard. It no
-      longer does — chapter 4 passes a band it should have tripped, and nothing now stands between
-      here and a player holding more crystals than there is anything to spend them on.
-    - **The shape is not what was deferred**: a flat base plus a **linear** step, paid once per
-      stage ever, never compounding. That is what a flat `PULL_COST` survives at any size; three
-      assertions hold it and none of them moved. Extravagance was never the bug.
+  - ⚠️ **`perClearPerHour` is 1 and it stays 1. The ceiling that kept catching it was the thing that
+    was wrong.** The ladder's crystal contribution is `step × stages` against a base of 100, so both
+    of the old bounds — pulls a day at full clear, and the contribution as a multiple of the base —
+    are the ladder's **length in disguise**. They were moved once per chapter (20–40, then 20–60,
+    then 20–75) and chapter 4 landed on exactly the ×3 ceiling that its own comment had predicted
+    and prescribed cutting the step for.
+    - ⚠️ **That prescription was declined on the owner's call, and `banners.ts` already carried the
+      argument for declining it**: the failure mode was ever only a rate that **compounds** past a
+      flat `PULL_COST`, and a linear step cannot do that at any size. Extravagant and compounding are
+      different things and only the second was the bug. "A pull an hour, plus one an hour for every
+      stage you have ever cleared" survives as the legible sentence it was chosen to be.
+    - **The ceiling is stated against the roster now, not the ladder**: a full clear must not buy the
+      roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 4,487 today — in under
+      thirty days. It is 62 days at four chapters. ⚠️ **It tracks both sides**, so a roster that grows
+      raises it exactly as a ladder that grows lowers it, and it first fires around chapter twelve —
+      at which point the question is whether the roster kept up, not what number makes it green.
+    - **The floors were kept and did not move**: the climb must still be worth more than the base
+      (×1.1) and still pay more than 20 pulls a day at a full clear. Those do not decay.
   - ⚠️ **What a clear pays is bounded _per stage_, not in total.** The band was 500–900 pulls for
     the whole ladder and chapter 3 took it to 1,035 — correctly in the sense that the number moved,
     uselessly in the sense that every chapter moves it. The ladder pays a flat 250 a stage and a
     flat 1,000 per five clears, so the total is linear in the length by construction and a fixed
-    band on it is a **cap on how much content may ship**. Per stage it is 6.9 across all three
+    band on it is a **cap on how much content may ship**. Per stage it is 6.9 across all four
     chapters, unchanged.
   - ⚠️ **The level ceiling is guarded by ratios now, not by hours.** "Level 1000 costs more than 500
     hours of top-of-ladder income" was retired rather than moved a third time: income at the top
@@ -1146,15 +1166,24 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   chapter and the last one, so the rhythm is identical in a fifty-stage chapter and a two-hundred
   stage one. What `data/` authors is a line-up worthy of the slot it lands in, and
   `chapters.spec.ts` checks it did.
-- **Three things a chapter's boards have to answer to, learned authoring chapter 3.**
+- **Four things a chapter's boards have to answer to, learned authoring chapters 3 and 4.**
   - ⚠️ **Sustain on the enemy side behind something the party cannot aim past is a clock, not a
     difficulty.** A healer standing behind a taunt is the same failure 15c found on the Dwarf Tower
     roof, and a timeout is a defeat rather than a hard fight. The Bound Marches field exactly one
     such board, at stage 10, where the party is far above the level and the lock is being taught.
+    - **The safe inversion is to put the durability on the taunting body itself**, which is what the
+      Sundered Vault's Sealward Custodian does: the one thing the party is permitted to hit is the
+      one thing it needs to kill, every pool on it depletes, and nothing refills. A board built that
+      way can be as defensive as it likes and still resolve.
   - ⚠️ **The difficulty probe reads every fourth stage plus the bosses, so those samples are the
     chapter's spine and have to escalate.** Composition varies by more than the ~13% six levels
     buys, so a light board landing on a sample after a heavy one reads as a step backwards. Author
-    the spine deliberately rather than discovering it in the sweep.
+    the spine deliberately rather than discovering it in the sweep. **Chapter 3 wrote this down and
+    chapter 4 broke it anyway** — a band opener authored as a teaching board, four bodies and two of
+    them commons, landing on `c4-s31` and measuring 84.4 after 100.9. ⚠️ **The trap is that band
+    openings _want_ to be light and the stride does not care.** Check which stages are samples
+    before authoring, and fix a step backwards with **weight rather than level**: five bodies and a
+    legendary front rank, not +3 enemy levels, which would fight the level curve for ~13%.
   - **A chapter boss is a peak and the stage after it is the next chapter opening at the same
     level**, so the step down across a boundary is the ladder working. The probe skips that pair —
     it had never fired only because the stride's phase happened to hide the chapter 1–2 seam.

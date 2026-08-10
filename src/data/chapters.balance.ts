@@ -425,6 +425,30 @@ const ARRIVED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 4: the five that just took The Chainsworn, unchanged.
+ *
+ * ⚠️ **This is chapter 3's {@link INVESTED}, kept under a new name rather than re-derived.** Every
+ * chapter from here adds one of these — a party defined by the chapter it has just finished — and
+ * the alternative is to keep re-pointing a single "arrived" party and lose the ability to measure
+ * the older seam at all. Two named parties per seam is what makes "clears the chapter behind it,
+ * and walks only a little way into the one ahead" checkable at both boundaries at once.
+ *
+ * Both numbers are derived from where chapter 3 ends, so a retune of that chapter re-aims this.
+ * `elite-plus` is the rung it carries and its cap of 140 is **below** chapter 3's closing level of
+ * 160 — which is not an error, it is the difficulty statement chapter 3 shipped: a chapter that
+ * asks for a rung has to climb past the cap that rung buys.
+ */
+const MARCHED_RARITY = rarityIndex('elite-plus');
+const MARCHED_LEVEL = Math.min(stages[CHAPTER_ENDS[2] - 1].level, LEVEL_CURVE.caps[MARCHED_RARITY]);
+
+const MARCHED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(MARCHED_LEVEL, MARCHED_RARITY),
+  MARCHED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -437,24 +461,26 @@ const ARRIVED: FormationData = mono(
  * instead of restated — extending the ladder re-aims this party at the new top rather than leaving
  * it describing the old one.
  *
- * ⚠️ **The rung moved with the ladder in milestone 17, and it had to.** `elite` caps at 100 and the
- * Bound Marches close at 160, so `legal` would have thrown rather than quietly fielding an
- * under-levelled party — which is exactly what that guard is for. `elite-plus` is the rung the
- * chapter asks for, and what it costs a player over the chapter-2 party is four duplicate copies of
- * each of the five: 24 against 20.
+ * ⚠️ **The rung moves with the ladder, and it has to.** `elite` caps at 100 and the Bound Marches
+ * close at 160, so milestone 17 took this to `elite-plus`; `elite-plus` caps at 140 and the Sundered
+ * Vault closes at 225, so milestone 18 takes it to `legendary`. In both cases `legal` would have
+ * thrown rather than quietly fielding an under-levelled party, which is exactly what that guard is
+ * for. **One rung per chapter** is the cadence, and what it costs a player over the chapter-3 party
+ * is eight more duplicate copies of each of the five: 32 against 24.
  *
- * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and chapter 3 is
- * the first content where those differ.** `elite-plus` caps at 140 against a top stage of 160, so
- * this party finishes the ladder **twenty levels below the thing it is fighting** — which is the
- * chapter's difficulty statement rather than an accident. A rung is worth ×1.6 and the enemy side
- * has no rungs, so a chapter that asks for an ascension has to climb past the cap that ascension
- * buys or it hands the party a ×1.6 nobody paid for. The clamp is `Math.min` rather than a written
- * number so a retune of either side moves it.
+ * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and every chapter
+ * from 3 on has those differ.** `legendary` caps at 200 against a top stage of 225, so this party
+ * finishes the ladder **twenty-five levels below the thing it is fighting** — the chapter's
+ * difficulty statement rather than an accident. A rung is worth ×1.6 and the enemy side has no
+ * rungs, so a chapter that asks for an ascension has to climb past the cap that ascension buys or it
+ * hands the party a ×1.6 nobody paid for. The clamp is `Math.min` rather than a written number so a
+ * retune of either side moves it.
  *
- * **Level 200 at `legendary` until milestone 10, then 90, then 85, now 140.** Every one of those
- * moves was the same move — the party is defined by where the content is, never by a number.
+ * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, now 200 again at the
+ * rung it started at.** Every one of those moves was the same move — the party is defined by where
+ * the content is, never by a number.
  */
-const INVESTED_RARITY = rarityIndex('elite-plus');
+const INVESTED_RARITY = LEGENDARY;
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -554,6 +580,11 @@ const arrivedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(ARRIVED, stage),
 }));
+const marchedSweeps = stages.map((stage) => ({
+  label: 'marched',
+  stage,
+  ...sweep(MARCHED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -589,6 +620,7 @@ const everySweep = [
   ...starterSweeps,
   ...builtSweeps,
   ...arrivedSweeps,
+  ...marchedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -611,6 +643,9 @@ const CHAPTER_1_END = CHAPTER_ENDS[0];
 
 /** The end of chapter 2, which is where the Bound Marches start asking for the next ascension. */
 const CHAPTER_2_END = CHAPTER_ENDS[1];
+
+/** The end of chapter 3, which is where the Sundered Vault asks for the one after that. */
+const CHAPTER_3_END = CHAPTER_ENDS[2];
 
 describe('ladder balance', () => {
   it('never runs the clock out on a fight either party is meant to have', () => {
@@ -706,6 +741,37 @@ describe('ladder balance', () => {
     // as chapters are added, and a count would not.
     const walked = arrivedSweeps
       .slice(CHAPTER_2_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * 0.2);
+  });
+
+  it('lets the party that finished chapter 3 clear chapter 3', () => {
+    // The chapter-4 seam, measured the same way as the chapter-3 one directly above. This party is
+    // literally chapter 3's `INVESTED` under a new name, so this assertion is the old "clearable end
+    // to end" claim kept alive after the ladder grew past it — without it, extending the ladder
+    // would silently stop checking that the chapter below is still finishable by the party it was
+    // tuned for.
+    const unreliable = marchedSweeps
+      .slice(0, CHAPTER_3_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk the Sundered Vault as well', () => {
+    // ⚠️ **The assertion chapter 4 exists to satisfy.** The Vault climbs 160 to 225 — about a level
+    // and a third a stage — so a party arriving at the `elite-plus` cap of 140 is behind on numbers
+    // from the first stage and falls further behind across the chapter. What is meant to stop it is
+    // not only that gap: it is the celestial matchup tax, which no mortal composition answers, and
+    // the pairs the chapter is built on.
+    //
+    // A ceiling on momentum rather than a wall at the boundary, exactly as the two below it are,
+    // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
+    const walked = marchedSweeps
+      .slice(CHAPTER_3_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
@@ -1522,35 +1588,39 @@ describe('the stomp', () => {
     ).toBeGreaterThanOrEqual(3);
   });
 
-  it('leaves levelling and ascension worth about the same across the ladder', () => {
-    // The balance milestone 10 was asked to strike, stated as a number: what the ladder's climb
-    // hands a party in levels should be worth about what it hands them in rungs. If the first were
-    // much larger the gacha would be decoration — the failure that milestone named — and if the
-    // second were, this whole block would be measuring a currency nobody earns by waiting, because
-    // rungs are bought with duplicates rather than with time.
+  it('never lets either progression axis become decoration', () => {
+    // The balance milestone 10 was asked to strike: what the ladder's climb hands a party in levels
+    // should be worth roughly what it hands them in rungs. If the first ran away the gacha would be
+    // decoration — the failure that milestone named — and if the second did, this whole block would
+    // be measuring a currency nobody earns by waiting, because rungs are bought with duplicates.
     //
-    // ⚠️ **Both halves are the climb from {@link BUILT} to {@link INVESTED} now, and that is a
-    // correction rather than a retune.** It used to read levelling from 1 to `INVESTED`'s level
-    // against `LEGENDARY - RARE` rungs — and `INVESTED` has never stood at `legendary`, so the two
-    // halves described **different parties**. It passed for six milestones by coincidence: at level
-    // 85 the mismatch happened to cancel. Chapter 3 moved the level and the coincidence stopped
-    // holding, which is how a retyped constant is usually found.
+    // ⚠️ **This was a ratio of the two multipliers, bounded to (0.5, 2), and milestone 18 re-derived
+    // it rather than widening it — the same move milestone 17 made on the level ceiling's
+    // cost-in-hours, and for the identical reason.** A chapter adds about sixty-five levels and
+    // exactly **one** rung, and one rung only pays for `ln(1.6) / ln(1.021)` ≈ 22.6 levels. So that
+    // ratio multiplied by about 2.2 every chapter, by construction, forever: 0.77 at chapter 2, 1.50
+    // at 3, 3.26 at 4, 7.10 at 5. It was never going to be anything but a number moved once a
+    // chapter, and a guard that has to be moved every chapter is not guarding.
     //
-    // Measured across the ladder rather than from level 1 for a second reason that outlives the
-    // fix: levels reach ×10⁹ over a thousand of them and rungs reach ×450 over fifteen, so "worth
-    // about the same" is only ever a *local* claim. The stretch the shipped ladder actually asks a
-    // player to walk is the local it means.
-    const fromLevels = Math.pow(GROWTH.perLevel.common, INVESTED_LEVEL - BUILT_LEVEL);
-    const fromRungs = Math.pow(GROWTH.perAscension, INVESTED_RARITY - BUILT_RARITY);
-    const ratio = fromLevels / fromRungs;
+    // **What replaced it is the same claim in log space**, which is the space multipliers actually
+    // compose in: the *share* of the total climb that rungs account for. That share falls slowly and
+    // asymptotes — 55% at chapter 2, 45% at 3, 40% at 4, ~31% at 10, approaching 26% for a chapter
+    // of this shape — so a floor under it stays true for as long as the cadence holds and still
+    // fails loudly if ascension is ever reduced to a formality. Both ends are bounded, because
+    // either axis becoming the whole game is a failure.
+    //
+    // ⚠️ **The cadence is the load-bearing assumption, not the number.** This holds while a chapter
+    // asks for one rung and climbs roughly sixty-five levels. A chapter that asked for none would
+    // drive the share down fast, which is what should fail here — and it would, rather than being
+    // absorbed by a wider band.
+    const levelClimb = Math.log(GROWTH.perLevel.common) * (INVESTED_LEVEL - BUILT_LEVEL);
+    const rungClimb = Math.log(GROWTH.perAscension) * (INVESTED_RARITY - BUILT_RARITY);
+    const rungShare = rungClimb / (levelClimb + rungClimb);
+    const note =
+      `rungs are ${(rungShare * 100).toFixed(0)}% of the climb — ` +
+      `levels ×${Math.exp(levelClimb).toFixed(1)} against rungs ×${Math.exp(rungClimb).toFixed(1)}`;
 
-    expect(
-      ratio,
-      `levels ×${fromLevels.toFixed(1)} against rungs ×${fromRungs.toFixed(1)}`,
-    ).toBeGreaterThan(0.5);
-    expect(
-      ratio,
-      `levels ×${fromLevels.toFixed(1)} against rungs ×${fromRungs.toFixed(1)}`,
-    ).toBeLessThan(2);
+    expect(rungShare, note).toBeGreaterThan(0.2);
+    expect(rungShare, note).toBeLessThan(0.8);
   });
 });

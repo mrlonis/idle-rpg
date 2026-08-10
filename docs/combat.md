@@ -91,16 +91,20 @@ separately, at 95% of the timer. See [milestone 8e](milestones.md) for why that 
 assertion's own sentence rather than a moved threshold.
 
 **Milestone 14a handed some back rather than spending more.** Closing pressure ends the fights that
-used to run long, so across all fourteen sweep parties over all hundred and fifty stages the numbers
-are: longest cleared fight **62.7s** (bar 67.5s), longest fight of any kind **63.5s** (bar 85.5s),
+used to run long, so across all fifteen sweep parties over all two hundred stages the numbers are:
+longest cleared fight **62.7s** (bar 67.5s), longest fight of any kind **63.5s** (bar 85.5s),
 slowest mean **56.6s** (bar 60s), and **zero timeouts**. The longest cleared fight is a fully geared
 party on `c2-s23` — the stage that used to stall.
 
-⚠️ **All four numbers are unchanged by chapter 3**, which is worth knowing rather than assuming: a
-chapter tuned so its own reference party fights twenty levels below it might reasonably have been
-expected to produce longer fights, and it did not. Fight length is a function of the _ratio_ between
-the two sides, and the party there is behind on levels while being ahead on a rung — the two nearly
-cancel.
+⚠️ **All four numbers are unchanged by chapters 3 and 4** — not "close to", identical, and measured
+rather than assumed each time. Both chapters are tuned so their own reference party fights twenty to
+twenty-five levels below the content, which might reasonably have been expected to produce longer
+fights, and it does not. Fight length is a function of the _ratio_ between the two sides, and each
+party is behind on levels while being ahead on a rung; the two nearly cancel.
+
+That the longest fight in the whole sweep is still a chapter-2 stage, after a hundred more stages
+have been added above it, is the clearest evidence the timer budget is a property of **how a fight
+is shaped** rather than of how far up the ladder it sits.
 
 ---
 
@@ -438,6 +442,13 @@ is when the quantity is fixed anyway:
 `taunt`, `reflect`, `link` and `bomb`, added for chapter 3 and documented here rather than in a
 chapter file because they are engine vocabulary. All four ride the existing `status` effect: no new
 effect kinds, and the simulation's damage path grew one shared helper rather than four.
+
+⚠️ **These are still the last additions, and chapter 4 is the evidence rather than a restatement of
+the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five skills without
+touching `core/battle` at all, building instead from **pairs** of existing parts and from the
+matchup matrix leaned on hard enough to be a standing tax. That well is real and it is finite; the
+next chapter that cannot find an unspent pair has to make the case for growing this vocabulary on
+its own merits.
 
 **`taunt`** is above, under targeting.
 

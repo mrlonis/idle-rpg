@@ -70,18 +70,20 @@ lump = 40 seconds of that rate
 crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
 
-Across the hundred and fifty stages of chapters 1 to 3:
+Across the two hundred stages of chapters 1 to 4:
 
-| Stage | gold/s | xp/s | essence/s | enemy level |
-| ----- | ------ | ---- | --------- | ----------- |
-| 1     | 1.0    | 0.2  | 0.003     | 1           |
-| 12    | 16.6   | 3.32 | 0.050     | 14          |
-| 25    | 38.0   | 7.6  | 0.114     | 15          |
-| 50    | 83.2   | 16.6 | 0.250     | 16          |
-| 75    | 131.4  | 26.3 | 0.394     | 50          |
-| 100   | 182.0  | 36.4 | 0.546     | 85          |
-| 125   | 234.1  | 46.8 | 0.702     | 122         |
-| 150   | 287.7  | 57.5 | 0.863     | 160         |
+| Stage | gold/s | xp/s  | essence/s | enemy level |
+| ----- | ------ | ----- | --------- | ----------- |
+| 1     | 1.0    | 0.2   | 0.003     | 1           |
+| 12    | 16.6   | 3.32  | 0.050     | 14          |
+| 25    | 38.0   | 7.6   | 0.114     | 15          |
+| 50    | 83.2   | 16.6  | 0.250     | 16          |
+| 75    | 131.4  | 26.3  | 0.394     | 50          |
+| 100   | 182.0  | 36.4  | 0.546     | 85          |
+| 125   | 234.1  | 46.8  | 0.702     | 122         |
+| 150   | 287.7  | 57.5  | 0.863     | 160         |
+| 175   | 342.5  | 68.50 | 1.027     | 192         |
+| 200   | 398.3  | 79.65 | 1.195     | 225         |
 
 Three columns, not four: **the crystal rate is not part of this**. See below.
 
@@ -140,42 +142,59 @@ compounded over the nine thousand stages that reach chapter 100 has three hundre
 rate = basePerHour + perClearPerHour × clearedStages     // 100 + 1 × clears
 ```
 
-| Cleared          | Crystals/hr | Pulls/day |
-| ---------------- | ----------- | --------- |
-| 0 (a fresh save) | 100         | 24        |
-| 12               | 112         | 27        |
-| 50 (chapter 1)   | 150         | 36        |
-| 100 (the ladder) | 200         | 48        |
+| Cleared            | Crystals/hr | Pulls/day |
+| ------------------ | ----------- | --------- |
+| 0 (a fresh save)   | 100         | 24        |
+| 12                 | 112         | 27        |
+| 50 (chapter 1)     | 150         | 36        |
+| 100 (chapters 1–2) | 200         | 48        |
+| 200 (the ladder)   | 300         | 72        |
 
 **Milestone 11 halved the step to 0.5, and it has been put back to 1.** The halving was real
 tuning — a hundred stages at the full step is five ten-pulls a day where the twenty-four stage
 ladder had been paying three, which was past the band `banners.spec.ts` held. This time the band
-moved instead, deliberately: a cleared ladder pays **48 pulls a day** against 36, and the shape of
-the curve did not change at all. The failure mode this curve exists to prevent is a rate that
-**compounds** past a flat `PULL_COST`, and a linear step cannot do that at any size — being
-extravagant and compounding are different things, and only the second one was ever the bug.
+moved instead, deliberately, and the shape of the curve did not change at all. The failure mode this
+curve exists to prevent is a rate that **compounds** past a flat `PULL_COST`, and a linear step
+cannot do that at any size — being extravagant and compounding are different things, and only the
+second one was ever the bug.
 
-⚠️ **What binds the step is the ratio, and it is now spent.** The ladder's contribution is
-`step × stages` against a base of 100, so the shipped hundred stages **doubled** the base where the
-half-step added 50%.
+### ⚠️ The step is 1 and stays 1, and the guard was the thing that was wrong
 
-**Chapter 3 landed on exactly 60 pulls a day — the ceiling of the band — and the band was widened
-rather than the step retuned.** That is against this file's own advice, which said in this
-paragraph that the right answer would be to retune the step, and it is recorded rather than quietly
-edited away. The decision, and the reasoning behind it, belong to the person whose game this is:
-**the pull economy is going to be retuned as a whole once the roster's ascended tier is finished,
-and cutting a shipped rate twice in the meantime buys nothing.** The argument for retuning the step
-is still the right argument; it is the one to reach for when that retune happens.
+The band on pulls-per-day was moved once per chapter — 20–40, then 20–60, then 20–75 — and a second
+assertion bounded the ladder's contribution as a multiple of the base at ×3. **Chapter 4 landed on
+exactly ×3.**
 
-⚠️ **What it costs, stated plainly.** The old ceiling was placed where a _doubled_ ladder at this
-step would land, so growing the content still fired the guard rather than sailing past it — and that
-property is exactly what this move spends. Chapter 4 now passes a band it should have tripped. The
-next thing to notice will be a player holding more crystals than there is anything to spend them on,
-and there is no longer a test standing between here and there.
+That assertion's own comment had predicted the failure to the chapter and prescribed cutting
+`perClearPerHour`. **The prescription was declined, and the reasoning is the paragraph above.** Both
+bounds are `base + step × stages` in disguise — the ladder's **length** wearing a balance bound's
+clothes. They rise without limit as chapters ship and say nothing at all about whether the economy
+is sound, which is why each one had to be widened on a schedule. A guard that has to be moved every
+chapter is not guarding; it is bookkeeping. This is the same diagnosis milestone 17 reached when it
+retired "level 1000 costs more than 500 hours of top-of-ladder income", and the same one milestone 18
+reached about the tower payout ratio and the levelling-versus-ascension ratio on the same afternoon.
 
-**The shape is not what was deferred.** A flat base plus a **linear** step, paid once per stage ever
-and never compounding, is what a flat `PULL_COST` survives at any size; three assertions in
-`banners.spec.ts` hold it and none of them moved.
+**So "a pull an hour, plus one an hour for every stage you have ever cleared" survives** as the
+legible sentence it was chosen to be, and the ceiling is restated against the thing crystals are
+actually _for_:
+
+```
+a full clear must not buy the roster's copies in under thirty days
+```
+
+The roster's copies are derived through `fullAscensionCost` over `CHARACTERS` and the authored
+`FACTIONS` table — **4,487** for today's forty-nine characters, and a hard floor, since a pull yields
+one copy and only a player whose every pull landed where they needed it would ever reach it. At two
+hundred stages that is 62 days, against a realistic figure several times longer once the tier weights
+are counted.
+
+⚠️ **It tracks both sides, which is the whole point.** A roster that grows raises the ceiling exactly
+as a ladder that grows lowers it, so it does not decay — it fires when idle income has genuinely
+outrun the gacha's purpose, which at the current cadence is somewhere around chapter twelve. **When
+it does fire, the question is whether the roster kept up, not what number makes it green.**
+
+**Both floors were kept and neither moved**: the climb still has to be worth more than the base
+(×1.1) and still has to pay more than 20 pulls a day at a full clear. Those are claims about the
+game rather than about the ladder's length, and they stay true at any size.
 
 The base did not move either time: a pull an hour from install is the number that makes this
 economy legible.
@@ -244,13 +263,18 @@ would have failed — correctly in the sense that the number moved, and uselessl
 _every_ chapter moves it. The ladder pays a flat 250 a stage and a flat 1,000 per five clears, so
 the total is linear in the length by construction, and a fixed band on it is a **cap on how much
 content may ship**. What the band was protecting is the pacing — how much a player is handed for
-each fight they win — and that is per stage. It is 6.9 across all three chapters, unchanged, which
+each fight they win — and that is per stage. It is 6.9 across all four chapters, unchanged, which
 is the strongest evidence available that this was the quantity meant all along. A chapter authored
 more or less generously than the ones below it still fails; a chapter that is merely _another_
 chapter does not.
 
+**Chapter 4 is the second confirmation of that, and it cost nothing** — the per-stage figure did not
+move, and this bound was the one economy guard that did not have to be touched. It is worth reading
+next to the three that did: a bound stated **per unit of content** survives content being added, and
+a bound stated **in totals** does not.
+
 Quests are still sized to supplement: 350 a day plus 1,400 a week, roughly 5.5 pulls a day, against
-the 20–60 a day a fully cleared ladder produces idly.
+the 72 a day a fully cleared ladder produces idly.
 
 **The asymmetry is the whole design.** Against a player whose ladder is moving, achievements and
 quests are a modest top-up. Against a player walled below a stage — whose only income source is the
