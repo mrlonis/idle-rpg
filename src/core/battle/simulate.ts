@@ -656,6 +656,11 @@ export function simulateBattle(
 
           // Measured against what reached HP, so a shield that ate the blow also swallows the
           // answer to it. Last, so the log reads as hit, then consequence.
+          //
+          // ⚠️ This may fell the actor mid-skill, and the remaining clauses of this swing still
+          // land on this target — a rider like a bleed is part of the blow the thorns are
+          // answering, not a second swing. Where the corpse stops is the *next* target; `act()`
+          // owns that check and records why the granularity is the action rather than the clause.
           const returned = thorns?.share ?? 0;
           if (thorns !== undefined && returned > 0) {
             statusDamage(actor, absorbed.through.mul(returned), thorns.id, thorns.name);

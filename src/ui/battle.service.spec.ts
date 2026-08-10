@@ -125,13 +125,13 @@ function held(loop: FakeGameLoop): GameState {
  * Derived from the shipped chapters rather than retyped: the unlock is a count of finished
  * chapters, so the clears that earn it are the stages those chapters hold.
  */
-const AUTO_BATTLE_UNLOCK_CLEARS = CHAPTERS.slice(0, AUTO_BATTLE_UNLOCK_CHAPTERS).reduce(
+const clearsToUnlockAuto = CHAPTERS.slice(0, AUTO_BATTLE_UNLOCK_CHAPTERS).reduce(
   (total, chapter) => total + chapter.stages.length,
   0,
 );
 
 function unlocked(state: GameState): GameState {
-  return { ...state, clearedStages: AUTO_BATTLE_UNLOCK_CLEARS };
+  return { ...state, clearedStages: clearsToUnlockAuto };
 }
 
 /**
