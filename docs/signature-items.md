@@ -224,7 +224,7 @@ The consequence worth carrying: **a signature item still has no authored content
 ⚠️ **Chapter 3 was the named trigger and it did not close this.** The Bound Marches top out at enemy
 level **160** against a `mythic` cap of **340**, so the gap went from ×4 to ×2 and the probe still
 has to re-level its encounter. What would close it is a chapter reaching the low three hundreds —
-roughly chapter 6 or 7 at the current pacing — or a tower band that does. Do not treat "the next
+roughly chapter 8 at the re-cut's fifty-stage cadence — or a tower band that does. Do not treat "the next
 chapter" as the trigger again without checking the number.
 
 ### The sweep's timeout guard counts victories only

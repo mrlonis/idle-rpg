@@ -162,8 +162,10 @@ harder to see, because a ratio _looks_ like the fix for the previous case.
 | Idle crystals          | rate at full clear ÷ base rate | 2.0  | 2.5  | **3.0**  | 3.5  |
 
 The tell is the same in all three: **one side is a function of the ladder's length and the other is
-not.** A chapter adds ~65 levels and exactly one rung; it adds fifty stages and no tower floors; it
-adds a hundred crystals an hour to a base that never moves. Nothing is wrong in any of the three —
+not.** A fifty-stage band adds ~65 levels and exactly one rung; it adds stages and no tower
+floors; it adds crystals an hour to a base that never moves. (The chapter columns above are the
+pre-re-cut fifty-stage chapters; since milestone 19 the bands and the chapter numbers no longer
+coincide, and the ratios move with the bands.) Nothing is wrong in any of the three —
 the number moves because a chapter shipped, which is what chapters do.
 
 Three ways out, and which one applies is worth thinking about rather than guessing:

@@ -15,7 +15,8 @@ import {
   startRarityIndex,
 } from '../core';
 import {
-  AUTO_BATTLE_UNLOCK_CLEARS,
+  AUTO_BATTLE_UNLOCK_CHAPTERS,
+  CHAPTERS,
   HALRIC,
   IVO,
   MIRA,
@@ -118,7 +119,17 @@ function held(loop: FakeGameLoop): GameState {
   return state;
 }
 
-/** A run far enough up the ladder to have earned auto-battle. */
+/**
+ * A run far enough up the ladder to have earned auto-battle.
+ *
+ * Derived from the shipped chapters rather than retyped: the unlock is a count of finished
+ * chapters, so the clears that earn it are the stages those chapters hold.
+ */
+const AUTO_BATTLE_UNLOCK_CLEARS = CHAPTERS.slice(0, AUTO_BATTLE_UNLOCK_CHAPTERS).reduce(
+  (total, chapter) => total + chapter.stages.length,
+  0,
+);
+
 function unlocked(state: GameState): GameState {
   return { ...state, clearedStages: AUTO_BATTLE_UNLOCK_CLEARS };
 }

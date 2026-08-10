@@ -151,7 +151,8 @@ says whatever else is on.
 
 ### ⚠️ Defence is half the size it looks like it should be
 
-It was authored at twice these numbers and the ladder sweep went red on `c2-s23`: a fully geared
+It was authored at twice these numbers and the ladder sweep went red on `c2-s23` (`c4-s13` since
+the six-chapter re-cut): a fully geared
 party ran the ninety seconds out against a stage it could not beat — the stall class milestone 8c's
 timer exists to bound, and what the zero-timeout guard is there to catch.
 
@@ -244,10 +245,10 @@ dropping at their authored weight; and the bottom grade is ungated by constructi
 always drops something.
 
 ⚠️ **Every gate lands inside the stages this build ships**, and that is the constraint the numbers
-are picked against. The first version of this idea gated Sturdy behind chapter 3 — which did not
+are picked against. The first version of this idea gated Sturdy behind a third chapter — which did not
 exist at the time — leaving four of five grades unreachable. `gear.spec.ts` derives the ladder's
 length from the shipped chapters and asserts every gate falls inside it, so the rule survived
-chapter 3 arriving without anything here needing to change.
+that chapter arriving without anything here needing to change.
 
 Among what is unlocked, the odds still tilt with depth: a grade's authored weight is multiplied by
 `(1 + stageIndex / gradeSoftness) ** gradeIndex`. Two properties fall out of that shape:
@@ -260,12 +261,12 @@ Among what is unlocked, the odds still tilt with depth: a grade's authored weigh
   still worth its salvage.
 
 ⚠️ **`gradeSoftness` is a rate _per stage_, so the ladder's length is the other half of every number
-it produces — and chapter 4 is what made that visible.** At 90 the top grade was 14.8% of
+it produces — and milestone 18's chapter made that visible.** At 90 the top grade was 14.8% of
 end-of-ladder drops over a hundred and fifty stages and **21.3%** over two hundred, past the `< 0.2`
 bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It is **100**
 now: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
 
-This is the one guard chapter 4 tripped where the content genuinely had outgrown the threshold, and
+This is the one guard milestone 18 tripped where the content genuinely had outgrown the threshold, and
 it is worth contrasting with the three it tripped that had not — see
 [testing](testing.md), which sets out how to tell the two cases apart. Here the number was doing
 exactly its job: a softness tuned against one ladder length silently gets more generous every time a
@@ -304,7 +305,8 @@ incentive structurally is worth far more than one that would have to police it.
 The save holds two numbers: which stocking the run last bought from, and which offers it took.
 
 **Prices are seconds of the run's own gold income**, the same trick `rewardSeconds` plays on the
-stage lump. A flat gold price is unaffordable in chapter 1 and pocket change in chapter 4, so it
+stage lump. A flat gold price is unaffordable in the fen and pocket change at the top of the
+ladder, so it
 would have to be authored per band — one more table to keep aligned with a ladder that runs to
 thousands of stages. The rate is floored at the income the first stage unlocks, because a brand-new
 run earns nothing per second and a price computed from zero is a free relic.

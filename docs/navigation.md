@@ -106,7 +106,7 @@ clears remaining and the faction it wants.
 
 ⚠️ **That locked row is where "nothing empty ships for the towers" is deliberately spent, and it is
 the one place.** The rule was written against a card for content that did not exist; a locked row
-points at content that does, twelve clears away. A tower is a destination a player builds a roster
+points at content that does, a cleared chapter 1 away. A tower is a destination a player builds a roster
 toward, so a row that names its own key is the thing doing the work — where a hidden row would mean
 the whole system is invisible until it opens.
 

@@ -94,7 +94,7 @@ assertion's own sentence rather than a moved threshold.
 used to run long, so across all fifteen sweep parties over all two hundred stages the numbers are:
 longest cleared fight **62.7s** (bar 67.5s), longest fight of any kind **63.5s** (bar 85.5s),
 slowest mean **56.6s** (bar 60s), and **zero timeouts**. The longest cleared fight is a fully geared
-party on `c2-s23` — the stage that used to stall.
+party on `c2-s23` (`c4-s13` since the six-chapter re-cut) — the stage that used to stall.
 
 ⚠️ **All four numbers are unchanged by chapters 3 and 4** — not "close to", identical, and measured
 rather than assumed each time. Both chapters are tuned so their own reference party fights twenty to
@@ -439,11 +439,11 @@ is when the quantity is fixed anyway:
 
 ### The four milestone-17 kinds
 
-`taunt`, `reflect`, `link` and `bomb`, added for chapter 3 and documented here rather than in a
+`taunt`, `reflect`, `link` and `bomb`, added for the Bound Marches and documented here rather than in a
 chapter file because they are engine vocabulary. All four ride the existing `status` effect: no new
 effect kinds, and the simulation's damage path grew one shared helper rather than four.
 
-⚠️ **These are still the last additions, and chapter 4 is the evidence rather than a restatement of
+⚠️ **These are still the last additions, and the Sundered Vault is the evidence rather than a restatement of
 the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five skills without
 touching `core/battle` at all, building instead from **pairs** of existing parts and from the
 matchup matrix leaned on hard enough to be a standing tax. That well is real and it is finite; the

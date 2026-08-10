@@ -36,7 +36,8 @@
  *    archetype getting more.
  * 3. ⚠️ **The defence column is deliberately half the size it looks like it should be, and that is
  *    a termination argument rather than a balance preference.** It was authored at twice these
- *    numbers and the ladder sweep went red on `c2-s23`: a fully geared party ran the ninety
+ *    numbers and the ladder sweep went red on `c2-s23` (`c4-s13`, The Adamant Gate, since the
+ *    six-chapter re-cut): a fully geared party ran the ninety
  *    seconds out against a stage it could not beat, which is the stall class milestone 8c's timer
  *    exists to bound and which the zero-timeout guard is there to catch.
  *

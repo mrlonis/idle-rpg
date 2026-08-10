@@ -264,11 +264,12 @@ the two disagree, the code is right and both are stale.
   - ⚠️ **No shipped content can measure one.** `mythic` caps at level **340**; the hardest authored
     stage is level **225**. A party at the unlock rung is half again past the top of the ladder, so
     every campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
-    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **Chapters 3 and 4
-    were each expected to close this and neither did**: the gap went ×4 → ×2 → ×1.5, narrowing by
-    less each time because the level band flattens as chapters lengthen. What closes it is a chapter
-    reaching the low three hundreds, roughly chapter 6 or 7 at the current pacing, or a tower band
-    that does — check the number rather than assuming the next chapter is enough.
+    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **The Bound Marches
+    and the Sundered Vault were each expected to close this and neither did**: the gap went
+    ×4 → ×2 → ×1.5, narrowing by less each time because the level band flattens as content
+    lengthens. What closes it is a chapter reaching the low three hundreds, roughly chapter 8 at
+    the re-cut's fifty-stage cadence, or a tower band that does — check the number rather than
+    assuming the next chapter is enough.
   - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
     contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
     any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
@@ -316,7 +317,10 @@ the two disagree, the code is right and both are stale.
   - **Emblems are the seventh currency and the fifth rate**, added in milestone 16, and they buy
     signature item levels and nothing else. ⚠️ **The idle rate steps per _chapter_, not per stage** —
     a signature level costs a flat number of emblems forever, so a per-stage step over the shipped
-    hundred would multiply the faucet by fifty where a per-chapter step multiplies it by two.
+    two hundred would multiply the faucet by thirty-three where a per-chapter step caps it at six.
+    The re-cut opens the faucet in the first session (chapter 1 is ten stages), which changes
+    nothing that matters: nothing can spend an emblem until `mythic`, so an earlier trickle only
+    grows the stockpile waiting at that gate.
     - **There is no unlock flag anywhere in the save.** The rate is zero below one cleared chapter,
       which is the same fact expressed as arithmetic — nothing to lose, migrate or repair. There is
       no base either, unlike crystals: nothing can spend an emblem until a character reaches
@@ -326,12 +330,12 @@ the two disagree, the code is right and both are stale.
       authorable set and `satisfies` the keys of `AuthoredCurrencies` so they cannot drift. Adding
       `emblem` there would be a third mechanism on one currency, and a **silent** one — `raiseRates`
       takes the larger of the two, so whichever happened to be bigger would quietly win.
-    - ⚠️ **Drops dominate the idle rate by roughly ×7, and the intuitive reading is backwards.** The
-      naive sum is `60 fights/hr × 2% = 1.2/hr`, but the stage an auto-battler grinds is the **last**
-      one — the position stops climbing so the top stage stays farmable, and the last stage of a
-      chapter is a **boss**, the 25% row. That is ~15/hr. Retuning a drop chance is an economy change
-      of the same size as retuning the rate, and `data/emblems.spec.ts` measures the **boss** case
-      for that reason.
+    - ⚠️ **Drops still outweigh the idle rate (~15 an hour against 6 at a full clear), and the
+      intuitive reading is backwards.** The naive sum is `60 fights/hr × 2% = 1.2/hr`, but the stage
+      an auto-battler grinds is the **last** one — the position stops climbing so the top stage
+      stays farmable, and the last stage of a chapter is a **boss**, the 25% row. That is ~15/hr.
+      Retuning a drop chance is an economy change of the same size as retuning the rate, and
+      `data/emblems.spec.ts` measures the **boss** case for that reason.
     - ⚠️ **Emblems roll from their own derived stream (`emblem:…`), never from the gear sequence.**
       The count draw in `rollDrops` is its first draw, so adding a draw there re-rolls every
       historical gear drop for a given seed. A miss is not "a fight that produced nothing" — the gear
@@ -366,6 +370,17 @@ the two disagree, the code is right and both are stale.
       effective rate flat would be a rate cut dressed as a floor.
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../src/core/ladder.ts) before touching progression.
+  - **Six chapters ship — 10, 20, 30, 40, 50 and 50 stages — the same two hundred the four-chapter
+    cut carried, re-cut in milestone 19 so the boundaries land where a session does.** The curve is
+    a ramp to a permanent cap of fifty (base 10, step 10, band 1, max 50); the long ladder is more
+    chapters, not longer ones. ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule**:
+    the Fenlord, the Pale Warden, the First Cinder, the Ashfall Sovereign, the Chainsworn and the
+    Hollow Seraph — a re-cut that moves a boundary owes the new final a unique body before it
+    ships. Auto-battle unlocks when chapter 1 falls (`AUTO_BATTLE_UNLOCK_CHAPTERS = 1`, resolved
+    through `chaptersCleared`), and all seven towers open with it.
+  - ⚠️ **The re-cut changed what a stored position means and wrote no migration** — dev-only saves
+    clamp backward and re-climb, which [saves](../docs/saves.md) records along with the one-line exact
+    remap that becomes mandatory if chapters are ever re-cut after release.
   - ⚠️ **`GameState.stage` is the stage within its chapter, not a position on the whole ladder.**
     It was one until milestone 11 and it kept its name, so reading it as a linear index is a bug
     that presents as a player being teleported — chapter 2 stage 3 and chapter 1 stage 3 are the
@@ -377,20 +392,23 @@ the two disagree, the code is right and both are stale.
   - **The chapter-size formula and the authored chapters are two statements of one fact.**
     `chapterSize` says how long a chapter should be and `LadderShape` says how long the authored
     ones are; `chapters.spec.ts` is what keeps them equal. Never derive the shipped ladder's length
-    from the formula — a build that ships four chapters must not be talked into believing it has a
+    from the formula — a build that ships six chapters must not be talked into believing it has a
     hundred.
   - ⚠️ **A chapter that asks for a new ascension rung has to out-climb the rung it asks for**, and
-    chapter 3 is the first content where that bites. A rung is worth ×1.6 and the enemy side has
-    **no rungs at all**, so a party matching the enemy's level from one rung higher is ×1.6 ahead of
-    it — every stage a walkover, with nothing in the numbers looking wrong. Twenty-three levels is
-    what ×1.6 costs at `perLevel.common`. The Bound Marches therefore close at enemy level **160**
-    against `elite-plus`'s cap of 140, and the Sundered Vault at **225** against `legendary`'s cap
-    of 200 — the reference party finishes each twenty and twenty-five levels below the thing it is
-    fighting. Chapters 1 and 2 never met this because each ran inside a cap the party already had.
-  - **One rung per chapter is the cadence**, and it is load-bearing well beyond the ladder: 20 copies
-    for chapter 2, 24 for 3, 32 for 4. ⚠️ **It is the assumption under the levelling-versus-ascension
-    guard** — a chapter climbs ~65 levels and a rung only pays for 22.6, so the two axes drift apart
-    by construction and the guard measures the **share** rather than the ratio for that reason.
+    the Bound Marches (chapter 5) are the first content where that bites. A rung is worth ×1.6 and
+    the enemy side has **no rungs at all**, so a party matching the enemy's level from one rung
+    higher is ×1.6 ahead of it — every stage a walkover, with nothing in the numbers looking wrong.
+    Twenty-three levels is what ×1.6 costs at `perLevel.common`. The Bound Marches therefore close
+    at enemy level **160** against `elite-plus`'s cap of 140, and the Sundered Vault (chapter 6) at
+    **225** against `legendary`'s cap of 200 — the reference party finishes each twenty and
+    twenty-five levels below the thing it is fighting. Chapters 1 through 4 never met this because
+    each ran inside a cap the party already had.
+  - **A rung per fifty-stage band is the cadence** — it read "one rung per chapter" until milestone
+    19 multiplied the boundaries without moving a rung ask — and it is load-bearing well beyond the
+    ladder: 20 copies by the end of the fen's fifty stages, 24 by the Marches, 32 by the Vault. ⚠️
+    **It is the assumption under the levelling-versus-ascension guard** — a band climbs ~65 levels
+    and a rung only pays for 22.6, so the two axes drift apart by construction and the guard
+    measures the **share** rather than the ratio for that reason.
   - **Adding a chapter is an economy change as much as a content one**, and expect roughly four
     guards to fire. Only some of them will be about the chapter. ⚠️ **Sort them first into "content
     outgrew a threshold" and "this ratio moves every chapter regardless"** — the first is a real
@@ -471,10 +489,12 @@ the two disagree, the code is right and both are stale.
   - **A tower is faction-locked, and the lock lives in [`core/activity.ts`](../src/core/activity.ts).**
     `partyMeetsLock` is called by the editor **and** the battle path — two implementations of one
     rule is how a screen promises a legal crew that the fight refuses.
-  - **All seven open at twelve clears, together.** Which tower a run enters is settled by who it
-    owns, not by where the ladder has carried it, so staggering the unlocks would gate a player
-    holding five Elves behind clears that have nothing to do with them. `towers.spec.ts` bounds the
-    unlock under a fifth of the shipped ladder.
+  - **All seven open when chapter 1 falls — ten clears, the auto-battle unlock — together.** Which
+    tower a run enters is settled by who it owns, not by where the ladder has carried it, so
+    staggering the unlocks would gate a player holding five Elves behind clears that have nothing
+    to do with them. `towers.spec.ts` bounds the unlock under a fifth of the shipped ladder **and
+    holds the agreement with the auto-battle unlock** — each tower authors its own `unlockClears`,
+    so the spec is what stops the two silently splitting apart.
   - **Each tower leans on a different faction, and no two leans repeat.** Human←undead,
     dwarf←human, elf←dwarf, undead←elf, angel←demon, demon←angel — the mortal cycle where it
     applies and the celestial pairing where it does not. ⚠️ **The Monster Tower has no lean and that
@@ -602,12 +622,13 @@ the two disagree, the code is right and both are stale.
       theirs — because comparing against first clears alone reads the campaign as five times poorer
       than it is. Since 15c it **sums the towers that actually ship** rather than multiplying one
       tower by `FACTIONS.length`, which measured a projection while six of them were unwritten.
-    - ⚠️ **Only the ceiling on that ratio is stable; the floor falls every chapter by construction.**
-      Towers are fixed at seven hundred floors while the campaign grows, so it reads 3.17 at two
-      chapters, 2.12 at three, **1.59** at four and 1.27 at five. The floor moved 2 → 1.5 in
-      milestone 18, which buys one chapter deliberately — it is a reminder scheduled for chapter 5
-      rather than a bound to keep nudging. **The real answer when it next fires is to grow the
-      towers**, and that is milestone-sized work.
+    - ⚠️ **Only the ceiling on that ratio is stable; the floor falls as content ships, by
+      construction.** Towers are fixed at seven hundred floors while the campaign grows, so it read
+      3.17 at two fifty-stage chapters, 2.12 at three, **1.59** at four — and the six-chapter
+      re-cut then moved it to ~1.37 without adding a stage, because two more chapter boundaries pay
+      two more Chapter Conqueror awards. The floor moved 2 → 1.5 in milestone 18 and 1.5 → **1.3**
+      in milestone 19; it buys the re-cut and nothing more, and fires again at chapter 7. **The
+      real answer when it next fires is to grow the towers**, and that is milestone-sized work.
     - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
       payout" claim to the ladder, and `towers.spec.ts` holds the tie.
@@ -615,8 +636,8 @@ the two disagree, the code is right and both are stale.
     was wrong.** The ladder's crystal contribution is `step × stages` against a base of 100, so both
     of the old bounds — pulls a day at full clear, and the contribution as a multiple of the base —
     are the ladder's **length in disguise**. They were moved once per chapter (20–40, then 20–60,
-    then 20–75) and chapter 4 landed on exactly the ×3 ceiling that its own comment had predicted
-    and prescribed cutting the step for.
+    then 20–75) and milestone 18's chapter landed on exactly the ×3 ceiling that its own comment
+    had predicted and prescribed cutting the step for.
     - ⚠️ **That prescription was declined on the owner's call, and `banners.ts` already carried the
       argument for declining it**: the failure mode was ever only a rate that **compounds** past a
       flat `PULL_COST`, and a linear step cannot do that at any size. Extravagant and compounding are
@@ -624,17 +645,18 @@ the two disagree, the code is right and both are stale.
       stage you have ever cleared" survives as the legible sentence it was chosen to be.
     - **The ceiling is stated against the roster now, not the ladder**: a full clear must not buy the
       roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 4,487 today — in under
-      thirty days. It is 62 days at four chapters. ⚠️ **It tracks both sides**, so a roster that grows
+      thirty days. It is 62 days over the shipped two hundred stages. ⚠️ **It tracks both sides**, so a roster that grows
       raises it exactly as a ladder that grows lowers it, and it first fires around chapter twelve —
       at which point the question is whether the roster kept up, not what number makes it green.
     - **The floors were kept and did not move**: the climb must still be worth more than the base
       (×1.1) and still pay more than 20 pulls a day at a full clear. Those do not decay.
   - ⚠️ **What a clear pays is bounded _per stage_, not in total.** The band was 500–900 pulls for
-    the whole ladder and chapter 3 took it to 1,035 — correctly in the sense that the number moved,
-    uselessly in the sense that every chapter moves it. The ladder pays a flat 250 a stage and a
-    flat 1,000 per five clears, so the total is linear in the length by construction and a fixed
-    band on it is a **cap on how much content may ship**. Per stage it is 6.9 across all four
-    chapters, unchanged.
+    the whole ladder and milestone 17's chapter took it to 1,035 — correctly in the sense that the
+    number moved, uselessly in the sense that every chapter moves it. The ladder pays a flat 250 a
+    stage and a flat 1,000 per five clears, so the total is linear in the length by construction
+    and a fixed band on it is a **cap on how much content may ship**. Per stage it was 6.9 across
+    the four fifty-stage chapters, unchanged from three; the re-cut moved it to ~8.0 by adding two
+    chapter boundaries without touching a stage, which milestone 19 records as a decision.
   - ⚠️ **The level ceiling is guarded by ratios now, not by hours.** "Level 1000 costs more than 500
     hours of top-of-ladder income" was retired rather than moved a third time: income at the top
     rises with every chapter **by design**, so that figure falls forever (1,175 → 588 → 372) and
@@ -1178,9 +1200,10 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   - ⚠️ **The difficulty probe reads every fourth stage plus the bosses, so those samples are the
     chapter's spine and have to escalate.** Composition varies by more than the ~13% six levels
     buys, so a light board landing on a sample after a heavy one reads as a step backwards. Author
-    the spine deliberately rather than discovering it in the sweep. **Chapter 3 wrote this down and
-    chapter 4 broke it anyway** — a band opener authored as a teaching board, four bodies and two of
-    them commons, landing on `c4-s31` and measuring 84.4 after 100.9. ⚠️ **The trap is that band
+    the spine deliberately rather than discovering it in the sweep. **The Bound Marches wrote this
+    down and the Sundered Vault broke it anyway** — a band opener authored as a teaching board, four
+    bodies and two of them commons, landing on `c4-s31` (`c6-s31` since the re-cut) and measuring
+    84.4 after 100.9. ⚠️ **The trap is that band
     openings _want_ to be light and the stride does not care.** Check which stages are samples
     before authoring, and fix a step backwards with **weight rather than level**: five bodies and a
     legendary front rank, not +3 enemy levels, which would fight the level curve for ~13%.

@@ -263,8 +263,11 @@ would have failed — correctly in the sense that the number moved, and uselessl
 _every_ chapter moves it. The ladder pays a flat 250 a stage and a flat 1,000 per five clears, so
 the total is linear in the length by construction, and a fixed band on it is a **cap on how much
 content may ship**. What the band was protecting is the pacing — how much a player is handed for
-each fight they win — and that is per stage. It is 6.9 across all four chapters, unchanged, which
-is the strongest evidence available that this was the quantity meant all along. A chapter authored
+each fight they win — and that is per stage. It was 6.9 across all four chapters, unchanged from
+three — the strongest evidence available that this was the quantity meant all along. The
+six-chapter re-cut moved it to ~8.0 by adding two chapter boundaries (two more boss multipliers
+and 20,000 more Chapter Conqueror crystals) without touching a stage, which is a decision
+[milestone 19](milestones.md) records rather than drift. A chapter authored
 more or less generously than the ones below it still fails; a chapter that is merely _another_
 chapter does not.
 
@@ -381,7 +384,8 @@ it per-faction later is entries in one array plus a different resolver.
 **The idle rate steps per chapter, not per stage**, and that is the whole of its pacing. A signature
 level costs a flat number of emblems forever — the same relationship a crystal has to a flat
 `PULL_COST` — so the faucet has to grow slowly enough that a flat price still means something a
-hundred stages later. Per stage over the shipped hundred would multiply it by fifty; per chapter
+hundred stages later. Per stage over the shipped two hundred would multiply it by thirty-three;
+per chapter
 multiplies it by two.
 
 **There is no base and no unlock flag.** `SUMMON_RATE` pays a base from the first minute so a new
@@ -408,7 +412,10 @@ bound is written against is the one a real run produces.
 
 ### The stockpile at the gate is deliberate
 
-The faucet opens at one chapter cleared — days into a run. The first signature item unlocks around
+The faucet opens at one chapter cleared — the first session, since the re-cut made chapter 1 ten
+stages. That is far earlier than the fifty-stage chapter it was tuned against and it changes
+nothing that matters: nothing can spend an emblem until `mythic`, so an earlier trickle only grows
+the stockpile waiting at that gate. The first signature item unlocks around
 day 70 for a mortal and day 100 for a celestial. So a run banks thousands of emblems before it has
 anywhere to spend one, and the first two or three items get maxed the instant they unlock.
 

@@ -14,35 +14,37 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 
 ## Status
 
-| #   | Milestone                               | Status                                           |
-| --- | --------------------------------------- | ------------------------------------------------ |
-| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                                  |
-| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`             |
-| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing             |
-| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations          |
-| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out     |
-| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material       |
-| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled             |
-| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`           |
-| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone       |
-| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung       |
-| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays         |
-| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1           |
-| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived      |
-| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels      |
-| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived     |
-| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots      |
-| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal     |
-| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added         |
-| 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders   |
-| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor   |
-| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors        |
-| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes    |
-| 16  | Signature items                         | ✅ **Complete** — emblems, seven signature items |
-| 17a | Four mechanics and eight archetypes     | ✅ **Complete** — taunt, reflect, link, bomb     |
-| 17b | Chapter 3 — The Bound Marches           | ✅ **Complete** — 150 stages, three guards moved |
-| 18  | The roguelite run                       | ⬜                                               |
-| 19  | Puzzle maps                             | ⬜                                               |
+| #   | Milestone                               | Status                                               |
+| --- | --------------------------------------- | ---------------------------------------------------- |
+| 1   | Tick loop, one resource, save/load      | ✅ **Complete**                                      |
+| 2   | Battle up a stage ladder                | ✅ **Complete** — introduced `data/`                 |
+| 3   | Gacha, roster, ascension, levelling     | ✅ **Complete** — introduced routing                 |
+| 4   | Team composition affecting combat math  | ✅ **Complete** — introduced formations              |
+| 5   | Offline catch-up on resume              | ✅ **Complete** — segmented solver ruled out         |
+| 6   | Run on a physical iPhone                | ✅ **Complete** — removed Angular Material           |
+| 7   | Auto-battle, then doubling the ladder   | ✅ **Complete** — prestige cancelled                 |
+| 8a  | The combat rework: the stat block       | ✅ **Complete** — one `atk`, one `def`               |
+| 8b  | The combat rework: energy and ultimates | ✅ **Complete** — `mp` and `hp` costs gone           |
+| 8c  | The combat rework: skill counts         | ✅ **Complete** — 30 skills, gated by rung           |
+| 8d  | The combat rework: lineup bonuses       | ✅ **Complete** — party composition pays             |
+| 8e  | Seven characters per faction            | ✅ **Complete** — 49 characters, 3/3/1               |
+| 9   | Resonance — levels the roster shares    | ✅ **Complete** — one shared level, derived          |
+| 10  | Power that compounds                    | ✅ **Complete** — ×10⁹ levels, enemy levels          |
+| 11  | Chapters                                | ✅ **Complete** — 100 stages, income derived         |
+| 12  | Gear                                    | ✅ **Complete** — percentage-based, 5 slots          |
+| 13  | Settings, and the save-safety gap       | ✅ **Complete** — run reset, first CDK modal         |
+| 14a | The ladder retune                       | ✅ **Complete** — closing pressure added             |
+| 14b | Achievements, dailies and bounties      | ✅ **Complete** — three faucets, two reminders       |
+| 15a | Crews, and Home as the battle hub       | ✅ **Complete** — eight formations, one editor       |
+| 15b | The tower system, and the first tower   | ✅ **Complete** — Human Tower, 100 floors            |
+| 15c | The remaining six towers                | ✅ **Complete** — seven towers, 42 archetypes        |
+| 16  | Signature items                         | ✅ **Complete** — emblems, seven signature items     |
+| 17a | Four mechanics and eight archetypes     | ✅ **Complete** — taunt, reflect, link, bomb         |
+| 17b | Chapter 3 — The Bound Marches           | ✅ **Complete** — 150 stages, three guards moved     |
+| 18  | Chapter 4 — The Sundered Vault          | ✅ **Complete** — 200 stages, pairs, no new mechanic |
+| 19  | The six-chapter re-cut                  | ✅ **Complete** — same 200 stages, six finals        |
+| 20  | The roguelite run                       | ⬜                                                   |
+| 21  | Puzzle maps                             | ⬜                                                   |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
 > twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
@@ -53,6 +55,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 > **17 was the roguelite run and is now chapter 3; the roguelite and the puzzle maps moved down one.**
 > Renumbering was safe for exactly the reason it was refused at 14: neither entry had started. The
 > rule is about **work in progress**, not about the numbers.
+>
+> **They moved down once more when 19 became the six-chapter re-cut**, under the same rule: the
+> roguelite is 20 and the puzzle maps are 21, and neither had started.
 
 ---
 
@@ -1380,7 +1385,65 @@ here adds one — a party defined by the chapter it has just finished — becaus
 it was tuned for. Two named parties per seam is what makes "clears the chapter behind it, walks only
 a little way into the one ahead" checkable at both boundaries at once.
 
-## 19. The roguelite run
+## 19. The six-chapter re-cut — **COMPLETE**
+
+The same two hundred stages, re-cut from four fifty-stage chapters into six of 10, 20, 30, 40, 50
+and 50 — so the boundaries land where a session does. Chapter 1 is now the ten-stage stretch a
+player fights by hand: three locks, a boss, auto-battle. **No stage was re-tuned**: every board
+kept its line-up and its level except the four that became chapter finals, and the whole balance
+sweep passed on the first run because the linear ladder underneath did not move.
+
+### What it decided
+
+- **Every chapter ends on a boss fielded nowhere else, as a rule rather than a precedent.** The
+  Chainsworn and the Hollow Seraph already observed it; the re-cut authored **The Fenlord**
+  (c1-s10), **The Pale Warden** (c2-s20), **The First Cinder** (c3-s30) and **The Ashfall
+  Sovereign** (c4-s40) to close the gap — each built entirely from skills already in the file,
+  recombined, and each sized under the Unmade ceiling. The Sovereign took the Unmade's old slot at
+  stage 100; the Unmade keeps its nine other boards as the Reach's heaviest presence. The First
+  Cinder closes chapter 3 at level 30 — one above the old board it replaced — so the boundary rule
+  ("the next chapter opens at the level the boss closed on") holds exactly.
+- **Chapter names follow the landscape, and chapter 3 straddles the seam on purpose.** The Sunken
+  Fen (1), The Drowned Ward (2), The Cinder Mire (3 — twenty fen stages, then the first ten of the
+  ash), The Ashfall Reach (4), The Bound Marches (5), The Sundered Vault (6). The fen-to-ash
+  transition happens mid-chapter where a player can feel it, rather than at a boundary where it
+  would read as a new game.
+- **The auto-battle unlock is a count of chapters now** — `AUTO_BATTLE_UNLOCK_CHAPTERS = 1`,
+  resolved through `chaptersCleared`, so moving it is a one-integer edit however the chapters are
+  ever cut again. It was twelve clears; it is now ten, and the two teaching stages it used to wait
+  for (the accuracy gate and the penetration check) open chapter 2 instead. All seven towers moved
+  with it, 12 → 10, and `towers.spec.ts` now holds that agreement instead of a comment promising
+  it.
+- **`CHAPTER_CURVE` became a ramp to a permanent cap of fifty** (base 10, step 10, band 1, max
+  50). The old banded growth toward two-hundred-stage chapters is gone, not deferred: the long
+  ladder is more chapters, not longer ones. Revisit deliberately if fifty ever reads as too short
+  at the far end.
+- **Chapter Conqueror kept its 10,000 crystals + 100 emblems.** Six boundaries over the same
+  stages means +20,000 crystals and +200 emblems across the run, and finishing the ten-stage
+  chapter 1 now pays a real early bankroll — accepted under the err-generous philosophy, and
+  because the award is what tower-topping ties to. The tower:campaign ratio floor was re-derived
+  1.5 → 1.3 as a re-cut artifact rather than a retune; it fires again at chapter 7, and the answer
+  then is still to grow the towers.
+- **Stored positions changed meaning and no migration was written.** `{chapter, stage}` names a
+  different place under the new shape; `clampPosition` pulls an out-of-range pair backward and a
+  player re-climbs with no re-pay (`clearedStages` is untouched). Accepted because no save exists
+  outside development — [saves](saves.md) records the decision and why it must not be repeated
+  after release.
+- **Stage ids were renumbered to match their new chapters** (old c1-s31 is c3-s1, old c2-s50 is
+  c4-s40, chapters 3 and 4 became 5 and 6 wholesale). Nothing in the save stores a stage id;
+  derived battle streams shift, which is invisible in play and re-measured by the sweeps.
+
+### What the balance file keeps that chapters no longer name
+
+The fen's fifty boards are still one tuning span even though they now cross a chapter boundary, so
+`chapters.balance.ts` measures `BUILT` against **`FEN_END`** — derived from the Frozen Gate's id,
+the fen's last board and once chapter 1's boss, now chapter 3's second mini-boss. The seam parties
+re-keyed by place, not by index: `ARRIVED` to the end of chapter 4, `MARCHED` to the end of
+chapter 5. "One rung per chapter" became **one rung per fifty-stage band** — the re-cut multiplied
+the boundaries without moving a single rung ask, which is exactly why the levelling-versus-ascension
+guard measures the share over the whole ladder rather than anything per chapter.
+
+## 20. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1396,7 +1459,7 @@ a question mid-flight.
 structural, and taking it first would be choosing the fun problem over the one blocking
 everything else.
 
-## 20. Puzzle maps
+## 21. Puzzle maps
 
 **The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
 roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a

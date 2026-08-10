@@ -1482,7 +1482,8 @@ describe('simulateBattle', () => {
       // termination argument, it is what fires when one is missing.
       //
       // Two combatants that each out-heal the other's damage is the whole failure in miniature,
-      // and it is exactly what the milestone-14 retune surfaced on `c2-s13` and `c2-s23`: a lone
+      // and it is exactly what the milestone-14 retune surfaced on `c2-s13` and `c2-s23`
+      // (`c4-s3` and `c4-s13` since the six-chapter re-cut): a lone
       // Hierophant topping itself up against a party that had already killed everything else.
       // `pressureAt` amplifies damage and deliberately does not amplify healing, so the loop is
       // broken by arithmetic rather than by a timeout being reported as a defeat.

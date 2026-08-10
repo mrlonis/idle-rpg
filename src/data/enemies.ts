@@ -1392,12 +1392,13 @@ export const RIVEN_MARCHWARDEN = {
 } as const;
 
 /**
- * The end of the Bound Marches, and the only body on the ladder fielded on exactly one stage.
+ * The end of the Bound Marches, and the first body on the ladder fielded on exactly one stage.
  *
- * ⚠️ **Every other chapter boss is an archetype the chapter has already been fielding** — The
- * Unmade stands in nine stages before the one it names. This one appears at `c3-s50` and nowhere
- * else, which is the whole of what "a boss is unique" buys: the last encounter of a chapter is the
- * one a player remembers, and a stat block they have already beaten four times is a stage number.
+ * ⚠️ **It set the precedent the six-chapter re-cut made a rule** — when this was authored, every
+ * other chapter boss was an archetype the chapter had already been fielding, with The Unmade
+ * standing in nine stages before the one it named. This appears at `c5-s50` and nowhere else,
+ * which is the whole of what "a boss is unique" buys: the last encounter of a chapter is the one a
+ * player remembers, and a stat block they have already beaten four times is a stage number.
  *
  * It fields three of the chapter's four mechanics at once and leaves the fourth to the wall
  * standing in front of it: the board is bound, so nothing can be removed alone; it is thorned, so
@@ -1646,7 +1647,7 @@ export const VAULTBOUND_GAOLER = {
  *
  * The Chainsworn set that precedent one chapter ago and the argument is unchanged: the last
  * encounter of a chapter is the one a player remembers, and a stat block they have already beaten
- * four times is a stage number. It stands on `c4-s50` and nowhere else.
+ * four times is a stage number. It stands on `c6-s50` and nowhere else.
  *
  * Its three turns are the chapter's three pairs on one body — it wears the pool ({@link
  * WARD_THE_SEAL}), it takes the party's setup back and quickens its own board ({@link ANTIPHON}),
@@ -1681,6 +1682,151 @@ export const HOLLOW_SERAPH = {
     magicPierce: 0.3,
   },
   skills: [WARD_THE_SEAL, ANTIPHON, THE_SEAL_BREAKS],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The chapter finals — the re-cut ladder's unique bosses
+//
+// The six-chapter re-cut made "every chapter ends on a boss fielded nowhere else" a rule rather
+// than a precedent. The Chainsworn and the Hollow Seraph already satisfied it; these four close
+// the gap for chapters 1 through 4. Each stands on exactly one stage — its chapter's last — and
+// in no tower, which is the whole of what it is for: the last encounter of a chapter is the one a
+// player remembers, and a stat block they have already beaten four times is a stage number.
+//
+// ⚠️ **No new mechanics, and not even a new skill.** Milestone 17 closed the vocabulary and
+// milestone 18 held the line with pairs; these go one step further and are authored entirely from
+// **skills already in the file**, recombined. What makes each unique is the body wearing the kit
+// and the board standing around it. All four sit under The Unmade on both `hp` and `atk` —
+// `enemies.spec.ts` holds that ceiling, and what ramps across the four is the level they are
+// fielded at, not the blocks.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The fen's king, and the first boss the re-cut ladder meets — at stage 10, as chapter 1's final.
+ *
+ * It wears the absorb lesson itself: {@link WARD_THE_SEAL} banks a pool on the one body the fight
+ * is shaped around, the pool depletes, and nothing on the board refills it. That is the Custodian's
+ * skill without the Custodian's question — there is no taunt here, so nothing *forces* the party
+ * onto the shield; it is simply that the biggest thing on the board is the thing that has to die.
+ * A party that learned the Bulwark's barrier over the last nine stages meets the same idea grown a
+ * tier.
+ *
+ * Deliberately **no healing anywhere on its board**, which is the rule every final observes: an
+ * absorb depletes and a heal does not, and a timeout is a defeat.
+ */
+export const FENLORD = {
+  id: 'fenlord',
+  name: 'The Fenlord',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1250,
+    atk: 62,
+    def: 22,
+    recovery: 5,
+    haste: 76,
+    critChance: 0.06,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    tenacity: 0.25,
+    physicalResist: 0.1,
+  },
+  skills: [WARD_THE_SEAL, GORE],
+} as const;
+
+/**
+ * The master of the gates the Drowned Ward is built from, and chapter 2's final.
+ *
+ * A Gate Warden takes a turn away; the Pale Warden is where that lesson graduates. {@link
+ * GATE_SLAM} is the same spike the chapter has been teaching the party to survive, and {@link
+ * GLACIAL_SLAM} is the armour gate's own heavy turn pointed at whoever stands in front. The
+ * durability is **on its own body** — plate, crit-block and tenacity rather than a healer behind a
+ * wall, which is the safe inversion chapter 3 of the old ladder wrote down: everything the party
+ * must kill is a thing it is allowed to hit.
+ */
+export const PALE_WARDEN = {
+  id: 'pale-warden',
+  name: 'The Pale Warden',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1150,
+    atk: 58,
+    def: 26,
+    recovery: 6,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    critDamageResist: 0.15,
+    critBlock: 0.12,
+    tenacity: 0.3,
+    insight: 0.1,
+    physicalResist: 0.08,
+  },
+  skills: [GATE_SLAM, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The first flame that walked out of the fen, and chapter 3's final — the seam where the mire
+ * starts burning.
+ *
+ * The Cinder Mire closes on the penetration lesson the Ravagers spent ten stages teaching, and
+ * this is that lesson wearing a crown: pierce on the stat block, {@link FLENSE} opening both front
+ * bodies at once, and {@link CINDER_STORM} taxing the party that answered everything with physical
+ * armour. Burst and burn together, from a body fast enough that neither can be waited out.
+ */
+export const FIRST_CINDER = {
+  id: 'first-cinder',
+  name: 'The First Cinder',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1350,
+    atk: 72,
+    def: 24,
+    recovery: 5,
+    haste: 100,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    tenacity: 0.3,
+    physicalPierce: 0.25,
+    magicResist: 0.08,
+  },
+  skills: [FLENSE, CINDER_STORM],
+} as const;
+
+/**
+ * What rules the Ashfall Reach, and chapter 4's final — in the slot The Unmade held when this was
+ * the whole ladder's last fight.
+ *
+ * The Unmade still stands in its nine other stages; what this asks is the pair it never did.
+ * {@link WRATH_UNBOUND} is the escalation lock at boss scale — chipping the Sovereign down is the
+ * thing that turns it on — and {@link HEADSMANS_ARC} is what it spends the window on: not the
+ * wall, the weakest. Beside the Gallows Headsman already behind it, that is two executioners on
+ * one board, so sustain pointed at the tank answers neither. Burst it through the window, or keep
+ * all five standing; there is no third option where it is worn down slowly and nobody is at risk.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const ASHFALL_SOVEREIGN = {
+  id: 'ashfall-sovereign',
+  name: 'The Ashfall Sovereign',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 97,
+    def: 50,
+    recovery: 7,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.45,
+    physicalPierce: 0.25,
+    magicPierce: 0.2,
+  },
+  skills: [WRATH_UNBOUND, HEADSMANS_ARC],
 } as const;
 
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
@@ -1736,6 +1882,10 @@ export const ENEMIES = [
   BRAMBLEWALK_SCOUT,
   RIVEN_MARCHWARDEN,
   CHAINSWORN,
+  FENLORD,
+  PALE_WARDEN,
+  FIRST_CINDER,
+  ASHFALL_SOVEREIGN,
   SEALWARD_CUSTODIAN,
   ANTIPHON_ARCHON,
   VAULTLIGHT_CENSER,

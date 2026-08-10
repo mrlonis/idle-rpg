@@ -44,7 +44,7 @@ import {
  * - **`def` is worth the least and gets the largest.** It sits under a diminishing-returns curve
  *   and, per [gear](../../docs/gear.md), the defensive share of the gear profiles is already
  *   deliberately half what it looks like it should be — a fully geared party ran the ninety-second
- *   clock out on `c2-s23` at twice that size.
+ *   clock out on `c2-s23` — `c4-s13` since the six-chapter re-cut — at twice that size.
  * - **`hp` is worth less than `atk`** on a board where damage is `atk² / (atk + def)`.
  *
  * ⚠️ **Every value is a fraction of the wearer's own scaled stat, never a flat quantity.** A flat

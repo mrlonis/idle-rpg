@@ -133,17 +133,20 @@ function sweep(party: FormationData, stage: StageData): { win: number; maxTicks:
  *
  * ## ⚠️ There is no shipped stage that can measure a signature item, and that is a content fact
  *
- * `mythic` caps at level **340**. The highest stage this build ships is the chapter 2 boss at
- * level **85**. So a party at the signature unlock rung is four times the level of the hardest
- * thing in the game, and every campaign fight it takes is a walkover — the first version of this
- * probe measured a win-rate gain of exactly **zero on all seven characters**, not because
- * signature items do nothing but because both sides of the comparison were already at 100%.
+ * `mythic` caps at level **340**. When this probe was first written the highest shipped stage was
+ * the ash chapters' boss at level **85**, so a party at the signature unlock rung was four times
+ * the level of the hardest thing in the game, and every campaign fight it took was a walkover —
+ * the first version of this probe measured a win-rate gain of exactly **zero on all seven
+ * characters**, not because signature items do nothing but because both sides of the comparison
+ * were already at 100%. The Bound Marches and the Sundered Vault each narrowed the gap without
+ * closing it — 225 against 340 today, and the code below derives the top stage rather than
+ * restating it.
  *
  * That is worth stating plainly rather than working around silently: **milestone 16 unlocks at a
  * point the shipped campaign is far past being able to challenge.** It is not a bug in this system
- * — the gate is deliberately deep and the ladder is deliberately two chapters — but it does mean
- * a signature item has no authored content to matter in until chapter 3 or a tower reaches that
- * band, and it means no sweep over shipped stages can ever bound one.
+ * — the gate is deliberately deep — but it does mean a signature item has no authored content to
+ * matter in until a chapter or a tower band reaches the low three hundreds, and it means no sweep
+ * over shipped stages can ever bound one.
  *
  * Re-levelling the top encounter is the answer, and it is the same move `core/towers.ts` makes:
  * `data/` authors who stands on a floor and the level is derived. Both sides then sit on the same

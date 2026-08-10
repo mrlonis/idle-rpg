@@ -10,7 +10,7 @@ import {
   totalStages,
 } from '../src/core';
 import {
-  AUTO_BATTLE_UNLOCK_CLEARS,
+  AUTO_BATTLE_UNLOCK_CHAPTERS,
   CHAPTER_CURVE,
   CHAPTERS,
   STAGE_REWARDS,
@@ -192,12 +192,17 @@ test.describe('auto-battle', () => {
 
   test('unlocks on the clear count rather than the stage number', async ({ page }) => {
     // A run parked at the top of the ladder still has it, which is the case a stage-number check
-    // would get wrong forever.
+    // would get wrong forever. The unlock is a count of finished chapters since the re-cut, so
+    // the clears it costs are derived from the shipped chapter sizes rather than retyped.
+    const unlockClears = chapters
+      .slice(0, AUTO_BATTLE_UNLOCK_CHAPTERS)
+      .reduce((total, chapter) => total + chapter.stages.length, 0);
+
     await seed(page, unlockedRun(CLEARS));
     await page.goto('');
     await enterBattle(page);
 
-    expect(CLEARS).toBeGreaterThanOrEqual(AUTO_BATTLE_UNLOCK_CLEARS);
+    expect(CLEARS).toBeGreaterThanOrEqual(unlockClears);
     await expect(page.getByRole('button', { name: 'Auto' })).toBeVisible();
   });
 });
