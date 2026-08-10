@@ -199,6 +199,23 @@ an unknown character. A character this build does not ship cannot be fielded; a 
 track it does not ship costs one integer, and dropping it is what would **re-pay every award on that
 track** if it ever came back. The fixture carries a retired id for exactly this.
 
+### The six-chapter re-cut changed what a stored position means, and wrote nothing
+
+Milestone 19 re-cut the same two hundred stages from four chapters into six, so `{chapter, stage}`
+names a different place under the new shape — `{chapter: 4, stage: 50}` was the top of the ladder
+and now clamps to `{4, 40}`, the middle of it. **No migration was written and the version did not
+move**, which is the same licence as the re-bases and spends it the same way: no save carrying the
+old meaning exists outside development. A dev save simply teleports backward — `clampPosition`
+pulls the pair into range, `clearedStages` is untouched so nothing is re-paid, and the run
+re-climbs.
+
+⚠️ **This is the `rarity`-shift shape — a field reinterpreted, not added — and after release it
+costs a real migration.** The exact remap is cheap and needs no knowledge of the old shape, because
+the position is always the run's frontier today:
+`position = positionAt(newShape, min(clearedStages + 1, totalStages))`. If chapters are ever re-cut
+again with players in the world, that one-liner is the migration, and shipping the re-cut without
+it is the demoted-roster bug wearing a ladder's clothes.
+
 ### The rules that still apply
 
 Migrations are pure `(old) => (new)` steps, chained.

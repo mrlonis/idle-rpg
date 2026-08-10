@@ -25,7 +25,7 @@ import {
   stageIndex,
   ZERO,
 } from '../core';
-import { AUTO_BATTLE_UNLOCK_CLEARS } from '../data';
+import { AUTO_BATTLE_UNLOCK_CHAPTERS } from '../data';
 import {
   ACTIVITIES_BY_ID,
   CHAPTERS_IN_ORDER,
@@ -247,11 +247,15 @@ export class BattleService {
   /**
    * Whether the run has earned auto-battle at all.
    *
-   * Read off `clearedStages` rather than `stage`, because `stage` stops climbing at the top of
-   * the ladder and would answer "no" forever for a run that had beaten everything.
+   * A count of finished **chapters** since the re-cut, resolved through `chaptersCleared` so the
+   * unlock tracks the shipped chapter boundaries however they are cut. Read off `clearedStages`
+   * rather than `stage`, because `stage` stops climbing at the top of the ladder and would answer
+   * "no" forever for a run that had beaten everything.
    */
   readonly isAutoUnlocked = computed(
-    () => (this.game.snapshot()?.clearedStages ?? 0) >= AUTO_BATTLE_UNLOCK_CLEARS,
+    () =>
+      chaptersCleared(LADDER, this.game.snapshot()?.clearedStages ?? 0).total >=
+      AUTO_BATTLE_UNLOCK_CHAPTERS,
   );
 
   /**

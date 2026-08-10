@@ -17,6 +17,7 @@ import {
   isStunned,
   nextExpiry,
   partitionExpired,
+  runningStatus,
   shieldTotal,
   toActiveStatus,
 } from './status';
@@ -455,7 +456,9 @@ export function simulateBattle(
     if (status.amount === undefined) {
       return status;
     }
-    if (status.kind === 'dot' && status.damageType !== undefined) {
+    if ((status.kind === 'dot' || status.kind === 'bomb') && status.damageType !== undefined) {
+      // A bomb is a poison that pays late, so it answers a resist exactly as a poison does — and
+      // at the same moment, which is the one the quantity was snapshotted at.
       const share = resistedShare(target.base, status.damageType);
       return share === 1 ? status : { ...status, amount: status.amount.mul(share) };
     }
@@ -463,6 +466,81 @@ export function simulateBattle(
       return { ...status, amount: amplified(target, source, status.amount) };
     }
     return status;
+  };
+
+  /**
+   * Damage a **status** deals, rather than damage an action deals.
+   *
+   * The one path for all four of them — a poison ticking, a bomb going off, thorns answering a
+   * blow, and the share of a hit a link moves onto an ally. Shields absorb it, it can kill, and it
+   * charges nobody's energy bar: energy is paid for acting and for being acted upon, and a status
+   * is neither.
+   *
+   * ⚠️ **Nothing in here re-enters {@link resolveOn}, and that is the termination argument for
+   * reflect and link both.** Thorns cannot answer thorns and a link cannot spread a share it was
+   * handed, because neither ever looks at the incoming damage again. It is structural rather than
+   * a depth counter, which is what makes it impossible to reintroduce by accident.
+   */
+  const statusDamage = (
+    victim: Fighter,
+    amount: Numeric,
+    statusId: string,
+    statusName: string,
+  ): void => {
+    if (!isAlive(victim) || amount.lte(ZERO)) {
+      return;
+    }
+    const absorbed = absorbDamage(victim.statuses, amount);
+    victim.statuses = absorbed.statuses;
+    const fell = damage(victim, absorbed.through);
+    events.push({
+      kind: 'tick-damage',
+      tick,
+      target: victim.key,
+      statusId,
+      statusName,
+      damage: absorbed.through,
+      absorbed: absorbed.absorbed,
+      targetHp: victim.hp,
+    });
+    if (fell) {
+      events.push({ kind: 'defeat', tick, combatant: victim.key });
+    }
+  };
+
+  /**
+   * Splits an incoming hit across a link, returning what the target itself still takes.
+   *
+   * The allies are paid **before** the target, which is deliberate: the `attack` event has to be
+   * the last word on what the target's health is, and an animator that saw the target's bar move
+   * and then a stranger's would narrate the same hit twice.
+   *
+   * ⚠️ Damage is conserved rather than multiplied, and a link with nobody left to share to returns
+   * the whole hit — see {@link StatusData}'s `link` for why both clauses are load-bearing.
+   */
+  const spreadLink = (target: Fighter, incoming: Numeric): Numeric => {
+    const link = runningStatus(target.statuses, 'link');
+    const share = link?.share ?? 0;
+    if (link === undefined || share <= 0) {
+      return incoming;
+    }
+    const partners = fighters.filter(
+      (fighter) =>
+        fighter !== target &&
+        fighter.side === target.side &&
+        isAlive(fighter) &&
+        fighter.statuses.some((status) => status.id === link.id),
+    );
+    if (partners.length === 0) {
+      return incoming;
+    }
+
+    const moved = incoming.mul(share);
+    const each = moved.div(partners.length);
+    for (const partner of partners) {
+      statusDamage(partner, each, link.id, link.name);
+    }
+    return incoming.sub(moved);
   };
 
   /** Adds energy to a fighter, clamped to the bar. Returns the new total for the event log. */
@@ -517,7 +595,18 @@ export function simulateBattle(
             break;
           }
 
-          const absorbed = absorbDamage(target.statuses, roll.damage);
+          // Read before the blow lands, because a fighter that falls drops everything it was
+          // carrying — and thorns are meant to answer the killing blow above all others. A reflect
+          // that a burst party could step around by finishing the job in one hit would tax exactly
+          // the parties it is not aimed at.
+          const thorns = runningStatus(target.statuses, 'reflect');
+
+          // The link is settled before the shield, so each holder meets the share it was handed
+          // with its own absorb rather than with the target's. What is spread is the damage the
+          // roll produced **against the target** — one resolution against one defence, then a
+          // share of the result moved — which is what keeps a link readable at the board level.
+          const incoming = spreadLink(target, roll.damage);
+          const absorbed = absorbDamage(target.statuses, incoming);
           target.statuses = absorbed.statuses;
           const fell = damage(target, absorbed.through);
 
@@ -563,6 +652,18 @@ export function simulateBattle(
 
           if (fell) {
             events.push({ kind: 'defeat', tick, combatant: target.key });
+          }
+
+          // Measured against what reached HP, so a shield that ate the blow also swallows the
+          // answer to it. Last, so the log reads as hit, then consequence.
+          //
+          // ⚠️ This may fell the actor mid-skill, and the remaining clauses of this swing still
+          // land on this target — a rider like a bleed is part of the blow the thorns are
+          // answering, not a second swing. Where the corpse stops is the *next* target; `act()`
+          // owns that check and records why the granularity is the action rather than the clause.
+          const returned = thorns?.share ?? 0;
+          if (thorns !== undefined && returned > 0) {
+            statusDamage(actor, absorbed.through.mul(returned), thorns.id, thorns.name);
           }
           break;
         }
@@ -758,6 +859,13 @@ export function simulateBattle(
     // targets the skill reaches.
     const credit: Credit = { hit: false, healed: false };
     for (const target of targets) {
+      // ⚠️ **An actor can now die inside its own action**, which nothing could do before `reflect`
+      // existed — a row attack into three thorned enemies is answered three times. A corpse must
+      // not finish swinging, and the check is here rather than in `resolveOn` because it is about
+      // the *action* rather than about one clause of it.
+      if (!isAlive(actor)) {
+        break;
+      }
       resolveOn(actor, target, skill, credit);
     }
   };
@@ -805,7 +913,22 @@ export function simulateBattle(
           statusId: status.id,
           statusName: status.name,
         });
+        // A bomb pays out **as it goes**, which is the whole of what separates it from a poison.
+        // Emitted after the expiry so the log reads as the thing ending and then landing, and
+        // fired exactly once because the same expiry is what removed it.
+        if (status.kind === 'bomb' && status.amount !== undefined) {
+          statusDamage(fighter, status.amount, status.id, status.name);
+        }
       }
+    }
+
+    // ⚠️ **Nothing but a bomb can kill at an expiry, and before bombs nothing could kill here at
+    // all** — which is why this call is new rather than something that was missing. Without it the
+    // last combatant on a side could fall to a detonation and the fight would carry on until
+    // somebody's turn came around to notice.
+    outcome = decide(fighters);
+    if (outcome !== undefined) {
+      break;
     }
 
     for (const actor of readyInOrder(fighters)) {

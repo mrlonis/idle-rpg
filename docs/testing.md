@@ -118,6 +118,73 @@ would have — each of which passed type-checking and the unit suite first:
 **Anything meaning "how far has this been invested" has to count rungs from a floor**, never read an
 id. The same insertion is also a save migration rather than a content edit — see [saves](saves.md).
 
+### ⚠️ Two halves of one assertion must describe the same party
+
+Chapter 3 found a fourth thing, of the same family and worse: "levelling and ascension are worth
+about the same" measured `INVESTED`'s **level** against `LEGENDARY - RARE` **rungs** — and `INVESTED`
+has never stood at `legendary`. The two halves of one ratio described **different parties**, and it
+passed for six milestones because at level 85 the mismatch happened to cancel.
+
+Nothing structural could have caught it: both halves type-check, both are derived from named
+constants rather than literals, and the test's own prose ("the four rungs it also holds") reads as
+though it had been checked. What exposed it was moving the ladder underneath it, which is the same
+mechanism as everything above — content growing until a coincidence stops holding.
+
+**The rule that generalises: when an assertion compares two quantities, derive both from the same
+subject.** Both halves are now the climb from `BUILT` to `INVESTED`, so a party that changes moves
+both of them or neither.
+
+### ⚠️ A guard measured in absolute time will rot on a growing ladder
+
+The third one chapter 3 tripped, and the only one where the right answer was to delete the
+measurement rather than retune the content. `levels.spec.ts` held "level 1000 costs more than 500
+hours of top-of-ladder income" — but income at the top of the ladder rises with every chapter **by
+design**, so that figure has to fall forever: 1,175 → 588 → 372 across two changes, reaching a
+weekend around chapter twelve with nothing wrong.
+
+A threshold guaranteed to fail on all ninety-seven remaining chapters is not a guard being tripped;
+it is a guard pointed at the wrong quantity. **Before retuning content to satisfy a failing
+threshold, check whether the quantity it measures is one the roadmap requires to move.** If it is,
+the fix is a ratio between two things the content supplies — income cancels out of those, which is
+usually the tell that you have found the invariant.
+
+### ⚠️ A ratio rots too, whenever only one side grows
+
+Chapter 4 is where the lesson above stopped being about absolute quantities. **Three guards fired at
+once and none of them was about chapter 4** — each was a ratio whose numerator and denominator grow
+at different rates by construction, which is the same disease as measuring in hours and is much
+harder to see, because a ratio _looks_ like the fix for the previous case.
+
+| Guard                  | Ratio of                       | 2 ch | 3 ch | 4 ch     | 5 ch |
+| ---------------------- | ------------------------------ | ---- | ---- | -------- | ---- |
+| Levelling vs ascension | levels gained ÷ rungs gained   | 0.77 | 1.50 | **3.26** | 7.10 |
+| Tower payout           | 7 fixed towers ÷ campaign      | 3.17 | 2.12 | **1.59** | 1.27 |
+| Idle crystals          | rate at full clear ÷ base rate | 2.0  | 2.5  | **3.0**  | 3.5  |
+
+The tell is the same in all three: **one side is a function of the ladder's length and the other is
+not.** A fifty-stage band adds ~65 levels and exactly one rung; it adds stages and no tower
+floors; it adds crystals an hour to a base that never moves. (The chapter columns above are the
+pre-re-cut fifty-stage chapters; since milestone 19 the bands and the chapter numbers no longer
+coincide, and the ratios move with the bands.) Nothing is wrong in any of the three —
+the number moves because a chapter shipped, which is what chapters do.
+
+Three ways out, and which one applies is worth thinking about rather than guessing:
+
+- **Change the space.** Levelling-versus-ascension became the rungs' _share_ of the climb, measured
+  in logs — the space multipliers actually compose in. The share falls slowly and asymptotes (55%,
+  45%, 40%, → ~26%), so a floor under it holds indefinitely and still fails if ascension is ever
+  reduced to a formality.
+- **Change the denominator to something that grows with the numerator.** The crystal ceiling became
+  "a full clear must not buy the roster's copies in under thirty days". A roster that grows raises
+  it exactly as a ladder that grows lowers it.
+- **Accept the decay and schedule the reminder.** The tower floor moved 2 → 1.5, which buys one
+  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really is
+  becoming a smaller share of the game — and the honest response is a note that fires again soon
+  rather than a bound engineered to stop asking.
+
+⚠️ **What is not on that list is widening the band.** Every one of these had already been widened at
+least once, and each widening bought exactly one chapter and hid the diagnosis for another milestone.
+
 ---
 
 ## Derive, never retype

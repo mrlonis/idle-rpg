@@ -4,9 +4,9 @@
 //
 // **The simulated sweeps live in [`chapters.balance.ts`](./chapters.balance.ts)**, in the separate
 // balance project `AGENTS.md` describes. They moved there when milestone 7 doubled the ladder and
-// added a third reference party, and milestone 11 quadrupled it again — a hundred stages across
-// eleven parties at forty seeds is tens of thousands of battles, and the rule is to move the sweep
-// rather than shrink the sample.
+// added a third reference party, and milestone 11 quadrupled it again — a hundred and fifty stages
+// across twelve parties at forty seeds is tens of thousands of battles, and the rule is to move the
+// sweep rather than shrink the sample.
 import { describe, expect, it } from 'vitest';
 import {
   BACK_ROW_SIZE,
@@ -20,7 +20,7 @@ import {
   type StageRewardCurveData,
   totalStages,
 } from '../core';
-import { AUTO_BATTLE_UNLOCK_CLEARS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
+import { AUTO_BATTLE_UNLOCK_CHAPTERS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { BRAN, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { ENEMIES } from './enemies';
 import { LEVEL_CURVE } from './levels';
@@ -140,8 +140,10 @@ describe('the boss rhythm', () => {
   });
 
   it('puts a mini-boss on every tenth stage of a chapter', () => {
-    // Four in a fifty-stage chapter: 10, 20, 30 and 40, with the boss at 50 rather than a fifth
-    // mini-boss — which is why the chapter count comes off the total.
+    // Every tenth stage lands on the interval, and each chapter's last stage is a boss rather
+    // than one more mini-boss — which is why the chapter count comes off the total. In the
+    // ten-stage chapter 1 that leaves no mini-boss at all: stage 10 is both on the interval and
+    // last, and last wins.
     const onTheInterval = chapters.reduce(
       (sum, chapter) =>
         sum +
@@ -256,17 +258,17 @@ describe('the level curve', () => {
   });
 
   it('spans a level range the level curve has somewhere left to go past', () => {
-    // Two chapters must not consume the whole thousand-level curve — level 1000 is a chapter-100
-    // target and there are ninety-eight chapters to author between here and there. A top stage
-    // that had drifted into the high hundreds would mean these two chapters *are* the game.
+    // The shipped chapters must not consume the whole thousand-level curve — level 1000 is a
+    // far-ladder target with most of the game left to author between here and there. A top stage
+    // that had drifted into the high hundreds would mean these chapters *are* the game.
     //
     // ⚠️ **Both bounds are derived from the rarity caps rather than written down, and the lower
     // one used to be a flat `> 100`.** That number outlived its argument: the comment above only
     // ever justified the ceiling, and the floor was quietly asserting a difficulty target — one
-    // the shipped ladder no longer has. The ladder is now tuned so chapter 1 closes at the cap a
-    // player reaches *without ascending* and chapter 2 closes at the `rare` cap, which is a
-    // deliberate statement that the shipped content is a breeze and the difficulty arrives with
-    // chapter 3. See `docs/milestones.md`.
+    // the shipped ladder no longer has. The ladder is tuned so the fen chapters close at the cap
+    // a player reaches *without ascending* and chapter 4 closes at the `rare` cap, which is a
+    // deliberate statement that the opening two thirds are a breeze and the difficulty arrives
+    // with chapter 5. See `docs/milestones.md`.
     //
     // What is still worth asserting is the shape either side of that: the ladder has to ask for
     // more than a player gets for free, and it has to leave the curve somewhere to go.
@@ -347,26 +349,36 @@ describe('what the ladder pays', () => {
 });
 
 describe('where auto-battle unlocks', () => {
-  it('lands on a stage the ladder actually has', () => {
-    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThan(0);
-    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeLessThanOrEqual(stages.length);
+  // The unlock is a count of finished chapters since the re-cut, so the clears it costs are
+  // derived from the shipped chapter sizes rather than retyped.
+  const unlockClears = chapters
+    .slice(0, AUTO_BATTLE_UNLOCK_CHAPTERS)
+    .reduce((total, chapter) => total + chapter.stages.length, 0);
+
+  it('asks for whole chapters the ladder actually ships', () => {
+    expect(AUTO_BATTLE_UNLOCK_CHAPTERS).toBeGreaterThan(0);
+    expect(AUTO_BATTLE_UNLOCK_CHAPTERS).toBeLessThanOrEqual(chapters.length);
   });
 
   it('leaves real content on the far side of it', () => {
     // Auto-battle is a prerequisite for the rest of the ladder rather than a reward for finishing
     // the game: a chapter tapped through one fight at a time is worse the longer it gets. If the
     // unlock ever drifted towards the end, the feature would arrive with nothing left to do.
-    expect(stages.length - AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThanOrEqual(stages.length / 3);
+    expect(stages.length - unlockClears).toBeGreaterThanOrEqual(stages.length / 3);
   });
 
   it('unlocks past the wall, so it is never the answer to being stuck', () => {
     // A loop that re-enters the stage a party keeps losing is a loop that loses over and over. It
     // has to arrive well after the point where the game stops being about levels.
-    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeGreaterThan(WALL + 1);
+    expect(unlockClears).toBeGreaterThan(WALL + 1);
   });
 
-  it('unlocks inside the first chapter, so no chapter is climbed entirely by hand', () => {
-    expect(AUTO_BATTLE_UNLOCK_CLEARS).toBeLessThan(chapters[0].stages.length);
+  it('keeps the by-hand stretch a single short chapter', () => {
+    // The re-cut tied the unlock to a chapter boundary so it can move by whole chapters; what
+    // must not happen silently is the boundary itself drifting far enough that "clear chapter 1
+    // by hand" stops being a first session. Bounded rather than pinned so a deliberate resize of
+    // chapter 1 does not need this edited — only a change worth arguing about does.
+    expect(unlockClears).toBeLessThanOrEqual(15);
   });
 });
 

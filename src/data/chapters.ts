@@ -1,5 +1,9 @@
 import { CHAPTER_1 } from './chapter-1';
 import { CHAPTER_2 } from './chapter-2';
+import { CHAPTER_3 } from './chapter-3';
+import { CHAPTER_4 } from './chapter-4';
+import { CHAPTER_5 } from './chapter-5';
+import { CHAPTER_6 } from './chapter-6';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -11,46 +15,51 @@ import { CHAPTER_2 } from './chapter-2';
  */
 
 /**
- * Stages that must have been cleared before auto-battle unlocks.
+ * Chapters that must have been finished before auto-battle unlocks.
  *
- * Twelve, which is where it has always been: the end of the opening run of locks, which is the
- * stretch that teaches a player what a party is for. Everything after it is a chapter to chew
- * through, and a chapter of fifty stages tapped one fight at a time would be worse than a
- * twelve-stage ladder, not better.
+ * One: the re-cut ladder's chapter 1 is the ten-stage stretch that teaches a player what a party
+ * is for, and its boss is the graduation. Everything after it is a chapter to chew through, and a
+ * chapter tapped one fight at a time would be worse than a ten-stage ladder, not better.
  *
- * A count of clears rather than a position, because `clearedStages` is the field that keeps
+ * ⚠️ **A count of chapters rather than of clears**, resolved through `chaptersCleared` against the
+ * shipped `LadderShape` — which is what makes moving the unlock a one-integer edit however the
+ * chapters are ever re-cut again. It was `AUTO_BATTLE_UNLOCK_CLEARS = 12` while the unlock sat
+ * mid-chapter; tying it to a chapter boundary is what the re-cut bought. Derived from
+ * `clearedStages` rather than the position, because `clearedStages` is the field that keeps
  * counting after the position stops climbing at the top of the ladder — see `applyBattleResult`.
  */
-export const AUTO_BATTLE_UNLOCK_CLEARS = 12;
+export const AUTO_BATTLE_UNLOCK_CHAPTERS = 1;
 
 /**
  * How long a chapter is.
  *
- * | Chapters | Stages each | Running total |
- * | -------- | ----------- | ------------- |
- * | 1–10     | 50          | 500           |
- * | 11–20    | 60          | 1,100         |
- * | 21–30    | 70          | 1,800         |
- * | …        | …           | …             |
- * | 91–100   | 140         | 9,500         |
- * | 151+     | 200 (cap)   | 20,000 at 160 |
+ * | Chapter | Stages | Running total |
+ * | ------- | ------ | ------------- |
+ * | 1       | 10     | 10            |
+ * | 2       | 20     | 30            |
+ * | 3       | 30     | 60            |
+ * | 4       | 40     | 100           |
+ * | 5+      | 50 (cap) | 150, 200, … |
  *
- * **Both shipped chapters sit in the first band, so shipping them proves the chapter _flow_ and
- * not this table** — the boundary, the boss, and income continuity across the seam all get
- * exercised, and the step to sixty stages does not arrive until chapter 11. That is exactly why
- * it is a formula with its own tests rather than something inferred from two chapters that
- * happen to be the same length.
+ * A ramp and then a plateau: each chapter is ten stages longer than the last until fifty, and
+ * fifty is the cap. The six-chapter re-cut chose this shape because a chapter should be finished
+ * when its questions are — the opening chapter has three locks and a boss in it, not fifty
+ * stages of anything — and because short early chapters put the first boss, the first
+ * chapter-award and the auto-battle unlock inside a new player's first session.
  *
- * The cap is what stops a chapter becoming a career. Growth of ten stages a band would put
- * chapter 500 at five thousand stages on its own; stopping at two hundred keeps a chapter a thing
- * a player finishes, and pushes the ladder's length into the chapter *count* instead, where it
- * can be paced.
+ * ⚠️ **Fifty is the permanent cap under this curve, and the long ladder is chapters rather than
+ * longer chapters.** The pre-re-cut curve grew chapters by ten stages per band of ten toward a
+ * cap of two hundred; that growth is gone, not deferred — a ladder reaching the level-1000
+ * ceiling is now ~190 chapters of at most fifty rather than 160 of up to two hundred. Revisit
+ * deliberately if a fifty-stage chapter ever starts reading as too short at the far end;
+ * `chapters.spec.ts` holds the authored chapters equal to this formula, so the revisit is a
+ * formula change and a retune, never a drift.
  */
 export const CHAPTER_CURVE = {
-  baseStages: 50,
+  baseStages: 10,
   stepStages: 10,
-  chaptersPerBand: 10,
-  maxStages: 200,
+  chaptersPerBand: 1,
+  maxStages: 50,
   /**
    * Every tenth stage of a chapter is a mini-boss; the last one is a boss instead.
    *
@@ -166,8 +175,29 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Two of them, fifty stages each. [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the
- * length {@link CHAPTER_CURVE} says it should be, so a chapter authored at forty-nine stages is a
- * failing test rather than a boss that quietly lands on the wrong square.
+ * Six of them — 10, 20, 30, 40, 50 and 50 stages, the same two hundred stages the four-chapter
+ * ladder carried, re-cut in milestone 19 so the boundaries land where a session does.
+ * [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the length {@link CHAPTER_CURVE}
+ * says it should be, so a chapter authored at forty-nine stages is a failing test rather than a
+ * boss that quietly lands on the wrong square.
+ *
+ * ⚠️ **Every chapter ends on a boss fielded nowhere else, and the re-cut made that a rule.** The
+ * Fenlord, the Pale Warden, the First Cinder and the Ashfall Sovereign were authored for it;
+ * the Chainsworn and the Hollow Seraph already observed it. A re-cut that moves a boundary owes
+ * the new final a unique body before it ships.
+ *
+ * ⚠️ **Adding one is an economy change as much as a content one.** Three guards are functions of
+ * how long the ladder is — the idle crystal rate in `banners.spec.ts`, everything a clear pays in
+ * `achievements.spec.ts`, and the level ceiling's cost in hours in `levels.spec.ts` — and all
+ * three fired on chapter 3. See [economy](../../docs/economy.md) for what each one was answered
+ * with and which of the answers is a deferral rather than a fix.
+ *
+ * ⚠️ **Chapter 4 added a fourth, and it is not an economy guard.** "Levelling and ascension are
+ * worth about the same across the ladder" in `chapters.balance.ts` is a **ratio between two
+ * quantities that grow at different rates by construction** — a chapter adds about sixty-five
+ * levels and exactly one rung, and one rung only pays for twenty-three levels — so it climbs every
+ * chapter forever and the rungs run out at sixteen while the levels run to a thousand. It was
+ * re-derived rather than widened, the same move milestone 17 made on the level ceiling's
+ * cost-in-hours. See [milestones](../../docs/milestones.md).
  */
-export const CHAPTERS = [CHAPTER_1, CHAPTER_2] as const;
+export const CHAPTERS = [CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4, CHAPTER_5, CHAPTER_6] as const;

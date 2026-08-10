@@ -138,9 +138,24 @@ expected gear budget into the enemy's stat block or its level rather than buildi
 equipment system on that side of the board.
 
 **Stage generation** would keep mini-bosses and bosses authored and generate ordinary stages against
-a tuned reference. Do not build it speculatively. The arithmetic that sets the trigger: 100 stages
-for the first two chapters, 500 for the first band, 9,500 to reach chapter 100. The first band is a
-real but finite job; chapter 100 is not hand-authorable by anyone.
+a tuned reference. Do not build it speculatively. The arithmetic that sets the trigger: 200 stages
+for the six chapters that ship (the same two hundred the four-chapter cut carried), and ~4,900 to
+reach chapter 100 under the capped curve. The shipped ladder is a real but finite job; chapter 100
+is not hand-authorable by anyone.
+
+⚠️ **Chapter 3 is the first data point on what a chapter actually costs, and it argues against
+generating one.** Fifty stages was an afternoon's authoring; what took the work was the _spine_ —
+which stages teach which lock, where a healer may stand, and the fact that the difficulty probe
+reads every fourth stage, so those thirteen have to escalate. A generator producing ordinary stages
+against a tuned reference would produce exactly the part that was cheap.
+
+⚠️ **Chapter 4 is the second data point and it says the same thing more sharply.** The only content
+the sweep rejected was a single sampled stage authored too light — `c4-s31` (`c6-s31` since the
+six-chapter re-cut), a band opener that a
+generator would have produced happily and correctly, because nothing about it is wrong except _where
+it landed_. Everything else that milestone spent its time on was the ladder's economy guards, which
+a generator does not touch. **The cheap part got cheaper and the expensive part did not move**, which
+pushes the trigger further out rather than nearer.
 
 ---
 

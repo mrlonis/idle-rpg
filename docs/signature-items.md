@@ -219,8 +219,13 @@ So the probe takes the hardest authored line-up and fields it at the party's own
 same move `core/towers.ts` makes: `data/` authors who stands there, and the level is derived. Both
 sides then sit on the same growth curve, which `simulate.spec.ts` proves is an identity.
 
-The consequence worth carrying: **a signature item has no authored content to matter in until
-chapter 3, or a tower reaching that band.**
+The consequence worth carrying: **a signature item still has no authored content to matter in.**
+
+⚠️ **Chapter 3 was the named trigger and it did not close this.** The Bound Marches top out at enemy
+level **160** against a `mythic` cap of **340**, so the gap went from ×4 to ×2 and the probe still
+has to re-level its encounter. What would close it is a chapter reaching the low three hundreds —
+roughly chapter 8 at the re-cut's fifty-stage cadence — or a tower band that does. Do not treat "the next
+chapter" as the trigger again without checking the number.
 
 ### The sweep's timeout guard counts victories only
 

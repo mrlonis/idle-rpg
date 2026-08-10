@@ -276,6 +276,90 @@ export type StatusData =
       readonly name: string;
       readonly hostile: true;
       readonly duration: number;
+    }
+  /**
+   * Draws every **single-target** attack aimed at this combatant's side onto it.
+   *
+   * ⚠️ **It overrides the row gate rather than sitting behind it**, which is the whole of what it
+   * asks. A back-rank bypass is how a party has reached a protected healer since milestone 4; a
+   * taunt takes that answer away and leaves two others — kill the taunter, or hit the row.
+   * {@link SkillTarget} multi-target selections are deliberately untouched, so an encounter built
+   * on this always has an answer a party can bring.
+   *
+   * Not hostile, and therefore not cleansable by the side it is used against — a cleanse only ever
+   * reaches its own allies. The counter is damage and patience, not a dispel.
+   */
+  | {
+      readonly kind: 'taunt';
+      readonly id: string;
+      readonly name: string;
+      readonly hostile: false;
+      readonly duration: number;
+    }
+  /**
+   * Returns a share of the damage this combatant takes to whoever dealt it.
+   *
+   * ⚠️ **Reflected damage never reflects back.** It is applied as status damage rather than as an
+   * attack, so it cannot re-enter this path — which is what stops two thorned combatants from
+   * volleying a hit between them forever. It is strictly additional damage on a bounded schedule,
+   * so it can only ever shorten a fight.
+   *
+   * Measured against what actually reached HP, so a shield protects its holder from the hit *and*
+   * from returning it. That is the opposite of the rule life leech follows, and deliberately: a
+   * siphon is the attacker's reward for the blow it struck, while this is the answer to a blow that
+   * landed.
+   */
+  | {
+      readonly kind: 'reflect';
+      readonly id: string;
+      readonly name: string;
+      readonly hostile: false;
+      readonly duration: number;
+      /** Fraction of the damage taken that is dealt back to the attacker. */
+      readonly share: number;
+    }
+  /**
+   * Spreads a share of every hit this combatant takes across its linked allies.
+   *
+   * The answer to focus fire, which is the one habit every stage in the game rewards. ⚠️ **Damage
+   * is conserved, never multiplied**: the target takes `1 - share` and the rest is divided evenly
+   * among the *other* living link-holders, so the board loses exactly as much HP per hit as it
+   * would have. That is the termination argument — an aggregate HP pool still falls at the rate it
+   * always did, and only the order in which things die changes.
+   *
+   * ⚠️ **A lone link-holder takes the whole hit.** With nobody to share to, a share moved off the
+   * target would be a share deleted, and a link that outlived its allies would make the last
+   * survivor unkillable — a fight the ninety-second clock would have to end.
+   */
+  | {
+      readonly kind: 'link';
+      readonly id: string;
+      readonly name: string;
+      readonly hostile: false;
+      readonly duration: number;
+      /** Fraction of an incoming hit moved off the target and split across its linked allies. */
+      readonly share: number;
+    }
+  /**
+   * A payload that does nothing at all until it expires, and then lands in one piece.
+   *
+   * The mirror of a {@link StatusData} `dot`, and it asks the opposite question. A poison punishes
+   * a slow kill continuously and is worth cleansing at any point; this punishes a slow kill *once*,
+   * at a known tick, and a cleanse spent before that tick removes it entirely. So the decision is
+   * when to spend the answer rather than whether to.
+   *
+   * Fires exactly once: expiry is what pays it out and expiry is what removes it. A holder that
+   * dies first drops it unpaid, like every other status.
+   */
+  | {
+      readonly kind: 'bomb';
+      readonly id: string;
+      readonly name: string;
+      readonly hostile: true;
+      readonly duration: number;
+      readonly damageType: DamageType;
+      /** Fraction of the applier's `atk` dealt **when this expires**, rather than per turn. */
+      readonly power: number;
     };
 
 /**
@@ -1007,6 +1091,14 @@ export interface ActiveStatus {
    * is the remaining absorb pool, and is the one field that changes after application.
    */
   readonly amount?: Numeric;
+  /**
+   * The proportion a `reflect` returns or a `link` spreads.
+   *
+   * A plain number rather than a {@link Numeric}, and separate from {@link multiplier}, because it
+   * is a share of a quantity rather than a scale on a stat — the two are read in different places
+   * and confusing them would be silent.
+   */
+  readonly share?: number;
 }
 
 /**
@@ -1187,7 +1279,15 @@ export type BattleEvent =
        */
       readonly removed: readonly string[];
     }
-  /** A damage-over-time status landing on its host's turn. */
+  /**
+   * Damage dealt by a status rather than by an action.
+   *
+   * Four things produce one: a damage-over-time landing on its host's turn, a `bomb` paying out as
+   * it expires, a `reflect` answering a blow, and the share of a hit a `link` moves onto an ally.
+   * They are one event kind rather than four because the animator does the same thing with all of
+   * them — move a health bar, drain a shield, name the status responsible — and a fifteenth event
+   * kind buys nothing a `statusId` does not already say.
+   */
   | {
       readonly kind: 'tick-damage';
       readonly tick: number;

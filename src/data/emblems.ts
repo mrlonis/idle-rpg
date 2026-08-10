@@ -21,7 +21,8 @@
  * The campaign position stops climbing at the top of the authored ladder so the last stage stays
  * farmable — and the last stage of a chapter *is* a chapter boss. So the stage an auto-battler
  * actually grinds is the 25% row, not the 2% one. At roughly a stage a minute that is **15 emblems
- * an hour against an idle rate of 2**, not the ~1.2 an hour the `normal` row would suggest.
+ * an hour against an idle rate of 6 at a full clear**, not the ~1.2 an hour the `normal` row
+ * would suggest.
  *
  * That is accepted rather than tuned away, because the binding constraint on this system is not
  * the currency — it is the `mythic` rarity gate on the other side, which is tens of thousands of
@@ -64,7 +65,7 @@ import { type EmblemDropData, type EmblemRateCurve } from '../core';
  * **The step is per chapter and not per stage**, which is the whole of the pacing argument. A
  * signature level costs a flat number of emblems forever, so the faucet has to grow slowly enough
  * that a flat price still means something a hundred stages later. Per stage over the shipped
- * hundred would multiply the faucet by fifty; per chapter multiplies it by two.
+ * two hundred would multiply the faucet by thirty-three; per chapter caps it at six an hour.
  *
  * It also puts the unlock somewhere that cannot rot: the rate is zero until a chapter is finished,
  * so "emblems are unlocked" is arithmetic over `clearedStages` rather than a boolean in the save.

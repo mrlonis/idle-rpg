@@ -83,6 +83,20 @@ describe('enemy archetypes', () => {
     }
   });
 
+  it('never carries a taunt as a passive', () => {
+    // ⚠️ **A permanent taunt is the one shape of this mechanic that can make an encounter
+    // unanswerable.** Cast, it runs 45 ticks against a 60-tick cooldown and a single-target party
+    // gets a window at whatever is standing behind the wall; as an `opening` it would hold that
+    // door shut for the whole ninety seconds, and a party with no row attack would be fighting a
+    // healer it is structurally unable to reach. The other three milestone-17 statuses are
+    // deliberately fine here — thorns and a link both need to be true from the first tick.
+    for (const enemy of enemies) {
+      for (const status of enemy.opening ?? []) {
+        expect(status.kind, `${enemy.id}/${status.id}`).not.toBe('taunt');
+      }
+    }
+  });
+
   it('never lets a tower anchor outgrow the heaviest block the campaign already fields', () => {
     // ⚠️ **15b measured that a tower's difficulty is almost entirely its front rank's weight, and
     // that the weight is sharply non-linear** — pairing the two heaviest blocks in the game took the

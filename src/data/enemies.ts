@@ -1,8 +1,14 @@
 import {
+  ANTIPHON,
+  BIND_THE_CONCORD,
+  BROKEN_COVENANT,
   BULWARK,
   CHOIR_OF_ASH,
   CINDER_STORM,
   CUTPURSE,
+  DOOMKNELL,
+  DRAW_THE_OATH,
+  EMBERSEED,
   FADE,
   FLENSE,
   GATE_SLAM,
@@ -17,19 +23,23 @@ import {
   MOTE_LANCE,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
+  RIFTFALL,
   RUINOUS_ARC,
   RUNEWARD,
   SEVENFOLD_HEX,
   SHIELD_BASH,
   SHRIKE_DIVE,
   STONE_FIST,
+  THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
+  WARD_THE_SEAL,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
 } from './skills';
+import { THORNMAIL } from './statuses';
 
 /**
  * Enemy archetypes: a stat block at **level 1**, a kit, and the slope it grows on.
@@ -1170,6 +1180,655 @@ export const HEXBOUND_TORMENTOR = {
   skills: [SEVENFOLD_HEX, RUINOUS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bound Marches — milestone 17
+//
+// ## Eight blocks, and what makes them a chapter rather than a level band
+//
+// Chapter 2 argued that a new archetype is only worth authoring when it asks something the
+// vocabulary could express and nothing had used. Milestone 17 has the harder version of that
+// problem: **every targeting, status and effect kind in `core/battle/types.ts` was already in
+// use**, so a ninth spelling of "hits the front rank harder" is all that was left inside the
+// existing vocabulary.
+//
+// So the vocabulary grew, once, by four — taunt, reflect, link and a delayed payload — and these
+// eight are what field them. Three of the four are about **where a hit is allowed to go** rather
+// than about how big it is, which is a lever nothing in the game had and the reason this reads as
+// a different place rather than as the Ashfall Reach at a higher level.
+//
+// | Enemy               | The question                                    | The answer                    |
+// | ------------------- | ----------------------------------------------- | ----------------------------- |
+// | Oathshield Vanguard | what if you cannot choose what to hit?          | a row attack, or kill it      |
+// | Bramblehide Ravener | what does the swing itself cost you?            | fewer, bigger hits; sustain   |
+// | Concord Cantor      | what if nothing can be removed one at a time?   | kill the Cantor, or go wide   |
+// | Emberseed Warlock   | can the cleanse arrive before the fuse does?    | a cleanse, spent at the right time |
+// | Riven Marchwarden   | both of the first two at once, late             | reach that is not single-target |
+// | The Chainsworn      | all of it, on a board that answers back         | everything above, in one fight |
+//
+// ⚠️ **No opening carries a taunt, here or ever.** A permanent one would take a single-target
+// party's access to a back rank away for a whole fight rather than for a while; the taunts here are
+// cast, on a cooldown longer than the status, and `enemies.spec.ts` holds that rule against the
+// content rather than against a comment.
+//
+// ## Scale
+//
+// Sized against the Ashfall legendaries rather than above them, and the boss sized **under** The
+// Unmade. The chapter is harder because the `level` on its stages is higher and because these ask
+// questions the party has never been asked, not because the blocks are bigger — which is the
+// distinction milestone 10 bought and the reason a lock does not decay into an empty square.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The taunt lock, and the first thing in the game that chooses the party's target for it.
+ *
+ * Reach has been the answer to a protected healer since milestone 4 — put the sniper behind the
+ * wall and shoot past it. This closes that door for as long as the Oathshield is up, so the party
+ * either brings something that hits a whole row or spends the fight on the wall. It carries little
+ * offence on purpose: what it costs the party is turns, not health.
+ */
+export const OATHSHIELD_VANGUARD = {
+  id: 'oathshield-vanguard',
+  name: 'Oathshield Vanguard',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 64,
+    def: 40,
+    recovery: 5,
+    haste: 74,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    tenacity: 0.25,
+    physicalResist: 0.06,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * Spines. The first enemy that charges the party for attacking at all.
+ *
+ * Every lock below this is answered by doing more of something. This one is answered by doing
+ * *less* of it — a party of many small hits pays the quarter over and over, and a party with one
+ * big swing pays it once. It is the clearest statement the ladder makes that how damage is shaped
+ * matters as much as how much of it there is.
+ */
+export const BRAMBLEHIDE_RAVENER = {
+  id: 'bramblehide-ravener',
+  name: 'Bramblehide Ravener',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 980,
+    atk: 74,
+    def: 28,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.1,
+    physicalResist: 0.05,
+  },
+  opening: [THORNMAIL],
+  skills: [GORE],
+} as const;
+
+/**
+ * The link, and a support whose entire contribution is that nothing can be killed on its own.
+ *
+ * It deals almost nothing and is the most important body on any board it stands in: while the
+ * Concord is up, two fifths of every hit is spread across whatever else is standing, so the
+ * party's opening — remove the support, then the wall — simply stops resolving. Fragile, because
+ * the answer is meant to be *kill the Cantor* and an answer nobody can reach is not one.
+ */
+export const CONCORD_CANTOR = {
+  id: 'concord-cantor',
+  name: 'Concord Cantor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 58,
+    def: 24,
+    haste: 100,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.15,
+    magicResist: 0.12,
+  },
+  skills: [BIND_THE_CONCORD, MOTE_LANCE],
+} as const;
+
+/**
+ * The fuse. A payload on the back rank that lands in one piece forty ticks later.
+ *
+ * A poison asks whether the party can afford the attrition; this asks whether the answer arrives
+ * in time — and because a cleanse spent early removes the whole thing, the decision is *when*
+ * rather than *whether*. Everything the party keeps behind its wall is what it lands on.
+ */
+export const EMBERSEED_WARLOCK = {
+  id: 'emberseed-warlock',
+  name: 'Emberseed Warlock',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 740,
+    atk: 68,
+    def: 22,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    insight: 0.18,
+    magicResist: 0.08,
+  },
+  skills: [EMBERSEED, CINDER_STORM],
+} as const;
+
+/** A body for the marches: armoured, slow, and nothing else. What the locks stand behind. */
+export const MARCHWARD_PIKEMAN = {
+  id: 'marchward-pikeman',
+  name: 'Marchward Pikeman',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 700,
+    atk: 50,
+    def: 22,
+    haste: 78,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/** The other half of that pair: quick, fragile, and hard to pin down. */
+export const BRAMBLEWALK_SCOUT = {
+  id: 'bramblewalk-scout',
+  name: 'Bramblewalk Scout',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 460,
+    atk: 52,
+    def: 13,
+    haste: 120,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.18,
+    accuracy: 1.05,
+    magicResist: 0.05,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * Both of the chapter's first two locks in one body, and the reason they were authored apart.
+ *
+ * A Vanguard says "hit me". A Ravener says "hitting costs you". Together they say "hit me, and it
+ * costs you" — which is not a harder version of either, it is the first encounter where a party's
+ * usual answer to one lock is the thing the other lock punishes. Late-chapter on purpose: it is
+ * only a fair question once the party has met both halves separately.
+ */
+export const RIVEN_MARCHWARDEN = {
+  id: 'riven-marchwarden',
+  name: 'Riven Marchwarden',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 66,
+    def: 40,
+    recovery: 6,
+    haste: 68,
+    critChance: 0.03,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    physicalResist: 0.05,
+  },
+  opening: [THORNMAIL],
+  skills: [DRAW_THE_OATH, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The end of the Bound Marches, and the first body on the ladder fielded on exactly one stage.
+ *
+ * ⚠️ **It set the precedent the six-chapter re-cut made a rule** — when this was authored, every
+ * other chapter boss was an archetype the chapter had already been fielding, with The Unmade
+ * standing in nine stages before the one it named. This appears at `c5-s50` and nowhere else,
+ * which is the whole of what "a boss is unique" buys: the last encounter of a chapter is the one a
+ * player remembers, and a stat block they have already beaten four times is a stage number.
+ *
+ * It fields three of the chapter's four mechanics at once and leaves the fourth to the wall
+ * standing in front of it: the board is bound, so nothing can be removed alone; it is thorned, so
+ * working through it costs; and the Doomknell brands all five at once against a cleanse that can
+ * only ever answer one. Sized **under** The Unmade rather than above it — `enemies.spec.ts` holds
+ * that ceiling, and what makes this the harder fight is the questions rather than the numbers.
+ */
+export const CHAINSWORN = {
+  id: 'chainsworn',
+  name: 'The Chainsworn',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1700,
+    atk: 98,
+    def: 52,
+    recovery: 7,
+    haste: 92,
+    critChance: 0.12,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.2,
+    tenacity: 0.45,
+    lifeLeech: 0.15,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [THORNMAIL],
+  skills: [BIND_THE_CONCORD, DOOMKNELL, TYRANTS_CLAIM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Sundered Vault — milestone 18
+//
+// ## Eight blocks, no new mechanics, and why that is the honest framing
+//
+// Milestone 17 grew the vocabulary once and recorded that it was the last time — every targeting,
+// status and effect kind is in use, and a ninth spelling of an existing skill is the thing that
+// milestone refused to ship. So this chapter does not claim a new lever. What it has instead is
+// **two things nothing has combined before**:
+//
+// 1. **Pairs.** A taunt welded to an absorb pool; a cleanse welded to a tempo buff; a wide hit
+//    that switches off once the party has lost somebody. Each is two known parts on one body, and
+//    each asks a question neither part asks alone.
+// 2. **The matchup matrix, pointed one way.** An Angel or a Demon deals 1.10 to every mortal and
+//    **nothing comes back** — there is no `human → angel` row, by design. A celestial-led chapter
+//    is therefore the one place on the ladder where the matrix is a standing tax rather than a
+//    tiebreak, and no mortal party can answer it with composition. That is the Vault's difficulty
+//    signature, and it is why the lean is *moderate*: at every board it would stop being a texture
+//    and become a second level dial stacked on the first.
+//
+// | Enemy                | The question                                          | The answer                     |
+// | -------------------- | ----------------------------------------------------- | ------------------------------ |
+// | Sealward Custodian   | what if the wall you must hit is wearing a shield?    | burst inside the gap, or go wide |
+// | Antiphon Archon      | what if your setup is removed *and* paid for?         | damage that needs no setup     |
+// | Riftborn Harrower    | what if the fight is hardest while you are whole?     | open fast; do not trade slowly |
+// | Covenant Breaker     | what if wounding it is what points it at your carry?  | burst it, or do not start      |
+// | The Hollow Seraph    | all three at once, on something that cannot be slowed | everything above, in one fight |
+//
+// ## Scale
+//
+// Sized inside the Bound Marches band rather than above it, and the boss sized **under** The
+// Unmade on both `hp` and `atk` exactly as The Chainsworn is. `enemies.spec.ts` holds that
+// ceiling. What makes the Vault harder is the level its stages are fielded at, the pairs above,
+// and the matrix — not bigger blocks, which is the distinction milestone 10 bought.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The jailer that steps in front of its own board wearing the pool it was saving for the door.
+ *
+ * ⚠️ **The safe inversion of the shape chapter 3 is forbidden from repeating.** The Bound Marches
+ * field exactly one healer behind a taunt, at stage 10, where the party is far above the level —
+ * because sustain the party cannot aim at is a ninety-second clock and a timeout is a defeat. This
+ * puts the durability **on the taunting body itself**, which flips the whole argument: the one
+ * thing the party is allowed to hit is the one thing it needs to kill. Nothing here is unreachable
+ * and nothing refills, so the fight resolves however the party plays it.
+ *
+ * Little offence, like the Vanguard it is descended from: what it costs the party is turns.
+ */
+export const SEALWARD_CUSTODIAN = {
+  id: 'sealward-custodian',
+  name: 'Sealward Custodian',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1080,
+    atk: 60,
+    def: 42,
+    recovery: 5,
+    haste: 72,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.06,
+    magicResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, WARD_THE_SEAL],
+} as const;
+
+/**
+ * The Vault's answer to being debuffed, and the first enemy that takes tempo as well.
+ *
+ * A Runewarden already removes the party's setup, so that lock is not new. What is new is what
+ * this spends the turn on afterwards: a Runewarden buys **armour** and this buys **speed**, so the
+ * board that just shrugged off the opening starts acting more often than the party does. Fragile
+ * on purpose — the answer is to kill it, and an answer nobody can reach is not one.
+ */
+export const ANTIPHON_ARCHON = {
+  id: 'antiphon-archon',
+  name: 'Antiphon Archon',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 720,
+    atk: 56,
+    def: 22,
+    haste: 102,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.16,
+    magicResist: 0.12,
+  },
+  skills: [ANTIPHON],
+} as const;
+
+/** Light kept burning in a place nobody has walked for an age. Celestial filler, and cheap. */
+export const VAULTLIGHT_CENSER = {
+  id: 'vaultlight-censer',
+  name: 'Vaultlight Censer',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 44,
+    def: 14,
+    haste: 104,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * What came through when the seal gave, and it is worst in the first ten seconds.
+ *
+ * Every other wide threat on the ladder eases as the party thins. {@link RIFTFALL} switches off
+ * once the party is down to three, so this is the one encounter that is hardest while the party is
+ * **intact** — it cannot be out-lasted, only out-opened. A party that spends its first two turns
+ * setting up has already taken the worst of it.
+ */
+export const RIFTBORN_HARROWER = {
+  id: 'riftborn-harrower',
+  name: 'Riftborn Harrower',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 70,
+    def: 20,
+    haste: 100,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    insight: 0.18,
+    magicPierce: 0.15,
+    magicResist: 0.08,
+  },
+  skills: [RIFTFALL, GORE],
+} as const;
+
+/** What was in the lesser cells: quick, starving, and not individually a problem. */
+export const UNSEALED_WRETCH = {
+  id: 'unsealed-wretch',
+  name: 'Unsealed Wretch',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 480,
+    atk: 46,
+    def: 10,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    dodge: 0.12,
+    lifeLeech: 0.08,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * An oath that means nothing until it is broken, and then means the party's carry.
+ *
+ * A Wrathborn is the roster's other `self-hurt` body and it buffs itself, so chipping one is a step
+ * toward killing it through a window. This answers being chipped by **reaching past the front
+ * rank at whatever is biggest** — so wounding it is not progress, it is the thing that turns it
+ * around. The party either commits and bursts it or leaves it alone, and there is no third option
+ * where it is slowly worn down safely.
+ */
+export const COVENANT_BREAKER = {
+  id: 'covenant-breaker',
+  name: 'Covenant Breaker',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 68,
+    def: 26,
+    haste: 94,
+    critChance: 0.09,
+    critDamageAmp: 0.8,
+    tenacity: 0.3,
+    lifeLeech: 0.12,
+    physicalPierce: 0.15,
+  },
+  skills: [BROKEN_COVENANT, FLENSE],
+} as const;
+
+/**
+ * Still at its post, some centuries after there was anything to guard.
+ *
+ * The mortal body the Vault's boards are built on, and the reason the celestial lean is a texture
+ * rather than a second level dial: a board of nothing but Angels and Demons taxes a mortal party
+ * 1.10 on every incoming hit with nothing coming back, and at every stage that stops being a
+ * flavour and becomes arithmetic the party cannot answer.
+ */
+export const VAULTBOUND_GAOLER = {
+  id: 'vaultbound-gaoler',
+  name: 'Vaultbound Gaoler',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 760,
+    atk: 48,
+    def: 26,
+    haste: 76,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    physicalResist: 0.08,
+  },
+  skills: [GATE_SLAM],
+} as const;
+
+/**
+ * What the chains were holding, and the second body on the ladder fielded on exactly one stage.
+ *
+ * The Chainsworn set that precedent one chapter ago and the argument is unchanged: the last
+ * encounter of a chapter is the one a player remembers, and a stat block they have already beaten
+ * four times is a stage number. It stands on `c6-s50` and nowhere else.
+ *
+ * Its three turns are the chapter's three pairs on one body — it wears the pool ({@link
+ * WARD_THE_SEAL}), it takes the party's setup back and quickens its own board ({@link ANTIPHON}),
+ * and it asks the one question a cleanse cannot answer ({@link THE_SEAL_BREAKS}, whose stun is not
+ * removable).
+ *
+ * ⚠️ **Deliberately no healing, no regeneration and no ally shield.** Three things on this board
+ * make a party live longer than it can kill — an absorb, a tempo buff and a stun — and every one
+ * of them is a step toward the ninety-second timeout that is scored as a **defeat**. What keeps it
+ * resolving is that the absorb is on **one** body and depletes, and that nothing anywhere in the
+ * encounter puts health back.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes
+ * this the harder fight is the level it is fielded at and the questions it asks.
+ */
+export const HOLLOW_SERAPH = {
+  id: 'hollow-seraph',
+  name: 'The Hollow Seraph',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1760,
+    atk: 99,
+    def: 54,
+    recovery: 7,
+    haste: 98,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    physicalPierce: 0.25,
+    magicPierce: 0.3,
+  },
+  skills: [WARD_THE_SEAL, ANTIPHON, THE_SEAL_BREAKS],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The chapter finals — the re-cut ladder's unique bosses
+//
+// The six-chapter re-cut made "every chapter ends on a boss fielded nowhere else" a rule rather
+// than a precedent. The Chainsworn and the Hollow Seraph already satisfied it; these four close
+// the gap for chapters 1 through 4. Each stands on exactly one stage — its chapter's last — and
+// in no tower, which is the whole of what it is for: the last encounter of a chapter is the one a
+// player remembers, and a stat block they have already beaten four times is a stage number.
+//
+// ⚠️ **No new mechanics, and not even a new skill.** Milestone 17 closed the vocabulary and
+// milestone 18 held the line with pairs; these go one step further and are authored entirely from
+// **skills already in the file**, recombined. What makes each unique is the body wearing the kit
+// and the board standing around it. All four sit under The Unmade on both `hp` and `atk` —
+// `enemies.spec.ts` holds that ceiling, and what ramps across the four is the level they are
+// fielded at, not the blocks.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The fen's king, and the first boss the re-cut ladder meets — at stage 10, as chapter 1's final.
+ *
+ * It wears the absorb lesson itself: {@link WARD_THE_SEAL} banks a pool on the one body the fight
+ * is shaped around, the pool depletes, and nothing on the board refills it. That is the Custodian's
+ * skill without the Custodian's question — there is no taunt here, so nothing *forces* the party
+ * onto the shield; it is simply that the biggest thing on the board is the thing that has to die.
+ * A party that learned the Bulwark's barrier over the last nine stages meets the same idea grown a
+ * tier.
+ *
+ * Deliberately **no healing anywhere on its board**, which is the rule every final observes: an
+ * absorb depletes and a heal does not, and a timeout is a defeat.
+ */
+export const FENLORD = {
+  id: 'fenlord',
+  name: 'The Fenlord',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1250,
+    atk: 62,
+    def: 22,
+    recovery: 5,
+    haste: 76,
+    critChance: 0.06,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    tenacity: 0.25,
+    physicalResist: 0.1,
+  },
+  skills: [WARD_THE_SEAL, GORE],
+} as const;
+
+/**
+ * The master of the gates the Drowned Ward is built from, and chapter 2's final.
+ *
+ * A Gate Warden takes a turn away; the Pale Warden is where that lesson graduates. {@link
+ * GATE_SLAM} is the same spike the chapter has been teaching the party to survive, and {@link
+ * GLACIAL_SLAM} is the armour gate's own heavy turn pointed at whoever stands in front. The
+ * durability is **on its own body** — plate, crit-block and tenacity rather than a healer behind a
+ * wall, which is the safe inversion chapter 3 of the old ladder wrote down: everything the party
+ * must kill is a thing it is allowed to hit.
+ */
+export const PALE_WARDEN = {
+  id: 'pale-warden',
+  name: 'The Pale Warden',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1150,
+    atk: 58,
+    def: 26,
+    recovery: 6,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    critDamageResist: 0.15,
+    critBlock: 0.12,
+    tenacity: 0.3,
+    insight: 0.1,
+    physicalResist: 0.08,
+  },
+  skills: [GATE_SLAM, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The first flame that walked out of the fen, and chapter 3's final — the seam where the mire
+ * starts burning.
+ *
+ * The Cinder Mire closes on the penetration lesson the Ravagers spent ten stages teaching, and
+ * this is that lesson wearing a crown: pierce on the stat block, {@link FLENSE} opening both front
+ * bodies at once, and {@link CINDER_STORM} taxing the party that answered everything with physical
+ * armour. Burst and burn together, from a body fast enough that neither can be waited out.
+ */
+export const FIRST_CINDER = {
+  id: 'first-cinder',
+  name: 'The First Cinder',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1350,
+    atk: 72,
+    def: 24,
+    recovery: 5,
+    haste: 100,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    tenacity: 0.3,
+    physicalPierce: 0.25,
+    magicResist: 0.08,
+  },
+  skills: [FLENSE, CINDER_STORM],
+} as const;
+
+/**
+ * What rules the Ashfall Reach, and chapter 4's final — in the slot The Unmade held when this was
+ * the whole ladder's last fight.
+ *
+ * The Unmade still stands in its nine other stages; what this asks is the pair it never did.
+ * {@link WRATH_UNBOUND} is the escalation lock at boss scale — chipping the Sovereign down is the
+ * thing that turns it on — and {@link HEADSMANS_ARC} is what it spends the window on: not the
+ * wall, the weakest. Beside the Gallows Headsman already behind it, that is two executioners on
+ * one board, so sustain pointed at the tank answers neither. Burst it through the window, or keep
+ * all five standing; there is no third option where it is worn down slowly and nobody is at risk.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const ASHFALL_SOVEREIGN = {
+  id: 'ashfall-sovereign',
+  name: 'The Ashfall Sovereign',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 97,
+    def: 50,
+    recovery: 7,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.45,
+    physicalPierce: 0.25,
+    magicPierce: 0.2,
+  },
+  skills: [WRATH_UNBOUND, HEADSMANS_ARC],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -1215,4 +1874,24 @@ export const ENEMIES = [
   CINDERLING,
   BLOODPACT_FIEND,
   HEXBOUND_TORMENTOR,
+  OATHSHIELD_VANGUARD,
+  BRAMBLEHIDE_RAVENER,
+  CONCORD_CANTOR,
+  EMBERSEED_WARLOCK,
+  MARCHWARD_PIKEMAN,
+  BRAMBLEWALK_SCOUT,
+  RIVEN_MARCHWARDEN,
+  CHAINSWORN,
+  FENLORD,
+  PALE_WARDEN,
+  FIRST_CINDER,
+  ASHFALL_SOVEREIGN,
+  SEALWARD_CUSTODIAN,
+  ANTIPHON_ARCHON,
+  VAULTLIGHT_CENSER,
+  RIFTBORN_HARROWER,
+  UNSEALED_WRETCH,
+  COVENANT_BREAKER,
+  VAULTBOUND_GAOLER,
+  HOLLOW_SERAPH,
 ] as const;

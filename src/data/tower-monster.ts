@@ -82,10 +82,10 @@ export const TOWER_MONSTER = {
    * Which tower a run enters is meant to be settled by who it owns, not by where the ladder has
    * carried it — staggering these would gate a player holding five of one faction behind clears
    * that have nothing to do with them. Authored rather than read off
-   * `AUTO_BATTLE_UNLOCK_CLEARS`, because these are two decisions that agree rather than one
-   * fact stated twice.
+   * `AUTO_BATTLE_UNLOCK_CHAPTERS`, because these are two decisions that agree rather than one
+   * fact stated twice; `towers.spec.ts` is what holds the agreement.
    */
-  unlockClears: 12,
+  unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
     // The Open Field — Floors 1–12, levels 1–8 — one of everything, and the first speed check.

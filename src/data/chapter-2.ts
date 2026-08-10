@@ -1,406 +1,192 @@
 import {
   ACOLYTE,
+  BANDIT,
   BOAR,
-  COLOSSUS,
-  HEADSMAN,
-  HIEROPHANT,
-  OATHBREAKER,
+  BULWARK_ENEMY,
+  GOLEM,
+  HAG,
+  PALE_WARDEN,
   PYRE,
-  RAVAGER,
-  REVENANT,
-  SENTINEL,
-  SKYSHRIKE,
-  STORMCALLER,
-  TYRANT,
-  UNMADE,
-  WRATHBORN,
+  RIMEPLATE,
+  SHADE,
+  SLIME,
+  WARDEN,
+  WISP,
 } from './enemies';
 
 /**
- * Chapter 2 — The Ashfall Reach.
+ * Chapter 2 — The Drowned Ward.
  *
- * Fifty stages, enemy levels 40 to 126. It **opens at the level chapter 1 closed on**, which is
- * the whole of what a chapter boundary is: a name change and a boss behind you, not a step. A
- * player who has just taken the Frozen Gate walks into Ashfall Reach and finds an encounter tuned
- * for exactly the party that took it.
+ * Twenty stages, enemy levels 14 to 15. It **opens at the level chapter 1 closed on**, which is
+ * the rule every chapter boundary follows: a name change and a boss behind you, not a step. The
+ * level curve is nearly flat through the whole chapter on purpose — this is the band where the
+ * player's own growth is rungs rather than levels, so what escalates is the *boards*, and a
+ * chapter that climbed levels here would be hiding its own questions behind arithmetic.
  *
  * ## What it asks that chapter 1 did not
  *
- * The fen's twelve archetypes ask about reach, sustain, armour and volume, and a party answers
- * them with composition. This chapter's twelve ask about things composition cannot fix on its
- * own — a wave aimed at the back rank, penetration that makes armour stop working, an executioner
- * that ignores rank, a wall that debuffs bounce off — and the answer to most of them is
- * investment. That is the division of labour between the two: chapter 1 is where a player learns
- * what a party is for, and chapter 2 is where they find out what it costs.
+ * Chapter 1 taught reach, a cleanse and a caster. This chapter opens on the two locks the fen
+ * saves for a party that has those answers: the Warden's Gate, where accuracy stops being a stat
+ * nobody reads, and Rimeplate Deep, where "bring the other damage type" stops working and
+ * penetration starts. The remaining eighteen stages are those questions in combinations — never a
+ * new stat block for its own sake, which is what milestone 10 bought when it made an enemy a
+ * level-1 shape plus a level.
  *
- * A few fen archetypes appear in the opening stages, at levels four times what the fen fielded
- * them at. That is deliberate rather than filler: it is the clearest possible demonstration that
- * a lock is a question and not a stat block, which is the property milestone 10 bought and the
- * reason a chapter of fifty stages is an afternoon's authoring.
+ * ## The final
  *
- * ## Where the levels come from
- *
- * Level 40 to 126, climbing about one and a half a stage early and a little over two a stage
- * late. The top is where the old twenty-four stage ladder ended, and it is there for the same
- * reason it was there: a common-tier five at level 90, four rungs up, clears it and loses a
- * member doing so. Nothing in chapters 1 and 2 asks for a pull anybody had to be lucky for.
+ * The Pale Warden, at stage 20, on a board that fields the whole fen vocabulary at once — stun
+ * from the boss, both defences beside it, sustain, a burn and a dodge behind. The durability is
+ * on the boss's own body rather than on anything hiding behind it, which is the shape every final
+ * observes: everything the party must kill is a thing it is allowed to hit.
  */
 export const CHAPTER_2 = {
   id: 'chapter-2',
-  name: 'The Ashfall Reach',
+  name: 'The Drowned Ward',
   stages: [
     // -----------------------------------------------------------------------------------
-    // Out of the fen — stages 1 to 10, levels 40 to 55
+    // The gates — stages 1 to 10, level 14
     // -----------------------------------------------------------------------------------
     {
-      // The back-rank lock. Fifty stages have rewarded putting the fragile things behind two
-      // bodies; two Sky-Shrikes diving the whole back row at once is the bill for that.
+      // The gate. A Warden takes turns away, a Shade dodges over half of what is aimed at it, and
+      // an Acolyte undoes the rest. Accuracy stops being a stat nobody reads.
       id: 'c2-s1',
-      name: 'Ashfall Reach',
-      enemies: { front: [REVENANT, REVENANT], back: [SKYSHRIKE, SKYSHRIKE] },
-      level: 16,
+      name: 'The Warden’s Gate',
+      enemies: { front: [WARDEN, BANDIT], back: [ACOLYTE, SHADE] },
+      level: 14,
     },
     {
-      // A fen board at four times the level it was fielded at, which is the point of it.
+      // Both defences up in front, two things that punish patience behind. Winnable by a party
+      // that brought penetration or a Sunder, and expensive for anything else.
       id: 'c2-s2',
-      name: 'Emberwake',
-      enemies: { front: [REVENANT, BOAR], back: [SKYSHRIKE, PYRE] },
-      level: 17,
+      name: 'Rimeplate Deep',
+      enemies: { front: [RIMEPLATE, BULWARK_ENEMY], back: [HAG, PYRE] },
+      level: 14,
     },
     {
-      // Grind, with a clock on it. Two Cairn Sentinels are the most armour on the ladder so far,
-      // and the Stormcaller behind them makes taking a long time about it expensive.
+      // A wave again, but with a wall in it. A pure fodder stage here would ask less than the
+      // Broken Causeway four stages below it, which is a step backwards a player feels as the
+      // ladder briefly forgetting where they are.
       id: 'c2-s3',
-      name: 'The Cairn Line',
-      enemies: { front: [SENTINEL, SENTINEL], back: [STORMCALLER, STORMCALLER] },
-      level: 19,
+      name: 'Drowned Steps',
+      enemies: { front: [GOLEM, BOAR], back: [WISP, SLIME, PYRE] },
+      level: 14,
     },
     {
       id: 'c2-s4',
-      name: 'Cinderpath',
-      enemies: { front: [REVENANT, SENTINEL], back: [SKYSHRIKE, STORMCALLER] },
-      level: 20,
+      name: 'Reedcutter Camp',
+      enemies: { front: [BANDIT, BANDIT], back: [BANDIT, WISP] },
+      level: 14,
     },
     {
-      // Penetration arrives. A Ravager ignores nearly half of whichever defence the party bought,
-      // which is the first time on the ladder that buying more of a defensive stat is not an
-      // answer.
+      // Absorb and heal together for the first time — neither is new, and the pair is.
       id: 'c2-s5',
-      name: 'Flensing Grounds',
-      enemies: { front: [RAVAGER, REVENANT], back: [SKYSHRIKE, STORMCALLER] },
-      level: 22,
+      name: 'Fen Chapel',
+      enemies: { front: [BOAR, BULWARK_ENEMY], back: [ACOLYTE, WISP] },
+      level: 14,
     },
     {
       id: 'c2-s6',
-      name: 'The Scoured Rise',
-      enemies: { front: [RAVAGER, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 23,
+      name: 'Mirefall',
+      enemies: { front: [GOLEM, BOAR], back: [PYRE, WISP] },
+      level: 14,
     },
     {
       id: 'c2-s7',
-      name: 'Emberwatch',
-      enemies: { front: [SENTINEL, REVENANT], back: [ACOLYTE, STORMCALLER] },
-      level: 24,
+      name: 'The Shrouded Path',
+      enemies: { front: [BANDIT, BULWARK_ENEMY], back: [SHADE, ACOLYTE, WISP] },
+      level: 14,
     },
     {
-      // The escalation lock. Chipping the Wrathborn down is what turns it on, so the fight the
-      // party has been winning gets harder at exactly the moment it looks won.
+      // Two walls and nothing else worth hitting. A party with no answer to armour spends the
+      // whole ninety seconds finding that out.
       id: 'c2-s8',
-      name: 'The Kindled Span',
-      enemies: { front: [WRATHBORN, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 26,
+      name: 'Hollow Bank',
+      enemies: { front: [GOLEM, GOLEM], back: [PYRE] },
+      level: 14,
     },
     {
       id: 'c2-s9',
-      name: 'Ashen Ford',
-      enemies: { front: [WRATHBORN, REVENANT], back: [SKYSHRIKE, SKYSHRIKE, STORMCALLER] },
-      level: 27,
+      name: 'Widow’s Crossing',
+      enemies: { front: [BOAR, BANDIT], back: [HAG, SHADE, WISP] },
+      level: 14,
     },
     {
-      // Mini-boss. Penetration twice over, with the escalation behind it, and the first stage
-      // where the party's HP pool rather than its armour is what keeps it alive.
+      // Mini-boss. The Warden's stun on top of a Golem's armour and a Hag's debuff: three answers
+      // wanted at once, which is what a mini-boss is for.
       id: 'c2-s10',
-      name: 'Ravager’s Deep',
-      enemies: { front: [RAVAGER, RAVAGER], back: [WRATHBORN, STORMCALLER, SKYSHRIKE] },
-      level: 29,
+      name: 'The Bogwarden',
+      enemies: { front: [WARDEN, GOLEM], back: [HAG, PYRE] },
+      level: 14,
     },
 
     // -----------------------------------------------------------------------------------
-    // The choir — stages 11 to 20, levels 56 to 71
+    // The deep ward — stages 11 to 20, levels 14 to 15
     // -----------------------------------------------------------------------------------
     {
+      // Two healers behind a barrier. Chip damage cannot win this; the party has to reach.
       id: 'c2-s11',
-      name: 'Cairnwatch',
-      enemies: { front: [SENTINEL, SENTINEL], back: [SKYSHRIKE, STORMCALLER, REVENANT] },
-      level: 30,
+      name: 'Sunken Chapel',
+      enemies: { front: [BULWARK_ENEMY, BOAR], back: [ACOLYTE, ACOLYTE] },
+      level: 14,
     },
     {
       id: 'c2-s12',
-      name: 'The Long Burn',
-      enemies: { front: [WRATHBORN, RAVAGER], back: [STORMCALLER, SKYSHRIKE] },
-      level: 31,
+      name: 'Blackwater Run',
+      enemies: { front: [BANDIT, BANDIT], back: [SHADE, SHADE, WISP] },
+      level: 15,
     },
     {
       id: 'c2-s13',
-      name: 'Hollow Ash',
-      enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE] },
-      level: 33,
+      name: 'Cairnmoss',
+      enemies: { front: [RIMEPLATE, BOAR], back: [PYRE, WISP] },
+      level: 15,
     },
     {
-      // A healer and a shielder in one body, standing behind a wall. Chip damage loses to the
-      // barrier and burst loses to the heal, so the only answer left is the one the back rank was
-      // built around: reach past the front and kill it.
       id: 'c2-s14',
-      name: 'The Hollow Choir',
-      enemies: { front: [SENTINEL, REVENANT], back: [HIEROPHANT, SKYSHRIKE, STORMCALLER] },
-      level: 34,
+      name: 'The Weeping Fen',
+      enemies: { front: [BOAR, BULWARK_ENEMY], back: [HAG, ACOLYTE, PYRE] },
+      level: 15,
     },
     {
       id: 'c2-s15',
-      name: 'Pyreholm',
-      enemies: { front: [RAVAGER, WRATHBORN], back: [HIEROPHANT, STORMCALLER] },
-      level: 36,
+      name: 'Gravelight',
+      enemies: { front: [GOLEM, BANDIT], back: [SHADE, ACOLYTE] },
+      level: 15,
     },
     {
       id: 'c2-s16',
-      name: 'The Grey March',
-      enemies: { front: [SENTINEL, RAVAGER], back: [SKYSHRIKE, SKYSHRIKE, HIEROPHANT] },
-      level: 37,
+      name: 'Stonewatch',
+      enemies: { front: [RIMEPLATE, GOLEM], back: [WISP, WISP] },
+      level: 15,
     },
     {
+      // Two Hags is twice the debuff and twice the cleanse it takes to answer them.
       id: 'c2-s17',
-      name: 'Emberfall',
-      enemies: { front: [WRATHBORN, WRATHBORN], back: [STORMCALLER, SKYSHRIKE] },
-      level: 39,
+      name: 'The Long Mire',
+      enemies: { front: [BOAR, BOAR], back: [HAG, HAG, ACOLYTE] },
+      level: 15,
     },
     {
       id: 'c2-s18',
-      name: 'The Cinder Line',
-      enemies: { front: [SENTINEL, SENTINEL], back: [HIEROPHANT, STORMCALLER, SKYSHRIKE] },
-      level: 40,
+      name: 'Emberfen',
+      enemies: { front: [BULWARK_ENEMY, BANDIT], back: [PYRE, PYRE] },
+      level: 15,
     },
     {
+      // A Shade in the front rank, where its dodge is aimed at everything the party throws.
       id: 'c2-s19',
-      name: 'Ashmoor',
-      enemies: { front: [RAVAGER, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 41,
+      name: 'Shadewater',
+      enemies: { front: [BANDIT, SHADE], back: [SHADE, ACOLYTE, WISP] },
+      level: 15,
     },
     {
-      // Mini-boss. The execution lock: a Headsman ignores rank and goes for whoever is closest to
-      // dying, which is a demand for sustain aimed somewhere other than the front rank.
+      // ⚠️ The chapter boss. Stun from the Pale Warden, both defences beside it, and sustain, a
+      // burn and a dodge behind — the whole fen vocabulary on one board, led by a body that
+      // stands nowhere else and carries its durability itself.
       id: 'c2-s20',
-      name: 'Gallowmoor',
-      enemies: { front: [OATHBREAKER, REVENANT], back: [HEADSMAN, HIEROPHANT] },
-      level: 43,
-    },
-
-    // -----------------------------------------------------------------------------------
-    // The adamant road — stages 21 to 30, levels 72 to 88
-    // -----------------------------------------------------------------------------------
-    {
-      id: 'c2-s21',
-      name: 'The Gallow Road',
-      enemies: { front: [OATHBREAKER, SENTINEL], back: [HEADSMAN, SKYSHRIKE] },
-      level: 44,
-    },
-    {
-      id: 'c2-s22',
-      name: 'Ironwake',
-      enemies: { front: [COLOSSUS, SENTINEL], back: [STORMCALLER, SKYSHRIKE] },
-      level: 46,
-    },
-    {
-      // The tenacity lock. Sunder, Weaken and Slow have answered every large thing below this,
-      // and against a Colossus almost none of them land. What is left is raw damage and
-      // penetration.
-      id: 'c2-s23',
-      name: 'The Adamant Gate',
-      enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, STORMCALLER] },
-      level: 47,
-    },
-    {
-      id: 'c2-s24',
-      name: 'Hangman’s Reach',
-      enemies: { front: [OATHBREAKER, RAVAGER], back: [HEADSMAN, HIEROPHANT] },
-      level: 48,
-    },
-    {
-      id: 'c2-s25',
-      name: 'The Slag Fields',
-      enemies: { front: [COLOSSUS, WRATHBORN], back: [STORMCALLER, SKYSHRIKE, HEADSMAN] },
-      level: 50,
-    },
-    {
-      // The wall-breaker. A Tyrant attacks the party's largest HP pool rather than through the
-      // front rank, so the wall is the first thing to die and a second body does not help.
-      id: 'c2-s26',
-      name: 'Boneash',
-      enemies: { front: [TYRANT, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 51,
-    },
-    {
-      id: 'c2-s27',
-      name: 'The Cold Forge',
-      enemies: { front: [COLOSSUS, SENTINEL], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 53,
-    },
-    {
-      id: 'c2-s28',
-      name: 'Bonefall',
-      enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, STORMCALLER] },
-      level: 54,
-    },
-    {
-      id: 'c2-s29',
-      name: 'The Riven Span',
-      enemies: { front: [TYRANT, RAVAGER], back: [SKYSHRIKE, HIEROPHANT, STORMCALLER] },
-      level: 55,
-    },
-    {
-      // Mini-boss. Five bodies and three locks: a wall nothing sticks to, an executioner behind
-      // it, and the heal-plus-barrier undoing whatever the party does not finish.
-      id: 'c2-s30',
-      name: 'The Broken Oath',
-      enemies: { front: [OATHBREAKER, COLOSSUS], back: [HEADSMAN, HIEROPHANT, STORMCALLER] },
-      level: 57,
-    },
-
-    // -----------------------------------------------------------------------------------
-    // Tyrants — stages 31 to 40, levels 89 to 106
-    // -----------------------------------------------------------------------------------
-    {
-      id: 'c2-s31',
-      name: 'Emberthrone',
-      enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, SKYSHRIKE, HEADSMAN] },
-      level: 58,
-    },
-    {
-      id: 'c2-s32',
-      name: 'The Ashen Choir',
-      enemies: { front: [SENTINEL, COLOSSUS], back: [HIEROPHANT, STORMCALLER, SKYSHRIKE] },
-      level: 60,
-    },
-    {
-      // Two Headsmen. Nothing in the party's back rank is out of reach, and the one closest to
-      // dying is the one that dies.
-      id: 'c2-s33',
-      name: 'Gallowfall',
-      enemies: { front: [OATHBREAKER, TYRANT], back: [HEADSMAN, HEADSMAN] },
-      level: 61,
-    },
-    {
-      id: 'c2-s34',
-      name: 'The Last Cairn',
-      enemies: { front: [COLOSSUS, COLOSSUS], back: [STORMCALLER, HIEROPHANT] },
-      level: 62,
-    },
-    {
-      // The wall-breaker and the wall, together. Whatever the party puts in front dies to the
-      // Tyrant and whatever it puts behind dies to the Headsman.
-      id: 'c2-s35',
-      name: 'Tyrant’s Rest',
-      enemies: { front: [TYRANT, COLOSSUS], back: [HIEROPHANT, OATHBREAKER, HEADSMAN] },
-      level: 64,
-    },
-    {
-      id: 'c2-s36',
-      name: 'The Scorched Vigil',
-      enemies: { front: [OATHBREAKER, WRATHBORN], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 65,
-    },
-    {
-      id: 'c2-s37',
-      name: 'Ruinfall',
-      enemies: { front: [TYRANT, RAVAGER], back: [HEADSMAN, STORMCALLER, HIEROPHANT] },
-      level: 67,
-    },
-    {
-      id: 'c2-s38',
-      name: 'The Iron Choir',
-      enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, SKYSHRIKE] },
-      level: 68,
-    },
-    {
-      id: 'c2-s39',
-      name: 'Emberwatch Keep',
-      enemies: { front: [TYRANT, COLOSSUS], back: [STORMCALLER, HEADSMAN] },
-      level: 70,
-    },
-    {
-      // Mini-boss. The first sight of the thing the chapter is named for, standing behind a wall
-      // that keeps it alive while it works.
-      id: 'c2-s40',
-      name: 'The Unmaking',
-      enemies: { front: [UNMADE, SENTINEL], back: [HIEROPHANT, STORMCALLER] },
-      level: 71,
-    },
-
-    // -----------------------------------------------------------------------------------
-    // The run-in — stages 41 to 50, levels 107 to 126
-    // -----------------------------------------------------------------------------------
-    {
-      id: 'c2-s41',
-      name: 'Ashen Reach',
-      enemies: { front: [UNMADE, REVENANT], back: [HEADSMAN, SKYSHRIKE] },
-      level: 72,
-    },
-    {
-      id: 'c2-s42',
-      name: 'The Cinder Throne',
-      enemies: { front: [TYRANT, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 74,
-    },
-    {
-      id: 'c2-s43',
-      name: 'Blackcairn',
-      enemies: { front: [COLOSSUS, TYRANT], back: [HEADSMAN, HIEROPHANT] },
-      level: 75,
-    },
-    {
-      id: 'c2-s44',
-      name: 'The Sundered Oath',
-      enemies: { front: [OATHBREAKER, UNMADE], back: [STORMCALLER, SKYSHRIKE, HEADSMAN] },
-      level: 77,
-    },
-    {
-      id: 'c2-s45',
-      name: 'Pyre of Kings',
-      enemies: { front: [UNMADE, COLOSSUS], back: [HIEROPHANT, STORMCALLER] },
-      level: 78,
-    },
-    {
-      id: 'c2-s46',
-      name: 'The Hollow Crown',
-      enemies: { front: [TYRANT, OATHBREAKER], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 79,
-    },
-    {
-      id: 'c2-s47',
-      name: 'Ashfall Keep',
-      enemies: { front: [UNMADE, TYRANT], back: [STORMCALLER, HEADSMAN] },
-      level: 81,
-    },
-    {
-      id: 'c2-s48',
-      name: 'The Last Gate',
-      enemies: { front: [COLOSSUS, OATHBREAKER], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 82,
-    },
-    {
-      id: 'c2-s49',
-      name: 'Ruin’s Edge',
-      enemies: { front: [UNMADE, COLOSSUS], back: [HEADSMAN, HIEROPHANT, SKYSHRIKE] },
-      level: 84,
-    },
-    {
-      // ⚠️ The chapter boss, and the top of everything shipped. It takes the biggest thing the
-      // party brought, burns the whole party, half-ignores both defences and shrugs off half of
-      // what is aimed back — winnable, expensively, by a party that arrived with sustain, reach
-      // and penetration, and by nothing that brought only one of them.
-      id: 'c2-s50',
-      name: 'The Unmade',
-      enemies: { front: [UNMADE, TYRANT], back: [HIEROPHANT, HEADSMAN, STORMCALLER] },
-      level: 85,
+      name: 'The Pale Warden',
+      enemies: { front: [PALE_WARDEN, RIMEPLATE], back: [ACOLYTE, PYRE, SHADE] },
+      level: 15,
     },
   ],
 } as const;

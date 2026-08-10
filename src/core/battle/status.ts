@@ -59,13 +59,33 @@ export function toActiveStatus(data: StatusData, applier: CombatStats, tick: num
     case 'regen':
     case 'shield':
       return { ...base, amount: scaled(applier.atk, data.power) };
+    case 'bomb':
+      // Snapshotted exactly as a `dot` is, and for the same reason: the payload belongs to the
+      // blow that planted it, not to whether its planter is still standing when it goes off.
+      return { ...base, damageType: data.damageType, amount: scaled(applier.atk, data.power) };
+    case 'reflect':
+    case 'link':
+      return { ...base, share: share(data.share) };
     case 'stun':
+    case 'taunt':
       return base;
   }
 }
 
 function scaled(stat: Numeric, power: number): Numeric {
   return stat.mul(num(Number.isFinite(power) ? Math.max(power, 0) : 0));
+}
+
+/**
+ * A proportion, clamped into `[0, 1]`.
+ *
+ * The upper bound is the one that matters. A `link` share above 1 would move more damage off a
+ * target than the hit contained and hand the difference to its allies as a multiplier — content
+ * inventing damage — and a `reflect` above 1 would return more than it received, which is the
+ * shape of thing that ends a fight in one swing rather than in ninety seconds.
+ */
+function share(value: number): number {
+  return Number.isFinite(value) ? Math.min(Math.max(value, 0), 1) : 0;
 }
 
 /**
@@ -131,6 +151,28 @@ export function cleanseStatuses(
 /** True while any stun is running. */
 export function isStunned(statuses: readonly ActiveStatus[]): boolean {
   return statuses.some((status) => status.kind === 'stun');
+}
+
+/** True while this combatant is drawing single-target attacks onto itself. */
+export function isTaunting(statuses: readonly ActiveStatus[]): boolean {
+  return statuses.some((status) => status.kind === 'taunt');
+}
+
+/**
+ * The first running status of one kind, or `undefined`.
+ *
+ * First rather than combined, which is the one place `reflect` and `link` differ from
+ * {@link statModifier}. Two stat debuffs on one target genuinely stack their multipliers; two
+ * thorns would compound a *share of a share*, and two links would each claim a slice of a hit the
+ * other had already moved — arithmetic no author could predict from reading either status. One at
+ * a time, oldest first, keeps both readable, and re-applying by the same id refreshes rather than
+ * adds.
+ */
+export function runningStatus(
+  statuses: readonly ActiveStatus[],
+  kind: ActiveStatus['kind'],
+): ActiveStatus | undefined {
+  return statuses.find((status) => status.kind === kind);
 }
 
 /** The combined multiplier every active `stat-mod` places on one stat. */

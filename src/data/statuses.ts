@@ -338,6 +338,100 @@ export const SIG_ENTROPY = {
   multiplier: 1.3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bound Marches — milestone 17's four, and the vocabulary chapter 3 is built on
+//
+// Each one names an answer the roster already owns and nothing was asking for, which is the same
+// test the Ashfall set was authored against. What is new here is that three of the four are about
+// **who a hit lands on** rather than about how big it is — a lever nothing in the game had.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Every single-target attack is drawn onto the wearer.
+ *
+ * ⚠️ **Deliberately not permanent, and the duty cycle is the whole of what keeps it fair.** It
+ * overrides the row gate, so while it is up a party's back-rank reach is worth nothing — and a
+ * party whose only answers are single-target has to be given a window at the thing behind it.
+ * `data/skills.spec.ts` holds that every skill applying one has a cooldown longer than this, which
+ * is the same rule `BULWARK`'s comment argues for a barrier and for a different reason: there it
+ * was termination, here it is that an encounter must stay answerable.
+ */
+export const OATHSHIELD = {
+  kind: 'taunt',
+  id: 'oathshield',
+  name: 'Oathshield',
+  hostile: false,
+  duration: STANDARD,
+} as const;
+
+/**
+ * Spines: a quarter of what reaches the wearer is dealt straight back.
+ *
+ * Permanent, and safe to be, because it can only ever *shorten* a fight — it is strictly extra
+ * damage on a schedule the party controls. A quarter rather than the half the engine allows: this
+ * taxes the one thing every party does on every turn, so it is felt at a size that would read as
+ * arbitrary anywhere else.
+ */
+export const THORNMAIL = {
+  kind: 'reflect',
+  id: 'thornmail',
+  name: 'Thorned',
+  hostile: false,
+  duration: PERMANENT,
+  share: 0.25,
+} as const;
+
+/**
+ * A board bound together: two fifths of any hit is split across everything else still standing.
+ *
+ * The answer to focus fire, which is the habit every stage in the game has rewarded. It costs the
+ * board nothing in total health — damage is conserved — so what it buys is **time**, by making the
+ * party's usual route of removing one threat at a time stop working while it is up.
+ */
+export const CHAINBOND = {
+  kind: 'link',
+  id: 'chainbond',
+  name: 'Chained',
+  hostile: false,
+  duration: LINGERING,
+  share: 0.4,
+} as const;
+
+/**
+ * A payload that lands in one piece forty ticks after it is planted.
+ *
+ * Bigger per instance than any damage-over-time and roughly the same in total, which is the point
+ * of both halves: a poison asks whether the party can afford the attrition, and this asks whether
+ * the cleanse arrives before the tick does. Magical, so the resist that answers a Pyre answers this
+ * too.
+ */
+export const EMBER_SEED = {
+  kind: 'bomb',
+  id: 'ember-seed',
+  name: 'Seeded',
+  hostile: true,
+  duration: 40,
+  damageType: 'magical',
+  power: 1.4,
+} as const;
+
+/**
+ * The Chainsworn's, on the whole party at once, and smaller per head for exactly that reason.
+ *
+ * Five payloads against a cleanse that removes a fixed count is the same shape of question
+ * {@link SEVENFOLD_HEX} asks, moved from *how many statuses* to *how many bodies* — the party has
+ * the answer and cannot spend it everywhere.
+ */
+export const DOOMBRAND = {
+  kind: 'bomb',
+  id: 'doombrand',
+  name: 'Doomed',
+  hostile: true,
+  duration: 50,
+  damageType: 'physical',
+  power: 1.2,
+} as const;
+
 export const STATUSES = [
   SUNDER,
   WEAKEN,
@@ -359,4 +453,9 @@ export const STATUSES = [
   SIG_HUNGER,
   SIG_SANCTUARY,
   SIG_ENTROPY,
+  OATHSHIELD,
+  THORNMAIL,
+  CHAINBOND,
+  EMBER_SEED,
+  DOOMBRAND,
 ] as const;

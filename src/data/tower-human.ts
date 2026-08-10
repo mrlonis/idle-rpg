@@ -83,13 +83,13 @@ export const TOWER_HUMAN = {
   /**
    * Open at the auto-battle unlock.
    *
-   * Twelve clears is the end of the campaign's opening run of locks — the stretch that teaches a
-   * player what a party is for — and it is deliberately early: somebody walled at the chapter-1
-   * healer lock should already have somewhere to send an unlucky pull. Authored rather than read off
-   * `AUTO_BATTLE_UNLOCK_CLEARS`, because these are two decisions that happen to agree rather than
-   * one fact stated twice.
+   * Ten clears is the whole of the re-cut chapter 1 — the stretch that teaches a player what a
+   * party is for — and it is deliberately early: somebody walled at the chapter-1 healer lock
+   * should already have somewhere to send an unlucky pull. Authored rather than read off
+   * `AUTO_BATTLE_UNLOCK_CHAPTERS`, because these are two decisions that happen to agree rather
+   * than one fact stated twice; `towers.spec.ts` is what holds the agreement.
    */
-  unlockClears: 12,
+  unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
     // The Lower Steps — Floors 1–12, levels 1–8 — fodder, and the first speed check.

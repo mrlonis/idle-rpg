@@ -3,8 +3,12 @@ import {
   BARRIER,
   BLEED,
   BURN,
+  CHAINBOND,
+  DOOMBRAND,
+  EMBER_SEED,
   GUARD,
   HASTE,
+  OATHSHIELD,
   POISON,
   RALLY,
   REGENERATION,
@@ -2583,6 +2587,213 @@ export const PALL_OF_YEARS = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bound Marches — milestone 17
+//
+// Four turns, one per new mechanic. Three of them do no damage at all, which is unusual for an
+// enemy kit and is the chapter's whole thesis: what these spend a turn on is **where the party's
+// damage is allowed to go**, and that is worth more than a hit at this end of the ladder.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The wall steps forward, and nothing can be aimed past it.
+ *
+ * ⚠️ **60 against a 45-tick {@link OATHSHIELD}**, which is the duty-cycle rule its comment argues:
+ * a party with no way to reach a whole row has to be given a window at whatever is standing
+ * behind this, and a cooldown at or under the duration would never open one.
+ */
+export const DRAW_THE_OATH = {
+  id: 'draw-the-oath',
+  name: 'Draw the Oath',
+  target: 'self',
+  effects: [{ kind: 'status', status: OATHSHIELD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The board is bound together, so no one thing on it can be removed on its own.
+ *
+ * The Cantor's whole contribution, and it deals nothing: what it buys its side is that the party's
+ * opening — kill the support, then the wall — stops resolving. The answer is to kill the Cantor,
+ * which is the one body the link cannot protect from a party that has noticed.
+ *
+ * ⚠️ **80 against a 60-tick {@link CHAINBOND}.** Same rule, and here the window is what lets a
+ * party bank a kill it has already earned.
+ */
+export const BIND_THE_CONCORD = {
+  id: 'bind-the-concord',
+  name: 'Bind the Concord',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 80,
+  priority: 3,
+} as const;
+
+/**
+ * Seeds the back rank, where the party keeps everything that cannot take a hit.
+ *
+ * Aimed there rather than at the front on purpose: a payload on a wall is a payload the party was
+ * always going to survive, and the decision this asks for — spend the cleanse now or trust the
+ * heal to arrive — only exists when the thing carrying it would die.
+ */
+export const EMBERSEED = {
+  id: 'emberseed',
+  name: 'Emberseed',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'status', status: EMBER_SEED, chance: 0.9 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Five payloads at once, on a fifty-tick fuse.
+ *
+ * The chapter's closing question, and it is a question about the party's *answer* rather than about
+ * its damage: every cleanse in the roster removes a fixed count from one ally, so a brand on all
+ * five is the first thing in the game that cannot be fully answered — only triaged.
+ */
+export const DOOMKNELL = {
+  id: 'doomknell',
+  name: 'Doomknell',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: DOOMBRAND, chance: 0.85 }],
+  cooldown: 75,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Sundered Vault — milestone 18
+//
+// ⚠️ **Five turns, and not one new mechanic among them.** Milestone 17 spent the last of the
+// vocabulary's headroom and said so; these are recombinations, deliberately and on the record.
+// What makes them worth authoring is that each is a **pairing** the game has never made — a taunt
+// welded to an absorb, a cleanse welded to a tempo buff, a wide hit gated on the party still being
+// whole. The chapter's distinctness comes from those pairs and from the matchup matrix (every
+// celestial hits every mortal for 1.10 with nothing coming back), not from a new lever.
+//
+// Read that as the honest version of milestone 17's argument rather than a weaker one: a ninth
+// spelling of an existing skill is what that milestone refused, and a *new pair of existing
+// skills on one body* is not that. Nothing below duplicates a skill already in this file.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The jailer wears the pool it was going to spend on the door.
+ *
+ * ⚠️ **`self` rather than `ally-all`, and that is what keeps the Custodian answerable.** Spread
+ * across a board this would be {@link WARD_UNBROKEN} pointed the wrong way — a fixed quantity
+ * divided five ways, refreshed forever, in front of a party that has just been told what it may
+ * hit. On the one body the taunt is dragging the party onto, it is a wall the party is *already
+ * aimed at*: the pool depletes, nothing refills it, and the fight resolves.
+ *
+ * ⚠️ **70 against a 55-tick {@link AEGIS}**, the same duty-cycle rule {@link BULWARK} argues at
+ * length. The gap is where the party's burst goes.
+ */
+export const WARD_THE_SEAL = {
+  id: 'ward-the-seal',
+  name: 'Ward the Seal',
+  target: 'self',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/**
+ * The cleanse, pointed the other way *and* paid for in tempo.
+ *
+ * {@link RUNEWARD} already takes the party's setup back — that lock is chapter 3's and this does
+ * not restate it. What is new is the second half: a Runewarden spends its cleanse on **armour**,
+ * so the answer is to out-damage a wall that keeps standing back up. This spends it on **speed**,
+ * so the board that just shrugged off the party's opening also starts acting more often. One says
+ * "your setup did nothing"; this says "your setup did nothing, and now you are behind".
+ *
+ * ⚠️ **65 against a 45-tick {@link HASTE}**, so the tempo half lapses between casts and the board
+ * is not permanently quickened. The cleanse half has no such window by design — that is the lock.
+ */
+export const ANTIPHON = {
+  id: 'antiphon',
+  name: 'Antiphon',
+  target: 'ally-all',
+  effects: [
+    { kind: 'cleanse', count: 2 },
+    { kind: 'status', status: HASTE },
+  ],
+  cooldown: 65,
+  priority: 3,
+} as const;
+
+/**
+ * What comes through a broken seal, and it is worst in the first ten seconds.
+ *
+ * ⚠️ **`enemies-at-least: 4` inverts the shape every other wide skill in this file has.** A fight
+ * normally gets easier as the party thins, because the board's damage is spread over fewer
+ * targets and its wide turns hit less; this one simply **switches off** once the party is down to
+ * three, which means the encounter is at its hardest while the party is intact and cannot be
+ * out-lasted. A party that opens slowly eats every cast of it.
+ *
+ * The pairing with {@link SUNDER} is what makes it more than chip: the party is softest exactly
+ * when this is firing, so the debuff lands on a full board and the next cast is bigger.
+ */
+export const RIFTFALL = {
+  id: 'riftfall',
+  name: 'Riftfall',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 70,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 3,
+} as const;
+
+/**
+ * An oath that only means anything once it has been broken.
+ *
+ * {@link WRATH_UNBOUND} is the roster's statement of `self-hurt` and it buffs the caster; this is
+ * the other way to spend that condition, and the difference matters to the party holding the
+ * damage. A Wrathborn that has been chipped is a body to burst *through*. This one answers the
+ * chipping by reaching past the front rank at whatever is biggest — so wounding it is not a step
+ * toward killing it, it is the thing that points it at the party's carry.
+ */
+export const BROKEN_COVENANT = {
+  id: 'broken-covenant',
+  name: 'Broken Covenant',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.3 },
+    { kind: 'status', status: WEAKEN, chance: 0.6 },
+  ],
+  cooldown: 45,
+  condition: { kind: 'self-hurt', fraction: 0.5 },
+  priority: 4,
+} as const;
+
+/**
+ * The Vault opens, and the chapter's closing question is asked in tempo rather than in damage.
+ *
+ * The Chainsworn's {@link DOOMKNELL} brands all five and asks *when* the cleanse is spent. This
+ * asks something a cleanse cannot answer at all: a {@link STUN} is the shortest status in the game
+ * and it is not removable, so the only defences are tenacity and having already banked the turn.
+ * At 0.35 on five bodies it takes about two turns off the party per cast, which against a board
+ * this one has just hastened is the difference between trading and being traded with.
+ *
+ * ⚠️ **Deliberately the cheapest of the three things the Seraph does.** A boss whose marquee turn
+ * is a board-wide stun would be a fight decided by a dice roll; the damage is ordinary wide-skill
+ * damage and the stun is the tail on it.
+ */
+export const THE_SEAL_BREAKS = {
+  id: 'the-seal-breaks',
+  name: 'The Seal Breaks',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: STUN, chance: 0.35 },
+  ],
+  cooldown: 80,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -2753,4 +2964,13 @@ export const SKILLS = [
   SEVENFOLD_HEX,
   RUNEWARD,
   PALL_OF_YEARS,
+  DRAW_THE_OATH,
+  BIND_THE_CONCORD,
+  EMBERSEED,
+  DOOMKNELL,
+  WARD_THE_SEAL,
+  ANTIPHON,
+  RIFTFALL,
+  BROKEN_COVENANT,
+  THE_SEAL_BREAKS,
 ] as const;

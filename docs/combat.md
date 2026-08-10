@@ -87,15 +87,24 @@ assertions do.
 It was 1.9× until milestone 8e, and the seven mono-faction fives it authored are what spent the
 difference. The same milestone narrowed the assertion to **fights a party clears**, because adding
 those parties revealed the old version was measuring losing fights too; losing fights are bounded
-separately, at 95% of the timer.
+separately, at 95% of the timer. See [milestone 8e](milestones.md) for why that narrowing is the
+assertion's own sentence rather than a moved threshold.
 
 **Milestone 14a handed some back rather than spending more.** Closing pressure ends the fights that
-used to run long, so across all thirteen sweep parties over all hundred stages the numbers are now:
+used to run long, so across all fifteen sweep parties over all two hundred stages the numbers are:
 longest cleared fight **62.7s** (bar 67.5s), longest fight of any kind **63.5s** (bar 85.5s),
 slowest mean **56.6s** (bar 60s), and **zero timeouts**. The longest cleared fight is a fully geared
-party on `c2-s23` — the stage that used to stall.
-See [milestone 8e](milestones.md) for why that narrowing is the assertion's own sentence rather
-than a moved threshold.
+party on `c2-s23` (`c4-s13` since the six-chapter re-cut) — the stage that used to stall.
+
+⚠️ **All four numbers are unchanged by chapters 3 and 4** — not "close to", identical, and measured
+rather than assumed each time. Both chapters are tuned so their own reference party fights twenty to
+twenty-five levels below the content, which might reasonably have been expected to produce longer
+fights, and it does not. Fight length is a function of the _ratio_ between the two sides, and each
+party is behind on levels while being ahead on a rung; the two nearly cancel.
+
+That the longest fight in the whole sweep is still a chapter-2 stage, after a hundred more stages
+have been added above it, is the clearest evidence the timer budget is a property of **how a fight
+is shaped** rather than of how far up the ladder it sits.
 
 ---
 
@@ -198,6 +207,29 @@ decision about who to field rather than a number to accumulate.
 Eleven targeting modes: `enemy-front`, `enemy-back`, `enemy-lowest`, `enemy-highest`,
 `enemy-row-front`, `enemy-row-back`, `enemy-all`, `ally-lowest`, `ally-afflicted`, `ally-all`,
 `self`.
+
+### ⚠️ A taunt is the one thing that overrides the gate
+
+Since milestone 17 a `taunt` status narrows the candidate pool **before the row rule is consulted**,
+so while one is up every single-target attack aimed at that side lands on the taunter. It is the
+only mechanic in the game that can take a back-rank bypass away, and that is precisely what it is
+for: reach has been the answer to a protected healer since milestone 4, and an encounter that wants
+to ask something else has to be able to close that door.
+
+Three clauses keep it answerable, and all three are held by specs rather than by comments:
+
+- **Multi-target selections ignore it entirely.** `enemy-row-front`, `enemy-row-back` and
+  `enemy-all` are untouched, so a party is never left with no way through — the "no legal party"
+  failure milestone 4 rejected role-locked slots for.
+- **It never empties a selection**, so no skill becomes ineligible for want of a target. It changes
+  which opponent is chosen, never whether one exists.
+- ⚠️ **It is never a passive.** The skill applying one carries a cooldown longer than the status
+  (`data/skills.spec.ts`), and no enemy `opening` may carry one at all (`data/enemies.spec.ts`) — a
+  permanent taunt in front of a healer is a fight a single-target party cannot finish, which the
+  ninety-second clock would have to end.
+
+Narrowing rather than returning the taunter outright is what keeps each selection's own rule intact:
+`enemy-highest` against two taunters still picks the larger of the two.
 
 **All eleven are now used, and four of them only became content in milestone 7.**
 `enemy-row-back`, `enemy-lowest`, `enemy-highest` and the `self-hurt` condition were all
@@ -405,6 +437,54 @@ is when the quantity is fixed anyway:
   and not bleeds, which would be a hole in the axis 8a moved onto the resists;
 - a `regen` is healing from somebody else, so the recipient's `receivedHealing` applies.
 
+### The four milestone-17 kinds
+
+`taunt`, `reflect`, `link` and `bomb`, added for the Bound Marches and documented here rather than in a
+chapter file because they are engine vocabulary. All four ride the existing `status` effect: no new
+effect kinds, and the simulation's damage path grew one shared helper rather than four.
+
+⚠️ **These are still the last additions, and the Sundered Vault is the evidence rather than a restatement of
+the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five skills without
+touching `core/battle` at all, building instead from **pairs** of existing parts and from the
+matchup matrix leaned on hard enough to be a standing tax. That well is real and it is finite; the
+next chapter that cannot find an unspent pair has to make the case for growing this vocabulary on
+its own merits.
+
+**`taunt`** is above, under targeting.
+
+**`reflect`** returns a share of the damage its holder takes to whoever dealt it. Measured against
+what actually reached HP, so a shield that ate the blow also swallows the answer — the opposite of
+the rule life leech follows, and deliberately: a siphon is the attacker's reward for the blow it
+struck, and this is the answer to a blow that landed. It answers a **killing** blow too, read off
+the target before the hit resolves, because a party with enough burst to finish in one swing would
+otherwise step around it entirely.
+
+**`link`** spreads a share of every hit across its holder's other link-holding allies. ⚠️ **Damage is
+conserved, never multiplied**: the target takes `1 - share` and the rest is divided evenly among the
+others, so the board loses exactly what the roll produced and only the _order_ things die in
+changes. ⚠️ **A lone holder takes the whole hit** — a share moved off a target with nobody to share
+to would be a share deleted, and the last survivor of a linked board would be unkillable.
+
+**`bomb`** does nothing until it expires and then lands in one piece. The mirror of a `dot` and the
+opposite question: a poison punishes a slow kill continuously and is worth cleansing at any point,
+while this punishes it once at a known tick and a cleanse spent before that tick removes the whole
+thing. It answers the target's resist exactly as a `dot` does, and it fires exactly once because the
+expiry that pays it out is the expiry that removes it.
+
+⚠️ **Neither reflect nor link can cascade, and the argument is structural rather than a depth
+counter.** All three of the damage sources above — plus a `dot` ticking — resolve through one
+`statusDamage` helper that **never re-enters the attack path**. Thorns therefore cannot answer
+thorns and a link cannot spread a share it was handed, and there is no volley to bound. It is
+impossible to reintroduce by accident, which a counter would not be.
+
+Two consequences elsewhere in the loop, both invisible before these existed:
+
+- **An actor can die inside its own action** — a row attack into three thorned enemies is answered
+  three times — so `act()` stops resolving when the actor falls. A corpse must not finish swinging.
+- **Something can die at a status expiry**, so `decide` is called after the expiry pass. Without it
+  the last combatant on a side could fall to a detonation and the fight would carry on until
+  somebody's turn came around to notice.
+
 ### ⚠️ Closing pressure: the termination argument
 
 Past `PRESSURE_AFTER_TICKS` (500 — fifty seconds), **every damage instance is multiplied by a
@@ -507,6 +587,13 @@ caused it, which is re-deriving state the simulation already knew.
 
 Statuses deliberately pay no energy: a poison tick is not an action, and crediting one would make a
 damage-over-time an energy engine.
+
+**`tick-damage` carries all four kinds of status damage rather than growing three more events.** A
+poison landing on its host's turn, a `bomb` paying out as it expires, a `reflect` answering a blow
+and the share of a hit a `link` moves onto an ally are one event kind, because the animator does the
+same thing with all of them — move a health bar, drain a shield, name the status responsible — and a
+`statusId` already says which is which. That is what let milestone 17 add four mechanics with **no
+change to the UI at all**.
 
 ---
 

@@ -140,9 +140,9 @@ const STRIDE = 4;
  * `topLevel` and this party moves with it. `towers.spec.ts` asserts `topLevel` is a cap at all, which
  * is what stops that derivation from silently becoming a party the game will not let anybody build.
  *
- * Three rungs in, sitting between chapter 1's finisher (`common-plus` at its cap) and the ladder's
- * (`elite` at level 85). That is the shape a tower is meant to have: real investment, and less than
- * the campaign's own top asks for.
+ * Three rungs in, sitting between the fen's finisher (`common-plus` at its cap) and the ash
+ * chapters' (`elite` at level 85). That is the shape a tower is meant to have: real investment,
+ * and less than the campaign's own top asks for.
  */
 const CREW_RARITY = rarityIndex('rare-plus');
 const CREW_LEVEL = LEVEL_CURVE.caps[CREW_RARITY];

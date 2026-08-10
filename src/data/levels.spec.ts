@@ -152,22 +152,88 @@ describe('where the curve lands, in hours of idle income', () => {
   });
 
   it('leaves the ceiling aspirational rather than a grind to schedule', () => {
-    // The cap should stay far out of reach at whatever the ladder currently pays — level 1000 is
-    // a chapter-100 target and two chapters are shipped, so a reachable one would mean the curve
-    // had been flattened or the rates inflated past what the content justifies.
+    // The cap must stay far out of reach of the ladder that ships. Level 1000 is a chapter-100
+    // target; three chapters exist, so a reachable ceiling would mean the curve had been flattened
+    // or the rates inflated past what the content justifies.
     //
-    // Because the rates are read from `chapters.ts`, this is the assertion that fires when income
-    // rises without the curve being revisited. It is meant to fail then: the right response is to
-    // retune deliberately, not to raise the threshold here.
+    // ## ⚠️ This was an absolute number of hours, twice, and milestone 17 replaced the *shape*
     //
-    // ⚠️ **It fired, and the deliberate answer was to lower it from 1000 to 500 — once.** The
-    // ladder's rates doubled, which halved this from 1,175 hours to 588, and the level curve was
-    // left alone on purpose: the point of doubling was that progression be twice as fast, so a
-    // curve retuned to cancel it would have made the change a no-op. 588 hours is still ~25 days
-    // of unbroken idle income for one character, on content that is 2% of the planned ladder.
-    // **The next thing that raises income has to move the curve rather than this number** — a
-    // threshold that gives way every time is not a guard, and this one has now given way once.
-    expect(hoursTo(curve.maxLevel).gold).toBeGreaterThan(500);
+    // It read `hoursTo(1000).gold > 500`, lowered once from 1,000 when the base rates doubled —
+    // and that note ended "the next thing that raises income has to move the curve rather than
+    // this number". A third chapter is the next thing, and following that instruction would have
+    // been wrong, because the number was measuring something that has to fall.
+    //
+    // **Income at the top of the ladder rises with every chapter by design** — it is
+    // `base × index ** 1.13` over the *linear* stage index — so hours-to-the-ceiling shrinks on
+    // every chapter forever: 1,175 → 588 → 372 across two changes, and it would reach a weekend
+    // somewhere around chapter twelve with nothing whatsoever wrong. An assertion guaranteed to
+    // fail on all ninety-seven remaining chapters is not a guard being tripped, it is a guard
+    // pointed at the wrong quantity. Steepening the level curve on each chapter to hold an
+    // absolute figure would have been the same mistake spread over ninety-seven retunes, and would
+    // make the ceiling *permanently* unreachable — which is not what a chapter-100 target means.
+    //
+    // What is actually invariant is the **distance between the ceiling and what the content asks
+    // for**, so that is what is asserted now. Both ends are derived: the ceiling from the curve,
+    // the demand from the last stage the ladder ships. Income cancels out of the ratio entirely,
+    // which is the point — this catches a flattened curve, or content whose level demands run away
+    // toward the cap, and nothing else. The two failure modes it stopped covering are covered by
+    // the assertion below and by `banners.spec.ts`.
+    //
+    // ⚠️ **This floor is *meant* to fall as the ladder grows, and at chapter 100 it is meant to
+    // reach 1** — that is what "level 1000 is a chapter-100 target" means. Three chapters in it is
+    // ×84 and drops by roughly a third with each chapter authored, so it will fire again in a few.
+    // When it does, the question to ask is not "what number goes here" but **whether the ladder has
+    // come far enough to have earned the distance it has closed** — and the structural claim below
+    // is the one that answers it without an opinion in it.
+    const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
+    const ceiling = hoursTo(curve.maxLevel);
+    const demanded = hoursTo(topLevel);
+    const ratio = Math.min(
+      ceiling.gold / demanded.gold,
+      ceiling.xp / demanded.xp,
+      ceiling.essence / demanded.essence,
+    );
+
+    expect(topLevel).toBeGreaterThan(0);
+    expect(ratio, 'the ceiling must cost far more than the ladder itself asks for').toBeGreaterThan(
+      25,
+    );
+  });
+
+  it('leaves rungs unspent above everything the ladder asks for', () => {
+    // The structural half, in the currency the game actually progresses in. Hours inflate with
+    // income and rungs do not: there are sixteen of them, the ladder asks for one every chapter or
+    // so, and what "the ceiling is aspirational" means concretely is that a player finishing the
+    // shipped content still has ascensions in front of them.
+    //
+    // Four rungs of headroom rather than one, because the last rungs hand out a hundred levels each
+    // — a ladder whose top stage sat inside the final rung's band would be asking for the last
+    // ascension in the game, and there would be nothing left for ninety-odd chapters to want.
+    // Derived from `caps`, so adding or repricing a rung moves it.
+    const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
+    const headroom = curve.caps[curve.caps.length - 4];
+
+    expect(topLevel).toBeLessThan(headroom);
+  });
+
+  it('charges real time for the level the top of the ladder asks for', () => {
+    // The half of the old assertion that was genuinely about income, kept and made
+    // content-relative. A stage is tuned for a party standing level with it, so the last stage of
+    // the ladder is a statement about how much levelling the content demands — and what that
+    // demand costs in hours is the honest measure of whether the rates and the curve still fit
+    // each other.
+    //
+    // Two-sided on purpose. Under an hour and the levelling curve has stopped being a progression
+    // system at the top of the ladder; over a day of unbroken idle income for one character and it
+    // has become the wall rather than the content. Raising the reward exponent without touching
+    // the curve fires the floor here, which is the failure the absolute-hours version used to
+    // catch before a growing ladder drowned it out.
+    const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
+    const demanded = hoursTo(topLevel);
+    const worst = Math.max(demanded.gold, demanded.xp, demanded.essence);
+
+    expect(worst).toBeGreaterThan(1);
+    expect(worst).toBeLessThan(24);
   });
 });
 

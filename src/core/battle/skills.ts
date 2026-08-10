@@ -1,5 +1,6 @@
 import { num, type Numeric, ZERO } from '../numeric';
 import { isCharged } from './energy';
+import { isTaunting } from './status';
 import {
   type ActiveStatus,
   type Combatant,
@@ -30,6 +31,19 @@ import {
  * The bypasses are what a sniper, a ranger or a mage is bought for. They are authored on
  * individual skills rather than granted by a stat, so reaching the back line is a decision
  * about which character to field rather than a number to accumulate.
+ *
+ * ## A taunt is the one thing that overrides the gate
+ *
+ * ⚠️ **`taunt` narrows the candidate pool before the row rule is consulted at all**, which makes it
+ * the only mechanic in the game that can take a back-rank bypass away. That is precisely what it is
+ * for: reach has been the answer to a protected healer since milestone 4, and an encounter that
+ * wants to ask for something else has to be able to close that door. It stays answerable because
+ * the door is only ever closed on **single-target** selections — `enemy-row-front`,
+ * `enemy-row-back` and `enemy-all` ignore a taunt entirely, so a party is never left with no way
+ * through, which is the failure milestone 4 rejected role-locked slots for.
+ *
+ * It also never empties a selection, so no skill becomes ineligible for want of a target — it
+ * changes which opponent is chosen, never whether one exists.
  */
 
 /**
@@ -65,6 +79,20 @@ function hostileCount(fighter: FighterView): number {
 /** Remaining HP as a fraction of maximum. `maxHp` is at least 1 once content is parsed. */
 function hpFraction(fighter: FighterView): Numeric {
   return fighter.hp.div(fighter.maxHp);
+}
+
+/**
+ * The living opposition, narrowed to whoever is taunting when anybody is.
+ *
+ * Every single-target enemy selection goes through this and every multi-target one deliberately
+ * does not — see the header. Narrowing rather than returning the taunter outright is what keeps
+ * each selection's own rule intact: `enemy-highest` against two taunters still picks the larger of
+ * the two, rather than a taunt quietly replacing the question the skill was asking.
+ */
+function singleTargetPool<T extends FighterView>(actor: T, fighters: readonly T[]): T[] {
+  const opponents = livingOpponents(actor, fighters);
+  const taunting = opponents.filter((fighter) => isTaunting(fighter.statuses));
+  return taunting.length > 0 ? taunting : opponents;
 }
 
 function livingOpponents<T extends FighterView>(actor: T, fighters: readonly T[]): T[] {
@@ -113,7 +141,7 @@ export function selectTargets<T extends FighterView>(
     case 'enemy-front':
     case 'enemy-back': {
       const preferred: Row = target === 'enemy-front' ? 'front' : 'back';
-      const opponents = livingOpponents(actor, fighters);
+      const opponents = singleTargetPool(actor, fighters);
       const gated = opponents.filter((fighter) => fighter.row === preferred);
       // Falling through rather than returning nothing: an ordinary attack has to stay usable
       // once a row is cleared, or a party would stand there swinging at an empty rank.
@@ -122,10 +150,10 @@ export function selectTargets<T extends FighterView>(
     }
 
     case 'enemy-lowest':
-      return pick(livingOpponents(actor, fighters), (candidate, best) => candidate.hp.lt(best.hp));
+      return pick(singleTargetPool(actor, fighters), (candidate, best) => candidate.hp.lt(best.hp));
 
     case 'enemy-highest':
-      return pick(livingOpponents(actor, fighters), (candidate, best) => candidate.hp.gt(best.hp));
+      return pick(singleTargetPool(actor, fighters), (candidate, best) => candidate.hp.gt(best.hp));
 
     case 'enemy-row-front':
       return livingOpponents(actor, fighters).filter((fighter) => fighter.row === 'front');
