@@ -554,8 +554,8 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](../../src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    Fifty-eight ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
-    and Demons to ten, because a chapter leaning on a faction needs depth in it. The old note here
+    Sixty-two ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
+    and Demons to twelve, because a chapter leaning on a faction needs depth in it. The old note here
     recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that,
     and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the
     ones the campaign already fields** rather than by an opinion — the Unmade is the ceiling and
