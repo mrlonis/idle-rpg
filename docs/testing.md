@@ -185,6 +185,25 @@ Three ways out, and which one applies is worth thinking about rather than guessi
 ⚠️ **What is not on that list is widening the band.** Every one of these had already been widened at
 least once, and each widening bought exactly one chapter and hid the diagnosis for another milestone.
 
+#### ⚠️ A rotting ratio can be the content's problem rather than the guard's, and chapter 7 is the case
+
+Every example above is a guard pointed at a quantity the roadmap requires to move. **The reverse
+happens too**, and it is much easier to mistake for the first kind because it presents identically —
+a number that has drifted for three chapters and finally crosses a line.
+
+`chapters.balance.ts` holds that the top of the ladder still **costs the reference party something**.
+Party power ÷ the difficulty probe's threshold at each chapter's final read 1.08, 1.44 and then 2.08,
+and at 2.08 the party finished the chapter boss with all five alive. That looks exactly like a ratio
+rotting by construction — and it was, but the rot was in the **level line**, not in the assertion.
+Each chapter hands the party a fresh ascension rung (×1.6) on top of the levels it climbs while the
+content climbs only the levels, so the fixed +25-level margin the roadmap specified was paid once and
+never again.
+
+**How to tell the two apart: ask what the assertion would have to become.** Widening this one means
+saying the ladder's top may be a walkover, which is not a claim anybody would write down on purpose.
+When the honest restatement of a guard is something you would refuse to author, the content is what
+moved. See [milestones](milestones.md) for the corrected margins.
+
 ---
 
 ## Derive, never retype
@@ -289,6 +308,28 @@ question calls for, and never cite the reach figure as evidence a mechanic is sm
 
 **The corollary is a content fact rather than a testing one:** a mechanic gated far beyond the
 authored ladder has nothing to be swept against, and no sweep over shipped stages can ever bound it.
+
+### ⚠️ A fifth trap, from chapter 7: what a board asks and what it weighs are different numbers
+
+The difficulty probe bisects for the **power multiplier** at which the reference five clear a stage.
+That is the right unit for a difficulty curve and it is blind to everything a board is actually
+_about_. Milestone 21a hit it twice in one chapter and the second one is the instructive one.
+
+- **`c7-s21` was authored deliberately heavy** — five bodies with a legendary front rank, written
+  that way _because_ the Sundered Vault had recorded the band-opener trap one chapter earlier — and
+  it still measured a step backwards, 212 after 313. The board's question is thorns on **fodder**,
+  which is expensive to answer and cheap to kill: a Cairnward Husk charges a quarter of what reaches
+  it and then dies. Knowing about the trap did not help, because the fix the earlier lesson names
+  ("fix it with weight, not levels") assumes the author can tell weight from difficulty by looking.
+  **They cannot.** Run the probe over a chapter's samples before believing its spine escalates.
+- **A boss that taunts measured _easier_ than one that does not.** The first Cairn King wore the
+  chapter's own lock — a taunt on a thorned body — and it made the fight worse for the boss: a taunt
+  aims every attack at the body the party was going to focus anyway, and the turn spent applying it
+  deals nothing. 738 against the previous stage's 878, on a chapter _final_. A mechanic that is a
+  lock when a wall wears it can be a **discount** when the thing behind the wall wears it.
+
+The general rule: **a board's question and a board's weight are independent, and only one of them is
+measured.** Author for the question, then check the weight, and expect them to disagree.
 
 ### Scope a timeout guard to fights the party wins
 

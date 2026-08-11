@@ -449,6 +449,31 @@ const MARCHED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 7: the five that just took The Hollow Seraph, unchanged.
+ *
+ * ⚠️ **This is the Sundered Vault's {@link INVESTED}, kept under a new name rather than re-derived**
+ * — the third time that has happened and the third time for the same reason. Re-pointing a single
+ * "arrived" party at each new chapter would silently stop checking that the chapter below is still
+ * finishable by the party it was tuned for, and two named parties per seam is what makes "clears
+ * the chapter behind it, and walks only a little way into the one ahead" checkable at both
+ * boundaries at once.
+ *
+ * Both numbers are derived from where chapter 6 ends, so a retune of that chapter re-aims this.
+ * `legendary` is the rung it carries and its cap of 200 is **below** chapter 6's closing level of
+ * 225 — which is the difficulty statement every chapter since the Bound Marches ships: a chapter
+ * that asks for a rung has to climb past the cap that rung buys.
+ */
+const VAULTED_RARITY = LEGENDARY;
+const VAULTED_LEVEL = Math.min(stages[CHAPTER_ENDS[5] - 1].level, LEVEL_CURVE.caps[VAULTED_RARITY]);
+
+const VAULTED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(VAULTED_LEVEL, VAULTED_RARITY),
+  VAULTED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -463,26 +488,27 @@ const MARCHED: FormationData = mono(
  *
  * ⚠️ **The rung moves with the ladder, and it has to.** `elite` caps at 100 and the Bound Marches
  * close at 160, so milestone 17 took this to `elite-plus`; `elite-plus` caps at 140 and the Sundered
- * Vault closes at 225, so milestone 18 takes it to `legendary`. In both cases `legal` would have
- * thrown rather than quietly fielding an under-levelled party, which is exactly what that guard is
- * for. **A rung roughly every fifty stages** is the cadence — it read "one per chapter" until the
- * re-cut multiplied the boundaries without moving the rung asks — and what this rung costs a
- * player over the Bound Marches party is eight more duplicate copies of each of the five: 32
- * against 24.
+ * Vault closes at 225, so milestone 18 took it to `legendary`; `legendary` caps at 200 and the
+ * Waking Barrows close at 285, so milestone 21a takes it to `legendary-plus`. In every case `legal`
+ * would have thrown rather than quietly fielding an under-levelled party, which is exactly what that
+ * guard is for. **A rung roughly every fifty stages** is the cadence — it read "one per chapter"
+ * until the re-cut multiplied the boundaries without moving the rung asks — and what this rung costs
+ * a player over the Sundered Vault party is six more duplicate copies of each of the five: 38
+ * against 32.
  *
  * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and every chapter
- * from 3 on has those differ.** `legendary` caps at 200 against a top stage of 225, so this party
- * finishes the ladder **twenty-five levels below the thing it is fighting** — the chapter's
- * difficulty statement rather than an accident. A rung is worth ×1.6 and the enemy side has no
- * rungs, so a chapter that asks for an ascension has to climb past the cap that ascension buys or it
- * hands the party a ×1.6 nobody paid for. The clamp is `Math.min` rather than a written number so a
- * retune of either side moves it.
+ * from 3 on has those differ.** `legendary-plus` caps at 260 against a top stage of 285, so this
+ * party finishes the ladder **twenty-five levels below the thing it is fighting** — the chapter's
+ * difficulty statement rather than an accident, and the same margin milestone 21 fixes for all four
+ * of its chapters. A rung is worth ×1.6 and the enemy side has no rungs, so a chapter that asks for
+ * an ascension has to climb past the cap that ascension buys or it hands the party a ×1.6 nobody
+ * paid for. The clamp is `Math.min` rather than a written number so a retune of either side moves it.
  *
- * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, now 200 again at the
- * rung it started at.** Every one of those moves was the same move — the party is defined by where
- * the content is, never by a number.
+ * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, then 200 again at the
+ * rung it started at, now 260 one rung above.** Every one of those moves was the same move — the
+ * party is defined by where the content is, never by a number.
  */
-const INVESTED_RARITY = LEGENDARY;
+const INVESTED_RARITY = rarityIndex('legendary-plus');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -587,6 +613,11 @@ const marchedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(MARCHED, stage),
 }));
+const vaultedSweeps = stages.map((stage) => ({
+  label: 'vaulted',
+  stage,
+  ...sweep(VAULTED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -623,6 +654,7 @@ const everySweep = [
   ...builtSweeps,
   ...arrivedSweeps,
   ...marchedSweeps,
+  ...vaultedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -651,6 +683,9 @@ const ASHFALL_END = CHAPTER_ENDS[3];
 
 /** The end of chapter 5 — the Bound Marches — where the Sundered Vault asks for the one after. */
 const MARCHES_END = CHAPTER_ENDS[4];
+
+/** The end of chapter 6 — the Sundered Vault — where the Waking Barrows ask for the one after. */
+const VAULT_END = CHAPTER_ENDS[5];
 
 describe('ladder balance', () => {
   it('never runs the clock out on a fight either party is meant to have', () => {
@@ -778,6 +813,38 @@ describe('ladder balance', () => {
     // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
     const walked = marchedSweeps
       .slice(MARCHES_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * 0.2);
+  });
+
+  it('lets the party that finished chapter 6 clear chapters 1 through 6', () => {
+    // The Barrows seam, measured the same way as the two above it. This party is literally the
+    // Sundered Vault's `INVESTED` under a new name, so this assertion is the old "clearable end to
+    // end" claim kept alive after the ladder grew past it — the third time that has been needed and
+    // the third time the alternative would have been to stop checking the chapter below.
+    const unreliable = vaultedSweeps
+      .slice(0, VAULT_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk the Waking Barrows as well', () => {
+    // ⚠️ **The assertion the Waking Barrows exist to satisfy.** The Barrows climb 225 to 285 — about
+    // one and a fifth levels a stage, the flattest cadence since the fen — so a party arriving at
+    // the `legendary` cap of 200 is behind on numbers from the first stage but never by very much.
+    // What is meant to stop it is that every board here has an opinion about *how* its damage
+    // arrives: a thorned wall it is forced onto, a fuse planted on the member it never cleanses, a
+    // field where going wide is answered once per body reached, and a link that spreads the focus
+    // fire six chapters have rewarded.
+    //
+    // A ceiling on momentum rather than a wall at the boundary, exactly as the three below it are,
+    // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
+    const walked = vaultedSweeps
+      .slice(VAULT_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

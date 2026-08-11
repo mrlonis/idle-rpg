@@ -70,7 +70,8 @@ lump = 40 seconds of that rate
 crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
 
-Across the two hundred stages of chapters 1 to 4:
+Across the first two hundred stages, chapters 1 to 6 (chapter 7 continues the same curve to stage
+250, where a stage pays 512.5 gold a second):
 
 | Stage | gold/s | xp/s  | essence/s | enemy level |
 | ----- | ------ | ----- | --------- | ----------- |

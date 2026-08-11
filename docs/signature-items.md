@@ -214,11 +214,10 @@ small.
 
 ### ⚠️ Why the probe re-levels its own encounter
 
-`mythic` caps at level **340**. The hardest authored stage is the chapter 6 boss at level **225**. A
-party at the unlock rung is half again past the top of the ladder, so **no shipped stage can measure
-a signature item** — the first two versions of this probe reported a gain of exactly zero on all
-seven characters, once because everything was a 100% walkover and once because everything was a 0%
-wipe.
+`mythic` caps at level **340**. The hardest authored stage is the chapter 7 boss at level **305**. A
+party at the unlock rung is past the top of the ladder, so **no shipped stage can measure a signature
+item** — the first two versions of this probe reported a gain of exactly zero on all seven
+characters, once because everything was a 100% walkover and once because everything was a 0% wipe.
 
 So the probe takes the hardest authored line-up and fields it at the party's own level, which is the
 same move `core/towers.ts` makes: `data/` authors who stands there, and the level is derived. Both
@@ -226,11 +225,18 @@ sides then sit on the same growth curve, which `simulate.spec.ts` proves is an i
 
 The consequence worth carrying: **a signature item still has no authored content to matter in.**
 
-⚠️ **Chapter 3 was the named trigger and it did not close this.** The Bound Marches top out at enemy
-level **160** against a `mythic` cap of **340**, so the gap went from ×4 to ×2 and the probe still
-has to re-level its encounter. What would close it is a chapter reaching the low three hundreds —
-roughly chapter 8 at the re-cut's fifty-stage cadence — or a tower band that does. Do not treat "the next
-chapter" as the trigger again without checking the number.
+⚠️ **Three chapters have now been the named trigger and none of them closed it.** The Bound Marches
+top out at **160** against a `mythic` cap of 340 (×2.1), the Sundered Vault at **225** (×1.5), and
+the Waking Barrows at **305** (×1.11) — narrowing by less each time, because the level band flattens
+as content lengthens, and then narrowing sharply once milestone 21a corrected the margin rule and the
+chapter closed at 305 rather than the briefed 285. It is still a walkover and the probe still
+re-levels its encounter.
+
+Chapter 8 is the next named trigger and it closes at ~**411** under the corrected margins, which is
+comfortably past 340. ⚠️ **Check the number rather than trusting the name a fourth time** — and note
+that a reach figure measured against a real stage is **not comparable** to the fourteen recorded in
+milestone 20, which were measured against a re-levelled `c6-s50`. Re-measure the whole table or none
+of it.
 
 ### The sweep's timeout guard counts victories only
 

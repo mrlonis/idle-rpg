@@ -3227,6 +3227,114 @@ export const THE_SEAL_BREAKS = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Waking Barrows — milestone 21a
+//
+// ⚠️ **Three turns, no new status, and no new mechanic.** Milestone 21 licenses up to three new
+// statuses across its four chapters and states that the budget is a ceiling rather than a quota —
+// so this chapter, which is the first of the four, spends none of it. Everything below is either a
+// piece of the vocabulary aimed somewhere it has never been aimed, or two known parts on one body.
+//
+// | Skill              | The part that is new                                    |
+// | ------------------ | ------------------------------------------------------- |
+// | Barrow Tithe       | a bomb on `enemy-highest` — the fuse lands on the wall   |
+// | The Barrow Forgets | the first `ally-afflicted` turn on the enemy side        |
+// | Wake the Bone      | {@link THORNMAIL} applied by a skill rather than authored as an `opening` |
+//
+// The chapter's other two questions are **board pairs** and need no skill at all: a taunt worn by a
+// thorned body ({@link CAIRNBOUND_SENTINEL}), and a taunt standing in front of a linked board
+// ({@link CAIRNBOUND_SENTINEL} beside {@link BONECHAIN_WARDEN}). Both are built entirely out of
+// {@link DRAW_THE_OATH}, {@link BIND_THE_CONCORD} and statuses that already ship.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The barrow takes its due from the largest thing standing.
+ *
+ * ⚠️ **A bomb aimed at `enemy-highest`, which is where no payload in the game has ever been
+ * planted.** {@link EMBERSEED} seeds the back rank and {@link DOOMKNELL} brands everybody, and both
+ * are aimed at bodies a party already expects to lose — so a cleanse spent on either is a cleanse
+ * spent where it was always going to go. This lands on the one body a party never watches, because
+ * the whole reason it is there is that it survives things.
+ *
+ * The consequence is a decision rather than a hit: the brand prices off **the applier's** attack,
+ * not the target's health, so a wall is no safer carrying one than a carry is — and answering it
+ * means pointing a cleanse at the member who looks least at risk, on the turn it was wanted
+ * somewhere else.
+ *
+ * {@link DOOMBRAND} rather than {@link EMBER_SEED} on purpose: the fifty-tick fuse is the longest
+ * in the library, which is what gives the party time to notice and still get the decision wrong.
+ */
+export const BARROW_TITHE = {
+  id: 'barrow-tithe',
+  name: 'Barrow Tithe',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: DOOMBRAND, chance: 0.9 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever was done to the dead, the barrow does not keep.
+ *
+ * ⚠️ **The first enemy turn to use `ally-afflicted`**, which has been in `core/battle/types.ts`
+ * since milestone 4 and spent entirely on the player's side. It is not {@link ANTIPHON} at a
+ * smaller size: a board-wide cleanse takes two statuses off everybody and is answered by having
+ * more of them, while this takes **three off the one body carrying the most** — so the party's
+ * habit of stacking a Sunder, a Weaken and a Slow onto the thing it wants dead is the exact
+ * behaviour it punishes, and spreading the same debuffs thinly is what it cannot answer.
+ *
+ * The condition is what keeps it honest. Without it the Keeper would burn its turn cleansing a
+ * board with nothing on it; with it, the cast only ever happens because the party spent turns
+ * setting up.
+ *
+ * ⚠️ **A cleanse and not a heal, which is why it may stand behind a taunt.** Removing a status puts
+ * no health back, so nothing here can outrun the ninety-second clock — the failure a healer behind
+ * a wall produces and that `docs/combat.md` scores as a defeat.
+ */
+export const THE_BARROW_FORGETS = {
+  id: 'the-barrow-forgets',
+  name: 'The Barrow Forgets',
+  target: 'ally-afflicted',
+  effects: [{ kind: 'cleanse', count: 3 }],
+  cooldown: 50,
+  condition: { kind: 'ally-afflicted' },
+  priority: 3,
+} as const;
+
+/**
+ * The bone remembers being armour.
+ *
+ * {@link THORNMAIL} has only ever been an `opening` — a thing that is simply true of a stat block
+ * from the first tick. Spending a **turn** on it is what makes it a question: the board the party
+ * has been cutting through freely becomes a board that charges for the swing, part way into a fight
+ * it had already worked out how to have.
+ *
+ * ⚠️ **Permanent, board-wide, and safe to be both** — for the reason {@link THORNMAIL} itself
+ * argues. A reflect can only ever *shorten* a fight: it is strictly extra damage on a schedule the
+ * party controls, it resolves through `statusDamage` and so cannot cascade, and it puts nothing
+ * back. There is no version of this that runs the clock out, which is exactly what a defensive
+ * board-wide buff of any other kind would risk.
+ *
+ * A ninety-tick cooldown against a permanent status, which means it is cast once and then almost
+ * never again. That is deliberate: what it costs its own side is the opening turn, and a Gravewright
+ * that spent every third turn re-applying a status already up would be a body that never kills
+ * anybody.
+ */
+export const WAKE_THE_BONE = {
+  id: 'wake-the-bone',
+  name: 'Wake the Bone',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: THORNMAIL }],
+  cooldown: 90,
+  // Above everything else its two carriers hold, so the board is thorned on the opening turn rather
+  // than part way through. `toSkill` sorts by descending priority with a stable sort, so this is
+  // the one clause that decides whether the chapter's third band happens at all on a mini-boss.
+  priority: 5,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -3434,4 +3542,7 @@ export const SKILLS = [
   RIFTFALL,
   BROKEN_COVENANT,
   THE_SEAL_BREAKS,
+  BARROW_TITHE,
+  THE_BARROW_FORGETS,
+  WAKE_THE_BONE,
 ] as const;

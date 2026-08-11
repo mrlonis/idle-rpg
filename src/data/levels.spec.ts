@@ -185,6 +185,19 @@ describe('where the curve lands, in hours of idle income', () => {
     // When it does, the question to ask is not "what number goes here" but **whether the ladder has
     // come far enough to have earned the distance it has closed** — and the structural claim below
     // is the one that answers it without an opinion in it.
+    //
+    // ## It fired at chapter 7, and the number below is milestone 21's landing rather than 21a's
+    //
+    // Measured across the four chapters that milestone ships: **37.1** at chapter 6, 20.9 at 7,
+    // 11.5 at 8, 7.1 at 9 and **4.8** at 10. The floor was 25 and it is now 4 — four chapters'
+    // worth of fall taken in one edit, because the whole push is one decision and re-deriving this
+    // per chapter would be four edits of a quantity that is *supposed* to fall.
+    //
+    // ⚠️ **The cost of doing it that way is that this stops watching anything until chapter 10**,
+    // and the margin when it arrives there is thin: 4.76 against a floor of 4 is nineteen percent,
+    // not the comfortable distance the earlier re-derivations left. The structural claim below is
+    // load-bearing for that whole stretch, and it is the one to read if a chapter's level line
+    // looks like it has run away.
     const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
     const ceiling = hoursTo(curve.maxLevel);
     const demanded = hoursTo(topLevel);
@@ -196,7 +209,7 @@ describe('where the curve lands, in hours of idle income', () => {
 
     expect(topLevel).toBeGreaterThan(0);
     expect(ratio, 'the ceiling must cost far more than the ladder itself asks for').toBeGreaterThan(
-      25,
+      4,
     );
   });
 

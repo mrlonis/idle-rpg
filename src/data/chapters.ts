@@ -4,6 +4,7 @@ import { CHAPTER_3 } from './chapter-3';
 import { CHAPTER_4 } from './chapter-4';
 import { CHAPTER_5 } from './chapter-5';
 import { CHAPTER_6 } from './chapter-6';
+import { CHAPTER_7 } from './chapter-7';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -175,16 +176,17 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Six of them — 10, 20, 30, 40, 50 and 50 stages, the same two hundred stages the four-chapter
- * ladder carried, re-cut in milestone 19 so the boundaries land where a session does.
+ * Seven of them — 10, 20, 30, 40, 50, 50 and 50 stages. The first six are the two hundred the
+ * four-chapter ladder carried, re-cut in milestone 19 so the boundaries land where a session does;
+ * the seventh is milestone 21a, the first of the four chapters that push the ladder to 400.
  * [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the length {@link CHAPTER_CURVE}
  * says it should be, so a chapter authored at forty-nine stages is a failing test rather than a
  * boss that quietly lands on the wrong square.
  *
  * ⚠️ **Every chapter ends on a boss fielded nowhere else, and the re-cut made that a rule.** The
  * Fenlord, the Pale Warden, the First Cinder and the Ashfall Sovereign were authored for it;
- * the Chainsworn and the Hollow Seraph already observed it. A re-cut that moves a boundary owes
- * the new final a unique body before it ships.
+ * the Chainsworn and the Hollow Seraph already observed it, and The Cairn King is the seventh. A
+ * re-cut that moves a boundary owes the new final a unique body before it ships.
  *
  * ⚠️ **Adding one is an economy change as much as a content one.** Three guards are functions of
  * how long the ladder is — the idle crystal rate in `banners.spec.ts`, everything a clear pays in
@@ -200,4 +202,12 @@ export const STAGE_REWARDS = {
  * re-derived rather than widened, the same move milestone 17 made on the level ceiling's
  * cost-in-hours. See [milestones](../../docs/milestones.md).
  */
-export const CHAPTERS = [CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4, CHAPTER_5, CHAPTER_6] as const;
+export const CHAPTERS = [
+  CHAPTER_1,
+  CHAPTER_2,
+  CHAPTER_3,
+  CHAPTER_4,
+  CHAPTER_5,
+  CHAPTER_6,
+  CHAPTER_7,
+] as const;

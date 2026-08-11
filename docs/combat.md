@@ -443,12 +443,19 @@ is when the quantity is fixed anyway:
 chapter file because they are engine vocabulary. All four ride the existing `status` effect: no new
 effect kinds, and the simulation's damage path grew one shared helper rather than four.
 
-⚠️ **These are still the last additions, and the Sundered Vault is the evidence rather than a restatement of
-the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five skills without
-touching `core/battle` at all, building instead from **pairs** of existing parts and from the
-matchup matrix leaned on hard enough to be a standing tax. That well is real and it is finite; the
-next chapter that cannot find an unspent pair has to make the case for growing this vocabulary on
-its own merits.
+⚠️ **These are still the last additions, and two chapters are now the evidence rather than a
+restatement of the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five
+skills without touching `core/battle` at all, building instead from **pairs** of existing parts and
+from the matchup matrix leaned on hard enough to be a standing tax. The Waking Barrows did it again
+with ten archetypes and three skills, under a milestone that explicitly licensed up to three new
+statuses and did not need one — four unspent pairs were still there for the taking, including thorns
+on **fodder**, which inverts the answer two hundred stages had taught by making a row attack the
+expensive reply to a crowded board.
+
+That well is real and it is finite; the next chapter that cannot find an unspent pair has to make the
+case for growing this vocabulary on its own merits. ⚠️ **"Two chapters managed without" is not that
+case in reverse either** — a later chapter is not forbidden a status because these two came in under
+budget.
 
 **`taunt`** is above, under targeting.
 

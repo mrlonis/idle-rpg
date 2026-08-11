@@ -263,8 +263,19 @@ Among what is unlocked, the odds still tilt with depth: a grade's authored weigh
 ⚠️ **`gradeSoftness` is a rate _per stage_, so the ladder's length is the other half of every number
 it produces — and milestone 18's chapter made that visible.** At 90 the top grade was 14.8% of
 end-of-ladder drops over a hundred and fifty stages and **21.3%** over two hundred, past the `< 0.2`
-bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It is **100**
-now: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
+bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It went to
+**100**: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
+
+Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — and it is
+**125** now, which restores 18.7% over the ladder that actually ships. Same move, longer ladder.
+
+⚠️ **Two re-derivations is enough to say the shape rather than the number is what is wrong.** A tilt
+linear in the stage index has no ceiling, so the top grade's share climbs without bound and no
+constant is right for more than one chapter: at 125 it reads 22.3%, 26.7% and 30.8% at chapters 8, 9
+and 10, which are the three chapters milestone 21 has left to ship. What this eventually wants is a
+tilt that **saturates** — a share that approaches a ceiling instead of passing through it — and the
+thing to stop doing is picking a fifth constant. It is recorded rather than fixed because milestone
+21 forbids taking `core/` scope; see [milestones](milestones.md).
 
 This is the one guard milestone 18 tripped where the content genuinely had outgrown the threshold, and
 it is worth contrasting with the three it tripped that had not — see

@@ -1,5 +1,6 @@
 import {
   ANTIPHON,
+  BARROW_TITHE,
   BIND_THE_CONCORD,
   BROKEN_COVENANT,
   BULWARK,
@@ -30,9 +31,11 @@ import {
   SHIELD_BASH,
   SHRIKE_DIVE,
   STONE_FIST,
+  THE_BARROW_FORGETS,
   THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
+  WAKE_THE_BONE,
   WARD_THE_SEAL,
   WILDING_BLOOM,
   WITHERHEX,
@@ -1829,6 +1832,364 @@ export const ASHFALL_SOVEREIGN = {
   skills: [WRATH_UNBOUND, HEADSMANS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Waking Barrows — milestone 21a
+//
+// ## Ten blocks, all Undead, and the count is the milestone's rather than this chapter's
+//
+// Milestone 21 fixes the lean of each of its four chapters up front, so that the four sessions
+// touch **non-overlapping slices** of this file and so that the four thinnest factions are the ones
+// that get deeper. Undead was on seven — the joint-thinnest with Elves — and these take it to
+// seventeen. Eight of them are ordinary blocks, and the other two are the shapes this milestone
+// added to what a chapter owes:
+//
+// - **{@link THE_CAIRN_KING}, the chapter boss**, standing on `c7-s50` and nowhere else. That has
+//   been the rule since the re-cut and this is the seventh body authored under it.
+// - **{@link THE_GRAVEWRIGHT}, the chapter *lieutenant*** — new in milestone 21. One heavy block
+//   anchors all four mini-boss boards at rising levels, which is what gives a chapter a recurring
+//   antagonist instead of four one-shot stat blocks. Deliberately **not** four unique bodies:
+//   twenty blocks each appearing on exactly one board is most of what `enemies.spec.ts`'s orphan
+//   rule exists to discourage.
+//
+// ## What the chapter asks, in five bands
+//
+// ⚠️ **No new status, and the budget was not spent.** Milestone 21 allows up to three across its
+// four chapters and states plainly that a chapter coming in under the ceiling is the better
+// outcome. All five locks below are built out of vocabulary that already ships.
+//
+// | Band | The lock                                             | Built from                        |
+// | ---- | ---------------------------------------------------- | --------------------------------- |
+// | 1    | the wall you must hit answers every swing            | a taunt on a thorned body         |
+// | 2    | the fuse lands on the body you never cleanse         | {@link BARROW_TITHE}              |
+// | 3    | going wide is answered once per body you reach       | thorns on the fodder              |
+// | 4    | the wall you must hit spreads your damage sideways    | a taunt in front of a linked board |
+// | 5    | all four, and the thing the barrows are for          | {@link THE_CAIRN_KING}            |
+//
+// **Band 3 is the one worth reading twice, because it inverts an answer the ladder has spent two
+// hundred stages teaching.** A row attack into three thorned bodies is answered three times — see
+// the note in `docs/combat.md` about an actor now being able to die inside its own action — so the
+// habitual reply to a crowded board is the expensive one here, and single-target focus is the cheap
+// one. That is a real question with a real answer and it needed nothing new to ask.
+//
+// ## Scale
+//
+// Sized inside the Sundered Vault's band rather than above it, and both `ascended` blocks sit
+// **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes chapter 7
+// harder than chapter 6 is the level its stages are fielded at and the questions above — not bigger
+// blocks, which is the distinction milestone 10 bought and every chapter since has kept.
+// ---------------------------------------------------------------------------------------
+
+/** What the barrows give up first: slow, heavy, and still wearing most of its armour. */
+export const GRAVEWAKE_THRALL = {
+  id: 'gravewake-thrall',
+  name: 'Gravewake Thrall',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 800,
+    atk: 50,
+    def: 24,
+    haste: 74,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/** The noise the barrow-mist makes. Fast, fragile, and it reaches past the front rank. */
+export const BARROWMIST_KEENER = {
+  id: 'barrowmist-keener',
+  name: 'Barrowmist Keener',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 48,
+    def: 12,
+    haste: 112,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/** What was buried with the barrow's owner to keep it company. Quick, and it goes for the back. */
+export const SEPULCHRE_HOUND = {
+  id: 'sepulchre-hound',
+  name: 'Sepulchre Hound',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 52,
+    def: 14,
+    haste: 124,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.14,
+    lifeLeech: 0.1,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * A cairn that stood up, and the cheapest body in the game that costs something to clear.
+ *
+ * ⚠️ **Thorns on a `common`, which is the whole of band 3.** Every reflect the ladder has fielded
+ * so far has been worn by something the party was already treating carefully — The Chainsworn, and
+ * this chapter's own Sentinel. On fodder it says something different: a row attack into three of
+ * these is answered **three times**, so the reply a crowded board has always wanted is the one that
+ * costs most here.
+ *
+ * Nothing about it is otherwise remarkable, and that is deliberate — the question is what it costs
+ * to remove, not what it does while it stands.
+ */
+export const CAIRNWARD_HUSK = {
+  id: 'cairnward-husk',
+  name: 'Cairnward Husk',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 760,
+    atk: 46,
+    def: 30,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    physicalResist: 0.1,
+  },
+  opening: [THORNMAIL],
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The barrow's door, and it is made of the same bone as the walls.
+ *
+ * **A taunt worn by a thorned body — two known parts, never before on one.** An Oathshield Vanguard
+ * says "hit me and nothing else"; a Chainsworn says "hitting me costs". Together they say the thing
+ * neither says alone: *the only target you are allowed is the one that charges you for taking it*.
+ *
+ * ⚠️ **Answerable in three ways, which is what makes it a lock rather than a tax.** The taunt runs
+ * 45 ticks against {@link DRAW_THE_OATH}'s 60, so there is a window at whatever stands behind it; a
+ * multi-target selection ignores the taunt entirely; and the thorns are a flat share, so burst pays
+ * the same toll as chip and gets there first. What it punishes is exactly one habit — grinding a
+ * wall down with single-target chip — and that habit has been correct for six chapters.
+ *
+ * Little offence of its own, like the Vanguard and the Custodian it is descended from: what it
+ * costs the party is turns and health it chose to spend.
+ */
+export const CAIRNBOUND_SENTINEL = {
+  id: 'cairnbound-sentinel',
+  name: 'Cairnbound Sentinel',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 58,
+    def: 46,
+    recovery: 5,
+    haste: 70,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.35,
+    physicalResist: 0.08,
+    magicResist: 0.06,
+  },
+  opening: [THORNMAIL],
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * It counts the party and takes the largest.
+ *
+ * {@link BARROW_TITHE} is the chapter's band-2 lock and the argument is on the skill: a delayed
+ * payload aimed at `enemy-highest` lands on the one member a party never points a cleanse at,
+ * because the reason that member is there is that it survives things. Fragile in the way every lock
+ * on this ladder is fragile — the answer is to kill it, and an answer nobody can reach is not one.
+ */
+export const GRAVETIDE_HERALD = {
+  id: 'gravetide-herald',
+  name: 'Gravetide Herald',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 70,
+    def: 24,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    insight: 0.16,
+    magicPierce: 0.15,
+    physicalResist: 0.04,
+  },
+  skills: [BARROW_TITHE, WITHERING_TOUCH],
+} as const;
+
+/**
+ * Bone chained to bone, so that no part of the barrow can be taken out of it alone.
+ *
+ * The link itself is chapter 5's and this does not restate it. What band 4 does is stand this
+ * **behind {@link CAIRNBOUND_SENTINEL}**, and that pairing is new: the taunt says the party may only
+ * hit the wall, and the link says two fifths of every blow on the wall is spread across everything
+ * else still standing. The party is aimed at one body and cannot concentrate on it.
+ *
+ * ⚠️ **It resolves, and the reason is that a link conserves damage.** Nothing is multiplied and
+ * nothing is refunded — the board's total health falls at exactly the rate it always did, just
+ * evenly. So this costs the party its *route* (remove one threat, then the next) rather than its
+ * progress, which is the difference between a lock and a clock.
+ *
+ * ⚠️ **It deliberately does not taunt.** Two taunters on one board leave the door shut about
+ * ninety-four percent of the time, which is a single-target party locked out of the back rank for
+ * a whole fight rather than given a window — the failure `data/skills.spec.ts` enforces the duty
+ * cycle to prevent. The chapter fields at most one taunt source per board.
+ */
+export const BONECHAIN_WARDEN = {
+  id: 'bonechain-warden',
+  name: 'Bonechain Warden',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 960,
+    atk: 60,
+    def: 34,
+    haste: 80,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.06,
+  },
+  skills: [BIND_THE_CONCORD, MIRE],
+} as const;
+
+/**
+ * It does not mourn and it does not remember, which is the same thing said about the party's setup.
+ *
+ * {@link THE_BARROW_FORGETS} is the first `ally-afflicted` turn on the enemy side, and it is not a
+ * smaller {@link ANTIPHON}: a board-wide cleanse is answered by having more debuffs than it can
+ * take, and this is answered by having them in more places. Three statuses off whichever body
+ * carries the most is precisely the punishment for the habit every wall on this ladder has taught —
+ * open the big one with a Sunder, a Weaken and a Slow, then commit.
+ */
+export const GRAVEMOURN_KEEPER = {
+  id: 'gravemourn-keeper',
+  name: 'Gravemourn Keeper',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 58,
+    def: 22,
+    haste: 96,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.14,
+    magicResist: 0.12,
+  },
+  skills: [THE_BARROW_FORGETS, MOTE_LANCE],
+} as const;
+
+/**
+ * The thing doing the raising, met four times and never finished.
+ *
+ * ⚠️ **The ladder's first *lieutenant*, and the shape is milestone 21's rather than this chapter's.**
+ * It stands on `c7-s10`, `c7-s20`, `c7-s30` and `c7-s40` — every mini-boss board — at rising levels,
+ * so the chapter has a recurring antagonist that gets harder because the ladder does rather than
+ * because a second stat block was written for it. Four unique mini-boss bodies would have been four
+ * blocks each appearing once, which is the thing the orphan rule in `enemies.spec.ts` discourages
+ * and which nobody would remember either.
+ *
+ * {@link WAKE_THE_BONE} is what it opens with and it is the only thing in the game that hands a
+ * board {@link THORNMAIL} mid-fight — so every mini-boss in this chapter turns into a band-3 board
+ * on the Gravewright's first turn, whether or not one was authored that way. After that it stops
+ * setting up and starts collecting: {@link HEADSMANS_ARC} ignores rank and takes whoever is lowest,
+ * which is the member the thorns have been quietly working on.
+ *
+ * ⚠️ **No healing, no drain and no regeneration anywhere in the kit**, which is not a coincidence —
+ * see the Sundered Vault's boards for the argument. Every pool it puts on the field is one that
+ * depletes, so the fight resolves however the party plays it.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, and under {@link THE_CAIRN_KING} as well: a
+ * lieutenant that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_GRAVEWRIGHT = {
+  id: 'the-gravewright',
+  name: 'The Gravewright',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 90,
+    def: 46,
+    recovery: 6,
+    haste: 94,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    magicResist: 0.06,
+  },
+  skills: [WAKE_THE_BONE, HEADSMANS_ARC],
+} as const;
+
+/**
+ * What the barrows are for, and the third body on the ladder fielded on exactly one stage.
+ *
+ * The Chainsworn and the Hollow Seraph set the rule and it is unchanged: a chapter's last encounter
+ * is the one a player remembers, and a stat block they have already beaten four times is a stage
+ * number. It stands on `c7-s50` and nowhere else — which is also why the Gravewright is **not** on
+ * that board, having been the thing they beat four times.
+ *
+ * Its three turns are aimed at three different things: {@link BARROW_TITHE} at the largest body
+ * standing, {@link HEADSMANS_ARC} at the smallest, and {@link WAKE_THE_BONE} at its own board. With
+ * {@link THORNMAIL} already true of it from the first tick, that is the chapter's opening lock
+ * stated at boss weight — every swing answered — and its board's Cairnbound Sentinel is what
+ * decides the party has to take those swings.
+ *
+ * ⚠️ **It does not taunt, and the first draft's version of it did.** A boss that draws every attack
+ * onto itself is the fight the party already wanted: it aims them at the body they were going to
+ * focus anyway, and it spends the boss's own turns on something that deals no damage. Measured, that
+ * King asked *less* of a party than the stage before it — 738 against 878 on the difficulty probe —
+ * and the reference party finished it with all five alive. The taunt belongs on the wall in front,
+ * which is the Hollow Seraph's shape and the reason that shape works.
+ *
+ * ⚠️ **Deliberately no healing, no drain and no shield**, which is the rule every chapter final
+ * observes. Three of the things on its board make a party live longer than it can kill, and every
+ * one of them is a step toward the ninety-second timeout that is scored as a **defeat**. What keeps
+ * it resolving is that a reflect only ever shortens a fight and nothing anywhere on the encounter
+ * puts health back.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes
+ * this the harder fight is the level it is fielded at and the questions it asks.
+ */
+export const THE_CAIRN_KING = {
+  id: 'the-cairn-king',
+  name: 'The Cairn King',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1780,
+    atk: 99,
+    def: 55,
+    recovery: 7,
+    haste: 96,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [THORNMAIL],
+  skills: [WAKE_THE_BONE, BARROW_TITHE, HEADSMANS_ARC],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -1894,4 +2255,14 @@ export const ENEMIES = [
   COVENANT_BREAKER,
   VAULTBOUND_GAOLER,
   HOLLOW_SERAPH,
+  GRAVEWAKE_THRALL,
+  BARROWMIST_KEENER,
+  SEPULCHRE_HOUND,
+  CAIRNWARD_HUSK,
+  CAIRNBOUND_SENTINEL,
+  GRAVETIDE_HERALD,
+  BONECHAIN_WARDEN,
+  GRAVEMOURN_KEEPER,
+  THE_GRAVEWRIGHT,
+  THE_CAIRN_KING,
 ] as const;
