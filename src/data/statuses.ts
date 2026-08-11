@@ -339,6 +339,107 @@ export const SIG_ENTROPY = {
 } as const;
 
 // ---------------------------------------------------------------------------------------
+// Milestone 20's seven — the second ascended-tier rank
+//
+// Same shapes as the seven above and for the same reasons: `stat-mod` and `shield`, never `regen`.
+// The choice between them is made per wearer rather than by preference, and the rule is the one
+// `SIG_SOULGUARD`'s comment states — **a multiplier is worth what the stat it multiplies is
+// worth.** Corvane and Maelis carry 24 and 26 `def`, so a defence multiplier on either would be a
+// line on a panel rather than a defence; they get pools priced off `atk` instead. Vurn carries 38,
+// which is enough for the multiplier to mean something.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Corvane, with the word already spoken.
+ *
+ * A pool rather than a multiplier because he is a mage standing behind the line he is holding
+ * together: 24 `def` is the second lowest of the fourteen, and a third more of it is nothing.
+ */
+export const SIG_CONCORD = {
+  kind: 'shield',
+  id: 'sig-concord',
+  name: 'Concord',
+  hostile: false,
+  duration: PERMANENT,
+  power: 2.0,
+} as const;
+
+/**
+ * Vurn, with the ledger already open.
+ *
+ * Defence, because thorns are paid for by surviving the blow that lights them — the one wearer in
+ * the game whose *offence* scales with how long it stays standing.
+ */
+export const SIG_GRUDGE = {
+  kind: 'stat-mod',
+  id: 'sig-grudge',
+  name: 'Grudge',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'def',
+  multiplier: 1.35,
+} as const;
+
+/**
+ * Maelis, warded before the grove is asked for.
+ *
+ * A pool for the reason Nekros gets one: a dodge-tank's defence is the hit that never lands, and
+ * multiplying the 26 `def` that answers the hits which do would be the smaller half of his job.
+ */
+export const SIG_EVERGREEN = {
+  kind: 'shield',
+  id: 'sig-evergreen',
+  name: 'Evergreen',
+  hostile: false,
+  duration: PERMANENT,
+  power: 2.2,
+} as const;
+
+/** Carrow, with the quiver already drawn. */
+export const SIG_LAST_QUIVER = {
+  kind: 'stat-mod',
+  id: 'sig-last-quiver',
+  name: 'Last Quiver',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.3,
+} as const;
+
+/** Vrakk, already eating through whatever is in front of him. */
+export const SIG_CORROSION = {
+  kind: 'stat-mod',
+  id: 'sig-corrosion',
+  name: 'Corrosion',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.35,
+} as const;
+
+/** Cassiel, with the sentence already passed. */
+export const SIG_SENTENCE = {
+  kind: 'stat-mod',
+  id: 'sig-sentence',
+  name: 'Sentence',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.3,
+} as const;
+
+/** Nazreth, who has been waiting since before the fight started. */
+export const SIG_PATIENCE = {
+  kind: 'stat-mod',
+  id: 'sig-patience',
+  name: 'Patience',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'haste',
+  multiplier: 1.2,
+} as const;
+
+// ---------------------------------------------------------------------------------------
 // The Bound Marches — milestone 17's four, and the vocabulary chapter 3 is built on
 //
 // Each one names an answer the roster already owns and nothing was asking for, which is the same
@@ -432,6 +533,34 @@ export const DOOMBRAND = {
   power: 1.2,
 } as const;
 
+/**
+ * Nazreth's, and the party's only bomb. A twenty-four tick fuse where the enemy's two are forty
+ * and fifty.
+ *
+ * ⚠️ **The short fuse is the whole reason this exists rather than the party reusing
+ * {@link EMBER_SEED}, and it was measured rather than guessed.** A bomb is only a bomb if it goes
+ * off, and the two sides of the board kill at completely different speeds: an enemy plants on the
+ * party's back rank, which nothing on the enemy side concentrates on, while a *party* plants on a
+ * board every one of its five members is actively trying to delete. At forty ticks that difference
+ * is total — across three party shapes and three difficulties, 39 to 77 seeds were planted per
+ * sample and **between zero and four ever detonated**, with most of the rest dying alongside their
+ * carrier. The mechanic was not weak, it was absent.
+ *
+ * Twenty-four ticks is roughly two turns at a middling `haste` of 92, which is short enough to
+ * outlive its host and long enough that "this arrives later" is still the question it asks. Smaller
+ * per instance than either enemy bomb, because a payload that reliably lands should not also be the
+ * larger one.
+ */
+export const HEXBRAND = {
+  kind: 'bomb',
+  id: 'hexbrand',
+  name: 'Hexed',
+  hostile: true,
+  duration: 24,
+  damageType: 'magical',
+  power: 1.5,
+} as const;
+
 export const STATUSES = [
   SUNDER,
   WEAKEN,
@@ -453,9 +582,17 @@ export const STATUSES = [
   SIG_HUNGER,
   SIG_SANCTUARY,
   SIG_ENTROPY,
+  SIG_CONCORD,
+  SIG_GRUDGE,
+  SIG_EVERGREEN,
+  SIG_LAST_QUIVER,
+  SIG_CORROSION,
+  SIG_SENTENCE,
+  SIG_PATIENCE,
   OATHSHIELD,
   THORNMAIL,
   CHAINBOND,
   EMBER_SEED,
   DOOMBRAND,
+  HEXBRAND,
 ] as const;

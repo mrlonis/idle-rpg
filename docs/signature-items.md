@@ -3,9 +3,9 @@
 The fourth progression axis, alongside levels, ascension rungs and gear. Added in
 [milestone 16](milestones.md#16-signature-items--complete).
 
-One per **ascended-tier** character — seven of the forty-nine, one per faction. It unlocks at the
-`mythic` rung, runs thirty levels, and is bought with **emblems**, a currency that buys nothing
-else. Every level adds stats; levels 1, 10, 20 and 30 each hand over a stronger version of the
+One per **ascended-tier** character — fourteen of the fifty-six, two per faction since
+[milestone 20](milestones.md#20-a-second-ascended-tier-rank--complete). It unlocks at the `mythic`
+rung, runs thirty levels, and is bought with **emblems**, a currency that buys nothing else. Every level adds stats; levels 1, 10, 20 and 30 each hand over a stronger version of the
 character's ability.
 
 Companion references: [economy](economy.md) for emblems, [ascension](ascension.md) for the rung it
@@ -94,7 +94,7 @@ the stronger argument — it is an _addition_, which is what the whole-board res
 +300%. Compounding would make whichever bonus was applied last the more valuable one, which is a
 property no panel can explain and no player would guess.
 
-### The budget is not identical across the seven
+### The budget is not identical across the fourteen
 
 Roughly 5% per level, varying between 4.5% and 5.5%, because the four stats are not worth the same
 per point:
@@ -187,20 +187,25 @@ reach at every rung for exactly this.
 
 ## What one is worth, measured
 
-`data/signature.balance.ts` fields each of the seven at the unlock rung and **bisects for the
+`data/signature.balance.ts` fields each of the fourteen at the unlock rung and **bisects for the
 highest enemy level the party clears at least half the time**. A maxed item buys:
 
-| Character | Bare reach | Gain |
-| --------- | ---------- | ---- |
-| Aurelia   | 409        | +27  |
-| Thraun    | 398        | +14  |
-| Aelrindel | 417        | +25  |
-| Nekros    | 417        | +25  |
-| Vharok    | 418        | +35  |
-| Seraphine | 421        | +11  |
-| Azrathoth | 429        | +29  |
+| Character | Bare reach | Gain | Character | Bare reach | Gain |
+| --------- | ---------- | ---- | --------- | ---------- | ---- |
+| Aurelia   | 422        | +31  | Corvane   | 421        | +31  |
+| Thraun    | 406        | +15  | Vurn      | 410        | +18  |
+| Aelrindel | 441        | +29  | Maelis    | 421        | +18  |
+| Nekros    | 432        | +26  | Carrow    | 436        | +34  |
+| Vharok    | 431        | +35  | Vrakk     | 429        | +34  |
+| Seraphine | 433        | +9   | Cassiel   | 430        | +31  |
+| Azrathoth | 448        | +33  | Nazreth   | 436        | +30  |
 
-⚠️ **+3% to +8% reads modest and is not.** Measured instead as win rate at a fixed contested level,
+⚠️ **The seven original figures moved when milestone 19 re-cut the chapters, with no item or stat
+block changed.** `contested()` seeds off `stage.id`, the hardest stage was renamed `c4-s50` →
+`c6-s50`, and every trial drew a different sequence. These numbers are only comparable within one
+cut of the ladder.
+
+⚠️ **+2% to +8% reads modest and is not.** Measured instead as win rate at a fixed contested level,
 the same items take Aurelia, Aelrindel, Nekros and Vharok from **0.00 to 1.00**. Win rate near a
 party's damage threshold is a step function, so an item worth a few percent of reach is worth the
 entire fight at the margin — and the margin is where every fight a player has not already won sits.
@@ -209,8 +214,8 @@ small.
 
 ### ⚠️ Why the probe re-levels its own encounter
 
-`mythic` caps at level **340**. The hardest authored stage is the chapter 2 boss at level **85**. A
-party at the unlock rung is four times past the top of the ladder, so **no shipped stage can measure
+`mythic` caps at level **340**. The hardest authored stage is the chapter 6 boss at level **225**. A
+party at the unlock rung is half again past the top of the ladder, so **no shipped stage can measure
 a signature item** — the first two versions of this probe reported a gain of exactly zero on all
 seven characters, once because everything was a 100% walkover and once because everything was a 0%
 wipe.
@@ -241,9 +246,23 @@ the control failing rather than the item.
 ## Adding one
 
 A new ascended-tier character needs a row in `data/signature.ts` and nothing else.
-`data/signature.spec.ts` derives the count from `CHARACTERS` rather than asserting seven, so a new
+`data/signature.spec.ts` derives the count from `CHARACTERS` rather than asserting a number, so a new
 ascended-tier character **without** an item is a failing test rather than a character whose panel is
-permanently empty.
+permanently empty. Milestone 20 added seven at once and that spec is what made it impossible to
+forget one.
+
+⚠️ **Prefer a strict upgrade to a widened target when authoring a rung.** Three of the shipped items
+widen a skill at their top rung and all three are measured doing it — but widening trades per-target
+power for coverage, so whether it is an upgrade at all depends on how many bodies stand in the row
+the probe happens to aim at, and `signature.balance.ts` asserts that **reach never falls between one
+rung and the next**. A lower cooldown, a certain status where one was a roll, a deeper siphon or a
+bigger number cannot fail that assertion. None of milestone 20's seven widens anything.
+
+⚠️ **The mono-five control cannot measure a delayed payload.** Five copies of one caster all aim at
+the same target and delete it, so Nazreth's `bomb` detonates 0 times out of 77 plants in this file,
+against roughly a third of plants in a party a player would actually build. His figures are a
+**floor**, and any future character whose kit turns on something happening _later_ inherits the same
+blind spot.
 
 What the spec holds: one item per ascended-tier character and no others; a rung per tier mark, both
 derived from the rules; every override naming a skill the character actually has; no ordinary skill

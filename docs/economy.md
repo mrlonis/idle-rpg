@@ -182,10 +182,14 @@ a full clear must not buy the roster's copies in under thirty days
 ```
 
 The roster's copies are derived through `fullAscensionCost` over `CHARACTERS` and the authored
-`FACTIONS` table — **4,487** for today's forty-nine characters, and a hard floor, since a pull yields
+`FACTIONS` table — **5,038** for today's fifty-six characters, and a hard floor, since a pull yields
 one copy and only a player whose every pull landed where they needed it would ever reach it. At two
-hundred stages that is 62 days, against a realistic figure several times longer once the tier weights
+hundred stages that is 70 days, against a realistic figure several times longer once the tier weights
 are counted.
+
+**Milestone 20 is the first time the roster side of this moved it**, and it moved the right way: seven
+more ascended-tier characters is +551 copies (five mortal climbs at 73, two celestial at 93), which
+took the figure from 62 days to 70 — further from the floor rather than closer to it.
 
 ⚠️ **It tracks both sides, which is the whole point.** A roster that grows raises the ceiling exactly
 as a ladder that grows lowers it, so it does not decay — it fires when idle income has genuinely
@@ -368,11 +372,18 @@ them, no bounty pays them, and duplicate characters still convert to spark.
 
 **One universal emblem, not one per faction.** The reference system this is built from spends a
 faction emblem per faction. That shape needs several top-tier characters per faction to mean
-anything, and this roster ships exactly **one ascended-tier character per faction** — so seven
-faction emblems would give each of those seven a private currency nothing else could spend. No two
-heroes would ever compete for a pool, which deletes the only decision the resource creates. The
-spend path resolves the currency from the character rather than naming `emblem` literally, so making
-it per-faction later is entries in one array plus a different resolver.
+anything, and it would give each faction a private currency nothing outside it could spend — no two
+heroes ever competing for a pool, which deletes the only decision the resource creates. The spend
+path resolves the currency from the character rather than naming `emblem` literally, so making it
+per-faction later is entries in one array plus a different resolver.
+
+⚠️ **Milestone 20 weakened half of that argument and not the half that decides it.** The roster now
+ships **two** ascended-tier characters per faction rather than one, so a faction pool would have two
+claimants instead of exactly one and the "private currency" objection is no longer absolute. What
+does not change is the rest: two heroes competing for a pool of seven is a thinner decision than
+fourteen competing for one, and a per-faction split would make an unlucky run's second ascended pull
+in a faction it already owns strictly better than a first in one it does not. Revisit the shape if a
+faction ever fields **three or more**; two is not the trigger.
 
 ### Two faucets, and the smaller one is the one with the argument attached
 

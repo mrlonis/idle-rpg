@@ -43,8 +43,9 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 17b | Chapter 3 — The Bound Marches           | ✅ **Complete** — 150 stages, three guards moved     |
 | 18  | Chapter 4 — The Sundered Vault          | ✅ **Complete** — 200 stages, pairs, no new mechanic |
 | 19  | The six-chapter re-cut                  | ✅ **Complete** — same 200 stages, six finals        |
-| 20  | The roguelite run                       | ⬜                                                   |
-| 21  | Puzzle maps                             | ⬜                                                   |
+| 20  | A second ascended-tier rank             | ✅ **Complete** — 56 characters, 14 signature items  |
+| 21  | The roguelite run                       | ⬜                                                   |
+| 22  | Puzzle maps                             | ⬜                                                   |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
 > twice: once by the planned "dailies, bounties and notifications" entry written long in advance,
@@ -57,7 +58,11 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 > rule is about **work in progress**, not about the numbers.
 >
 > **They moved down once more when 19 became the six-chapter re-cut**, under the same rule: the
-> roguelite is 20 and the puzzle maps are 21, and neither had started.
+> roguelite was 20 and the puzzle maps 21, and neither had started.
+>
+> **And once more for milestone 20, the second ascended-tier rank** — same rule, same reason,
+> fourth application. The roguelite is 21 and the puzzle maps are 22. If either is ever started,
+> this stops being free and the next entry gets appended instead.
 
 ---
 
@@ -1443,7 +1448,150 @@ chapter 5. "One rung per chapter" became **one rung per fifty-stage band** — t
 the boundaries without moving a single rung ask, which is exactly why the levelling-versus-ascension
 guard measures the share over the whole ladder rather than anything per chapter.
 
-## 20. The roguelite run
+## 20. A second ascended-tier rank — **COMPLETE**
+
+Seven new ascended-tier characters, one per faction, taking the roster from 49 to **56** and the
+signature items from seven to **fourteen**. `ROSTER_SHAPE` in `characters.spec.ts` already said
+`{ atLeast: 1 }` for ascended tier, so the shape was authored to be grown here and nothing about
+the roster's closed half moved: it is still three common and three legendary per faction, exactly.
+
+### What shipped
+
+| Faction | Character                 | Role    | The hook it carries                     |
+| ------- | ------------------------- | ------- | --------------------------------------- |
+| Human   | Corvane, the Sworn Word   | mage    | `link` — the party wears a Chainbond    |
+| Dwarf   | Vurn Runewright           | mage    | `reflect` — thorns over the whole party |
+| Elf     | Maelis, the Warded Bough  | tank    | `taunt` — drawn onto 0.2 `dodge`        |
+| Undead  | Carrow, the Last Fletcher | ranger  | —                                       |
+| Monster | Vrakk, the Bile Throat    | mage    | —                                       |
+| Angel   | Cassiel, the Drawn Sword  | brawler | —                                       |
+| Demon   | Nazreth, the Patient      | ranger  | `bomb` — a Hexbrand on the largest body |
+
+Twenty-eight new skills, one new status, seven new signature passives, seven new signature items.
+No change to `core/` at all.
+
+### Every one of them fills a role its faction did not have
+
+The gap list decided six of the seven outright and left one real choice. Humans and Dwarves had no
+mage; Elves had no tank; Undead had no ranger; Angels had neither a brawler nor a ranger; Demons had
+neither a tank nor a ranger. Monsters had three gaps — ranger, mage and support — and **support is
+excluded by faction identity rather than by oversight**, so that one was a straight choice between
+the other two. Undead took ranger because it was their only gap, which left Monsters mage.
+
+Two of these are worth naming because they are answers to failures already on the record:
+
+- **Cassiel is the second half of milestone 8e's Angel fix.** Three healers made a mono-Angel five a
+  fight nobody could finish — a timeout, which is a defeat. Nael and Raziel were the first half: a
+  wall, so the healers had something to heal. He is the opposite body, and **nothing in his kit
+  restores anything**, which makes him the only Angel that is true of.
+- **Vurn is the second answer to "Dwarves cannot close a fight".** Hedda was the first and she is an
+  exception bought by being less of a Dwarf. Thorns are the other route: a faction that wins by
+  refusing to lose gets _paid_ for the refusing, and nothing about the faction has to change.
+
+### The party had never held any of the milestone-17 vocabulary, and now holds all four
+
+`OATHSHIELD`, `THORNMAIL` and `CHAINBOND` were all authored `hostile: false` in milestone 17 —
+usable by either side — and for three milestones nothing on the party's side used any of them. Four
+of the seven new characters do, and three of the four needed no new content beyond the skill that
+casts them.
+
+Two clauses fell out of the vocabulary rather than being chosen:
+
+- ⚠️ **A taunt can never be an ultimate.** `skills.spec.ts` requires the applying skill's cooldown to
+  outlast the status, so a party with only single-target reach is left a window at whatever stands
+  behind the taunter — and an ultimate carries no cooldown at all. The obvious version of Maelis
+  does not compile past that spec, which is the spec working.
+- ⚠️ **A permanent party-wide `reflect` is safe, and it is worth knowing why**: reflected damage
+  resolves through `statusDamage` and never re-enters the attack path, so it cannot answer itself.
+  It is strictly extra damage on a schedule the party controls, and it can only ever _shorten_ a
+  fight — which on the faction whose failure mode is the ninety-second timeout is the direction that
+  matters.
+
+### ⚠️ The bomb did not survive being handed to the party, and the fix is a new status
+
+The plan was to reuse all four milestone-17 statuses and add none. Three of them transferred
+untouched. `EMBER_SEED` did not, and the measurement is the whole of the argument: pointed at the
+enemy back rank the way the Bound Marches point it at the party's, **not one of 57 seeds across
+forty fights ever detonated** — 53 died with their carrier.
+
+The reason generalises past this character. **The two sides of the board kill at completely
+different speeds.** An enemy plants on the party's back rank, which nothing on the enemy side
+concentrates on; a party plants on a board every one of its five members is actively trying to
+delete, and the back rank is where all of its reach already converges. A forty-tick fuse fits one
+of those and not the other.
+
+Two changes, both measured rather than guessed:
+
+- **The seed aims at `enemy-highest`** — the largest remaining health pool is the only body a party
+  reliably cannot delete. Aiming wide was tested too and is worse: `enemy-row-front` and
+  `enemy-all` plant far more and detonate a _smaller_ fraction of what they plant, at lower power.
+- **`HEXBRAND` is its own status at twenty-four ticks**, roughly two turns at a middling `haste` of
+  92, and smaller per instance than either enemy bomb — a payload that reliably lands should not
+  also be the larger one.
+
+Detonation is now ~⅓ of plants in contested fights and zero in walkovers and in losses, which is the
+correct shape: those are the fights whose outcome was never in doubt.
+
+⚠️ **The mono-five control in `signature.balance.ts` provably cannot measure this**, and that is now
+recorded in the file. Five copies of one caster all aim at the same target and delete it, so the
+bomb detonates 0 of 77 times there. Nazreth's measured figures are a **floor**, and any future
+character whose kit turns on something happening _later_ inherits the same blind spot.
+
+### What the seven items are worth, measured
+
+`signature.balance.ts` bisects for reach at the unlock rung, party at level 340:
+
+```
+Aurelia   422 (+31)  Corvane 421 (+31)  Thraun    406 (+15)  Vurn    410 (+18)
+Aelrindel 441 (+29)  Maelis  421 (+18)  Nekros    432 (+26)  Carrow  436 (+34)
+Vharok    431 (+35)  Vrakk   429 (+34)  Seraphine 433 ( +9)  Cassiel 430 (+31)
+Azrathoth 448 (+33)  Nazreth 436 (+30)
+```
+
+The seven new items land inside the same +2% to +8% band as the shipped seven. ⚠️ **Read that band
+with milestone 16's warning attached**: measured instead as win rate at a fixed contested level, the
+same items take characters from 0.00 to 1.00. A few percent of reach is the whole fight at the
+margin.
+
+⚠️ **The seven original figures also moved, with no item or stat block changed.** `contested()` seeds
+off `stage.id`; milestone 19 renamed the hardest stage `c4-s50` → `c6-s50`; every trial drew a
+different sequence. Nothing was wrong before or after — but these numbers are only comparable within
+one cut of the ladder, and the file now says so.
+
+### ⚠️ Not one new item widens a skill's target, unlike three of the shipped seven
+
+Vharok's, Aelrindel's and Azrathoth's top rungs all widen, and all three work. But widening trades
+per-target power for coverage, so whether it is an upgrade **depends on how many bodies happen to
+stand in the row the probe aims at** — and `signature.balance.ts` asserts that reach never falls
+between one rung and the next, which a trade cannot promise. Every new rung is therefore a lower
+cooldown, a certain status where one was a roll, a deeper siphon, or a bigger number. The three that
+widen keep doing so because they are measured doing it.
+
+### The gacha dilution was accepted, deliberately
+
+Fourteen ascended-tier characters share the tier's weight where seven did, so a **specific**
+ascended character's rate halves: 0.81% → 0.406% a pull at the pity-inflated 5.69% effective tier
+rate. Time to ★5 on a named ascended character goes from ~9,000 pulls to ~18,000.
+
+Raising `TIER_WEIGHTS.ascended` from 0.025 to 0.05 to hold it flat was on the table and was
+declined. **The base weights have never moved, and holding them steady is the standing decision** —
+a rate is what a player is promised. It is also consistent with what the ladder already says: tier
+is the _longer_ investment, not the shorter one, and this makes that more true rather than less.
+
+### What it cost the guards: nothing, and one of them gained
+
+`ROSTER_COPIES` grows 4,487 → **5,038** (+551: five mortal climbs at 73 copies, two celestial at 93),
+which moves the roster-relative crystal ceiling in `banners.spec.ts` from 62 days to **70** — further
+from its floor of 30, not closer. That guard was written to track both sides and this is the first
+time the roster side has moved it.
+
+Nothing else needed retuning. The mono-faction sweeps in `chapters.balance.ts` are hand-authored from
+three commons and two legendaries per faction, so no new body enters them; the achievement ratios
+name the two campaign counters positively, so the doubled signature-track ceiling stays out of them;
+and `achievements.spec.ts` derives that ceiling from `SIGNATURE_ITEMS.length`, so it doubled on its
+own. All 1,972 unit tests and all 66 balance tests pass with no threshold moved.
+
+## 21. The roguelite run
 
 A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
 them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
@@ -1459,7 +1607,7 @@ a question mid-flight.
 structural, and taking it first would be choosing the fun problem over the one blocking
 everything else.
 
-## 21. Puzzle maps
+## 22. Puzzle maps
 
 **The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
 roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
@@ -1490,4 +1638,4 @@ state, and it gates nothing. It is written down because a solo developer without
 constraint most likely to decide whether this ships, and it is this one rather than any system above.
 
 Equally absent and equally unnumbered: **onboarding**. There is no first-session experience anywhere
-in this plan, and the first ninety seconds decide more than milestones 13 through 20 combined.
+in this plan, and the first ninety seconds decide more than milestones 13 through 22 combined.

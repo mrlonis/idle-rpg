@@ -311,6 +311,7 @@ describe('HomeView', () => {
       detail: el.querySelector('.tower__detail')?.textContent?.trim(),
       href: el.querySelector<HTMLAnchorElement>('a.tower')?.getAttribute('href') ?? null,
       inert: el.querySelector('.tower--inert') !== null,
+      open: el.querySelector('.tower--open') !== null,
     });
 
     it('links a tower that is being climbed, and names the floor and the lock', async () => {
@@ -323,6 +324,15 @@ describe('HomeView', () => {
       expect(towerRow(el).href).toBe('/prepare/tower-human');
     });
 
+    it('marks a climbing tower as open, which is what carries the accent', async () => {
+      // ⚠️ The state a *stylesheet* reads, and the only reason it is asserted here: an open tower
+      // used to draw in the same grey as a locked one, so the palette said "unavailable" about the
+      // one row on the screen that was not. The class is what makes that a green row.
+      const { el } = await render();
+
+      expect(towerRow(el).open).toBe(true);
+    });
+
     it('shows a locked tower as a row that names its key rather than hiding it', async () => {
       // ⚠️ The one place 15a's "nothing empty ships for the towers" rule is spent, and it is spent
       // on a row with a countdown in it: twelve clears is early, and a visible destination is most
@@ -333,6 +343,7 @@ describe('HomeView', () => {
 
       expect(towerRow(el).inert).toBe(true);
       expect(towerRow(el).href).toBeNull();
+      expect(towerRow(el).open).toBe(false);
       expect(towerRow(el).detail).toContain('Clear 5 more stages to open');
       expect(towerRow(el).detail).toContain('Humans only');
     });
@@ -354,6 +365,9 @@ describe('HomeView', () => {
 
       expect(towerRow(el).inert).toBe(true);
       expect(towerRow(el).href).toBeNull();
+      // A topped tower is finished rather than available, so it keeps the grey. The accent means
+      // "there is something here to fight", and on this row there is not.
+      expect(towerRow(el).open).toBe(false);
       expect(towerRow(el).detail).toContain('Topped out');
       expect(towerRow(el).detail).toContain('all 100 floors');
     });
@@ -362,6 +376,10 @@ describe('HomeView', () => {
       const { el } = await render((_game, _battles, _formations, towers) => towers.rows.set([]));
 
       expect(el.querySelector('.tower')).toBeNull();
+      // ⚠️ The heading goes with them. It is a section of its own now, and a Towers heading standing
+      // over nothing is exactly the empty shape "nothing empty ships for the towers" forbids — the
+      // rule is spent on a locked row that names its key, not on a bare heading.
+      expect(el.querySelector('.towers')).toBeNull();
       // The campaign card is still there, which is what makes this an empty list rather than an
       // empty screen.
       expect(el.querySelector('.fight')).not.toBeNull();
@@ -613,6 +631,35 @@ describe('HomeView', () => {
       expect([...el.querySelectorAll('h1')].map((node) => node.textContent?.trim())).toEqual([
         'Home',
       ]);
+    });
+
+    it('names the campaign and the towers as two labelled sections', async () => {
+      // One section headed "Battle" named neither of the two kinds of thing a player chooses
+      // between here. Real `<section>`s with real headings, so each is a landmark rather than a
+      // line of loose text — and `aria-labelledby` is what makes the landmark carry the name.
+      const { el } = await render();
+
+      expect(el.querySelector('.campaign')?.getAttribute('aria-labelledby')).toBe('campaign-label');
+      expect(el.querySelector('#campaign-label')?.textContent?.trim()).toBe('Campaign');
+      expect(el.querySelector('.towers')?.getAttribute('aria-labelledby')).toBe('towers-label');
+      expect(el.querySelector('#towers-label')?.textContent?.trim()).toBe('Towers');
+      // The campaign comes first: it is the spine of the game, and the towers are optional content
+      // gated behind it.
+      expect([...el.querySelectorAll('h2')].map((node) => node.textContent?.trim())).toEqual([
+        'Currencies',
+        'Campaign',
+        'Towers',
+      ]);
+    });
+
+    it('keeps the hint inside the campaign section, next to the control it points at', async () => {
+      // ⚠️ It says "tap above". At the foot of the screen it would be pointing past seven tower
+      // rows at a control the player can no longer see.
+      const { el } = await render((_game, _battles, formations) => {
+        formations.campaign.set(crew({ size: 0, open: { front: 2, back: 3 }, ready: false }));
+      });
+
+      expect(el.querySelector('.campaign > .hint')?.textContent).toContain('Tap above');
     });
 
     it('labels the wallet strip with a heading rather than announcing every change', async () => {

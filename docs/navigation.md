@@ -94,15 +94,37 @@ Milestone 15a added two screens and moved one job, and neither screen touched th
 
 **Home is where a fight is chosen.** It carried one control — a Fight button into the campaign —
 and faction towers make that eight destinations. That choice is not a thing to bury behind a tab, so
-Home holds a battle section with the campaign as its first card and a row per tower beside it. It was
-one card until 15b, on the same argument the Bag rename made; the first tower's row arrived with its
-hundred floors, and the other six arrived in 15c.
+Home holds the campaign as its first card and a row per tower below it. It was one card until 15b,
+on the same argument the Bag rename made; the first tower's row arrived with its hundred floors, and
+the other six arrived in 15c.
+
+**Two sections, headed Campaign and Towers.** They were one section headed "Battle", which named
+neither of the two kinds of thing a player is choosing between here — and with the towers unheaded
+the campaign card read as the section and the rows under it as an unlabelled tail. Each is a real
+`<section>` with `aria-labelledby`, so each is a landmark rather than a line of loose text. The
+**Towers section is withheld entirely until the run has loaded** rather than drawing its heading
+over nothing: an empty heading is exactly the shape "nothing empty ships for the towers" forbids,
+and the rule is spent on the locked row below instead.
+
+The campaign's **hint line lives inside its section**, directly under the Fight control. It is
+written about the campaign crew and says "tap above"; at the foot of the screen it would be pointing
+past seven tower rows at a control the player can no longer see.
 
 **A tower row has three states and only one of them is a link.** A tower being climbed goes to
 `/prepare/:id` exactly as the campaign card does. A tower already **topped** is an inert row — a
 floor is climbed once, so there is genuinely nothing left to fight, and a link to a Fight control
 that then refused would be worse than no link. A **locked** tower is also inert, and it names the
 clears remaining and the faction it wants.
+
+⚠️ **A climbing tower wears the Fight control's accent, and that is a reversal of an earlier rule.**
+The rows drew in the card's own grey whatever their state, on the argument that a tower is optional
+content and a row shouting as loudly as the Fight control would make the spine of the game look like
+one of eight equal choices. The argument is still right and the colour was the wrong way to make it:
+the grey read as _unavailable_, and it said so about the one row on the screen that was not. The
+hierarchy is carried by **size and section** now — a tower row is 2.75rem to the campaign card's
+3.5rem, 15px to its 17px, and a heading further down — which leaves the palette free to mean
+"there is something here to fight" and nothing else. Locked and topped rows keep the grey, because
+on those there is not.
 
 ⚠️ **That locked row is where "nothing empty ships for the towers" is deliberately spent, and it is
 the one place.** The rule was written against a card for content that did not exist; a locked row

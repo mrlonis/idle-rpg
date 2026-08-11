@@ -153,14 +153,20 @@ the other 72 are the stretch that **every** tier walks. So the totals land close
 
 What actually separates the climbs is the stream feeding them. Measured against the shipped banner
 with pity live, a specific common-tier character arrives every ~30 pulls, a legendary-tier one
-every ~87, an ascended-tier one every ~123. Near-identical copy counts drawn from a stream four
+every ~87, an ascended-tier one every ~246. Near-identical copy counts drawn from a stream eight
 times thinner is what makes a higher tier the **longer** investment:
 
-| Tier      | copies to ★5 | pulls  | days at full-clear income |
-| --------- | ------------ | ------ | ------------------------- |
-| common    | 93           | ~2,800 | ~52                       |
-| legendary | 83           | ~7,200 | ~135                      |
-| ascended  | 73           | ~9,000 | ~168                      |
+| Tier      | copies to ★5 | pulls   | days at full-clear income |
+| --------- | ------------ | ------- | ------------------------- |
+| common    | 93           | ~2,800  | ~52                       |
+| legendary | 83           | ~7,200  | ~135                      |
+| ascended  | 73           | ~18,000 | ~336                      |
+
+⚠️ **The ascended row doubled in milestone 20 and neither the rates nor the rungs moved.** That
+milestone added a second ascended-tier character to every faction, so fourteen of them now share a
+tier weight seven used to — 0.81% a pull for a named one at the pity-inflated 5.69% effective tier
+rate, against 0.406% now. Raising `TIER_WEIGHTS.ascended` to compensate was declined: the base
+weights have never moved, and this makes what the table already says _more_ true rather than less.
 
 (mortal; days assume ~53.5 pulls/day, which is endgame income — early-run is roughly half that, so
 read these as floors.)
@@ -176,7 +182,12 @@ are still the only lever on how big that head start is; retuning them is retunin
 A copy of every character accrues from the same pulls, so "2,800 pulls to max a common-tier
 character" is also **the point at which all twenty-one of them max**. Nobody grinds one character
 at a time. The number that describes a run is therefore the slowest tier on the slowest ladder:
-the full 49-character roster reaches `ascended-5` at roughly 11,400 pulls.
+the full 56-character roster reaches `ascended-5` at roughly 23,000 pulls.
+
+⚠️ **That figure is the one place the milestone 20 dilution genuinely lands.** Doubling the
+ascended tier does not change what any single character costs, and it does not slow the twenty-one
+commons or the twenty-one legendaries by a single pull — it only moves the point at which the
+_last_ ascended copy arrives. Read it as the run's outer horizon rather than as a pace.
 
 ---
 

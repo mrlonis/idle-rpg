@@ -1,30 +1,40 @@
 import {
   ABSOLUTION,
+  ACID_WIND,
   AEGIS_SKILL,
+  ANSWERED_IN_KIND,
   ANVIL_STANCE,
   ARROW_OF_ENDING,
   AVALANCHE,
+  BILESPRAY,
   BLACKLANCE_THRUST,
+  BLADE_OF_THE_CHOIR,
   BLOATBURST,
   BLOOD_GORGE,
   BLOOD_PACT,
-  BONE_CHOIR,
+  BLUNT_THE_EDGE,
   BONEBREAK,
+  BONESHOT,
+  BONEWHISTLE,
+  BONE_CHOIR,
   BRACING_BLOW,
+  BRAMBLECUT,
   BREAK_THE_HERD,
   CARRION_FEAST,
   CAVERN_ECHO,
   CHAINBREAK,
+  CHAINWARD,
   CHOIRLIGHT,
   CINDERLASH,
   COALSONG,
+  CORROSION,
   CRIMSON_SIGIL,
   CROWN_OF_FLIES,
   CUT_THE_VANGUARD,
   DAWNWARD,
   DECISIVE_STRIKE,
-  DEEP_WARD,
   DEEPSTONE_GRASP,
+  DEEP_WARD,
   DEVOUR,
   DEVOURING_TIDE,
   DOUBLE_OR_NOTHING,
@@ -44,21 +54,23 @@ import {
   GNASHING_TIDE,
   GORGE,
   GRASPING_ROT,
+  GRAVECALL,
   GRAVE_CHILL,
   GRAVE_GRASP,
   GRAVE_TIDE,
-  GRAVECALL,
   GROUND_SLAM,
+  GRUDGEFIRE,
   GRUDGE_SETTLED,
   GUARD_BREAK,
+  GULLET,
   HAMMER_CHECK,
-  HEX_THE_HEARTH,
   HEXFIRE,
+  HEX_THE_HEARTH,
   HOLD_THE_LINE,
   HOLLOWBIND,
   HURLED_ANVIL,
-  IRON_REBUKE,
   IRONS_BROKEN,
+  IRON_REBUKE,
   JUDGEMENT,
   KEEPERS_CHARGE,
   KINDLED_WORD,
@@ -76,6 +88,7 @@ import {
   NINEFANG_FEAST,
   OATH_OF_ARMS,
   OSSUARY_TIDE,
+  PATIENT_MALICE,
   PIERCING_SHOT,
   PINNING_SHOT,
   PIT_PROPS,
@@ -86,13 +99,18 @@ import {
   RED_TITHE,
   REND,
   RIPOSTE,
+  ROOT_AND_BOUGH,
   RUIN_UNBOUND,
+  RUNES_OF_RETURN,
   RUNE_STRUCK,
   SALTBEARD_REMEDY,
   SANCTUARY,
   SECOND_WIND,
-  SHIELD_WALL,
+  SEEDED_SHAFT,
+  SENDING,
+  SENTENCE,
   SHIELDSWORN_OATH,
+  SHIELD_WALL,
   SINSONG,
   SNARE_ARROW,
   SOOTHING_VERSE,
@@ -100,14 +118,23 @@ import {
   SOUL_TITHE,
   SOVEREIGNS_TOLL,
   SPLITTING_SHAFT,
+  STAND_AND_BE_SEEN,
   STOKE_THE_GRUDGE,
   STOUT_WARD,
-  SUNDER_STONE,
   SUNDERJAW,
+  SUNDER_STONE,
+  SUNKEN_RUNE,
+  SUNLIT_BOUGH,
   SUNSPEAR_CAST,
   SWEEPING_COMMAND,
   SWORN_STRIKE,
   SYLVAN_REFRAIN,
+  THE_DRAWN_SWORD,
+  THE_HEX_COMES_DUE,
+  THE_LAST_VOLLEY,
+  THE_NINTH_HOLDS,
+  THE_QUIET_FIELD,
+  THE_RECKONING,
   THICK_HIDE,
   THIRD_WHISPER,
   THORNGUARD,
@@ -123,8 +150,9 @@ import {
   VERSE_OF_DAWN,
   VIGIL,
   VOLLEY,
-  WARD_UNBROKEN,
   WARDING_STRIKE,
+  WARDSTONE,
+  WARD_UNBROKEN,
   WEIGHED_AND_FOUND,
   WHISPERED_BARGAIN,
   WICKERBURN,
@@ -437,6 +465,39 @@ export const IVO = {
   skills: [BLACKLANCE_THRUST, RIPOSTE, DUELISTS_READ],
 } as const;
 
+/**
+ * The Human who spends a turn on where the damage goes rather than on how much of it there is.
+ *
+ * The Ninth's battle-magus — Wren's field surgeon and Aurelia's marshal are the other two the unit
+ * is remembered for — and the roster's first caster who is not a Demon, an Angel, an Elf or a
+ * corpse. What he brings is not the damage: it is {@link CHAINWARD}, the first turn the party has
+ * ever taken that puts a milestone-17 status on its **own** side of the board.
+ *
+ * Authored as control rather than as damage on purpose, and the budget shows it — 60 `atk` is the
+ * middle of the ascended tier and the second lowest health of the seven Humans. A caster who was
+ * also the faction's best damage would make Ivo and Ysolde decisions nobody has to make.
+ */
+export const CORVANE = {
+  id: 'corvane',
+  name: 'Corvane, the Sworn Word',
+  faction: 'human',
+  tier: 'ascended',
+  role: 'mage',
+  stats: {
+    hp: 560,
+    atk: 60,
+    def: 24,
+    recovery: 5,
+    haste: 98,
+    critChance: 0.11,
+    critDamageAmp: 0.6,
+    energyRegen: 11,
+    magicPierce: 0.12,
+    magicResist: 0.05,
+  },
+  skills: [CHAINWARD, BLUNT_THE_EDGE, SENDING, THE_NINTH_HOLDS],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Dwarves — DEF and attrition
 // ---------------------------------------------------------------------------------------
@@ -634,6 +695,40 @@ export const ORIN = {
   skills: [HURLED_ANVIL, CAVERN_ECHO, PIT_PROPS],
 } as const;
 
+/**
+ * The Dwarf who makes the wall's patience worth something, without making the wall an attacker.
+ *
+ * Hedda was the faction's first answer to "cannot close a fight", and she is an exception paid for
+ * by being less of a Dwarf — 200 budget spent forward instead of down. He is the other route: the
+ * thorns he lays over the party return a quarter of what reaches it, so the attrition the faction
+ * was already winning starts having a number attached. He is still a terrible attacker. He simply
+ * stops being one whose party runs the clock out.
+ *
+ * The healthiest non-tank in the file at 900 and the slowest character outside Thraun and Vharok,
+ * which is what pays for it.
+ */
+export const VURN = {
+  id: 'vurn',
+  name: 'Vurn Runewright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  role: 'mage',
+  stats: {
+    hp: 900,
+    atk: 40,
+    def: 38,
+    recovery: 9,
+    haste: 72,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    critBlock: 0.06,
+    energyRegen: 11,
+    magicResist: 0.1,
+    healthRegen: 0.2,
+  },
+  skills: [RUNES_OF_RETURN, GRUDGEFIRE, WARDSTONE, SUNKEN_RUNE],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Elves — speed, crit and reach, made of paper
 // ---------------------------------------------------------------------------------------
@@ -809,6 +904,43 @@ export const SYLVARA = {
   skills: [SUNSPEAR_CAST, PINNING_SHOT, QUIVER_UNSLUNG],
 } as const;
 
+/**
+ * An Elven front rank that works by not being hit, which is the only kind this faction could ever
+ * have.
+ *
+ * Cirien is the stopgap version — a body bought with tempo, and still the slowest Elf authored.
+ * Maelis is the real answer, and he is a tank in the way an Elf is allowed to be one: 620 HP is
+ * under every other tank in the game, and the 0.2 `dodge` is the highest anything carries. What he
+ * spends turns on is {@link STAND_AND_BE_SEEN}, which drags every single-target attack on the
+ * board onto the one body most likely to be missed.
+ *
+ * ⚠️ **The taunt is an ordinary skill and can never be his ultimate**, because
+ * `skills.spec.ts` requires the cooldown to outlast the status and an ultimate carries no
+ * cooldown at all. Worth knowing before authoring the obvious version of this character.
+ */
+export const MAELIS = {
+  id: 'maelis',
+  name: 'Maelis, the Warded Bough',
+  faction: 'elf',
+  tier: 'ascended',
+  role: 'tank',
+  stats: {
+    hp: 620,
+    atk: 44,
+    def: 26,
+    recovery: 6,
+    haste: 106,
+    attackSpeed: 6,
+    critChance: 0.14,
+    critDamageAmp: 0.6,
+    critBlock: 0.05,
+    energyRegen: 11,
+    physicalResist: 0.05,
+    dodge: 0.2,
+  },
+  skills: [SUNLIT_BOUGH, STAND_AND_BE_SEEN, BRAMBLECUT, ROOT_AND_BOUGH],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Undead — bodies without armour, paying for skills in life
 // ---------------------------------------------------------------------------------------
@@ -980,6 +1112,39 @@ export const KARSITH = {
     physicalResist: 0.02,
   },
   skills: [CROWN_OF_FLIES, FESTER, FEAST_ON_RUIN],
+} as const;
+
+/**
+ * The Undead archer, and the first one of them that can take life from something it cannot reach
+ * with its hands.
+ *
+ * Every Undead siphons — it is the whole faction — and until now the reach and the siphon were on
+ * different bodies: Nekros pays nobody with his wave, and Vesper is the one heal five of them can
+ * point at each other. A drain aimed over a front rank is both at once.
+ *
+ * 880 HP on 9 `def`, which is the faction bargain stated as plainly as it goes: he has the second
+ * largest health pool among the Undead and the second thinnest armour in the game.
+ */
+export const CARROW = {
+  id: 'carrow',
+  name: 'Carrow, the Last Fletcher',
+  faction: 'undead',
+  tier: 'ascended',
+  role: 'ranger',
+  stats: {
+    hp: 880,
+    atk: 54,
+    def: 9,
+    recovery: 12,
+    haste: 100,
+    attackSpeed: 8,
+    critChance: 0.16,
+    critDamageAmp: 0.7,
+    energyRegen: 7,
+    lifeLeech: 0.12,
+    physicalPierce: 0.15,
+  },
+  skills: [THE_LAST_VOLLEY, BONEWHISTLE, BONESHOT, THE_QUIET_FIELD],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -1154,6 +1319,39 @@ export const OZZA = {
     physicalResist: 0.04,
   },
   skills: [NINEFANG_FEAST, GNASHING_TIDE, MARROW_CRUNCH],
+} as const;
+
+/**
+ * The faction's argument, made in the other damage type.
+ *
+ * Monsters are the answer to armour: raw output and enough penetration that `def` stops meaning
+ * what it says. All six of the others make that case physically, which leaves the faction with
+ * nothing at all to say to a `physicalResist` wall — and the celestial chapters are full of them.
+ * Vrakk carries the highest `magicPierce` in the game and says it again.
+ *
+ * Still a Monster in every other respect, which is the point rather than a concession: no buff, no
+ * cleanse, no heal, and the sustain is a siphon because the faction has no support and is not
+ * getting one.
+ */
+export const VRAKK = {
+  id: 'vrakk',
+  name: 'Vrakk, the Bile Throat',
+  faction: 'monster',
+  tier: 'ascended',
+  role: 'mage',
+  stats: {
+    hp: 720,
+    atk: 68,
+    def: 13,
+    haste: 78,
+    critChance: 0.04,
+    critDamageAmp: 0.75,
+    energyRegen: 6,
+    lifeLeech: 0.1,
+    magicPierce: 0.35,
+    magicResist: 0.04,
+  },
+  skills: [CORROSION, BILESPRAY, GULLET, ACID_WIND],
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -1348,6 +1546,42 @@ export const RAZIEL = {
   skills: [KEEPERS_CHARGE, GATEBREAKERS_ANSWER, UNYIELDING],
 } as const;
 
+/**
+ * The Angel who ends fights, and the second half of an answer this faction has been owed since
+ * milestone 8e.
+ *
+ * Three healers made a mono-Angel five a fight nobody could finish — a ninety-second timeout, which
+ * is a **defeat**. Nael and Raziel were the first half: a wall, so the healers had something to
+ * heal. Cassiel is the other half and the opposite kind of body. **Nothing in his kit restores
+ * anything** — no heal, no shield, no cleanse, no regeneration — which makes him the only Angel in
+ * the game that is true of.
+ *
+ * 66 `atk` is the highest an Angel carries by ten points, and the 0.25 `receivedHealing` is what he
+ * is really built around: he is the one the other four keep standing, and he is worth 25% more of
+ * every point they spend doing it.
+ */
+export const CASSIEL = {
+  id: 'cassiel',
+  name: 'Cassiel, the Drawn Sword',
+  faction: 'angel',
+  tier: 'ascended',
+  role: 'brawler',
+  stats: {
+    hp: 700,
+    atk: 66,
+    def: 32,
+    recovery: 7,
+    haste: 100,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.1,
+    energyRegen: 12,
+    tenacity: 0.15,
+    receivedHealing: 0.25,
+  },
+  skills: [THE_DRAWN_SWORD, SENTENCE, BLADE_OF_THE_CHOIR, ANSWERED_IN_KIND],
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Demons — magical damage and pure variance (celestial ladder)
 // ---------------------------------------------------------------------------------------
@@ -1534,6 +1768,43 @@ export const SANGUINE = {
 } as const;
 
 /**
+ * The Demon who does not need the fight to be over yet.
+ *
+ * Demons are magical damage and pure variance — Azrathoth is nearly half his attacks landing for
+ * 2.4×, and the faction has never once made a plan. Nazreth is the plan: a {@link SEEDED_SHAFT}
+ * plants something that does **nothing at all** for forty ticks and then arrives in one piece, so
+ * his whole kit is a bet on the fight lasting long enough to collect.
+ *
+ * The party's first bomb, and it asks the opposite question of every other turn in the roster: it
+ * is worth most against the boards a party grinds down and worth nothing at all against the ones it
+ * deletes. ⚠️ **Which is why his ultimate is aimed at the front rank and his seed at the largest
+ * body** — a kit that pointed both at the same target would kill the thing carrying the payload,
+ * and a payload that never goes off is a turn spent on nothing. See {@link SEEDED_SHAFT}, where
+ * that was measured rather than assumed.
+ */
+export const NAZRETH = {
+  id: 'nazreth',
+  name: 'Nazreth, the Patient',
+  faction: 'demon',
+  tier: 'ascended',
+  role: 'ranger',
+  stats: {
+    hp: 430,
+    atk: 62,
+    def: 12,
+    haste: 120,
+    attackSpeed: 8,
+    critChance: 0.28,
+    critDamageAmp: 1,
+    energyRegen: 9,
+    magicPierce: 0.22,
+    magicResist: 0.04,
+    dodge: 0.1,
+  },
+  skills: [THE_HEX_COMES_DUE, SEEDED_SHAFT, PATIENT_MALICE, THE_RECKONING],
+} as const;
+
+/**
  * Every playable character, in faction then tier order.
  *
  * This is the pull pool and the roster's source of truth. `characters.spec.ts` asserts ids are
@@ -1551,6 +1822,7 @@ export const CHARACTERS = [
   YSOLDE,
   IVO,
   AURELIA,
+  CORVANE,
   BRAN,
   DORN,
   GRIMNA,
@@ -1558,6 +1830,7 @@ export const CHARACTERS = [
   HEDDA,
   ORIN,
   THRAUN,
+  VURN,
   RIN,
   FAELEN,
   CIRIEN,
@@ -1565,6 +1838,7 @@ export const CHARACTERS = [
   NAERIN,
   SYLVARA,
   AELRINDEL,
+  MAELIS,
   MORTLACH,
   GHAUL,
   VESPER,
@@ -1572,6 +1846,7 @@ export const CHARACTERS = [
   OSSUARY,
   KARSITH,
   NEKROS,
+  CARROW,
   GNASH,
   SKARN,
   YERRIK,
@@ -1579,6 +1854,7 @@ export const CHARACTERS = [
   GHORRAK,
   OZZA,
   VHAROK,
+  VRAKK,
   CELIA,
   NAEL,
   ILYRA,
@@ -1586,6 +1862,7 @@ export const CHARACTERS = [
   ZAPHIEL,
   RAZIEL,
   SERAPHINE,
+  CASSIEL,
   PYRA,
   VEXIS,
   THREX,
@@ -1593,6 +1870,7 @@ export const CHARACTERS = [
   NYXARA,
   SANGUINE,
   AZRATHOTH,
+  NAZRETH,
 ] as const;
 
 /**

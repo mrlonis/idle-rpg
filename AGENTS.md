@@ -85,17 +85,25 @@ the two disagree, the code is right and both are stale.
     20 of the ladder's 92 copies sit below `elite` — the other 72 are the stretch every tier walks —
     so the totals land within ×1.27 of each other (93 / 83 / 73 mortal). What separates the climbs
     is the **stream**, not the price: measured through `pull()` with pity live, a specific
-    ascended-tier character arrives ×4.1 less often than a common-tier one, so a higher tier is the
-    **longer** investment (~2,800 / ~7,200 / ~9,000 pulls to ★5).
+    ascended-tier character arrives ×8.2 less often than a common-tier one, so a higher tier is the
+    **longer** investment (~2,800 / ~7,200 / ~18,000 pulls to ★5).
     - ⚠️ **This inverts what the ladder said before, deliberately.** The bottom used to carry the
       whole tier gap (28 of 45 copies) so every tier was a comparable commitment and ascended tier
       maxed _fastest_. Rungs 0–3 are still the only lever on the head start's size.
-    - ⚠️ **Quote the tier rate ratio as ×4.1, not ×10.** ×10 is `TIER_WEIGHTS` alone; pity lifts the
-      effective ascended rate 2.5% → 5.69% and lifts common not at all. Only the measured figure
-      describes a banner anybody plays.
+    - ⚠️ **Quote the tier rate ratio as ×8.2, not ×20.** ×20 is `TIER_WEIGHTS` divided by the
+      per-tier head counts alone; pity lifts the effective ascended rate 2.5% → 5.69% and lifts
+      common not at all. Only the measured figure describes a banner anybody plays.
+    - ⚠️ **It was ×4.1 until milestone 20 and neither the rates nor the rungs moved.** That milestone
+      added a second ascended-tier character to every faction, so fourteen of them share the weight
+      seven used to and a named one goes 0.81% → **0.406%** a pull. Raising `TIER_WEIGHTS.ascended`
+      to compensate was on the table and **declined**: the base weights have never moved, a rate is
+      what a player is promised, and this makes "tier is the longer investment" more true rather
+      than less.
     - **Pulls are shared, so a per-character figure is a whole-tier figure.** The ~2,800 pulls that
       max one common-tier character max all twenty-one; the run-level number is the slowest case,
-      ~11,400 pulls for the full 49-character roster.
+      ~23,000 pulls for the full 56-character roster. ⚠️ **The dilution lands only there** — it does
+      not change what any single character costs and does not slow the commons or the legendaries by
+      one pull.
   - ⚠️ **The celestial premium is sized against the total and lives on rungs 5–9 only.**
     `elite → elite+` and all five stars are shared. It was ×2 per rung when those rungs were 1s and
     2s (+6 copies, ~×1.2 on a climb); ×2 on today's rungs would cost +38 and reach ×1.5, the same
@@ -226,9 +234,9 @@ the two disagree, the code is right and both are stale.
     is drawn once for the batch and the grade per piece, because they answer different questions:
     whether the _fight_ was lucky against whether the _piece_ was.
 - **[docs/signature-items.md](docs/signature-items.md)** — the fourth progression axis, added in
-  milestone 16: one **signature item** per ascended-tier character, unlocked at the `mythic` rung,
-  thirty levels bought with **emblems**. Read it before touching `core/signature/` or
-  `data/signature.ts`.
+  milestone 16: one **signature item** per ascended-tier character — fourteen of them since
+  milestone 20 — unlocked at the `mythic` rung, thirty levels bought with **emblems**. Read it
+  before touching `core/signature/` or `data/signature.ts`.
   - ⚠️ **A signature item is one integer on `OwnedCharacter`, not an object.** Zero is locked. There
     is exactly one per character, it can never move between them, be duplicated or be salvaged — so
     every field `GearItem` carries in order to be addressable would be dead weight. The character
@@ -273,17 +281,28 @@ the two disagree, the code is right and both are stale.
   - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
     contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
     any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
-    zero for two opposite reasons. In reach a maxed item is worth **+3% to +8%**; in win rate at a
+    zero for two opposite reasons. In reach a maxed item is worth **+2% to +8%**; in win rate at a
     contested level the same item takes four of seven characters from **0.00 to 1.00**. Both are
     honest; never cite the reach figure as evidence the item is small.
+    - ⚠️ **A reach figure is only comparable within one cut of the ladder.** `contested()` seeds off
+      `stage.id`, so milestone 19 renaming the hardest stage `c4-s50` → `c6-s50` moved all seven
+      recorded numbers with no item or stat block changed. Re-measure rather than comparing across a
+      re-cut.
   - **A new ascended-tier character needs a row in `data/signature.ts` and nothing else.**
     `data/signature.spec.ts` derives the count from `CHARACTERS`, so one without an item is a
-    failing test rather than a permanently empty panel.
+    failing test rather than a permanently empty panel. Milestone 20 added seven at once, which is
+    what that derivation was for.
+  - ⚠️ **Prefer a strict upgrade to a widened target when authoring a rung.** Three shipped items
+    widen a skill at the top rung and all three are measured doing it — but widening trades
+    per-target power for coverage, so whether it is an upgrade depends on how many bodies stand in
+    the row the probe aims at, and `signature.balance.ts` asserts **reach never falls between one
+    rung and the next**. A lower cooldown, a certain status where one was a roll, a deeper siphon or
+    a bigger number cannot fail that. None of milestone 20's seven widens anything.
   - **`signatureLevels` is an achievement counter and must never be a quest one.** It is derived —
     the sum of `roster[].signature`, monotonic, storing nothing new — which is what makes it a
     legitimate achievement counter. As a **quest** counter it is the failure `clearedStages` is
-    banned for and worse: it stops at 210 once all seven are maxed, and it does not move at all for
-    the tens of thousands of pulls before the first item unlocks.
+    banned for and worse: it stops at 420 once all fourteen are maxed, and it does not move at all
+    for the tens of thousands of pulls before the first item unlocks.
   - ⚠️ **No quest may be measured against emblems _held_ either**, for a different reason: a quest
     window stores a baseline and progress is a subtraction, so a balance that falls when spent
     reports negative progress. Every valid quest counter is monotonic and a wallet balance is not.
@@ -644,8 +663,9 @@ the two disagree, the code is right and both are stale.
       different things and only the second was the bug. "A pull an hour, plus one an hour for every
       stage you have ever cleared" survives as the legible sentence it was chosen to be.
     - **The ceiling is stated against the roster now, not the ladder**: a full clear must not buy the
-      roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 4,487 today — in under
-      thirty days. It is 62 days over the shipped two hundred stages. ⚠️ **It tracks both sides**, so a roster that grows
+      roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 5,038 today — in under
+      thirty days. It is 70 days over the shipped two hundred stages, and milestone 20 is the first
+      time the **roster** side moved it (+551 copies, 62 → 70 days: further from the floor). ⚠️ **It tracks both sides**, so a roster that grows
       raises it exactly as a ladder that grows lowers it, and it first fires around chapter twelve —
       at which point the question is whether the roster kept up, not what number makes it green.
     - **The floors were kept and did not move**: the climb must still be worth more than the base
@@ -679,7 +699,7 @@ the two disagree, the code is right and both are stale.
   - ⚠️ **A character cannot be both fighting and away, and milestone 15b moved where that is
     enforced.** It used to bite on the way _in_ — `dispatchBounty` refused anybody fielded,
     `setFormation` refused anybody away, `repairDispatches` dropped a crew that was both. That was
-    right for one formation and wrong for eight: forty slots against a forty-nine character roster
+    right for one formation and wrong for eight: forty slots against a fifty-six character roster
     means a player who has crewed every tower has no bench left, and the board starves exactly when
     the roster breadth it rewards is at its widest.
     - **The rule now bites on the way _out_: anybody may be dispatched, and a crew holding somebody
@@ -1168,6 +1188,36 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   because ascended tier is where new characters arrive. Changing the closed half is a design
   decision: edit the shape in `data/characters.spec.ts` and argue for it in `docs/milestones.md`,
   rather than letting it drift.
+  - **Milestone 20 spent that floor for the first time**: fifty-six characters now, **two** ascended
+    per faction. The closed half did not move by a single row, which is what the floor was for.
+  - **A new ascended-tier character is four files and no `core/` change**: a stat block and kit in
+    `data/characters.ts`, its skills in `data/skills.ts`, a re-export in `data/index.ts`, and ⚠️ **a
+    row in `data/signature.ts`, which is not optional** — `signature.spec.ts` derives the item count
+    from `CHARACTERS`, so one without an item is a failing test rather than a permanently empty panel.
+  - ⚠️ **`toBattleCombatant` does not carry `CombatantData.opening`.** A character authoring a passive
+    would have it silently dropped; the only player-side route to one is a signature rung. Enemies get
+    theirs through `toEnemyCombatant`, which does carry it.
+  - **Fill a role the faction lacks rather than sharpening the axis again.** The canonical trio in
+    `characters.spec.ts` is what asserts the tier slope, and it names ids — a second ascended body is
+    off that list by construction, so its job is depth. It also keeps the `budget` ratio and the
+    ascended-tier non-domination check easy to satisfy.
+- **All four milestone-17 statuses now appear on the party's side, and one of them needed re-authoring
+  to get there.** `OATHSHIELD`, `THORNMAIL` and `CHAINBOND` are `hostile: false` and transferred
+  untouched; the bomb did not.
+  - ⚠️ **A taunt can never be an ultimate.** `skills.spec.ts` requires the applying skill's cooldown to
+    outlast the status, and an ultimate carries no cooldown at all. This binds on the party exactly as
+    it binds on an enemy.
+  - ⚠️ **The two sides of the board kill at completely different speeds, so a delayed payload does not
+    transfer.** An enemy plants on the party's back rank, which nothing on the enemy side concentrates
+    on; a party plants on a board all five of its members are trying to delete, and its back rank is
+    where all of its reach already converges. With a 40-tick `EMBER_SEED` aimed at `enemy-back`, **not
+    one of 57 seeds across forty fights detonated** — 53 died with their carrier. The party's bomb is
+    therefore its own status (`HEXBRAND`, 24 ticks) aimed at `enemy-highest`, the one body a party
+    cannot reliably delete. Aiming wide was measured and is worse: more plants, a smaller **fraction**
+    detonating, at lower power.
+  - ⚠️ **The mono-five control in `signature.balance.ts` cannot measure a delayed payload**, because
+    five copies of one caster delete the same target. Any future kit that turns on something happening
+    _later_ inherits that blind spot; its measured figures are a floor.
 - Check the scaling curve against float64's safe range (9e15) before committing to it. **The curve
   demands `break_infinity` and the hedge is retired**: milestone 10 took levelling to ×10⁹ and the
   rung ladder to ×450, so a late-game stat block is past float64's safe range on its own. `Numeric`
