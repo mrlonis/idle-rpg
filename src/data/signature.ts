@@ -1,22 +1,36 @@
 import { type SignatureItemData, type SignatureRulesData } from '../core';
 import {
+  AEGIS,
+  BLEED,
+  CHAINBOND,
   GUARD,
   HASTE,
+  HEXBRAND,
+  OATHSHIELD,
   POISON,
   RALLY,
   SIG_BULWARK,
+  SIG_CONCORD,
+  SIG_CORROSION,
   SIG_ENTROPY,
+  SIG_EVERGREEN,
+  SIG_GRUDGE,
   SIG_HUNGER,
+  SIG_LAST_QUIVER,
+  SIG_PATIENCE,
   SIG_QUICKENING,
   SIG_RESOLVE,
   SIG_SANCTUARY,
+  SIG_SENTENCE,
   SIG_SOULGUARD,
   SLOW,
   SUNDER,
+  THORNMAIL,
+  WEAKEN,
 } from './statuses';
 
 /**
- * The seven signature items, one per ascended-tier character.
+ * The fourteen signature items, one per ascended-tier character.
  *
  * The system is in [`core/signature/`](../core/signature/types.ts) and the emblems that buy a
  * level are in [`data/emblems.ts`](./emblems.ts); this file is the content alone. See
@@ -31,7 +45,7 @@ import {
  * A signature item that turned a wall into a damage dealer would be a second character wearing the
  * first one's name.
  *
- * ## The stat budget, and why it is not identical across the seven
+ * ## The stat budget, and why it is not identical across the fourteen
  *
  * Roughly 5% per level, so roughly +150% at level 30 — comparable to a maxed gear set's attack
  * contribution and well under its health one. It varies between 4.5% and 5.5%, deliberately,
@@ -584,19 +598,623 @@ const THE_LONG_UNMAKING: SignatureItemData = {
   ],
 };
 
+// ---------------------------------------------------------------------------------------
+// Milestone 20's seven — the second ascended-tier rank
+//
+// ⚠️ **Not one of these widens a skill's target at its top rung, and the omission is deliberate.**
+// Vharok's and Aelrindel's and Azrathoth's do, and those three work — but widening trades
+// per-target power for coverage, so whether it is an upgrade at all depends on how many bodies the
+// probe's board happens to have in the row being aimed at. `signature.balance.ts` asserts that
+// **reach never falls between one rung and the next**, which a trade cannot promise and a strict
+// increase can. So every rung below is a lower cooldown, a certain status where one was a roll, a
+// deeper siphon, or a bigger number — and the three shipped items that widen keep doing so because
+// they are measured doing it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Corvane — the word spoken further, and the party held together longer.
+ *
+ * His kit is one turn about where damage goes and three about the party surviving until it gets
+ * there, so the rungs buy **how often each of them lands** rather than how hard. The last one adds
+ * {@link RALLY} to the Chainward, which is the only place in either roster where the link the
+ * party wears also pays it — the same argument the Deepstone Oath makes about uptime, said on a
+ * caster.
+ */
+const THE_SWORN_WORD: SignatureItemData = {
+  id: 'the-sworn-word',
+  defId: 'corvane',
+  name: 'The Sworn Word',
+  description: 'Sworn once, in front of the Ninth. It has not needed saying again.',
+  perLevel: { atk: 0.03, hp: 0.02 },
+  tiers: [
+    {
+      name: 'Spoken Once',
+      description: 'Sending comes up a third sooner.',
+      skills: [{ skillId: 'sending', cooldown: 30 }],
+    },
+    {
+      name: 'Twice Sworn',
+      description: 'Sending quickens, and the Ninth Holds returns a third sooner.',
+      skills: [
+        { skillId: 'sending', cooldown: 30 },
+        { skillId: 'the-ninth-holds', cooldown: 40 },
+      ],
+    },
+    {
+      name: 'The Word Carries',
+      description: 'Both quicken, and Blunt the Edge never fails to weaken.',
+      skills: [
+        { skillId: 'sending', cooldown: 30 },
+        { skillId: 'the-ninth-holds', cooldown: 40 },
+        {
+          skillId: 'blunt-the-edge',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: WEAKEN },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'The Concord Holds',
+      description:
+        'Everything returns sooner, Blunt the Edge always weakens, the Chainward rallies the ' +
+        'party it binds, and Corvane takes the field already warded.',
+      skills: [
+        { skillId: 'sending', cooldown: 30 },
+        { skillId: 'the-ninth-holds', cooldown: 40 },
+        {
+          skillId: 'blunt-the-edge',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: WEAKEN },
+          ],
+        },
+        {
+          skillId: 'chainward',
+          // `effects` replaces rather than appends, so keeping the link and the armour means
+          // restating both. Forgetting one here would silently remove the character's whole point.
+          effects: [
+            { kind: 'status', status: CHAINBOND },
+            { kind: 'status', status: GUARD },
+            { kind: 'status', status: RALLY },
+          ],
+        },
+      ],
+      opening: [SIG_CONCORD],
+    },
+  ],
+};
+
+/**
+ * Vurn — the ledger, kept for longer and settled harder.
+ *
+ * The joint largest budget at 5.5% for the reason Thraun's and Seraphine's are: most of it is `hp`
+ * and `def`, which are the cheapest stats on the board. It is also the one item where a defensive
+ * profile is **offence** — thorns pay out per blow survived, so every point of health is another
+ * instalment collected.
+ */
+const THE_GRUDGE_LEDGER: SignatureItemData = {
+  id: 'the-grudge-ledger',
+  defId: 'vurn',
+  name: 'The Grudge Ledger',
+  description: 'Every debt the hold is owed, written down. He has never lost a page.',
+  perLevel: { hp: 0.03, def: 0.025 },
+  tiers: [
+    {
+      name: 'First Entry',
+      description: 'Grudgefire comes up a third sooner.',
+      skills: [{ skillId: 'grudgefire', cooldown: 30 }],
+    },
+    {
+      name: 'The Ledger Open',
+      description: 'Grudgefire quickens, and the Wardstone banks an Aegis rather than a Barrier.',
+      skills: [
+        { skillId: 'grudgefire', cooldown: 30 },
+        { skillId: 'wardstone', effects: [{ kind: 'status', status: AEGIS }] },
+      ],
+    },
+    {
+      name: 'Every Debt Noted',
+      description: 'The Wardstone deepens, and the Sunken Rune returns a third sooner.',
+      skills: [
+        { skillId: 'grudgefire', cooldown: 30 },
+        { skillId: 'wardstone', effects: [{ kind: 'status', status: AEGIS }] },
+        { skillId: 'sunken-rune', cooldown: 35 },
+      ],
+    },
+    {
+      name: 'The Ledger Closed',
+      description:
+        'Every rune comes faster, the Wardstone banks an Aegis, the Runes of Return armour what ' +
+        'they thorn, and Vurn stands the whole fight behind his own.',
+      skills: [
+        { skillId: 'grudgefire', cooldown: 30 },
+        { skillId: 'wardstone', effects: [{ kind: 'status', status: AEGIS }] },
+        { skillId: 'sunken-rune', cooldown: 35 },
+        {
+          skillId: 'runes-of-return',
+          effects: [
+            { kind: 'status', status: THORNMAIL },
+            { kind: 'status', status: GUARD },
+          ],
+        },
+      ],
+      opening: [SIG_GRUDGE],
+    },
+  ],
+};
+
+/**
+ * Maelis — the taunt held longer, and the body behind it harder to hit.
+ *
+ * A haste-mover, so it carries one of the smaller budgets: turn frequency is `ceil(1000 / haste)`
+ * and every extra turn is another window in which the grove is standing where the party is not.
+ *
+ * ⚠️ **No rung touches the cooldown on {@link OATHSHIELD}'s skill**, and that is a rule rather than
+ * an oversight: `skills.spec.ts` requires it to outlast the status so a party with only
+ * single-target reach is left a window at whatever stands behind the taunter. A signature item is
+ * exactly the shape of thing that would quietly close that door.
+ */
+const THE_WARDED_BOUGH: SignatureItemData = {
+  id: 'the-warded-bough',
+  defId: 'maelis',
+  name: 'The Warded Bough',
+  description: 'Cut from the tree that outlived the grove. It has still not been hit.',
+  perLevel: { hp: 0.025, def: 0.015, haste: 0.01 },
+  tiers: [
+    {
+      name: 'Rooted',
+      description: 'Bramblecut comes up a third sooner.',
+      skills: [{ skillId: 'bramblecut', cooldown: 30 }],
+    },
+    {
+      name: 'Seen and Sought',
+      description: 'Bramblecut quickens, and standing to be seen quickens him with it.',
+      skills: [
+        { skillId: 'bramblecut', cooldown: 30 },
+        {
+          skillId: 'stand-and-be-seen',
+          effects: [
+            { kind: 'status', status: OATHSHIELD },
+            { kind: 'status', status: HASTE },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'The Grove Answers',
+      description: 'The taunt quickens him, and Root and Bough never fails to slow.',
+      skills: [
+        { skillId: 'bramblecut', cooldown: 30 },
+        {
+          skillId: 'stand-and-be-seen',
+          effects: [
+            { kind: 'status', status: OATHSHIELD },
+            { kind: 'status', status: HASTE },
+          ],
+        },
+        {
+          skillId: 'root-and-bough',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: SLOW },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Sunlit',
+      description:
+        'The taunt quickens him, Root and Bough always slows, the Sunlit Bough banks an Aegis ' +
+        'over the party, and Maelis opens the fight already warded.',
+      skills: [
+        { skillId: 'bramblecut', cooldown: 30 },
+        {
+          skillId: 'stand-and-be-seen',
+          effects: [
+            { kind: 'status', status: OATHSHIELD },
+            { kind: 'status', status: HASTE },
+          ],
+        },
+        {
+          skillId: 'root-and-bough',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: SLOW },
+          ],
+        },
+        {
+          skillId: 'sunlit-bough',
+          effects: [
+            { kind: 'status', status: HASTE },
+            { kind: 'status', status: AEGIS },
+          ],
+        },
+      ],
+      opening: [SIG_EVERGREEN],
+    },
+  ],
+};
+
+/**
+ * Carrow — more taken, from further away.
+ *
+ * Every rung is about the siphon rather than the shot, which is the faction rule stated on an
+ * archer: an Undead's health is whatever it has most recently removed from something else. The
+ * last rung takes the Last Volley from half to seven tenths returned and raises it besides — the
+ * only item here that moves a number and a ratio on the same clause.
+ */
+const THE_LAST_QUIVER: SignatureItemData = {
+  id: 'the-last-quiver',
+  defId: 'carrow',
+  name: 'The Last Quiver',
+  description: 'He fletched it himself, from himself. It has never run empty.',
+  perLevel: { atk: 0.03, hp: 0.02 },
+  tiers: [
+    {
+      name: 'Fletched',
+      description: 'Boneshot returns three quarters of what it takes rather than half.',
+      skills: [
+        {
+          skillId: 'boneshot',
+          effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.75 }],
+        },
+      ],
+    },
+    {
+      name: 'Never Empty',
+      description: 'Boneshot drains deeper, and the Quiet Field falls a third sooner.',
+      skills: [
+        {
+          skillId: 'boneshot',
+          effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.75 }],
+        },
+        { skillId: 'the-quiet-field', cooldown: 45 },
+      ],
+    },
+    {
+      name: 'The Field Quiets',
+      description: 'The Quiet Field falls sooner, and Bonewhistle never fails to bleed.',
+      skills: [
+        {
+          skillId: 'boneshot',
+          effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.75 }],
+        },
+        { skillId: 'the-quiet-field', cooldown: 45 },
+        {
+          skillId: 'bonewhistle',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: BLEED },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'The Last Quiver',
+      description:
+        'Everything drains deeper and falls sooner, Bonewhistle always bleeds, and the Last ' +
+        'Volley takes far more and returns seven tenths of it.',
+      skills: [
+        {
+          skillId: 'boneshot',
+          effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.75 }],
+        },
+        { skillId: 'the-quiet-field', cooldown: 45 },
+        {
+          skillId: 'bonewhistle',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: BLEED },
+          ],
+        },
+        {
+          skillId: 'the-last-volley',
+          effects: [{ kind: 'drain', damageType: 'physical', power: 2.6, siphon: 0.7 }],
+        },
+      ],
+      opening: [SIG_LAST_QUIVER],
+    },
+  ],
+};
+
+/**
+ * Vrakk — the same appetite, eating through more of what stops it.
+ *
+ * The most attack-weighted of the seven new profiles for the reason the World's Hunger is of the
+ * old: this faction's whole argument is raw output with nothing behind it. What the rungs sharpen
+ * is the **shred** rather than the hit, because a Monster is the answer to armour and the fastest
+ * way to be more of that answer is to leave less armour standing.
+ */
+const THE_CORRODED_GULLET: SignatureItemData = {
+  id: 'the-corroded-gullet',
+  defId: 'vrakk',
+  name: 'The Corroded Gullet',
+  description: 'Whatever it was before, it is a hole now. The hole is still hungry.',
+  perLevel: { atk: 0.035, hp: 0.015 },
+  tiers: [
+    {
+      name: 'Etched',
+      description: 'The Gullet returns three quarters of what it takes rather than half.',
+      skills: [
+        {
+          skillId: 'gullet',
+          effects: [{ kind: 'drain', damageType: 'magical', power: 1.75, siphon: 0.75 }],
+        },
+      ],
+    },
+    {
+      name: 'Eaten Through',
+      description: 'The Gullet feeds harder, and Bilespray never fails to sunder.',
+      skills: [
+        {
+          skillId: 'gullet',
+          effects: [{ kind: 'drain', damageType: 'magical', power: 1.75, siphon: 0.75 }],
+        },
+        {
+          skillId: 'bilespray',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Nothing Holds',
+      description: 'Bilespray always sunders, and the Acid Wind comes up a third sooner.',
+      skills: [
+        {
+          skillId: 'gullet',
+          effects: [{ kind: 'drain', damageType: 'magical', power: 1.75, siphon: 0.75 }],
+        },
+        {
+          skillId: 'bilespray',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+        { skillId: 'acid-wind', cooldown: 35 },
+      ],
+    },
+    {
+      name: 'The Gullet Wide',
+      description:
+        'Everything feeds harder and comes sooner, Bilespray always sunders, and Corrosion eats ' +
+        'through armour on the way in.',
+      skills: [
+        {
+          skillId: 'gullet',
+          effects: [{ kind: 'drain', damageType: 'magical', power: 1.75, siphon: 0.75 }],
+        },
+        {
+          skillId: 'bilespray',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+        { skillId: 'acid-wind', cooldown: 35 },
+        {
+          skillId: 'corrosion',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 2.9 },
+            { kind: 'status', status: SUNDER, chance: 0.9 },
+          ],
+        },
+      ],
+      opening: [SIG_CORROSION],
+    },
+  ],
+};
+
+/**
+ * Cassiel — the sentence read faster and carried out harder.
+ *
+ * ⚠️ **The mirror of the Unwavering Vigil, and the pair is the point.** Seraphine's item is
+ * written around the rule that no signature item may multiply healing, because closing pressure
+ * amplifies damage and deliberately does not amplify healing — so the obvious item for a healer is
+ * the one that makes her stall. His has the opposite problem and therefore no problem: an Angel
+ * whose entire kit is damage is the one wearer where "more of what this character already does" is
+ * the safe answer, and it is safe for the same reason hers is not.
+ */
+const THE_VERDICT: SignatureItemData = {
+  id: 'the-verdict',
+  defId: 'cassiel',
+  name: 'The Verdict',
+  description: 'Not the sword. The sentence it was drawn to carry out.',
+  perLevel: { atk: 0.025, hp: 0.02, def: 0.01 },
+  tiers: [
+    {
+      name: 'Charge Read',
+      description: 'Sentence comes up a third sooner.',
+      skills: [{ skillId: 'sentence', cooldown: 30 }],
+    },
+    {
+      name: 'Sentence Passed',
+      description: 'Sentence quickens, and the Blade of the Choir never fails to sunder.',
+      skills: [
+        { skillId: 'sentence', cooldown: 30 },
+        {
+          skillId: 'blade-of-the-choir',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'No Appeal',
+      description: 'The Blade always sunders, and Answered in Kind returns a third sooner.',
+      skills: [
+        { skillId: 'sentence', cooldown: 30 },
+        {
+          skillId: 'blade-of-the-choir',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+        { skillId: 'answered-in-kind', cooldown: 35 },
+      ],
+    },
+    {
+      name: 'The Verdict',
+      description:
+        'Every turn comes sooner, the Blade always sunders, and the Drawn Sword lands far ' +
+        'heavier and blunts what survives it.',
+      skills: [
+        { skillId: 'sentence', cooldown: 30 },
+        {
+          skillId: 'blade-of-the-choir',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 1.2 },
+            { kind: 'status', status: SUNDER },
+          ],
+        },
+        { skillId: 'answered-in-kind', cooldown: 35 },
+        {
+          skillId: 'the-drawn-sword',
+          effects: [
+            { kind: 'damage', damageType: 'physical', power: 2.9 },
+            { kind: 'status', status: WEAKEN },
+          ],
+        },
+      ],
+      opening: [SIG_SENTENCE],
+    },
+  ],
+};
+
+/**
+ * Nazreth — the hex made certain, then made unavoidable.
+ *
+ * The lowest budget of the fourteen at 4.5%, and a fifth of it is `haste` — the same reason the
+ * First Arrow and the Long Unmaking carry theirs. What the rungs buy is **landing**: a bomb that
+ * fails its roll is a turn that did nothing at all, so certainty comes first and size comes last.
+ *
+ * The top rung seeds the front rank as well as the largest body, which is the one place this kit
+ * is allowed to put two payloads on the board at once — see {@link SEEDED_SHAFT} for why the two
+ * are deliberately not aimed at the same target.
+ */
+const THE_LONG_HEX: SignatureItemData = {
+  id: 'the-long-hex',
+  defId: 'nazreth',
+  name: 'The Long Hex',
+  description: 'Set down a long time ago, against a name nobody remembers giving him.',
+  perLevel: { atk: 0.035, haste: 0.01 },
+  tiers: [
+    {
+      name: 'Sown',
+      description: 'The Seeded Shaft never fails to plant.',
+      skills: [
+        {
+          skillId: 'seeded-shaft',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.5 },
+            { kind: 'status', status: HEXBRAND },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Patient',
+      description: 'The seed always plants, and Patient Malice never fails to slow.',
+      skills: [
+        {
+          skillId: 'seeded-shaft',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.5 },
+            { kind: 'status', status: HEXBRAND },
+          ],
+        },
+        {
+          skillId: 'patient-malice',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SLOW },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Due',
+      description: 'Both land every time, and the Reckoning comes up a third sooner.',
+      skills: [
+        {
+          skillId: 'seeded-shaft',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.5 },
+            { kind: 'status', status: HEXBRAND },
+          ],
+        },
+        {
+          skillId: 'patient-malice',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SLOW },
+          ],
+        },
+        { skillId: 'the-reckoning', cooldown: 35 },
+      ],
+    },
+    {
+      name: 'The Long Hex',
+      description:
+        'Everything lands every time, the Reckoning comes sooner, and the Hex seeds the front ' +
+        'rank as it lands, so two payloads run at once.',
+      skills: [
+        {
+          skillId: 'seeded-shaft',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.5 },
+            { kind: 'status', status: HEXBRAND },
+          ],
+        },
+        {
+          skillId: 'patient-malice',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 1.2 },
+            { kind: 'status', status: SLOW },
+          ],
+        },
+        { skillId: 'the-reckoning', cooldown: 35 },
+        {
+          skillId: 'the-hex-comes-due',
+          effects: [
+            { kind: 'damage', damageType: 'magical', power: 2.3 },
+            { kind: 'status', status: HEXBRAND },
+          ],
+        },
+      ],
+      opening: [SIG_PATIENCE],
+    },
+  ],
+};
+
 /**
  * Every signature item this build ships, in roster order.
  *
  * One per ascended-tier character and no more: `data/signature.spec.ts` holds that against
- * `CHARACTERS` rather than against a literal seven, so a new ascended-tier character without an
+ * `CHARACTERS` rather than against a literal count, so a new ascended-tier character without an
  * item is a failing test rather than a character whose panel is permanently empty.
  */
 export const SIGNATURE_ITEMS: readonly SignatureItemData[] = [
   BANNER_OF_THE_NINTH,
+  THE_SWORN_WORD,
   THE_DEEPSTONE_OATH,
+  THE_GRUDGE_LEDGER,
   THE_FIRST_ARROW,
+  THE_WARDED_BOUGH,
   THE_SOVEREIGNS_TITHE,
+  THE_LAST_QUIVER,
   THE_WORLDS_HUNGER,
+  THE_CORRODED_GULLET,
   THE_UNWAVERING_VIGIL,
+  THE_VERDICT,
   THE_LONG_UNMAKING,
+  THE_LONG_HEX,
 ];

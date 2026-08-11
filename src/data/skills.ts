@@ -8,6 +8,7 @@ import {
   EMBER_SEED,
   GUARD,
   HASTE,
+  HEXBRAND,
   OATHSHIELD,
   POISON,
   RALLY,
@@ -15,6 +16,7 @@ import {
   SLOW,
   STUN,
   SUNDER,
+  THORNMAIL,
   WEAKEN,
 } from './statuses';
 
@@ -349,6 +351,72 @@ export const DUELISTS_READ = {
   priority: 1,
 } as const;
 
+/**
+ * Corvane's ultimate, and the first turn in the game that puts a milestone-17 status on the
+ * party's own side of the board.
+ *
+ * A {@link CHAINBOND} moves two fifths of every hit off its target and splits it across the rest
+ * of the board. On the enemy side that is what stopped a party banking the kill it had earned;
+ * here it is what stops a boss doing the same thing to five characters one at a time. **Damage is
+ * conserved either way** — the board loses exactly as much health per hit as it would have — so
+ * what this buys is not survival, it is *order*, and the party's healer gets to answer a spread
+ * instead of a deletion.
+ *
+ * Paired with {@link GUARD} rather than cast bare, because the two clauses say one thing between
+ * them: the hit is smaller, and it is not all landing in one place.
+ */
+export const CHAINWARD = {
+  id: 'chainward',
+  name: 'Chainward',
+  target: 'ally-all',
+  effects: [
+    { kind: 'status', status: CHAINBOND },
+    { kind: 'status', status: GUARD },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Corvane's opener. Blunting a whole front rank is the defensive half of the same sentence the
+ * Chainward speaks, and it is the reason he is authored as control rather than as damage. */
+export const BLUNT_THE_EDGE = {
+  id: 'blunt-the-edge',
+  name: 'Blunt the Edge',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** The Human answer to a back rank that is not an arrow. Ysolde reaches past a front rank by
+ * shooting over it; a Sending simply arrives. */
+export const SENDING = {
+  id: 'sending',
+  name: 'Sending',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.8 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Corvane's last turn, and the second cleanse the mortal ladder offers. Wren's is the one a run
+ * can buy early; this is the one that arrives with tempo attached and answers two statuses at
+ * once, which is what the boards past the Bound Marches ask for. */
+export const THE_NINTH_HOLDS = {
+  id: 'the-ninth-holds',
+  name: 'The Ninth Holds',
+  target: 'ally-all',
+  effects: [
+    { kind: 'cleanse', count: 2 },
+    { kind: 'status', status: HASTE },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Dwarves — refusing to lose, and since 8e able to do something about it
 //
@@ -635,6 +703,68 @@ export const PIT_PROPS = {
   priority: 1,
 } as const;
 
+/**
+ * Vurn's ultimate, and the answer to the oldest complaint about this faction.
+ *
+ * "Cannot close a fight; can refuse to lose one" was the Dwarven bargain, and Hedda was the first
+ * exception to it — a Dwarf who kills, bought by being less of a Dwarf. This is the other route:
+ * {@link THORNMAIL} returns a quarter of what reaches the wearer, so a party that refuses to lose
+ * is *paid* for the refusing. Nothing about the faction changes; the attrition it was already
+ * winning starts having a number attached.
+ *
+ * ⚠️ **Permanent, and safe to be, for the reason its own comment gives**: reflected damage is
+ * applied as status damage and never re-enters the attack path, so it cannot answer itself and it
+ * is strictly extra damage on a schedule the party controls. It can only ever shorten a fight,
+ * which on a faction whose failure mode is the ninety-second timeout is the direction that matters.
+ */
+export const RUNES_OF_RETURN = {
+  id: 'runes-of-return',
+  name: 'Runes of Return',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: THORNMAIL }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Vurn's damage, such as it is. A rune struck into the thing in front of him and left to burn —
+ * magical, which is what a `physicalResist` front rank was never built to answer. */
+export const GRUDGEFIRE = {
+  id: 'grudgefire',
+  name: 'Grudgefire',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.6 },
+    { kind: 'status', status: BURN, chance: 0.8 },
+  ],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** The pool that keeps the thorns lit. A Dwarf's reflect is worth exactly as many blows as the
+ * Dwarf survives, so an absorb over the whole party is offence on this one character. */
+export const WARDSTONE = {
+  id: 'wardstone',
+  name: 'Wardstone',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/** Vurn's last turn, and the faction's second way past a front rank. Orin shoots over it; this
+ * goes under. */
+export const SUNKEN_RUNE = {
+  id: 'sunken-rune',
+  name: 'Sunken Rune',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.05 },
+    { kind: 'status', status: WEAKEN, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Elves — speed, and the first answer to a back rank
 // ---------------------------------------------------------------------------------------
@@ -902,6 +1032,73 @@ export const QUIVER_UNSLUNG = {
   target: 'enemy-row-front',
   effects: [{ kind: 'damage', damageType: 'physical', power: 0.95 }],
   cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Maelis's ultimate. Tempo and a pool, which is the Elven spelling of "hold the line" — the
+ * faction does not survive a blow, it takes another turn before the blow arrives. */
+export const SUNLIT_BOUGH = {
+  id: 'sunlit-bough',
+  name: 'Sunlit Bough',
+  target: 'ally-all',
+  effects: [
+    { kind: 'status', status: HASTE },
+    { kind: 'status', status: BARRIER },
+  ],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/**
+ * The party's own taunt, and the only one in the game aimed at a body nothing can hit.
+ *
+ * An {@link OATHSHIELD} draws every single-target attack onto its wearer and **overrides the row
+ * gate** while it is up. On the enemy side that was a lock — the party's back-rank reach stopped
+ * being worth anything. Pointed the other way it is the cleanest defensive turn an Elf can take:
+ * 20% dodge and a front-row defence bonus applied to every single-target attack on the board,
+ * instead of to the one that happened to be aimed at him.
+ *
+ * ⚠️ **60 against a 45-tick status, which is the duty-cycle rule and it binds on the party too.**
+ * `skills.spec.ts` derives that bound from both numbers rather than restating either, so this
+ * clause is checked here for exactly the reason it is checked on {@link DRAW_THE_OATH}. It is also
+ * why the taunt is **not** on the ultimate: an ultimate carries no cooldown at all, so a taunt on
+ * one could never satisfy the rule — a fact worth knowing before authoring the obvious version of
+ * this character.
+ */
+export const STAND_AND_BE_SEEN = {
+  id: 'stand-and-be-seen',
+  name: 'Stand and Be Seen',
+  target: 'self',
+  effects: [{ kind: 'status', status: OATHSHIELD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/** Maelis's one offensive turn. A wall that cannot threaten anything is a wall the enemy walks
+ * past, and a taunt is only a decision if ignoring it costs something. */
+export const BRAMBLECUT = {
+  id: 'bramblecut',
+  name: 'Bramblecut',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: BLEED, chance: 0.8 },
+  ],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** The grove closing. Slowing a front rank buys the same thing the taunt does — turns the party
+ * gets and the enemy does not — which is why it is the last skill rather than a second attack. */
+export const ROOT_AND_BOUGH = {
+  id: 'root-and-bough',
+  name: 'Root and Bough',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 55,
   priority: 1,
 } as const;
 
@@ -1216,6 +1413,61 @@ export const FEAST_ON_RUIN = {
   priority: 1,
 } as const;
 
+/**
+ * Carrow's ultimate: the faction's reach and the faction's sustain on one turn.
+ *
+ * Every Undead siphons, and until now none of them could reach past a front rank to do it — the
+ * faction's answer to a back line was Nekros's wave, which pays nobody. A drain aimed over the
+ * gate is the first turn that takes life from the thing the party actually needed dead.
+ */
+export const THE_LAST_VOLLEY = {
+  id: 'the-last-volley',
+  name: 'The Last Volley',
+  target: 'enemy-back',
+  effects: [{ kind: 'drain', damageType: 'physical', power: 2.1, siphon: 0.5 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Carrow's opener: the whole back rank left bleeding, which is the cheapest thing an archer can
+ * do to a line that was counting on being unreachable. */
+export const BONEWHISTLE = {
+  id: 'bonewhistle',
+  name: 'Bonewhistle',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: BLEED, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/** The finisher, and where the life comes back. Aimed at whatever is nearly dead for the reason
+ * every Undead drain is: the cheapest kill is the one that also feeds. */
+export const BONESHOT = {
+  id: 'boneshot',
+  name: 'Boneshot',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'physical', power: 1.8, siphon: 0.55 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Carrow's last turn. Slowing the whole field is not damage and is worth more than damage against
+ * anything the party is racing, which is the fight an Undead five is always in. */
+export const THE_QUIET_FIELD = {
+  id: 'the-quiet-field',
+  name: 'The Quiet Field',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.1 },
+    { kind: 'status', status: SLOW, chance: 0.7 },
+  ],
+  cooldown: 65,
+  priority: 1,
+} as const;
+
 // ---------------------------------------------------------------------------------------
 // Monsters — raw ATK, and the answer to armour
 //
@@ -1471,6 +1723,60 @@ export const MARROW_CRUNCH = {
   target: 'enemy-highest',
   effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
   cooldown: 50,
+  priority: 1,
+} as const;
+
+/**
+ * Vrakk's ultimate, and the faction's argument spoken in the other damage type.
+ *
+ * Monsters are the answer to armour: raw output plus enough penetration that `def` stops meaning
+ * what it says. Every one of them has made that argument physically, which leaves the faction with
+ * nothing to say to a `physicalResist` wall. This is the same sentence aimed at `magicResist`
+ * instead — and it is still one enormous hit rather than several small ones, because against the
+ * diminishing `def` curve that is the whole of why a Monster works.
+ */
+export const CORROSION = {
+  id: 'corrosion',
+  name: 'Corrosion',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.3 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** The shred. A Monster sets up its own next hit and nobody else's, which is what having no
+ * support in the faction actually means on a turn-by-turn basis. */
+export const BILESPRAY = {
+  id: 'bilespray',
+  name: 'Bilespray',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.15 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Where Vrakk's health comes from. Monsters sustain through a siphon or they do not sustain —
+ * the faction has no healer on purpose, and this is the version of that rule cast at range. */
+export const GULLET = {
+  id: 'gullet',
+  name: 'Gullet',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.75, siphon: 0.55 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Vrakk's last turn, and the faction's second answer to a back rank. Ghorrak reaches one thing;
+ * this reaches the row and asks nothing of the front. */
+export const ACID_WIND = {
+  id: 'acid-wind',
+  name: 'Acid Wind',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.1 }],
+  cooldown: 55,
   priority: 1,
 } as const;
 
@@ -1734,6 +2040,65 @@ export const UNYIELDING = {
   effects: [{ kind: 'status', status: GUARD }],
   cooldown: 55,
   priority: 1,
+} as const;
+
+/**
+ * Cassiel's ultimate, and the turn this faction has never had.
+ *
+ * Angels answer a spike, hold a rank and keep a party standing, and the failure that comes with is
+ * on record: three healers made a mono-Angel five a fight nobody could finish, which is a
+ * **timeout, and a timeout is a defeat**. Nael and Raziel were the first half of the answer — a
+ * wall so the healers had something to heal. This is the second half, and it is the opposite kind
+ * of body: no heal, no shield, no cleanse, nothing on the whole kit that keeps anybody alive.
+ *
+ * Aimed at the largest thing standing rather than the weakest, because what an Angel five cannot
+ * do is close, and the thing it cannot close on is the boss.
+ */
+export const THE_DRAWN_SWORD = {
+  id: 'the-drawn-sword',
+  name: 'The Drawn Sword',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  ultimate: true,
+  priority: 3,
+} as const;
+
+/** Cassiel's opener. Blunting the thing in front is the one defensive clause in his kit, and it is
+ * defensive by consequence rather than by intent. */
+export const SENTENCE = {
+  id: 'sentence',
+  name: 'Sentence',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.75 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** The wide turn, and the shred the Angels' two casters were never carrying. */
+export const BLADE_OF_THE_CHOIR = {
+  id: 'blade-of-the-choir',
+  name: 'Blade of the Choir',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.15 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Cassiel's last turn: the reach the faction buys with Ilyra's and Zaphiel's spells, on a body
+ * that can also finish what it reaches. */
+export const ANSWERED_IN_KIND = {
+  id: 'answered-in-kind',
+  name: 'Answered in Kind',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 50,
+  priority: 2,
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -2005,6 +2370,74 @@ export const CRIMSON_SIGIL = {
   cooldown: 40,
   condition: { kind: 'ally-afflicted' },
   priority: 4,
+} as const;
+
+/** Nazreth's ultimate: the wall, hit once and hard. Aimed at the front rather than at the largest
+ * thing standing so that it does not land on whatever {@link SEEDED_SHAFT} has just seeded — the
+ * one target in the kit that wants to be left alone. */
+export const THE_HEX_COMES_DUE = {
+  id: 'the-hex-comes-due',
+  name: 'The Hex Comes Due',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.3 }],
+  ultimate: true,
+  priority: 2,
+} as const;
+
+/**
+ * The party's bomb, and the one turn in the roster that wants its target to stay alive.
+ *
+ * A {@link HEXBRAND} does nothing at all for twenty-four ticks and then lands in one piece. The
+ * Bound Marches taught the mechanic from the wrong end — a payload on the party's back rank, and a
+ * decision about *when* to spend a cleanse rather than whether to. Pointed the other way it asks a
+ * question nothing else in the roster asks: it punishes a **slow** kill, so it is worth most
+ * against exactly the boards a party grinds down rather than bursts.
+ *
+ * ⚠️ **Two things here are the opposite of {@link EMBERSEED}, and both had to be, because the two
+ * sides of the board kill at completely different speeds.** The enemy seeds the party's back rank
+ * on a forty-tick fuse; a party copying that aims into the one rank all five of its own members
+ * are already converging on, and the host dies before the fuse runs. Measured with the shaft
+ * pointed at `enemy-back` and carrying an {@link EMBER_SEED}, **not one of 57 seeds across forty
+ * fights ever detonated** — 53 died with their carrier. So the target is the largest remaining
+ * health pool, which is the only body a party reliably cannot delete, and the fuse is its own
+ * shorter status. See {@link HEXBRAND}.
+ */
+export const SEEDED_SHAFT = {
+  id: 'seeded-shaft',
+  name: 'Seeded Shaft',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.5 },
+    { kind: 'status', status: HEXBRAND, chance: 0.85 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The tempo turn, and Nazreth's only wide one. A slowed back rank takes fewer turns while the
+ * seed runs down, which is the closest a bomb ever comes to having a setup — the fuse is a fixed
+ * number of ticks and nothing in the game can lengthen it. */
+export const PATIENT_MALICE = {
+  id: 'patient-malice',
+  name: 'Patient Malice',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: SLOW, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 1,
+} as const;
+
+/** Nazreth's last turn. Demons price everything as a debt, and this is the one that comes to
+ * collect from whatever the seeds have already half-paid. */
+export const THE_RECKONING = {
+  id: 'the-reckoning',
+  name: 'The Reckoning',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.0 }],
+  cooldown: 50,
+  priority: 2,
 } as const;
 
 // ---------------------------------------------------------------------------------------
@@ -2820,6 +3253,10 @@ export const SKILLS = [
   BLACKLANCE_THRUST,
   RIPOSTE,
   DUELISTS_READ,
+  CHAINWARD,
+  BLUNT_THE_EDGE,
+  SENDING,
+  THE_NINTH_HOLDS,
   SHIELD_WALL,
   IRON_REBUKE,
   ANVIL_STANCE,
@@ -2839,6 +3276,10 @@ export const SKILLS = [
   HURLED_ANVIL,
   CAVERN_ECHO,
   PIT_PROPS,
+  RUNES_OF_RETURN,
+  GRUDGEFIRE,
+  WARDSTONE,
+  SUNKEN_RUNE,
   PIERCING_SHOT,
   SNARE_ARROW,
   WINDSTEP,
@@ -2858,6 +3299,10 @@ export const SKILLS = [
   SUNSPEAR_CAST,
   PINNING_SHOT,
   QUIVER_UNSLUNG,
+  SUNLIT_BOUGH,
+  STAND_AND_BE_SEEN,
+  BRAMBLECUT,
+  ROOT_AND_BOUGH,
   GRAVE_GRASP,
   CARRION_FEAST,
   BLOOD_PACT,
@@ -2877,6 +3322,10 @@ export const SKILLS = [
   CROWN_OF_FLIES,
   FESTER,
   FEAST_ON_RUIN,
+  THE_LAST_VOLLEY,
+  BONEWHISTLE,
+  BONESHOT,
+  THE_QUIET_FIELD,
   REND,
   MAUL,
   MOUNTAIN_BREAKER,
@@ -2896,6 +3345,10 @@ export const SKILLS = [
   NINEFANG_FEAST,
   GNASHING_TIDE,
   MARROW_CRUNCH,
+  CORROSION,
+  BILESPRAY,
+  GULLET,
+  ACID_WIND,
   CHOIRLIGHT,
   SOOTHING_VERSE,
   VERSE_OF_DAWN,
@@ -2915,6 +3368,10 @@ export const SKILLS = [
   KEEPERS_CHARGE,
   GATEBREAKERS_ANSWER,
   UNYIELDING,
+  THE_DRAWN_SWORD,
+  SENTENCE,
+  BLADE_OF_THE_CHOIR,
+  ANSWERED_IN_KIND,
   EMBERBURST,
   CINDERLASH,
   GAMBLERS_CUT,
@@ -2934,6 +3391,10 @@ export const SKILLS = [
   RED_TITHE,
   TITHE_COLLECTED,
   CRIMSON_SIGIL,
+  THE_HEX_COMES_DUE,
+  SEEDED_SHAFT,
+  PATIENT_MALICE,
+  THE_RECKONING,
   MOTE_LANCE,
   GORE,
   CUTPURSE,

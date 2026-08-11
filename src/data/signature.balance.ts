@@ -45,10 +45,18 @@ import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
  * ## The parties here are not tuning targets
  *
  * A mono-faction five of ascended-tier characters is not what the campaign is tuned for — the
- * roster only ships one per faction, so this is one character copied five times, which no player
- * can field. It is a **control**, chosen because the alternative measures two things at once: a
+ * roster ships two per faction, so this is one character copied five times, which no player can
+ * field. It is a **control**, chosen because the alternative measures two things at once: a
  * mixed party would fold the faction matchup and the lineup bonus into a number meant to isolate
  * one item. What is compared is always the same party against itself.
+ *
+ * ⚠️ **One thing the control provably cannot measure, found in milestone 20: a delayed payload.**
+ * Five copies of one caster all aim at the same target and delete it, so Nazreth's `bomb` never
+ * survives its own fuse in this file — it detonates 0 times out of 77 plants here, against roughly
+ * a third of plants in the contested fights of a party a player would actually build. His figures
+ * below are therefore a **floor**, and any future character whose kit turns on something happening
+ * *later* inherits the same blind spot. It does not invalidate the control: what this file asserts
+ * is that an item never makes its wearer worse, and a floor is the safe side of that.
  */
 
 const rules: CombatRules = toCombatRules(COMBAT_RULES satisfies CombatRulesData);
@@ -250,8 +258,16 @@ describe('what a signature item is worth', () => {
     // What this measured at the shipped numbers, with the party at level 340 — bare reach, then
     // the gain a maxed item buys:
     //
-    //   Aurelia 409 (+27)  Thraun 398 (+14)  Aelrindel 417 (+25)  Nekros 417 (+25)
-    //   Vharok  418 (+35)  Seraphine 421 (+11)  Azrathoth 429 (+29)
+    //   Aurelia   422 (+31)  Corvane 421 (+31)  Thraun    406 (+15)  Vurn    410 (+18)
+    //   Aelrindel 441 (+29)  Maelis  421 (+18)  Nekros    432 (+26)  Carrow  436 (+34)
+    //   Vharok    431 (+35)  Vrakk   429 (+34)  Seraphine 433 ( +9)  Cassiel 430 (+31)
+    //   Azrathoth 448 (+33)  Nazreth 436 (+30)
+    //
+    // ⚠️ The seven original figures moved when milestone 19 re-cut the chapters, without a single
+    // item or stat block changing: `contested()` seeds off `stage.id`, the hardest stage was
+    // renamed `c4-s50` → `c6-s50`, and every trial in this file therefore drew a different
+    // sequence. Nothing was wrong before and nothing is wrong now — but it is worth knowing that
+    // these numbers are only comparable within one cut of the ladder.
     //
     // ⚠️ **A +3% to +8% gain in reach reads modest and is not, and the difference is the step
     // function.** Measured instead as win rate at a *fixed* contested level, the same items take
