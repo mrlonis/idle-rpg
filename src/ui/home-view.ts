@@ -39,7 +39,7 @@ interface CurrencyRow {
   readonly source: string;
 }
 
-/** One tower's card in the battle section. */
+/** One tower's card in the Towers section. */
 interface TowerRow {
   readonly id: string;
   readonly name: string;
@@ -87,6 +87,11 @@ function hasRate(id: CurrencyId): id is RateCurrencyId {
  * so **Home is where a run picks what to do next**, with the campaign as the first card and the
  * towers beside it. The first tower landed in 15b and the other six in 15c as rows here, which is
  * the whole of what building this section as a list bought.
+ *
+ * They are **two** sections now — Campaign and Towers — rather than one headed "Battle", which
+ * named neither of the two kinds of thing a player is choosing between. An unlocked tower also
+ * wears the Fight control's accent: it drew in the card's grey whatever its state, so the palette
+ * said "unavailable" about the one row on the screen that was not.
  *
  * Who is fighting is deliberately not restated here. This screen carried a read-only copy of the
  * formation once, which said the same thing twice and could only ever be the poorer of the two.

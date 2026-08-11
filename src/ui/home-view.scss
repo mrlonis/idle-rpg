@@ -74,10 +74,14 @@
   @include t.numeric;
 }
 
-// The battle section: the campaign card, then a row per tower. A column rather than a grid, because
-// the rows are a *list of destinations* read top to bottom and the campaign is deliberately the
-// widest, tallest thing in it.
-.battles {
+// The two battle sections: the campaign card under one heading, a row per tower under the next.
+// Both are columns rather than grids, because the rows are a *list of destinations* read top to
+// bottom and the campaign is deliberately the widest, tallest thing on the screen.
+//
+// They share a rule because they are the same shape; what separates them is the heading above each
+// and the 1.5rem the host's gap puts between them.
+.campaign,
+.towers {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -113,9 +117,10 @@
   text-decoration: none;
 }
 
-// A tower row. Quieter than the campaign card on purpose: a tower is optional content, and a row
-// that shouted as loudly as the Fight control would make the spine of the game look like one of
-// eight equal choices.
+// A tower row. Still quieter than the campaign card, but the quiet is carried by **size** now
+// rather than by colour: this row is 2.75rem to the Fight control's 3.5rem, 15px to its 17px, and
+// it sits under its own heading a section further down. That is what keeps the spine of the game
+// from reading as one of eight equal choices.
 //
 // The same rule serves the link and the inert paragraph, so a locked row is the same shape as an open
 // one — it is a destination the player does not have the key to yet, not a different kind of thing.
@@ -132,6 +137,26 @@
   color: t.$text;
   text-decoration: none;
   @include t.focus-ring;
+}
+
+// ⚠️ **An open tower wears the Fight control's accent, and that is a reversal.** These rows drew in
+// the card's own grey whatever their state, so a tower the player had unlocked looked exactly like
+// one they had not — the palette said "unavailable" about the only row on the screen that was.
+// Colour is not the sole signal either way: a locked row also says what opens it, and an open one
+// names its next floor.
+//
+// The green is `button-primary`'s, applied by hand rather than by including the mixin: that mixin
+// carries a box model built for a one-line control, and this row is two lines with its own padding.
+// What is wanted is the colour, not the shape.
+//
+// $muted on $accent-bg is 5.5:1, so the detail line still clears AA at 12px.
+.tower--open {
+  border-color: t.$accent;
+  background: t.$accent-bg;
+
+  .tower__name {
+    color: t.$accent;
+  }
 }
 
 // Not `opacity`, which would take the detail line — the part that says what opens the tower — below
@@ -152,7 +177,10 @@
   @include t.numeric;
 }
 
+// `align-self` because this moved inside the campaign section, which stretches its children. It
+// used to be a direct child of the host, whose `align-items: center` did this for it.
 .hint {
+  align-self: center;
   margin: 0;
   max-width: 28rem;
   color: t.$muted;
