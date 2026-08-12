@@ -10,6 +10,7 @@ import {
   CHOIR_OF_ASH,
   CINDER_STORM,
   COUCHED_LANCE,
+  CULL_THE_EMBERS,
   CUTPURSE,
   DOOMKNELL,
   DRAW_INTO_THE_ROOT,
@@ -22,7 +23,6 @@ import {
   GORE,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
-  ZENITHFALL,
   IRON_FOR_IRON,
   LITANY,
   MAUL,
@@ -32,12 +32,14 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NO_ANSWER_COMES,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
+  RIFTSTEP,
   ROOTWAKE,
   RUINOUS_ARC,
   RUINOUS_STOOP,
@@ -52,6 +54,7 @@ import {
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
+  THE_DEBT_CALLED,
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
   THE_LAST_MUSTER,
@@ -72,6 +75,7 @@ import {
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
+  ZENITHFALL,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -4101,7 +4105,6 @@ export const ZENITH_CHORISTER = {
     haste: 106,
     critChance: 0.04,
     critDamageAmp: 0.55,
-    magicalPierce: 0.1,
   },
   skills: [ZENITHFALL, MOTE_LANCE],
 } as const;
@@ -4134,7 +4137,6 @@ export const RUINWING_DEVOURER = {
     critChance: 0.06,
     critDamageAmp: 0.7,
     lifeLeech: 0.12,
-    magicalPierce: 0.12,
   },
   skills: [RUINOUS_STOOP, WITHERING_TOUCH],
 } as const;
@@ -4219,9 +4221,182 @@ export const THE_HORNCALLER = {
     critDamageAmp: 0.85,
     tenacity: 0.4,
     physicalPierce: 0.18,
-    magicalResist: 0.08,
   },
   skills: [THE_HORN_SOUNDS, THE_FIELD_CLOSES, NAME_THE_QUARRY],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Milestone 21j — the Angel Tower's second hundred, floors 101–200.
+//
+// Four blocks, all **Demon**, which is the standing rule: a tower's new blocks belong to its lean,
+// and Demons are the one faction that hits an Angel back. The faction goes 13 → 17.
+//
+// ⚠️ **The axis is not a mechanic, because no mechanic in the game moves an Angel five.** Twenty-two
+// shapes were measured against both arrangements at the roof's level and the whole spread was 0.15
+// survivors; the full table and the two dials that *do* move them are in `skills.ts` beside
+// {@link CULL_THE_EMBERS}. The short version: what an Angel crew cannot answer is a board that
+// arrives **before its wards do** and spends itself on the body its heals are already aimed at.
+//
+// ⚠️ **So these four blocks carry `haste` and aim, and nothing else identifies them.** None of them
+// has a status the game did not already have, none is heavier than what the tower already fields, and
+// three of the four are soft enough to die in a turn. That is the design rather than a shortfall: the
+// crew's weight ceiling is two *medium* anchors — pairing any two of {@link ASHFALL_SOVEREIGN},
+// {@link UNMADE} and {@link HOLLOW_SERAPH} takes the reference five to 5% or below — so weight is the
+// one axis that was already spent.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It steps over the ones still standing to reach the one already down.
+ *
+ * ⚠️ **Demons' first body below `ascended` tier to name `enemy-lowest`**, and the cheap carrier the
+ * closing bands were short of. The faction has owned the aim only on {@link ASHFALL_SOVEREIGN}, so a
+ * board wanting to contest the choir's heal has had to spend one of its two heavy slots on it — and
+ * those slots are what this tower needs for weight. See {@link CULL_THE_EMBERS} for the measurement:
+ * aim at `enemy-lowest` is worth 4.00 → 2.00 survivors against the alternate five where every lock in
+ * the game is worth nothing.
+ *
+ * ⚠️ **`haste` 126 on 440 hp, which is the faction's second-fastest body and its softest.** Demons
+ * have never shipped anything above {@link UNSEALED_WRETCH}'s 118 and this only just passes it,
+ * because the speed dial belongs to the last two bands: what this block is for is arriving *often*
+ * with a small hit rather than arriving *first* with a large one. It is the first casualty of any row
+ * attack aimed at its rank, and it is meant to be.
+ */
+export const CINDER_CULLER = {
+  id: 'cinder-culler',
+  name: 'Cinder Culler',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 440,
+    atk: 50,
+    def: 10,
+    haste: 126,
+    critChance: 0.09,
+    critDamageAmp: 0.6,
+    magicResist: 0.06,
+  },
+  skills: [CULL_THE_EMBERS],
+} as const;
+
+/**
+ * The ward goes up. It was already behind the ward.
+ *
+ * ⚠️ **The fastest Demon in the game by eighteen points, and speed has never been this faction's
+ * idiom.** Demons run 92 to 118 and every faction but Angels and Dwarves ships something above 124 —
+ * Elves reach 152, the Undead 148 — so this is the session that gives Demons a tempo body, and the
+ * reason it is *this* session is that an Angel five's every defence is behind a cooldown or an energy
+ * bar. {@link AEGIS_SKILL} is 80 ticks, {@link DAWNWARD} 70, {@link SANCTUARY} an ultimate. A body
+ * taking three turns to the crew's two is spending them in the window before any of that lands.
+ *
+ * ⚠️ **Thin, and that is the price of the mechanic rather than a discount on it.** 620 hp and 16
+ * `def` is under {@link PYRE}, the softest legendary the faction had; measured, `haste` alone on a
+ * *durable* body is worth almost nothing (4.00 → 3.75 at `haste` 160) and `haste` on a thin one is
+ * the strongest single dial there is (→ 2.67 / 0.15). What makes it work is that it acts before the
+ * ward, not that it survives to act again.
+ *
+ * ⚠️ **Both of its turns name the back rank and neither can touch a front rank at all.** That is what
+ * a tempo body is *for* here — the crew keeps three of five behind, including every heal and both
+ * shields — and it is why it never stands on a board above floor 180 without an anchor in front of it
+ * to hold the party's own attention.
+ */
+export const RIFTSTEP_REAVER = {
+  id: 'riftstep-reaver',
+  name: 'Riftstep Reaver',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 620,
+    atk: 68,
+    def: 16,
+    haste: 136,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    magicPierce: 0.15,
+  },
+  skills: [RIFTSTEP, CUTPURSE],
+} as const;
+
+/**
+ * The choir sings a body back up, and the debt is collected on the way.
+ *
+ * ⚠️ **The first block in the game to drain `enemy-lowest`**, and the one board-piece that makes the
+ * choir's own targeting a liability. Every Angel heal names `ally-lowest`, so a drain aimed at the
+ * same body means the restoration is not outpaced but **taken**: it leaves the party and arrives in
+ * the thing that took it. See {@link THE_DEBT_CALLED}.
+ *
+ * ⚠️ **It is the aim band's converter and it stops at floor 160.** {@link CINDER_CULLER} contests the
+ * heal cheaply and cannot finish anybody; this finishes, at legendary weight, on a body the crew has
+ * already decided to spend a turn on. What it may not do is stand where the fight is long: 21f's rule
+ * — enemy sustain against a party that cannot burst is the clock rather than a lock — binds harder on
+ * an Angel five than on the Dwarf five it was written for, and this block carries the only siphon
+ * these hundred floors have.
+ *
+ * ⚠️ **No taunt ever shares a board with it.** The clause that binds everywhere is "no healer behind
+ * a taunt", and a siphon is bounded by what its holder can land where a heal refills the board — but
+ * the whole reason this tower is authored around tempo is that the alternate Angel five is the slowest
+ * party in the game, so the narrower reading is not worth the seconds here.
+ */
+export const COVENANT_EXECUTOR = {
+  id: 'covenant-executor',
+  name: 'Covenant Executor',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 74,
+    def: 24,
+    haste: 106,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.15,
+  },
+  skills: [THE_DEBT_CALLED, RUINOUS_ARC],
+} as const;
+
+/**
+ * A hundred floors of answered verses, and one that is not.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Unmade + Wrathborn` — blocks
+ * the campaign also fields — which was right for a tower with a hundred floors and no body of its
+ * own, and a second hundred earns one.
+ *
+ * ⚠️ **The fastest `ascended` block in the game at `haste` 112**, over {@link THE_LONGSHADOW}'s 108,
+ * and that is the roof stating the band's axis in the one stat the axis is made of. What it is
+ * deliberately *not* is heavier: 1540 hp and 92 `atk` sit under {@link UNMADE} on both, which is the
+ * ceiling `enemies.spec.ts` holds, and it is under the roof bodies of two of the five towers extended
+ * before it. Weight was measured out as an axis before anything here was authored — see the block
+ * comment above.
+ *
+ * ⚠️ **Its two shipped turns are a pair, and neither says anything alone.**
+ * {@link CINDER_STORM} has stood on demon boards since the first chapter and measures at nothing
+ * against these crews; {@link RUINOUS_STOOP} takes the rank the choir keeps its heals in. Together
+ * with {@link NO_ANSWER_COMES} they are a sequence rather than three attacks: burn all five so that
+ * `enemy-lowest` resolves to whoever the choir is about to save, take the back rank's armour off, and
+ * then remove that body before the verse lands.
+ *
+ * ⚠️ **No `recovery`, no leech, no shield and no status that restores anything** — the only roof body
+ * in the game with no self-sustain of any kind, where three of the other four carry `recovery: 6`.
+ * That is not decoration: against the slowest party in the game a roof that puts health back is the
+ * ninety-second clock wearing a boss's stat block, and the measured cost of a *single* healer on one
+ * of these boards is eleven seconds of the alternate five's fight.
+ */
+export const THE_UNANSWERED = {
+  id: 'the-unanswered',
+  name: 'The Unanswered',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1540,
+    atk: 92,
+    def: 44,
+    haste: 112,
+    critChance: 0.13,
+    critDamageAmp: 0.88,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    magicPierce: 0.2,
+  },
+  skills: [NO_ANSWER_COMES, CINDER_STORM, RUINOUS_STOOP],
 } as const;
 
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
@@ -4349,4 +4524,8 @@ export const ENEMIES = [
   RUINWING_DEVOURER,
   MARROWHUNT_ALPHA,
   THE_HORNCALLER,
+  CINDER_CULLER,
+  RIFTSTEP_REAVER,
+  COVENANT_EXECUTOR,
+  THE_UNANSWERED,
 ] as const;

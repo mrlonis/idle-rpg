@@ -4350,6 +4350,169 @@ export const THE_FIELD_CLOSES = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Milestone 21j — the Angel Tower's second hundred, floors 101–200.
+//
+// ## ⚠️ The measurement that set this band's axis: nothing else moved either crew at all
+//
+// Both Angel arrangements were pointed at twenty-two shapes at the roof's level, controlled at one
+// anchor plus four bodies all asking the same question so that only the mechanic varied — mean
+// survivors of five, reference / alternate:
+//
+// | ×4 board                                                                          | ref  | alt  |
+// | --------------------------------------------------------------------------------- | ---- | ---- |
+// | nothing                                                                           | 4.00 | 4.00 |
+// | taunt, thorns, link, bomb, `SAVAGED`, `BLOODRISEN`, hex volume, `tenacity` 0.60    | 3.95 | 3.92 |
+// | `dodge` 0.30, board stun, board slow, shield, `magicResist` 0.40                   | 3.98 | 3.98 |
+// | a healer                                                                          | 4.00 | 4.00 |
+//
+// **Twenty-two mechanics and the whole spread is 0.15 survivors.** Four supports and a wall absorbs
+// every lock in the library: the crew carries `GUARD`, `BARRIER`, `AEGIS`, two or three heals and a
+// cleanse, and a single body asking a single question is answered before it matters. So this tower
+// cannot escalate by vocabulary — 21i's count of distinct questions does nothing here either, since
+// no individual question costs the crew anything to begin with.
+//
+// What *did* move them is **when the damage lands and where it is aimed**:
+//
+// | ×4 board                     | ref      | alt      |
+// | ---------------------------- | -------- | -------- |
+// | plain front-hitter           | 4.00     | 4.00     |
+// | names `enemy-lowest`         | 3.00     | **2.00** |
+// | drains `enemy-lowest`        | 3.33     | 2.88     |
+// | reaches `enemy-back`         | 3.85     | 3.10     |
+// | `haste` 140 on a thin body   | **2.67** | **0.15** |
+// | names `enemy-highest`        | 4.50     | 4.33     |
+//
+// ⚠️ **Every Angel heal in the game names `ally-lowest`** — {@link CHOIRLIGHT},
+// {@link SOOTHING_VERSE}, {@link VIGIL} — and every shield the crew has is behind a cooldown or an
+// energy bar: {@link AEGIS_SKILL} at 80, {@link DAWNWARD} at 70, {@link SANCTUARY} and
+// {@link KEEPERS_CHARGE} as ultimates. So a board that arrives *before* the ward does, and spends
+// itself on the one body the choir has just committed to, is racing the crew's own cooldowns rather
+// than trying to out-weigh them. Aiming at `enemy-highest` instead makes a board measurably
+// **easier**, because that is where the crew's two tanks stand.
+//
+// ⚠️ **Both dials at once is past the edge and the numbers say so**: a board that is fast *and*
+// names the lowest reads 0.00 / 0.00. The two are authored to arrive one band apart for that reason
+// — aim in 121–160, speed from 161 — and the closing band carries at most two fast bodies.
+//
+// ⚠️ **Denial is not an escalation on this tower, it is a cost.** A healer, a slow, a shield or a
+// resist wall leaves both crews at 4.00 survivors and buys nothing but seconds — the alternate's
+// mean goes 26.0s → 37.8s against four healers. Against a 90-second clock whose cleared-fight
+// headroom bar is 67.5s, and with the alternate already the slowest party in the game (its five
+// characters field **four** damage skills between them at `elite`), those seconds are the scarce
+// resource here. No board above floor 160 carries a heal.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It does not fight the ones standing. It finishes the ones kneeling.
+ *
+ * ⚠️ **Demons' first body below `ascended` tier to name `enemy-lowest`.** The faction has owned the
+ * aim since the campaign's fourth chapter and only ever on an anchor —
+ * {@link ASHFALL_SOVEREIGN} through {@link HEADSMANS_ARC} — so a board wanting to race the choir's
+ * heal to the body it is aimed at has had to spend one of its two heavy slots to do it. That is the
+ * slot this tower's closing bands need for weight, which is what makes a *cheap* carrier the piece
+ * that was missing rather than a stronger one.
+ *
+ * ⚠️ **Priced as chip and it is the whole point of the block.** ×0.85 is under
+ * {@link ZENITHFALL}'s ×0.75 per target only in the sense that this hits one body — against
+ * {@link HEADSMANS_ARC}'s ×2.1 it is a third of an execution. What it sells a board is that the
+ * choir's heal is being *contested* every forty ticks by something that costs a common's slot; what
+ * it cannot do is finish anybody on its own, which is what keeps three of them on a board a rhythm
+ * rather than a wipe.
+ */
+export const CULL_THE_EMBERS = {
+  id: 'cull-the-embers',
+  name: 'Cull the Embers',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.85 }],
+  cooldown: 40,
+  priority: 3,
+} as const;
+
+/**
+ * The rift does not open in front of you. It opens behind you.
+ *
+ * The other half of the aim, and the half that answers the *arrangement* rather than the wounded
+ * body: an Angel five keeps three of its five in the back rank and both of its shields and all of
+ * its heals live there. Reaching one of them is worth 4.00 → 3.10 survivors against the alternate
+ * five, which is second only to the speed dial and needs no new part to say.
+ *
+ * ⚠️ **Single-target rather than `enemy-row-back`, which is not a smaller version of
+ * {@link RUINOUS_STOOP} but a different question.** A row attack hits all three supports for a
+ * fraction each and the crew heals the difference back; one body taking ×1.5 is a support that has
+ * to be replaced. Against a party whose damage would not notice either, the distinction is the whole
+ * block.
+ *
+ * The {@link SUNDER} is a roll rather than a certainty because the carrier acts so often — at
+ * `haste` 136 it takes about three turns to the crew's two, and a certain debuff at that rate is a
+ * permanent one wearing a chance's clothes.
+ */
+export const RIFTSTEP = {
+  id: 'riftstep',
+  name: 'Riftstep',
+  target: 'enemy-back',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * What is owed is owed by whoever can least afford it.
+ *
+ * ⚠️ **The first block in the game to drain `enemy-lowest`.** Both halves of that have shipped
+ * separately for a long time — {@link SOUL_SIPHON} drains the lowest for the Undead, and
+ * {@link TITHE_COLLECTED} drains for the Demons — and the pairing is aimed at something only an
+ * Angel crew does. Every heal the crew owns names `ally-lowest`, so a drain on the same body means
+ * the choir's restoration is not merely outpaced, it is **collected**: the health goes out of the
+ * party and into the thing that took it, and the heal that arrives next tick is topping up a body
+ * that is about to be drained again.
+ *
+ * ⚠️ **The siphon is 0.5 and the carrier is soft, because enemy sustain is this tower's real
+ * danger.** A drain pool is bounded by what its holder can land, unlike a heal, which refills the
+ * board — but the Angel crew's whole failure mode is the ninety-second clock, so 21f's rule binds
+ * harder here than anywhere: this block carries 24 `def` on 820 hp and stands on no board above
+ * floor 160.
+ */
+export const THE_DEBT_CALLED = {
+  id: 'the-debt-called',
+  name: 'The Debt Called',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'drain', damageType: 'magical', power: 1.7, siphon: 0.5 }],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * The verse is sung. It simply arrives after you are gone.
+ *
+ * **The roof's turn, and the tower's thesis stated once in one skill.** ×2.2 on `enemy-lowest` is
+ * the heaviest single-target aim in the game — over {@link HEADSMANS_ARC}'s ×2.1 — and it is
+ * deliberately an execution rather than a threat: on a board that has already burnt all five bodies
+ * with {@link CINDER_STORM}, whichever ally the choir is about to heal is the ally this removes.
+ *
+ * ⚠️ **The pairing is what makes it, and both halves are shipped parts.** A wide chip decides *who*
+ * `enemy-lowest` resolves to, and this decides that they do not survive being it. Neither says
+ * anything alone: {@link CINDER_STORM} has stood on demon boards since the first chapter and measures
+ * at nothing against these crews, and an execution with no chip in front of it names whichever tank
+ * happens to have taken a hit.
+ *
+ * ⚠️ **No status and nothing restored.** Every roof in this milestone has kept that discipline and it
+ * matters most here: the alternate Angel five is the slowest party in the game, so a roof that
+ * lengthened the fight rather than shortening it would be the ninety-second clock with a boss's stat
+ * block on.
+ */
+export const NO_ANSWER_COMES = {
+  id: 'no-answer-comes',
+  name: 'No Answer Comes',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.2 }],
+  cooldown: 50,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4590,4 +4753,8 @@ export const SKILLS = [
   NAME_THE_QUARRY,
   THE_HORN_SOUNDS,
   THE_FIELD_CLOSES,
+  CULL_THE_EMBERS,
+  RIFTSTEP,
+  THE_DEBT_CALLED,
+  NO_ANSWER_COMES,
 ] as const;

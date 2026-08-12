@@ -357,7 +357,7 @@ const crewOf = (tower: TowerData, from: ReadonlyMap<string, Bench>): Bench => {
  * (119/199) sits within 0.002 of the old (59/99), so ten of the seven hundred shipped floors gained
  * a single level and none of them lost a fight over it.
  */
-const PENDING = new Set(['tower-angel', 'tower-demon']);
+const PENDING = new Set(['tower-demon']);
 
 const extended = towers.filter((tower) => !PENDING.has(tower.id));
 

@@ -53,7 +53,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21g | Elf Tower, floors 101–200               | ✅ **Complete** — 200 floors, 114 archetypes         |
 | 21h | Undead Tower, floors 101–200            | ✅ **Complete** — 200 floors, 118 archetypes         |
 | 21i | Monster Tower, floors 101–200           | ✅ **Complete** — 200 floors, 122 archetypes         |
-| 21j | Angel Tower, floors 101–200             | ⬜                                                   |
+| 21j | Angel Tower, floors 101–200             | ✅ **Complete** — 200 floors, 126 archetypes         |
 | 21k | Demon Tower, floors 101–200             | ⬜                                                   |
 | 22  | The roguelite run                       | ⬜                                                   |
 | 23  | Puzzle maps                             | ⬜                                                   |
@@ -3312,6 +3312,163 @@ that no board carries a link, that no board pairs a taunt with a healer, and tha
 160 restores anything — with **a shield deliberately exempt**, because a pool banked once depletes
 where a heal refills. Two stale claims were corrected in `towers.ts`: it said three of seven were
 short (two now) and quoted the pre-21i crystal figures.
+
+---
+
+### 21j. The Angel Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new archetypes and four new skills. The enemy roster goes 122 → **126**,
+all four Demon, which takes that faction 13 → **17**. Six of seven towers now have their second
+hundred. Nothing in `ui/` and nothing in `core/` changed, and `TOWER_RULES` was not touched.
+
+⚠️ **The roadmap said "21j takes Demons to 16" and that was written before 21i, which spent one of
+its four spread blocks on a Demon.** The standing rule is four blocks for the tower's lean, so the
+faction lands on 17 and 21k will take Angels to 16 rather than 15. The rule did not move; the count
+it was quoted against did.
+
+#### ⚠️ A sixth tower, and the first whose axis is not a mechanic at all
+
+21f concluded "read the crew's failure mode before choosing how to escalate", and the five sessions
+before this produced five different answers. This one is none of theirs, and it is the first where
+the honest finding was that **the whole category is unavailable**. Measured against both Angel
+arrangements at the roof's level before anything was authored, controlled at one anchor plus four
+bodies all asking the same question so only the mechanic varies — mean survivors of five:
+
+| ×4 board                                                             | reference | alternate |
+| -------------------------------------------------------------------- | --------- | --------- |
+| nothing                                                              | 4.00      | 4.00      |
+| taunt · thorns · link · bomb · `SAVAGED` · `BLOODRISEN` · hex volume | 3.95–4.00 | 3.92–4.00 |
+| `dodge` 0.30 · board stun · board slow · shield · `magicResist` 0.40 | 3.98–4.00 | 3.98–4.00 |
+| `tenacity` 0.60                                                      | 4.00      | 4.00      |
+| a healer                                                             | 4.00      | 4.00      |
+
+**Twenty-two shapes and the entire spread is 0.15 survivors.** An Angel five carries `GUARD`,
+`BARRIER`, `AEGIS`, two or three heals and — in one arrangement — a cleanse, and a single body asking
+a single question is answered before it matters. ⚠️ **21i's count of distinct questions does not
+transfer either**, and for a reason worth keeping: that axis works because a Monster five answers any
+one question by out-damaging it and has no second answer. Here the first question is already free.
+
+#### What does move them: when the damage lands, and where it is aimed
+
+| ×4 board                   | reference | alternate |
+| -------------------------- | --------- | --------- |
+| plain front-hitter         | 4.00      | 4.00      |
+| names `enemy-lowest`       | 3.00      | **2.00**  |
+| drains `enemy-lowest`      | 3.33      | 2.88      |
+| reaches `enemy-back`       | 3.85      | 3.10      |
+| `haste` 140 on a thin body | **2.67**  | **0.15**  |
+| names `enemy-highest`      | 4.50      | 4.33      |
+
+⚠️ **Every Angel heal in the game names `ally-lowest`** — Choirlight, Soothing Verse, Vigil — and
+every shield the crew has is behind a cooldown or an energy bar: Aegis at 80 ticks, Dawnward at 70,
+Sanctuary and Keeper's Charge as ultimates. So a board that arrives _before_ the ward and spends
+itself on the body the choir has just committed to is racing the crew's own cooldowns rather than
+trying to out-weigh them. **Aiming at `enemy-highest` makes a board easier**, because that is where
+the two tanks stand — which is the exact inverse of 21i's Marrowhunt Alpha, and the reason is the
+same fact read from the other side.
+
+⚠️ **`haste` on a _durable_ body is worth almost nothing** (4.00 → 3.75 at `haste` 160). It is
+`haste` on a thin one that is the strongest dial in the measurement, which is why three of the four
+new blocks are soft enough to die in a turn. Softness is the price of the mechanic, not a discount.
+
+⚠️ **Both dials at once is past the edge and the numbers say so**: fast _and_ naming the lowest reads
+0.00 / 0.00. The aim therefore arrives in 121–160 and the speed from 161, and the closing band never
+carries three bodies above `haste` 126.
+
+#### ⚠️ The two arrangements fail on opposite axes, which no earlier tower found
+
+21e and 21g found the alternate binding, 21h found it flipping by mechanic, 21i found the reference
+much the stronger. Here neither is "the" constraint, because the two are not on the same axis:
+
+| board                                 | reference     | alternate       |
+| ------------------------------------- | ------------- | --------------- |
+| Cinder + Ashfall (two medium anchors) | 100% / 3.70   | 100% / 4.00     |
+| Ashfall + Unmade                      | **5% / 0.05** | 65% / 2.50      |
+| Ashfall + Hollow Seraph               | **5% / 0.07** | 38% / 1.43      |
+| Unmade + Hollow Seraph                | **0% / 0.00** | 15% / 0.55      |
+| Unmade + healer + three healers       | 100% / 27.9s  | 95% / **47.3s** |
+
+**Weight breaks the reference five; length breaks the alternate.** The alternate survives boards the
+reference is at 5% on because it is four supports and a wall — and it is the slowest party in the
+game for the same reason, fielding **four** damage skills across its five characters at `elite`. So
+the roof had to thread both bars rather than be sized against one crew, which was the call taken
+before authoring.
+
+⚠️ **Denial is a cost on this tower, not an escalation.** A healer, a slow, a shield or a resist wall
+leaves both crews at 4.00 survivors and buys nothing but seconds — four healers take the alternate's
+mean from 26.0s to 37.8s against a cleared-fight headroom bar of 67.5s. So **no board above floor 160
+carries a heal, a regeneration, a drain or `lifeLeech`**, and that rule is what pushed the Headsman
+(`lifeLeech` 0.2) out of the last two bands in favour of the Quenchwright and the Cinderquench
+Bearer, which state the same aim and return nothing.
+
+#### Four blocks, four skills, and no new status
+
+- **Cinder Culler** (demon, `common`) — ⚠️ **Demons' first body below `ascended` tier to name
+  `enemy-lowest`.** The faction has owned the aim only on the Ashfall Sovereign, so contesting the
+  choir's heal has always cost a board one of its two heavy slots — and those slots are what this
+  tower needs for weight, which makes a _cheap_ carrier the missing piece rather than a stronger one.
+  ×0.85 on 440 hp: it contests, and it cannot finish anybody.
+- **Riftstep Reaver** (demon, `legendary`) — **the fastest Demon in the game by eighteen points.**
+  Demons run 92 to 118 and every faction but Angels and Dwarves ships something above 124, so speed
+  has never been this faction's idiom; the reason it is this session's is that every Angel defence is
+  on a cooldown. Both its turns name the back rank and neither can touch a front rank at all.
+- **Covenant Executor** (demon, `legendary`) — ⚠️ **the first block in the game to drain
+  `enemy-lowest`.** Both halves have shipped for a long time separately; against a crew whose every
+  heal names `ally-lowest` the pairing means the restoration is not outpaced but **collected**. It
+  stops at floor 160 with the rest of the sustain.
+- **The Unanswered** (demon, `ascended`) — floor 200, the first roof this tower has owned. **The
+  fastest `ascended` block in the game at `haste` 112**, over the Longshadow's 108, and 1540 hp / 92
+  `atk` sits under the Unmade on both — the ceiling `enemies.spec.ts` holds. Its three turns are a
+  sequence rather than three attacks: `CINDER_STORM` burns all five so that `enemy-lowest` resolves
+  to whoever the choir is about to save, `RUINOUS_STOOP` takes that rank's armour off, and
+  `NO_ANSWER_COMES` removes the body before the verse lands. ⚠️ **The only roof body in the game with
+  no self-sustain of any kind** — no `recovery`, where three of the other four carry 6.
+
+The roof is The Unanswered beside the First Cinder over a Riftstep Reaver, a Quenchwright and a
+Cinder Culler — **100% / 2.73 survivors / 22.1s** for the reference five and **98% / 1.90 / 37.0s**
+for the alternate, against bars of 90% and 75%. Every floor of 161–200 was swept individually — the
+worst reference reading is 100% and the worst alternate **95%**, at floor 198 — and the stride over
+the whole new hundred reads 100% / 98%. The longest fight anywhere is 55.0s against a 67.5s bar, and
+no floor times out.
+
+Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a tower does not
+re-open it, and neither 21f, 21g, 21h, 21i nor this needed to.
+
+#### ⚠️ Three dead stat keys from 21i, found by auditing rather than by a failing test
+
+`ZENITH_CHORISTER` and `RUINWING_DEVOURER` carried `magicalPierce` and `THE_HORNCALLER` carried
+`magicalResist`. Neither is a field on `StatBlockData` — the names are `magicPierce` and
+`magicResist` — so all three did nothing, and **nothing caught it**: `data/` asserts conformance by
+assigning `ENEMIES` to a typed local, and an already-`as const` object is not a fresh literal, so
+TypeScript's excess-property check never runs on it. The keys were **deleted** rather than corrected,
+which is a zero-behaviour-change fix and keeps every figure 21i recorded valid; correcting them would
+have handed a common 10% and a legendary 12% magic pierce they were never measured with. ⚠️ **The
+class of bug is worth remembering: a mistyped optional stat is silent in both directions.** The audit
+is one script over `StatBlockData`'s keys and the rest of `data/` is clean.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 1.255 → **1.361**, against the placeholder
+  floor of 0.7. The Angel Tower goes 31,000 → 62,300 and the seven now pay 404,800 against a campaign
+  of 297,500. ⚠️ **The step is exactly 31,300 crystals, so it is exactly +0.1052 and identical every
+  time by construction** — six for six, and the reason "+0.105 five times running" read as a
+  coincidence in earlier entries is that it never was one. Do not check it by subtracting the rounded
+  ratios: 1.255 → 1.361 looks like +0.106. One tower to go, and the 21k projection of 436,100 / 1.466
+  is unchanged.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored. All 1,972 unit tests and all 74 balance tests pass.
+
+#### The prose check, run at the start again
+
+Recomputed rather than read: the crystal figures, the archetype depth per faction, the band-level
+headers for all five new bands, the floor ids and the mini-boss rhythm, the faction shares (demon
+56.6% against a 35–65% band, all seven present, 64 distinct blocks), and a walk of all two hundred
+floors checking that nothing above floor 160 restores anything, that no board pairs a taunt with a
+healer, that no board pairs two heavy anchors, and that nothing above floor 180 carries three bodies
+above `haste` 126. The new hundred has **no repeated board**; the five repeats the walk reports are
+all in the shipped first hundred. Two stale claims were corrected in `towers.ts` — it said two of
+seven were short (one now) and quoted the pre-21j crystal figures — and the tower file's own header
+still said "a hundred floors, enemy levels 1 to 60".
 
 ## 22. The roguelite run
 

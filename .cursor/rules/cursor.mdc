@@ -675,7 +675,7 @@ the two disagree, the code is right and both are stale.
     `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
     and the crew editor's Fight control are inert on it. A control that only asked whether the
     _crew_ was legal would look live and silently do nothing.
-  - ⚠️ **Two of the seven are still a hundred floors short, and that is milestone 21e–21k in
+  - ⚠️ **One of the seven is still a hundred floors short, and that is milestone 21k in
     progress.** `TOWER_RULES` is one rule for all seven, so the height moved in one session while the
     floors move in seven. A tower that has not been extended is **not damaged** — `clearedFloors`
     clamps to what it authors, so `nextFloor` reports it topped and every screen reads it right —
@@ -751,7 +751,7 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](../../src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    A hundred and twenty-two ship, and the distribution is deliberately uneven: milestone 18 took Angels to
+    A hundred and twenty-six ship, and the distribution is deliberately uneven: milestone 18 took Angels to
     eleven and Demons to twelve, milestone 21a took Undead from seven to **seventeen**, 21b took Elves
     the same way, 21c took Dwarves from eight to **eighteen** and 21d took Monsters the same way,
     because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixed each of its four
@@ -762,23 +762,28 @@ the two disagree, the code is right and both are stale.
     hundred took it to **thirteen**, so no faction is now a standout candidate to lean on; 21g took
     Dwarves 18 → **twenty-two** and 21h took Elves 17 → **twenty-one**. ⚠️ **A
     tower session deepens a faction exactly as a chapter session does, four blocks against ten** —
-    that is the other half of the "fix the leans up front" discipline and it applies through 21i–21k.
+    that is the other half of the "fix the leans up front" discipline and it applies through 21k;
+    21i took the four thinnest a block each, 21j took Demons 13 → **seventeen**. ⚠️ **A count quoted
+    in the roadmap ahead of time goes stale the moment a session spends a block outside its own
+    lean** — 21i's spread block took Demons to 13, so 21j's four landed on 17 against a roadmap that
+    said 16, and 21k lands on 16 against a roadmap that said 15. The rule did not move; the count it
+    was quoted against did. **Recompute the depth table rather than reading it.**
     - ⚠️ **A tower with no lean spreads its four blocks the way it spreads its boards, and 21i is the
       case.** The Monster Tower took one block each in the four thinnest factions — angel 11 → 12,
       demon 12 → 13, human 13 → 14, monster 18 → 19 — rather than four into one. Deepening the
-      thinnest is not decoration there: 21j takes Demons to 16 and 21k Angels to 15, and **neither
+      thinnest is not decoration there: 21j takes Demons to 17 and 21k Angels to 16, and **neither
       touches Humans**, so without that session Human would have closed milestone 21 as the standout
       thin faction at 13 against Dwarf's 22 — the state 21f exists to have got the game out of.
       **Check what the remaining sessions already cover before choosing which faction to deepen.**
-    The old
-    note here recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign
-    closed that, and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is
-    bounded by the ones the campaign already fields** rather than by an opinion — the Unmade is the
-    ceiling and nothing may reach it, asserted in `enemies.spec.ts`, because a third and fourth heavy
-    anchor is what makes six towers fail their sweep at once. **Every chapter boss since respects that
-    ceiling rather than raising it**: the Chainsworn, the Hollow Seraph, The Cairn King, The Withered
-    Crown, The Anvil Crowned and The Everwound are each authored under the Unmade on both stats, and
-    what makes them the harder fights is the questions they ask and the level they are fielded at.
+      The old
+      note here recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign
+      closed that, and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is
+      bounded by the ones the campaign already fields** rather than by an opinion — the Unmade is the
+      ceiling and nothing may reach it, asserted in `enemies.spec.ts`, because a third and fourth heavy
+      anchor is what makes six towers fail their sweep at once. **Every chapter boss since respects that
+      ceiling rather than raising it**: the Chainsworn, the Hollow Seraph, The Cairn King, The Withered
+      Crown, The Anvil Crowned and The Everwound are each authored under the Unmade on both stats, and
+      what makes them the harder fights is the questions they ask and the level they are fielded at.
   - ⚠️ **A faction's own idiom can be what makes it hardest to author, and Dwarves are the case.**
     They own the tankiest blocks in the game, so a chapter leaning on them is the one most able to
     run the ninety-second clock out — against a timer whose headroom over the longest tuned fight is
@@ -839,7 +844,7 @@ the two disagree, the code is right and both are stale.
     level it is far the weaker (65% against 95%), because that arrangement's kit is three
     single-target drains. **Check both arrangements on every candidate board** rather than picking
     one to size against; "size it against the alternate first" is true of two towers and not a rule.
-  - ⚠️ **How a second hundred escalates is a per-tower answer and five towers have given five
+  - ⚠️ **How a second hundred escalates is a per-tower answer and six towers have given six
     answers. Read the crew's failure mode before choosing; do not copy the last session's shape.**
     The Human Tower thins its anchors and thickens the board's **support** (links, shields, a taunt),
     which is the inverse of the shipped hundred's climax. The Dwarf Tower cannot: a Dwarf five
@@ -874,6 +879,50 @@ the two disagree, the code is right and both are stale.
       carries `accuracy` either, so `dodge` reads 100%/50% there — the same structural gap 21h built a
       whole second hundred on. It was left on the shelf: **two towers with one lock is one tower
       shipped twice.**
+    - ⚠️ **The Angel Tower's answer is the sixth, and it is the first where the honest finding was
+      that _no mechanic is available at all_.** Twenty-two shapes were measured against both Angel
+      arrangements at the roof's level, controlled at one anchor plus four bodies all asking the same
+      question — taunt, thorns, link, bomb, `SAVAGED`, `BLOODRISEN`, `dodge` 0.30, `tenacity` 0.60, a
+      board stun, a board slow, a shield, `magicResist` 0.40, a healer, hex volume — and the **whole
+      spread was 0.15 survivors of five**, every row between 3.92 and 4.00. An Angel five is
+      `GUARD`, `BARRIER`, `AEGIS`, two or three heals and a cleanse, and the first question is free.
+      ⚠️ **21i's count of distinct questions does not transfer for exactly that reason**: it works
+      because a Monster five answers any _one_ question by out-damaging it and has no second answer,
+      and here the first one costs nothing either.
+      - **What moves them is tempo and aim.** Naming `enemy-lowest` takes the alternate 4.00 →
+        **2.00**; `haste` 140 on a thin body takes it to **0.15**; reaching `enemy-back` 3.10;
+        naming `enemy-highest` reads **4.50 / 4.33**, i.e. _easier_, because that is where the two
+        tanks stand. Every Angel heal names `ally-lowest` and every Angel shield is behind a
+        cooldown or an energy bar, so a board that arrives before the ward and spends itself on the
+        body the choir has just committed to is racing the crew's own cooldowns. ⚠️ **`haste` on a
+        _durable_ body is worth almost nothing** (4.00 → 3.75 at 160) — it is `haste` on a **thin**
+        one that is the strongest dial there is, so softness is the mechanic's price rather than a
+        discount on it.
+      - ⚠️ **Both dials at once is past the edge**: fast _and_ naming the lowest reads 0.00 / 0.00.
+        Aim and speed arrive one band apart for that reason, and the closing band carries no more
+        than two bodies above `haste` 126.
+      - ⚠️ **This is the first tower whose two arrangements fail on _opposite axes_**, which is a
+        different thing from 21h's pair swapping by mechanic. **Weight breaks the reference five** —
+        any two of the Unmade, the Ashfall Sovereign and the Hollow Seraph on one board reads 5% or
+        below for it against 15–65% for the alternate — and **length breaks the alternate**, whose
+        five characters field _four_ damage skills between them at `elite` and which is the slowest
+        party in the game. So neither crew is "the" constraint and the roof has to thread both bars;
+        decide that before authoring rather than discovering it in the sweep.
+      - ⚠️ **Denial is a cost on that tower rather than an escalation.** A healer, slow, shield or
+        resist wall leaves both crews at 4.00 survivors and buys only seconds — four healers take the
+        alternate 26.0s → 37.8s against a 67.5s cleared-fight bar. Its bands therefore forbid a heal,
+        a regeneration, a drain **and** `lifeLeech` above floor 160, which is what pushed the Headsman
+        (`lifeLeech` 0.2) out of the last two bands. **A faction that cannot burst turns every second
+        of enemy sustain into the clock**, which is 21f's rule biting harder than on the crew it was
+        written for.
+    - ⚠️ **A mistyped optional stat is silent in both directions, and 21j found three shipped by
+      21i.** `magicalPierce` on two blocks and `magicalResist` on one — the fields are `magicPierce`
+      and `magicResist` — so all three did nothing and no test noticed: `data/` asserts conformance
+      by assigning `ENEMIES` to a typed local, and an object already frozen with `as const` is not a
+      fresh literal, so TypeScript's excess-property check never runs on it. They were **deleted**
+      rather than corrected, because deleting is the zero-behaviour-change fix and keeps every figure
+      the earlier session recorded valid. **Audit the keys with a script over `StatBlockData`
+      whenever a session authors stat blocks**; the typed local does not cover this.
     - ⚠️ **A taunt on a soft body is a gift, not a door — the mechanic's price is its carrier's
       health.** 21i authored a common taunt on the argument that a taunt narrows the pool before the
       row rule is consulted, and measured it taking the reference five from 4.42 survivors to
@@ -997,8 +1046,10 @@ the two disagree, the code is right and both are stale.
       Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**;
       21f's Dwarf Tower took it to **0.940**, 21g's Elf Tower to **1.045** — the first reading back
       over parity with the campaign since chapter 8 — 21h's Undead Tower to **1.150** and 21i's
-      Monster Tower to **1.255**. The step has been +0.105 **five** times running, to three decimal
-      places; expect the same through 21j–21k.
+      Monster Tower to **1.255** and 21j's Angel Tower to **1.361**. ⚠️ **The step is exactly 31,300
+      crystals — one tower's second hundred — so it is exactly +0.1052 every time by construction**,
+      which is why it has read the same six times running. Do not verify it by subtracting the
+      rounded ratios; 1.255 → 1.361 looks like +0.106. Expect the same at 21k.
     - ⚠️ **The floor is 0.7 right now and that is a mid-milestone placeholder, not a decision.**
       Milestone 21 _is_ the "grow the towers" answer, and it lands in eleven sessions: 21a–21d take
       the campaign to ~297,500 while the tower side is still the shipped 219,100, and only 21e–21k
@@ -1008,9 +1059,9 @@ the two disagree, the code is right and both are stale.
       of 21k.** ⚠️ **It was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
       landings (0.96, 0.83, 0.74) were all known in advance, so re-deriving a quantity that is
       _supposed_ to fall three times over would be three edits that measure nothing. **All three have
-      now landed and the campaign side is at 297,500 against the towers' 373,500** — 219,100 at the
+      now landed and the campaign side is at 297,500 against the towers' 404,800** — 219,100 at the
       end of 21d, which is the figure 21b projected for it, plus the Human, Dwarf, Elf, Undead and
-      Monster Towers' second hundreds. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
+      Monster and Angel Towers' second hundreds. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
       and the **opposite** of the one 21b made on `gradeSoftness`; the distinction is whether the
       quantity is meant to move. A failure after that is the original question again: whether seven towers of two
       hundred floors is still the right amount of optional content beside the campaign of the day.

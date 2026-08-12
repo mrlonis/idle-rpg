@@ -187,7 +187,7 @@ const TOWER_UNIT = 100;
  * ×2 rather than ×5. That is licensed by the one argument every save re-base rests on: **no build
  * carrying this has ever reached a player.**
  */
-const PENDING = new Set(['tower-angel', 'tower-demon']);
+const PENDING = new Set(['tower-demon']);
 
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {

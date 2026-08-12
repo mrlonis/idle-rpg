@@ -84,11 +84,12 @@ import { TOWER_UNDEAD } from './tower-undead';
  * floor, seven towers of two hundred come to **156,100** from floors and **436,100** with both
  * tracks — against a ten-chapter campaign of ~297,500, on ladders gated behind roster depth.
  *
- * ⚠️ **Those are the figures for 21k, not for today.** Five of the seven have their second hundred
- * (21e through 21i), so the tower side stands at 373,500 and the ratio at **1.255** against a floor
+ * ⚠️ **Those are the figures for 21k, not for today.** Six of the seven have their second hundred
+ * (21e through 21j), so the tower side stands at 404,800 and the ratio at **1.361** against a floor
  * of 0.7 that is itself a mid-milestone placeholder. `towers.spec.ts` carries the whole argument.
  * 21g is the session that took it back over parity with the campaign for the first time since the
- * four chapters landed, and each since has been worth about +0.105.
+ * four chapters landed, and each since has been worth **+0.105 to three decimal places, six times
+ * running**.
  *
  * Flat in the floor, for the reason every crystal payout in this game is flat: a pull costs a flat
  * `PULL_COST` forever, so anything scaling with how far a run has come pays most to the player who
@@ -126,9 +127,9 @@ export const TOWER_RULES = {
  * milestone be about the *system*. 15c is the other six, and the eighteen blocks they needed — the
  * counts were lopsided (monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1**) and a
  * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
- * has at least nine. See [`enemies.ts`](./enemies.ts).
+ * has at least twelve. See [`enemies.ts`](./enemies.ts).
  *
- * ## ⚠️ Two of the seven are a hundred floors short, and that is milestone 21e–21k in progress
+ * ## ⚠️ One of the seven is a hundred floors short, and that is milestone 21k in progress
  *
  * {@link TOWER_RULES} is one rule for all seven, so the bump to two hundred floors landed in **one**
  * session while the floors themselves land in seven. Until the last of them, a tower that has not
