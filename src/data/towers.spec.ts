@@ -111,9 +111,10 @@ function slotsOf(tower: TowerData): readonly string[] {
  * What one full climb of one tower pays in crystals, floors plus its own achievement tracks.
  *
  * ⚠️ **Measured over the floors the tower actually authors, not the height the rules state.** Those
- * are the same number for a finished tower and they differ for one still waiting for its second
- * hundred — and counting the rules' height would measure a projection rather than the game, which is
- * the exact mistake 15c fixed when it stopped multiplying one tower's payout by `FACTIONS.length`.
+ * are the same number now that all seven are the full height, and they differed for every session of
+ * 21e–21k while six of them were not — counting the rules' height would have measured a projection
+ * rather than the game, which is the exact mistake 15c fixed when it stopped multiplying one tower's
+ * payout by `FACTIONS.length`.
  */
 function crystalsPerTower(tower: TowerData): number {
   const height = tower.floors.length;
@@ -172,22 +173,6 @@ function campaignCrystals(): number {
  * has to be a whole number of these, and each one has to be worth exactly one chapter.
  */
 const TOWER_UNIT = 100;
-
-/**
- * The towers whose second hundred floors have not been authored yet.
- *
- * ⚠️ **A checklist, and it deletes itself.** {@link TOWER_RULES} is one rule for all seven, so the
- * height moved in one session (21e) while the floors move in seven (21e–21k). Each session deletes
- * its own name here and in `towers.balance.ts`; **21k deletes both lists and this comment**, and the
- * height assertion below collapses back to a plain equality.
- *
- * A tower on this list is not damaged: `clearedFloors` clamps to what it authors, so `nextFloor`
- * reports it topped and every screen reads it correctly. What it loses while it waits is its boss —
- * `floorKindAt` reads the *rules'* height, so its hundredth floor resolves as a mini-boss and pays
- * ×2 rather than ×5. That is licensed by the one argument every save re-base rests on: **no build
- * carrying this has ever reached a player.**
- */
-const PENDING = new Set(['tower-demon']);
 
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
@@ -279,18 +264,13 @@ describe('tower content', () => {
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
     //
-    // ⚠️ **{@link PENDING} is the milestone 21e–21k exception and it is a literal on purpose.** A
-    // filter — "either the full height or half of it" — would pass forever and never notice a tower
-    // nobody went back for. Naming them means the list has to shrink by hand, and the assertion
-    // below is what makes a name left behind after its floors landed fail too.
+    // ⚠️ **This carried a `PENDING` literal through milestones 21e–21k and 21k deleted it**, which
+    // is the whole reason it was a hand-maintained list of names rather than a filter. `TOWER_RULES`
+    // is one rule for all seven, so the height doubled in a single session while the floors moved in
+    // seven — and a filter reading "either the full height or half of it" would have passed forever
+    // and never noticed a tower nobody went back for. All seven are now the full height and this is
+    // a plain equality again.
     for (const tower of towers) {
-      if (PENDING.has(tower.id)) {
-        expect(tower.floors.length, `${tower.id} still on its first hundred`).toBeLessThan(
-          rules.floors,
-        );
-        continue;
-      }
-
       expect(tower.floors.length, tower.id).toBe(rules.floors);
     }
   });
@@ -375,26 +355,18 @@ describe('tower content', () => {
   });
 
   it('puts a mini-boss on every tenth floor and the boss on the roof', () => {
-    // Read over the finished towers only: a tower still waiting for its second hundred has no floor
-    // at the rules' height, so it has no boss to check for. {@link PENDING} says which, and its
-    // mini-boss rhythm is checked below the branch exactly as everybody else's is.
     for (const tower of towers) {
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
-      const height = tower.floors.length;
 
-      if (!PENDING.has(tower.id)) {
-        expect(kinds[rules.floors - 1]).toBe('boss');
-        expect(kinds.filter((kind) => kind === 'boss')).toHaveLength(1);
-      } else {
-        expect(
-          kinds.filter((kind) => kind === 'boss'),
-          tower.id,
-        ).toHaveLength(0);
-      }
-
-      expect(kinds.filter((kind) => kind === 'mini-boss')).toHaveLength(
-        Math.floor(Math.min(height, rules.floors - 1) / rules.miniBossEvery),
-      );
+      expect(kinds[rules.floors - 1], tower.id).toBe('boss');
+      expect(
+        kinds.filter((kind) => kind === 'boss'),
+        tower.id,
+      ).toHaveLength(1);
+      expect(
+        kinds.filter((kind) => kind === 'mini-boss'),
+        tower.id,
+      ).toHaveLength(Math.floor((rules.floors - 1) / rules.miniBossEvery));
     }
   });
 
@@ -543,41 +515,44 @@ describe('what a tower pays', () => {
     // nothing more**, with the prediction written into it that chapter 7 would fire it again and
     // that the answer would be to grow the towers rather than to move the number.
     //
-    // ## ⚠️ Chapter 7 fired it, the answer *is* to grow the towers, and this floor is a placeholder
+    // ## ⚠️ Chapter 7 fired it, the answer *was* to grow the towers, and milestone 21 did that
     //
-    // **Milestone 21 is that work, and it lands in eleven sessions rather than one.** Its four
-    // chapters move only the campaign side while the tower side stays at the shipped 219,100, so the
-    // ratio falls all the way through them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at chapter
-    // 8 (21b) → 0.83 at 9 → **0.74** at 10. Only 21e–21k double every tower to two hundred floors
-    // and take the tower side to 436,100; against the ten-chapter campaign of 297,500 the ratio ends
-    // at **1.466** — the first time since this guard was written that *both* sides moved, and higher
-    // than it has been in two milestones.
+    // **It landed in eleven sessions rather than one.** Its four chapters moved only the campaign
+    // side while the tower side stayed at the shipped 219,100, so the ratio fell all the way through
+    // them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at 8 (21b) → **0.83** at 9 → **0.74** at
+    // 10. Sessions 21e–21k then doubled every tower to two hundred floors and took the tower side to
+    // **436,100** against the ten-chapter campaign's 297,500: 0.74 → 0.835 (Human) → 0.940 (Dwarf) →
+    // 1.045 (Elf) → 1.150 (Undead) → 1.255 (Monster) → 1.361 (Angel) → **1.466** (Demon).
     //
-    // **Five of the seven have landed and the climb back is on the projection**: 0.74 → 0.835 (21e,
-    // Human) → 0.940 (21f, Dwarf) → 1.045 (21g, Elf) → 1.150 (21h, Undead) → **1.255** (21i,
-    // Monster) — +0.105 five times running, to three decimal places. 21g is where it went
-    // back over parity with the campaign for the first time since chapter 8. The step has been
-    // +0.105 four times running, to three decimal places; three to go.
+    // ⚠️ **The step is exactly 31,300 crystals — one tower's second hundred — so it is exactly
+    // +0.1052 every time by construction**, seven for seven. Do not check it by subtracting the
+    // rounded figures: 1.255 → 1.361 looks like +0.106.
     //
-    // ⚠️ **So 0.7 is a floor for the middle of a milestone and nothing else, and restoring it is a
-    // deliverable of 21k rather than a nice-to-have.** It was 1.1 for 21a alone; 21b takes it to 0.7
-    // in one edit that covers 21b, 21c and 21d, because re-deriving a quantity that is *supposed* to
-    // fall — once per chapter, three times, to three numbers all known in advance — is three edits
-    // that measure nothing. That is the same call 21a made on `levels.spec.ts`'s ceiling ratio and
-    // the opposite of the one 21b made on `gear.ts`'s `gradeSoftness`, and the distinction is
-    // whether the quantity is meant to move: this one is, and that one is a bug being papered over.
+    // ## ⚠️ The floor was a placeholder for six sessions and 21k is what restores it
     //
-    // ⚠️ **The cost is that this watches nothing until 21k**, which is the acknowledged price of
-    // doing it in one edit. It must go back to at least 1.3 once the seventh tower's second hundred
-    // floors land; the projected 1.47 leaves room to put it back higher than that, and doing so is
-    // what stops a temporary dip becoming the permanent bar. A failure here *after* 21k is the
-    // original question again: whether seven towers of two hundred floors is still the right amount
-    // of optional content beside the campaign of the day.
+    // It was 1.3 before milestone 21, 1.1 for 21a alone, and then **0.7 in a single edit covering
+    // 21b through 21d** — because re-deriving a quantity that is *supposed* to fall, three times, to
+    // three numbers all known in advance, is three edits that measure nothing. The acknowledged
+    // price was that it watched nothing from 21b until now. That was the same call 21a made on
+    // `levels.spec.ts`'s ceiling ratio and the opposite of the one 21b made on `gear.ts`'s
+    // `gradeSoftness`; the distinction is whether the quantity is meant to move.
+    //
+    // **It is back at 1.3, which is where it was before the milestone rather than a new bar.** The
+    // measured 1.466 leaves about 11% of headroom, and that headroom is the point: this ratio falls
+    // again as soon as the campaign grows, reading **1.314** after an eleventh fifty-stage chapter
+    // and **1.190** after a twelfth. So 1.3 survives chapter 11 and fires at chapter 12 — and 1.4,
+    // which was the alternative, would have fired on the very next chapter shipped.
+    //
+    // ⚠️ **A failure here now is the original question again rather than a number to slide**:
+    // whether seven towers of two hundred floors is still the right amount of optional content
+    // beside the campaign of the day. The towers are no longer fixed while the campaign grows —
+    // growing them is what this milestone was — so the honest answers are a third hundred, an eighth
+    // ladder, or accepting that the campaign has outgrown its optional content.
     const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
     const campaign = campaignCrystals();
     const note = `seven towers ${seven} against a campaign of ${campaign}`;
 
-    expect(seven / campaign, note).toBeGreaterThan(0.7);
+    expect(seven / campaign, note).toBeGreaterThan(1.3);
     expect(seven / campaign, note).toBeLessThan(4);
   });
 });

@@ -340,27 +340,6 @@ const crewOf = (tower: TowerData, from: ReadonlyMap<string, Bench>): Bench => {
   return party;
 };
 
-/**
- * The towers whose second hundred floors have not been authored yet.
- *
- * ⚠️ **A checklist, and it deletes itself.** `TOWER_RULES` is one rule for all seven, so the height
- * moved in a single session (21e) while the floors move in seven (21e–21k). A tower still on its
- * first hundred is not damaged — `clearedFloors` clamps to what it authors and `nextFloor` reports
- * it topped — but it has no roof, so the assertions about a roof have nothing to read.
- *
- * Each session deletes its own name here and in `towers.spec.ts`; **21k deletes both lists and this
- * comment**. A session that forgets fails loudly instead of shipping half a tower, which is the
- * whole reason this is a literal rather than a filter on the height.
- *
- * ⚠️ **Only the roof and the second band are suspended.** Floors 1–100 of all seven are swept
- * against band 1 exactly as before, because the level line barely moved under them: the new slope
- * (119/199) sits within 0.002 of the old (59/99), so ten of the seven hundred shipped floors gained
- * a single level and none of them lost a fight over it.
- */
-const PENDING = new Set(['tower-demon']);
-
-const extended = towers.filter((tower) => !PENDING.has(tower.id));
-
 /** Every floor of every tower against its own crew, for the load-bearing guards. */
 const everyFloor = towers.flatMap((tower) => sweepTower(tower, crewOf(tower, CREWS), 'crew', 1));
 
@@ -370,7 +349,7 @@ const alternates = towers.flatMap((tower) =>
   sweepTower(tower, crewOf(tower, ALTERNATES), 'alternate', STRIDE),
 );
 
-const topFloors = extended.map((tower) => {
+const topFloors = towers.map((tower) => {
   const floors = floorsOf(tower);
   const stage = floors[floors.length - 1];
   return {
@@ -399,10 +378,12 @@ describe('tower balance', () => {
     // band's line-ups in `tower-<faction>.ts`, not the party — the party is derived from the tower's
     // own level line.
     //
-    // Read over {@link extended} rather than every tower, because a tower still on its first hundred
-    // has no roof to take: `floorKindAt` reads the *rules'* height, so its last authored floor is a
-    // mini-boss. The count is asserted so this cannot quietly become a loop over nothing.
-    expect(topFloors.length).toBeGreaterThan(0);
+    // ⚠️ **Read over every tower since 21k, and it was read over a `PENDING` filter before that.**
+    // The height doubled in one session (21e) and the floors moved in seven, so for six sessions a
+    // tower still on its first hundred had no roof for this to read — `floorKindAt` reads the
+    // *rules'* height, so its last authored floor resolved as a mini-boss. All seven are the full
+    // height now. The count is still asserted so this cannot quietly become a loop over nothing.
+    expect(topFloors.length).toBe(towers.length);
     for (const top of topFloors) {
       expect(
         top.winRate,
@@ -432,9 +413,8 @@ describe('tower balance', () => {
     // than about the climb. Band 2's opener is the honest comparison and it is the same five.
     const opening = everyFloor.filter((entry) => entry.floor === BAND_FLOORS + 1);
 
-    // One per finished tower, because band 2's opening floor is the first floor of the second
-    // hundred — a tower still on {@link PENDING} has not authored it yet.
-    expect(opening.length).toBe(extended.length);
+    // One per tower, because band 2's opening floor is the first floor of the second hundred.
+    expect(opening.length).toBe(towers.length);
     for (const top of topFloors) {
       const first = opening.find((entry) => entry.tower === top.tower);
 
@@ -512,11 +492,10 @@ describe('tower balance', () => {
     for (const tower of towers) {
       for (const band of [1, 2] as const) {
         const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
-        if (mine.length === 0) {
-          // A tower still on its first hundred has no band 2. {@link PENDING} is what says so.
-          expect(PENDING.has(tower.id), `${tower.id} band ${band}`).toBe(true);
-          continue;
-        }
+
+        // Every tower authors both bands since 21k, so an empty one is a tower that lost its floors
+        // rather than a tower waiting for them.
+        expect(mine.length, `${tower.id} band ${band} samples`).toBeGreaterThan(0);
         const half = Math.floor(mine.length / 2);
 
         expect(mean(mine.slice(half)), `${tower.id} band ${band} upper half`).toBeGreaterThan(

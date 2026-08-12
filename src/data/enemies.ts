@@ -23,8 +23,10 @@ import {
   GORE,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
+  HUSH_THE_MANY,
   IRON_FOR_IRON,
   LITANY,
+  MASSED_LITANY,
   MAUL,
   MEND,
   MIRE,
@@ -32,7 +34,9 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NOTHING_IS_SPARED,
   NO_ANSWER_COMES,
+  ONE_VOICE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
@@ -57,7 +61,9 @@ import {
   THE_DEBT_CALLED,
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
+  THE_KNELL,
   THE_LAST_MUSTER,
+  THE_LAST_VERSE,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
@@ -4399,6 +4405,164 @@ export const THE_UNANSWERED = {
   skills: [NO_ANSWER_COMES, CINDER_STORM, RUINOUS_STOOP],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's second hundred — milestone 21k's four Angel blocks
+//
+// ⚠️ **All four exist to say something to all five bodies at once, because nothing else registers.**
+// Seven single-target mechanics measured against both Demon arrangements at the roof's level and
+// every one of them left the board *easier* than saying nothing; the same statuses riding a
+// board-wide turn take the alternate five from 3.88 survivors to 2.88 (a slow) and 1.85 (a stun).
+// See the section header above {@link MASSED_LITANY} in `skills.ts` for the tables and for why the
+// licence is placement rather than size.
+//
+// ⚠️ **Three of the four are deliberately soft**, and that is the mechanic's price rather than a
+// discount on it. A board may only ask its question as often as it can keep the voice alive, so the
+// two legendaries here carry 660 and 700 hp — the lightest bodies this tower's closing bands field —
+// and the common carries 520. The Unison is the exception, and it is the roof.
+//
+// This takes Angels from twelve archetypes to **sixteen**. They were the thinnest faction in the
+// game before this session; Humans are now, at fourteen, and the spread across the seven runs 14 to
+// 22 — no standout in either direction, which is the state 21f exists to keep the game in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not addressing you. It is addressing the room, and you are in it.
+ *
+ * The cheapest board-wide voice in the game, and floors 101–120 are the band that teaches what that
+ * is going to mean. 520 hp on a body whose one turn is {@link MASSED_LITANY} and whose chip damage
+ * a Demon five does not feel — what it changes is that a slot on these boards is now spent on
+ * *everybody*, which is the sentence the next four bands escalate.
+ *
+ * ⚠️ **Angels' first common with a board-wide turn**, and the reason a common carries it rather than
+ * a legendary is the same reason {@link CINDER_CULLER} is a common on the mirror tower: the closing
+ * bands need their heavy slots for weight, so the piece that was missing was a *cheap* way to say
+ * this rather than a stronger one.
+ */
+export const LITANY_BEARER = {
+  id: 'litany-bearer',
+  name: 'Litany Bearer',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 46,
+    def: 14,
+    haste: 102,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    magicResist: 0.1,
+  },
+  skills: [MASSED_LITANY],
+} as const;
+
+/**
+ * The choir does not out-shout them. It slows the room down until they are out of turns.
+ *
+ * The first rider on a board-wide turn, and worth 4.08 → 2.67 survivors against the alternate five
+ * on a controlled board where the same {@link SLOW} aimed at one body is worth nothing at all. A
+ * Demon five's whole plan is to act: every one of its damage skills is magical and on a forty- to
+ * seventy-tick cooldown, and between them it swings. Taking gauge off all five is the one tax it
+ * cannot spread.
+ *
+ * ⚠️ **700 hp and 22 `def`, which is the licence and not a rounding.** Neither Demon arrangement
+ * unlocks a cleanse at `elite` — {@link CRIMSON_SIGIL} is Sanguine's third skill — and no Demon in
+ * the game carries a point of `tenacity`, so this lands with certainty on all five every time it is
+ * allowed to, and the only answer the crew has is to kill it. A board that put this behind a wall
+ * would be a lock rather than a question.
+ */
+export const STILLNESS_CANTOR = {
+  id: 'stillness-cantor',
+  name: 'Stillness Cantor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 54,
+    def: 22,
+    haste: 100,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [HUSH_THE_MANY],
+} as const;
+
+/**
+ * One note. Five bodies stop for it.
+ *
+ * **The strongest thing measured against these crews and the block the last two bands are built
+ * around**: 3.88 → 1.85 survivors for the alternate five, against 2.88 for the slow. {@link
+ * THE_KNELL} is only the third board-wide stun in the game and the first that is a body's *whole*
+ * turn rather than punctuation on an anchor's.
+ *
+ * ⚠️ **660 hp — near the bottom of the Angel legendary range, which runs 590 to 1080 — and it is
+ * authored that way on purpose.** This is a lock the Demon crews cannot buy an answer to, so what
+ * keeps it fair is where it is put: the party removes it in a turn or two once it decides to, and a
+ * board is only allowed to keep asking for as long as it can keep this standing. `haste` 108 buys it
+ * the first word rather than a second one.
+ */
+export const KNELL_CHANTER = {
+  id: 'knell-chanter',
+  name: 'Knell Chanter',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 660,
+    atk: 58,
+    def: 20,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    magicResist: 0.1,
+  },
+  skills: [THE_KNELL],
+} as const;
+
+/**
+ * The whole choir, on one breath. There is nothing in the room it is not addressed to.
+ *
+ * Floor 200, and the first roof this tower has owned. **The only block in the game with three
+ * board-wide turns** — {@link STORMCALLER} is the only other with even two, and the remaining eight
+ * blocks that speak to a whole board have one apiece — which is the tower's thesis written as a stat
+ * block rather than as a board.
+ *
+ * The three are a sequence rather than three attacks: {@link ONE_VOICE} weakens all five so that
+ * everything after it lands against a party hitting for less, {@link NOTHING_IS_SPARED} takes the
+ * gauge off all five, and {@link THE_LAST_VERSE} takes the turn itself.
+ *
+ * ⚠️ **1720 hp and 92 `atk` sit under The Unmade on both**, which is the ceiling
+ * `enemies.spec.ts` holds — and this body's weight is not what makes it the roof. A *second* heavy
+ * anchor beside it is past the edge: with a Hierophant it reads 95% / 3.17 for the reference five
+ * and **5%** for the alternate, with a Colossus 70% / 0%, and with the Hollow Seraph 5% / 0%. What
+ * the roof fields instead is this and the three soft voices above, which reads **100% / 4.10** and
+ * **88% / 1.98**.
+ *
+ * ⚠️ **`recovery` 5 and nothing else that restores.** Three of the other six roofs carry 6 and 21j's
+ * carries none; the Demon crews take this floor in 9.6 seconds against a 67.5-second headroom bar,
+ * so a trickle on the roof is texture here where on the Dwarf Tower it would be the clock. Nothing
+ * on this board heals, shields or drains.
+ */
+export const THE_UNISON = {
+  id: 'the-unison',
+  name: 'The Unison',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1720,
+    atk: 92,
+    def: 46,
+    recovery: 5,
+    haste: 106,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    magicPierce: 0.2,
+    magicResist: 0.15,
+  },
+  skills: [ONE_VOICE, NOTHING_IS_SPARED, THE_LAST_VERSE],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -4528,4 +4692,8 @@ export const ENEMIES = [
   RIFTSTEP_REAVER,
   COVENANT_EXECUTOR,
   THE_UNANSWERED,
+  LITANY_BEARER,
+  STILLNESS_CANTOR,
+  KNELL_CHANTER,
+  THE_UNISON,
 ] as const;

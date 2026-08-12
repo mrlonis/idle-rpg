@@ -54,7 +54,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21h | Undead Tower, floors 101–200            | ✅ **Complete** — 200 floors, 118 archetypes         |
 | 21i | Monster Tower, floors 101–200           | ✅ **Complete** — 200 floors, 122 archetypes         |
 | 21j | Angel Tower, floors 101–200             | ✅ **Complete** — 200 floors, 126 archetypes         |
-| 21k | Demon Tower, floors 101–200             | ⬜                                                   |
+| 21k | Demon Tower, floors 101–200             | ✅ **Complete** — 200 floors, 130 archetypes         |
 | 22  | The roguelite run                       | ⬜                                                   |
 | 23  | Puzzle maps                             | ⬜                                                   |
 
@@ -3469,6 +3469,139 @@ above `haste` 126. The new hundred has **no repeated board**; the five repeats t
 all in the shipped first hundred. Two stale claims were corrected in `towers.ts` — it said two of
 seven were short (one now) and quoted the pre-21j crystal figures — and the tower file's own header
 still said "a hundred floors, enemy levels 1 to 60".
+
+### 21k. The Demon Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new archetypes and six new skills. The enemy roster goes 126 → **130**,
+all four Angel, which takes that faction 12 → **16**. **All seven towers are two hundred floors**,
+milestone 21 is closed, and both `PENDING` lists are deleted. Nothing in `ui/` and nothing in
+`core/` changed, and `TOWER_RULES` was not touched.
+
+#### ⚠️ The seventh answer, and the first that is about scope rather than about a mechanic
+
+Measured against both Demon arrangements at the roof's level before anything was authored,
+controlled at one anchor plus four bodies all asking the same question, forty seeds — mean survivors
+of five against a **4.13 / 4.05** control:
+
+| one body at a time                                              | reference | alternate |
+| --------------------------------------------------------------- | --------- | --------- |
+| stun · slow · weaken · sunder · poison · `SAVAGED` · `HEXBRAND` | 4.17–4.38 | 4.05–4.17 |
+| a taunt                                                         | **4.78**  | **4.85**  |
+
+**Seven mechanics one body at a time, and every one of them leaves the board _easier_ than saying
+nothing.** The reference five carries 9,416 to 12,822 hp a body at `elite`, so a question put to one
+of them is a turn the other four do not have to answer; a taunt is worse still, because it narrows a
+pool the crew's damage largely does not consult — the same reading 21i recorded from the other side.
+
+| the same turn, aimed at all five | reference | alternate |
+| -------------------------------- | --------- | --------- |
+| wide damage alone                | 4.53      | 3.88      |
+| wide damage + `SLOW`             | 4.03      | **2.88**  |
+| wide damage + `STUN`             | **3.95**  | **1.85**  |
+
+⚠️ **The status has to ride the attack rather than cost a turn** — the same statuses on a skill of
+their own are the first table. A board that spends one turn saying something and the next doing
+something is a board this crew out-damages either way. So the bands escalate in the **scope** of
+what a board does rather than in its size: one voice, then a voice with a rider, then the rider
+becoming the turn, then two voices, then three.
+
+⚠️ **This is a fact about these two crews and not a structural gap only Demons have, and the entry
+does not claim one.** The identical board reads 2.40 / 0.60 against the Elf crews and 0.88 / 0.00
+against the Monster crews. What makes it this tower's is that nothing _else_ moves the Demon pair —
+and the control that says so is the Angel five, where the same board reads **4.00 / 3.95**, the crew
+21j found nothing moves at all.
+
+⚠️ **Weight is not available as the axis, which is the other half of the finding.** At the roof's
+level The Unison beside a Hierophant reads 95% / 3.17 for the reference five and **5%** for the
+alternate; beside a Colossus 70% / 0%; beside the Hollow Seraph 5% / 0%. No board in the new hundred
+carries two `ascended` blocks.
+
+⚠️ **The licence for a lock the crew cannot answer is placement, exactly as it is for an evasion
+pool.** Neither Demon arrangement unlocks a cleanse at `elite` — Sanguine's `CRIMSON_SIGIL` is her
+third skill — and no Demon in the game carries a point of `tenacity`, so every one of these lands
+with certainty and there is nothing to buy. What keeps it a question is that the voices are soft: the
+Knell Chanter is 660 hp and the Stillness Cantor 700, against an Angel legendary register running 590
+to 1080. **The answer is to kill the voice.**
+
+#### ⚠️ Two candidate axes were measured and declined, and one of them looked like the obvious one
+
+- **The magic ward.** Demons are the only faction in the game with **zero physical damage skills**
+  (19 magical / 0 physical; the next closest is Undead at 14 / 6), and no stat counters `magicResist`
+  — a structurally clean lock that reads as invisible to five of the seven crews. It was declined on
+  **size**: the highest `magicResist` on any of the 126 shipped blocks was 0.14, and at 0.15 on a
+  heavy body the wall is worth 0.00 / 0.54 survivors. It only bites at 0.60, which is four times
+  anything authored, and that is a new bar rather than a new board. Recorded because it is real and
+  someone will find it again.
+- **Weight, as the shipped hundred did.** Declined because it is the sixth tower in a row and, at
+  this crew's sensitivity, it has no room: one heavy anchor is 100% / 4.00 against 75% / 1.58, and
+  two is 48% / 0%.
+
+#### Four blocks, six skills, and no new status
+
+- **Litany Bearer** (angel, `common`) — **Angels' first common with a board-wide turn**, and the band
+  that teaches the second half. 520 hp, `MASSED_LITANY` at ×0.7 and no rider at all: what it changes
+  is that a slot on these boards is now spent on _everybody_. A cheap carrier for the same reason
+  21j's Cinder Culler is a common on the mirror tower — the closing bands need their heavy slots.
+- **Stillness Cantor** (angel, `legendary`) — the first rider, and `SLOW` rather than `STUN` because
+  a slow is the half of turn theft a party can still play around. 700 hp / 22 `def`, `HUSH_THE_MANY`
+  at 0.75 against the three shipped board-wide slows' 0.7 to 0.85.
+- **Knell Chanter** (angel, `legendary`) — **only the third board-wide stun in the game and the first
+  that is a body's whole turn** rather than punctuation on an anchor's. 660 hp, `THE_KNELL` at 0.4,
+  `haste` 108 so it gets the first word rather than a second one.
+- **The Unison** (angel, `ascended`) — floor 200, the first roof this tower has owned. **The only
+  block in the game with three board-wide turns** (Stormcaller is the only other with even two), and
+  the three are a sequence: `ONE_VOICE` weakens all five, `NOTHING_IS_SPARED` takes their gauge, and
+  `THE_LAST_VERSE` takes the turn. 1720 hp / 92 `atk`, under the Unmade on both. ⚠️ **Its stun stays
+  at 0.4 — the one number not raised with the body carrying it** — because the Knell Chanter's chance
+  is licensed by being killable and this is not; a certain board-wide stun from a body that survives
+  the fight is the ninety-second clock with a boss's stat block on.
+
+The roof is The Unison over a Litany Bearer, a Knell Chanter, a Stillness Cantor and a Lumen Acolyte
+— **100% / 4.10 survivors / 9.6s** for the reference five and **88% / 1.98 / 17.2s** for the
+alternate, against bars of 90% and 75%. Every floor of 181–200 was swept individually: the worst
+reference reading is 100% and the worst alternate **78%**, at floor 194. The longest cleared fight
+anywhere in the new hundred is 37.5s against a 67.5s bar, and no floor times out.
+
+Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a tower does not
+re-open it, and none of 21f through 21k needed to.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio, and this is the one 21k owed.** 1.361 →
+  **1.466**, and the floor goes back from the 0.7 placeholder to **1.3**, where it stood before
+  milestone 21. The Demon Tower goes 31,000 → 62,300 and the seven now pay **436,100** against a
+  campaign of 297,500 — 21b's projection to three decimal places, seven sessions out. ⚠️ **The step
+  was exactly 31,300 crystals and therefore exactly +0.1052 every time, seven for seven**; do not
+  check it by subtracting the rounded ratios.
+  - ⚠️ **1.3 rather than 1.4, and the reason is the next chapter.** This ratio falls again as soon as
+    the campaign grows: an eleventh fifty-stage chapter takes it to **1.314** and a twelfth to
+    **1.190**. So 1.3 survives chapter 11 and fires at chapter 12, where 1.4 would have fired on the
+    very next chapter shipped. **A failure there is the original question rather than a number to
+    slide** — the towers are no longer fixed while the campaign grows, so the honest answers are a
+    third hundred, an eighth ladder, or accepting that the campaign has outgrown its optional content.
+- **Both `PENDING` lists deleted**, and with them the branches they guarded: `towers.spec.ts`'s
+  height check collapses back to a plain equality and its boss check loses its else-branch;
+  `towers.balance.ts`'s `extended` filter is gone and three assertions now read over every tower,
+  with `expect(topFloors.length).toBe(towers.length)` in place of `toBeGreaterThan(0)` so the loop
+  still cannot become a loop over nothing.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored. All 1,972 unit tests and all 74 balance tests pass.
+
+#### The prose check, run at the start and again at the end
+
+Recomputed rather than read, and **five claims written during this session were wrong before the
+script caught them**: that ×1.1 is the heaviest board-wide damage in the file (it is 1.15, on
+`DEVOURING_TIDE` and `RUIN_UNBOUND`); that `MOONSONG` is the only other board-wide slow (there are
+three); that `THE_KNELL` is the fifth board-wide stun (it is the third); that the Knell Chanter and
+Stillness Cantor are the two lightest legendary bodies above floor 140 (they are fourth and sixth —
+Moonsong Weaver is 560); and that The Unison is the only block whose every turn is board-wide (ten
+blocks qualify — what is unique is having **three**). Also checked: the faction depth table, the band
+level headers for all five new bands, the floor ids and mini-boss rhythm, the faction shares (angel
+58.8% in the new hundred and **59.9%** overall against a 35–65% band, all seven present, 40 distinct
+blocks), no repeated board anywhere in the new hundred and none repeating a shipped one, no board
+pairing a taunt with a healer, and the crystal figures. Three stale claims were corrected in
+`towers.ts` — it said one of seven was short, quoted the pre-21k crystal figures, and said every
+faction has at least twelve archetypes (fourteen now).
 
 ## 22. The roguelite run
 

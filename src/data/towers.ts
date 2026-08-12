@@ -84,12 +84,12 @@ import { TOWER_UNDEAD } from './tower-undead';
  * floor, seven towers of two hundred come to **156,100** from floors and **436,100** with both
  * tracks — against a ten-chapter campaign of ~297,500, on ladders gated behind roster depth.
  *
- * ⚠️ **Those are the figures for 21k, not for today.** Six of the seven have their second hundred
- * (21e through 21j), so the tower side stands at 404,800 and the ratio at **1.361** against a floor
- * of 0.7 that is itself a mid-milestone placeholder. `towers.spec.ts` carries the whole argument.
- * 21g is the session that took it back over parity with the campaign for the first time since the
- * four chapters landed, and each since has been worth **+0.105 to three decimal places, six times
- * running**.
+ * **All seven have their second hundred as of 21k**, so those are the shipped figures: 436,100
+ * against 297,500, a ratio of **1.466**, and the floor is back at **1.3** where it stood before
+ * milestone 21 rather than at the 0.7 placeholder it spent 21b–21j at. `towers.spec.ts` carries the
+ * whole argument. 21g is the session that took it back over parity with the campaign for the first
+ * time since the four chapters landed, and every one of the seven was worth **+0.1052 exactly** —
+ * one tower's second hundred is 31,300 crystals, so the step is identical by construction.
  *
  * Flat in the floor, for the reason every crystal payout in this game is flat: a pull costs a flat
  * `PULL_COST` forever, so anything scaling with how far a run has come pays most to the player who
@@ -127,21 +127,22 @@ export const TOWER_RULES = {
  * milestone be about the *system*. 15c is the other six, and the eighteen blocks they needed — the
  * counts were lopsided (monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1**) and a
  * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
- * has at least twelve. See [`enemies.ts`](./enemies.ts).
+ * has at least fourteen. See [`enemies.ts`](./enemies.ts).
  *
- * ## ⚠️ One of the seven is a hundred floors short, and that is milestone 21k in progress
+ * ## ⚠️ All seven are two hundred floors, and the interim is worth remembering
  *
  * {@link TOWER_RULES} is one rule for all seven, so the bump to two hundred floors landed in **one**
- * session while the floors themselves land in seven. Until the last of them, a tower that has not
- * been extended simply ends at its hundredth floor — `clearedFloors` clamps to what the tower
- * authors, so `nextFloor` reports it topped and nothing in `ui/` misreads it. What it does lose is
- * its boss: `floorKindAt` reads the *rules'* height, so floor 100 resolves as a mini-boss and pays
- * ×2 rather than ×5 while it waits.
+ * session (21e) while the floors themselves landed in seven (21e–21k). For six sessions in between,
+ * a tower that had not been extended simply ended at its hundredth floor — `clearedFloors` clamps to
+ * what the tower authors, so `nextFloor` reported it topped and nothing in `ui/` misread it. What it
+ * lost while it waited was its boss: `floorKindAt` reads the *rules'* height, so its floor 100
+ * resolved as a mini-boss and paid ×2 rather than ×5.
  *
- * That is licensed by exactly one argument, the same one the save re-bases rest on: **no build
- * carrying this has ever reached a player.** `towers.spec.ts` holds the list of towers still
- * waiting, each session deletes its own name, and 21k deletes the list — so a session that forgets
- * fails loudly rather than shipping a tower that is quietly half a tower.
+ * That was licensed by exactly one argument, the same one the save re-bases rest on: **no build
+ * carrying this has ever reached a player.** What kept it honest was a hand-maintained `PENDING`
+ * list of names in `towers.spec.ts` and `towers.balance.ts` that each session shrank and 21k
+ * deleted — a filter reading "either the full height or half of it" would have passed forever and
+ * never noticed a tower nobody went back for. **Do it the same way if the height ever moves again.**
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change

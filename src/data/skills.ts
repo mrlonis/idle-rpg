@@ -4513,6 +4513,187 @@ export const NO_ANSWER_COMES = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's second hundred — milestone 21k's four, and the seventh answer to
+// "how does a tower escalate"
+//
+// ⚠️ **A Demon five is answered board-wide or it is not answered at all.** Measured against both
+// arrangements at the roof's level before anything here was authored, on a controlled board of one
+// anchor plus four bodies all asking the same question, forty seeds — mean survivors of five,
+// reference / alternate, against a **4.13 / 4.05** control:
+//
+// | one body at a time                                              | ref       | alt       |
+// | --------------------------------------------------------------- | --------- | --------- |
+// | stun · slow · weaken · sunder · poison · `SAVAGED` · `HEXBRAND` | 4.17–4.38 | 4.05–4.17 |
+// | a taunt                                                         | **4.78**  | **4.85**  |
+//
+// **Seven mechanics one body at a time, and every one of them makes the board *easier* than saying
+// nothing.** The reference five carries 9,416 to 12,822 hp a body at `elite`, so a question put to
+// one of them is a turn the other four do not have to answer — and the taunt is worse still,
+// because it narrows a pool the crew's damage largely does not consult.
+//
+// | the same turn, aimed at all five | ref      | alt      |
+// | -------------------------------- | -------- | -------- |
+// | wide damage alone                | 4.53     | 3.88     |
+// | wide damage + {@link SLOW}       | 4.03     | **2.88** |
+// | wide damage + {@link STUN}       | **3.95** | **1.85** |
+//
+// ⚠️ **The status has to ride the attack rather than cost a turn.** The same statuses on a skill of
+// their own are the first table — a board that spends one turn saying something and the next doing
+// something is a board this crew out-damages either way.
+//
+// ⚠️ **This is not a structural gap only Demons have, and the entry does not claim one.** The
+// identical "wide damage + stun" board reads 2.40 / 0.60 against the Elf crews and 0.88 / 0.00
+// against the Monster crews; what it is is a fact about the profile of *these* two, which is what
+// 21f said to read before choosing. What it is measured against is the Angel five, where the same
+// board reads **4.00 / 3.95** — the crew 21j found nothing moves at all.
+//
+// ⚠️ **The licence is placement, exactly as it is for an evasion pool.** Neither Demon arrangement
+// unlocks a cleanse at `elite` — {@link CRIMSON_SIGIL} is Sanguine's third skill — and no Demon in
+// the game carries a point of `tenacity`, so every one of these lands with certainty and there is
+// no answer to buy. What keeps it a fight is that every carrier below the roof is soft enough to be
+// removed in a turn or two: {@link KNELL_CHANTER} is 660 hp and {@link STILLNESS_CANTOR} 700,
+// against an Angel legendary register running 590 to 1080. **The answer is to kill the voice**, and
+// a board that put one behind a wall would be a lock rather than a question.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Not aimed at anybody. Simply said, to the room.
+ *
+ * The cheapest board-wide turn in the game and the band that teaches the tower's second half. It
+ * carries no rider at all, which is the whole of what a common may say here: what floors 101–120
+ * are for is the party learning that a slot on these boards is now spent on **everybody**, before
+ * anything starts riding along with it.
+ *
+ * ×0.7 against the ×1.2 wide ceiling, on 520 hp. Three of them on one board is a rhythm; one of
+ * them is a tick of chip damage the crew does not notice, which is correct for floor 101.
+ */
+export const MASSED_LITANY = {
+  id: 'massed-litany',
+  name: 'Massed Litany',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.7 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The choir does not raise its voice. It takes yours down.
+ *
+ * The first rider, and {@link SLOW} rather than {@link STUN} because a slow is the half of turn
+ * theft a party can still play around: it costs gauge rather than a turn outright, so a crew that
+ * has already committed its cooldowns loses tempo instead of losing the exchange. Worth 4.08 → 2.67
+ * survivors against the alternate five on a controlled board, against the stun's 1.63 — which is
+ * the gap the two bands between them are for.
+ *
+ * ⚠️ **0.75 rather than certainty, on a body that acts every hundred ticks.** The three board-wide
+ * slows already in the file run 0.7 ({@link DUSKWEAVE}, {@link THE_QUIET_FIELD}) to 0.85
+ * ({@link MOONSONG}), and a certain one here would be a permanent one wearing a chance's clothes —
+ * which is the note {@link RIFTSTEP} records from the other side.
+ */
+export const HUSH_THE_MANY = {
+  id: 'hush-the-many',
+  name: 'Hush the Many',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.8 },
+    { kind: 'status', status: SLOW, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * One note, and five bodies stop for it.
+ *
+ * ⚠️ **The strongest single thing measured against these crews, and only the third board-wide stun
+ * in the game.** The other two are {@link GATE_SLAM} and {@link THE_SEAL_BREAKS}, both at 0.35,
+ * both on anchors, and both a punctuation mark on a board doing something else. This is a legendary
+ * whose *only* turn is the stun, which is what makes it the band rather than a moment in one.
+ *
+ * ⚠️ **0.4 and 660 hp, and both numbers are the licence.** Just above the shipped register for a
+ * wide stun, on a body near the bottom of the Angel legendary range — the answer to it is to kill
+ * it, and a board is only allowed to ask the question as often as it can keep this alive. The
+ * damage is ×0.75, well under the wide ceiling, because the turn is not for the damage.
+ */
+export const THE_KNELL = {
+  id: 'the-knell',
+  name: 'The Knell',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.75 },
+    { kind: 'status', status: STUN, chance: 0.4 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * The whole choir, on one breath, at everybody.
+ *
+ * The roof's opening turn, and the heaviest board-wide damage this tower fields — ×1.1, which is
+ * the top of a band shared with {@link RIFTFALL}, {@link THE_SEAL_BREAKS} and
+ * {@link THE_QUIET_FIELD} and sits under {@link DEVOURING_TIDE}'s ×1.15. A wide skill is priced per
+ * target against the diminishing-defence curve, which is why the ×1.2 ceiling is where it is.
+ *
+ * The {@link WEAKEN} is what makes it the *first* of three rather than one of three: it lands on
+ * all five before either of the other two arrives, so the board's whole later output is measured
+ * against a party already hitting for less.
+ */
+export const ONE_VOICE = {
+  id: 'one-voice',
+  name: 'One Voice',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.1 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Nothing in the room is exempt, and nothing in the room is quick.
+ *
+ * The roof's second turn: {@link HUSH_THE_MANY} restated at an anchor's weight and at the top of the
+ * shipped register for a wide slow. 0.85 rather than 0.75 — level with {@link MOONSONG} and no
+ * higher — because this arrives from a body the crew cannot remove inside a fight, where the Cantor
+ * is something it can decide to answer.
+ */
+export const NOTHING_IS_SPARED = {
+  id: 'nothing-is-spared',
+  name: 'Nothing Is Spared',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.85 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The last thing sung, and it is sung to all of you.
+ *
+ * ⚠️ **The stun stays at 0.4 on the roof, which is the one number in this band that was not raised
+ * with the body carrying it.** {@link THE_KNELL}'s chance is licensed by its carrier being killable
+ * and The Unison is not; a certain board-wide stun from a body that survives the fight is the ninety
+ * seconds with a boss's stat block on, which is the failure 21f recorded on the Dwarf Tower's roof
+ * arriving by a different road. What escalates instead is that it is the **third** wide turn on one
+ * board rather than the only one, and the sixty-five-tick cooldown is the longest of the three.
+ */
+export const THE_LAST_VERSE = {
+  id: 'the-last-verse',
+  name: 'The Last Verse',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.9 },
+    { kind: 'status', status: STUN, chance: 0.4 },
+  ],
+  cooldown: 65,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4757,4 +4938,10 @@ export const SKILLS = [
   RIFTSTEP,
   THE_DEBT_CALLED,
   NO_ANSWER_COMES,
+  MASSED_LITANY,
+  HUSH_THE_MANY,
+  THE_KNELL,
+  ONE_VOICE,
+  NOTHING_IS_SPARED,
+  THE_LAST_VERSE,
 ] as const;
