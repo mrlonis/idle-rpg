@@ -263,8 +263,63 @@ Among what is unlocked, the odds still tilt with depth: a grade's authored weigh
 ⚠️ **`gradeSoftness` is a rate _per stage_, so the ladder's length is the other half of every number
 it produces — and milestone 18's chapter made that visible.** At 90 the top grade was 14.8% of
 end-of-ladder drops over a hundred and fifty stages and **21.3%** over two hundred, past the `< 0.2`
-bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It is **100**
-now: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
+bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It went to
+**100**: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
+
+Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — taking it to
+125; 21b's fired it at three hundred — **23.4%** — taking it to 150; 21c's at three hundred and fifty
+— **22.6%** — taking it to 175; and 21d's at four hundred — **22.1%** — taking it to **200**. Every
+one restores 18.7% over the ladder that actually ships. Same move, longer ladder, five times now.
+
+⚠️ **Five re-derivations landing on the same 18.7% is the tell that the number is being solved for
+and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
+and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 11
+will want 225. What this eventually wants is a tilt that **saturates** — a share that approaches a
+ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
+is recorded rather than fixed because milestone 21 forbids taking the scope; see
+[milestones](milestones.md).
+
+⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
+bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
+200 it reads 12.9% at chapter 8 and watches nothing until chapter 10, which makes the saturating
+tilt easier to forget rather than more likely to get written. That is the opposite of the call 21a
+made on the level ceiling's ratio and on the tower:campaign floor, and the distinction is exactly
+whether the quantity is _supposed_ to fall. Those two are; this one is a bug being papered over.
+
+⚠️ **21d confirmed that call and the confirmation is worth recording**, because "declining a
+labour-saving edit" is the kind of decision that looks like fussiness a year later. Had 200 been
+written in 21b, the fourth and fifth landings would both have been silent — and it is the fifth that
+turned "always 18.7%" into "always `stages / 2`", which is the finding that makes the saturating tilt
+writable at all. The batched call on the level ceiling's ratio went the other way: that guard watched
+nothing for four chapters and was then **retired** in 21d rather than re-derived, so nothing was lost
+by batching it.
+
+### ⚠️ Gear's gold cost is a constant, and the economy around it is not
+
+`gear.spec.ts`'s "roughly doubles what gold is for" measures the hours of top-of-ladder income it
+takes to kit a party of five in fully enhanced top-grade pieces. Milestone 21b found two things
+wrong with it at once.
+
+**It was retyping the ladder's length.** The comment said "derived from `STAGE_REWARDS`, so extending
+the ladder re-runs it" — and the _exponent_ came from there while the **index** was the literal
+`100`, which is how long the ladder was when it was written. So for four chapters it measured gear
+against chapter-4 income and re-ran nothing, which is exactly the failure [testing](testing.md)
+names. Correctly derived it would have fired at **chapter 7**, at 17.4 hours against a floor of 20.
+
+⚠️ **And the quantity falls forever by construction.** The top grade costs what it costs at chapter 1
+and at chapter 10 — gear's gold cost is a **constant** — while top-of-ladder income grows with every
+chapter by design. So this decays on every chapter whatever anybody authors: 2.3 hours at three
+hundred stages, about 1.5 at four hundred. Unlike the level ceiling there is **no invariant to
+restate it as**: measured against levelling instead of against income it decays _faster_, because
+level cost grows as `L ** 2.55`.
+
+**What closes it is gear costs that scale with the content**, which is a retune on the scale of a
+milestone, and milestone 21 says in as many words that a chapter finding it needs one writes it down
+rather than taking the scope. The floor is 1 so the guard still catches a gear curve authored at
+nothing, and it fires again around chapter twelve — at which point the question is whether gear costs
+have been made to scale, not what number goes there.
 
 This is the one guard milestone 18 tripped where the content genuinely had outgrown the threshold, and
 it is worth contrasting with the three it tripped that had not — see

@@ -192,18 +192,27 @@ highest enemy level the party clears at least half the time**. A maxed item buys
 
 | Character | Bare reach | Gain | Character | Bare reach | Gain |
 | --------- | ---------- | ---- | --------- | ---------- | ---- |
-| Aurelia   | 422        | +31  | Corvane   | 421        | +31  |
-| Thraun    | 406        | +15  | Vurn      | 410        | +18  |
-| Aelrindel | 441        | +29  | Maelis    | 421        | +18  |
-| Nekros    | 432        | +26  | Carrow    | 436        | +34  |
-| Vharok    | 431        | +35  | Vrakk     | 429        | +34  |
-| Seraphine | 433        | +9   | Cassiel   | 430        | +31  |
-| Azrathoth | 448        | +33  | Nazreth   | 436        | +30  |
+| Aurelia   | 423        | +30  | Corvane   | 424        | +32  |
+| Thraun    | 416        | +14  | Vurn      | 418        | +19  |
+| Aelrindel | 436        | +21  | Maelis    | 427        | +18  |
+| Nekros    | 435        | +25  | Carrow    | 437        | +35  |
+| Vharok    | 435        | +36  | Vrakk     | 435        | +36  |
+| Seraphine | 440        | +14  | Cassiel   | 434        | +31  |
+| Azrathoth | 448        | +22  | Nazreth   | 435        | +26  |
 
-⚠️ **The seven original figures moved when milestone 19 re-cut the chapters, with no item or stat
-block changed.** `contested()` seeds off `stage.id`, the hardest stage was renamed `c4-s50` →
-`c6-s50`, and every trial drew a different sequence. These numbers are only comparable within one
-cut of the ladder.
+⚠️ **These have moved four times with no item or stat block changed, and every time for the same
+reason.** `contested()` picks the hardest stage and seeds off its `stage.id`, so milestone 19 renaming
+it `c4-s50` → `c6-s50` moved the original seven, and chapters 8, 9 and 10 replaced it with `c8-s50`,
+`c9-s50` and `c10-s50` in turn — a different board as well as a different seed each time. These
+numbers are only comparable within one cut of the ladder: **re-measure the whole table or none of
+it.**
+
+⚠️ **What moves between cuts is not predictable, and 21c's rule for it did not survive 21d.** That cut
+saw bare reach rise fifteen to thirty levels while the gains barely moved, and recorded it as the
+shape to expect; the next cut saw bare reach rise **nought to seven** while five of the fourteen gains
+moved by five — including Seraphine's, which had been +9 for three cuts running and is +14 here. What
+survives is only the weaker claim: **the gains move less than the reach figures** (all fourteen
+within five, eight within three). Re-measure rather than predicting.
 
 ⚠️ **+2% to +8% reads modest and is not.** Measured instead as win rate at a fixed contested level,
 the same items take Aurelia, Aelrindel, Nekros and Vharok from **0.00 to 1.00**. Win rate near a
@@ -212,25 +221,29 @@ entire fight at the margin — and the margin is where every fight a player has 
 Quote whichever figure the question calls for; do not read the reach number as evidence the item is
 small.
 
-### ⚠️ Why the probe re-levels its own encounter
+### The probe used to re-level its own encounter, and milestone 21b stopped
 
-`mythic` caps at level **340**. The hardest authored stage is the chapter 6 boss at level **225**. A
-party at the unlock rung is half again past the top of the ladder, so **no shipped stage can measure
-a signature item** — the first two versions of this probe reported a gain of exactly zero on all
+`mythic` caps at level **340**. For five milestones the hardest authored stage was below that — a
+party at the unlock rung was past the top of the ladder, so **no shipped stage could measure a
+signature item**, and the first two versions of this probe reported a gain of exactly zero on all
 seven characters, once because everything was a 100% walkover and once because everything was a 0%
-wipe.
+wipe. The answer was to field the hardest authored line-up at the party's own level, the same move
+`core/towers.ts` makes.
 
-So the probe takes the hardest authored line-up and fields it at the party's own level, which is the
-same move `core/towers.ts` makes: `data/` authors who stands there, and the level is derived. Both
-sides then sit on the same growth curve, which `simulate.spec.ts` proves is an identity.
+⚠️ **Three chapters were the named trigger and none of them closed it.** The Bound Marches topped out
+at **160** against 340 (×2.1), the Sundered Vault at **225** (×1.5) and the Waking Barrows at **305**
+(×1.11) — narrowing by less each time, because the level band flattens as content lengthens.
 
-The consequence worth carrying: **a signature item still has no authored content to matter in.**
+**The Sunless Weald closes it at 396**, so `contested()` now returns the stage as `data/` wrote it —
+and the gap keeps opening rather than closing again: chapter 9 tops out at 490 and chapter 10 at
+**588**, which is ×1.7 the unlock rung's cap.
 
-⚠️ **Chapter 3 was the named trigger and it did not close this.** The Bound Marches top out at enemy
-level **160** against a `mythic` cap of **340**, so the gap went from ×4 to ×2 and the probe still
-has to re-level its encounter. What would close it is a chapter reaching the low three hundreds —
-roughly chapter 8 at the re-cut's fifty-stage cadence — or a tower band that does. Do not treat "the next
-chapter" as the trigger again without checking the number.
+⚠️ **Removing the override changed none of the numbers, and that is the part worth carrying.**
+`reach()` overwrites `level` on every trial it runs, so the field the override set was dead on
+arrival — what it bought was a claim about the probe's _method_, not an input to it. All fourteen
+figures moved anyway, because the hardest stage is now a different board under a different id. **Do
+not read the move as evidence about the items**, and check the number rather than trusting a name:
+that is the lesson three missed triggers actually taught.
 
 ### The sweep's timeout guard counts victories only
 

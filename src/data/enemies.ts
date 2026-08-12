@@ -1,12 +1,19 @@
 import {
   ANTIPHON,
+  BARROW_TITHE,
   BIND_THE_CONCORD,
+  BLOOD_CALLS_BLOOD,
+  BLOOD_RISEN,
   BROKEN_COVENANT,
   BULWARK,
+  CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CINDER_STORM,
+  COUCHED_LANCE,
+  CULL_THE_EMBERS,
   CUTPURSE,
   DOOMKNELL,
+  DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
   FADE,
@@ -16,30 +23,67 @@ import {
   GORE,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
+  HUSH_THE_MANY,
+  IRON_FOR_IRON,
   LITANY,
+  MASSED_LITANY,
+  MAUL,
   MEND,
   MIRE,
   MOONSONG,
   MOTE_LANCE,
+  NAME_THE_QUARRY,
+  NIGHT_RIDE,
+  NOTHING_IS_SPARED,
+  NO_ANSWER_COMES,
+  ONE_VOICE,
+  OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
+  RAKE,
+  RELIQUARY_SEAL,
   RIFTFALL,
+  RIFTSTEP,
+  ROOTWAKE,
   RUINOUS_ARC,
+  RUINOUS_STOOP,
   RUNEWARD,
   SEVENFOLD_HEX,
   SHIELD_BASH,
   SHRIKE_DIVE,
+  SLUNG_ANVIL,
   STONE_FIST,
+  SUNFADE,
+  THE_ANVIL_FALLS,
+  THE_BARROW_FORGETS,
+  THE_BREACH_GIVEN,
+  THE_CANOPY_PARTS,
+  THE_DEBT_CALLED,
+  THE_FIELD_CLOSES,
+  THE_HORN_SOUNDS,
+  THE_KNELL,
+  THE_LAST_MUSTER,
+  THE_LAST_VERSE,
+  THE_LINE_TRUE,
+  THE_LONG_BLEED,
+  THE_LONG_LOOSE,
+  THE_PACK_ANSWERS,
+  THE_QUENCH,
   THE_SEAL_BREAKS,
+  THE_SUN_AT_NOON,
+  THE_WARDS_HOLD,
   THORNLASH,
   TYRANTS_CLAIM,
+  UNDERMINE,
+  WAKE_THE_BONE,
   WARD_THE_SEAL,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
+  ZENITHFALL,
 } from './skills';
-import { THORNMAIL } from './statuses';
+import { ROOTBOUND, THORNMAIL } from './statuses';
 
 /**
  * Enemy archetypes: a stat block at **level 1**, a kit, and the slope it grows on.
@@ -1829,6 +1873,2696 @@ export const ASHFALL_SOVEREIGN = {
   skills: [WRATH_UNBOUND, HEADSMANS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Waking Barrows — milestone 21a
+//
+// ## Ten blocks, all Undead, and the count is the milestone's rather than this chapter's
+//
+// Milestone 21 fixes the lean of each of its four chapters up front, so that the four sessions
+// touch **non-overlapping slices** of this file and so that the four thinnest factions are the ones
+// that get deeper. Undead was on seven — the joint-thinnest with Elves — and these take it to
+// seventeen. Eight of them are ordinary blocks, and the other two are the shapes this milestone
+// added to what a chapter owes:
+//
+// - **{@link THE_CAIRN_KING}, the chapter boss**, standing on `c7-s50` and nowhere else. That has
+//   been the rule since the re-cut and this is the seventh body authored under it.
+// - **{@link THE_GRAVEWRIGHT}, the chapter *lieutenant*** — new in milestone 21. One heavy block
+//   anchors all four mini-boss boards at rising levels, which is what gives a chapter a recurring
+//   antagonist instead of four one-shot stat blocks. Deliberately **not** four unique bodies:
+//   twenty blocks each appearing on exactly one board is most of what `enemies.spec.ts`'s orphan
+//   rule exists to discourage.
+//
+// ## What the chapter asks, in five bands
+//
+// ⚠️ **No new status, and the budget was not spent.** Milestone 21 allows up to three across its
+// four chapters and states plainly that a chapter coming in under the ceiling is the better
+// outcome. All five locks below are built out of vocabulary that already ships.
+//
+// | Band | The lock                                             | Built from                        |
+// | ---- | ---------------------------------------------------- | --------------------------------- |
+// | 1    | the wall you must hit answers every swing            | a taunt on a thorned body         |
+// | 2    | the fuse lands on the body you never cleanse         | {@link BARROW_TITHE}              |
+// | 3    | going wide is answered once per body you reach       | thorns on the fodder              |
+// | 4    | the wall you must hit spreads your damage sideways    | a taunt in front of a linked board |
+// | 5    | all four, and the thing the barrows are for          | {@link THE_CAIRN_KING}            |
+//
+// **Band 3 is the one worth reading twice, because it inverts an answer the ladder has spent two
+// hundred stages teaching.** A row attack into three thorned bodies is answered three times — see
+// the note in `docs/combat.md` about an actor now being able to die inside its own action — so the
+// habitual reply to a crowded board is the expensive one here, and single-target focus is the cheap
+// one. That is a real question with a real answer and it needed nothing new to ask.
+//
+// ## Scale
+//
+// Sized inside the Sundered Vault's band rather than above it, and both `ascended` blocks sit
+// **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes chapter 7
+// harder than chapter 6 is the level its stages are fielded at and the questions above — not bigger
+// blocks, which is the distinction milestone 10 bought and every chapter since has kept.
+// ---------------------------------------------------------------------------------------
+
+/** What the barrows give up first: slow, heavy, and still wearing most of its armour. */
+export const GRAVEWAKE_THRALL = {
+  id: 'gravewake-thrall',
+  name: 'Gravewake Thrall',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 800,
+    atk: 50,
+    def: 24,
+    haste: 74,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/** The noise the barrow-mist makes. Fast, fragile, and it reaches past the front rank. */
+export const BARROWMIST_KEENER = {
+  id: 'barrowmist-keener',
+  name: 'Barrowmist Keener',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 48,
+    def: 12,
+    haste: 112,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/** What was buried with the barrow's owner to keep it company. Quick, and it goes for the back. */
+export const SEPULCHRE_HOUND = {
+  id: 'sepulchre-hound',
+  name: 'Sepulchre Hound',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 52,
+    def: 14,
+    haste: 124,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.14,
+    lifeLeech: 0.1,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * A cairn that stood up, and the cheapest body in the game that costs something to clear.
+ *
+ * ⚠️ **Thorns on a `common`, which is the whole of band 3.** Every reflect the ladder has fielded
+ * so far has been worn by something the party was already treating carefully — The Chainsworn, and
+ * this chapter's own Sentinel. On fodder it says something different: a row attack into three of
+ * these is answered **three times**, so the reply a crowded board has always wanted is the one that
+ * costs most here.
+ *
+ * Nothing about it is otherwise remarkable, and that is deliberate — the question is what it costs
+ * to remove, not what it does while it stands.
+ */
+export const CAIRNWARD_HUSK = {
+  id: 'cairnward-husk',
+  name: 'Cairnward Husk',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 760,
+    atk: 46,
+    def: 30,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.08,
+    physicalResist: 0.1,
+  },
+  opening: [THORNMAIL],
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The barrow's door, and it is made of the same bone as the walls.
+ *
+ * **A taunt worn by a thorned body — two known parts, never before on one.** An Oathshield Vanguard
+ * says "hit me and nothing else"; a Chainsworn says "hitting me costs". Together they say the thing
+ * neither says alone: *the only target you are allowed is the one that charges you for taking it*.
+ *
+ * ⚠️ **Answerable in three ways, which is what makes it a lock rather than a tax.** The taunt runs
+ * 45 ticks against {@link DRAW_THE_OATH}'s 60, so there is a window at whatever stands behind it; a
+ * multi-target selection ignores the taunt entirely; and the thorns are a flat share, so burst pays
+ * the same toll as chip and gets there first. What it punishes is exactly one habit — grinding a
+ * wall down with single-target chip — and that habit has been correct for six chapters.
+ *
+ * Little offence of its own, like the Vanguard and the Custodian it is descended from: what it
+ * costs the party is turns and health it chose to spend.
+ */
+export const CAIRNBOUND_SENTINEL = {
+  id: 'cairnbound-sentinel',
+  name: 'Cairnbound Sentinel',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 58,
+    def: 46,
+    recovery: 5,
+    haste: 70,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.35,
+    physicalResist: 0.08,
+    magicResist: 0.06,
+  },
+  opening: [THORNMAIL],
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * It counts the party and takes the largest.
+ *
+ * {@link BARROW_TITHE} is the chapter's band-2 lock and the argument is on the skill: a delayed
+ * payload aimed at `enemy-highest` lands on the one member a party never points a cleanse at,
+ * because the reason that member is there is that it survives things. Fragile in the way every lock
+ * on this ladder is fragile — the answer is to kill it, and an answer nobody can reach is not one.
+ */
+export const GRAVETIDE_HERALD = {
+  id: 'gravetide-herald',
+  name: 'Gravetide Herald',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 70,
+    def: 24,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    insight: 0.16,
+    magicPierce: 0.15,
+    physicalResist: 0.04,
+  },
+  skills: [BARROW_TITHE, WITHERING_TOUCH],
+} as const;
+
+/**
+ * Bone chained to bone, so that no part of the barrow can be taken out of it alone.
+ *
+ * The link itself is chapter 5's and this does not restate it. What band 4 does is stand this
+ * **behind {@link CAIRNBOUND_SENTINEL}**, and that pairing is new: the taunt says the party may only
+ * hit the wall, and the link says two fifths of every blow on the wall is spread across everything
+ * else still standing. The party is aimed at one body and cannot concentrate on it.
+ *
+ * ⚠️ **It resolves, and the reason is that a link conserves damage.** Nothing is multiplied and
+ * nothing is refunded — the board's total health falls at exactly the rate it always did, just
+ * evenly. So this costs the party its *route* (remove one threat, then the next) rather than its
+ * progress, which is the difference between a lock and a clock.
+ *
+ * ⚠️ **It deliberately does not taunt.** Two taunters on one board leave the door shut about
+ * ninety-four percent of the time, which is a single-target party locked out of the back rank for
+ * a whole fight rather than given a window — the failure `data/skills.spec.ts` enforces the duty
+ * cycle to prevent. The chapter fields at most one taunt source per board.
+ */
+export const BONECHAIN_WARDEN = {
+  id: 'bonechain-warden',
+  name: 'Bonechain Warden',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 960,
+    atk: 60,
+    def: 34,
+    haste: 80,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.06,
+  },
+  skills: [BIND_THE_CONCORD, MIRE],
+} as const;
+
+/**
+ * It does not mourn and it does not remember, which is the same thing said about the party's setup.
+ *
+ * {@link THE_BARROW_FORGETS} is the first `ally-afflicted` turn on the enemy side, and it is not a
+ * smaller {@link ANTIPHON}: a board-wide cleanse is answered by having more debuffs than it can
+ * take, and this is answered by having them in more places. Three statuses off whichever body
+ * carries the most is precisely the punishment for the habit every wall on this ladder has taught —
+ * open the big one with a Sunder, a Weaken and a Slow, then commit.
+ */
+export const GRAVEMOURN_KEEPER = {
+  id: 'gravemourn-keeper',
+  name: 'Gravemourn Keeper',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 58,
+    def: 22,
+    haste: 96,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.14,
+    magicResist: 0.12,
+  },
+  skills: [THE_BARROW_FORGETS, MOTE_LANCE],
+} as const;
+
+/**
+ * The thing doing the raising, met four times and never finished.
+ *
+ * ⚠️ **The ladder's first *lieutenant*, and the shape is milestone 21's rather than this chapter's.**
+ * It stands on `c7-s10`, `c7-s20`, `c7-s30` and `c7-s40` — every mini-boss board — at rising levels,
+ * so the chapter has a recurring antagonist that gets harder because the ladder does rather than
+ * because a second stat block was written for it. Four unique mini-boss bodies would have been four
+ * blocks each appearing once, which is the thing the orphan rule in `enemies.spec.ts` discourages
+ * and which nobody would remember either.
+ *
+ * {@link WAKE_THE_BONE} is what it opens with and it is the only thing in the game that hands a
+ * board {@link THORNMAIL} mid-fight — so every mini-boss in this chapter turns into a band-3 board
+ * on the Gravewright's first turn, whether or not one was authored that way. After that it stops
+ * setting up and starts collecting: {@link HEADSMANS_ARC} ignores rank and takes whoever is lowest,
+ * which is the member the thorns have been quietly working on.
+ *
+ * ⚠️ **No healing, no drain and no regeneration anywhere in the kit**, which is not a coincidence —
+ * see the Sundered Vault's boards for the argument. Every pool it puts on the field is one that
+ * depletes, so the fight resolves however the party plays it.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, and under {@link THE_CAIRN_KING} as well: a
+ * lieutenant that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_GRAVEWRIGHT = {
+  id: 'the-gravewright',
+  name: 'The Gravewright',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 90,
+    def: 46,
+    recovery: 6,
+    haste: 94,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    magicResist: 0.06,
+  },
+  skills: [WAKE_THE_BONE, HEADSMANS_ARC],
+} as const;
+
+/**
+ * What the barrows are for, and the third body on the ladder fielded on exactly one stage.
+ *
+ * The Chainsworn and the Hollow Seraph set the rule and it is unchanged: a chapter's last encounter
+ * is the one a player remembers, and a stat block they have already beaten four times is a stage
+ * number. It stands on `c7-s50` and nowhere else.
+ *
+ * ⚠️ **That rule is about the _headline_ body, and this comment used to over-read it.** It said the
+ * Gravewright was "**not** on that board, having been the thing they beat four times" — and the
+ * Gravewright is on that board, in the back rank, where it is support rather than the fight. See
+ * `c7-s50` in [`chapter-7.ts`](./chapter-7.ts): removing it makes the chapter final 6% harder than
+ * the stage before it and hands the party it is tuned for a five-survivor clear, which is the same
+ * defect the taunting-King draft was rejected for. **A lieutenant may stand on its chapter's final;
+ * it may not _be_ it.**
+ *
+ * Its three turns are aimed at three different things: {@link BARROW_TITHE} at the largest body
+ * standing, {@link HEADSMANS_ARC} at the smallest, and {@link WAKE_THE_BONE} at its own board. With
+ * {@link THORNMAIL} already true of it from the first tick, that is the chapter's opening lock
+ * stated at boss weight — every swing answered — and its board's Cairnbound Sentinel is what
+ * decides the party has to take those swings.
+ *
+ * ⚠️ **It does not taunt, and the first draft's version of it did.** A boss that draws every attack
+ * onto itself is the fight the party already wanted: it aims them at the body they were going to
+ * focus anyway, and it spends the boss's own turns on something that deals no damage. Measured, that
+ * King asked *less* of a party than the stage before it — 738 against 878 on the difficulty probe —
+ * and the reference party finished it with all five alive. The taunt belongs on the wall in front,
+ * which is the Hollow Seraph's shape and the reason that shape works.
+ *
+ * ⚠️ **Deliberately no healing, no drain and no shield**, which is the rule every chapter final
+ * observes. Three of the things on its board make a party live longer than it can kill, and every
+ * one of them is a step toward the ninety-second timeout that is scored as a **defeat**. What keeps
+ * it resolving is that a reflect only ever shortens a fight and nothing anywhere on the encounter
+ * puts health back.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds. What makes
+ * this the harder fight is the level it is fielded at and the questions it asks.
+ */
+export const THE_CAIRN_KING = {
+  id: 'the-cairn-king',
+  name: 'The Cairn King',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1780,
+    atk: 99,
+    def: 55,
+    recovery: 7,
+    haste: 96,
+    critChance: 0.14,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [THORNMAIL],
+  skills: [WAKE_THE_BONE, BARROW_TITHE, HEADSMANS_ARC],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Sunless Weald — milestone 21b
+//
+// ## Ten blocks, all Elven, and the count is the milestone's rather than this chapter's
+//
+// Milestone 21 fixes each of its four chapters' leans up front so the four sessions touch
+// **non-overlapping slices** of this file and the four thinnest factions are the ones that get
+// deeper. Elves were on seven — the joint-thinnest with the Undead before 21a — and these take
+// them to seventeen. Eight are ordinary blocks and two are the shapes a chapter owes:
+//
+// - **{@link THE_WITHERED_CROWN}, the chapter boss**, standing on `c8-s50` and nowhere else. The
+//   eighth body authored under that rule.
+// - **{@link THE_LONGSHADOW}, the chapter *lieutenant***, on all four mini-boss boards at rising
+//   levels. The second of these — see {@link THE_GRAVEWRIGHT} for the argument.
+//
+// ## What the chapter asks, in five bands
+//
+// ⚠️ **One new status, and it is the first of milestone 21's three to be spent.** 21a came in
+// under the ceiling and this does not; {@link ROOTBOUND} is argued on its own merits in
+// `statuses.ts` and the entry in [milestones](../../docs/milestones.md) states why a pair could not
+// have asked band 3's question. It rides the existing `status` effect exactly as milestone 17's
+// four did, needs no new `EffectKind`, no new `TargetKind` and no change in `ui/`.
+//
+// | Band | The lock                                              | Built from                     |
+// | ---- | ----------------------------------------------------- | ------------------------------ |
+// | 1    | the thing you are aiming at is not always there       | `dodge`, on the stat blocks    |
+// | 2    | your back rank was never the safe half                | {@link THE_LONG_LOOSE}         |
+// | 3    | reaching past the wall buys spread, not a kill        | {@link ROOTBOUND}              |
+// | 4    | the one you commit to is pulled back into the whole   | {@link DRAW_INTO_THE_ROOT}     |
+// | 5    | all four, and the thing the weald grew around         | {@link THE_WITHERED_CROWN}     |
+//
+// **Band 1 is a stat block and nothing else, deliberately.** `ModifiableStat` is `atk`, `def` and
+// `haste`, so evasion cannot be a status without a `core/` change this milestone forbids — and it
+// does not need to be. What answers `dodge` is `accuracy`, which five characters carry and four of
+// them are Elves, so the chapter's own faction is the readable answer to its opening question.
+// `MIN_HIT_CHANCE` is what stops it ever being a wall: a tenth of every swing lands whatever the
+// pool says, which is the termination guard `data/combat.ts` argues for.
+//
+// ## Scale
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds,
+// and the Crown sits under The Cairn King on both as well — what makes this the harder chapter is
+// the level its stages are fielded at and the questions above, which is the distinction milestone
+// 10 bought and every chapter since has kept.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The weald's cheapest question: a body that is not reliably where it was aimed at.
+ *
+ * `dodge: 0.26` is the highest in the game on a `common` and half again the previous ceiling — a
+ * Glade Stalker sits at 0.2 and nothing else has ever gone past it. Against a party at plain
+ * accuracy that is a quarter of every swing, and against Rin at 1.10 it is a sixth, which is the
+ * whole of what this chapter wants said out loud: **accuracy is a stat somebody in the roster owns,
+ * and this is where owning it starts mattering.**
+ *
+ * Fragile in every other respect, so a swing that does land settles it. The tax is on the number of
+ * turns spent, not on what a turn is worth.
+ */
+export const DUSKFERN_SKIRMISHER = {
+  id: 'duskfern-skirmisher',
+  name: 'Duskfern Skirmisher',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 54,
+    def: 12,
+    haste: 126,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.26,
+    accuracy: 1.05,
+    magicResist: 0.06,
+  },
+  skills: [GORE],
+} as const;
+
+/** The weald's idea of a wall: bark, and not much else. Slow, stubborn, and no threat at all. */
+export const HOLLOWBARK_SENTRY = {
+  id: 'hollowbark-sentry',
+  name: 'Hollowbark Sentry',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 840,
+    atk: 46,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.12,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The far shot, at fodder weight: it was never going to fight the front rank.
+ *
+ * Three of these behind a Sentry is band 2 stated at its cheapest — the party's wall is doing its
+ * job perfectly and the party is still losing its back rank.
+ */
+export const WHISPERLEAF_ARCHER = {
+  id: 'whisperleaf-archer',
+  name: 'Whisperleaf Archer',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 56,
+    def: 12,
+    haste: 112,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    dodge: 0.14,
+    magicPierce: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * Where the roots come up, and the cheapest body on the ladder that cannot be removed on its own.
+ *
+ * ⚠️ **{@link ROOTBOUND} on a `common`, which is the whole of band 3** — the same move 21a made
+ * putting thorns on a Husk, aimed at the opposite habit. Thorns on fodder punished going wide;
+ * a bound back rank punishes going *deep*: two of these behind a wall means the sniper the party
+ * fields to reach past the front rank hands a third of every shot to the other one.
+ *
+ * Nothing else about it is remarkable, deliberately. The question is what it costs to remove, not
+ * what it does while it stands.
+ */
+export const GLOAMVINE_CREEPER = {
+  id: 'gloamvine-creeper',
+  name: 'Gloamvine Creeper',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 720,
+    atk: 44,
+    def: 26,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  opening: [ROOTBOUND],
+  skills: [MIRE],
+} as const;
+
+/**
+ * The evasion lock at weight, and the one body in the chapter that is both hard to hit and worth
+ * hitting.
+ *
+ * A Skirmisher taxes the party's turns and dies to one of them. This carries `dodge: 0.34` on a
+ * stat block that kills things, and it takes the lowest body on the field — so the member the
+ * party is trying to keep alive is being aimed at by the thing the party keeps missing.
+ *
+ * ⚠️ **Answerable, and by three different things.** Accuracy shortens it directly; `enemy-row` and
+ * `enemy-all` selections roll per target, so going wide converts one unlucky miss into four rolls;
+ * and `MIN_HIT_CHANCE` means it is never a wall however the pool is stacked.
+ */
+export const WEALDSHADOW_STALKER = {
+  id: 'wealdshadow-stalker',
+  name: 'Wealdshadow Stalker',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 76,
+    def: 20,
+    haste: 118,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    dodge: 0.34,
+    accuracy: 1.1,
+    physicalPierce: 0.15,
+    magicResist: 0.06,
+  },
+  skills: [HEADSMANS_ARC, CUTPURSE],
+} as const;
+
+/**
+ * It opens the half of the party nobody has ever had to defend.
+ *
+ * {@link THE_LONG_LOOSE} is band 2's lock and the argument is on the skill: every status the enemy
+ * side applies lands on the front rank, on one chosen body, or on everybody, and this is the first
+ * aimed at the three the party keeps behind its wall. What follows it is ordinary — Archers and
+ * Stalkers already reach there — which is the point. The sequence is the new thing, not either half.
+ */
+export const LONGBOUGH_MARKSMAN = {
+  id: 'longbough-marksman',
+  name: 'Longbough Marksman',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 78,
+    def: 20,
+    haste: 102,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    dodge: 0.16,
+    accuracy: 1.12,
+    physicalPierce: 0.2,
+  },
+  skills: [THE_LONG_LOOSE, SHRIKE_DIVE],
+} as const;
+
+/**
+ * The wood pulling its hurt back into itself.
+ *
+ * {@link DRAW_INTO_THE_ROOT} is band 4's lock, and it occupies a healer's slot in a kit without
+ * being one: it waits until the party has committed to a target and then binds *that* body, so the
+ * damage already aimed at it starts arriving somewhere else.
+ *
+ * ⚠️ **Which is why this may stand behind a taunt and a Thornweald Warden may not.** It puts no
+ * health back — it moves what has not landed yet — so nothing it does can outrun the ninety-second
+ * clock. It is the one answer to focus fire in the game that is not sustain, and that distinction is
+ * the reason band 4 has boards a healer could not have been put on.
+ */
+export const HEARTROOT_TENDER = {
+  id: 'heartroot-tender',
+  name: 'Heartroot Tender',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 62,
+    def: 24,
+    haste: 92,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.16,
+    tenacity: 0.3,
+    magicResist: 0.12,
+  },
+  opening: [ROOTBOUND],
+  skills: [DRAW_INTO_THE_ROOT, MOTE_LANCE],
+} as const;
+
+/**
+ * The tempo half of the weald, and the reason band 1 is not simply "bring accuracy".
+ *
+ * {@link MOONSONG} takes a third of the gauge off all five, so a party paying a quarter of its
+ * swings to `dodge` is paying it out of fewer turns. Neither half is new; standing them together is
+ * the chapter's first pair, and it is the one that decides whether a party's answer to evasion is
+ * *enough* accuracy or merely *some*.
+ */
+export const NIGHTCANOPY_SINGER = {
+  id: 'nightcanopy-singer',
+  name: 'Nightcanopy Singer',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 740,
+    atk: 66,
+    def: 20,
+    haste: 106,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    dodge: 0.2,
+    insight: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [MOONSONG, THORNLASH],
+} as const;
+
+/**
+ * The thing that has been following the party since the barrows, met four times and never finished.
+ *
+ * The ladder's second **lieutenant**, and the shape is settled now rather than new — see
+ * {@link THE_GRAVEWRIGHT}. It stands on `c8-s10`, `c8-s20`, `c8-s30` and `c8-s40` at rising levels,
+ * so the chapter has a recurring antagonist that gets harder because the ladder does.
+ *
+ * {@link ROOTWAKE} is what it opens with, which makes every mini-boss board in this chapter a
+ * band-3 board on the Longshadow's first turn whether or not one was authored that way — the same
+ * relationship {@link WAKE_THE_BONE} has with chapter 7's mini-bosses, and the reason a lieutenant
+ * is worth more than four one-shot stat blocks. After that it stops setting up and starts reaching:
+ * {@link THE_LONG_LOOSE} opens the party's back rank and {@link CUTPURSE} is already there.
+ *
+ * ⚠️ **No healing, no drain and no regeneration**, which is the standing rule for anything a chapter
+ * fields four times. Every pool it puts on the field depletes, and a link puts nothing back at all.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`, and under {@link THE_WITHERED_CROWN} as
+ * well** — a lieutenant that matched the chapter's final would make the final the fifth time you
+ * fought it.
+ */
+export const THE_LONGSHADOW = {
+  id: 'the-longshadow',
+  name: 'The Longshadow',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1500,
+    atk: 92,
+    def: 44,
+    recovery: 6,
+    haste: 108,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    dodge: 0.22,
+    accuracy: 1.15,
+    physicalPierce: 0.22,
+  },
+  skills: [ROOTWAKE, THE_LONG_LOOSE, CUTPURSE],
+} as const;
+
+/**
+ * What the weald grew around, and the fourth body on the ladder fielded on exactly one stage.
+ *
+ * All four of the chapter's questions stand on it at once: it is bound from the first tick and
+ * {@link ROOTWAKE} binds everything else to it, `dodge: 0.28` on an `ascended` stat block means the
+ * party's answer has to be aimed as well as large, {@link THE_LONG_LOOSE} opens the half of the
+ * party its board is already reaching, and {@link HEADSMANS_ARC} takes whoever the spread has been
+ * quietly working on.
+ *
+ * ⚠️ **The bound board is what makes it a boss rather than a wall, and it is the inverse of the
+ * Cairn King's.** A thorned board punishes each swing; a bound board refuses the *order* the swings
+ * were going to arrive in — so the party that beat chapter 7 by spending more carefully has to beat
+ * this one by spending somewhere else. Both resolve, and for the same reason: a reflect only ever
+ * shortens a fight and a link conserves damage.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway and
+ * spends its own turns dealing nothing. The wall in front is what decides the party has to take the
+ * fight it is offered.
+ *
+ * ⚠️ **No healing, no drain and no shield anywhere on it or its board.** Three things here already
+ * make a party live longer than it can kill — a bound board, a dodge pool and a tempo debuff — and
+ * every one of them is a step toward the ninety-second timeout that is scored as a **defeat**.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds, and under
+ * The Cairn King as well.
+ */
+export const THE_WITHERED_CROWN = {
+  id: 'the-withered-crown',
+  name: 'The Withered Crown',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 98,
+    def: 52,
+    recovery: 7,
+    haste: 104,
+    critChance: 0.16,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    dodge: 0.28,
+    accuracy: 1.2,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [ROOTBOUND],
+  skills: [ROOTWAKE, THE_LONG_LOOSE, HEADSMANS_ARC],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Hollow Anvil — milestone 21c
+//
+// Ten Dwarven blocks, which takes the faction 8 → **18**. That is the depth milestone 21 fixed its
+// leans to produce, and the third of the four thin factions it named: undead and elf have already
+// been taken to seventeen apiece and Monsters follow in 21d.
+//
+// ## What the chapter asks, and where each band's lock lives
+//
+// The barrows asked about *how* the party's damage arrives and the weald about *where* it lands.
+// This chapter asks whether **anything the party does stays done** — which is what a hold is, and
+// what `tenacity` has meant on a Dwarven stat block since milestone 4 without any content ever
+// leaning on it.
+//
+// | Band | The lock                                                   | Built from                       |
+// | ---- | ---------------------------------------------------------- | -------------------------------- |
+// | 1    | your setup does not land                                   | `tenacity`, on the stat blocks   |
+// | 2    | what you put back does not stay                            | {@link THE_QUENCH}               |
+// | 3    | what you commit to is what charges you                     | {@link IRON_FOR_IRON}            |
+// | 4    | the one thing you may hit is the one you cannot open       | a taunt worn by a `tenacity` wall |
+// | 5    | all four, and the thing the hold was built around          | {@link THE_ANVIL_CROWNED}        |
+//
+// **Band 1 is a stat block and nothing else, which is the Sunless Weald's move repeated on purpose
+// and on a different stat.** `tenacity` is not a `ModifiableStat` — that list is `atk`, `def` and
+// `haste` — so refusal cannot be a status without a `core/` change this milestone forbids, and it
+// does not need to be. What answers it is `insight`, which appears on exactly two characters, and
+// past that the honest answer is the one the Adamant Colossus has always given: **stop needing the
+// debuff.** `statusChance` is `authored + insight − tenacity` clamped at zero, so a board at 0.55
+// takes an 0.85 Sunder down to 0.30 and a boss at 0.85 takes it to nothing.
+//
+// ⚠️ **Band 4 is the Sealward Custodian's inversion and it is the only safe shape here.** Sustain
+// behind a taunt is a ninety-second clock and a timeout is scored as a **defeat** — so the
+// durability goes on the taunting body itself. {@link OATHSTONE_BASTION} is the one thing the party
+// is permitted to hit *and* the one thing it needs to kill, every pool on it depletes, and nothing
+// on any board it stands on puts health back.
+//
+// ## Scale, and the one thing a Dwarven chapter has to watch
+//
+// ⚠️ **This is the faction most able to run the clock out, and the blocks are sized against that
+// rather than against the fiction.** Dwarves are the tankiest archetypes in the game and the
+// timer's headroom over the longest tuned fight is 1.44×, so nothing here reaches the Riven
+// Marchwarden's bulk without a reason: the commons sit at or below the weald's, three of the ten
+// carry real `haste`, and the resists are single digits where an Elf or a Monster block would carry
+// a fifth. What makes the chapter hard is refusal, not health.
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold's cheapest statement: a body that does not care what you write on it.
+ *
+ * `tenacity: 0.55` is the highest on a `common` in the game and more than double what the Marchward
+ * Pikeman carries. Against the party's habitual opener — a Sunder at 0.85, a Weaken at 0.9 — that is
+ * roughly a third of what it was, on fodder, which is the whole of what band 1 wants said out loud:
+ * **the setup turn is the one being taxed, and it is being taxed by the cheapest thing on the
+ * board.**
+ *
+ * Otherwise unremarkable and deliberately so. Nothing about it is dangerous; what it costs is the
+ * turn the party spent expecting a debuff to stick.
+ */
+export const COLDFORGE_HAND = {
+  id: 'coldforge-hand',
+  name: 'Coldforge Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 620,
+    atk: 52,
+    def: 22,
+    haste: 80,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    tenacity: 0.55,
+    physicalResist: 0.08,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/** The hold's idea of a wall at fodder weight: slag, plate, and a shoulder that blunts a crit. */
+export const SLAGBOUND_DRUDGE = {
+  id: 'slagbound-drudge',
+  name: 'Slagbound Drudge',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 780,
+    atk: 48,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * Band 2 at its cheapest, and the same move the Gloamvine Creeper made for band 3.
+ *
+ * ⚠️ **{@link THE_QUENCH} on a `common`**, so the lock can be *stacked* rather than met once: two of
+ * these behind a wall means the member the party's healer has just topped up is carrying a fuse
+ * again before the next heal comes off cooldown. Fragile and quick, because it is not meant to
+ * survive being noticed — what it costs the party is the answer, not the body.
+ */
+export const CINDERQUENCH_BEARER = {
+  id: 'cinderquench-bearer',
+  name: 'Cinderquench Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 56,
+    def: 16,
+    haste: 98,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.3,
+    magicPierce: 0.14,
+  },
+  skills: [THE_QUENCH],
+} as const;
+
+/**
+ * The one quick thing in the deep, and it is here for the clock as much as for the fiction.
+ *
+ * A chapter built out of Dwarves is a chapter of slow, armoured bodies, and a board of nothing but
+ * those is how a ninety-second timer gets spent. This is the counterweight: the fastest Dwarven
+ * block in the game, almost no armour, and it goes straight past the front rank.
+ */
+export const DEEPGALLERY_RUNNER = {
+  id: 'deepgallery-runner',
+  name: 'Deepgallery Runner',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 470,
+    atk: 60,
+    def: 12,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    tenacity: 0.25,
+    physicalPierce: 0.18,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * Band 1 at weight: the body the debuff was actually for.
+ *
+ * A Coldforge Hand taxes a setup turn the party would have spent anyway. This carries
+ * `tenacity: 0.8` on a stat block that kills things — so the Sunder the party opens with to make
+ * this killable is the Sunder it cannot land, and the answer has to be raw damage, penetration, or
+ * one of the two characters in the roster carrying `insight`.
+ *
+ * ⚠️ **Not a wall, on purpose.** The Adamant Colossus already says "high tenacity on something
+ * enormous", and repeating it would make band 1 a stat check. What this says instead is that
+ * refusal is dangerous on something that is *not* a wall: it hits back, it is quick enough to matter,
+ * and it cannot be slowed down.
+ */
+export const COLDHEARTH_IRONSWORN = {
+  id: 'coldhearth-ironsworn',
+  name: 'Coldhearth Ironsworn',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 840,
+    atk: 76,
+    def: 28,
+    haste: 88,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    tenacity: 0.8,
+    physicalPierce: 0.16,
+    physicalResist: 0.06,
+  },
+  skills: [GLACIAL_SLAM, SHIELD_BASH],
+} as const;
+
+/**
+ * Band 2 at weight, and the body that makes the band a rhythm rather than an incident.
+ *
+ * A Bearer plants a fuse and dies to whatever notices it. This plants one, survives, and reaches the
+ * party's back rank in between — so the member being healed and the member being shot are not the
+ * same member, and the cleanse has somewhere else it is wanted.
+ */
+export const QUENCHWRIGHT = {
+  id: 'quenchwright',
+  name: 'Quenchwright',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 74,
+    def: 24,
+    haste: 94,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.45,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [THE_QUENCH, MOTE_LANCE],
+} as const;
+
+/**
+ * Band 3: it does not kill anything, it arms whatever the party has decided to kill.
+ *
+ * {@link IRON_FOR_IRON} occupies a healer's slot in a kit without being one — it waits until the
+ * party has committed and then thorns *that* body, so the damage already aimed at it starts being
+ * billed for. ⚠️ **Which is exactly why this may stand behind a taunt and a Thornweald Warden may
+ * not**: a reflect puts no health back and can only ever shorten a fight, so nothing it does can
+ * outrun the ninety-second clock.
+ *
+ * Thorned itself from the first tick, so removing the thing arming the board is the thing the board
+ * charges the most for.
+ */
+export const GRUDGEPLATE_SMITH = {
+  id: 'grudgeplate-smith',
+  name: 'Grudgeplate Smith',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 62,
+    def: 30,
+    haste: 86,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.5,
+    physicalResist: 0.08,
+  },
+  opening: [THORNMAIL],
+  skills: [IRON_FOR_IRON, SHIELD_BASH],
+} as const;
+
+/**
+ * Band 4, and the Sundered Vault's Sealward Custodian rebuilt out of Dwarven parts.
+ *
+ * It taunts, so it is the only thing on the board a single-target party may hit — and it carries
+ * `tenacity: 0.75` and both resists, so it is also the thing that party cannot open. The pair is the
+ * band: reach is worth nothing while the door is shut, and the door is what the party has to go
+ * through rather than around.
+ *
+ * ⚠️ **Every pool on it depletes and nothing on it refills.** No `recovery`, no regeneration, no
+ * shield and no drain, which is the whole reason a board can be this defensive and still resolve. A
+ * taunt in front of anything that puts health back is the ninety-second timeout wearing a boss's
+ * stat block, which is the failure 15c found on the Dwarf Tower's roof and the Bound Marches teach
+ * exactly once.
+ *
+ * ⚠️ **{@link DRAW_THE_OATH} carries a sixty-tick cooldown against a forty-five tick taunt**, and
+ * that gap is a rule rather than tuning: `skills.spec.ts` holds it, and it is what leaves a
+ * single-target party a window at whatever is standing behind this.
+ *
+ * {@link THE_ANVIL_FALLS} is the band's other half and it is on the same body on purpose: the door
+ * is shut, and the turn the party's wall was going to spend getting through it is the turn this
+ * takes. Both sit at priority 4 and the kit order decides, so it taunts first and hammers after.
+ */
+export const OATHSTONE_BASTION = {
+  id: 'oathstone-bastion',
+  name: 'Oathstone Bastion',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 64,
+    def: 42,
+    haste: 70,
+    critChance: 0.03,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    critDamageResist: 0.15,
+    tenacity: 0.75,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, THE_ANVIL_FALLS],
+} as const;
+
+/**
+ * The thing that has been keeping the tally since the party came down out of the weald.
+ *
+ * The ladder's third **lieutenant**, and the shape is settled rather than new — see
+ * {@link THE_GRAVEWRIGHT} and {@link THE_LONGSHADOW}. It stands on `c9-s10`, `c9-s20`, `c9-s30` and
+ * `c9-s40` at rising levels, so the chapter has a recurring antagonist that gets harder because the
+ * ladder does rather than four one-shot stat blocks.
+ *
+ * ⚠️ **Its recurring signature is {@link IRON_FOR_IRON} rather than a board-wide opening turn**,
+ * which is the one way it differs from the two before it — and it differs because band 1 is a stat
+ * block and cannot be applied by a turn at all. What that buys is better than the parallel would
+ * have been: the Gravewright and the Longshadow set their board up on tick one and then stopped,
+ * while this responds to what the party is *doing*, so its four appearances are four different
+ * fights against the same block depending on how the party spends.
+ *
+ * {@link THE_ANVIL_FALLS} is band 4's half of it, arriving early on the mini-boss boards for the
+ * reason the Gravewright's thorns did: a lieutenant is worth more than a stat block when it teaches
+ * the chapter ahead of the chapter.
+ *
+ * ⚠️ **No healing, no drain and no shield**, which is the standing rule for anything a chapter fields
+ * four times. Thorned from the first tick, and thorns are the one defensive thing that cannot
+ * lengthen a fight.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`, and under {@link THE_ANVIL_CROWNED} as well** —
+ * a lieutenant that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_GRUDGEKEEPER = {
+  id: 'the-grudgekeeper',
+  name: 'The Grudgekeeper',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 89,
+    def: 46,
+    recovery: 6,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    critBlock: 0.1,
+    tenacity: 0.7,
+    physicalPierce: 0.22,
+    physicalResist: 0.06,
+  },
+  opening: [THORNMAIL],
+  skills: [IRON_FOR_IRON, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
+/**
+ * What the hold was built around, and the fifth body on the ladder fielded on exactly one stage.
+ *
+ * All four of the chapter's questions stand on it at once: `tenacity: 0.85` means nothing the party
+ * writes on it lands at all, {@link THE_QUENCH} undoes whatever the party's healer has just done,
+ * it is thorned from the first tick so every blow is billed, and {@link THE_ANVIL_FALLS} takes the
+ * turn of the one body the party cannot do without.
+ *
+ * ⚠️ **The tenacity is the headline and it is a hard zero rather than a tax.** `statusChance` is
+ * `authored + insight − tenacity` clamped at zero, and the largest authored chance in the game is
+ * 0.9 — so a party that has spent eight chapters learning to open a wall with a Sunder opens this
+ * one with nothing. That is the band-1 lock at boss weight, and it is why the rest of the board is
+ * sized where it is: the fight is long enough already without the numbers being large.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway and
+ * spends its own turns dealing nothing. {@link OATHSTONE_BASTION} wears the taunt, standing in
+ * front, which is the shape that works.
+ *
+ * **The Grudgekeeper does not stand here, and that is this chapter's choice rather than a rule.**
+ * What the rule forbids is a lieutenant being *the* fight; as support it is permitted, and `c7-s50`
+ * fields the Gravewright for exactly that reason. ⚠️ **Check the survivor count before copying
+ * either choice** — nothing asserts it once a later chapter takes over the top of the ladder.
+ *
+ * ⚠️ **No healing, no drain and no shield anywhere on it or its board.** Two things here already make
+ * a party live longer than it can kill — a wall it cannot aim past and a board it cannot debuff —
+ * and both are steps toward the timeout that is scored as a **defeat**. What keeps it resolving is
+ * that a reflect only ever shortens a fight and a bomb is damage rather than delay.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_ANVIL_CROWNED = {
+  id: 'the-anvil-crowned',
+  name: 'The Anvil Crowned',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1750,
+    atk: 97,
+    def: 56,
+    recovery: 7,
+    haste: 94,
+    critChance: 0.13,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    critBlock: 0.12,
+    tenacity: 0.85,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  opening: [THORNMAIL],
+  skills: [THE_ANVIL_FALLS, THE_QUENCH, GLACIAL_SLAM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Bleeding Wild — milestone 21d
+//
+// Ten Monster blocks, which takes the faction 8 → **18** and finishes the four leans milestone 21
+// fixed up front: undead, elf and dwarf are already at seventeen or eighteen apiece.
+//
+// ## What the chapter asks, and where each band's lock lives
+//
+// The barrows asked *how* the party's damage arrives, the weald *where* it lands and the anvil
+// whether **anything the party does stays done**. This asks what the party's damage **does to the
+// thing it is spent on** — because down here what you do to it is what arms it, and neither half of
+// that wears off.
+//
+// | Band | The lock                                                    | Built from                     |
+// | ---- | ----------------------------------------------------------- | ------------------------------ |
+// | 1    | hurting it is what arms it                                  | {@link BLOOD_RISEN}            |
+// | 2    | what it does to you does not come off by itself             | {@link RAKE}                   |
+// | 3    | what you spread, you feed                                   | a pair: `lifeLeech` and a pack |
+// | 4    | the one thing you may hit is the one you must not wound     | a pair: a taunt on a frenzy    |
+// | 5    | all four, on a body that grows as it dies                   | {@link THE_EVERWOUND}          |
+//
+// ⚠️ **Band 4 is the Hollow Anvil's pair with a different sentence in it.** That chapter's taunt was
+// worn by a body the party could not *open*; this one is worn by a body the party had better not
+// **wound**, because it is carrying the chapter's own frenzy. Both leave the same two answers a
+// taunt has always left — kill it inside the window, or bring a row attack — and neither is the
+// answer the party has been reaching for since milestone 4, which is reach.
+//
+// ## Scale, and the two things a Monster chapter has to watch
+//
+// ⚠️ **`lifeLeech` is sustain, and sustain is a clock.** It is the faction's idiom and it stays, at
+// the sizes the faction already carries (0.1 on the Bramblehide Ravener) — but it never stands on a
+// board with a taunt, because sustain the party cannot aim at is a ninety-second timeout scored as
+// a **defeat**, and it is never on the same block as a frenzy, because a body that hits harder for
+// being hurt and heals from hitting is a closed loop wearing a stat block.
+//
+// ⚠️ **And nothing here is armoured by being hurt.** {@link BLOODRISEN} multiplies `atk`, so every
+// version of this chapter's signature ends the fight *sooner*; the defensive mirror of it is the one
+// shape of this idea nobody may author. The bulk is deliberately Monster-shaped for the same reason
+// — high attack, thin armour, real `haste` — where the hold above was slow and thick.
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The chapter's first sentence, on the cheapest thing that can say it.
+ *
+ * A whelp is not dangerous and is not meant to be. What it costs is the habit eight chapters have
+ * rewarded: opening with a row attack, chipping everything, and finishing at leisure. Chip this and
+ * do not kill it, and it is a third stronger for the rest of the fight — and so is every other one
+ * standing beside it.
+ *
+ * Quick and thin, because band 1 has to be **answerable by finishing** and a body that takes three
+ * turns to put down is a body the party cannot help wounding.
+ */
+export const MIREWHELP = {
+  id: 'mirewhelp',
+  name: 'Mirewhelp',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 58,
+    def: 14,
+    haste: 102,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.15,
+    physicalPierce: 0.12,
+  },
+  skills: [BLOOD_RISEN, MAUL],
+} as const;
+
+/**
+ * The same lock on a body that will not go down to a stray hit.
+ *
+ * ⚠️ **The Mirewhelp is answerable by finishing and this deliberately is not.** It is the fodder a
+ * party *cannot* clear in one turn, so the frenzy is a matter of when rather than whether — which is
+ * what stops band 1 from resolving into "kill the small ones first" and nothing else. What it does
+ * with the frenzy is modest; what it does is make the party spend real damage on a common.
+ */
+export const THORNBACK_GRAZER = {
+  id: 'thornback-grazer',
+  name: 'Thornback Grazer',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 940,
+    atk: 46,
+    def: 26,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.2,
+    physicalResist: 0.14,
+  },
+  skills: [BLOOD_RISEN, GORE],
+} as const;
+
+/**
+ * Band 2 at fodder weight, and the lock is meant to be **stacked** rather than met once.
+ *
+ * One {@link RAKE} is a wound the party's cleanse answers on the turn it lands. Three of these on a
+ * board is three permanent wounds against one cleanse, which is the whole of the band: the party
+ * cannot clear them all, so it is choosing which of its members bleeds until the fight ends.
+ *
+ * Fragile and fast, on the Cinderquench Bearer's reasoning — it is not meant to survive being
+ * noticed, and what it costs the party is the answer rather than the body.
+ */
+export const RENDFANG_JACKAL = {
+  id: 'rendfang-jackal',
+  name: 'Rendfang Jackal',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 62,
+    def: 15,
+    haste: 108,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    tenacity: 0.15,
+    physicalPierce: 0.2,
+  },
+  skills: [RAKE],
+} as const;
+
+/**
+ * The clock's counterweight, and the reason a wide board here is wide.
+ *
+ * Almost no health and the highest `haste` on a Monster block. It carries neither of the chapter's
+ * locks on purpose: a board of nothing but bodies that punish being chipped would make a row attack
+ * strictly wrong, and this is the thing a row attack is **right** about — five of them take turns
+ * fast enough to matter and die to one swing.
+ */
+export const CARRION_SWARM = {
+  id: 'carrion-swarm',
+  name: 'Carrion Swarm',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 400,
+    atk: 54,
+    def: 10,
+    haste: 124,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    tenacity: 0.1,
+    physicalPierce: 0.16,
+  },
+  skills: [FLENSE],
+} as const;
+
+/**
+ * Band 1 at weight: the pack arms whatever the party has committed to.
+ *
+ * ⚠️ **This is what stops band 1 being answered by target order.** A frenzy on `self` is a body's
+ * own decision, and a party that finishes what it starts pre-empts it. {@link BLOOD_CALLS_BLOOD}
+ * arrives on the body the party has *already* decided to kill, on a turn the party does not
+ * control — so the damage in flight is spent on something worth more than it was when the swing
+ * started.
+ *
+ * It kills nothing itself, which is the Grudgeplate Smith's shape and the third time the ladder has
+ * used it. Reaching past the front rank to remove it is the answer, and it is the answer this
+ * chapter is most willing to give.
+ */
+export const GOREHIDE_MATRIARCH = {
+  id: 'gorehide-matriarch',
+  name: 'Gorehide Matriarch',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 58,
+    def: 26,
+    haste: 84,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    tenacity: 0.3,
+    physicalResist: 0.08,
+  },
+  skills: [BLOOD_CALLS_BLOOD, GORE],
+} as const;
+
+/**
+ * Band 2 at weight, and it opens the one vein the party cannot spare.
+ *
+ * A Jackal bleeds whatever is in front of it. This goes past the wall at the party's own back rank,
+ * where the healer stands — and a healer carrying a wound that never closes is a healer choosing
+ * between mending somebody else and stopping its own. That is the band's second question, and it is
+ * about **which** wound the party carries rather than how many.
+ */
+export const REDWATER_STALKER = {
+  id: 'redwater-stalker',
+  name: 'Redwater Stalker',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 880,
+    atk: 78,
+    def: 22,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    tenacity: 0.25,
+    physicalPierce: 0.3,
+    physicalResist: 0.04,
+  },
+  skills: [OPEN_THE_VEIN, RAKE],
+} as const;
+
+/**
+ * Band 3, and the only sustain in the chapter: what the party spreads, this drinks.
+ *
+ * `lifeLeech` is the Monster faction's answer to having no healer — milestone 8e's decision, and the
+ * reason giving this faction a support would solve a composition problem by deleting the faction. On
+ * a board of whelps and swarms it is the thing that makes a long fight the wrong plan: the party
+ * that chips five bodies has armed all of them, and this one is being paid for every blow it lands
+ * while they answer.
+ *
+ * ⚠️ **It never stands on a board with a taunt and it never carries a frenzy**, which are the two
+ * rules the chapter's leech is fenced by. Sustain the party cannot aim at is a ninety-second clock,
+ * and sustain on a body that hits harder for being hurt is a closed loop.
+ */
+export const BLOODGORGE_HOUND = {
+  id: 'bloodgorge-hound',
+  name: 'Bloodgorge Hound',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 76,
+    def: 24,
+    haste: 96,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    lifeLeech: 0.12,
+    tenacity: 0.25,
+    physicalPierce: 0.18,
+    physicalResist: 0.05,
+  },
+  skills: [RAKE, FLENSE],
+} as const;
+
+/**
+ * Band 4: it stands up, and the only thing the party may hit is the thing it must not wound.
+ *
+ * ⚠️ **The pair, and the whole of what makes it different from the Oathstone Bastion.** That body
+ * was a door the party could not open. This one is a door that **arms itself while the party
+ * knocks** — {@link CHALLENGE_BELLOW} narrows the target pool before the row rule is consulted, and
+ * {@link BLOOD_RISEN} is waiting for the damage that narrowing guarantees.
+ *
+ * ⚠️ **Sixty ticks of cooldown against a forty-five tick taunt**, which `skills.spec.ts` derives
+ * and holds: a single-target party gets a window at the rest of the board, and a party with a row
+ * attack was never shut out at all.
+ *
+ * ⚠️ **No leech, no recovery, no shield, and nothing on a board with it puts health back.** A taunt
+ * in front of sustain is the timeout that is scored as a defeat, which is the failure 15c found on
+ * the Dwarf Tower's roof. Every pool on this depletes.
+ */
+export const SCARBOUND_BELLOWER = {
+  id: 'scarbound-bellower',
+  name: 'Scarbound Bellower',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1180,
+    atk: 70,
+    def: 34,
+    haste: 76,
+    critChance: 0.05,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    critDamageResist: 0.15,
+    tenacity: 0.35,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [CHALLENGE_BELLOW, BLOOD_RISEN, MAUL],
+} as const;
+
+/**
+ * The thing that has been following the party since it came up out of the hold.
+ *
+ * The ladder's fourth **lieutenant**, on `c10-s10`, `c10-s20`, `c10-s30` and `c10-s40` at rising
+ * levels. ⚠️ **Reactive rather than an opening turn, which is {@link THE_GRUDGEKEEPER}'s shape and
+ * the second chapter running to take it** — and here it is forced rather than chosen: a chapter
+ * about what the party's damage *does* cannot state its lock before the party has dealt any.
+ *
+ * {@link THE_PACK_ANSWERS} is the widest the frenzy goes, and one chipped body is enough to trigger
+ * it. So the four boards it anchors are four different fights depending on how the party opens: a
+ * row attack into the escort arms the escort, and a party that finishes one body at a time meets it
+ * with the pack still whole.
+ *
+ * ⚠️ **No healing, no drain and no shield**, which is the standing rule for anything a chapter
+ * fields four times, and no `lifeLeech` either — this is the block most likely to still be standing
+ * at second sixty.
+ *
+ * ⚠️ **Sized under The Unmade on both stats and under {@link THE_EVERWOUND} as well**: a lieutenant
+ * that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_REDMAW = {
+  id: 'the-redmaw',
+  name: 'The Redmaw',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1480,
+    atk: 91,
+    def: 42,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    physicalPierce: 0.26,
+    physicalResist: 0.05,
+  },
+  skills: [THE_PACK_ANSWERS, RAKE, TYRANTS_CLAIM],
+} as const;
+
+/**
+ * All wound and nothing else, and the tenth body on the ladder fielded on exactly one stage.
+ *
+ * Every question the chapter has asked stands on it at once, and three of them are the same
+ * question at three widths: {@link BLOOD_RISEN} means killing it is what makes it dangerous,
+ * {@link THE_PACK_ANSWERS} means the escort rises with it, and {@link THE_LONG_BLEED} puts a wound
+ * on all five members that only a cleanse will ever close.
+ *
+ * ⚠️ **A boss that gets permanently stronger as it dies is a race, and a race is the safe shape
+ * here.** The alternative — a boss that got *harder to kill* as it was hurt — is the same idea
+ * pointed at the ninety-second clock, and a timeout is scored as a defeat. Everything on this board
+ * shortens the fight from one side or the other.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway. Here it
+ * would be worse than neutral — it would hand the party the one thing this chapter is built to
+ * withhold, which is a safe place to spend damage.
+ *
+ * **The Redmaw does not stand here**, on the Anvil Crowned's reasoning: a lieutenant as support is
+ * permitted and this board does not need one. ⚠️ **Check the survivor count before copying that
+ * choice** — nothing asserts it once a later chapter takes over the top of the ladder.
+ *
+ * ⚠️ **No healing, no drain, no shield and no `lifeLeech` anywhere on it**, which is the same
+ * sentence the last two chapter finals carry and for the same reason.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_EVERWOUND = {
+  id: 'the-everwound',
+  name: 'The Everwound',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1720,
+    atk: 98,
+    def: 52,
+    haste: 96,
+    critChance: 0.15,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.3,
+    magicPierce: 0.2,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_PACK_ANSWERS, THE_LONG_BLEED, BLOOD_RISEN, TYRANTS_CLAIM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Human Tower's second hundred floors — milestone 21e
+//
+// ## Four Undead blocks, and why a tower's are fewer than a chapter's
+//
+// A chapter is ten because it authors five bands each asking a different question. A tower is four
+// because it asks **one** question a hundred more times: a floor is climbed exactly once and there
+// is no way around one, so what a floor costs is the whole of it. These fill shape gaps in the
+// Undead bench that a two-hundred-floor climb exposes and a fifty-stage chapter does not.
+//
+// Undead 17 → **21**, which is what 21e owes. The lean is the matchup matrix's: Undead counter
+// Humans, so the tower that admits Humans is the one that fields them.
+//
+// | Block                            | The gap it fills                                          |
+// | -------------------------------- | --------------------------------------------------------- |
+// | {@link CHARNEL_DRUDGE}           | fodder a crit cannot delete                                 |
+// | {@link NIGHTMARCH_OUTRIDER}      | reach, at speed, with a pool that answers back              |
+// | {@link RELIQUARY_BEARER}         | sustain that cannot become the clock                        |
+// | {@link THE_DEATHLESS_MARSHAL}    | a roof of its own, for a tower that had borrowed one        |
+//
+// ## ⚠️ No new status, and the vocabulary was never on the table
+//
+// Milestone 21's three-status budget was **spent and closed by 21d**, and a tower does not get to
+// re-open it — "21d spent two" is no more an argument than "17 did it" was. All three new skills
+// below are existing statuses on bodies that had not carried them.
+//
+// ## Scale
+//
+// The floors these stand on run to level 120, which is exactly twice the shipped hundred's top —
+// so the *level line* is what makes the second hundred harder and these are sized against the
+// bench they join rather than against the floors they will meet. {@link THE_DEATHLESS_MARSHAL} sits
+// **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds, and which every
+// `ascended` block authored since 15c has respected rather than raised.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * What is left of the work gangs that dug the tower's foundations.
+ *
+ * **Fodder a burst party cannot delete, which the Undead bench did not have.** Every cheap Undead
+ * body so far is either thin and fast or thick and slow; this is thick, slow, *and* wearing
+ * `critBlock` on both resists — so the swing that clears three of these on the shipped hundred
+ * clears two here and spends another turn on the third.
+ *
+ * ⚠️ **Nothing about it is a lock, and that is deliberate.** A tower's second hundred is a hundred
+ * fights nobody re-tries, so what it needs from its commons is *cost*, not a question. A block that
+ * taught something new every tenth floor would be a chapter wearing a tower's numbering.
+ */
+export const CHARNEL_DRUDGE = {
+  id: 'charnel-drudge',
+  name: 'Charnel Drudge',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 840,
+    atk: 52,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.16,
+    physicalResist: 0.12,
+    magicResist: 0.1,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * It was cavalry once, and it still knows where the standards are kept.
+ *
+ * {@link NIGHT_RIDE} goes past the front rank at speed, which is the pressure a hundred-floor climb
+ * has never put on the party's back row — the shipped tower's reach is {@link CUTPURSE} on a
+ * `common`, and a `common`'s turn arrives too rarely to be a plan.
+ *
+ * ⚠️ **The `dodge` pool is a question rather than a tax, and the Human bench is what makes it
+ * one.** Exactly one Human carries `accuracy` — Ysolde, who stands in the reference five — so this
+ * is answerable by a crew that brought her and expensive for one that did not. That asymmetry is
+ * the point: `MIN_HIT_CHANCE` floors a dodge pool at a tenth, so the crew without the answer is
+ * slowed rather than stopped. **Kept modest, and never stacked**: two of these on one board is a
+ * board a party without accuracy cannot plan around, which is a different and worse thing.
+ */
+export const NIGHTMARCH_OUTRIDER = {
+  id: 'nightmarch-outrider',
+  name: 'Nightmarch Outrider',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 78,
+    def: 20,
+    haste: 128,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    dodge: 0.12,
+    physicalPierce: 0.15,
+    magicResist: 0.04,
+  },
+  skills: [NIGHT_RIDE, CUTPURSE],
+} as const;
+
+/**
+ * It carries the box, and the box is why the rest of them are still standing.
+ *
+ * ⚠️ **The only way a tower is allowed to have sustain, and the distinction is load-bearing.** 15c
+ * measured what a healer on a roof is: the Dwarf Tower's boss was `Oathbreaker + Warden` behind a
+ * Marsh Acolyte and no Dwarf five could close it inside ninety seconds, while the same board ten
+ * floors lower cleared. A heal refills; against a party that cannot burst, that is the clock rather
+ * than a lock. {@link RELIQUARY_SEAL} banks a pool **once** and it depletes — so this makes a floor
+ * cost more turns and can never make one cost all of them.
+ *
+ * Almost no offence of its own, like every support the enemy side ships: what it costs the party is
+ * the turns spent getting through what it put up.
+ */
+export const RELIQUARY_BEARER = {
+  id: 'reliquary-bearer',
+  name: 'Reliquary Bearer',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 50,
+    def: 36,
+    recovery: 4,
+    haste: 72,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    magicResist: 0.12,
+  },
+  skills: [RELIQUARY_SEAL, WITHERING_TOUCH],
+} as const;
+
+/**
+ * Whoever gave the order that lost the tower, still giving it.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is The Oathbreaker — a Human
+ * `ascended` block the campaign also fields — which was right for a tower that had one hundred
+ * floors and no body of its own. A second hundred earns one.
+ *
+ * {@link THE_LAST_MUSTER} is what makes it a fight rather than a bigger stat block: the board's
+ * attack goes up a third for forty-five ticks and then lapses, so the roof has a rhythm the party
+ * can read and wait out. ⚠️ **It lapses on purpose**, unlike 21d's permanent rallies — a roof that
+ * ratcheted upward and never came down would be the ninety-second clock with a name on it, which is
+ * the shape `docs/combat.md` forbids outright.
+ *
+ * ⚠️ **No heal, no drain, no shield and no `lifeLeech`**, which is the sentence every chapter final
+ * since the Chainsworn carries and which binds twice as hard here: a roof is the one fight in a
+ * hundred-floor climb that a player cannot route around.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_DEATHLESS_MARSHAL = {
+  id: 'the-deathless-marshal',
+  name: 'The Deathless Marshal',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1620,
+    atk: 94,
+    def: 48,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalPierce: 0.28,
+    magicPierce: 0.18,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_LAST_MUSTER, TYRANTS_CLAIM, HEADSMANS_ARC],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's second hundred floors — milestone 21f
+//
+// ## Four Human blocks, and Human was the thinnest faction in the game
+//
+// Nine, against Undead's and Elves' seventeen and Dwarves' and Monsters' eighteen — because
+// milestone 21's four chapters each leaned somewhere else on purpose and Human was the one they
+// left alone. Human 9 → **13** here, which is the lean the matchup matrix asks for: Humans counter
+// Dwarves, so the tower that admits Dwarves is the one that fields them.
+//
+// A tower gets four where a chapter gets ten, for 21e's reason: a chapter authors five bands each
+// asking a different question, and a tower asks **one** question a hundred more times.
+//
+// | Block                        | The gap it fills                                        |
+// | ---------------------------- | ------------------------------------------------------- |
+// | {@link FORLORN_LEVY}         | a common that costs turns rather than health            |
+// | {@link KINGSWAY_LANCER}      | the Human bench's first `legendary` that is only damage |
+// | {@link UNDERVAULT_SAPPER}    | armour that stops answering, aimed at the deepest of it |
+// | {@link THE_BREACHLORD}       | a roof of its own, for a tower that had borrowed one    |
+//
+// ## ⚠️ Offence rather than bulk, and it is a measurement rather than a preference
+//
+// A Dwarf five carries the lowest `atk` in the game and the alternate arrangement is three tanks.
+// So bulk is the one thing it beats by standing still — what it actually loses to is the
+// ninety-second clock. Measured at the top floor's level, an *offensive* board and a *bulky* board
+// of the same nominal weight read 33.0s against 45.7s, and the alternate five clears the first at
+// 90% and the second at 63%. **Every one of these four spends its weight on what it does per
+// turn.**
+//
+// ⚠️ That is the inverse of what 21e authored one tower over: the Human Tower's second hundred
+// thins its anchors and thickens the board's own *support* — links, shields, a taunt. Against these
+// crews a shield support at the top floor reads 28% for the reference five and **0%** for the
+// alternate, because every point of enemy sustain is a second of clock a Dwarf party does not have.
+// 15c's rule that anchors are sized per tower against its own crew generalises: so is the shape.
+//
+// ## No new status, and no sustain above the middle bands
+//
+// Milestone 21's three-status budget was spent and closed by 21d, and 21e recorded that a tower
+// does not get to re-open it. {@link SUNDER} is the game's only defence shred and had never been
+// pointed at Dwarves; that is the whole of the vocabulary these four use.
+//
+// {@link THE_BREACHLORD} carries no heal, no shield, no regeneration and no `lifeLeech`, which is
+// 15c's finding on *this tower's own roof* written as a stat block: the Dwarf Tower's boss was
+// `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five could close it inside ninety
+// seconds, while the same board ten floors lower cleared.
+//
+// ⚠️ Sized **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds — and well
+// under it, because a roof is sized against the crew that has to take it and this crew is the
+// slowest in the game.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The first wave up the ladders, and the one nobody expects back.
+ *
+ * **A common that costs turns rather than health.** All three Human commons before it are ordinary
+ * melee bodies at eight-and-a-half stone of haste; this is the fastest and hardest-hitting body the
+ * faction has at its cheapest tier, and it is made of paper. Against a party that wins by refusing
+ * to lose, a body that acts twice for every one of yours is worth more than a body that is hard to
+ * kill — and a board that fields three of these is asking the party to spend swings it does not
+ * have.
+ *
+ * ⚠️ **Not a lock, deliberately**, the same clause {@link CHARNEL_DRUDGE} carries: a tower's second
+ * hundred is a hundred fights nobody re-tries, so what it needs from a common is *cost*. It carries
+ * {@link GORE} because its identity is entirely its stat line.
+ */
+export const FORLORN_LEVY = {
+  id: 'forlorn-levy',
+  name: 'Forlorn Levy',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 56,
+    def: 12,
+    haste: 128,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.1,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * The road it is named for runs straight into the hold, and always did.
+ *
+ * ⚠️ **The first Human `legendary` that is only damage.** The faction fields a healer, a caster and
+ * a taunt-wall at this tier, so every Human board so far has been able to answer the party and
+ * unable to threaten it — which is exactly the board a Dwarf five is built to out-sit. What this
+ * adds is a reason to hurry.
+ *
+ * {@link COUCHED_LANCE} is conditioned on the party being whole, so its weight lands early and the
+ * block is a swinging body afterwards. **Front rank**, and the measurement is why: a body of this
+ * output standing where a Dwarf party cannot reach it takes the reference crew from 100% to 10%.
+ * Reach is the one thing that faction has least of, so pressure it cannot answer is a cliff rather
+ * than a ramp.
+ */
+export const KINGSWAY_LANCER = {
+  id: 'kingsway-lancer',
+  name: 'Kingsway Lancer',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 78,
+    def: 26,
+    haste: 116,
+    critChance: 0.15,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.28,
+    magicResist: 0.04,
+  },
+  skills: [COUCHED_LANCE, CUTPURSE],
+} as const;
+
+/**
+ * Somebody has to go and find where the seams are.
+ *
+ * The answer to the thing that makes this faction's tower hard to author: Dwarves own the deepest
+ * armour in the game, so a board that cannot open it is a board spending the whole ninety seconds
+ * proving it. {@link UNDERMINE} is {@link SUNDER} across the front rank, which is where all of that
+ * armour stands.
+ *
+ * ⚠️ **`insight` rather than a bigger `chance`, and the distinction is the faction it is aimed at.**
+ * `statusChance` is `authored + insight − tenacity` clamped at zero, so a Dwarf carrying enough
+ * `tenacity` refuses a debuff outright however confidently it is authored. Buying the pool is the
+ * honest way to answer that; inflating the chance is the way that stops working the moment the
+ * party invests in the stat the game gave it for exactly this.
+ *
+ * Almost no offence of its own, like every support the enemy side ships — what it costs the party
+ * is what the rest of the board does through the hole.
+ */
+export const UNDERVAULT_SAPPER = {
+  id: 'undervault-sapper',
+  name: 'Undervault Sapper',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 66,
+    def: 24,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    insight: 0.32,
+    physicalPierce: 0.18,
+    magicResist: 0.06,
+  },
+  skills: [UNDERMINE, SHIELD_BASH],
+} as const;
+
+/**
+ * Whoever it was that first got over the wall, still at the top of it.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Oathbreaker + Warden` — two
+ * Human `ascended` blocks the campaign also fields — which was right for a tower with a hundred
+ * floors and no body of its own. A second hundred earns one.
+ *
+ * ⚠️ **Far lighter than {@link THE_DEATHLESS_MARSHAL}, and that is the point rather than an
+ * oversight.** 15c measured that a tower's anchors are sized against its own crew and never to a
+ * shared weight; this crew is the slowest in the game, and a roof at the Human Tower's weight reads
+ * **0%** for both Dwarf arrangements at the top floor. What makes this one a fight is what it does
+ * per turn — {@link THE_BREACH_GIVEN} opens the wall and {@link GATE_SLAM} takes the turn the party
+ * was about to spend — not how long it takes to kill.
+ *
+ * ⚠️ **No heal, no drain, no shield, no regeneration and no `lifeLeech`.** This is the tower whose
+ * roof taught the rule and it is the tower least able to survive breaking it.
+ */
+export const THE_BREACHLORD = {
+  id: 'the-breachlord',
+  name: 'The Breachlord',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 78,
+    def: 40,
+    haste: 92,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.18,
+    critBlock: 0.08,
+    tenacity: 0.4,
+    physicalPierce: 0.3,
+    magicPierce: 0.18,
+    physicalResist: 0.05,
+    magicResist: 0.05,
+  },
+  skills: [THE_BREACH_GIVEN, GATE_SLAM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's second hundred floors — milestone 21g
+//
+// Four Dwarf blocks, which takes the faction 18 → **22**. Dwarves beat Elves in the matchup cycle,
+// so this is the lean the matrix asks for and half of the shipped hundred already wears it.
+//
+// ⚠️ **All four are aimed at the faction the tower admits rather than at a gap in the Dwarf bench,
+// and the Elf idiom is what makes that possible.** Elves are the game's `dodge` faction — 0.06 to
+// 0.12 across both reference arrangements — and no Dwarf block in eighteen carried `accuracy`.
+// `AGENTS.md` records that a dodge pool is answered by accuracy and nothing else, so three of these
+// four buy the pool; what stops it being a flat tax is that the cheapest carrier is also the softest
+// body on its board, so the answer is to spend a turn on it.
+//
+// The other half of the aim is `critBlock`. Elves run `critChance` 0.22 to 0.30 with
+// `critDamageAmp` up to 0.9 — the sharpest crit profile in the game — and the highest `critBlock`
+// anything shipped is {@link CHARNEL_DRUDGE}'s 0.16. {@link EDGETURN_WARDEN} exists to be the wall
+// that a crit is worth nothing against, which is what buys the rest of the board its turns.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The one who sights the line, so nothing on it has to guess.
+ *
+ * ⚠️ **The first Dwarf block in eighteen to carry `accuracy`, and it is deliberately the cheapest
+ * tier that gets it.** Hit chance is `accuracy − dodge` floored at a tenth, so 1.18 cancels every
+ * evasion pool either Elf arrangement fields outright — and putting that on fodder means a board of
+ * commons connects, which is the thing an Elf five had been allowed to ignore.
+ *
+ * ⚠️ **Answerable, and the softness is what makes it so.** An enemy's accuracy is not a stat the
+ * party can out-buy the way it out-buys a hostile status, so a block carrying it has to be killable
+ * or it is simply a bigger number. This is 540 hp standing in a back rank with {@link CUTPURSE},
+ * which means the party's *reach* is the answer — and reach is the one resource this tower spends
+ * its whole second hundred asking for. Never stacked more than two to a board.
+ */
+export const PLUMBLINE_HAND = {
+  id: 'plumbline-hand',
+  name: 'Plumbline Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 52,
+    def: 16,
+    haste: 92,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    accuracy: 1.18,
+    physicalPierce: 0.1,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * You do not climb into a canopy. You throw something over it.
+ *
+ * The burster the wall is protecting, and the reason this tower's second hundred is a decision
+ * rather than a wall to chew through. {@link SLUNG_ANVIL} is ×2 into the rank an Elf five keeps its
+ * support and its casters in, so the party's reach is contested: spend it on the wall and the back
+ * rank pays, spend it here and the wall gets its turns.
+ *
+ * Slow on purpose — 84 haste against a faction that runs 118 to 152 — so it is a body the party
+ * always has time to answer and never has time to ignore. It carries `accuracy` too, because a siege
+ * engine that misses is a joke rather than a threat.
+ */
+export const IRONSLING_WRIGHT = {
+  id: 'ironsling-wright',
+  name: 'Ironsling Wright',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 80,
+    def: 22,
+    haste: 84,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    accuracy: 1.12,
+    tenacity: 0.35,
+    physicalPierce: 0.18,
+  },
+  skills: [SLUNG_ANVIL, SHIELD_BASH],
+} as const;
+
+/**
+ * Stone laid so the edge turns rather than bites.
+ *
+ * The wall, and the highest `critBlock` and `critDamageResist` in the game — 0.24 against
+ * {@link CHARNEL_DRUDGE}'s 0.16, and 0.32 against {@link SERAPHINE}'s 0.3. Both are steps beyond the
+ * shipped maxima and both are the block's whole argument: an Elf five's damage is a crit profile,
+ * and this is the body that refuses it. Against anything else on the board those numbers are worth
+ * almost nothing, which is what keeps it a lean rather than a tax.
+ *
+ * ⚠️ **It taunts, and the taunt is what makes it a wall rather than a slow body.** Reach is the Elf
+ * answer to a formation, so a wall that can be walked around is not a wall — {@link DRAW_THE_OATH}
+ * narrows the pool before the row rule is consulted, which is the one thing in the game that does.
+ * The clauses that keep that answerable hold here as everywhere: 45 ticks against a 60-tick
+ * cooldown, so there is a window every fight; multi-target selections ignore it; and it is a skill
+ * rather than an `opening`, which `enemies.spec.ts` enforces.
+ *
+ * ⚠️ **No sustain of any kind on it.** A taunt in front of anything that heals is the ninety-second
+ * clock wearing a lock's clothes, which is 15c's finding and not this tower's to re-derive.
+ */
+export const EDGETURN_WARDEN = {
+  id: 'edgeturn-warden',
+  name: 'Edgeturn Warden',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1080,
+    atk: 58,
+    def: 44,
+    haste: 68,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critDamageResist: 0.32,
+    critBlock: 0.24,
+    tenacity: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * The Stonewright cut the stair. This one cut the wards that hold it up.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Colossus + Barrow Sovereign`
+ * — two blocks the campaign also fields — which was right for a tower with a hundred floors and no
+ * body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **`accuracy: 1.25` is the highest in the game and it is this block's headline**, above
+ * {@link THE_WITHERED_CROWN}'s 1.2. `dodge` is not a {@link ModifiableStat}, so nothing may take an
+ * evasion pool away with a status — the honest way for a roof to say "your evasion is worth nothing
+ * here" is to carry the stat that out-runs it, and this is the tower where that sentence belongs.
+ *
+ * Its two turns are the tower's thesis stated once each: {@link THE_LINE_TRUE} reaches the rank the
+ * party has been protecting for a hundred floors, and {@link THE_WARDS_HOLD} is the wall the party
+ * has to get through to stop it. Neither of them heals.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule and the reason the numbers are where
+ * they are.** An Elf five is the fastest and softest party in the game, so what threatens it is
+ * never bulk — 1560 hp is under both of the Dwarf `ascended` bodies the campaign fields and well
+ * under {@link UNMADE}, and the fight still costs the weaker arrangement three of its five. Making
+ * it heavier was measured: at 1650 the weaker arrangement drops from 83% to 63%, and the stronger
+ * one does not notice.
+ */
+export const THE_WARDWRIGHT = {
+  id: 'the-wardwright',
+  name: 'The Wardwright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 92,
+    def: 46,
+    recovery: 6,
+    haste: 88,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.14,
+    tenacity: 0.6,
+    accuracy: 1.25,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+  },
+  skills: [THE_LINE_TRUE, THE_WARDS_HOLD, GLACIAL_SLAM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's second hundred floors — milestone 21h
+//
+// Four Elf blocks, taking the faction 17 → 21. The lean the matchup matrix asks for, and the four
+// are aimed at what this tower's *own* crews cannot answer rather than at a gap in the Elf bench —
+// which is 21g's discipline, and the measurement that set it is in `skills.ts` above {@link
+// SUNFADE}.
+//
+// ⚠️ **The second hundred had eleven Elf blocks it had never met before any of these were
+// written.** The first hundred fields 29 distinct archetypes out of a bench that has since doubled,
+// so these four are not filling a hole in the *variety* — they are the four specific statements the
+// bench could not make: an evasion pool worth a turn, an `atk` debuff aimed at a whole side, a
+// legendary wall (the Elf bench had none: its heaviest legendary is 820 hp at 24 `def`), and a roof.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Above the canopy there is light and wind, and nothing up here has ever had to hold still.
+ *
+ * The teaching body, and the cheapest possible statement of this tower's second hundred: **you will
+ * miss.** `dodge: 0.3` is above the shipped common ceiling ({@link DUSKFERN_SKIRMISHER}'s 0.26) and
+ * it sits on the softest frame in the Elf bench, which is the trade that keeps it honest — 500 hp
+ * against a party that lands many small hits means the pool buys turns rather than the fight, and
+ * one connection in three still removes it.
+ *
+ * ⚠️ **Cheap on purpose, because the mechanic wants density rather than size.** Two or three of
+ * these on a board is what makes a floor read as evasion; one heavy evasive body would just read as
+ * a bad anchor. That is also what keeps the answer legible: they die to anything that reaches them.
+ */
+export const SUNMOTE_DANCER = {
+  id: 'sunmote-dancer',
+  name: 'Sunmote Dancer',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 58,
+    def: 11,
+    haste: 134,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    dodge: 0.3,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * The light gets into you, and afterwards there is less of you than there was.
+ *
+ * The other half of the lock, and the half that answers the party's answer to the first. Evasion
+ * means a swing does not land; {@link SUNFADE} means the ones that do land return less — and every
+ * Undead body siphons a fraction of the damage it deals, so an `atk` debuff is charged **twice**
+ * against this crew. There is no third body in the game that this is specifically true of.
+ *
+ * Soft, fast, and standing in a back rank: it is a body the party has to *reach*, which is the
+ * resource this tower charges for, and the one Undead skill that reaches a whole rank is an
+ * ultimate. `dodge: 0.22` is texture rather than the argument — enough that spending a turn on it
+ * is a decision, not enough to make it a second wall.
+ */
+export const SUNFADE_CHANTER = {
+  id: 'sunfade-chanter',
+  name: 'Sunfade Chanter',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 64,
+    def: 18,
+    haste: 110,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    dodge: 0.22,
+    magicResist: 0.06,
+  },
+  skills: [SUNFADE, MOTE_LANCE],
+} as const;
+
+/**
+ * Bark that has closed over the same wound a hundred times.
+ *
+ * ⚠️ **The first legendary wall the Elf bench has ever had, and the release valve the evasion bands
+ * need.** Elf legendaries top out at 820 hp and 24 `def`; this is 1120 and 40. On a board where four
+ * bodies are hard to connect with, it is the one that is not — so it is where a frustrated party's
+ * damage goes, and going there is the trap. Nothing behind it is any easier to hit for the delay.
+ *
+ * ⚠️ **It taunts, and carries no evasion at all.** Those two clauses are one decision: a taunt
+ * narrows the pool before the row rule is consulted, so a taunting body the party could not reliably
+ * *hit* would be the ninety-second clock with a lock's name on it — which is the failure 15c found
+ * on the Dwarf roof and this tower's crew is even slower. {@link DRAW_THE_OATH} runs 45 ticks
+ * against a 60-tick cooldown, so there is a window at whatever stands behind it every fight, and
+ * `enemies.spec.ts` holds that it can never become an `opening`.
+ *
+ * ⚠️ **No sustain of any kind, and no board in this tower pairs it with a heal.** That is the
+ * clause 15c wrote and 21f made a rule of, and it binds harder here than anywhere: an Undead five
+ * takes the shipped floor 100 in 34.4 seconds against a 90-second timer.
+ */
+export const CROWNBARK_BASTION = {
+  id: 'crownbark-bastion',
+  name: 'Crownbark Bastion',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 54,
+    def: 40,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    physicalResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * The Wyrdroot held the wood down. This is what the wood was reaching for.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is
+ * `Wyrdroot Ancient + Colossus` — two blocks the campaign also fields — which was right for a tower
+ * with a hundred floors and no body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **`dodge: 0.24` is the headline, and it is the one stat no Undead five may answer.** `accuracy`
+ * lives on four Elves and one Human, and there is none in `gear.ts` or `signature.ts`, so a
+ * faction-locked Undead crew has no route to it anywhere in the game — while every one of its
+ * bodies sustains on `drain` and `lifeLeech`, so a miss costs the hit *and* the health the hit
+ * would have paid back. Same shape as 21c's finding that a chapter's headline lock can be a stat
+ * block, and as 21g's roof carrying `accuracy: 1.25` for the mirror-image reason.
+ *
+ * ⚠️ **0.24 is deliberately under {@link THE_WITHERED_CROWN}'s 0.28 and well under
+ * {@link WEALDSHADOW_STALKER}'s 0.34, on the heaviest body in the tower.** The licence this session
+ * took was "pools on soft bodies, so focus fire is the answer" — an anchor this crew already
+ * struggles to burst, carrying the deepest pool in the game, is exactly the shape that licence
+ * excludes.
+ *
+ * Its three turns are the tower's thesis stated once each and **none of them restores anything**:
+ * {@link THE_CANOPY_PARTS} reaches the rank an Undead five keeps its heal, its reach and two of its
+ * three drains in; {@link THE_SUN_AT_NOON} presses all five at once, which is the pressure a shared
+ * siphon cannot keep pace with; {@link HEADSMANS_ARC} finishes whoever the leech left lowest.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule.** An Undead five is the slowest
+ * party in the game, so what threatens it is never bulk — one Longshadow-weight anchor behind a wall
+ * with three legendaries measured **73% / 23%**, unwinnable for both arrangements. 1520 hp is under
+ * every `ascended` body the campaign fields at this end of the ladder and far under {@link UNMADE},
+ * and the fight still costs the reference five three of its members.
+ */
+export const THE_SUNBOUGH = {
+  id: 'the-sunbough',
+  name: 'The Sunbough',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 90,
+    def: 44,
+    recovery: 6,
+    haste: 106,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    dodge: 0.24,
+    tenacity: 0.45,
+    accuracy: 1.1,
+    physicalPierce: 0.18,
+    magicResist: 0.06,
+  },
+  skills: [THE_CANOPY_PARTS, THE_SUN_AT_NOON, HEADSMANS_ARC],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Milestone 21i — the Monster Tower's second hundred, floors 101–200.
+//
+// Four blocks, **one each in the four thinnest factions** — angel 11, demon 12, human 13, monster
+// 18 — rather than four in one. ⚠️ **That is the tower rather than an exception to it.** Every
+// other tower leans on the single faction that counters the one it admits; every faction counters
+// Monsters, so "field what counters the crew" resolves to all seven and the blocks spread the way
+// the boards do. `towers.spec.ts` reads the case off the matchup matrix rather than naming
+// `monster`, so this must not be special-cased in content.
+//
+// It also evens the depth table, which is the other half of the "fix the leans up front" discipline
+// 21a set: 21j takes Demons to 16 and 21k takes Angels to 15, and neither touches Humans — so
+// without this session Human would close milestone 21 as the standout thin faction at 13 against
+// Dwarf's 22, which is exactly the state 21f was written to get the game out of.
+//
+// The axis, the measurements behind it, and why a link is forbidden on these boards are all in
+// `skills.ts` beside {@link INTERPOSE}. The short version: what escalates across this second hundred
+// is **how many different questions one board asks**, because a Monster five answers any single
+// question by out-damaging it and has no second answer to spend on two more.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * There is nothing to stand behind when the light is directly overhead.
+ *
+ * ⚠️ **The first common in the game to reach a whole rank.** Six blocks carry `enemy-row-back` and
+ * every one of them is a legendary or an `ascended`, so reaching a back rank has always cost a board
+ * one of its two heavy slots. That is the constraint this tower cannot pay: a Monster five's weight
+ * ceiling is one anchor over four soft bodies, so a board buying reach at legendary weight can ask
+ * at most two other questions — and the count of questions is what this band escalates through.
+ *
+ * ⚠️ **It is also Angels' first cheap question of any kind, which was the largest hole in the
+ * bench.** Every other faction ships a common that asks something — a stun, a bomb, thorns, a link,
+ * evasion, a slow, a permanent bleed — and Angel's three ({@link GILDED_SENTRY},
+ * {@link VAULTLIGHT_CENSER}, {@link LUMEN_ACOLYTE}) are plain attackers, because the faction's
+ * vocabulary of shields, links and taunts all sits at legendary and above. It mattered here more
+ * than anywhere: celestials take ten percent off Monsters where the mortals manage five, so an Angel
+ * body is the hardest thing a board can carry and this tower could not previously carry one cheaply.
+ *
+ * ⚠️ **Priced as chip rather than as a threat, and the frame is the trade.** ×0.75 is under
+ * {@link PILLAR_OF_LIGHT}'s ×0.9 on a body carrying 480 hp and 12 `def` — the softest thing on any
+ * board it stands on, and the first casualty of a row attack aimed the other way. What it sells a
+ * board is that the crew's back rank is never *safe*; what it cannot do is make that rank unsafe on
+ * its own.
+ */
+export const ZENITH_CHORISTER = {
+  id: 'zenith-chorister',
+  name: 'Zenith Chorister',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 480,
+    atk: 46,
+    def: 12,
+    haste: 106,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+  },
+  skills: [ZENITHFALL, MOTE_LANCE],
+} as const;
+
+/**
+ * It goes over the front rank entirely, and it comes back heavier than it went.
+ *
+ * ⚠️ **The first block to reach a whole back rank and feed off what it finds there.**
+ * `enemy-row-back` and `lifeLeech` have both been in the game since 15c and have never shared a
+ * body: reach has been a way of skipping a wall and leech a way of standing in front of one. The
+ * pairing is aimed at something specific about this crew — a Monster five keeps three of its five in
+ * the back rank and *all* of its damage lives there, so a body that takes health out of that rank
+ * and puts it into itself is trading in the only currency the crew can mint.
+ *
+ * ⚠️ **The leech is small and the block is soft on purpose.** 0.12 against
+ * {@link BLOODPACT_FIEND}'s 0.25, on 780 hp and 20 `def` — a body the crew kills in a turn or two
+ * once it decides to. What it is not allowed to be is durable: a leech pool behind a wall the party
+ * cannot aim at is 21f's rule again, and this tower already fields a taunt at common weight.
+ */
+export const RUINWING_DEVOURER = {
+  id: 'ruinwing-devourer',
+  name: 'Ruinwing Devourer',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 72,
+    def: 20,
+    haste: 100,
+    critChance: 0.06,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.12,
+  },
+  skills: [RUINOUS_STOOP, WITHERING_TOUCH],
+} as const;
+
+/**
+ * It waits until it knows which one of you is holding the others up.
+ *
+ * ⚠️ **The first block to aim {@link SAVAGED} at one chosen body.** The only hostile status in the
+ * game that does not expire has always been applied broadly — `enemy-front` on four blocks,
+ * `enemy-back` on {@link REDWATER_STALKER}, `enemy-all` on {@link THE_EVERWOUND} — which makes it
+ * weather. Named at `enemy-highest` it is a decision, because `enemy-highest` on a Monster five is
+ * always its tank: the one body it fields for the purpose of still being there at the end.
+ *
+ * ⚠️ **It is the crew's own targeting handed back to it, on the one tower where that is literally
+ * true.** `enemy-highest` is Monster vocabulary — {@link TYRANT}, {@link THE_REDMAW},
+ * {@link THE_EVERWOUND} on this side, Ozza and Vharok on the other — and `monster → monster` is the
+ * matchup matrix's one self-edge, so this is the only ladder in the game where a faction meets the
+ * thing that reads it best.
+ *
+ * ⚠️ **No `lifeLeech` and no {@link BLOODRISEN}, which are chapter 10's two rules and they hold
+ * here.** A body that hits harder for being hurt and heals from hitting feeds itself; a leech pool
+ * on a board that also carries a taunt is the ninety-second clock. This block does neither and its
+ * boards pair it with neither.
+ */
+export const MARROWHUNT_ALPHA = {
+  id: 'marrowhunt-alpha',
+  name: 'Marrowhunt Alpha',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 74,
+    def: 24,
+    haste: 92,
+    critChance: 0.07,
+    critDamageAmp: 0.75,
+    tenacity: 0.2,
+    physicalPierce: 0.14,
+  },
+  skills: [NAME_THE_QUARRY, GORE],
+} as const;
+
+/**
+ * A hundred floors of banners, and one horn that all of them were listening for.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is
+ * `Oathbreaker + Wyrdroot Ancient` — two blocks the campaign also fields — which was right for a
+ * tower with a hundred floors and no body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **Deliberately not a fifth Gate Slam.** All four Human `ascended` blocks —
+ * {@link THE_BREACHLORD}, {@link OATHBREAKER}, {@link PALE_WARDEN}, {@link WARDEN} — carry
+ * `stun@enemy-all` and nothing else identifies the faction as strongly. A roof that repeated it
+ * would be the tower's climax stating the *lean's* idiom on a tower that has no lean, which is this
+ * one shipped as a copy of another. Its three turns are three different factions' questions in human
+ * hands instead, which is the band's axis compressed into a single body: {@link THE_HORN_SOUNDS}
+ * takes the rank the crew keeps its damage in and takes the survivors' turns with it,
+ * {@link THE_FIELD_CLOSES} presses all five at once because a Monster five's health is a shared pool
+ * refilled out of whatever it lands, and {@link NAME_THE_QUARRY} puts a wound that will not close on
+ * whichever body is holding the rest up.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule and the reason it is not heavier.**
+ * A Monster five's weight ceiling is the lowest of the five towers extended so far: at the roof's
+ * level one anchor over four *legendaries* measures 95% / 3% and any two anchors at all is 8% / 0%.
+ * So the roof is one anchor over four soft bodies, and 1560 hp sits under {@link UNMADE} on both
+ * stats — the ceiling `enemies.spec.ts` holds and nothing may reach.
+ *
+ * ⚠️ **Nothing on it restores anything.** The discipline every roof in this milestone has kept, and
+ * it is kept here even though this is the one crew fast enough that it could not have mattered.
+ */
+export const THE_HORNCALLER = {
+  id: 'the-horncaller',
+  name: 'The Horncaller',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 91,
+    def: 45,
+    recovery: 6,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    tenacity: 0.4,
+    physicalPierce: 0.18,
+  },
+  skills: [THE_HORN_SOUNDS, THE_FIELD_CLOSES, NAME_THE_QUARRY],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Milestone 21j — the Angel Tower's second hundred, floors 101–200.
+//
+// Four blocks, all **Demon**, which is the standing rule: a tower's new blocks belong to its lean,
+// and Demons are the one faction that hits an Angel back. The faction goes 13 → 17.
+//
+// ⚠️ **The axis is not a mechanic, because no mechanic in the game moves an Angel five.** Twenty-two
+// shapes were measured against both arrangements at the roof's level and the whole spread was 0.15
+// survivors; the full table and the two dials that *do* move them are in `skills.ts` beside
+// {@link CULL_THE_EMBERS}. The short version: what an Angel crew cannot answer is a board that
+// arrives **before its wards do** and spends itself on the body its heals are already aimed at.
+//
+// ⚠️ **So these four blocks carry `haste` and aim, and nothing else identifies them.** None of them
+// has a status the game did not already have, none is heavier than what the tower already fields, and
+// three of the four are soft enough to die in a turn. That is the design rather than a shortfall: the
+// crew's weight ceiling is two *medium* anchors — pairing any two of {@link ASHFALL_SOVEREIGN},
+// {@link UNMADE} and {@link HOLLOW_SERAPH} takes the reference five to 5% or below — so weight is the
+// one axis that was already spent.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It steps over the ones still standing to reach the one already down.
+ *
+ * ⚠️ **Demons' first body below `ascended` tier to name `enemy-lowest`**, and the cheap carrier the
+ * closing bands were short of. The faction has owned the aim only on {@link ASHFALL_SOVEREIGN}, so a
+ * board wanting to contest the choir's heal has had to spend one of its two heavy slots on it — and
+ * those slots are what this tower needs for weight. See {@link CULL_THE_EMBERS} for the measurement:
+ * aim at `enemy-lowest` is worth 4.00 → 2.00 survivors against the alternate five where every lock in
+ * the game is worth nothing.
+ *
+ * ⚠️ **`haste` 126 on 440 hp, which is the faction's second-fastest body and its softest.** Demons
+ * have never shipped anything above {@link UNSEALED_WRETCH}'s 118 and this only just passes it,
+ * because the speed dial belongs to the last two bands: what this block is for is arriving *often*
+ * with a small hit rather than arriving *first* with a large one. It is the first casualty of any row
+ * attack aimed at its rank, and it is meant to be.
+ */
+export const CINDER_CULLER = {
+  id: 'cinder-culler',
+  name: 'Cinder Culler',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 440,
+    atk: 50,
+    def: 10,
+    haste: 126,
+    critChance: 0.09,
+    critDamageAmp: 0.6,
+    magicResist: 0.06,
+  },
+  skills: [CULL_THE_EMBERS],
+} as const;
+
+/**
+ * The ward goes up. It was already behind the ward.
+ *
+ * ⚠️ **The fastest Demon in the game by eighteen points, and speed has never been this faction's
+ * idiom.** Demons run 92 to 118 and every faction but Angels and Dwarves ships something above 124 —
+ * Elves reach 152, the Undead 148 — so this is the session that gives Demons a tempo body, and the
+ * reason it is *this* session is that an Angel five's every defence is behind a cooldown or an energy
+ * bar. {@link AEGIS_SKILL} is 80 ticks, {@link DAWNWARD} 70, {@link SANCTUARY} an ultimate. A body
+ * taking three turns to the crew's two is spending them in the window before any of that lands.
+ *
+ * ⚠️ **Thin, and that is the price of the mechanic rather than a discount on it.** 620 hp and 16
+ * `def` is under {@link PYRE}, the softest legendary the faction had; measured, `haste` alone on a
+ * *durable* body is worth almost nothing (4.00 → 3.75 at `haste` 160) and `haste` on a thin one is
+ * the strongest single dial there is (→ 2.67 / 0.15). What makes it work is that it acts before the
+ * ward, not that it survives to act again.
+ *
+ * ⚠️ **Both of its turns name the back rank and neither can touch a front rank at all.** That is what
+ * a tempo body is *for* here — the crew keeps three of five behind, including every heal and both
+ * shields — and it is why it never stands on a board above floor 180 without an anchor in front of it
+ * to hold the party's own attention.
+ */
+export const RIFTSTEP_REAVER = {
+  id: 'riftstep-reaver',
+  name: 'Riftstep Reaver',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 620,
+    atk: 68,
+    def: 16,
+    haste: 136,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    magicPierce: 0.15,
+  },
+  skills: [RIFTSTEP, CUTPURSE],
+} as const;
+
+/**
+ * The choir sings a body back up, and the debt is collected on the way.
+ *
+ * ⚠️ **The first block in the game to drain `enemy-lowest`**, and the one board-piece that makes the
+ * choir's own targeting a liability. Every Angel heal names `ally-lowest`, so a drain aimed at the
+ * same body means the restoration is not outpaced but **taken**: it leaves the party and arrives in
+ * the thing that took it. See {@link THE_DEBT_CALLED}.
+ *
+ * ⚠️ **It is the aim band's converter and it stops at floor 160.** {@link CINDER_CULLER} contests the
+ * heal cheaply and cannot finish anybody; this finishes, at legendary weight, on a body the crew has
+ * already decided to spend a turn on. What it may not do is stand where the fight is long: 21f's rule
+ * — enemy sustain against a party that cannot burst is the clock rather than a lock — binds harder on
+ * an Angel five than on the Dwarf five it was written for, and this block carries the only siphon
+ * these hundred floors have.
+ *
+ * ⚠️ **No taunt ever shares a board with it.** The clause that binds everywhere is "no healer behind
+ * a taunt", and a siphon is bounded by what its holder can land where a heal refills the board — but
+ * the whole reason this tower is authored around tempo is that the alternate Angel five is the slowest
+ * party in the game, so the narrower reading is not worth the seconds here.
+ */
+export const COVENANT_EXECUTOR = {
+  id: 'covenant-executor',
+  name: 'Covenant Executor',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 74,
+    def: 24,
+    haste: 106,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.15,
+  },
+  skills: [THE_DEBT_CALLED, RUINOUS_ARC],
+} as const;
+
+/**
+ * A hundred floors of answered verses, and one that is not.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Unmade + Wrathborn` — blocks
+ * the campaign also fields — which was right for a tower with a hundred floors and no body of its
+ * own, and a second hundred earns one.
+ *
+ * ⚠️ **The fastest `ascended` block in the game at `haste` 112**, over {@link THE_LONGSHADOW}'s 108,
+ * and that is the roof stating the band's axis in the one stat the axis is made of. What it is
+ * deliberately *not* is heavier: 1540 hp and 92 `atk` sit under {@link UNMADE} on both, which is the
+ * ceiling `enemies.spec.ts` holds, and it is under the roof bodies of two of the five towers extended
+ * before it. Weight was measured out as an axis before anything here was authored — see the block
+ * comment above.
+ *
+ * ⚠️ **Its two shipped turns are a pair, and neither says anything alone.**
+ * {@link CINDER_STORM} has stood on demon boards since the first chapter and measures at nothing
+ * against these crews; {@link RUINOUS_STOOP} takes the rank the choir keeps its heals in. Together
+ * with {@link NO_ANSWER_COMES} they are a sequence rather than three attacks: burn all five so that
+ * `enemy-lowest` resolves to whoever the choir is about to save, take the back rank's armour off, and
+ * then remove that body before the verse lands.
+ *
+ * ⚠️ **No `recovery`, no leech, no shield and no status that restores anything** — the only roof body
+ * in the game with no self-sustain of any kind, where three of the other four carry `recovery: 6`.
+ * That is not decoration: against the slowest party in the game a roof that puts health back is the
+ * ninety-second clock wearing a boss's stat block, and the measured cost of a *single* healer on one
+ * of these boards is eleven seconds of the alternate five's fight.
+ */
+export const THE_UNANSWERED = {
+  id: 'the-unanswered',
+  name: 'The Unanswered',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1540,
+    atk: 92,
+    def: 44,
+    haste: 112,
+    critChance: 0.13,
+    critDamageAmp: 0.88,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    magicPierce: 0.2,
+  },
+  skills: [NO_ANSWER_COMES, CINDER_STORM, RUINOUS_STOOP],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's second hundred — milestone 21k's four Angel blocks
+//
+// ⚠️ **All four exist to say something to all five bodies at once, because nothing else registers.**
+// Seven single-target mechanics measured against both Demon arrangements at the roof's level and
+// every one of them left the board *easier* than saying nothing; the same statuses riding a
+// board-wide turn take the alternate five from 3.88 survivors to 2.88 (a slow) and 1.85 (a stun).
+// See the section header above {@link MASSED_LITANY} in `skills.ts` for the tables and for why the
+// licence is placement rather than size.
+//
+// ⚠️ **Three of the four are deliberately soft**, and that is the mechanic's price rather than a
+// discount on it. A board may only ask its question as often as it can keep the voice alive, so the
+// two legendaries here carry 660 and 700 hp — the lightest bodies this tower's closing bands field —
+// and the common carries 520. The Unison is the exception, and it is the roof.
+//
+// This takes Angels from twelve archetypes to **sixteen**. They were the thinnest faction in the
+// game before this session; Humans are now, at fourteen, and the spread across the seven runs 14 to
+// 22 — no standout in either direction, which is the state 21f exists to keep the game in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not addressing you. It is addressing the room, and you are in it.
+ *
+ * The cheapest board-wide voice in the game, and floors 101–120 are the band that teaches what that
+ * is going to mean. 520 hp on a body whose one turn is {@link MASSED_LITANY} and whose chip damage
+ * a Demon five does not feel — what it changes is that a slot on these boards is now spent on
+ * *everybody*, which is the sentence the next four bands escalate.
+ *
+ * ⚠️ **Angels' first common with a board-wide turn**, and the reason a common carries it rather than
+ * a legendary is the same reason {@link CINDER_CULLER} is a common on the mirror tower: the closing
+ * bands need their heavy slots for weight, so the piece that was missing was a *cheap* way to say
+ * this rather than a stronger one.
+ */
+export const LITANY_BEARER = {
+  id: 'litany-bearer',
+  name: 'Litany Bearer',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 46,
+    def: 14,
+    haste: 102,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    magicResist: 0.1,
+  },
+  skills: [MASSED_LITANY],
+} as const;
+
+/**
+ * The choir does not out-shout them. It slows the room down until they are out of turns.
+ *
+ * The first rider on a board-wide turn, and worth 4.08 → 2.67 survivors against the alternate five
+ * on a controlled board where the same {@link SLOW} aimed at one body is worth nothing at all. A
+ * Demon five's whole plan is to act: every one of its damage skills is magical and on a forty- to
+ * seventy-tick cooldown, and between them it swings. Taking gauge off all five is the one tax it
+ * cannot spread.
+ *
+ * ⚠️ **700 hp and 22 `def`, which is the licence and not a rounding.** Neither Demon arrangement
+ * unlocks a cleanse at `elite` — {@link CRIMSON_SIGIL} is Sanguine's third skill — and no Demon in
+ * the game carries a point of `tenacity`, so this lands with certainty on all five every time it is
+ * allowed to, and the only answer the crew has is to kill it. A board that put this behind a wall
+ * would be a lock rather than a question.
+ */
+export const STILLNESS_CANTOR = {
+  id: 'stillness-cantor',
+  name: 'Stillness Cantor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 54,
+    def: 22,
+    haste: 100,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [HUSH_THE_MANY],
+} as const;
+
+/**
+ * One note. Five bodies stop for it.
+ *
+ * **The strongest thing measured against these crews and the block the last two bands are built
+ * around**: 3.88 → 1.85 survivors for the alternate five, against 2.88 for the slow. {@link
+ * THE_KNELL} is only the third board-wide stun in the game and the first that is a body's *whole*
+ * turn rather than punctuation on an anchor's.
+ *
+ * ⚠️ **660 hp — near the bottom of the Angel legendary range, which runs 590 to 1080 — and it is
+ * authored that way on purpose.** This is a lock the Demon crews cannot buy an answer to, so what
+ * keeps it fair is where it is put: the party removes it in a turn or two once it decides to, and a
+ * board is only allowed to keep asking for as long as it can keep this standing. `haste` 108 buys it
+ * the first word rather than a second one.
+ */
+export const KNELL_CHANTER = {
+  id: 'knell-chanter',
+  name: 'Knell Chanter',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 660,
+    atk: 58,
+    def: 20,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    magicResist: 0.1,
+  },
+  skills: [THE_KNELL],
+} as const;
+
+/**
+ * The whole choir, on one breath. There is nothing in the room it is not addressed to.
+ *
+ * Floor 200, and the first roof this tower has owned. **The only block in the game with three
+ * board-wide turns** — {@link STORMCALLER} is the only other with even two, and the remaining eight
+ * blocks that speak to a whole board have one apiece — which is the tower's thesis written as a stat
+ * block rather than as a board.
+ *
+ * The three are a sequence rather than three attacks: {@link ONE_VOICE} weakens all five so that
+ * everything after it lands against a party hitting for less, {@link NOTHING_IS_SPARED} takes the
+ * gauge off all five, and {@link THE_LAST_VERSE} takes the turn itself.
+ *
+ * ⚠️ **1720 hp and 92 `atk` sit under The Unmade on both**, which is the ceiling
+ * `enemies.spec.ts` holds — and this body's weight is not what makes it the roof. A *second* heavy
+ * anchor beside it is past the edge: with a Hierophant it reads 95% / 3.17 for the reference five
+ * and **5%** for the alternate, with a Colossus 70% / 0%, and with the Hollow Seraph 5% / 0%. What
+ * the roof fields instead is this and the three soft voices above, which reads **100% / 4.10** and
+ * **88% / 1.98**.
+ *
+ * ⚠️ **`recovery` 5 and nothing else that restores.** Three of the other six roofs carry 6 and 21j's
+ * carries none; the Demon crews take this floor in 9.6 seconds against a 67.5-second headroom bar,
+ * so a trickle on the roof is texture here where on the Dwarf Tower it would be the clock. Nothing
+ * on this board heals, shields or drains.
+ */
+export const THE_UNISON = {
+  id: 'the-unison',
+  name: 'The Unison',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1720,
+    atk: 92,
+    def: 46,
+    recovery: 5,
+    haste: 106,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    magicPierce: 0.2,
+    magicResist: 0.15,
+  },
+  skills: [ONE_VOICE, NOTHING_IS_SPARED, THE_LAST_VERSE],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -1894,4 +4628,72 @@ export const ENEMIES = [
   COVENANT_BREAKER,
   VAULTBOUND_GAOLER,
   HOLLOW_SERAPH,
+  GRAVEWAKE_THRALL,
+  BARROWMIST_KEENER,
+  SEPULCHRE_HOUND,
+  CAIRNWARD_HUSK,
+  CAIRNBOUND_SENTINEL,
+  GRAVETIDE_HERALD,
+  BONECHAIN_WARDEN,
+  GRAVEMOURN_KEEPER,
+  THE_GRAVEWRIGHT,
+  THE_CAIRN_KING,
+  DUSKFERN_SKIRMISHER,
+  HOLLOWBARK_SENTRY,
+  WHISPERLEAF_ARCHER,
+  GLOAMVINE_CREEPER,
+  WEALDSHADOW_STALKER,
+  LONGBOUGH_MARKSMAN,
+  HEARTROOT_TENDER,
+  NIGHTCANOPY_SINGER,
+  THE_LONGSHADOW,
+  THE_WITHERED_CROWN,
+  COLDFORGE_HAND,
+  SLAGBOUND_DRUDGE,
+  CINDERQUENCH_BEARER,
+  DEEPGALLERY_RUNNER,
+  COLDHEARTH_IRONSWORN,
+  QUENCHWRIGHT,
+  GRUDGEPLATE_SMITH,
+  OATHSTONE_BASTION,
+  THE_GRUDGEKEEPER,
+  THE_ANVIL_CROWNED,
+  MIREWHELP,
+  THORNBACK_GRAZER,
+  RENDFANG_JACKAL,
+  CARRION_SWARM,
+  GOREHIDE_MATRIARCH,
+  REDWATER_STALKER,
+  BLOODGORGE_HOUND,
+  SCARBOUND_BELLOWER,
+  THE_REDMAW,
+  THE_EVERWOUND,
+  CHARNEL_DRUDGE,
+  NIGHTMARCH_OUTRIDER,
+  RELIQUARY_BEARER,
+  THE_DEATHLESS_MARSHAL,
+  FORLORN_LEVY,
+  KINGSWAY_LANCER,
+  UNDERVAULT_SAPPER,
+  THE_BREACHLORD,
+  PLUMBLINE_HAND,
+  IRONSLING_WRIGHT,
+  EDGETURN_WARDEN,
+  THE_WARDWRIGHT,
+  SUNMOTE_DANCER,
+  SUNFADE_CHANTER,
+  CROWNBARK_BASTION,
+  THE_SUNBOUGH,
+  ZENITH_CHORISTER,
+  RUINWING_DEVOURER,
+  MARROWHUNT_ALPHA,
+  THE_HORNCALLER,
+  CINDER_CULLER,
+  RIFTSTEP_REAVER,
+  COVENANT_EXECUTOR,
+  THE_UNANSWERED,
+  LITANY_BEARER,
+  STILLNESS_CANTOR,
+  KNELL_CHANTER,
+  THE_UNISON,
 ] as const;

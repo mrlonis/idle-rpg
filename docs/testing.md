@@ -178,12 +178,43 @@ Three ways out, and which one applies is worth thinking about rather than guessi
   "a full clear must not buy the roster's copies in under thirty days". A roster that grows raises
   it exactly as a ladder that grows lowers it.
 - **Accept the decay and schedule the reminder.** The tower floor moved 2 → 1.5, which buys one
-  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really is
+  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really was
   becoming a smaller share of the game — and the honest response is a note that fires again soon
-  rather than a bound engineered to stop asking.
+  rather than a bound engineered to stop asking. ⚠️ **That is the case where the reminder was worth
+  its cost**: milestone 21 is the answer it scheduled, and 21e is the first session in three
+  milestones where the ratio moved back _up_.
 
 ⚠️ **What is not on that list is widening the band.** Every one of these had already been widened at
 least once, and each widening bought exactly one chapter and hid the diagnosis for another milestone.
+
+#### ⚠️ A rotting ratio can be the content's problem rather than the guard's, and chapter 7 is the case
+
+Every example above is a guard pointed at a quantity the roadmap requires to move. **The reverse
+happens too**, and it is much easier to mistake for the first kind because it presents identically —
+a number that has drifted for three chapters and finally crosses a line.
+
+`chapters.balance.ts` holds that the top of the ladder still **costs the reference party something**.
+Party power ÷ the difficulty probe's threshold at each chapter's final read 1.08, 1.44 and then 2.08,
+and at 2.08 the party finished the chapter boss with all five alive. That looks exactly like a ratio
+rotting by construction — and it was, but the rot was in the **level line**, not in the assertion.
+Each chapter hands the party a fresh ascension rung (×1.6) on top of the levels it climbs while the
+content climbs only the levels, so the fixed +25-level margin the roadmap specified was paid once and
+never again.
+
+⚠️ **Milestone 21b then over-corrected in the other direction, which is worth knowing before trusting
+any arithmetic here.** 21a's replacement rule — "+23 levels a chapter" — put chapter 8 at a margin of
++71, and the party it was tuned for took the final at **0%**. The missing term is the enemy's own
+growth curve: an `ascended` block climbs on `perLevel.ascended` where the party climbs on
+`perLevel.common`, and that 1.024-against-1.021 gap compounds over the **whole** level rather than
+over the chapter — worth about fifteen levels a chapter at this depth. **Both corrections were found
+the same way, by authoring a chapter to the rule and measuring it.** The transition is a step
+function (100% at level 398, 85% at 400, 0% at 408), so bisect for the edge; the arithmetic is only
+for knowing which direction to guess in.
+
+**How to tell the two apart: ask what the assertion would have to become.** Widening this one means
+saying the ladder's top may be a walkover, which is not a claim anybody would write down on purpose.
+When the honest restatement of a guard is something you would refuse to author, the content is what
+moved. See [milestones](milestones.md) for the corrected margins.
 
 ---
 
@@ -254,10 +285,33 @@ the third attempt.
   explicitly rejected — and measure **party members lost**. About 5% more over a full climb.
 
 ⚠️ **And when a party is tuned to clear everything, win rate measures nothing.** A tower's reference
-crew clears all hundred floors by design, so the assertions that carry weight are about **cost** —
-fight length, survivors, and a ramp between the halves. The one contested measurement available is a
+crew clears every floor by design, so the assertions that carry weight are about **cost** — fight
+length, survivors, and a ramp between the halves. The one contested measurement available is a
 _second_ legal five, which is also the honest question: does the tower ask for an investment or for
 one solution?
+
+### A fifth trap, from the towers doubling: a crew is only a fair test at one rung
+
+⚠️ **Milestone 21e found that a party at parity with the content is a fair test only at the _first_
+ascension rung above `rare`.** A rung is worth ×1.6 and the enemy side has none, so the gap compounds
+with every rung the reference crew stands on: at `elite-plus` — three rungs, ×4.096 — a level-140
+five takes the heaviest board the game can author at 100% with all five alive in nine seconds. The
+sweep would have reported a green tower with a roof nothing could make into a fight.
+
+- **What the assertion looked like beforehand** was as tight as they come: `topLevel` must be exactly
+  a rarity cap, so the sweep's party is _derived_ rather than chosen. That is a real property and it
+  was still measuring nothing, because the derivation it protects produces the walkover.
+- **The fix is the campaign's margin rule**, which had never been stated for towers: content closes
+  _above_ the cap of the rung it asks for. Both bounds stay derived — a rung below the roof for the
+  crew to stand on, and the roof not reaching the rung above.
+- ⚠️ **Two crews, and each one asserted on its own band.** Ratios that compare across the bands are
+  measuring the rung between the parties rather than the content — "gets harder as it is climbed"
+  read a real ramp as a decline until it was scoped per band, because band 2's crew takes its
+  _opening_ floors faster than band 1 takes the shipped hundred's closing ones.
+
+**The generalisation is the one the whole file keeps arriving at**: an assertion that is derived is
+not thereby an assertion that measures something. Ask what the derivation produces before trusting
+that it tracks the content.
 
 ### A fourth trap, from signature items: the band may be narrower than the content
 
@@ -289,6 +343,79 @@ question calls for, and never cite the reach figure as evidence a mechanic is sm
 
 **The corollary is a content fact rather than a testing one:** a mechanic gated far beyond the
 authored ladder has nothing to be swept against, and no sweep over shipped stages can ever bound it.
+
+### ⚠️ A fifth trap, from chapter 7: what a board asks and what it weighs are different numbers
+
+The difficulty probe bisects for the **power multiplier** at which the reference five clear a stage.
+That is the right unit for a difficulty curve and it is blind to everything a board is actually
+_about_. Milestone 21a hit it twice in one chapter and the second one is the instructive one.
+
+- **`c7-s21` was authored deliberately heavy** — five bodies with a legendary front rank, written
+  that way _because_ the Sundered Vault had recorded the band-opener trap one chapter earlier — and
+  it still measured a step backwards, 212 after 313. The board's question is thorns on **fodder**,
+  which is expensive to answer and cheap to kill: a Cairnward Husk charges a quarter of what reaches
+  it and then dies. Knowing about the trap did not help, because the fix the earlier lesson names
+  ("fix it with weight, not levels") assumes the author can tell weight from difficulty by looking.
+  **They cannot.** Run the probe over a chapter's samples before believing its spine escalates.
+- **A boss that taunts measured _easier_ than one that does not.** The first Cairn King wore the
+  chapter's own lock — a taunt on a thorned body — and it made the fight worse for the boss: a taunt
+  aims every attack at the body the party was going to focus anyway, and the turn spent applying it
+  deals nothing. 738 against the previous stage's 878, on a chapter _final_. A mechanic that is a
+  lock when a wall wears it can be a **discount** when the thing behind the wall wears it.
+
+The general rule: **a board's question and a board's weight are independent, and only one of them is
+measured.** Author for the question, then check the weight, and expect them to disagree.
+
+Milestone 21b hit the same trap a third time and got a number out of it. `c8-s23` and `c8-s19` are
+the **same shape** — two legendaries in front, two legendaries and a common behind — and the first
+measured 1,859 against the second's 2,588. What separates them is the lock: a **taunt in front of
+archers** is worth about a quarter more than a **bound back rank**. A bind costs the party its route
+and a taunt costs it its targets, and the probe reads the second as heavier. It took two passes of
+adding weight to clear the tolerance.
+
+### ⚠️ Check a chapter's header against its boards with a script, not by reading
+
+Three sessions in four have found a chapter's own prose wrong about its own boards: chapter 7's Cairn
+King note, chapter 8's "no celestial appears here", and chapter 10's "nothing that puts health back
+stands on a board with a taunt" — which shipped a `lifeLeech` body behind the taunt on one board of
+fifty. **The boards are swept and the prose is not**, so an absolute claim in a header is the one
+kind of documentation nothing in the suite reads.
+
+Every such claim is a two-line predicate over the chapter's `stages`: at most one taunter per board,
+no sustain on a taunt board, no celestial anywhere, no other chapter's final. Running them takes
+seconds. **Reading fifty boards carefully does not work** — it has now failed three times, and the
+third failure was on the session that wrote the rule down.
+
+These are deliberately **not** specs. A chapter's authoring rules are that chapter's rather than the
+game's, so asserting them in `chapters.spec.ts` would either be wrong for the next chapter or grow a
+per-chapter branch. A scratch script run once at the end of authoring is the right weight — the same
+place the tuning probes sit.
+
+### ⚠️ A sixth trap: the probe's bracket is content-sized, and it fails silently upward
+
+`threshold()` bisects in log space between a `low` and a `high`, and `high` was 4,000 — set when
+milestone 10's rescale took the top stage from asking ×6 of the reference five to ×370. Chapter 8
+walked through it. **What that looks like is not an error**: `high` never moves, so the function
+returns exactly the bracket ceiling, on every stage past the point the ladder outgrew it — a
+difficulty curve that silently flattens into a horizontal line at a plausible-looking number, with
+every "does this stage ask more than the last" assertion passing on ties.
+
+The one line that catches it is the `expect(clears(high))` beside the bisection, which asserts the
+bracket actually spans the stage. **Keep it, and widen the bracket and its step count together**: a
+bisection halves its log range per step, so a wider bracket at a fixed step count silently coarsens
+the resolution instead.
+
+⚠️ **"Roughly every other chapter" turned out to be _every_ chapter at this depth**, and the reason is
+worth carrying: the bracket has to span the **party's** power, `1.021 ** (level - 1) × 1.6 ** rungs`,
+which grows with the margin rule rather than with the stage count. It went 4,000 → 50,000 over 14
+steps, → 500,000 over 16 (chapter 9, asking 135,000), → **5,000,000 over 17** (chapter 10, asking
+1,193,000).
+
+⚠️ **The ceiling and the step count do not move on the same schedule, which is the half that reads
+backwards.** A factor of ten on the range costs almost nothing in resolution because `2^n` is already
+enormous — 16 steps over `[0.05, 500000]` resolves to 0.03% and over `[0.05, 5000000]` to 0.028% —
+while a single extra step nearly halves it, to 0.014%. So **widen the ceiling every chapter and add a
+step every few**, and check the arithmetic rather than applying a rule of thumb.
 
 ### Scope a timeout guard to fights the party wins
 

@@ -37,9 +37,18 @@
  *    this curve is what that content will be tuned against.
  *
  * That last point is **enforced, not merely intended.** `levels.spec.ts` reads its income rates
- * off the top of `stages.ts` rather than restating them, so adding a stage re-runs every figure
- * in the table above. When it fails, the curve and the economy have come apart and the answer is
- * to retune one of them — not to move the threshold.
+ * off the top of the shipped ladder rather than restating them, so adding a stage re-runs every
+ * figure in the table above. When it fails, the curve and the economy have come apart and the
+ * answer is to retune one of them — not to move the threshold.
+ *
+ * ⚠️ **"Aspirational" is a claim about *rungs* now rather than about hours, and that is what
+ * milestone 21d settled.** Every figure in the table above falls with each chapter by construction,
+ * because income at the top of the ladder rises by design — so both guards that measured it in
+ * hours were retired rather than moved a third time, and what remains is that the shipped ladder
+ * must leave ascension rungs unspent above what it asks for. At ten chapters it leaves four.
+ * ⚠️ Under 21a's corrected margin rule the level line adds about ninety levels a chapter, so the
+ * curve is consumed around **chapter 15**; the "chapter-100 target" this file used to assume was
+ * written when that line was very nearly linear and has not been true since chapter 7.
  *
  * ## Level caps
  *

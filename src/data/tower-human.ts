@@ -1,23 +1,36 @@
 import {
   ACOLYTE,
   BANDIT,
+  BARROWMIST_KEENER,
+  BARROW_SOVEREIGN,
   BOAR,
+  BONECHAIN_WARDEN,
   BULWARK_ENEMY,
+  CAIRNBOUND_SENTINEL,
+  CAIRNWARD_HUSK,
+  CHARNEL_DRUDGE,
   COLOSSUS,
   GOLEM,
+  GRAVEMOURN_KEEPER,
+  GRAVETIDE_HERALD,
+  GRAVEWAKE_THRALL,
   HAG,
   HEADSMAN,
   HIEROPHANT,
+  NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
   PYRE,
   RAVAGER,
+  RELIQUARY_BEARER,
   REVENANT,
   RIMEPLATE,
   SENTINEL,
+  SEPULCHRE_HOUND,
   SHADE,
   SKYSHRIKE,
   SLIME,
   STORMCALLER,
+  THE_DEATHLESS_MARSHAL,
   TYRANT,
   WARDEN,
   WISP,
@@ -25,11 +38,11 @@ import {
 } from './enemies';
 
 /**
- * The Human Tower — a hundred floors, enemy levels 1 to 60.
+ * The Human Tower — two hundred floors, enemy levels 1 to 120.
  *
  * ## What this file authors, and what it deliberately does not
  *
- * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 60 drawn by
+ * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 120 drawn by
  * `floorLevel` in `core/towers.ts`; whether it is a mini-boss is the campaign's every-tenth rule
  * reused; and what it pays is read off the campaign's own curves at the **matched enemy level**.
  * Typing a hundred levels that must follow a formula is the retyping
@@ -40,7 +53,7 @@ import {
  *
  * ## The floors are numbered, and only the punctuation is named
  *
- * A tower is **one place with a hundred floors**, where a chapter is fifty places. So an ordinary
+ * A tower is **one place with two hundred floors**, where a chapter is fifty places. So an ordinary
  * floor is `Floor 37` — which is how a player says where they are, and what the Home card shows —
  * and the every-tenth mini-boss and the roof carry a real name, because those are the handful of
  * moments a climb is remembered by.
@@ -58,23 +71,51 @@ import {
  * 15b could author without also authoring content. The other six, and the eighteen blocks that made
  * them possible, are 15c — see [milestones](../../docs/milestones.md).
  *
+ * The second hundred needed four, which is the ratio worth reading: **a chapter gets ten because it
+ * authors five bands each asking a different question, and a tower gets four because it asks one
+ * question a hundred more times.** They are the Charnel Drudge, the Nightmarch Outrider, the
+ * Reliquary Bearer and The Deathless Marshal, and Undead go 17 → 21.
+ *
  * ## Where the difficulty sits
  *
- * Deliberately **inside** the campaign's range: level 60 is a little past halfway through chapter 2,
- * and the campaign runs to 85. A tower is not where difficulty lives — what it asks for is five
- * characters of one faction, which is a demand on the *roster* rather than on investment. The
- * balance target is five Humans at `rare-plus`, level 60, no gear, taking floor 100;
- * [`towers.balance.ts`](./towers.balance.ts) is what holds it.
+ * Deliberately **inside** the campaign's range: the ladder first reaches level 120 at `c5-s24` and
+ * runs to 588. A tower is not where difficulty lives — what it asks for is five characters of one
+ * faction, which is a demand on the *roster* rather than on investment. Two balance targets, one per
+ * band, both derived from the level line: five Humans at `rare-plus`/60 over floors 1–100, and the
+ * same five at `elite`/100 over floors 101–200, neither wearing gear.
+ * [`towers.balance.ts`](./towers.balance.ts) is what holds them.
  *
- * **What the bands measure at**, against that crew: floor 1 resolves in a second, floor 50 in seven,
- * floor 80 in twelve, and floor 100 in twenty-four with two of the five dead. The win rate is 100%
- * the whole way, which is the intended shape — a floor is climbed once and there is no way around
- * one, so a floor the crew cannot pass stops the tower. What ramps is **what it costs**, not whether
- * it is possible: nobody dies below floor 80, and a second Human five that is not the reference one
- * takes the roof 85% of the time. ⚠️ Difficulty here is almost entirely the **front rank's weight** —
- * two ascended blocks in front of three legendaries is the top band, and pairing the two heaviest
- * hitters (an Unmade beside a Tyrant) drops the crew to single-digit win rates rather than making the
- * floor harder. Re-run `npm run test:balance` after touching any band above 68.
+ * **What the bands measure at.** Band 1: floor 1 resolves in a second, floor 50 in seven, floor 80 in
+ * twelve, floor 100 in twenty-four with two of the five dead. Band 2: floor 101 in four seconds,
+ * floor 160 in nine, floor 200 in twenty with 3.4 alive at 95%. Win rate is 100% almost the whole
+ * way, which is the intended shape — a floor is climbed once and there is no way around one, so a
+ * floor the crew cannot pass stops the tower. What ramps is **what it costs**: nobody dies below
+ * floor 80 in band 1 or floor 185 in band 2, and the alternate Human five takes each roof at 85% and
+ * 83%.
+ *
+ * ## ⚠️ The second hundred escalates through the level line, not by stacking anchors
+ *
+ * The shipped hundred's climax is two `ascended` blocks in every front rank. **Band 2 cannot end that
+ * way**, and the reason is the alternate five rather than the reference one: measured at level 120, a
+ * two-`ascended` board reads 93% for the reference crew and **7%** for the alternate against its own
+ * 75% bar. The alternate clears two-anchor boards to about level 108 and falls off a cliff by 117.
+ *
+ * So the last twenty floors thin the anchors out and thicken the board's own **support** — a link, a
+ * shield and a taunt — and let the level line carry the difficulty. That is the inverse of the first
+ * hundred's shape and it is a finding rather than a preference.
+ *
+ * ⚠️ **No board pairs the taunt with a body that heals**, which is 15c's Dwarf Tower roof failure
+ * written as a rule: against a party that cannot burst, sustain it is not allowed to aim at is the
+ * ninety-second clock rather than a lock. Four boards broke it before shipping and were caught by
+ * walking all two hundred with a script rather than by reading them. **The Reliquary Bearer's shield
+ * is the deliberate exception and it is not one**: a pool banked once depletes, where a heal refills.
+ * The small `lifeLeech` the Undead legendaries carry is likewise not sustain the party has to outpace
+ * — and the zero-timeout assertion reads every one of the two hundred floors, for both crews.
+ *
+ * ⚠️ Difficulty here is otherwise almost entirely the **front rank's weight** — two ascended blocks
+ * in front of three legendaries is band 1's top, and pairing the two heaviest hitters (an Unmade
+ * beside a Tyrant) drops the crew to single-digit win rates rather than making the floor harder.
+ * Re-run `npm run test:balance` after touching any band above floor 68 or floor 180.
  */
 export const TOWER_HUMAN = {
   id: 'tower-human',
@@ -344,7 +385,7 @@ export const TOWER_HUMAN = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Bonefall Reach — Floors 49–68, levels 29–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Bonefall Reach — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-human-f49',
@@ -448,7 +489,7 @@ export const TOWER_HUMAN = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Vigil — Floors 69–84, levels 41–50 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Long Vigil — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-human-f69',
@@ -613,6 +654,700 @@ export const TOWER_HUMAN = {
       id: 't-human-f100',
       name: 'Floor 100 — The Oathbreaker',
       enemies: { front: [OATHBREAKER, COLOSSUS], back: [HIEROPHANT, STORMCALLER, HEADSMAN] },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Barrow Road — Floors 101–120, levels 61–72 — the ground under the tower, and the blocks the first hundred never met.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f101',
+      name: 'Floor 101',
+      enemies: { front: [HEADSMAN, CHARNEL_DRUDGE], back: [SHADE, HAG, GRAVEWAKE_THRALL] },
+    },
+    {
+      id: 't-human-f102',
+      name: 'Floor 102',
+      enemies: {
+        front: [CAIRNWARD_HUSK, HEADSMAN],
+        back: [SKYSHRIKE, BARROWMIST_KEENER, SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f103',
+      name: 'Floor 103',
+      enemies: { front: [TYRANT, CHARNEL_DRUDGE], back: [SHADE, BULWARK_ENEMY, SEPULCHRE_HOUND] },
+    },
+    {
+      id: 't-human-f104',
+      name: 'Floor 104',
+      enemies: { front: [HEADSMAN, WARDEN], back: [GRAVEMOURN_KEEPER, PYRE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f105',
+      name: 'Floor 105',
+      enemies: { front: [CHARNEL_DRUDGE, COLOSSUS], back: [SHADE, WRATHBORN, BARROWMIST_KEENER] },
+    },
+    {
+      id: 't-human-f106',
+      name: 'Floor 106',
+      enemies: { front: [HEADSMAN, CAIRNWARD_HUSK], back: [GRAVETIDE_HERALD, ACOLYTE, HAG] },
+    },
+    {
+      id: 't-human-f107',
+      name: 'Floor 107',
+      enemies: { front: [TYRANT, HEADSMAN], back: [SHADE, SEPULCHRE_HOUND, RAVAGER] },
+    },
+    {
+      id: 't-human-f108',
+      name: 'Floor 108',
+      enemies: { front: [CHARNEL_DRUDGE, HEADSMAN], back: [GOLEM, GRAVEMOURN_KEEPER, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f109',
+      name: 'Floor 109',
+      enemies: { front: [WARDEN, CHARNEL_DRUDGE], back: [SHADE, HEADSMAN, STORMCALLER] },
+    },
+    {
+      id: 't-human-f110',
+      name: 'Floor 110 — The Barrow Gate',
+      enemies: { front: [BARROW_SOVEREIGN, STORMCALLER], back: [PYRE, HAG, HEADSMAN] },
+    },
+    {
+      id: 't-human-f111',
+      name: 'Floor 111',
+      enemies: { front: [HEADSMAN, CHARNEL_DRUDGE], back: [GRAVETIDE_HERALD, SHADE, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f112',
+      name: 'Floor 112',
+      enemies: { front: [CAIRNWARD_HUSK, TYRANT], back: [SKYSHRIKE, SENTINEL, RIMEPLATE] },
+    },
+    {
+      id: 't-human-f113',
+      name: 'Floor 113',
+      enemies: { front: [CHARNEL_DRUDGE, HEADSMAN], back: [GRAVEMOURN_KEEPER, SHADE, PYRE] },
+    },
+    {
+      id: 't-human-f114',
+      name: 'Floor 114',
+      enemies: { front: [COLOSSUS, CHARNEL_DRUDGE], back: [PYRE, HEADSMAN, HAG] },
+    },
+    {
+      id: 't-human-f115',
+      name: 'Floor 115',
+      enemies: { front: [WRATHBORN, CAIRNWARD_HUSK], back: [SHADE, GRAVETIDE_HERALD, RIMEPLATE] },
+    },
+    {
+      id: 't-human-f116',
+      name: 'Floor 116',
+      enemies: { front: [TYRANT, CHARNEL_DRUDGE], back: [HEADSMAN, ACOLYTE, BULWARK_ENEMY] },
+    },
+    {
+      id: 't-human-f117',
+      name: 'Floor 117',
+      enemies: { front: [CHARNEL_DRUDGE, WARDEN], back: [GRAVEMOURN_KEEPER, SHADE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f118',
+      name: 'Floor 118',
+      enemies: { front: [RAVAGER, COLOSSUS], back: [SKYSHRIKE, HAG, ACOLYTE] },
+    },
+    {
+      id: 't-human-f119',
+      name: 'Floor 119',
+      enemies: { front: [CAIRNWARD_HUSK, HEADSMAN], back: [SHADE, GRAVETIDE_HERALD, HEADSMAN] },
+    },
+    {
+      id: 't-human-f120',
+      name: 'Floor 120 — The Ossuary Door',
+      enemies: { front: [BARROW_SOVEREIGN, COLOSSUS], back: [PYRE, STORMCALLER, HIEROPHANT] },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Reliquary — Floors 121–140, levels 73–84 — a board that has to be spent twice, and a wall that charges for being hit.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f121',
+      name: 'Floor 121',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, HEADSMAN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f122',
+      name: 'Floor 122',
+      enemies: { front: [SENTINEL, CHARNEL_DRUDGE], back: [RELIQUARY_BEARER, GOLEM, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f123',
+      name: 'Floor 123',
+      enemies: { front: [TYRANT, CAIRNBOUND_SENTINEL], back: [RELIQUARY_BEARER, SHADE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f124',
+      name: 'Floor 124',
+      enemies: { front: [COLOSSUS, HEADSMAN], back: [RELIQUARY_BEARER, GRAVETIDE_HERALD, PYRE] },
+    },
+    {
+      id: 't-human-f125',
+      name: 'Floor 125',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, CHARNEL_DRUDGE],
+        back: [RELIQUARY_BEARER, WRATHBORN, HAG],
+      },
+    },
+    {
+      id: 't-human-f126',
+      name: 'Floor 126',
+      enemies: { front: [HEADSMAN, WARDEN], back: [RELIQUARY_BEARER, SHADE, STORMCALLER] },
+    },
+    {
+      id: 't-human-f127',
+      name: 'Floor 127',
+      enemies: { front: [OATHBREAKER, HEADSMAN], back: [RELIQUARY_BEARER, ACOLYTE, RIMEPLATE] },
+    },
+    {
+      id: 't-human-f128',
+      name: 'Floor 128',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, RAVAGER],
+        back: [GRAVEMOURN_KEEPER, RELIQUARY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f129',
+      name: 'Floor 129',
+      enemies: { front: [TYRANT, CHARNEL_DRUDGE], back: [RELIQUARY_BEARER, HEADSMAN, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f130',
+      name: 'Floor 130 — The Reliquary',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f131',
+      name: 'Floor 131',
+      enemies: {
+        front: [STORMCALLER, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, GRAVETIDE_HERALD, PYRE],
+      },
+    },
+    {
+      id: 't-human-f132',
+      name: 'Floor 132',
+      enemies: { front: [COLOSSUS, CHARNEL_DRUDGE], back: [RELIQUARY_BEARER, HEADSMAN, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f133',
+      name: 'Floor 133',
+      enemies: { front: [CAIRNBOUND_SENTINEL, TYRANT], back: [RELIQUARY_BEARER, SHADE, HAG] },
+    },
+    {
+      id: 't-human-f134',
+      name: 'Floor 134',
+      enemies: {
+        front: [OATHBREAKER, CHARNEL_DRUDGE],
+        back: [RELIQUARY_BEARER, SKYSHRIKE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f135',
+      name: 'Floor 135',
+      enemies: {
+        front: [SENTINEL, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, GRAVEMOURN_KEEPER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f136',
+      name: 'Floor 136',
+      enemies: { front: [WARDEN, HEADSMAN], back: [RELIQUARY_BEARER, SHADE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f137',
+      name: 'Floor 137',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, COLOSSUS],
+        back: [RELIQUARY_BEARER, PYRE, BULWARK_ENEMY],
+      },
+    },
+    {
+      id: 't-human-f138',
+      name: 'Floor 138',
+      enemies: { front: [TYRANT, WRATHBORN], back: [RELIQUARY_BEARER, GRAVETIDE_HERALD, SHADE] },
+    },
+    {
+      id: 't-human-f139',
+      name: 'Floor 139',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, CHARNEL_DRUDGE],
+        back: [RELIQUARY_BEARER, HEADSMAN, WRATHBORN],
+      },
+    },
+    {
+      id: 't-human-f140',
+      name: 'Floor 140 — The Sealed Vault',
+      enemies: {
+        front: [BARROW_SOVEREIGN, OATHBREAKER],
+        back: [RELIQUARY_BEARER, ACOLYTE, HEADSMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Nightmarch — Floors 141–160, levels 85–96 — reach at speed, so the back rank stops being somewhere safe to stand.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f141',
+      name: 'Floor 141',
+      enemies: { front: [RAVAGER, CAIRNWARD_HUSK], back: [NIGHTMARCH_OUTRIDER, SHADE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f142',
+      name: 'Floor 142',
+      enemies: { front: [TYRANT, HEADSMAN], back: [NIGHTMARCH_OUTRIDER, HAG, SKYSHRIKE] },
+    },
+    {
+      id: 't-human-f143',
+      name: 'Floor 143',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, STORMCALLER],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f144',
+      name: 'Floor 144',
+      enemies: { front: [COLOSSUS, CHARNEL_DRUDGE], back: [NIGHTMARCH_OUTRIDER, PYRE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f145',
+      name: 'Floor 145',
+      enemies: { front: [OATHBREAKER, HEADSMAN], back: [NIGHTMARCH_OUTRIDER, SHADE, GOLEM] },
+    },
+    {
+      id: 't-human-f146',
+      name: 'Floor 146',
+      enemies: {
+        front: [SENTINEL, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, GRAVETIDE_HERALD, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f147',
+      name: 'Floor 147',
+      enemies: { front: [TYRANT, CHARNEL_DRUDGE], back: [NIGHTMARCH_OUTRIDER, HEADSMAN, SHADE] },
+    },
+    {
+      id: 't-human-f148',
+      name: 'Floor 148',
+      enemies: { front: [WARDEN, HEADSMAN], back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, HAG] },
+    },
+    {
+      id: 't-human-f149',
+      name: 'Floor 149',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, COLOSSUS],
+        back: [NIGHTMARCH_OUTRIDER, PYRE, WRATHBORN],
+      },
+    },
+    {
+      id: 't-human-f150',
+      name: 'Floor 150 — The Night Road',
+      enemies: {
+        front: [BARROW_SOVEREIGN, HEADSMAN],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f151',
+      name: 'Floor 151',
+      enemies: {
+        front: [HEADSMAN, CHARNEL_DRUDGE],
+        back: [NIGHTMARCH_OUTRIDER, ACOLYTE, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f152',
+      name: 'Floor 152',
+      enemies: {
+        front: [OATHBREAKER, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, SHADE, RAVAGER],
+      },
+    },
+    {
+      id: 't-human-f153',
+      name: 'Floor 153',
+      enemies: {
+        front: [TYRANT, HEADSMAN],
+        back: [NIGHTMARCH_OUTRIDER, GRAVEMOURN_KEEPER, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f154',
+      name: 'Floor 154',
+      enemies: {
+        front: [COLOSSUS, HEADSMAN],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f155',
+      name: 'Floor 155',
+      enemies: {
+        front: [CAIRNBOUND_SENTINEL, CHARNEL_DRUDGE],
+        back: [NIGHTMARCH_OUTRIDER, STORMCALLER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f156',
+      name: 'Floor 156',
+      enemies: { front: [HEADSMAN, WARDEN], back: [NIGHTMARCH_OUTRIDER, PYRE, RIMEPLATE] },
+    },
+    {
+      id: 't-human-f157',
+      name: 'Floor 157',
+      enemies: {
+        front: [OATHBREAKER, HEADSMAN],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, HAG],
+      },
+    },
+    {
+      id: 't-human-f158',
+      name: 'Floor 158',
+      enemies: {
+        front: [TYRANT, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, SHADE, SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f159',
+      name: 'Floor 159',
+      enemies: {
+        front: [HEADSMAN, COLOSSUS],
+        back: [NIGHTMARCH_OUTRIDER, GRAVETIDE_HERALD, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f160',
+      name: 'Floor 160 — The Standing Watch',
+      enemies: {
+        front: [BARROW_SOVEREIGN, OATHBREAKER],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, HEADSMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Deathless Watch — Floors 161–180, levels 97–108 — two ascended blocks on every front rank, which is as heavy as this tower's anchors go.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f161',
+      name: 'Floor 161',
+      enemies: { front: [OATHBREAKER, WRATHBORN], back: [HIEROPHANT, SHADE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f162',
+      name: 'Floor 162',
+      enemies: { front: [TYRANT, COLOSSUS], back: [RELIQUARY_BEARER, PYRE, HEADSMAN] },
+    },
+    {
+      id: 't-human-f163',
+      name: 'Floor 163',
+      enemies: {
+        front: [BARROW_SOVEREIGN, RAVAGER],
+        back: [NIGHTMARCH_OUTRIDER, SHADE, BULWARK_ENEMY],
+      },
+    },
+    {
+      id: 't-human-f164',
+      name: 'Floor 164',
+      enemies: {
+        front: [OATHBREAKER, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, HEADSMAN, PYRE],
+      },
+    },
+    {
+      id: 't-human-f165',
+      name: 'Floor 165',
+      enemies: { front: [COLOSSUS, TYRANT], back: [SHADE, HEADSMAN, HAG] },
+    },
+    {
+      id: 't-human-f166',
+      name: 'Floor 166',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f167',
+      name: 'Floor 167',
+      enemies: { front: [OATHBREAKER, COLOSSUS], back: [SHADE, STORMCALLER, GOLEM] },
+    },
+    {
+      id: 't-human-f168',
+      name: 'Floor 168',
+      enemies: { front: [TYRANT, HEADSMAN], back: [HIEROPHANT, RELIQUARY_BEARER, PYRE] },
+    },
+    {
+      id: 't-human-f169',
+      name: 'Floor 169',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f170',
+      name: 'Floor 170 — The Deathless Watch',
+      enemies: {
+        front: [OATHBREAKER, TYRANT],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f171',
+      name: 'Floor 171',
+      enemies: {
+        front: [COLOSSUS, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SENTINEL, SHADE],
+      },
+    },
+    {
+      id: 't-human-f172',
+      name: 'Floor 172',
+      enemies: {
+        front: [BARROW_SOVEREIGN, HEADSMAN],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f173',
+      name: 'Floor 173',
+      enemies: {
+        front: [OATHBREAKER, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, SHADE, HAG],
+      },
+    },
+    {
+      id: 't-human-f174',
+      name: 'Floor 174',
+      enemies: {
+        front: [TYRANT, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, GRAVETIDE_HERALD, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f175',
+      name: 'Floor 175',
+      enemies: { front: [COLOSSUS, HEADSMAN], back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, SHADE] },
+    },
+    {
+      id: 't-human-f176',
+      name: 'Floor 176',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SKYSHRIKE, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f177',
+      name: 'Floor 177',
+      enemies: {
+        front: [OATHBREAKER, WRATHBORN],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f178',
+      name: 'Floor 178',
+      enemies: {
+        front: [TYRANT, CAIRNBOUND_SENTINEL],
+        back: [NIGHTMARCH_OUTRIDER, RELIQUARY_BEARER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f179',
+      name: 'Floor 179',
+      enemies: {
+        front: [COLOSSUS, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f180',
+      name: 'Floor 180 — The Last Landing',
+      enemies: {
+        front: [BARROW_SOVEREIGN, OATHBREAKER],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, SKYSHRIKE],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Marshal's Hall — Floors 181–200, levels 109–120 — the anchors thin out and the board's own support thickens, and the level line carries the rest.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f181',
+      name: 'Floor 181',
+      enemies: {
+        front: [OATHBREAKER, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f182',
+      name: 'Floor 182',
+      enemies: {
+        front: [TYRANT, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f183',
+      name: 'Floor 183',
+      enemies: {
+        front: [BARROW_SOVEREIGN, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HAG],
+      },
+    },
+    {
+      id: 't-human-f184',
+      name: 'Floor 184',
+      enemies: {
+        front: [COLOSSUS, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f185',
+      name: 'Floor 185',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SHADE, BULWARK_ENEMY],
+      },
+    },
+    {
+      id: 't-human-f186',
+      name: 'Floor 186',
+      enemies: {
+        front: [OATHBREAKER, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SKYSHRIKE, RAVAGER],
+      },
+    },
+    {
+      id: 't-human-f187',
+      name: 'Floor 187',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f188',
+      name: 'Floor 188',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f189',
+      name: 'Floor 189',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f190',
+      name: 'Floor 190 — The Hall of Standards',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, STORMCALLER],
+      },
+    },
+    {
+      id: 't-human-f191',
+      name: 'Floor 191',
+      enemies: {
+        front: [OATHBREAKER, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SKYSHRIKE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f192',
+      name: 'Floor 192',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, NIGHTMARCH_OUTRIDER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f193',
+      name: 'Floor 193',
+      enemies: {
+        front: [BARROW_SOVEREIGN, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, CAIRNWARD_HUSK, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f194',
+      name: 'Floor 194',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f195',
+      name: 'Floor 195',
+      enemies: {
+        front: [OATHBREAKER, CAIRNBOUND_SENTINEL],
+        back: [BONECHAIN_WARDEN, RELIQUARY_BEARER, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f196',
+      name: 'Floor 196',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, CAIRNBOUND_SENTINEL],
+        back: [RELIQUARY_BEARER, SKYSHRIKE, GRAVEWAKE_THRALL],
+      },
+    },
+    {
+      id: 't-human-f197',
+      name: 'Floor 197',
+      enemies: {
+        front: [BARROW_SOVEREIGN, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
+    },
+    {
+      id: 't-human-f198',
+      name: 'Floor 198',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, CAIRNWARD_HUSK, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-human-f199',
+      name: 'Floor 199',
+      enemies: {
+        front: [OATHBREAKER, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, NIGHTMARCH_OUTRIDER, SHADE],
+      },
+    },
+    {
+      id: 't-human-f200',
+      name: 'Floor 200 — The Deathless Marshal',
+      enemies: {
+        front: [THE_DEATHLESS_MARSHAL, BONECHAIN_WARDEN],
+        back: [RELIQUARY_BEARER, SHADE, HEADSMAN],
+      },
     },
   ],
 } as const;

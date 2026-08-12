@@ -107,16 +107,24 @@ function slotsOf(tower: TowerData): readonly string[] {
   ]);
 }
 
-/** What one full climb of one tower pays in crystals, floors plus its own achievement tracks. */
+/**
+ * What one full climb of one tower pays in crystals, floors plus its own achievement tracks.
+ *
+ * ⚠️ **Measured over the floors the tower actually authors, not the height the rules state.** Those
+ * are the same number now that all seven are the full height, and they differed for every session of
+ * 21e–21k while six of them were not — counting the rules' height would have measured a projection
+ * rather than the game, which is the exact mistake 15c fixed when it stopped multiplying one tower's
+ * payout by `FACTIONS.length`.
+ */
 function crystalsPerTower(tower: TowerData): number {
-  const floors = Array.from({ length: rules.floors }, (_, offset) =>
+  const height = tower.floors.length;
+  const floors = Array.from({ length: height }, (_, offset) =>
     floorSummons(rules, offset + 1),
   ).reduce((total, value) => total + value, 0);
   const awards = tracks
     .filter((track) => track.counter === 'towerFloors' && track.tower === tower.id)
     .reduce(
-      (total, track) =>
-        total + Math.floor(rules.floors / track.every) * (track.reward.summons ?? 0),
+      (total, track) => total + Math.floor(height / track.every) * (track.reward.summons ?? 0),
       0,
     );
   return floors + awards;
@@ -155,8 +163,19 @@ function campaignCrystals(): number {
   return clears + awards;
 }
 
+/**
+ * The unit a tower's completion award is paid per, and the unit its tie with a chapter is stated in.
+ *
+ * A hundred floors. ⚠️ **Written down rather than derived, because there is nothing honest to derive
+ * it from** — reading it off the track it checks would make the assertions circular, and reading it
+ * off `rules.floors` would restate the bug it exists to catch. What it buys instead is that the
+ * interval on the track and the height of the tower can no longer drift apart silently: the tower
+ * has to be a whole number of these, and each one has to be worth exactly one chapter.
+ */
+const TOWER_UNIT = 100;
+
 describe('tower rules', () => {
-  it('ships a hundred floors climbing to a level the campaign also reaches', () => {
+  it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
     // ⚠️ **Inside the campaign's range, deliberately.** A tower charges for roster breadth, not for
     // investment, so its top floor has to be a fight the campaign asks for well before its own end.
     // Derived from the shipped ladder rather than restated, so extending the campaign cannot
@@ -169,11 +188,44 @@ describe('tower rules', () => {
     expect(rules.topLevel).toBeLessThan(campaignTop);
   });
 
-  it('tops out at exactly a rarity cap, so the reference party is derived rather than chosen', () => {
-    // The balance target is five of the tower's faction at `rare-plus`, and `rare-plus` caps at 60.
-    // If `topLevel` ever leaves the set of caps the sweep's party stops tracking the content, and
-    // this is the test that says so rather than the sweep quietly measuring the wrong five.
-    expect(LEVEL_CURVE.caps as readonly number[]).toContain(rules.topLevel);
+  it('closes above the cap of the rung it asks for, by a margin', () => {
+    // ⚠️ **This replaced "`topLevel` is exactly a rarity cap" in 21e, and the older assertion looked
+    // stricter while measuring nothing.** Its argument was that a cap match makes the sweep's party
+    // derived rather than chosen — true, and still true here, since the rung below is just as
+    // derived as the rung on. What it missed is that **the enemy side has no ascension rungs at
+    // all.** A rung is worth ×1.6, so a party standing at parity with the content is only a fair
+    // test at the first rung above `rare`. At `elite-plus` — three rungs, ×4.096 — a level-140 five
+    // takes the heaviest board this game can author (five `ascended` blocks with an Unmade in front)
+    // at 100% with all five alive in nine seconds, and no line-up fixes that.
+    //
+    // So a tower closes above the cap of the rung it asks for, which is the campaign's own margin
+    // rule arriving here — see the level-line note in `docs/milestones.md` for chapters 5 onward.
+    // Both bounds are derived from the caps: there must be a rung below the roof for a crew to stand
+    // on, and the roof must not reach the rung above it, which would be content asking for an
+    // investment it never rewards.
+    const caps = LEVEL_CURVE.caps as readonly number[];
+    const below = caps.filter((cap) => cap < rules.topLevel);
+    const above = caps.filter((cap) => cap >= rules.topLevel);
+
+    expect(below.length, 'a rung for the top band to stand on').toBeGreaterThan(0);
+    expect(above.length, 'a rung the roof does not reach').toBeGreaterThan(0);
+
+    const margin = rules.topLevel - below[below.length - 1];
+
+    expect(margin, `margin ${margin} over the crew's cap`).toBeGreaterThan(0);
+    expect(margin, `margin ${margin} over the crew's cap`).toBeLessThan(
+      above[0] - below[below.length - 1],
+    );
+  });
+
+  it('halves into two bands, each with a rung a crew can actually be built to', () => {
+    // `towers.balance.ts` splits the sweep at the halfway floor so the shipped hundred keeps being
+    // measured by a party that can lose to it. That split only means anything if the halfway floor's
+    // level *is* a cap — otherwise band 1's crew stops tracking its own content, which is the half
+    // of the old assertion worth keeping.
+    const half = floorLevel(rules, Math.floor(rules.floors / 2));
+
+    expect(LEVEL_CURVE.caps as readonly number[]).toContain(half);
   });
 
   it('reuses the mini-boss interval the campaign already taught', () => {
@@ -211,6 +263,13 @@ describe('tower content', () => {
     // The formula and the content are two statements of one fact. A tower authored at ninety-nine
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
+    //
+    // ⚠️ **This carried a `PENDING` literal through milestones 21e–21k and 21k deleted it**, which
+    // is the whole reason it was a hand-maintained list of names rather than a filter. `TOWER_RULES`
+    // is one rule for all seven, so the height doubled in a single session while the floors moved in
+    // seven — and a filter reading "either the full height or half of it" would have passed forever
+    // and never noticed a tower nobody went back for. All seven are now the full height and this is
+    // a plain equality again.
     for (const tower of towers) {
       expect(tower.floors.length, tower.id).toBe(rules.floors);
     }
@@ -299,11 +358,15 @@ describe('tower content', () => {
     for (const tower of towers) {
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
 
-      expect(kinds[rules.floors - 1]).toBe('boss');
-      expect(kinds.filter((kind) => kind === 'boss')).toHaveLength(1);
-      expect(kinds.filter((kind) => kind === 'mini-boss')).toHaveLength(
-        Math.floor((rules.floors - 1) / rules.miniBossEvery),
-      );
+      expect(kinds[rules.floors - 1], tower.id).toBe('boss');
+      expect(
+        kinds.filter((kind) => kind === 'boss'),
+        tower.id,
+      ).toHaveLength(1);
+      expect(
+        kinds.filter((kind) => kind === 'mini-boss'),
+        tower.id,
+      ).toHaveLength(Math.floor((rules.floors - 1) / rules.miniBossEvery));
     }
   });
 
@@ -439,20 +502,52 @@ describe('what a tower pays', () => {
     //
     // ⚠️ **The two bounds are not the same kind of claim, and only one of them is stable.** The
     // ceiling — towers must not replace the campaign — compares two totals that both grow, and it
-    // holds indefinitely. The floor does not: towers are fixed at seven ladders of a hundred floors
-    // while the campaign grows a chapter at a time, so this ratio falls by construction as content
-    // ships. Over the four-chapter ladder it read 3.17 at two chapters, 2.12 at three, 1.59 at
-    // four, and the floor had been moved 2 → 1.5 to buy exactly that chapter.
+    // holds indefinitely. The floor did not, for as long as the towers were fixed at seven ladders
+    // of a hundred floors while the campaign grew a chapter at a time: this ratio then fell by
+    // construction as content shipped. Over the four-chapter ladder it read 3.17 at two chapters,
+    // 2.12 at three, 1.59 at four, and the floor had been moved 2 → 1.5 to buy exactly that chapter.
     //
     // **The six-chapter re-cut then moved the ratio without adding a stage**: the same two hundred
     // stages hold six chapter boundaries instead of four, so Chapter Conqueror pays 60,000 against
     // the old 40,000 and the ratio reads ~1.37. That was accepted deliberately — the award stayed
     // 10,000 because it is what tower-topping ties to and because a linear payout cannot compound
-    // past a flat `PULL_COST` — so the floor here is re-derived to 1.3, which buys **the re-cut
-    // and nothing more**: chapter 7 fires it again. When it next fails, the question to ask is
-    // whether seven hundred floors is still the right amount of optional content beside a campaign
-    // this much richer, not what number makes it green — the real answer is for the towers to grow
-    // with the game, and that is milestone-sized work.
+    // past a flat `PULL_COST` — so the floor was re-derived to 1.3, which bought **the re-cut and
+    // nothing more**, with the prediction written into it that chapter 7 would fire it again and
+    // that the answer would be to grow the towers rather than to move the number.
+    //
+    // ## ⚠️ Chapter 7 fired it, the answer *was* to grow the towers, and milestone 21 did that
+    //
+    // **It landed in eleven sessions rather than one.** Its four chapters moved only the campaign
+    // side while the tower side stayed at the shipped 219,100, so the ratio fell all the way through
+    // them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at 8 (21b) → **0.83** at 9 → **0.74** at
+    // 10. Sessions 21e–21k then doubled every tower to two hundred floors and took the tower side to
+    // **436,100** against the ten-chapter campaign's 297,500: 0.74 → 0.835 (Human) → 0.940 (Dwarf) →
+    // 1.045 (Elf) → 1.150 (Undead) → 1.255 (Monster) → 1.361 (Angel) → **1.466** (Demon).
+    //
+    // ⚠️ **The step is exactly 31,300 crystals — one tower's second hundred — so it is exactly
+    // +0.1052 every time by construction**, seven for seven. Do not check it by subtracting the
+    // rounded figures: 1.255 → 1.361 looks like +0.106.
+    //
+    // ## ⚠️ The floor was a placeholder for six sessions and 21k is what restores it
+    //
+    // It was 1.3 before milestone 21, 1.1 for 21a alone, and then **0.7 in a single edit covering
+    // 21b through 21d** — because re-deriving a quantity that is *supposed* to fall, three times, to
+    // three numbers all known in advance, is three edits that measure nothing. The acknowledged
+    // price was that it watched nothing from 21b until now. That was the same call 21a made on
+    // `levels.spec.ts`'s ceiling ratio and the opposite of the one 21b made on `gear.ts`'s
+    // `gradeSoftness`; the distinction is whether the quantity is meant to move.
+    //
+    // **It is back at 1.3, which is where it was before the milestone rather than a new bar.** The
+    // measured 1.466 leaves about 11% of headroom, and that headroom is the point: this ratio falls
+    // again as soon as the campaign grows, reading **1.314** after an eleventh fifty-stage chapter
+    // and **1.190** after a twelfth. So 1.3 survives chapter 11 and fires at chapter 12 — and 1.4,
+    // which was the alternative, would have fired on the very next chapter shipped.
+    //
+    // ⚠️ **A failure here now is the original question again rather than a number to slide**:
+    // whether seven towers of two hundred floors is still the right amount of optional content
+    // beside the campaign of the day. The towers are no longer fixed while the campaign grows —
+    // growing them is what this milestone was — so the honest answers are a third hundred, an eighth
+    // ladder, or accepting that the campaign has outgrown its optional content.
     const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
     const campaign = campaignCrystals();
     const note = `seven towers ${seven} against a campaign of ${campaign}`;
@@ -502,17 +597,29 @@ describe('the wiring a tower needs to be reachable at all', () => {
     );
   });
 
-  it('sizes the completion track at exactly the height of its tower', () => {
-    // ⚠️ `data/` holds no logic, so the height is restated on the track — which makes this the only
-    // thing standing between a completion award that pays twice and one that never pays at all.
+  it('sizes the completion track at a hundred floors, which the tower is a whole number of', () => {
+    // ⚠️ **`Spire Conqueror` stayed `every: 100` when the towers doubled, so it pays twice.** The
+    // alternative was `every: 200` to keep "topping a tower" a single event, and it was declined:
+    // that strips 70,000 crystals from the tower side and drops the tower:campaign ratio below its
+    // own floor — breaking the guard milestone 21 exists to fix. What the tie always rested on is
+    // that a hundred floors and a fifty-stage chapter are comparable events, so it is restated **per
+    // hundred floors** and the interval stays put.
+    //
+    // No save migration either way: awards-taken is an integer, and a player who topped the old
+    // hundred has taken 1 and earned 1.
+    //
+    // `data/` holds no logic, so the interval is still a literal on the track — which makes this the
+    // only thing standing between an award that pays three times and one that never pays at all.
     for (const tower of towers) {
       const intervals = tracksFor(tower)
         .map((track) => track.every)
         .sort((a, b) => a - b);
+      const completion = intervals[intervals.length - 1];
 
-      expect(intervals[intervals.length - 1], tower.id).toBe(rules.floors);
+      expect(completion, tower.id).toBe(TOWER_UNIT);
+      expect(rules.floors % completion, `${tower.id} height in whole units`).toBe(0);
       // And the other one is the rhythm of the climb rather than a second completion award.
-      expect(intervals[0], tower.id).toBeLessThan(rules.floors);
+      expect(intervals[0], tower.id).toBeLessThan(completion);
     }
   });
 
@@ -532,15 +639,19 @@ describe('the wiring a tower needs to be reachable at all', () => {
     }
   });
 
-  it('makes topping a tower worth exactly what finishing a chapter is worth', () => {
+  it('makes a hundred floors worth exactly what finishing a chapter is worth', () => {
     // A deliberate tie rather than a coincidence: a hundred floors and a fifty-stage chapter are
     // comparable events, so they pay the same. `achievements.spec.ts` narrows its own "largest
     // payout" claim to the ladder for this reason, and this is the other half of that decision.
+    //
+    // ⚠️ **Stated per hundred floors since 21e, which is what the tie always meant.** Read as "per
+    // tower" it would have had to change when the towers doubled; read per unit it did not move at
+    // all, and a tower simply became two of the events it was one of.
     const chapterAward =
       tracks.find((track) => track.counter === 'clearedChapters')?.reward.summons ?? 0;
 
     for (const tower of towers) {
-      const completion = tracksFor(tower).find((track) => track.every === rules.floors);
+      const completion = tracksFor(tower).find((track) => track.every === TOWER_UNIT);
 
       expect(completion?.reward.summons ?? 0, tower.id).toBe(chapterAward);
     }

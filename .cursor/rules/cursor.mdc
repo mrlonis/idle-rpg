@@ -173,6 +173,60 @@ the two disagree, the code is right and both are stale.
       matrix leaned on hard enough to be a standing tax. ⚠️ **That well is real and it is not
       bottomless.** The next chapter that cannot find an unspent pair is the one that has to argue
       for growing the vocabulary again, on its own merits; "17 did it" is not the argument.
+    - **Milestone 21 licenses up to three new statuses across its four chapters, and 21a spent
+      none.** The budget is a **ceiling rather than a quota** — a chapter that comes in under it is
+      the better outcome — and the Waking Barrows found four unspent pairs instead: a taunt worn by
+      a thorned body, a bomb aimed at `enemy-highest`, thorns on **fodder** (a row attack into three
+      of them is answered three times, so the habitual reply to a crowded board is the expensive one
+      there), and the first `ally-afflicted` turn on the enemy side. ⚠️ **Nothing may be forbidden
+      to a later chapter on the strength of that** — 21b through 21d each argue their own spend in
+      their own entry, and "21a managed without" is no more an argument than "17 did it" is.
+    - **Milestone 21b spent the first of the three on `ROOTBOUND`, a partial permanent `link`, and
+      the argument is what makes it allowed.** `spreadLink` matches partners on the **status id**
+      rather than on the side, so a board can bind its back rank to itself and leave its wall out of
+      it, and a lone holder takes the whole hit. That is what no pair of shipped parts says:
+      `CHAINBOND` is cast, lapses and binds a whole side — a statement about focus fire in general
+      — where this is aimed at one specific habit, that **reach** has been the answer to a protected
+      back rank since milestone 4. Reaching a bound archer hands a third of the blow to the archers
+      beside it, so the reach still works and buys spread rather than a kill. **Two remain.**
+    - **Milestone 21c spent none of the two, and it found its four locks by aiming shipped parts
+      somewhere they had never been aimed.** `THE_QUENCH` is the **first status of any kind on
+      `enemy-lowest`** — which is where `ally-lowest` points every heal in the game, so a fuse lands
+      on exactly the body the party's healer has just committed to; `IRON_FOR_IRON` is the first
+      reflect applied to a _chosen_ ally and the first reactive one; `THE_ANVIL_FALLS` is the first
+      stun aimed at **one body** rather than the whole board. The fourth is a pair — a taunt worn by
+      a body whose `tenacity` means the one thing the party may hit is the one it cannot open. ⚠️
+      **Two still remain, and 21d must argue its own**; "21c managed without" is no more an argument
+      than "21a managed without" was.
+    - **Milestone 21d spent the last two, so the budget is closed: `BLOODRISEN` and `SAVAGED`.**
+      Both are permanent versions of something the game only had as a **window**, which is the same
+      shape `ROOTBOUND`'s argument took and is now three for three. `BLOODRISEN` is
+      `WRATH_UNBOUND`'s answer to being wounded with the forty-five tick timer taken off — a window
+      is something a party weathers, and a permanent one turns the question into **how the party
+      spends its damage**, since chipping five bodies arms five and finishing one at a time arms one.
+      ⚠️ It is the deliberate inverse of `ROOTBOUND`: that punishes focus and this punishes
+      spreading, so a party arriving from the weald holds the wrong habit. `SAVAGED` is the **first
+      hostile status in the game that does not expire** — every debuff before it ran out on its own,
+      so a cleanse was an optimisation and here it is the only exit.
+    - ⚠️ **Both of 21d's are safe to be permanent for the reason `THORNMAIL` is: they can only ever
+      shorten a fight.** One is extra damage on the party and the other extra damage from the board;
+      neither puts health back. **The defensive mirror — a body that armoured itself as it was hurt —
+      is the one shape of that idea nobody may author**, because it is the ninety-second clock with a
+      narrative attached. Any future "the board answers being hurt" proposal has to clear that bar.
+    - ⚠️ **The budget is spent and it does not renew.** Three of the four chapters came in under the
+      ceiling, which is the outcome it was written for. A later chapter wanting a status argues from
+      nothing exactly as 17 did: "21 had a budget" is not an argument, and neither is "21d spent
+      two".
+    - ⚠️ **A chapter's headline lock can be a stat block, and two chapters running have used one.**
+      `ModifiableStat` is `atk`, `def` and `haste`, so neither `dodge` (the Sunless Weald) nor
+      `tenacity` (the Hollow Anvil) can be a status without a `core/` change — and neither needed to
+      be. What answers a dodge pool is `accuracy`, which five characters have carried since 8e; what
+      answers a tenacity pool is `insight`, which **two** carry, and past that the answer the Adamant
+      Colossus has always given: stop needing the debuff. `statusChance` is
+      `authored + insight − tenacity` **clamped at zero**, so unlike `dodge` — which `MIN_HIT_CHANCE`
+      floors at a tenth — a high enough pool refuses a debuff outright. **Reach for the stat block
+      before the vocabulary**: the budget is for questions the existing parts genuinely cannot ask,
+      not for questions that are inconvenient to author.
     - ⚠️ **A taunt overrides the row gate, which nothing else in the game does.** It narrows the
       pool **before** the row rule is consulted, so while one is up a back-rank bypass is worth
       nothing. Three clauses keep it answerable and all three are held by specs: multi-target
@@ -217,6 +271,26 @@ the two disagree, the code is right and both are stale.
   - ⚠️ **Boots move `haste`, so gear inherits the clamp argument in `roster/stats.ts`.** The bound is
     a percentage sized so the fastest character reaches about 236 against an `ATB_THRESHOLD` of 1000,
     and `data/gear.spec.ts` **derives** it from the shipped profiles rather than restating it.
+  - ⚠️ **`gradeSoftness` fires on every chapter forever, and the _shape_ rather than the number is
+    what is wrong.** `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so the top grade's
+    share of end-of-ladder drops climbs without bound: it went past the `< 0.2` bound in
+    `gear.spec.ts` at chapter 4 (90 → 100), at chapter 7 (100 → **125**, 24.5% → 18.7%), at chapter 8
+    (125 → **150**, 23.4% → 18.7%), at chapter 9 (150 → **175**, 22.6% → 18.7%) and at chapter 10
+    (175 → **200**, 22.1% → 18.7%). **Expect it once per chapter, forever** — chapter 11 wants 225.
+    - ⚠️ **Five landings and every one of them is 18.7%, which is the finding rather than the
+      numbers.** The solution is always `gradeSoftness = stages / 2` — the value at which the tilt
+      equals exactly 3.0 — so the constant is not a tuning number at all, it is the ladder's length
+      halved, written down by hand once a chapter. What it eventually wants is a tilt that
+      **saturates**; that is recorded rather than taken because milestone 21 forbids the scope.
+    - ⚠️ **Do not re-derive it several chapters ahead to save edits, and 21d is the evidence that
+      call was right** — 21b declined 200, which would have bought the whole milestone, precisely
+      because this quantity is _not_ meant to move and hiding it makes the real fix easier to forget.
+      Had 200 been written then, the fourth and fifth landings would both have been silent, and it is
+      the fifth that turned "always 18.7%" into "always `stages / 2`". That is the opposite of the
+      call 21a made on `levels.spec.ts`'s ceiling ratio, which watched nothing for four chapters and
+      was then **retired** in 21d rather than re-derived — so batching cost that one nothing. The
+      distinction is whether the quantity is meant to fall. Raising the constant is safe for the
+      starter wall and lowering it is not — see [gear](../../docs/gear.md).
   - **Archetype gating is safe where placement gating would not be**, and the distinction is the
     whole of it: a piece the party cannot wear is **fodder**, not a dead end. This is what makes
     `CharacterRole` load-bearing without re-opening milestone 4's "no legal party" failure. The eight
@@ -275,25 +349,34 @@ the two disagree, the code is right and both are stale.
     damage instead. A **shield is safe where a regeneration is not**: it banks a pool once and
     depletes, so it cannot outrun rising damage. `data/signature.spec.ts` asserts no opening status
     is a `regen`.
-  - ⚠️ **No shipped content can measure one.** `mythic` caps at level **340**; the hardest authored
-    stage is level **225**. A party at the unlock rung is half again past the top of the ladder, so
-    every campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
-    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **The Bound Marches
-    and the Sundered Vault were each expected to close this and neither did**: the gap went
-    ×4 → ×2 → ×1.5, narrowing by less each time because the level band flattens as content
-    lengthens. What closes it is a chapter reaching the low three hundreds, roughly chapter 8 at
-    the re-cut's fifty-stage cadence, or a tower band that does — check the number rather than
-    assuming the next chapter is enough.
+  - **Shipped content can measure one since milestone 21b, and it took five milestones.** `mythic`
+    caps at level **340** and the hardest authored stage is **588**, ×1.7 the unlock rung's cap, so
+    the campaign is comfortably above it and moving further above it each chapter. `data/signature.balance.ts`'s
+    `contested()` no longer re-levels the top encounter; it returns the stage as `data/` wrote it.
+    ⚠️ **The Bound Marches, the Sundered Vault and the Waking Barrows were each expected to close
+    this and none did** — 160, then 225, then 305 against 340, narrowing by less each time because
+    the level band flattens as content lengthens. **Check the number rather than assuming the next
+    chapter is enough** is the lesson that survives; the gap itself is closed.
   - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
     contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
     any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
     zero for two opposite reasons. In reach a maxed item is worth **+2% to +8%**; in win rate at a
     contested level the same item takes four of seven characters from **0.00 to 1.00**. Both are
     honest; never cite the reach figure as evidence the item is small.
-    - ⚠️ **A reach figure is only comparable within one cut of the ladder.** `contested()` seeds off
-      `stage.id`, so milestone 19 renaming the hardest stage `c4-s50` → `c6-s50` moved all seven
-      recorded numbers with no item or stat block changed. Re-measure rather than comparing across a
-      re-cut.
+    - ⚠️ **A reach figure is only comparable within one cut of the ladder, and this has now bitten
+      four times.** `contested()` picks the hardest stage and seeds off its `stage.id`, so milestone
+      19 renaming it `c4-s50` → `c6-s50` moved all seven recorded numbers with no item or stat block
+      changed, and 21b, 21c and 21d replacing it with `c8-s50`, `c9-s50` and `c10-s50` moved all
+      fourteen each time. **Re-measure the whole table or none of it, and expect to do it once a
+      chapter for as long as chapters keep landing.** ⚠️ Removing the re-levelling in 21b changed
+      _nothing_ by itself — `reach()` overwrites `level` on every trial, so the override was dead on
+      arrival and what it bought was a claim about the method rather than an input to it.
+    - ⚠️ **Read the _gain_ column, not the reach column — and do not predict which way either
+      moves.** 21c recorded that bare reach rises fifteen to thirty levels between cuts while the
+      gains stay still; 21d's cut saw bare reach rise **nought to seven** while five of the fourteen
+      gains moved by five, Seraphine's among them after three cuts at +9. What survives is only the
+      weaker claim: the gains move **less** (all fourteen within five, eight within three), and a
+      reach figure means nothing outside its own cut. Re-measure rather than extrapolating.
   - **A new ascended-tier character needs a row in `data/signature.ts` and nothing else.**
     `data/signature.spec.ts` derives the count from `CHARACTERS`, so one without an item is a
     failing test rather than a permanently empty panel. Milestone 20 added seven at once, which is
@@ -324,10 +407,20 @@ the two disagree, the code is right and both are stale.
     from 3.2 to 1.4. Both now name the two campaign counters positively.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
-  income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
-  coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
-  old hand-tuned ladder paid at the same **enemy level**, which is what stops a longer ladder from
-  meaning a richer one.
+  income is `base × stageIndex ^ 1.45`, evaluated by `stagePayout` in `core/ladder.ts` from four
+  coefficients in `data/chapters.ts`. **The exponent's job is that income tracks _enemy level_
+  rather than stage count**, which is what stops a longer ladder from meaning a richer one — and
+  that claim, rather than any value of the number, is what is calibrated.
+  - ⚠️ **It was 1.13 until milestone 21b and the relation it protects had quietly inverted.** 1.13
+    was set when enemy level was very nearly _linear_ in the stage index; 21a's corrected margin
+    rule made it superlinear, so over the shipped ladder level grows as ~`index ^ 1.5` and income at
+    `index ^ 1.13` was income proportional to `level ^ 0.80` — **sub**-linear, where the original
+    calibration set it slightly super-linear at `level ^ 1.12`. At 1.45 it reads `level ^ 1.00`. The
+    number moved to keep the statement true; the statement did not move.
+  - ⚠️ **1.45 is the conservative end of a band.** Full restoration would be **1.60**; the guard that
+    forced the change (`levels.spec.ts`'s `1h < hoursTo(top) < 24h`) needed only **1.42**. What it
+    costs is legible — a stage-100 clear pays ×4.4 and a stage-10 clear ×2.1 — and it makes **no
+    content easier**, because a party is capped by its ascension rung and not by its income.
   - **The base rates are 1 gold, 0.2 xp and 0.003 essence, doubled from the ladder they were
     derived against.** ⚠️ **Scale all three together or none.** Every economy assertion in
     `levels.spec.ts` is a ratio between the currencies or a comparison among them, and a common
@@ -395,14 +488,37 @@ the two disagree, the code is right and both are stale.
       effective rate flat would be a rate cut dressed as a floor.
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../../src/core/ladder.ts) before touching progression.
-  - **Six chapters ship — 10, 20, 30, 40, 50 and 50 stages — the same two hundred the four-chapter
-    cut carried, re-cut in milestone 19 so the boundaries land where a session does.** The curve is
+  - **Ten chapters ship — 10, 20, 30, 40 and then six of fifty, four hundred stages in all.** The
+    first six are the two hundred the four-chapter cut carried, re-cut in milestone 19 so the
+    boundaries land where a session does; the last four are milestones 21a through 21d. The curve is
     a ramp to a permanent cap of fifty (base 10, step 10, band 1, max 50); the long ladder is more
     chapters, not longer ones. ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule**:
-    the Fenlord, the Pale Warden, the First Cinder, the Ashfall Sovereign, the Chainsworn and the
-    Hollow Seraph — a re-cut that moves a boundary owes the new final a unique body before it
-    ships. Auto-battle unlocks when chapter 1 falls (`AUTO_BATTLE_UNLOCK_CHAPTERS = 1`, resolved
-    through `chaptersCleared`), and all seven towers open with it.
+    the Fenlord, the Pale Warden, the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow
+    Seraph, The Cairn King, The Withered Crown, The Anvil Crowned and The Everwound — a re-cut that
+    moves a boundary owes the new final a unique body before it ships. ⚠️ **The rule is about the
+    _headline_ body and nothing else** — a lieutenant may stand on its chapter's final as support and
+    may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow, the Grudgekeeper and the
+    Redmaw do not, and all four are correct: a comment claiming the first was "deliberately absent"
+    survived a whole milestone, and removing it measures as a chapter final 6% harder than the stage
+    before it that the tuned party clears with all five alive. Auto-battle unlocks when chapter 1
+    falls (`AUTO_BATTLE_UNLOCK_CHAPTERS = 1`, resolved through `chaptersCleared`), and all seven
+    towers open with it.
+  - ⚠️ **Two guards that measured "the ladder must not consume the curve" were retired in 21d, and
+    one claim in rungs replaced both.** `chapters.spec.ts` held the top stage under
+    `LEVEL_CURVE.maxLevel / 2` = 500 and `levels.spec.ts` held a ratio of what the ceiling costs to
+    what the top stage demands, floor 4; chapter 10 closes at **588** and reads **3.62**. Neither was
+    satisfiable by any chapter the margin rule permits — `ascended` caps at 500 and a chapter closing
+    below its own rung's cap is the walkover 21a measured — and **both quantities fall on every
+    chapter by construction**, so moving either buys one chapter at the price of pretending it still
+    watches something. What owns the claim now is `levels.spec.ts`'s **"leaves rungs unspent above
+    everything the ladder asks for"** (top < `caps[12]` = 700), which cannot decay because the rung
+    count is fixed. That is the third guard retired rather than slid, after the absolute
+    hours-to-the-ceiling and the ratio that replaced it.
+    - ⚠️ **What 21d measured and deliberately did not guard**: the level line adds ~90 levels a
+      chapter (80, 91, 94, 98), so the rung claim fires at **chapter 12** and the curve is consumed
+      around **chapter 15** — not the chapter 100 every one of these guards was written on, a premise
+      untrue since 21a's correction. **How long the campaign is meant to be is a roadmap decision**,
+      and it is the question to answer when that guard fires rather than a number to move.
   - ⚠️ **The re-cut changed what a stored position means and wrote no migration** — dev-only saves
     clamp backward and re-climb, which [saves](../../docs/saves.md) records along with the one-line exact
     remap that becomes mandatory if chapters are ever re-cut after release.
@@ -423,18 +539,75 @@ the two disagree, the code is right and both are stale.
     the Bound Marches (chapter 5) are the first content where that bites. A rung is worth ×1.6 and
     the enemy side has **no rungs at all**, so a party matching the enemy's level from one rung
     higher is ×1.6 ahead of it — every stage a walkover, with nothing in the numbers looking wrong.
-    Twenty-three levels is what ×1.6 costs at `perLevel.common`. The Bound Marches therefore close
-    at enemy level **160** against `elite-plus`'s cap of 140, and the Sundered Vault (chapter 6) at
-    **225** against `legendary`'s cap of 200 — the reference party finishes each twenty and
-    twenty-five levels below the thing it is fighting. Chapters 1 through 4 never met this because
-    each ran inside a cap the party already had.
+    Twenty-three levels is what ×1.6 costs at `perLevel.common`. Chapters 1 through 4 never met this
+    because each ran inside a cap the party already had.
+  - ⚠️ **The margin has to _grow_ by about twenty-three levels a chapter, and a constant one cancels.
+    Milestone 21a found this by authoring a chapter to the wrong rule and measuring it.** Each
+    chapter hands the party a fresh rung (×1.6) **on top of** the levels it climbs, while the content
+    climbs only the levels — so a fixed +25 deficit is paid once and never again, and the gap
+    compounds. Party power ÷ the difficulty probe's threshold at each chapter's final: **1.08** at
+    chapter 5 (+20), **1.44** at 6 (+25), and **2.08** at a chapter 7 authored at +25. At that
+    setting every stage in the chapter was a walkover for the party it was tuned for — the reference
+    five took the boss with all of them alive in seven seconds — and ⚠️ **no board fixes it**: heavy
+    enough to cost that party a member meant **three** ascended bodies on one board, at 1.86× the
+    stage before it. The margins are **+20, +25, +45, +56, +70, +88** — the Waking Barrows close at
+    **305** against `legendary-plus`'s cap of 260, the Sunless Weald at **396** against `mythic`'s
+    340, the Hollow Anvil at **490** against `mythic-plus`'s 420, and The Bleeding Wild at **588**
+    against `ascended`'s 500.
+    - ⚠️ **"About twenty-three a chapter" is right in shape and too large in size, and milestone 21b
+      found that the same way 21a found the rule it replaced — by authoring a chapter to it and
+      measuring.** At the roadmap's 411 (a margin of +71) the party the chapter is tuned for took the
+      final at **0%**. The correction is the **enemy's own growth curve**: 21a derived +23 from
+      `perLevel.common` because that is what the party climbs on, but an enemy `ascended` block
+      climbs on `perLevel.ascended` — 1.024 against 1.021 — and that gap compounds over the _whole_
+      level rather than over the chapter. `(1.024 / 1.021) ** 411` is ×3.34 where `** 305` is ×2.45,
+      so the enemy side takes about **fifteen levels' worth** of head start across one chapter at
+      this depth, straight off the margin: +23 − 15 ≈ **+8**, and +45 → +56 is +11. The rule is
+      "+23 a chapter _less whatever the enemy's own curve has taken_", and the second term grows —
+      so the roadmap's ~514 and ~617 for chapters 9 and 10 are both too high.
+    - ⚠️ **And the corrected rule under-predicts, which milestone 21c found by measuring it.** Solving
+      21b's own arithmetic forward reproduces chapter 8's shipped 396 to within a level and points
+      chapter 9 at 486 — where the tuned party takes the final with **4.75 of five still standing**,
+      which is a walkover by the standard 21a set. Measured, the close is **490** and the margin is
+      +70 rather than the predicted +66. **The arithmetic is a starting bracket and nothing more**;
+      it has now been wrong in both directions, low here and high in 21b.
+    - ⚠️ **Four measured margins put the growth at +12 to +18 a chapter and rising, not +8**, so
+      21b's correction is a real term rather than the whole answer. 21d's chapter was estimated at
+      ~570 and closed at **588**; at 570 the tuned party took the final with all five alive in eight
+      seconds. **Every closed form tried across this milestone has been wrong. Bisect; do not
+      solve.**
+    - ⚠️ **Check it by measurement, and the arithmetic is only for knowing which way to guess.** The
+      transition is a **step function** — chapter 8's final read 100% at level 398, 85% at 400, 45%
+      at 402 and 0% at 408, and chapter 9's read 100% at 496, 85% at 498, 25% at 500 and 0% at 502 —
+      so bisect for the 90% edge, back off to where the tuned party keeps three or four of five, and
+      then check the probe threshold at the final against
+      `pow(1.021, level - 1) * pow(1.6, rungsAboveRare)`, which wants to land near **1.1–1.4**. The
+      shipped ratios are 1.16, 1.10, 1.21 and **1.15**; chapter 10's final read 100% at 592, 85% at
+      594, 43% at 596 and 13% at 598.
+    - ⚠️ **The difficulty probe's bracket has to be widened with the level line, and the step count
+      with the bracket.** The probe brackets the _party's_ power, which is
+      `1.021 ** (level - 1) × 1.6 ** rungs` — so it grows with the margin rule rather than with the
+      stage count. 21b took it 4,000 → 50,000, 21c → 500,000 with two more steps, and 21d →
+      **5,000,000** with a seventeenth; expect the ceiling to move every chapter at this depth. ⚠️
+      **The two halves move on different schedules**: a factor of ten on the range costs almost
+      nothing in resolution (0.030% → 0.028%) while one extra step nearly halves it (→ 0.014%), so
+      widen every chapter and add a step every few. Not widening at all presents as a difficulty
+      curve flattening into a horizontal line at the ceiling.
+    - ⚠️ **The board is not the variable and cannot be the fix.** Chapter 7's own final re-levelled
+      to 411 also reads 0% for the party chapter 8 is tuned for, and chapter 8's final at 380 reads
+      100%. When a chapter measures unclearable at the top, the level line is what moved.
   - **A rung per fifty-stage band is the cadence** — it read "one rung per chapter" until milestone
     19 multiplied the boundaries without moving a rung ask — and it is load-bearing well beyond the
-    ladder: 20 copies by the end of the fen's fifty stages, 24 by the Marches, 32 by the Vault. ⚠️
-    **It is the assumption under the levelling-versus-ascension guard** — a band climbs ~65 levels
-    and a rung only pays for 22.6, so the two axes drift apart by construction and the guard
-    measures the **share** rather than the ratio for that reason.
-  - **Adding a chapter is an economy change as much as a content one**, and expect roughly four
+    ladder: 20 copies by the end of the fen's fifty stages, 24 by the Marches, 32 by the Vault, 37
+    by the Barrows, 46 by the Weald, 52 by the Anvil, 62 by the Wild. ⚠️ **Three of those were wrong
+    by one or two until 21d measured them** (38/44/50), which is the ordinary cost of quoting a
+    running total by hand — `MORTAL_LADDER` alternates cheap and expensive rungs (3, 7, 4, 8, 5, 9,
+    6, 10), so the step between chapters alternates 6 and 10 rather than being constant, and
+    "six more than the last chapter" was true twice and then repeated on faith. ⚠️ **It is the assumption under the
+    levelling-versus-ascension guard** — a band
+    climbs ~65 levels and a rung only pays for 22.6, so the two axes drift apart by construction and
+    the guard measures the **share** rather than the ratio for that reason.
+  - **Adding a chapter is an economy change as much as a content one**, and expect four or five
     guards to fire. Only some of them will be about the chapter. ⚠️ **Sort them first into "content
     outgrew a threshold" and "this ratio moves every chapter regardless"** — the first is a real
     retune and the second is a guard that needs re-deriving, and milestone 18 found three of the
@@ -482,14 +655,15 @@ the two disagree, the code is right and both are stale.
     the crew standing in it. Change the `name` freely; never the `id`.
 - **Faction towers are a second thing to climb**, and **all seven ship** — the system in milestone
   15b, the other six towers and the eighteen enemy archetypes they needed in 15c. Read
-  [`core/towers.ts`](../../src/core/towers.ts) before touching them. Each is a hundred floors at enemy
-  levels 1 to 60. Adding a tower is a row in [`data/towers.ts`](../../src/data/towers.ts), a matching row
+  [`core/towers.ts`](../../src/core/towers.ts) before touching them. Each is **two hundred floors at enemy
+  levels 1 to 120** since milestone 21e. Adding a tower is a row in [`data/towers.ts`](../../src/data/towers.ts), a matching row
   in [`data/activities.ts`](../../src/data/activities.ts), two achievement tracks, and its floors;
   `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in, and
   holds **exactly one tower per faction** against `FACTIONS` rather than a literal.
   - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
-    clear count drives the idle crystal rate, and the shipped two hundred stages already take it to
-    ×3 the base — seven towers of a hundred floors feeding it would reach ×10, and the roster-relative
+    clear count drives the idle crystal rate, and the shipped three hundred and fifty stages already
+    take it to ×4.5 the base — seven towers of two hundred floors feeding it would reach ×18, and the
+    roster-relative
     ceiling in `banners.spec.ts` would put the whole roster inside three weeks. Progress is one
     integer per tower in `GameState.towers`, and
     `applyTowerResult` is a separate function from `applyBattleResult` rather than a branch inside
@@ -501,6 +675,31 @@ the two disagree, the code is right and both are stale.
     `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
     and the crew editor's Fight control are inert on it. A control that only asked whether the
     _crew_ was legal would look live and silently do nothing.
+  - ⚠️ **All seven are two hundred floors as of 21k, and how the interim was handled is the rule to
+    reuse.** `TOWER_RULES` is one rule for all seven, so the height moved in one session (21e) while
+    the floors moved in seven (21e–21k). A tower not yet extended was **not damaged** —
+    `clearedFloors` clamps to what it authors, so `nextFloor` reported it topped and every screen read
+    it right — but it lost its **boss**, because `floorKindAt` reads the rules' height and its
+    hundredth floor resolved as a mini-boss paying ×2 rather than ×5. What kept that honest was
+    `PENDING`, a **literal list of names that deletes itself**, in both `towers.spec.ts` and
+    `towers.balance.ts`; each session removed its own and 21k removed both lists along with the
+    branches they guarded. ⚠️ **A filter — "either the full height or half of it" — would have passed
+    forever and never noticed a tower nobody went back for. Do it the same way if the height moves
+    again.**
+  - ⚠️ **A tower closes _above_ the cap of the rung it asks for, which is the campaign's margin
+    rule, and `topLevel` being a rarity cap is the opposite of what makes a roof a fight.** A rung is
+    worth ×1.6 and **the enemy side has no rungs at all**, so a crew standing at parity with the
+    content is only a fair test at the first rung above `rare` — which is where the shipped hundred
+    sits and why it worked. Milestone 21e measured the rest: at `elite-plus` (three rungs, ×4.096) a
+    level-140 five takes **the heaviest board this game can author** — five `ascended` blocks with an
+    Unmade in front — at 100% with all five alive in nine seconds, and no line-up fixes it. The roof
+    is 120 against an `elite` crew capped at 100, a margin of +20.
+  - ⚠️ **Extending a tower: reach first for the top level at which the new slope meets the old one.**
+    Doubling to 200 floors and doubling `topLevel` to 120 gives 119/199 = 0.5980 against the shipped
+    59/99 = 0.5960 — **ten of the seven hundred shipped floors move, each by one level**, and the
+    retune the roadmap budgeted for does not exist. The prescribed 140 would have put 46 of those 700
+    floors under the 90% bar and taken six of seven roofs from 100% to 0%. Check the roof is a fight
+    second; do not start from the roof.
   - ⚠️ **A floor's level is derived, never authored.** `data/` authors who stands on each floor;
     `floorLevel` draws the straight line from `baseLevel` to `topLevel`. Typing a hundred levels
     that must follow a formula is the retyping [testing](../../docs/testing.md) forbids.
@@ -554,27 +753,237 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](../../src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    Fifty-eight ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
-    and Demons to ten, because a chapter leaning on a faction needs depth in it. The old note here
-    recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign closed that,
-    and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is bounded by the
-    ones the campaign already fields** rather than by an opinion — the Unmade is the ceiling and
-    nothing may reach it, asserted in `enemies.spec.ts`, because a third and fourth heavy anchor is
-    what makes six towers fail their sweep at once. **Both chapter bosses since respect that ceiling
-    rather than raising it**: the Chainsworn and the Hollow Seraph are each authored under the Unmade
-    on both stats, and what makes them the harder fights is the questions they ask and the level they
-    are fielded at.
+    A hundred and thirty ship, and the distribution is deliberately uneven: milestone 18 took Angels to
+    eleven and Demons to twelve, milestone 21a took Undead from seven to **seventeen**, 21b took Elves
+    the same way, 21c took Dwarves from eight to **eighteen** and 21d took Monsters the same way,
+    because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixed each of its four
+    chapters' leans up front** — undead, elf, dwarf, monster, the four thinnest — so the four sessions
+    touched non-overlapping slices of `enemies.ts` and the depth table evened out rather than
+    deepening what was already deep. **All four have landed**, and **milestone 21f then closed the
+    gap they left**: Human was the thinnest faction in the game at nine and the Dwarf Tower's second
+    hundred took it to **thirteen**, so no faction is now a standout candidate to lean on; 21g took
+    Dwarves 18 → **twenty-two** and 21h took Elves 17 → **twenty-one**. ⚠️ **A
+    tower session deepens a faction exactly as a chapter session does, four blocks against ten** —
+    that is the other half of the "fix the leans up front" discipline and it held through 21k;
+    21i took the four thinnest a block each, 21j took Demons 13 → **seventeen**, and 21k took Angels
+    12 → **sixteen**. ⚠️ **A count quoted in the roadmap ahead of time goes stale the moment a session
+    spends a block outside its own lean** — 21i's spread block took Demons to 13, so 21j's four landed
+    on 17 against a roadmap that said 16, and 21k landed on 16 against a roadmap that said 15. The
+    rule did not move; the count it was quoted against did. **Recompute the depth table rather than
+    reading it.** The seven now run **human 14, angel 16, demon 17, monster 19, undead 21, elf 21,
+    dwarf 22**, and Humans are the thinnest.
+    - ⚠️ **A tower with no lean spreads its four blocks the way it spreads its boards, and 21i is the
+      case.** The Monster Tower took one block each in the four thinnest factions — angel 11 → 12,
+      demon 12 → 13, human 13 → 14, monster 18 → 19 — rather than four into one. Deepening the
+      thinnest is not decoration there: 21j took Demons to 17 and 21k Angels to 16, and **neither
+      touched Humans**, so without that session Human would have closed milestone 21 as the standout
+      thin faction at 13 against Dwarf's 22 — the state 21f exists to have got the game out of.
+      **Check what the remaining sessions already cover before choosing which faction to deepen.**
+      The old
+      note here recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign
+      closed that, and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is
+      bounded by the ones the campaign already fields** rather than by an opinion — the Unmade is the
+      ceiling and nothing may reach it, asserted in `enemies.spec.ts`, because a third and fourth heavy
+      anchor is what makes six towers fail their sweep at once. **Every chapter boss since respects that
+      ceiling rather than raising it**: the Chainsworn, the Hollow Seraph, The Cairn King, The Withered
+      Crown, The Anvil Crowned and The Everwound are each authored under the Unmade on both stats, and
+      what makes them the harder fights is the questions they ask and the level they are fielded at.
+  - ⚠️ **A faction's own idiom can be what makes it hardest to author, and Dwarves are the case.**
+    They own the tankiest blocks in the game, so a chapter leaning on them is the one most able to
+    run the ninety-second clock out — against a timer whose headroom over the longest tuned fight is
+    1.44×. The Hollow Anvil's ten blocks are sized against that rather than against the fiction:
+    commons at or below the weald's bulk, single-digit resists where another faction would carry a
+    fifth, three of the ten carrying real `haste`, and no board fielding two of the Colossus, the
+    Cairn Sentinel and the Iron Bulwark at once. **What makes a Dwarven chapter hard is refusal, not
+    health.**
+    - **Monsters are the opposite case and needed the opposite discipline.** The faction's idiom is
+      raw `atk`, thin armour and `lifeLeech` in place of a healer (milestone 8e), so The Bleeding
+      Wild's boards resolve fast — its longest fight is 15.5 seconds — and the risk moves from the
+      clock to a **closed loop**. ⚠️ **The two rules that fence it**: leech never stands on a board
+      with a taunt, because sustain the party cannot aim at is the timeout again; and leech never
+      shares a block with `BLOODRISEN`, because a body that hits harder for being hurt and heals from
+      hitting feeds itself. Read a faction's idiom for the failure it makes easy before authoring
+      against it.
+    - ⚠️ **The first of those two is a rule about that chapter's boards, not a rule about the
+      game — the clause that binds everywhere is "no _healer_ behind a taunt".** Measured across the
+      shipped content in 21g: taunt-plus-`lifeLeech` appears on **36 tower boards and 21 campaign
+      stages**, and taunt-plus-healer appears on **zero** tower boards. A leech pool is bounded by
+      what its holder can land; a heal refills the board, which is the timeout. Audit for the healer
+      case mechanically and treat leech as ordinary, except where a faction's own idiom makes a
+      closed loop reachable.
+  - **A chapter also owes a _lieutenant_ since milestone 21**: one heavy block anchoring all four of
+    its mini-boss boards (s10, s20, s30, s40) at rising levels, so a chapter has a recurring
+    antagonist rather than four one-shot stat blocks. ⚠️ **Deliberately not four unique bodies** —
+    twenty blocks each appearing on exactly one board is most of what the orphan rule in
+    `enemies.spec.ts` exists to discourage. The Gravewright is the first, then the Longshadow, the
+    Grudgekeeper and the Redmaw. ⚠️ **A lieutenant's signature does not have to be an opening turn,
+    and the last two are reactive.** The first two open with a board-wide status at priority 5, which
+    sets their board up on tick one and then stops; the Grudgekeeper cannot, because its chapter's
+    first band is a stat block, and the Redmaw cannot, because a chapter about what the party's
+    damage _does_ has nothing to say before the party has dealt any. Both carry a **conditioned**
+    skill instead, and that is the better shape — it answers what the party is doing, so four
+    appearances are four different fights against one block.
   - ⚠️ **An archetype must be fielded somewhere, and "somewhere" is every ladder rather than the
     campaign.** That rule lived in `chapters.spec.ts` while the campaign was the only content;
     eighteen tower-only blocks would have failed it as orphans, so it moved whole to
     `data/enemies.spec.ts`, which is the only spec that sees both. It was **widened, not relaxed**:
     an archetype nobody ever meets is still a stat block with a comment attached.
-  - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear, clearing
-    every floor** — and ⚠️ **the level is derived from `topLevel`, not chosen**: `rare-plus`'s cap is
-    exactly 60, so the party tracks the content. What ramps across the climb is **what a floor
-    costs**, not whether it is possible: the crew clears all hundred, loses nobody below floor 80,
-    and finishes the roof in twenty-four seconds with two of the five dead. A floor the crew cannot
-    pass stops the tower outright, because a floor is climbed once and there is no way around one.
+  - **The balance target is two crews, one per band, and both levels derived rather than chosen.**
+    Band 1 is five of the tower's faction at `rare-plus`, level 60, over floors 1–100 — the cap that
+    **equals** the halfway floor's level. Band 2 is the same five at `elite`, level 100, over floors
+    101–200 — the highest cap strictly **below** the roof. No gear on either. ⚠️ **A single upgraded
+    crew would stop the sweep saying anything about the low band**, on seven hundred floors that are
+    already shipped. What ramps across a climb is **what a floor costs**, not whether it is possible:
+    the crew clears everything, loses nobody below floor 185, and takes the roof in twenty seconds
+    with 3.4 of five alive. A floor the crew cannot pass stops the tower outright, because a floor is
+    climbed once and there is no way around one.
+  - ⚠️ **In band 2 the two arrangements come apart, and _which_ of them binds is a per-tower and
+    even a per-board answer.** With both crews at parity with the content this never arose. On the
+    Human and Elf Towers the **alternate** five is the whole constraint — the pairs measure twelve
+    and **nine** levels apart, the Elf roof board reads 100% for the alternate at level 118, 83% at
+    120 and 2% at 126 while the reference five is still at 100% at 126, and every board that costs
+    the reference crew a second member takes the alternate below its own 75% bar. ⚠️ **21h found the
+    Undead pair swapping places by mechanic**: in band 1 the alternate is far the stronger (floor 100
+    costs it 1.6 of five against the reference crew's 3.0), and on a `dodge` board at the roof's
+    level it is far the weaker (65% against 95%), because that arrangement's kit is three
+    single-target drains. **Check both arrangements on every candidate board** rather than picking
+    one to size against; "size it against the alternate first" is true of two towers and not a rule.
+  - ⚠️ **How a second hundred escalates is a per-tower answer and seven towers gave seven
+    answers. Read the crew's failure mode before choosing; do not copy the last session's shape.**
+    The Human Tower thins its anchors and thickens the board's **support** (links, shields, a taunt),
+    which is the inverse of the shipped hundred's climax. The Dwarf Tower cannot: a Dwarf five
+    out-lasts bulk and loses to the ninety-second clock, so it escalates in **front** and forbids
+    sustain above floor 180. The Elf Tower can afford either — it takes the heaviest authorable board
+    in eleven seconds against a ninety-second timer — but neither _threatens_ it: a shield support in
+    the back rank leaves the weaker arrangement at 100% with 4.25 alive, while two anchors take it to
+    43%. It escalates through a **wall that hides a burster**, because what an Elf five is short of is
+    health rather than time. ⚠️ **The Undead Tower's answer is the first that is structural rather
+    than a matter of weight**: at the roof's level, controlled at one anchor plus two legendaries and
+    two commons, `dodge` reads 95%/**65%** where burst reads 100%/95%, a healer 98%/90%, and slow,
+    link and reach all 100%/100% — the only shape that fails a bar. **No Undead character carries a
+    point of `accuracy`** (it is on four Elves and one Human, and in no gear archetype or signature
+    item), and every Undead body sustains on `drain` and `lifeLeech`, so a miss costs the hit _and_
+    the health it would have returned. Measure the candidate shapes against both of that tower's own
+    crews before authoring a floor.
+    - ⚠️ **The Monster Tower's answer is the first that is a _count_ rather than a shape**, and it is
+      the fifth in five sessions. Controlled at one anchor, one legendary and three commons at the
+      roof's level, mean survivors of five: nothing 4.35/4.00, one lock repeated four times
+      4.13/3.92, three questions 4.00/2.70, **five questions 3.58/0.85**. Repeating a lock is worth
+      almost nothing and the count is worth everything — a Monster five answers any single question
+      by out-damaging it and has no second answer to spend on two more — so the bands escalate two →
+      three → four → five distinct questions. **Monsters are the only faction in the game with no
+      heal, no regeneration and no shield**; sustain is `drain` and `lifeLeech` alone, and no
+      character carries `tenacity`, `accuracy` or `dodge`.
+    - ⚠️ **A link is a defence against focus fire, so it makes a board _easier_ against a crew that
+      spreads.** On a five-question board `rootbound` took the weaker Monster arrangement from 2.42
+      survivors to **3.33** and a cast `chainbond` to **3.85** — four of that crew's eight bodies open
+      with a row attack and three of its four drains name `enemy-lowest`. No board above floor 100 of
+      that tower carries one. **Check what a crew's kit actually does before reaching for a link.**
+    - ⚠️ **A lock being unanswerable is not the same as it being this tower's.** No Monster character
+      carries `accuracy` either, so `dodge` reads 100%/50% there — the same structural gap 21h built a
+      whole second hundred on. It was left on the shelf: **two towers with one lock is one tower
+      shipped twice.**
+    - ⚠️ **The Angel Tower's answer is the sixth, and it is the first where the honest finding was
+      that _no mechanic is available at all_.** Twenty-two shapes were measured against both Angel
+      arrangements at the roof's level, controlled at one anchor plus four bodies all asking the same
+      question — taunt, thorns, link, bomb, `SAVAGED`, `BLOODRISEN`, `dodge` 0.30, `tenacity` 0.60, a
+      board stun, a board slow, a shield, `magicResist` 0.40, a healer, hex volume — and the **whole
+      spread was 0.15 survivors of five**, every row between 3.92 and 4.00. An Angel five is
+      `GUARD`, `BARRIER`, `AEGIS`, two or three heals and a cleanse, and the first question is free.
+      ⚠️ **21i's count of distinct questions does not transfer for exactly that reason**: it works
+      because a Monster five answers any _one_ question by out-damaging it and has no second answer,
+      and here the first one costs nothing either.
+      - **What moves them is tempo and aim.** Naming `enemy-lowest` takes the alternate 4.00 →
+        **2.00**; `haste` 140 on a thin body takes it to **0.15**; reaching `enemy-back` 3.10;
+        naming `enemy-highest` reads **4.50 / 4.33**, i.e. _easier_, because that is where the two
+        tanks stand. Every Angel heal names `ally-lowest` and every Angel shield is behind a
+        cooldown or an energy bar, so a board that arrives before the ward and spends itself on the
+        body the choir has just committed to is racing the crew's own cooldowns. ⚠️ **`haste` on a
+        _durable_ body is worth almost nothing** (4.00 → 3.75 at 160) — it is `haste` on a **thin**
+        one that is the strongest dial there is, so softness is the mechanic's price rather than a
+        discount on it.
+      - ⚠️ **Both dials at once is past the edge**: fast _and_ naming the lowest reads 0.00 / 0.00.
+        Aim and speed arrive one band apart for that reason, and the closing band carries no more
+        than two bodies above `haste` 126.
+      - ⚠️ **This is the first tower whose two arrangements fail on _opposite axes_**, which is a
+        different thing from 21h's pair swapping by mechanic. **Weight breaks the reference five** —
+        any two of the Unmade, the Ashfall Sovereign and the Hollow Seraph on one board reads 5% or
+        below for it against 15–65% for the alternate — and **length breaks the alternate**, whose
+        five characters field _four_ damage skills between them at `elite` and which is the slowest
+        party in the game. So neither crew is "the" constraint and the roof has to thread both bars;
+        decide that before authoring rather than discovering it in the sweep.
+      - ⚠️ **Denial is a cost on that tower rather than an escalation.** A healer, slow, shield or
+        resist wall leaves both crews at 4.00 survivors and buys only seconds — four healers take the
+        alternate 26.0s → 37.8s against a 67.5s cleared-fight bar. Its bands therefore forbid a heal,
+        a regeneration, a drain **and** `lifeLeech` above floor 160, which is what pushed the Headsman
+        (`lifeLeech` 0.2) out of the last two bands. **A faction that cannot burst turns every second
+        of enemy sustain into the clock**, which is 21f's rule biting harder than on the crew it was
+        written for.
+    - ⚠️ **The Demon Tower's answer is the seventh and the last, and it is about _scope_ rather than
+      about a mechanic.** Controlled at one anchor plus four bodies all asking the same question at
+      the roof's level, forty seeds, against a 4.13 / 4.05 control: stun, slow, weaken, sunder,
+      poison, `SAVAGED` and `HEXBRAND` aimed at **one body** read 4.17–4.38 / 4.05–4.17 — seven
+      mechanics, every one of them leaving the board _easier_ than saying nothing — and a taunt reads
+      **4.78 / 4.85**, easier still. The same statuses riding a **board-wide** turn read 4.03 / 2.88
+      (slow) and **3.95 / 1.85** (stun) against 4.53 / 3.88 for the wide damage alone. The reference
+      five carries 9,416 to 12,822 hp a body at `elite`, so a question put to one of them is a turn
+      the other four do not have to answer. Its bands escalate one voice → a voice with a rider → the
+      rider becoming the turn → two voices → three.
+      - ⚠️ **The status must ride the attack rather than cost a turn** — the same statuses on a skill
+        of their own are the first table. And ⚠️ **this is a fact about these two crews, not a
+        structural gap only Demons have**: the identical board reads 2.40 / 0.60 against the Elf
+        crews and 0.88 / 0.00 against the Monster crews. The control that makes it this tower's is the
+        Angel five, where it reads 4.00 / 3.95.
+      - ⚠️ **Weight is not available there at all.** The Unison beside a Hierophant reads 95% / 3.17
+        for the reference five and **5%** for the alternate; beside a Colossus 70% / 0%. No board in
+        that hundred carries two `ascended` blocks.
+      - ⚠️ **The magic ward was the obvious axis and it was declined on size, which is worth
+        remembering because someone will find it again.** Demons are the only faction with **zero
+        physical damage skills** (19 magical / 0 physical; Undead are next at 14 / 6) and no stat
+        counters `magicResist` — at 0.60 a wall reads 3.21 / 1.46 there while leaving five of the
+        seven crews within 0.25. But the highest `magicResist` on any shipped block was **0.14**, and
+        at 0.15 the same wall is worth 0.00 / 0.54. **Check a stat's shipped register before building
+        a band on it.**
+    - ⚠️ **A mistyped optional stat is silent in both directions, and 21j found three shipped by
+      21i.** `magicalPierce` on two blocks and `magicalResist` on one — the fields are `magicPierce`
+      and `magicResist` — so all three did nothing and no test noticed: `data/` asserts conformance
+      by assigning `ENEMIES` to a typed local, and an object already frozen with `as const` is not a
+      fresh literal, so TypeScript's excess-property check never runs on it. They were **deleted**
+      rather than corrected, because deleting is the zero-behaviour-change fix and keeps every figure
+      the earlier session recorded valid. **Audit the keys with a script over `StatBlockData`
+      whenever a session authors stat blocks**; the typed local does not cover this.
+    - ⚠️ **A taunt on a soft body is a gift, not a door — the mechanic's price is its carrier's
+      health.** 21i authored a common taunt on the argument that a taunt narrows the pool before the
+      row rule is consulted, and measured it taking the reference five from 4.42 survivors to
+      **4.70**. A body the party kills in a turn is a **cheap target volunteered**, and a
+      multi-target selection ignores a taunt entirely. Every taunt in the game is a legendary
+      carrying 1020 to 1180 hp, and that is why.
+    - ⚠️ **`def` is not a lever at these levels, and a shield does not deny a drain.** 21i measured an
+      "armoured runt" — a small HP pool behind a huge `def`, to magnetise the three `enemy-lowest`
+      drains onto a body returning nothing — at hp 300 / def 70 and it read **identical to a plain
+      common**; two of them made the board easier. Damage is `atk² / (atk + def)`, so at a roof's
+      level the crew's `atk` swamps anything authorable. And `simulate.ts` takes leech off damage
+      **dealt, shield included** — only thorns is measured against what reached HP.
+  - ⚠️ **A lock the crew cannot buy an answer to is licensed by _where it is put_, not by its size.**
+    Evasion pools go on soft bodies — the Sunmote Dancer is 500 hp at `dodge: 0.3` — so reach and
+    focus fire are the answer, which is the case 21g made for the Plumbline Hand's `accuracy` in the
+    mirror direction. The heaviest body on that tower carries **less** evasion than the legendaries
+    around it. And `dodge` is a chance floored by `MIN_HIT_CHANCE`, unlike `tenacity`, which refuses a
+    debuff outright: it costs turns and never closes a door.
+  - ⚠️ **The bottom of a band 2 is not a fight, but how little composition buys there is a fact
+    about the _crew_ rather than about the band split.** Band 2's crew stands at level 100 while the
+    band opens at **61** — a 39-level deficit worth ×2.24 of party power — so the level line has not
+    caught up and the escalation belongs in the last thirty floors either way. But the size of the
+    effect does not transfer: at the Elf Tower's floor 101 the lightest authorable board resolves in
+    2.6 seconds and the heaviest in **2.9**, three tenths of a second across the whole range, and
+    against the Undead pair the same measurement reads **2.7s and 8.4s** — a threefold span. 21g
+    concluded "composition buys nothing down here" from an Elf five, which is the fastest party in the
+    game; **measure it on the tower's own crew before deciding how much the opening bands may carry.**
+    Author them for rhythm regardless.
+  - ⚠️ **Check which floors the stride samples before authoring the final band.**
+    `towers.balance.ts` reads every fourth floor plus the roof, so heavy boards authored onto odd
+    floors are invisible to the spine — 21g's first draft climbed through twenty floors of the boards
+    that were not the point. Same trap `chapters.balance.ts` records for band openers.
   - **Home draws a row per tower and it has three states**, only one of which is a link:
     `climbing` goes to `/prepare/:id`, and `locked` and `topped` are inert rows that say why. ⚠️ The
     locked row is where 15a's "nothing empty ships for the towers" rule is deliberately spent — it
@@ -639,7 +1048,14 @@ the two disagree, the code is right and both are stale.
     measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
     the one thing still linear, and it is linear in the **clear count** rather than the index.
     - **A tower's crystals are the same shape at a smaller size**: 100 a floor (×2 mini-boss, ×5
-      roof), 500 per five floors, 10,000 for topping it. ⚠️ **The per-floor figure is deliberately
+      roof), 500 per five floors, 10,000 **per hundred floors**. ⚠️ **`Spire Conqueror` stayed
+      `every: 100` when the towers doubled in 21e, so a two-hundred-floor tower earns it twice.**
+      Re-authoring it as `every: 200` to keep "topping a tower" one event strips 70,000 crystals from
+      the tower side and drops this ratio under its own floor — breaking the guard milestone 21
+      exists to fix. The tie with a chapter always rested on "a hundred floors and a fifty-stage
+      chapter are comparable events", so it is **stated per unit** and the number did not move. No
+      save migration: awards-taken is an integer, and a player who topped the old hundred has taken 1
+      and earned 1. ⚠️ **The per-floor figure is deliberately
       _not_ the campaign's 250** — at parity the seven towers pay ~268,000 against the campaign's
       ~69,000, which is 3.9× and makes the ladder's own rewards look pointless beside optional
       content. At 100 it is ~219,000. `data/towers.spec.ts` measures that ratio and bounds it, and
@@ -648,13 +1064,39 @@ the two disagree, the code is right and both are stale.
       than it is. Since 15c it **sums the towers that actually ship** rather than multiplying one
       tower by `FACTIONS.length`, which measured a projection while six of them were unwritten.
     - ⚠️ **Only the ceiling on that ratio is stable; the floor falls as content ships, by
-      construction.** Towers are fixed at seven hundred floors while the campaign grows, so it read
+      construction.** The towers were fixed at seven hundred floors while the campaign grew, so it read
       3.17 at two fifty-stage chapters, 2.12 at three, **1.59** at four — and the six-chapter
       re-cut then moved it to ~1.37 without adding a stage, because two more chapter boundaries pay
       two more Chapter Conqueror awards. The floor moved 2 → 1.5 in milestone 18 and 1.5 → **1.3**
-      in milestone 19; it buys the re-cut and nothing more, and fires again at chapter 7. **The
-      real answer when it next fires is to grow the towers**, and that is milestone-sized work.
-    - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
+      in milestone 19; it bought the re-cut and nothing more, and chapter 7 fired it exactly as
+      predicted, at **1.13**, chapter 8 took it to **0.96**, chapter 9 to **0.83** and chapter 10 to
+      **0.74** — the last two landing on the figures 21b projected for them, to two decimal places.
+      ⚠️ **21e is the first session since this guard was written where it went _up_**: the Human
+      Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**;
+      21f's Dwarf Tower took it to **0.940**, 21g's Elf Tower to **1.045** — the first reading back
+      over parity with the campaign since chapter 8 — 21h's Undead Tower to **1.150** and 21i's
+      Monster Tower to **1.255**, 21j's Angel Tower to **1.361** and 21k's Demon Tower to **1.466**.
+      ⚠️ **The step is exactly 31,300 crystals — one tower's second hundred — so it is exactly
+      +0.1052 every time by construction**, which is why it read the same seven times running. Do not
+      verify it by subtracting the rounded ratios; 1.255 → 1.361 looks like +0.106.
+    - **The floor is back at 1.3, which is where it stood before milestone 21 rather than a new bar.**
+      Milestone 21 _was_ the "grow the towers" answer and it landed in eleven sessions: 21a–21d took
+      the campaign to 297,500 while the tower side stayed at the shipped 219,100, and 21e–21k doubled
+      every tower to **436,100** — the first time since this guard was written that both sides moved.
+      ⚠️ **The floor was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
+      landings (0.96, 0.83, 0.74) were all known in advance, so re-deriving a quantity that is
+      _supposed_ to fall three times over would be three edits that measure nothing. That is the same
+      call 21a made on the level ceiling's ratio and the **opposite** of the one 21b made on
+      `gradeSoftness`; the distinction is whether the quantity is meant to move. The acknowledged
+      price was that it watched nothing from 21b until 21k restored it.
+    - ⚠️ **1.3 rather than 1.4, and the reason is the next chapter rather than the measured 1.466.**
+      This ratio falls again as soon as the campaign grows: an eleventh fifty-stage chapter takes it
+      to **1.314** and a twelfth to **1.190**, so 1.3 survives chapter 11 and fires at chapter 12
+      where 1.4 would have fired on the very next chapter shipped. **A failure there is the original
+      question rather than a number to slide** — the towers are no longer fixed while the campaign
+      grows, so the honest answers are a third hundred, an eighth ladder, or accepting that the
+      campaign has outgrown its optional content.
+    - **A hundred floors pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
       payout" claim to the ladder, and `towers.spec.ts` holds the tie.
   - ⚠️ **`perClearPerHour` is 1 and it stays 1. The ceiling that kept catching it was the thing that
@@ -670,8 +1112,9 @@ the two disagree, the code is right and both are stale.
       stage you have ever cleared" survives as the legible sentence it was chosen to be.
     - **The ceiling is stated against the roster now, not the ladder**: a full clear must not buy the
       roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 5,038 today — in under
-      thirty days. It is 70 days over the shipped two hundred stages, and milestone 20 is the first
-      time the **roster** side moved it (+551 copies, 62 → 70 days: further from the floor). ⚠️ **It tracks both sides**, so a roster that grows
+      thirty days. It is **~41 days** over the shipped four hundred stages — 47 at chapter 9, 52 at 8,
+      60 at 7 and 70 before that, and milestone 20 was the first time the **roster** side moved it
+      (+551 copies, 62 → 70 days). ⚠️ **It tracks both sides**, so a roster that grows
       raises it exactly as a ladder that grows lowers it, and it first fires around chapter twelve —
       at which point the question is whether the roster kept up, not what number makes it green.
     - **The floors were kept and did not move**: the climb must still be worth more than the base
@@ -682,14 +1125,42 @@ the two disagree, the code is right and both are stale.
     stage and a flat 1,000 per five clears, so the total is linear in the length by construction
     and a fixed band on it is a **cap on how much content may ship**. Per stage it was 6.9 across
     the four fifty-stage chapters, unchanged from three; the re-cut moved it to ~8.0 by adding two
-    chapter boundaries without touching a stage, which milestone 19 records as a decision.
-  - ⚠️ **The level ceiling is guarded by ratios now, not by hours.** "Level 1000 costs more than 500
-    hours of top-of-ladder income" was retired rather than moved a third time: income at the top
-    rises with every chapter **by design**, so that figure falls forever (1,175 → 588 → 372) and
-    would reach a weekend around chapter twelve with nothing wrong. Three assertions replaced it —
-    the ceiling against what the ladder asks for, rungs left unspent above that demand, and the
-    demand itself costing between an hour and a day. **Before retuning content to satisfy a failing
-    threshold, check whether the quantity it measures is one the roadmap requires to move.**
+    chapter boundaries without touching a stage, which milestone 19 records as a decision; each
+    fifty-stage chapter since dilutes it slightly (7.76 at chapter 7, 7.62 at 8, 7.51 at 9,
+    **7.44** at 10).
+  - ⚠️ **The level ceiling is guarded by _rungs_ now, and both hour-based guards have been retired.**
+    "Level 1000 costs more than 500 hours of top-of-ladder income" went first: income at the top rises
+    with every chapter **by design**, so that figure falls forever (1,175 → 588 → 372) and would reach
+    a weekend around chapter twelve with nothing wrong. Three assertions replaced it — the ceiling
+    against what the ladder asks for, rungs left unspent above that demand, and the demand itself
+    costing between an hour and a day. **Before retuning content to satisfy a failing threshold, check
+    whether the quantity it measures is one the roadmap requires to move.**
+    - **The first of the three was _meant_ to fall, milestone 21a cut it four chapters' worth at once,
+      and 21d retired it**: 37.1 at chapter 6, 17.8 at 7, 9.4 at 8, 5.6 at 9 and **3.62** at 10,
+      against a floor that had already moved 25 → 4. ⚠️ **A ratio one derivative out from a quantity
+      that must fall is still a quantity that must fall** — that is the whole lesson, and it took two
+      retirements to learn. Its own comment prescribed asking, when it fired, "whether the ladder has
+      come far enough to have earned the distance it has closed"; that is not a question a threshold
+      can answer, so what remains is the structural claim alone. **Income cancels out of this ratio**,
+      so raising the reward exponent in 21b did not move it, which is why moving the exponent could
+      not have saved it either.
+    - ⚠️ **The third of the three fired at chapter 8 and was answered by moving the income
+      exponent, not the threshold.** `1h < hoursTo(top stage) < 24h` read 10.2 at chapter 6, 21.7 at
+      7 and **41.4** at 8. Level cost grows as `L^2.55` while top-of-ladder income grew as
+      `index^1.13`, so the quantity was decaying by construction — but the guard carries a real
+      design claim ("a day of income is the wall rather than the content") and 21b treated an
+      overshoot of that size as evidence about the cadence rather than as a number to slide.
+      - **Three alternatives were measured and all three fail.** Flattening the essence curve is
+        arithmetically insufficient (below an essence exponent of 2.0 the binding currency becomes
+        **xp**, which alone reads 27.8h at chapter 9); scaling `baseRates` buys about one chapter per
+        doubling, because the divergence is between two exponents; and ⚠️ **there is no level at
+        which a chapter satisfies both the margin rule and the guard** — 24 hours landed at level
+        ~330 against `mythic`'s cap of 340, so chapter 8 would have had to close _below_ the cap of
+        the rung it asks for, which is the walkover 21a measured.
+      - The exponent went **1.13 → 1.45** and it reads 6.7 at chapter 8, 11.2 at 9 and **16.1** at 10. See the economy section above for why that is a derivation rather than a fudge. ⚠️ **This
+        is the only one of the three still watching anything**, it climbs about +4.7 a chapter, and a
+        third of 1.45's headroom is left — so **chapter 11 is where income is the question again**,
+        and this time there is no retired guard to fall back on.
   - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
     consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
     targets rather than restating it.

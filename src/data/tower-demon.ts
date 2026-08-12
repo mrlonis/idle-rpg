@@ -1,36 +1,53 @@
 import {
   ACOLYTE,
+  ANTIPHON_ARCHON,
   ASHEN_CHOIR,
   BANDIT,
   BARROW_SOVEREIGN,
+  BLOODGORGE_HOUND,
   BOAR,
   CINDERLING,
+  COLDHEARTH_IRONSWORN,
   COLOSSUS,
+  CONCORD_CANTOR,
   DEEPROCK_MINER,
   FREE_BLADE,
   GILDED_SENTRY,
   GLADE_STALKER,
   GOLEM,
+  GRAVETIDE_HERALD,
   HEADSMAN,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
+  HOLLOW_SERAPH,
+  KNELL_CHANTER,
+  LITANY_BEARER,
   LUMEN_ACOLYTE,
   MOONSONG_WEAVER,
+  NIGHTMARCH_OUTRIDER,
+  OATHSHIELD_VANGUARD,
   RADIANT_HERALD,
   REVENANT,
   RIMEPLATE,
+  RIVEN_MARCHWARDEN,
+  SEALWARD_CUSTODIAN,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
+  STILLNESS_CANTOR,
   STORMCALLER,
+  THE_UNISON,
   UNMADE,
+  VAULTLIGHT_CENSER,
+  WEALDSHADOW_STALKER,
   WISP,
   WRATHBORN,
   WYRDROOT_ANCIENT,
+  ZENITH_CHORISTER,
 } from './enemies';
 
 /**
- * The Demon Tower — a hundred floors, enemy levels 1 to 60.
+ * The Demon Tower — two hundred floors, enemy levels 1 to 120.
  *
  * ## Why the enemies are mostly Angels
  *
@@ -46,10 +63,57 @@ import {
  *
  * Demons are the glassiest faction in the game — four of the seven are mages, the five a player
  * fields has no real front rank, and the faction's own lineup track opens on `def` precisely
- * because that is the stat it is worst at. So the currency this tower charges in is **incoming
- * damage that does not care what it hits**: a Pillar of Light through the back rank, an Ashen
- * Choir putting a refreshed absorb on the fodder, and a Hierophant at the top that heals and
+ * because that is the stat it is worst at. So the currency the shipped hundred charges in is
+ * **incoming damage that does not care what it hits**: a Pillar of Light through the back rank, an
+ * Ashen Choir putting a refreshed absorb on the fodder, and a Hierophant at the top that heals and
  * shields from the same turn economy.
+ *
+ * ## ⚠️ The second hundred: a Demon five is answered board-wide or it is not answered at all
+ *
+ * The seventh and last tower session, and the seventh different answer to "how does a tower
+ * escalate". Measured against both arrangements at the roof's level before a floor was authored, on
+ * a controlled board of one anchor plus four bodies all asking the same question, forty seeds — mean
+ * survivors of five, reference / alternate, against a **4.13 / 4.05** control:
+ *
+ * | one body at a time                                              | ref       | alt       |
+ * | --------------------------------------------------------------- | --------- | --------- |
+ * | stun · slow · weaken · sunder · poison · `SAVAGED` · `HEXBRAND` | 4.17–4.38 | 4.05–4.17 |
+ * | a taunt                                                         | **4.78**  | **4.85**  |
+ *
+ * | the same turn, aimed at all five | ref      | alt      |
+ * | -------------------------------- | -------- | -------- |
+ * | wide damage alone                | 4.53     | 3.88     |
+ * | wide damage + a slow             | 4.03     | **2.88** |
+ * | wide damage + a stun             | **3.95** | **1.85** |
+ *
+ * **Seven mechanics one body at a time, and every one of them leaves the board easier than saying
+ * nothing**; a taunt is measurably worse still. The reference five carries 9,416 to 12,822 hp a body
+ * at `elite`, so a question put to one of them is a turn the other four do not have to answer. So
+ * the bands escalate in the **scope** of what a board does rather than in its size: one voice, then
+ * a voice with a rider, then the rider becoming the turn, then two voices, then three.
+ *
+ * ⚠️ **This is a fact about these two crews and not a structural gap only Demons have.** The same
+ * board reads 2.40 / 0.60 against the Elf crews and 0.88 / 0.00 against the Monster crews, and
+ * **4.00 / 3.95** against the Angel five 21j found nothing moves. What makes it this tower's is
+ * that nothing *else* moves them.
+ *
+ * ⚠️ **Weight is not the axis and cannot be, because a second heavy anchor is past the edge.** At
+ * the roof's level The Unison beside a Hierophant reads 95% / 3.17 for the reference five and
+ * **5%** for the alternate; beside a Colossus 70% / 0%; beside the Hollow Seraph 5% / 0%. No board
+ * in this hundred carries two `ascended` blocks.
+ *
+ * ⚠️ **The licence for an unanswerable lock is placement, exactly as it is for an evasion pool.**
+ * Neither arrangement unlocks a cleanse at `elite` and no Demon carries `tenacity`, so every one of
+ * these lands with certainty. What keeps it a question is that the voices are soft — the Knell
+ * Chanter is 660 hp and the Stillness Cantor 700, against an Angel legendary register running 590 to
+ * 1080 — so the answer is to kill the voice, and a board may only keep asking for as long as it can
+ * keep one standing.
+ *
+ * The roof is The Unison over a Litany Bearer, a Knell Chanter, a Stillness Cantor and a Lumen
+ * Acolyte: **100% / 4.10 survivors / 9.6s** for the reference five and **88% / 1.98 / 17.2s** for
+ * the alternate, against bars of 90% and 75%. Every floor of 181–200 was swept individually; the
+ * worst reference reading is 100% and the worst alternate **78%**, at floor 194. The longest
+ * cleared fight anywhere in the new hundred is 37.5s against a 67.5s bar, and no floor times out.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -376,7 +440,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Watch — Floors 49–68, levels 29–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Long Watch — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f49',
@@ -525,7 +589,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Radiant Vigil — Floors 69–84, levels 41–50 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Radiant Vigil — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f69',
@@ -773,6 +837,802 @@ export const TOWER_DEMON = {
       enemies: {
         front: [HIEROPHANT, COLOSSUS],
         back: [RADIANT_HERALD, SERAPH_ADJUDICANT, ASHEN_CHOIR],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Massed Verse — Floors 101–120, levels 61–72 — the first bodies that speak to all five at once, and nothing rides along with it yet.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f101',
+      name: 'Floor 101',
+      enemies: {
+        front: [ASHEN_CHOIR, REVENANT],
+        back: [LITANY_BEARER, RADIANT_HERALD, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f102',
+      name: 'Floor 102',
+      enemies: {
+        front: [GILDED_SENTRY, WRATHBORN],
+        back: [LITANY_BEARER, SERAPH_ADJUDICANT, BANDIT],
+      },
+    },
+    {
+      id: 't-demon-f103',
+      name: 'Floor 103',
+      enemies: { front: [SENTINEL, ASHEN_CHOIR], back: [LITANY_BEARER, LITANY_BEARER, SHADE] },
+    },
+    {
+      id: 't-demon-f104',
+      name: 'Floor 104',
+      enemies: {
+        front: [HIEROPHANT, RIMEPLATE],
+        back: [LITANY_BEARER, RADIANT_HERALD, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f105',
+      name: 'Floor 105',
+      enemies: {
+        front: [GILDED_SENTRY, GOLEM],
+        back: [LITANY_BEARER, VAULTLIGHT_CENSER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f106',
+      name: 'Floor 106',
+      enemies: { front: [ASHEN_CHOIR, REVENANT], back: [STORMCALLER, LITANY_BEARER, BOAR] },
+    },
+    {
+      id: 't-demon-f107',
+      name: 'Floor 107',
+      enemies: {
+        front: [HEXBOUND_TORMENTOR, GILDED_SENTRY],
+        back: [LITANY_BEARER, RADIANT_HERALD, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f108',
+      name: 'Floor 108',
+      enemies: { front: [HIEROPHANT, SENTINEL], back: [LITANY_BEARER, SERAPH_ADJUDICANT, SHADE] },
+    },
+    {
+      id: 't-demon-f109',
+      name: 'Floor 109',
+      enemies: {
+        front: [ASHEN_CHOIR, WRATHBORN],
+        back: [MOONSONG_WEAVER, LITANY_BEARER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f110',
+      name: 'Floor 110 — The Massed Verse',
+      enemies: {
+        front: [HIEROPHANT, RIMEPLATE],
+        back: [STORMCALLER, LITANY_BEARER, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-demon-f111',
+      name: 'Floor 111',
+      enemies: {
+        front: [GILDED_SENTRY, REVENANT],
+        back: [LITANY_BEARER, SERAPH_ADJUDICANT, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f112',
+      name: 'Floor 112',
+      enemies: { front: [GOLEM, ASHEN_CHOIR], back: [LITANY_BEARER, STORMCALLER, BANDIT] },
+    },
+    {
+      id: 't-demon-f113',
+      name: 'Floor 113',
+      enemies: {
+        front: [GILDED_SENTRY, HEADSMAN],
+        back: [LITANY_BEARER, VAULTLIGHT_CENSER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f114',
+      name: 'Floor 114',
+      enemies: {
+        front: [ASHEN_CHOIR, COLDHEARTH_IRONSWORN],
+        back: [MOONSONG_WEAVER, LITANY_BEARER, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f115',
+      name: 'Floor 115',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, WRATHBORN],
+        back: [LITANY_BEARER, SERAPH_ADJUDICANT, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f116',
+      name: 'Floor 116',
+      enemies: {
+        front: [HIEROPHANT, SENTINEL],
+        back: [LITANY_BEARER, STORMCALLER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-demon-f117',
+      name: 'Floor 117',
+      enemies: {
+        front: [ASHEN_CHOIR, RIMEPLATE],
+        back: [LITANY_BEARER, GRAVETIDE_HERALD, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-demon-f118',
+      name: 'Floor 118',
+      enemies: {
+        front: [GILDED_SENTRY, COLDHEARTH_IRONSWORN],
+        back: [STORMCALLER, LITANY_BEARER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f119',
+      name: 'Floor 119',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, ASHEN_CHOIR],
+        back: [MOONSONG_WEAVER, LITANY_BEARER, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f120',
+      name: 'Floor 120 — The Massed Verse',
+      enemies: {
+        front: [HIEROPHANT, HEADSMAN],
+        back: [LITANY_BEARER, STORMCALLER, GRAVETIDE_HERALD],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Hush — Floors 121–140, levels 73–84 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f121',
+      name: 'Floor 121',
+      enemies: {
+        front: [ASHEN_CHOIR, REVENANT],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f122',
+      name: 'Floor 122',
+      enemies: {
+        front: [CONCORD_CANTOR, SENTINEL],
+        back: [STILLNESS_CANTOR, SERAPH_ADJUDICANT, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f123',
+      name: 'Floor 123',
+      enemies: {
+        front: [GILDED_SENTRY, WEALDSHADOW_STALKER],
+        back: [STILLNESS_CANTOR, VAULTLIGHT_CENSER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f124',
+      name: 'Floor 124',
+      enemies: { front: [HIEROPHANT, GOLEM], back: [STILLNESS_CANTOR, RADIANT_HERALD, BANDIT] },
+    },
+    {
+      id: 't-demon-f125',
+      name: 'Floor 125',
+      enemies: {
+        front: [ASHEN_CHOIR, GRAVETIDE_HERALD],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f126',
+      name: 'Floor 126',
+      enemies: {
+        front: [CONCORD_CANTOR, OATHSHIELD_VANGUARD],
+        back: [STILLNESS_CANTOR, STORMCALLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f127',
+      name: 'Floor 127',
+      enemies: {
+        front: [GILDED_SENTRY, RIMEPLATE],
+        back: [STILLNESS_CANTOR, ZENITH_CHORISTER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f128',
+      name: 'Floor 128',
+      enemies: {
+        front: [HIEROPHANT, HEADSMAN],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f129',
+      name: 'Floor 129',
+      enemies: {
+        front: [ASHEN_CHOIR, COLDHEARTH_IRONSWORN],
+        back: [STILLNESS_CANTOR, MOONSONG_WEAVER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f130',
+      name: 'Floor 130 — The Hush',
+      enemies: {
+        front: [BARROW_SOVEREIGN, ASHEN_CHOIR],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f131',
+      name: 'Floor 131',
+      enemies: {
+        front: [CONCORD_CANTOR, BLOODGORGE_HOUND],
+        back: [STILLNESS_CANTOR, VAULTLIGHT_CENSER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f132',
+      name: 'Floor 132',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, SENTINEL],
+        back: [STILLNESS_CANTOR, SERAPH_ADJUDICANT, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f133',
+      name: 'Floor 133',
+      enemies: {
+        front: [GILDED_SENTRY, WEALDSHADOW_STALKER],
+        back: [STILLNESS_CANTOR, STORMCALLER, BANDIT],
+      },
+    },
+    {
+      id: 't-demon-f134',
+      name: 'Floor 134',
+      enemies: {
+        front: [HIEROPHANT, REVENANT],
+        back: [STILLNESS_CANTOR, ANTIPHON_ARCHON, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f135',
+      name: 'Floor 135',
+      enemies: {
+        front: [CONCORD_CANTOR, NIGHTMARCH_OUTRIDER],
+        back: [STILLNESS_CANTOR, MOONSONG_WEAVER, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f136',
+      name: 'Floor 136',
+      enemies: {
+        front: [ASHEN_CHOIR, OATHSHIELD_VANGUARD],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f137',
+      name: 'Floor 137',
+      enemies: {
+        front: [GILDED_SENTRY, GRAVETIDE_HERALD],
+        back: [STILLNESS_CANTOR, STORMCALLER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f138',
+      name: 'Floor 138',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CONCORD_CANTOR],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f139',
+      name: 'Floor 139',
+      enemies: {
+        front: [ASHEN_CHOIR, RIVEN_MARCHWARDEN],
+        back: [STILLNESS_CANTOR, ANTIPHON_ARCHON, HEADSMAN],
+      },
+    },
+    {
+      id: 't-demon-f140',
+      name: 'Floor 140 — The Hush',
+      enemies: {
+        front: [HIEROPHANT, HEADSMAN],
+        back: [STILLNESS_CANTOR, MOONSONG_WEAVER, SERAPH_ADJUDICANT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Tolling — Floors 141–160, levels 85–96 — the rider becomes the turn itself, on the lightest legendary body this tower fields.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f141',
+      name: 'Floor 141',
+      enemies: {
+        front: [ASHEN_CHOIR, REVENANT],
+        back: [KNELL_CHANTER, LITANY_BEARER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f142',
+      name: 'Floor 142',
+      enemies: {
+        front: [CONCORD_CANTOR, SENTINEL],
+        back: [KNELL_CHANTER, SERAPH_ADJUDICANT, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f143',
+      name: 'Floor 143',
+      enemies: {
+        front: [GILDED_SENTRY, RIMEPLATE],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f144',
+      name: 'Floor 144',
+      enemies: {
+        front: [HIEROPHANT, COLDHEARTH_IRONSWORN],
+        back: [KNELL_CHANTER, LITANY_BEARER, BANDIT],
+      },
+    },
+    {
+      id: 't-demon-f145',
+      name: 'Floor 145',
+      enemies: {
+        front: [ASHEN_CHOIR, OATHSHIELD_VANGUARD],
+        back: [KNELL_CHANTER, VAULTLIGHT_CENSER, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f146',
+      name: 'Floor 146',
+      enemies: {
+        front: [CONCORD_CANTOR, HEADSMAN],
+        back: [KNELL_CHANTER, STORMCALLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f147',
+      name: 'Floor 147',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GOLEM],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f148',
+      name: 'Floor 148',
+      enemies: {
+        front: [BARROW_SOVEREIGN, GILDED_SENTRY],
+        back: [KNELL_CHANTER, RADIANT_HERALD, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f149',
+      name: 'Floor 149',
+      enemies: {
+        front: [ASHEN_CHOIR, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, MOONSONG_WEAVER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f150',
+      name: 'Floor 150 — The Tolling',
+      enemies: {
+        front: [HIEROPHANT, WEALDSHADOW_STALKER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-demon-f151',
+      name: 'Floor 151',
+      enemies: {
+        front: [CONCORD_CANTOR, NIGHTMARCH_OUTRIDER],
+        back: [KNELL_CHANTER, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f152',
+      name: 'Floor 152',
+      enemies: {
+        front: [GILDED_SENTRY, SENTINEL],
+        back: [KNELL_CHANTER, STORMCALLER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f153',
+      name: 'Floor 153',
+      enemies: {
+        front: [ASHEN_CHOIR, GRAVETIDE_HERALD],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-demon-f154',
+      name: 'Floor 154',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CONCORD_CANTOR],
+        back: [KNELL_CHANTER, ANTIPHON_ARCHON, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f155',
+      name: 'Floor 155',
+      enemies: {
+        front: [GILDED_SENTRY, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, MOONSONG_WEAVER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-demon-f156',
+      name: 'Floor 156',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, COLDHEARTH_IRONSWORN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f157',
+      name: 'Floor 157',
+      enemies: {
+        front: [ASHEN_CHOIR, HEADSMAN],
+        back: [KNELL_CHANTER, STORMCALLER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-demon-f158',
+      name: 'Floor 158',
+      enemies: {
+        front: [HIEROPHANT, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-demon-f159',
+      name: 'Floor 159',
+      enemies: {
+        front: [CONCORD_CANTOR, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, LITANY_BEARER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f160',
+      name: 'Floor 160 — The Tolling',
+      enemies: {
+        front: [BARROW_SOVEREIGN, ASHEN_CHOIR],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, NIGHTMARCH_OUTRIDER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Whole Choir — Floors 161–180, levels 97–108 — the slow and the stun on one board, and the first roofs heavy enough to keep both alive.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f161',
+      name: 'Floor 161',
+      enemies: {
+        front: [ASHEN_CHOIR, COLDHEARTH_IRONSWORN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f162',
+      name: 'Floor 162',
+      enemies: {
+        front: [CONCORD_CANTOR, OATHSHIELD_VANGUARD],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f163',
+      name: 'Floor 163',
+      enemies: {
+        front: [HOLLOW_SERAPH, SENTINEL],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f164',
+      name: 'Floor 164',
+      enemies: {
+        front: [GILDED_SENTRY, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, HEADSMAN],
+      },
+    },
+    {
+      id: 't-demon-f165',
+      name: 'Floor 165',
+      enemies: {
+        front: [ASHEN_CHOIR, HEADSMAN],
+        back: [KNELL_CHANTER, MOONSONG_WEAVER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f166',
+      name: 'Floor 166',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f167',
+      name: 'Floor 167',
+      enemies: {
+        front: [HOLLOW_SERAPH, REVENANT],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f168',
+      name: 'Floor 168',
+      enemies: {
+        front: [CONCORD_CANTOR, WEALDSHADOW_STALKER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f169',
+      name: 'Floor 169',
+      enemies: {
+        front: [ASHEN_CHOIR, NIGHTMARCH_OUTRIDER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f170',
+      name: 'Floor 170 — The Whole Choir',
+      enemies: {
+        front: [HOLLOW_SERAPH, GRAVETIDE_HERALD],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SENTINEL],
+      },
+    },
+    {
+      id: 't-demon-f171',
+      name: 'Floor 171',
+      enemies: {
+        front: [GILDED_SENTRY, OATHSHIELD_VANGUARD],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, BANDIT],
+      },
+    },
+    {
+      id: 't-demon-f172',
+      name: 'Floor 172',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CONCORD_CANTOR],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f173',
+      name: 'Floor 173',
+      enemies: {
+        front: [ASHEN_CHOIR, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f174',
+      name: 'Floor 174',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, HEADSMAN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f175',
+      name: 'Floor 175',
+      enemies: {
+        front: [HOLLOW_SERAPH, COLDHEARTH_IRONSWORN],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f176',
+      name: 'Floor 176',
+      enemies: {
+        front: [CONCORD_CANTOR, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f177',
+      name: 'Floor 177',
+      enemies: {
+        front: [BARROW_SOVEREIGN, GILDED_SENTRY],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f178',
+      name: 'Floor 178',
+      enemies: {
+        front: [ASHEN_CHOIR, SENTINEL],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f179',
+      name: 'Floor 179',
+      enemies: {
+        front: [GILDED_SENTRY, WEALDSHADOW_STALKER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f180',
+      name: 'Floor 180 — The Whole Choir',
+      enemies: {
+        front: [HOLLOW_SERAPH, OATHSHIELD_VANGUARD],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, HEADSMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Last Verse — Floors 181–200, levels 109–120 — three voices on one board, and above them the body that is all three by itself.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f181',
+      name: 'Floor 181',
+      enemies: { front: [THE_UNISON, REVENANT], back: [LITANY_BEARER, RADIANT_HERALD, SHADE] },
+    },
+    {
+      id: 't-demon-f182',
+      name: 'Floor 182',
+      enemies: {
+        front: [ASHEN_CHOIR, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, STORMCALLER],
+      },
+    },
+    {
+      id: 't-demon-f183',
+      name: 'Floor 183',
+      enemies: {
+        front: [THE_UNISON, SENTINEL],
+        back: [STILLNESS_CANTOR, ZENITH_CHORISTER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f184',
+      name: 'Floor 184',
+      enemies: {
+        front: [HOLLOW_SERAPH, HEADSMAN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f185',
+      name: 'Floor 185',
+      enemies: {
+        front: [THE_UNISON, COLDHEARTH_IRONSWORN],
+        back: [KNELL_CHANTER, LUMEN_ACOLYTE, BOAR],
+      },
+    },
+    {
+      id: 't-demon-f186',
+      name: 'Floor 186',
+      enemies: {
+        front: [CONCORD_CANTOR, OATHSHIELD_VANGUARD],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f187',
+      name: 'Floor 187',
+      enemies: {
+        front: [THE_UNISON, GRAVETIDE_HERALD],
+        back: [STILLNESS_CANTOR, VAULTLIGHT_CENSER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f188',
+      name: 'Floor 188',
+      enemies: {
+        front: [HOLLOW_SERAPH, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f189',
+      name: 'Floor 189',
+      enemies: {
+        front: [THE_UNISON, GILDED_SENTRY],
+        back: [KNELL_CHANTER, ZENITH_CHORISTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f190',
+      name: 'Floor 190 — The Last Verse',
+      enemies: {
+        front: [THE_UNISON, NIGHTMARCH_OUTRIDER],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f191',
+      name: 'Floor 191',
+      enemies: {
+        front: [ASHEN_CHOIR, WEALDSHADOW_STALKER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-demon-f192',
+      name: 'Floor 192',
+      enemies: { front: [THE_UNISON, REVENANT], back: [KNELL_CHANTER, STILLNESS_CANTOR, BANDIT] },
+    },
+    {
+      id: 't-demon-f193',
+      name: 'Floor 193',
+      enemies: {
+        front: [HOLLOW_SERAPH, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f194',
+      name: 'Floor 194',
+      enemies: {
+        front: [THE_UNISON, SENTINEL],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f195',
+      name: 'Floor 195',
+      enemies: {
+        front: [CONCORD_CANTOR, HEADSMAN],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-demon-f196',
+      name: 'Floor 196',
+      enemies: { front: [THE_UNISON, GOLEM], back: [KNELL_CHANTER, LUMEN_ACOLYTE, GLADE_STALKER] },
+    },
+    {
+      id: 't-demon-f197',
+      name: 'Floor 197',
+      enemies: {
+        front: [HOLLOW_SERAPH, OATHSHIELD_VANGUARD],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-demon-f198',
+      name: 'Floor 198',
+      enemies: {
+        front: [THE_UNISON, DEEPROCK_MINER],
+        back: [STILLNESS_CANTOR, KNELL_CHANTER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-demon-f199',
+      name: 'Floor 199',
+      enemies: {
+        front: [ASHEN_CHOIR, BLOODGORGE_HOUND],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f200',
+      name: 'Floor 200 — The Unison',
+      enemies: {
+        front: [THE_UNISON, LITANY_BEARER],
+        back: [KNELL_CHANTER, STILLNESS_CANTOR, LUMEN_ACOLYTE],
       },
     },
   ],

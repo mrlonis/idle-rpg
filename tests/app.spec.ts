@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { TOWER_HUMAN } from '../src/data';
 import { FIGHT_LINK, startFight } from './flows';
 
 test.describe('App', () => {
@@ -235,10 +236,14 @@ test.describe('App', () => {
 
       await page.getByRole('button', { name: 'Fight', exact: true }).click();
 
-      // The generalised heading: a floor, not a chapter and a stage.
+      // The generalised heading: a floor, not a chapter and a stage. ⚠️ The height is *derived* from
+      // the shipped tower rather than typed: it read "of 100" until milestone 21e doubled every
+      // tower, and a retyped number is a coupling that keeps measuring the old value forever.
       await expect(page.locator('.battle__stage')).toContainText('F1');
       await expect(page.locator('.battle__stage-chapter')).toContainText('Human Tower');
-      await expect(page.locator('.battle__stage-chapter')).toContainText('Floor 1 of 100');
+      await expect(page.locator('.battle__stage-chapter')).toContainText(
+        `Floor 1 of ${TOWER_HUMAN.floors.length}`,
+      );
     });
   });
 

@@ -232,15 +232,49 @@ describe('the enhancement curve', () => {
   });
 
   it('roughly doubles what gold is for, measured against the top of the ladder', () => {
-    // ⚠️ **Derived from `STAGE_REWARDS`, so extending the ladder re-runs it.** Kitting a party of
-    // five in five fully enhanced top-grade pieces should be the same order of magnitude as the
-    // levelling it sits beside — comfortably more than a passing cost, and not so much that gear
-    // becomes the only thing gold is ever spent on.
-    const topOfLadder = STAGE_REWARDS.baseRates.gold * Math.pow(100, STAGE_REWARDS.exponent);
+    // Kitting a party of five in five fully enhanced top-grade pieces should be the same order of
+    // magnitude as the levelling it sits beside — comfortably more than a passing cost, and not so
+    // much that gear becomes the only thing gold is ever spent on.
+    //
+    // ## ⚠️ It said "derived from `STAGE_REWARDS`, so extending the ladder re-runs it" and it was
+    // retyping the ladder's length
+    //
+    // The exponent came from `STAGE_REWARDS`; the **index** it was raised to was the literal `100`,
+    // which is how long the ladder was when this was written. So for four chapters it measured gear
+    // against chapter-4 income and re-ran nothing, which is exactly the failure `docs/testing.md`
+    // names — a coupling turned into a comment. Derived from {@link LADDER_LENGTH} now.
+    //
+    // ⚠️ **Correctly derived, it would have fired at chapter 7**: 22.5 hours at two hundred stages,
+    // 17.4 at two hundred and fifty against a floor of 20. Milestone 21b found it only because
+    // raising the reward exponent pushed it past the floor even with the stale literal in place.
+    //
+    // ## What the quantity does, and why the floor is now 1 rather than 20
+    //
+    // ⚠️ **This falls forever by construction, and it is the same shape as the level ceiling's
+    // hours that `levels.spec.ts` retired.** Gear's gold cost is a **constant** — the top grade
+    // costs what it costs at chapter 1 and at chapter 10 — while top-of-ladder income grows with
+    // every chapter by design. So "hours to kit a party" decays on every chapter forever whatever
+    // anybody authors: 2.3 hours at three hundred stages and about 1.5 at four hundred.
+    //
+    // Unlike the level ceiling there is **no invariant to restate it as**, and that is the finding
+    // rather than a gap in this comment. Measured against levelling instead of against income it
+    // decays faster, not slower, because level cost grows as `L ** 2.55`. What actually closes it is
+    // **gear costs that scale with the content**, which is a retune of `data/gear.ts` on the scale
+    // of a milestone — and milestone 21 says in as many words that a chapter finding it needs one
+    // writes it down rather than taking the scope. It is written down in
+    // [milestones](../../docs/milestones.md).
+    //
+    // The floor is 1 so the guard still catches a gear curve authored at nothing, and it fires again
+    // around chapter twelve. At that point the question is whether gear costs have been made to
+    // scale, not what number goes here.
+    const topOfLadder =
+      STAGE_REWARDS.baseRates.gold * Math.pow(LADDER_LENGTH, STAGE_REWARDS.exponent);
     const partyKit = toCap(TOP_GRADE, goldStep) * GEAR_SLOTS.length * 5;
     const hours = partyKit / topOfLadder / 3600;
 
-    expect(hours).toBeGreaterThan(20);
+    expect(hours, `${hours.toFixed(2)}h to kit a party at the top of the ladder`).toBeGreaterThan(
+      1,
+    );
     expect(hours).toBeLessThan(400);
   });
 

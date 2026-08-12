@@ -10,7 +10,7 @@ import {
   newGame,
   num,
   positionAt,
-  rarityIndex,
+  floorLevel,
   stageIndex,
   startRarityIndex,
 } from '../core';
@@ -22,6 +22,7 @@ import {
   MIRA,
   STARTER_FORMATION,
   TOWER_HUMAN,
+  TOWER_RULES,
   WREN,
   YSOLDE,
 } from '../data';
@@ -815,9 +816,22 @@ describe('BattleService', () => {
      * actually *fall*. The starters at level 1 lose floor 40, which would make "the climb advances"
      * a test of nothing.
      */
+    /**
+     * The rung a crew has to stand on to actually take this tower's roof.
+     *
+     * ⚠️ **Derived from the top floor's level, not written down.** These tests fight real content,
+     * so a fixture party that cannot win turns "the loop ends at the top" into "the loop ends on a
+     * loss" — which still reads as a failing assertion but for the wrong reason. It was `rare-plus`
+     * while the tower stopped at level 60; milestone 21e took the roof to 120 and this followed it
+     * without an edit anywhere else.
+     */
+    const towerRarity = LEVELS.caps.findIndex(
+      (cap) => cap >= floorLevel(TOWER_RULES, TOWER_HUMAN.floors.length),
+    );
+
     function withTowerCrew(state: GameState, floors = 0): GameState {
       const crew = { front: [HALRIC.id, MIRA.id], back: [WREN.id, YSOLDE.id, IVO.id] };
-      const rarity = rarityIndex('rare-plus');
+      const rarity = towerRarity;
       const roster = [HALRIC, MIRA, WREN, YSOLDE, IVO].map((character) => ({
         defId: character.id,
         rarity,
