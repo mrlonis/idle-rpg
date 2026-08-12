@@ -51,7 +51,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21e | Human Tower, floors 101–200             | ✅ **Complete** — 200 floors, 106 archetypes         |
 | 21f | Dwarf Tower, floors 101–200             | ✅ **Complete** — 200 floors, 110 archetypes         |
 | 21g | Elf Tower, floors 101–200               | ✅ **Complete** — 200 floors, 114 archetypes         |
-| 21h | Undead Tower, floors 101–200            | ⬜                                                   |
+| 21h | Undead Tower, floors 101–200            | ✅ **Complete** — 200 floors, 118 archetypes         |
 | 21i | Monster Tower, floors 101–200           | ⬜                                                   |
 | 21j | Angel Tower, floors 101–200             | ⬜                                                   |
 | 21k | Demon Tower, floors 101–200             | ⬜                                                   |
@@ -3010,6 +3010,153 @@ the pre-21g crystal figures, and `towers.spec.ts`'s ratio comment still describe
 "fixed at seven ladders of a hundred floors", which stopped being true at 21e.
 
 All 1,972 unit tests and all 74 balance tests pass, with no new test added and no threshold moved.
+
+### 21h. The Undead Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new Elf archetypes and three new skills. Elves go 17 → **21** and the
+enemy roster goes 114 → **118**. Four of seven towers now have their second hundred. Nothing in
+`ui/` and nothing in `core/` changed, and `TOWER_RULES` was not touched.
+
+#### A fourth tower, a fourth escalation — and the first one the crew has no answer to buy
+
+21f concluded "read the crew's failure mode before choosing how to escalate" and 21g proved it by
+producing a third answer. This is the fourth, and it is the first that is **structural rather than
+a matter of weight**. Measured against both Undead arrangements at the roof's level before anything
+was authored, controlled at one anchor, two legendaries and two commons so only the mechanic varies:
+
+| Mechanic on the board | reference five | alternate five | mean / max  |
+| --------------------- | -------------- | -------------- | ----------- |
+| **`dodge`**           | 95% · 1.55     | **65%** ❌     | 29.2s / 39s |
+| burst behind a wall   | 100% · 1.90    | 95% · 2.25     | 22.9s / 30s |
+| **healer**            | 98% · 2.33     | 90% · 3.30     | 30.8s / 50s |
+| party-wide slow       | 100% · 2.35    | 100% · 3.42    | 25.4s / 31s |
+| `rootbound` link      | 100% · 2.80    | 100% · 3.48    | 24.9s / 30s |
+| reach at the back     | 100% · 3.35    | 100% · 3.85    | 19.2s / 23s |
+
+Bars are 90% for the reference five and 75% for the alternate. **`dodge` is the only shape that
+fails one**, and the reason is not tuning:
+
+- **No Undead character carries a point of `accuracy`.** The stat lives on four Elves and one Human,
+  and there is none in `gear.ts` or `signature.ts` either. A tower faction-locked to Undead is
+  therefore the one place in the game where an evasion pool has no answer a player can buy.
+- **Every Undead body sustains on `drain` and `lifeLeech`.** A miss costs the hit _and_ the health
+  the hit would have returned, so evasion attacks the faction's engine at the source rather than
+  taxing its damage.
+
+⚠️ **What licenses it is where the pools go, and that is the whole of the argument.** They sit on
+soft bodies — the Sunmote Dancer is 500 hp at `dodge: 0.3` — so reach and focus fire are the answer,
+which is the same case 21g made for the Plumbline Hand's `accuracy`. The heaviest body on the tower
+carries **less** evasion than the legendaries around it, not more. And unlike `tenacity`, which can
+refuse a debuff outright, `dodge` is a chance floored by `MIN_HIT_CHANCE`: it costs turns, it never
+closes a door.
+
+#### ⚠️ 21f's sustain rule binds on its second tower, and it forbids this tower's own thesis at the top
+
+An Undead five takes the shipped floor 100 in **34.4 seconds with two of five alive** — the slowest
+crew reading in any tower, against an Elf five's 10.8 — and the healer board above runs 30.8s mean
+and 50s max. So sustain near the roof is the ninety-second clock rather than a lock, exactly as it is
+for a Dwarf five.
+
+That is awkward rather than convenient, because **a heal the party cannot out-drain is the first
+hundred's own thesis**: the Thornweald Warden's Wilding Bloom is what this tower has always been
+about. It is spent in the middle band (the Green Vigil, floors 141–160, closing on a mini-boss that
+is the last board to carry one) and **nothing above floor 160 restores anything**. Checked by walking
+all two hundred floors with a script rather than by reading them.
+
+#### ⚠️ Which crew binds flips by mechanic, which is new
+
+21e measured the Human pair twelve levels apart and 21g the Elf pair nine, and in both the alternate
+five was the whole constraint. Here neither five is:
+
+- In **band 1** the alternate is far the stronger — floor 100 costs it 1.6 of five where the
+  reference crew loses 3.0.
+- On a **dodge board at the roof's level** it is far the weaker — 65% against 95% — because Nekros's
+  kit is three single-target drains and the reference crew's Ossuary reaches a whole rank.
+
+So "size it against the alternate and check the reference second" does not transfer either. **Check
+both arrangements per board**; on this tower the answer does not keep.
+
+#### ⚠️ Composition buys much more at the bottom of a band 2 than 21g found
+
+21g recorded that at floor 101's level the lightest and heaviest authorable boards were 2.6s and 2.9s
+apart, and concluded "do not try to make the bottom of a band 2 hard". Against the Undead pair the
+same measurement reads **2.7s and 8.4s** — a threefold span rather than three tenths of a second.
+
+That claim was a fact about the **Elf crew's damage**, not about the band split. The band still opens
+gently here — 2.5s at floor 101 — but for rhythm rather than because nothing else was possible.
+
+#### Four Elf blocks, three skills, and no new status
+
+Elf 17 → **21**, the lean the matchup matrix asks for. ⚠️ **The second hundred had eleven Elf blocks
+it had never met before any of these were written**, so these four are not filling a hole in the
+variety — they are the four specific statements the bench could not make.
+
+- **Sunmote Dancer** (`common`) — the teaching body. `dodge: 0.3` is above the shipped common ceiling
+  (the Duskfern Skirmisher's 0.26) on the softest frame in the Elf bench, which is the trade that
+  keeps it honest. Cheap on purpose: the mechanic wants **density** rather than size, and one heavy
+  evasive body would just read as a bad anchor.
+- **Sunfade Chanter** (`legendary`) — the other half of the lock. `SUNFADE` is an `enemy-all` hit at
+  ×0.85 carrying `WEAKEN`, and against this faction an `atk` debuff is charged **twice**: once on the
+  hit and once on the health the siphon would have paid back. No other body in the game is
+  specifically true of.
+- **Crownbark Bastion** (`legendary`) — ⚠️ **the first legendary wall the Elf bench has ever had.**
+  Elf legendaries top out at 820 hp and 24 `def`; this is 1120 and 40. It is the release valve on an
+  evasion board: the one body that is not hard to connect with, which is why going there is the trap.
+  It taunts and carries **no evasion at all** — those two clauses are one decision, since a taunting
+  body the party could not reliably hit is 15c's Dwarf-roof timeout with a lock's name on it.
+- **The Sunbough** (`ascended`) — floor 200, and the first roof this tower has owned. Floor 100 is
+  `Wyrdroot Ancient + Colossus`, two blocks the campaign also fields. `dodge: 0.24` is the headline
+  and is deliberately **under** the Withered Crown's 0.28 and well under the Wealdshadow Stalker's
+  0.34. Its three turns are the thesis stated once each and none of them restores anything.
+
+⚠️ **This crew's weight ceiling is the lowest of the four towers.** One Longshadow-weight anchor
+behind a wall with three legendaries measures **73% / 23%** — unwinnable for both arrangements — and
+two anchors of any pairing is 0%. The Elf Tower's roof carries an anchor, a legendary wall and three
+more bodies; this one cannot, so the roof is one anchor over four soft bodies, four of the five
+carrying evasion.
+
+The roof is `The Sunbough` beside a Duskfern Skirmisher over a Sunfade Chanter, a Sunmote Dancer and
+a Whisperleaf Archer: **93% / 1.88 survivors / 26.7s** for the reference five and **93% / 2.30 /
+26.2s** for the alternate, against bars of 90% and 75%.
+
+⚠️ **The tower's longest fight is still the shipped floor 100, at 51.2 seconds** — the second
+hundred's longest is 39.6. Against the sweep's bound on a _cleared_ fight (0.75 × the ninety-second
+timer, so 67.5s) that band-1 board is this tower's binding case, which is the other half of why the
+heal is spent at floor 160 rather than near the roof.
+
+Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a tower does not
+re-open it, and neither 21f, 21g nor this needed to.
+
+#### ⚠️ The substitutions are drawn only from factions that also counter Undead
+
+The second hundred came out at **83.2% Elf** on the first pass — the same overshoot as 21e's 69.8%,
+21f's 86.2% and 21g's 78.7% — and the correction was made during authoring, four sessions for four.
+What is new is that the _choice of substitute_ is now a rule rather than a matter of comparable
+weight: Angels, Demons and Monsters all counter Undead in the matrix (the celestials at ×1.1, above
+the Elves' own ×1.05), so swapping in one of those keeps the counter-faction bias
+`towers.balance.ts` measures. A Human, Dwarf or Undead body of the same weight would quietly turn the
+lean off on that board.
+
+Shipped: **65.7% Elf** in the second hundred and **62.3%** over the tower, against a 65% ceiling, with
+60 distinct blocks rather than 29.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 1.045 → **1.150**, against the placeholder
+  floor of 0.7. The Undead Tower goes 31,000 → 62,300 and the seven now pay 342,200 against a campaign
+  of 297,500. The step has now been **+0.105 four times running, to three decimal places**; three
+  towers to go and the 21k projection of 436,100 / 1.466 is unchanged.
+- **`towers.spec.ts` — the faction lean.** Budgeted for rather than discovered, as 21f asked.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored.
+
+#### The prose check, run at the start again
+
+Recomputed rather than read: the crystal figures, the band-level headers for all eleven bands, the
+floor ids and the mini-boss rhythm, the faction shares, and a walk of all two hundred floors checking
+that no board pairs a taunt with anything that refills and that nothing above floor 160 restores at
+all. Two stale claims were corrected in `towers.ts` — it said four of seven were short (three now)
+and quoted the pre-21h crystal figures.
 
 ## 22. The roguelite run
 

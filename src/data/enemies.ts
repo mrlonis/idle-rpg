@@ -44,9 +44,11 @@ import {
   SHRIKE_DIVE,
   SLUNG_ANVIL,
   STONE_FIST,
+  SUNFADE,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
+  THE_CANOPY_PARTS,
   THE_LAST_MUSTER,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
@@ -54,6 +56,7 @@ import {
   THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_SEAL_BREAKS,
+  THE_SUN_AT_NOON,
   THE_WARDS_HOLD,
   THORNLASH,
   TYRANTS_CLAIM,
@@ -3870,6 +3873,173 @@ export const THE_WARDWRIGHT = {
   skills: [THE_LINE_TRUE, THE_WARDS_HOLD, GLACIAL_SLAM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's second hundred floors — milestone 21h
+//
+// Four Elf blocks, taking the faction 17 → 21. The lean the matchup matrix asks for, and the four
+// are aimed at what this tower's *own* crews cannot answer rather than at a gap in the Elf bench —
+// which is 21g's discipline, and the measurement that set it is in `skills.ts` above {@link
+// SUNFADE}.
+//
+// ⚠️ **The second hundred had eleven Elf blocks it had never met before any of these were
+// written.** The first hundred fields 29 distinct archetypes out of a bench that has since doubled,
+// so these four are not filling a hole in the *variety* — they are the four specific statements the
+// bench could not make: an evasion pool worth a turn, an `atk` debuff aimed at a whole side, a
+// legendary wall (the Elf bench had none: its heaviest legendary is 820 hp at 24 `def`), and a roof.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Above the canopy there is light and wind, and nothing up here has ever had to hold still.
+ *
+ * The teaching body, and the cheapest possible statement of this tower's second hundred: **you will
+ * miss.** `dodge: 0.3` is above the shipped common ceiling ({@link DUSKFERN_SKIRMISHER}'s 0.26) and
+ * it sits on the softest frame in the Elf bench, which is the trade that keeps it honest — 500 hp
+ * against a party that lands many small hits means the pool buys turns rather than the fight, and
+ * one connection in three still removes it.
+ *
+ * ⚠️ **Cheap on purpose, because the mechanic wants density rather than size.** Two or three of
+ * these on a board is what makes a floor read as evasion; one heavy evasive body would just read as
+ * a bad anchor. That is also what keeps the answer legible: they die to anything that reaches them.
+ */
+export const SUNMOTE_DANCER = {
+  id: 'sunmote-dancer',
+  name: 'Sunmote Dancer',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 58,
+    def: 11,
+    haste: 134,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    dodge: 0.3,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * The light gets into you, and afterwards there is less of you than there was.
+ *
+ * The other half of the lock, and the half that answers the party's answer to the first. Evasion
+ * means a swing does not land; {@link SUNFADE} means the ones that do land return less — and every
+ * Undead body siphons a fraction of the damage it deals, so an `atk` debuff is charged **twice**
+ * against this crew. There is no third body in the game that this is specifically true of.
+ *
+ * Soft, fast, and standing in a back rank: it is a body the party has to *reach*, which is the
+ * resource this tower charges for, and the one Undead skill that reaches a whole rank is an
+ * ultimate. `dodge: 0.22` is texture rather than the argument — enough that spending a turn on it
+ * is a decision, not enough to make it a second wall.
+ */
+export const SUNFADE_CHANTER = {
+  id: 'sunfade-chanter',
+  name: 'Sunfade Chanter',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 64,
+    def: 18,
+    haste: 110,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    dodge: 0.22,
+    magicResist: 0.06,
+  },
+  skills: [SUNFADE, MOTE_LANCE],
+} as const;
+
+/**
+ * Bark that has closed over the same wound a hundred times.
+ *
+ * ⚠️ **The first legendary wall the Elf bench has ever had, and the release valve the evasion bands
+ * need.** Elf legendaries top out at 820 hp and 24 `def`; this is 1120 and 40. On a board where four
+ * bodies are hard to connect with, it is the one that is not — so it is where a frustrated party's
+ * damage goes, and going there is the trap. Nothing behind it is any easier to hit for the delay.
+ *
+ * ⚠️ **It taunts, and carries no evasion at all.** Those two clauses are one decision: a taunt
+ * narrows the pool before the row rule is consulted, so a taunting body the party could not reliably
+ * *hit* would be the ninety-second clock with a lock's name on it — which is the failure 15c found
+ * on the Dwarf roof and this tower's crew is even slower. {@link DRAW_THE_OATH} runs 45 ticks
+ * against a 60-tick cooldown, so there is a window at whatever stands behind it every fight, and
+ * `enemies.spec.ts` holds that it can never become an `opening`.
+ *
+ * ⚠️ **No sustain of any kind, and no board in this tower pairs it with a heal.** That is the
+ * clause 15c wrote and 21f made a rule of, and it binds harder here than anywhere: an Undead five
+ * takes the shipped floor 100 in 34.4 seconds against a 90-second timer.
+ */
+export const CROWNBARK_BASTION = {
+  id: 'crownbark-bastion',
+  name: 'Crownbark Bastion',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 54,
+    def: 40,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    physicalResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * The Wyrdroot held the wood down. This is what the wood was reaching for.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is
+ * `Wyrdroot Ancient + Colossus` — two blocks the campaign also fields — which was right for a tower
+ * with a hundred floors and no body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **`dodge: 0.24` is the headline, and it is the one stat no Undead five may answer.** `accuracy`
+ * lives on four Elves and one Human, and there is none in `gear.ts` or `signature.ts`, so a
+ * faction-locked Undead crew has no route to it anywhere in the game — while every one of its
+ * bodies sustains on `drain` and `lifeLeech`, so a miss costs the hit *and* the health the hit
+ * would have paid back. Same shape as 21c's finding that a chapter's headline lock can be a stat
+ * block, and as 21g's roof carrying `accuracy: 1.25` for the mirror-image reason.
+ *
+ * ⚠️ **0.24 is deliberately under {@link THE_WITHERED_CROWN}'s 0.28 and well under
+ * {@link WEALDSHADOW_STALKER}'s 0.34, on the heaviest body in the tower.** The licence this session
+ * took was "pools on soft bodies, so focus fire is the answer" — an anchor this crew already
+ * struggles to burst, carrying the deepest pool in the game, is exactly the shape that licence
+ * excludes.
+ *
+ * Its three turns are the tower's thesis stated once each and **none of them restores anything**:
+ * {@link THE_CANOPY_PARTS} reaches the rank an Undead five keeps its heal, its reach and two of its
+ * three drains in; {@link THE_SUN_AT_NOON} presses all five at once, which is the pressure a shared
+ * siphon cannot keep pace with; {@link HEADSMANS_ARC} finishes whoever the leech left lowest.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule.** An Undead five is the slowest
+ * party in the game, so what threatens it is never bulk — one Longshadow-weight anchor behind a wall
+ * with three legendaries measured **73% / 23%**, unwinnable for both arrangements. 1520 hp is under
+ * every `ascended` body the campaign fields at this end of the ladder and far under {@link UNMADE},
+ * and the fight still costs the reference five three of its members.
+ */
+export const THE_SUNBOUGH = {
+  id: 'the-sunbough',
+  name: 'The Sunbough',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 90,
+    def: 44,
+    recovery: 6,
+    haste: 106,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    dodge: 0.24,
+    tenacity: 0.45,
+    accuracy: 1.1,
+    physicalPierce: 0.18,
+    magicResist: 0.06,
+  },
+  skills: [THE_CANOPY_PARTS, THE_SUN_AT_NOON, HEADSMANS_ARC],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -3987,4 +4157,8 @@ export const ENEMIES = [
   IRONSLING_WRIGHT,
   EDGETURN_WARDEN,
   THE_WARDWRIGHT,
+  SUNMOTE_DANCER,
+  SUNFADE_CHANTER,
+  CROWNBARK_BASTION,
+  THE_SUNBOUGH,
 ] as const;

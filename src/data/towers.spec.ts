@@ -187,7 +187,7 @@ const TOWER_UNIT = 100;
  * ×2 rather than ×5. That is licensed by the one argument every save re-base rests on: **no build
  * carrying this has ever reached a player.**
  */
-const PENDING = new Set(['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon']);
+const PENDING = new Set(['tower-monster', 'tower-angel', 'tower-demon']);
 
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
@@ -553,9 +553,10 @@ describe('what a tower pays', () => {
     // at **1.466** — the first time since this guard was written that *both* sides moved, and higher
     // than it has been in two milestones.
     //
-    // **Three of the seven have landed and the climb back is on the projection**: 0.74 → 0.835 (21e,
-    // Human) → 0.940 (21f, Dwarf) → **1.045** (21g, Elf), which is the first reading back over
-    // parity with the campaign since chapter 8. Roughly +0.105 a tower, four to go.
+    // **Four of the seven have landed and the climb back is on the projection**: 0.74 → 0.835 (21e,
+    // Human) → 0.940 (21f, Dwarf) → 1.045 (21g, Elf) → **1.150** (21h, Undead). 21g is where it went
+    // back over parity with the campaign for the first time since chapter 8. The step has been
+    // +0.105 four times running, to three decimal places; three to go.
     //
     // ⚠️ **So 0.7 is a floor for the middle of a milestone and nothing else, and restoring it is a
     // deliverable of 21k rather than a nice-to-have.** It was 1.1 for 21a alone; 21b takes it to 0.7

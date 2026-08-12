@@ -4034,6 +4034,119 @@ export const THE_LINE_TRUE = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's second hundred floors — milestone 21h
+//
+// Three skills for four Elf blocks, the ratio 21e set and 21f and 21g kept. The **axis** is a
+// fourth one again, and like the three before it, it was measured on this tower's own crews before
+// anything was authored. Controlled at one anchor, two legendaries and two commons at the roof's
+// level, only the mechanic varying:
+//
+//   dodge      ref  95% / alt  65%   ← the only shape that fails a bar
+//   burst      ref 100% / alt  95%
+//   healer     ref  98% / alt  90%   ← and the slowest board, 30.8s mean and 50s max
+//   slow       ref 100% / alt 100%
+//   link       ref 100% / alt 100%
+//   reach      ref 100% / alt 100%
+//
+// ⚠️ **`dodge` is the lock here and the reason is structural rather than tuned.** No Undead
+// character carries a point of `accuracy` — the stat lives on four Elves and one Human, and there
+// is none in `gear.ts` or `signature.ts` either — so this is the one tower in the game where an
+// evasion pool has no answer a player can buy. And every Undead body sustains on `drain` and
+// `lifeLeech`, so a miss costs the hit *and* the health the hit would have returned. It is the
+// faction's engine attacked at the source rather than a tax on its damage.
+//
+// ⚠️ **What keeps that fair is where the pools are put, which is the whole of the licence.** They
+// sit on soft bodies, so reach and focus fire are the answer — the same argument 21g made for
+// {@link PLUMBLINE_HAND}, and the reason no evasion goes on a body this crew already cannot burst.
+// Unlike `tenacity`, which can refuse a debuff outright, `dodge` is a chance floored by
+// `MIN_HIT_CHANCE`: it costs turns, it never closes a door.
+//
+// ⚠️ **21f's rule binds here too, and this is the second tower it has.** An Undead five takes the
+// shipped floor 100 in 34.4 seconds with two of five alive — the slowest crew reading in any tower,
+// against an Elf five's 10.8 — so sustain near the roof is the ninety-second clock rather than a
+// lock. That is awkward, because a healer the party cannot out-drain is this tower's *own* first
+// hundred's thesis. It is spent in the middle bands and forbidden above floor 160.
+//
+// No new status: milestone 21's budget was spent and closed by 21d, and a tower does not re-open it.
+// {@link WEAKEN} and {@link SUNDER} are the vocabulary here, and the `dodge` stat beside them.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The light comes through, and what it touches has less in it than it did.
+ *
+ * The second half of this tower's lock, and the half that answers the party's answer. Evasion means
+ * a swing does not land; this means the swings that do land return less — and against a faction
+ * whose every body siphons a fraction of the damage it deals, an `atk` debuff is charged **twice**,
+ * once on the hit and once on the health the hit would have paid back. Nothing else in the status
+ * library double-dips on this faction.
+ *
+ * ⚠️ **`enemy-all` rather than a rank, which is what makes it worth a turn against these crews.**
+ * An Undead five has no shape to it — no protected healer, no body the debuff can be aimed at — so
+ * a rank-wide version would blunt whichever two happened to be in front and leave the drains behind
+ * them at full weight. ×0.85 is well under the ×1.2 wide-skill ceiling because the damage is not
+ * the point.
+ */
+export const SUNFADE = {
+  id: 'sunfade',
+  name: 'Sunfade',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.85 },
+    { kind: 'status', status: WEAKEN, chance: 0.75 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * Above the canopy there is nothing to stand behind.
+ *
+ * The roof's reach, and it names the rank rather than chasing the wounded. An Undead five keeps
+ * everything that is not a wall in its back rank — the heal, the reach and two of the three drains
+ * — and it keeps them on bodies carrying 7 to 10 `def`, which is the softest back rank in the game.
+ * {@link SUNDER} on the survivors is the second visit charged in advance.
+ *
+ * ⚠️ **×1.2 is the wide-skill ceiling and it is the ceiling on purpose**, exactly as
+ * {@link THE_LINE_TRUE} was cut to it in 21g. Five small hits against the diminishing-DEF curve are
+ * worth far less than one big one, so a wide multiplier is read against the curve rather than
+ * against the target count, and what pays for a roof is its own stat line.
+ */
+export const THE_CANOPY_PARTS = {
+  id: 'the-canopy-parts',
+  name: 'The Canopy Parts',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * Noon, and nowhere on the board is out of it.
+ *
+ * The roof's second turn and the heaviest `enemy-all` hit in the game — ×1.0 against
+ * {@link GRAVE_TIDE}'s ×0.95 and {@link MOONSONG}'s ×0.8, still under the ×1.2 ceiling. Aimed at
+ * every body at once for a reason specific to what it is fighting: an Undead five's health bars are
+ * a **shared pool** in practice, refilled out of whatever it manages to land, so pressure applied
+ * to all five at once is pressure the siphon cannot keep pace with. Focused on one body it would be
+ * healed off before the next turn came round.
+ *
+ * ⚠️ **It carries no status and it heals nothing**, which is the roof's whole discipline. This
+ * tower's crew is the slowest in the game and its roof board has to resolve; a wide hit that simply
+ * removes health is the shape that shortens a fight rather than lengthening it.
+ */
+export const THE_SUN_AT_NOON = {
+  id: 'the-sun-at-noon',
+  name: 'The Sun at Noon',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4266,4 +4379,7 @@ export const SKILLS = [
   SLUNG_ANVIL,
   THE_WARDS_HOLD,
   THE_LINE_TRUE,
+  SUNFADE,
+  THE_CANOPY_PARTS,
+  THE_SUN_AT_NOON,
 ] as const;
