@@ -9,6 +9,7 @@ import {
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CINDER_STORM,
+  COUCHED_LANCE,
   CUTPURSE,
   DOOMKNELL,
   DRAW_INTO_THE_ROOT,
@@ -44,6 +45,7 @@ import {
   STONE_FIST,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
+  THE_BREACH_GIVEN,
   THE_LAST_MUSTER,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
@@ -52,6 +54,7 @@ import {
   THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
+  UNDERMINE,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WILDING_BLOOM,
@@ -3361,7 +3364,7 @@ export const THE_EVERWOUND = {
 //
 // ## Scale
 //
-// The floors these stand on run to level 140, which is more than twice the shipped hundred's top —
+// The floors these stand on run to level 120, which is exactly twice the shipped hundred's top —
 // so the *level line* is what makes the second hundred harder and these are sized against the
 // bench they join rather than against the floors they will meet. {@link THE_DEATHLESS_MARSHAL} sits
 // **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds, and which every
@@ -3507,6 +3510,196 @@ export const THE_DEATHLESS_MARSHAL = {
   skills: [THE_LAST_MUSTER, TYRANTS_CLAIM, HEADSMANS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's second hundred floors — milestone 21f
+//
+// ## Four Human blocks, and Human was the thinnest faction in the game
+//
+// Nine, against Undead's and Elves' seventeen and Dwarves' and Monsters' eighteen — because
+// milestone 21's four chapters each leaned somewhere else on purpose and Human was the one they
+// left alone. Human 9 → **13** here, which is the lean the matchup matrix asks for: Humans counter
+// Dwarves, so the tower that admits Dwarves is the one that fields them.
+//
+// A tower gets four where a chapter gets ten, for 21e's reason: a chapter authors five bands each
+// asking a different question, and a tower asks **one** question a hundred more times.
+//
+// | Block                        | The gap it fills                                        |
+// | ---------------------------- | ------------------------------------------------------- |
+// | {@link FORLORN_LEVY}         | a common that costs turns rather than health            |
+// | {@link KINGSWAY_LANCER}      | the Human bench's first `legendary` that is only damage |
+// | {@link UNDERVAULT_SAPPER}    | armour that stops answering, aimed at the deepest of it |
+// | {@link THE_BREACHLORD}       | a roof of its own, for a tower that had borrowed one    |
+//
+// ## ⚠️ Offence rather than bulk, and it is a measurement rather than a preference
+//
+// A Dwarf five carries the lowest `atk` in the game and the alternate arrangement is three tanks.
+// So bulk is the one thing it beats by standing still — what it actually loses to is the
+// ninety-second clock. Measured at the top floor's level, an *offensive* board and a *bulky* board
+// of the same nominal weight read 33.0s against 45.7s, and the alternate five clears the first at
+// 90% and the second at 63%. **Every one of these four spends its weight on what it does per
+// turn.**
+//
+// ⚠️ That is the inverse of what 21e authored one tower over: the Human Tower's second hundred
+// thins its anchors and thickens the board's own *support* — links, shields, a taunt. Against these
+// crews a shield support at the top floor reads 28% for the reference five and **0%** for the
+// alternate, because every point of enemy sustain is a second of clock a Dwarf party does not have.
+// 15c's rule that anchors are sized per tower against its own crew generalises: so is the shape.
+//
+// ## No new status, and no sustain above the middle bands
+//
+// Milestone 21's three-status budget was spent and closed by 21d, and 21e recorded that a tower
+// does not get to re-open it. {@link SUNDER} is the game's only defence shred and had never been
+// pointed at Dwarves; that is the whole of the vocabulary these four use.
+//
+// {@link THE_BREACHLORD} carries no heal, no shield, no regeneration and no `lifeLeech`, which is
+// 15c's finding on *this tower's own roof* written as a stat block: the Dwarf Tower's boss was
+// `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five could close it inside ninety
+// seconds, while the same board ten floors lower cleared.
+//
+// ⚠️ Sized **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds — and well
+// under it, because a roof is sized against the crew that has to take it and this crew is the
+// slowest in the game.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The first wave up the ladders, and the one nobody expects back.
+ *
+ * **A common that costs turns rather than health.** All three Human commons before it are ordinary
+ * melee bodies at eight-and-a-half stone of haste; this is the fastest and hardest-hitting body the
+ * faction has at its cheapest tier, and it is made of paper. Against a party that wins by refusing
+ * to lose, a body that acts twice for every one of yours is worth more than a body that is hard to
+ * kill — and a board that fields three of these is asking the party to spend swings it does not
+ * have.
+ *
+ * ⚠️ **Not a lock, deliberately**, the same clause {@link CHARNEL_DRUDGE} carries: a tower's second
+ * hundred is a hundred fights nobody re-tries, so what it needs from a common is *cost*. It carries
+ * {@link GORE} because its identity is entirely its stat line.
+ */
+export const FORLORN_LEVY = {
+  id: 'forlorn-levy',
+  name: 'Forlorn Levy',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 56,
+    def: 12,
+    haste: 128,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.1,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * The road it is named for runs straight into the hold, and always did.
+ *
+ * ⚠️ **The first Human `legendary` that is only damage.** The faction fields a healer, a caster and
+ * a taunt-wall at this tier, so every Human board so far has been able to answer the party and
+ * unable to threaten it — which is exactly the board a Dwarf five is built to out-sit. What this
+ * adds is a reason to hurry.
+ *
+ * {@link COUCHED_LANCE} is conditioned on the party being whole, so its weight lands early and the
+ * block is a swinging body afterwards. **Front rank**, and the measurement is why: a body of this
+ * output standing where a Dwarf party cannot reach it takes the reference crew from 100% to 10%.
+ * Reach is the one thing that faction has least of, so pressure it cannot answer is a cliff rather
+ * than a ramp.
+ */
+export const KINGSWAY_LANCER = {
+  id: 'kingsway-lancer',
+  name: 'Kingsway Lancer',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 78,
+    def: 26,
+    haste: 116,
+    critChance: 0.15,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.28,
+    magicResist: 0.04,
+  },
+  skills: [COUCHED_LANCE, CUTPURSE],
+} as const;
+
+/**
+ * Somebody has to go and find where the seams are.
+ *
+ * The answer to the thing that makes this faction's tower hard to author: Dwarves own the deepest
+ * armour in the game, so a board that cannot open it is a board spending the whole ninety seconds
+ * proving it. {@link UNDERMINE} is {@link SUNDER} across the front rank, which is where all of that
+ * armour stands.
+ *
+ * ⚠️ **`insight` rather than a bigger `chance`, and the distinction is the faction it is aimed at.**
+ * `statusChance` is `authored + insight − tenacity` clamped at zero, so a Dwarf carrying enough
+ * `tenacity` refuses a debuff outright however confidently it is authored. Buying the pool is the
+ * honest way to answer that; inflating the chance is the way that stops working the moment the
+ * party invests in the stat the game gave it for exactly this.
+ *
+ * Almost no offence of its own, like every support the enemy side ships — what it costs the party
+ * is what the rest of the board does through the hole.
+ */
+export const UNDERVAULT_SAPPER = {
+  id: 'undervault-sapper',
+  name: 'Undervault Sapper',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 66,
+    def: 24,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    insight: 0.32,
+    physicalPierce: 0.18,
+    magicResist: 0.06,
+  },
+  skills: [UNDERMINE, SHIELD_BASH],
+} as const;
+
+/**
+ * Whoever it was that first got over the wall, still at the top of it.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Oathbreaker + Warden` — two
+ * Human `ascended` blocks the campaign also fields — which was right for a tower with a hundred
+ * floors and no body of its own. A second hundred earns one.
+ *
+ * ⚠️ **Far lighter than {@link THE_DEATHLESS_MARSHAL}, and that is the point rather than an
+ * oversight.** 15c measured that a tower's anchors are sized against its own crew and never to a
+ * shared weight; this crew is the slowest in the game, and a roof at the Human Tower's weight reads
+ * **0%** for both Dwarf arrangements at the top floor. What makes this one a fight is what it does
+ * per turn — {@link THE_BREACH_GIVEN} opens the wall and {@link GATE_SLAM} takes the turn the party
+ * was about to spend — not how long it takes to kill.
+ *
+ * ⚠️ **No heal, no drain, no shield, no regeneration and no `lifeLeech`.** This is the tower whose
+ * roof taught the rule and it is the tower least able to survive breaking it.
+ */
+export const THE_BREACHLORD = {
+  id: 'the-breachlord',
+  name: 'The Breachlord',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 78,
+    def: 40,
+    haste: 92,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.18,
+    critBlock: 0.08,
+    tenacity: 0.4,
+    physicalPierce: 0.3,
+    magicPierce: 0.18,
+    physicalResist: 0.05,
+    magicResist: 0.05,
+  },
+  skills: [THE_BREACH_GIVEN, GATE_SLAM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -3616,4 +3809,8 @@ export const ENEMIES = [
   NIGHTMARCH_OUTRIDER,
   RELIQUARY_BEARER,
   THE_DEATHLESS_MARSHAL,
+  FORLORN_LEVY,
+  KINGSWAY_LANCER,
+  UNDERVAULT_SAPPER,
+  THE_BREACHLORD,
 ] as const;

@@ -675,7 +675,7 @@ the two disagree, the code is right and both are stale.
     `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
     and the crew editor's Fight control are inert on it. A control that only asked whether the
     _crew_ was legal would look live and silently do nothing.
-  - ⚠️ **Six of the seven are still a hundred floors short, and that is milestone 21e–21k in
+  - ⚠️ **Five of the seven are still a hundred floors short, and that is milestone 21e–21k in
     progress.** `TOWER_RULES` is one rule for all seven, so the height moved in one session while the
     floors move in seven. A tower that has not been extended is **not damaged** — `clearedFloors`
     clamps to what it authors, so `nextFloor` reports it topped and every screen reads it right —
@@ -751,14 +751,18 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](../../src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    A hundred and six ship, and the distribution is deliberately uneven: milestone 18 took Angels to
+    A hundred and ten ship, and the distribution is deliberately uneven: milestone 18 took Angels to
     eleven and Demons to twelve, milestone 21a took Undead from seven to **seventeen**, 21b took Elves
     the same way, 21c took Dwarves from eight to **eighteen** and 21d took Monsters the same way,
     because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixed each of its four
     chapters' leans up front** — undead, elf, dwarf, monster, the four thinnest — so the four sessions
     touched non-overlapping slices of `enemies.ts` and the depth table evened out rather than
-    deepening what was already deep. **All four have landed**: Human at nine is now the thinnest and
-    is the one to lean a later chapter on. The old
+    deepening what was already deep. **All four have landed**, and **milestone 21f then closed the
+    gap they left**: Human was the thinnest faction in the game at nine and the Dwarf Tower's second
+    hundred took it to **thirteen**, so no faction is now a standout candidate to lean on. ⚠️ **A
+    tower session deepens a faction exactly as a chapter session does, four blocks against ten** —
+    that is the other half of the "fix the leans up front" discipline and it applies through 21g–21k.
+    The old
     note here recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign
     closed that, and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is
     bounded by the ones the campaign already fields** rather than by an opinion — the Unmade is the
@@ -904,8 +908,8 @@ the two disagree, the code is right and both are stale.
       predicted, at **1.13**, chapter 8 took it to **0.96**, chapter 9 to **0.83** and chapter 10 to
       **0.74** — the last two landing on the figures 21b projected for them, to two decimal places.
       ⚠️ **21e is the first session since this guard was written where it went _up_**: the Human
-      Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**.
-      Expect roughly +0.1 per tower through 21f–21k.
+      Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**;
+      21f's Dwarf Tower took it to **0.940**. Expect roughly +0.1 per tower through 21g–21k.
     - ⚠️ **The floor is 0.7 right now and that is a mid-milestone placeholder, not a decision.**
       Milestone 21 _is_ the "grow the towers" answer, and it lands in eleven sessions: 21a–21d take
       the campaign to ~297,500 while the tower side is still the shipped 219,100, and only 21e–21k
@@ -915,8 +919,9 @@ the two disagree, the code is right and both are stale.
       of 21k.** ⚠️ **It was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
       landings (0.96, 0.83, 0.74) were all known in advance, so re-deriving a quantity that is
       _supposed_ to fall three times over would be three edits that measure nothing. **All three have
-      now landed and the campaign side is at 297,500 against the towers' 248,300** — 219,100 at the
-      end of 21d, which is the figure 21b projected for it, plus the Human Tower's second hundred. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
+      now landed and the campaign side is at 297,500 against the towers' 279,600** — 219,100 at the
+      end of 21d, which is the figure 21b projected for it, plus the Human and Dwarf Towers' second
+      hundreds. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
       and the **opposite** of the one 21b made on `gradeSoftness`; the distinction is whether the
       quantity is meant to move. A failure after that is the original question again: whether seven towers of two
       hundred floors is still the right amount of optional content beside the campaign of the day.

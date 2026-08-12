@@ -49,7 +49,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21c | Chapter 9 — The Hollow Anvil            | ✅ **Complete** — 350 stages, 92 archetypes          |
 | 21d | Chapter 10 — The Bleeding Wild          | ✅ **Complete** — 400 stages, 102 archetypes         |
 | 21e | Human Tower, floors 101–200             | ✅ **Complete** — 200 floors, 106 archetypes         |
-| 21f | Dwarf Tower, floors 101–200             | ⬜                                                   |
+| 21f | Dwarf Tower, floors 101–200             | ✅ **Complete** — 200 floors, 110 archetypes         |
 | 21g | Elf Tower, floors 101–200               | ⬜                                                   |
 | 21h | Undead Tower, floors 101–200            | ⬜                                                   |
 | 21i | Monster Tower, floors 101–200           | ⬜                                                   |
@@ -2768,6 +2768,117 @@ integer, and a player who topped the old hundred has taken 1 and earned 1.
 
 All 1,972 unit tests and all 74 balance tests pass. The tower sweep runs in 49s against 42s before,
 despite one tower being twice as tall.
+
+### 21f. The Dwarf Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new Human archetypes and three new skills. Human was the thinnest faction
+in the game at nine blocks and goes to **13**; the enemy roster goes 106 → **110**. Two of seven
+towers now have their second hundred. Nothing in `ui/` and nothing in `core/` changed, and
+`TOWER_RULES` was not touched — 21e's height moved once for all seven.
+
+#### The rule 21e proved held, and the shape it set did not
+
+21f is the first session run against 21e's pattern rather than inventing one, and **the pattern held
+everywhere it was structural and failed everywhere it was aesthetic.** What transferred without
+argument: two crews split at the halfway floor, four blocks rather than ten, no new status, a roof of
+the tower's own, the lean substituted back down through the filler slots. What did not transfer is
+**how the second hundred escalates**, and that is the finding this session owns.
+
+#### ⚠️ Offence rather than bulk, measured
+
+A Dwarf five carries the lowest `atk` in the game and the alternate arrangement is **three tanks**.
+So the thing it beats by standing still is bulk, and the thing it loses to is the ninety-second
+clock. Measured against both crews at the top floor's level:
+
+| Board at level 120                              | reference five   | alternate five |
+| ----------------------------------------------- | ---------------- | -------------- |
+| one anchor + a _bulky_ legendary, 3 legendaries | 90% / **45.7s**  | **63%**        |
+| one anchor + a _pressure_ legendary, same back  | 100% / **33.0s** | **90%**        |
+| one anchor + a shield support in the back rank  | **28%**          | **0%**         |
+
+Same nominal weight, twelve seconds apart, and only the offensive board is clearable by both
+arrangements. ⚠️ **That third row is 21e's own climax shape** — thin the anchors, thicken the board's
+support — and against these crews it is not a hard floor, it is an unwinnable one. Every point of
+enemy sustain is a second of clock a party that cannot burst does not have. **15c's rule that anchors
+are sized per tower against its own crew generalises from the anchors to the whole shape**, and that
+is the sentence 21g–21k should carry: read the crew's failure mode before choosing how to escalate.
+
+⚠️ **The back rank is a cliff rather than a dial.** Moving one body of the same output from the front
+rank to the back takes the reference five from 100% to **10%** and the alternate from 100% to **3%**.
+Dwarves carry the least reach in the game, so pressure they cannot aim at is a different fight rather
+than a harder one. The second hundred escalates in front.
+
+#### ⚠️ The roof is far lighter than the Human Tower's, and had to be
+
+A roof at The Deathless Marshal's weight reads **0%** for both Dwarf arrangements, and no line-up
+underneath it recovers that — the first version authored here was 1520 hp / 92 atk with a board-wide
+`SUNDER`-and-damage turn, and every back rank tried under it wiped. The shipped block is **1300 /
+78** with a single-target version of the same turn. It is the lightest `ascended` body any roof
+fields, which is 15c's rule doing exactly what it is for.
+
+The roof is `The Breachlord` beside a Kingsway Lancer over a Fen Stormcaller, a Seraph Adjudicant and
+an Undervault Sapper: **98% / 2.33 survivors / 36.3s** for the reference five, **88% / 1.52** for the
+alternate, against bars of 90% and 75%. Band 2 reads 5.5s at floor 101, 14.3s at 160 and 36.3s at
+200; nobody dies below floor 185.
+
+#### Four Human blocks, three skills, and no new status
+
+Human 9 → **13**, the lean the matchup matrix asks for. ⚠️ **Human was the thinnest faction in the
+game** — nine against Undead's and Elves' seventeen and Dwarves' and Monsters' eighteen — because
+milestone 21's four chapters each leaned somewhere else on purpose. This is the session that closes
+that gap, and `AGENTS.md`'s note that Human "is the one to lean a later chapter on" can be retired.
+
+- **Forlorn Levy** (`common`) — a body that costs turns rather than health. The fastest and
+  hardest-hitting body the faction has at its cheapest tier, and made of paper.
+- **Kingsway Lancer** (`legendary`) — ⚠️ **the first Human `legendary` that is only damage.** The
+  faction fields a healer, a caster and a taunt-wall at that tier, so every Human board so far could
+  answer a party and not threaten it. `COUCHED_LANCE` is conditioned on the party being **whole**, so
+  its weight lands early and the block swings afterwards — the deliberate mirror of
+  `HEADSMANS_ARC`, which only becomes interesting once somebody is hurt.
+- **Undervault Sapper** (`legendary`) — `SUNDER` across the front rank, which is where a Dwarf party
+  keeps everything it is proud of. ⚠️ **`insight` rather than a bigger `chance`**: `statusChance` is
+  `authored + insight − tenacity` clamped at zero, so a faction that invests in `tenacity` refuses a
+  debuff outright however confidently it is authored.
+- **The Breachlord** (`ascended`) — floor 200, and the first roof this tower has owned. Floor 100 is
+  `Oathbreaker + Warden`, two blocks the campaign also fields.
+
+`SUNDER` is the game's only defence shred and had never been pointed at the faction with the deepest
+armour in it — which is the whole of the vocabulary these three skills use. Milestone 21's
+three-status budget was spent and closed by 21d; 21e recorded that a tower does not re-open it, and
+this session did not need to.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 0.835 → **0.940**, against the placeholder
+  floor of 0.7. The Dwarf Tower goes 31,000 → 62,300 and the seven now pay 279,600 against a campaign
+  of 297,500. Still on track for **1.466** at 21k.
+- **`towers.spec.ts` — the faction lean.** Authored from the lean's own bench the second hundred came
+  out at **86.2%** against a 65% ceiling — worse than 21e's 69.8%, because Human is a bench this
+  session had just deepened and nothing else was competing for the slots. Answered the same way, by
+  substituting non-Human bodies of comparable weight through the filler slots: **61.6%** in the second
+  hundred and **60.2%** over the tower. ⚠️ **Expect this every session and budget for it**; it is not
+  a surprise any more.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored.
+
+#### ⚠️ The prose in `data/towers.ts` was a session behind, and it was prescribing work
+
+`TOWER_RULES`'s doc block still described `topLevel: 140` as shipped — "levels 1 to 140", "it is
+`elite-plus`'s cap exactly", "46 of the 700 shipped floors fall below the 90% bar" — and closed by
+instructing that **"the top of each shipped hundred is re-authored in that tower's own session"**.
+Every word of that is the plan 21e measured and rejected; the shipped value is 120 and the retune
+evaporated. Two smaller ones went with it: the crystals paragraph quoted 22,900 a tower where the
+arithmetic gives **22,300**, and both `towers.ts` and `tower-human.ts` placed level 120 in "chapter
+3" where the ladder first reaches it at **`c5-s24`**.
+
+⚠️ **This is the failure mode `docs/testing.md` records for content prose, arriving in a rules file.**
+The constant moved and the paragraph explaining it did not, and because it reads as an instruction it
+would have cost each of 21g–21k a wasted retune. Checked mechanically this time — the crystal
+figures, the level-to-chapter claim and the band-level headers were all recomputed from the shipped
+content rather than read. **Do that at the start of a tower session, not the end.**
+
+All 1,972 unit tests and all 74 balance tests pass, with no new test added and no threshold moved —
+every spec that reads this content derives from it.
 
 ## 22. The roguelite run
 

@@ -3843,6 +3843,99 @@ export const THE_LAST_MUSTER = {
   priority: 5,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's second hundred floors — milestone 21f
+//
+// Three skills for four Human blocks, the ratio 21e set. What is different is the **axis**: these
+// all spend their turn on the party's own numbers rather than on the board's.
+//
+// ⚠️ **Measured, not assumed.** A Dwarf five carries the lowest `atk` in the game and the alternate
+// arrangement is three tanks, so what threatens it is never bulk — it out-lasts bulk, and the
+// ninety-second clock is what it loses to. At equal weight an *offensive* board resolves about
+// twelve seconds faster than a bulky one and both Dwarf crews clear it, where only one clears the
+// bulky one. So the tower escalates through what the board does per turn, and every skill here
+// either lands damage or opens the armour that is stopping it.
+//
+// No new status: milestone 21's budget was spent and closed by 21d, and a tower does not re-open
+// it. {@link SUNDER} is the game's only defence shred and it had never been pointed at the faction
+// with the deepest armour in it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A charge needs a line to break.
+ *
+ * The heaviest single hit on the Human bench, and the first one that is simply damage — Humans
+ * field a healer, a caster and a taunt-wall at `legendary`, so until now the faction's answer to
+ * anything was a turn spent not attacking.
+ *
+ * ⚠️ **Conditioned on the party being whole, which is what makes it a rhythm rather than a bigger
+ * number.** A lance is spent on the charge; once a member is down the line is already broken and
+ * this stops offering, so the block falls back to swinging. That front-loads the board's damage,
+ * and a fight decided early is a fight that ends — which is the whole reason this tower reaches for
+ * offence. The mirror of {@link HEADSMANS_ARC}, which only becomes interesting once somebody *is*
+ * hurt.
+ */
+export const COUCHED_LANCE = {
+  id: 'couched-lance',
+  name: 'Couched Lance',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.15 }],
+  cooldown: 50,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 3,
+} as const;
+
+/**
+ * You do not climb a dwarven wall. You go under it.
+ *
+ * {@link SUNDER} across the front rank, which is where a Dwarf party keeps everything it is proud
+ * of. `statusChance` is `authored + insight − tenacity`, so a block built to land this carries
+ * `insight` rather than a higher chance — the honest way to answer a faction that refuses debuffs
+ * for a living.
+ *
+ * ⚠️ **A row rather than the board, and that is the difference from {@link WITHERHEX}.** The
+ * board-wide version of a stat shred is a multiplier on everything the enemy side does for the rest
+ * of the fight; aimed at the two bodies standing in front it is a statement about the *wall*, which
+ * is the thing this tower is actually about. It carries a damage clause for the same reason every
+ * wide skill does — a turn that only sets up is a turn a slow party is happy to be given.
+ */
+export const UNDERMINE = {
+  id: 'undermine',
+  name: 'Undermine',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The moment the hold stopped being a hold.
+ *
+ * The roof's own turn, and it is a **single-target** hit rather than a board-wide one on purpose.
+ * The board-wide version was authored first and measured: {@link SUNDER} on all five plus a wave of
+ * damage from a body at this weight reads 0% for both Dwarf crews at the top floor, and no line-up
+ * underneath it recovers that. Aimed at one body in the front rank it is the same idea at a size a
+ * crew can answer — open the wall, then walk through the hole.
+ *
+ * ⚠️ **No sustain of any kind on this kit**, which is the sentence 15c's Dwarf Tower roof failure
+ * wrote: a healer behind the last floor of a climb is the ninety-second clock rather than a lock,
+ * and this is the tower that discovered it.
+ */
+export const THE_BREACH_GIVEN = {
+  id: 'the-breach-given',
+  name: 'The Breach Given',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4069,4 +4162,7 @@ export const SKILLS = [
   NIGHT_RIDE,
   RELIQUARY_SEAL,
   THE_LAST_MUSTER,
+  COUCHED_LANCE,
+  UNDERMINE,
+  THE_BREACH_GIVEN,
 ] as const;

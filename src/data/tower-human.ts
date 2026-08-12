@@ -78,7 +78,7 @@ import {
  *
  * ## Where the difficulty sits
  *
- * Deliberately **inside** the campaign's range: level 120 is inside chapter 3, where the campaign
+ * Deliberately **inside** the campaign's range: the ladder first reaches level 120 at `c5-s24` and
  * runs to 588. A tower is not where difficulty lives — what it asks for is five characters of one
  * faction, which is a demand on the *roster* rather than on investment. Two balance targets, one per
  * band, both derived from the level line: five Humans at `rare-plus`/60 over floors 1–100, and the

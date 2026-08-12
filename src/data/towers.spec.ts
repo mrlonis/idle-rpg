@@ -188,7 +188,6 @@ const TOWER_UNIT = 100;
  * carrying this has ever reached a player.**
  */
 const PENDING = new Set([
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

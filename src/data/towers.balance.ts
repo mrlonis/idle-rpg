@@ -358,7 +358,6 @@ const crewOf = (tower: TowerData, from: ReadonlyMap<string, Bench>): Bench => {
  * a single level and none of them lost a fight over it.
  */
 const PENDING = new Set([
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

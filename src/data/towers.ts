@@ -31,39 +31,43 @@ import { TOWER_UNDEAD } from './tower-undead';
 /**
  * One rule for all seven towers.
  *
- * ## Two hundred floors, levels 1 to 140
+ * ## Two hundred floors, levels 1 to 120
  *
- * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 588, so a
- * tower's top floor is a fight the campaign asks for around the end of its third chapter. That is
- * the whole statement about where difficulty lives: a tower charges for roster *breadth*, and
- * charging for investment as well would make it a second campaign that a player behind on the first
- * one cannot enter.
+ * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 588 and first
+ * reaches 120 at `c5-s24`, so a tower's top floor is a fight the campaign asks for a quarter of the
+ * way along it. That is the whole statement about where difficulty lives: a tower charges for roster
+ * *breadth*, and charging for investment as well would make it a second campaign that a player
+ * behind on the first one cannot enter.
  *
- * ⚠️ **The reference party's level is derived from this, not chosen.** `elite-plus` caps at level
- * 140, which is exactly {@link topLevel}, so the party the balance sweep fields tracks the content
- * rather than being a number somebody picked. Moving `topLevel` moves the target party with it — and
- * if it ever passes a rarity cap, `towers.balance.ts` fails loudly rather than measuring a party
- * nobody can field.
+ * ⚠️ **{@link topLevel} is deliberately *not* a rarity cap, and the assertion that said it was is
+ * gone.** A tower closes **above** the cap of the rung it asks for — the campaign's own margin rule
+ * — because a rung is worth ×1.6 and the enemy side has no rungs at all. `elite` caps at 100 and the
+ * roof is 120, so the top band's crew is still derived (the highest cap strictly below the roof)
+ * without a crew standing at parity with content it out-ranks. `towers.spec.ts` holds the margin and
+ * holds separately that the *halfway* floor's level is a cap, which is what band 1's crew rests on.
  *
- * ## ⚠️ The second hundred is a single straight line, and it retunes the first hundred
+ * ## ⚠️ The second hundred is a single straight line, and the retune it was expected to cause
+ * evaporated
  *
- * Milestone 21e took `floors` 100 → 200 and `topLevel` 60 → 140 rather than making `floorLevel`
- * piecewise, which would have preserved every shipped floor exactly at the cost of a `core/` change
- * in a milestone that has none. **140 is what buys the single line**: it is `elite-plus`'s cap
- * exactly, so both the derivation above and `towers.spec.ts`'s "`topLevel` is a rarity cap" survive
- * untouched. Nothing between `elite` (100) and `elite-plus` (140) does that.
+ * Milestone 21e took `floors` 100 → 200 and `topLevel` 60 → **120** rather than making
+ * {@link floorLevel} piecewise, which would have preserved every shipped floor exactly at the cost
+ * of a `core/` change in a milestone that has none.
  *
- * ⚠️ **The retune this causes is not small, and the roadmap predicted that it would be.** The slope
- * goes 59/99 → 139/199, which is +1 level at floor 10, +5 at floor 50 and +10 at floor 100 — and
- * measured against the crew those floors were tuned for (`rare-plus`, level 60), **46 of the 700
- * shipped floors fall below the 90% bar** and six of seven roofs go from 100% to 0%. The damage
- * starts around floor 80 because the shipped boards climb in weight *with* the level line, so
- * steepening the line breaks the pair wherever the board was already at the crew's ceiling.
+ * **120 is the level at which the new slope meets the old one**: 119/199 = 0.5980 against the
+ * shipped 59/99 = 0.5960, so **ten of the seven hundred shipped floors move, each by exactly one
+ * level**, and all seven hundred sweep with zero failures. That is arithmetic rather than luck —
+ * 199 ≈ 2×99 + 1 and 119 ≈ 2×59 + 1 — and **any future extension of a tower should reach for it
+ * first**: double the floors, double the top level, then ask whether the roof it implies is a fight.
  *
- * ⚠️ **And there is no crew that measures the low band instead.** An `elite`-rung five at level 70
- * — one rung up, ten levels up — clears all seven shipped hundreds with **all five alive on every
- * roof**, because the rung hands over a second skill and that dwarfs the levels. So the top of each
- * shipped hundred is re-authored in that tower's own session; see `tower-human.ts` for the first.
+ * ⚠️ **The roadmap prescribed 140 and a retune of all seven hundred shipped floors, and 21e measured
+ * both halves of that to be wrong.** At 140 the slope goes 59/99 → 139/199 — +5 levels at floor 50
+ * and +10 at floor 100 — and against the crew those floors were tuned for (`rare-plus`, level 60)
+ * **46 of the 700 shipped floors fall below the 90% bar** with six of seven roofs going from 100% to
+ * 0%. No other crew measures the low band instead: an `elite` five at level 70 clears all seven
+ * shipped hundreds with all five alive on every roof, because the rung hands over a second skill and
+ * that dwarfs forty levels. And 140 produces a roof no board can make into a fight, which is the
+ * finding that killed it — see the margin note above. **Nothing about the shipped hundreds needs
+ * re-authoring**, in this session or any of 21f–21k.
  *
  * ## The rhythm is the campaign's
  *
@@ -73,12 +77,16 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ## The crystals, and why the per-floor figure is not the campaign's
  *
- * 100 a floor against the campaign's 250, ×2 on a mini-boss and ×5 on the roof — so one tower pays
- * 22,900 from floors alone across two hundred floors, and seven pay about 160,000. ⚠️ **At parity
- * the seven towers would pay more than five times what the campaign's stage clears do**, which makes
- * the ladder's own rewards look pointless beside optional content. At 100 a floor the seven come to
- * roughly 160,000 from floors, 300,000 with the five-floor tracks, and 440,000 with the completion
- * awards — against a ten-chapter campaign of ~297,500, on ladders gated behind roster depth.
+ * 100 a floor against the campaign's 250, ×2 on a mini-boss and ×5 on the roof — so a two-hundred
+ * floor tower pays **22,300** from floors alone, and **62,300** once its two achievement tracks are
+ * counted. ⚠️ **At parity the seven towers would pay more than five times what the campaign's stage
+ * clears do**, which makes the ladder's own rewards look pointless beside optional content. At 100 a
+ * floor, seven towers of two hundred come to **156,100** from floors and **436,100** with both
+ * tracks — against a ten-chapter campaign of ~297,500, on ladders gated behind roster depth.
+ *
+ * ⚠️ **Those are the figures for 21k, not for today.** Two of the seven have their second hundred
+ * (21e and 21f), so the tower side stands at 279,600 and the ratio at **0.940** against a floor of
+ * 0.7 that is itself a mid-milestone placeholder. `towers.spec.ts` carries the whole argument.
  *
  * Flat in the floor, for the reason every crystal payout in this game is flat: a pull costs a flat
  * `PULL_COST` forever, so anything scaling with how far a run has come pays most to the player who
@@ -116,9 +124,9 @@ export const TOWER_RULES = {
  * milestone be about the *system*. 15c is the other six, and the eighteen blocks they needed — the
  * counts were lopsided (monster 6, undead 5, human 5, dwarf 3, demon 3, **elf 1, angel 1**) and a
  * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
- * has six. See [`enemies.ts`](./enemies.ts).
+ * has at least nine. See [`enemies.ts`](./enemies.ts).
  *
- * ## ⚠️ Six of the seven are a hundred floors short, and that is milestone 21e–21k in progress
+ * ## ⚠️ Five of the seven are a hundred floors short, and that is milestone 21e–21k in progress
  *
  * {@link TOWER_RULES} is one rule for all seven, so the bump to two hundred floors landed in **one**
  * session while the floors themselves land in seven. Until the last of them, a tower that has not
