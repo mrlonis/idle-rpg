@@ -508,23 +508,32 @@ ninety-seven retunes, and would make the ceiling **permanently** unreachable —
 chapter-100 target means.
 
 What is actually invariant is the **distance between the ceiling and what the content asks for**, so
-three assertions replaced one, and each measures one thing:
+three assertions replaced one — and milestone 21d then retired one of the three, leaving two:
 
-- **The ceiling costs far more than the ladder itself asks for** — hours to level 1000 against hours
-  to the level the last stage is tuned for, ×84 when it was written and **×9.4** today. Income
-  cancels out of a ratio entirely, which is the point: this catches a flattened curve or content
-  whose level demands run away, and nothing else. ⚠️ It is _meant_ to fall as chapters ship and to
-  reach 1 at chapter 100 — milestone 21a lowered its floor 25 → 4 in one edit covering all four of
-  the milestone's chapters, on the grounds that a quantity supposed to fall should not be re-derived
-  once per chapter.
+- ~~**The ceiling costs far more than the ladder itself asks for**~~ — hours to level 1000 against
+  hours to the level the last stage is tuned for. ⚠️ **Retired in 21d.** It was ×84 when written, ×9.4
+  at chapter 8 and **3.62** at chapter 10 against a floor of 4 that 21a had already lowered from 25
+  in one batched edit. Income cancels out of the ratio, but the ratio itself falls with every
+  chapter — its own comment said it should reach 1 at chapter 100 — so it is the same kind of
+  quantity as the absolute-hours guard it replaced, one derivative further out. When it fired, the
+  question its comment prescribed was "has the ladder come far enough to have earned the distance it
+  has closed", which is not a question a threshold can answer.
 - **Rungs are left unspent above everything the ladder asks for.** The structural half, in the
-  currency the game actually progresses in: hours inflate with income and rungs do not. A player
-  finishing the shipped content must still have ascensions in front of them.
+  currency the game actually progresses in: hours inflate with income and rungs do not, and there are
+  sixteen of them however long the ladder gets. A player finishing the shipped content must still
+  have ascensions in front of them — four rungs' worth, derived from `caps`. ⚠️ **This is the sole
+  owner of the claim since 21d**, and `chapters.spec.ts`'s `top < maxLevel / 2` was retired into it
+  in the same session for the same reason.
 - **The level the top of the ladder asks for costs real time, and not a week.** Between one hour and
-  twenty-four of top-of-ladder income, 2.6 when it was written and **6.7** today. This is the half
+  twenty-four of top-of-ladder income, 2.6 when it was written and **16.1** today. This is the half
   that is genuinely about income: raising the reward exponent without touching the level curve fires
   the floor here, which is the failure the absolute-hours version used to catch before a growing
   ladder drowned it out.
+
+⚠️ **What retiring the ratio exposed, and what 21d wrote down instead of a guard**: under 21a's
+corrected margin rule the level line adds about ninety levels a chapter, so the rung claim above fires
+at **chapter 12** and the curve is consumed entirely around **chapter 15**. The "level 1000 is a
+chapter-100 target" premise every one of these guards was written on has not been true since chapter 7. How long the campaign is meant to be is a roadmap decision; see [milestones](milestones.md).
 
 ### ⚠️ The ceiling of that third guard fired at chapter 8, and the answer was the exponent
 
@@ -549,7 +558,12 @@ the stage index, and 21a's corrected margins made it superlinear (level ~`index 
 was proportional to `level ** 0.80` where the calibration set it `level ** 1.12`. At 1.45 it reads
 `level ** 1.00`. Full restoration would be 1.60 and the guard needed only 1.42; 1.45 is the
 conservative end. It makes **no content easier** — a party is capped by its ascension rung, not by
-its income — and it does not touch the ratio guard above, out of which income cancels.
+its income — and it did not touch the ratio guard above, out of which income cancels.
+
+⚠️ **At chapter 10 that guard reads 16.1 hours against its ceiling of 24, so a third of 1.45's
+headroom is left and chapter 11 is where income is the question again.** The two chapters since the
+move went 6.7 → 11.2 → 16.1, which is roughly +4.7 a chapter and accelerating with the level line
+rather than with the stage count.
 
 At the top of the ladder as it stands, one character from level 1 to 1000 costs about 27 hours of
 gold and 145 of essence, and resonance means a party costs five times that.

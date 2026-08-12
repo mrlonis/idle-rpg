@@ -443,19 +443,34 @@ is when the quantity is fixed anyway:
 chapter file because they are engine vocabulary. All four ride the existing `status` effect: no new
 effect kinds, and the simulation's damage path grew one shared helper rather than four.
 
-⚠️ **These are still the last additions, and two chapters are now the evidence rather than a
-restatement of the intention.** The Sundered Vault shipped fifty stages, eight archetypes and five
-skills without touching `core/battle` at all, building instead from **pairs** of existing parts and
-from the matchup matrix leaned on hard enough to be a standing tax. The Waking Barrows did it again
-with ten archetypes and three skills, under a milestone that explicitly licensed up to three new
-statuses and did not need one — four unspent pairs were still there for the taking, including thorns
-on **fodder**, which inverts the answer two hundred stages had taught by making a row attack the
-expensive reply to a crowded board.
+**They are still the last additions to the _kinds_, and milestone 21's four chapters are the
+evidence.** The Sundered Vault shipped fifty stages, eight archetypes and five skills without
+touching `core/battle` at all, building instead from **pairs** of existing parts and from the
+matchup matrix leaned on hard enough to be a standing tax. The Waking Barrows did it again with ten
+archetypes and three skills, under a milestone that explicitly licensed up to three new statuses and
+did not need one; the Hollow Anvil did it a third time, its four locks all being shipped parts aimed
+somewhere they had never been aimed.
 
-That well is real and it is finite; the next chapter that cannot find an unspent pair has to make the
-case for growing this vocabulary on its own merits. ⚠️ **"Two chapters managed without" is not that
-case in reverse either** — a later chapter is not forbidden a status because these two came in under
-budget.
+**Three new _statuses_ shipped inside those kinds, and all three are permanent versions of something
+the game only had as a window** — which is worth reading as one finding rather than three edits:
+
+| Status       | Kind       | Milestone | What it makes permanent                         |
+| ------------ | ---------- | --------- | ----------------------------------------------- |
+| `ROOTBOUND`  | `link`     | 21b       | a `CHAINBOND`, bound to a **part** of one board |
+| `BLOODRISEN` | `stat-mod` | 21d       | `WRATH_UNBOUND`'s answer to being wounded       |
+| `SAVAGED`    | `dot`      | 21d       | a bleed, so a cleanse is the **only** way out   |
+
+⚠️ **`SAVAGED` is the first hostile status in the game that does not expire**, and that is the whole
+of what it buys: every debuff before it ran out on its own, so a cleanse was an optimisation rather
+than an exit. ⚠️ **Both of 21d's are safe to be permanent for the reason `THORNMAIL` is — they can
+only ever shorten a fight.** The defensive mirror of `BLOODRISEN`, a body that armoured itself as it
+was hurt, is the one shape of that idea nobody may author: it is the ninety-second clock with a
+narrative attached.
+
+That well of unspent pairs is real and it is finite; the next chapter that cannot find one has to
+make the case for growing this vocabulary on its own merits. ⚠️ **Neither "three chapters managed
+without" nor "21 had a budget" is that case** — milestone 21's budget is spent and closed, and a
+later chapter argues from nothing, exactly as 17 did.
 
 **`taunt`** is above, under targeting.
 

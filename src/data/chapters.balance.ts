@@ -528,6 +528,34 @@ const WEALDED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 10: the five that just took The Anvil Crowned, unchanged.
+ *
+ * ⚠️ **This is the Hollow Anvil's {@link INVESTED}, kept under a new name rather than re-derived**
+ * — the sixth time that has happened and the sixth time for the same reason. Re-pointing a single
+ * "arrived" party at each new chapter would silently stop checking that the chapter below is still
+ * finishable by the party it was tuned for, and two named parties per seam is what makes "clears the
+ * chapter behind it, and walks only a little way into the one ahead" checkable at both boundaries at
+ * once.
+ *
+ * Both numbers are derived from where chapter 9 ends, so a retune of that chapter re-aims this.
+ * `mythic-plus` is the rung it carries and its cap of 420 is **seventy levels below** chapter 9's
+ * closing level of 490 — the difficulty statement every chapter since the Bound Marches ships, and
+ * by a wider margin each time.
+ */
+const ANVILLED_RARITY = rarityIndex('mythic-plus');
+const ANVILLED_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[8] - 1].level,
+  LEVEL_CURVE.caps[ANVILLED_RARITY],
+);
+
+const ANVILLED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(ANVILLED_LEVEL, ANVILLED_RARITY),
+  ANVILLED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -545,27 +573,28 @@ const WEALDED: FormationData = mono(
  * Vault closes at 225, so milestone 18 took it to `legendary`; `legendary` caps at 200 and the
  * Waking Barrows close at 305, so milestone 21a took it to `legendary-plus`; that caps at 260 and
  * the Sunless Weald closes at 396, so 21b took it to `mythic`; that caps at 340 and the Hollow Anvil
- * closes at 490, so milestone 21c takes it to `mythic-plus`. In every case `legal` would have thrown
- * rather than quietly fielding an under-levelled party, which is exactly what that guard is for.
+ * closes at 490, so 21c took it to `mythic-plus`; that caps at 420 and The Bleeding Wild closes at
+ * 588, so milestone 21d takes it to `ascended`. In every case `legal` would have thrown rather than
+ * quietly fielding an under-levelled party, which is exactly what that guard is for.
  * **A rung roughly every fifty stages** is the cadence — it read "one per chapter" until the re-cut
  * multiplied the boundaries without moving the rung asks — and what this rung costs a player over
- * the Sunless Weald party is six more duplicate copies of each of the five: 50 against 44.
+ * the Hollow Anvil party is six more duplicate copies of each of the five: 56 against 50.
  *
  * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and every chapter
- * from 3 on has those differ — by more each time.** `mythic-plus` caps at 420 against a top stage of
- * 490, so this party finishes the ladder **seventy levels below the thing it is fighting**, where the
- * Weald left it fifty-six behind, the Barrows forty-five and the Marches twenty. That growth is 21a's
- * correction and it is arithmetic: a rung is worth ×1.6 and the enemy side has no rungs, so a chapter
- * that asks for an ascension has to climb past the cap that ascension buys — and because each chapter
- * hands the party a *fresh* rung on top of the levels it climbs, a constant margin cancels and the
- * gap compounds. The clamp is `Math.min` rather than a written number so a retune of either side
- * moves it.
+ * from 3 on has those differ — by more each time.** `ascended` caps at 500 against a top stage of
+ * 588, so this party finishes the ladder **eighty-eight levels below the thing it is fighting**,
+ * where the Anvil left it seventy behind, the Weald fifty-six and the Marches twenty. That growth is
+ * 21a's correction and it is arithmetic: a rung is worth ×1.6 and the enemy side has no rungs, so a
+ * chapter that asks for an ascension has to climb past the cap that ascension buys — and because each
+ * chapter hands the party a *fresh* rung on top of the levels it climbs, a constant margin cancels
+ * and the gap compounds. The clamp is `Math.min` rather than a written number so a retune of either
+ * side moves it.
  *
  * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, then 200 again at the
- * rung it started at, then 260, then 340, now 420 three rungs above.** Every one of those moves was
+ * rung it started at, then 260, 340, 420, now 500 four rungs above.** Every one of those moves was
  * the same move — the party is defined by where the content is, never by a number.
  */
-const INVESTED_RARITY = rarityIndex('mythic-plus');
+const INVESTED_RARITY = ASCENDED;
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -685,6 +714,11 @@ const wealdedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(WEALDED, stage),
 }));
+const anvilledSweeps = stages.map((stage) => ({
+  label: 'anvilled',
+  stage,
+  ...sweep(ANVILLED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -724,6 +758,7 @@ const everySweep = [
   ...vaultedSweeps,
   ...barrowedSweeps,
   ...wealdedSweeps,
+  ...anvilledSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -761,6 +796,9 @@ const BARROWS_END = CHAPTER_ENDS[6];
 
 /** The end of chapter 8 — the Sunless Weald — where the Hollow Anvil asks for the one after. */
 const WEALD_END = CHAPTER_ENDS[7];
+
+/** The end of chapter 9 — the Hollow Anvil — where The Bleeding Wild asks for the one after. */
+const ANVIL_END = CHAPTER_ENDS[8];
 
 describe('ladder balance', () => {
   it('never runs the clock out on a fight either party is meant to have', () => {
@@ -990,6 +1028,41 @@ describe('ladder balance', () => {
     // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
     const walked = wealdedSweeps
       .slice(WEALD_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * 0.2);
+  });
+
+  it('lets the party that finished chapter 9 clear chapters 1 through 9', () => {
+    // The Bleeding Wild's seam, measured the same way as the five above it. This party is literally
+    // the Hollow Anvil's `INVESTED` under a new name, so this assertion is the old "clearable end to
+    // end" claim kept alive after the ladder grew past it — the sixth time that has been needed and
+    // the sixth time the alternative would have been to stop checking the chapter below.
+    const unreliable = anvilledSweeps
+      .slice(0, ANVIL_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Bleeding Wild as well', () => {
+    // ⚠️ **The assertion The Bleeding Wild exists to satisfy.** The wild climbs 490 to 588 — almost
+    // exactly two levels a stage — so a party arriving at the `mythic-plus` cap of 420 is behind from
+    // the first stage and eighty-eight levels behind by the last. That gap is 21a's corrected margin
+    // rule working, and it has grown every chapter since: +20, +25, +45, +56, +70, +88.
+    //
+    // What is meant to stop it beyond the gap is that every board here has an opinion about what the
+    // party's damage **does to the thing it is spent on**: fodder that is a third stronger for being
+    // chipped, a support that arms whatever the party has committed to, wounds that only a cleanse
+    // ever closes, a pack paid for every blow it lands, and a door that gets stronger while the party
+    // knocks on it.
+    //
+    // A ceiling on momentum rather than a wall at the boundary, exactly as the six below it are, and
+    // bounded as a share of the whole ladder so it stays meaningful as chapters are added.
+    const walked = anvilledSweeps
+      .slice(ANVIL_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
@@ -1556,20 +1629,22 @@ describe('the shape of the climb', () => {
     // and it is the reason the bracket is checked at all.
     //
     // ⚠️ **Chapter 9 needed it again, exactly as 21b predicted — "expect to widen it again roughly
-    // every other chapter" turned out to be every chapter at this depth.** `c9-s50` asks about
-    // 135,000 against a fifty-thousand ceiling, because the bracket has to span the *party's* power
-    // and that is `1.021 ** (level - 1) × 1.6 ** rungs` — both of which the margin rule now grows
-    // faster than a chapter's stage count does. Five hundred thousand leaves the shipped top a
-    // factor of 3.7.
+    // every other chapter" turned out to be every chapter at this depth — and chapter 10 needed it
+    // for the third time running.** `c9-s50` asked about 135,000 against a fifty-thousand ceiling and
+    // `c10-s50` asks about 1,193,000 against five hundred thousand, because the bracket has to span
+    // the *party's* power and that is `1.021 ** (level - 1) × 1.6 ** rungs` — both of which the
+    // margin rule now grows faster than a chapter's stage count does. Five million leaves the
+    // shipped top a factor of 4.2.
     //
     // **The step count goes with it or the resolution decays**, which is the half that is easy to
-    // forget: a bisection in log space halves its range per step, so widening the bracket by ten
-    // costs between three and four steps to hold the same ~0.1% resolution. Fourteen over
-    // `[0.05, 50000]` was 0.08%; sixteen over `[0.05, 500000]` is 0.03%.
+    // forget: a bisection in log space halves its range per step. Fourteen over `[0.05, 50000]` was
+    // 0.08%, sixteen over `[0.05, 500000]` was 0.03%, and seventeen over `[0.05, 5000000]` is
+    // **0.014%** — a step buys back far more than a factor of ten costs, which is why the count only
+    // has to move every few widenings rather than every one.
     let low = 0.05;
-    let high = 500000;
+    let high = 5000000;
     expect(clears(high), `${stage.id} is unclearable at any power`).toBe(true);
-    for (let step = 0; step < 16; step++) {
+    for (let step = 0; step < 17; step++) {
       const mid = Math.sqrt(low * high);
       if (clears(mid)) {
         high = mid;

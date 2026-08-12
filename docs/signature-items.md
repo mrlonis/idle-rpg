@@ -192,19 +192,27 @@ highest enemy level the party clears at least half the time**. A maxed item buys
 
 | Character | Bare reach | Gain | Character | Bare reach | Gain |
 | --------- | ---------- | ---- | --------- | ---------- | ---- |
-| Aurelia   | 424        | +31  | Corvane   | 422        | +31  |
-| Thraun    | 409        | +15  | Vurn      | 415        | +18  |
-| Aelrindel | 437        | +33  | Maelis    | 421        | +18  |
-| Nekros    | 433        | +24  | Carrow    | 435        | +34  |
-| Vharok    | 430        | +35  | Vrakk     | 428        | +35  |
-| Seraphine | 433        | +9   | Cassiel   | 429        | +29  |
-| Azrathoth | 445        | +33  | Nazreth   | 434        | +29  |
+| Aurelia   | 423        | +30  | Corvane   | 424        | +32  |
+| Thraun    | 416        | +14  | Vurn      | 418        | +19  |
+| Aelrindel | 436        | +21  | Maelis    | 427        | +18  |
+| Nekros    | 435        | +25  | Carrow    | 437        | +35  |
+| Vharok    | 435        | +36  | Vrakk     | 435        | +36  |
+| Seraphine | 440        | +14  | Cassiel   | 434        | +31  |
+| Azrathoth | 448        | +22  | Nazreth   | 435        | +26  |
 
-⚠️ **These have moved twice with no item or stat block changed, and both times for the same reason.**
-`contested()` picks the hardest stage and seeds off its `stage.id`, so milestone 19 renaming it
-`c4-s50` → `c6-s50` moved the original seven, and milestone 21b's chapter 8 replacing it with
-`c8-s50` moved all fourteen — a different board as well as a different seed. These numbers are only
-comparable within one cut of the ladder: **re-measure the whole table or none of it.**
+⚠️ **These have moved four times with no item or stat block changed, and every time for the same
+reason.** `contested()` picks the hardest stage and seeds off its `stage.id`, so milestone 19 renaming
+it `c4-s50` → `c6-s50` moved the original seven, and chapters 8, 9 and 10 replaced it with `c8-s50`,
+`c9-s50` and `c10-s50` in turn — a different board as well as a different seed each time. These
+numbers are only comparable within one cut of the ladder: **re-measure the whole table or none of
+it.**
+
+⚠️ **What moves between cuts is not predictable, and 21c's rule for it did not survive 21d.** That cut
+saw bare reach rise fifteen to thirty levels while the gains barely moved, and recorded it as the
+shape to expect; the next cut saw bare reach rise **nought to seven** while five of the fourteen gains
+moved by five — including Seraphine's, which had been +9 for three cuts running and is +14 here. What
+survives is only the weaker claim: **the gains move less than the reach figures** (all fourteen
+within five, eight within three). Re-measure rather than predicting.
 
 ⚠️ **+2% to +8% reads modest and is not.** Measured instead as win rate at a fixed contested level,
 the same items take Aurelia, Aelrindel, Nekros and Vharok from **0.00 to 1.00**. Win rate near a
@@ -226,7 +234,9 @@ wipe. The answer was to field the hardest authored line-up at the party's own le
 at **160** against 340 (×2.1), the Sundered Vault at **225** (×1.5) and the Waking Barrows at **305**
 (×1.11) — narrowing by less each time, because the level band flattens as content lengthens.
 
-**The Sunless Weald closes it at 396**, so `contested()` now returns the stage as `data/` wrote it.
+**The Sunless Weald closes it at 396**, so `contested()` now returns the stage as `data/` wrote it —
+and the gap keeps opening rather than closing again: chapter 9 tops out at 490 and chapter 10 at
+**588**, which is ×1.7 the unlock rung's cap.
 
 ⚠️ **Removing the override changed none of the numbers, and that is the part worth carrying.**
 `reach()` overwrites `level` on every trial it runs, so the field the override set was dead on

@@ -599,6 +599,94 @@ export const HEXBRAND = {
   power: 1.5,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bleeding Wild — milestone 21d's two, and the last of that milestone's vocabulary budget
+//
+// Both are the same statement from the two sides of the board: **what the party does to this
+// chapter is what arms it, and neither half of that wears off.** Every friendly stat-mod in the
+// game runs {@link STANDARD} and every hostile status in the game expires — so being wounded has
+// always been a *window* the party waits out, and a cleanse has always been an optimisation rather
+// than the only way out. Down here it is neither.
+//
+// ⚠️ **Both are safe to be permanent for the same reason {@link THORNMAIL} is: they can only ever
+// shorten a fight.** One is extra damage on the party and the other is extra damage from the
+// board; neither puts health back, so no version of this chapter's signature is a step toward the
+// ninety-second timeout that is scored as a defeat. That is what separates them from the permanent
+// *defensive* answer nobody may author — a board that got tankier as it was hurt is a clock.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A wounded thing that never calms down: a third again on its attack for the rest of the fight.
+ *
+ * ## What no pair of shipped parts says
+ *
+ * The Wrathborn has answered its own wound since the fen — `Wrath Unbound` rallies and hastens it
+ * for forty-five ticks below half health — and the Ashfall Sovereign carries the same turn. That
+ * is a **window**: a party that survives four turns has survived it, and the body it was on is back
+ * to what it was. This does not lapse, so the question stops being *can we weather it* and becomes
+ * **how the party spends its damage**: hurting five bodies without killing them arms five of them
+ * for the whole fight, and finishing one at a time arms at most one.
+ *
+ * That is the inverse of the Sunless Weald's third band, which is the point of standing them a
+ * chapter apart. {@link ROOTBOUND} punishes focus and rewards spread; this punishes spread and
+ * rewards finishing — so a party that learned the weald's lesson arrives holding exactly the wrong
+ * habit, and both answers are compositions rather than tactics.
+ *
+ * ⚠️ **Exactly {@link RALLY}'s three tenths, which is the one place this breaks the pattern
+ * `ROOTBOUND` set** — a permanent link is sized *below* the cast one because it is the shape of
+ * every fight on the board rather than a window. Two things pay for the difference here. It costs
+ * the body the turn it applies it on, which a link laid as an `opening` never pays; and it is
+ * conditional on being wounded, so the board only ever holds it on bodies that have already lost
+ * half of what they had. `Wrath Unbound` buys a rally **and** a haste for one turn, so this is the
+ * smaller purchase of the two even before the condition is counted.
+ */
+export const BLOODRISEN = {
+  kind: 'stat-mod',
+  id: 'bloodrisen',
+  name: 'Bloodrisen',
+  hostile: false,
+  duration: PERMANENT,
+  stat: 'atk',
+  multiplier: 1.3,
+} as const;
+
+/**
+ * A wound that does not close: a small bleed that runs until somebody spends a turn on it.
+ *
+ * ⚠️ **The first hostile status in the game that does not expire, and that is the whole of what it
+ * buys.** Everything a cleanse has ever answered runs out on its own — the debuffs at
+ * {@link STANDARD}, a poison at {@link LINGERING}, the bombs between twenty-four and fifty ticks,
+ * a stun at sixteen. So a cleanse has always been an *optimisation*: spend it and take less, skip
+ * it and take the rest. Here it is the only clock, and a party with no cleanse carries this until
+ * the fight ends.
+ *
+ * ⚠️ **Priced per _fight_ rather than per proc, and the two readings differ by a factor of four.**
+ * A dot ticks on its holder's own turn, so this is worth `power × turns survived` where a
+ * {@link BLEED} is worth `power × four` and then stops. Measured on `c10-s50`, which runs about
+ * fourteen seconds: a carrier takes **ten procs**, so at 0.12 the wound lands ~1.2 of the applier's
+ * `atk` — **level with a bleed in this chapter's hardest fight, and strictly more in any longer
+ * one**, which is the statement the mechanic is for.
+ *
+ * ⚠️ **It was authored at 0.08 and that was wrong, measurably.** Eight hundredths is ~0.8 over the
+ * same fight, so the status that never expires was worth *less* than the one that lapses after four
+ * turns — the mechanic reading as a decision while doing nothing a player would spend a turn on. The
+ * fix costs 0.08 of a survivor at the chapter final (4.08 → 4.00 of five) and moves no other stage.
+ * **Read this per fight when repricing it**, and re-measure the proc count rather than assuming: it
+ * is a function of how long the boards actually run, which is a tuning output rather than an input.
+ *
+ * Physical, so the resist that answers this chapter's raw attack answers this too — a Monster
+ * chapter should not be the one that quietly requires magic resist.
+ */
+export const SAVAGED = {
+  kind: 'dot',
+  id: 'savaged',
+  name: 'Savaged',
+  hostile: true,
+  duration: PERMANENT,
+  damageType: 'physical',
+  power: 0.12,
+} as const;
+
 export const STATUSES = [
   SUNDER,
   WEAKEN,
@@ -634,4 +722,6 @@ export const STATUSES = [
   EMBER_SEED,
   DOOMBRAND,
   HEXBRAND,
+  BLOODRISEN,
+  SAVAGED,
 ] as const;

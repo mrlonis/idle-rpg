@@ -151,81 +151,51 @@ describe('where the curve lands, in hours of idle income', () => {
     expect(Math.max(at40.gold, at40.xp, at40.essence)).toBeLessThan(6);
   });
 
-  it('leaves the ceiling aspirational rather than a grind to schedule', () => {
-    // The cap must stay far out of reach of the ladder that ships. Level 1000 is a chapter-100
-    // target; three chapters exist, so a reachable ceiling would mean the curve had been flattened
-    // or the rates inflated past what the content justifies.
-    //
-    // ## ⚠️ This was an absolute number of hours, twice, and milestone 17 replaced the *shape*
-    //
-    // It read `hoursTo(1000).gold > 500`, lowered once from 1,000 when the base rates doubled —
-    // and that note ended "the next thing that raises income has to move the curve rather than
-    // this number". A third chapter is the next thing, and following that instruction would have
-    // been wrong, because the number was measuring something that has to fall.
-    //
-    // **Income at the top of the ladder rises with every chapter by design** — it is
-    // `base × index ** 1.13` over the *linear* stage index — so hours-to-the-ceiling shrinks on
-    // every chapter forever: 1,175 → 588 → 372 across two changes, and it would reach a weekend
-    // somewhere around chapter twelve with nothing whatsoever wrong. An assertion guaranteed to
-    // fail on all ninety-seven remaining chapters is not a guard being tripped, it is a guard
-    // pointed at the wrong quantity. Steepening the level curve on each chapter to hold an
-    // absolute figure would have been the same mistake spread over ninety-seven retunes, and would
-    // make the ceiling *permanently* unreachable — which is not what a chapter-100 target means.
-    //
-    // What is actually invariant is the **distance between the ceiling and what the content asks
-    // for**, so that is what is asserted now. Both ends are derived: the ceiling from the curve,
-    // the demand from the last stage the ladder ships. Income cancels out of the ratio entirely,
-    // which is the point — this catches a flattened curve, or content whose level demands run away
-    // toward the cap, and nothing else. The two failure modes it stopped covering are covered by
-    // the assertion below and by `banners.spec.ts`.
-    //
-    // ⚠️ **This floor is *meant* to fall as the ladder grows, and at chapter 100 it is meant to
-    // reach 1** — that is what "level 1000 is a chapter-100 target" means. Three chapters in it is
-    // ×84 and drops by roughly a third with each chapter authored, so it will fire again in a few.
-    // When it does, the question to ask is not "what number goes here" but **whether the ladder has
-    // come far enough to have earned the distance it has closed** — and the structural claim below
-    // is the one that answers it without an opinion in it.
-    //
-    // ## It fired at chapter 7, and the number below is milestone 21's landing rather than 21a's
-    //
-    // Measured across the four chapters that milestone ships: **37.1** at chapter 6, 20.9 at 7,
-    // 11.5 at 8, 7.1 at 9 and **4.8** at 10. The floor was 25 and it is now 4 — four chapters'
-    // worth of fall taken in one edit, because the whole push is one decision and re-deriving this
-    // per chapter would be four edits of a quantity that is *supposed* to fall.
-    //
-    // ⚠️ **The cost of doing it that way is that this stops watching anything until chapter 10**,
-    // and the margin when it arrives there is thin: 4.76 against a floor of 4 is nineteen percent,
-    // not the comfortable distance the earlier re-derivations left. The structural claim below is
-    // load-bearing for that whole stretch, and it is the one to read if a chapter's level line
-    // looks like it has run away.
-    const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
-    const ceiling = hoursTo(curve.maxLevel);
-    const demanded = hoursTo(topLevel);
-    const ratio = Math.min(
-      ceiling.gold / demanded.gold,
-      ceiling.xp / demanded.xp,
-      ceiling.essence / demanded.essence,
-    );
-
-    expect(topLevel).toBeGreaterThan(0);
-    expect(ratio, 'the ceiling must cost far more than the ladder itself asks for').toBeGreaterThan(
-      4,
-    );
-  });
-
   it('leaves rungs unspent above everything the ladder asks for', () => {
-    // The structural half, in the currency the game actually progresses in. Hours inflate with
-    // income and rungs do not: there are sixteen of them, the ladder asks for one every chapter or
-    // so, and what "the ceiling is aspirational" means concretely is that a player finishing the
-    // shipped content still has ascensions in front of them.
+    // **"The ceiling stays aspirational", stated in the currency the game actually progresses in.**
+    // Hours inflate with income and rungs do not: there are sixteen of them, the ladder asks for one
+    // roughly every fifty stages, and what an aspirational ceiling means concretely is that a player
+    // who has finished the shipped content still has ascensions in front of them.
     //
     // Four rungs of headroom rather than one, because the last rungs hand out a hundred levels each
     // — a ladder whose top stage sat inside the final rung's band would be asking for the last
-    // ascension in the game, and there would be nothing left for ninety-odd chapters to want.
+    // ascension in the game, and there would be nothing left for the chapters after it to want.
     // Derived from `caps`, so adding or repricing a rung moves it.
+    //
+    // ## ⚠️ This is the sole owner of that claim since milestone 21d, and two guards were retired
+    // into it
+    //
+    // Both of them measured the same thing in units that decay as content ships, and both had
+    // already been re-derived once each:
+    //
+    // - **`hoursTo(1000).gold > 500`**, retired in milestone 17. Income at the top of the ladder
+    //   rises with every chapter *by design*, so hours-to-the-ceiling shrinks forever — 1,175 → 588
+    //   → 372 — and would have reached a weekend around chapter twelve with nothing whatsoever
+    //   wrong. It was replaced by a **ratio** of that figure to what the top stage demands, which
+    //   income cancels out of.
+    // - **That ratio**, retired here. It is *also* meant to fall — its own comment said so, and set
+    //   its floor to 4 covering four chapters at once — and at chapter 10 it reads **3.62**. The
+    //   question its comment said to ask when it fired was "has the ladder come far enough to have
+    //   earned the distance it has closed", which is not a question a threshold can answer: the
+    //   quantity it measures falls whether the answer is yes or no.
+    // - **`chapters.spec.ts`'s `top < maxLevel / 2`**, retired in the same session for the same
+    //   reason and with the same conclusion — see that file.
+    //
+    // ⚠️ **What replaces them is nothing, deliberately.** The two failure modes they were meant to
+    // catch are both still covered: a flattened curve or inflated rates fire the floor of "charges
+    // real time" below, and content whose level demands run away fire *this* — which cannot decay,
+    // because the rung count is fixed however long the ladder gets.
+    //
+    // ⚠️ **What 21d measured while doing it**: the level line adds about ninety levels a chapter
+    // now, so this assertion fires at **chapter 12** and the curve is consumed entirely around
+    // chapter 15 — not the chapter 100 the old prose assumed, which was written before 21a's
+    // corrected margin rule made the line superlinear. When it fires, the honest question is how
+    // long the campaign is meant to be, and the answer is a roadmap decision rather than a number
+    // that goes here.
     const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
     const headroom = curve.caps[curve.caps.length - 4];
 
+    expect(topLevel).toBeGreaterThan(0);
     expect(topLevel).toBeLessThan(headroom);
   });
 

@@ -2,6 +2,7 @@ import {
   AEGIS,
   BARRIER,
   BLEED,
+  BLOODRISEN,
   BURN,
   CHAINBOND,
   DOOMBRAND,
@@ -14,6 +15,7 @@ import {
   RALLY,
   REGENERATION,
   ROOTBOUND,
+  SAVAGED,
   SLOW,
   STUN,
   SUNDER,
@@ -3553,6 +3555,217 @@ export const THE_ANVIL_FALLS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bleeding Wild — milestone 21d
+//
+// ⚠️ **Seven turns and the milestone's last two statuses.** 21a spent none of the three, 21b spent
+// one and 21c spent none; both remaining go here, and the argument for each is in
+// [`statuses.ts`](./statuses.ts) rather than restated. What the turns below are for is *aiming*
+// them: {@link BLOODRISEN} at three weights and {@link SAVAGED} at two, because a lock the party
+// meets once is a stat block and a lock it meets at fodder, at weight and board-wide is a chapter.
+//
+// | Skill             | What it says                                                          |
+// | ----------------- | --------------------------------------------------------------------- |
+// | Blood Risen       | hurting it is what arms it, and it does not calm down                 |
+// | Blood Calls Blood | the pack arms whatever the party has committed to                     |
+// | The Pack Answers  | one wounded body arms all of them                                     |
+// | Rake              | a wound that runs until somebody spends a turn on it                  |
+// | Open the Vein     | the same wound, on the body the party cannot spare                    |
+// | Challenge Bellow  | the one thing you may hit is the thing you least want to wound        |
+// | The Long Bleed    | all five of them, at once, on the body that grows as it dies          |
+//
+// **Three of the seven are the same status at three widths, which is deliberate rather than lazy.**
+// A `self` frenzy is a body's own decision, an `ally-lowest` one is a support making it for the body
+// the party chose, and an `ally-all` one is the board making it for everything at once — three
+// different questions about who the party's damage is spent on, which is the shape
+// {@link IRON_FOR_IRON} and {@link DRAW_INTO_THE_ROOT} already proved on their own statuses.
+//
+// ⚠️ **Nothing here puts health back, and on this chapter that is a rule rather than a preference.**
+// The Monster idiom is `lifeLeech`, which is sustain tied to damage dealt — so a board that leeches
+// *and* grows as it is hurt is the ninety-second clock with extra steps. The leech stays on the stat
+// blocks, at the sizes the faction already carries, and never on a board with a taunt.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The wounded thing, and it does not calm down.
+ *
+ * ⚠️ **{@link WRATH_UNBOUND}'s condition with a permanent status on the end of it**, and the pair is
+ * worth reading together because the difference is the whole band. A Wrathborn below half health
+ * rallies and hastens itself for forty-five ticks: a **window**, and a party that weathers four
+ * turns has weathered it. This does not lapse, so the party is not being asked whether it can
+ * survive a window — it is being asked **how it spends its damage**. Chipping five bodies without
+ * killing them arms five of them for the rest of the fight; finishing one at a time arms at most
+ * one.
+ *
+ * That is the inverse of the Sunless Weald's third band, which is why the two stand a chapter apart:
+ * {@link ROOTBOUND} punishes focus and rewards spreading, and this punishes spreading and rewards
+ * finishing. A party arriving with the weald's habit is holding exactly the wrong one.
+ *
+ * ⚠️ **Safe for the clock, and by the same argument every permanent status on the enemy side has
+ * had to make**: it is a multiplier on the board's *attack*, so every version of this ends the fight
+ * sooner. The defensive mirror — a body that armoured itself as it was hurt — is the one shape of
+ * this nobody may author.
+ *
+ * ⚠️ **A cooldown does not stop a body re-applying a permanent status, it only paces it** — nothing
+ * in the vocabulary can express "unless I already have this", since `status-absent` reads the
+ * *opposing* side. So a body that lives long enough spends a turn every sixty ticks refreshing what
+ * it already has, which is pure waste. **Sixty is kept because the waste was measured and is
+ * nearly nothing**: fights on these boards run 150 to 250 ticks and the condition is met late in
+ * them, so the chapter final measures 100% and 4.00 survivors either way, and the two only separate
+ * past the tuned level (68% against 63% at 594). If a later chapter fields this on something that
+ * survives a long fight, raise the cooldown past `MAX_BATTLE_TICKS` rather than assuming the same
+ * holds.
+ */
+export const BLOOD_RISEN = {
+  id: 'blood-risen',
+  name: 'Blood Risen',
+  target: 'self',
+  effects: [{ kind: 'status', status: BLOODRISEN }],
+  cooldown: 60,
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  priority: 3,
+} as const;
+
+/**
+ * The pack arms whatever the party has decided to kill.
+ *
+ * {@link IRON_FOR_IRON} and {@link DRAW_INTO_THE_ROOT} are the two shipped statements of this shape
+ * — a support waiting until the party commits, and then doing something to *that* body — and this is
+ * the third and the most direct. Both of those change what the party's damage **costs** or **where it
+ * goes**; this changes what the body being killed is **worth to the board while it dies**.
+ *
+ * ⚠️ **It is the reason band 1 is not answered by "just kill the wounded thing first".** A frenzy on
+ * `self` is a body's own decision and the party can pre-empt it by finishing what it started; this
+ * one arrives on the body the party has already committed to, on a turn the party does not control.
+ */
+export const BLOOD_CALLS_BLOOD = {
+  id: 'blood-calls-blood',
+  name: 'Blood Calls Blood',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: BLOODRISEN }],
+  cooldown: 50,
+  condition: { kind: 'ally-hurt', fraction: 0.75 },
+  priority: 4,
+} as const;
+
+/**
+ * One of them bleeds and all of them answer.
+ *
+ * The chapter's lieutenant signature, and ⚠️ **reactive rather than an opening turn**, which is the
+ * shape {@link THE_GRUDGEKEEPER} found and this keeps. The Gravewright and the Longshadow set their
+ * boards up on tick one and then stopped; a chapter about what the party's damage *does* cannot
+ * state its lock before the party has done any.
+ *
+ * At `ally-all` it is the widest the frenzy goes, and the condition is looser than
+ * {@link BLOOD_CALLS_BLOOD}'s on purpose — one chipped body is enough. So the board's answer to a
+ * row attack is total, and the party that opened with one has armed everything it did not kill.
+ *
+ * ⚠️ **A seventy-tick cooldown, and it fires perhaps twice in a fight.** Re-applying refreshes
+ * rather than stacks, so the second cast is only ever worth what it catches that the first missed —
+ * the bodies that were still whole when the pack first answered.
+ */
+export const THE_PACK_ANSWERS = {
+  id: 'the-pack-answers',
+  name: 'The Pack Answers',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BLOODRISEN }],
+  cooldown: 70,
+  condition: { kind: 'ally-hurt', fraction: 0.85 },
+  priority: 5,
+} as const;
+
+/**
+ * A wound that runs until somebody spends a turn on it.
+ *
+ * ⚠️ **The first hostile status in the game that does not expire**, and what that does to a party is
+ * change what a cleanse *is*. Every debuff on the ladder so far runs out on its own, so a cleanse has
+ * been an optimisation — spend it and take less, skip it and take the rest. {@link SAVAGED} makes the
+ * cleanse the only clock, and a party fielding none carries every wound it takes to the end of the
+ * fight.
+ *
+ * Deliberately small per proc and deliberately certain: there is no `chance` on it, because a
+ * question about *whether to spend the answer* is ruined by a version of it that sometimes does not
+ * need answering. What varies is how many of them are running at once.
+ */
+export const RAKE = {
+  id: 'rake',
+  name: 'Rake',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SAVAGED },
+  ],
+  cooldown: 35,
+  priority: 3,
+} as const;
+
+/**
+ * The same wound, on the body the party can least afford to spend a cleanse on.
+ *
+ * `enemy-back` is where the party's healer stands, and a healer carrying a bleed that never lapses
+ * is a healer choosing between mending somebody else and stopping its own. That is the band's
+ * second half: {@link RAKE} asks how many wounds the party can carry, and this asks **which** of
+ * them it is willing to.
+ */
+export const OPEN_THE_VEIN = {
+  id: 'open-the-vein',
+  name: 'Open the Vein',
+  target: 'enemy-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SAVAGED },
+  ],
+  cooldown: 45,
+  priority: 4,
+} as const;
+
+/**
+ * It stands up, and everything else on the board stops being a legal target.
+ *
+ * ⚠️ **The pair band 4 is built from, and it is a different sentence from the Hollow Anvil's.** That
+ * chapter put a taunt on a body the party could not *open*; this puts one on a body the party had
+ * better not **wound** — it carries {@link BLOOD_RISEN}, so the one thing a single-target party is
+ * permitted to hit is the one thing that gets permanently stronger for being hit. Reach is worth
+ * nothing while the door is shut, and the door arms itself while the party knocks.
+ *
+ * The answer is the one the taunt rule has always left open: kill it inside the window, or bring a
+ * row attack and spend the door's own turns hitting what is behind it.
+ *
+ * ⚠️ **Sixty ticks against a forty-five tick taunt**, which `skills.spec.ts` holds and which is what
+ * leaves a single-target party a window at the rest of the board.
+ */
+export const CHALLENGE_BELLOW = {
+  id: 'challenge-bellow',
+  name: 'Challenge Bellow',
+  target: 'self',
+  effects: [{ kind: 'status', status: OATHSHIELD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * All five of them at once, from the thing that grows as it dies.
+ *
+ * {@link DOOMKNELL} is the shape — a payload on every member, against a cleanse that removes a fixed
+ * count — and the difference is that a doom goes off and this one does not stop. Five permanent
+ * bleeds against one cleanse is the chapter's second band restated as arithmetic the party cannot
+ * win outright: it can clear the two that matter and the other three run to the end of the fight.
+ *
+ * ⚠️ **Wide, so the damage clause is small** — `skills.spec.ts` caps a row or wave skill at 1.2, and
+ * this sits under it because the bleed is the point and the swing is the delivery.
+ */
+export const THE_LONG_BLEED = {
+  id: 'the-long-bleed',
+  name: 'The Long Bleed',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.1 },
+    { kind: 'status', status: SAVAGED, chance: 0.85 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -3769,4 +3982,11 @@ export const SKILLS = [
   THE_QUENCH,
   IRON_FOR_IRON,
   THE_ANVIL_FALLS,
+  BLOOD_RISEN,
+  BLOOD_CALLS_BLOOD,
+  THE_PACK_ANSWERS,
+  RAKE,
+  OPEN_THE_VEIN,
+  CHALLENGE_BELLOW,
+  THE_LONG_BLEED,
 ] as const;

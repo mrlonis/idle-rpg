@@ -267,16 +267,19 @@ bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine
 **100**: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
 
 Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — taking it to
-125, and 21b's fired it at three hundred — **23.4%** — taking it to **150**. Both restore 18.7% over
-the ladder that actually ships. Same move, longer ladder, three times now.
+125; 21b's fired it at three hundred — **23.4%** — taking it to 150; 21c's at three hundred and fifty
+— **22.6%** — taking it to 175; and 21d's at four hundred — **22.1%** — taking it to **200**. Every
+one restores 18.7% over the ladder that actually ships. Same move, longer ladder, five times now.
 
-⚠️ **Three re-derivations landing on the same 18.7% is the tell that the number is being solved for
-and the shape is not.** A tilt linear in the stage index has no ceiling, so the top grade's share
-climbs without bound and no constant is right for more than one chapter: at 150 it reads 22.6% and
-26.4% at chapters 9 and 10, the two milestone 21 has left. What this eventually wants is a tilt that
-**saturates** — a share that approaches a ceiling instead of passing through it — and the thing to
-stop doing is picking another constant. It is recorded rather than fixed because milestone 21
-forbids taking the scope; see [milestones](milestones.md).
+⚠️ **Five re-derivations landing on the same 18.7% is the tell that the number is being solved for
+and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
+and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 11
+will want 225. What this eventually wants is a tilt that **saturates** — a share that approaches a
+ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
+is recorded rather than fixed because milestone 21 forbids taking the scope; see
+[milestones](milestones.md).
 
 ⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
 bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
@@ -284,6 +287,14 @@ bought the whole milestone in one go, on the grounds that this quantity is **not
 tilt easier to forget rather than more likely to get written. That is the opposite of the call 21a
 made on the level ceiling's ratio and on the tower:campaign floor, and the distinction is exactly
 whether the quantity is _supposed_ to fall. Those two are; this one is a bug being papered over.
+
+⚠️ **21d confirmed that call and the confirmation is worth recording**, because "declining a
+labour-saving edit" is the kind of decision that looks like fussiness a year later. Had 200 been
+written in 21b, the fourth and fifth landings would both have been silent — and it is the fifth that
+turned "always 18.7%" into "always `stages / 2`", which is the finding that makes the saturating tilt
+writable at all. The batched call on the level ceiling's ratio went the other way: that guard watched
+nothing for four chapters and was then **retired** in 21d rather than re-derived, so nothing was lost
+by batching it.
 
 ### ⚠️ Gear's gold cost is a constant, and the economy around it is not
 

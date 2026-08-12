@@ -348,6 +348,24 @@ archers** is worth about a quarter more than a **bound back rank**. A bind costs
 and a taunt costs it its targets, and the probe reads the second as heavier. It took two passes of
 adding weight to clear the tolerance.
 
+### ⚠️ Check a chapter's header against its boards with a script, not by reading
+
+Three sessions in four have found a chapter's own prose wrong about its own boards: chapter 7's Cairn
+King note, chapter 8's "no celestial appears here", and chapter 10's "nothing that puts health back
+stands on a board with a taunt" — which shipped a `lifeLeech` body behind the taunt on one board of
+fifty. **The boards are swept and the prose is not**, so an absolute claim in a header is the one
+kind of documentation nothing in the suite reads.
+
+Every such claim is a two-line predicate over the chapter's `stages`: at most one taunter per board,
+no sustain on a taunt board, no celestial anywhere, no other chapter's final. Running them takes
+seconds. **Reading fifty boards carefully does not work** — it has now failed three times, and the
+third failure was on the session that wrote the rule down.
+
+These are deliberately **not** specs. A chapter's authoring rules are that chapter's rather than the
+game's, so asserting them in `chapters.spec.ts` would either be wrong for the next chapter or grow a
+per-chapter branch. A scratch script run once at the end of authoring is the right weight — the same
+place the tuning probes sit.
+
 ### ⚠️ A sixth trap: the probe's bracket is content-sized, and it fails silently upward
 
 `threshold()` bisects in log space between a `low` and a `high`, and `high` was 4,000 — set when
@@ -360,8 +378,19 @@ every "does this stage ask more than the last" assertion passing on ties.
 The one line that catches it is the `expect(clears(high))` beside the bisection, which asserts the
 bracket actually spans the stage. **Keep it, and widen the bracket and its step count together**: a
 bisection halves its log range per step, so a wider bracket at a fixed step count silently coarsens
-the resolution instead. It is 50,000 over 14 steps now, and it will want widening again roughly every
-other chapter.
+the resolution instead.
+
+⚠️ **"Roughly every other chapter" turned out to be _every_ chapter at this depth**, and the reason is
+worth carrying: the bracket has to span the **party's** power, `1.021 ** (level - 1) × 1.6 ** rungs`,
+which grows with the margin rule rather than with the stage count. It went 4,000 → 50,000 over 14
+steps, → 500,000 over 16 (chapter 9, asking 135,000), → **5,000,000 over 17** (chapter 10, asking
+1,193,000).
+
+⚠️ **The ceiling and the step count do not move on the same schedule, which is the half that reads
+backwards.** A factor of ten on the range costs almost nothing in resolution because `2^n` is already
+enormous — 16 steps over `[0.05, 500000]` resolves to 0.03% and over `[0.05, 5000000]` to 0.028% —
+while a single extra step nearly halves it, to 0.014%. So **widen the ceiling every chapter and add a
+step every few**, and check the arithmetic rather than applying a rule of thumb.
 
 ### Scope a timeout guard to fights the party wins
 

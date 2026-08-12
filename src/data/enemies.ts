@@ -2,8 +2,11 @@ import {
   ANTIPHON,
   BARROW_TITHE,
   BIND_THE_CONCORD,
+  BLOOD_CALLS_BLOOD,
+  BLOOD_RISEN,
   BROKEN_COVENANT,
   BULWARK,
+  CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CINDER_STORM,
   CUTPURSE,
@@ -20,12 +23,15 @@ import {
   HERALDS_ANTHEM,
   IRON_FOR_IRON,
   LITANY,
+  MAUL,
   MEND,
   MIRE,
   MOONSONG,
   MOTE_LANCE,
+  OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
+  RAKE,
   RIFTFALL,
   ROOTWAKE,
   RUINOUS_ARC,
@@ -36,7 +42,9 @@ import {
   STONE_FIST,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
+  THE_LONG_BLEED,
   THE_LONG_LOOSE,
+  THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_SEAL_BREAKS,
   THORNLASH,
@@ -2951,6 +2959,377 @@ export const THE_ANVIL_CROWNED = {
   skills: [THE_ANVIL_FALLS, THE_QUENCH, GLACIAL_SLAM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Bleeding Wild — milestone 21d
+//
+// Ten Monster blocks, which takes the faction 8 → **18** and finishes the four leans milestone 21
+// fixed up front: undead, elf and dwarf are already at seventeen or eighteen apiece.
+//
+// ## What the chapter asks, and where each band's lock lives
+//
+// The barrows asked *how* the party's damage arrives, the weald *where* it lands and the anvil
+// whether **anything the party does stays done**. This asks what the party's damage **does to the
+// thing it is spent on** — because down here what you do to it is what arms it, and neither half of
+// that wears off.
+//
+// | Band | The lock                                                    | Built from                     |
+// | ---- | ----------------------------------------------------------- | ------------------------------ |
+// | 1    | hurting it is what arms it                                  | {@link BLOOD_RISEN}            |
+// | 2    | what it does to you does not come off by itself             | {@link RAKE}                   |
+// | 3    | what you spread, you feed                                   | a pair: `lifeLeech` and a pack |
+// | 4    | the one thing you may hit is the one you must not wound     | a pair: a taunt on a frenzy    |
+// | 5    | all four, on a body that grows as it dies                   | {@link THE_EVERWOUND}          |
+//
+// ⚠️ **Band 4 is the Hollow Anvil's pair with a different sentence in it.** That chapter's taunt was
+// worn by a body the party could not *open*; this one is worn by a body the party had better not
+// **wound**, because it is carrying the chapter's own frenzy. Both leave the same two answers a
+// taunt has always left — kill it inside the window, or bring a row attack — and neither is the
+// answer the party has been reaching for since milestone 4, which is reach.
+//
+// ## Scale, and the two things a Monster chapter has to watch
+//
+// ⚠️ **`lifeLeech` is sustain, and sustain is a clock.** It is the faction's idiom and it stays, at
+// the sizes the faction already carries (0.1 on the Bramblehide Ravener) — but it never stands on a
+// board with a taunt, because sustain the party cannot aim at is a ninety-second timeout scored as
+// a **defeat**, and it is never on the same block as a frenzy, because a body that hits harder for
+// being hurt and heals from hitting is a closed loop wearing a stat block.
+//
+// ⚠️ **And nothing here is armoured by being hurt.** {@link BLOODRISEN} multiplies `atk`, so every
+// version of this chapter's signature ends the fight *sooner*; the defensive mirror of it is the one
+// shape of this idea nobody may author. The bulk is deliberately Monster-shaped for the same reason
+// — high attack, thin armour, real `haste` — where the hold above was slow and thick.
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The chapter's first sentence, on the cheapest thing that can say it.
+ *
+ * A whelp is not dangerous and is not meant to be. What it costs is the habit eight chapters have
+ * rewarded: opening with a row attack, chipping everything, and finishing at leisure. Chip this and
+ * do not kill it, and it is a third stronger for the rest of the fight — and so is every other one
+ * standing beside it.
+ *
+ * Quick and thin, because band 1 has to be **answerable by finishing** and a body that takes three
+ * turns to put down is a body the party cannot help wounding.
+ */
+export const MIREWHELP = {
+  id: 'mirewhelp',
+  name: 'Mirewhelp',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 58,
+    def: 14,
+    haste: 102,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.15,
+    physicalPierce: 0.12,
+  },
+  skills: [BLOOD_RISEN, MAUL],
+} as const;
+
+/**
+ * The same lock on a body that will not go down to a stray hit.
+ *
+ * ⚠️ **The Mirewhelp is answerable by finishing and this deliberately is not.** It is the fodder a
+ * party *cannot* clear in one turn, so the frenzy is a matter of when rather than whether — which is
+ * what stops band 1 from resolving into "kill the small ones first" and nothing else. What it does
+ * with the frenzy is modest; what it does is make the party spend real damage on a common.
+ */
+export const THORNBACK_GRAZER = {
+  id: 'thornback-grazer',
+  name: 'Thornback Grazer',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 940,
+    atk: 46,
+    def: 26,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.2,
+    physicalResist: 0.14,
+  },
+  skills: [BLOOD_RISEN, GORE],
+} as const;
+
+/**
+ * Band 2 at fodder weight, and the lock is meant to be **stacked** rather than met once.
+ *
+ * One {@link RAKE} is a wound the party's cleanse answers on the turn it lands. Three of these on a
+ * board is three permanent wounds against one cleanse, which is the whole of the band: the party
+ * cannot clear them all, so it is choosing which of its members bleeds until the fight ends.
+ *
+ * Fragile and fast, on the Cinderquench Bearer's reasoning — it is not meant to survive being
+ * noticed, and what it costs the party is the answer rather than the body.
+ */
+export const RENDFANG_JACKAL = {
+  id: 'rendfang-jackal',
+  name: 'Rendfang Jackal',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 62,
+    def: 15,
+    haste: 108,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    tenacity: 0.15,
+    physicalPierce: 0.2,
+  },
+  skills: [RAKE],
+} as const;
+
+/**
+ * The clock's counterweight, and the reason a wide board here is wide.
+ *
+ * Almost no health and the highest `haste` on a Monster block. It carries neither of the chapter's
+ * locks on purpose: a board of nothing but bodies that punish being chipped would make a row attack
+ * strictly wrong, and this is the thing a row attack is **right** about — five of them take turns
+ * fast enough to matter and die to one swing.
+ */
+export const CARRION_SWARM = {
+  id: 'carrion-swarm',
+  name: 'Carrion Swarm',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 400,
+    atk: 54,
+    def: 10,
+    haste: 124,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    tenacity: 0.1,
+    physicalPierce: 0.16,
+  },
+  skills: [FLENSE],
+} as const;
+
+/**
+ * Band 1 at weight: the pack arms whatever the party has committed to.
+ *
+ * ⚠️ **This is what stops band 1 being answered by target order.** A frenzy on `self` is a body's
+ * own decision, and a party that finishes what it starts pre-empts it. {@link BLOOD_CALLS_BLOOD}
+ * arrives on the body the party has *already* decided to kill, on a turn the party does not
+ * control — so the damage in flight is spent on something worth more than it was when the swing
+ * started.
+ *
+ * It kills nothing itself, which is the Grudgeplate Smith's shape and the third time the ladder has
+ * used it. Reaching past the front rank to remove it is the answer, and it is the answer this
+ * chapter is most willing to give.
+ */
+export const GOREHIDE_MATRIARCH = {
+  id: 'gorehide-matriarch',
+  name: 'Gorehide Matriarch',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 58,
+    def: 26,
+    haste: 84,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    tenacity: 0.3,
+    physicalResist: 0.08,
+  },
+  skills: [BLOOD_CALLS_BLOOD, GORE],
+} as const;
+
+/**
+ * Band 2 at weight, and it opens the one vein the party cannot spare.
+ *
+ * A Jackal bleeds whatever is in front of it. This goes past the wall at the party's own back rank,
+ * where the healer stands — and a healer carrying a wound that never closes is a healer choosing
+ * between mending somebody else and stopping its own. That is the band's second question, and it is
+ * about **which** wound the party carries rather than how many.
+ */
+export const REDWATER_STALKER = {
+  id: 'redwater-stalker',
+  name: 'Redwater Stalker',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 880,
+    atk: 78,
+    def: 22,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    tenacity: 0.25,
+    physicalPierce: 0.3,
+    physicalResist: 0.04,
+  },
+  skills: [OPEN_THE_VEIN, RAKE],
+} as const;
+
+/**
+ * Band 3, and the only sustain in the chapter: what the party spreads, this drinks.
+ *
+ * `lifeLeech` is the Monster faction's answer to having no healer — milestone 8e's decision, and the
+ * reason giving this faction a support would solve a composition problem by deleting the faction. On
+ * a board of whelps and swarms it is the thing that makes a long fight the wrong plan: the party
+ * that chips five bodies has armed all of them, and this one is being paid for every blow it lands
+ * while they answer.
+ *
+ * ⚠️ **It never stands on a board with a taunt and it never carries a frenzy**, which are the two
+ * rules the chapter's leech is fenced by. Sustain the party cannot aim at is a ninety-second clock,
+ * and sustain on a body that hits harder for being hurt is a closed loop.
+ */
+export const BLOODGORGE_HOUND = {
+  id: 'bloodgorge-hound',
+  name: 'Bloodgorge Hound',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 76,
+    def: 24,
+    haste: 96,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    lifeLeech: 0.12,
+    tenacity: 0.25,
+    physicalPierce: 0.18,
+    physicalResist: 0.05,
+  },
+  skills: [RAKE, FLENSE],
+} as const;
+
+/**
+ * Band 4: it stands up, and the only thing the party may hit is the thing it must not wound.
+ *
+ * ⚠️ **The pair, and the whole of what makes it different from the Oathstone Bastion.** That body
+ * was a door the party could not open. This one is a door that **arms itself while the party
+ * knocks** — {@link CHALLENGE_BELLOW} narrows the target pool before the row rule is consulted, and
+ * {@link BLOOD_RISEN} is waiting for the damage that narrowing guarantees.
+ *
+ * ⚠️ **Sixty ticks of cooldown against a forty-five tick taunt**, which `skills.spec.ts` derives
+ * and holds: a single-target party gets a window at the rest of the board, and a party with a row
+ * attack was never shut out at all.
+ *
+ * ⚠️ **No leech, no recovery, no shield, and nothing on a board with it puts health back.** A taunt
+ * in front of sustain is the timeout that is scored as a defeat, which is the failure 15c found on
+ * the Dwarf Tower's roof. Every pool on this depletes.
+ */
+export const SCARBOUND_BELLOWER = {
+  id: 'scarbound-bellower',
+  name: 'Scarbound Bellower',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1180,
+    atk: 70,
+    def: 34,
+    haste: 76,
+    critChance: 0.05,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    critDamageResist: 0.15,
+    tenacity: 0.35,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [CHALLENGE_BELLOW, BLOOD_RISEN, MAUL],
+} as const;
+
+/**
+ * The thing that has been following the party since it came up out of the hold.
+ *
+ * The ladder's fourth **lieutenant**, on `c10-s10`, `c10-s20`, `c10-s30` and `c10-s40` at rising
+ * levels. ⚠️ **Reactive rather than an opening turn, which is {@link THE_GRUDGEKEEPER}'s shape and
+ * the second chapter running to take it** — and here it is forced rather than chosen: a chapter
+ * about what the party's damage *does* cannot state its lock before the party has dealt any.
+ *
+ * {@link THE_PACK_ANSWERS} is the widest the frenzy goes, and one chipped body is enough to trigger
+ * it. So the four boards it anchors are four different fights depending on how the party opens: a
+ * row attack into the escort arms the escort, and a party that finishes one body at a time meets it
+ * with the pack still whole.
+ *
+ * ⚠️ **No healing, no drain and no shield**, which is the standing rule for anything a chapter
+ * fields four times, and no `lifeLeech` either — this is the block most likely to still be standing
+ * at second sixty.
+ *
+ * ⚠️ **Sized under The Unmade on both stats and under {@link THE_EVERWOUND} as well**: a lieutenant
+ * that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_REDMAW = {
+  id: 'the-redmaw',
+  name: 'The Redmaw',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1480,
+    atk: 91,
+    def: 42,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    physicalPierce: 0.26,
+    physicalResist: 0.05,
+  },
+  skills: [THE_PACK_ANSWERS, RAKE, TYRANTS_CLAIM],
+} as const;
+
+/**
+ * All wound and nothing else, and the tenth body on the ladder fielded on exactly one stage.
+ *
+ * Every question the chapter has asked stands on it at once, and three of them are the same
+ * question at three widths: {@link BLOOD_RISEN} means killing it is what makes it dangerous,
+ * {@link THE_PACK_ANSWERS} means the escort rises with it, and {@link THE_LONG_BLEED} puts a wound
+ * on all five members that only a cleanse will ever close.
+ *
+ * ⚠️ **A boss that gets permanently stronger as it dies is a race, and a race is the safe shape
+ * here.** The alternative — a boss that got *harder to kill* as it was hurt — is the same idea
+ * pointed at the ninety-second clock, and a timeout is scored as a defeat. Everything on this board
+ * shortens the fight from one side or the other.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway. Here it
+ * would be worse than neutral — it would hand the party the one thing this chapter is built to
+ * withhold, which is a safe place to spend damage.
+ *
+ * **The Redmaw does not stand here**, on the Anvil Crowned's reasoning: a lieutenant as support is
+ * permitted and this board does not need one. ⚠️ **Check the survivor count before copying that
+ * choice** — nothing asserts it once a later chapter takes over the top of the ladder.
+ *
+ * ⚠️ **No healing, no drain, no shield and no `lifeLeech` anywhere on it**, which is the same
+ * sentence the last two chapter finals carry and for the same reason.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_EVERWOUND = {
+  id: 'the-everwound',
+  name: 'The Everwound',
+  faction: 'monster',
+  tier: 'ascended',
+  stats: {
+    hp: 1720,
+    atk: 98,
+    def: 52,
+    haste: 96,
+    critChance: 0.15,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.3,
+    magicPierce: 0.2,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_PACK_ANSWERS, THE_LONG_BLEED, BLOOD_RISEN, TYRANTS_CLAIM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -3046,4 +3425,14 @@ export const ENEMIES = [
   OATHSTONE_BASTION,
   THE_GRUDGEKEEPER,
   THE_ANVIL_CROWNED,
+  MIREWHELP,
+  THORNBACK_GRAZER,
+  RENDFANG_JACKAL,
+  CARRION_SWARM,
+  GOREHIDE_MATRIARCH,
+  REDWATER_STALKER,
+  BLOODGORGE_HOUND,
+  SCARBOUND_BELLOWER,
+  THE_REDMAW,
+  THE_EVERWOUND,
 ] as const;

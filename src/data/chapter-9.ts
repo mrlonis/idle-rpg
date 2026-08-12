@@ -98,7 +98,7 @@ import {
  * was written when two chapters could not be allowed to consume the curve and it is about to mean
  * something entirely different; see [milestones](../../docs/milestones.md).
  *
- * Still no lucky pull anywhere on the ladder: the rung is fifty duplicate copies of each of the
+ * Still no lucky pull anywhere on the ladder: the rung is fifty-two duplicate copies of each of the
  * five, six more than chapter 8 asked for, and every one of them is bought with time.
  *
  * ## What it draws on

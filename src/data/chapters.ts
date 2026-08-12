@@ -1,4 +1,5 @@
 import { CHAPTER_1 } from './chapter-1';
+import { CHAPTER_10 } from './chapter-10';
 import { CHAPTER_2 } from './chapter-2';
 import { CHAPTER_3 } from './chapter-3';
 import { CHAPTER_4 } from './chapter-4';
@@ -99,8 +100,8 @@ export const CHAPTER_CURVE = {
  * ⚠️ **1.45 is deliberately short of a full restoration, and the band is worth knowing.** Putting
  * income back on `level ** 1.12` exactly would take the exponent to **1.60**; the failing guard in
  * `levels.spec.ts` needed only **1.42**. 1.45 is the conservative end of that band — income linear
- * in enemy level — and it leaves chapter 10 about a fifth of the guard's headroom rather than a
- * twentieth. What it costs is legible: a stage-100 clear pays ×4.4 what it did and a stage-10 clear
+ * in enemy level — and chapter 10 landed at **16.1 hours against the guard's ceiling of 24**, a
+ * third of the headroom left rather than the twentieth 1.42 would have bought. What it costs is legible: a stage-100 clear pays ×4.4 what it did and a stage-10 clear
  * ×2.1, so mid-ladder progression is roughly twice as fast in wall-clock time. It does **not** make
  * any content easier — a party is capped by its ascension rung, not by its income, so what changed
  * is how long the wall takes to climb rather than how high it is.
@@ -127,16 +128,19 @@ export const CHAPTER_CURVE = {
  * exponent steepens the curve without making it stop decelerating, which is the property that has
  * to survive any move of it.
  *
- * ⚠️ **`levels.spec.ts` reads the top of this curve and asserts level 1000 stays out of reach.**
- * It is the assertion that fires when a new chapter raises income without the level curve being
- * revisited, and it is meant to: the right answer then is to retune deliberately.
+ * ⚠️ **`levels.spec.ts` used to read the top of this curve and assert level 1000 stays out of
+ * reach, and milestone 21d retired the last of those assertions.** Every quantity of that shape —
+ * hours to the ceiling, and then the *ratio* of that to what the top stage demands — falls with each
+ * chapter by construction, because this curve raises income with every stage authored. Two of them
+ * were re-derived once each and then retired rather than moved a third time. What still watches this
+ * exponent is `levels.spec.ts`'s **"charges real time"**, which is two-sided: raising income without
+ * touching the level curve trips its floor, and the level curve running away trips its ceiling.
  *
- * **It fired when the rates doubled, and the deliberate answer was to accept the halving.** Level
- * 1000 went from 1,175 hours of top-of-ladder idle income to 588, and the threshold moved to 500
- * rather than the level curve moving to absorb it — because the point of doubling was that
- * progression be twice as fast, and a curve retuned to cancel that would have made the whole change
- * a no-op on screen. See [milestones](../../docs/milestones.md); the threshold has now been moved
- * once and is not free to move again.
+ * **The retired one fired when the rates doubled, and the deliberate answer then was to accept the
+ * halving.** Level 1000 went from 1,175 hours of top-of-ladder idle income to 588, and the threshold
+ * moved to 500 rather than the level curve moving to absorb it — because the point of doubling was
+ * that progression be twice as fast, and a curve retuned to cancel that would have made the whole
+ * change a no-op on screen. See [milestones](../../docs/milestones.md).
  *
  * ## The two payouts
  *
@@ -206,19 +210,18 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Eight of them — 10, 20, 30, 40, 50, 50, 50 and 50 stages. The first six are the two hundred the
+ * Ten of them — 10, 20, 30, 40, and then six of fifty. The first six are the two hundred the
  * four-chapter ladder carried, re-cut in milestone 19 so the boundaries land where a session does;
- * the seventh and eighth are milestones 21a and 21b, the first two of the four chapters that push
- * the ladder to 400.
+ * the last four are milestones 21a through 21d, which take the ladder to four hundred stages.
  * [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the length {@link CHAPTER_CURVE}
  * says it should be, so a chapter authored at forty-nine stages is a failing test rather than a
  * boss that quietly lands on the wrong square.
  *
  * ⚠️ **Every chapter ends on a boss fielded nowhere else, and the re-cut made that a rule.** The
  * Fenlord, the Pale Warden, the First Cinder and the Ashfall Sovereign were authored for it;
- * the Chainsworn and the Hollow Seraph already observed it, and The Cairn King and The Withered
- * Crown are the seventh and eighth. A re-cut that moves a boundary owes the new final a unique body
- * before it ships.
+ * the Chainsworn and the Hollow Seraph already observed it, and The Cairn King, The Withered Crown,
+ * The Anvil Crowned and The Everwound are the seventh through tenth. A re-cut that moves a boundary
+ * owes the new final a unique body before it ships.
  *
  * ⚠️ **Adding one is an economy change as much as a content one.** Three guards are functions of
  * how long the ladder is — the idle crystal rate in `banners.spec.ts`, everything a clear pays in
@@ -244,4 +247,5 @@ export const CHAPTERS = [
   CHAPTER_7,
   CHAPTER_8,
   CHAPTER_9,
+  CHAPTER_10,
 ] as const;

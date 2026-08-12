@@ -257,27 +257,37 @@ describe('the level curve', () => {
     }
   });
 
-  it('spans a level range the level curve has somewhere left to go past', () => {
-    // The shipped chapters must not consume the whole thousand-level curve — level 1000 is a
-    // far-ladder target with most of the game left to author between here and there. A top stage
-    // that had drifted into the high hundreds would mean these chapters *are* the game.
+  it('asks for more level than a player gets without ascending', () => {
+    // Derived from the rarity caps rather than written down. The ladder is tuned so the fen
+    // chapters close at the cap a player reaches *without ascending* and chapter 4 closes at the
+    // `rare` cap, which is a deliberate statement that the opening two thirds are a breeze and the
+    // difficulty arrives with chapter 5. See `docs/milestones.md`.
     //
-    // ⚠️ **Both bounds are derived from the rarity caps rather than written down, and the lower
-    // one used to be a flat `> 100`.** That number outlived its argument: the comment above only
-    // ever justified the ceiling, and the floor was quietly asserting a difficulty target — one
-    // the shipped ladder no longer has. The ladder is tuned so the fen chapters close at the cap
-    // a player reaches *without ascending* and chapter 4 closes at the `rare` cap, which is a
-    // deliberate statement that the opening two thirds are a breeze and the difficulty arrives
-    // with chapter 5. See `docs/milestones.md`.
+    // ## ⚠️ The ceiling half of this was **retired** in milestone 21d rather than moved
     //
-    // What is still worth asserting is the shape either side of that: the ladder has to ask for
-    // more than a player gets for free, and it has to leave the curve somewhere to go.
+    // It read `top < LEVEL_CURVE.maxLevel / 2` under the comment "two chapters must not consume the
+    // curve" — written when the ladder was two chapters long and meaning something entirely
+    // different by the time it was ten. Chapter 10 closes at 588 against that bound of 500, and
+    // **no margin the level rule permits would have satisfied it**: the rule is that each chapter
+    // must close further past its rung's cap than the last, `ascended` caps at 500, and a chapter
+    // closing below its own rung's cap is the walkover 21a measured.
+    //
+    // The claim it was making is worth keeping and is made properly one file over:
+    // `levels.spec.ts`'s **"leaves rungs unspent above everything the ladder asks for"** says the
+    // same thing in the currency the game actually progresses in, and it does not decay — there are
+    // sixteen rungs however long the ladder gets, where a fraction of `maxLevel` falls every
+    // chapter by construction. Two guards on one quantity in two units is how they end up
+    // disagreeing; this is the second guard in this project to be retired rather than slid, after
+    // `levels.spec.ts`'s hours-to-the-ceiling.
+    //
+    // ⚠️ **What 21d measured, and did not write a guard for**: the level line now adds about ninety
+    // levels a chapter, so the curve is consumed around chapter 15 rather than the chapter 100 the
+    // old prose assumed. Nothing about that is wrong today and the rung claim fires first — at
+    // chapter 12 — which is the point at which somebody has to decide how long the campaign is.
     const top = stages[stages.length - 1].level;
-    const caps = LEVEL_CURVE.caps;
-    const withoutAscending = caps[0];
+    const withoutAscending = LEVEL_CURVE.caps[0];
 
     expect(top, 'the ladder must ask for at least one ascension').toBeGreaterThan(withoutAscending);
-    expect(top, 'two chapters must not consume the curve').toBeLessThan(LEVEL_CURVE.maxLevel / 2);
   });
 });
 

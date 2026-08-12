@@ -149,7 +149,7 @@ function sweep(party: FormationData, stage: StageData): { win: number; maxTicks:
  * The Bound Marches, the Sundered Vault and the Waking Barrows were each expected to close it and
  * none did: 160, then 225, then 305, against 340.
  *
- * **The Sunless Weald closed it at 396**, and the Hollow Anvil is now the hardest stage at **490**.
+ * **The Sunless Weald closed it at 396**, and The Bleeding Wild is now the hardest stage at **588**.
  * For the first time since milestone 16 the hardest authored stage is *above* the unlock rung's cap
  * and staying there, so this returns the stage as `data/` wrote it and the probe measures a board the
  * game actually ships. The `level: LEVEL` override that stood here is gone.
@@ -158,9 +158,9 @@ function sweep(party: FormationData, stage: StageData): { win: number; maxTicks:
  * change.** {@link reach} overwrites `level` on every trial it runs, so the field this used to set
  * was dead on arrival — what it bought was a claim about the probe's *method*, not an input to it.
  * The fourteen figures moved anyway, and for a different reason: `contested()` picks the hardest
- * stage and it has changed identity twice more, `c6-s50` → `c8-s50` → `c9-s50`, each a different
- * board under a different id seeding a different sequence. Do not read the move as evidence about
- * the items.
+ * stage and it has changed identity three times more, `c6-s50` → `c8-s50` → `c9-s50` → `c10-s50`,
+ * each a different board under a different id seeding a different sequence. Do not read the move as
+ * evidence about the items.
  *
  * ⚠️ **A reach figure is only comparable within one cut of the ladder**, which is the same warning
  * milestone 19's re-cut earned and the third time it has now been collected. Re-measure the whole
@@ -260,27 +260,29 @@ describe('what a signature item is worth', () => {
   );
 
   it('carries every one of them further up the curve', () => {
-    // What this measured at the shipped numbers, with the party at level 340 — bare reach, then
-    // the gain a maxed item buys:
+    // What this measured at the shipped numbers, with the party at level 340 — reach with a maxed
+    // item, then the gain it buys over the same party with none:
     //
-    //   Aurelia   453 (+29)  Corvane 452 (+32)  Thraun    425 (+16)  Vurn    432 (+19)
-    //   Aelrindel 457 (+26)  Maelis  439 (+17)  Nekros    456 (+26)  Carrow  467 (+34)
-    //   Vharok    462 (+31)  Vrakk   461 (+32)  Seraphine 449 ( +9)  Cassiel 461 (+31)
-    //   Azrathoth 468 (+27)  Nazreth 460 (+31)
+    //   Aurelia   453 (+30)  Corvane 456 (+32)  Thraun    430 (+14)  Vurn    437 (+19)
+    //   Aelrindel 457 (+21)  Maelis  445 (+18)  Nekros    460 (+25)  Carrow  472 (+35)
+    //   Vharok    471 (+36)  Vrakk   471 (+36)  Seraphine 454 (+14)  Cassiel 465 (+31)
+    //   Azrathoth 470 (+22)  Nazreth 461 (+26)
     //
-    // ⚠️ **These have now moved three times without a single item or stat block changing, and every
+    // ⚠️ **These have now moved four times without a single item or stat block changing, and every
     // time for the same reason.** `contested()` picks the hardest stage and seeds off its `stage.id`,
     // so every trial in this file draws a different sequence when the hardest stage changes identity:
-    // milestone 19's re-cut renamed it `c4-s50` → `c6-s50`, milestone 21b's chapter 8 replaced it
-    // with `c8-s50` outright, and 21c's chapter 9 replaced that with `c9-s50`. Nothing was wrong
+    // milestone 19's re-cut renamed it `c4-s50` → `c6-s50`, 21b's chapter 8 replaced it with
+    // `c8-s50`, 21c's chapter 9 with `c9-s50`, and 21d's chapter 10 with `c10-s50`. Nothing was wrong
     // before and nothing is wrong now, but **these numbers are only comparable within one cut of the
     // ladder**: re-measure the whole table or none of it.
     //
-    // ⚠️ **The bare reach rose by fifteen to thirty levels and the gains did not move at all**, which
-    // is the shape to expect from here on and the useful thing this re-measurement showed: eleven of
-    // the fourteen gains landed within three of what they were against `c8-s50`, and Seraphine's is
-    // +9 for the third cut running. The base board got harder; what an item is worth did not change.
-    // **Read the gain column, not the reach column**, when comparing across cuts.
+    // ⚠️ **21c's rule of thumb for what moves did not survive its own next chapter, and the correction
+    // is worth more than the rule was.** That cut saw bare reach rise fifteen to thirty levels with
+    // the gains almost still; this one saw bare reach rise **nought to seven** while five of the
+    // fourteen gains moved by five — including Seraphine's, which had been +9 for three cuts running
+    // and is +14 here. So neither column is stable across a change of base: what is true is only that
+    // the **gains move less** (all fourteen within five, eight within three) while a reach figure is
+    // meaningless outside its own cut. Read the gain column, and re-measure rather than predicting.
     //
     // ⚠️ **A +3% to +8% gain in reach reads modest and is not, and the difference is the step
     // function.** Measured instead as win rate at a *fixed* contested level, the same items take
