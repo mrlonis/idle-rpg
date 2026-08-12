@@ -18,6 +18,7 @@ import {
   GORE,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
+  IRON_FOR_IRON,
   LITANY,
   MEND,
   MIRE,
@@ -33,8 +34,10 @@ import {
   SHIELD_BASH,
   SHRIKE_DIVE,
   STONE_FIST,
+  THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_LONG_LOOSE,
+  THE_QUENCH,
   THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
@@ -2560,6 +2563,394 @@ export const THE_WITHERED_CROWN = {
   skills: [ROOTWAKE, THE_LONG_LOOSE, HEADSMANS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Hollow Anvil — milestone 21c
+//
+// Ten Dwarven blocks, which takes the faction 8 → **18**. That is the depth milestone 21 fixed its
+// leans to produce, and the third of the four thin factions it named: undead and elf have already
+// been taken to seventeen apiece and Monsters follow in 21d.
+//
+// ## What the chapter asks, and where each band's lock lives
+//
+// The barrows asked about *how* the party's damage arrives and the weald about *where* it lands.
+// This chapter asks whether **anything the party does stays done** — which is what a hold is, and
+// what `tenacity` has meant on a Dwarven stat block since milestone 4 without any content ever
+// leaning on it.
+//
+// | Band | The lock                                                   | Built from                       |
+// | ---- | ---------------------------------------------------------- | -------------------------------- |
+// | 1    | your setup does not land                                   | `tenacity`, on the stat blocks   |
+// | 2    | what you put back does not stay                            | {@link THE_QUENCH}               |
+// | 3    | what you commit to is what charges you                     | {@link IRON_FOR_IRON}            |
+// | 4    | the one thing you may hit is the one you cannot open       | a taunt worn by a `tenacity` wall |
+// | 5    | all four, and the thing the hold was built around          | {@link THE_ANVIL_CROWNED}        |
+//
+// **Band 1 is a stat block and nothing else, which is the Sunless Weald's move repeated on purpose
+// and on a different stat.** `tenacity` is not a `ModifiableStat` — that list is `atk`, `def` and
+// `haste` — so refusal cannot be a status without a `core/` change this milestone forbids, and it
+// does not need to be. What answers it is `insight`, which appears on exactly two characters, and
+// past that the honest answer is the one the Adamant Colossus has always given: **stop needing the
+// debuff.** `statusChance` is `authored + insight − tenacity` clamped at zero, so a board at 0.55
+// takes an 0.85 Sunder down to 0.30 and a boss at 0.85 takes it to nothing.
+//
+// ⚠️ **Band 4 is the Sealward Custodian's inversion and it is the only safe shape here.** Sustain
+// behind a taunt is a ninety-second clock and a timeout is scored as a **defeat** — so the
+// durability goes on the taunting body itself. {@link OATHSTONE_BASTION} is the one thing the party
+// is permitted to hit *and* the one thing it needs to kill, every pool on it depletes, and nothing
+// on any board it stands on puts health back.
+//
+// ## Scale, and the one thing a Dwarven chapter has to watch
+//
+// ⚠️ **This is the faction most able to run the clock out, and the blocks are sized against that
+// rather than against the fiction.** Dwarves are the tankiest archetypes in the game and the
+// timer's headroom over the longest tuned fight is 1.44×, so nothing here reaches the Riven
+// Marchwarden's bulk without a reason: the commons sit at or below the weald's, three of the ten
+// carry real `haste`, and the resists are single digits where an Elf or a Monster block would carry
+// a fifth. What makes the chapter hard is refusal, not health.
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold's cheapest statement: a body that does not care what you write on it.
+ *
+ * `tenacity: 0.55` is the highest on a `common` in the game and more than double what the Marchward
+ * Pikeman carries. Against the party's habitual opener — a Sunder at 0.85, a Weaken at 0.9 — that is
+ * roughly a third of what it was, on fodder, which is the whole of what band 1 wants said out loud:
+ * **the setup turn is the one being taxed, and it is being taxed by the cheapest thing on the
+ * board.**
+ *
+ * Otherwise unremarkable and deliberately so. Nothing about it is dangerous; what it costs is the
+ * turn the party spent expecting a debuff to stick.
+ */
+export const COLDFORGE_HAND = {
+  id: 'coldforge-hand',
+  name: 'Coldforge Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 620,
+    atk: 52,
+    def: 22,
+    haste: 80,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    tenacity: 0.55,
+    physicalResist: 0.08,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/** The hold's idea of a wall at fodder weight: slag, plate, and a shoulder that blunts a crit. */
+export const SLAGBOUND_DRUDGE = {
+  id: 'slagbound-drudge',
+  name: 'Slagbound Drudge',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 780,
+    atk: 48,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * Band 2 at its cheapest, and the same move the Gloamvine Creeper made for band 3.
+ *
+ * ⚠️ **{@link THE_QUENCH} on a `common`**, so the lock can be *stacked* rather than met once: two of
+ * these behind a wall means the member the party's healer has just topped up is carrying a fuse
+ * again before the next heal comes off cooldown. Fragile and quick, because it is not meant to
+ * survive being noticed — what it costs the party is the answer, not the body.
+ */
+export const CINDERQUENCH_BEARER = {
+  id: 'cinderquench-bearer',
+  name: 'Cinderquench Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 56,
+    def: 16,
+    haste: 98,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.3,
+    magicPierce: 0.14,
+  },
+  skills: [THE_QUENCH],
+} as const;
+
+/**
+ * The one quick thing in the deep, and it is here for the clock as much as for the fiction.
+ *
+ * A chapter built out of Dwarves is a chapter of slow, armoured bodies, and a board of nothing but
+ * those is how a ninety-second timer gets spent. This is the counterweight: the fastest Dwarven
+ * block in the game, almost no armour, and it goes straight past the front rank.
+ */
+export const DEEPGALLERY_RUNNER = {
+  id: 'deepgallery-runner',
+  name: 'Deepgallery Runner',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 470,
+    atk: 60,
+    def: 12,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    tenacity: 0.25,
+    physicalPierce: 0.18,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * Band 1 at weight: the body the debuff was actually for.
+ *
+ * A Coldforge Hand taxes a setup turn the party would have spent anyway. This carries
+ * `tenacity: 0.8` on a stat block that kills things — so the Sunder the party opens with to make
+ * this killable is the Sunder it cannot land, and the answer has to be raw damage, penetration, or
+ * one of the two characters in the roster carrying `insight`.
+ *
+ * ⚠️ **Not a wall, on purpose.** The Adamant Colossus already says "high tenacity on something
+ * enormous", and repeating it would make band 1 a stat check. What this says instead is that
+ * refusal is dangerous on something that is *not* a wall: it hits back, it is quick enough to matter,
+ * and it cannot be slowed down.
+ */
+export const COLDHEARTH_IRONSWORN = {
+  id: 'coldhearth-ironsworn',
+  name: 'Coldhearth Ironsworn',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 840,
+    atk: 76,
+    def: 28,
+    haste: 88,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    tenacity: 0.8,
+    physicalPierce: 0.16,
+    physicalResist: 0.06,
+  },
+  skills: [GLACIAL_SLAM, SHIELD_BASH],
+} as const;
+
+/**
+ * Band 2 at weight, and the body that makes the band a rhythm rather than an incident.
+ *
+ * A Bearer plants a fuse and dies to whatever notices it. This plants one, survives, and reaches the
+ * party's back rank in between — so the member being healed and the member being shot are not the
+ * same member, and the cleanse has somewhere else it is wanted.
+ */
+export const QUENCHWRIGHT = {
+  id: 'quenchwright',
+  name: 'Quenchwright',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 74,
+    def: 24,
+    haste: 94,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.45,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [THE_QUENCH, MOTE_LANCE],
+} as const;
+
+/**
+ * Band 3: it does not kill anything, it arms whatever the party has decided to kill.
+ *
+ * {@link IRON_FOR_IRON} occupies a healer's slot in a kit without being one — it waits until the
+ * party has committed and then thorns *that* body, so the damage already aimed at it starts being
+ * billed for. ⚠️ **Which is exactly why this may stand behind a taunt and a Thornweald Warden may
+ * not**: a reflect puts no health back and can only ever shorten a fight, so nothing it does can
+ * outrun the ninety-second clock.
+ *
+ * Thorned itself from the first tick, so removing the thing arming the board is the thing the board
+ * charges the most for.
+ */
+export const GRUDGEPLATE_SMITH = {
+  id: 'grudgeplate-smith',
+  name: 'Grudgeplate Smith',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 62,
+    def: 30,
+    haste: 86,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.5,
+    physicalResist: 0.08,
+  },
+  opening: [THORNMAIL],
+  skills: [IRON_FOR_IRON, SHIELD_BASH],
+} as const;
+
+/**
+ * Band 4, and the Sundered Vault's Sealward Custodian rebuilt out of Dwarven parts.
+ *
+ * It taunts, so it is the only thing on the board a single-target party may hit — and it carries
+ * `tenacity: 0.75` and both resists, so it is also the thing that party cannot open. The pair is the
+ * band: reach is worth nothing while the door is shut, and the door is what the party has to go
+ * through rather than around.
+ *
+ * ⚠️ **Every pool on it depletes and nothing on it refills.** No `recovery`, no regeneration, no
+ * shield and no drain, which is the whole reason a board can be this defensive and still resolve. A
+ * taunt in front of anything that puts health back is the ninety-second timeout wearing a boss's
+ * stat block, which is the failure 15c found on the Dwarf Tower's roof and the Bound Marches teach
+ * exactly once.
+ *
+ * ⚠️ **{@link DRAW_THE_OATH} carries a sixty-tick cooldown against a forty-five tick taunt**, and
+ * that gap is a rule rather than tuning: `skills.spec.ts` holds it, and it is what leaves a
+ * single-target party a window at whatever is standing behind this.
+ *
+ * {@link THE_ANVIL_FALLS} is the band's other half and it is on the same body on purpose: the door
+ * is shut, and the turn the party's wall was going to spend getting through it is the turn this
+ * takes. Both sit at priority 4 and the kit order decides, so it taunts first and hammers after.
+ */
+export const OATHSTONE_BASTION = {
+  id: 'oathstone-bastion',
+  name: 'Oathstone Bastion',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 64,
+    def: 42,
+    haste: 70,
+    critChance: 0.03,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    critDamageResist: 0.15,
+    tenacity: 0.75,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, THE_ANVIL_FALLS],
+} as const;
+
+/**
+ * The thing that has been keeping the tally since the party came down out of the weald.
+ *
+ * The ladder's third **lieutenant**, and the shape is settled rather than new — see
+ * {@link THE_GRAVEWRIGHT} and {@link THE_LONGSHADOW}. It stands on `c9-s10`, `c9-s20`, `c9-s30` and
+ * `c9-s40` at rising levels, so the chapter has a recurring antagonist that gets harder because the
+ * ladder does rather than four one-shot stat blocks.
+ *
+ * ⚠️ **Its recurring signature is {@link IRON_FOR_IRON} rather than a board-wide opening turn**,
+ * which is the one way it differs from the two before it — and it differs because band 1 is a stat
+ * block and cannot be applied by a turn at all. What that buys is better than the parallel would
+ * have been: the Gravewright and the Longshadow set their board up on tick one and then stopped,
+ * while this responds to what the party is *doing*, so its four appearances are four different
+ * fights against the same block depending on how the party spends.
+ *
+ * {@link THE_ANVIL_FALLS} is band 4's half of it, arriving early on the mini-boss boards for the
+ * reason the Gravewright's thorns did: a lieutenant is worth more than a stat block when it teaches
+ * the chapter ahead of the chapter.
+ *
+ * ⚠️ **No healing, no drain and no shield**, which is the standing rule for anything a chapter fields
+ * four times. Thorned from the first tick, and thorns are the one defensive thing that cannot
+ * lengthen a fight.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`, and under {@link THE_ANVIL_CROWNED} as well** —
+ * a lieutenant that matched the chapter's final would make the final the fifth time you fought it.
+ */
+export const THE_GRUDGEKEEPER = {
+  id: 'the-grudgekeeper',
+  name: 'The Grudgekeeper',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 89,
+    def: 46,
+    recovery: 6,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    critBlock: 0.1,
+    tenacity: 0.7,
+    physicalPierce: 0.22,
+    physicalResist: 0.06,
+  },
+  opening: [THORNMAIL],
+  skills: [IRON_FOR_IRON, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
+/**
+ * What the hold was built around, and the fifth body on the ladder fielded on exactly one stage.
+ *
+ * All four of the chapter's questions stand on it at once: `tenacity: 0.85` means nothing the party
+ * writes on it lands at all, {@link THE_QUENCH} undoes whatever the party's healer has just done,
+ * it is thorned from the first tick so every blow is billed, and {@link THE_ANVIL_FALLS} takes the
+ * turn of the one body the party cannot do without.
+ *
+ * ⚠️ **The tenacity is the headline and it is a hard zero rather than a tax.** `statusChance` is
+ * `authored + insight − tenacity` clamped at zero, and the largest authored chance in the game is
+ * 0.9 — so a party that has spent eight chapters learning to open a wall with a Sunder opens this
+ * one with nothing. That is the band-1 lock at boss weight, and it is why the rest of the board is
+ * sized where it is: the fight is long enough already without the numbers being large.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway and
+ * spends its own turns dealing nothing. {@link OATHSTONE_BASTION} wears the taunt, standing in
+ * front, which is the shape that works.
+ *
+ * **The Grudgekeeper does not stand here, and that is this chapter's choice rather than a rule.**
+ * What the rule forbids is a lieutenant being *the* fight; as support it is permitted, and `c7-s50`
+ * fields the Gravewright for exactly that reason. ⚠️ **Check the survivor count before copying
+ * either choice** — nothing asserts it once a later chapter takes over the top of the ladder.
+ *
+ * ⚠️ **No healing, no drain and no shield anywhere on it or its board.** Two things here already make
+ * a party live longer than it can kill — a wall it cannot aim past and a board it cannot debuff —
+ * and both are steps toward the timeout that is scored as a **defeat**. What keeps it resolving is
+ * that a reflect only ever shortens a fight and a bomb is damage rather than delay.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_ANVIL_CROWNED = {
+  id: 'the-anvil-crowned',
+  name: 'The Anvil Crowned',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1750,
+    atk: 97,
+    def: 56,
+    recovery: 7,
+    haste: 94,
+    critChance: 0.13,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    critBlock: 0.12,
+    tenacity: 0.85,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  opening: [THORNMAIL],
+  skills: [THE_ANVIL_FALLS, THE_QUENCH, GLACIAL_SLAM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -2645,4 +3036,14 @@ export const ENEMIES = [
   NIGHTCANOPY_SINGER,
   THE_LONGSHADOW,
   THE_WITHERED_CROWN,
+  COLDFORGE_HAND,
+  SLAGBOUND_DRUDGE,
+  CINDERQUENCH_BEARER,
+  DEEPGALLERY_RUNNER,
+  COLDHEARTH_IRONSWORN,
+  QUENCHWRIGHT,
+  GRUDGEPLATE_SMITH,
+  OATHSTONE_BASTION,
+  THE_GRUDGEKEEPER,
+  THE_ANVIL_CROWNED,
 ] as const;

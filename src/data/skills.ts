@@ -3438,6 +3438,121 @@ export const DRAW_INTO_THE_ROOT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Hollow Anvil — milestone 21c
+//
+// ⚠️ **Three turns and no new status.** Milestone 21 licenses three statuses across its four
+// chapters, 21a spent none and 21b spent one; two remain and this chapter spends none of them. Each
+// of these is a piece of the shipped vocabulary **aimed somewhere it has never been aimed**, which
+// is the bar `AGENTS.md` sets and the bar 21a met.
+//
+// | Skill           | The aiming that is new                                                    |
+// | --------------- | ------------------------------------------------------------------------- |
+// | The Quench      | the first **status** of any kind aimed at `enemy-lowest`                   |
+// | Iron for Iron   | the first reflect applied to a *chosen* ally, and the first reactive one   |
+// | The Anvil Falls | the first stun aimed at **one body** rather than at the whole board        |
+//
+// The chapter's other two questions need no skill at all. **Refusal is a stat block** — `tenacity`
+// is not a {@link ModifiableStat}, so it cannot be a status without a `core/` change this milestone
+// forbids, and it does not need to be; that is band 1, and it is the same move the Sunless Weald
+// made with `dodge`. And **band 4 is a pair**: {@link DRAW_THE_OATH} worn by a body whose `tenacity`
+// and resists mean the one thing the party is permitted to hit is the one thing it cannot open.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold puts the hot iron in the water, and what the party mended stops being mended.
+ *
+ * ⚠️ **The first status of any kind aimed at `enemy-lowest`.** The game has aimed *damage* there
+ * since {@link HEADSMANS_ARC} — it is where a finisher goes — but never a payload, and the
+ * difference is the whole band. `ally-lowest` is where every heal in the game is pointed
+ * ({@link MEND}, {@link LITANY}), so a fuse planted on `enemy-lowest` lands on precisely the body
+ * the party's healer is already committed to. The heal arrives, the fuse arrives on top of it, and
+ * the cleanse and the heal want the same turn.
+ *
+ * That is what distinguishes it from the barrows' two. {@link BARROW_TITHE} lands on the body a
+ * party never watches and {@link DOOMKNELL} lands on everybody; both ask *where to spend the
+ * cleanse*. This one asks whether the cleanse is worth more than the heal on the one member the
+ * party has already decided to save — and it re-asks it every time the party succeeds.
+ *
+ * {@link EMBER_SEED} rather than {@link DOOMBRAND}: forty ticks rather than fifty, because a fuse
+ * racing a heal has to land while the memory of the heal is still on the screen. Magical, so the
+ * physical resist a party brings to a hold full of hammers does not answer it.
+ */
+export const THE_QUENCH = {
+  id: 'the-quench',
+  name: 'The Quench',
+  target: 'enemy-lowest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: EMBER_SEED, chance: 0.9 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever the hold is losing, it armours — and it armours it with spines.
+ *
+ * ⚠️ **The first reflect applied to a chosen ally, and the first reactive one.**
+ * {@link THORNMAIL} has been an `opening` since milestone 17 and a board-wide cast since
+ * {@link WAKE_THE_BONE}; both are statements the board makes before the party has done anything.
+ * This waits until the party has committed to killing something and then thorns *that* body, so the
+ * damage the party has already decided to spend is the damage it is charged for.
+ *
+ * It is {@link DRAW_INTO_THE_ROOT}'s shape with a different answer in it, and the two are worth
+ * reading together: a link moves what has not landed yet and asks the party to *spread*; this lets
+ * the blow land in full and bills for it, which asks the party to **finish**. Against a bound board
+ * the answer to focus fire is to stop focusing; against this one it is to focus harder.
+ *
+ * ⚠️ **Safe for the clock in the way every reflect is**: it puts nothing back and it can only ever
+ * *shorten* a fight, because it is strictly extra damage on a schedule the party controls. It
+ * resolves through `statusDamage`, so it cannot cascade and thorns cannot answer thorns.
+ *
+ * A forty-five tick cooldown against a permanent status, which is longer than it looks: the target
+ * is whoever is lowest *now*, so a board that keeps losing different bodies keeps spending this,
+ * and one that is losing the same body spends it once.
+ */
+export const IRON_FOR_IRON = {
+  id: 'iron-for-iron',
+  name: 'Iron for Iron',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: THORNMAIL }],
+  cooldown: 45,
+  condition: { kind: 'ally-hurt', fraction: 0.75 },
+  priority: 4,
+} as const;
+
+/**
+ * The hammer comes down on the biggest thing in the room.
+ *
+ * ⚠️ **The first stun aimed at one body rather than at the whole board.** {@link GATE_SLAM} and
+ * {@link THE_SEAL_BREAKS} both take a third of everybody's next turn, which is a tax spread thin
+ * enough that a party never plans around it. This takes the turn of the single body a party is
+ * least able to do without, and it takes it reliably.
+ *
+ * `enemy-highest` is the party's wall by construction, and a wall's whole job is to be standing in
+ * the front rank when an attack arrives — a job it keeps doing while stunned. What it stops doing is
+ * everything else: the guard it was about to put up, the taunt it was about to wear, the blow that
+ * was the party's only answer to a body it cannot debuff. On a board whose other question is that
+ * the party's setup does not stick, the turn that would have re-applied it is the turn this takes.
+ *
+ * Answerable, and by things the roster already carries: `tenacity` is on six characters and this is
+ * the first content that makes carrying it on the *front rank* worth anything, a cleanse pointed at
+ * the front rank ends it early, and a party that does not field one enormous body has nothing here
+ * for it to aim at.
+ */
+export const THE_ANVIL_FALLS = {
+  id: 'the-anvil-falls',
+  name: 'The Anvil Falls',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: STUN, chance: 0.6 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -3651,4 +3766,7 @@ export const SKILLS = [
   ROOTWAKE,
   THE_LONG_LOOSE,
   DRAW_INTO_THE_ROOT,
+  THE_QUENCH,
+  IRON_FOR_IRON,
+  THE_ANVIL_FALLS,
 ] as const;

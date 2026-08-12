@@ -6,6 +6,7 @@ import { CHAPTER_5 } from './chapter-5';
 import { CHAPTER_6 } from './chapter-6';
 import { CHAPTER_7 } from './chapter-7';
 import { CHAPTER_8 } from './chapter-8';
+import { CHAPTER_9 } from './chapter-9';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -242,4 +243,5 @@ export const CHAPTERS = [
   CHAPTER_6,
   CHAPTER_7,
   CHAPTER_8,
+  CHAPTER_9,
 ] as const;

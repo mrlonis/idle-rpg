@@ -149,20 +149,23 @@ function sweep(party: FormationData, stage: StageData): { win: number; maxTicks:
  * The Bound Marches, the Sundered Vault and the Waking Barrows were each expected to close it and
  * none did: 160, then 225, then 305, against 340.
  *
- * **The Sunless Weald closes it at 396.** For the first time the hardest authored stage is *above*
- * the unlock rung's cap, so this returns the stage as `data/` wrote it and the probe measures a
- * board the game actually ships. The `level: LEVEL` override that stood here is gone.
+ * **The Sunless Weald closed it at 396**, and the Hollow Anvil is now the hardest stage at **490**.
+ * For the first time since milestone 16 the hardest authored stage is *above* the unlock rung's cap
+ * and staying there, so this returns the stage as `data/` wrote it and the probe measures a board the
+ * game actually ships. The `level: LEVEL` override that stood here is gone.
  *
  * ⚠️ **Removing it changed none of the numbers below, and saying so plainly matters more than the
  * change.** {@link reach} overwrites `level` on every trial it runs, so the field this used to set
  * was dead on arrival — what it bought was a claim about the probe's *method*, not an input to it.
  * The fourteen figures moved anyway, and for a different reason: `contested()` picks the hardest
- * stage, the hardest stage is now `c8-s50` rather than `c6-s50`, and that is a different board under
- * a different id seeding a different sequence. Do not read the move as evidence about the items.
+ * stage and it has changed identity twice more, `c6-s50` → `c8-s50` → `c9-s50`, each a different
+ * board under a different id seeding a different sequence. Do not read the move as evidence about
+ * the items.
  *
  * ⚠️ **A reach figure is only comparable within one cut of the ladder**, which is the same warning
- * milestone 19's re-cut earned and the second time it has been collected. Re-measure the whole table
- * or none of it.
+ * milestone 19's re-cut earned and the third time it has now been collected. Re-measure the whole
+ * table or none of it. **Expect to re-measure once a chapter for the rest of milestone 21**, since
+ * every one of its chapters takes over the top of the ladder.
  */
 function contested(): StageData {
   return ladder.reduce((best, stage) => (stage.level > best.level ? stage : best));
@@ -260,18 +263,24 @@ describe('what a signature item is worth', () => {
     // What this measured at the shipped numbers, with the party at level 340 — bare reach, then
     // the gain a maxed item buys:
     //
-    //   Aurelia   424 (+31)  Corvane 422 (+31)  Thraun    409 (+15)  Vurn    415 (+18)
-    //   Aelrindel 437 (+33)  Maelis  421 (+18)  Nekros    433 (+24)  Carrow  435 (+34)
-    //   Vharok    430 (+35)  Vrakk   428 (+35)  Seraphine 433 ( +9)  Cassiel 429 (+29)
-    //   Azrathoth 445 (+33)  Nazreth 434 (+29)
+    //   Aurelia   453 (+29)  Corvane 452 (+32)  Thraun    425 (+16)  Vurn    432 (+19)
+    //   Aelrindel 457 (+26)  Maelis  439 (+17)  Nekros    456 (+26)  Carrow  467 (+34)
+    //   Vharok    462 (+31)  Vrakk   461 (+32)  Seraphine 449 ( +9)  Cassiel 461 (+31)
+    //   Azrathoth 468 (+27)  Nazreth 460 (+31)
     //
-    // ⚠️ **These have moved twice now without a single item or stat block changing, and both times
-    // for the same reason.** `contested()` picks the hardest stage and seeds off its `stage.id`, so
-    // every trial in this file draws a different sequence when the hardest stage changes identity:
-    // milestone 19's re-cut renamed it `c4-s50` → `c6-s50`, and milestone 21b's chapter 8 replaced
-    // it with `c8-s50` outright — a different board as well as a different seed. Nothing was wrong
+    // ⚠️ **These have now moved three times without a single item or stat block changing, and every
+    // time for the same reason.** `contested()` picks the hardest stage and seeds off its `stage.id`,
+    // so every trial in this file draws a different sequence when the hardest stage changes identity:
+    // milestone 19's re-cut renamed it `c4-s50` → `c6-s50`, milestone 21b's chapter 8 replaced it
+    // with `c8-s50` outright, and 21c's chapter 9 replaced that with `c9-s50`. Nothing was wrong
     // before and nothing is wrong now, but **these numbers are only comparable within one cut of the
     // ladder**: re-measure the whole table or none of it.
+    //
+    // ⚠️ **The bare reach rose by fifteen to thirty levels and the gains did not move at all**, which
+    // is the shape to expect from here on and the useful thing this re-measurement showed: eleven of
+    // the fourteen gains landed within three of what they were against `c8-s50`, and Seraphine's is
+    // +9 for the third cut running. The base board got harder; what an item is worth did not change.
+    // **Read the gain column, not the reach column**, when comparing across cuts.
     //
     // ⚠️ **A +3% to +8% gain in reach reads modest and is not, and the difference is the step
     // function.** Measured instead as win rate at a *fixed* contested level, the same items take

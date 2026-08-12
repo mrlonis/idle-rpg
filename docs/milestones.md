@@ -46,7 +46,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 20  | A second ascended-tier rank             | ✅ **Complete** — 56 characters, 14 signature items   |
 | 21a | Chapter 7 — The Waking Barrows          | ✅ **Complete** — 250 stages, 72 archetypes           |
 | 21b | Chapter 8 — The Sunless Weald           | ✅ **Complete** — 300 stages, 82 archetypes           |
-| 21c | Chapter 9                               | ⬜ — lean dwarf; re-derive the close by measurement   |
+| 21c | Chapter 9 — The Hollow Anvil            | ✅ **Complete** — 350 stages, 92 archetypes           |
 | 21d | Chapter 10                              | ⬜ — lean monster; re-derive the close by measurement |
 | 21e | Human Tower, floors 101–200             | ⬜ — first tower; sets the pattern for 21f–21k        |
 | 21f | Dwarf Tower, floors 101–200             | ⬜                                                    |
@@ -1636,8 +1636,8 @@ This milestone is what makes the existing systems reach their own ceilings.
 | ------- | ----------------------------------- | ---------- | ------------- |
 | 21a     | Chapter 7, 50 stages, lean undead   | 10         | 225 → 305     |
 | 21b     | Chapter 8, 50 stages, lean elf      | 10         | 305 → **396** |
-| 21c     | Chapter 9, 50 stages, lean dwarf    | 10         | 396 → ~458    |
-| 21d     | Chapter 10, 50 stages, lean monster | 10         | ~458 → ~520   |
+| 21c     | Chapter 9, 50 stages, lean dwarf    | 10         | 396 → **490** |
+| 21d     | Chapter 10, 50 stages, lean monster | 10         | 490 → ~570    |
 | 21e–21k | Seven towers, floors 101–200        | 4 each, 28 | 61 → 140      |
 
 ⚠️ **The level column was 285 / 365 / 445 / 525 when this was written, and 21a measured it wrong.**
@@ -1662,14 +1662,17 @@ since milestone 19 made the bands and the chapters the same thing again.
 | ------- | ------------- | ---------------- | --- | ------- |
 | 7       | 225 → 305     | `legendary-plus` | 260 | +45     |
 | 8       | 305 → **396** | `mythic`         | 340 | **+56** |
-| 9       | 396 → ~458    | `mythic-plus`    | 420 | ~+38    |
-| 10      | ~458 → ~520   | `ascended`       | 500 | ~+20    |
+| 9       | 396 → **490** | `mythic-plus`    | 420 | **+70** |
+| 10      | 490 → ~570    | `ascended`       | 500 | ~+70    |
 
-⚠️ **The 8, 9 and 10 rows were ~+71, ~+94 and ~+117 until 21b measured the first of them.** A
-constant margin cancels (21a's finding) but "+23 a chapter" over-corrects, because the enemy's own
-`perLevel.ascended` compounds against the party's `perLevel.common` over the _whole_ level — worth
-about fifteen levels a chapter at this depth, so the growth is nearer **+8**. The rows for 9 and 10
-are still estimates and the second term keeps growing; **derive each by measurement.**
+⚠️ **The 8, 9 and 10 rows were ~+71, ~+94 and ~+117 until 21b measured the first of them, and then
+~+38 and ~+20 until 21c measured the second.** A constant margin cancels (21a's finding) but "+23 a
+chapter" over-corrects, because the enemy's own `perLevel.ascended` compounds against the party's
+`perLevel.common` over the _whole_ level — worth about fifteen levels a chapter at this depth, so
+21b's corrected growth is nearer **+8**. That corrected rule then **under**-predicted chapter 9 by
+four levels, and the ~+38 in the old table was wrong by more than thirty. ⚠️ **The arithmetic has now
+been wrong in both directions and is a starting bracket rather than an answer**; the row for 10 is
+still an estimate. **Derive it by measurement.**
 
 ⚠️ **This table read +25 for all four, and 21a authored chapter 7 to it, measured the result and
 found the rule wrong.** The correction is the most useful thing that milestone found and it is
@@ -2261,6 +2264,154 @@ high))` beside the bisection is what turns that into a failure rather than a pla
   copies is ~52 days against a floor of 30.
 - **`achievements.spec.ts` — pulls per stage.** 7.76 → **7.62**, band 5–9.
 - **`chapters.balance.ts` — the levelling-versus-ascension share.** 0.37 → **0.34**, band 0.2–0.8.
+
+### 21c. Chapter 9 — The Hollow Anvil — **COMPLETE**
+
+Fifty stages, enemy levels **396 → 490**, ten new Dwarven archetypes, three new skills and **no new
+status**. The ladder goes 300 → **350** stages and the enemy roster 82 → **92**. Nothing in `ui/` and
+nothing in `core/` changed.
+
+#### What it ships
+
+- **`src/data/chapter-9.ts`**, five bands of ten. The chapter's signature is that every board has an
+  opinion about whether anything the party does **stays done** — where chapter 7 asked _how_ its
+  damage arrives and chapter 8 _where_ it lands. Eight chapters have taught the same opening, which
+  is to Sunder the wall and Weaken the carry; down here none of it lands, and what does land is
+  taken off again.
+- **Ten Dwarven blocks**: four `common`, four `legendary`, and two `ascended` — The Grudgekeeper, the
+  chapter **lieutenant**, on all four mini-boss boards, and The Anvil Crowned on `c9-s50` and nowhere
+  else. Dwarves go 8 → **18**, the depth milestone 21 fixed its leans to produce, and all eight of
+  the Dwarven blocks the ladder already had are fielded here — the garrison the party has been
+  meeting one at a time since the fen, standing in its own halls.
+- **Three skills and no status.** `THE_QUENCH` is the **first status of any kind aimed at
+  `enemy-lowest`**, `IRON_FOR_IRON` is the first reflect applied to a chosen ally and the first
+  reactive one, and `THE_ANVIL_FALLS` is the first stun aimed at one body rather than the whole
+  board.
+- **A sixth reference party.** `WEALDED` is chapter 8's `INVESTED` under a new name — the fifth time
+  that has been needed — and `INVESTED` moves to `mythic-plus` at 420.
+
+#### ⚠️ The status budget: none of the two spent, and the argument is that four aimings were free
+
+Milestone 21 licenses three statuses across four chapters; 21a spent none, 21b spent one, and **two
+still remain for 21d**. "The budget allowed it" was never the argument and neither is "21c managed
+without" — but what this chapter found is worth recording, because it is the third data point on a
+question 17 opened.
+
+Every one of the four bands is either a stat block or an existing part pointed somewhere new:
+
+| Band | The lock                                             | What it cost                              |
+| ---- | ---------------------------------------------------- | ----------------------------------------- |
+| 1    | your setup does not land                             | `tenacity`, on the stat blocks            |
+| 2    | what you put back does not stay                      | a bomb on `enemy-lowest`                  |
+| 3    | what you commit to is what charges you               | a reflect on `ally-lowest`, reactively    |
+| 4    | the one thing you may hit is the one you cannot open | a pair: a taunt worn by a `tenacity` wall |
+
+**Band 2 is the one worth reading twice.** `ally-lowest` is where every heal in the game is pointed,
+so a payload aimed at `enemy-lowest` lands on exactly the body the party's healer has just committed
+to — the heal arrives, the fuse arrives on top of it, and the cleanse and the heal want the same
+turn. The barrows' two bombs both ask _where to spend the cleanse_; this asks whether the cleanse is
+worth more than the heal on the one member the party has already decided to save, and it re-asks it
+every time the party succeeds.
+
+⚠️ **Band 1 is a stat block, which is the Sunless Weald's move on a different stat and the second
+chapter running to make it.** `ModifiableStat` is `atk`, `def` and `haste`, so `tenacity` cannot be a
+status without a `core/` change this milestone forbids. What answers it is `insight`, which **two**
+characters carry against `accuracy`'s five. And it is sharper than the weald's: `statusChance` is
+`authored + insight − tenacity` **clamped at zero**, where `dodge` is floored by `MIN_HIT_CHANCE` at
+a tenth — so a high enough pool refuses a debuff outright rather than taxing it. The Anvil Crowned at
+0.85 takes the largest authored chance in the game to nothing.
+
+#### The level line, measured — and the corrected rule under-predicts
+
+21b replaced "+23 a chapter" with "+23 less whatever the enemy's own curve has taken", worth about
++8 at that depth. Solving that forward reproduces chapter 8's shipped 396 almost exactly and points
+chapter 9 at **486** — and 486 measures as a **walkover**: the party the chapter is tuned for takes
+the final with **4.75 of five still standing**, which is the failure 21a's whole correction exists to
+catch.
+
+The transition is the step function `docs/testing.md` warns about, and it is sharper here than it was
+in the weald: **100% at 496, 85% at 498, 25% at 500 and 0% at 502.** Backing off the 90% edge to
+where the tuned party keeps three or four of five lands at **490** — margin **+70**, probe ratio
+**1.21** against the 1.1–1.4 target, 3.65 survivors, and the longest fight 20 seconds against a
+ninety-second clock.
+
+| Chapter | Party                   | Margin | Ratio |
+| ------- | ----------------------- | ------ | ----- |
+| 7       | `legendary-plus` at 260 | +45    | ~1.16 |
+| 8       | `mythic` at 340         | +56    | 1.10  |
+| 9       | `mythic-plus` at 420    | +70    | 1.21  |
+
+⚠️ **The arithmetic has now been wrong in both directions — high in 21b, low here — so it is a
+starting bracket and not an answer.** The roadmap's ~+38 for this chapter was wrong by more than
+thirty levels and its ~514 was wrong the other way; both came from taking a formula at its word. The
+row for chapter 10 is still an estimate.
+
+**The band-opener trap did not fire, for the first time in four chapters.** The stride puts chapter
+9's samples on s1, s5, s9 … s49 plus the boss, so **s21 and s41** are band openers on samples where
+chapter 8's were s11 and s31 — and both were authored heavy up front rather than discovered in the
+sweep. Checking the phase before authoring is the whole of what changed.
+
+#### ⚠️ The ladder is ten levels from a guard nobody wrote it for
+
+`chapters.spec.ts` holds the top stage under `LEVEL_CURVE.maxLevel / 2` = 500, and this chapter
+closes at **490**. The assertion's own comment says "two chapters must not consume the curve" — it
+was written when the ladder was two chapters long and it is about to mean something entirely
+different. **Chapter 10 cannot satisfy it at any margin the rule permits**, so 21d has to decide
+whether the claim is still the one worth making rather than sliding the number. It is the second
+guard in this project to outlive its argument; `levels.spec.ts`'s retired hours-to-the-ceiling is the
+shape of the answer.
+
+#### One guard fired, and it was the predicted one
+
+- **`gear.spec.ts` — the top grade's share of end-of-ladder drops.** Predicted by 21a and 21b to the
+  decimal: **22.6%** against a `< 0.2` bound. `gradeSoftness` re-derived 150 → **175**, restoring
+  18.7% for the fourth time. ⚠️ **Four landings and every one of them is 18.7%, which is the finding
+  rather than the number**: the solution is always `stages / 2`, the value at which the tilt equals
+  3.0. The constant is the ladder's length halved, written by hand once a chapter, and what it wants
+  is a tilt that **saturates**. 200 — which would buy chapter 10 — was left for chapter 10 to make,
+  holding to 21b's call.
+
+#### Green, with the margin worth knowing
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 0.96 → **0.83**, landing on 21b's
+  projection to two decimal places, against the placeholder floor of 0.7 that 21b lowered to cover
+  this chapter and the next. ⚠️ **Restoring it to at least 1.3 is still a deliverable of 21k.**
+- **`levels.spec.ts` — "leaves the ceiling aspirational."** 9.4 → **5.6** against a floor of 4. ⚠️
+  **21a projected ~7 here and the real figure is lower**, because the chapter closed at 490 rather
+  than the roadmap's ~458 — so **chapter 10 lands below the floor**, and it is the chapter that has
+  to answer the question 21a deferred rather than move the number again.
+- **`levels.spec.ts` — "charges real time."** 6.7h → **11.2h** against a two-sided `1h < x < 24h`.
+  21b projected ~8.5h; the same closing level explains the gap. Chapter 10 lands in the high teens,
+  which is the last of the 1.45 exponent's headroom.
+- **`levels.spec.ts` — rungs unspent above the ladder's demand.** 490 < `caps[12]` = 700.
+- **`banners.spec.ts` — the roster-relative crystal ceiling.** 350 clears is 108 pulls a day and
+  5,038 copies is ~47 days against a floor of 30.
+- **`achievements.spec.ts` — pulls per stage.** 7.62 → **7.51**, band 5–9.
+- **`chapters.balance.ts` — the levelling-versus-ascension share.** Green in band 0.2–0.8.
+- **The difficulty probe's bracket**, widened 50,000 → **500,000** with two more steps. Not a
+  failure — 21b predicted it — but worth stating as a standing expectation: the bracket spans the
+  _party's_ power, `1.021 ** (level - 1) × 1.6 ** rungs`, which grows with the margin rule rather
+  than with the stage count. Expect it every chapter at this depth, and **add steps with it or the
+  resolution decays**.
+
+#### ⚠️ Two corrections to shipped prose, both the "never true of the boards under it" kind
+
+**Chapter 8 claimed no celestial appears in it and The Unmade stands on `c8-s42` and `c8-s47`.** The
+same sentence said chapter 7 "used them sparingly", and chapter 7 fields a celestial on **twenty of
+its fifty boards**. The boards are swept and the prose is not, so the prose is what moved: the rule
+chapter 8 actually follows is that no celestial _leads_ a board. This is the same class of defect
+21b found in 21a's Cairn King note, and the second time in three sessions — **when a chapter's header
+makes an absolute claim about its own boards, check it against the boards.** Chapter 9 makes the
+stronger claim and it was checked mechanically before it was written down: no celestial appears there
+at all, deliberately, because `tenacity` is already a tax no composition answers and two of those on
+one board is one too many.
+
+**The fourteen signature reach figures moved again**, for the third cut of the ladder: `contested()`
+picks the hardest stage and it is now `c9-s50`. ⚠️ **The useful part is what did _not_ move.** Bare
+reach rose fifteen to thirty levels because the probe's base board got harder, while **eleven of the
+fourteen gains landed within three of their previous values** and Seraphine's is +9 for the third cut
+running. The gain column is what survives a change of base; the reach column is not. Expect to
+re-measure once a chapter for the rest of milestone 21.
 
 ## 22. The roguelite run
 

@@ -132,11 +132,20 @@ import {
  * just walked out of and the Elves the ladder has fielded sparingly since chapter 2, so the weald
  * reads as something growing over what came before rather than as a new cast.
  *
- * ⚠️ **No celestial appears anywhere in this chapter.** The Sundered Vault records the argument: an
- * Angel or a Demon taxes every mortal ×1.10 with no mortal → celestial row to answer it, worth
- * roughly nine levels of investment, and one chapter may carry that. Chapter 7 used them sparingly
- * and never leading; with `dodge` already taxing every swing here, a matchup tax on top would be two
- * unanswerable multipliers on one board.
+ * ⚠️ **One celestial appears, twice, and this comment used to say none did.** The Sundered Vault
+ * records the argument: an Angel or a Demon taxes every mortal ×1.10 with no mortal → celestial row
+ * to answer it, worth roughly nine levels of investment, and one chapter may carry that. With `dodge`
+ * already taxing every swing here, a matchup tax on top is two unanswerable multipliers on one board
+ * — so the rule this chapter actually follows is that **no celestial leads a board**, and the only
+ * one fielded is The Unmade, anchoring `c8-s42` and `c8-s47` in the last band because it is the
+ * heaviest block on the ladder and nothing else that heavy is mortal.
+ *
+ * ⚠️ **Corrected in 21c, and the correction is the same class 21b found in 21a's Cairn King note:
+ * prose that was never true of the boards under it.** The claim about chapter 7 that stood here was
+ * wrong in the same sentence — it said the barrows "used them sparingly", and chapter 7 fields a
+ * celestial on twenty of its fifty boards. **The boards are swept and the prose is not**, so where
+ * they disagree the prose is what moved. Chapter 9 makes the stronger claim and it is checked rather
+ * than asserted: no celestial appears there at all.
  *
  * ⚠️ **The Cairn King does not appear**, and neither does any other chapter final.
  * {@link THE_WITHERED_CROWN} is the eighth body authored under that rule.
