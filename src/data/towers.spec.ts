@@ -107,16 +107,23 @@ function slotsOf(tower: TowerData): readonly string[] {
   ]);
 }
 
-/** What one full climb of one tower pays in crystals, floors plus its own achievement tracks. */
+/**
+ * What one full climb of one tower pays in crystals, floors plus its own achievement tracks.
+ *
+ * ⚠️ **Measured over the floors the tower actually authors, not the height the rules state.** Those
+ * are the same number for a finished tower and they differ for one still waiting for its second
+ * hundred — and counting the rules' height would measure a projection rather than the game, which is
+ * the exact mistake 15c fixed when it stopped multiplying one tower's payout by `FACTIONS.length`.
+ */
 function crystalsPerTower(tower: TowerData): number {
-  const floors = Array.from({ length: rules.floors }, (_, offset) =>
+  const height = tower.floors.length;
+  const floors = Array.from({ length: height }, (_, offset) =>
     floorSummons(rules, offset + 1),
   ).reduce((total, value) => total + value, 0);
   const awards = tracks
     .filter((track) => track.counter === 'towerFloors' && track.tower === tower.id)
     .reduce(
-      (total, track) =>
-        total + Math.floor(rules.floors / track.every) * (track.reward.summons ?? 0),
+      (total, track) => total + Math.floor(height / track.every) * (track.reward.summons ?? 0),
       0,
     );
   return floors + awards;
@@ -155,8 +162,42 @@ function campaignCrystals(): number {
   return clears + awards;
 }
 
+/**
+ * The unit a tower's completion award is paid per, and the unit its tie with a chapter is stated in.
+ *
+ * A hundred floors. ⚠️ **Written down rather than derived, because there is nothing honest to derive
+ * it from** — reading it off the track it checks would make the assertions circular, and reading it
+ * off `rules.floors` would restate the bug it exists to catch. What it buys instead is that the
+ * interval on the track and the height of the tower can no longer drift apart silently: the tower
+ * has to be a whole number of these, and each one has to be worth exactly one chapter.
+ */
+const TOWER_UNIT = 100;
+
+/**
+ * The towers whose second hundred floors have not been authored yet.
+ *
+ * ⚠️ **A checklist, and it deletes itself.** {@link TOWER_RULES} is one rule for all seven, so the
+ * height moved in one session (21e) while the floors move in seven (21e–21k). Each session deletes
+ * its own name here and in `towers.balance.ts`; **21k deletes both lists and this comment**, and the
+ * height assertion below collapses back to a plain equality.
+ *
+ * A tower on this list is not damaged: `clearedFloors` clamps to what it authors, so `nextFloor`
+ * reports it topped and every screen reads it correctly. What it loses while it waits is its boss —
+ * `floorKindAt` reads the *rules'* height, so its hundredth floor resolves as a mini-boss and pays
+ * ×2 rather than ×5. That is licensed by the one argument every save re-base rests on: **no build
+ * carrying this has ever reached a player.**
+ */
+const PENDING = new Set([
+  'tower-dwarf',
+  'tower-elf',
+  'tower-undead',
+  'tower-monster',
+  'tower-angel',
+  'tower-demon',
+]);
+
 describe('tower rules', () => {
-  it('ships a hundred floors climbing to a level the campaign also reaches', () => {
+  it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
     // ⚠️ **Inside the campaign's range, deliberately.** A tower charges for roster breadth, not for
     // investment, so its top floor has to be a fight the campaign asks for well before its own end.
     // Derived from the shipped ladder rather than restated, so extending the campaign cannot
@@ -169,11 +210,44 @@ describe('tower rules', () => {
     expect(rules.topLevel).toBeLessThan(campaignTop);
   });
 
-  it('tops out at exactly a rarity cap, so the reference party is derived rather than chosen', () => {
-    // The balance target is five of the tower's faction at `rare-plus`, and `rare-plus` caps at 60.
-    // If `topLevel` ever leaves the set of caps the sweep's party stops tracking the content, and
-    // this is the test that says so rather than the sweep quietly measuring the wrong five.
-    expect(LEVEL_CURVE.caps as readonly number[]).toContain(rules.topLevel);
+  it('closes above the cap of the rung it asks for, by a margin', () => {
+    // ⚠️ **This replaced "`topLevel` is exactly a rarity cap" in 21e, and the older assertion looked
+    // stricter while measuring nothing.** Its argument was that a cap match makes the sweep's party
+    // derived rather than chosen — true, and still true here, since the rung below is just as
+    // derived as the rung on. What it missed is that **the enemy side has no ascension rungs at
+    // all.** A rung is worth ×1.6, so a party standing at parity with the content is only a fair
+    // test at the first rung above `rare`. At `elite-plus` — three rungs, ×4.096 — a level-140 five
+    // takes the heaviest board this game can author (five `ascended` blocks with an Unmade in front)
+    // at 100% with all five alive in nine seconds, and no line-up fixes that.
+    //
+    // So a tower closes above the cap of the rung it asks for, which is the campaign's own margin
+    // rule arriving here — see the level-line note in `docs/milestones.md` for chapters 5 onward.
+    // Both bounds are derived from the caps: there must be a rung below the roof for a crew to stand
+    // on, and the roof must not reach the rung above it, which would be content asking for an
+    // investment it never rewards.
+    const caps = LEVEL_CURVE.caps as readonly number[];
+    const below = caps.filter((cap) => cap < rules.topLevel);
+    const above = caps.filter((cap) => cap >= rules.topLevel);
+
+    expect(below.length, 'a rung for the top band to stand on').toBeGreaterThan(0);
+    expect(above.length, 'a rung the roof does not reach').toBeGreaterThan(0);
+
+    const margin = rules.topLevel - below[below.length - 1];
+
+    expect(margin, `margin ${margin} over the crew's cap`).toBeGreaterThan(0);
+    expect(margin, `margin ${margin} over the crew's cap`).toBeLessThan(
+      above[0] - below[below.length - 1],
+    );
+  });
+
+  it('halves into two bands, each with a rung a crew can actually be built to', () => {
+    // `towers.balance.ts` splits the sweep at the halfway floor so the shipped hundred keeps being
+    // measured by a party that can lose to it. That split only means anything if the halfway floor's
+    // level *is* a cap — otherwise band 1's crew stops tracking its own content, which is the half
+    // of the old assertion worth keeping.
+    const half = floorLevel(rules, Math.floor(rules.floors / 2));
+
+    expect(LEVEL_CURVE.caps as readonly number[]).toContain(half);
   });
 
   it('reuses the mini-boss interval the campaign already taught', () => {
@@ -211,7 +285,19 @@ describe('tower content', () => {
     // The formula and the content are two statements of one fact. A tower authored at ninety-nine
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
+    //
+    // ⚠️ **{@link PENDING} is the milestone 21e–21k exception and it is a literal on purpose.** A
+    // filter — "either the full height or half of it" — would pass forever and never notice a tower
+    // nobody went back for. Naming them means the list has to shrink by hand, and the assertion
+    // below is what makes a name left behind after its floors landed fail too.
     for (const tower of towers) {
+      if (PENDING.has(tower.id)) {
+        expect(tower.floors.length, `${tower.id} still on its first hundred`).toBeLessThan(
+          rules.floors,
+        );
+        continue;
+      }
+
       expect(tower.floors.length, tower.id).toBe(rules.floors);
     }
   });
@@ -296,13 +382,25 @@ describe('tower content', () => {
   });
 
   it('puts a mini-boss on every tenth floor and the boss on the roof', () => {
+    // Read over the finished towers only: a tower still waiting for its second hundred has no floor
+    // at the rules' height, so it has no boss to check for. {@link PENDING} says which, and its
+    // mini-boss rhythm is checked below the branch exactly as everybody else's is.
     for (const tower of towers) {
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
+      const height = tower.floors.length;
 
-      expect(kinds[rules.floors - 1]).toBe('boss');
-      expect(kinds.filter((kind) => kind === 'boss')).toHaveLength(1);
+      if (!PENDING.has(tower.id)) {
+        expect(kinds[rules.floors - 1]).toBe('boss');
+        expect(kinds.filter((kind) => kind === 'boss')).toHaveLength(1);
+      } else {
+        expect(
+          kinds.filter((kind) => kind === 'boss'),
+          tower.id,
+        ).toHaveLength(0);
+      }
+
       expect(kinds.filter((kind) => kind === 'mini-boss')).toHaveLength(
-        Math.floor((rules.floors - 1) / rules.miniBossEvery),
+        Math.floor(Math.min(height, rules.floors - 1) / rules.miniBossEvery),
       );
     }
   });
@@ -525,17 +623,29 @@ describe('the wiring a tower needs to be reachable at all', () => {
     );
   });
 
-  it('sizes the completion track at exactly the height of its tower', () => {
-    // ⚠️ `data/` holds no logic, so the height is restated on the track — which makes this the only
-    // thing standing between a completion award that pays twice and one that never pays at all.
+  it('sizes the completion track at a hundred floors, which the tower is a whole number of', () => {
+    // ⚠️ **`Spire Conqueror` stayed `every: 100` when the towers doubled, so it pays twice.** The
+    // alternative was `every: 200` to keep "topping a tower" a single event, and it was declined:
+    // that strips 70,000 crystals from the tower side and drops the tower:campaign ratio below its
+    // own floor — breaking the guard milestone 21 exists to fix. What the tie always rested on is
+    // that a hundred floors and a fifty-stage chapter are comparable events, so it is restated **per
+    // hundred floors** and the interval stays put.
+    //
+    // No save migration either way: awards-taken is an integer, and a player who topped the old
+    // hundred has taken 1 and earned 1.
+    //
+    // `data/` holds no logic, so the interval is still a literal on the track — which makes this the
+    // only thing standing between an award that pays three times and one that never pays at all.
     for (const tower of towers) {
       const intervals = tracksFor(tower)
         .map((track) => track.every)
         .sort((a, b) => a - b);
+      const completion = intervals[intervals.length - 1];
 
-      expect(intervals[intervals.length - 1], tower.id).toBe(rules.floors);
+      expect(completion, tower.id).toBe(TOWER_UNIT);
+      expect(rules.floors % completion, `${tower.id} height in whole units`).toBe(0);
       // And the other one is the rhythm of the climb rather than a second completion award.
-      expect(intervals[0], tower.id).toBeLessThan(rules.floors);
+      expect(intervals[0], tower.id).toBeLessThan(completion);
     }
   });
 
@@ -555,15 +665,19 @@ describe('the wiring a tower needs to be reachable at all', () => {
     }
   });
 
-  it('makes topping a tower worth exactly what finishing a chapter is worth', () => {
+  it('makes a hundred floors worth exactly what finishing a chapter is worth', () => {
     // A deliberate tie rather than a coincidence: a hundred floors and a fifty-stage chapter are
     // comparable events, so they pay the same. `achievements.spec.ts` narrows its own "largest
     // payout" claim to the ladder for this reason, and this is the other half of that decision.
+    //
+    // ⚠️ **Stated per hundred floors since 21e, which is what the tie always meant.** Read as "per
+    // tower" it would have had to change when the towers doubled; read per unit it did not move at
+    // all, and a tower simply became two of the events it was one of.
     const chapterAward =
       tracks.find((track) => track.counter === 'clearedChapters')?.reward.summons ?? 0;
 
     for (const tower of towers) {
-      const completion = tracksFor(tower).find((track) => track.every === rules.floors);
+      const completion = tracksFor(tower).find((track) => track.every === TOWER_UNIT);
 
       expect(completion?.reward.summons ?? 0, tower.id).toBe(chapterAward);
     }

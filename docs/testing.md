@@ -178,9 +178,11 @@ Three ways out, and which one applies is worth thinking about rather than guessi
   "a full clear must not buy the roster's copies in under thirty days". A roster that grows raises
   it exactly as a ladder that grows lowers it.
 - **Accept the decay and schedule the reminder.** The tower floor moved 2 → 1.5, which buys one
-  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really is
+  chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really was
   becoming a smaller share of the game — and the honest response is a note that fires again soon
-  rather than a bound engineered to stop asking.
+  rather than a bound engineered to stop asking. ⚠️ **That is the case where the reminder was worth
+  its cost**: milestone 21 is the answer it scheduled, and 21e is the first session in three
+  milestones where the ratio moved back _up_.
 
 ⚠️ **What is not on that list is widening the band.** Every one of these had already been widened at
 least once, and each widening bought exactly one chapter and hid the diagnosis for another milestone.
@@ -283,10 +285,33 @@ the third attempt.
   explicitly rejected — and measure **party members lost**. About 5% more over a full climb.
 
 ⚠️ **And when a party is tuned to clear everything, win rate measures nothing.** A tower's reference
-crew clears all hundred floors by design, so the assertions that carry weight are about **cost** —
-fight length, survivors, and a ramp between the halves. The one contested measurement available is a
+crew clears every floor by design, so the assertions that carry weight are about **cost** — fight
+length, survivors, and a ramp between the halves. The one contested measurement available is a
 _second_ legal five, which is also the honest question: does the tower ask for an investment or for
 one solution?
+
+### A fifth trap, from the towers doubling: a crew is only a fair test at one rung
+
+⚠️ **Milestone 21e found that a party at parity with the content is a fair test only at the _first_
+ascension rung above `rare`.** A rung is worth ×1.6 and the enemy side has none, so the gap compounds
+with every rung the reference crew stands on: at `elite-plus` — three rungs, ×4.096 — a level-140
+five takes the heaviest board the game can author at 100% with all five alive in nine seconds. The
+sweep would have reported a green tower with a roof nothing could make into a fight.
+
+- **What the assertion looked like beforehand** was as tight as they come: `topLevel` must be exactly
+  a rarity cap, so the sweep's party is _derived_ rather than chosen. That is a real property and it
+  was still measuring nothing, because the derivation it protects produces the walkover.
+- **The fix is the campaign's margin rule**, which had never been stated for towers: content closes
+  _above_ the cap of the rung it asks for. Both bounds stay derived — a rung below the roof for the
+  crew to stand on, and the roof not reaching the rung above.
+- ⚠️ **Two crews, and each one asserted on its own band.** Ratios that compare across the bands are
+  measuring the rung between the parties rather than the content — "gets harder as it is climbed"
+  read a real ramp as a decline until it was scoped per band, because band 2's crew takes its
+  _opening_ floors faster than band 1 takes the shipped hundred's closing ones.
+
+**The generalisation is the one the whole file keeps arriving at**: an assertion that is derived is
+not thereby an assertion that measures something. Ask what the derivation produces before trusting
+that it tracks the content.
 
 ### A fourth trap, from signature items: the band may be narrower than the content
 

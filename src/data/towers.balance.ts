@@ -11,12 +11,12 @@ import {
   type CombatRules,
   type CombatRulesData,
   type FormationData,
+  floorLevel,
   type GrowthData,
   type KitRulesData,
   MAX_BATTLE_TICKS,
   matchedStageIndex,
   PARTY_SIZE,
-  rarityIndex,
   resolveLadder,
   resolveTower,
   simulateBattle,
@@ -133,55 +133,87 @@ const TRIALS = 40;
 const STRIDE = 4;
 
 /**
- * The rung the reference party stands on, and the level that follows from it.
+ * The two bands, and both crews derived rather than chosen.
  *
- * ⚠️ **The level is derived, not chosen.** `rare-plus` caps at exactly the tower's top enemy level, so
- * a party built to that cap tracks the content rather than a number somebody picked — retune
- * `topLevel` and this party moves with it. `towers.spec.ts` asserts `topLevel` is a cap at all, which
- * is what stops that derivation from silently becoming a party the game will not let anybody build.
+ * ## ⚠️ A single upgraded crew would stop this file saying anything about the low band
  *
- * Three rungs in, sitting between the fen's finisher (`common-plus` at its cap) and the ash
- * chapters' (`elite` at level 85). That is the shape a tower is meant to have: real investment,
- * and less than the campaign's own top asks for.
+ * The tower is two hundred floors now and the shipped hundred is the bottom half of it. A crew built
+ * for the roof walks floor 40 without noticing, so the levels the first hundred carries would go
+ * unmeasured on content that is already in players' hands. Two crews, split at the halfway floor,
+ * is what keeps both halves watched — the same move `chapters.balance.ts` makes with BUILT /
+ * ARRIVED / MARCHED / INVESTED and for the same reason.
+ *
+ * ## The rungs come off the level line, one from each end of it
+ *
+ * - **Band 1** stands at the cap that *equals* the level at the halfway floor. That floor is level
+ *   60 and `rare-plus` caps at exactly 60, which is the derivation this file has always used.
+ * - **Band 2** stands at the highest cap strictly *below* the top floor's level. The roof is 120 and
+ *   `elite` caps at 100, so the tower closes **+20 above the rung it asks for**.
+ *
+ * ## ⚠️ That margin is mandatory, and milestone 21e measured why
+ *
+ * A rung is worth ×1.6 and **the enemy side has no rungs at all** — it climbs levels and nothing
+ * else. So a crew standing at parity with the content is only a fair test at the *first* rung above
+ * `rare`, which is exactly where the shipped hundred sits. At `elite-plus` (three rungs, ×4.096) a
+ * party at level 140 takes the heaviest board this game can author — five `ascended` blocks with an
+ * Unmade in front — at **100% with all five alive in nine seconds**. No board fixes that; the level
+ * line has to.
+ *
+ * This is the campaign's own margin rule arriving in the towers, and it means `topLevel` can no
+ * longer be a rarity cap. `towers.spec.ts` holds the margin in place of the cap match it used to
+ * hold — see the note there for why the older, tighter-looking assertion was measuring nothing.
  */
-const CREW_RARITY = rarityIndex('rare-plus');
-const CREW_LEVEL = LEVEL_CURVE.caps[CREW_RARITY];
+const BAND_FLOORS = Math.floor(rules.floors / 2);
+const BAND_1_LEVEL = floorLevel(rules, BAND_FLOORS);
+const BAND_1_RARITY = (LEVEL_CURVE.caps as readonly number[]).indexOf(BAND_1_LEVEL);
+const BAND_2_RARITY = (LEVEL_CURVE.caps as readonly number[]).reduce(
+  (best, cap, index) => (cap < floorLevel(rules, rules.floors) ? index : best),
+  0,
+);
+const BAND_2_LEVEL = LEVEL_CURVE.caps[BAND_2_RARITY];
+
+/** Which crew meets a floor: the halfway floor is the last one band 1 is asked for. */
+const bandOf = (floor: number): 1 | 2 => (floor <= BAND_FLOORS ? 1 : 2);
 
 /**
  * One character resolved for level and rung, exactly as `ui/` hands it to a battle.
  *
  * Through `toBattleCombatant` rather than reassembled here, because the kit is narrowed by tier and
  * rung as well as the stats being scaled — a sweep that built its own combatant would measure a party
- * fielding skills the game has not handed the player yet.
+ * fielding skills the game has not handed the player yet. ⚠️ **The rung is most of the difference
+ * between the two bands, not the levels**: `elite` is where the second skill unlocks, and an
+ * `elite` five at level 70 clears every floor of the shipped hundred with all five alive.
  *
  * **No gear, deliberately.** The tower's target is a party that has invested in *breadth*, and a
  * player crewing seven towers has one bag to equip them from. Measuring the tower against a fully
  * geared five would tune it for a party nobody with seven crews can field.
  */
-function at(character: CharacterData): CombatantData {
-  expect(CREW_LEVEL, `level ${CREW_LEVEL} at rung ${CREW_RARITY}`).toBeLessThanOrEqual(
-    LEVEL_CURVE.caps[CREW_RARITY],
-  );
+function at(character: CharacterData, band: 1 | 2): CombatantData {
+  const rarity = band === 1 ? BAND_1_RARITY : BAND_2_RARITY;
+  const level = band === 1 ? BAND_1_LEVEL : BAND_2_LEVEL;
+
+  expect(level, `level ${level} at rung ${rarity}`).toBeLessThanOrEqual(LEVEL_CURVE.caps[rarity]);
   return toBattleCombatant(
     character,
-    {
-      defId: character.id,
-      rarity: CREW_RARITY,
-      level: CREW_LEVEL,
-      copies: 0,
-      gear: {},
-      signature: 0,
-    },
+    { defId: character.id, rarity, level, copies: 0, gear: {}, signature: 0 },
     growth,
     kit,
-    CREW_LEVEL,
+    level,
   );
 }
 
-function five(front: readonly CharacterData[], back: readonly CharacterData[]): FormationData {
+/** A crew as `data/` names it: five characters, resolved at whichever band is asking. */
+type Bench = readonly [readonly CharacterData[], readonly CharacterData[]];
+
+function five(front: readonly CharacterData[], back: readonly CharacterData[]): Bench {
   expect(front.length + back.length).toBe(PARTY_SIZE);
-  return { front: front.map(at), back: back.map(at) };
+  return [front, back];
 }
+
+const fielded = (bench: Bench, band: 1 | 2): FormationData => ({
+  front: bench[0].map((character) => at(character, band)),
+  back: bench[1].map((character) => at(character, band)),
+});
 
 /**
  * The crew each tower is tuned against: five of its own faction, the way a player would build them.
@@ -195,7 +227,7 @@ function five(front: readonly CharacterData[], back: readonly CharacterData[]): 
  * rather than imported because the two files field it at different investments and sharing the list
  * would make one of them look like it followed from the other.
  */
-const CREWS: ReadonlyMap<string, FormationData> = new Map([
+const CREWS: ReadonlyMap<string, Bench> = new Map([
   ['tower-human', five([HALRIC, MIRA], [WREN, YSOLDE, IVO])],
   ['tower-dwarf', five([BRAN, HEDDA], [DORN, GRIMNA, ORIN])],
   ['tower-elf', five([CIRIEN, RIN], [FAELEN, NAERIN, SYLVARA])],
@@ -219,7 +251,7 @@ const CREWS: ReadonlyMap<string, FormationData> = new Map([
  * that got one builds instead. Both have to be able to climb, which is why this block's threshold is
  * lower than the reference crew's rather than equal to it.
  */
-const ALTERNATES: ReadonlyMap<string, FormationData> = new Map([
+const ALTERNATES: ReadonlyMap<string, Bench> = new Map([
   ['tower-human', five([AURELIA, SEREN], [WREN, MIRA, IVO])],
   ['tower-dwarf', five([THRAUN, HEDDA], [GRIMNA, KORRIN, ORIN])],
   ['tower-elf', five([LYSHA, CIRIEN], [FAELEN, AELRINDEL, RIN])],
@@ -269,33 +301,36 @@ function sweep(party: FormationData, stage: StageData, using: CombatRules = comb
   };
 }
 
-/** One entry per floor swept, carrying which tower and which floor it was. */
+/** One entry per floor swept, carrying which tower, which floor and which band it was. */
 interface Entry extends Sweep {
   readonly label: string;
   readonly tower: string;
   readonly floor: number;
+  readonly band: 1 | 2;
   readonly stage: StageData;
 }
 
 function sweepTower(
   tower: TowerData,
-  party: FormationData,
+  bench: Bench,
   label: string,
   every: number,
 ): readonly Entry[] {
   const floors = floorsOf(tower);
+  const parties = { 1: fielded(bench, 1), 2: fielded(bench, 2) } as const;
   const entries: Entry[] = [];
   for (const [offset, stage] of floors.entries()) {
     const floor = offset + 1;
     if (floor % every !== 0 && floor !== 1 && floor !== floors.length) {
       continue;
     }
-    entries.push({ label, tower: tower.id, floor, stage, ...sweep(party, stage) });
+    const band = bandOf(floor);
+    entries.push({ label, tower: tower.id, floor, band, stage, ...sweep(parties[band], stage) });
   }
   return entries;
 }
 
-const crewOf = (tower: TowerData, from: ReadonlyMap<string, FormationData>): FormationData => {
+const crewOf = (tower: TowerData, from: ReadonlyMap<string, Bench>): Bench => {
   const party = from.get(tower.id);
   if (party === undefined) {
     // ⚠️ Not a skip. A tower with no reference party is a tower nothing is tuned against, and 15c
@@ -304,6 +339,34 @@ const crewOf = (tower: TowerData, from: ReadonlyMap<string, FormationData>): For
   }
   return party;
 };
+
+/**
+ * The towers whose second hundred floors have not been authored yet.
+ *
+ * ⚠️ **A checklist, and it deletes itself.** `TOWER_RULES` is one rule for all seven, so the height
+ * moved in a single session (21e) while the floors move in seven (21e–21k). A tower still on its
+ * first hundred is not damaged — `clearedFloors` clamps to what it authors and `nextFloor` reports
+ * it topped — but it has no roof, so the assertions about a roof have nothing to read.
+ *
+ * Each session deletes its own name here and in `towers.spec.ts`; **21k deletes both lists and this
+ * comment**. A session that forgets fails loudly instead of shipping half a tower, which is the
+ * whole reason this is a literal rather than a filter on the height.
+ *
+ * ⚠️ **Only the roof and the second band are suspended.** Floors 1–100 of all seven are swept
+ * against band 1 exactly as before, because the level line barely moved under them: the new slope
+ * (119/199) sits within 0.002 of the old (59/99), so ten of the seven hundred shipped floors gained
+ * a single level and none of them lost a fight over it.
+ */
+const PENDING = new Set([
+  'tower-dwarf',
+  'tower-elf',
+  'tower-undead',
+  'tower-monster',
+  'tower-angel',
+  'tower-demon',
+]);
+
+const extended = towers.filter((tower) => !PENDING.has(tower.id));
 
 /** Every floor of every tower against its own crew, for the load-bearing guards. */
 const everyFloor = towers.flatMap((tower) => sweepTower(tower, crewOf(tower, CREWS), 'crew', 1));
@@ -314,10 +377,14 @@ const alternates = towers.flatMap((tower) =>
   sweepTower(tower, crewOf(tower, ALTERNATES), 'alternate', STRIDE),
 );
 
-const topFloors = towers.map((tower) => {
+const topFloors = extended.map((tower) => {
   const floors = floorsOf(tower);
   const stage = floors[floors.length - 1];
-  return { tower: tower.id, stage, ...sweep(crewOf(tower, CREWS), stage) };
+  return {
+    tower: tower.id,
+    stage,
+    ...sweep(fielded(crewOf(tower, CREWS), bandOf(floors.length)), stage),
+  };
 });
 
 describe('tower balance', () => {
@@ -335,9 +402,14 @@ describe('tower balance', () => {
 
   it('lets the tower crew take the roof', () => {
     // ⚠️ **The whole balance target**, and the only assertion here that says a tower is clearable at
-    // all: five of its faction at `rare-plus`, level 60, no gear. If this goes red the answer is the
-    // top band's line-ups in `tower-<faction>.ts`, not the party — the party is derived from the
-    // tower's own top level.
+    // all: five of its faction at the band-2 rung, no gear. If this goes red the answer is the top
+    // band's line-ups in `tower-<faction>.ts`, not the party — the party is derived from the tower's
+    // own level line.
+    //
+    // Read over {@link extended} rather than every tower, because a tower still on its first hundred
+    // has no roof to take: `floorKindAt` reads the *rules'* height, so its last authored floor is a
+    // mini-boss. The count is asserted so this cannot quietly become a loop over nothing.
+    expect(topFloors.length).toBeGreaterThan(0);
     for (const top of topFloors) {
       expect(
         top.winRate,
@@ -361,12 +433,20 @@ describe('tower balance', () => {
     for (const top of topFloors) {
       expect(top.meanSurvivors, `${top.tower} survivors`).toBeLessThan(PARTY_SIZE);
     }
-    const opening = everyFloor.filter((entry) => entry.floor === 1);
-    for (const first of opening) {
-      const top = topFloors.find((entry) => entry.tower === first.tower);
+    // ⚠️ **Against the opening floor of the roof's own band, not the tower's floor 1.** The two
+    // bands are fought by two different crews, so a roof measured against floor 1 would be reading a
+    // fight the band-2 party never has — and the ratio would say more about the rung between them
+    // than about the climb. Band 2's opener is the honest comparison and it is the same five.
+    const opening = everyFloor.filter((entry) => entry.floor === BAND_FLOORS + 1);
 
-      expect(top?.meanSeconds ?? 0, `${first.tower} roof against its own floor 1`).toBeGreaterThan(
-        first.meanSeconds * 2,
+    // One per finished tower, because band 2's opening floor is the first floor of the second
+    // hundred — a tower still on {@link PENDING} has not authored it yet.
+    expect(opening.length).toBe(extended.length);
+    for (const top of topFloors) {
+      const first = opening.find((entry) => entry.tower === top.tower);
+
+      expect(top.meanSeconds, `${top.tower} roof against its own band's opener`).toBeGreaterThan(
+        (first?.meanSeconds ?? 0) * 2,
       );
     }
   });
@@ -427,15 +507,29 @@ describe('tower balance', () => {
     // fight. Measured as fight *length* rather than win rate, because the crew is meant to clear all
     // of it — a win rate that stays at 1.0 the whole way up is the intended shape and says nothing
     // about the ramp.
-    for (const tower of towers) {
-      const mine = sampled.filter((entry) => entry.tower === tower.id);
-      const half = Math.floor(mine.length / 2);
-      const mean = (entries: readonly Entry[]): number =>
-        entries.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(entries.length, 1);
+    //
+    // ⚠️ **Within a band, never across the two.** A band-2 crew is a rung and forty levels above a
+    // band-1 crew, so it takes its own opening floors *faster* than band 1 takes the shipped
+    // hundred's closing ones — the Human roof resolves in twenty seconds where floor 100 takes
+    // twenty-four. Comparing halves of the whole tower would therefore read a ramp as a decline, and
+    // the thing that changed would be the party rather than the content.
+    const mean = (entries: readonly Entry[]): number =>
+      entries.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(entries.length, 1);
 
-      expect(mean(mine.slice(half)), `${tower.id} upper half`).toBeGreaterThan(
-        mean(mine.slice(0, half)),
-      );
+    for (const tower of towers) {
+      for (const band of [1, 2] as const) {
+        const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
+        if (mine.length === 0) {
+          // A tower still on its first hundred has no band 2. {@link PENDING} is what says so.
+          expect(PENDING.has(tower.id), `${tower.id} band ${band}`).toBe(true);
+          continue;
+        }
+        const half = Math.floor(mine.length / 2);
+
+        expect(mean(mine.slice(half)), `${tower.id} band ${band} upper half`).toBeGreaterThan(
+          mean(mine.slice(0, half)),
+        );
+      }
     }
   });
 });
@@ -450,11 +544,13 @@ const mirror = (tower: TowerData, stage: StageData): StageData => ({
 });
 
 /** Party members lost across a whole climb, which is what the bias actually charges. */
-const losses = (tower: TowerData, party: FormationData, mirrored: boolean): number =>
-  floorsOf(tower).reduce((total, stage) => {
+const losses = (tower: TowerData, bench: Bench, mirrored: boolean): number => {
+  const parties = { 1: fielded(bench, 1), 2: fielded(bench, 2) } as const;
+  return floorsOf(tower).reduce((total, stage, offset) => {
     const fought = mirrored ? mirror(tower, stage) : stage;
-    return total + (PARTY_SIZE - sweep(party, fought).meanSurvivors);
+    return total + (PARTY_SIZE - sweep(parties[bandOf(offset + 1)], fought).meanSurvivors);
   }, 0);
+};
 
 /**
  * Both climbs, per tower, computed **once**.

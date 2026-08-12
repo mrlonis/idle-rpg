@@ -63,7 +63,9 @@ describe('TowerService', () => {
     expect(view?.cleared).toBe(36);
     expect(view?.next).toBe(37);
     expect(view?.floors).toBe(FLOORS);
-    expect(view?.fraction).toBeCloseTo(0.36);
+    // Derived from the tower's own height rather than written down: 21e doubled it, and a literal
+    // here would have been a number describing a tower that no longer ships.
+    expect(view?.fraction).toBeCloseTo(36 / FLOORS);
   });
 
   it('reports a level that rises with the climb and stops at the tower ceiling', () => {

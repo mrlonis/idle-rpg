@@ -3766,6 +3766,83 @@ export const THE_LONG_BLEED = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's second hundred floors — milestone 21e
+//
+// Three skills for four Undead blocks, and the ratio is the point: a tower's second hundred is not
+// a chapter and does not get a vocabulary. What it needs is **attrition** — a hundred floors each
+// climbed exactly once, so what a floor costs matters more than what it teaches — and two of these
+// three exist to raise that cost out of parts that already ship.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Past the wall rather than through it.
+ *
+ * The reach the Undead bench did not have at speed. {@link CUTPURSE} goes for the back rank too and
+ * is a `common`'s turn; this is what a body built to arrive first does with the same target, and it
+ * leaves a {@link SLOW} behind so the member it opened on is slower to answer.
+ *
+ * ⚠️ **Aimed at the row the party's own healing lives in**, which is the whole reason a tower wants
+ * one. A climb is a hundred fights with no re-try, so a board that only ever hits the front rank is
+ * a board the party's support never has to be protected from.
+ */
+export const NIGHT_RIDE = {
+  id: 'night-ride',
+  name: 'Night Ride',
+  target: 'enemy-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.75 },
+    { kind: 'status', status: SLOW, chance: 0.55 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * What the reliquary is for.
+ *
+ * ⚠️ **A shield rather than a heal, and on a tower that distinction is the difference between
+ * content and a defeat.** Sustain on the enemy side is how a floor stops being a lock and becomes
+ * the ninety-second clock — the Dwarf Tower's roof was exactly that in 15c — but a shield banks a
+ * pool once and depletes, so it cannot outrun rising damage the way a regeneration can. That is the
+ * same argument `docs/signature-items.md` makes about Seraphine's item, read from the other side of
+ * the board.
+ *
+ * {@link BULWARK} is the shape and this is not a copy of it: a barrier is 1.5 and an aegis is 2.3,
+ * so this is what a board gets when it is worth spending a heavier turn on, and the cooldown is
+ * longer than the pool lasts so there is always a stretch with no shield up.
+ */
+export const RELIQUARY_SEAL = {
+  id: 'reliquary-seal',
+  name: 'Reliquary Seal',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 75,
+  priority: 4,
+} as const;
+
+/**
+ * The order that raised them, given once more.
+ *
+ * ⚠️ **The first board-wide `atk` buff any Undead block has carried**, and the reason the tower's
+ * roof gets it rather than a chapter is that a roof is the one fight in a climb a player cannot
+ * route around. {@link HERALDS_ANTHEM} is the same status on the Angel bench; what is new is the
+ * body it is attached to, which also executes.
+ *
+ * ⚠️ **It lapses, deliberately**, unlike the permanent rallies milestone 21d authored. Forty-five
+ * ticks against a seventy-tick cooldown is a window the party can wait out — which is what keeps a
+ * roof a fight about timing rather than a race the board wins by standing still. A permanent one
+ * here would be the boss reading its own stat block twice.
+ */
+export const THE_LAST_MUSTER = {
+  id: 'the-last-muster',
+  name: 'The Last Muster',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 70,
+  priority: 5,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -3989,4 +4066,7 @@ export const SKILLS = [
   OPEN_THE_VEIN,
   CHALLENGE_BELLOW,
   THE_LONG_BLEED,
+  NIGHT_RIDE,
+  RELIQUARY_SEAL,
+  THE_LAST_MUSTER,
 ] as const;

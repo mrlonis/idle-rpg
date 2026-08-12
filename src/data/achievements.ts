@@ -148,12 +148,17 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-human-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Human Tower.',
+    description: 'Crystals for every hundred floors of the Human Tower.',
     counter: 'towerFloors',
     tower: 'tower-human',
-    // ⚠️ **The tower's height, restated because `data/` holds no logic** — and therefore checked
-    // rather than trusted: `towers.spec.ts` asserts this equals `TOWER_RULES.floors`. Authored one
-    // short it would pay twice; one long, never.
+    // ⚠️ **A hundred floors, which stopped being the tower's whole height in milestone 21e and is
+    // still the interval.** The towers doubled to two hundred, so this now pays **twice** — and
+    // re-authoring it as `every: 200` to keep "conquering a spire" a single event was declined,
+    // because it strips 70,000 crystals from the tower side and drops the tower:campaign ratio under
+    // its own floor. The tie with a chapter's completion award always rested on "a hundred floors
+    // and a fifty-stage chapter are comparable events", so it is stated per unit and the number did
+    // not move. `towers.spec.ts` checks both halves: this equals the unit, and the tower is a whole
+    // number of them. Authored one short it would pay three times; one long, never.
     every: 100,
     reward: { summons: 10_000 },
   },
@@ -169,7 +174,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-dwarf-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Dwarf Tower.',
+    description: 'Crystals for every hundred floors of the Dwarf Tower.',
     counter: 'towerFloors',
     tower: 'tower-dwarf',
     every: 100,
@@ -187,7 +192,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-elf-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Elf Tower.',
+    description: 'Crystals for every hundred floors of the Elf Tower.',
     counter: 'towerFloors',
     tower: 'tower-elf',
     every: 100,
@@ -205,7 +210,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-undead-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Undead Tower.',
+    description: 'Crystals for every hundred floors of the Undead Tower.',
     counter: 'towerFloors',
     tower: 'tower-undead',
     every: 100,
@@ -223,7 +228,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-monster-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Monster Tower.',
+    description: 'Crystals for every hundred floors of the Monster Tower.',
     counter: 'towerFloors',
     tower: 'tower-monster',
     every: 100,
@@ -241,7 +246,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-angel-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Angel Tower.',
+    description: 'Crystals for every hundred floors of the Angel Tower.',
     counter: 'towerFloors',
     tower: 'tower-angel',
     every: 100,
@@ -259,7 +264,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'tower-demon-cleared',
     name: 'Spire Conqueror',
-    description: 'Crystals for reaching the top of the Demon Tower.',
+    description: 'Crystals for every hundred floors of the Demon Tower.',
     counter: 'towerFloors',
     tower: 'tower-demon',
     every: 100,

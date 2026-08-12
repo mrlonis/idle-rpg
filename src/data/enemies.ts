@@ -28,10 +28,12 @@ import {
   MIRE,
   MOONSONG,
   MOTE_LANCE,
+  NIGHT_RIDE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
   RAKE,
+  RELIQUARY_SEAL,
   RIFTFALL,
   ROOTWAKE,
   RUINOUS_ARC,
@@ -42,6 +44,7 @@ import {
   STONE_FIST,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
+  THE_LAST_MUSTER,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
   THE_PACK_ANSWERS,
@@ -3330,6 +3333,180 @@ export const THE_EVERWOUND = {
   skills: [THE_PACK_ANSWERS, THE_LONG_BLEED, BLOOD_RISEN, TYRANTS_CLAIM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's second hundred floors — milestone 21e
+//
+// ## Four Undead blocks, and why a tower's are fewer than a chapter's
+//
+// A chapter is ten because it authors five bands each asking a different question. A tower is four
+// because it asks **one** question a hundred more times: a floor is climbed exactly once and there
+// is no way around one, so what a floor costs is the whole of it. These fill shape gaps in the
+// Undead bench that a two-hundred-floor climb exposes and a fifty-stage chapter does not.
+//
+// Undead 17 → **21**, which is what 21e owes. The lean is the matchup matrix's: Undead counter
+// Humans, so the tower that admits Humans is the one that fields them.
+//
+// | Block                            | The gap it fills                                          |
+// | -------------------------------- | --------------------------------------------------------- |
+// | {@link CHARNEL_DRUDGE}           | fodder a crit cannot delete                                 |
+// | {@link NIGHTMARCH_OUTRIDER}      | reach, at speed, with a pool that answers back              |
+// | {@link RELIQUARY_BEARER}         | sustain that cannot become the clock                        |
+// | {@link THE_DEATHLESS_MARSHAL}    | a roof of its own, for a tower that had borrowed one        |
+//
+// ## ⚠️ No new status, and the vocabulary was never on the table
+//
+// Milestone 21's three-status budget was **spent and closed by 21d**, and a tower does not get to
+// re-open it — "21d spent two" is no more an argument than "17 did it" was. All three new skills
+// below are existing statuses on bodies that had not carried them.
+//
+// ## Scale
+//
+// The floors these stand on run to level 140, which is more than twice the shipped hundred's top —
+// so the *level line* is what makes the second hundred harder and these are sized against the
+// bench they join rather than against the floors they will meet. {@link THE_DEATHLESS_MARSHAL} sits
+// **under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds, and which every
+// `ascended` block authored since 15c has respected rather than raised.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * What is left of the work gangs that dug the tower's foundations.
+ *
+ * **Fodder a burst party cannot delete, which the Undead bench did not have.** Every cheap Undead
+ * body so far is either thin and fast or thick and slow; this is thick, slow, *and* wearing
+ * `critBlock` on both resists — so the swing that clears three of these on the shipped hundred
+ * clears two here and spends another turn on the third.
+ *
+ * ⚠️ **Nothing about it is a lock, and that is deliberate.** A tower's second hundred is a hundred
+ * fights nobody re-tries, so what it needs from its commons is *cost*, not a question. A block that
+ * taught something new every tenth floor would be a chapter wearing a tower's numbering.
+ */
+export const CHARNEL_DRUDGE = {
+  id: 'charnel-drudge',
+  name: 'Charnel Drudge',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 840,
+    atk: 52,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.16,
+    physicalResist: 0.12,
+    magicResist: 0.1,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * It was cavalry once, and it still knows where the standards are kept.
+ *
+ * {@link NIGHT_RIDE} goes past the front rank at speed, which is the pressure a hundred-floor climb
+ * has never put on the party's back row — the shipped tower's reach is {@link CUTPURSE} on a
+ * `common`, and a `common`'s turn arrives too rarely to be a plan.
+ *
+ * ⚠️ **The `dodge` pool is a question rather than a tax, and the Human bench is what makes it
+ * one.** Exactly one Human carries `accuracy` — Ysolde, who stands in the reference five — so this
+ * is answerable by a crew that brought her and expensive for one that did not. That asymmetry is
+ * the point: `MIN_HIT_CHANCE` floors a dodge pool at a tenth, so the crew without the answer is
+ * slowed rather than stopped. **Kept modest, and never stacked**: two of these on one board is a
+ * board a party without accuracy cannot plan around, which is a different and worse thing.
+ */
+export const NIGHTMARCH_OUTRIDER = {
+  id: 'nightmarch-outrider',
+  name: 'Nightmarch Outrider',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 78,
+    def: 20,
+    haste: 128,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    dodge: 0.12,
+    physicalPierce: 0.15,
+    magicResist: 0.04,
+  },
+  skills: [NIGHT_RIDE, CUTPURSE],
+} as const;
+
+/**
+ * It carries the box, and the box is why the rest of them are still standing.
+ *
+ * ⚠️ **The only way a tower is allowed to have sustain, and the distinction is load-bearing.** 15c
+ * measured what a healer on a roof is: the Dwarf Tower's boss was `Oathbreaker + Warden` behind a
+ * Marsh Acolyte and no Dwarf five could close it inside ninety seconds, while the same board ten
+ * floors lower cleared. A heal refills; against a party that cannot burst, that is the clock rather
+ * than a lock. {@link RELIQUARY_SEAL} banks a pool **once** and it depletes — so this makes a floor
+ * cost more turns and can never make one cost all of them.
+ *
+ * Almost no offence of its own, like every support the enemy side ships: what it costs the party is
+ * the turns spent getting through what it put up.
+ */
+export const RELIQUARY_BEARER = {
+  id: 'reliquary-bearer',
+  name: 'Reliquary Bearer',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 50,
+    def: 36,
+    recovery: 4,
+    haste: 72,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    magicResist: 0.12,
+  },
+  skills: [RELIQUARY_SEAL, WITHERING_TOUCH],
+} as const;
+
+/**
+ * Whoever gave the order that lost the tower, still giving it.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is The Oathbreaker — a Human
+ * `ascended` block the campaign also fields — which was right for a tower that had one hundred
+ * floors and no body of its own. A second hundred earns one.
+ *
+ * {@link THE_LAST_MUSTER} is what makes it a fight rather than a bigger stat block: the board's
+ * attack goes up a third for forty-five ticks and then lapses, so the roof has a rhythm the party
+ * can read and wait out. ⚠️ **It lapses on purpose**, unlike 21d's permanent rallies — a roof that
+ * ratcheted upward and never came down would be the ninety-second clock with a name on it, which is
+ * the shape `docs/combat.md` forbids outright.
+ *
+ * ⚠️ **No heal, no drain, no shield and no `lifeLeech`**, which is the sentence every chapter final
+ * since the Chainsworn carries and which binds twice as hard here: a roof is the one fight in a
+ * hundred-floor climb that a player cannot route around.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds.
+ */
+export const THE_DEATHLESS_MARSHAL = {
+  id: 'the-deathless-marshal',
+  name: 'The Deathless Marshal',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1620,
+    atk: 94,
+    def: 48,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalPierce: 0.28,
+    magicPierce: 0.18,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_LAST_MUSTER, TYRANTS_CLAIM, HEADSMANS_ARC],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -3435,4 +3612,8 @@ export const ENEMIES = [
   SCARBOUND_BELLOWER,
   THE_REDMAW,
   THE_EVERWOUND,
+  CHARNEL_DRUDGE,
+  NIGHTMARCH_OUTRIDER,
+  RELIQUARY_BEARER,
+  THE_DEATHLESS_MARSHAL,
 ] as const;

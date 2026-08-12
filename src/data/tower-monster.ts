@@ -352,7 +352,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Ring of Spears — Floors 49–68, levels 29–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Ring of Spears — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f49',
@@ -492,7 +492,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Circling Gate — Floors 69–84, levels 41–50 — an ascended block anchors every front rank, and never the same one twice running.
+    // The Circling Gate — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, and never the same one twice running.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f69',

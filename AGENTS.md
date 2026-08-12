@@ -649,14 +649,14 @@ the two disagree, the code is right and both are stale.
     the crew standing in it. Change the `name` freely; never the `id`.
 - **Faction towers are a second thing to climb**, and **all seven ship** — the system in milestone
   15b, the other six towers and the eighteen enemy archetypes they needed in 15c. Read
-  [`core/towers.ts`](src/core/towers.ts) before touching them. Each is a hundred floors at enemy
-  levels 1 to 60. Adding a tower is a row in [`data/towers.ts`](src/data/towers.ts), a matching row
+  [`core/towers.ts`](src/core/towers.ts) before touching them. Each is **two hundred floors at enemy
+  levels 1 to 120** since milestone 21e. Adding a tower is a row in [`data/towers.ts`](src/data/towers.ts), a matching row
   in [`data/activities.ts`](src/data/activities.ts), two achievement tracks, and its floors;
   `data/towers.spec.ts` makes a missing one a failing test rather than a tower with no way in, and
   holds **exactly one tower per faction** against `FACTIONS` rather than a literal.
   - ⚠️ **A tower clear may never touch `clearedStages`, the ladder position, or an idle rate.** The
     clear count drives the idle crystal rate, and the shipped three hundred and fifty stages already
-    take it to ×4.5 the base — seven towers of a hundred floors feeding it would reach ×11, and the
+    take it to ×4.5 the base — seven towers of two hundred floors feeding it would reach ×18, and the
     roster-relative
     ceiling in `banners.spec.ts` would put the whole roster inside three weeks. Progress is one
     integer per tower in `GameState.towers`, and
@@ -669,6 +669,29 @@ the two disagree, the code is right and both are stale.
     `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
     and the crew editor's Fight control are inert on it. A control that only asked whether the
     _crew_ was legal would look live and silently do nothing.
+  - ⚠️ **Six of the seven are still a hundred floors short, and that is milestone 21e–21k in
+    progress.** `TOWER_RULES` is one rule for all seven, so the height moved in one session while the
+    floors move in seven. A tower that has not been extended is **not damaged** — `clearedFloors`
+    clamps to what it authors, so `nextFloor` reports it topped and every screen reads it right —
+    but it loses its **boss**, because `floorKindAt` reads the rules' height and its hundredth floor
+    resolves as a mini-boss paying ×2 rather than ×5. `PENDING`, a **literal list that deletes
+    itself**, lives in both `towers.spec.ts` and `towers.balance.ts`; each session removes its own
+    name and 21k removes both lists. ⚠️ **A filter — "either the full height or half of it" — would
+    pass forever and never notice a tower nobody went back for.**
+  - ⚠️ **A tower closes _above_ the cap of the rung it asks for, which is the campaign's margin
+    rule, and `topLevel` being a rarity cap is the opposite of what makes a roof a fight.** A rung is
+    worth ×1.6 and **the enemy side has no rungs at all**, so a crew standing at parity with the
+    content is only a fair test at the first rung above `rare` — which is where the shipped hundred
+    sits and why it worked. Milestone 21e measured the rest: at `elite-plus` (three rungs, ×4.096) a
+    level-140 five takes **the heaviest board this game can author** — five `ascended` blocks with an
+    Unmade in front — at 100% with all five alive in nine seconds, and no line-up fixes it. The roof
+    is 120 against an `elite` crew capped at 100, a margin of +20.
+  - ⚠️ **Extending a tower: reach first for the top level at which the new slope meets the old one.**
+    Doubling to 200 floors and doubling `topLevel` to 120 gives 119/199 = 0.5980 against the shipped
+    59/99 = 0.5960 — **ten of the seven hundred shipped floors move, each by one level**, and the
+    retune the roadmap budgeted for does not exist. The prescribed 140 would have put 46 of those 700
+    floors under the 90% bar and taken six of seven roofs from 100% to 0%. Check the roof is a fight
+    second; do not start from the roof.
   - ⚠️ **A floor's level is derived, never authored.** `data/` authors who stands on each floor;
     `floorLevel` draws the straight line from `baseLevel` to `topLevel`. Typing a hundred levels
     that must follow a formula is the retyping [testing](docs/testing.md) forbids.
@@ -722,7 +745,7 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    A hundred and two ship, and the distribution is deliberately uneven: milestone 18 took Angels to
+    A hundred and six ship, and the distribution is deliberately uneven: milestone 18 took Angels to
     eleven and Demons to twelve, milestone 21a took Undead from seven to **seventeen**, 21b took Elves
     the same way, 21c took Dwarves from eight to **eighteen** and 21d took Monsters the same way,
     because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixed each of its four
@@ -771,12 +794,22 @@ the two disagree, the code is right and both are stale.
     eighteen tower-only blocks would have failed it as orphans, so it moved whole to
     `data/enemies.spec.ts`, which is the only spec that sees both. It was **widened, not relaxed**:
     an archetype nobody ever meets is still a stat block with a comment attached.
-  - **The balance target is five of the tower's faction at `rare-plus`, level 60, no gear, clearing
-    every floor** — and ⚠️ **the level is derived from `topLevel`, not chosen**: `rare-plus`'s cap is
-    exactly 60, so the party tracks the content. What ramps across the climb is **what a floor
-    costs**, not whether it is possible: the crew clears all hundred, loses nobody below floor 80,
-    and finishes the roof in twenty-four seconds with two of the five dead. A floor the crew cannot
-    pass stops the tower outright, because a floor is climbed once and there is no way around one.
+  - **The balance target is two crews, one per band, and both levels derived rather than chosen.**
+    Band 1 is five of the tower's faction at `rare-plus`, level 60, over floors 1–100 — the cap that
+    **equals** the halfway floor's level. Band 2 is the same five at `elite`, level 100, over floors
+    101–200 — the highest cap strictly **below** the roof. No gear on either. ⚠️ **A single upgraded
+    crew would stop the sweep saying anything about the low band**, on seven hundred floors that are
+    already shipped. What ramps across a climb is **what a floor costs**, not whether it is possible:
+    the crew clears everything, loses nobody below floor 185, and takes the roof in twenty seconds
+    with 3.4 of five alive. A floor the crew cannot pass stops the tower outright, because a floor is
+    climbed once and there is no way around one.
+  - ⚠️ **In band 2 the _alternate_ five is the binding constraint, not the reference five.** With
+    both crews at parity with the content this never arose; with a margin the two come apart, and the
+    Human pair measures twelve levels apart. Any board that gives the reference five a real fight at
+    level 120 **wipes** the alternate — a two-`ascended` board reads 93% for one and 7% for the other
+    against its own 75% bar. So the last twenty floors escalate through the level line and the
+    board's own **support density** (links, shields, a taunt) rather than by stacking anchors, which
+    is the inverse of the shipped hundred's climax. **Size a roof against the alternate first.**
   - **Home draws a row per tower and it has three states**, only one of which is a link:
     `climbing` goes to `/prepare/:id`, and `locked` and `topped` are inert rows that say why. ⚠️ The
     locked row is where 15a's "nothing empty ships for the towers" rule is deliberately spent — it
@@ -841,7 +874,14 @@ the two disagree, the code is right and both are stale.
     measures the sum and holds the ratio inside a factor of two. The idle rate in `SUMMON_RATE` is
     the one thing still linear, and it is linear in the **clear count** rather than the index.
     - **A tower's crystals are the same shape at a smaller size**: 100 a floor (×2 mini-boss, ×5
-      roof), 500 per five floors, 10,000 for topping it. ⚠️ **The per-floor figure is deliberately
+      roof), 500 per five floors, 10,000 **per hundred floors**. ⚠️ **`Spire Conqueror` stayed
+      `every: 100` when the towers doubled in 21e, so a two-hundred-floor tower earns it twice.**
+      Re-authoring it as `every: 200` to keep "topping a tower" one event strips 70,000 crystals from
+      the tower side and drops this ratio under its own floor — breaking the guard milestone 21
+      exists to fix. The tie with a chapter always rested on "a hundred floors and a fifty-stage
+      chapter are comparable events", so it is **stated per unit** and the number did not move. No
+      save migration: awards-taken is an integer, and a player who topped the old hundred has taken 1
+      and earned 1. ⚠️ **The per-floor figure is deliberately
       _not_ the campaign's 250** — at parity the seven towers pay ~268,000 against the campaign's
       ~69,000, which is 3.9× and makes the ladder's own rewards look pointless beside optional
       content. At 100 it is ~219,000. `data/towers.spec.ts` measures that ratio and bounds it, and
@@ -850,27 +890,31 @@ the two disagree, the code is right and both are stale.
       than it is. Since 15c it **sums the towers that actually ship** rather than multiplying one
       tower by `FACTIONS.length`, which measured a projection while six of them were unwritten.
     - ⚠️ **Only the ceiling on that ratio is stable; the floor falls as content ships, by
-      construction.** Towers are fixed at seven hundred floors while the campaign grows, so it read
+      construction.** The towers were fixed at seven hundred floors while the campaign grew, so it read
       3.17 at two fifty-stage chapters, 2.12 at three, **1.59** at four — and the six-chapter
       re-cut then moved it to ~1.37 without adding a stage, because two more chapter boundaries pay
       two more Chapter Conqueror awards. The floor moved 2 → 1.5 in milestone 18 and 1.5 → **1.3**
       in milestone 19; it bought the re-cut and nothing more, and chapter 7 fired it exactly as
       predicted, at **1.13**, chapter 8 took it to **0.96**, chapter 9 to **0.83** and chapter 10 to
       **0.74** — the last two landing on the figures 21b projected for them, to two decimal places.
+      ⚠️ **21e is the first session since this guard was written where it went _up_**: the Human
+      Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**.
+      Expect roughly +0.1 per tower through 21f–21k.
     - ⚠️ **The floor is 0.7 right now and that is a mid-milestone placeholder, not a decision.**
       Milestone 21 _is_ the "grow the towers" answer, and it lands in eleven sessions: 21a–21d take
       the campaign to ~297,500 while the tower side is still the shipped 219,100, and only 21e–21k
-      double every tower to ~436,100 and take the ratio to **~1.47** — the first time since this
+      double every tower to **436,100** — measured now that the first of them has landed — and take
+      the ratio to **1.466** — the first time since this
       guard was written that both sides move. **Restoring the floor to at least 1.3 is a deliverable
       of 21k.** ⚠️ **It was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
       landings (0.96, 0.83, 0.74) were all known in advance, so re-deriving a quantity that is
       _supposed_ to fall three times over would be three edits that measure nothing. **All three have
-      now landed and the campaign side is at 297,500 against the towers' 219,100**, which is the
-      figure 21b projected for the end of 21d. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
+      now landed and the campaign side is at 297,500 against the towers' 248,300** — 219,100 at the
+      end of 21d, which is the figure 21b projected for it, plus the Human Tower's second hundred. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
       and the **opposite** of the one 21b made on `gradeSoftness`; the distinction is whether the
       quantity is meant to move. A failure after that is the original question again: whether seven towers of two
       hundred floors is still the right amount of optional content beside the campaign of the day.
-    - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
+    - **A hundred floors pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
       payout" claim to the ladder, and `towers.spec.ts` holds the tie.
   - ⚠️ **`perClearPerHour` is 1 and it stays 1. The ceiling that kept catching it was the thing that

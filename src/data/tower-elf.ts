@@ -328,7 +328,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Stonewright Reach — Floors 49–68, levels 29–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Stonewright Reach — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f49',
@@ -438,7 +438,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Siege — Floors 69–84, levels 41–50 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Long Siege — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f69',
