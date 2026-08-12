@@ -50,7 +50,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21d | Chapter 10 — The Bleeding Wild          | ✅ **Complete** — 400 stages, 102 archetypes         |
 | 21e | Human Tower, floors 101–200             | ✅ **Complete** — 200 floors, 106 archetypes         |
 | 21f | Dwarf Tower, floors 101–200             | ✅ **Complete** — 200 floors, 110 archetypes         |
-| 21g | Elf Tower, floors 101–200               | ⬜                                                   |
+| 21g | Elf Tower, floors 101–200               | ✅ **Complete** — 200 floors, 114 archetypes         |
 | 21h | Undead Tower, floors 101–200            | ⬜                                                   |
 | 21i | Monster Tower, floors 101–200           | ⬜                                                   |
 | 21j | Angel Tower, floors 101–200             | ⬜                                                   |
@@ -2879,6 +2879,137 @@ content rather than read. **Do that at the start of a tower session, not the end
 
 All 1,972 unit tests and all 74 balance tests pass, with no new test added and no threshold moved —
 every spec that reads this content derives from it.
+
+### 21g. The Elf Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new Dwarf archetypes and three new skills. Dwarves go 18 → **22** and the
+enemy roster goes 110 → **114**. Three of seven towers now have their second hundred. Nothing in
+`ui/` and nothing in `core/` changed, and `TOWER_RULES` was not touched.
+
+#### ⚠️ Neither shipped escalation transfers, and this is the session that makes that a rule
+
+21f found that 21e's climax shape was unusable on its own crew and concluded "read the crew's failure
+mode before choosing how to escalate". 21g is the test of that sentence, and it holds: **a third
+tower produced a third answer.** Measured against both Elf arrangements at the top floor's level,
+before anything was authored:
+
+| Board at level 120                           | reference five | alternate five        |
+| -------------------------------------------- | -------------- | --------------------- |
+| 1 anchor + a wall, 3 legendaries behind      | 100% / 10.3s   | 100% / 4.03 alive     |
+| 1 anchor + a shield support in the back rank | 100% / 9.6s    | **100%** / 4.25 alive |
+| 1 anchor + a _pressure_ legendary            | 100% / 10.4s   | **80%**               |
+| 2 anchors (Grudgekeeper + Colossus)          | 100% / 12.5s   | **90%**               |
+| 2 anchors (Colossus + Barrow Sovereign)      | 100% / 11.7s   | **43%**               |
+| six bodies of fodder                         | 100% / 6.2s    | 100% / 5.00 alive     |
+
+⚠️ **21e's climax shape is worth nothing here** — a shield support in the back rank is a walkover for
+the arrangement it is supposed to threaten. And ⚠️ **21f's rule does not bind here either**: it
+forbids sustain because a Dwarf five cannot burst and every point of it is a second of the
+ninety-second clock, but an Elf five takes the heaviest authorable board in **eleven seconds** and
+has eighty of headroom. So a wall is affordable, and what is scarce is **health**. The shape that
+shipped is the wall _and_ what the wall is hiding: a taunting body that refuses a crit, with the
+reach behind it aimed at the rank the party has been protecting for a hundred floors.
+
+#### ⚠️ Below level 108 no board in this tower is a fight, and that is the band split rather than the content
+
+The finding worth carrying to 21h–21k. Band 2's crew stands at level 100 — the highest cap strictly
+below the roof — while the band **opens at level 61**, a 39-level deficit worth ×2.24 of party power.
+Measured at floor 101's level, the lightest authorable board resolves in **2.6 seconds** and the
+heaviest — the roof itself — in **2.9**, both with all five alive for both arrangements.
+
+**Composition buys three tenths of a second across the entire authorable range.** The two towers
+before this one hid it: a Dwarf five carries the lowest `atk` in the game, so its own band-2 opener
+read 5.5 seconds and looked like content. It was the crew, not the boards.
+
+⚠️ **So do not try to make the bottom of a band 2 hard.** Author it for rhythm and variety, and put
+the escalation where the level line has caught up. Here that is the last thirty floors, and the band
+reads 2.5s at floor 101, 3.9 at 140, 4.8 at 160, 6.9 at 180 and 12.0 at the roof, with the first
+member lost at floor 180 for the reference five and 144 for the alternate. Band 1 is untouched and
+still reads 0.9s at floor 1, 5.2 at 50 and 10.8 at 100.
+
+⚠️ **Check which floors the stride samples before authoring, which this session got wrong once.**
+`towers.balance.ts` reads every fourth floor, and the first draft of the final band put every heavy
+board on an odd one — so the spine climbed through twenty floors of the boards that were not the
+point. This is `chapters.balance.ts`'s band-opener trap arriving in a tower.
+
+#### The two arrangements are nine levels apart, and the reference five is never in danger
+
+21e recorded the Human pair twelve levels apart; the Elf pair is nine, with a far steeper edge. The
+roof board re-levelled: the alternate reads 100% at 118, **83% at 120**, 43% at 122 and 2% at 126,
+while the reference is still at 100% at 126 and only breaks at 130.
+
+The consequence is sharper than 21e's version: **every board that costs the reference five a second
+member takes the alternate below its own 75% bar.** So the reference crew clears this tower at 100%
+end to end and the alternate is the entire constraint. That is honest rather than a miss — a roof is
+sized against the arrangement that struggles — but it means the reference number says nothing here.
+
+The roof is `The Wardwright` beside an Edgeturn Warden over an Ironsling Wright, a Runewarden and a
+Plumbline Hand: **100% / 4.00 survivors / 12.0s** for the reference five, **83% / 2.10 / 23.4s** for
+the alternate, against bars of 90% and 75%.
+
+#### Four Dwarf blocks, three skills, and no new status
+
+Dwarf 18 → **22**, the lean the matchup matrix asks for. All four are aimed at the faction the tower
+**admits** rather than at a gap in the Dwarf bench, which the Elf idiom is what makes possible.
+
+- **Plumbline Hand** (`common`) — ⚠️ **the first Dwarf block in eighteen to carry `accuracy`**, and
+  deliberately at the cheapest tier. Elves are the game's `dodge` faction and 1.18 cancels every pool
+  either arrangement fields. What stops it being a flat tax — an enemy's accuracy is not a stat a
+  party can out-buy — is that it is 540 hp in a back rank with `CUTPURSE`, so the answer is to spend
+  **reach** on it, which is the resource this tower charges for.
+- **Ironsling Wright** (`legendary`) — the burster the wall is protecting. `SLUNG_ANVIL` is ×2 into
+  the rank an Elf five keeps its support and its casters in; the faction's shipped reach is ×1.35 and
+  ×1.1, which is chip damage a party absorbs while it works on the wall.
+- **Edgeturn Warden** (`legendary`) — `critBlock` 0.24 and `critDamageResist` 0.32, both steps beyond
+  the shipped maxima (0.16 and 0.3), on the one block whose entire argument is that stat pair. It
+  taunts, because reach means a wall that can be walked around is not a wall.
+- **The Wardwright** (`ascended`) — floor 200, and the first roof this tower has owned. Floor 100 is
+  `Colossus + Barrow Sovereign`, two blocks the campaign also fields.
+
+⚠️ **`accuracy: 1.25` is the roof's headline, and it is the honest form of a thing that cannot be a
+status.** `dodge` is not a `ModifiableStat`, so nothing may take an evasion pool away — a roof that
+means "your evasion is worth nothing here" has to carry the stat that out-runs it. Same shape as
+21c's finding that a chapter's headline lock can be a stat block.
+
+⚠️ **A design guard refused the first version of `THE_LINE_TRUE` and the content moved, not the
+guard.** It was authored at ×1.35 on `enemy-row-back` and `skills.spec.ts` caps a wide skill at ×1.2,
+because five small hits against the diminishing-DEF curve are worth far less than one big one. Cutting
+it to the ceiling moved the roof from 80% to **83%** for the alternate — the multiplier was not
+load-bearing at all, which is the usual outcome when a threshold is right.
+
+Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a tower does not
+re-open it, 21f did not need to, and neither did this.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 0.940 → **1.045**, against the placeholder
+  floor of 0.7 — **the first reading back over parity with the campaign since chapter 8 landed**. The
+  Elf Tower goes 31,000 → 62,300 and the seven now pay 310,900 against a campaign of 297,500. Still
+  on track for 1.466 at 21k; roughly +0.105 a tower, four to go.
+- **`towers.spec.ts` — the faction lean.** ⚠️ **Budgeted for rather than discovered**, which is the
+  one thing 21f asked its successors to do differently. Authored from the lean's own bench the second
+  hundred came out at 78.7% and the tower at 65.2% against a 65% ceiling — the same overshoot as
+  21e's 69.8% and 21f's 86.2% — and the substitution was made during authoring rather than after:
+  **58.6%** over the tower and 66.0% in the second hundred, with 46 distinct blocks rather than 37.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored.
+
+#### The prose check, run at the start this time
+
+21f's instruction was to recompute rather than read, at the beginning of the session. Done
+mechanically: the crystal figures (22,300 a tower from floors, 62,300 with both tracks, and the 21k
+projection of 436,100 / **1.466** to three decimal places), the band-level headers for all eleven
+bands, the floor ids and the mini-boss rhythm, and a walk of all two hundred floors checking that no
+board pairs a taunt with anything that **refills**. That last one found nothing, and it also found
+the shipped precedent worth writing down: taunt-plus-`lifeLeech` appears on 36 tower boards and 21
+campaign stages, while taunt-plus-_healer_ appears on **zero** tower boards. The rule that binds is
+the healer, not the leech.
+
+Three stale claims were corrected: `towers.ts` said five of seven were short (four now) and quoted
+the pre-21g crystal figures, and `towers.spec.ts`'s ratio comment still described the towers as
+"fixed at seven ladders of a hundred floors", which stopped being true at 21e.
+
+All 1,972 unit tests and all 74 balance tests pass, with no new test added and no threshold moved.
 
 ## 22. The roguelite run
 

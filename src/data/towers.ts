@@ -84,9 +84,11 @@ import { TOWER_UNDEAD } from './tower-undead';
  * floor, seven towers of two hundred come to **156,100** from floors and **436,100** with both
  * tracks — against a ten-chapter campaign of ~297,500, on ladders gated behind roster depth.
  *
- * ⚠️ **Those are the figures for 21k, not for today.** Two of the seven have their second hundred
- * (21e and 21f), so the tower side stands at 279,600 and the ratio at **0.940** against a floor of
- * 0.7 that is itself a mid-milestone placeholder. `towers.spec.ts` carries the whole argument.
+ * ⚠️ **Those are the figures for 21k, not for today.** Three of the seven have their second hundred
+ * (21e, 21f and 21g), so the tower side stands at 310,900 and the ratio at **1.045** against a floor
+ * of 0.7 that is itself a mid-milestone placeholder. `towers.spec.ts` carries the whole argument.
+ * 21g is the session that took it back over parity with the campaign for the first time since the
+ * four chapters landed.
  *
  * Flat in the floor, for the reason every crystal payout in this game is flat: a pull costs a flat
  * `PULL_COST` forever, so anything scaling with how far a run has come pays most to the player who
@@ -126,7 +128,7 @@ export const TOWER_RULES = {
  * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
  * has at least nine. See [`enemies.ts`](./enemies.ts).
  *
- * ## ⚠️ Five of the seven are a hundred floors short, and that is milestone 21e–21k in progress
+ * ## ⚠️ Four of the seven are a hundred floors short, and that is milestone 21e–21k in progress
  *
  * {@link TOWER_RULES} is one rule for all seven, so the bump to two hundred floors landed in **one**
  * session while the floors themselves land in seven. Until the last of them, a tower that has not

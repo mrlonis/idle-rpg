@@ -669,7 +669,7 @@ the two disagree, the code is right and both are stale.
     `null` for a topped tower and for one the campaign has not opened, and both the Go Again button
     and the crew editor's Fight control are inert on it. A control that only asked whether the
     _crew_ was legal would look live and silently do nothing.
-  - ⚠️ **Five of the seven are still a hundred floors short, and that is milestone 21e–21k in
+  - ⚠️ **Four of the seven are still a hundred floors short, and that is milestone 21e–21k in
     progress.** `TOWER_RULES` is one rule for all seven, so the height moved in one session while the
     floors move in seven. A tower that has not been extended is **not damaged** — `clearedFloors`
     clamps to what it authors, so `nextFloor` reports it topped and every screen reads it right —
@@ -745,7 +745,7 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    A hundred and ten ship, and the distribution is deliberately uneven: milestone 18 took Angels to
+    A hundred and fourteen ship, and the distribution is deliberately uneven: milestone 18 took Angels to
     eleven and Demons to twelve, milestone 21a took Undead from seven to **seventeen**, 21b took Elves
     the same way, 21c took Dwarves from eight to **eighteen** and 21d took Monsters the same way,
     because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixed each of its four
@@ -753,9 +753,10 @@ the two disagree, the code is right and both are stale.
     touched non-overlapping slices of `enemies.ts` and the depth table evened out rather than
     deepening what was already deep. **All four have landed**, and **milestone 21f then closed the
     gap they left**: Human was the thinnest faction in the game at nine and the Dwarf Tower's second
-    hundred took it to **thirteen**, so no faction is now a standout candidate to lean on. ⚠️ **A
+    hundred took it to **thirteen**, so no faction is now a standout candidate to lean on, and 21g
+    took Dwarves 18 → **twenty-two**. ⚠️ **A
     tower session deepens a faction exactly as a chapter session does, four blocks against ten** —
-    that is the other half of the "fix the leans up front" discipline and it applies through 21g–21k.
+    that is the other half of the "fix the leans up front" discipline and it applies through 21h–21k.
     The old
     note here recorded that there was **no ascended-tier Undead archetype**; the Barrow Sovereign
     closed that, and the Wyrdroot Ancient did the same for Elves. ⚠️ **A new `ascended` block is
@@ -781,6 +782,13 @@ the two disagree, the code is right and both are stale.
       shares a block with `BLOODRISEN`, because a body that hits harder for being hurt and heals from
       hitting feeds itself. Read a faction's idiom for the failure it makes easy before authoring
       against it.
+    - ⚠️ **The first of those two is a rule about that chapter's boards, not a rule about the
+      game — the clause that binds everywhere is "no _healer_ behind a taunt".** Measured across the
+      shipped content in 21g: taunt-plus-`lifeLeech` appears on **36 tower boards and 21 campaign
+      stages**, and taunt-plus-healer appears on **zero** tower boards. A leech pool is bounded by
+      what its holder can land; a heal refills the board, which is the timeout. Audit for the healer
+      case mechanically and treat leech as ordinary, except where a faction's own idiom makes a
+      closed loop reachable.
   - **A chapter also owes a _lieutenant_ since milestone 21**: one heavy block anchoring all four of
     its mini-boss boards (s10, s20, s30, s40) at rising levels, so a chapter has a recurring
     antagonist rather than four one-shot stat blocks. ⚠️ **Deliberately not four unique bodies** —
@@ -808,12 +816,37 @@ the two disagree, the code is right and both are stale.
     with 3.4 of five alive. A floor the crew cannot pass stops the tower outright, because a floor is
     climbed once and there is no way around one.
   - ⚠️ **In band 2 the _alternate_ five is the binding constraint, not the reference five.** With
-    both crews at parity with the content this never arose; with a margin the two come apart, and the
-    Human pair measures twelve levels apart. Any board that gives the reference five a real fight at
+    both crews at parity with the content this never arose; with a margin the two come apart — the
+    Human pair measures twelve levels apart and the Elf pair **nine**, with a far steeper edge (the
+    Elf roof board reads 100% for the alternate at level 118, 83% at 120 and 2% at 126, while the
+    reference five is still at 100% at 126). Any board that gives the reference five a real fight at
     level 120 **wipes** the alternate — a two-`ascended` board reads 93% for one and 7% for the other
-    against its own 75% bar. So the last twenty floors escalate through the level line and the
-    board's own **support density** (links, shields, a taunt) rather than by stacking anchors, which
-    is the inverse of the shipped hundred's climax. **Size a roof against the alternate first.**
+    against its own 75% bar. **Size a roof against the alternate first**, and expect the reference
+    number to say nothing: the Elf reference five clears its whole tower at 100%.
+  - ⚠️ **How a second hundred escalates is a per-tower answer and three towers have given three
+    answers. Read the crew's failure mode before choosing; do not copy the last session's shape.**
+    The Human Tower thins its anchors and thickens the board's **support** (links, shields, a taunt),
+    which is the inverse of the shipped hundred's climax. The Dwarf Tower cannot: a Dwarf five
+    out-lasts bulk and loses to the ninety-second clock, so it escalates in **front** and forbids
+    sustain above floor 180. The Elf Tower can afford either — it takes the heaviest authorable board
+    in eleven seconds against a ninety-second timer — but neither _threatens_ it: a shield support in
+    the back rank leaves the weaker arrangement at 100% with 4.25 alive, while two anchors take it to
+    43%. It escalates through a **wall that hides a burster**, because what an Elf five is short of is
+    health rather than time. Measure the candidate shapes against both of that tower's own crews
+    before authoring a floor.
+  - ⚠️ **Below about level 108 no board in a band 2 is a fight, and that is the band split rather
+    than the content.** Band 2's crew stands at level 100 while the band opens at **61** — a
+    39-level deficit worth ×2.24 of party power. Measured at the Elf Tower's floor 101, the lightest
+    authorable board resolves in 2.6 seconds and the heaviest — the roof itself — in **2.9**, both
+    with all five alive for both arrangements: composition buys three tenths of a second across the
+    whole range. The first two towers hid this because a Dwarf five carries the lowest `atk` in the
+    game, so its band-2 opener read 5.5 seconds and looked like content. **Do not try to make the
+    bottom of a band 2 hard**; author it for rhythm and variety, and put the escalation in the last
+    thirty floors where the level line has caught up.
+  - ⚠️ **Check which floors the stride samples before authoring the final band.**
+    `towers.balance.ts` reads every fourth floor plus the roof, so heavy boards authored onto odd
+    floors are invisible to the spine — 21g's first draft climbed through twenty floors of the boards
+    that were not the point. Same trap `chapters.balance.ts` records for band openers.
   - **Home draws a row per tower and it has three states**, only one of which is a link:
     `climbing` goes to `/prepare/:id`, and `locked` and `topped` are inert rows that say why. ⚠️ The
     locked row is where 15a's "nothing empty ships for the towers" rule is deliberately spent — it
@@ -903,7 +936,9 @@ the two disagree, the code is right and both are stale.
       **0.74** — the last two landing on the figures 21b projected for them, to two decimal places.
       ⚠️ **21e is the first session since this guard was written where it went _up_**: the Human
       Tower's second hundred takes that tower 31,000 → **62,300** and the ratio 0.74 → **0.835**;
-      21f's Dwarf Tower took it to **0.940**. Expect roughly +0.1 per tower through 21g–21k.
+      21f's Dwarf Tower took it to **0.940** and 21g's Elf Tower to **1.045**, the first reading
+      back over parity with the campaign since chapter 8. Expect roughly +0.105 per tower through
+      21h–21k.
     - ⚠️ **The floor is 0.7 right now and that is a mid-milestone placeholder, not a decision.**
       Milestone 21 _is_ the "grow the towers" answer, and it lands in eleven sessions: 21a–21d take
       the campaign to ~297,500 while the tower side is still the shipped 219,100, and only 21e–21k
@@ -913,9 +948,9 @@ the two disagree, the code is right and both are stale.
       of 21k.** ⚠️ **It was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
       landings (0.96, 0.83, 0.74) were all known in advance, so re-deriving a quantity that is
       _supposed_ to fall three times over would be three edits that measure nothing. **All three have
-      now landed and the campaign side is at 297,500 against the towers' 279,600** — 219,100 at the
-      end of 21d, which is the figure 21b projected for it, plus the Human and Dwarf Towers' second
-      hundreds. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
+      now landed and the campaign side is at 297,500 against the towers' 310,900** — 219,100 at the
+      end of 21d, which is the figure 21b projected for it, plus the Human, Dwarf and Elf Towers'
+      second hundreds. The cost is that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
       and the **opposite** of the one 21b made on `gradeSoftness`; the distinction is whether the
       quantity is meant to move. A failure after that is the original question again: whether seven towers of two
       hundred floors is still the right amount of optional content beside the campaign of the day.

@@ -42,16 +42,19 @@ import {
   SEVENFOLD_HEX,
   SHIELD_BASH,
   SHRIKE_DIVE,
+  SLUNG_ANVIL,
   STONE_FIST,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_LAST_MUSTER,
+  THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
   THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_SEAL_BREAKS,
+  THE_WARDS_HOLD,
   THORNLASH,
   TYRANTS_CLAIM,
   UNDERMINE,
@@ -3700,6 +3703,173 @@ export const THE_BREACHLORD = {
   skills: [THE_BREACH_GIVEN, GATE_SLAM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's second hundred floors — milestone 21g
+//
+// Four Dwarf blocks, which takes the faction 18 → **22**. Dwarves beat Elves in the matchup cycle,
+// so this is the lean the matrix asks for and half of the shipped hundred already wears it.
+//
+// ⚠️ **All four are aimed at the faction the tower admits rather than at a gap in the Dwarf bench,
+// and the Elf idiom is what makes that possible.** Elves are the game's `dodge` faction — 0.06 to
+// 0.12 across both reference arrangements — and no Dwarf block in eighteen carried `accuracy`.
+// `AGENTS.md` records that a dodge pool is answered by accuracy and nothing else, so three of these
+// four buy the pool; what stops it being a flat tax is that the cheapest carrier is also the softest
+// body on its board, so the answer is to spend a turn on it.
+//
+// The other half of the aim is `critBlock`. Elves run `critChance` 0.22 to 0.30 with
+// `critDamageAmp` up to 0.9 — the sharpest crit profile in the game — and the highest `critBlock`
+// anything shipped is {@link CHARNEL_DRUDGE}'s 0.16. {@link EDGETURN_WARDEN} exists to be the wall
+// that a crit is worth nothing against, which is what buys the rest of the board its turns.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The one who sights the line, so nothing on it has to guess.
+ *
+ * ⚠️ **The first Dwarf block in eighteen to carry `accuracy`, and it is deliberately the cheapest
+ * tier that gets it.** Hit chance is `accuracy − dodge` floored at a tenth, so 1.18 cancels every
+ * evasion pool either Elf arrangement fields outright — and putting that on fodder means a board of
+ * commons connects, which is the thing an Elf five had been allowed to ignore.
+ *
+ * ⚠️ **Answerable, and the softness is what makes it so.** An enemy's accuracy is not a stat the
+ * party can out-buy the way it out-buys a hostile status, so a block carrying it has to be killable
+ * or it is simply a bigger number. This is 540 hp standing in a back rank with {@link CUTPURSE},
+ * which means the party's *reach* is the answer — and reach is the one resource this tower spends
+ * its whole second hundred asking for. Never stacked more than two to a board.
+ */
+export const PLUMBLINE_HAND = {
+  id: 'plumbline-hand',
+  name: 'Plumbline Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 52,
+    def: 16,
+    haste: 92,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    accuracy: 1.18,
+    physicalPierce: 0.1,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * You do not climb into a canopy. You throw something over it.
+ *
+ * The burster the wall is protecting, and the reason this tower's second hundred is a decision
+ * rather than a wall to chew through. {@link SLUNG_ANVIL} is ×2 into the rank an Elf five keeps its
+ * support and its casters in, so the party's reach is contested: spend it on the wall and the back
+ * rank pays, spend it here and the wall gets its turns.
+ *
+ * Slow on purpose — 84 haste against a faction that runs 118 to 152 — so it is a body the party
+ * always has time to answer and never has time to ignore. It carries `accuracy` too, because a siege
+ * engine that misses is a joke rather than a threat.
+ */
+export const IRONSLING_WRIGHT = {
+  id: 'ironsling-wright',
+  name: 'Ironsling Wright',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 80,
+    def: 22,
+    haste: 84,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    accuracy: 1.12,
+    tenacity: 0.35,
+    physicalPierce: 0.18,
+  },
+  skills: [SLUNG_ANVIL, SHIELD_BASH],
+} as const;
+
+/**
+ * Stone laid so the edge turns rather than bites.
+ *
+ * The wall, and the highest `critBlock` and `critDamageResist` in the game — 0.24 against
+ * {@link CHARNEL_DRUDGE}'s 0.16, and 0.32 against {@link SERAPHINE}'s 0.3. Both are steps beyond the
+ * shipped maxima and both are the block's whole argument: an Elf five's damage is a crit profile,
+ * and this is the body that refuses it. Against anything else on the board those numbers are worth
+ * almost nothing, which is what keeps it a lean rather than a tax.
+ *
+ * ⚠️ **It taunts, and the taunt is what makes it a wall rather than a slow body.** Reach is the Elf
+ * answer to a formation, so a wall that can be walked around is not a wall — {@link DRAW_THE_OATH}
+ * narrows the pool before the row rule is consulted, which is the one thing in the game that does.
+ * The clauses that keep that answerable hold here as everywhere: 45 ticks against a 60-tick
+ * cooldown, so there is a window every fight; multi-target selections ignore it; and it is a skill
+ * rather than an `opening`, which `enemies.spec.ts` enforces.
+ *
+ * ⚠️ **No sustain of any kind on it.** A taunt in front of anything that heals is the ninety-second
+ * clock wearing a lock's clothes, which is 15c's finding and not this tower's to re-derive.
+ */
+export const EDGETURN_WARDEN = {
+  id: 'edgeturn-warden',
+  name: 'Edgeturn Warden',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 1080,
+    atk: 58,
+    def: 44,
+    haste: 68,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critDamageResist: 0.32,
+    critBlock: 0.24,
+    tenacity: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [DRAW_THE_OATH, SHIELD_BASH],
+} as const;
+
+/**
+ * The Stonewright cut the stair. This one cut the wards that hold it up.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is `Colossus + Barrow Sovereign`
+ * — two blocks the campaign also fields — which was right for a tower with a hundred floors and no
+ * body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **`accuracy: 1.25` is the highest in the game and it is this block's headline**, above
+ * {@link THE_WITHERED_CROWN}'s 1.2. `dodge` is not a {@link ModifiableStat}, so nothing may take an
+ * evasion pool away with a status — the honest way for a roof to say "your evasion is worth nothing
+ * here" is to carry the stat that out-runs it, and this is the tower where that sentence belongs.
+ *
+ * Its two turns are the tower's thesis stated once each: {@link THE_LINE_TRUE} reaches the rank the
+ * party has been protecting for a hundred floors, and {@link THE_WARDS_HOLD} is the wall the party
+ * has to get through to stop it. Neither of them heals.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule and the reason the numbers are where
+ * they are.** An Elf five is the fastest and softest party in the game, so what threatens it is
+ * never bulk — 1560 hp is under both of the Dwarf `ascended` bodies the campaign fields and well
+ * under {@link UNMADE}, and the fight still costs the weaker arrangement three of its five. Making
+ * it heavier was measured: at 1650 the weaker arrangement drops from 83% to 63%, and the stronger
+ * one does not notice.
+ */
+export const THE_WARDWRIGHT = {
+  id: 'the-wardwright',
+  name: 'The Wardwright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 92,
+    def: 46,
+    recovery: 6,
+    haste: 88,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.14,
+    tenacity: 0.6,
+    accuracy: 1.25,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+  },
+  skills: [THE_LINE_TRUE, THE_WARDS_HOLD, GLACIAL_SLAM],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -3813,4 +3983,8 @@ export const ENEMIES = [
   KINGSWAY_LANCER,
   UNDERVAULT_SAPPER,
   THE_BREACHLORD,
+  PLUMBLINE_HAND,
+  IRONSLING_WRIGHT,
+  EDGETURN_WARDEN,
+  THE_WARDWRIGHT,
 ] as const;

@@ -187,13 +187,7 @@ const TOWER_UNIT = 100;
  * ×2 rather than ×5. That is licensed by the one argument every save re-base rests on: **no build
  * carrying this has ever reached a player.**
  */
-const PENDING = new Set([
-  'tower-elf',
-  'tower-undead',
-  'tower-monster',
-  'tower-angel',
-  'tower-demon',
-]);
+const PENDING = new Set(['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon']);
 
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
@@ -536,10 +530,10 @@ describe('what a tower pays', () => {
     //
     // ⚠️ **The two bounds are not the same kind of claim, and only one of them is stable.** The
     // ceiling — towers must not replace the campaign — compares two totals that both grow, and it
-    // holds indefinitely. The floor does not: towers are fixed at seven ladders of a hundred floors
-    // while the campaign grows a chapter at a time, so this ratio falls by construction as content
-    // ships. Over the four-chapter ladder it read 3.17 at two chapters, 2.12 at three, 1.59 at
-    // four, and the floor had been moved 2 → 1.5 to buy exactly that chapter.
+    // holds indefinitely. The floor did not, for as long as the towers were fixed at seven ladders
+    // of a hundred floors while the campaign grew a chapter at a time: this ratio then fell by
+    // construction as content shipped. Over the four-chapter ladder it read 3.17 at two chapters,
+    // 2.12 at three, 1.59 at four, and the floor had been moved 2 → 1.5 to buy exactly that chapter.
     //
     // **The six-chapter re-cut then moved the ratio without adding a stage**: the same two hundred
     // stages hold six chapter boundaries instead of four, so Chapter Conqueror pays 60,000 against
@@ -554,10 +548,14 @@ describe('what a tower pays', () => {
     // **Milestone 21 is that work, and it lands in eleven sessions rather than one.** Its four
     // chapters move only the campaign side while the tower side stays at the shipped 219,100, so the
     // ratio falls all the way through them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at chapter
-    // 8 (21b) → ~0.83 at 9 → ~0.74 at 10. Only 21e–21k double every tower to two hundred floors and
-    // take the tower side to ~436,100; against the four-chapter campaign of ~297,500 the ratio ends
-    // at **~1.47** — the first time since this guard was written that *both* sides moved, and higher
+    // 8 (21b) → 0.83 at 9 → **0.74** at 10. Only 21e–21k double every tower to two hundred floors
+    // and take the tower side to 436,100; against the ten-chapter campaign of 297,500 the ratio ends
+    // at **1.466** — the first time since this guard was written that *both* sides moved, and higher
     // than it has been in two milestones.
+    //
+    // **Three of the seven have landed and the climb back is on the projection**: 0.74 → 0.835 (21e,
+    // Human) → 0.940 (21f, Dwarf) → **1.045** (21g, Elf), which is the first reading back over
+    // parity with the campaign since chapter 8. Roughly +0.105 a tower, four to go.
     //
     // ⚠️ **So 0.7 is a floor for the middle of a milestone and nothing else, and restoring it is a
     // deliverable of 21k rather than a nice-to-have.** It was 1.1 for 21a alone; 21b takes it to 0.7

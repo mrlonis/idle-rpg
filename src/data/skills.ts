@@ -3936,6 +3936,104 @@ export const THE_BREACH_GIVEN = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's second hundred floors — milestone 21g
+//
+// Three skills for four Dwarf blocks, the ratio 21e set and 21f kept. The **axis** is a third one
+// again, and it was measured rather than chosen: an Elf five carries the softest bodies in the game
+// and answers a formation by going around it, so what these spend a turn on is the *back rank*.
+//
+// ⚠️ **Neither of the two shipped escalations transfers, and both were measured on this tower's own
+// crews before anything was authored.** 21e thins the anchors and thickens the board's support —
+// against the Elf pair a shield support in the back rank leaves the weaker arrangement at 100% with
+// 4.25 of five alive, so it is worth nothing here. 21f escalates in front and forbids sustain
+// because a Dwarf five loses to the clock — but an Elf five resolves the tower's heaviest authorable
+// board in eleven seconds against a ninety-second timer, so the clock is not the constraint and a
+// wall is affordable. What is scarce is *health*: two anchors take the weaker arrangement from 100%
+// to 43%.
+//
+// So the wall is the point and it is not the threat. It buys time for something that deletes a
+// 350 hp body, and the party's reach — the thing an Elf five believes it owns — has to be spent on
+// one or the other.
+//
+// No new status: milestone 21's budget was spent and closed by 21d, and a tower does not re-open it.
+// {@link SLOW} and {@link BARRIER} are the vocabulary here, and {@link GUARD} beside it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Over the wall rather than through it.
+ *
+ * The heaviest single hit on the Dwarf bench and the first one aimed past a front rank. Dwarves have
+ * carried reach since 15c — {@link CUTPURSE} at ×1.35 and {@link MOTE_LANCE} at ×1.1 — and both are
+ * chip damage that a party absorbs while it works on the wall. This is the size at which the back
+ * rank has to be defended, which is what makes the wall in front of it a decision rather than a
+ * delay.
+ *
+ * ⚠️ **`enemy-back` rather than `enemy-lowest`, and that is the whole of it.** An Elf five keeps its
+ * support and its casters behind two bodies made of paper, so a skill that chases the wounded is
+ * chasing whoever the board happened to hit — where this names the rank the party chose to protect
+ * and charges it for the choice.
+ */
+export const SLUNG_ANVIL = {
+  id: 'slung-anvil',
+  name: 'Slung Anvil',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The wards were cut before anyone climbed them.
+ *
+ * The roof's defensive turn, and a **shield rather than a heal** — 15c measured what sustain on a
+ * last floor is, and 21e wrote down the safe form of the same idea: a pool banked once depletes,
+ * where a regeneration refills. {@link GUARD} rides beside it because the two answer different
+ * halves of an Elf five, which lands many small hits rather than few large ones.
+ *
+ * ⚠️ **Affordable here and nowhere else so far.** The Dwarf Tower forbids sustain above floor 180
+ * because a Dwarf five cannot burst and every point of it is a second of a ninety-second clock. An
+ * Elf five takes this board in twenty-two seconds, so a banked pool costs it turns rather than the
+ * fight. Do not carry the licence to a third tower without measuring that tower's own crews.
+ */
+export const THE_WARDS_HOLD = {
+  id: 'the-wards-hold',
+  name: 'The Wards Hold',
+  target: 'ally-all',
+  effects: [
+    { kind: 'status', status: BARRIER },
+    { kind: 'status', status: GUARD },
+  ],
+  cooldown: 75,
+  priority: 3,
+} as const;
+
+/**
+ * A line does not miss, and neither does anything standing on it.
+ *
+ * The roof's own answer to reach: it reaches further. A whole rank rather than one body, because the
+ * rank is what an Elf five commits to — three soft bodies behind two soft bodies — and {@link SLOW}
+ * on the survivors is aimed at the one stat the faction is actually built out of.
+ *
+ * ⚠️ **The power is the wide-skill ceiling and the ceiling is the reason, not a coincidence.** This
+ * was authored at ×1.35 and `skills.spec.ts` refused it: a row skill is capped at ×1.2 because five
+ * small hits against the diminishing-DEF curve are worth far less than one big one, so a wide
+ * multiplier has to be read against the curve rather than against the target count. That is a design
+ * rule this tower does not get to buy its way past, and what paid for the difference was the roof's
+ * own stat line rather than a bigger number here.
+ */
+export const THE_LINE_TRUE = {
+  id: 'the-line-true',
+  name: 'The Line True',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4165,4 +4263,7 @@ export const SKILLS = [
   COUCHED_LANCE,
   UNDERMINE,
   THE_BREACH_GIVEN,
+  SLUNG_ANVIL,
+  THE_WARDS_HOLD,
+  THE_LINE_TRUE,
 ] as const;
