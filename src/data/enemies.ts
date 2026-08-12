@@ -22,6 +22,7 @@ import {
   GORE,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
+  ZENITHFALL,
   IRON_FOR_IRON,
   LITANY,
   MAUL,
@@ -29,6 +30,7 @@ import {
   MIRE,
   MOONSONG,
   MOTE_LANCE,
+  NAME_THE_QUARRY,
   NIGHT_RIDE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
@@ -38,6 +40,7 @@ import {
   RIFTFALL,
   ROOTWAKE,
   RUINOUS_ARC,
+  RUINOUS_STOOP,
   RUNEWARD,
   SEVENFOLD_HEX,
   SHIELD_BASH,
@@ -49,6 +52,8 @@ import {
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
+  THE_FIELD_CLOSES,
+  THE_HORN_SOUNDS,
   THE_LAST_MUSTER,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
@@ -4040,6 +4045,185 @@ export const THE_SUNBOUGH = {
   skills: [THE_CANOPY_PARTS, THE_SUN_AT_NOON, HEADSMANS_ARC],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Milestone 21i — the Monster Tower's second hundred, floors 101–200.
+//
+// Four blocks, **one each in the four thinnest factions** — angel 11, demon 12, human 13, monster
+// 18 — rather than four in one. ⚠️ **That is the tower rather than an exception to it.** Every
+// other tower leans on the single faction that counters the one it admits; every faction counters
+// Monsters, so "field what counters the crew" resolves to all seven and the blocks spread the way
+// the boards do. `towers.spec.ts` reads the case off the matchup matrix rather than naming
+// `monster`, so this must not be special-cased in content.
+//
+// It also evens the depth table, which is the other half of the "fix the leans up front" discipline
+// 21a set: 21j takes Demons to 16 and 21k takes Angels to 15, and neither touches Humans — so
+// without this session Human would close milestone 21 as the standout thin faction at 13 against
+// Dwarf's 22, which is exactly the state 21f was written to get the game out of.
+//
+// The axis, the measurements behind it, and why a link is forbidden on these boards are all in
+// `skills.ts` beside {@link INTERPOSE}. The short version: what escalates across this second hundred
+// is **how many different questions one board asks**, because a Monster five answers any single
+// question by out-damaging it and has no second answer to spend on two more.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * There is nothing to stand behind when the light is directly overhead.
+ *
+ * ⚠️ **The first common in the game to reach a whole rank.** Six blocks carry `enemy-row-back` and
+ * every one of them is a legendary or an `ascended`, so reaching a back rank has always cost a board
+ * one of its two heavy slots. That is the constraint this tower cannot pay: a Monster five's weight
+ * ceiling is one anchor over four soft bodies, so a board buying reach at legendary weight can ask
+ * at most two other questions — and the count of questions is what this band escalates through.
+ *
+ * ⚠️ **It is also Angels' first cheap question of any kind, which was the largest hole in the
+ * bench.** Every other faction ships a common that asks something — a stun, a bomb, thorns, a link,
+ * evasion, a slow, a permanent bleed — and Angel's three ({@link GILDED_SENTRY},
+ * {@link VAULTLIGHT_CENSER}, {@link LUMEN_ACOLYTE}) are plain attackers, because the faction's
+ * vocabulary of shields, links and taunts all sits at legendary and above. It mattered here more
+ * than anywhere: celestials take ten percent off Monsters where the mortals manage five, so an Angel
+ * body is the hardest thing a board can carry and this tower could not previously carry one cheaply.
+ *
+ * ⚠️ **Priced as chip rather than as a threat, and the frame is the trade.** ×0.75 is under
+ * {@link PILLAR_OF_LIGHT}'s ×0.9 on a body carrying 480 hp and 12 `def` — the softest thing on any
+ * board it stands on, and the first casualty of a row attack aimed the other way. What it sells a
+ * board is that the crew's back rank is never *safe*; what it cannot do is make that rank unsafe on
+ * its own.
+ */
+export const ZENITH_CHORISTER = {
+  id: 'zenith-chorister',
+  name: 'Zenith Chorister',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 480,
+    atk: 46,
+    def: 12,
+    haste: 106,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    magicalPierce: 0.1,
+  },
+  skills: [ZENITHFALL, MOTE_LANCE],
+} as const;
+
+/**
+ * It goes over the front rank entirely, and it comes back heavier than it went.
+ *
+ * ⚠️ **The first block to reach a whole back rank and feed off what it finds there.**
+ * `enemy-row-back` and `lifeLeech` have both been in the game since 15c and have never shared a
+ * body: reach has been a way of skipping a wall and leech a way of standing in front of one. The
+ * pairing is aimed at something specific about this crew — a Monster five keeps three of its five in
+ * the back rank and *all* of its damage lives there, so a body that takes health out of that rank
+ * and puts it into itself is trading in the only currency the crew can mint.
+ *
+ * ⚠️ **The leech is small and the block is soft on purpose.** 0.12 against
+ * {@link BLOODPACT_FIEND}'s 0.25, on 780 hp and 20 `def` — a body the crew kills in a turn or two
+ * once it decides to. What it is not allowed to be is durable: a leech pool behind a wall the party
+ * cannot aim at is 21f's rule again, and this tower already fields a taunt at common weight.
+ */
+export const RUINWING_DEVOURER = {
+  id: 'ruinwing-devourer',
+  name: 'Ruinwing Devourer',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 72,
+    def: 20,
+    haste: 100,
+    critChance: 0.06,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.12,
+    magicalPierce: 0.12,
+  },
+  skills: [RUINOUS_STOOP, WITHERING_TOUCH],
+} as const;
+
+/**
+ * It waits until it knows which one of you is holding the others up.
+ *
+ * ⚠️ **The first block to aim {@link SAVAGED} at one chosen body.** The only hostile status in the
+ * game that does not expire has always been applied broadly — `enemy-front` on four blocks,
+ * `enemy-back` on {@link REDWATER_STALKER}, `enemy-all` on {@link THE_EVERWOUND} — which makes it
+ * weather. Named at `enemy-highest` it is a decision, because `enemy-highest` on a Monster five is
+ * always its tank: the one body it fields for the purpose of still being there at the end.
+ *
+ * ⚠️ **It is the crew's own targeting handed back to it, on the one tower where that is literally
+ * true.** `enemy-highest` is Monster vocabulary — {@link TYRANT}, {@link THE_REDMAW},
+ * {@link THE_EVERWOUND} on this side, Ozza and Vharok on the other — and `monster → monster` is the
+ * matchup matrix's one self-edge, so this is the only ladder in the game where a faction meets the
+ * thing that reads it best.
+ *
+ * ⚠️ **No `lifeLeech` and no {@link BLOODRISEN}, which are chapter 10's two rules and they hold
+ * here.** A body that hits harder for being hurt and heals from hitting feeds itself; a leech pool
+ * on a board that also carries a taunt is the ninety-second clock. This block does neither and its
+ * boards pair it with neither.
+ */
+export const MARROWHUNT_ALPHA = {
+  id: 'marrowhunt-alpha',
+  name: 'Marrowhunt Alpha',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 74,
+    def: 24,
+    haste: 92,
+    critChance: 0.07,
+    critDamageAmp: 0.75,
+    tenacity: 0.2,
+    physicalPierce: 0.14,
+  },
+  skills: [NAME_THE_QUARRY, GORE],
+} as const;
+
+/**
+ * A hundred floors of banners, and one horn that all of them were listening for.
+ *
+ * **Floor 200, and the first roof this tower has owned.** Floor 100 is
+ * `Oathbreaker + Wyrdroot Ancient` — two blocks the campaign also fields — which was right for a
+ * tower with a hundred floors and no body of its own, and a second hundred earns one.
+ *
+ * ⚠️ **Deliberately not a fifth Gate Slam.** All four Human `ascended` blocks —
+ * {@link THE_BREACHLORD}, {@link OATHBREAKER}, {@link PALE_WARDEN}, {@link WARDEN} — carry
+ * `stun@enemy-all` and nothing else identifies the faction as strongly. A roof that repeated it
+ * would be the tower's climax stating the *lean's* idiom on a tower that has no lean, which is this
+ * one shipped as a copy of another. Its three turns are three different factions' questions in human
+ * hands instead, which is the band's axis compressed into a single body: {@link THE_HORN_SOUNDS}
+ * takes the rank the crew keeps its damage in and takes the survivors' turns with it,
+ * {@link THE_FIELD_CLOSES} presses all five at once because a Monster five's health is a shared pool
+ * refilled out of whatever it lands, and {@link NAME_THE_QUARRY} puts a wound that will not close on
+ * whichever body is holding the rest up.
+ *
+ * ⚠️ **Sized against this tower's own crew, which is 15c's rule and the reason it is not heavier.**
+ * A Monster five's weight ceiling is the lowest of the five towers extended so far: at the roof's
+ * level one anchor over four *legendaries* measures 95% / 3% and any two anchors at all is 8% / 0%.
+ * So the roof is one anchor over four soft bodies, and 1560 hp sits under {@link UNMADE} on both
+ * stats — the ceiling `enemies.spec.ts` holds and nothing may reach.
+ *
+ * ⚠️ **Nothing on it restores anything.** The discipline every roof in this milestone has kept, and
+ * it is kept here even though this is the one crew fast enough that it could not have mattered.
+ */
+export const THE_HORNCALLER = {
+  id: 'the-horncaller',
+  name: 'The Horncaller',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1560,
+    atk: 91,
+    def: 45,
+    recovery: 6,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    tenacity: 0.4,
+    physicalPierce: 0.18,
+    magicalResist: 0.08,
+  },
+  skills: [THE_HORN_SOUNDS, THE_FIELD_CLOSES, NAME_THE_QUARRY],
+} as const;
+
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
 export const ENEMIES = [
@@ -4161,4 +4345,8 @@ export const ENEMIES = [
   SUNFADE_CHANTER,
   CROWNBARK_BASTION,
   THE_SUNBOUGH,
+  ZENITH_CHORISTER,
+  RUINWING_DEVOURER,
+  MARROWHUNT_ALPHA,
+  THE_HORNCALLER,
 ] as const;

@@ -4147,6 +4147,209 @@ export const THE_SUN_AT_NOON = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Milestone 21i — the Monster Tower's second hundred, floors 101–200.
+//
+// Four skills for four blocks, one block each in the four thinnest factions — angel, demon,
+// monster, human. ⚠️ **Spread rather than leaned, and that is the tower rather than an exception
+// to it.** Every faction counters Monsters, so "field what counters the crew" resolves to all
+// seven; `towers.spec.ts` reads that off the matrix and bounds every faction's share of the boards
+// between a third and a three-quarters of an even split instead of asserting a leader.
+//
+// ## The axis is *how many different questions one board asks*, and it was measured first
+//
+// Controlled at one anchor, one legendary and three commons at the roof's level, only the mechanic
+// varying, against both Monster arrangements — mean survivors of five:
+//
+//   nothing            ref 4.35 / alt 4.00
+//   one lock, ×4       ref 4.13 / alt 3.92
+//   two questions      ref 4.05 / alt 3.90
+//   three questions    ref 4.00 / alt 2.70
+//   four questions     ref 4.00 / alt 2.98
+//   five questions     ref 3.58 / alt 0.85
+//
+// ⚠️ **Repeating one lock is worth almost nothing and the count is worth everything**, which is the
+// opposite of what the other three second hundreds found — the Human Tower thickened its support,
+// the Dwarf Tower its front rank, the Elf Tower hid a burster behind a wall, and 21h's was a stat
+// block. It is a fact about this crew: a Monster five answers any single question by out-damaging
+// it, and has no second answer to spend when a board asks two more.
+//
+// ⚠️ **A link is worth *less* than nothing here and no board above floor 100 carries one.** Measured
+// on a five-question board, `rootbound` took the alternate five from 2.42 survivors to 3.33 and a
+// cast `chainbond` to 3.85. A link is a defence against **focus fire**, and this is the one crew
+// that does not focus — four of its eight bodies open with a row attack and three of its four drains
+// name `enemy-lowest`, so spreading a share of each blow is a board volunteering to die evenly.
+//
+// ## What the crew has no answer to buy, and what it does
+//
+// ⚠️ **Monsters are the only faction in the game with no heal, no regeneration and no shield.**
+// Every other faction has at least two of the three; this one has `drain` and `lifeLeech` and
+// nothing else, so every point of health it gets back has to be taken off a body it is currently
+// hitting. It also carries no `tenacity`, no `accuracy` and no `dodge` on any of its eight
+// characters. What that licenses is **charging turns and charging health that cannot come back** —
+// the first hundred's own thesis, and what this band does with it is stop asking it one body at a
+// time.
+//
+// ⚠️ **What it does *not* license is `dodge`, and the reason is that 21h already spent it.** No
+// Monster character carries `accuracy` either, so an evasion board reads 100% / 50% here — the same
+// unanswerable shape the Undead Tower is built on. Two towers with one lock is one tower shipped
+// twice, so it is left on the shelf and appears only at the density the shipped hundred already
+// used.
+//
+// ⚠️ **The weight ceiling is the lowest of the five towers extended so far, and it is what makes the
+// count the axis.** At the roof's level one anchor over four *legendaries* measures 95% / 3% and any
+// two anchors is 8% / 0% — so a board gets one heavy body and four soft ones, and the only way to
+// make it ask more is to make the soft ones sharper. Every block below is cheap for what it says.
+//
+// ⚠️ **A taunt at common weight was authored, measured and cut, and the finding is worth keeping.**
+// The idea was that a taunt narrows the pool *before* the row rule is consulted, so a soft one would
+// make a five-question board answer itself in the board's order rather than the party's. It does the
+// opposite: on an otherwise plain board at the roof's level it took the reference five from 4.42
+// survivors to **4.70** and the alternate from 3.90 to 4.00. A taunt on a body the party kills in a
+// turn is not a door, it is a **cheap target volunteered** — and a multi-target selection ignores a
+// taunt entirely, so the four row attacks in this crew's kit never see it at all. Every taunt in the
+// game is a legendary carrying 1020 to 1180 hp, and that turns out to be the mechanic's price rather
+// than a habit of how it has been authored.
+//
+// No new status. Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a
+// tower does not re-open it, and 21f through 21h did not need to either.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not standing in front of you. It is directly above you, and so is everything else.
+ *
+ * ⚠️ **The first common in the game to reach a whole rank.** `enemy-row-back` is carried by six
+ * blocks and every one of them is a legendary or an `ascended` — {@link SERAPH_ADJUDICANT},
+ * {@link LONGBOUGH_MARKSMAN}, {@link SKYSHRIKE}, {@link EMBERSEED_WARLOCK}, and the three Elf
+ * anchors — so reaching a back rank has always cost a board one of its two heavy slots. That is
+ * exactly the constraint this tower cannot afford: its crew's weight ceiling is one anchor over four
+ * soft bodies, so a board that had to buy reach at legendary weight could ask at most two other
+ * questions.
+ *
+ * ⚠️ **It is also Angels' first cheap question of any kind, which was the largest hole in the
+ * bench.** Every other faction ships a common that asks something — a stun, a bomb, thorns, a link,
+ * evasion, a slow, a permanent bleed — and Angel's three ({@link GILDED_SENTRY},
+ * {@link VAULTLIGHT_CENSER}, {@link LUMEN_ACOLYTE}) are plain attackers, because the faction's
+ * vocabulary of shields, links and taunts all sits at legendary and above. It mattered here more
+ * than anywhere: celestials take ten percent off Monsters where the mortals manage five, so an Angel
+ * body is the hardest thing a board can carry and this tower could not previously carry one cheaply.
+ *
+ * ×0.75 is a long way under the ×1.2 wide ceiling and under {@link PILLAR_OF_LIGHT}'s ×0.9 on a
+ * legendary. A cheap rank-wide hit is priced as chip: what it buys a board is that the crew's back
+ * rank is never *safe*, not that it is threatened by this body alone.
+ */
+export const ZENITHFALL = {
+  id: 'zenithfall',
+  name: 'Zenithfall',
+  target: 'enemy-row-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.75 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * It does not land in front of you. It lands behind you, and it leaves lighter than it came.
+ *
+ * ⚠️ **The first block in the game to reach a whole back rank and feed off what it finds there.**
+ * `enemy-row-back` exists on six blocks and `lifeLeech` on eleven, and the two have never been on
+ * one body — reach has always been a way of skipping a wall, and leech a way of standing in front of
+ * one. Against this crew the pairing is specific rather than decorative: a Monster five keeps three
+ * of its five in the back rank and every point of damage it does lives there, so a body that takes
+ * health out of that rank and puts it into itself is trading in the one currency the crew cannot
+ * mint.
+ *
+ * ×1.05 is under the ×1.2 wide ceiling and well under it, because the leech is what the turn is for.
+ */
+export const RUINOUS_STOOP = {
+  id: 'ruinous-stoop',
+  name: 'Ruinous Stoop',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.05 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The pack does not take the nearest. It takes the largest, and then it waits.
+ *
+ * ⚠️ **The first time {@link SAVAGED} has been aimed at one chosen body.** It is the only hostile
+ * status in the game that does not expire, and every application of it so far has been broad —
+ * `enemy-front` on four blocks, `enemy-back` on one, `enemy-all` on {@link THE_EVERWOUND}. Named at
+ * `enemy-highest` it stops being weather and becomes a decision, because `enemy-highest` on a
+ * Monster five is always its tank: the one body it fields for the purpose of still being there.
+ *
+ * ⚠️ **This is the crew's own targeting handed back to it.** `enemy-highest` is Monster vocabulary
+ * — {@link TYRANT}, {@link THE_REDMAW}, {@link THE_EVERWOUND}, and Ozza and Vharok on the player's
+ * side — and `monster → monster` is the matchup matrix's one self-edge, so on this tower and nowhere
+ * else the faction is fighting the thing that reads it best.
+ *
+ * A wound that will not close is only a fight rather than an execution because it is small: 0.12 a
+ * tick, the lightest dot in the library. What makes it bite is that the crew has no cleanse, no
+ * heal, no regeneration and no shield — a Monster five's only way to put health back is to take it
+ * off something, and this takes a little of it away again every tick for the rest of the fight.
+ */
+export const NAME_THE_QUARRY = {
+  id: 'name-the-quarry',
+  name: 'Name the Quarry',
+  target: 'enemy-highest',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SAVAGED, chance: 0.9 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * One note, and every banner on the field turns to face the same way.
+ *
+ * The roof's reach, and the turn that says what the whole band is about: it takes the rank the crew
+ * keeps its damage in **and** takes the survivors' turns away, which are the two levers this crew
+ * has no answer to buy. Measured separately at the roof's level they are the two strongest single
+ * mechanics against these arrangements — reach costs the reference five more of its party than
+ * anything else can, and turn denial is what the alternate cannot survive at all — and neither is a
+ * new part.
+ *
+ * ×1.2 is the wide-skill ceiling, and it is the ceiling for the reason 21g and 21h both recorded:
+ * five small hits read against the diminishing-DEF curve rather than against the target count, so
+ * what pays for a roof is its own stat line and not a bigger multiplier on a wide swing.
+ */
+export const THE_HORN_SOUNDS = {
+  id: 'the-horn-sounds',
+  name: 'The Horn Sounds',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The field closes. There is no edge of it to be standing at.
+ *
+ * The roof's second turn, and the one that answers what a Monster five actually is: five bodies
+ * whose health is a **shared pool** in practice, refilled out of whatever they land. Pressure on one
+ * body is drained back before the next turn comes round; pressure on all five at once is not.
+ *
+ * ⚠️ **It carries no status and restores nothing.** A wide hit that simply removes health is the
+ * shape that shortens a fight, which is the discipline every roof in this milestone has kept — and
+ * it matters least here and is kept anyway, because a Monster crew is the fastest party in the game
+ * and its roof resolves in a third of the clock.
+ */
+export const THE_FIELD_CLOSES = {
+  id: 'the-field-closes',
+  name: 'The Field Closes',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4382,4 +4585,9 @@ export const SKILLS = [
   SUNFADE,
   THE_CANOPY_PARTS,
   THE_SUN_AT_NOON,
+  ZENITHFALL,
+  RUINOUS_STOOP,
+  NAME_THE_QUARRY,
+  THE_HORN_SOUNDS,
+  THE_FIELD_CLOSES,
 ] as const;

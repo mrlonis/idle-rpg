@@ -52,7 +52,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21f | Dwarf Tower, floors 101–200             | ✅ **Complete** — 200 floors, 110 archetypes         |
 | 21g | Elf Tower, floors 101–200               | ✅ **Complete** — 200 floors, 114 archetypes         |
 | 21h | Undead Tower, floors 101–200            | ✅ **Complete** — 200 floors, 118 archetypes         |
-| 21i | Monster Tower, floors 101–200           | ⬜                                                   |
+| 21i | Monster Tower, floors 101–200           | ✅ **Complete** — 200 floors, 122 archetypes         |
 | 21j | Angel Tower, floors 101–200             | ⬜                                                   |
 | 21k | Demon Tower, floors 101–200             | ⬜                                                   |
 | 22  | The roguelite run                       | ⬜                                                   |
@@ -3157,6 +3157,161 @@ floor ids and the mini-boss rhythm, the faction shares, and a walk of all two hu
 that no board pairs a taunt with anything that refills and that nothing above floor 160 restores at
 all. Two stale claims were corrected in `towers.ts` — it said four of seven were short (three now)
 and quoted the pre-21h crystal figures.
+
+---
+
+### 21i. The Monster Tower, floors 101–200 — **COMPLETE**
+
+A hundred new floors, four new archetypes — **one each in the four thinnest factions** — and five new
+skills. The enemy roster goes 118 → **122** (angel 11 → 12, demon 12 → 13, human 13 → 14,
+monster 18 → 19). Five of seven towers now have their second hundred. Nothing in `ui/` and nothing in
+`core/` changed, and `TOWER_RULES` was not touched.
+
+#### The blocks spread rather than lean, because this tower does
+
+Every other tower session authors its four blocks for the single faction that counters the one it
+admits. Every faction counters Monsters, so "field what counters the crew" resolves to **all seven**
+and the blocks spread the way the boards do. `towers.spec.ts` reads that case off the matchup matrix
+rather than naming `monster`, so it is not a special case in content.
+
+It also evens the depth table on the way past, which is the other half of 21a's "fix the leans up
+front" discipline: 21j takes Demons to 16 and 21k takes Angels to 15, and **neither touches Humans**
+— so without this session Human would have closed milestone 21 as the standout thin faction at 13
+against Dwarf's 22, which is the state 21f was written to get the game out of.
+
+#### ⚠️ A fifth tower, a fifth escalation — and the first one that is a _count_ rather than a shape
+
+21f concluded "read the crew's failure mode before choosing how to escalate", 21g proved it and 21h
+produced a fourth answer. This is the fifth and it is none of theirs. Measured against both Monster
+arrangements at the roof's level before anything was authored, controlled at one anchor, one
+legendary and three commons so only the mechanic varies — mean survivors of five:
+
+| Board              | reference | alternate |
+| ------------------ | --------- | --------- |
+| nothing            | 4.35      | 4.00      |
+| **one lock, ×4**   | 4.13      | 3.92      |
+| two questions      | 4.05      | 3.90      |
+| three questions    | 4.00      | 2.70      |
+| **five questions** | 3.58      | **0.85**  |
+
+**Repeating one lock is worth almost nothing and the count is worth everything.** That is a fact
+about this crew rather than about board design: a Monster five answers any single question by
+out-damaging it, and has no second answer to spend when a board asks two more. So the bands escalate
+two → three → four → five, and it lands on the one tower that already had the reason to do it.
+
+The per-mechanic table underneath says the same thing from the other side. Only three shapes threaten
+these arrangements at all — turn denial (`slow ×4`: alt 100% → **38%**), reach (`reach ×3`: the only
+board that costs the _reference_ five real bodies, 2.35 of 5, but alt **8%**) and `dodge` (alt 95% →
+50%). Everything else — a link, a healer, a board-wide stun, shields, thorns, bombs, `bloodrisen`, an
+armour wall — leaves both crews above 3.5 survivors.
+
+#### ⚠️ `dodge` is unanswerable here too, and it was left on the shelf for that reason
+
+No Monster character carries a point of `accuracy` — exactly the structural gap 21h built the Undead
+Tower's whole second hundred on — so an evasion board reads 100% / 50% against these crews. **Two
+towers with one lock is one tower shipped twice**, so it appears only at the density the shipped
+hundred already used. A lock being available is not the same as it being this tower's.
+
+#### ⚠️ A link makes these boards _easier_, which no previous tower found
+
+On a five-question board at the roof's level, `rootbound` took the alternate five from 2.42 survivors
+to **3.33** and a cast `chainbond` to **3.85**. A link is a defence against **focus fire**, and this
+is the one crew in the game that does not focus: four of its eight bodies open with a row attack and
+three of its four drains name `enemy-lowest`, so spreading a share of every blow is a board
+volunteering to die evenly. **No board above floor 100 carries one**, checked by walking all two
+hundred rather than by reading them.
+
+#### ⚠️ Two things were authored, measured and cut, and both are worth keeping
+
+- **A taunt at common weight.** The idea was that a taunt narrows the pool _before_ the row rule is
+  consulted, so a soft one would make a five-question board answer itself in the board's order rather
+  than the party's. It does the opposite: on an otherwise plain board it took the reference five from
+  4.42 survivors to **4.70**. A taunt on a body the party kills in a turn is not a door, it is a
+  **cheap target volunteered** — and a multi-target selection ignores a taunt entirely, so this crew's
+  four row attacks never see it. Every taunt in the game is a legendary carrying 1020 to 1180 hp, and
+  that turns out to be the mechanic's **price** rather than a habit of how it has been authored.
+- **An "armoured runt" — a small HP pool behind a huge `def`.** Three of the crew's four drains name
+  `enemy-lowest`, so the intent was to magnetise them onto a body that returns nothing. It does
+  nothing at all (hp 300 / def 70 measured identical to a plain common), and **two of them made the
+  board easier**. Damage is `atk² / (atk + def)`, so at the roof's level the crew's `atk` swamps any
+  authorable `def`. Also measured and now recorded: **a shield does not deny a drain** —
+  `simulate.ts` takes leech off damage _dealt_, shield included — where thorns is measured against
+  what reached HP.
+
+#### ⚠️ Sizing is bounded by the alternate five, and the gap here is the widest of the five towers
+
+Both arrangements fall off between level 120 and 130, about eight to ten levels apart — but at the
+roof's own level the reference five clears boards the alternate is at 3% on. One anchor over four
+_legendaries_ measures **95% / 3%** and any two anchors is **8% / 0%**, which is the lowest weight
+ceiling of the five towers extended so far. So a board above floor 160 gets one anchor and four soft
+bodies, and the honest consequence is that **the roof cannot cost the reference crew much**: the best
+board clearing both bars leaves it 3.95 of five. The same trade the Human and Elf Towers recorded, at
+a wider spread.
+
+Also new: the reference five is much the stronger arrangement here, where 21e and 21g both found the
+alternate binding and 21h found it flipping by mechanic. **Three towers, three answers — check both
+per board.**
+
+#### Four blocks, five skills, and no new status
+
+- **Zenith Chorister** (angel, `common`) — **the first common in the game to reach a whole rank.**
+  All six `enemy-row-back` carriers are legendaries or `ascended`, so reaching a back rank has always
+  cost a board one of its two heavy slots — the exact constraint a five-question board cannot pay. It
+  is also **Angels' first cheap question of any kind**: every other faction ships a common that asks
+  something, and Angel's three were plain attackers because its shields, links and taunts all sit at
+  legendary and above. Priced as chip (×0.75 on 480 hp), because it sells a board "your back rank is
+  never safe", not a threat on its own.
+- **Ruinwing Devourer** (demon, `legendary`) — **the first block to reach a whole back rank and feed
+  off what it finds there.** `enemy-row-back` and `lifeLeech` have both existed since 15c and have
+  never shared a body. Against a crew that keeps three of five in the back rank with all of its damage
+  there, and whose own sustain is leech, it trades in the only currency the crew can mint.
+- **Marrowhunt Alpha** (monster, `legendary`) — **the first block to aim `SAVAGED` at one chosen
+  body.** The only non-expiring hostile status has always been applied broadly, which makes it
+  weather; named at `enemy-highest` it is a decision, because `enemy-highest` on a Monster five is
+  always its tank. It is the crew's own targeting handed back to it on the one tower where
+  `monster → monster` — the matrix's single self-edge — is literally true. No `lifeLeech` and no
+  `BLOODRISEN`, which are chapter 10's two rules.
+- **The Horncaller** (human, `ascended`) — floor 200, the first roof this tower has owned. ⚠️
+  **Deliberately not a fifth Gate Slam**: all four Human `ascended` blocks carry `stun@enemy-all`, and
+  a roof repeating it would state a _lean's_ idiom on a tower with no lean. Its three turns are three
+  different factions' questions in one body, which is the band's axis compressed. 1560 hp, under
+  `UNMADE` on both stats.
+
+The roof is `The Horncaller` beside a Marrowhunt Alpha over a Ruinwing Devourer, a Moonsong Weaver and
+a Cinderquench Bearer — **five factions and five questions on one board**, which is the tower's own
+thesis stated once: **100% / 3.95 survivors / 13.8s** for the reference five and **85% / 1.38 /
+21.6s** for the alternate, against bars of 90% and 75%.
+
+Milestone 21's three-status budget was spent and closed by 21d; 21e recorded that a tower does not
+re-open it, and neither 21f, 21g, 21h nor this needed to.
+
+#### The spread, budgeted for rather than discovered
+
+The second hundred came out at **14.0% to 14.6% across all seven factions** on the first pass, because
+the composer draws each slot from whichever faction the hundred has leaned on least. That is the
+fourth session running where the faction bias was handled during authoring rather than corrected after
+— and the first where "even" rather than "leaning" was the target. Over the whole tower it reads
+angel 16.4% down to dwarf 12.6%, against a band of 5.0% to 25.0%, with **97 distinct blocks rather
+than 41**.
+
+#### What the guards did
+
+- **`towers.spec.ts` — the tower:campaign crystal ratio.** 1.150 → **1.255**, against the placeholder
+  floor of 0.7. The Monster Tower goes 31,000 → 62,300 and the seven now pay 373,500 against a
+  campaign of 297,500. The step has now been **+0.105 five times running, to three decimal places**;
+  two towers to go and the 21k projection of 436,100 / 1.466 is unchanged.
+- **`towers.spec.ts` — the faction spread.** Budgeted for rather than discovered.
+- **Nothing else moved.** No threshold was touched, `TOWER_RULES` was not touched, and no shipped
+  floor was re-authored.
+
+#### The prose check, run at the start again
+
+Recomputed rather than read: the crystal figures, the band-level headers for all five new bands, the
+floor ids and the mini-boss rhythm, the faction shares, and a walk of all two hundred floors checking
+that no board carries a link, that no board pairs a taunt with a healer, and that nothing above floor
+160 restores anything — with **a shield deliberately exempt**, because a pool banked once depletes
+where a heal refills. Two stale claims were corrected in `towers.ts`: it said three of seven were
+short (two now) and quoted the pre-21i crystal figures.
 
 ## 22. The roguelite run
 
