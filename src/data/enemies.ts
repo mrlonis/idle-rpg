@@ -8,6 +8,7 @@ import {
   CINDER_STORM,
   CUTPURSE,
   DOOMKNELL,
+  DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
   FADE,
@@ -25,6 +26,7 @@ import {
   PALL_OF_YEARS,
   PILLAR_OF_LIGHT,
   RIFTFALL,
+  ROOTWAKE,
   RUINOUS_ARC,
   RUNEWARD,
   SEVENFOLD_HEX,
@@ -32,6 +34,7 @@ import {
   SHRIKE_DIVE,
   STONE_FIST,
   THE_BARROW_FORGETS,
+  THE_LONG_LOOSE,
   THE_SEAL_BREAKS,
   THORNLASH,
   TYRANTS_CLAIM,
@@ -42,7 +45,7 @@ import {
   WITHERING_TOUCH,
   WRATH_UNBOUND,
 } from './skills';
-import { THORNMAIL } from './statuses';
+import { ROOTBOUND, THORNMAIL } from './statuses';
 
 /**
  * Enemy archetypes: a stat block at **level 1**, a kit, and the slope it grows on.
@@ -2143,8 +2146,15 @@ export const THE_GRAVEWRIGHT = {
  *
  * The Chainsworn and the Hollow Seraph set the rule and it is unchanged: a chapter's last encounter
  * is the one a player remembers, and a stat block they have already beaten four times is a stage
- * number. It stands on `c7-s50` and nowhere else — which is also why the Gravewright is **not** on
- * that board, having been the thing they beat four times.
+ * number. It stands on `c7-s50` and nowhere else.
+ *
+ * ⚠️ **That rule is about the _headline_ body, and this comment used to over-read it.** It said the
+ * Gravewright was "**not** on that board, having been the thing they beat four times" — and the
+ * Gravewright is on that board, in the back rank, where it is support rather than the fight. See
+ * `c7-s50` in [`chapter-7.ts`](./chapter-7.ts): removing it makes the chapter final 6% harder than
+ * the stage before it and hands the party it is tuned for a five-survivor clear, which is the same
+ * defect the taunting-King draft was rejected for. **A lieutenant may stand on its chapter's final;
+ * it may not _be_ it.**
  *
  * Its three turns are aimed at three different things: {@link BARROW_TITHE} at the largest body
  * standing, {@link HEADSMANS_ARC} at the smallest, and {@link WAKE_THE_BONE} at its own board. With
@@ -2188,6 +2198,366 @@ export const THE_CAIRN_KING = {
   },
   opening: [THORNMAIL],
   skills: [WAKE_THE_BONE, BARROW_TITHE, HEADSMANS_ARC],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Sunless Weald — milestone 21b
+//
+// ## Ten blocks, all Elven, and the count is the milestone's rather than this chapter's
+//
+// Milestone 21 fixes each of its four chapters' leans up front so the four sessions touch
+// **non-overlapping slices** of this file and the four thinnest factions are the ones that get
+// deeper. Elves were on seven — the joint-thinnest with the Undead before 21a — and these take
+// them to seventeen. Eight are ordinary blocks and two are the shapes a chapter owes:
+//
+// - **{@link THE_WITHERED_CROWN}, the chapter boss**, standing on `c8-s50` and nowhere else. The
+//   eighth body authored under that rule.
+// - **{@link THE_LONGSHADOW}, the chapter *lieutenant***, on all four mini-boss boards at rising
+//   levels. The second of these — see {@link THE_GRAVEWRIGHT} for the argument.
+//
+// ## What the chapter asks, in five bands
+//
+// ⚠️ **One new status, and it is the first of milestone 21's three to be spent.** 21a came in
+// under the ceiling and this does not; {@link ROOTBOUND} is argued on its own merits in
+// `statuses.ts` and the entry in [milestones](../../docs/milestones.md) states why a pair could not
+// have asked band 3's question. It rides the existing `status` effect exactly as milestone 17's
+// four did, needs no new `EffectKind`, no new `TargetKind` and no change in `ui/`.
+//
+// | Band | The lock                                              | Built from                     |
+// | ---- | ----------------------------------------------------- | ------------------------------ |
+// | 1    | the thing you are aiming at is not always there       | `dodge`, on the stat blocks    |
+// | 2    | your back rank was never the safe half                | {@link THE_LONG_LOOSE}         |
+// | 3    | reaching past the wall buys spread, not a kill        | {@link ROOTBOUND}              |
+// | 4    | the one you commit to is pulled back into the whole   | {@link DRAW_INTO_THE_ROOT}     |
+// | 5    | all four, and the thing the weald grew around         | {@link THE_WITHERED_CROWN}     |
+//
+// **Band 1 is a stat block and nothing else, deliberately.** `ModifiableStat` is `atk`, `def` and
+// `haste`, so evasion cannot be a status without a `core/` change this milestone forbids — and it
+// does not need to be. What answers `dodge` is `accuracy`, which five characters carry and four of
+// them are Elves, so the chapter's own faction is the readable answer to its opening question.
+// `MIN_HIT_CHANCE` is what stops it ever being a wall: a tenth of every swing lands whatever the
+// pool says, which is the termination guard `data/combat.ts` argues for.
+//
+// ## Scale
+//
+// Both `ascended` blocks sit **under The Unmade on `hp` and `atk`**, which `enemies.spec.ts` holds,
+// and the Crown sits under The Cairn King on both as well — what makes this the harder chapter is
+// the level its stages are fielded at and the questions above, which is the distinction milestone
+// 10 bought and every chapter since has kept.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The weald's cheapest question: a body that is not reliably where it was aimed at.
+ *
+ * `dodge: 0.26` is the highest in the game on a `common` and half again the previous ceiling — a
+ * Glade Stalker sits at 0.2 and nothing else has ever gone past it. Against a party at plain
+ * accuracy that is a quarter of every swing, and against Rin at 1.10 it is a sixth, which is the
+ * whole of what this chapter wants said out loud: **accuracy is a stat somebody in the roster owns,
+ * and this is where owning it starts mattering.**
+ *
+ * Fragile in every other respect, so a swing that does land settles it. The tax is on the number of
+ * turns spent, not on what a turn is worth.
+ */
+export const DUSKFERN_SKIRMISHER = {
+  id: 'duskfern-skirmisher',
+  name: 'Duskfern Skirmisher',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 54,
+    def: 12,
+    haste: 126,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.26,
+    accuracy: 1.05,
+    magicResist: 0.06,
+  },
+  skills: [GORE],
+} as const;
+
+/** The weald's idea of a wall: bark, and not much else. Slow, stubborn, and no threat at all. */
+export const HOLLOWBARK_SENTRY = {
+  id: 'hollowbark-sentry',
+  name: 'Hollowbark Sentry',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 840,
+    atk: 46,
+    def: 32,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.12,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The far shot, at fodder weight: it was never going to fight the front rank.
+ *
+ * Three of these behind a Sentry is band 2 stated at its cheapest — the party's wall is doing its
+ * job perfectly and the party is still losing its back rank.
+ */
+export const WHISPERLEAF_ARCHER = {
+  id: 'whisperleaf-archer',
+  name: 'Whisperleaf Archer',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 56,
+    def: 12,
+    haste: 112,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    dodge: 0.14,
+    magicPierce: 0.12,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * Where the roots come up, and the cheapest body on the ladder that cannot be removed on its own.
+ *
+ * ⚠️ **{@link ROOTBOUND} on a `common`, which is the whole of band 3** — the same move 21a made
+ * putting thorns on a Husk, aimed at the opposite habit. Thorns on fodder punished going wide;
+ * a bound back rank punishes going *deep*: two of these behind a wall means the sniper the party
+ * fields to reach past the front rank hands a third of every shot to the other one.
+ *
+ * Nothing else about it is remarkable, deliberately. The question is what it costs to remove, not
+ * what it does while it stands.
+ */
+export const GLOAMVINE_CREEPER = {
+  id: 'gloamvine-creeper',
+  name: 'Gloamvine Creeper',
+  faction: 'elf',
+  tier: 'common',
+  stats: {
+    hp: 720,
+    atk: 44,
+    def: 26,
+    haste: 68,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  opening: [ROOTBOUND],
+  skills: [MIRE],
+} as const;
+
+/**
+ * The evasion lock at weight, and the one body in the chapter that is both hard to hit and worth
+ * hitting.
+ *
+ * A Skirmisher taxes the party's turns and dies to one of them. This carries `dodge: 0.34` on a
+ * stat block that kills things, and it takes the lowest body on the field — so the member the
+ * party is trying to keep alive is being aimed at by the thing the party keeps missing.
+ *
+ * ⚠️ **Answerable, and by three different things.** Accuracy shortens it directly; `enemy-row` and
+ * `enemy-all` selections roll per target, so going wide converts one unlucky miss into four rolls;
+ * and `MIN_HIT_CHANCE` means it is never a wall however the pool is stacked.
+ */
+export const WEALDSHADOW_STALKER = {
+  id: 'wealdshadow-stalker',
+  name: 'Wealdshadow Stalker',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 76,
+    def: 20,
+    haste: 118,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    dodge: 0.34,
+    accuracy: 1.1,
+    physicalPierce: 0.15,
+    magicResist: 0.06,
+  },
+  skills: [HEADSMANS_ARC, CUTPURSE],
+} as const;
+
+/**
+ * It opens the half of the party nobody has ever had to defend.
+ *
+ * {@link THE_LONG_LOOSE} is band 2's lock and the argument is on the skill: every status the enemy
+ * side applies lands on the front rank, on one chosen body, or on everybody, and this is the first
+ * aimed at the three the party keeps behind its wall. What follows it is ordinary — Archers and
+ * Stalkers already reach there — which is the point. The sequence is the new thing, not either half.
+ */
+export const LONGBOUGH_MARKSMAN = {
+  id: 'longbough-marksman',
+  name: 'Longbough Marksman',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 780,
+    atk: 78,
+    def: 20,
+    haste: 102,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    dodge: 0.16,
+    accuracy: 1.12,
+    physicalPierce: 0.2,
+  },
+  skills: [THE_LONG_LOOSE, SHRIKE_DIVE],
+} as const;
+
+/**
+ * The wood pulling its hurt back into itself.
+ *
+ * {@link DRAW_INTO_THE_ROOT} is band 4's lock, and it occupies a healer's slot in a kit without
+ * being one: it waits until the party has committed to a target and then binds *that* body, so the
+ * damage already aimed at it starts arriving somewhere else.
+ *
+ * ⚠️ **Which is why this may stand behind a taunt and a Thornweald Warden may not.** It puts no
+ * health back — it moves what has not landed yet — so nothing it does can outrun the ninety-second
+ * clock. It is the one answer to focus fire in the game that is not sustain, and that distinction is
+ * the reason band 4 has boards a healer could not have been put on.
+ */
+export const HEARTROOT_TENDER = {
+  id: 'heartroot-tender',
+  name: 'Heartroot Tender',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 62,
+    def: 24,
+    haste: 92,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.16,
+    tenacity: 0.3,
+    magicResist: 0.12,
+  },
+  opening: [ROOTBOUND],
+  skills: [DRAW_INTO_THE_ROOT, MOTE_LANCE],
+} as const;
+
+/**
+ * The tempo half of the weald, and the reason band 1 is not simply "bring accuracy".
+ *
+ * {@link MOONSONG} takes a third of the gauge off all five, so a party paying a quarter of its
+ * swings to `dodge` is paying it out of fewer turns. Neither half is new; standing them together is
+ * the chapter's first pair, and it is the one that decides whether a party's answer to evasion is
+ * *enough* accuracy or merely *some*.
+ */
+export const NIGHTCANOPY_SINGER = {
+  id: 'nightcanopy-singer',
+  name: 'Nightcanopy Singer',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 740,
+    atk: 66,
+    def: 20,
+    haste: 106,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    dodge: 0.2,
+    insight: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [MOONSONG, THORNLASH],
+} as const;
+
+/**
+ * The thing that has been following the party since the barrows, met four times and never finished.
+ *
+ * The ladder's second **lieutenant**, and the shape is settled now rather than new — see
+ * {@link THE_GRAVEWRIGHT}. It stands on `c8-s10`, `c8-s20`, `c8-s30` and `c8-s40` at rising levels,
+ * so the chapter has a recurring antagonist that gets harder because the ladder does.
+ *
+ * {@link ROOTWAKE} is what it opens with, which makes every mini-boss board in this chapter a
+ * band-3 board on the Longshadow's first turn whether or not one was authored that way — the same
+ * relationship {@link WAKE_THE_BONE} has with chapter 7's mini-bosses, and the reason a lieutenant
+ * is worth more than four one-shot stat blocks. After that it stops setting up and starts reaching:
+ * {@link THE_LONG_LOOSE} opens the party's back rank and {@link CUTPURSE} is already there.
+ *
+ * ⚠️ **No healing, no drain and no regeneration**, which is the standing rule for anything a chapter
+ * fields four times. Every pool it puts on the field depletes, and a link puts nothing back at all.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`, and under {@link THE_WITHERED_CROWN} as
+ * well** — a lieutenant that matched the chapter's final would make the final the fifth time you
+ * fought it.
+ */
+export const THE_LONGSHADOW = {
+  id: 'the-longshadow',
+  name: 'The Longshadow',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1500,
+    atk: 92,
+    def: 44,
+    recovery: 6,
+    haste: 108,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.15,
+    tenacity: 0.4,
+    dodge: 0.22,
+    accuracy: 1.15,
+    physicalPierce: 0.22,
+  },
+  skills: [ROOTWAKE, THE_LONG_LOOSE, CUTPURSE],
+} as const;
+
+/**
+ * What the weald grew around, and the fourth body on the ladder fielded on exactly one stage.
+ *
+ * All four of the chapter's questions stand on it at once: it is bound from the first tick and
+ * {@link ROOTWAKE} binds everything else to it, `dodge: 0.28` on an `ascended` stat block means the
+ * party's answer has to be aimed as well as large, {@link THE_LONG_LOOSE} opens the half of the
+ * party its board is already reaching, and {@link HEADSMANS_ARC} takes whoever the spread has been
+ * quietly working on.
+ *
+ * ⚠️ **The bound board is what makes it a boss rather than a wall, and it is the inverse of the
+ * Cairn King's.** A thorned board punishes each swing; a bound board refuses the *order* the swings
+ * were going to arrive in — so the party that beat chapter 7 by spending more carefully has to beat
+ * this one by spending somewhere else. Both resolve, and for the same reason: a reflect only ever
+ * shortens a fight and a link conserves damage.
+ *
+ * ⚠️ **It does not taunt**, which is 21a's finding and not this chapter's to re-derive: a boss that
+ * draws every attack onto itself aims them at the body the party was going to focus anyway and
+ * spends its own turns dealing nothing. The wall in front is what decides the party has to take the
+ * fight it is offered.
+ *
+ * ⚠️ **No healing, no drain and no shield anywhere on it or its board.** Three things here already
+ * make a party live longer than it can kill — a bound board, a dodge pool and a tempo debuff — and
+ * every one of them is a step toward the ninety-second timeout that is scored as a **defeat**.
+ *
+ * ⚠️ **Sized under The Unmade on both `hp` and `atk`**, which `enemies.spec.ts` holds, and under
+ * The Cairn King as well.
+ */
+export const THE_WITHERED_CROWN = {
+  id: 'the-withered-crown',
+  name: 'The Withered Crown',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 98,
+    def: 52,
+    recovery: 7,
+    haste: 104,
+    critChance: 0.16,
+    critDamageAmp: 0.95,
+    critDamageResist: 0.2,
+    tenacity: 0.5,
+    dodge: 0.28,
+    accuracy: 1.2,
+    physicalPierce: 0.25,
+    magicPierce: 0.25,
+  },
+  opening: [ROOTBOUND],
+  skills: [ROOTWAKE, THE_LONG_LOOSE, HEADSMANS_ARC],
 } as const;
 
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
@@ -2265,4 +2635,14 @@ export const ENEMIES = [
   GRAVEMOURN_KEEPER,
   THE_GRAVEWRIGHT,
   THE_CAIRN_KING,
+  DUSKFERN_SKIRMISHER,
+  HOLLOWBARK_SENTRY,
+  WHISPERLEAF_ARCHER,
+  GLOAMVINE_CREEPER,
+  WEALDSHADOW_STALKER,
+  LONGBOUGH_MARKSMAN,
+  HEARTROOT_TENDER,
+  NIGHTCANOPY_SINGER,
+  THE_LONGSHADOW,
+  THE_WITHERED_CROWN,
 ] as const;

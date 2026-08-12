@@ -199,6 +199,16 @@ Each chapter hands the party a fresh ascension rung (×1.6) on top of the levels
 content climbs only the levels, so the fixed +25-level margin the roadmap specified was paid once and
 never again.
 
+⚠️ **Milestone 21b then over-corrected in the other direction, which is worth knowing before trusting
+any arithmetic here.** 21a's replacement rule — "+23 levels a chapter" — put chapter 8 at a margin of
++71, and the party it was tuned for took the final at **0%**. The missing term is the enemy's own
+growth curve: an `ascended` block climbs on `perLevel.ascended` where the party climbs on
+`perLevel.common`, and that 1.024-against-1.021 gap compounds over the **whole** level rather than
+over the chapter — worth about fifteen levels a chapter at this depth. **Both corrections were found
+the same way, by authoring a chapter to the rule and measuring it.** The transition is a step
+function (100% at level 398, 85% at 400, 0% at 408), so bisect for the edge; the arithmetic is only
+for knowing which direction to guess in.
+
 **How to tell the two apart: ask what the assertion would have to become.** Widening this one means
 saying the ladder's top may be a walkover, which is not a claim anybody would write down on purpose.
 When the honest restatement of a guard is something you would refuse to author, the content is what
@@ -330,6 +340,28 @@ _about_. Milestone 21a hit it twice in one chapter and the second one is the ins
 
 The general rule: **a board's question and a board's weight are independent, and only one of them is
 measured.** Author for the question, then check the weight, and expect them to disagree.
+
+Milestone 21b hit the same trap a third time and got a number out of it. `c8-s23` and `c8-s19` are
+the **same shape** — two legendaries in front, two legendaries and a common behind — and the first
+measured 1,859 against the second's 2,588. What separates them is the lock: a **taunt in front of
+archers** is worth about a quarter more than a **bound back rank**. A bind costs the party its route
+and a taunt costs it its targets, and the probe reads the second as heavier. It took two passes of
+adding weight to clear the tolerance.
+
+### ⚠️ A sixth trap: the probe's bracket is content-sized, and it fails silently upward
+
+`threshold()` bisects in log space between a `low` and a `high`, and `high` was 4,000 — set when
+milestone 10's rescale took the top stage from asking ×6 of the reference five to ×370. Chapter 8
+walked through it. **What that looks like is not an error**: `high` never moves, so the function
+returns exactly the bracket ceiling, on every stage past the point the ladder outgrew it — a
+difficulty curve that silently flattens into a horizontal line at a plausible-looking number, with
+every "does this stage ask more than the last" assertion passing on ties.
+
+The one line that catches it is the `expect(clears(high))` beside the bisection, which asserts the
+bracket actually spans the stage. **Keep it, and widen the bracket and its step count together**: a
+bisection halves its log range per step, so a wider bracket at a fixed step count silently coarsens
+the resolution instead. It is 50,000 over 14 steps now, and it will want widening again roughly every
+other chapter.
 
 ### Scope a timeout guard to fights the party wins
 

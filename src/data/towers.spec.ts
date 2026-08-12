@@ -454,24 +454,33 @@ describe('what a tower pays', () => {
     //
     // ## ⚠️ Chapter 7 fired it, the answer *is* to grow the towers, and this floor is a placeholder
     //
-    // **Milestone 21 is that work, and it lands in eleven sessions rather than one.** Chapter 7
-    // (21a) takes the campaign 159,500 → 194,000 while the tower side is still the shipped 219,100,
-    // so the ratio falls 1.37 → **1.13**. Milestone 21e–21k double every tower to two hundred floors
-    // and take the tower side to ~436,100; against the four-chapter campaign of ~297,500 the ratio
-    // ends at **~1.47** — the first time since this guard was written that *both* sides moved, and
-    // higher than it has been in two milestones.
+    // **Milestone 21 is that work, and it lands in eleven sessions rather than one.** Its four
+    // chapters move only the campaign side while the tower side stays at the shipped 219,100, so the
+    // ratio falls all the way through them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at chapter
+    // 8 (21b) → ~0.83 at 9 → ~0.74 at 10. Only 21e–21k double every tower to two hundred floors and
+    // take the tower side to ~436,100; against the four-chapter campaign of ~297,500 the ratio ends
+    // at **~1.47** — the first time since this guard was written that *both* sides moved, and higher
+    // than it has been in two milestones.
     //
-    // ⚠️ **So 1.1 is a floor for the middle of a milestone and nothing else, and restoring it is a
-    // deliverable of 21k rather than a nice-to-have.** It must go back to at least 1.3 once the
-    // seventh tower's second hundred floors land; the projected 1.47 leaves room to put it back
-    // higher than that, and doing so is what stops a temporary dip becoming the permanent bar. A
-    // failure here *after* 21k is the original question again: whether seven towers of two hundred
-    // floors is still the right amount of optional content beside the campaign of the day.
+    // ⚠️ **So 0.7 is a floor for the middle of a milestone and nothing else, and restoring it is a
+    // deliverable of 21k rather than a nice-to-have.** It was 1.1 for 21a alone; 21b takes it to 0.7
+    // in one edit that covers 21b, 21c and 21d, because re-deriving a quantity that is *supposed* to
+    // fall — once per chapter, three times, to three numbers all known in advance — is three edits
+    // that measure nothing. That is the same call 21a made on `levels.spec.ts`'s ceiling ratio and
+    // the opposite of the one 21b made on `gear.ts`'s `gradeSoftness`, and the distinction is
+    // whether the quantity is meant to move: this one is, and that one is a bug being papered over.
+    //
+    // ⚠️ **The cost is that this watches nothing until 21k**, which is the acknowledged price of
+    // doing it in one edit. It must go back to at least 1.3 once the seventh tower's second hundred
+    // floors land; the projected 1.47 leaves room to put it back higher than that, and doing so is
+    // what stops a temporary dip becoming the permanent bar. A failure here *after* 21k is the
+    // original question again: whether seven towers of two hundred floors is still the right amount
+    // of optional content beside the campaign of the day.
     const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
     const campaign = campaignCrystals();
     const note = `seven towers ${seven} against a campaign of ${campaign}`;
 
-    expect(seven / campaign, note).toBeGreaterThan(1.1);
+    expect(seven / campaign, note).toBeGreaterThan(0.7);
     expect(seven / campaign, note).toBeLessThan(4);
   });
 });

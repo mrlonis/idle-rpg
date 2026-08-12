@@ -474,6 +474,35 @@ const VAULTED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 8: the five that just took The Cairn King, unchanged.
+ *
+ * ⚠️ **This is the Waking Barrows' {@link INVESTED}, kept under a new name rather than re-derived**
+ * — the fourth time that has happened and the fourth time for the same reason. Re-pointing a single
+ * "arrived" party at each new chapter would silently stop checking that the chapter below is still
+ * finishable by the party it was tuned for, and two named parties per seam is what makes "clears the
+ * chapter behind it, and walks only a little way into the one ahead" checkable at both boundaries
+ * at once.
+ *
+ * Both numbers are derived from where chapter 7 ends, so a retune of that chapter re-aims this.
+ * `legendary-plus` is the rung it carries and its cap of 260 is **below** chapter 7's closing level
+ * of 305 — which is the difficulty statement every chapter since the Bound Marches ships, and by a
+ * wider margin each time: a chapter that asks for a rung has to climb past the cap that rung buys,
+ * and by *more* than the last one did, or the fresh rung it hands the party is free.
+ */
+const BARROWED_RARITY = rarityIndex('legendary-plus');
+const BARROWED_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[6] - 1].level,
+  LEVEL_CURVE.caps[BARROWED_RARITY],
+);
+
+const BARROWED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(BARROWED_LEVEL, BARROWED_RARITY),
+  BARROWED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -489,26 +518,28 @@ const VAULTED: FormationData = mono(
  * ⚠️ **The rung moves with the ladder, and it has to.** `elite` caps at 100 and the Bound Marches
  * close at 160, so milestone 17 took this to `elite-plus`; `elite-plus` caps at 140 and the Sundered
  * Vault closes at 225, so milestone 18 took it to `legendary`; `legendary` caps at 200 and the
- * Waking Barrows close at 285, so milestone 21a takes it to `legendary-plus`. In every case `legal`
+ * Waking Barrows close at 305, so milestone 21a took it to `legendary-plus`; that caps at 260 and
+ * the Sunless Weald closes at 411, so milestone 21b takes it to `mythic`. In every case `legal`
  * would have thrown rather than quietly fielding an under-levelled party, which is exactly what that
  * guard is for. **A rung roughly every fifty stages** is the cadence — it read "one per chapter"
  * until the re-cut multiplied the boundaries without moving the rung asks — and what this rung costs
- * a player over the Sundered Vault party is six more duplicate copies of each of the five: 38
- * against 32.
+ * a player over the Waking Barrows party is six more duplicate copies of each of the five: 44
+ * against 38.
  *
  * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and every chapter
- * from 3 on has those differ.** `legendary-plus` caps at 260 against a top stage of 285, so this
- * party finishes the ladder **twenty-five levels below the thing it is fighting** — the chapter's
- * difficulty statement rather than an accident, and the same margin milestone 21 fixes for all four
- * of its chapters. A rung is worth ×1.6 and the enemy side has no rungs, so a chapter that asks for
- * an ascension has to climb past the cap that ascension buys or it hands the party a ×1.6 nobody
- * paid for. The clamp is `Math.min` rather than a written number so a retune of either side moves it.
+ * from 3 on has those differ — by more each time.** `mythic` caps at 340 against a top stage of 411,
+ * so this party finishes the ladder **seventy-one levels below the thing it is fighting**, where the
+ * Barrows left it forty-five behind and the Marches twenty. That growth is 21a's correction and it
+ * is arithmetic: a rung is worth ×1.6 and the enemy side has no rungs, so a chapter that asks for an
+ * ascension has to climb past the cap that ascension buys — and because each chapter hands the party
+ * a *fresh* rung on top of the levels it climbs, a constant margin cancels and the gap compounds.
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it.
  *
  * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, then 200 again at the
- * rung it started at, now 260 one rung above.** Every one of those moves was the same move — the
- * party is defined by where the content is, never by a number.
+ * rung it started at, then 260, now 340 two rungs above.** Every one of those moves was the same
+ * move — the party is defined by where the content is, never by a number.
  */
-const INVESTED_RARITY = rarityIndex('legendary-plus');
+const INVESTED_RARITY = rarityIndex('mythic');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -618,6 +649,11 @@ const vaultedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(VAULTED, stage),
 }));
+const barrowedSweeps = stages.map((stage) => ({
+  label: 'barrowed',
+  stage,
+  ...sweep(BARROWED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -655,6 +691,7 @@ const everySweep = [
   ...arrivedSweeps,
   ...marchedSweeps,
   ...vaultedSweeps,
+  ...barrowedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -686,6 +723,9 @@ const MARCHES_END = CHAPTER_ENDS[4];
 
 /** The end of chapter 6 — the Sundered Vault — where the Waking Barrows ask for the one after. */
 const VAULT_END = CHAPTER_ENDS[5];
+
+/** The end of chapter 7 — the Waking Barrows — where the Sunless Weald asks for the one after. */
+const BARROWS_END = CHAPTER_ENDS[6];
 
 describe('ladder balance', () => {
   it('never runs the clock out on a fight either party is meant to have', () => {
@@ -833,18 +873,53 @@ describe('ladder balance', () => {
   });
 
   it('does not let that party walk the Waking Barrows as well', () => {
-    // ⚠️ **The assertion the Waking Barrows exist to satisfy.** The Barrows climb 225 to 285 — about
-    // one and a fifth levels a stage, the flattest cadence since the fen — so a party arriving at
-    // the `legendary` cap of 200 is behind on numbers from the first stage but never by very much.
-    // What is meant to stop it is that every board here has an opinion about *how* its damage
-    // arrives: a thorned wall it is forced onto, a fuse planted on the member it never cleanses, a
-    // field where going wide is answered once per body reached, and a link that spreads the focus
-    // fire six chapters have rewarded.
+    // ⚠️ **The assertion the Waking Barrows exist to satisfy.** The Barrows climb 225 to 305 — a
+    // little over one and a half levels a stage — so a party arriving at the `legendary` cap of 200
+    // is behind on numbers from the first stage and falls further behind across the chapter. What is
+    // meant to stop it beyond that gap is that every board there has an opinion about *how* its
+    // damage arrives: a thorned wall it is forced onto, a fuse planted on the member it never
+    // cleanses, a field where going wide is answered once per body reached, and a link that spreads
+    // the focus fire six chapters have rewarded.
     //
     // A ceiling on momentum rather than a wall at the boundary, exactly as the three below it are,
     // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
     const walked = vaultedSweeps
       .slice(VAULT_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * 0.2);
+  });
+
+  it('lets the party that finished chapter 7 clear chapters 1 through 7', () => {
+    // The Weald seam, measured the same way as the three above it. This party is literally the
+    // Waking Barrows' `INVESTED` under a new name, so this assertion is the old "clearable end to
+    // end" claim kept alive after the ladder grew past it — the fourth time that has been needed and
+    // the fourth time the alternative would have been to stop checking the chapter below.
+    const unreliable = barrowedSweeps
+      .slice(0, BARROWS_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk the Sunless Weald as well', () => {
+    // ⚠️ **The assertion the Sunless Weald exists to satisfy.** The Weald climbs 305 to 411 — a
+    // little over two levels a stage, the steepest cadence the ladder has ever had — so a party
+    // arriving at the `legendary-plus` cap of 260 is behind from the first stage and a long way
+    // behind by the last. That steepness is not the chapter being harsh: it is 21a's corrected
+    // margin rule, which requires each chapter to close further past its rung's cap than the last
+    // because a constant margin cancels against the fresh rung every chapter hands the party.
+    //
+    // What is meant to stop it beyond the gap is that every board here has an opinion about *where*
+    // its damage lands: a `dodge` pool that makes a swing a coin, a back rank the party never had to
+    // defend, roots that turn reach into spread, and a bind cast on whatever the party commits to.
+    //
+    // A ceiling on momentum rather than a wall at the boundary, exactly as the four below it are,
+    // and bounded as a share of the whole ladder so it stays meaningful as chapters are added.
+    const walked = barrowedSweeps
+      .slice(BARROWS_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
@@ -1403,10 +1478,18 @@ describe('the shape of the climb', () => {
     // of ten: the top stage asks about ×370 of the reference five where it used to ask ×6. The
     // step count went with it — a bisection in log space cuts its range in half per step, so
     // holding the old ~1% resolution over a range this much wider costs three more of them.
+    //
+    // ⚠️ **The ceiling was 4,000 and chapter 8 walked straight through it**, which presents as
+    // `high` never moving and a threshold of exactly the ceiling on every stage past `c8-s31` —
+    // a difficulty curve that silently flattens into a horizontal line at the bracket. The
+    // `expect` below is what turns that into a failure rather than a plausible-looking number,
+    // and it is the reason the bracket is checked at all. Fifty thousand is where the shipped
+    // ladder's top now sits with room; expect to widen it again roughly every other chapter, and
+    // to add a step with it — the two go together or the resolution decays.
     let low = 0.05;
-    let high = 4000;
+    let high = 50000;
     expect(clears(high), `${stage.id} is unclearable at any power`).toBe(true);
-    for (let step = 0; step < 12; step++) {
+    for (let step = 0; step < 14; step++) {
       const mid = Math.sqrt(low * high);
       if (clears(mid)) {
         high = mid;

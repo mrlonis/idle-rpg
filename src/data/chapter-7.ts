@@ -665,8 +665,20 @@ export const CHAPTER_7 = {
       // The Hollow Seraph's shape is the right one: the wall in front is what stops the party
       // choosing to answer the boss first, and the boss spends its turns killing.
       //
-      // ⚠️ **The Gravewright is deliberately absent.** It has been the fight four times already, and
-      // a chapter's last encounter is the one a player remembers.
+      // ⚠️ **The Gravewright stands here too, and this comment said the opposite for a whole
+      // milestone.** It read "the Gravewright is deliberately absent — it has been the fight four
+      // times already", which is a good argument about a body being *the* fight and a bad one about
+      // it being on the board at all. The lieutenant's last stand behind the thing it has been
+      // raising is the shape the chapter wants, and what the rule actually protects is that the
+      // **headline** body is new: the King stands on one stage and nowhere else.
+      //
+      // ⚠️ **Measurement is what settled it rather than taste.** Drop the Gravewright and the probe
+      // reads 1,484 against `c7-s49`'s 1,404 — a chapter final 6% harder than the stage before it —
+      // and `BARROWED`, the party this chapter is tuned for, finishes it with **all five alive**.
+      // That is the identical defect rejected two paragraphs above. While chapter 7 was the top of
+      // the ladder, `chapters.balance.ts`'s `meanSurvivors < 5` read this stage, so the four-body
+      // board could not have shipped green. ⚠️ **It would pass silently now** — chapter 8 moved that
+      // assertion onto `c8-s50` — which is why the contradiction survived to be found by reading.
       //
       // Deliberately **no healing, no drain and no shield anywhere on it**: three things here make
       // the party live longer than it can kill, and every one of them is a step toward the

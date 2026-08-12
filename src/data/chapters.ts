@@ -5,6 +5,7 @@ import { CHAPTER_4 } from './chapter-4';
 import { CHAPTER_5 } from './chapter-5';
 import { CHAPTER_6 } from './chapter-6';
 import { CHAPTER_7 } from './chapter-7';
+import { CHAPTER_8 } from './chapter-8';
 
 /**
  * The ladder, in chapters: how long a chapter is, what a stage pays, and the chapters shipped.
@@ -75,27 +76,55 @@ export const CHAPTER_CURVE = {
  *
  * ## The rates
  *
- * `rate = base * index ** 1.13`, over the stage's position on the whole ladder. Two things about
+ * `rate = base * index ** 1.45`, over the stage's position on the whole ladder. Three things about
  * that number are worth knowing before touching it.
  *
- * **The exponent was chosen to reproduce the hand-authored ladder at matching enemy levels.** The
- * old twenty-four stage ladder paid 25 gold a second at enemy level 40 and 90 at level 126, and
- * this curve paid about 42 at chapter 1's level-40 boss and about 91 at chapter 2's level-126 one.
- * Income tracks what the content asks of a party, not how many stages the party has walked past —
- * which is the only thing that stops "four times as many stages" from meaning "four times the
- * income".
+ * **The exponent exists to make income track what the content asks of a party rather than how many
+ * stages the party has walked past.** That is the only thing that stops "four times as many stages"
+ * from meaning "four times the income", and it is the claim the number is calibrated against — not
+ * any particular value of the number itself. It was originally set to **1.13** by matching the
+ * hand-authored twenty-four stage ladder, which paid 25 gold a second at enemy level 40 and 90 at
+ * level 126: income proportional to roughly `level ** 1.12`.
  *
- * ⚠️ **Doubling `baseRates` broke that correspondence on purpose; those two levels now pay about
- * 83 and 182.** The exponent is untouched, so what the calibration was actually protecting still
- * holds: income is a function of a stage's **position**, so a longer ladder still cannot make the
- * game richer at a given enemy level. Do not "restore" the old figures by moving the exponent —
- * that would change the curve's shape to undo a change to its scale.
+ * ⚠️ **Milestone 21b raised it to 1.45, because the relation it was protecting had quietly
+ * inverted.** 1.13 was calibrated when enemy level was very nearly *linear* in the stage index.
+ * Milestone 21a's corrected margin rule made it superlinear — each chapter must now close further
+ * past its rung's cap than the last, so the level line accelerates — and over the shipped ladder
+ * that is level ~`index ** 1.5`. Income at `index ** 1.13` against level at `index ** 1.5` is income
+ * proportional to `level ** 0.80`: **sub**-linear in enemy level, where the calibration set it
+ * slightly super-linear. At 1.45 it reads `level ** 1.00`. The number moved to keep the statement
+ * true; the statement did not move.
+ *
+ * ⚠️ **1.45 is deliberately short of a full restoration, and the band is worth knowing.** Putting
+ * income back on `level ** 1.12` exactly would take the exponent to **1.60**; the failing guard in
+ * `levels.spec.ts` needed only **1.42**. 1.45 is the conservative end of that band — income linear
+ * in enemy level — and it leaves chapter 10 about a fifth of the guard's headroom rather than a
+ * twentieth. What it costs is legible: a stage-100 clear pays ×4.4 what it did and a stage-10 clear
+ * ×2.1, so mid-ladder progression is roughly twice as fast in wall-clock time. It does **not** make
+ * any content easier — a party is capped by its ascension rung, not by its income, so what changed
+ * is how long the wall takes to climb rather than how high it is.
+ *
+ * ⚠️ **This is the lever milestone 21 named, and the alternatives were measured before it was
+ * taken.** Flattening the essence curve was arithmetically insufficient: at an essence exponent of
+ * 2.1 chapter 8 scrapes under the guard, "essence is the bottleneck late" breaks at level 200, and
+ * chapters 9 and 10 still read 40h and 60h — and below 2.0 the binding currency becomes **xp**,
+ * which alone reads 27.8h at chapter 9. Scaling `baseRates` again buys about one chapter per
+ * doubling, because the divergence is between two exponents and no constant factor touches it. And
+ * there is no level at which chapter 8 satisfies both the margin rule and the guard: 24 hours lands
+ * at level ~330 and `mythic` caps at 340, so the chapter would have to close *below* the cap of the
+ * rung it asks for, which is exactly the walkover 21a measured.
+ *
+ * ⚠️ **Doubling `baseRates` in milestone 14 broke the original correspondence on purpose.** The
+ * exponent is what carries the *shape* and the base is what carries the *scale*; do not move one to
+ * undo a change to the other.
  *
  * **A power law is a decelerating geometric curve, and deceleration is the whole requirement.**
- * The per-stage multiplier is `1 + 1.13 / index`: about ×2 across the first stage, ×1.1 by stage
- * ten, ×1.01 by stage a hundred. Milestone 7 already had to bend the authored gold slope from
+ * The per-stage multiplier is `1 + 1.45 / index`: about ×2.7 across the first stage, ×1.15 by stage
+ * ten, ×1.015 by stage a hundred. Milestone 7 already had to bend the authored gold slope from
  * ×1.4 a stage down to ×1.1 for the same reason, and nothing constant survives this ladder's
- * length — ×1.1 compounded over nine thousand stages has three hundred digits in it.
+ * length — ×1.1 compounded over nine thousand stages has three hundred digits in it. Raising the
+ * exponent steepens the curve without making it stop decelerating, which is the property that has
+ * to survive any move of it.
  *
  * ⚠️ **`levels.spec.ts` reads the top of this curve and asserts level 1000 stays out of reach.**
  * It is the assertion that fires when a new chapter raises income without the level curve being
@@ -162,7 +191,7 @@ export const STAGE_REWARDS = {
     xp: 0.2,
     essence: 0.003,
   },
-  exponent: 1.13,
+  exponent: 1.45,
   rewardSeconds: 40,
   firstClearSummons: {
     base: 250,
@@ -176,17 +205,19 @@ export const STAGE_REWARDS = {
 /**
  * The chapters this build ships, in the order they are climbed.
  *
- * Seven of them — 10, 20, 30, 40, 50, 50 and 50 stages. The first six are the two hundred the
+ * Eight of them — 10, 20, 30, 40, 50, 50, 50 and 50 stages. The first six are the two hundred the
  * four-chapter ladder carried, re-cut in milestone 19 so the boundaries land where a session does;
- * the seventh is milestone 21a, the first of the four chapters that push the ladder to 400.
+ * the seventh and eighth are milestones 21a and 21b, the first two of the four chapters that push
+ * the ladder to 400.
  * [`chapters.spec.ts`](./chapters.spec.ts) checks each one is the length {@link CHAPTER_CURVE}
  * says it should be, so a chapter authored at forty-nine stages is a failing test rather than a
  * boss that quietly lands on the wrong square.
  *
  * ⚠️ **Every chapter ends on a boss fielded nowhere else, and the re-cut made that a rule.** The
  * Fenlord, the Pale Warden, the First Cinder and the Ashfall Sovereign were authored for it;
- * the Chainsworn and the Hollow Seraph already observed it, and The Cairn King is the seventh. A
- * re-cut that moves a boundary owes the new final a unique body before it ships.
+ * the Chainsworn and the Hollow Seraph already observed it, and The Cairn King and The Withered
+ * Crown are the seventh and eighth. A re-cut that moves a boundary owes the new final a unique body
+ * before it ships.
  *
  * ⚠️ **Adding one is an economy change as much as a content one.** Three guards are functions of
  * how long the ladder is — the idle crystal rate in `banners.spec.ts`, everything a clear pays in
@@ -210,4 +241,5 @@ export const CHAPTERS = [
   CHAPTER_5,
   CHAPTER_6,
   CHAPTER_7,
+  CHAPTER_8,
 ] as const;

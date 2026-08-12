@@ -315,26 +315,35 @@ export const GEAR_RULES = {
     /**
      * How sharply grade odds improve with the linear stage index.
      *
-     * A hundred and twenty-five. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this
-     * is a **rate per stage** and the ladder's length is the other half of every number it produces.
+     * A hundred and fifty. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this is a
+     * **rate per stage** and the ladder's length is the other half of every number it produces.
      * Lower makes the ladder's bottom worthless faster; higher makes depth stop meaning anything.
      *
-     * ⚠️ **It has now been re-derived twice, by chapter 4 and by chapter 7, and both times
+     * ⚠️ **It has now been re-derived three times — by chapters 4, 7 and 8 — and every time
      * deliberately rather than by moving the threshold that caught it.** At ninety the top grade was
      * 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
      * `< 0.2` bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop;
-     * a hundred put it at 18.7% over two hundred. Chapter 7 took two hundred stages to two hundred
-     * and fifty and it read **24.5%**. A hundred and twenty-five restores it to 18.7% over the
-     * ladder that actually ships, which is the same number the last re-derivation landed on and the
-     * same move made against a longer ladder.
+     * a hundred put it at 18.7% over two hundred. Chapter 7 took the ladder to two hundred and fifty
+     * and it read **24.5%**, so a hundred and twenty-five restored 18.7%. Chapter 8 took it to three
+     * hundred and it read **23.4%**. A hundred and fifty restores 18.7% again — the third time that
+     * exact figure has been the landing, which is the tell that the number is being solved for and
+     * the shape is not.
      *
      * ⚠️ **This is a guard that fires every chapter forever, and the shape rather than the number is
      * what is wrong.** A tilt linear in the stage index has no ceiling, so the top grade's share
      * climbs without bound and no value of this constant is ever right for more than one chapter —
-     * milestone 21's three remaining chapters will each land on it again (22.3%, 26.7%, 30.8% at
-     * this softness). Milestone 21 forbids taking scope for this, so it is recorded rather than
-     * fixed: what it eventually wants is a tilt that **saturates**, not a fifth re-derivation. See
+     * milestone 21's two remaining chapters will each land on it again (22.6% and 26.4% at this
+     * softness). Milestone 21 forbids taking scope for this, so it is recorded rather than fixed:
+     * what it eventually wants is a tilt that **saturates**. See
      * [milestones](../../docs/milestones.md).
+     *
+     * ⚠️ **Two hundred would have bought the whole of milestone 21 in one edit and was declined**,
+     * which is the opposite of the call 21a made on `levels.spec.ts`'s ceiling ratio. The two guards
+     * are different kinds: that ratio is **meant** to fall as the ladder grows, so re-deriving it
+     * four chapters at a time costs only vigilance. This one is not meant to do anything — it is a
+     * bug being papered over — and at two hundred it would read 12.9% here and watch nothing until
+     * chapter 10, which makes the saturating tilt easier to forget rather than more likely to get
+     * written. Firing on schedule is what will eventually force the fix.
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -342,7 +351,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 125,
+    gradeSoftness: 150,
   },
 
   /**

@@ -13,6 +13,7 @@ import {
   POISON,
   RALLY,
   REGENERATION,
+  ROOTBOUND,
   SLOW,
   STUN,
   SUNDER,
@@ -3335,6 +3336,108 @@ export const WAKE_THE_BONE = {
   priority: 5,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Sunless Weald — milestone 21b
+//
+// Three turns, and all three are about **where** the party's damage is allowed to land. That is
+// the same axis the Bound Marches worked and a different question on it: 17 asked *what the party
+// is permitted to hit* and this asks *whether hitting it is worth what it used to be*.
+//
+// | Skill              | The aiming that is new                                              |
+// | ------------------ | ------------------------------------------------------------------- |
+// | Rootwake           | {@link ROOTBOUND} applied by a skill, where it is otherwise a passive |
+// | The Long Loose     | the first debuff aimed at `enemy-row-back` — the party's safe half   |
+// | Draw into the Root | a link cast **reactively**, on `ally-lowest`, as a heal would be     |
+//
+// The chapter's other two questions need no skill at all. **Evasion is a stat block** — `dodge`
+// cannot be a status, because `ModifiableStat` is `atk`, `def` and `haste` and nothing else, and
+// widening it is a `core/` change this milestone forbids. And **a bound back rank is an `opening`**,
+// which is the whole of {@link ROOTBOUND}'s argument.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The roots come up, and everything standing in them is one thing with several names.
+ *
+ * {@link ROOTBOUND} is otherwise a passive, exactly as {@link THORNMAIL} was until
+ * {@link WAKE_THE_BONE}, and this is the same move for the same reason: a board the party has
+ * already worked out how to take apart becomes a board it cannot take apart *in that order*, part
+ * way into the fight.
+ *
+ * ⚠️ **Board-wide and permanent, and both are safe because a link conserves damage.** Nothing is
+ * multiplied and nothing is refunded — the encounter's total health falls at the rate it always
+ * did. What the party loses is its route, which is the difference between a lock and a clock. A
+ * defensive board-wide buff of almost any other kind would be the second thing.
+ *
+ * Ninety ticks against a permanent status, so it is cast once and then effectively never again —
+ * the same shape and the same reason as {@link WAKE_THE_BONE}. What it costs its own side is the
+ * opening turn.
+ */
+export const ROOTWAKE = {
+  id: 'rootwake',
+  name: 'Rootwake',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: ROOTBOUND }],
+  cooldown: 90,
+  // Above everything else its carriers hold, so the board is bound on the opening turn rather than
+  // part way through — the clause that decides whether the chapter's third band happens at all on
+  // a mini-boss board.
+  priority: 5,
+} as const;
+
+/**
+ * The wood shoots the half of the party that was never being shot at.
+ *
+ * ⚠️ **The first debuff in the game aimed at `enemy-row-back`.** {@link EMBERSEED} plants there and
+ * {@link SHRIKE_DIVE} hits there, so the party's back rank has been damaged before — but every
+ * status the enemy side has ever applied lands on the front rank ({@link MIRE}), on one chosen body
+ * ({@link TYRANTS_CLAIM}) or on everybody ({@link WITHERHEX}, {@link MOONSONG}). A {@link SUNDER}
+ * on the three bodies the party keeps behind its wall is a statement that the wall stopped mattering.
+ *
+ * The pair it is authored for is the band's whole content: this opens the back rank, and the
+ * archers standing beside it already reach there. Neither half is new and the sequence is.
+ *
+ * Ordinary damage rather than a large hit, because what it is spending its turn on is the setup.
+ */
+export const THE_LONG_LOOSE = {
+  id: 'the-long-loose',
+  name: 'The Long Loose',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.9 },
+    { kind: 'status', status: SUNDER, chance: 0.85 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'status-absent', statusId: 'sunder' },
+  priority: 3,
+} as const;
+
+/**
+ * The hurt one is pulled back into the whole.
+ *
+ * ⚠️ **A link cast reactively, which is a shape this game has only ever expressed as a heal.**
+ * {@link BIND_THE_CONCORD} and {@link ROOTWAKE} are pre-emptive and board-wide; this waits until
+ * the party has committed to killing something and then binds *that* body, so the damage already
+ * aimed at it starts arriving somewhere else. It is {@link MEND}'s slot in a kit and it is not a
+ * heal.
+ *
+ * ⚠️ **Which is exactly why it is allowed to stand behind a taunt, and a heal is not.** It puts no
+ * health back — it moves what has not landed yet — so nothing here can outrun the ninety-second
+ * clock. Sustain the party cannot aim at is the failure `docs/combat.md` scores as a defeat, and
+ * this is the one answer to focus fire that is not that.
+ *
+ * The condition is what stops it being a second {@link ROOTWAKE}: with nobody hurt there is nothing
+ * to pull back, and the cast only ever happens because the party chose a target.
+ */
+export const DRAW_INTO_THE_ROOT = {
+  id: 'draw-into-the-root',
+  name: 'Draw into the Root',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: ROOTBOUND }],
+  cooldown: 50,
+  condition: { kind: 'ally-hurt', fraction: 0.7 },
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -3545,4 +3648,7 @@ export const SKILLS = [
   BARROW_TITHE,
   THE_BARROW_FORGETS,
   WAKE_THE_BONE,
+  ROOTWAKE,
+  THE_LONG_LOOSE,
+  DRAW_INTO_THE_ROOT,
 ] as const;

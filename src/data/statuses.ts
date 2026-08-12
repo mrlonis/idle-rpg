@@ -499,6 +499,44 @@ export const CHAINBOND = {
 } as const;
 
 /**
+ * The wood grown through itself: a third of any hit on one bound body is split across the others.
+ *
+ * ## The one thing it is for, and why {@link CHAINBOND} could not do it
+ *
+ * A chainbond is **cast**, runs sixty ticks and binds the caster's whole side. This is authored as
+ * an `opening` on the bodies that carry it, so it is true from the first tick, permanent, and
+ * **partial** — the link only ever shares to other holders of the same id, which `spreadLink` in
+ * `core/battle/simulate.ts` enforces by matching on the status id rather than on the side. So a
+ * board can bind its back rank to itself and leave its wall out of it, and a lone holder takes the
+ * whole hit.
+ *
+ * That is the whole of the Sunless Weald's third band. Since milestone 4 the answer to a protected
+ * back rank has been **reach** — a sniper, a mage, an `enemy-back` skill — and reaching a bound
+ * archer hands a third of the blow to the archers standing beside it. The reach still works; what
+ * it buys is spread rather than a kill, which is the first time on the ladder that getting past the
+ * wall has been worth less than it looks.
+ *
+ * ⚠️ **Permanent, and safe to be, for the reason a link is ever safe: damage is conserved.** The
+ * board's total health falls at exactly the rate it always did, so this costs the party its
+ * **route** rather than its progress and no version of it runs the ninety-second clock out. It
+ * cannot cascade either — a share resolves through `statusDamage`, which never re-enters the attack
+ * path, so a bound body cannot pass on a share it was handed. `enemies.spec.ts` allows a link as an
+ * `opening` for exactly this reason, and forbids a taunt.
+ *
+ * **A third rather than the chainbond's two fifths**, because this one never lapses. A cast link is
+ * a window the party waits out; a passive one is the shape of every fight on the board, so it is
+ * sized to change the route rather than to close it.
+ */
+export const ROOTBOUND = {
+  kind: 'link',
+  id: 'rootbound',
+  name: 'Rootbound',
+  hostile: false,
+  duration: PERMANENT,
+  share: 0.35,
+} as const;
+
+/**
  * A payload that lands in one piece forty ticks after it is planted.
  *
  * Bigger per instance than any damage-over-time and roughly the same in total, which is the point
@@ -592,6 +630,7 @@ export const STATUSES = [
   OATHSHIELD,
   THORNMAIL,
   CHAINBOND,
+  ROOTBOUND,
   EMBER_SEED,
   DOOMBRAND,
   HEXBRAND,

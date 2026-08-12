@@ -472,6 +472,16 @@ others, so the board loses exactly what the roll produced and only the _order_ t
 changes. ⚠️ **A lone holder takes the whole hit** — a share moved off a target with nobody to share
 to would be a share deleted, and the last survivor of a linked board would be unkillable.
 
+⚠️ **`spreadLink` matches partners on the _status id_, not on the side, and milestone 21b is what
+made that load-bearing.** It was true from the start and unused: `CHAINBOND` is cast `ally-all`, so
+every partner always held it. `ROOTBOUND` is authored as an `opening` on individual blocks instead,
+so a board can bind its back rank to itself and leave the wall in front of it out of the link
+entirely. That is the Sunless Weald's third band: since milestone 4 the answer to a protected back
+rank has been **reach**, and reaching a bound archer hands a third of the blow to the archers beside
+it — so the bypass still works and buys spread rather than a kill. **A permanent link is safe for the
+same reason any link is**: damage is conserved, so it costs the party its route and never its
+progress, which is why `enemies.spec.ts` allows a link as an `opening` where it forbids a taunt.
+
 **`bomb`** does nothing until it expires and then lands in one piece. The mirror of a `dot` and the
 opposite question: a poison punishes a slow kill continuously and is worth cleansing at any point,
 while this punishes it once at a known tick and a cleanse spent before that tick removes the whole

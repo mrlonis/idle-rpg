@@ -175,6 +175,21 @@ the two disagree, the code is right and both are stale.
       there), and the first `ally-afflicted` turn on the enemy side. ⚠️ **Nothing may be forbidden
       to a later chapter on the strength of that** — 21b through 21d each argue their own spend in
       their own entry, and "21a managed without" is no more an argument than "17 did it" is.
+    - **Milestone 21b spent the first of the three on `ROOTBOUND`, a partial permanent `link`, and
+      the argument is what makes it allowed.** `spreadLink` matches partners on the **status id**
+      rather than on the side, so a board can bind its back rank to itself and leave its wall out of
+      it, and a lone holder takes the whole hit. That is what no pair of shipped parts says:
+      `CHAINBOND` is cast, lapses and binds a whole side — a statement about focus fire in general
+      — where this is aimed at one specific habit, that **reach** has been the answer to a protected
+      back rank since milestone 4. Reaching a bound archer hands a third of the blow to the archers
+      beside it, so the reach still works and buys spread rather than a kill. **Two remain, for 21c
+      and 21d.**
+    - ⚠️ **A chapter's headline lock can be a stat block, and the Sunless Weald's opening band is.**
+      `ModifiableStat` is `atk`, `def` and `haste`, so `dodge` cannot be a status without a `core/`
+      change — and it did not need to be. What answers a dodge pool is `accuracy`, which five
+      characters have carried since 8e and which no content had ever made matter, four of them
+      Elves. **Reach for the stat block before the vocabulary**: the budget is for questions the
+      existing parts genuinely cannot ask, not for questions that are inconvenient to author.
     - ⚠️ **A taunt overrides the row gate, which nothing else in the game does.** It narrows the
       pool **before** the row rule is consulted, so while one is up a back-rank bypass is worth
       nothing. Three clauses keep it answerable and all three are held by specs: multi-target
@@ -222,12 +237,17 @@ the two disagree, the code is right and both are stale.
   - ⚠️ **`gradeSoftness` fires on every chapter forever, and the _shape_ rather than the number is
     what is wrong.** `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so the top grade's
     share of end-of-ladder drops climbs without bound: it went past the `< 0.2` bound in
-    `gear.spec.ts` at chapter 4 (90 → 100) and again at chapter 7 (100 → **125**, 24.5% → 18.7%),
-    and at 125 it reads 22.3%, 26.7% and 30.8% at chapters 8, 9 and 10. **Milestone 21's brief did
-    not predict this one** — expect it once per chapter for the rest of the push. What it eventually
-    wants is a tilt that **saturates**; a fifth re-derivation is the thing to stop doing, and it is
-    recorded rather than taken because milestone 21 forbids the scope. Raising the constant is safe
-    for the starter wall and lowering it is not — see [gear](../docs/gear.md).
+    `gear.spec.ts` at chapter 4 (90 → 100), at chapter 7 (100 → **125**, 24.5% → 18.7%) and at
+    chapter 8 (125 → **150**, 23.4% → 18.7% again). **Expect it once per chapter for the rest of the
+    push** — 22.6% and 26.4% at chapters 9 and 10. What it eventually wants is a tilt that
+    **saturates**; re-deriving the constant a fourth time is the thing to stop doing, and it is
+    recorded rather than taken because milestone 21 forbids the scope. ⚠️ **Do not re-derive it
+    several chapters ahead to save edits** — 21b declined 200, which would have bought the whole
+    milestone, precisely because this quantity is _not_ meant to move and hiding it for two chapters
+    makes the real fix easier to forget. That is the opposite of the call 21a made on
+    `levels.spec.ts`'s ceiling ratio, and the distinction is whether the quantity is meant to fall.
+    Raising the constant is safe for the starter wall and lowering it is not — see
+    [gear](../docs/gear.md).
   - **Archetype gating is safe where placement gating would not be**, and the distinction is the
     whole of it: a piece the party cannot wear is **fodder**, not a dead end. This is what makes
     `CharacterRole` load-bearing without re-opening milestone 4's "no legal party" failure. The eight
@@ -286,25 +306,27 @@ the two disagree, the code is right and both are stale.
     damage instead. A **shield is safe where a regeneration is not**: it banks a pool once and
     depletes, so it cannot outrun rising damage. `data/signature.spec.ts` asserts no opening status
     is a `regen`.
-  - ⚠️ **No shipped content can measure one.** `mythic` caps at level **340**; the hardest authored
-    stage is level **225**. A party at the unlock rung is half again past the top of the ladder, so
-    every campaign fight is a walkover and `data/signature.balance.ts` has to re-level the hardest
-    encounter to the party's own level — the same move `core/towers.ts` makes. ⚠️ **The Bound Marches
-    and the Sundered Vault were each expected to close this and neither did**: the gap went
-    ×4 → ×2 → ×1.5, narrowing by less each time because the level band flattens as content
-    lengthens. What closes it is a chapter reaching the low three hundreds, roughly chapter 8 at
-    the re-cut's fifty-stage cadence, or a tower band that does — check the number rather than
-    assuming the next chapter is enough.
+  - **Shipped content can measure one since milestone 21b, and it took five milestones.** `mythic`
+    caps at level **340** and the hardest authored stage is now **396**, so for the first time the
+    campaign is above the unlock rung. `data/signature.balance.ts`'s `contested()` no longer
+    re-levels the top encounter; it returns the stage as `data/` wrote it. ⚠️ **The Bound Marches,
+    the Sundered Vault and the Waking Barrows were each expected to close this and none did** —
+    160, then 225, then 305 against 340, narrowing by less each time because the level band flattens
+    as content lengthens. **Check the number rather than assuming the next chapter is enough** is the
+    lesson that survives; the gap itself is closed.
   - ⚠️ **Measure a signature item by bisecting for reach, never by win rate at a chosen level.** The
     contested band sits ~20% above the party's level and is ~40 levels wide out of a thousand, so
     any fixed choice is a walkover or a wipe — two versions of that probe reported a gain of exactly
     zero for two opposite reasons. In reach a maxed item is worth **+2% to +8%**; in win rate at a
     contested level the same item takes four of seven characters from **0.00 to 1.00**. Both are
     honest; never cite the reach figure as evidence the item is small.
-    - ⚠️ **A reach figure is only comparable within one cut of the ladder.** `contested()` seeds off
-      `stage.id`, so milestone 19 renaming the hardest stage `c4-s50` → `c6-s50` moved all seven
-      recorded numbers with no item or stat block changed. Re-measure rather than comparing across a
-      re-cut.
+    - ⚠️ **A reach figure is only comparable within one cut of the ladder, and this has now bitten
+      twice.** `contested()` picks the hardest stage and seeds off its `stage.id`, so milestone 19
+      renaming it `c4-s50` → `c6-s50` moved all seven recorded numbers with no item or stat block
+      changed, and milestone 21b replacing it with `c8-s50` moved all fourteen. **Re-measure the
+      whole table or none of it.** ⚠️ Removing the re-levelling in 21b changed _nothing_ by itself —
+      `reach()` overwrites `level` on every trial, so the override was dead on arrival and what it
+      bought was a claim about the method rather than an input to it.
   - **A new ascended-tier character needs a row in `data/signature.ts` and nothing else.**
     `data/signature.spec.ts` derives the count from `CHARACTERS`, so one without an item is a
     failing test rather than a permanently empty panel. Milestone 20 added seven at once, which is
@@ -335,10 +357,20 @@ the two disagree, the code is right and both are stale.
     from 3.2 to 1.4. Both now name the two campaign counters positively.
 - **[docs/economy.md](../docs/economy.md)** — the seven currencies, income rates, the level curve,
   pull rates and pity, and offline accrual. **Since milestone 11 no rate is authored per stage**:
-  income is `base × stageIndex ^ 1.13`, evaluated by `stagePayout` in `core/ladder.ts` from four
-  coefficients in `data/chapters.ts`. The exponent is calibrated so a stage pays roughly what the
-  old hand-tuned ladder paid at the same **enemy level**, which is what stops a longer ladder from
-  meaning a richer one.
+  income is `base × stageIndex ^ 1.45`, evaluated by `stagePayout` in `core/ladder.ts` from four
+  coefficients in `data/chapters.ts`. **The exponent's job is that income tracks _enemy level_
+  rather than stage count**, which is what stops a longer ladder from meaning a richer one — and
+  that claim, rather than any value of the number, is what is calibrated.
+  - ⚠️ **It was 1.13 until milestone 21b and the relation it protects had quietly inverted.** 1.13
+    was set when enemy level was very nearly _linear_ in the stage index; 21a's corrected margin
+    rule made it superlinear, so over the shipped ladder level grows as ~`index ^ 1.5` and income at
+    `index ^ 1.13` was income proportional to `level ^ 0.80` — **sub**-linear, where the original
+    calibration set it slightly super-linear at `level ^ 1.12`. At 1.45 it reads `level ^ 1.00`. The
+    number moved to keep the statement true; the statement did not move.
+  - ⚠️ **1.45 is the conservative end of a band.** Full restoration would be **1.60**; the guard that
+    forced the change (`levels.spec.ts`'s `1h < hoursTo(top) < 24h`) needed only **1.42**. What it
+    costs is legible — a stage-100 clear pays ×4.4 and a stage-10 clear ×2.1 — and it makes **no
+    content easier**, because a party is capped by its ascension rung and not by its income.
   - **The base rates are 1 gold, 0.2 xp and 0.003 essence, doubled from the ladder they were
     derived against.** ⚠️ **Scale all three together or none.** Every economy assertion in
     `levels.spec.ts` is a ratio between the currencies or a comparison among them, and a common
@@ -406,14 +438,19 @@ the two disagree, the code is right and both are stale.
       effective rate flat would be a rate cut dressed as a floor.
 - **The ladder is chapters, and where a run is, is a chapter and a stage within it.** Read
   [`core/ladder.ts`](../src/core/ladder.ts) before touching progression.
-  - **Seven chapters ship — 10, 20, 30, 40, 50, 50 and 50 stages, two hundred and fifty in all.**
-    The first six are the two hundred the four-chapter cut carried, re-cut in milestone 19 so the
-    boundaries land where a session does; the seventh is milestone 21a, first of the four that take
-    the ladder to 400. The curve is a ramp to a permanent cap of fifty (base 10, step 10, band 1,
-    max 50); the long ladder is more chapters, not longer ones. ⚠️ **Every chapter ends on a boss
-    fielded nowhere else, as a rule**: the Fenlord, the Pale Warden, the First Cinder, the Ashfall
-    Sovereign, the Chainsworn, the Hollow Seraph and The Cairn King — a re-cut that moves a boundary
-    owes the new final a unique body before it ships. Auto-battle unlocks when chapter 1 falls
+  - **Eight chapters ship — 10, 20, 30, 40, 50, 50, 50 and 50 stages, three hundred in all.** The
+    first six are the two hundred the four-chapter cut carried, re-cut in milestone 19 so the
+    boundaries land where a session does; the seventh and eighth are milestones 21a and 21b, the
+    first two of the four that take the ladder to 400. The curve is a ramp to a permanent cap of
+    fifty (base 10, step 10, band 1, max 50); the long ladder is more chapters, not longer ones.
+    ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule**: the Fenlord, the Pale
+    Warden, the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn
+    King and The Withered Crown — a re-cut that moves a boundary owes the new final a unique body
+    before it ships. ⚠️ **The rule is about the _headline_ body and nothing else** — a lieutenant may
+    stand on its chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`
+    and the Longshadow does not on `c8-s50`, and both are correct: a comment claiming the first was
+    "deliberately absent" survived a whole milestone, and removing it measures as a chapter final
+    6% harder than the stage before it that the tuned party clears with all five alive. Auto-battle unlocks when chapter 1 falls
     (`AUTO_BATTLE_UNLOCK_CHAPTERS = 1`, resolved through `chaptersCleared`), and all seven towers
     open with it.
   - ⚠️ **The re-cut changed what a stored position means and wrote no migration** — dev-only saves
@@ -447,20 +484,34 @@ the two disagree, the code is right and both are stale.
     setting every stage in the chapter was a walkover for the party it was tuned for — the reference
     five took the boss with all of them alive in seven seconds — and ⚠️ **no board fixes it**: heavy
     enough to cost that party a member meant **three** ascended bodies on one board, at 1.86× the
-    stage before it. The margins are therefore **+20, +25, +45, …** — the Waking Barrows close at
-    **305** against `legendary-plus`'s cap of 260, and milestone 21's remaining chapters are
-    re-derived to ~411, ~514 and ~617 rather than the brief's 365, 445 and 525.
-    - **Check it by measurement, not by arithmetic.** The probe threshold at a chapter's final
-      against `pow(1.021, level - 1) * pow(1.6, rungsAboveRare)` is the whole test, and it wants to
-      land near **1.1–1.4**. Enemy `ascended` blocks scale a little faster than `perLevel.common`, so
-      the closed form under-predicts what a chapter needs by a few levels.
+    stage before it. The margins are **+20, +25, +45, +56, …** — the Waking Barrows close at **305**
+    against `legendary-plus`'s cap of 260 and the Sunless Weald at **396** against `mythic`'s 340.
+    - ⚠️ **"About twenty-three a chapter" is right in shape and too large in size, and milestone 21b
+      found that the same way 21a found the rule it replaced — by authoring a chapter to it and
+      measuring.** At the roadmap's 411 (a margin of +71) the party the chapter is tuned for took the
+      final at **0%**. The correction is the **enemy's own growth curve**: 21a derived +23 from
+      `perLevel.common` because that is what the party climbs on, but an enemy `ascended` block
+      climbs on `perLevel.ascended` — 1.024 against 1.021 — and that gap compounds over the _whole_
+      level rather than over the chapter. `(1.024 / 1.021) ** 411` is ×3.34 where `** 305` is ×2.45,
+      so the enemy side takes about **fifteen levels' worth** of head start across one chapter at
+      this depth, straight off the margin: +23 − 15 ≈ **+8**, and +45 → +56 is +11. The rule is
+      "+23 a chapter _less whatever the enemy's own curve has taken_", and the second term grows —
+      so the roadmap's ~514 and ~617 for chapters 9 and 10 are both too high.
+    - ⚠️ **Check it by measurement, and the arithmetic is only for knowing which way to guess.** The
+      transition is a **step function** — chapter 8's final read 100% at level 398, 85% at 400, 45%
+      at 402 and 0% at 408 — so bisect for the 90% edge, back off to where the tuned party keeps
+      three or four of five, and then check the probe threshold at the final against
+      `pow(1.021, level - 1) * pow(1.6, rungsAboveRare)`, which wants to land near **1.1–1.4**.
+    - ⚠️ **The board is not the variable and cannot be the fix.** Chapter 7's own final re-levelled
+      to 411 also reads 0% for the party chapter 8 is tuned for, and chapter 8's final at 380 reads
+      100%. When a chapter measures unclearable at the top, the level line is what moved.
   - **A rung per fifty-stage band is the cadence** — it read "one rung per chapter" until milestone
     19 multiplied the boundaries without moving a rung ask — and it is load-bearing well beyond the
     ladder: 20 copies by the end of the fen's fifty stages, 24 by the Marches, 32 by the Vault, 38
-    by the Barrows. ⚠️ **It is the assumption under the levelling-versus-ascension guard** — a band
+    by the Barrows, 44 by the Weald. ⚠️ **It is the assumption under the levelling-versus-ascension guard** — a band
     climbs ~65 levels and a rung only pays for 22.6, so the two axes drift apart by construction and
     the guard measures the **share** rather than the ratio for that reason.
-  - **Adding a chapter is an economy change as much as a content one**, and expect roughly four
+  - **Adding a chapter is an economy change as much as a content one**, and expect four or five
     guards to fire. Only some of them will be about the chapter. ⚠️ **Sort them first into "content
     outgrew a threshold" and "this ratio moves every chapter regardless"** — the first is a real
     retune and the second is a guard that needs re-deriving, and milestone 18 found three of the
@@ -581,9 +632,9 @@ the two disagree, the code is right and both are stale.
   - **Every faction carries at least six archetypes and all three tiers**, which is what 15c's
     eighteen new blocks bought and what [`data/enemies.spec.ts`](../src/data/enemies.spec.ts) holds — a
     floor of four per faction and every faction owning a `common`, a `legendary` and an `ascended`.
-    Seventy-two ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
-    and Demons to twelve, and milestone 21a took Undead from seven to **seventeen**, because a chapter
-    leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixes each of its four chapters' leans
+    Eighty-two ship, and the distribution is deliberately uneven: milestone 18 took Angels to eleven
+    and Demons to twelve, milestone 21a took Undead from seven to **seventeen** and 21b took Elves
+    the same way, because a chapter leaning on a faction needs depth in it. ⚠️ **Milestone 21 fixes each of its four chapters' leans
     up front** — undead, elf, dwarf, monster, the four thinnest — so the four sessions touch
     non-overlapping slices of `enemies.ts` and the depth table evens out rather than deepening what
     is already deep. The old note here recorded that there was **no ascended-tier Undead archetype**;
@@ -688,13 +739,18 @@ the two disagree, the code is right and both are stale.
       re-cut then moved it to ~1.37 without adding a stage, because two more chapter boundaries pay
       two more Chapter Conqueror awards. The floor moved 2 → 1.5 in milestone 18 and 1.5 → **1.3**
       in milestone 19; it bought the re-cut and nothing more, and chapter 7 fired it exactly as
-      predicted, at **1.13**.
-    - ⚠️ **The floor is 1.1 right now and that is a mid-milestone placeholder, not a decision.**
+      predicted, at **1.13**, and chapter 8 took it to **0.96**.
+    - ⚠️ **The floor is 0.7 right now and that is a mid-milestone placeholder, not a decision.**
       Milestone 21 _is_ the "grow the towers" answer, and it lands in eleven sessions: 21a–21d take
       the campaign to ~297,500 while the tower side is still the shipped 219,100, and only 21e–21k
       double every tower to ~436,100 and take the ratio to **~1.47** — the first time since this
       guard was written that both sides move. **Restoring the floor to at least 1.3 is a deliverable
-      of 21k.** A failure after that is the original question again: whether seven towers of two
+      of 21k.** ⚠️ **It was lowered once, to 0.7, covering 21b–21d in a single edit** — the three
+      landings (0.96, 0.83, 0.74) are all known in advance, so re-deriving a quantity that is
+      _supposed_ to fall three times over would be three edits that measure nothing. The cost is
+      that it watches nothing until 21k. That is the same call 21a made on the level ceiling's ratio
+      and the **opposite** of the one 21b made on `gradeSoftness`; the distinction is whether the
+      quantity is meant to move. A failure after that is the original question again: whether seven towers of two
       hundred floors is still the right amount of optional content beside the campaign of the day.
     - **Topping a tower pays exactly what finishing a chapter pays**, which is a deliberate tie
       rather than a coincidence: `achievements.spec.ts` therefore narrows its "largest single
@@ -712,9 +768,9 @@ the two disagree, the code is right and both are stale.
       stage you have ever cleared" survives as the legible sentence it was chosen to be.
     - **The ceiling is stated against the roster now, not the ladder**: a full clear must not buy the
       roster's copies — derived through `fullAscensionCost` over `CHARACTERS`, 5,038 today — in under
-      thirty days. It is **60 days** over the shipped two hundred and fifty stages — 70 before chapter
-      7 lengthened the ladder, and milestone 20 was the first time the **roster** side moved it (+551
-      copies, 62 → 70 days). ⚠️ **It tracks both sides**, so a roster that grows
+      thirty days. It is **~52 days** over the shipped three hundred stages — 60 at chapter 7 and 70
+      before that, and milestone 20 was the first time the **roster** side moved it (+551 copies,
+      62 → 70 days). ⚠️ **It tracks both sides**, so a roster that grows
       raises it exactly as a ladder that grows lowers it, and it first fires around chapter twelve —
       at which point the question is whether the roster kept up, not what number makes it green.
     - **The floors were kept and did not move**: the climb must still be worth more than the base
@@ -725,7 +781,8 @@ the two disagree, the code is right and both are stale.
     stage and a flat 1,000 per five clears, so the total is linear in the length by construction
     and a fixed band on it is a **cap on how much content may ship**. Per stage it was 6.9 across
     the four fifty-stage chapters, unchanged from three; the re-cut moved it to ~8.0 by adding two
-    chapter boundaries without touching a stage, which milestone 19 records as a decision.
+    chapter boundaries without touching a stage, which milestone 19 records as a decision; each
+    fifty-stage chapter since dilutes it slightly (7.76 at chapter 7, **7.62** at 8).
   - ⚠️ **The level ceiling is guarded by ratios now, not by hours.** "Level 1000 costs more than 500
     hours of top-of-ladder income" was retired rather than moved a third time: income at the top
     rises with every chapter **by design**, so that figure falls forever (1,175 → 588 → 372) and
@@ -734,19 +791,27 @@ the two disagree, the code is right and both are stale.
     demand itself costing between an hour and a day. **Before retuning content to satisfy a failing
     threshold, check whether the quantity it measures is one the roadmap requires to move.**
     - **The first of the three is _meant_ to fall and milestone 21a cut it four chapters' worth at
-      once**: 37.1 at chapter 6, 20.9 at 7, 11.5 at 8, 7.1 at 9, **4.8** at 10, against a floor that
-      moved 25 → **4**. ⚠️ **The cost is that it watches nothing until chapter 10 and the margin
-      there is nineteen percent**, which is thinner than any earlier re-derivation left — so through
-      that stretch the structural claim (rungs left unspent above the demand) is the one carrying
-      the question, and it is what to read if a chapter's level line looks like it has run away.
-    - ⚠️ **The third of the three is the one at real risk, and the roadmap's estimate for it is
-      wrong by a factor of three.** `1h < hoursTo(top stage) < 24h` reads 10.2 at chapter 6 and
-      **21.7** at chapter 7 — green with about a tenth of the band left — but level cost grows as
-      `L^2.55` while top-of-ladder income grows as `index^1.13`, so it lands well past 24 at chapter
-      8 and past 76 by chapter 10. Milestone 21's brief guessed "low twenties at level 525", which is
-      the figure chapter **7** already reads. It fires at 21b, and it carries a real design claim —
-      "a day of income is the wall rather than the content" — so an overshoot of that size is
-      evidence that the level cadence is outrunning the income exponent, not a threshold to move.
+      once**: 37.1 at chapter 6, 17.8 at 7, **9.4** at 8, and roughly 7 and 5 at 9 and 10, against a
+      floor that moved 25 → **4**. ⚠️ **The cost is that it watches nothing until chapter 10 and the
+      margin there is thin**, thinner than any earlier re-derivation left — so through that stretch
+      the structural claim (rungs left unspent above the demand) is the one carrying the question,
+      and it is what to read if a chapter's level line looks like it has run away. **Income cancels
+      out of this ratio**, so raising the reward exponent in 21b did not move it.
+    - ⚠️ **The third of the three fired at chapter 8 and was answered by moving the income
+      exponent, not the threshold.** `1h < hoursTo(top stage) < 24h` read 10.2 at chapter 6, 21.7 at
+      7 and **41.4** at 8. Level cost grows as `L^2.55` while top-of-ladder income grew as
+      `index^1.13`, so the quantity was decaying by construction — but the guard carries a real
+      design claim ("a day of income is the wall rather than the content") and 21b treated an
+      overshoot of that size as evidence about the cadence rather than as a number to slide.
+      - **Three alternatives were measured and all three fail.** Flattening the essence curve is
+        arithmetically insufficient (below an essence exponent of 2.0 the binding currency becomes
+        **xp**, which alone reads 27.8h at chapter 9); scaling `baseRates` buys about one chapter per
+        doubling, because the divergence is between two exponents; and ⚠️ **there is no level at
+        which a chapter satisfies both the margin rule and the guard** — 24 hours landed at level
+        ~330 against `mythic`'s cap of 340, so chapter 8 would have had to close _below_ the cap of
+        the rung it asks for, which is the walkover 21a measured.
+      - The exponent went **1.13 → 1.45** and it reads **6.7** at chapter 8. See the economy section
+        above for why that is a derivation rather than a fudge.
   - **A weekly is exactly seven of its daily and never more** — the weekly tier is a bonus for
     consistency, not a second obligation. `data/quests.spec.ts` derives that bound from the daily
     targets rather than restating it.

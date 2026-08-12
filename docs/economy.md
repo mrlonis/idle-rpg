@@ -65,26 +65,27 @@ on the ladder.** `STAGE_REWARDS` in [`chapters.ts`](../src/data/chapters.ts) is 
 `stagePayout` in [`core/ladder.ts`](../src/core/ladder.ts) evaluates them:
 
 ```
-rate = base * stageIndex ** 1.13      base: 1 gold, 0.2 xp, 0.003 essence per second
+rate = base * stageIndex ** 1.45      base: 1 gold, 0.2 xp, 0.003 essence per second
 lump = 40 seconds of that rate
 crystals on a first clear = a flat 250, ×2 on a mini-boss, ×5 on a chapter boss
 ```
 
-Across the first two hundred stages, chapters 1 to 6 (chapter 7 continues the same curve to stage
-250, where a stage pays 512.5 gold a second):
+Across the three hundred stages that ship:
 
-| Stage | gold/s | xp/s  | essence/s | enemy level |
-| ----- | ------ | ----- | --------- | ----------- |
-| 1     | 1.0    | 0.2   | 0.003     | 1           |
-| 12    | 16.6   | 3.32  | 0.050     | 14          |
-| 25    | 38.0   | 7.6   | 0.114     | 15          |
-| 50    | 83.2   | 16.6  | 0.250     | 16          |
-| 75    | 131.4  | 26.3  | 0.394     | 50          |
-| 100   | 182.0  | 36.4  | 0.546     | 85          |
-| 125   | 234.1  | 46.8  | 0.702     | 122         |
-| 150   | 287.7  | 57.5  | 0.863     | 160         |
-| 175   | 342.5  | 68.50 | 1.027     | 192         |
-| 200   | 398.3  | 79.65 | 1.195     | 225         |
+| Stage | gold/s | xp/s   | essence/s | enemy level |
+| ----- | ------ | ------ | --------- | ----------- |
+| 1     | 1.0    | 0.20   | 0.003     | 1           |
+| 12    | 36.7   | 7.34   | 0.110     | 14          |
+| 25    | 106.4  | 21.28  | 0.319     | 15          |
+| 50    | 290.7  | 58.15  | 0.872     | 16          |
+| 75    | 523.4  | 104.68 | 1.570     | 50          |
+| 100   | 794.3  | 158.87 | 2.383     | 85          |
+| 125   | 1097.8 | 219.56 | 3.293     | 122         |
+| 150   | 1430.0 | 286.00 | 4.290     | 160         |
+| 175   | 1788.2 | 357.63 | 5.364     | 192         |
+| 200   | 2170.2 | 434.03 | 6.511     | 225         |
+| 250   | 2999.3 | 599.85 | 8.998     | 305         |
+| 300   | 3906.8 | 781.37 | 11.721    | 396         |
 
 Three columns, not four: **the crystal rate is not part of this**. See below.
 
@@ -130,8 +131,8 @@ repair re-derive progress from the gold rate alone — and what kept every exist
 milestone 11 re-derived the whole curve underneath them.
 
 **A power law is a decelerating geometric curve, and the deceleration is the requirement.** The
-per-stage multiplier is `1 + 1.13 / index`: about ×2 across the first stage, ×1.1 by stage ten,
-×1.01 by stage a hundred. Milestone 7 already had to bend the authored gold slope from ×1.4 a stage
+per-stage multiplier is `1 + 1.45 / index`: about ×2.7 across the first stage, ×1.15 by stage ten,
+×1.015 by stage a hundred. Milestone 7 already had to bend the authored gold slope from ×1.4 a stage
 down to ×1.1 for the same reason, and nothing constant survives this ladder's length — ×1.1
 compounded over the nine thousand stages that reach chapter 100 has three hundred digits in it.
 
@@ -497,7 +498,7 @@ The guard read "level 1000 costs more than 500 hours of top-of-ladder gold" — 
 rather than the number. **Chapter 3 was that next thing, and following the note would have been
 wrong.**
 
-Income at the top of the ladder is `base × index ** 1.13` over the **linear** stage index, so it
+Income at the top of the ladder is `base × index ** 1.45` over the **linear** stage index, so it
 rises with every chapter by design — and hours-to-the-ceiling therefore shrinks on every chapter,
 forever: 1,175 → 588 → 372 across two changes, reaching a weekend somewhere around chapter twelve
 with nothing whatsoever wrong. An assertion guaranteed to fail on all ninety-seven remaining
@@ -510,19 +511,48 @@ What is actually invariant is the **distance between the ceiling and what the co
 three assertions replaced one, and each measures one thing:
 
 - **The ceiling costs far more than the ladder itself asks for** — hours to level 1000 against hours
-  to the level the last stage is tuned for, today ×84. Income cancels out of a ratio entirely, which
-  is the point: this catches a flattened curve or content whose level demands run away, and nothing
-  else. ⚠️ It is _meant_ to fall as chapters ship and to reach 1 at chapter 100.
+  to the level the last stage is tuned for, ×84 when it was written and **×9.4** today. Income
+  cancels out of a ratio entirely, which is the point: this catches a flattened curve or content
+  whose level demands run away, and nothing else. ⚠️ It is _meant_ to fall as chapters ship and to
+  reach 1 at chapter 100 — milestone 21a lowered its floor 25 → 4 in one edit covering all four of
+  the milestone's chapters, on the grounds that a quantity supposed to fall should not be re-derived
+  once per chapter.
 - **Rungs are left unspent above everything the ladder asks for.** The structural half, in the
   currency the game actually progresses in: hours inflate with income and rungs do not. A player
   finishing the shipped content must still have ascensions in front of them.
 - **The level the top of the ladder asks for costs real time, and not a week.** Between one hour and
-  twenty-four of top-of-ladder income, today 2.6. This is the half that is genuinely about income:
-  raising the reward exponent without touching the level curve fires the floor here, which is the
-  failure the absolute-hours version used to catch before a growing ladder drowned it out.
+  twenty-four of top-of-ladder income, 2.6 when it was written and **6.7** today. This is the half
+  that is genuinely about income: raising the reward exponent without touching the level curve fires
+  the floor here, which is the failure the absolute-hours version used to catch before a growing
+  ladder drowned it out.
 
-At the top of the ladder as it stands, one character from level 1 to 1000 costs about 372 hours of
-gold, and resonance means a party costs five times that.
+### ⚠️ The ceiling of that third guard fired at chapter 8, and the answer was the exponent
+
+It read **41.4 hours** — level cost grows as `L ** 2.55` while income grew as `index ** 1.13`, so the
+quantity was decaying by construction. But it carries a real design claim ("a day of income is the
+wall rather than the content"), so 21b treated the overshoot as evidence about the cadence rather
+than as a number to slide, and three alternatives were measured before the exponent moved:
+
+- **Flattening the essence curve is arithmetically insufficient.** At an essence exponent of 2.1
+  chapter 8 scrapes under, "essence is the bottleneck late" breaks at level 200, and chapters 9 and
+  10 still read 40h and 60h. Below 2.0 the binding currency becomes **xp**, which alone reads 27.8h
+  at chapter 9.
+- **Scaling `baseRates` again buys about one chapter per doubling**, because the divergence is
+  between two exponents and no constant factor touches it.
+- ⚠️ **And there is no level at which chapter 8 satisfies both the margin rule and the guard.** 24
+  hours lands at level ~330 and `mythic` caps at 340, so the chapter would have had to close _below_
+  the cap of the rung it asks for — the walkover 21a measured.
+
+So `exponent` went **1.13 → 1.45**, and the derivation is that the relation the number was
+calibrated against had quietly inverted: 1.13 was set when enemy level was very nearly _linear_ in
+the stage index, and 21a's corrected margins made it superlinear (level ~`index ** 1.5`), so income
+was proportional to `level ** 0.80` where the calibration set it `level ** 1.12`. At 1.45 it reads
+`level ** 1.00`. Full restoration would be 1.60 and the guard needed only 1.42; 1.45 is the
+conservative end. It makes **no content easier** — a party is capped by its ascension rung, not by
+its income — and it does not touch the ratio guard above, out of which income cancels.
+
+At the top of the ladder as it stands, one character from level 1 to 1000 costs about 27 hours of
+gold and 145 of essence, and resonance means a party costs five times that.
 
 ### Growth
 

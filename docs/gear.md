@@ -266,16 +266,49 @@ end-of-ladder drops over a hundred and fifty stages and **21.3%** over two hundr
 bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop. It went to
 **100**: 18.7% over two hundred stages, 12.9% over a hundred and fifty.
 
-Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — and it is
-**125** now, which restores 18.7% over the ladder that actually ships. Same move, longer ladder.
+Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — taking it to
+125, and 21b's fired it at three hundred — **23.4%** — taking it to **150**. Both restore 18.7% over
+the ladder that actually ships. Same move, longer ladder, three times now.
 
-⚠️ **Two re-derivations is enough to say the shape rather than the number is what is wrong.** A tilt
-linear in the stage index has no ceiling, so the top grade's share climbs without bound and no
-constant is right for more than one chapter: at 125 it reads 22.3%, 26.7% and 30.8% at chapters 8, 9
-and 10, which are the three chapters milestone 21 has left to ship. What this eventually wants is a
-tilt that **saturates** — a share that approaches a ceiling instead of passing through it — and the
-thing to stop doing is picking a fifth constant. It is recorded rather than fixed because milestone
-21 forbids taking `core/` scope; see [milestones](milestones.md).
+⚠️ **Three re-derivations landing on the same 18.7% is the tell that the number is being solved for
+and the shape is not.** A tilt linear in the stage index has no ceiling, so the top grade's share
+climbs without bound and no constant is right for more than one chapter: at 150 it reads 22.6% and
+26.4% at chapters 9 and 10, the two milestone 21 has left. What this eventually wants is a tilt that
+**saturates** — a share that approaches a ceiling instead of passing through it — and the thing to
+stop doing is picking another constant. It is recorded rather than fixed because milestone 21
+forbids taking the scope; see [milestones](milestones.md).
+
+⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
+bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
+200 it reads 12.9% at chapter 8 and watches nothing until chapter 10, which makes the saturating
+tilt easier to forget rather than more likely to get written. That is the opposite of the call 21a
+made on the level ceiling's ratio and on the tower:campaign floor, and the distinction is exactly
+whether the quantity is _supposed_ to fall. Those two are; this one is a bug being papered over.
+
+### ⚠️ Gear's gold cost is a constant, and the economy around it is not
+
+`gear.spec.ts`'s "roughly doubles what gold is for" measures the hours of top-of-ladder income it
+takes to kit a party of five in fully enhanced top-grade pieces. Milestone 21b found two things
+wrong with it at once.
+
+**It was retyping the ladder's length.** The comment said "derived from `STAGE_REWARDS`, so extending
+the ladder re-runs it" — and the _exponent_ came from there while the **index** was the literal
+`100`, which is how long the ladder was when it was written. So for four chapters it measured gear
+against chapter-4 income and re-ran nothing, which is exactly the failure [testing](testing.md)
+names. Correctly derived it would have fired at **chapter 7**, at 17.4 hours against a floor of 20.
+
+⚠️ **And the quantity falls forever by construction.** The top grade costs what it costs at chapter 1
+and at chapter 10 — gear's gold cost is a **constant** — while top-of-ladder income grows with every
+chapter by design. So this decays on every chapter whatever anybody authors: 2.3 hours at three
+hundred stages, about 1.5 at four hundred. Unlike the level ceiling there is **no invariant to
+restate it as**: measured against levelling instead of against income it decays _faster_, because
+level cost grows as `L ** 2.55`.
+
+**What closes it is gear costs that scale with the content**, which is a retune on the scale of a
+milestone, and milestone 21 says in as many words that a chapter finding it needs one writes it down
+rather than taking the scope. The floor is 1 so the guard still catches a gear curve authored at
+nothing, and it fires again around chapter twelve — at which point the question is whether gear costs
+have been made to scale, not what number goes there.
 
 This is the one guard milestone 18 tripped where the content genuinely had outgrown the threshold, and
 it is worth contrasting with the three it tripped that had not — see

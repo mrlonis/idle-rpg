@@ -137,33 +137,35 @@ function sweep(party: FormationData, stage: StageData): { win: number; maxTicks:
 }
 
 /**
- * The hardest authored line-up, re-levelled to the party's own level.
+ * The hardest authored line-up, as it ships.
  *
- * ## ⚠️ There is no shipped stage that can measure a signature item, and that is a content fact
+ * ## ⚠️ The gap this carried for five milestones closed in 21b, and the re-levelling went with it
  *
  * `mythic` caps at level **340**. When this probe was first written the highest shipped stage was
- * the ash chapters' boss at level **85**, so a party at the signature unlock rung was four times
- * the level of the hardest thing in the game, and every campaign fight it took was a walkover —
- * the first version of this probe measured a win-rate gain of exactly **zero on all seven
- * characters**, not because signature items do nothing but because both sides of the comparison
- * were already at 100%. The Bound Marches and the Sundered Vault each narrowed the gap without
- * closing it — 225 against 340 today, and the code below derives the top stage rather than
- * restating it.
+ * the ash chapters' boss at level **85**, so a party at the signature unlock rung was four times the
+ * level of the hardest thing in the game and every campaign fight it took was a walkover — the first
+ * version of this probe measured a win-rate gain of exactly **zero on all seven characters**, not
+ * because signature items do nothing but because both sides of the comparison were already at 100%.
+ * The Bound Marches, the Sundered Vault and the Waking Barrows were each expected to close it and
+ * none did: 160, then 225, then 305, against 340.
  *
- * That is worth stating plainly rather than working around silently: **milestone 16 unlocks at a
- * point the shipped campaign is far past being able to challenge.** It is not a bug in this system
- * — the gate is deliberately deep — but it does mean a signature item has no authored content to
- * matter in until a chapter or a tower band reaches the low three hundreds, and it means no sweep
- * over shipped stages can ever bound one.
+ * **The Sunless Weald closes it at 396.** For the first time the hardest authored stage is *above*
+ * the unlock rung's cap, so this returns the stage as `data/` wrote it and the probe measures a
+ * board the game actually ships. The `level: LEVEL` override that stood here is gone.
  *
- * Re-levelling the top encounter is the answer, and it is the same move `core/towers.ts` makes:
- * `data/` authors who stands on a floor and the level is derived. Both sides then sit on the same
- * growth curve, which is the case `simulate.spec.ts` proves is an identity — so the fight is a
- * genuine contest and what is measured is the item rather than the level difference.
+ * ⚠️ **Removing it changed none of the numbers below, and saying so plainly matters more than the
+ * change.** {@link reach} overwrites `level` on every trial it runs, so the field this used to set
+ * was dead on arrival — what it bought was a claim about the probe's *method*, not an input to it.
+ * The fourteen figures moved anyway, and for a different reason: `contested()` picks the hardest
+ * stage, the hardest stage is now `c8-s50` rather than `c6-s50`, and that is a different board under
+ * a different id seeding a different sequence. Do not read the move as evidence about the items.
+ *
+ * ⚠️ **A reach figure is only comparable within one cut of the ladder**, which is the same warning
+ * milestone 19's re-cut earned and the second time it has been collected. Re-measure the whole table
+ * or none of it.
  */
 function contested(): StageData {
-  const hardest = ladder.reduce((best, stage) => (stage.level > best.level ? stage : best));
-  return { ...hardest, level: LEVEL };
+  return ladder.reduce((best, stage) => (stage.level > best.level ? stage : best));
 }
 
 const ASCENDED = characters.filter((character) => character.tier === 'ascended');
@@ -258,16 +260,18 @@ describe('what a signature item is worth', () => {
     // What this measured at the shipped numbers, with the party at level 340 — bare reach, then
     // the gain a maxed item buys:
     //
-    //   Aurelia   422 (+31)  Corvane 421 (+31)  Thraun    406 (+15)  Vurn    410 (+18)
-    //   Aelrindel 441 (+29)  Maelis  421 (+18)  Nekros    432 (+26)  Carrow  436 (+34)
-    //   Vharok    431 (+35)  Vrakk   429 (+34)  Seraphine 433 ( +9)  Cassiel 430 (+31)
-    //   Azrathoth 448 (+33)  Nazreth 436 (+30)
+    //   Aurelia   424 (+31)  Corvane 422 (+31)  Thraun    409 (+15)  Vurn    415 (+18)
+    //   Aelrindel 437 (+33)  Maelis  421 (+18)  Nekros    433 (+24)  Carrow  435 (+34)
+    //   Vharok    430 (+35)  Vrakk   428 (+35)  Seraphine 433 ( +9)  Cassiel 429 (+29)
+    //   Azrathoth 445 (+33)  Nazreth 434 (+29)
     //
-    // ⚠️ The seven original figures moved when milestone 19 re-cut the chapters, without a single
-    // item or stat block changing: `contested()` seeds off `stage.id`, the hardest stage was
-    // renamed `c4-s50` → `c6-s50`, and every trial in this file therefore drew a different
-    // sequence. Nothing was wrong before and nothing is wrong now — but it is worth knowing that
-    // these numbers are only comparable within one cut of the ladder.
+    // ⚠️ **These have moved twice now without a single item or stat block changing, and both times
+    // for the same reason.** `contested()` picks the hardest stage and seeds off its `stage.id`, so
+    // every trial in this file draws a different sequence when the hardest stage changes identity:
+    // milestone 19's re-cut renamed it `c4-s50` → `c6-s50`, and milestone 21b's chapter 8 replaced
+    // it with `c8-s50` outright — a different board as well as a different seed. Nothing was wrong
+    // before and nothing is wrong now, but **these numbers are only comparable within one cut of the
+    // ladder**: re-measure the whole table or none of it.
     //
     // ⚠️ **A +3% to +8% gain in reach reads modest and is not, and the difference is the step
     // function.** Measured instead as win rate at a *fixed* contested level, the same items take
