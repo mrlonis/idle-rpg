@@ -3863,24 +3863,63 @@ satisfies both.
 - **Nothing on the tab bar.** The Descent is a card on Home, which is the battle hub;
   [navigation](navigation.md) is unchanged.
 
-## 23. Puzzle maps
+## 23. Puzzle maps — Expeditions — **COMPLETE**
 
-**The only content shape on this roadmap that is not a ladder.** Campaign, towers and the
-roguelite are all "fight upward against bigger numbers". Puzzle maps are content you _solve_: a
-small authored map with a restricted roster, one-way gates, teleporters, buffs found along the
-way, and a correct route through it. Peaks of Time is the reference.
+**The only content shape on this roadmap that is not a ladder, built.** Campaign, towers and the
+roguelite are all "fight upward against bigger numbers". This entry promised content you _solve_,
+with Peaks of Time as the reference, and named its whole risk up front: every map is hand-designed
+with no curve to generate from, no sweep to validate it, and no way to know it is solvable except
+by solving it. What shipped is **Expeditions** — three hand-authored maps, solved once each — and
+the risk got a mechanical answer rather than a hopeful one. [expeditions](expeditions.md) is the
+reference; what belongs here is what was decided and what was measured.
 
-It is fully offline and it needs no system this project lacks — the battle simulator, the
-formation, and the status vocabulary already do everything a map needs. What it needs is
-**authoring**, and that is the whole of the argument against it: every map is hand-designed with
-no curve to generate from, no sweep to validate it, and no way to know it is solvable except by
-solving it. Milestone 11 records the point at which hand-authoring stages stops scaling; this is
-that problem without the escape hatch of generation.
+**The puzzle moved from exploration to routing, and the entry's own list was trimmed for it.** The
+sketch said fog, one-way gates, teleporters, a restricted roster. What shipped is a fully visible
+grid, a **stamina budget** that cannot pay for every camp, chests worth detours, and an exit
+sealed behind a boss — because a routing puzzle is honest when the player can see the whole
+board, and a plain-component app can draw a grid of buttons without a line of canvas. The
+trimmed parts are not rejected; they are per-map authoring tools a later map may pick up, each
+against the fog caveat recorded in `docs/expeditions.md`. The restricted roster was replaced
+outright: no lock at all, and the card offer adapts to the crew instead (the Descent's dead-card
+lesson, applied from the other side).
 
-So it is last, and it is honestly the one item here a solo developer might decide not to want.
-It is written down because it is the thing that makes the genre's best games feel like more than
-a number going up — and skipping it should be a decision made on the cost, not a gap nobody
-noticed.
+**The mode reuses the Descent wholesale, and the novelty budget was spent on the map.** Attrition,
+health-as-fractions, the card families, the rank ladder, the leech clamp, the anchor-offset
+difficulty — all shared, most by reference (`cardOffer` became the one draw both modes call).
+Most camp boards are lifted Descent boards: they are measured content, and what this milestone
+had to author fresh was geometry and budgets. Three maps ship — the Ford teaches, the Causeway
+asks the real question, the Spine is the commitment — opening sequentially, gated at chapter 3
+with the Descent for the Descent's own measured reason.
+
+**Everything pays once, ever, and that one sentence is the entire economy review.** Camps, chests
+and completions are first-ever payouts recorded in a per-map ledger; the whole pool (~10,650
+crystals, ~210 emblems) is bounded by `expedition.spec.ts`. A finite pool is the campaign's
+first-clear shape, so no rate guard fired and none was needed — and free restarts fall out of the
+same fact: nothing pays twice, nothing is lost. Defeats write nothing; there are no lives.
+
+**Solvability is a Dijkstra run on every test pass.** `cheapestStaminaTo` prices every route;
+the spec holds a within-budget route with slack, a budget that refuses the whole map, every chest
+affordable, and an exit that stays sealed until the boss falls. The "no way to know it is
+solvable" problem is now a failing test rather than a playtest.
+
+**What the sweep caught, both times by measurement**: the Spine's first draft was a wall (0.00
+finish at two depths) and the fix was **weight, not level** — four guardian-weight boards in a
+row were rebuilt to a one-to-three-anchor ramp after offset changes barely moved the reading; and
+no route may field two ascended-anchor fights, which the draft's Summit Toll and boss both
+carried. Shipped: 1.00 finish everywhere for the first two maps, 0.50 at the unlock for the Spine
+— the Descent's own figure at that depth — rising to 1.00, zero timeouts, and the two permanent
+controls (a +18-level setting measures harder; cards measure worth taking) alive in
+`expedition.balance.ts`.
+
+**Two save fields, and the fifth extension of the v0 baseline.** The fourth extension called
+itself the last; [saves](saves.md) records why that claim was about the roadmap rather than the
+rule, and what actually closes the door. **No quest and no achievement track**: the derived
+completion count stops at three, which fails the "can the player always make it move today" test
+the moment the mode is finished — the same reasoning that placed the Descent's unlock now
+placing a mode's ledgers.
+
+**Nothing on the tab bar.** Expeditions is a card on Home beside the Descent — the battle hub
+doing exactly what it was renamed for.
 
 ## Unnumbered: presentation, and the onboarding gap
 

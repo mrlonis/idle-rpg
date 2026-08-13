@@ -13,6 +13,10 @@ import {
   type DescentFamilyData,
   type DescentRulesData,
   type EmblemDropData,
+  type ExpeditionCampData,
+  type ExpeditionMapData,
+  type ExpeditionRulesData,
+  expeditionStageId,
   type FactionData,
   type FactionLookup,
   type GachaRulesData,
@@ -66,6 +70,8 @@ import {
   ELITE_UPGRADE_CHANCE,
   EMBLEM_DROPS,
   EMBLEM_RATE,
+  EXPEDITION_MAPS,
+  EXPEDITION_RULES,
   FACTIONS,
   GEAR_RULES,
   GROWTH,
@@ -414,6 +420,37 @@ export const DESCENT_POOL: readonly DescentEncounterData[] = DESCENT_BOARDS;
  */
 export const DESCENT_BOARD_BY_STAGE: ReadonlyMap<string, DescentEncounterData> = new Map(
   DESCENT_POOL.map((board) => [board.id, board]),
+);
+
+/**
+ * How Expeditions are shaped, and the three maps they ship.
+ *
+ * The typed locals are what turn a malformed grid, a camp naming an enemy nothing ships, or a
+ * chest naming a currency nothing reads into a compile error — the same job {@link DESCENT} and
+ * {@link DESCENT_POOL} do for the daily mode.
+ */
+export const EXPEDITION: ExpeditionRulesData = EXPEDITION_RULES;
+export const EXPEDITION_LIST: readonly ExpeditionMapData[] = EXPEDITION_MAPS;
+
+/** Each shipped map by its id, for the screens keyed on a `:mapId` route parameter. */
+export const EXPEDITION_MAP_BY_ID: ReadonlyMap<string, ExpeditionMapData> = new Map(
+  EXPEDITION_LIST.map((map) => [map.id, map]),
+);
+
+/**
+ * Every Expedition camp, keyed by the stage id its fights carry.
+ *
+ * What `BattleService.settle` looks a finished fight up in — the same job
+ * {@link DESCENT_BOARD_BY_STAGE} does, and read off the result for the same reason: the animation
+ * can end a minute after the fight was chosen.
+ */
+export const EXPEDITION_CAMP_BY_STAGE: ReadonlyMap<
+  string,
+  { readonly map: ExpeditionMapData; readonly camp: ExpeditionCampData }
+> = new Map(
+  EXPEDITION_LIST.flatMap((map) =>
+    map.camps.map((camp) => [expeditionStageId(map.id, camp.cell), { map, camp }] as const),
+  ),
 );
 
 /** When a signature item unlocks, how far it goes, and what a level costs. */

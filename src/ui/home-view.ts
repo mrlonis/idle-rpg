@@ -11,6 +11,7 @@ import {
 import { BattleService } from './battle.service';
 import { factionList, factionName } from './content';
 import { DescentService } from './descent.service';
+import { ExpeditionService } from './expedition.service';
 import {
   CURRENCY_LABELS,
   formatAmounts,
@@ -114,6 +115,7 @@ export class HomeView {
   private readonly formations = inject(FormationService);
   private readonly towerRuns = inject(TowerService);
   private readonly descentRuns = inject(DescentService);
+  private readonly expeditions = inject(ExpeditionService);
 
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
@@ -227,6 +229,18 @@ export class HomeView {
       case 'ended':
         return 'Out of attempts · opens again at 04:00 UTC';
     }
+  });
+
+  /** The Expeditions card's one line: what the mode is waiting on, or where the attempt stands. */
+  protected readonly expeditionDetail = computed(() => {
+    const needed = this.expeditions.chaptersNeeded();
+    if (!this.expeditions.isUnlocked()) {
+      return `Finish ${needed === 1 ? '1 more chapter' : `${needed} more chapters`} to open the first map`;
+    }
+    const run = this.expeditions.run();
+    const underway = run === null ? null : (this.expeditions.mapById(run.mapId)?.name ?? run.mapId);
+    const done = `${this.expeditions.completed()} of ${this.expeditions.maps.length} maps completed`;
+    return underway === null ? done : `${done} · attempt underway on ${underway}`;
   });
 
   /**

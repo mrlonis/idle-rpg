@@ -180,6 +180,38 @@ describe('v0 fixture contents', () => {
     });
   });
 
+  it('decodes an Expedition attempt in flight, aimed at a map this build does not ship', () => {
+    // Both distinctions at once: that the field is read rather than defaulted (a mid-flight party,
+    // a fraction of health, a card and two camps are all values no default produces), and that a
+    // run naming an unknown map survives the load — resolving the id against shipped content is a
+    // screen's business, not the decoder's.
+    const { state } = loadSave(v0, OPTIONS);
+
+    expect(state.expedition).toEqual({
+      mapId: 'expedition-retired',
+      attempt: 3,
+      party: { front: ['alpha'], back: ['beta'] },
+      health: { alpha: 0.55 },
+      energy: { alpha: 40 },
+      cards: ['whetstone:1'],
+      camps: ['a', 'd'],
+    });
+  });
+
+  it('keeps the Expedition ledger for a map this build no longer ships', () => {
+    // The same posture as the retired tower and the retired achievement track, and with the same
+    // stakes one shape down: a first-ever ledger dropped on load is every camp, chest and
+    // completion on that map paying a second time when it comes back.
+    const { state } = loadSave(v0, OPTIONS);
+
+    expect(state.expeditions['expedition-retired']).toEqual({
+      camps: ['a', 'd', 'f'],
+      chests: ['2'],
+      completed: false,
+      attempts: 3,
+    });
+  });
+
   it('keeps every crew, not just the campaign’s', () => {
     // ⚠️ Why the fixture carries a second crew at all. A book holding only `campaign` would decode
     // identically against an implementation that read that one key and dropped the rest — which is

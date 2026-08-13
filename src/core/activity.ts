@@ -31,7 +31,7 @@ import { CAMPAIGN_FORMATION, formationIn, type FormationBook, type PartyFormatio
  */
 
 /** What kind of content an activity points at. */
-export type ActivityKind = 'campaign' | 'tower' | 'descent';
+export type ActivityKind = 'campaign' | 'tower' | 'descent' | 'expedition';
 
 /**
  * The factions an activity admits **right now**, or `null` for no lock at all.

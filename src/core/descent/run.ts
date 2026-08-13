@@ -189,6 +189,19 @@ function shuffled<T>(items: readonly T[], seed: number, label: string): readonly
 }
 
 /**
+ * The slice of a mode's rules {@link descentLump} reads. Expeditions shares the function — and the
+ * idiom it encodes — since milestone 23, which is why the parameter is this rather than the whole
+ * of {@link DescentRulesData}.
+ */
+export interface LumpRules {
+  readonly lumpMultipliers: {
+    readonly gold: number;
+    readonly xp: number;
+    readonly essence: number;
+  };
+}
+
+/**
  * What a cleared fight's lump is, given the campaign lump for the level it was fought at.
  *
  * The multipliers live here rather than at the call site so that "a Descent fight pays four times
@@ -196,7 +209,7 @@ function shuffled<T>(items: readonly T[], seed: number, label: string): readonly
  * could forget. Absent currencies stay absent — a campaign lump that rounded essence away has none
  * to multiply.
  */
-export function descentLump(rules: DescentRulesData, base: AuthoredCurrencies): AuthoredCurrencies {
+export function descentLump(rules: LumpRules, base: AuthoredCurrencies): AuthoredCurrencies {
   const scale = (raw: number | string | undefined, factor: number): number | undefined => {
     if (raw === undefined) {
       return undefined;
@@ -373,6 +386,37 @@ export interface DescentStanding {
 }
 
 /**
+ * What the allies carry out of a fight: who is still up, and their health and energy.
+ *
+ * The attrition fold both carry-over modes share — the Descent authored it and Expeditions banks
+ * its wins through the identical arithmetic, which is why it is one function rather than two
+ * copies that could disagree on a clamp.
+ *
+ * Health is a fraction rather than a quantity, clamped into `(0, 1]`: a maximum can move between
+ * two fights of one run — a level, a rung, a resonance floor, a gear swap — and only a share
+ * survives that without reading as a wound nobody administered.
+ */
+export function carriedStandings(final: readonly DescentStanding[]): {
+  readonly standing: ReadonlySet<string>;
+  readonly health: Record<string, number>;
+  readonly energy: Record<string, number>;
+} {
+  const health: Record<string, number> = {};
+  const energy: Record<string, number> = {};
+  const standing = new Set<string>();
+  for (const fighter of final) {
+    if (fighter.side !== 'ally' || fighter.hp.lte(0) || fighter.maxHp.lte(0)) {
+      continue;
+    }
+    standing.add(fighter.defId);
+    const share = fighter.hp.div(fighter.maxHp).toNumber();
+    health[fighter.defId] = Number.isFinite(share) ? Math.min(Math.max(share, 0), 1) : 1;
+    energy[fighter.defId] = Number.isFinite(fighter.energy) ? Math.max(fighter.energy, 0) : 0;
+  }
+  return { standing, health, energy };
+}
+
+/**
  * The outcome and payout `applyDescentResult` needs, which is all it reads off a `BattleResult`.
  *
  * Structural rather than taking `BattleResult` itself, so a spec or a balance sweep can fold an
@@ -434,21 +478,7 @@ export function applyDescentResult(
     return { ...advanced, descent: { ...run, lives: Math.max(wholeCount(run.lives) - 1, 0) } };
   }
 
-  const health: Record<string, number> = {};
-  const energy: Record<string, number> = {};
-  const standing = new Set<string>();
-  for (const fighter of result.final) {
-    if (fighter.side !== 'ally' || fighter.hp.lte(0) || fighter.maxHp.lte(0)) {
-      continue;
-    }
-    standing.add(fighter.defId);
-    // A fraction rather than a quantity, and clamped into `(0, 1]`: a maximum can move between two
-    // fights of one run — a level, a rung, a resonance floor, a gear swap — and only a share
-    // survives that without reading as a wound nobody administered.
-    const share = fighter.hp.div(fighter.maxHp).toNumber();
-    health[fighter.defId] = Number.isFinite(share) ? Math.min(Math.max(share, 0), 1) : 1;
-    energy[fighter.defId] = Number.isFinite(fighter.energy) ? Math.max(fighter.energy, 0) : 0;
-  }
+  const { standing, health, energy } = carriedStandings(result.final);
 
   const cleared = wholeCount(run.cleared) + 1;
   const finished = cleared >= descentFights(rules);

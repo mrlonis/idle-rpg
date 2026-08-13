@@ -91,4 +91,14 @@ export const ACTIVITIES = [
     name: 'The Descent',
     kind: 'descent',
   },
+  {
+    // ⚠️ **No `faction` and, unlike the Descent, genuinely no lock**: `lockOf` turns the absent
+    // field into "anybody may stand", and nothing dynamic replaces it. The mode's adaptation runs
+    // the other way — the card offer filters itself to the factions the crew actually fields,
+    // because a faction family for a faction nobody brought is the dead card the Descent's daily
+    // lock already taught us to filter.
+    id: 'expedition',
+    name: 'Expeditions',
+    kind: 'expedition',
+  },
 ] as const;

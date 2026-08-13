@@ -2,6 +2,7 @@ import { type AchievementLedger, emptyAchievements } from './achievements';
 import { type Dispatch, emptyDispatches } from './bounties';
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
 import { type DescentRun } from './descent/types';
+import { type ExpeditionRecord, type ExpeditionRun } from './expedition/types';
 import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
 import { emptyQuestWindows, type QuestWindows } from './quests';
@@ -364,6 +365,26 @@ export interface GameState extends LadderPosition {
    * forty-one" is the only long-term shape the mode has.
    */
   readonly descentRuns: number;
+  /**
+   * The Expedition attempt in flight, or `null`.
+   *
+   * One slot across all maps — an attempt is a thing in progress, and two maps half-solved at once
+   * is a state no screen could draw honestly. Starting a new attempt replaces the old one, which
+   * costs nothing: every reward an attempt earns is banked into {@link expeditions} the moment it
+   * is earned. The crew is copied in for the Descent's reason. See `core/expedition/types.ts`.
+   */
+  readonly expedition: ExpeditionRun | null;
+  /**
+   * What each Expedition map remembers forever, keyed by map id.
+   *
+   * ⚠️ **The first-ever ledger, and the whole of what makes the mode economy-safe.** A camp, chest
+   * or completion in here has paid and will never pay again, so the mode's entire crystal and
+   * emblem pool is finite by construction — the same shape as the campaign's first-clear crystals,
+   * and the reason free restarts need no rate guard. An entry for a map this build does not ship is
+   * kept on load, exactly as an unknown formation key is: dropping it would pay a returning
+   * player's rewards twice.
+   */
+  readonly expeditions: Readonly<Record<string, ExpeditionRecord>>;
 }
 
 export interface NewGameOptions {
@@ -406,6 +427,8 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     // seeding one would mean a fresh save arriving with its first Descent already half-spent.
     descent: null,
     descentRuns: 0,
+    expedition: null,
+    expeditions: {},
   };
 }
 

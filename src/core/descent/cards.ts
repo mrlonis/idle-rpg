@@ -5,11 +5,31 @@ import {
   type DescentBonus,
   type DescentCard,
   type DescentFamilyData,
+  type DescentRankData,
   type DescentRulesData,
   type DescentStat,
   DESCENT_STATS,
   NO_DESCENT_BONUS,
 } from './types';
+
+/**
+ * The slice of a mode's rules the card system reads.
+ *
+ * ⚠️ **Two modes share these functions since milestone 23** — the Descent authored them and
+ * Expeditions reuses them whole: the same families, the same rank ladder shape, the same
+ * "a repeat comes back only higher" rule and the same leech ceiling. This interface is what makes
+ * that sharing a type rather than a coincidence: `DescentRulesData` and `ExpeditionRulesData` both
+ * satisfy it structurally, and a function taking it cannot quietly grow a dependency on something
+ * only one mode has (a day, a floor count, a stamina budget).
+ */
+export interface CardLadderRules {
+  /** Cards offered at each choice. */
+  readonly offer: number;
+  /** The rank ladder, lowest first. */
+  readonly ranks: readonly DescentRankData[];
+  /** Ceiling on the life leech one run may accumulate. A termination guard — see the modes' rules. */
+  readonly maxLifeLeech: number;
+}
 
 /**
  * What a run's cards are worth, and how the next three are drawn.
@@ -29,7 +49,7 @@ import {
  */
 
 /** How many rungs the ladder has. Never below one: an empty ladder would make every family inert. */
-function rankCount(rules: DescentRulesData): number {
+function rankCount(rules: CardLadderRules): number {
   return Math.max(rules.ranks.length, 1);
 }
 
@@ -47,7 +67,7 @@ export function descentCardId(familyId: string, rank: number): string {
  */
 export function descentCard(
   families: readonly DescentFamilyData[],
-  rules: DescentRulesData,
+  rules: CardLadderRules,
   id: string,
 ): DescentCard | undefined {
   const split = id.lastIndexOf(':');
@@ -69,7 +89,7 @@ export function descentCard(
 /** Every card a run holds, in the order it took them, skipping anything this build has dropped. */
 export function descentCards(
   families: readonly DescentFamilyData[],
-  rules: DescentRulesData,
+  rules: CardLadderRules,
   ids: readonly string[],
 ): readonly DescentCard[] {
   const cards: DescentCard[] = [];
@@ -112,7 +132,7 @@ export function familyFloor(cards: readonly DescentCard[], familyId: string): nu
  * total is known rather than per card, because it is the total that has to be bounded.
  */
 export function descentBonus(
-  rules: DescentRulesData,
+  rules: CardLadderRules,
   cards: readonly DescentCard[],
   faction: string | undefined,
 ): DescentBonus {
@@ -207,7 +227,7 @@ export function choiceProgress(choices: number, choice: number): number {
 }
 
 /** What one rank is worth in the draw at `progress` through the run. Never below zero. */
-export function rankWeight(rules: DescentRulesData, rank: number, progress: number): number {
+export function rankWeight(rules: CardLadderRules, rank: number, progress: number): number {
   const rung = rules.ranks[rank];
   if (rung === undefined) {
     return 0;
@@ -246,6 +266,37 @@ export function descentOffer(
   choice: number,
   taken: readonly DescentCard[],
 ): readonly DescentCard[] {
+  return cardOffer(
+    rules,
+    families,
+    lock,
+    seed,
+    `descent:cards:${day}:${choice}`,
+    choiceProgress(choices, choice),
+    taken,
+  );
+}
+
+/**
+ * The shared draw underneath {@link descentOffer}, with the two mode-shaped inputs made explicit.
+ *
+ * - **`label`** names the sub-stream, and it is the whole of a mode's rerolling story: the Descent
+ *   keys on the day and the choice, Expeditions on the map, the attempt and the choice. Whatever
+ *   the label, the offer is a pure function of it plus `taken` — so force-quitting hands back the
+ *   identical cards, because there was never a draw stored to re-take.
+ * - **`progress`** is how far through the run the tilt has come, in `[0, 1]`. The Descent's is its
+ *   fixed choice count; Expeditions' is stamina spent over the map's budget. Both saturate at 1 by
+ *   construction, which is the property the two-ends authoring exists for.
+ */
+export function cardOffer(
+  rules: CardLadderRules,
+  families: readonly DescentFamilyData[],
+  lock: readonly string[],
+  seed: number,
+  label: string,
+  progress: number,
+  taken: readonly DescentCard[],
+): readonly DescentCard[] {
   const size = Number.isFinite(rules.offer) ? Math.max(Math.floor(rules.offer), 0) : 0;
   if (size === 0 || families.length === 0) {
     return [];
@@ -262,8 +313,8 @@ export function descentOffer(
         entry.family.rungs.length > 0,
     );
 
-  const draw = derivedStream(seed, `descent:cards:${day}:${choice}`);
-  const progress = choiceProgress(choices, choice);
+  const draw = derivedStream(seed, label);
+  const at = Number.isFinite(progress) ? Math.min(Math.max(progress, 0), 1) : 0;
   const offer: DescentCard[] = [];
 
   while (offer.length < size && available.length > 0) {
@@ -274,7 +325,7 @@ export function descentOffer(
     const top = Math.min(ladder, entry.family.rungs.length) - 1;
     offer.push({
       family: entry.family,
-      rank: weightedRank(rules, entry.floor, top, progress, draw()),
+      rank: weightedRank(rules, entry.floor, top, at, draw()),
       id: '',
     });
   }
@@ -309,7 +360,7 @@ function canPay(family: DescentFamilyData, lock: readonly string[]): boolean {
  * to nothing: an offer slot that resolved to no card would silently shrink the choice.
  */
 function weightedRank(
-  rules: DescentRulesData,
+  rules: CardLadderRules,
   floor: number,
   top: number,
   progress: number,

@@ -15,6 +15,7 @@ import {
 } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
 import { DescentService } from './descent.service';
+import { ExpeditionService } from './expedition.service';
 import { CURRENCY_LABELS } from './format-numeric';
 import { type CrewView, FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
@@ -195,6 +196,39 @@ class FakeDescent {
   readonly fights = 9;
 }
 
+/**
+ * The one-line detail of the named battle-hub card.
+ *
+ * Two cards share the `.descent__*` classes — the shape is the same on purpose — so a bare
+ * `querySelector('.descent__detail')` only ever reads the first. The heading is what tells them
+ * apart, exactly as it does for a screen reader.
+ */
+function cardDetail(el: HTMLElement, name: string): string {
+  for (const section of el.querySelectorAll('section')) {
+    if (section.querySelector('.section__heading')?.textContent?.trim() === name) {
+      return section.querySelector('.descent__detail')?.textContent ?? '';
+    }
+  }
+  return '';
+}
+
+/** Only what the Expeditions card reads, for `FakeDescent`'s reason. */
+class FakeExpeditions {
+  readonly isUnlocked = signal(true);
+  readonly chaptersNeeded = signal(0);
+  readonly run = signal<{ mapId: string } | null>(null);
+  readonly completed = signal(0);
+  readonly maps = [
+    { id: 'map-1', name: 'The First Map' },
+    { id: 'map-2', name: 'The Second Map' },
+    { id: 'map-3', name: 'The Third Map' },
+  ];
+
+  mapById(mapId: string): { id: string; name: string } | null {
+    return this.maps.find((map) => map.id === mapId) ?? null;
+  }
+}
+
 async function render(
   configure?: (
     game: FakeGameLoop,
@@ -202,6 +236,7 @@ async function render(
     formations: FakeFormations,
     towers: FakeTowers,
     descent: FakeDescent,
+    expeditions: FakeExpeditions,
   ) => void,
 ) {
   const game = new FakeGameLoop();
@@ -209,7 +244,8 @@ async function render(
   const formations = new FakeFormations();
   const towers = new FakeTowers();
   const descent = new FakeDescent();
-  configure?.(game, battles, formations, towers, descent);
+  const expeditions = new FakeExpeditions();
+  configure?.(game, battles, formations, towers, descent, expeditions);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -222,6 +258,7 @@ async function render(
       { provide: FormationService, useValue: formations },
       { provide: TowerService, useValue: towers },
       { provide: DescentService, useValue: descent },
+      { provide: ExpeditionService, useValue: expeditions },
     ],
   }).compileComponents();
 
@@ -236,6 +273,7 @@ async function render(
     formations,
     towers,
     descent,
+    expeditions,
     fixture,
     el: fixture.nativeElement as HTMLElement,
   };
@@ -666,16 +704,19 @@ describe('HomeView', () => {
       expect(el.querySelector('#campaign-label')?.textContent?.trim()).toBe('Campaign');
       expect(el.querySelector('.descent')?.getAttribute('aria-labelledby')).toBe('descent-label');
       expect(el.querySelector('#descent-label')?.textContent?.trim()).toBe('The Descent');
+      expect(el.querySelector('#expeditions-label')?.textContent?.trim()).toBe('Expeditions');
       expect(el.querySelector('.towers')?.getAttribute('aria-labelledby')).toBe('towers-label');
       expect(el.querySelector('#towers-label')?.textContent?.trim()).toBe('Towers');
       // The campaign comes first: it is the spine of the game, and everything below it is optional
       // content gated behind it. The Descent sits between the campaign and the towers because it is
       // the one of the two that resets daily — a player opening this screen once a day should meet
-      // it before seven ladders that will still be there next week.
+      // it before seven ladders that will still be there next week. Expeditions follow it: one-time
+      // content with no reset belongs after the daily and before the seven ladders.
       expect([...el.querySelectorAll('h2')].map((node) => node.textContent?.trim())).toEqual([
         'Currencies',
         'Campaign',
         'The Descent',
+        'Expeditions',
         'Towers',
       ]);
     });
@@ -698,6 +739,30 @@ describe('HomeView', () => {
         descent.run.set({ cleared: 3 });
       });
       expect(running.el.querySelector('.descent__detail')?.textContent).toContain('Fight 4 of 9');
+    });
+
+    it('names the Expeditions card by its state, for the same reason', async () => {
+      const locked = await render(
+        (_game, _battles, _formations, _towers, _descent, expeditions) => {
+          expeditions.isUnlocked.set(false);
+          expeditions.chaptersNeeded.set(2);
+        },
+      );
+      expect(cardDetail(locked.el, 'Expeditions')).toContain('2 more chapters');
+
+      const open = await render((_game, _battles, _formations, _towers, _descent, expeditions) => {
+        expeditions.completed.set(1);
+      });
+      expect(cardDetail(open.el, 'Expeditions')).toContain('1 of 3 maps completed');
+
+      const underway = await render(
+        (_game, _battles, _formations, _towers, _descent, expeditions) => {
+          expeditions.run.set({ mapId: 'map-2' });
+        },
+      );
+      expect(cardDetail(underway.el, 'Expeditions')).toContain(
+        'attempt underway on The Second Map',
+      );
     });
 
     it('keeps the hint inside the campaign section, next to the control it points at', async () => {

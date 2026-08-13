@@ -124,6 +124,19 @@
 </section>
 
 <!--
+  Expeditions. The same shape as the Descent's card and for the same reason — one card, its own
+  heading, every state a link: the index behind it names the three maps and what each is waiting
+  on, so even the locked state has a screen worth reading.
+-->
+<section class="descent" aria-labelledby="expeditions-label">
+  <h2 id="expeditions-label" class="section__heading">Expeditions</h2>
+  <a class="descent__card" routerLink="/expeditions">
+    <span class="descent__name">Expeditions</span>
+    <span class="descent__detail">{{ expeditionDetail() }}</span>
+  </a>
+</section>
+
+<!--
   One row per tower. A tower is optional content gated behind roster depth, so all three of its
   states have to read as a goal rather than as a fault:
 

@@ -147,12 +147,23 @@ save written before the mode shipped is not _damaged_ for lacking a run, so `par
 the home screen of every pre-existing save would have been the notice claiming something went wrong
 when nothing did.
 
-⚠️ **This is the last re-base the licence can carry, and the reason is the audience rather than the
-fields.** Milestone 22 is the last numbered system on the roadmap before presentation and onboarding,
-so the next thing that changes this shape is very likely to be doing it after a build has reached
-somebody. **A build that reaches a player makes the chain permanent and the next version 1 forever.**
+⚠️ **The fourth called itself the last the licence could carry, and the fifth is the correction
+worth keeping.** The claim reasoned from milestone 22 being the roadmap's last numbered system
+before presentation; [milestone 23](milestones.md#23-puzzle-maps--expeditions--complete) was then
+built — still before any build reached a player — and added two fields on the identical pattern:
 
-Everything all four re-bases wrote is simply part of the baseline shape now, and the current shape is
+| Field         | What it holds                                                                    |
+| ------------- | -------------------------------------------------------------------------------- |
+| `expedition`  | The Expedition attempt in flight, or `null`. Defaults to `null` — nobody is out. |
+| `expeditions` | Map id to the first-ever ledger: camps, chests, completion, attempts.            |
+
+Both default to nothing and neither is a reported repair issue, for the fourth's reason exactly.
+The licence held because the licence is a fact about the **audience**; the "last one" claim failed
+because it was a fact about the **roadmap**, and the roadmap is softer than the rule. So the honest
+statement is the conditional alone: **a build that reaches a player makes the chain permanent and
+the next version 1 forever** — and nothing shy of that closes the door.
+
+Everything all five re-bases wrote is simply part of the baseline shape now, and the current shape is
 **v0** again.
 
 **The argument is narrow and it is the only one that licenses either re-base: no save written by any

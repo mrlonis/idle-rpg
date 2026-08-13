@@ -1093,6 +1093,58 @@ the two disagree, the code is right and both are stale.
     place the mode departs from "every battle passes through the crew editor" — a run in progress has
     to come back there between fights, and routing it through the editor would ask the player to
     re-confirm a crew that is locked for the rest of the run.
+- **[docs/expeditions.md](../docs/expeditions.md)** — the puzzle maps, added in milestone 23: three
+  hand-authored grids solved once each, a stamina budget that cannot pay for every camp, chests that
+  open when a path reaches them, and an exit sealed behind a boss. Read it before touching
+  `core/expedition/` or `data/expedition*.ts`. The Descent's attrition and cards, on one-time
+  content you **route** through rather than climb.
+  - ⚠️ **There is no avatar and no position, and that is a finding rather than a cut.** Movement is
+    free and the map fully visible, so walking was never a decision. Everything derives from which
+    camps have fallen: the reachable region grows out of the start tile, a camp beside it may be
+    fought, a chest inside it is collected, an exit inside it may be walked. The attempt stores a
+    list of cleared camps — stamina spent is their summed cost, derived so the two cannot disagree.
+  - ⚠️ **Every reward pays once, ever, and the per-map ledger is the whole economy argument.** A
+    finite pool is the campaign's first-clear shape and needs no rate guard — which is what makes
+    free restarts safe in both directions: nothing pays twice, nothing is lost. A defeat writes
+    nothing but `battleCount`; there are no lives; a repeat attempt re-fights camps that still block
+    and still cost stamina, and is paid nothing for them. `expedition.spec.ts` bounds the whole
+    crystal and emblem pool, so a fourth map is a decision made with the sum in front of it. ⚠️ **A
+    rotating or daily expedition is the shape this argument does not cover** and argues its own case
+    from zero.
+  - ⚠️ **Solvability is proven mechanically, every test pass.** The roadmap named "no way to know it
+    is solvable except by solving it" as the milestone's whole risk; `cheapestStaminaTo` is that
+    solve — a Dijkstra pricing camp tolls — and the spec holds every shipped map: a route within
+    budget with slack, a budget that refuses the whole map, every chest affordable on its own, and
+    an exit unreachable while the boss stands. ⚠️ **Camp and chest letters are save keys** — the
+    ledger stores them — so a cell keeps its letter forever once shipped.
+  - ⚠️ **Board weight binds before level does, and offsets cannot fix a weight problem.** The last
+    map's first draft ran four guardian-weight boards in a row and measured 0.00 finish at two
+    depths; offsets barely moved it, and the fix was rebuilding the mid-route boards to a
+    one-to-three-anchor ramp. No route may field two ascended-anchor fights — the draft's other
+    wall. Shipped: the first two maps finish at 1.00 at every depth, the Spine at 0.50 at the unlock
+    (the Descent's own figure there) rising to 1.00; zero timeouts anywhere. The sweep keeps the two
+    permanent controls: +18 levels must measure harder, and cards must measure worth taking.
+  - **The cards are the Descent's, shared rather than copied** — `cardOffer` is one draw,
+    `CardLadderRules` the slice it reads, and `EXPEDITION_RULES.ranks` **is** `DESCENT_RULES.ranks`,
+    asserted by reference. Two inputs differ: the rank tilt progresses on **stamina spent over the
+    budget** (saturates by construction), and ⚠️ **the offer is filtered by the attempt's own
+    party's factions** — this mode has no lock, so the Descent's dead-card leak is plugged from the
+    other side, and the filter shrinks as members fall. The draw's label carries the attempt number,
+    so a force-quit replays the identical offer while a genuine restart redraws.
+  - **A card is owed after every win, but only while a fight remains possible** — the Descent's
+    "one fewer than the fights", arrived at by rule because an attempt's fight count is the player's
+    route rather than a constant.
+  - ⚠️ **`BattleService` has a fourth payout path**, keyed off the result's stage id
+    (`expedition:<mapId>:<cell>`), separate so `clearedStages`, the position and the idle rates are
+    out of reach — and auto-battle is refused one step earlier than the Descent's reason: an
+    Expedition's next fight cannot even be _named_ without the player picking a camp. The Fight
+    control lives on the map screen (the Descent's licensed departure, inherited), and tapping a
+    camp only **inspects** it — the detail panel's control is what commits, because a stray tap must
+    never start a fight that can spend stamina.
+  - **No quest and no achievement track, on the counter test.** `expeditionsCompleted` is derived
+    and stops at three, which fails "can a player always make it move today" the moment the last map
+    falls — the spec asserts no quest reads it. An achievement would be legal but redundant beside
+    the completion bonus; that decision reopens only with the pool bound in front of it.
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](../src/core/achievements.ts) and
   [`core/quests.ts`](../src/core/quests.ts) before touching either.
@@ -1398,12 +1450,15 @@ the two disagree, the code is right and both are stale.
     version bump would have cost almost nothing. The reason not to take it was consistency with an
     empty chain, not any property of those fields. One visible cost, dev-only: a save from before it
     reports two repair issues on load, heals to zero, and is otherwise fine.
-  - ⚠️ **The fourth is the last one that can ride on the licence, and it is a fact about the audience
-    rather than about the fields.** `descent` defaults to `null` and `descentRuns` to zero — neither
-    is even a reported repair issue, because a save written before the mode shipped is not damaged for
-    lacking a run. What closes the door is that milestone 22 is the last numbered system on the
-    roadmap before presentation: **a build that reaches a player makes the chain permanent and the
-    next version 1 forever.** Weigh that before reaching for a fifth.
+  - ⚠️ **The fourth called itself the last that could ride on the licence, and the fifth is the
+    correction worth remembering.** `descent`/`descentRuns` and milestone 23's
+    `expedition`/`expeditions` all default to nothing — neither pair is even a reported repair
+    issue, because a save written before a mode shipped is not damaged for lacking it. The fourth
+    reasoned from milestone 22 being the roadmap's last numbered system; milestone 23 was then
+    built, still before any build reached a player, so the licence held and the reasoning did not.
+    **"This is the last one" is a claim about the roadmap, and the roadmap is softer than the
+    rule** — what actually closes the door is a player loading a save: **a build that reaches a
+    player makes the chain permanent and the next version 1 forever.**
   - ⚠️ **A re-base is licensed by one argument and nothing else: no save any of those versions
     wrote has ever existed outside development.** The rule it suspends is scoped rather than
     softened — _never delete or edit a migration once a build carrying it has reached a player_ —
@@ -1474,7 +1529,7 @@ Read it before starting a milestone, and specifically before:
   player has earned, it is something they arrange about the roster they already hold, so it hangs
   off the **Roster** rather than Town or the bar. **Home is the battle hub** — anything a player
   goes to _fight_ is a card there, which is where **The Descent** (`/descent`) landed in milestone
-  22 and why it cost the bar nothing;
+  22 and **Expeditions** (`/expeditions`) in milestone 23, and why neither cost the bar anything;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the

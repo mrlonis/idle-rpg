@@ -141,5 +141,29 @@
   "towers": {
     "tower-human": 36,
     "tower-retired": 12
+  },
+  "expedition": {
+    "mapId": "expedition-retired",
+    "attempt": 3,
+    "party": {
+      "front": ["alpha"],
+      "back": ["beta"]
+    },
+    "health": {
+      "alpha": 0.55
+    },
+    "energy": {
+      "alpha": 40
+    },
+    "cards": ["whetstone:1"],
+    "camps": ["a", "d"]
+  },
+  "expeditions": {
+    "expedition-retired": {
+      "camps": ["a", "d", "f"],
+      "chests": ["2"],
+      "completed": false,
+      "attempts": 3
+    }
   }
 }

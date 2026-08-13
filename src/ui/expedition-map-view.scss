@@ -1,0 +1,419 @@
+@use 'theme';
+
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.head__back {
+  color: theme.$muted;
+  text-decoration: none;
+  @include theme.focus-ring;
+}
+
+.head__title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  text-align: right;
+  @include theme.numeric;
+}
+
+.head__amount {
+  display: block;
+  font-weight: 700;
+}
+
+.head__unit {
+  display: block;
+  font-size: 0.75rem;
+  color: theme.$muted;
+}
+
+.intro,
+.hint {
+  margin: 0 0 1rem;
+  color: theme.$muted;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  background: theme.$surface-raised;
+  border: 1px solid theme.$border;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notice--done {
+  color: theme.$tier-legendary;
+}
+
+.section__heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.budget,
+.board,
+.detail,
+.party,
+.hand,
+.act {
+  margin-bottom: 1.25rem;
+}
+
+.budget__bar {
+  height: 0.625rem;
+  border-radius: 0.3125rem;
+  background: theme.$surface-raised;
+  border: 1px solid theme.$border;
+  overflow: hidden;
+}
+
+.budget__fill {
+  display: block;
+  height: 100%;
+  background: theme.$accent;
+  transition: width 150ms ease-out;
+}
+
+.budget__note {
+  margin: 0.375rem 0 0;
+  color: theme.$muted;
+  font-size: 0.75rem;
+}
+
+// The grid scrolls sideways inside its own container on a map wider than the screen, rather than
+// shrinking tiles below a usable touch target — the same rule wide content follows everywhere.
+.grid {
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.grid__row {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.tile {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  padding: 0;
+  font: inherit;
+}
+
+.tile--wall {
+  background: transparent;
+}
+
+.tile--path {
+  background: theme.$surface;
+  border-color: theme.$border;
+}
+
+.tile--reached {
+  background: theme.$surface-raised;
+}
+
+.tile--start {
+  background: theme.$accent-bg;
+  border-color: theme.$accent;
+  color: theme.$accent;
+}
+
+.tile--exit {
+  background: theme.$surface;
+  border-color: theme.$border;
+  color: theme.$muted;
+}
+
+.tile--exit-open {
+  background: theme.$accent-bg;
+  border-color: theme.$accent;
+  color: theme.$accent;
+  cursor: pointer;
+  @include theme.focus-ring;
+}
+
+.tile--chest {
+  background: theme.$surface-raised;
+  border-color: theme.$tier-legendary;
+  color: theme.$tier-legendary;
+}
+
+.tile--taken {
+  border-color: theme.$border;
+  color: theme.$muted;
+}
+
+.tile--camp {
+  background: theme.$surface-raised;
+  border-color: theme.$muted;
+  color: theme.$text;
+  cursor: pointer;
+  @include theme.focus-ring;
+}
+
+.tile--fightable {
+  border-color: theme.$accent;
+}
+
+.tile--boss {
+  border-width: 2px;
+  border-color: theme.$danger;
+  background: theme.$danger-bg;
+}
+
+.tile--cleared {
+  border-color: theme.$border;
+  background: theme.$surface;
+  color: theme.$muted;
+  cursor: default;
+}
+
+.tile--selected {
+  outline: 2px solid theme.$accent;
+  outline-offset: 1px;
+}
+
+.tile__cell {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.tile__cost {
+  position: absolute;
+  right: 0.125rem;
+  bottom: 0;
+  font-size: 0.625rem;
+  color: theme.$muted;
+  @include theme.numeric;
+}
+
+.tile__glyph {
+  font-size: 0.875rem;
+}
+
+.detail__line {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: theme.$muted;
+
+  strong {
+    color: theme.$text;
+    @include theme.numeric;
+  }
+}
+
+.party__count {
+  color: theme.$muted;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  margin-left: 0.375rem;
+}
+
+.party__link {
+  display: inline-block;
+  margin-bottom: 0.625rem;
+  color: theme.$accent;
+  text-decoration: none;
+  font-size: 0.875rem;
+  @include theme.focus-ring;
+}
+
+.party__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.party__member {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) 1fr 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.party__bar {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: theme.$surface-raised;
+  border: 1px solid theme.$border;
+  overflow: hidden;
+}
+
+.party__fill {
+  display: block;
+  height: 100%;
+  background: theme.$accent;
+}
+
+.party__health {
+  text-align: right;
+  color: theme.$muted;
+  font-size: 0.75rem;
+  @include theme.numeric;
+}
+
+.empty {
+  margin: 0 0 0.75rem;
+  color: theme.$muted;
+  font-size: 0.875rem;
+}
+
+.hand__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.hand__card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.625rem;
+  align-items: baseline;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: theme.$surface;
+  border: 1px solid theme.$border;
+  font-size: 0.8125rem;
+}
+
+.hand__name {
+  font-weight: 700;
+}
+
+.hand__effects {
+  color: theme.$muted;
+}
+
+.offer {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid theme.$border;
+  background: theme.$surface;
+  color: theme.$text;
+  font: inherit;
+  cursor: pointer;
+  @include theme.focus-ring;
+
+  &:hover {
+    border-color: theme.$accent;
+  }
+}
+
+.card__name {
+  font-weight: 700;
+}
+
+.card__rank {
+  color: theme.$tier-legendary;
+  font-size: 0.75rem;
+}
+
+.card__effects {
+  font-size: 0.8125rem;
+}
+
+.card__description {
+  color: theme.$muted;
+  font-size: 0.8125rem;
+}
+
+.act__go {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid theme.$accent;
+  background: theme.$accent-bg;
+  color: theme.$accent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 0.625rem;
+  @include theme.focus-ring;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.act__quiet {
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid theme.$border;
+  background: theme.$surface;
+  color: theme.$muted;
+  font: inherit;
+  cursor: pointer;
+  @include theme.focus-ring;
+}
+
+.act__danger {
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid theme.$danger;
+  background: theme.$danger-bg;
+  color: theme.$danger;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  @include theme.focus-ring;
+}
+
+.leave__row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}

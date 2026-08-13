@@ -432,8 +432,13 @@ function anchorFor(state: GameState | null): number {
   return CAMPAIGN_LEVELS[index - 1];
 }
 
-/** One card, resolved for display: its rank-qualified name and a line per stat. */
-function cardView(card: DescentCard): DescentCardView {
+/**
+ * One card, resolved for display: its rank-qualified name and a line per stat.
+ *
+ * Exported since milestone 23 — Expeditions offers the same cards and owes the screen the same
+ * reading of them, and two formatters for one card is how a rank prefix ends up spelled two ways.
+ */
+export function cardView(card: DescentCard): DescentCardView {
   const rank = DESCENT.ranks[card.rank];
   const rankName = rank?.name ?? '';
   const rung = card.family.rungs[card.rank] ?? {};
