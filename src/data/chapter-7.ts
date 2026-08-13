@@ -96,7 +96,7 @@ import {
  * the stage before it, which is a cliff and the shape milestone 15c warns makes six towers fail at
  * once. ⚠️ **The margin has to grow by about twenty-three levels a chapter** — +45 here, and the
  * roadmap's remaining chapters re-derived to close at ~411, ~514 and ~617 rather than 365, 445 and
- * 525. See [milestones](../../docs/milestones.md).
+ * 525. See [authoring](../../docs/authoring.md).
  *
  * So the top is **forty-five levels past the cap of the rung the chapter asks for**: `legendary-plus`
  * caps at 260, and a player who buys the ascension and levels it out still arrives at The Cairn King

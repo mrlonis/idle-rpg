@@ -172,7 +172,7 @@ describe('QuestsView', () => {
 
   it('promises that missing a day costs nothing', async () => {
     // ⚠️ Load-bearing copy, not decoration. A streak that resets is a scarcity mechanic wearing a
-    // generosity costume, and `docs/milestones.md` rules it out by name — so the screen has to say
+    // generosity costume, and `docs/rejected.md` rules it out by name — so the screen has to say
     // plainly that nothing is lost.
     const { el } = await render();
 

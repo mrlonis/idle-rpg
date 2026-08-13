@@ -40,13 +40,13 @@ The targets sit at three different depths, so a link that is correct in `AGENTS.
 
 | Authored in `AGENTS.md` | `.claude/CLAUDE.md` (depth 1) | `.windsurf/rules/guidelines.md` (depth 2) |
 | ----------------------- | ----------------------------- | ----------------------------------------- |
-| `docs/milestones.md`    | `../docs/milestones.md`       | `../../docs/milestones.md`                |
+| `docs/history.md`       | `../docs/history.md`          | `../../docs/history.md`                   |
 | `src/core/battle/x.ts`  | `../src/core/battle/x.ts`     | `../../src/core/battle/x.ts`              |
 
 Details worth knowing:
 
 - **Left alone:** external URLs (`https:`, `mailto:` — any scheme), protocol-relative hrefs (`//host/x`), bare anchors (`#section`), and root-absolute paths (`/docs/x.md`).
-- **Fragments survive:** `docs/milestones.md#status` becomes `../docs/milestones.md#status`.
+- **Fragments survive:** `docs/history.md#status` becomes `../docs/history.md#status`.
 - **Rejected:** any path that climbs out of the repository (`../outside.md`, `a/../../b`, or a percent-encoded spelling). Links are repo-relative by definition, so an escaping one is treated as broken and aborts the run — it is never resolved against the filesystem, and never silently clamped to the root.
 - **Fenced code blocks are skipped**, so a path-like string inside a directory tree or shell snippet is never rewritten. Fence matching follows CommonMark: a closing fence uses the same character, is at least as long as the opening one, and carries no info string — so neither a tilde fence, a shorter fence, nor a ` ```ts ` line can close a block early.
 - **Images and titles are handled:** `![alt](path)` keeps its bang, and `[text](path "Title")` keeps its title. Angle-bracketed hrefs (`[text](<path>)`) keep their wrapper.

@@ -338,7 +338,7 @@ export const GEAR_RULES = {
      * what is wrong.** A tilt linear in the stage index has no ceiling, so the top grade's share
      * climbs without bound and no value of this constant is ever right for more than one chapter.
      * Milestone 21 forbade taking scope for this, so it is recorded rather than fixed: what it
-     * eventually wants is a tilt that **saturates**. See [milestones](../../docs/milestones.md).
+     * eventually wants is a tilt that **saturates**. See [authoring](../../docs/authoring.md).
      *
      * ⚠️ **21b declined to write this value early — it would have bought the whole of milestone 21
      * in one edit — and the five landings are why that was right.** Had 200 been written then, the

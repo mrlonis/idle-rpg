@@ -124,6 +124,20 @@ for any class a component assumes is global.
 Dimming a card dims its text with it. `$muted` is 6.4:1 on `$surface`, and 70% of that is under the
 4.5:1 floor. Draw the row as an outline on the page background instead.
 
+The Descent shipped a cleared fight row at `opacity: 0.55`, which took the level and the payout —
+the two things a cleared row still says — under the bar along with the name. Replaced by a muted
+**name**, exactly as a locked tower row does it.
+
+### ⚠️ An `@empty` block inside a `<ul>` is a serious AXE violation
+
+`@empty` renders its content as a **sibling of the items**, and a `<ul>` may directly contain only
+`<li>`. So the obvious authoring — an empty-state message inside the list it is describing the
+absence of — puts a non-`<li>` child in a list element and fails `list`.
+
+Move the `@empty` outside the `<ul>`. ⚠️ **It sits on exactly the state a new player sees first**,
+which is the worst place for a violation to hide and the least likely to be exercised by a test
+fixture holding content.
+
 ---
 
 ## Modals: `@angular/cdk`, and only that

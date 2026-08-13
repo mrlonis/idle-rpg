@@ -35,16 +35,19 @@ Roster. Refresh and the run resumes where it left off.
 
 ---
 
-## Roadmap
+## Documentation
 
-Ordered so there is **always something playable**: each step layers onto the previous skeleton
-without changing its shape, from the tick loop and save layer through combat, the gacha and
-formations, on to offline catch-up, a combat rework and chapters of content.
+The game was built in numbered milestones, ordered so there was **always something playable**: each
+step layered onto the previous skeleton without changing its shape, from the tick loop and save
+layer through combat, the gacha and formations, on to offline catch-up, a combat rework, and four
+hundred stages of content. **Every numbered milestone is complete.**
 
-**[docs/milestones.md](docs/milestones.md)** is the single source of truth — the status of every
-milestone, what each one shipped, and the design rationale behind each decision.
+**[docs/history.md](docs/history.md)** records what shipped in what order, the decisions no system
+doc owns, and what is still open — presentation, onboarding, and how long the campaign is meant to
+be. **[docs/authoring.md](docs/authoring.md)** is the procedure for adding content: what a chapter
+or tower session owes, how the level line is found, and the traps that have actually fired.
 
-Alongside it, one reference per system: **[glossary](docs/glossary.md)** for the vocabulary (start
+Alongside them, one reference per system: **[glossary](docs/glossary.md)** for the vocabulary (start
 here if tier, rarity and faction are running together), **[attributes](docs/attributes.md)** for
 the stat block, **[combat](docs/combat.md)** for how a battle resolves,
 **[economy](docs/economy.md)** for currencies and curves, **[ascension](docs/ascension.md)** for
@@ -67,8 +70,8 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
-docs/     Roadmap, rejected, platform, testing, navigation, glossary, attributes, combat,
-          economy, ascension, gear, resonance, saves.
+docs/     History, authoring, rejected, platform, testing, navigation, glossary, attributes,
+          combat, economy, ascension, gear, resonance, saves.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.

@@ -15,7 +15,7 @@ See [attributes](attributes.md) for the stat block and [glossary](glossary.md) f
 Milestone 8a rewrote the damage and scheduling halves of this page, 8b replaced MP with energy, 8c
 gated skills behind ascension rungs, and 8d added the faction lineup bonus. The rework is done;
 what 8**e** owes it is a roster deep enough to make the lineup bonus a choice — see
-[milestones](milestones.md).
+[history](history.md).
 
 ---
 
@@ -87,7 +87,7 @@ assertions do.
 It was 1.9× until milestone 8e, and the seven mono-faction fives it authored are what spent the
 difference. The same milestone narrowed the assertion to **fights a party clears**, because adding
 those parties revealed the old version was measuring losing fights too; losing fights are bounded
-separately, at 95% of the timer. See [milestone 8e](milestones.md) for why that narrowing is the
+separately, at 95% of the timer. See [testing](testing.md) for why that narrowing is the
 assertion's own sentence rather than a moved threshold.
 
 **Milestone 14a handed some back rather than spending more.** Closing pressure ends the fights that
@@ -347,7 +347,7 @@ Three things about the rule matter to anyone reading a fight:
 - **The thresholds are absolute rarity**, read against the ladder rather than against each
   character's own starting rung. `ascended`-tier characters start at `elite`, so they arrive
   holding their second skill already — a deliberate head start, argued in
-  [milestones](milestones.md).
+  [ascension](ascension.md).
 - **The ultimate is never gated.** It is the one skill the energy bar meters, so gating it would
   produce a combatant whose bar fills and can never be spent.
 - **Which ordinary skill unlocks first is the kit's authored order**, and combat never sees it:

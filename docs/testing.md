@@ -66,7 +66,33 @@ timer headroom.
 
 ---
 
+## The two tuning targets, which have never been retuned
+
+Every rework since milestone 4 has re-swept to confirm both of these, and neither has ever moved.
+They are the ladder's anchors at each end, and anything that changes what a level or a rung is worth
+has to land between them.
+
+- **Three level-1 starters clear the opening stages and stop dead at stage 7, the healer lock.** A
+  wall about _who_ is fighting rather than how many levels they have, which is the right place for
+  the early game to end.
+- **A built party of five `common`-tier characters clears the whole ladder.** The top may demand
+  investment; it may not demand an ascended-tier pull nobody can buy.
+
+⚠️ **`BOOSTED` is a guard, not a tuning target.** The mono-faction sweep party exists to watch for a
+party surviving a fight it cannot win until the ninety seconds run out — nothing asserts it should
+beat anything, and reading it as a balance claim is how it stops watching the worst case.
+
+---
+
 ## The guards that stand where a mechanic used to
+
+⚠️ **A milestone that removes a termination argument and replaces it two milestones later is not a
+smaller milestone, it is a broken one.** The combat rework was split at the boundary between a
+mechanic and its content, and MP survived the stat-block half untouched **specifically** because
+deleting it before energy existed would have left every healer unmetered. Shipping the halves
+together would have meant a red ladder sweep with three possible causes; shipping them apart meant
+each sweep named its own culprit — which is exactly what happened, where the failure turned out to
+be one enemy.
 
 ### The zero-timeout guard
 
@@ -221,7 +247,7 @@ for knowing which direction to guess in.
 **How to tell the two apart: ask what the assertion would have to become.** Widening this one means
 saying the ladder's top may be a walkover, which is not a claim anybody would write down on purpose.
 When the honest restatement of a guard is something you would refuse to author, the content is what
-moved. See [milestones](milestones.md) for the corrected margins.
+moved. See [authoring](authoring.md) for the corrected margins.
 
 ---
 
@@ -253,6 +279,21 @@ fires when one side is retuned without the other.
 Conformance in `data/` is asserted through **typed locals** (`const chapters: readonly ChapterData[]
 = CHAPTERS`) rather than annotations on the data itself, because `data/` may not import `core/`.
 That assignment is what turns a malformed stat block into a compile error.
+
+⚠️ **A typed local does not catch a mistyped _optional_ stat**, and three dead keys shipped that
+way. An object already frozen with `as const` is not a fresh literal, so TypeScript's excess-property
+check never runs on it — the key is silently ignored in both directions. The audit is one script over
+`StatBlockData`'s keys, and it belongs in every session that authors stat blocks; see
+[authoring](authoring.md#the-prose-check).
+
+### ⚠️ A comment can describe behaviour the code never had
+
+The bounty board's `duration` documented that a mission under a minute out reads "under a minute",
+then tested `Math.ceil(ms / 60_000) < 1` — false for every positive duration. **The comment
+described the intended behaviour correctly and the code never had it**, with nothing failing to say
+so. The rule that generalises: ⚠️ **a rounded quantity cannot answer a question about the quantity
+it was rounded from.** The wider habit is [authoring](authoring.md#the-prose-check)'s — when prose
+makes an absolute claim about what sits under it, check it with a script rather than by reading.
 
 ---
 

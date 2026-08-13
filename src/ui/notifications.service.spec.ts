@@ -108,7 +108,7 @@ describe('NotificationsService', () => {
 
   it('promises nothing is lost, rather than inventing urgency', async () => {
     // ⚠️ Load-bearing copy. Nothing in this game expires, so a notification claiming otherwise
-    // would be manufacturing a session — the pattern `docs/milestones.md` rejects by name. If a
+    // would be manufacturing a session — the pattern `docs/history.md` rejects by name. If a
     // future reminder needs urgency, the thing to question is the system that created it.
     const { scheduler, service } = setUp();
 

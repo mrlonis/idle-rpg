@@ -40,10 +40,14 @@ legendary-or-better within 10 pulls and ascended within 30, both global and both
 Long-form references live in `docs/`. This file states rules; those files explain systems. When
 the two disagree, the code is right and both are stale.
 
-- **[docs/milestones.md](../docs/milestones.md)** — the roadmap. The status of every milestone, what
-  each one shipped, and the reasoning behind each decision. **Single source of truth for project
-  status**; nothing else restates it. It is the **numbered roadmap and nothing else** — work that
-  shipped without a milestone number lives in the reference doc that owns the system.
+- **[docs/history.md](../docs/history.md)** — what shipped in what order, the decisions no system doc
+  owns, and **what is still open**: presentation, onboarding, and how long the campaign is meant to
+  be. Every numbered milestone is complete. ⚠️ **It is not where a rule lives** — the reference docs
+  are the current statement of every system, and a decision that belongs to a system lives there.
+- **[docs/authoring.md](../docs/authoring.md)** — the procedure for adding a chapter or a hundred tower
+  floors: what a session owes, the level line (**bisect, do not solve**), the board constraints, the
+  prose check, and the schedule of guards that fire next. **Read it before authoring content**;
+  every trap it lists is one a session hit after an earlier session wrote it down.
 - **[docs/navigation.md](../docs/navigation.md)** — the tab bar's measured ceiling, Town as the hub,
   the test for what belongs there, the Bag rename, Home as the battle hub, and the routing rules.
   **Read it before adding a screen**; the "adding a tab at all" section below is stated there with
@@ -1494,19 +1498,17 @@ the two disagree, the code is right and both are stale.
     persists, and only then restarts; the order is load-bearing and the reason it clears _before_
     writing is that a write copies the primary slot into the backup first.
 
-## Milestones
+## Before adding anything new
 
-The ordering exists so there is **always something playable**. Each milestone layers onto the
-previous skeleton without changing its shape. Do not skip ahead: a later milestone built on an
-unverified earlier one is where the hard-to-find bugs live.
+**Every numbered milestone is complete**; [history](../docs/history.md) records what shipped in what
+order and what is still open, and [authoring](../docs/authoring.md) is the procedure for adding
+content. Before starting work, check where the project actually is. ⚠️ **Do not assume any doc is
+current — verify against the code.**
 
-Before starting work, check where the project actually is. **Do not assume the doc is current —
-verify against the code.**
+Read both before starting, and specifically before:
 
-Read it before starting a milestone, and specifically before:
-
-- reaching for **`@capacitor/app`** — deliberately deferred, and the doc records the condition
-  that has to be met first. The **run reset** is no longer on that list: it shipped in milestone
+- reaching for **`@capacitor/app`** — deliberately deferred, and [platform](../docs/platform.md)
+  records the condition that has to be met first. The **run reset** is no longer on that list: it shipped in milestone
   13, behind the settings screen it was always waiting for. **Angular Material is not deferred, it
   is removed**: it was uninstalled in milestone 6 after its scaffolded global theme turned out to
   be the cause of the app's broken first appearance on a real phone. Do not reinstall it.
@@ -1536,7 +1538,8 @@ Read it before starting a milestone, and specifically before:
   foreground is a correctness requirement rather than a courtesy (see "Offline progression").
   **Ambient sparring on the idle screen is still deferred** and must never award anything;
 - adding the **segmented offline solver**, `timeToClear`, or a `dropCarry` field — all three are
-  cancelled rather than pending, and the doc records why each one stopped being needed.
+  cancelled rather than pending, and [rejected](../docs/rejected.md) records why each one stopped
+  being needed.
 
 ---
 
@@ -1577,7 +1580,7 @@ do not disable that rule.
   `ascend(state, defId, plan, ...) => RosterResult`,
   `levelUp(state, defId, targetLevel, curve) => RosterResult`,
   `raiseResonance(state, target, curve) => RosterResult`. Nothing is planned but unbuilt —
-  `timeToClear(state, stage)` was, and is cancelled; see [milestone 5](../docs/milestones.md).
+  `timeToClear(state, stage)` was, and is cancelled; see [rejected](../docs/rejected.md).
 - Return new state; do not mutate arguments in place.
 - **Never call `Math.random()`.** Use the seeded PRNG in `core/rng.ts`. Seed and call
   counter live in the save.
@@ -1673,7 +1676,7 @@ the animator at roughly 1Hz, clamped to a second per step — would keep climbin
 unattended, and a rate that rises mid-window is exactly what makes the closed form wrong. Do not
 "improve" this into a pause that keeps fighting. They are
 documented because they are the right techniques _if_ those product decisions are ever reversed
-— which would re-open [milestone 5](../docs/milestones.md). Do not implement either speculatively,
+— which would re-open the arguments in [rejected](../docs/rejected.md). Do not implement either speculatively,
 and do not add a `dropCarry` field.
 
 **There is no offline cap.** Come back a year later and the game pays a year. This is deliberate
@@ -1780,7 +1783,7 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
 - Characters are **sidegrades with distinct niches**, not a strict power ladder. Two
   players should clear the same stage with different teams. This holds _within_ a tier;
   ascension and levelling are the vertical axis, and tier is a growth slope rather than a
-  starting advantage (see [milestone 3](../docs/milestones.md)) — with one deliberate exception since
+  starting advantage (see [ascension](../docs/ascension.md)) — with one deliberate exception since
   milestone 8c, which is that tier also caps how many skills a character may field.
 - **A kit is authored at exactly its tier's ceiling**: two skills at `common`, three at
   `legendary`, four at `ascended`, ultimate included. Fewer leaves a character short of what its
@@ -1831,8 +1834,8 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   two are exact and meant to stay exact — they are the bench a mono-faction team is built from, and
   that job wants a known depth. The third is a floor,
   because ascended tier is where new characters arrive. Changing the closed half is a design
-  decision: edit the shape in `data/characters.spec.ts` and argue for it in `docs/milestones.md`,
-  rather than letting it drift.
+  decision: edit the shape in `data/characters.spec.ts` and record the argument in
+  [history](../docs/history.md), rather than letting it drift.
   - **Milestone 20 spent that floor for the first time**: fifty-six characters now, **two** ascended
     per faction. The closed half did not move by a single row, which is what the floor was for.
   - **A new ascended-tier character is four files and no `core/` change**: a stat block and kit in
@@ -2003,7 +2006,7 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   - `npm run sync:agent-instructions`
   - `npm run sync:agent-instructions:check`
 - **Author every link relative to the repository root**, exactly as it resolves from `AGENTS.md`
-  — `[the roadmap](docs/milestones.md)`, not `[the roadmap](../docs/milestones.md)`. The copies
+  — `[the history](docs/history.md)`, not `[the history](../docs/history.md)`. The copies
   live at three different depths, and the sync script rewrites each href for its target. It also
   fails, without writing anything, if a link points at a path that does not exist. Do not
   hand-adjust a link to suit one target.

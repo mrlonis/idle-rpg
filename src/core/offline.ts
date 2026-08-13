@@ -46,7 +46,7 @@ export interface OfflineReport {
  *
  * That is a permanent property of the design rather than a temporary one, so there is no
  * segmented solver and none is owed. Reversing the foreground-only rule is what would change
- * it; see `docs/milestones.md`.
+ * it; see `docs/rejected.md`.
  *
  * There is deliberately **no upper bound**. The genre caps offline income to force a daily
  * session; there is no session to force here and nothing to sell by forcing it. Come back a year
@@ -110,7 +110,7 @@ export interface DiscreteAccrual {
  * and nothing else — nothing drops while the player is away — so there is no `dropCarry` field
  * in `GameState` and no reason to add one. Kept because it is eight specified lines encoding a
  * rule worth not re-deriving under pressure: offline loot is paid at expected value, never
- * rolled. Do not wire it up to manufacture a use for it; see `docs/milestones.md`.
+ * rolled. Do not wire it up to manufacture a use for it; see `docs/rejected.md`.
  */
 export function accrueDiscrete(carry: number, expected: number): DiscreteAccrual {
   const safeCarry = Number.isFinite(carry) && carry > 0 ? carry : 0;

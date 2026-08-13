@@ -64,7 +64,7 @@ import {
  * parts says that: {@link CHAINBOND} is cast, lapses, and binds a whole side, which is a statement
  * about focus fire in general rather than about the bypass in particular. See
  * [`statuses.ts`](./statuses.ts) for the full argument and
- * [milestones](../../docs/milestones.md) for why a pair was tried first.
+ * [authoring](../../docs/authoring.md) for why a pair was tried first.
  *
  * The chapter's other four questions cost nothing new. **Evasion is a stat block** — `ModifiableStat`
  * is `atk`, `def` and `haste`, so `dodge` cannot be a status without a `core/` change this milestone

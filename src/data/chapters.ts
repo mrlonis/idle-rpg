@@ -140,7 +140,7 @@ export const CHAPTER_CURVE = {
  * halving.** Level 1000 went from 1,175 hours of top-of-ladder idle income to 588, and the threshold
  * moved to 500 rather than the level curve moving to absorb it — because the point of doubling was
  * that progression be twice as fast, and a curve retuned to cancel that would have made the whole
- * change a no-op on screen. See [milestones](../../docs/milestones.md).
+ * change a no-op on screen. See [economy](../../docs/economy.md).
  *
  * ## The two payouts
  *
@@ -235,7 +235,7 @@ export const STAGE_REWARDS = {
  * levels and exactly one rung, and one rung only pays for twenty-three levels — so it climbs every
  * chapter forever and the rungs run out at sixteen while the levels run to a thousand. It was
  * re-derived rather than widened, the same move milestone 17 made on the level ceiling's
- * cost-in-hours. See [milestones](../../docs/milestones.md).
+ * cost-in-hours. See [testing](../../docs/testing.md).
  */
 export const CHAPTERS = [
   CHAPTER_1,

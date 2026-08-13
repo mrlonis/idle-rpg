@@ -8,7 +8,7 @@ requirement.**
 
 Derived in [`core/roster/resonance.ts`](../src/core/roster/resonance.ts), spent through
 `levelUp` and `raiseResonance` in [`core/roster/roster.ts`](../src/core/roster/roster.ts), and
-shown on the roster screen. Shipped in milestone 9 — see [milestones](milestones.md) for why it
+shown on the roster screen. Shipped in milestone 9 — see [history](history.md) for why it
 sits where it does in the order.
 
 See [glossary](glossary.md) for invested versus effective level, [ascension](ascension.md) for the
