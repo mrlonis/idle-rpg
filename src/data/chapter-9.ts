@@ -159,7 +159,7 @@ export const CHAPTER_9 = {
         front: [HOLLOWBARK_SENTRY, COLDFORGE_HAND],
         back: [WEALDSHADOW_STALKER, WHISPERLEAF_ARCHER, COLDFORGE_HAND],
       },
-      level: 396,
+      level: 150,
     },
     {
       // The lock stated plainly, on nothing but fodder. Nothing here is dangerous and nothing here
@@ -171,7 +171,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, FORGE_THRALL],
         back: [COLDFORGE_HAND, WHISPERLEAF_ARCHER],
       },
-      level: 398,
+      level: 151,
     },
     {
       id: 'c9-s3',
@@ -180,7 +180,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, COLDFORGE_HAND],
         back: [DEEPROCK_MINER, DEEPGALLERY_RUNNER, WHISPERLEAF_ARCHER],
       },
-      level: 400,
+      level: 151,
     },
     {
       id: 'c9-s4',
@@ -189,7 +189,7 @@ export const CHAPTER_9 = {
         front: [COLDFORGE_HAND, DEEPGALLERY_RUNNER],
         back: [WEALDSHADOW_STALKER, COLDFORGE_HAND, WHISPERLEAF_ARCHER],
       },
-      level: 402,
+      level: 152,
     },
     {
       // ⚠️ A probe sample, and the first in the chapter — the seam at `c9-s1` is skipped, because a
@@ -201,7 +201,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, SLAGBOUND_DRUDGE],
         back: [COLDFORGE_HAND, DEEPGALLERY_RUNNER, WHISPERLEAF_ARCHER],
       },
-      level: 404,
+      level: 152,
     },
     {
       id: 'c9-s6',
@@ -210,7 +210,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, MARCHWARD_PIKEMAN],
         back: [COLDFORGE_HAND, DEEPROCK_MINER, DEEPGALLERY_RUNNER],
       },
-      level: 406,
+      level: 153,
     },
     {
       id: 'c9-s7',
@@ -219,7 +219,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, DEEPGALLERY_RUNNER],
         back: [DEEPGALLERY_RUNNER, WHISPERLEAF_ARCHER, COLDFORGE_HAND],
       },
-      level: 408,
+      level: 153,
     },
     {
       // The band's other half arrives, and it has been in the game since milestone 15c without ever
@@ -231,7 +231,7 @@ export const CHAPTER_9 = {
         front: [RUNEWARDEN, SLAGBOUND_DRUDGE],
         back: [COLDFORGE_HAND, LONGBOUGH_MARKSMAN],
       },
-      level: 409,
+      level: 154,
     },
     {
       // ⚠️ A probe sample, and the band at full weight: `tenacity: 0.8` in the front rank and a
@@ -242,7 +242,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, SLAGBOUND_DRUDGE],
         back: [RUNEWARDEN, COLDFORGE_HAND, WEALDSHADOW_STALKER],
       },
-      level: 411,
+      level: 154,
     },
     {
       // Mini-boss, and the lieutenant's first appearance. ⚠️ **The same block stands on all four**,
@@ -260,7 +260,7 @@ export const CHAPTER_9 = {
         front: [THE_GRUDGEKEEPER, SLAGBOUND_DRUDGE],
         back: [COLDHEARTH_IRONSWORN, COLDFORGE_HAND, DEEPGALLERY_RUNNER],
       },
-      level: 413,
+      level: 155,
     },
 
     // -----------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, COLDFORGE_HAND],
         back: [CINDERQUENCH_BEARER, CINDERQUENCH_BEARER, WHISPERLEAF_ARCHER],
       },
-      level: 415,
+      level: 155,
     },
     {
       id: 'c9-s12',
@@ -286,7 +286,7 @@ export const CHAPTER_9 = {
         front: [MARCHWARD_PIKEMAN, SLAGBOUND_DRUDGE],
         back: [CINDERQUENCH_BEARER, DEEPGALLERY_RUNNER, WHISPERLEAF_ARCHER],
       },
-      level: 417,
+      level: 156,
     },
     {
       // ⚠️ A probe sample. The band at legendary weight: a Quenchwright survives being noticed and
@@ -298,7 +298,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, SLAGBOUND_DRUDGE],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, LONGBOUGH_MARKSMAN],
       },
-      level: 419,
+      level: 156,
     },
     {
       id: 'c9-s14',
@@ -307,7 +307,7 @@ export const CHAPTER_9 = {
         front: [RIMEPLATE, COLDFORGE_HAND],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, WHISPERLEAF_ARCHER],
       },
-      level: 421,
+      level: 157,
     },
     {
       // Three planters against one cleanse. The fuse is forty ticks and a Bearer costs almost
@@ -319,7 +319,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, DEEPGALLERY_RUNNER],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, CINDERQUENCH_BEARER],
       },
-      level: 423,
+      level: 157,
     },
     {
       id: 'c9-s16',
@@ -328,7 +328,7 @@ export const CHAPTER_9 = {
         front: [BULWARK_ENEMY, COLDFORGE_HAND],
         back: [CINDERQUENCH_BEARER, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 425,
+      level: 158,
     },
     {
       // ⚠️ A probe sample, and the band's hardest form: the party's cleanse is wanted on the fuse,
@@ -340,7 +340,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, SLAGBOUND_DRUDGE],
         back: [QUENCHWRIGHT, RUNEWARDEN, CINDERQUENCH_BEARER],
       },
-      level: 427,
+      level: 158,
     },
     {
       id: 'c9-s18',
@@ -349,7 +349,7 @@ export const CHAPTER_9 = {
         front: [SENTINEL, DEEPGALLERY_RUNNER],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, WHISPERLEAF_ARCHER],
       },
-      level: 429,
+      level: 159,
     },
     {
       id: 'c9-s19',
@@ -358,7 +358,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, MARCHWARD_PIKEMAN],
         back: [QUENCHWRIGHT, QUENCHWRIGHT, LONGBOUGH_MARKSMAN],
       },
-      level: 431,
+      level: 159,
     },
     {
       // Mini-boss. The lieutenant with the band's lock beside it, and no taunt anywhere on the board
@@ -370,7 +370,7 @@ export const CHAPTER_9 = {
         front: [THE_GRUDGEKEEPER, SLAGBOUND_DRUDGE],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, COLDHEARTH_IRONSWORN],
       },
-      level: 432,
+      level: 160,
     },
 
     // -----------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ export const CHAPTER_9 = {
         front: [BRAMBLEHIDE_RAVENER, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, CINDERQUENCH_BEARER],
       },
-      level: 434,
+      level: 160,
     },
     {
       id: 'c9-s22',
@@ -401,7 +401,7 @@ export const CHAPTER_9 = {
         front: [CAIRNWARD_HUSK, SLAGBOUND_DRUDGE],
         back: [GRUDGEPLATE_SMITH, COLDFORGE_HAND, WHISPERLEAF_ARCHER],
       },
-      level: 436,
+      level: 161,
     },
     {
       // Two Smiths, so the thing the party has committed to is thorned twice a cycle against a
@@ -413,7 +413,7 @@ export const CHAPTER_9 = {
         front: [BRAMBLEHIDE_RAVENER, COLDFORGE_HAND],
         back: [GRUDGEPLATE_SMITH, GRUDGEPLATE_SMITH, LONGBOUGH_MARKSMAN],
       },
-      level: 438,
+      level: 161,
     },
     {
       id: 'c9-s24',
@@ -422,7 +422,7 @@ export const CHAPTER_9 = {
         front: [CAIRNWARD_HUSK, DEEPGALLERY_RUNNER],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, WHISPERLEAF_ARCHER],
       },
-      level: 440,
+      level: 162,
     },
     {
       // ⚠️ A probe sample, and the band's question at full weight. It is the inverse of the weald's
@@ -435,7 +435,7 @@ export const CHAPTER_9 = {
         front: [COLDHEARTH_IRONSWORN, BRAMBLEHIDE_RAVENER],
         back: [GRUDGEPLATE_SMITH, GRUDGEPLATE_SMITH, QUENCHWRIGHT],
       },
-      level: 442,
+      level: 162,
     },
     {
       id: 'c9-s26',
@@ -444,7 +444,7 @@ export const CHAPTER_9 = {
         front: [SENTINEL, CAIRNWARD_HUSK],
         back: [GRUDGEPLATE_SMITH, CINDERQUENCH_BEARER, WHISPERLEAF_ARCHER],
       },
-      level: 444,
+      level: 163,
     },
     {
       // The weald's roots through the hold's floor, and the two chapters' answers refusing each
@@ -455,7 +455,7 @@ export const CHAPTER_9 = {
         front: [SLAGBOUND_DRUDGE, GLOAMVINE_CREEPER],
         back: [GRUDGEPLATE_SMITH, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 446,
+      level: 163,
     },
     {
       id: 'c9-s28',
@@ -464,7 +464,7 @@ export const CHAPTER_9 = {
         front: [BULWARK_ENEMY, CAIRNWARD_HUSK],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, CINDERQUENCH_BEARER],
       },
-      level: 448,
+      level: 164,
     },
     {
       // ⚠️ A probe sample. Two Smiths behind two thorned bodies: whatever the party is killing is
@@ -475,7 +475,7 @@ export const CHAPTER_9 = {
         front: [BRAMBLEHIDE_RAVENER, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, GRUDGEPLATE_SMITH, WEALDSHADOW_STALKER],
       },
-      level: 450,
+      level: 164,
     },
     {
       // Mini-boss. The lieutenant on a board that is already thorned before it takes a turn, so its
@@ -487,7 +487,7 @@ export const CHAPTER_9 = {
         front: [THE_GRUDGEKEEPER, CAIRNWARD_HUSK],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, COLDHEARTH_IRONSWORN],
       },
-      level: 452,
+      level: 165,
     },
 
     // -----------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, COLDFORGE_HAND],
         back: [COLDHEARTH_IRONSWORN, WHISPERLEAF_ARCHER],
       },
-      level: 454,
+      level: 165,
     },
     {
       id: 'c9-s32',
@@ -512,7 +512,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, SLAGBOUND_DRUDGE],
         back: [QUENCHWRIGHT, CINDERQUENCH_BEARER, WHISPERLEAF_ARCHER],
       },
-      level: 455,
+      level: 166,
     },
     {
       // ⚠️ A probe sample, and the band's hardest form: the door is shut, what is behind it is
@@ -525,7 +525,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, COLDHEARTH_IRONSWORN],
         back: [QUENCHWRIGHT, GRUDGEPLATE_SMITH, LONGBOUGH_MARKSMAN],
       },
-      level: 457,
+      level: 166,
     },
     {
       id: 'c9-s34',
@@ -534,7 +534,7 @@ export const CHAPTER_9 = {
         front: [OATHSHIELD_VANGUARD, COLDFORGE_HAND],
         back: [COLDHEARTH_IRONSWORN, CINDERQUENCH_BEARER, DEEPGALLERY_RUNNER],
       },
-      level: 459,
+      level: 167,
     },
     {
       id: 'c9-s35',
@@ -543,7 +543,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, DEEPGALLERY_RUNNER],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, WHISPERLEAF_ARCHER],
       },
-      level: 461,
+      level: 167,
     },
     {
       id: 'c9-s36',
@@ -552,7 +552,7 @@ export const CHAPTER_9 = {
         front: [RIVEN_MARCHWARDEN, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, LONGBOUGH_MARKSMAN, CINDERQUENCH_BEARER],
       },
-      level: 463,
+      level: 168,
     },
     {
       // ⚠️ A probe sample. The Rimeplate beside the Bastion, which is the band's answer to the answer:
@@ -564,7 +564,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, RIMEPLATE],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, WEALDSHADOW_STALKER],
       },
-      level: 465,
+      level: 168,
     },
     {
       id: 'c9-s38',
@@ -573,7 +573,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, SLAGBOUND_DRUDGE],
         back: [COLDHEARTH_IRONSWORN, GRUDGEPLATE_SMITH, LONGBOUGH_MARKSMAN],
       },
-      level: 467,
+      level: 169,
     },
     {
       // The barrows' own taunt, which is thorned as well as shut — the pair chapter 7 built and this
@@ -584,7 +584,7 @@ export const CHAPTER_9 = {
         front: [CAIRNBOUND_SENTINEL, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, GLOAMVINE_CREEPER],
       },
-      level: 469,
+      level: 169,
     },
     {
       // Mini-boss, and the last time the lieutenant is met. Every question the chapter has asked
@@ -597,7 +597,7 @@ export const CHAPTER_9 = {
         front: [THE_GRUDGEKEEPER, OATHSTONE_BASTION],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, COLDHEARTH_IRONSWORN],
       },
-      level: 471,
+      level: 170,
     },
 
     // -----------------------------------------------------------------------------------
@@ -615,7 +615,7 @@ export const CHAPTER_9 = {
         front: [COLOSSUS, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, CINDERQUENCH_BEARER],
       },
-      level: 473,
+      level: 170,
     },
     {
       id: 'c9-s42',
@@ -624,7 +624,7 @@ export const CHAPTER_9 = {
         front: [TYRANT, SLAGBOUND_DRUDGE],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, WHISPERLEAF_ARCHER],
       },
-      level: 475,
+      level: 171,
     },
     {
       // The wood that came down through the roof. Bound, thorned and regrowing at once — and
@@ -635,7 +635,7 @@ export const CHAPTER_9 = {
         front: [WYRDROOT_ANCIENT, CAIRNWARD_HUSK],
         back: [GRUDGEPLATE_SMITH, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 477,
+      level: 171,
     },
     {
       id: 'c9-s44',
@@ -644,7 +644,7 @@ export const CHAPTER_9 = {
         front: [BARROW_SOVEREIGN, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, BONECHAIN_WARDEN],
       },
-      level: 478,
+      level: 172,
     },
     {
       // ⚠️ A probe sample. A taunt in front of the thing that takes the biggest body on the field —
@@ -655,7 +655,7 @@ export const CHAPTER_9 = {
         front: [OATHSTONE_BASTION, TYRANT],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, CINDERQUENCH_BEARER],
       },
-      level: 480,
+      level: 172,
     },
     {
       id: 'c9-s46',
@@ -664,7 +664,7 @@ export const CHAPTER_9 = {
         front: [OATHBREAKER, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, LONGBOUGH_MARKSMAN],
       },
-      level: 482,
+      level: 173,
     },
     {
       // The chapter's first band and its second at `ascended` weight on one board: refused on the way
@@ -675,7 +675,7 @@ export const CHAPTER_9 = {
         front: [COLOSSUS, CAIRNWARD_HUSK],
         back: [RUNEWARDEN, GRUDGEPLATE_SMITH, QUENCHWRIGHT],
       },
-      level: 484,
+      level: 173,
     },
     {
       // A taunt with a cleanse behind it, which is the one shape of that pair the chapter permits:
@@ -687,7 +687,7 @@ export const CHAPTER_9 = {
         front: [OATHSHIELD_VANGUARD, COLDHEARTH_IRONSWORN],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, GRAVEMOURN_KEEPER],
       },
-      level: 486,
+      level: 174,
     },
     {
       // ⚠️ A probe sample, and the last one before the final. The Colossus and a thorned Ravener in
@@ -698,7 +698,7 @@ export const CHAPTER_9 = {
         front: [COLOSSUS, BRAMBLEHIDE_RAVENER],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, WEALDSHADOW_STALKER],
       },
-      level: 488,
+      level: 174,
     },
     {
       // ⚠️ The chapter boss, and the ninth body on the ladder standing on exactly one stage. All four
@@ -729,7 +729,7 @@ export const CHAPTER_9 = {
         front: [THE_ANVIL_CROWNED, OATHSTONE_BASTION],
         back: [GRUDGEPLATE_SMITH, QUENCHWRIGHT, COLDHEARTH_IRONSWORN],
       },
-      level: 490,
+      level: 175,
     },
   ],
 } as const;

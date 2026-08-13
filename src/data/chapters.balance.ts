@@ -415,7 +415,7 @@ const MAXED_GEAR: FormationData = mono(BUILT_FRONT, BUILT_BACK, BUILT_LEVEL, BUI
  * 100 against chapter 4's closing level of 85.
  */
 const ARRIVED_RARITY = ELITE;
-const ARRIVED_LEVEL = stages[CHAPTER_ENDS[3] - 1].level;
+const ARRIVED_LEVEL = Math.min(stages[CHAPTER_ENDS[3] - 1].level, LEVEL_CURVE.caps[ARRIVED_RARITY]);
 
 const ARRIVED: FormationData = mono(
   BUILT_FRONT,
@@ -438,7 +438,7 @@ const ARRIVED: FormationData = mono(
  * 160 — which is not an error, it is the difficulty statement the Bound Marches shipped: a chapter
  * that asks for a rung has to climb past the cap that rung buys.
  */
-const MARCHED_RARITY = rarityIndex('elite-plus');
+const MARCHED_RARITY = ELITE;
 const MARCHED_LEVEL = Math.min(stages[CHAPTER_ENDS[4] - 1].level, LEVEL_CURVE.caps[MARCHED_RARITY]);
 
 const MARCHED: FormationData = mono(
@@ -463,7 +463,7 @@ const MARCHED: FormationData = mono(
  * 225 — which is the difficulty statement every chapter since the Bound Marches ships: a chapter
  * that asks for a rung has to climb past the cap that rung buys.
  */
-const VAULTED_RARITY = LEGENDARY;
+const VAULTED_RARITY = rarityIndex('elite-plus');
 const VAULTED_LEVEL = Math.min(stages[CHAPTER_ENDS[5] - 1].level, LEVEL_CURVE.caps[VAULTED_RARITY]);
 
 const VAULTED: FormationData = mono(
@@ -489,7 +489,7 @@ const VAULTED: FormationData = mono(
  * wider margin each time: a chapter that asks for a rung has to climb past the cap that rung buys,
  * and by *more* than the last one did, or the fresh rung it hands the party is free.
  */
-const BARROWED_RARITY = rarityIndex('legendary-plus');
+const BARROWED_RARITY = rarityIndex('elite-plus');
 const BARROWED_LEVEL = Math.min(
   stages[CHAPTER_ENDS[6] - 1].level,
   LEVEL_CURVE.caps[BARROWED_RARITY],
@@ -517,7 +517,7 @@ const BARROWED: FormationData = mono(
  * the difficulty statement every chapter since the Bound Marches ships, and by a wider margin each
  * time.
  */
-const WEALDED_RARITY = rarityIndex('mythic');
+const WEALDED_RARITY = LEGENDARY;
 const WEALDED_LEVEL = Math.min(stages[CHAPTER_ENDS[7] - 1].level, LEVEL_CURVE.caps[WEALDED_RARITY]);
 
 const WEALDED: FormationData = mono(
@@ -542,7 +542,7 @@ const WEALDED: FormationData = mono(
  * closing level of 490 — the difficulty statement every chapter since the Bound Marches ships, and
  * by a wider margin each time.
  */
-const ANVILLED_RARITY = rarityIndex('mythic-plus');
+const ANVILLED_RARITY = LEGENDARY;
 const ANVILLED_LEVEL = Math.min(
   stages[CHAPTER_ENDS[8] - 1].level,
   LEVEL_CURVE.caps[ANVILLED_RARITY],
@@ -594,7 +594,7 @@ const ANVILLED: FormationData = mono(
  * rung it started at, then 260, 340, 420, now 500 four rungs above.** Every one of those moves was
  * the same move — the party is defined by where the content is, never by a number.
  */
-const INVESTED_RARITY = ASCENDED;
+const INVESTED_RARITY = LEGENDARY;
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(

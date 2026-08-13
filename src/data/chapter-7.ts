@@ -154,7 +154,7 @@ export const CHAPTER_7 = {
         front: [VAULTBOUND_GAOLER, GRAVEWAKE_THRALL],
         back: [BARROWMIST_KEENER, SKYSHRIKE],
       },
-      level: 225,
+      level: 100,
     },
     {
       // The chapter's first lock, stated plainly. Six chapters have taught that a taunt is answered
@@ -166,7 +166,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, GRAVEWAKE_THRALL],
         back: [BARROWMIST_KEENER, SKYSHRIKE],
       },
-      level: 227,
+      level: 101,
     },
     {
       id: 'c7-s3',
@@ -175,7 +175,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, GRAVEWAKE_THRALL],
         back: [BARROWMIST_KEENER, SEPULCHRE_HOUND, ANTIPHON_ARCHON],
       },
-      level: 229,
+      level: 101,
     },
     {
       id: 'c7-s4',
@@ -184,7 +184,7 @@ export const CHAPTER_7 = {
         front: [GRAVEWAKE_THRALL, VAULTBOUND_GAOLER],
         back: [SEPULCHRE_HOUND, REVENANT, WISP],
       },
-      level: 230,
+      level: 102,
     },
     {
       id: 'c7-s5',
@@ -193,7 +193,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, SENTINEL],
         back: [ANTIPHON_ARCHON, BARROWMIST_KEENER, SKYSHRIKE],
       },
-      level: 232,
+      level: 102,
     },
     {
       id: 'c7-s6',
@@ -202,7 +202,7 @@ export const CHAPTER_7 = {
         front: [FREE_BLADE, SEPULCHRE_HOUND],
         back: [BARROWMIST_KEENER, HAG],
       },
-      level: 234,
+      level: 103,
     },
     {
       id: 'c7-s7',
@@ -211,7 +211,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, GRAVEWAKE_THRALL],
         back: [HAG, BARROWMIST_KEENER],
       },
-      level: 235,
+      level: 103,
     },
     {
       id: 'c7-s8',
@@ -220,7 +220,7 @@ export const CHAPTER_7 = {
         front: [RIMEPLATE, GRAVEWAKE_THRALL],
         back: [SHADE, SKYSHRIKE],
       },
-      level: 237,
+      level: 104,
     },
     {
       id: 'c7-s9',
@@ -229,7 +229,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, RIMEPLATE],
         back: [ANTIPHON_ARCHON, HAG, SKYSHRIKE],
       },
-      level: 239,
+      level: 104,
     },
     {
       // Mini-boss, and the lieutenant's first appearance. ⚠️ **The same block stands on all four**,
@@ -243,7 +243,7 @@ export const CHAPTER_7 = {
         front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
         back: [BARROWMIST_KEENER, SEPULCHRE_HOUND, SKYSHRIKE],
       },
-      level: 241,
+      level: 105,
     },
 
     // -----------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ export const CHAPTER_7 = {
         front: [GRAVEWAKE_THRALL, VAULTBOUND_GAOLER],
         back: [GRAVETIDE_HERALD, BARROWMIST_KEENER],
       },
-      level: 242,
+      level: 105,
     },
     {
       id: 'c7-s12',
@@ -268,7 +268,7 @@ export const CHAPTER_7 = {
         front: [SENTINEL, GRAVEWAKE_THRALL],
         back: [GRAVETIDE_HERALD, SKYSHRIKE, BARROWMIST_KEENER],
       },
-      level: 244,
+      level: 106,
     },
     {
       // ⚠️ A probe sample, and the first draft put a common in the front rank here — which measured
@@ -280,7 +280,7 @@ export const CHAPTER_7 = {
         front: [RIMEPLATE, SENTINEL],
         back: [GRAVETIDE_HERALD, HAG, SKYSHRIKE],
       },
-      level: 246,
+      level: 106,
     },
     {
       id: 'c7-s14',
@@ -289,7 +289,7 @@ export const CHAPTER_7 = {
         front: [BRAMBLEHIDE_RAVENER, GRAVEWAKE_THRALL],
         back: [GRAVETIDE_HERALD, SKYSHRIKE],
       },
-      level: 247,
+      level: 107,
     },
     {
       id: 'c7-s15',
@@ -298,7 +298,7 @@ export const CHAPTER_7 = {
         front: [COLOSSUS, MARCHWARD_PIKEMAN],
         back: [GRAVETIDE_HERALD, ANTIPHON_ARCHON],
       },
-      level: 249,
+      level: 107,
     },
     {
       id: 'c7-s16',
@@ -307,7 +307,7 @@ export const CHAPTER_7 = {
         front: [GRAVEWAKE_THRALL, SEPULCHRE_HOUND],
         back: [GRAVETIDE_HERALD, HEADSMAN, BARROWMIST_KEENER],
       },
-      level: 251,
+      level: 108,
     },
     {
       // Two Heralds, so two brands are running at once against a cleanse that reaches one ally at a
@@ -319,7 +319,7 @@ export const CHAPTER_7 = {
         front: [COLOSSUS, RIMEPLATE],
         back: [GRAVETIDE_HERALD, GRAVETIDE_HERALD, ANTIPHON_ARCHON],
       },
-      level: 252,
+      level: 108,
     },
     {
       id: 'c7-s18',
@@ -328,7 +328,7 @@ export const CHAPTER_7 = {
         front: [SENTINEL, GRAVEWAKE_THRALL],
         back: [GRAVETIDE_HERALD, SKYSHRIKE],
       },
-      level: 254,
+      level: 109,
     },
     {
       id: 'c7-s19',
@@ -337,7 +337,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, COLOSSUS],
         back: [ANTIPHON_ARCHON, HAG, BARROWMIST_KEENER],
       },
-      level: 256,
+      level: 109,
     },
     {
       // Mini-boss. The band's lock at full size and the one board where the tithe is collected
@@ -349,7 +349,7 @@ export const CHAPTER_7 = {
         front: [THE_GRAVEWRIGHT, COLOSSUS],
         back: [GRAVETIDE_HERALD, GRAVETIDE_HERALD, SKYSHRIKE],
       },
-      level: 257,
+      level: 110,
     },
 
     // -----------------------------------------------------------------------------------
@@ -370,7 +370,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, WYRDROOT_ANCIENT],
         back: [CAIRNWARD_HUSK, CAIRNWARD_HUSK, ANTIPHON_ARCHON],
       },
-      level: 259,
+      level: 110,
     },
     {
       id: 'c7-s22',
@@ -379,7 +379,7 @@ export const CHAPTER_7 = {
         front: [OATHSHIELD_VANGUARD, CAIRNWARD_HUSK],
         back: [BARROWMIST_KEENER, SEPULCHRE_HOUND, SKYSHRIKE],
       },
-      level: 261,
+      level: 111,
     },
     {
       id: 'c7-s23',
@@ -388,7 +388,7 @@ export const CHAPTER_7 = {
         front: [CAIRNWARD_HUSK, GRAVEWAKE_THRALL],
         back: [CAIRNWARD_HUSK, HAG, BARROWMIST_KEENER],
       },
-      level: 262,
+      level: 111,
     },
     {
       id: 'c7-s24',
@@ -397,7 +397,7 @@ export const CHAPTER_7 = {
         front: [CAIRNWARD_HUSK, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, GRAVETIDE_HERALD, ANTIPHON_ARCHON],
       },
-      level: 264,
+      level: 112,
     },
     {
       id: 'c7-s25',
@@ -406,7 +406,7 @@ export const CHAPTER_7 = {
         front: [BRAMBLEHIDE_RAVENER, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, GRAVETIDE_HERALD, SKYSHRIKE],
       },
-      level: 266,
+      level: 112,
     },
     {
       id: 'c7-s26',
@@ -415,7 +415,7 @@ export const CHAPTER_7 = {
         front: [SEALWARD_CUSTODIAN, SEPULCHRE_HOUND],
         back: [CAIRNWARD_HUSK, CAIRNWARD_HUSK, BARROWMIST_KEENER],
       },
-      level: 267,
+      level: 113,
     },
     {
       id: 'c7-s27',
@@ -424,7 +424,7 @@ export const CHAPTER_7 = {
         front: [RIMEPLATE, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, HAG, GRAVETIDE_HERALD],
       },
-      level: 269,
+      level: 113,
     },
     {
       id: 'c7-s28',
@@ -433,7 +433,7 @@ export const CHAPTER_7 = {
         front: [BRAMBLEHIDE_RAVENER, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, BARROWMIST_KEENER],
       },
-      level: 271,
+      level: 114,
     },
     {
       id: 'c7-s29',
@@ -442,7 +442,7 @@ export const CHAPTER_7 = {
         front: [WYRDROOT_ANCIENT, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, GRAVETIDE_HERALD, ANTIPHON_ARCHON],
       },
-      level: 272,
+      level: 114,
     },
     {
       // Mini-boss. The lieutenant on a board that is already thorned before it takes its turn, so
@@ -454,7 +454,7 @@ export const CHAPTER_7 = {
         front: [THE_GRAVEWRIGHT, CAIRNWARD_HUSK],
         back: [CAIRNWARD_HUSK, CAIRNWARD_HUSK, GRAVETIDE_HERALD],
       },
-      level: 273,
+      level: 115,
     },
 
     // -----------------------------------------------------------------------------------
@@ -472,7 +472,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, GRAVEWAKE_THRALL],
         back: [BONECHAIN_WARDEN, BARROWMIST_KEENER],
       },
-      level: 275,
+      level: 115,
     },
     {
       id: 'c7-s32',
@@ -481,7 +481,7 @@ export const CHAPTER_7 = {
         front: [CAIRNWARD_HUSK, GRAVEWAKE_THRALL],
         back: [BONECHAIN_WARDEN, RIFTBORN_HARROWER, BARROWMIST_KEENER],
       },
-      level: 277,
+      level: 116,
     },
     {
       id: 'c7-s33',
@@ -490,7 +490,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, COLOSSUS],
         back: [BONECHAIN_WARDEN, ANTIPHON_ARCHON, BARROWMIST_KEENER],
       },
-      level: 278,
+      level: 116,
     },
     {
       // The Keeper beside the chain. Everything the party spends on opening the wall is taken back
@@ -502,7 +502,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER],
       },
-      level: 280,
+      level: 117,
     },
     {
       id: 'c7-s35',
@@ -511,7 +511,7 @@ export const CHAPTER_7 = {
         front: [CAIRNWARD_HUSK, GRAVEWAKE_THRALL],
         back: [GRAVEMOURN_KEEPER, GRAVETIDE_HERALD, BARROWMIST_KEENER],
       },
-      level: 282,
+      level: 117,
     },
     {
       id: 'c7-s36',
@@ -520,7 +520,7 @@ export const CHAPTER_7 = {
         front: [SENTINEL, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, SKYSHRIKE],
       },
-      level: 283,
+      level: 118,
     },
     {
       id: 'c7-s37',
@@ -529,7 +529,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, WYRDROOT_ANCIENT],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 285,
+      level: 118,
     },
     {
       id: 'c7-s38',
@@ -538,7 +538,7 @@ export const CHAPTER_7 = {
         front: [RIVEN_MARCHWARDEN, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, BARROWMIST_KEENER],
       },
-      level: 287,
+      level: 119,
     },
     {
       id: 'c7-s39',
@@ -547,7 +547,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, COVENANT_BREAKER],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 288,
+      level: 119,
     },
     {
       // Mini-boss, and the last time the lieutenant is met. Every question the chapter has asked
@@ -559,7 +559,7 @@ export const CHAPTER_7 = {
         front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 289,
+      level: 120,
     },
 
     // -----------------------------------------------------------------------------------
@@ -576,7 +576,7 @@ export const CHAPTER_7 = {
         front: [UNMADE, CAIRNBOUND_SENTINEL],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 291,
+      level: 120,
     },
     {
       id: 'c7-s42',
@@ -585,7 +585,7 @@ export const CHAPTER_7 = {
         front: [COLOSSUS, CAIRNWARD_HUSK],
         back: [GRAVETIDE_HERALD, BONECHAIN_WARDEN, BARROWMIST_KEENER],
       },
-      level: 293,
+      level: 121,
     },
     {
       id: 'c7-s43',
@@ -594,7 +594,7 @@ export const CHAPTER_7 = {
         front: [BARROW_SOVEREIGN, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, BARROWMIST_KEENER],
       },
-      level: 294,
+      level: 121,
     },
     {
       id: 'c7-s44',
@@ -603,7 +603,7 @@ export const CHAPTER_7 = {
         front: [CAIRNBOUND_SENTINEL, TYRANT],
         back: [BONECHAIN_WARDEN, ANTIPHON_ARCHON, BARROWMIST_KEENER],
       },
-      level: 296,
+      level: 122,
     },
     {
       id: 'c7-s45',
@@ -612,7 +612,7 @@ export const CHAPTER_7 = {
         front: [UNMADE, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, GRAVETIDE_HERALD],
       },
-      level: 298,
+      level: 122,
     },
     {
       id: 'c7-s46',
@@ -621,7 +621,7 @@ export const CHAPTER_7 = {
         front: [OATHBREAKER, CAIRNBOUND_SENTINEL],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 299,
+      level: 123,
     },
     {
       id: 'c7-s47',
@@ -630,7 +630,7 @@ export const CHAPTER_7 = {
         front: [WYRDROOT_ANCIENT, CAIRNWARD_HUSK],
         back: [GRAVETIDE_HERALD, BONECHAIN_WARDEN, BARROWMIST_KEENER],
       },
-      level: 301,
+      level: 123,
     },
     {
       id: 'c7-s48',
@@ -639,7 +639,7 @@ export const CHAPTER_7 = {
         front: [TYRANT, CAIRNBOUND_SENTINEL],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, ANTIPHON_ARCHON],
       },
-      level: 303,
+      level: 124,
     },
     {
       id: 'c7-s49',
@@ -648,7 +648,7 @@ export const CHAPTER_7 = {
         front: [BARROW_SOVEREIGN, CAIRNWARD_HUSK],
         back: [BONECHAIN_WARDEN, GRAVEMOURN_KEEPER, GRAVETIDE_HERALD],
       },
-      level: 304,
+      level: 124,
     },
     {
       // ⚠️ The chapter boss, and the third body on the ladder standing on exactly one stage. All
@@ -690,7 +690,7 @@ export const CHAPTER_7 = {
         front: [THE_CAIRN_KING, CAIRNBOUND_SENTINEL],
         back: [THE_GRAVEWRIGHT, BONECHAIN_WARDEN, GRAVEMOURN_KEEPER],
       },
-      level: 305,
+      level: 125,
     },
   ],
 } as const;

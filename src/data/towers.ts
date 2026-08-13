@@ -105,7 +105,7 @@ import { TOWER_UNDEAD } from './tower-undead';
 export const TOWER_RULES = {
   floors: 200,
   baseLevel: 1,
-  topLevel: 120,
+  topLevel: 80,
   /** The campaign's interval, reused. See {@link CHAPTER_CURVE}. */
   miniBossEvery: 10,
   floorSummons: {

@@ -110,7 +110,7 @@ export const CHAPTER_5 = {
       id: 'c5-s1',
       name: 'Marchgate',
       enemies: { front: [OATHBREAKER, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 85,
+      level: 50,
     },
     {
       // The taunt lock, stated plainly and early. Fifty stages of the Reach have taught the party
@@ -118,13 +118,13 @@ export const CHAPTER_5 = {
       id: 'c5-s2',
       name: 'The First Oath',
       enemies: { front: [OATHSHIELD_VANGUARD, REVENANT], back: [STORMCALLER, SKYSHRIKE] },
-      level: 87,
+      level: 51,
     },
     {
       id: 'c5-s3',
       name: 'Pikewall',
       enemies: { front: [MARCHWARD_PIKEMAN, MARCHWARD_PIKEMAN], back: [SKYSHRIKE, STORMCALLER] },
-      level: 88,
+      level: 51,
     },
     {
       id: 'c5-s4',
@@ -133,7 +133,7 @@ export const CHAPTER_5 = {
         front: [MARCHWARD_PIKEMAN, REVENANT],
         back: [BRAMBLEWALK_SCOUT, BRAMBLEWALK_SCOUT, SKYSHRIKE],
       },
-      level: 90,
+      level: 52,
     },
     {
       // A taunt in front of a full back row, which is the first time the lock is asked with
@@ -144,13 +144,13 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, SENTINEL],
         back: [STORMCALLER, SKYSHRIKE, BRAMBLEWALK_SCOUT],
       },
-      level: 91,
+      level: 52,
     },
     {
       id: 'c5-s6',
       name: 'The Free Company',
       enemies: { front: [FREE_BLADE, FREE_BLADE], back: [SKYSHRIKE, STORMCALLER] },
-      level: 93,
+      level: 53,
     },
     {
       id: 'c5-s7',
@@ -159,7 +159,7 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, FREE_BLADE],
         back: [BRAMBLEWALK_SCOUT, HEADSMAN],
       },
-      level: 94,
+      level: 53,
     },
     {
       id: 'c5-s8',
@@ -168,13 +168,13 @@ export const CHAPTER_5 = {
         front: [SENTINEL, MARCHWARD_PIKEMAN],
         back: [STORMCALLER, SKYSHRIKE, BRAMBLEWALK_SCOUT],
       },
-      level: 96,
+      level: 54,
     },
     {
       id: 'c5-s9',
       name: 'Broken Standards',
       enemies: { front: [OATHBREAKER, OATHSHIELD_VANGUARD], back: [HEADSMAN, STORMCALLER] },
-      level: 97,
+      level: 54,
     },
     {
       // ⚠️ Mini-boss, and the only board in the chapter with a healer standing behind a taunt.
@@ -188,7 +188,7 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, SENTINEL],
         back: [HIEROPHANT, STORMCALLER, SKYSHRIKE],
       },
-      level: 99,
+      level: 55,
     },
 
     // -----------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ export const CHAPTER_5 = {
       id: 'c5-s11',
       name: 'Bramblehide Run',
       enemies: { front: [BRAMBLEHIDE_RAVENER, REVENANT], back: [SKYSHRIKE, STORMCALLER] },
-      level: 100,
+      level: 55,
     },
     {
       id: 'c5-s12',
@@ -209,13 +209,13 @@ export const CHAPTER_5 = {
         front: [BRAMBLEHIDE_RAVENER, MARCHWARD_PIKEMAN],
         back: [BRAMBLEWALK_SCOUT, HEADSMAN],
       },
-      level: 102,
+      level: 56,
     },
     {
       id: 'c5-s13',
       name: 'Thornfall',
       enemies: { front: [BRAMBLEHIDE_RAVENER, RAVAGER], back: [STORMCALLER, SKYSHRIKE] },
-      level: 103,
+      level: 56,
     },
     {
       // The first tower block a campaign player meets: a regeneration that outlives whatever cast
@@ -226,7 +226,7 @@ export const CHAPTER_5 = {
         front: [SENTINEL, BRAMBLEHIDE_RAVENER],
         back: [THORNWEALD_WARDEN, GLADE_STALKER],
       },
-      level: 105,
+      level: 57,
     },
     {
       id: 'c5-s15',
@@ -235,7 +235,7 @@ export const CHAPTER_5 = {
         front: [MARCHWARD_PIKEMAN, FREE_BLADE],
         back: [GLADE_STALKER, GLADE_STALKER, THORNWEALD_WARDEN],
       },
-      level: 106,
+      level: 57,
     },
     {
       id: 'c5-s16',
@@ -244,7 +244,7 @@ export const CHAPTER_5 = {
         front: [BRAMBLEHIDE_RAVENER, WRATHBORN],
         back: [THORNWEALD_WARDEN, STORMCALLER],
       },
-      level: 108,
+      level: 58,
     },
     {
       // The two halves of the chapter's opening lock, on two bodies. Aim at the Vanguard and the
@@ -255,7 +255,7 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, BRAMBLEHIDE_RAVENER],
         back: [BRAMBLEWALK_SCOUT, SKYSHRIKE],
       },
-      level: 109,
+      level: 58,
     },
     {
       id: 'c5-s18',
@@ -264,7 +264,7 @@ export const CHAPTER_5 = {
         front: [SENTINEL, REVENANT],
         back: [MOONSONG_WEAVER, GLADE_STALKER, SKYSHRIKE],
       },
-      level: 111,
+      level: 59,
     },
     {
       // The cleanse pointed back at the party: a Runewarden takes the Sunder off the wall it is
@@ -272,7 +272,7 @@ export const CHAPTER_5 = {
       id: 'c5-s19',
       name: 'The Warded Path',
       enemies: { front: [COLOSSUS, MARCHWARD_PIKEMAN], back: [RUNEWARDEN, STORMCALLER] },
-      level: 113,
+      level: 59,
     },
     {
       // Mini-boss. Two thorned bodies with a regeneration behind them, which is the same sentence
@@ -283,7 +283,7 @@ export const CHAPTER_5 = {
         front: [BRAMBLEHIDE_RAVENER, BRAMBLEHIDE_RAVENER],
         back: [THORNWEALD_WARDEN, MOONSONG_WEAVER, GLADE_STALKER],
       },
-      level: 114,
+      level: 60,
     },
 
     // -----------------------------------------------------------------------------------
@@ -298,13 +298,13 @@ export const CHAPTER_5 = {
         front: [SENTINEL, FREE_BLADE],
         back: [CONCORD_CANTOR, SKYSHRIKE, STORMCALLER],
       },
-      level: 116,
+      level: 60,
     },
     {
       id: 'c5-s22',
       name: 'Bound in Chorus',
       enemies: { front: [SENTINEL, MARCHWARD_PIKEMAN], back: [CONCORD_CANTOR, STORMCALLER] },
-      level: 117,
+      level: 61,
     },
     {
       // A link and a board-wide absorb together: focus fire fails twice over, once because the
@@ -315,13 +315,13 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, DEEPROCK_MINER],
         back: [CONCORD_CANTOR, ASHEN_CHOIR],
       },
-      level: 119,
+      level: 61,
     },
     {
       id: 'c5-s24',
       name: 'The Adamant Concord',
       enemies: { front: [COLOSSUS, MARCHWARD_PIKEMAN], back: [CONCORD_CANTOR, RADIANT_HERALD] },
-      level: 120,
+      level: 62,
     },
     {
       id: 'c5-s25',
@@ -330,13 +330,13 @@ export const CHAPTER_5 = {
         front: [SENTINEL, FREE_BLADE],
         back: [RADIANT_HERALD, SERAPH_ADJUDICANT, SKYSHRIKE],
       },
-      level: 122,
+      level: 62,
     },
     {
       id: 'c5-s26',
       name: 'The Deeprock Line',
       enemies: { front: [DEEPROCK_MINER, DEEPROCK_MINER], back: [RUNEWARDEN, STORMCALLER] },
-      level: 123,
+      level: 63,
     },
     {
       id: 'c5-s27',
@@ -345,7 +345,7 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, BRAMBLEHIDE_RAVENER],
         back: [CONCORD_CANTOR, RADIANT_HERALD],
       },
-      level: 125,
+      level: 63,
     },
     {
       id: 'c5-s28',
@@ -354,13 +354,13 @@ export const CHAPTER_5 = {
         front: [COLOSSUS, SENTINEL],
         back: [SERAPH_ADJUDICANT, ASHEN_CHOIR, RADIANT_HERALD],
       },
-      level: 126,
+      level: 64,
     },
     {
       id: 'c5-s29',
       name: 'Barrowmarch',
       enemies: { front: [BARROW_SOVEREIGN, REVENANT], back: [HEADSMAN, STORMCALLER] },
-      level: 128,
+      level: 64,
     },
     {
       // Mini-boss, and the Riven Marchwarden's first appearance: a wall the party must hit and
@@ -371,7 +371,7 @@ export const CHAPTER_5 = {
         front: [RIVEN_MARCHWARDEN, COLOSSUS],
         back: [CONCORD_CANTOR, ASHEN_CHOIR, SERAPH_ADJUDICANT],
       },
-      level: 129,
+      level: 65,
     },
 
     // -----------------------------------------------------------------------------------
@@ -383,7 +383,7 @@ export const CHAPTER_5 = {
       id: 'c5-s31',
       name: 'Emberseed',
       enemies: { front: [MARCHWARD_PIKEMAN, REVENANT], back: [EMBERSEED_WARLOCK, SKYSHRIKE] },
-      level: 131,
+      level: 65,
     },
     {
       id: 'c5-s32',
@@ -392,7 +392,7 @@ export const CHAPTER_5 = {
         front: [OATHSHIELD_VANGUARD, FREE_BLADE],
         back: [EMBERSEED_WARLOCK, STORMCALLER],
       },
-      level: 132,
+      level: 66,
     },
     {
       // Two hostile statuses and a fuse, against a cleanse that removes a fixed count. The party
@@ -403,7 +403,7 @@ export const CHAPTER_5 = {
         front: [WRATHBORN, RIVEN_MARCHWARDEN],
         back: [HEXBOUND_TORMENTOR, EMBERSEED_WARLOCK, SKYSHRIKE],
       },
-      level: 134,
+      level: 66,
     },
     {
       id: 'c5-s34',
@@ -412,7 +412,7 @@ export const CHAPTER_5 = {
         front: [RIVEN_MARCHWARDEN, REVENANT],
         back: [EMBERSEED_WARLOCK, BRAMBLEWALK_SCOUT],
       },
-      level: 136,
+      level: 67,
     },
     {
       id: 'c5-s35',
@@ -421,13 +421,13 @@ export const CHAPTER_5 = {
         front: [TYRANT, MARCHWARD_PIKEMAN],
         back: [EMBERSEED_WARLOCK, HIEROPHANT, SKYSHRIKE],
       },
-      level: 137,
+      level: 67,
     },
     {
       id: 'c5-s36',
       name: 'The Wyrdroot',
       enemies: { front: [WYRDROOT_ANCIENT, SENTINEL], back: [THORNWEALD_WARDEN, GLADE_STALKER] },
-      level: 139,
+      level: 68,
     },
     {
       id: 'c5-s37',
@@ -436,7 +436,7 @@ export const CHAPTER_5 = {
         front: [WYRDROOT_ANCIENT, RIVEN_MARCHWARDEN],
         back: [EMBERSEED_WARLOCK, HEXBOUND_TORMENTOR],
       },
-      level: 140,
+      level: 68,
     },
     {
       id: 'c5-s38',
@@ -445,7 +445,7 @@ export const CHAPTER_5 = {
         front: [COLOSSUS, OATHSHIELD_VANGUARD],
         back: [CONCORD_CANTOR, STORMCALLER, SKYSHRIKE],
       },
-      level: 142,
+      level: 69,
     },
     {
       id: 'c5-s39',
@@ -454,7 +454,7 @@ export const CHAPTER_5 = {
         front: [OATHBREAKER, BRAMBLEHIDE_RAVENER],
         back: [ASHEN_CHOIR, EMBERSEED_WARLOCK, RADIANT_HERALD],
       },
-      level: 143,
+      level: 69,
     },
     {
       // Mini-boss. The chapter's four questions on one board with nothing to heal any of it —
@@ -465,7 +465,7 @@ export const CHAPTER_5 = {
         front: [RIVEN_MARCHWARDEN, COLOSSUS],
         back: [EMBERSEED_WARLOCK, MOONSONG_WEAVER, HEXBOUND_TORMENTOR],
       },
-      level: 145,
+      level: 70,
     },
 
     // -----------------------------------------------------------------------------------
@@ -475,7 +475,7 @@ export const CHAPTER_5 = {
       id: 'c5-s41',
       name: 'The Chain Road',
       enemies: { front: [RIVEN_MARCHWARDEN, TYRANT], back: [CONCORD_CANTOR, HEADSMAN] },
-      level: 146,
+      level: 70,
     },
     {
       id: 'c5-s42',
@@ -484,13 +484,13 @@ export const CHAPTER_5 = {
         front: [BARROW_SOVEREIGN, OATHSHIELD_VANGUARD],
         back: [EMBERSEED_WARLOCK, STORMCALLER],
       },
-      level: 148,
+      level: 71,
     },
     {
       id: 'c5-s43',
       name: 'The Unmade Road',
       enemies: { front: [UNMADE, MARCHWARD_PIKEMAN], back: [CONCORD_CANTOR, SKYSHRIKE] },
-      level: 149,
+      level: 71,
     },
     {
       id: 'c5-s44',
@@ -499,13 +499,13 @@ export const CHAPTER_5 = {
         front: [WYRDROOT_ANCIENT, BRAMBLEHIDE_RAVENER],
         back: [THORNWEALD_WARDEN, MOONSONG_WEAVER, GLADE_STALKER],
       },
-      level: 151,
+      level: 72,
     },
     {
       id: 'c5-s45',
       name: 'The Last Concord',
       enemies: { front: [COLOSSUS, RIVEN_MARCHWARDEN], back: [CONCORD_CANTOR, ASHEN_CHOIR] },
-      level: 152,
+      level: 72,
     },
     {
       id: 'c5-s46',
@@ -514,13 +514,13 @@ export const CHAPTER_5 = {
         front: [TYRANT, OATHSHIELD_VANGUARD],
         back: [EMBERSEED_WARLOCK, HEXBOUND_TORMENTOR, SERAPH_ADJUDICANT],
       },
-      level: 154,
+      level: 73,
     },
     {
       id: 'c5-s47',
       name: 'Barrow Gate',
       enemies: { front: [BARROW_SOVEREIGN, COLOSSUS], back: [HIEROPHANT, HEADSMAN] },
-      level: 155,
+      level: 73,
     },
     {
       id: 'c5-s48',
@@ -529,7 +529,7 @@ export const CHAPTER_5 = {
         front: [UNMADE, RIVEN_MARCHWARDEN],
         back: [CONCORD_CANTOR, EMBERSEED_WARLOCK, STORMCALLER],
       },
-      level: 157,
+      level: 74,
     },
     {
       id: 'c5-s49',
@@ -538,7 +538,7 @@ export const CHAPTER_5 = {
         front: [OATHBREAKER, BARROW_SOVEREIGN],
         back: [CONCORD_CANTOR, HIEROPHANT, SERAPH_ADJUDICANT],
       },
-      level: 158,
+      level: 74,
     },
     {
       // ⚠️ The chapter boss, and the only board in the game fielding a block that stands nowhere
@@ -553,7 +553,7 @@ export const CHAPTER_5 = {
         front: [CHAINSWORN, RIVEN_MARCHWARDEN],
         back: [CONCORD_CANTOR, EMBERSEED_WARLOCK, SERAPH_ADJUDICANT],
       },
-      level: 160,
+      level: 75,
     },
   ],
 } as const;

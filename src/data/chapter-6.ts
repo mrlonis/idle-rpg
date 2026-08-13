@@ -120,7 +120,7 @@ export const CHAPTER_6 = {
       id: 'c6-s1',
       name: 'The Outer Gate',
       enemies: { front: [MARCHWARD_PIKEMAN, VAULTBOUND_GAOLER], back: [STORMCALLER, SKYSHRIKE] },
-      level: 160,
+      level: 75,
     },
     {
       // The chapter's first lock, stated plainly. The party has spent fifty stages learning that a
@@ -132,7 +132,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, VAULTBOUND_GAOLER],
         back: [VAULTLIGHT_CENSER, STORMCALLER],
       },
-      level: 161,
+      level: 76,
     },
     {
       id: 'c6-s3',
@@ -141,7 +141,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, MARCHWARD_PIKEMAN],
         back: [VAULTLIGHT_CENSER, SKYSHRIKE, STORMCALLER],
       },
-      level: 163,
+      level: 76,
     },
     {
       id: 'c6-s4',
@@ -150,7 +150,7 @@ export const CHAPTER_6 = {
         front: [VAULTBOUND_GAOLER, UNSEALED_WRETCH],
         back: [UNSEALED_WRETCH, VAULTLIGHT_CENSER],
       },
-      level: 164,
+      level: 77,
     },
     {
       id: 'c6-s5',
@@ -159,7 +159,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, SENTINEL],
         back: [RADIANT_HERALD, VAULTLIGHT_CENSER, SKYSHRIKE],
       },
-      level: 165,
+      level: 77,
     },
     {
       id: 'c6-s6',
@@ -168,7 +168,7 @@ export const CHAPTER_6 = {
         front: [FREE_BLADE, UNSEALED_WRETCH],
         back: [SERAPH_ADJUDICANT, VAULTLIGHT_CENSER],
       },
-      level: 167,
+      level: 78,
     },
     {
       // The first board where the whole back rank is celestial. Nothing on it is individually a
@@ -179,7 +179,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, VAULTBOUND_GAOLER],
         back: [SERAPH_ADJUDICANT, RADIANT_HERALD, VAULTLIGHT_CENSER],
       },
-      level: 168,
+      level: 78,
     },
     {
       id: 'c6-s8',
@@ -188,13 +188,13 @@ export const CHAPTER_6 = {
         front: [OATHSHIELD_VANGUARD, MARCHWARD_PIKEMAN],
         back: [ASHEN_CHOIR, STORMCALLER],
       },
-      level: 169,
+      level: 79,
     },
     {
       id: 'c6-s9',
       name: 'Sealbreak',
       enemies: { front: [SEALWARD_CUSTODIAN, REVENANT], back: [SERAPH_ADJUDICANT, HEADSMAN] },
-      level: 171,
+      level: 79,
     },
     {
       // Mini-boss. The band's lock at full size: a taunt in front of a board that is itself
@@ -207,7 +207,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, GILDED_SENTRY],
         back: [ASHEN_CHOIR, SERAPH_ADJUDICANT, VAULTLIGHT_CENSER],
       },
-      level: 172,
+      level: 80,
     },
 
     // -----------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ export const CHAPTER_6 = {
         front: [MARCHWARD_PIKEMAN, VAULTBOUND_GAOLER],
         back: [ANTIPHON_ARCHON, STORMCALLER],
       },
-      level: 173,
+      level: 80,
     },
     {
       id: 'c6-s12',
@@ -232,7 +232,7 @@ export const CHAPTER_6 = {
         front: [SENTINEL, VAULTBOUND_GAOLER],
         back: [ANTIPHON_ARCHON, VAULTLIGHT_CENSER, SKYSHRIKE],
       },
-      level: 175,
+      level: 81,
     },
     {
       // Two cleanses on one board, which is the only encounter in the game where a party's debuffs
@@ -241,7 +241,7 @@ export const CHAPTER_6 = {
       id: 'c6-s13',
       name: 'Twice Warded',
       enemies: { front: [RIMEPLATE, MARCHWARD_PIKEMAN], back: [RUNEWARDEN, ANTIPHON_ARCHON] },
-      level: 176,
+      level: 81,
     },
     {
       id: 'c6-s14',
@@ -250,7 +250,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, DEEPROCK_MINER],
         back: [ANTIPHON_ARCHON, STORMCALLER],
       },
-      level: 177,
+      level: 82,
     },
     {
       id: 'c6-s15',
@@ -259,7 +259,7 @@ export const CHAPTER_6 = {
         front: [COLOSSUS, VAULTBOUND_GAOLER],
         back: [ANTIPHON_ARCHON, RADIANT_HERALD, VAULTLIGHT_CENSER],
       },
-      level: 179,
+      level: 82,
     },
     {
       id: 'c6-s16',
@@ -268,7 +268,7 @@ export const CHAPTER_6 = {
         front: [OATHSHIELD_VANGUARD, GILDED_SENTRY],
         back: [ANTIPHON_ARCHON, SERAPH_ADJUDICANT],
       },
-      level: 180,
+      level: 83,
     },
     {
       id: 'c6-s17',
@@ -277,7 +277,7 @@ export const CHAPTER_6 = {
         front: [RIVEN_MARCHWARDEN, VAULTBOUND_GAOLER],
         back: [ANTIPHON_ARCHON, SKYSHRIKE],
       },
-      level: 181,
+      level: 83,
     },
     {
       // The Marches' link beside the Vault's cleanse: focus fire is spread, and the debuff that
@@ -288,13 +288,13 @@ export const CHAPTER_6 = {
         front: [SENTINEL, FREE_BLADE],
         back: [CONCORD_CANTOR, ANTIPHON_ARCHON, VAULTLIGHT_CENSER],
       },
-      level: 183,
+      level: 84,
     },
     {
       id: 'c6-s19',
       name: 'The Deep Ward',
       enemies: { front: [SEALWARD_CUSTODIAN, COLOSSUS], back: [ANTIPHON_ARCHON, ASHEN_CHOIR] },
-      level: 184,
+      level: 84,
     },
     {
       // Mini-boss. A Seraph Adjudicant rather than a fourth defensive body on purpose: three
@@ -306,7 +306,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, RIVEN_MARCHWARDEN],
         back: [ANTIPHON_ARCHON, CONCORD_CANTOR, SERAPH_ADJUDICANT],
       },
-      level: 185,
+      level: 85,
     },
 
     // -----------------------------------------------------------------------------------
@@ -322,13 +322,13 @@ export const CHAPTER_6 = {
         front: [VAULTBOUND_GAOLER, UNSEALED_WRETCH],
         back: [RIFTBORN_HARROWER, VAULTLIGHT_CENSER],
       },
-      level: 187,
+      level: 85,
     },
     {
       id: 'c6-s22',
       name: 'Wretchwarren',
       enemies: { front: [WRATHBORN, UNSEALED_WRETCH], back: [RIFTBORN_HARROWER, SKYSHRIKE] },
-      level: 188,
+      level: 86,
     },
     {
       id: 'c6-s23',
@@ -337,7 +337,7 @@ export const CHAPTER_6 = {
         front: [MARCHWARD_PIKEMAN, UNSEALED_WRETCH],
         back: [RIFTBORN_HARROWER, EMBERSEED_WARLOCK, VAULTLIGHT_CENSER],
       },
-      level: 189,
+      level: 86,
     },
     {
       id: 'c6-s24',
@@ -346,7 +346,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, UNSEALED_WRETCH],
         back: [RIFTBORN_HARROWER, HEXBOUND_TORMENTOR],
       },
-      level: 191,
+      level: 87,
     },
     {
       id: 'c6-s25',
@@ -355,13 +355,13 @@ export const CHAPTER_6 = {
         front: [COLOSSUS, WRATHBORN],
         back: [RIFTBORN_HARROWER, ANTIPHON_ARCHON, UNSEALED_WRETCH],
       },
-      level: 192,
+      level: 87,
     },
     {
       id: 'c6-s26',
       name: "Tyrant's Cell",
       enemies: { front: [TYRANT, UNSEALED_WRETCH], back: [RIFTBORN_HARROWER, VAULTLIGHT_CENSER] },
-      level: 193,
+      level: 88,
     },
     {
       // A fuse and a wide opening on one board. The Emberseed asks *when* the cleanse is spent and
@@ -373,13 +373,13 @@ export const CHAPTER_6 = {
         front: [OATHSHIELD_VANGUARD, WRATHBORN],
         back: [RIFTBORN_HARROWER, EMBERSEED_WARLOCK, SERAPH_ADJUDICANT],
       },
-      level: 194,
+      level: 88,
     },
     {
       id: 'c6-s28',
       name: 'The Unmade Cell',
       enemies: { front: [UNMADE, UNSEALED_WRETCH], back: [RIFTBORN_HARROWER, VAULTLIGHT_CENSER] },
-      level: 196,
+      level: 89,
     },
     {
       id: 'c6-s29',
@@ -388,7 +388,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, RIMEPLATE],
         back: [RIFTBORN_HARROWER, ANTIPHON_ARCHON],
       },
-      level: 197,
+      level: 89,
     },
     {
       // Mini-boss, and the heaviest front rank the chapter has fielded so far. The Unmade is the
@@ -400,7 +400,7 @@ export const CHAPTER_6 = {
         front: [UNMADE, WRATHBORN],
         back: [RIFTBORN_HARROWER, EMBERSEED_WARLOCK, ANTIPHON_ARCHON],
       },
-      level: 198,
+      level: 90,
     },
 
     // -----------------------------------------------------------------------------------
@@ -424,13 +424,13 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, SENTINEL],
         back: [SERAPH_ADJUDICANT, STORMCALLER, VAULTLIGHT_CENSER],
       },
-      level: 200,
+      level: 90,
     },
     {
       id: 'c6-s32',
       name: "Covenant's Edge",
       enemies: { front: [COVENANT_BREAKER, UNSEALED_WRETCH], back: [SERAPH_ADJUDICANT, SKYSHRIKE] },
-      level: 201,
+      level: 91,
     },
     {
       id: 'c6-s33',
@@ -439,7 +439,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, WRATHBORN],
         back: [RIFTBORN_HARROWER, VAULTLIGHT_CENSER],
       },
-      level: 202,
+      level: 91,
     },
     {
       // The pairing the band was built for. The taunt drags the party onto the Custodian, so the
@@ -451,7 +451,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, SEALWARD_CUSTODIAN],
         back: [ANTIPHON_ARCHON, SERAPH_ADJUDICANT],
       },
-      level: 204,
+      level: 92,
     },
     {
       id: 'c6-s35',
@@ -460,7 +460,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, COLOSSUS],
         back: [CONCORD_CANTOR, RIFTBORN_HARROWER, VAULTLIGHT_CENSER],
       },
-      level: 205,
+      level: 92,
     },
     {
       id: 'c6-s36',
@@ -469,13 +469,13 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, BRAMBLEHIDE_RAVENER],
         back: [EMBERSEED_WARLOCK, ANTIPHON_ARCHON],
       },
-      level: 206,
+      level: 93,
     },
     {
       id: 'c6-s37',
       name: "Sovereign's Cell",
       enemies: { front: [BARROW_SOVEREIGN, COVENANT_BREAKER], back: [ANTIPHON_ARCHON, HEADSMAN] },
-      level: 208,
+      level: 93,
     },
     {
       id: 'c6-s38',
@@ -484,7 +484,7 @@ export const CHAPTER_6 = {
         front: [SEALWARD_CUSTODIAN, COVENANT_BREAKER],
         back: [CONCORD_CANTOR, RIFTBORN_HARROWER],
       },
-      level: 209,
+      level: 94,
     },
     {
       id: 'c6-s39',
@@ -493,7 +493,7 @@ export const CHAPTER_6 = {
         front: [OATHBREAKER, COVENANT_BREAKER],
         back: [ANTIPHON_ARCHON, EMBERSEED_WARLOCK, SERAPH_ADJUDICANT],
       },
-      level: 210,
+      level: 94,
     },
     {
       // Mini-boss. Every question the chapter has asked, on one board, with the answers pointed at
@@ -505,7 +505,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, SEALWARD_CUSTODIAN],
         back: [RIFTBORN_HARROWER, ANTIPHON_ARCHON, CONCORD_CANTOR],
       },
-      level: 212,
+      level: 95,
     },
 
     // -----------------------------------------------------------------------------------
@@ -515,7 +515,7 @@ export const CHAPTER_6 = {
       id: 'c6-s41',
       name: 'The Inner Vault',
       enemies: { front: [SEALWARD_CUSTODIAN, TYRANT], back: [ANTIPHON_ARCHON, RIFTBORN_HARROWER] },
-      level: 213,
+      level: 95,
     },
     {
       id: 'c6-s42',
@@ -524,7 +524,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, RIVEN_MARCHWARDEN],
         back: [CONCORD_CANTOR, EMBERSEED_WARLOCK],
       },
-      level: 214,
+      level: 96,
     },
     {
       id: 'c6-s43',
@@ -533,7 +533,7 @@ export const CHAPTER_6 = {
         front: [UNMADE, SEALWARD_CUSTODIAN],
         back: [RIFTBORN_HARROWER, ANTIPHON_ARCHON, VAULTLIGHT_CENSER],
       },
-      level: 216,
+      level: 96,
     },
     {
       id: 'c6-s44',
@@ -542,7 +542,7 @@ export const CHAPTER_6 = {
         front: [BARROW_SOVEREIGN, COVENANT_BREAKER],
         back: [CONCORD_CANTOR, SERAPH_ADJUDICANT, SKYSHRIKE],
       },
-      level: 217,
+      level: 97,
     },
     {
       id: 'c6-s45',
@@ -551,7 +551,7 @@ export const CHAPTER_6 = {
         front: [WYRDROOT_ANCIENT, SEALWARD_CUSTODIAN],
         back: [ANTIPHON_ARCHON, ASHEN_CHOIR],
       },
-      level: 218,
+      level: 97,
     },
     {
       id: 'c6-s46',
@@ -560,7 +560,7 @@ export const CHAPTER_6 = {
         front: [OATHBREAKER, COVENANT_BREAKER],
         back: [RIFTBORN_HARROWER, EMBERSEED_WARLOCK, ANTIPHON_ARCHON],
       },
-      level: 220,
+      level: 98,
     },
     {
       id: 'c6-s47',
@@ -569,7 +569,7 @@ export const CHAPTER_6 = {
         front: [UNMADE, RIVEN_MARCHWARDEN],
         back: [CONCORD_CANTOR, RIFTBORN_HARROWER, SERAPH_ADJUDICANT],
       },
-      level: 221,
+      level: 98,
     },
     {
       id: 'c6-s48',
@@ -578,7 +578,7 @@ export const CHAPTER_6 = {
         front: [TYRANT, SEALWARD_CUSTODIAN],
         back: [ANTIPHON_ARCHON, EMBERSEED_WARLOCK, CONCORD_CANTOR],
       },
-      level: 222,
+      level: 99,
     },
     {
       id: 'c6-s49',
@@ -587,7 +587,7 @@ export const CHAPTER_6 = {
         front: [COVENANT_BREAKER, SEALWARD_CUSTODIAN],
         back: [RIFTBORN_HARROWER, ANTIPHON_ARCHON, SERAPH_ADJUDICANT],
       },
-      level: 224,
+      level: 99,
     },
     {
       // ⚠️ The chapter boss, and the second board in the game fielding a block that stands nowhere
@@ -607,7 +607,7 @@ export const CHAPTER_6 = {
         front: [HOLLOW_SERAPH, SEALWARD_CUSTODIAN],
         back: [ANTIPHON_ARCHON, RIFTBORN_HARROWER, CONCORD_CANTOR],
       },
-      level: 225,
+      level: 100,
     },
   ],
 } as const;

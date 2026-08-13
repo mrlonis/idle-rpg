@@ -152,7 +152,7 @@ export const CHAPTER_10 = {
         front: [COLDHEARTH_IRONSWORN, MIREWHELP],
         back: [COLDFORGE_HAND, SLAGBOUND_DRUDGE, MIREWHELP],
       },
-      level: 490,
+      level: 175,
     },
     {
       // The lock stated plainly, on nothing but fodder. Neither of these is dangerous and both get
@@ -164,7 +164,7 @@ export const CHAPTER_10 = {
         front: [MIREWHELP, THORNBACK_GRAZER],
         back: [MIREWHELP, CARRION_SWARM],
       },
-      level: 492,
+      level: 176,
     },
     {
       // ⚠️ A probe sample, and the first in the chapter — `c10-s1` is skipped, because a sample
@@ -175,7 +175,7 @@ export const CHAPTER_10 = {
         front: [THORNBACK_GRAZER, MIREWHELP],
         back: [MIREWHELP, CARRION_SWARM, WHISPERLEAF_ARCHER],
       },
-      level: 494,
+      level: 176,
     },
     {
       id: 'c10-s4',
@@ -184,7 +184,7 @@ export const CHAPTER_10 = {
         front: [BOAR, MIREWHELP],
         back: [CARRION_SWARM, SLIME, DEEPGALLERY_RUNNER],
       },
-      level: 496,
+      level: 177,
     },
     {
       // The Grazer at weight: fodder the party cannot clear in one turn, so the frenzy stops being
@@ -195,7 +195,7 @@ export const CHAPTER_10 = {
         front: [THORNBACK_GRAZER, BOAR],
         back: [MIREWHELP, MIREWHELP, LONGBOUGH_MARKSMAN],
       },
-      level: 498,
+      level: 177,
     },
     {
       id: 'c10-s6',
@@ -204,7 +204,7 @@ export const CHAPTER_10 = {
         front: [GOLEM, HOLLOWBARK_SENTRY],
         back: [CARRION_SWARM, CARRION_SWARM, MIREWHELP],
       },
-      level: 500,
+      level: 178,
     },
     {
       // ⚠️ A probe sample, and the band's other half: the Matriarch does not kill anything, it arms
@@ -216,7 +216,7 @@ export const CHAPTER_10 = {
         front: [THORNBACK_GRAZER, MIREWHELP],
         back: [GOREHIDE_MATRIARCH, CARRION_SWARM, WHISPERLEAF_ARCHER],
       },
-      level: 502,
+      level: 178,
     },
     {
       id: 'c10-s8',
@@ -225,7 +225,7 @@ export const CHAPTER_10 = {
         front: [BOAR, THORNBACK_GRAZER],
         back: [GOREHIDE_MATRIARCH, MIREWHELP, LONGBOUGH_MARKSMAN],
       },
-      level: 504,
+      level: 179,
     },
     {
       id: 'c10-s9',
@@ -234,7 +234,7 @@ export const CHAPTER_10 = {
         front: [GOLEM, THORNBACK_GRAZER],
         back: [GOREHIDE_MATRIARCH, CARRION_SWARM, WEALDSHADOW_STALKER],
       },
-      level: 506,
+      level: 179,
     },
     {
       // Mini-boss, and the lieutenant's first appearance. ⚠️ **The same block stands on all four**,
@@ -250,7 +250,7 @@ export const CHAPTER_10 = {
         front: [THE_REDMAW, THORNBACK_GRAZER],
         back: [MIREWHELP, GOREHIDE_MATRIARCH, CARRION_SWARM],
       },
-      level: 508,
+      level: 180,
     },
 
     // -----------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ export const CHAPTER_10 = {
         front: [RIMEPLATE, REDWATER_STALKER],
         back: [RENDFANG_JACKAL, RENDFANG_JACKAL, WHISPERLEAF_ARCHER],
       },
-      level: 510,
+      level: 180,
     },
     {
       id: 'c10-s12',
@@ -277,7 +277,7 @@ export const CHAPTER_10 = {
         front: [RENDFANG_JACKAL, FREE_BLADE],
         back: [REDWATER_STALKER, CARRION_SWARM, WHISPERLEAF_ARCHER],
       },
-      level: 512,
+      level: 181,
     },
     {
       // Three planters against one cleanse. A single {@link RAKE} is answered on the turn it lands;
@@ -288,7 +288,7 @@ export const CHAPTER_10 = {
         front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
         back: [RENDFANG_JACKAL, RENDFANG_JACKAL, LONGBOUGH_MARKSMAN],
       },
-      level: 514,
+      level: 181,
     },
     {
       id: 'c10-s14',
@@ -297,7 +297,7 @@ export const CHAPTER_10 = {
         front: [BOAR, RENDFANG_JACKAL],
         back: [REDWATER_STALKER, CARRION_SWARM, GLOAMVINE_CREEPER],
       },
-      level: 516,
+      level: 182,
     },
     {
       // ⚠️ A probe sample. The Stalker goes past the wall at the party's own back rank, where the
@@ -309,7 +309,7 @@ export const CHAPTER_10 = {
         front: [RIMEPLATE, RENDFANG_JACKAL],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, WEALDSHADOW_STALKER],
       },
-      level: 518,
+      level: 182,
     },
     {
       id: 'c10-s16',
@@ -318,7 +318,7 @@ export const CHAPTER_10 = {
         front: [GOLEM, MIREWHELP],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, WHISPERLEAF_ARCHER],
       },
-      level: 520,
+      level: 183,
     },
     {
       // What follows a land that bleeds. The barrows' scavengers are the one returning faction that
@@ -329,7 +329,7 @@ export const CHAPTER_10 = {
         front: [SEPULCHRE_HOUND, RENDFANG_JACKAL],
         back: [REDWATER_STALKER, GRAVEWAKE_THRALL, BANDIT],
       },
-      level: 522,
+      level: 183,
     },
     {
       // Two Stalkers, so both of the party's back-rank members are carrying a wound the cleanse can
@@ -340,7 +340,7 @@ export const CHAPTER_10 = {
         front: [THORNBACK_GRAZER, SEPULCHRE_HOUND],
         back: [REDWATER_STALKER, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 524,
+      level: 184,
     },
     {
       // ⚠️ A probe sample, and the band's hardest form: the wounds do not close, and the Matriarch
@@ -351,7 +351,7 @@ export const CHAPTER_10 = {
         front: [RIMEPLATE, REDWATER_STALKER],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, GOREHIDE_MATRIARCH],
       },
-      level: 526,
+      level: 184,
     },
     {
       // Mini-boss. The lieutenant with the band's lock beside it: every body the party leaves
@@ -362,7 +362,7 @@ export const CHAPTER_10 = {
         front: [THE_REDMAW, RENDFANG_JACKAL],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, CARRION_SWARM],
       },
-      level: 528,
+      level: 185,
     },
 
     // -----------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ export const CHAPTER_10 = {
         front: [BLOODGORGE_HOUND, MIREWHELP],
         back: [CARRION_SWARM, CARRION_SWARM, RENDFANG_JACKAL],
       },
-      level: 530,
+      level: 185,
     },
     {
       id: 'c10-s22',
@@ -387,7 +387,7 @@ export const CHAPTER_10 = {
         front: [BLOODGORGE_HOUND, THORNBACK_GRAZER],
         back: [CARRION_SWARM, MIREWHELP, WHISPERLEAF_ARCHER],
       },
-      level: 532,
+      level: 186,
     },
     {
       // ⚠️ A probe sample, and the band at legendary weight. Two bodies that are paid for every blow
@@ -399,7 +399,7 @@ export const CHAPTER_10 = {
         front: [BLOODGORGE_HOUND, BRAMBLEHIDE_RAVENER],
         back: [CARRION_SWARM, RENDFANG_JACKAL, GOREHIDE_MATRIARCH],
       },
-      level: 534,
+      level: 186,
     },
     {
       id: 'c10-s24',
@@ -408,7 +408,7 @@ export const CHAPTER_10 = {
         front: [BOAR, BLOODGORGE_HOUND],
         back: [CARRION_SWARM, CARRION_SWARM, LONGBOUGH_MARKSMAN],
       },
-      level: 536,
+      level: 187,
     },
     {
       id: 'c10-s25',
@@ -417,7 +417,7 @@ export const CHAPTER_10 = {
         front: [BLOODGORGE_HOUND, MIREWHELP],
         back: [GOREHIDE_MATRIARCH, RENDFANG_JACKAL, WEALDSHADOW_STALKER],
       },
-      level: 538,
+      level: 187,
     },
     {
       id: 'c10-s26',
@@ -426,7 +426,7 @@ export const CHAPTER_10 = {
         front: [GOLEM, BLOODGORGE_HOUND],
         back: [CARRION_SWARM, REDWATER_STALKER, GLOAMVINE_CREEPER],
       },
-      level: 540,
+      level: 188,
     },
     {
       // ⚠️ A probe sample. Two Hounds, and the arithmetic the band is built on: the party's damage
@@ -438,7 +438,7 @@ export const CHAPTER_10 = {
         front: [BLOODGORGE_HOUND, BLOODGORGE_HOUND],
         back: [GOREHIDE_MATRIARCH, CARRION_SWARM, RENDFANG_JACKAL],
       },
-      level: 542,
+      level: 188,
     },
     {
       id: 'c10-s28',
@@ -447,7 +447,7 @@ export const CHAPTER_10 = {
         front: [CAIRNWARD_HUSK, BLOODGORGE_HOUND],
         back: [REDWATER_STALKER, CARRION_SWARM, BARROWMIST_KEENER],
       },
-      level: 544,
+      level: 189,
     },
     {
       id: 'c10-s29',
@@ -456,7 +456,7 @@ export const CHAPTER_10 = {
         front: [RAVAGER, BLOODGORGE_HOUND],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 546,
+      level: 189,
     },
     {
       // Mini-boss. The lieutenant on a board that drinks: one chipped body wakes the pack, and the
@@ -467,7 +467,7 @@ export const CHAPTER_10 = {
         front: [THE_REDMAW, BLOODGORGE_HOUND],
         back: [CARRION_SWARM, GOREHIDE_MATRIARCH, RENDFANG_JACKAL],
       },
-      level: 548,
+      level: 190,
     },
 
     // -----------------------------------------------------------------------------------
@@ -486,7 +486,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, RIMEPLATE],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, RENDFANG_JACKAL],
       },
-      level: 550,
+      level: 190,
     },
     {
       id: 'c10-s32',
@@ -495,7 +495,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, MIREWHELP],
         back: [RENDFANG_JACKAL, CARRION_SWARM, WHISPERLEAF_ARCHER],
       },
-      level: 552,
+      level: 191,
     },
     {
       id: 'c10-s33',
@@ -504,7 +504,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, THORNBACK_GRAZER],
         back: [GOREHIDE_MATRIARCH, CARRION_SWARM, LONGBOUGH_MARKSMAN],
       },
-      level: 554,
+      level: 191,
     },
     {
       id: 'c10-s34',
@@ -513,7 +513,7 @@ export const CHAPTER_10 = {
         front: [GOLEM, SCARBOUND_BELLOWER],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, WEALDSHADOW_STALKER],
       },
-      level: 556,
+      level: 192,
     },
     {
       // ⚠️ A probe sample. The door is shut and what is behind it is quick: a Ravager's pierce goes
@@ -524,7 +524,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, RAVAGER],
         back: [GOREHIDE_MATRIARCH, RENDFANG_JACKAL, CARRION_SWARM],
       },
-      level: 558,
+      level: 192,
     },
     {
       // ⚠️ **The Sepulchre Hound belongs on this board by every other measure and cannot stand on
@@ -539,7 +539,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, BOAR],
         back: [REDWATER_STALKER, GRAVEWAKE_THRALL, BARROWMIST_KEENER],
       },
-      level: 560,
+      level: 193,
     },
     {
       id: 'c10-s37',
@@ -548,7 +548,7 @@ export const CHAPTER_10 = {
         front: [OATHBREAKER, SCARBOUND_BELLOWER],
         back: [GOREHIDE_MATRIARCH, RENDFANG_JACKAL, WHISPERLEAF_ARCHER],
       },
-      level: 562,
+      level: 193,
     },
     {
       id: 'c10-s38',
@@ -557,7 +557,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, RIMEPLATE],
         back: [REDWATER_STALKER, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 564,
+      level: 194,
     },
     {
       // ⚠️ A probe sample, and the band's hardest form: the only legal target arms itself while the
@@ -569,7 +569,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, TYRANT],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, RENDFANG_JACKAL],
       },
-      level: 566,
+      level: 194,
     },
     {
       // Mini-boss, and the last time the lieutenant is met. Every question the chapter has asked
@@ -581,7 +581,7 @@ export const CHAPTER_10 = {
         front: [THE_REDMAW, SCARBOUND_BELLOWER],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, RENDFANG_JACKAL],
       },
-      level: 568,
+      level: 195,
     },
 
     // -----------------------------------------------------------------------------------
@@ -596,7 +596,7 @@ export const CHAPTER_10 = {
         front: [TYRANT, MIREWHELP],
         back: [GOREHIDE_MATRIARCH, RENDFANG_JACKAL, CARRION_SWARM],
       },
-      level: 570,
+      level: 195,
     },
     {
       // The barrows' own sovereign, out where the dead are not buried. Nothing taunts here, which is
@@ -607,7 +607,7 @@ export const CHAPTER_10 = {
         front: [BARROW_SOVEREIGN, THORNBACK_GRAZER],
         back: [REDWATER_STALKER, RENDFANG_JACKAL, BARROWMIST_KEENER],
       },
-      level: 572,
+      level: 196,
     },
     {
       // ⚠️ A probe sample. Band 3 at ascended weight: the pack still drinks, and the thing in front
@@ -618,7 +618,7 @@ export const CHAPTER_10 = {
         front: [TYRANT, BLOODGORGE_HOUND],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 574,
+      level: 196,
     },
     {
       id: 'c10-s44',
@@ -627,7 +627,7 @@ export const CHAPTER_10 = {
         front: [OATHBREAKER, BRAMBLEHIDE_RAVENER],
         back: [GOREHIDE_MATRIARCH, RENDFANG_JACKAL, WEALDSHADOW_STALKER],
       },
-      level: 576,
+      level: 197,
     },
     {
       id: 'c10-s45',
@@ -636,7 +636,7 @@ export const CHAPTER_10 = {
         front: [SCARBOUND_BELLOWER, RIMEPLATE],
         back: [REDWATER_STALKER, GOREHIDE_MATRIARCH, RENDFANG_JACKAL],
       },
-      level: 578,
+      level: 197,
     },
     {
       id: 'c10-s46',
@@ -645,7 +645,7 @@ export const CHAPTER_10 = {
         front: [TYRANT, THORNBACK_GRAZER],
         back: [REDWATER_STALKER, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 580,
+      level: 198,
     },
     {
       // ⚠️ A probe sample. Band 4 at its heaviest: an ascended body beside the door, and everything
@@ -656,7 +656,7 @@ export const CHAPTER_10 = {
         front: [OATHBREAKER, SCARBOUND_BELLOWER],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, RENDFANG_JACKAL],
       },
-      level: 582,
+      level: 198,
     },
     {
       id: 'c10-s48',
@@ -665,7 +665,7 @@ export const CHAPTER_10 = {
         front: [BARROW_SOVEREIGN, BLOODGORGE_HOUND],
         back: [GOREHIDE_MATRIARCH, CARRION_SWARM, RENDFANG_JACKAL],
       },
-      level: 584,
+      level: 199,
     },
     {
       // ⚠️ A probe sample, and the last one before the final. The chapter's two heaviest returning
@@ -676,7 +676,7 @@ export const CHAPTER_10 = {
         front: [TYRANT, SCARBOUND_BELLOWER],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, CARRION_SWARM],
       },
-      level: 586,
+      level: 199,
     },
     {
       // ⚠️ The chapter boss, and the tenth body on the ladder standing on exactly one stage. Three of
@@ -705,7 +705,7 @@ export const CHAPTER_10 = {
         front: [THE_EVERWOUND, SCARBOUND_BELLOWER],
         back: [GOREHIDE_MATRIARCH, REDWATER_STALKER, RENDFANG_JACKAL],
       },
-      level: 588,
+      level: 200,
     },
   ],
 } as const;

@@ -186,7 +186,7 @@ export const CHAPTER_8 = {
         front: [GRAVEWAKE_THRALL, HOLLOWBARK_SENTRY],
         back: [DUSKFERN_SKIRMISHER, BARROWMIST_KEENER],
       },
-      level: 305,
+      level: 125,
     },
     {
       // The lock stated plainly. Two Skirmishers behind a bark wall: nothing here is dangerous and
@@ -197,7 +197,7 @@ export const CHAPTER_8 = {
         front: [HOLLOWBARK_SENTRY, DUSKFERN_SKIRMISHER],
         back: [DUSKFERN_SKIRMISHER, BARROWMIST_KEENER],
       },
-      level: 307,
+      level: 126,
     },
     {
       // ⚠️ A probe sample, and the first in the chapter. The Stalker anchors it — evasion on a body
@@ -208,7 +208,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY],
         back: [DUSKFERN_SKIRMISHER, BARROWMIST_KEENER, THORNLING],
       },
-      level: 309,
+      level: 126,
     },
     {
       id: 'c8-s4',
@@ -217,7 +217,7 @@ export const CHAPTER_8 = {
         front: [GRAVEWAKE_THRALL, DUSKFERN_SKIRMISHER],
         back: [GLADE_STALKER, BRAMBLEWALK_SCOUT, BARROWMIST_KEENER],
       },
-      level: 311,
+      level: 127,
     },
     {
       id: 'c8-s5',
@@ -226,7 +226,7 @@ export const CHAPTER_8 = {
         front: [HOLLOWBARK_SENTRY, RIMEPLATE],
         back: [DUSKFERN_SKIRMISHER, SKYSHRIKE],
       },
-      level: 312,
+      level: 127,
     },
     {
       id: 'c8-s6',
@@ -235,7 +235,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, DUSKFERN_SKIRMISHER],
         back: [BRAMBLEWALK_SCOUT, BARROWMIST_KEENER, THORNLING],
       },
-      level: 314,
+      level: 128,
     },
     {
       // ⚠️ A probe sample. The chapter's first pair, and the one that decides whether a party's
@@ -247,7 +247,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY],
         back: [NIGHTCANOPY_SINGER, DUSKFERN_SKIRMISHER, SKYSHRIKE],
       },
-      level: 316,
+      level: 128,
     },
     {
       id: 'c8-s8',
@@ -256,7 +256,7 @@ export const CHAPTER_8 = {
         front: [SENTINEL, DUSKFERN_SKIRMISHER],
         back: [NIGHTCANOPY_SINGER, BARROWMIST_KEENER],
       },
-      level: 318,
+      level: 129,
     },
     {
       id: 'c8-s9',
@@ -265,7 +265,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY],
         back: [MOONSONG_WEAVER, DUSKFERN_SKIRMISHER, SKYSHRIKE],
       },
-      level: 320,
+      level: 129,
     },
     {
       // Mini-boss, and the lieutenant's first appearance. ⚠️ **The same block stands on all four**,
@@ -279,7 +279,7 @@ export const CHAPTER_8 = {
         front: [THE_LONGSHADOW, HOLLOWBARK_SENTRY],
         back: [WEALDSHADOW_STALKER, DUSKFERN_SKIRMISHER, BARROWMIST_KEENER],
       },
-      level: 322,
+      level: 130,
     },
 
     // -----------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ export const CHAPTER_8 = {
         front: [RIMEPLATE, WEALDSHADOW_STALKER],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER, DUSKFERN_SKIRMISHER],
       },
-      level: 324,
+      level: 130,
     },
     {
       id: 'c8-s12',
@@ -306,7 +306,7 @@ export const CHAPTER_8 = {
         front: [HOLLOWBARK_SENTRY, GRAVEWAKE_THRALL],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER, SKYSHRIKE],
       },
-      level: 325,
+      level: 131,
     },
     {
       id: 'c8-s13',
@@ -315,7 +315,7 @@ export const CHAPTER_8 = {
         front: [SENTINEL, HOLLOWBARK_SENTRY],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER, WHISPERLEAF_ARCHER],
       },
-      level: 327,
+      level: 131,
     },
     {
       id: 'c8-s14',
@@ -324,7 +324,7 @@ export const CHAPTER_8 = {
         front: [BRAMBLEHIDE_RAVENER, DUSKFERN_SKIRMISHER],
         back: [LONGBOUGH_MARKSMAN, NIGHTCANOPY_SINGER],
       },
-      level: 329,
+      level: 132,
     },
     {
       // ⚠️ A probe sample, and the band's question at full weight: the back rank is opened by the
@@ -336,7 +336,7 @@ export const CHAPTER_8 = {
         front: [COLOSSUS, HOLLOWBARK_SENTRY],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER, SKYSHRIKE],
       },
-      level: 331,
+      level: 132,
     },
     {
       id: 'c8-s16',
@@ -345,7 +345,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, MARCHWARD_PIKEMAN],
         back: [LONGBOUGH_MARKSMAN, BARROWMIST_KEENER, BRAMBLEWALK_SCOUT],
       },
-      level: 333,
+      level: 133,
     },
     {
       // Two Marksmen, so the party's back rank is opened twice a cycle against a cleanse that
@@ -357,7 +357,7 @@ export const CHAPTER_8 = {
         front: [RIMEPLATE, HOLLOWBARK_SENTRY],
         back: [LONGBOUGH_MARKSMAN, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 335,
+      level: 133,
     },
     {
       id: 'c8-s18',
@@ -366,7 +366,7 @@ export const CHAPTER_8 = {
         front: [CAIRNBOUND_SENTINEL, DUSKFERN_SKIRMISHER],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 337,
+      level: 134,
     },
     {
       // ⚠️ A probe sample. A taunt in front of the archers, which is the band's hardest form: the
@@ -377,7 +377,7 @@ export const CHAPTER_8 = {
         front: [CAIRNBOUND_SENTINEL, WEALDSHADOW_STALKER],
         back: [LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER, NIGHTCANOPY_SINGER],
       },
-      level: 338,
+      level: 134,
     },
     {
       // Mini-boss. The lieutenant with the band's lock beside it, and no taunt anywhere on the
@@ -389,7 +389,7 @@ export const CHAPTER_8 = {
         front: [THE_LONGSHADOW, HOLLOWBARK_SENTRY],
         back: [LONGBOUGH_MARKSMAN, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 340,
+      level: 135,
     },
 
     // -----------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ export const CHAPTER_8 = {
         front: [HOLLOWBARK_SENTRY, GRAVEWAKE_THRALL],
         back: [GLOAMVINE_CREEPER, GLOAMVINE_CREEPER, BARROWMIST_KEENER],
       },
-      level: 342,
+      level: 135,
     },
     {
       id: 'c8-s22',
@@ -415,7 +415,7 @@ export const CHAPTER_8 = {
         front: [RIMEPLATE, HOLLOWBARK_SENTRY],
         back: [GLOAMVINE_CREEPER, GLOAMVINE_CREEPER, WHISPERLEAF_ARCHER],
       },
-      level: 344,
+      level: 136,
     },
     {
       // ⚠️ A probe sample. The bind at legendary weight: the Tenders are bound to the Creeper, so the
@@ -438,7 +438,7 @@ export const CHAPTER_8 = {
         front: [HEADSMAN, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, HEARTROOT_TENDER, GLOAMVINE_CREEPER],
       },
-      level: 346,
+      level: 136,
     },
     {
       id: 'c8-s24',
@@ -447,7 +447,7 @@ export const CHAPTER_8 = {
         front: [CAIRNWARD_HUSK, DUSKFERN_SKIRMISHER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 348,
+      level: 137,
     },
     {
       id: 'c8-s25',
@@ -456,7 +456,7 @@ export const CHAPTER_8 = {
         front: [BRAMBLEHIDE_RAVENER, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, WHISPERLEAF_ARCHER],
       },
-      level: 350,
+      level: 137,
     },
     {
       id: 'c8-s26',
@@ -465,7 +465,7 @@ export const CHAPTER_8 = {
         front: [CAIRNBOUND_SENTINEL, HOLLOWBARK_SENTRY],
         back: [GLOAMVINE_CREEPER, GLOAMVINE_CREEPER, WHISPERLEAF_ARCHER],
       },
-      level: 351,
+      level: 138,
     },
     {
       // ⚠️ A probe sample, and the band's two answers refused at once: reach is spread and going wide
@@ -476,7 +476,7 @@ export const CHAPTER_8 = {
         front: [BRAMBLEHIDE_RAVENER, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, HEARTROOT_TENDER, GLOAMVINE_CREEPER],
       },
-      level: 353,
+      level: 138,
     },
     {
       id: 'c8-s28',
@@ -485,7 +485,7 @@ export const CHAPTER_8 = {
         front: [WYRDROOT_ANCIENT, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, WHISPERLEAF_ARCHER],
       },
-      level: 355,
+      level: 139,
     },
     {
       id: 'c8-s29',
@@ -494,7 +494,7 @@ export const CHAPTER_8 = {
         front: [SENTINEL, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 357,
+      level: 139,
     },
     {
       // Mini-boss. The lieutenant on a board that is bound before it takes its turn, so Rootwake is
@@ -506,7 +506,7 @@ export const CHAPTER_8 = {
         front: [THE_LONGSHADOW, HOLLOWBARK_SENTRY],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, GLOAMVINE_CREEPER],
       },
-      level: 359,
+      level: 140,
     },
 
     // -----------------------------------------------------------------------------------
@@ -523,7 +523,7 @@ export const CHAPTER_8 = {
         front: [WYRDROOT_ANCIENT, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 361,
+      level: 140,
     },
     {
       id: 'c8-s32',
@@ -532,7 +532,7 @@ export const CHAPTER_8 = {
         front: [HOLLOWBARK_SENTRY, DUSKFERN_SKIRMISHER],
         back: [HEARTROOT_TENDER, HEARTROOT_TENDER, WHISPERLEAF_ARCHER],
       },
-      level: 363,
+      level: 141,
     },
     {
       id: 'c8-s33',
@@ -541,7 +541,7 @@ export const CHAPTER_8 = {
         front: [COLOSSUS, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, NIGHTCANOPY_SINGER, WHISPERLEAF_ARCHER],
       },
-      level: 364,
+      level: 141,
     },
     {
       // The Keeper beside the Tender. Everything the party spends opening a body is taken back off
@@ -553,7 +553,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY],
         back: [HEARTROOT_TENDER, GRAVEMOURN_KEEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 366,
+      level: 142,
     },
     {
       // ⚠️ A probe sample. A taunt in front of a bound back rank: the party may only hit the wall,
@@ -564,7 +564,7 @@ export const CHAPTER_8 = {
         front: [CAIRNBOUND_SENTINEL, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 368,
+      level: 142,
     },
     {
       id: 'c8-s36',
@@ -573,7 +573,7 @@ export const CHAPTER_8 = {
         front: [RIMEPLATE, GLOAMVINE_CREEPER],
         back: [BONECHAIN_WARDEN, HEARTROOT_TENDER, WHISPERLEAF_ARCHER],
       },
-      level: 370,
+      level: 143,
     },
     {
       id: 'c8-s37',
@@ -582,7 +582,7 @@ export const CHAPTER_8 = {
         front: [HEADSMAN, HOLLOWBARK_SENTRY],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, NIGHTCANOPY_SINGER],
       },
-      level: 372,
+      level: 143,
     },
     {
       // The Thornweald Warden, in a front rank the party can always reach — the regeneration lock
@@ -594,7 +594,7 @@ export const CHAPTER_8 = {
         front: [THORNWEALD_WARDEN, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, WHISPERLEAF_ARCHER],
       },
-      level: 374,
+      level: 144,
     },
     {
       // ⚠️ A probe sample, and the last board before the lieutenant's fourth appearance.
@@ -604,7 +604,7 @@ export const CHAPTER_8 = {
         front: [TYRANT, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 376,
+      level: 144,
     },
     {
       // Mini-boss, and the last time the lieutenant is met. Every question the chapter has asked
@@ -616,7 +616,7 @@ export const CHAPTER_8 = {
         front: [THE_LONGSHADOW, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, GLOAMVINE_CREEPER],
       },
-      level: 377,
+      level: 145,
     },
 
     // -----------------------------------------------------------------------------------
@@ -631,7 +631,7 @@ export const CHAPTER_8 = {
         front: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, NIGHTCANOPY_SINGER],
       },
-      level: 379,
+      level: 145,
     },
     {
       id: 'c8-s42',
@@ -640,7 +640,7 @@ export const CHAPTER_8 = {
         front: [UNMADE, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 381,
+      level: 146,
     },
     {
       // ⚠️ A probe sample. The Ancient in front and the bound wood behind it: a body that regrows
@@ -652,7 +652,7 @@ export const CHAPTER_8 = {
         front: [WYRDROOT_ANCIENT, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, LONGBOUGH_MARKSMAN],
       },
-      level: 383,
+      level: 146,
     },
     {
       id: 'c8-s44',
@@ -661,7 +661,7 @@ export const CHAPTER_8 = {
         front: [BARROW_SOVEREIGN, GLOAMVINE_CREEPER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, WHISPERLEAF_ARCHER],
       },
-      level: 385,
+      level: 147,
     },
     {
       id: 'c8-s45',
@@ -670,7 +670,7 @@ export const CHAPTER_8 = {
         front: [OATHBREAKER, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, GLOAMVINE_CREEPER, NIGHTCANOPY_SINGER],
       },
-      level: 387,
+      level: 147,
     },
     {
       id: 'c8-s46',
@@ -679,7 +679,7 @@ export const CHAPTER_8 = {
         front: [TYRANT, HOLLOWBARK_SENTRY],
         back: [GRAVETIDE_HERALD, HEARTROOT_TENDER, LONGBOUGH_MARKSMAN],
       },
-      level: 389,
+      level: 148,
     },
     {
       // ⚠️ A probe sample, and the last one before the final. The Unmade anchoring a board that is
@@ -690,7 +690,7 @@ export const CHAPTER_8 = {
         front: [UNMADE, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, GLOAMVINE_CREEPER],
       },
-      level: 390,
+      level: 148,
     },
     {
       id: 'c8-s48',
@@ -699,7 +699,7 @@ export const CHAPTER_8 = {
         front: [WYRDROOT_ANCIENT, DUSKFERN_SKIRMISHER],
         back: [HEARTROOT_TENDER, HEARTROOT_TENDER, LONGBOUGH_MARKSMAN],
       },
-      level: 392,
+      level: 149,
     },
     {
       id: 'c8-s49',
@@ -708,7 +708,7 @@ export const CHAPTER_8 = {
         front: [COLOSSUS, WEALDSHADOW_STALKER],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, NIGHTCANOPY_SINGER],
       },
-      level: 394,
+      level: 149,
     },
     {
       // ⚠️ The chapter boss, and the fourth body on the ladder standing on exactly one stage. All
@@ -740,7 +740,7 @@ export const CHAPTER_8 = {
         front: [THE_WITHERED_CROWN, CAIRNBOUND_SENTINEL],
         back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, WEALDSHADOW_STALKER],
       },
-      level: 396,
+      level: 150,
     },
   ],
 } as const;

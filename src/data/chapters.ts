@@ -196,7 +196,7 @@ export const STAGE_REWARDS = {
     xp: 0.2,
     essence: 0.003,
   },
-  exponent: 1.45,
+  exponent: 1.0,
   rewardSeconds: 40,
   firstClearSummons: {
     base: 250,
