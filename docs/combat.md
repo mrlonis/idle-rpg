@@ -503,6 +503,23 @@ while this punishes it once at a known tick and a cleanse spent before that tick
 thing. It answers the target's resist exactly as a `dot` does, and it fires exactly once because the
 expiry that pays it out is the expiry that removes it.
 
+⚠️ **The two sides of the board kill at completely different speeds, so a delayed payload does not
+transfer between them.** An enemy plants on the party's back rank, which nothing on the enemy side
+concentrates on; a party plants on a board all five of its members are actively trying to delete,
+and its back rank is where all of that reach already converges. Measured: a 40-tick `EMBER_SEED`
+aimed at `enemy-back` detonated **not once in 57 plants across forty fights** — 53 died with their
+carrier.
+
+The party's bomb is therefore its own status — `HEXBRAND`, 24 ticks — aimed at **`enemy-highest`**,
+the largest remaining health pool and the one body a party cannot reliably delete. Aiming wide was
+measured and is worse: `enemy-row-front` and `enemy-all` plant far more and detonate a _smaller_
+fraction of what they plant, at lower power. Detonation is now about a third of plants in contested
+fights and zero in walkovers and losses, which is the correct shape — those are the fights whose
+outcome was never in doubt.
+
+⚠️ **A payload that reliably lands should not also be the larger one**, which is why `HEXBRAND` is
+smaller per instance than either enemy bomb.
+
 ⚠️ **Neither reflect nor link can cascade, and the argument is structural rather than a depth
 counter.** All three of the damage sources above — plus a `dot` ticking — resolve through one
 `statusDamage` helper that **never re-enters the attack path**. Thorns therefore cannot answer

@@ -206,6 +206,31 @@ have. Carry it forward rather than dropping it.
 
 ---
 
+## Local notifications: two, ever
+
+Two ship, at 12h and 24h. See [`ui/notifications.service.ts`](../src/ui/notifications.service.ts).
+
+⚠️ **This is a deliberate reversal of an earlier "ship none" decision**, and the original objection
+is preserved rather than deleted because it is still why the feature has the shape it has — see
+[history](history.md). Every constraint below follows from keeping that objection in view.
+
+- ⚠️ **Cancelled on foreground and on launch.** A player who has come back must not be told to come
+  back.
+- **Two, ever** — not a daily drumbeat and not one per finished bounty. **Fixed ids**, so
+  re-scheduling replaces rather than accumulates.
+- **The copy promises nothing is lost, because nothing is.** No expiring reward, no streak, no
+  penalty; the spec asserts both the promise and the absence of urgency words. ⚠️ **The guard caught
+  the first draft**, whose "Nothing expires and nothing is lost" was true and unmatchable by a regex
+  that cannot tell it from "expires soon" — **the copy was reworded rather than the guard weakened.**
+- **A setting, defaulting on**, which also cancels anything queued when switched off. Permission is
+  requested at the first backgrounding, never at launch.
+
+**The 24-hour reminder and the longest bounty are the same number, and that is not a coincidence** —
+a full day is where the board has nothing left to give, so it is the one moment the app has something
+concrete to say.
+
+---
+
 ## Still deferred
 
 **Foreground/background handling via `@capacitor/app`.** Auto-battle was named as the first feature

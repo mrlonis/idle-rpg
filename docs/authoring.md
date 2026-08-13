@@ -157,6 +157,27 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   inverse: raw `atk`, thin armour and `lifeLeech` in place of a healer, so the risk is a **closed
   loop** rather than the clock.
 
+### The enemy roster, and what `enemies.spec.ts` holds
+
+A hundred and thirty archetypes ship, and the distribution is deliberately uneven — a chapter or
+tower leaning on a faction needs depth in it. The invariants:
+
+- **Every faction carries at least four archetypes, and owns a `common`, a `legendary` and an
+  `ascended`.** The tier split matters as much as the count: content runs from enemy level 1 upward,
+  so a lean has to supply both ends. Four factions once had no `common` at all and three had no
+  `ascended`, which is why the shape is asserted **per faction** rather than the count alone.
+- ⚠️ **Every archetype must be fielded somewhere, and "somewhere" is every ladder rather than the
+  campaign.** That rule lived in `chapters.spec.ts` while the campaign was the only content;
+  eighteen tower-only blocks would have failed it as orphans, so it moved whole to
+  `data/enemies.spec.ts`, the only spec that sees both. **Widened, not relaxed** — an archetype
+  nobody ever meets is still a stat block with a comment attached.
+- ⚠️ **Any new `ascended`-tier block stays under the Unmade on both stats.** The Unmade is the
+  ceiling and nothing may reach it. Every chapter boss since respects it rather than raising it —
+  what makes them the harder fights is the questions they ask and the level they are fielded at.
+- **Ids and names are globally unique**, which is a check that only runs once everything has landed.
+  ⚠️ **That is why parallel authoring sessions collide**: run them one at a time, each rebased on the
+  last.
+
 ### The name, the setting and the signature
 
 The shipped ten, with the level range each closes over:

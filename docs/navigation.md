@@ -175,6 +175,52 @@ query parameter: a forgeable `?fight=1` would be a second, undocumented entry in
 
 ---
 
+## There is no "the formation" — there are eight crews, keyed by activity
+
+Since milestone 15a. Read [`core/activity.ts`](../src/core/activity.ts) and `FormationBook` in
+[`core/state.ts`](../src/core/state.ts) before writing anything that reads who is fighting.
+
+Seven towers plus the campaign is eight line-ups, and the game had exactly one — not as a screen but
+as a **field**. **Eight live formations, not one live formation and seven templates**: a template
+model keeps one thing that fights and makes the rest inert copies loaded into it, which is cheaper
+and spends a step of the player's attention on bookkeeping the game could do. **A crew that has to
+be _loaded_ before it is real is a crew the player has to remember to load.**
+
+- ⚠️ **`GameState.formations` is a record, and `state.formation` no longer exists.** Every write goes
+  through `setFormation(state, activity, …)` with the activity **required rather than defaulted** —
+  for the reason `toBattleCombatant` takes a level rather than reading one: a caller that forgot
+  which crew it was editing would silently rewrite the campaign's, and every screen would keep
+  showing the right thing until the player started a fight with the wrong five.
+- **An unknown activity key is kept on load, not dropped** — the same call `parseAchievements` makes.
+  A crew for a tower this build has not shipped costs two short arrays; dropping it costs a player
+  their line-up every time they move between builds.
+- ⚠️ **One character may stand in several crews at once, and that is not damage.** Only one activity
+  is fought at a time. What stays forbidden is standing twice _within_ one crew, which is the state
+  that would let a fighter act twice — so the decoder's dedupe set is scoped **per formation** and
+  must stay that way.
+- **A faction lock is content, so `core/` does not enforce it** — `partyMeetsLock` does, and both the
+  editor and the battle path call it. Two implementations of one rule is how a screen ends up
+  promising a legal crew that the fight then refuses. The lock **filters the pool** rather than
+  refusing a tap: a character it forbids can never enter, so listing them above the ones who can is a
+  screen hiding its own answer.
+  - A lock is a `FactionLock` — `readonly string[] | null` — resolved by `FormationService.lockFor`
+    for both kinds: a tower's is authored and constant, the Descent's is drawn daily. ⚠️ **`null` and
+    `[]` are different answers**: `null` is "anybody may stand here" and `[]` is "nobody may", which
+    is what stops a missing lock from silently reading as an empty crew.
+- ⚠️ **Standing in a crew reserves nobody.** A fielded character may be dispatched, and a crew
+  holding somebody away cannot fight — see [bounties](bounties.md). Neither `setFormation` nor
+  anything else in the formation path may refuse on the grounds that a character is busy elsewhere.
+- **Adding an activity is a row in [`data/activities.ts`](../src/data/activities.ts) and nothing
+  else.** ⚠️ **An `id` is a save key and is permanent once shipped** — renaming one silently disbands
+  the crew standing in it. Change the `name` freely; never the `id`.
+
+**The roster screen stopped being a formation editor**, not because eight crews would not fit in the
+markup but because the screen would then answer two unrelated questions at once: _who is worth
+levelling_ and _who is going to which fight_. Placement moved out whole to `/formations`, and the
+roster kept the shared level, the faction groups and a link.
+
+---
+
 ## Routing
 
 Routing shipped with milestone 3, on the trigger the roadmap named: **a screen that survives a

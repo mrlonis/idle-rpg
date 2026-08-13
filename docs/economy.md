@@ -687,6 +687,15 @@ Both ramp steeply enough that certainty arrives before the hard cap, so **each g
 rather than the mechanism.** Both counters live in `GameState`, are **global rather than
 per-banner**, and are on screen at all times.
 
+⚠️ **A hard cap moved is a soft ramp re-derived, not clipped.** Taking ascended pity from 50 to 30
+left `softPityStart` at 30 — a flat 2.5% for twenty-nine pulls and then a cliff, which is no ramp at
+all. Move both ends together or the guarantee stops being a floor and becomes the whole mechanism.
+
+⚠️ **The "certainty arrives before the cap" assertion in `banners.spec.ts` is stated proportionally
+to the cycle**, for the same reason: three pulls of headroom is a tenth of a thirty-pull cycle and
+nearly a third of a ten-pull one, so a fixed number of pulls would mean two different things on the
+two curves.
+
 The legendary cycle is sized to `MULTI_PULL_COUNT` deliberately: a ten-pull is the unit a player
 actually experiences, and one that came back entirely common was the worst thing this banner could
 produce. It is now unreachable rather than merely rare.
