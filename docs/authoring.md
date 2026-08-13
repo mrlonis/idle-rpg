@@ -88,11 +88,18 @@ which the old line's +2 levels a stage had been masking. ⚠️ **The front rank
 body goes in the back.
 
 ⚠️ **Widen the difficulty probe's bracket, and add a step every few chapters.** It brackets the
-_party's_ power, so it grows with the margin rule rather than with the stage count. It has gone
+_party's_ power, so it grows with what the content asks rather than with the stage count. It has gone
 4,000 → 50,000 → 500,000 → **5,000,000**, and the two halves move on different schedules: a factor
 of ten on the range costs almost nothing in resolution (0.030% → 0.028%) while one extra step nearly
 halves it (→ 0.014%). Not widening presents as a difficulty curve flattening into a horizontal line
 at the ceiling.
+
+⚠️ **The flattening slowed this down roughly fourfold and did not remove it.** A chapter used to be
+worth ×6.5 of party power and is now worth ×1.68, so the bracket that needed widening every two or
+three chapters will now last closer to ten — **but it still only ever grows**. Check it rather than
+assuming either schedule; the failure is silent and reads as a flat difficulty curve, which is now
+also what a _correctly_ flat level line looks like. ⚠️ **Those two are indistinguishable on the probe
+output**, so confirm the bracket before concluding anything about a chapter's escalation.
 
 ### The four constraints on a chapter's boards
 
@@ -211,9 +218,23 @@ rather than at a boundary where it would read as a new game.
 ### The seam party
 
 Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTED` renamed to a
-party defined by the chapter it has just finished, with `INVESTED` moved up to the rung the new
+party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `INVESTED`.
+
+⚠️ **Picking that rung is no longer "the next one up", and this is the trap the flattening left
+here.** Under the margin rule each chapter out-climbed a fresh cap, so the rung advanced every
+chapter and "move it up one" was correct. On the flat line **a new chapter often asks for the same
+rung as the one below it** — chapters 4–5 share `elite`, 6–7 share `elite-plus`, and 8, 9 and 10 all
+share `legendary`. Moving it up one anyway hands the party a ×1.6 the content never asked for, and
+the sweep answers with walkovers three chapters deep rather than with a failure at the seam.
+
+**Choose the rung that reproduces the power ratio the seam below it had**, which is
+`pow(1.6, rung - rareIndex) * pow(perLevel.common, min(close, caps[rung]) - close)` — the party at
+`min(chapter close, cap)` against content at the close. Compute it for every rung and take the
+closest in **log** space; the caps ladder is coarse enough at this depth that the two candidates
+either side of the answer can sit 20–40% out, and picking by eye picks the wrong one. This is how
+the seven shipped seams were re-derived after the flattening.
 
 **They accumulate rather than being re-pointed**, because re-aiming a single "arrived" party would
 silently stop checking that the chapter below is still finishable by the party it was tuned for.
