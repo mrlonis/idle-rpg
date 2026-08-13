@@ -55,7 +55,7 @@ This file is the single source of truth for the roadmap. [`README.md`](../README
 | 21i | Monster Tower, floors 101–200           | ✅ **Complete** — 200 floors, 122 archetypes         |
 | 21j | Angel Tower, floors 101–200             | ✅ **Complete** — 200 floors, 126 archetypes         |
 | 21k | Demon Tower, floors 101–200             | ✅ **Complete** — 200 floors, 130 archetypes         |
-| 22  | The roguelite run                       | ⬜                                                   |
+| 22  | The roguelite run                       | ✅ **Complete** — Daily runs implemented             |
 | 23  | Puzzle maps                             | ⬜                                                   |
 
 > **Milestone 14 was two milestones wearing one number, and is now split.** The number was claimed
