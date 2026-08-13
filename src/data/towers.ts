@@ -20,7 +20,7 @@ import { TOWER_UNDEAD } from './tower-undead';
  * against a forty-nine character bench fed by a gacha generous enough to produce roughly 190 pulls a
  * day at post-ladder crystal rates. Seven towers of five, each locked to one faction, is demand for
  * thirty-five invested characters, so an unlucky pull becomes the answer to a tower instead of
- * fodder. See [milestones](../../docs/milestones.md) for the whole argument.
+ * fodder. See [history](../../docs/history.md) for the whole argument.
  *
  * ⚠️ **A tower is therefore skippable, never on the critical path, and never the only source of
  * anything.** It is a wall about *who you own* in a game with no way to buy a character, which is

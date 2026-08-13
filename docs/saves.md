@@ -6,7 +6,7 @@ How a run is persisted, migrated and repaired.
 run, and there is no server to restore it from. Every failure path clamps, defaults, or falls back
 to a fresh run without destroying what is on disk.
 
-See [milestones](milestones.md) for the incidents that produced these rules.
+See [history](history.md) for the incidents that produced these rules.
 
 ---
 
@@ -60,7 +60,7 @@ others. Overriding a provider cannot be.
 ⚠️ **The running game overwrites external edits.** It holds authoritative state in memory and
 persists on the way out, so clearing storage from inside the app is undone by the app. A reset has
 to stop the loop and replace the in-memory state, not merely empty the slots. `GameLoopService.reset`
-is what does that, in an order that matters — see [milestone 13](milestones.md).
+is what does that, in an order that matters — see [history](history.md).
 
 ### Settings are a third key, and deliberately not a save
 
@@ -114,7 +114,7 @@ Six more accumulated on top of that baseline, and the second re-base collapsed a
 | v4 → v5 | The bounty board's dispatch list.                                                |
 | v5 → v6 | The legendary pity counter.                                                      |
 
-The third re-base is [milestone 16](milestones.md#16-signature-items--complete)'s, and it is the
+The third re-base is [milestone 16](history.md)'s, and it is the
 smallest by a wide margin — three fields, no step worth tabulating:
 
 | Field                | What it holds                                                  |
@@ -134,7 +134,7 @@ not any property of these three fields. The next schema change should weigh that
 correctly and heals to zero, which is the right answer, but the notices are real and will appear
 once per pre-existing dev save.
 
-The fourth re-base is [milestone 22](milestones.md#22-the-descent--complete)'s, and it is two fields:
+The fourth re-base is [milestone 22](history.md)'s, and it is two fields:
 
 | Field         | What it holds                                                                 |
 | ------------- | ----------------------------------------------------------------------------- |
@@ -149,7 +149,7 @@ when nothing did.
 
 ⚠️ **The fourth called itself the last the licence could carry, and the fifth is the correction
 worth keeping.** The claim reasoned from milestone 22 being the roadmap's last numbered system
-before presentation; [milestone 23](milestones.md#23-puzzle-maps--expeditions--complete) was then
+before presentation; [milestone 23](history.md) was then
 built — still before any build reached a player — and added two fields on the identical pattern:
 
 | Field         | What it holds                                                                    |

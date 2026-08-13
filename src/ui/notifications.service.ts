@@ -7,7 +7,7 @@ import { SettingsService } from './settings.service';
  *
  * ## ⚠️ This reverses a decision the project had already made, deliberately
  *
- * `docs/milestones.md` argued for shipping **no** notifications, and the argument was sound on its
+ * `docs/history.md` argued for shipping **no** notifications, and the argument was sound on its
  * own terms: removing the offline cap removed the only *earned* reason to send one, because with
  * no cap staying away costs the player nothing, so every notification is manufacturing a session
  * rather than reporting a loss.

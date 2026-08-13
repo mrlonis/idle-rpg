@@ -35,23 +35,30 @@ Roster. Refresh and the run resumes where it left off.
 
 ---
 
-## Roadmap
+## Documentation
 
-Ordered so there is **always something playable**: each step layers onto the previous skeleton
-without changing its shape, from the tick loop and save layer through combat, the gacha and
-formations, on to offline catch-up, a combat rework and chapters of content.
+The game was built in numbered milestones, ordered so there was **always something playable**: each
+step layered onto the previous skeleton without changing its shape, from the tick loop and save
+layer through combat, the gacha and formations, on to offline catch-up, a combat rework, and four
+hundred stages of content. **Every numbered milestone is complete.**
 
-**[docs/milestones.md](docs/milestones.md)** is the single source of truth — the status of every
-milestone, what each one shipped, and the design rationale behind each decision.
+**[docs/history.md](docs/history.md)** records what shipped in what order, the decisions no system
+doc owns, and what is still open — presentation, onboarding, and how long the campaign is meant to
+be. **[docs/authoring.md](docs/authoring.md)** is the procedure for adding content: what a chapter
+or tower session owes, how the level line is found, and the traps that have actually fired.
 
-Alongside it, one reference per system: **[glossary](docs/glossary.md)** for the vocabulary (start
+Alongside them, one reference per system: **[glossary](docs/glossary.md)** for the vocabulary (start
 here if tier, rarity and faction are running together), **[attributes](docs/attributes.md)** for
 the stat block, **[combat](docs/combat.md)** for how a battle resolves,
 **[economy](docs/economy.md)** for currencies and curves, **[ascension](docs/ascension.md)** for
-the rung ladders, **[gear](docs/gear.md)** for the third progression axis, **[level
-resonance](docs/level-resonance.md)** for the level the whole roster shares,
-**[navigation](docs/navigation.md)** for where a screen goes, and **[saves](docs/saves.md)** for
-persistence and migrations.
+the rung ladders, **[ladder](docs/ladder.md)** for the campaign's chapters,
+**[towers](docs/towers.md)** for the seven faction climbs, **[descent](docs/descent.md)** and
+**[expeditions](docs/expeditions.md)** for the two side modes,
+**[achievements](docs/achievements.md)** and **[bounties](docs/bounties.md)** for the reward
+ledgers, **[gear](docs/gear.md)** and **[signature items](docs/signature-items.md)** for the third
+and fourth progression axes, **[level resonance](docs/level-resonance.md)** for the level the whole
+roster shares, **[navigation](docs/navigation.md)** for where a screen goes, and
+**[saves](docs/saves.md)** for persistence and migrations.
 
 Three more cut across all of them: **[rejected](docs/rejected.md)** for everything this project
 decided _not_ to build and why it stays decided, **[platform](docs/platform.md)** for the Capacitor
@@ -67,8 +74,9 @@ src/
   core/   Pure TypeScript. The entire game simulation. Runs headless in Node.
   data/   Content as plain data: characters, enemies, stages, upgrades, banners.
   ui/     Angular components and services that wrap core/.
-docs/     Roadmap, rejected, platform, testing, navigation, glossary, attributes, combat,
-          economy, ascension, gear, resonance, saves.
+docs/     History, authoring, rejected, platform, testing, navigation, glossary, attributes,
+          combat, economy, ascension, ladder, towers, descent, expeditions, achievements,
+          bounties, gear, signature items, resonance, saves.
 scripts/  Repo tooling, run directly with tsx. See scripts/README.md.
 tests/    Playwright end-to-end specs.
 ios/      Committed Capacitor iOS project — source, not a build artifact.

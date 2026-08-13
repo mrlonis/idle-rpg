@@ -9,7 +9,7 @@ Three shelves: **cancelled outright**, **declined with a named trigger**, and **
 measured and failed**. A trigger is the only thing that moves an item off the second shelf; an item
 on the first has no trigger by construction.
 
-[milestones](milestones.md) records which milestone each decision belongs to.
+[history](history.md) records what shipped in what order.
 
 ---
 

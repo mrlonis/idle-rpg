@@ -15,7 +15,7 @@ See [attributes](attributes.md) for the stat block and [glossary](glossary.md) f
 Milestone 8a rewrote the damage and scheduling halves of this page, 8b replaced MP with energy, 8c
 gated skills behind ascension rungs, and 8d added the faction lineup bonus. The rework is done;
 what 8**e** owes it is a roster deep enough to make the lineup bonus a choice — see
-[milestones](milestones.md).
+[history](history.md).
 
 ---
 
@@ -87,7 +87,7 @@ assertions do.
 It was 1.9× until milestone 8e, and the seven mono-faction fives it authored are what spent the
 difference. The same milestone narrowed the assertion to **fights a party clears**, because adding
 those parties revealed the old version was measuring losing fights too; losing fights are bounded
-separately, at 95% of the timer. See [milestone 8e](milestones.md) for why that narrowing is the
+separately, at 95% of the timer. See [testing](testing.md) for why that narrowing is the
 assertion's own sentence rather than a moved threshold.
 
 **Milestone 14a handed some back rather than spending more.** Closing pressure ends the fights that
@@ -347,7 +347,7 @@ Three things about the rule matter to anyone reading a fight:
 - **The thresholds are absolute rarity**, read against the ladder rather than against each
   character's own starting rung. `ascended`-tier characters start at `elite`, so they arrive
   holding their second skill already — a deliberate head start, argued in
-  [milestones](milestones.md).
+  [ascension](ascension.md).
 - **The ultimate is never gated.** It is the one skill the energy bar meters, so gating it would
   produce a combatant whose bar fills and can never be spent.
 - **Which ordinary skill unlocks first is the kit's authored order**, and combat never sees it:
@@ -502,6 +502,23 @@ opposite question: a poison punishes a slow kill continuously and is worth clean
 while this punishes it once at a known tick and a cleanse spent before that tick removes the whole
 thing. It answers the target's resist exactly as a `dot` does, and it fires exactly once because the
 expiry that pays it out is the expiry that removes it.
+
+⚠️ **The two sides of the board kill at completely different speeds, so a delayed payload does not
+transfer between them.** An enemy plants on the party's back rank, which nothing on the enemy side
+concentrates on; a party plants on a board all five of its members are actively trying to delete,
+and its back rank is where all of that reach already converges. Measured: a 40-tick `EMBER_SEED`
+aimed at `enemy-back` detonated **not once in 57 plants across forty fights** — 53 died with their
+carrier.
+
+The party's bomb is therefore its own status — `HEXBRAND`, 24 ticks — aimed at **`enemy-highest`**,
+the largest remaining health pool and the one body a party cannot reliably delete. Aiming wide was
+measured and is worse: `enemy-row-front` and `enemy-all` plant far more and detonate a _smaller_
+fraction of what they plant, at lower power. Detonation is now about a third of plants in contested
+fights and zero in walkovers and losses, which is the correct shape — those are the fights whose
+outcome was never in doubt.
+
+⚠️ **A payload that reliably lands should not also be the larger one**, which is why `HEXBRAND` is
+smaller per instance than either enemy bomb.
 
 ⚠️ **Neither reflect nor link can cascade, and the argument is structural rather than a depth
 counter.** All three of the damage sources above — plus a `dot` ticking — resolve through one

@@ -66,7 +66,7 @@ function budget(stats: StatBlockData): number {
  * content outgrows it" case rather than the "number copied out of a neighbouring file" one: there
  * is nothing to derive it *from*. If a fourth common-tier Elf ever lands, this failing is the
  * intended outcome — the roster shape is a design decision, and changing it should be an edit
- * here and an argument in `docs/milestones.md`, not a silent drift.
+ * here and an argument in `docs/history.md`, not a silent drift.
  */
 const ROSTER_SHAPE: Readonly<Record<CharacterTier, { exactly?: number; atLeast?: number }>> = {
   common: { exactly: 3 },

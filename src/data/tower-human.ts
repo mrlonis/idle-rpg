@@ -69,7 +69,7 @@ import {
  * ⚠️ **It needed no new enemy blocks, and that is why this tower shipped first.** Undead already had
  * five archetypes where Elves and Angels had one each, so the Human Tower is the only one milestone
  * 15b could author without also authoring content. The other six, and the eighteen blocks that made
- * them possible, are 15c — see [milestones](../../docs/milestones.md).
+ * them possible, are 15c — see [history](../../docs/history.md).
  *
  * The second hundred needed four, which is the ratio worth reading: **a chapter gets ten because it
  * authors five bands each asking a different question, and a tower gets four because it asks one

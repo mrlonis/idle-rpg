@@ -199,7 +199,7 @@ describe('tower rules', () => {
     // at 100% with all five alive in nine seconds, and no line-up fixes that.
     //
     // So a tower closes above the cap of the rung it asks for, which is the campaign's own margin
-    // rule arriving here — see the level-line note in `docs/milestones.md` for chapters 5 onward.
+    // rule arriving here — see the level-line note in `docs/authoring.md` for chapters 5 onward.
     // Both bounds are derived from the caps: there must be a rung below the roof for a crew to stand
     // on, and the roof must not reach the rung above it, which would be content asking for an
     // investment it never rewards.

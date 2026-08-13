@@ -1,7 +1,7 @@
 # The Descent
 
 One run a day: three floors of three fights, damage that carries between them, and a card taken
-after every win. Added in [milestone 22](milestones.md#22-the-descent--complete).
+after every win. Added in [milestone 22](history.md).
 
 Companion references: [combat](combat.md) for the loop it fights in, [economy](economy.md) for what
 it pays, [navigation](navigation.md) for where it sits, [glossary](glossary.md) for the vocabulary.
@@ -70,7 +70,7 @@ nothing on screen could explain.
 ⚠️ **A lock this build cannot fill is a weaker crew, never a locked door.** A short party is a legal
 party; `simulateBattle` reads only an _empty_ one as an immediate defeat. So a run whose three
 factions are thin fights shorthanded rather than being refused, which is the line
-[milestone 4](milestones.md) drew when it rejected role-locked formation slots: content may be hard
+[rejected](rejected.md) drew when it rejected role-locked formation slots: content may be hard
 to bring a good answer to, and may never reach a state where no answer exists.
 
 Three rather than two or four is the number that says how much of a constraint there is.

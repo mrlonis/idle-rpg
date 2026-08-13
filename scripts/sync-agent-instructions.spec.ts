@@ -143,15 +143,15 @@ describe('maybeWrite', () => {
 
 describe('splitHref', () => {
   it('splits a repo-relative path from its fragment', () => {
-    expect(splitHref('docs/milestones.md#status')).toEqual({
-      path: 'docs/milestones.md',
+    expect(splitHref('docs/history.md#status')).toEqual({
+      path: 'docs/history.md',
       fragment: '#status',
     });
   });
 
   it('reports an empty fragment when none is present', () => {
-    expect(splitHref('docs/milestones.md')).toEqual({
-      path: 'docs/milestones.md',
+    expect(splitHref('docs/history.md')).toEqual({
+      path: 'docs/history.md',
       fragment: '',
     });
   });
@@ -173,12 +173,12 @@ describe('splitHref', () => {
   });
 
   it('returns null for a root-absolute path', () => {
-    expect(splitHref('/docs/milestones.md')).toBeNull();
+    expect(splitHref('/docs/history.md')).toBeNull();
   });
 
   it('unwraps an angle-bracketed href', () => {
-    expect(splitHref('<docs/milestones.md>')).toEqual({
-      path: 'docs/milestones.md',
+    expect(splitHref('<docs/history.md>')).toEqual({
+      path: 'docs/history.md',
       fragment: '',
     });
   });
@@ -186,7 +186,7 @@ describe('splitHref', () => {
 
 describe('escapesRoot', () => {
   it('is false for an ordinary repo-relative path', () => {
-    expect(escapesRoot('docs/milestones.md')).toBe(false);
+    expect(escapesRoot('docs/history.md')).toBe(false);
   });
 
   it('is false for a path that dips into a subdirectory and back', () => {
@@ -194,7 +194,7 @@ describe('escapesRoot', () => {
   });
 
   it('is false for an explicitly current-directory path', () => {
-    expect(escapesRoot('./docs/milestones.md')).toBe(false);
+    expect(escapesRoot('./docs/history.md')).toBe(false);
   });
 
   it('is true for a leading parent segment', () => {
@@ -220,18 +220,18 @@ describe('escapesRoot', () => {
 
 describe('rewriteHref', () => {
   it('adds one level for a target nested one directory deep', () => {
-    expect(rewriteHref('docs/milestones.md', '.claude/CLAUDE.md')).toBe('../docs/milestones.md');
+    expect(rewriteHref('docs/history.md', '.claude/CLAUDE.md')).toBe('../docs/history.md');
   });
 
   it('adds two levels for a target nested two directories deep', () => {
-    expect(rewriteHref('docs/milestones.md', '.windsurf/rules/guidelines.md')).toBe(
-      '../../docs/milestones.md',
+    expect(rewriteHref('docs/history.md', '.windsurf/rules/guidelines.md')).toBe(
+      '../../docs/history.md',
     );
   });
 
   it('preserves a fragment while retargeting the path', () => {
-    expect(rewriteHref('docs/milestones.md#status', '.cursor/rules/cursor.mdc')).toBe(
-      '../../docs/milestones.md#status',
+    expect(rewriteHref('docs/history.md#status', '.cursor/rules/cursor.mdc')).toBe(
+      '../../docs/history.md#status',
     );
   });
 
@@ -246,7 +246,7 @@ describe('rewriteHref', () => {
   });
 
   it('is an exact no-op for a target at the repository root', () => {
-    expect(rewriteHref('docs/milestones.md', 'AGENTS.md')).toBe('docs/milestones.md');
+    expect(rewriteHref('docs/history.md', 'AGENTS.md')).toBe('docs/history.md');
   });
 
   it('leaves an external URL untouched', () => {
@@ -270,17 +270,15 @@ describe('rewriteHref', () => {
   });
 
   it('keeps the angle-bracket wrapper when rewriting', () => {
-    expect(rewriteHref('<docs/milestones.md>', '.claude/CLAUDE.md')).toBe(
-      '<../docs/milestones.md>',
-    );
+    expect(rewriteHref('<docs/history.md>', '.claude/CLAUDE.md')).toBe('<../docs/history.md>');
   });
 });
 
 describe('rewriteRelativeLinks', () => {
   it('rewrites a link in prose', () => {
-    expect(
-      rewriteRelativeLinks('See [the roadmap](docs/milestones.md).', '.claude/CLAUDE.md'),
-    ).toBe('See [the roadmap](../docs/milestones.md).');
+    expect(rewriteRelativeLinks('See [the roadmap](docs/history.md).', '.claude/CLAUDE.md')).toBe(
+      'See [the roadmap](../docs/history.md).',
+    );
   });
 
   it('rewrites every link on a line', () => {

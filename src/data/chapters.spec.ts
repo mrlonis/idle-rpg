@@ -261,7 +261,7 @@ describe('the level curve', () => {
     // Derived from the rarity caps rather than written down. The ladder is tuned so the fen
     // chapters close at the cap a player reaches *without ascending* and chapter 4 closes at the
     // `rare` cap, which is a deliberate statement that the opening two thirds are a breeze and the
-    // difficulty arrives with chapter 5. See `docs/milestones.md`.
+    // difficulty arrives with chapter 5. See `docs/history.md`.
     //
     // ## ⚠️ The ceiling half of this was **retired** in milestone 21d rather than moved
     //

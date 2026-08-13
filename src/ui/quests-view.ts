@@ -14,7 +14,7 @@ import { QuestsService } from './quests.service';
  *
  * That is also why **nothing here punishes a miss**. There is no streak, no escalating bonus that
  * resets, and no countdown that costs anything when it runs out — those are scarcity mechanics
- * wearing a generosity costume, and `docs/milestones.md` rules them out by name. The reset time is
+ * wearing a generosity costume, and `docs/rejected.md` rules them out by name. The reset time is
  * shown because a player asking "is this worth doing now" deserves an answer, not because missing
  * it takes anything away.
  *

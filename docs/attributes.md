@@ -8,7 +8,7 @@ clamp, the hit-chance floor and the resist cap. They are spelled out under "the 
 what may scale", and they are not tuning knobs.
 
 Milestone 8a rewrote this page and 8b replaced `mp`/`mpRegen` with `energyRegen`. See
-[glossary](glossary.md) for the vocabulary and [milestones](milestones.md) for the reasoning behind
+[glossary](glossary.md) for the vocabulary and [history](history.md) for the reasoning behind
 the rework.
 
 **Three things now modify a stat block before a fight starts, and they apply in this order:** the

@@ -7,7 +7,7 @@ anything takes.
 pity, manufactured scarcity — exists to sell a bridge across a gap it creates. There is no bridge
 to sell here, so generosity is free. When in doubt, err generous.
 
-See [ascension](ascension.md) for what copies cost and [milestones](milestones.md) for the
+See [ascension](ascension.md) for what copies cost and [history](history.md) for the
 reasoning behind each number.
 
 ---
@@ -273,7 +273,7 @@ each fight they win — and that is per stage. It was 6.9 across all four chapte
 three — the strongest evidence available that this was the quantity meant all along. The
 six-chapter re-cut moved it to ~8.0 by adding two chapter boundaries (two more boss multipliers
 and 20,000 more Chapter Conqueror crystals) without touching a stage, which is a decision
-[milestone 19](milestones.md) records rather than drift. A chapter authored
+[history](history.md) records rather than drift. A chapter authored
 more or less generously than the ones below it still fails; a chapter that is merely _another_
 chapter does not.
 
@@ -410,7 +410,7 @@ curve" is about the idle rate itself.
 
 ## Emblems
 
-Added in [milestone 16](milestones.md#16-signature-items--complete). Emblems buy
+Added in [milestone 16](history.md). Emblems buy
 [signature item](signature-items.md) levels and nothing else in the game spends them: no shop sells
 them, no bounty pays them, and duplicate characters still convert to spark.
 
@@ -588,7 +588,7 @@ three assertions replaced one — and milestone 21d then retired one of the thre
 ⚠️ **What retiring the ratio exposed, and what 21d wrote down instead of a guard**: under 21a's
 corrected margin rule the level line adds about ninety levels a chapter, so the rung claim above fires
 at **chapter 12** and the curve is consumed entirely around **chapter 15**. The "level 1000 is a
-chapter-100 target" premise every one of these guards was written on has not been true since chapter 7. How long the campaign is meant to be is a roadmap decision; see [milestones](milestones.md).
+chapter-100 target" premise every one of these guards was written on has not been true since chapter 7. How long the campaign is meant to be is a roadmap decision; see [history](history.md).
 
 ### ⚠️ The ceiling of that third guard fired at chapter 8, and the answer was the exponent
 
@@ -687,6 +687,15 @@ Both ramp steeply enough that certainty arrives before the hard cap, so **each g
 rather than the mechanism.** Both counters live in `GameState`, are **global rather than
 per-banner**, and are on screen at all times.
 
+⚠️ **A hard cap moved is a soft ramp re-derived, not clipped.** Taking ascended pity from 50 to 30
+left `softPityStart` at 30 — a flat 2.5% for twenty-nine pulls and then a cliff, which is no ramp at
+all. Move both ends together or the guarantee stops being a floor and becomes the whole mechanism.
+
+⚠️ **The "certainty arrives before the cap" assertion in `banners.spec.ts` is stated proportionally
+to the cycle**, for the same reason: three pulls of headroom is a tenth of a thirty-pull cycle and
+nearly a third of a ten-pull one, so a fixed number of pulls would mean two different things on the
+two curves.
+
 The legendary cycle is sized to `MULTI_PULL_COUNT` deliberately: a ten-pull is the unit a player
 actually experiences, and one that came back entirely common was the worst thing this banner could
 produce. It is now unreachable rather than merely rare.
@@ -759,7 +768,7 @@ solver.
 costs compound, so those rates should compound. A pull costs a flat `PULL_COST` and an ascension a
 flat 8 elite + 180 rare copies — so the old per-stage crystal curve, climbing ×1.25 a stage
 against gold's ×1.43, outran its own prices exponentially. Extrapolated into
-[milestone 11](milestones.md)'s chapters it reached a million pulls a day by the end of chapter 1.
+[milestone 11](history.md)'s chapters it reached a million pulls a day by the end of chapter 1.
 
 The damage was never to the gacha, it was to **ascension** — which stops being a constraint
 entirely, taking two later milestones' central arguments with it.

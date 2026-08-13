@@ -1,0 +1,152 @@
+# History
+
+**Every numbered milestone is complete.** This is the record of what shipped in what order, kept
+because three hundred code comments and most of the reference docs date a decision by the milestone
+that made it, and a bare number needs something to resolve against.
+
+⚠️ **This file is not where a rule lives.** The reference docs are the current statement of every
+system and `AGENTS.md` states the rules; where this disagrees with either, they are right and this
+is stale. What survives here is the ordering, the decisions no system doc owns, and the work that
+is still open.
+
+For the procedure a new chapter or tower follows, read [authoring](authoring.md).
+
+---
+
+## The order things shipped
+
+The ordering existed so there was **always something playable**: each milestone layered onto the
+previous skeleton without changing its shape.
+
+| #       | What shipped                              | The decision worth remembering                                                                                            |
+| ------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1       | Tick loop, one resource, save/load        | The architecture end to end before any game: `core/` purity, sim/render split, saves                                      |
+| 2       | Battles up a stage ladder                 | Combat resolves headlessly into an event log the UI animates — which is what makes 2x/4x/skip free                        |
+| 3       | Gacha, roster, ascension, levelling       | Pity is global and always on screen; duplicates are the progression path, not a consolation                               |
+| 4       | Team composition affecting combat math    | Composition matters through **enemy design**, never flat synergy bonuses. No role-locked slots                            |
+| 5       | Offline catch-up                          | Closed form only. The segmented solver, `timeToClear` and `dropCarry` were cancelled here                                 |
+| 6       | Run on a physical iPhone                  | `padding: env(safe-area-inset-top)` put a 59px gutter on all four sides. Angular Material removed                         |
+| 7       | Auto-battle, then doubling the ladder     | Foreground-only, which is what keeps every idle rate constant across an offline window. Prestige cancelled                |
+| 8a      | The stat block                            | One `atk`, one `def`; damage type moved onto the skill                                                                    |
+| 8b      | Energy and ultimates                      | MP deleted — and with it a termination argument, replaced by an assertion in the sweep                                    |
+| 8c      | How many skills a character gets          | 2/3/4 by tier, ultimate included. **A fight is ninety seconds and running the clock out is a defeat**                     |
+| 8d      | Faction lineup bonuses                    | The one knowing override of the synergy ban: a mono-faction bonus creates seven optimal teams, not one                    |
+| 8e      | Seven characters per faction              | 49 characters. Every faction owns sustain and a way past a front rank, in its own idiom                                   |
+| 9       | Resonance                                 | One level the roster shares, **derived on read and stored nowhere**                                                       |
+| 10      | Power that compounds                      | ×10⁹ levels, ×450 rungs. Both sides of the fight scale, or neither does                                                   |
+| 11      | Chapters                                  | Income became a function of position. A position is a _place_; a clear count is a _quantity earned_                       |
+| 12      | Gear                                      | Every bonus is a percentage — a flat one is an addition, which the rescale identity forbids                               |
+| 13      | Settings, and the save-safety gap         | Settings are a second storage key, not a field on the save. First `@angular/cdk` overlay                                  |
+| 14a     | The ladder retune                         | **Closing pressure**: a timer is not a termination argument, it is what fires when one is missing                         |
+| 14b     | Achievements, dailies and bounties        | Both systems store a ledger and derive everything else — no write into the battle path                                    |
+| 15a     | Crews, and Home as the battle hub         | Eight live formations, not one live and seven templates                                                                   |
+| 15b     | The tower system, and the Human Tower     | A floor is climbed once. Tower clears may never touch `clearedStages`                                                     |
+| 15c     | The remaining six towers                  | Anchors are sized **per tower against its own crew**; a shared weight does not generalise                                 |
+| 16      | Signature items                           | One integer per character, not an object. No signature item may multiply healing                                          |
+| 17a     | Four statuses: taunt, reflect, link, bomb | All four ride the existing `status` effect, so `ui/` needed no change at all                                              |
+| 17b     | Chapter 3 — The Bound Marches             | **A chapter must out-climb the rung it asks for**, because the enemy side has no rungs                                    |
+| 18      | Chapter 4 — The Sundered Vault            | A whole chapter with no new mechanic, built from **pairs** of known parts                                                 |
+| 19      | The six-chapter re-cut                    | Same two hundred stages, boundaries moved to where a session ends. No stage retuned                                       |
+| 20      | A second ascended-tier rank               | 56 characters, 14 signature items. The gacha dilution was accepted rather than compensated                                |
+| 21a–21d | Chapters 7 through 10                     | The margin **grows** each chapter. Every closed form was wrong: **bisect, do not solve**                                  |
+| 21e–21k | Every tower to 200 floors                 | `topLevel` 120 is where the new slope meets the old, so the prescribed retune evaporated. Seven towers, seven escalations |
+| 22      | The Descent                               | The difficulty dial is a level **offset**, never a share — a share is ×3.4 easier at depth                                |
+| 23      | Puzzle maps — Expeditions                 | The only content that is not a ladder. Solvability is a Dijkstra run on every test pass                                   |
+
+**Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
+enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
+system, and nothing changed in `ui/` or `core/`.
+
+---
+
+## Decisions no system doc owns
+
+### Renumbering was allowed five times, and the rule is about work rather than numbers
+
+Milestone 14 was two milestones wearing one number and was **split** rather than renumbered,
+because both had work in them. Everything above it has been renumbered five times — the roguelite
+and the puzzle maps moved down once each for chapter 3, the re-cut, the second ascended rank and
+the content push — and each was free for the same reason: **nothing renumbered had any work in it.**
+
+⚠️ **The rule that keeps this honest has never been about the numbers.** Anything that wants to
+renumber has to check that again rather than citing the precedent.
+
+### Local notifications: the decision reversed, deliberately
+
+This project argued for shipping none, and ships two. The old argument is preserved rather than
+deleted, because it is still why the feature has the shape it has:
+
+> Removing the offline cap removed the only _earned_ reason to send one. With no cap, staying away
+> costs nothing — so nothing is lost, and there is nothing to warn about. A notification existing to
+> manufacture a session is the pattern this project rejects, and once absence is free every
+> notification is that pattern by definition.
+
+What changed is the product call above it, not the reasoning under it. Every constraint `AGENTS.md`
+lists — two ever, fixed ids, cancelled on foreground, copy that promises nothing is lost, a setting
+defaulting on, permission at the first backgrounding — follows from keeping that objection in view.
+
+⚠️ **Recorded as a reversal rather than folded away**, so anybody wondering why this game nudges a
+player who has lost nothing finds the objection rather than a blank.
+
+### Milestone 16 shipped the opposite of what it specified
+
+The signature-item entry originally specified a track that modified **behaviour rather than adding
+stats**, fed by **duplicate copies**. Both halves were reversed:
+
+- **Stats _and_ behaviour.** The old argument — "at ×10⁹ raw power another multiplier is invisible"
+  — is simply not true of a _percentage_, which gear had proved two milestones earlier. What it was
+  reaching for is that thirty levels of pure stats is a treadmill, and the answer to that is the
+  ability track rather than the absence of stats.
+- **Emblem-fed, not duplicate-fed.** Copies past the top rung convert to spark and spark buys more
+  characters — a loop with no exit, and this does not close it. The fix for too many duplicates is
+  more ascended-tier characters as the roster grows, which is content rather than a sink.
+
+Kept because a specification that was wrong in a recoverable way is worth more than one quietly
+overwritten.
+
+---
+
+## What is still open
+
+Everything below is unstarted. None of it is a system, none of it sequences like the milestones
+above, and all of it is written down because it will otherwise be discovered late.
+
+### Presentation
+
+**Every milestone above is a system, and the genre's draw is at least half aesthetic.** Art,
+animation, effects, sound. This project is hand-written components over the palette in
+`ui/theme.scss`, and at some point "it works and looks like a spreadsheet" becomes the actual
+blocker rather than any missing mechanic.
+
+It was never numbered because it does not sequence like the rest: it is continuous, it has no
+completion state, and it gates nothing. ⚠️ **It is written down because a solo developer without an
+artist has one constraint most likely to decide whether this ships, and it is this one rather than
+any system.**
+
+### Onboarding
+
+Equally absent and equally unnumbered. **There is no first-session experience anywhere in this
+project**, and the first ninety seconds decide more than most of the systems above combined.
+
+The pieces that exist are incidental rather than designed: a run starts at `goldPerSec: 0`, so the
+first battle is the only thing worth doing; three level-1 starters clear the opening stages and stop
+dead at the stage-7 healer lock, which is a wall about _who_ is fighting rather than how many levels
+they have; and chapter 1 is the ten-stage stretch a player fights by hand before auto-battle opens.
+That is a good shape and nothing explains it to anybody.
+
+### How long is the campaign meant to be?
+
+⚠️ **The level line adds about ninety levels a chapter** (80, 91, 94, 98 across chapters 7–10), so:
+
+- `levels.spec.ts`'s "leaves rungs unspent above everything the ladder asks for" fires at
+  **chapter 12** — the top stage must stay below `caps[12]` = 700, and chapter 10 closes at 588;
+- the level curve is consumed entirely around **chapter 15**, not the chapter 100 that every guard
+  retired so far was written against. That premise has not been true since milestone 21a corrected
+  the margin rule.
+
+**This is a roadmap decision rather than a threshold**, which is exactly why the guard that owns it
+was chosen to be one that cannot decay: the rung count is fixed however long the ladder gets. It is
+recorded in both spec files and left open. Nothing about it is wrong today.
+
+[authoring](authoring.md) carries the full schedule of guards that fire before then, with the answer
+each one wants.

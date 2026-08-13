@@ -217,7 +217,7 @@ export class SaveService {
    * slots are never removed out from under a half-completed write. That is not the whole of a
    * reset: the running game holds the authoritative state in memory and will persist it again on
    * the next autosave, so a reset has to stop the loop and replace that state as well. See
-   * `docs/milestones.md`.
+   * `docs/saves.md`.
    */
   async clear(): Promise<void> {
     this.queued = null;

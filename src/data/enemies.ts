@@ -2257,7 +2257,7 @@ export const THE_CAIRN_KING = {
 //
 // ⚠️ **One new status, and it is the first of milestone 21's three to be spent.** 21a came in
 // under the ceiling and this does not; {@link ROOTBOUND} is argued on its own merits in
-// `statuses.ts` and the entry in [milestones](../../docs/milestones.md) states why a pair could not
+// `statuses.ts` and the entry in [authoring](../../docs/authoring.md) states why a pair could not
 // have asked band 3's question. It rides the existing `status` effect exactly as milestone 17's
 // four did, needs no new `EffectKind`, no new `TargetKind` and no change in `ui/`.
 //

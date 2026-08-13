@@ -1,7 +1,7 @@
 # Gear
 
 The third progression axis, alongside levels and ascension rungs. Added in
-[milestone 12](milestones.md#12-gear--complete).
+[milestone 12](history.md).
 
 A character wears five pieces — head, arms, chest, legs, boots. Every piece names an **archetype**
 it was forged for, a **grade** it dropped at, and a **faction** it is aligned to (or none). What it
@@ -16,7 +16,7 @@ Companion references: [attributes](attributes.md) for the stat block gear multip
 
 ⚠️ **Every gear bonus is a percentage, never a flat quantity.**
 
-Levelling is worth ×10⁹ end to end and ascension ×450 (see [milestone 10](milestones.md)). A flat
+Levelling is worth ×10⁹ end to end and ascension ×450 (see [economy](economy.md)). A flat
 `+400 atk` authored against a level-40 stat block is a rounding error by level 400 and invisible by
 level 1000 — so flat gear needs its own exponential curve, and then that curve needs re-tuning every
 time the ladder extends. That is precisely the failure milestone 10 deleted from the **enemy** side
@@ -279,7 +279,7 @@ grade's share climbs without bound and no constant is right for more than one ch
 will want 225. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
-[milestones](milestones.md).
+[authoring](authoring.md).
 
 ⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
 bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
@@ -481,7 +481,7 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 ## Enemies and gear
 
 **Enemies wear none, and are not planned to until chapter 10.** Difficulty on that side of the board
-is purely the stage's `level` against the archetype's tier — see [milestone 10](milestones.md).
+is purely the stage's `level` against the archetype's tier — see [history](history.md).
 
 That is deliberate and it is the point of the milestone: a geared party flies through content tuned
 for an ungeared one, which is what makes gear feel like progress rather than a tax. The balance

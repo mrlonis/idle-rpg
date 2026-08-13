@@ -124,6 +124,20 @@ for any class a component assumes is global.
 Dimming a card dims its text with it. `$muted` is 6.4:1 on `$surface`, and 70% of that is under the
 4.5:1 floor. Draw the row as an outline on the page background instead.
 
+The Descent shipped a cleared fight row at `opacity: 0.55`, which took the level and the payout —
+the two things a cleared row still says — under the bar along with the name. Replaced by a muted
+**name**, exactly as a locked tower row does it.
+
+### ⚠️ An `@empty` block inside a `<ul>` is a serious AXE violation
+
+`@empty` renders its content as a **sibling of the items**, and a `<ul>` may directly contain only
+`<li>`. So the obvious authoring — an empty-state message inside the list it is describing the
+absence of — puts a non-`<li>` child in a list element and fails `list`.
+
+Move the `@empty` outside the `<ul>`. ⚠️ **It sits on exactly the state a new player sees first**,
+which is the worst place for a violation to hide and the least likely to be exercised by a test
+fixture holding content.
+
 ---
 
 ## Modals: `@angular/cdk`, and only that
@@ -189,6 +203,31 @@ a large share of users sit over quota with backups that have silently not comple
 phone and a restore, which the test suite cannot stand in for. It costs one restore, and it is the
 same argument milestone 6 made for running on a phone early — which found a bug nothing else would
 have. Carry it forward rather than dropping it.
+
+---
+
+## Local notifications: two, ever
+
+Two ship, at 12h and 24h. See [`ui/notifications.service.ts`](../src/ui/notifications.service.ts).
+
+⚠️ **This is a deliberate reversal of an earlier "ship none" decision**, and the original objection
+is preserved rather than deleted because it is still why the feature has the shape it has — see
+[history](history.md). Every constraint below follows from keeping that objection in view.
+
+- ⚠️ **Cancelled on foreground and on launch.** A player who has come back must not be told to come
+  back.
+- **Two, ever** — not a daily drumbeat and not one per finished bounty. **Fixed ids**, so
+  re-scheduling replaces rather than accumulates.
+- **The copy promises nothing is lost, because nothing is.** No expiring reward, no streak, no
+  penalty; the spec asserts both the promise and the absence of urgency words. ⚠️ **The guard caught
+  the first draft**, whose "Nothing expires and nothing is lost" was true and unmatchable by a regex
+  that cannot tell it from "expires soon" — **the copy was reworded rather than the guard weakened.**
+- **A setting, defaulting on**, which also cancels anything queued when switched off. Permission is
+  requested at the first backgrounding, never at launch.
+
+**The 24-hour reminder and the longest bounty are the same number, and that is not a coincidence** —
+a full day is where the board has nothing left to give, so it is the one moment the app has something
+concrete to say.
 
 ---
 

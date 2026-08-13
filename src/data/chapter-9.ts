@@ -96,7 +96,7 @@ import {
  * ⚠️ **Chapter 10 has ten levels of room and no more.** `chapters.spec.ts` holds the top of the
  * ladder under `LEVEL_CURVE.maxLevel / 2`, which is 500, and this chapter closes at 490. That guard
  * was written when two chapters could not be allowed to consume the curve and it is about to mean
- * something entirely different; see [milestones](../../docs/milestones.md).
+ * something entirely different; see [authoring](../../docs/authoring.md).
  *
  * Still no lucky pull anywhere on the ladder: the rung is fifty-two duplicate copies of each of the
  * five, six more than chapter 8 asked for, and every one of them is bought with time.

@@ -262,7 +262,7 @@ describe('the enhancement curve', () => {
     // **gear costs that scale with the content**, which is a retune of `data/gear.ts` on the scale
     // of a milestone — and milestone 21 says in as many words that a chapter finding it needs one
     // writes it down rather than taking the scope. It is written down in
-    // [milestones](../../docs/milestones.md).
+    // [authoring](../../docs/authoring.md).
     //
     // The floor is 1 so the guard still catches a gear curve authored at nothing, and it fires again
     // around chapter twelve. At that point the question is whether gear costs have been made to
