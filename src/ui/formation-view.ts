@@ -184,6 +184,15 @@ export class FormationView {
    * is three drawn afresh every day. One sentence covers both rather than a branch per activity
    * kind: the grammar is the only thing that differs, and a screen that asked which kind of content
    * it was drawing is exactly what `StageHeading` was generalised to avoid.
+   *
+   * ⚠️ **An empty lock reads as no lock, and that rests on the shell rather than on this screen.**
+   * `core/activity.ts` makes `null` ("anybody may stand") and `[]` ("nobody may") different answers
+   * on purpose, and the one thing that produces `[]` is `FormationService.lockFor` before the run
+   * has loaded. `app.html` holds the entire router outlet behind `isReady()` — asserted in
+   * `app.spec.ts` — so this component is never instantiated in that frame, and nothing sets the
+   * snapshot back to `null` once it is set. If that gate ever goes, `[]` needs a line of its own
+   * here: the pool below is filtered to nothing by the same lock, so the screen would show an empty
+   * bench with nothing on it saying why.
    */
   protected readonly lockNote = computed(() => {
     const lock = this.crew()?.lockFactions ?? null;

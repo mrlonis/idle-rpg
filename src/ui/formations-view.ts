@@ -57,6 +57,12 @@ export class FormationsView {
         crew.size === 0
           ? null
           : [...crew.front, ...crew.back].map((entry) => entry.name).join(' · '),
+      // ⚠️ `[]` is folded in with `null` here, and that rests on the shell rather than on this
+      // screen. `core/activity.ts` makes them different answers on purpose — "anybody" against
+      // "nobody" — and the one thing that produces `[]` is `FormationService.lockFor` before the
+      // run has loaded. `app.html` holds the whole router outlet behind `isReady()`, so no row is
+      // ever drawn in that frame. A loading string here would be copy for a frame that does not
+      // exist; if that gate ever goes, `[]` needs a line of its own here and in `formation-view`.
       lock:
         crew.lockFactions === null || crew.lockFactions.length === 0
           ? null
