@@ -1,0 +1,279 @@
+<header class="head">
+  <a class="head__back" routerLink="/expeditions">← Expeditions</a>
+  <h1 class="head__title">{{ map()?.name ?? 'Expedition' }}</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ staminaLeft() }}</span>
+    <span class="head__unit">stamina left</span>
+  </p>
+</header>
+
+@if (map() === null) {
+  <p class="notice" role="status">This map is not part of this build.</p>
+} @else if (!open()) {
+  <p class="intro">{{ map()?.description }}</p>
+  <p class="notice" role="status">
+    @if (chaptersNeeded() > 0) {
+      Finish
+      {{ chaptersNeeded() === 1 ? '1 more chapter' : chaptersNeeded() + ' more chapters' }} of the
+      campaign to open Expeditions.
+    } @else {
+      Complete the map before this one to open the way here.
+    }
+  </p>
+} @else {
+  <p class="intro">{{ map()?.description }}</p>
+
+  @if (elsewhere(); as name) {
+    <p class="notice" role="status">
+      An attempt is underway on {{ name }}. Beginning here abandons it — everything it banked is
+      already yours.
+    </p>
+  }
+
+  @if (record()?.completed) {
+    <p class="notice notice--done" role="status">
+      Completed. You can walk it again — rewards already claimed stay claimed.
+    </p>
+  }
+
+  <!--
+    The budget, always on screen while an attempt runs. A real progressbar for the same reason the
+    party bars are: the budget is the whole puzzle, and a bar that only existed as a coloured div
+    would be invisible to a screen reader.
+  -->
+  @if (run() !== null && map(); as theMap) {
+    <section class="budget" aria-labelledby="budget-label">
+      <h2 id="budget-label" class="section__heading">Stamina</h2>
+      <div
+        class="budget__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="staminaLeft()"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuemax]="theMap.stamina"
+        [attr.aria-valuetext]="staminaLeft() + ' of ' + theMap.stamina + ' stamina left'"
+      >
+        <span
+          class="budget__fill"
+          [style.width.%]="theMap.stamina === 0 ? 0 : (staminaLeft() / theMap.stamina) * 100"
+        ></span>
+      </div>
+      <p class="budget__note">
+        {{ staminaLeft() }} of {{ theMap.stamina }} left · only victories spend it
+      </p>
+    </section>
+  }
+
+  <!--
+    The map. A CSS grid of tiles: camps are buttons that open the detail panel below, the exit is a
+    button once the boss falls, and everything else is ground. The letters on camps match the big
+    line of the battle screen, which is the one cross-reference the two screens share.
+  -->
+  <section class="board" aria-labelledby="board-label">
+    <h2 id="board-label" class="section__heading">The map</h2>
+    <div class="grid" role="group" aria-label="Expedition map">
+      @for (row of tiles(); track $index) {
+        <div class="grid__row">
+          @for (tile of row; track $index) {
+            @switch (tile.kind) {
+              @case ('camp') {
+                <button
+                  type="button"
+                  class="tile tile--camp"
+                  [class.tile--boss]="tile.camp?.boss"
+                  [class.tile--cleared]="tile.camp?.cleared"
+                  [class.tile--fightable]="tile.camp?.fightable"
+                  [class.tile--selected]="selected() === tile.cell"
+                  [attr.aria-label]="tileLabel(tile)"
+                  [attr.aria-pressed]="selected() === tile.cell"
+                  (click)="select(tile)"
+                >
+                  @if (tile.camp?.cleared) {
+                    <span class="tile__glyph" aria-hidden="true">✓</span>
+                  } @else {
+                    <span class="tile__cell" aria-hidden="true">{{ tile.cell.toUpperCase() }}</span>
+                    <span class="tile__cost" aria-hidden="true">{{ tile.camp?.stamina }}</span>
+                  }
+                </button>
+              }
+              @case ('exit') {
+                @if (tile.exitOpen) {
+                  <button
+                    type="button"
+                    class="tile tile--exit tile--exit-open"
+                    [attr.aria-label]="'Walk out — complete the expedition'"
+                    (click)="complete()"
+                  >
+                    <span class="tile__glyph" aria-hidden="true">⚑</span>
+                  </button>
+                } @else {
+                  <span class="tile tile--exit" [attr.aria-label]="tileLabel(tile)" role="img">
+                    <span class="tile__glyph" aria-hidden="true">⚑</span>
+                  </span>
+                }
+              }
+              @case ('chest') {
+                <span
+                  class="tile tile--chest"
+                  [class.tile--taken]="tile.chest?.taken"
+                  [attr.aria-label]="tileLabel(tile)"
+                  role="img"
+                >
+                  <span class="tile__glyph" aria-hidden="true">▣</span>
+                </span>
+              }
+              @case ('start') {
+                <span class="tile tile--start" [attr.aria-label]="tileLabel(tile)" role="img">
+                  <span class="tile__glyph" aria-hidden="true">◈</span>
+                </span>
+              }
+              @case ('path') {
+                <span
+                  class="tile tile--path"
+                  [class.tile--reached]="tile.reachable"
+                  aria-hidden="true"
+                ></span>
+              }
+              @default {
+                <span class="tile tile--wall" aria-hidden="true"></span>
+              }
+            }
+          }
+        </div>
+      }
+    </div>
+    <p class="hint">
+      Letters are camps — tap one to size it up. Chests open themselves the moment a path reaches
+      them. The flag is the way out, sealed behind the boss camp.
+    </p>
+  </section>
+
+  @if (selectedCamp(); as tile) {
+    <section class="detail" aria-labelledby="detail-label">
+      <h2 id="detail-label" class="section__heading">
+        {{ tile.camp?.boss ? 'Boss camp' : 'Camp' }} {{ tile.cell.toUpperCase() }} —
+        {{ tile.camp?.name }}
+      </h2>
+      <p class="detail__line">
+        Costs <strong>{{ tile.camp?.stamina }}</strong> stamina · enemies at level
+        <strong>{{ tile.camp?.level }}</strong>
+        @if (tile.camp?.cleared) {
+          · cleared
+        }
+      </p>
+      @if (fightBlocked(); as reason) {
+        <p class="hint" role="status">{{ reason }}</p>
+      } @else {
+        <button type="button" class="act__go" (click)="fight()">
+          Fight — {{ tile.camp?.stamina }} stamina
+        </button>
+        <p class="hint">A defeat costs nothing. Only a victory spends the stamina.</p>
+      }
+    </section>
+  }
+
+  <section class="party" aria-labelledby="party-label">
+    <h2 id="party-label" class="section__heading">
+      Your party
+      <span class="party__count">{{ standing() }} of {{ partySize }}</span>
+    </h2>
+    @if (run() === null) {
+      <a class="party__link" [routerLink]="crewLink">Arrange your crew →</a>
+    }
+    @if (members().length === 0) {
+      <p class="empty">Nobody is standing. Arrange a crew above.</p>
+    }
+    <ul class="party__list">
+      @for (member of members(); track member.name) {
+        <li class="party__member">
+          <span class="party__name">{{ member.name }}</span>
+          <span
+            class="party__bar"
+            role="progressbar"
+            [attr.aria-valuenow]="member.health"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="100"
+            [attr.aria-valuetext]="member.health + '% health'"
+            [attr.aria-label]="member.name + ' health'"
+          >
+            <span class="party__fill" [style.width.%]="member.health"></span>
+          </span>
+          <span class="party__health">{{ member.health }}%</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  @if (held().length > 0) {
+    <section class="hand" aria-labelledby="hand-label">
+      <h2 id="hand-label" class="section__heading">What you are carrying</h2>
+      <ul class="hand__list">
+        @for (card of held(); track $index) {
+          <li class="hand__card">
+            <span class="hand__name">{{ card.name }}</span>
+            <span class="hand__effects">{{ card.effects.join(' · ') }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @if (offer().length > 0) {
+    <section class="act" aria-labelledby="offer-label">
+      <h2 id="offer-label" class="section__heading">Take one</h2>
+      <ul class="offer">
+        @for (card of offer(); track card.id) {
+          <li>
+            <button type="button" class="card" (click)="take(card)">
+              <span class="card__name">{{ card.name }}</span>
+              <span class="card__rank">{{ card.rankName }}</span>
+              <span class="card__effects">{{ card.effects.join(' · ') }}</span>
+              <span class="card__description">{{ card.description }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+      <p class="hint">The two you leave are gone for this attempt.</p>
+    </section>
+  }
+
+  @if (run() === null) {
+    <section class="act" aria-labelledby="begin-label">
+      <h2 id="begin-label" class="section__heading">Set out</h2>
+      <button type="button" class="act__go" [disabled]="!canStart()" (click)="start()">
+        Begin the expedition
+      </button>
+      @if (startBlocked(); as reason) {
+        <p class="hint" role="status">{{ reason }}</p>
+      } @else {
+        <p class="hint">
+          Your crew is copied in when you set out. Restarting later is free — everything a camp or
+          chest pays is banked the moment you take it, once, ever.
+        </p>
+      }
+    </section>
+  } @else {
+    <section class="act" aria-labelledby="leave-label">
+      <h2 id="leave-label" class="section__heading">Walk away</h2>
+      @if (exitOpen()) {
+        <button type="button" class="act__go" (click)="complete()">
+          Walk out — complete the expedition
+        </button>
+        <p class="hint">
+          The way is open. Anything left unfought stays for another attempt — first-time rewards
+          keep.
+        </p>
+      }
+      @if (confirmingAbandon()) {
+        <p class="hint" role="status">
+          Abandon this attempt? Cleared camps close again, but everything already paid stays paid.
+        </p>
+        <div class="leave__row">
+          <button type="button" class="act__danger" (click)="abandon()">Abandon it</button>
+          <button type="button" class="act__quiet" (click)="cancelAbandon()">Keep going</button>
+        </div>
+      } @else {
+        <button type="button" class="act__quiet" (click)="abandon()">Abandon this attempt</button>
+      }
+    </section>
+  }
+}

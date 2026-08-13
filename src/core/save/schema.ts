@@ -28,10 +28,17 @@
  * The fourth is milestone 22's, and it is two fields: `descent` and `descentRuns`. Both default
  * correctly to the value the decoder already produces for a missing key — no run in flight, and no
  * runs finished — so the migration they did not need would again have been assignments of nothing.
- * ⚠️ **It rides on the same licence as the other three and it is the last one that can**, because
- * the licence is a fact about the audience rather than about the fields: milestone 22 is the last
- * numbered system on the roadmap before presentation, and a build that reaches a player closes this
- * door permanently.
+ * It rides on the same licence as the other three, because the licence is a fact about the audience
+ * rather than about the fields.
+ *
+ * The fifth is milestone 23's, and it is two fields again: `expedition` and `expeditions`. Both
+ * default to nothing — no attempt in flight, no map ever touched. ⚠️ **The fourth re-base called
+ * itself the last, and the premise it rested on moved rather than the rule**: it reasoned from
+ * milestone 22 being the roadmap's last numbered system, and milestone 23 — written down as the one
+ * a solo developer might decide not to want — was then built, still before any build has reached a
+ * player. The licence is unchanged and still honest; the lesson is that "this is the last one" is a
+ * claim about the roadmap, and the roadmap is softer than the rule. What actually closes this door
+ * is a player loading a save, and nothing else ever will.
  *
  * **From here the old rule applies without exception: never edit or delete a shipped shape.** A
  * migration is written against the shape that existed when it was authored, and changing one
@@ -157,6 +164,36 @@ export interface SaveDataV0 {
   } | null;
   /** Descent runs finished end to end. The only mark a run leaves once its day has passed. */
   descentRuns: number;
+  /**
+   * The Expedition attempt in flight, or `null` when there is none.
+   *
+   * No day and no lives — an attempt persists until finished or abandoned, and restarts are free.
+   * `camps` are the cells beaten this attempt, in the order fought; stamina spent is their summed
+   * cost, derived rather than stored so the two cannot disagree. `attempt` salts the card draw so a
+   * fresh attempt redraws while a force-quit cannot. `health` is a fraction of maximum per
+   * character id, for the Descent's reason.
+   */
+  expedition: {
+    mapId: string;
+    attempt: number;
+    party: { front: string[]; back: string[] };
+    health: Record<string, number>;
+    energy: Record<string, number>;
+    cards: string[];
+    camps: string[];
+  } | null;
+  /**
+   * Map id to what that map remembers forever: which camps and chests have paid their one-time
+   * rewards, whether completion has paid, and how many attempts have ever been started.
+   *
+   * ⚠️ **This ledger is the whole of what makes the mode's rewards finite** — see
+   * `core/expedition/run.ts`. An entry for a map this build does not ship is kept, exactly as an
+   * unknown formation key is: dropping it would pay a returning player's rewards twice.
+   */
+  expeditions: Record<
+    string,
+    { camps: string[]; chests: string[]; completed: boolean; attempts: number }
+  >;
 }
 
 /** The shape written by the current `SAVE_VERSION`. */

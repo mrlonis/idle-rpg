@@ -122,6 +122,7 @@ export {
   DESCENT_RULES,
   DESCENT_UNIVERSAL_FAMILIES,
 } from './descent';
+export { EXPEDITION_MAPS, EXPEDITION_RULES } from './expedition';
 export { EMBLEM_DROPS, EMBLEM_RATE } from './emblems';
 export { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
 export { GEAR_GRADES, GEAR_PROFILES, GEAR_RULES } from './gear';

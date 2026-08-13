@@ -32,6 +32,7 @@ import {
   COMBAT,
   DESCENT_BOARD_BY_STAGE,
   EMBLEM_DROP_RULES,
+  EXPEDITION_CAMP_BY_STAGE,
   GEAR,
   GEAR_ALIGNMENTS,
   IDLE_RATE_CURVES,
@@ -44,6 +45,7 @@ import {
   type TowerFloor,
 } from './content';
 import { DescentService } from './descent.service';
+import { ExpeditionService } from './expedition.service';
 import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { type PlaybackSpeed, SettingsService } from './settings.service';
@@ -189,6 +191,7 @@ export class BattleService {
   private readonly game = inject(GameLoopService);
   private readonly formations = inject(FormationService);
   private readonly descent = inject(DescentService);
+  private readonly expeditions = inject(ExpeditionService);
   private readonly settings = inject(SettingsService);
 
   /**
@@ -474,16 +477,22 @@ export class BattleService {
     this.activity.set(activity);
 
     const { heading, stage } = target;
-    // ⚠️ **The Descent fights the crew stored in the run, not the one in the formation book**, with
-    // its cards folded into every stat block and its carried damage handed in as the opening state.
-    // Everything else fights the book at full health, which is the third argument `simulateBattle`'s
-    // optional `opening` parameter exists to keep bit-identical.
+    // ⚠️ **The two carry-over modes fight the crew stored in their run, not the one in the
+    // formation book**, with their cards folded into every stat block and their carried damage
+    // handed in as the opening state. Everything else fights the book at full health, which is the
+    // third argument `simulateBattle`'s optional `opening` parameter exists to keep bit-identical.
+    const kind = ACTIVITIES_BY_ID.get(activity)?.kind;
     const party =
-      this.descent.run() === null || ACTIVITIES_BY_ID.get(activity)?.kind !== 'descent'
-        ? this.formations.battleFormation(activity)
-        : this.formations.resolveParty(this.descent.party() ?? { front: [], back: [] }, (faction) =>
+      kind === 'descent' && this.descent.run() !== null
+        ? this.formations.resolveParty(this.descent.party() ?? { front: [], back: [] }, (faction) =>
             this.descent.bonusFor(faction),
-          );
+          )
+        : kind === 'expedition' && this.expeditions.run() !== null
+          ? this.formations.resolveParty(
+              this.expeditions.party() ?? { front: [], back: [] },
+              (faction) => this.expeditions.bonusFor(faction),
+            )
+          : this.formations.battleFormation(activity);
     const result = simulateBattle(
       // The crew the player has chosen for this activity, with stats already scaled for level,
       // rung and gear — which is the whole reason the roster exists. An empty crew resolves as an
@@ -494,7 +503,11 @@ export class BattleService {
       // replaying a battle cannot shift the pull sequence.
       battleSeed(state.rng.seed, stage.id, state.battleCount),
       COMBAT,
-      ACTIVITIES_BY_ID.get(activity)?.kind === 'descent' ? this.descent.opening() : undefined,
+      kind === 'descent'
+        ? this.descent.opening()
+        : kind === 'expedition'
+          ? this.expeditions.opening()
+          : undefined,
     );
 
     this.stage.set(heading);
@@ -588,12 +601,14 @@ export class BattleService {
     if (!this.isAutoUnlocked() || !this.isOpen()) {
       return;
     }
-    // ⚠️ **Never in the Descent, and that is the mode's whole premise rather than a limitation.**
-    // Auto-battle is a repeat loop, and a Descent fight cannot be repeated without a card being
-    // chosen first — so the loop would win one fight and stop, reporting "there is nothing left to
-    // fight" about a run that is eight fights from over. A control that always does one thing and
-    // then lies is worse than no control.
-    if (ACTIVITIES_BY_ID.get(this.activity())?.kind === 'descent') {
+    // ⚠️ **Never in the Descent or an Expedition, and that is those modes' premise rather than a
+    // limitation.** Auto-battle is a repeat loop; a Descent fight cannot be repeated without a card
+    // being chosen first, and an Expedition fight cannot even be *named* without the player picking
+    // the next camp — so the loop would win one fight and stop, reporting "there is nothing left to
+    // fight" about a run that is far from over. A control that always does one thing and then lies
+    // is worse than no control.
+    const kind = ACTIVITIES_BY_ID.get(this.activity())?.kind;
+    if (kind === 'descent' || kind === 'expedition') {
       return;
     }
     this.isAuto.set(true);
@@ -797,7 +812,14 @@ export class BattleService {
     // tower floor is also what tells the two payout paths apart.
     const floor = TOWER_FLOOR_BY_STAGE.get(result.stageId);
     const descentBoard = DESCENT_BOARD_BY_STAGE.get(result.stageId);
-    if (descentBoard !== undefined) {
+    const expeditionCamp = EXPEDITION_CAMP_BY_STAGE.get(result.stageId);
+    if (expeditionCamp !== undefined) {
+      // ⚠️ **A fourth payout path, separate for the reason the other three are**: an Expedition
+      // fight may not touch `clearedStages`, the ladder position or an idle rate, and the ledger
+      // inside `applyExpeditionResult` is what makes every payout first-time-only. Keyed off the
+      // result's stage id rather than the queued camp, which the animation may have outlived.
+      this.game.apply((state) => this.expeditions.settle(state, expeditionCamp, result));
+    } else if (descentBoard !== undefined) {
       // ⚠️ **A third payout path, and a separate one for the same reason `applyTowerResult` is.** A
       // Descent fight may not touch `clearedStages`, the ladder position or an idle rate, and the
       // way to make that true by construction is for the function that banks it to be unable to
@@ -898,6 +920,15 @@ export class BattleService {
             heading: descentHeading(activity.name, target.fight, target.stage, this.descent.fights),
           };
     }
+    if (activity.kind === 'expedition') {
+      // `null` whenever there is nothing to fight: no attempt, no camp queued, a card owed, or a
+      // queued camp out of reach or over budget. The camp is *chosen* on the map screen — this is
+      // the one activity whose next fight is a decision rather than a position.
+      const target = this.expeditions.target(state);
+      return target === null
+        ? null
+        : { stage: target.stage, heading: expeditionHeading(activity.name, target) };
+    }
     if (activity.kind !== 'tower') {
       return { stage: stageFor(state), heading: campaignHeading(state) };
     }
@@ -972,6 +1003,34 @@ function towerHeading(floor: TowerFloor): StageHeading {
  * `label` spells the position out beside the board's name for the reason a campaign stage does: a
  * Descent board's name is different every day and carries no number of its own.
  */
+/**
+ * One Expedition camp, named for a heading.
+ *
+ * The big line is the camp's grid letter, because it is also drawn on the camp's tile — the one
+ * cross-reference the mode has between the fight screen and the map. `place` walks outward: the
+ * mode, then the map; `label` pairs the letter with the camp's name for the reason a campaign
+ * stage pairs its position with its own.
+ */
+function expeditionHeading(
+  name: string,
+  target: {
+    readonly map: { readonly name: string };
+    readonly camp: { readonly cell: string };
+    readonly stage: StageData;
+  },
+): StageHeading {
+  const where = target.camp.cell.toUpperCase();
+  return {
+    activity: 'expedition',
+    kind: 'expedition',
+    where,
+    name: target.stage.name,
+    place: `${name} · ${target.map.name}`,
+    label: `${where} — ${target.stage.name}`,
+    level: target.stage.level,
+  };
+}
+
 function descentHeading(
   name: string,
   fight: number,

@@ -1,0 +1,57 @@
+<header class="head">
+  <!-- Home is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/">← Home</a>
+  <h1 class="head__title">Expeditions</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ completed() }} of {{ total }}</span>
+    <span class="head__unit">completed</span>
+  </p>
+</header>
+
+<p class="intro">
+  Hand-drawn maps with more camps than your stamina can pay for. Fight only what your route needs,
+  loot what you can reach, and walk out past the boss. Every camp, chest and completion pays once,
+  ever — and restarting an attempt costs nothing.
+</p>
+
+@if (!isUnlocked()) {
+  <p class="notice" role="status">
+    Finish
+    {{ chaptersNeeded() === 1 ? '1 more chapter' : chaptersNeeded() + ' more chapters' }} of the
+    campaign to open the first map.
+  </p>
+}
+
+<ul class="maps">
+  @for (row of rows(); track row.id) {
+    <li class="map" [class.map--locked]="row.status === 'locked'">
+      @if (row.status === 'locked') {
+        <!--
+          An inert row rather than a missing one: the next map is a visible destination, which is
+          most of what a sequential unlock is for. Its own line says which door opens it.
+        -->
+        <div class="map__body">
+          <span class="map__name">{{ row.name }}</span>
+          <span class="map__description">{{ row.description }}</span>
+          <span class="map__detail">
+            {{ isUnlocked() ? 'Complete the map before it to open the way.' : 'Locked.' }}
+          </span>
+        </div>
+        <span class="map__status">{{ statusLabel(row.status) }}</span>
+      } @else {
+        <a class="map__body map__body--link" [routerLink]="['/expeditions', row.id]">
+          <span class="map__name">{{ row.name }}</span>
+          <span class="map__description">{{ row.description }}</span>
+          <span class="map__detail">{{ row.progress }}</span>
+        </a>
+        <span
+          class="map__status"
+          [class.map__status--underway]="row.status === 'underway'"
+          [class.map__status--completed]="row.status === 'completed'"
+        >
+          {{ statusLabel(row.status) }}
+        </span>
+      }
+    </li>
+  }
+</ul>

@@ -93,6 +93,7 @@ export {
 } from './battle/simulate';
 export {
   applyDescentBonus,
+  cardOffer,
   descentBonus,
   descentCard,
   descentCardId,
@@ -102,6 +103,7 @@ export {
   isNeutralDescentBonus,
   choiceProgress,
   rankWeight,
+  type CardLadderRules,
 } from './descent/cards';
 export {
   applyDescentResult,
@@ -144,6 +146,62 @@ export {
   type DescentStatus,
   type DescentSummonsData,
 } from './descent/types';
+export {
+  adjacentCamps,
+  cheapestStaminaTo,
+  exitReachable,
+  expeditionMapIssues,
+  parseExpeditionGrid,
+  reachableChests,
+  reachableTiles,
+  type ExpeditionGrid,
+  type ExpeditionTile,
+  type ExpeditionTileKind,
+} from './expedition/map';
+export {
+  abandonExpedition,
+  applyExpeditionResult,
+  completeExpedition,
+  expeditionCampSummons,
+  expeditionCardsOwed,
+  expeditionChestPayout,
+  expeditionCleared,
+  expeditionExitOpen,
+  expeditionLevel,
+  expeditionLump,
+  expeditionMapOpen,
+  expeditionRecordFor,
+  expeditionRunFor,
+  expeditionsCompleted,
+  expeditionStageId,
+  expeditionStaminaLeft,
+  expeditionStaminaSpent,
+  expeditionStatus,
+  fightableExpeditionCamps,
+  isExpeditionUnlocked,
+  nextExpeditionCamp,
+  parseExpedition,
+  parseExpeditionRecords,
+  resolveExpeditionCamp,
+  serializeExpedition,
+  serializeExpeditionRecords,
+  startExpedition,
+  takeExpeditionCard,
+  type ExpeditionBattleOutcome,
+  type ExpeditionDropAward,
+} from './expedition/run';
+export {
+  EMPTY_EXPEDITION_RECORD,
+  type ExpeditionCampData,
+  type ExpeditionChestContents,
+  type ExpeditionChestData,
+  type ExpeditionMapData,
+  type ExpeditionRecord,
+  type ExpeditionRulesData,
+  type ExpeditionRun,
+  type ExpeditionStatus,
+  type ExpeditionSummonsData,
+} from './expedition/types';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
   absorbDamage,

@@ -80,6 +80,9 @@ describe('toSaveData', () => {
       // already half-spent.
       descent: null,
       descentRuns: 0,
+      // No attempt in flight and no map ever touched, for the same reason.
+      expedition: null,
+      expeditions: {},
     });
   });
 

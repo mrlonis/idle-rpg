@@ -80,6 +80,18 @@ export const routes: Routes = [
     loadComponent: () => import('../ui/descent-view').then((m) => m.DescentView),
     title: 'The Descent — Idle RPG',
   },
+  // Expeditions: the index, and one screen per map. Both under Home's tab for the reason the
+  // Descent is — anything a player goes to *fight* is a card on the battle hub.
+  {
+    path: 'expeditions',
+    loadComponent: () => import('../ui/expeditions-view').then((m) => m.ExpeditionsView),
+    title: 'Expeditions — Idle RPG',
+  },
+  {
+    path: 'expeditions/:mapId',
+    loadComponent: () => import('../ui/expedition-map-view').then((m) => m.ExpeditionMapView),
+    title: 'Expedition — Idle RPG',
+  },
   {
     path: 'roster',
     loadComponent: () => import('../ui/roster-view').then((m) => m.RosterView),

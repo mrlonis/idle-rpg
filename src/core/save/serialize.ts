@@ -9,6 +9,12 @@ import {
   type Wallet,
 } from '../currency';
 import { parseDescent, serializeDescent } from '../descent/run';
+import {
+  parseExpedition,
+  parseExpeditionRecords,
+  serializeExpedition,
+  serializeExpeditionRecords,
+} from '../expedition/run';
 import { emptyGearShop, type GearItem, type GearShopState } from '../gear/types';
 import { parseQuestWindows, type QuestWindow } from '../quests';
 import { type LevelCurveData } from '../roster/level';
@@ -105,6 +111,8 @@ export function toSaveData(state: GameState): CurrentSaveData {
     towers: { ...state.towers },
     descent: serializeDescent(state.descent),
     descentRuns: state.descentRuns,
+    expedition: serializeExpedition(state.expedition),
+    expeditions: serializeExpeditionRecords(state.expeditions),
   };
 }
 
@@ -222,6 +230,11 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   if (rawDescentRuns !== undefined && descentRuns === 0 && rawDescentRuns !== 0) {
     note('descentRuns', `not a non-negative integer (${JSON.stringify(rawDescentRuns)})`, '0');
   }
+  // Absent is the ordinary state of a save written before milestone 23 — not a repair, for the
+  // reason `descentRuns` spells out above. The parsers only report entries that are *present* and
+  // damaged.
+  const expedition = parseExpedition(record['expedition'], note);
+  const expeditions = parseExpeditionRecords(record['expeditions'], note);
 
   return {
     state: {
@@ -248,6 +261,8 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       towers,
       descent,
       descentRuns,
+      expedition,
+      expeditions,
     },
     issues,
   };
