@@ -71,6 +71,15 @@ export const routes: Routes = [
     loadComponent: () => import('../ui/achievements-view').then((m) => m.AchievementsView),
     title: 'Achievements — Idle RPG',
   },
+  // The Descent is a battle destination, so it hangs off Home rather than Town — the rule
+  // `docs/navigation.md` states as "anything a player goes to *fight* is a card on Home". It is a
+  // route and not a mode, unlike the battle screen, because a run in flight is entirely saved
+  // state: the floor map, the carried damage and the hand of cards all survive a reload.
+  {
+    path: 'descent',
+    loadComponent: () => import('../ui/descent-view').then((m) => m.DescentView),
+    title: 'The Descent — Idle RPG',
+  },
   {
     path: 'roster',
     loadComponent: () => import('../ui/roster-view').then((m) => m.RosterView),

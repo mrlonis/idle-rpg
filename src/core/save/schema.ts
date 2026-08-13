@@ -4,7 +4,7 @@
  * JSON-safe: `Numeric` values are stored as exponential-notation strings, which round-trip
  * exactly and stay readable when inspecting a save from a bug report.
  *
- * ## There is one shape here, and it has been re-based to one three times
+ * ## There is one shape here, and it has been re-based to one four times
  *
  * The first re-base folded five pre-release shapes — the gold counter, combat progression, the
  * keyed wallet and roster, the two ranks, and chapters — into a v0 baseline. Six more accumulated
@@ -25,12 +25,20 @@
  * have cost almost nothing, and the reason not to take it is consistency with a chain that is
  * still empty rather than any property of these three fields.
  *
+ * The fourth is milestone 22's, and it is two fields: `descent` and `descentRuns`. Both default
+ * correctly to the value the decoder already produces for a missing key — no run in flight, and no
+ * runs finished — so the migration they did not need would again have been assignments of nothing.
+ * ⚠️ **It rides on the same licence as the other three and it is the last one that can**, because
+ * the licence is a fact about the audience rather than about the fields: milestone 22 is the last
+ * numbered system on the roadmap before presentation, and a build that reaches a player closes this
+ * door permanently.
+ *
  * **From here the old rule applies without exception: never edit or delete a shipped shape.** A
  * migration is written against the shape that existed when it was authored, and changing one
  * retroactively invalidates every migration downstream of it.
  *
- * ⚠️ **The next version is 1, and it is permanent.** The one thing the two re-bases have in common
- * is that neither had an audience; the moment one exists, this file grows an interface rather than
+ * ⚠️ **The next version is 1, and it is permanent.** The one thing the four re-bases have in common
+ * is that none had an audience; the moment one exists, this file grows an interface rather than
  * gaining a field.
  *
  * **Every gear field is typed as loosely here as JSON allows** — `slot` and `archetype` are plain
@@ -120,6 +128,35 @@ export interface SaveDataV0 {
    * of truth that a device clock could put out of step with the first.
    */
   dispatches: { bountyId: string; members: string[]; startedAt: number }[];
+  /**
+   * The Descent run in flight, or `null` when there is none.
+   *
+   * ⚠️ **The `day` is the whole of the daily reset and there is no expiry field beside it.** A run
+   * dated to yesterday is simply not today's run, so it can be left where it is: nothing continues
+   * it, nothing blocks on it, and everything it earned was banked fight by fight. Storing "finished"
+   * or "abandoned" would be a second answer to a question one integer already answers, free to
+   * disagree with it after a repair.
+   *
+   * `health` is a **fraction of maximum** per character id, not a quantity — see
+   * `core/descent/types.ts` for why an absolute figure cannot survive a level bought between two
+   * fights of one run. `cards` are `${familyId}:${rank}` ids; an id this build no longer ships pays
+   * nothing rather than invalidating the run.
+   *
+   * There is no board list and no pending offer here. Both are pure functions of the seed, the day
+   * and what the run has already taken, which is what makes rerolling impossible rather than merely
+   * detectable.
+   */
+  descent: {
+    day: number;
+    cleared: number;
+    party: { front: string[]; back: string[] };
+    health: Record<string, number>;
+    energy: Record<string, number>;
+    cards: string[];
+    lives: number;
+  } | null;
+  /** Descent runs finished end to end. The only mark a run leaves once its day has passed. */
+  descentRuns: number;
 }
 
 /** The shape written by the current `SAVE_VERSION`. */

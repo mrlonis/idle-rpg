@@ -579,8 +579,15 @@ describe('the wiring a tower needs to be reachable at all', () => {
     }
   });
 
-  it('locks every tower and leaves the campaign unlocked', () => {
-    for (const activity of activities) {
+  it('gives every tower an authored lock and leaves the campaign unlocked', () => {
+    // ⚠️ **Narrowed to the two kinds that carry an *authored* lock, because a third kind arrived
+    // with one that is drawn.** The Descent admits three factions chosen daily from the run's seed,
+    // so it correctly has no `faction` here and is correctly not unlocked — `dailyDescentFactions`
+    // is what answers for it, and `FormationService.lockFor` is the one resolver both the editor and
+    // the battle path go through. Reading this test as "faction absent means anybody may enter" is
+    // what would make that silently wrong, which is why the scope is spelled out rather than
+    // widened.
+    for (const activity of activities.filter((entry) => entry.kind !== 'descent')) {
       expect(activity.faction === undefined, `${activity.id} lock`).toBe(
         activity.kind === 'campaign',
       );

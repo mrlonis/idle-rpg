@@ -68,6 +68,41 @@ const unlockedSave = {
     weekly: { index: -1, baseline: {}, claimed: [] },
   },
   dispatches: [],
+  descent: null,
+  descentRuns: 0,
+};
+
+/**
+ * Which day the Descent is on, resolved the same way the app resolves it: 04:00 UTC.
+ *
+ * ⚠️ **A run is only today's run if its `day` matches**, so a fixture with a hard-coded index would
+ * be yesterday's run tomorrow — and the screen would draw the "start a run" state instead of the one
+ * being scanned. Deriving it is what makes the fixture below mean the same thing on any day.
+ */
+const DESCENT_DAY = Math.max(Math.floor((Date.now() - 240 * 60_000) / 86_400_000), 0);
+
+/**
+ * A run mid-Descent with a card owed, which is the richest markup the mode has.
+ *
+ * Three full-width buttons carrying four lines each, a floor map of nine rows, and a health bar per
+ * party member — a `progressbar` whose value lives entirely in `aria-valuetext`, which is exactly
+ * the markup most likely to announce nothing.
+ */
+const descentSave = {
+  ...unlockedSave,
+  formations: {
+    ...unlockedSave.formations,
+    descent: { front: ['bran', 'mira'], back: ['rin'] },
+  },
+  descent: {
+    day: DESCENT_DAY,
+    cleared: 1,
+    party: { front: ['bran', 'mira'], back: ['rin'] },
+    health: { bran: 0.42, mira: 1, rin: 0.8 },
+    energy: { bran: 20, mira: 0, rin: 0 },
+    cards: [],
+    lives: 2,
+  },
 };
 
 /**
@@ -387,6 +422,29 @@ test.describe('Accessibility', () => {
     await expect(page.getByRole('link', { name: /Formations/ })).toBeVisible();
 
     await scan(page, testInfo, 'roster');
+  });
+
+  test('the Descent has no AXE violations before a run is started', async ({ page }, testInfo) => {
+    await seedSave(page, unlockedSave);
+    await page.goto('/descent');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'The Descent' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Descend' })).toBeVisible();
+
+    await scan(page, testInfo, 'descent');
+  });
+
+  test('the Descent has no AXE violations with a card on offer', async ({ page }, testInfo) => {
+    // The card offer is three full-width buttons carrying four lines each, and the party list is a
+    // `progressbar` per member whose value lives entirely in `aria-valuetext`. Neither is covered by
+    // a scan of the state above, and both are the markup most likely to announce nothing.
+    await seedSave(page, descentSave);
+    await page.goto('/descent');
+
+    await expect(page.getByRole('heading', { level: 2, name: 'Take one' })).toBeVisible();
+    await expect(page.getByRole('progressbar').first()).toBeVisible();
+
+    await scan(page, testInfo, 'descent-choosing');
   });
 
   test('the formations index has no AXE violations', async ({ page }, testInfo) => {

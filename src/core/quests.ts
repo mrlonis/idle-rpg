@@ -75,7 +75,15 @@ export interface QuestData {
  * `battleCount` moves on every fight won or lost, and `pullCount` on every pull, so both are
  * always reachable by playing.
  */
-export type QuestCounter = Extract<AchievementCounter, 'battleCount' | 'pullCount'>;
+/**
+ * ⚠️ **`descentRuns` passes the same test and `signatureLevels` does not**, which is the pair worth
+ * holding in mind before widening this again. The Descent is offered afresh every day forever, so
+ * its run count can never stop moving; signature levels stop dead at 420 once every item is maxed,
+ * and do not move at all for the tens of thousands of pulls before the first one unlocks. The
+ * question a candidate has to answer is not "is it monotonic" — a wallet balance is not, and
+ * `clearedStages` is — but "can a player always make it move today".
+ */
+export type QuestCounter = Extract<AchievementCounter, 'battleCount' | 'pullCount' | 'descentRuns'>;
 
 /** How long each period runs, in milliseconds. */
 const DAY_MS = 86_400_000;

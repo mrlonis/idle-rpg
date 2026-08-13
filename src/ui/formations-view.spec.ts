@@ -54,7 +54,7 @@ function crew(over: Partial<CrewView> = {}): CrewView {
     open: { front: 2, back: 3 },
     lineup: { bonus: NO_BONUS, tier: null, counts: [], rallyCount: 0, ladderCount: 0 },
     eligible: [],
-    lockFaction: null,
+    lockFactions: null,
     away: [],
     ready: false,
     ...over,
@@ -94,7 +94,7 @@ describe('FormationsView', () => {
         crew(),
         crew({
           activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
-          lockFaction: 'dwarf',
+          lockFactions: ['dwarf'],
         }),
       ]),
     );
@@ -133,7 +133,7 @@ describe('FormationsView', () => {
       formations.summaries.set([
         crew({
           activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
-          lockFaction: 'dwarf',
+          lockFactions: ['dwarf'],
         }),
       ]),
     );
@@ -152,7 +152,7 @@ describe('FormationsView', () => {
           activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
           front: [row('Rin')],
           size: 1,
-          lockFaction: 'dwarf',
+          lockFactions: ['dwarf'],
           ready: false,
         }),
       ]),

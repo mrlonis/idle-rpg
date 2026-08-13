@@ -1,6 +1,7 @@
 import { type AchievementLedger, emptyAchievements } from './achievements';
 import { type Dispatch, emptyDispatches } from './bounties';
 import { emptyWallet, type Rates, type Wallet, zeroRates } from './currency';
+import { type DescentRun } from './descent/types';
 import { emptyGearShop, type GearItem, type GearShopState } from './gear/types';
 import { type LadderPosition } from './ladder';
 import { emptyQuestWindows, type QuestWindows } from './quests';
@@ -337,6 +338,32 @@ export interface GameState extends LadderPosition {
    * know, and a per-floor record would be a hundred entries per tower saying what one number says.
    */
   readonly towers: TowerProgress;
+  /**
+   * The Descent run in flight, or `null`.
+   *
+   * ⚠️ **It carries the day it belongs to, and that is the whole of the daily reset.** A run whose
+   * day is behind today's is not today's run, so it neither continues nor blocks a fresh one — no
+   * roll pass, no expiry flag, nothing to reconcile. Compare `quests`, which *does* need a roll,
+   * because a window carries a baseline that has to be re-taken against counters that have moved.
+   *
+   * The crew is copied into the run rather than read from {@link formations} per fight, so a swap
+   * made mid-run cannot walk a fresh five into the boss at full health. See `core/descent/types.ts`.
+   */
+  readonly descent: DescentRun | null;
+  /**
+   * Descent runs finished end to end, over the life of the run.
+   *
+   * **The only mark a Descent leaves once its day has passed**, and the one new counter this mode
+   * adds. It is monotonic and always reachable — the mode is offered every day, forever — which is
+   * what makes it legal as a *quest* counter as well as an achievement one, unlike `clearedStages`.
+   *
+   * ⚠️ **It is also the first counter in this save added partly because a track is paid against
+   * it**, which the rule in `core/achievements.ts` warns about. What keeps it honest is the same
+   * thing that keeps {@link pullCount} honest: it is the mode's own record and the Descent screen
+   * prints it, because a run stores nothing else that survives its day and "you have finished
+   * forty-one" is the only long-term shape the mode has.
+   */
+  readonly descentRuns: number;
 }
 
 export interface NewGameOptions {
@@ -375,6 +402,10 @@ export function newGame({ seed, nowMs }: NewGameOptions): GameState {
     quests: emptyQuestWindows(),
     dispatches: emptyDispatches(),
     towers: emptyTowers(),
+    // No run, rather than an empty one dated to today. A run is a thing the player starts, and
+    // seeding one would mean a fresh save arriving with its first Descent already half-spent.
+    descent: null,
+    descentRuns: 0,
   };
 }
 

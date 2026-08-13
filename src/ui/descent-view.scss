@@ -1,0 +1,305 @@
+@use 'theme';
+
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.head__back {
+  color: theme.$muted;
+  text-decoration: none;
+  @include theme.focus-ring;
+}
+
+.head__title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.head__balance {
+  margin: 0;
+  text-align: right;
+  @include theme.numeric;
+}
+
+.head__amount {
+  display: block;
+  font-weight: 700;
+}
+
+.head__unit {
+  display: block;
+  font-size: 0.75rem;
+  color: theme.$muted;
+}
+
+.intro,
+.hint {
+  margin: 0 0 1rem;
+  color: theme.$muted;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  background: theme.$surface-raised;
+  border: 1px solid theme.$border;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.empty {
+  margin: 0;
+  color: theme.$muted;
+  font-size: 0.875rem;
+}
+
+.section__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.lock,
+.party,
+.map,
+.hand,
+.act {
+  margin-bottom: 1.25rem;
+}
+
+.lock__factions {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: theme.$accent;
+}
+
+.lock__link {
+  color: theme.$text;
+  text-decoration: underline;
+  @include theme.focus-ring;
+}
+
+.party__count {
+  color: theme.$muted;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  @include theme.numeric;
+}
+
+.party__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.party__member {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5rem 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  @include theme.card;
+}
+
+.party__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.party__bar {
+  display: block;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: theme.$surface-raised;
+  overflow: hidden;
+}
+
+.party__fill {
+  display: block;
+  height: 100%;
+  background: theme.$accent;
+}
+
+.party__health {
+  text-align: right;
+  font-size: 0.8125rem;
+  color: theme.$muted;
+  @include theme.numeric;
+}
+
+.party__lives {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: theme.$muted;
+}
+
+.floor {
+  margin-bottom: 0.75rem;
+}
+
+.floor__label {
+  margin: 0 0 0.375rem;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: theme.$muted;
+}
+
+.floor__fights {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.fight {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem 0.75rem;
+  @include theme.card;
+}
+
+// A guardian is the fight that closes a floor. The left border is a second signal beside the word
+// on the row, never the only one — the same rule the rarity palette follows.
+.fight--guardian {
+  border-left: 3px solid theme.$tier-legendary;
+}
+
+.fight--current {
+  border-color: theme.$accent;
+}
+
+// ⚠️ **Not `opacity`, and the accessibility suite is what said so.** A cleared row first shipped at
+// `opacity: 0.55`, which drags `$muted` on `$surface` from 6.4:1 down past the 4.5:1 floor — taking
+// the level and the payout, the two things a cleared row still says, below the contrast bar along
+// with the name. The muted name is the whole signal, exactly as it is on a locked tower row, and the
+// word "Cleared" beside it says the same thing without relying on colour at all.
+.fight--cleared .fight__name {
+  color: theme.$muted;
+}
+
+.fight__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fight__detail {
+  grid-column: 1;
+  font-size: 0.75rem;
+  color: theme.$muted;
+  @include theme.numeric;
+}
+
+.fight__state {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-size: 0.75rem;
+  color: theme.$muted;
+}
+
+.fight__state--now {
+  color: theme.$accent;
+  font-weight: 600;
+}
+
+.hand__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.hand__card {
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  @include theme.card;
+}
+
+.hand__name {
+  font-weight: 600;
+}
+
+.hand__effects {
+  font-size: 0.8125rem;
+  color: theme.$accent;
+  @include theme.numeric;
+}
+
+.hand__faction {
+  font-size: 0.75rem;
+  color: theme.$muted;
+}
+
+.act__go {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  @include theme.button-primary;
+}
+
+.offer {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+// A card is a button rather than a row with a button in it: the whole card is the target, which on
+// a phone is the difference between a comfortable tap and a 44px strip at the end of a line.
+.card {
+  display: grid;
+  gap: 0.1875rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  @include theme.button-quiet;
+  min-height: 0;
+}
+
+.card__name {
+  font-weight: 700;
+}
+
+.card__rank {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: theme.$tier-legendary;
+}
+
+.card__effects {
+  font-size: 0.875rem;
+  color: theme.$accent;
+  font-weight: 600;
+  @include theme.numeric;
+}
+
+.card__description,
+.card__faction {
+  font-size: 0.75rem;
+  color: theme.$muted;
+  font-weight: 400;
+}

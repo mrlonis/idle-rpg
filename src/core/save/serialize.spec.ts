@@ -75,6 +75,11 @@ describe('toSaveData', () => {
       },
       dispatches: [],
       towers: {},
+      // No run in flight, and no runs finished. A fresh save carries `null` rather than an empty run
+      // dated to today — see `newGame`: seeding one would mean a new player's first Descent arriving
+      // already half-spent.
+      descent: null,
+      descentRuns: 0,
     });
   });
 

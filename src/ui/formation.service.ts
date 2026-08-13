@@ -1,12 +1,15 @@
 import { computed, inject, Service } from '@angular/core';
 import {
   type ActivityData,
+  applyDescentBonus,
   awayMembers,
   benchMember,
   type CombatantData,
   crewFor,
+  dailyDescentFactions,
+  type DescentBonus,
   effectiveLevel,
-  factionMeetsLock,
+  type FactionLock,
   findOwned,
   type FormationData,
   formationSize,
@@ -14,8 +17,11 @@ import {
   lineupBonus,
   type LineupSummary,
   loadoutBonus,
+  lockOf,
+  meetsLock,
   type PartyFormation,
-  partyMeetsLock,
+  partyMeetsFactionLock,
+  periodIndex,
   placeInRow,
   resonanceFloor,
   type RosterResult,
@@ -29,11 +35,13 @@ import {
   ACTIVITY_LIST,
   CHARACTERS_BY_ID,
   COMBAT,
+  DESCENT,
   FACTIONS_IN_ORDER,
   GEAR,
   GROWTH_RULES,
   KIT,
   LEVELS,
+  QUEST_WINDOW_RULES,
   signatureAward,
 } from './content';
 import { GameLoopService } from './game-loop.service';
@@ -67,8 +75,15 @@ export interface CrewView {
    * forty-two of them above the seven that can is a screen that hides its own answer.
    */
   readonly eligible: readonly RosterGroup[];
-  /** The faction this activity locks its crew to, or `null` for the campaign. */
-  readonly lockFaction: string | null;
+  /**
+   * The factions this activity admits **right now**, or `null` for no lock at all.
+   *
+   * ⚠️ **A list rather than a single id since milestone 22**, because a tower's lock is one faction
+   * authored once and the Descent's is three factions drawn daily. Both resolve through
+   * {@link FormationService.lockFor}, so the editor and the battle path read one answer — which is
+   * the whole reason `partyMeetsLock` was never allowed to be re-implemented per screen.
+   */
+  readonly lockFactions: FactionLock;
   /**
    * Crew members currently away on a bounty.
    *
@@ -144,6 +159,34 @@ export class FormationService {
   }
 
   /**
+   * The factions `activity` admits right now.
+   *
+   * ⚠️ **One resolver for both kinds of lock, and both callers use it.** A tower's is authored and
+   * constant; the Descent's is three factions drawn from the run's seed against today's date. The
+   * editor filters its pool by this and the battle path refuses by it — two implementations of one
+   * rule is how a screen ends up promising a legal crew that the fight then refuses, which is the
+   * argument `core/activity.ts` has always carried and which a dynamic lock makes sharper rather
+   * than weaker.
+   */
+  lockFor(activity: ActivityData): FactionLock {
+    if (activity.kind !== 'descent') {
+      return lockOf(activity);
+    }
+    const state = this.game.snapshot();
+    if (state === null) {
+      // Not "no lock". Before the run has loaded there is no seed to draw from, and an unlocked
+      // answer would let the editor list every character for the frame before the save arrives.
+      return [];
+    }
+    return dailyDescentFactions(
+      DESCENT,
+      FACTIONS_IN_ORDER.map((faction) => faction.id),
+      state.rng.seed,
+      periodIndex(QUEST_WINDOW_RULES, 'daily', Date.now()),
+    );
+  }
+
+  /**
    * The crew as combatants, with stats already scaled for level, rung and gear.
    *
    * This is what `BattleService` fights with. An empty crew is handed through empty rather than
@@ -151,6 +194,25 @@ export class FormationService {
    * which is the honest outcome of sending nobody.
    */
   battleFormation(activityId: string): FormationData {
+    return this.resolveParty(this.formationOf(activityId));
+  }
+
+  /**
+   * An arbitrary formation as combatants, optionally with a run's own bonus folded in.
+   *
+   * ⚠️ **Split out of {@link battleFormation} because the Descent does not fight the crew in the
+   * formation book.** A run copies its crew at the moment it starts — so a swap made between fight
+   * four and fight five cannot walk a fresh five into the boss at full health — and it fights that
+   * copy for its whole length.
+   *
+   * `bonus` is the Descent's cards, resolved per faction. It is applied to the authored stat block
+   * exactly as gear and a signature item are, so nothing downstream learns the mode exists: the
+   * simulation is handed a combatant that is already the size it is going to fight at.
+   */
+  resolveParty(
+    formation: PartyFormation,
+    bonus?: (faction: string) => DescentBonus,
+  ): FormationData {
     const state = this.game.snapshot();
     if (state === null) {
       return { front: [], back: [] };
@@ -165,22 +227,24 @@ export class FormationService {
         const character = CHARACTERS_BY_ID.get(defId);
         const owned = findOwned(state, defId);
         if (character !== undefined && owned !== undefined) {
+          const built = toBattleCombatant(
+            character,
+            owned,
+            GROWTH_RULES,
+            KIT,
+            effectiveLevel(LEVELS, owned, floor),
+            loadoutBonus(GEAR, owned.gear, gear, character.faction),
+            signatureAward(character, owned),
+          );
           combatants.push(
-            toBattleCombatant(
-              character,
-              owned,
-              GROWTH_RULES,
-              KIT,
-              effectiveLevel(LEVELS, owned, floor),
-              loadoutBonus(GEAR, owned.gear, gear, character.faction),
-              signatureAward(character, owned),
-            ),
+            bonus === undefined
+              ? built
+              : { ...built, stats: applyDescentBonus(built.stats, bonus(character.faction)) },
           );
         }
       }
       return combatants;
     };
-    const formation = this.formationOf(activityId);
     return { front: resolve(formation.front), back: resolve(formation.back) };
   }
 
@@ -249,7 +313,7 @@ export class FormationService {
   private allows(activityId: string, defId: string): boolean {
     const activity = this.activity(activityId);
     const faction = CHARACTERS_BY_ID.get(defId)?.faction;
-    return activity !== null && faction !== undefined && factionMeetsLock(activity, faction);
+    return activity !== null && faction !== undefined && meetsLock(this.lockFor(activity), faction);
   }
 
   private viewOf(activity: ActivityData): CrewView {
@@ -267,17 +331,21 @@ export class FormationService {
     const standing = new Set([...formation.front, ...formation.back]);
     const away = state === null ? new Set<string>() : awayMembers(state);
 
+    // Resolved once for the whole view: for a tower it is authored, for the Descent it is today's
+    // draw, and reading it per predicate call would re-shuffle the faction list once per roster row.
+    const lock = this.lockFor(activity);
+
     // The predicate rather than a pre-filtered list, so each group still counts every character
     // of its faction the run owns. That is what lets a heading say "all three are already
     // standing" instead of "none owned" — see `groupByFaction`.
     const eligible = groupByFaction(
       rows,
       FACTIONS_IN_ORDER,
-      (entry) => !standing.has(entry.defId) && factionMeetsLock(activity, entry.faction),
+      (entry) => !standing.has(entry.defId) && meetsLock(lock, entry.faction),
     );
 
-    const legal = partyMeetsLock(
-      activity,
+    const legal = partyMeetsFactionLock(
+      lock,
       formation,
       (defId) => CHARACTERS_BY_ID.get(defId)?.faction,
     );
@@ -299,7 +367,7 @@ export class FormationService {
         COMBAT.lineup,
       ),
       eligible,
-      lockFaction: activity.faction ?? null,
+      lockFactions: lock,
       away: [...standing].filter((defId) => away.has(defId)),
       ready:
         formationSize(formation) > 0 && legal && ![...standing].some((defId) => away.has(defId)),

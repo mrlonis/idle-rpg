@@ -106,6 +106,7 @@ const ROUTES: readonly (readonly [path: string, heading: string])[] = [
   ['/town/bounties', 'Bounty Board'],
   ['/town/quests', 'Quests'],
   ['/town/achievements', 'Achievements'],
+  ['/descent', 'The Descent'],
   ['/roster', 'Roster'],
   ['/roster/rin', 'Rin'],
   ['/formations', 'Formations'],

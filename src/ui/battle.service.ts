@@ -30,6 +30,7 @@ import {
   ACTIVITIES_BY_ID,
   CHAPTERS_IN_ORDER,
   COMBAT,
+  DESCENT_BOARD_BY_STAGE,
   EMBLEM_DROP_RULES,
   GEAR,
   GEAR_ALIGNMENTS,
@@ -42,6 +43,7 @@ import {
   TOWERS_BY_ID,
   type TowerFloor,
 } from './content';
+import { DescentService } from './descent.service';
 import { FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
 import { type PlaybackSpeed, SettingsService } from './settings.service';
@@ -186,6 +188,7 @@ export interface BattleCombatantView {
 export class BattleService {
   private readonly game = inject(GameLoopService);
   private readonly formations = inject(FormationService);
+  private readonly descent = inject(DescentService);
   private readonly settings = inject(SettingsService);
 
   /**
@@ -471,16 +474,27 @@ export class BattleService {
     this.activity.set(activity);
 
     const { heading, stage } = target;
+    // ⚠️ **The Descent fights the crew stored in the run, not the one in the formation book**, with
+    // its cards folded into every stat block and its carried damage handed in as the opening state.
+    // Everything else fights the book at full health, which is the third argument `simulateBattle`'s
+    // optional `opening` parameter exists to keep bit-identical.
+    const party =
+      this.descent.run() === null || ACTIVITIES_BY_ID.get(activity)?.kind !== 'descent'
+        ? this.formations.battleFormation(activity)
+        : this.formations.resolveParty(this.descent.party() ?? { front: [], back: [] }, (faction) =>
+            this.descent.bonusFor(faction),
+          );
     const result = simulateBattle(
       // The crew the player has chosen for this activity, with stats already scaled for level,
       // rung and gear — which is the whole reason the roster exists. An empty crew resolves as an
       // immediate defeat rather than being quietly substituted for the starters.
-      this.formations.battleFormation(activity),
+      party,
       stage,
       // A derived sub-stream: combat is reproducible and never advances `rng.calls`, so
       // replaying a battle cannot shift the pull sequence.
       battleSeed(state.rng.seed, stage.id, state.battleCount),
       COMBAT,
+      ACTIVITIES_BY_ID.get(activity)?.kind === 'descent' ? this.descent.opening() : undefined,
     );
 
     this.stage.set(heading);
@@ -572,6 +586,14 @@ export class BattleService {
       return;
     }
     if (!this.isAutoUnlocked() || !this.isOpen()) {
+      return;
+    }
+    // ⚠️ **Never in the Descent, and that is the mode's whole premise rather than a limitation.**
+    // Auto-battle is a repeat loop, and a Descent fight cannot be repeated without a card being
+    // chosen first — so the loop would win one fight and stop, reporting "there is nothing left to
+    // fight" about a run that is eight fights from over. A control that always does one thing and
+    // then lies is worse than no control.
+    if (ACTIVITIES_BY_ID.get(this.activity())?.kind === 'descent') {
       return;
     }
     this.isAuto.set(true);
@@ -774,7 +796,18 @@ export class BattleService {
     // stage it was fought against, so the lookup cannot disagree with it — and a stage id that is a
     // tower floor is also what tells the two payout paths apart.
     const floor = TOWER_FLOOR_BY_STAGE.get(result.stageId);
-    if (floor === undefined) {
+    const descentBoard = DESCENT_BOARD_BY_STAGE.get(result.stageId);
+    if (descentBoard !== undefined) {
+      // ⚠️ **A third payout path, and a separate one for the same reason `applyTowerResult` is.** A
+      // Descent fight may not touch `clearedStages`, the ladder position or an idle rate, and the
+      // way to make that true by construction is for the function that banks it to be unable to
+      // reach them. The fight index is resolved from the authoritative run rather than remembered
+      // from the top of `fight`, which can be a minute of playback ago.
+      this.game.apply((state) => {
+        const fight = this.descent.target(state)?.fight;
+        return fight === undefined ? state : this.descent.settle(state, fight, result);
+      });
+    } else if (floor === undefined) {
       // The gear bundle is what turns a win into a drop. It is optional on `applyBattleResult` so
       // the balance sweep and the combat specs need not construct content they have no use for;
       // here it is always supplied, and the stage kind comes off the resolved stage rather than
@@ -853,6 +886,18 @@ export class BattleService {
     if (activity === undefined) {
       return null;
     }
+    if (activity.kind === 'descent') {
+      // `null` whenever the Descent has nothing to fight: the mode is locked, no run has been
+      // started today, a card is owed, the run is finished, or its lives ran out. Every one of those
+      // is a screen's business, and every one of them means the same thing here.
+      const target = this.descent.target(state);
+      return target === null
+        ? null
+        : {
+            stage: target.stage,
+            heading: descentHeading(activity.name, target.fight, target.stage, this.descent.fights),
+          };
+    }
     if (activity.kind !== 'tower') {
       return { stage: stageFor(state), heading: campaignHeading(state) };
     }
@@ -913,6 +958,37 @@ function towerHeading(floor: TowerFloor): StageHeading {
     // "F40 — Floor 40 — The Ninth Oath".
     label: floor.stage.name,
     level: floor.stage.level,
+  };
+}
+
+/**
+ * One Descent fight, named for a heading.
+ *
+ * `1-2` on the big line rather than `F5`, because a run is three floors of three and the pair is
+ * what a player is tracking — how deep, and how far into this floor. It reads like a campaign
+ * position on purpose: the two never appear on screen at once, and the shape a player already knows
+ * is the right one to reuse.
+ *
+ * `label` spells the position out beside the board's name for the reason a campaign stage does: a
+ * Descent board's name is different every day and carries no number of its own.
+ */
+function descentHeading(
+  name: string,
+  fight: number,
+  stage: StageData,
+  fights: number,
+): StageHeading {
+  const floor = Math.floor((fight - 1) / 3) + 1;
+  const step = ((fight - 1) % 3) + 1;
+  const where = `${floor}-${step}`;
+  return {
+    activity: 'descent',
+    kind: 'descent',
+    where,
+    name: stage.name,
+    place: `${name} · Floor ${floor} · fight ${fight} of ${fights}`,
+    label: `${where} — ${stage.name}`,
+    level: stage.level,
   };
 }
 

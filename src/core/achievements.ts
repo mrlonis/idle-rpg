@@ -101,6 +101,15 @@ export type AchievementTrackData =
  * for its own reasons, so it is on the right side of the rule above; what it is emphatically **not**
  * is a share of `clearedStages`, which drives the idle crystal rate and which a tower may never
  * touch (see `core/towers.ts`).
+ *
+ * ⚠️ **`descentRuns` is the one that tests the rule above rather than obeying it comfortably.** It
+ * is a stored field added in the same milestone as the tracks paid against it, which is exactly the
+ * shape the rule warns about. What keeps it honest is that a Descent run stores **nothing else**
+ * that survives its own day — the run in flight is wiped at 04:00 — so without it the mode has no
+ * long-term record at all, and its own screen is the first thing that prints it. That is the same
+ * standing {@link GameState.pullCount} has, which is documented as display-only and is an
+ * achievement counter besides. ⚠️ **It is also a legal *quest* counter**, unlike `clearedStages`:
+ * it is monotonic and the mode is offered again every day forever, so it can never stop moving.
  */
 export type AchievementCounter =
   | 'clearedStages'
@@ -108,7 +117,8 @@ export type AchievementCounter =
   | 'pullCount'
   | 'clearedChapters'
   | 'towerFloors'
-  | 'signatureLevels';
+  | 'signatureLevels'
+  | 'descentRuns';
 
 /** How far a track has come, and what it owes. */
 export interface AchievementProgress {

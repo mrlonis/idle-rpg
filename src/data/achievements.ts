@@ -270,4 +270,37 @@ export const ACHIEVEMENTS = [
     every: 100,
     reward: { summons: 10_000 },
   },
+  /**
+   * The two Descent tracks.
+   *
+   * ⚠️ **Both read the same counter at different intervals, and that is deliberate.** The obvious
+   * pair is "runs finished" and "fights won", which would need a second stored integer — and
+   * `core/achievements.ts` is explicit that a counter whose only purpose is to be rewarded is the
+   * thing the rule forbids. One counter with a five and a thirty says the same two things: a rhythm
+   * for the habit, and a milestone for the month it takes to reach.
+   *
+   * ⚠️ **A run is once a day, so an interval here is a number of days.** Delver pays every working
+   * week and Deep Delver every month — which is why its award is the third largest in the game, a
+   * hundred and fifty pulls, and still smaller than a chapter's: a chapter is content, and this is
+   * attendance.
+   */
+  {
+    id: 'descent-runs',
+    name: 'Delver',
+    description: 'Crystals for every five Descents finished end to end.',
+    counter: 'descentRuns',
+    every: 5,
+    reward: { summons: 2500 },
+  },
+  {
+    id: 'descent-mastered',
+    name: 'Deep Delver',
+    description: 'Crystals and emblems for every thirty Descents finished.',
+    counter: 'descentRuns',
+    every: 30,
+    // The second track in the game paying two currencies, and the same argument the chapter track
+    // makes: finishing a Descent already pays emblems, so a lump of them here is one event saying
+    // the same thing louder rather than a second mechanism on the currency.
+    reward: { summons: 15_000, emblem: 300 },
+  },
 ] as const;

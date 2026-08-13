@@ -9,6 +9,9 @@ import {
   type CharacterLookup,
   type CombatRules,
   type CombatRulesData,
+  type DescentEncounterData,
+  type DescentFamilyData,
+  type DescentRulesData,
   type EmblemDropData,
   type FactionData,
   type FactionLookup,
@@ -57,6 +60,9 @@ import {
   CHAPTERS,
   CHARACTERS,
   COMBAT_RULES,
+  DESCENT_BOARDS,
+  DESCENT_FAMILIES,
+  DESCENT_RULES,
   ELITE_UPGRADE_CHANCE,
   EMBLEM_DROPS,
   EMBLEM_RATE,
@@ -374,6 +380,42 @@ export const IDLE_RATE_CURVES: IdleRateCurves = {
  */
 export const EMBLEM_DROP_RULES: EmblemDropData = EMBLEM_DROPS;
 
+/**
+ * How the Descent is shaped: its floors, its lock, its level shares and every payout.
+ *
+ * The typed local is what makes a malformed rank ladder or a missing level share a compile error —
+ * the same job {@link TOWER_SHAPE} does for the towers.
+ */
+export const DESCENT: DescentRulesData = DESCENT_RULES;
+
+/**
+ * Every card family the Descent may offer, universal first.
+ *
+ * The typed local is what turns a family with a short rung list, or a rung naming a stat nothing
+ * reads, into a compile error rather than a card that is offered and pays nothing.
+ */
+export const DESCENT_CARDS: readonly DescentFamilyData[] = DESCENT_FAMILIES;
+
+/**
+ * Every board the Descent may draw, which is deliberately more than a day uses.
+ *
+ * The typed local is what turns a board naming an enemy nothing ships, or a rank wider than the
+ * board, into a compile error — the same job {@link TOWER_LIST} does for a floor.
+ */
+export const DESCENT_POOL: readonly DescentEncounterData[] = DESCENT_BOARDS;
+
+/**
+ * Every Descent board, keyed by the stage id it carries.
+ *
+ * What `BattleService.settle` looks a finished fight up in, and what tells a Descent fight from a
+ * campaign one — the same job {@link TOWER_FLOOR_BY_STAGE} does for a floor. It reads the stage back
+ * **off the result** rather than remembering which fight it started, because the animation can be a
+ * minute of playback later.
+ */
+export const DESCENT_BOARD_BY_STAGE: ReadonlyMap<string, DescentEncounterData> = new Map(
+  DESCENT_POOL.map((board) => [board.id, board]),
+);
+
 /** When a signature item unlocks, how far it goes, and what a level costs. */
 export const SIGNATURE: SignatureRulesData = SIGNATURE_RULES;
 
@@ -427,4 +469,20 @@ export function characterById(defId: string): CharacterData | undefined {
 /** A faction's display name, falling back to its id if content no longer ships it. */
 export function factionName(factionId: string): string {
   return FACTIONS_BY_ID.get(factionId)?.name ?? factionId;
+}
+
+/**
+ * Several factions, as one readable clause: `Dwarves`, or `Elves, Angels and Demons`.
+ *
+ * ⚠️ **One helper rather than a sentence per activity kind.** A tower's lock names one faction and
+ * the Descent's names three; the only thing that differs between the two sentences is the list, so
+ * every screen that draws a lock reads this and none of them has to ask what kind of content it is
+ * looking at — the same call `StageHeading` makes by carrying a rendered position.
+ */
+export function factionList(factionIds: readonly string[]): string {
+  const names = factionIds.map(factionName);
+  if (names.length <= 1) {
+    return names[0] ?? '';
+  }
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
