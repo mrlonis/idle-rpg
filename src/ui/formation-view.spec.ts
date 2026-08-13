@@ -59,7 +59,7 @@ function crew(over: Partial<CrewView> = {}): CrewView {
     open: { front: 2, back: 3 },
     lineup: { bonus: NO_BONUS, tier: null, counts: [], rallyCount: 0, ladderCount: 0 },
     eligible: [{ factionId: 'elf', label: 'Elves', members: [row()], owned: 1 }],
-    lockFaction: null,
+    lockFactions: null,
     away: [],
     ready: false,
     ...over,
@@ -350,7 +350,7 @@ describe('FormationView', () => {
         formations.view.set(
           crew({
             activity: { id: 'tower-dwarf', name: 'The Deep Hold', kind: 'tower', faction: 'dwarf' },
-            lockFaction: 'dwarf',
+            lockFactions: ['dwarf'],
           }),
         ),
       );

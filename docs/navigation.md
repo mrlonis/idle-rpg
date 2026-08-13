@@ -98,13 +98,31 @@ Home holds the campaign as its first card and a row per tower below it. It was o
 on the same argument the Bag rename made; the first tower's row arrived with its hundred floors, and
 the other six arrived in 15c.
 
-**Two sections, headed Campaign and Towers.** They were one section headed "Battle", which named
-neither of the two kinds of thing a player is choosing between here — and with the towers unheaded
-the campaign card read as the section and the rows under it as an unlabelled tail. Each is a real
-`<section>` with `aria-labelledby`, so each is a landmark rather than a line of loose text. The
-**Towers section is withheld entirely until the run has loaded** rather than drawing its heading
+**Three sections, headed Campaign, The Descent and Towers.** They were one section headed "Battle",
+which named neither of the two kinds of thing a player was choosing between — and with the towers
+unheaded the campaign card read as the section and the rows under it as an unlabelled tail. Each is
+a real `<section>` with `aria-labelledby`, so each is a landmark rather than a line of loose text.
+The **Towers section is withheld entirely until the run has loaded** rather than drawing its heading
 over nothing: an empty heading is exactly the shape "nothing empty ships for the towers" forbids,
 and the rule is spent on the locked row below instead.
+
+**The Descent sits between them**, and the order is the argument. The campaign is the spine and goes
+first; everything below it is optional content gated behind it. Of the two optional things, the
+Descent is the one that **resets daily** — a player opening this screen once a day should meet it
+before seven ladders that will still be there next week.
+
+⚠️ **Its card is always a link, unlike a locked tower row.** A locked tower has nothing behind it
+that the row does not already say; the Descent screen is worth reading in all six of its states — it
+names today's three factions, the nine boards it drew and their levels, and what is still owed before
+the way opens. Every state also names the next thing to do, which is the locked tower row's rule
+generalised rather than a second one.
+
+⚠️ **The Fight control for a Descent lives on the Descent screen rather than on the crew editor**,
+which is the one place the game departs from "every battle passes through the crew editor". A run in
+progress has to come back to the map between fights to take its card, and routing it through the
+editor every time would ask the player to re-confirm a crew that is locked for the rest of the run
+and cannot be changed. The crew is still edited by the one editor, at `/formations/descent`, which
+the Descent screen links to.
 
 The campaign's **hint line lives inside its section**, directly under the Fight control. It is
 written about the campaign crew and says "tap above"; at the foot of the screen it would be pointing
@@ -166,6 +184,11 @@ player can come back to.
 - **The battle screen is a signal-swapped _mode_, not a route.** Its contents live only in memory,
   and the tab bar hides during a fight — a battle has no exit until it ends, and navigation that
   refused to work would be worse than none.
+- ⚠️ **A Descent run is the opposite case and `/descent` is a route because of it.** A run in flight
+  is entirely saved state — the floor map, the carried damage, the hand of cards and the pending
+  choice all survive a reload — so it passes this file's own trigger for routing exactly as the
+  roster does. The mode's _fights_ still go through the battle screen; what is a route is the map
+  between them.
 - ⚠️ **The nesting under `/town` is load-bearing, not tidiness.** `routerLinkActive` marks the tab
   non-exactly, so `/town/summon` keeps the Town tab lit and `aria-current="page"` on it. Left flat at
   `/summon`, the tab would go dark the instant the player arrived where it sent them — which reads as

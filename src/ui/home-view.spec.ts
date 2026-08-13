@@ -14,6 +14,7 @@ import {
   zeroRates,
 } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
+import { DescentService } from './descent.service';
 import { CURRENCY_LABELS } from './format-numeric';
 import { type CrewView, FormationService } from './formation.service';
 import { GameLoopService } from './game-loop.service';
@@ -77,7 +78,7 @@ function crew(over: Partial<CrewView> = {}): CrewView {
     open: { front: 1, back: 3 },
     lineup: { bonus: EMPTY_BONUS, tier: null, counts: [], rallyCount: 0, ladderCount: 0 },
     eligible: [],
-    lockFaction: null,
+    lockFactions: null,
     away: [],
     ready: true,
     ...over,
@@ -176,19 +177,39 @@ class FakeTowers {
   readonly rows = signal<readonly TowerView[]>([towerView()]);
 }
 
+/**
+ * Only what the Descent card reads.
+ *
+ * Six phases and one line of copy each — which is the whole of what this screen asks of the mode,
+ * and the reason the real service is not driven here: it reaches for `Date.now()` and the run's own
+ * seed to answer which factions today admits, neither of which this screen's tests are about.
+ */
+class FakeDescent {
+  readonly phase = signal<'locked' | 'available' | 'choosing' | 'ready' | 'complete' | 'ended'>(
+    'available',
+  );
+  readonly chaptersNeeded = signal(0);
+  readonly lock = signal<readonly string[]>(['human', 'elf', 'demon']);
+  readonly livesLeft = signal(2);
+  readonly run = signal<{ cleared: number } | null>(null);
+  readonly fights = 9;
+}
+
 async function render(
   configure?: (
     game: FakeGameLoop,
     battles: FakeBattles,
     formations: FakeFormations,
     towers: FakeTowers,
+    descent: FakeDescent,
   ) => void,
 ) {
   const game = new FakeGameLoop();
   const battles = new FakeBattles();
   const formations = new FakeFormations();
   const towers = new FakeTowers();
-  configure?.(game, battles, formations, towers);
+  const descent = new FakeDescent();
+  configure?.(game, battles, formations, towers, descent);
 
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -200,6 +221,7 @@ async function render(
       { provide: BattleService, useValue: battles },
       { provide: FormationService, useValue: formations },
       { provide: TowerService, useValue: towers },
+      { provide: DescentService, useValue: descent },
     ],
   }).compileComponents();
 
@@ -213,6 +235,7 @@ async function render(
     battles,
     formations,
     towers,
+    descent,
     fixture,
     el: fixture.nativeElement as HTMLElement,
   };
@@ -641,15 +664,40 @@ describe('HomeView', () => {
 
       expect(el.querySelector('.campaign')?.getAttribute('aria-labelledby')).toBe('campaign-label');
       expect(el.querySelector('#campaign-label')?.textContent?.trim()).toBe('Campaign');
+      expect(el.querySelector('.descent')?.getAttribute('aria-labelledby')).toBe('descent-label');
+      expect(el.querySelector('#descent-label')?.textContent?.trim()).toBe('The Descent');
       expect(el.querySelector('.towers')?.getAttribute('aria-labelledby')).toBe('towers-label');
       expect(el.querySelector('#towers-label')?.textContent?.trim()).toBe('Towers');
-      // The campaign comes first: it is the spine of the game, and the towers are optional content
-      // gated behind it.
+      // The campaign comes first: it is the spine of the game, and everything below it is optional
+      // content gated behind it. The Descent sits between the campaign and the towers because it is
+      // the one of the two that resets daily — a player opening this screen once a day should meet
+      // it before seven ladders that will still be there next week.
       expect([...el.querySelectorAll('h2')].map((node) => node.textContent?.trim())).toEqual([
         'Currencies',
         'Campaign',
+        'The Descent',
         'Towers',
       ]);
+    });
+
+    it('names the Descent card by its state rather than only by its name', async () => {
+      // ⚠️ Six states and every one names the next thing to do — the same rule the locked tower row
+      // is spent on. A card that only said "The Descent" would make the player open it to find out
+      // whether there is anything to do, every day.
+      const locked = await render((_game, _battles, _formations, _towers, descent) => {
+        descent.phase.set('locked');
+        descent.chaptersNeeded.set(1);
+      });
+      expect(locked.el.querySelector('.descent__detail')?.textContent).toContain('1 more chapter');
+
+      const open = await render();
+      expect(open.el.querySelector('.descent__detail')?.textContent).toContain('Today:');
+
+      const running = await render((_game, _battles, _formations, _towers, descent) => {
+        descent.phase.set('ready');
+        descent.run.set({ cleared: 3 });
+      });
+      expect(running.el.querySelector('.descent__detail')?.textContent).toContain('Fight 4 of 9');
     });
 
     it('keeps the hint inside the campaign section, next to the control it points at', async () => {

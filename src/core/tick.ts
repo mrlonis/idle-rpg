@@ -56,5 +56,7 @@ export function tick(state: GameState, dtMs: number): GameState {
     quests: state.quests,
     dispatches: state.dispatches,
     towers: state.towers,
+    descent: state.descent,
+    descentRuns: state.descentRuns,
   };
 }

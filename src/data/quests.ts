@@ -83,6 +83,25 @@ export const QUESTS = [
     reward: { summons: 150 },
   },
   {
+    // ⚠️ **The one quest measured against something other than a battle or a pull, and the counter
+    // had to earn it.** A quest counter has to be one a player can always make move *today*;
+    // `clearedStages` cannot once the ladder runs out, and `signatureLevels` cannot before the first
+    // item unlocks. The Descent is offered afresh every day forever, so its run count is the third
+    // counter in the game that qualifies.
+    //
+    // A target of one, because the mode is once a day: any larger number would be a quest nobody
+    // can finish, which is the same failure the counter rule exists to prevent arriving by the other
+    // door. **No weekly pair**, deliberately — seven of these is perfect attendance, which is a
+    // streak with a deadline by another name.
+    id: 'daily-descent',
+    name: 'The Long Way Down',
+    description: 'Finish a Descent, all nine fights.',
+    period: 'daily',
+    counter: 'descentRuns',
+    target: 1,
+    reward: { summons: 300 },
+  },
+  {
     id: 'weekly-campaign',
     name: 'Campaigner',
     description: 'Fight thirty-five battles across the week.',

@@ -85,7 +85,65 @@ export {
   type SignatureRulesData,
   type SkillOverrideData,
 } from './signature/types';
-export { battleSeed, simulateBattle } from './battle/simulate';
+export {
+  battleSeed,
+  simulateBattle,
+  type CombatantOpening,
+  type PartyOpening,
+} from './battle/simulate';
+export {
+  applyDescentBonus,
+  descentBonus,
+  descentCard,
+  descentCardId,
+  descentCards,
+  descentOffer,
+  familyFloor,
+  isNeutralDescentBonus,
+  choiceProgress,
+  rankWeight,
+} from './descent/cards';
+export {
+  applyDescentResult,
+  canStartDescent,
+  dailyDescentFactions,
+  descentBoards,
+  descentCardsOwed,
+  descentChoices,
+  descentFightAt,
+  descentFights,
+  descentFightSummons,
+  descentLevel,
+  descentLump,
+  descentRunFor,
+  descentStatus,
+  isDescentUnlocked,
+  nextDescentFight,
+  parseDescent,
+  resolveDescentFight,
+  serializeDescent,
+  startDescent,
+  takeDescentCard,
+  type DescentBattleOutcome,
+  type DescentDropAward,
+  type DescentStanding,
+} from './descent/run';
+export {
+  DESCENT_STATS,
+  NO_DESCENT_BONUS,
+  type DescentBonus,
+  type DescentCard,
+  type DescentEncounterData,
+  type DescentFamilyData,
+  type DescentFight,
+  type DescentLevelData,
+  type DescentRankData,
+  type DescentRulesData,
+  type DescentRun,
+  type DescentStat,
+  type DescentStatus,
+  type DescentSummonsData,
+} from './descent/types';
 export { chooseSkill, selectTargets, type FighterView } from './battle/skills';
 export {
   absorbDamage,
@@ -496,9 +554,13 @@ export {
   CAMPAIGN_ACTIVITY,
   crewFor,
   factionMeetsLock,
+  lockOf,
+  meetsLock,
+  partyMeetsFactionLock,
   partyMeetsLock,
   type ActivityData,
   type ActivityKind,
+  type FactionLock,
 } from './activity';
 export {
   allFormationMembers,

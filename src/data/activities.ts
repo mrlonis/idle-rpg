@@ -81,4 +81,14 @@ export const ACTIVITIES = [
     kind: 'tower',
     faction: 'demon',
   },
+  {
+    // ⚠️ **No `faction`, and that is not "no lock".** The Descent admits three factions and they are
+    // **drawn daily** from the run's own seed, so the lock is neither one faction nor authored —
+    // `dailyDescentFactions` resolves it and `FormationService` hands it to `partyMeetsFactionLock`
+    // exactly as it hands a tower its static one. A faction written here would be a second, staler
+    // answer to the same question, and the crew editor would enforce the wrong one.
+    id: 'descent',
+    name: 'The Descent',
+    kind: 'descent',
+  },
 ] as const;

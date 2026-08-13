@@ -323,6 +323,48 @@ rate to roughly ×8 the base where `banners.spec.ts` bounds a fully cleared ladd
 curve is nearly flat through chapter 1's tail where a tower's is linear, so floor 26 (level 16)
 matches stage 36 and is paid more. That is the level match working: it is the harder fight.
 
+### The Descent is a fifth faucet, and the first one on a daily timer
+
+Added in milestone 22. Nine fights a day, and the shape is the ladder's again — a flat payout per
+fight plus two achievement tracks — with one addition nothing else has: a **completion** bonus, which
+is what makes finishing the run worth more than the sum of its fights.
+
+|                     | Pays                                        | Over                  |
+| ------------------- | ------------------------------------------- | --------------------- |
+| **A cleared fight** | 120 crystals (×2 guardian, ×5 last fight)   | Every run, every day  |
+| **Completion**      | 1,200 crystals and 50 emblems               | Once per finished run |
+| **The lump**        | ×5 gold, ×5 xp, **×15 essence**             | The **matched** level |
+| **Delver**          | 2,500 crystals per 5 runs finished          | `descentRuns`         |
+| **Deep Delver**     | 15,000 crystals and 300 emblems per 30 runs | `descentRuns`         |
+
+A clean run is **3,000 crystals — thirty pulls**, plus another 1,000 a day averaged over the two
+tracks. ⚠️ **Sized against a day of idle income rather than against nine fights**, because the
+comparison that matters for a daily is what a day already pays: a fully cleared ladder earns twenty
+to seventy-five pulls a day idly, so this is a supplement of the same order. Against the
+near-nothing a run stuck at a wall earns, it is most of what they get — the same asymmetry quests are
+built on.
+
+⚠️ **Flat, and it must stay flat.** The rule the bounty board states applies here with more force
+than anywhere: the crystal rate is linear in the clear count precisely so it cannot outrun a flat
+`PULL_COST`, and a _multiple of that rate_ on a repeatable timer is exactly the compounding it exists
+to prevent. **A daily mode is the most repeatable timer in the game.**
+
+⚠️ **A Descent fight never raises an idle rate and never touches `clearedStages`** — the same fence a
+tower stands behind, for the same arithmetic, and `applyDescentResult` is a separate function from
+`applyBattleResult` so those fields are out of reach rather than merely unwritten.
+
+#### ⚠️ Essence is paid at three times the other two, which is the one break in "scale all three together"
+
+The lump is a multiple of the campaign lump at the stage fighting at the same enemy level — the
+tower's idiom, so retuning the reward curve carries the Descent with it. What is unusual is that the
+three multiples are **not equal**.
+
+That rule protects `baseRates`, where a common factor cancels out of every ratio `levels.spec.ts`
+measures. This moves no rate at all: it is a one-off lump on optional daily content. Essence is the
+currency a run is genuinely bottlenecked on late — see the levelling section below — so it is the one
+worth paying here. A finished run earns roughly **ninety minutes of its own essence income** and half
+an hour of gold and xp.
+
 ### ⚠️ Bounties are the deliberate exception, and pay a duration instead
 
 A mission pays **seconds of the run's own current idle income** in gold, xp and essence — the same
@@ -443,9 +485,22 @@ what steps the emblem idle rate, so the lump is the same event saying the same t
 than a mechanism nobody accounted for. A tenth of a signature item's 996 is enough to be worth the
 moment and nowhere near enough to skip the climb.
 
-⚠️ **No other track pays emblems, and the two _signature_ tracks deliberately pay crystals.** An
-emblem award on an emblem-spending track is a partial refund — it would make the last levels
-cheaper than the first and quietly flatten the linear cost curve.
+⚠️ **The two _signature_ tracks deliberately pay crystals.** An emblem award on an emblem-spending
+track is a partial refund — it would make the last levels cheaper than the first and quietly flatten
+the linear cost curve.
+
+### A fourth source, on the same argument as the third
+
+**Finishing a Descent pays 50 emblems, and Deep Delver pays 300 every thirty runs** — about 60 a day
+against the ~500 a fully cleared run already earns. Milestone 22, and it rides on exactly the rule
+Chapter Conqueror does: **a track may pay emblems only where the event it sits on already pays
+them.** Finishing a chapter steps the idle rate; finishing a Descent pays its completion bonus. In
+both cases the lump is the same event saying the same thing louder.
+
+⚠️ **On completion only, never per fight.** A per-fight emblem roll would be a _third mechanism_ on
+the tightest currency in the game, with nothing on screen to say which of the three paid — and
+`achievements.spec.ts` now states the rule positively rather than naming the one track allowed to
+break it, which is what let a second one land without weakening it.
 
 ### The draw is its own stream
 

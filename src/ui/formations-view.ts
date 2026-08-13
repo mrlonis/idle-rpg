@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PARTY_SIZE } from '../core';
-import { factionName } from './content';
+import { factionList } from './content';
 import { FormationService } from './formation.service';
 
 /** One activity's row on the index. */
@@ -57,7 +57,10 @@ export class FormationsView {
         crew.size === 0
           ? null
           : [...crew.front, ...crew.back].map((entry) => entry.name).join(' · '),
-      lock: crew.lockFaction === null ? null : `${factionName(crew.lockFaction)} only`,
+      lock:
+        crew.lockFactions === null || crew.lockFactions.length === 0
+          ? null
+          : `${factionList(crew.lockFactions)} only`,
       ready: crew.ready,
     })),
   );

@@ -225,14 +225,22 @@ describe('the crystal economy the tracks are half of', () => {
 describe('the emblem and signature tracks', () => {
   const SIGNATURE_TRACKS = tracks.filter((track) => track.counter === 'signatureLevels');
 
-  it('pays emblems on the chapter track and on no other', () => {
-    // ⚠️ One track pays two currencies, and it is the right one: finishing a chapter is already
-    // what steps the emblem idle rate, so a lump here is the same event saying the same thing
-    // twice rather than a second mechanism. Anywhere else it would be a faucet nobody accounted
-    // for — see `docs/economy.md`, where the two emblem sources are enumerated.
+  it('pays emblems only where an emblem is already being paid for the same event', () => {
+    // ⚠️ **The rule is not "one track" — it is that a track paying emblems must sit on an event
+    // that already pays them.** Finishing a chapter steps the emblem idle rate, and finishing a
+    // Descent pays `DESCENT_RULES.completionEmblems`; in both cases the lump is the same event
+    // saying the same thing louder rather than a second mechanism on the tightest currency in the
+    // game. A track anywhere else would be a faucet nobody accounted for — see `docs/economy.md`,
+    // where the emblem sources are enumerated.
+    //
+    // ⚠️ **Emphatically not the two signature tracks**, which spend emblems: an emblem award there
+    // is a partial refund that makes the last levels cheaper than the first.
     const paying = tracks.filter((track) => (track.reward.emblem ?? 0) > 0);
 
-    expect(paying.map((track) => track.id)).toEqual(['chapters-cleared']);
+    expect(paying.map((track) => track.id)).toEqual(['chapters-cleared', 'descent-mastered']);
+    for (const track of SIGNATURE_TRACKS) {
+      expect(track.reward.emblem ?? 0, track.id).toBe(0);
+    }
   });
 
   it('keeps the chapter track worth far less in emblems than a signature item costs', () => {

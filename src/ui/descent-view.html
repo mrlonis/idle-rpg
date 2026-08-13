@@ -1,0 +1,223 @@
+<header class="head">
+  <!-- Home is the only way in, so the way out can name it rather than saying "back". -->
+  <a class="head__back" routerLink="/">← Home</a>
+  <h1 class="head__title">The Descent</h1>
+  <p class="head__balance">
+    <span class="head__amount">{{ runsFinished() }}</span>
+    <span class="head__unit">finished</span>
+  </p>
+</header>
+
+@switch (phase()) {
+  @case ('locked') {
+    <!--
+      Names the key rather than the door, which is the rule Home's locked tower row is spent on. A
+      chapter is a visible destination; "not yet" is not.
+    -->
+    <p class="intro">
+      One run a day: three floors, nine fights, and a card between each. Damage carries from fight
+      to fight and the fallen stay down.
+    </p>
+    <p class="notice" role="status">
+      Finish
+      {{ chaptersNeeded() === 1 ? '1 more chapter' : chaptersNeeded() + ' more chapters' }} of the
+      campaign to open the way down.
+    </p>
+  }
+
+  @default {
+    <p class="intro">
+      Three floors, nine fights, one run a day. Damage carries between fights, the fallen stay down,
+      and a card is offered after every win — the two you leave are gone.
+    </p>
+
+    <!--
+      Today's lock, and it is the first thing on the screen for a reason: it changes every day, it
+      decides who may descend, and a player arriving to find their crew refused should read why
+      before they read anything else.
+    -->
+    <section class="lock" aria-labelledby="lock-label">
+      <h2 id="lock-label" class="section__heading">Today's road</h2>
+      <p class="lock__factions">{{ lockNote() }}</p>
+      <a class="lock__link" [routerLink]="crewLink">Arrange your crew →</a>
+    </section>
+
+    <section class="party" aria-labelledby="party-label">
+      <h2 id="party-label" class="section__heading">
+        Your party
+        <span class="party__count">{{ standing() }} of {{ partySize }}</span>
+      </h2>
+      <!--
+        ⚠️ **The empty case sits outside the list rather than inside it as an `@empty` block.** AXE
+        flags a `<ul>` that directly contains anything but an `<li>`, and an `@empty` renders its
+        content as a sibling of the items — so a paragraph there is a serious violation on the one
+        state a new player sees first. Milestone 6's rule in action: when a fix and the suite
+        disagree, look for the option that satisfies both.
+      -->
+      @if (members().length === 0) {
+        <p class="empty">Nobody is standing. Arrange a crew above.</p>
+      }
+      <ul class="party__list">
+        @for (member of members(); track member.name) {
+          <li class="party__member">
+            <span class="party__name">{{ member.name }}</span>
+            <!--
+              A real `progressbar`, because carried damage is the whole mechanic and a bar that only
+              existed as a coloured div would be invisible to a screen reader.
+            -->
+            <span
+              class="party__bar"
+              role="progressbar"
+              [attr.aria-valuenow]="member.health"
+              [attr.aria-valuemin]="0"
+              [attr.aria-valuemax]="100"
+              [attr.aria-valuetext]="member.health + '% health'"
+              [attr.aria-label]="member.name + ' health'"
+            >
+              <span class="party__fill" [style.width.%]="member.health"></span>
+            </span>
+            <span class="party__health">{{ member.health }}%</span>
+          </li>
+        }
+      </ul>
+      @if (phase() !== 'available') {
+        <p class="party__lives">
+          Attempts left: <strong>{{ livesLeft() }}</strong> of {{ lives }}
+        </p>
+      }
+    </section>
+
+    <!--
+      The map. Every fight is drawn from the first, including the ones still ahead, because the
+      shape of the run is what a player is deciding against when they take a card — and a level
+      eight fights away is the reason to take the bigger one now.
+    -->
+    <section class="map" aria-labelledby="map-label">
+      <h2 id="map-label" class="section__heading">The way down</h2>
+      @for (floor of floors(); track floor.floor) {
+        <div class="floor">
+          <h3 class="floor__label">{{ floor.label }}</h3>
+          <ol class="floor__fights">
+            @for (fight of floor.fights; track fight.index) {
+              <li
+                class="fight"
+                [class.fight--cleared]="fight.cleared"
+                [class.fight--current]="fight.current"
+                [class.fight--guardian]="fight.kind !== 'normal'"
+              >
+                <span class="fight__name">{{ fight.name }}</span>
+                <span class="fight__detail">
+                  Level {{ fight.level }} · {{ fight.summons }} crystals
+                </span>
+                @if (fight.cleared) {
+                  <span class="fight__state">Cleared</span>
+                } @else if (fight.current) {
+                  <span class="fight__state fight__state--now">Next</span>
+                }
+              </li>
+            }
+          </ol>
+        </div>
+      }
+    </section>
+
+    @if (held().length > 0) {
+      <section class="hand" aria-labelledby="hand-label">
+        <h2 id="hand-label" class="section__heading">What you are carrying</h2>
+        <ul class="hand__list">
+          @for (card of held(); track $index) {
+            <li class="hand__card">
+              <span class="hand__name">{{ card.name }}</span>
+              <span class="hand__effects">{{ card.effects.join(' · ') }}</span>
+              @if (factionOf(card); as only) {
+                <span class="hand__faction">{{ only }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @switch (phase()) {
+      @case ('available') {
+        <section class="act" aria-labelledby="act-label">
+          <h2 id="act-label" class="section__heading">Begin</h2>
+          <button type="button" class="act__go" [disabled]="!canStart()" (click)="start()">
+            Descend
+          </button>
+          @if (startBlocked(); as reason) {
+            <p class="hint" role="status">{{ reason }}</p>
+          } @else {
+            <p class="hint">
+              Your crew is locked for the whole run once you start. Nothing is lost by stopping —
+              every fight pays as you clear it.
+            </p>
+          }
+        </section>
+      }
+
+      @case ('choosing') {
+        <!--
+          The one decision in this game that happens mid-flight. All three are shown at once, and
+          taking one closes the other two — so the offer is a `radiogroup`-shaped choice rendered as
+          three buttons rather than a list with a submit.
+        -->
+        <section class="act" aria-labelledby="act-label">
+          <h2 id="act-label" class="section__heading">Take one</h2>
+          <ul class="offer">
+            @for (card of offer(); track card.id) {
+              <li>
+                <button type="button" class="card" (click)="take(card.id)">
+                  <span class="card__name">{{ card.name }}</span>
+                  <span class="card__rank">{{ card.rankName }}</span>
+                  <span class="card__effects">{{ card.effects.join(' · ') }}</span>
+                  <span class="card__description">{{ card.description }}</span>
+                  @if (factionOf(card); as only) {
+                    <span class="card__faction">{{ only }}</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+          <p class="hint">The two you leave are gone for this run.</p>
+        </section>
+      }
+
+      @case ('ready') {
+        <section class="act" aria-labelledby="act-label">
+          <h2 id="act-label" class="section__heading">Go on</h2>
+          <button type="button" class="act__go" (click)="fight()">
+            @if (current(); as next) {
+              Fight {{ next.index }} of {{ fights }} — {{ next.name }}
+            } @else {
+              Fight
+            }
+          </button>
+          <p class="hint">
+            Your party carries the damage it has already taken. Auto-battle is off down here — every
+            win asks a question.
+          </p>
+        </section>
+      }
+
+      @case ('complete') {
+        <section class="act" aria-labelledby="act-label">
+          <h2 id="act-label" class="section__heading">All the way down</h2>
+          <p class="notice" role="status">
+            You finished today's Descent. The way opens again at 04:00 UTC.
+          </p>
+        </section>
+      }
+
+      @case ('ended') {
+        <section class="act" aria-labelledby="act-label">
+          <h2 id="act-label" class="section__heading">The run is over</h2>
+          <p class="notice" role="status">
+            Your attempts ran out. Everything you cleared has already been paid — the way opens
+            again at 04:00 UTC.
+          </p>
+        </section>
+      }
+    }
+  }
+}

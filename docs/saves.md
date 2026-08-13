@@ -92,7 +92,7 @@ asserts every version below current has a migration registered, so that mistake 
 than on a device. It is vacuous at a one-version baseline and it is kept for exactly that reason —
 it fired the moment the version first moved off zero, which is when nobody is thinking about it.
 
-### The chain has been re-based three times, always while nobody was playing
+### The chain has been re-based four times, always while nobody was playing
 
 The first re-base collapsed five pre-release versions and four migrations:
 
@@ -134,8 +134,26 @@ not any property of these three fields. The next schema change should weigh that
 correctly and heals to zero, which is the right answer, but the notices are real and will appear
 once per pre-existing dev save.
 
-Everything all three re-bases wrote is simply part of the baseline shape now, and the current shape
-is **v0** again.
+The fourth re-base is [milestone 22](milestones.md#22-the-descent--complete)'s, and it is two fields:
+
+| Field         | What it holds                                                                 |
+| ------------- | ----------------------------------------------------------------------------- |
+| `descent`     | The Descent run in flight, or `null`. Defaults to `null` — nobody is mid-run. |
+| `descentRuns` | Runs finished end to end. Defaults to 0.                                      |
+
+⚠️ **Neither is even a reported repair issue**, which is the one way it differs from the third: a
+save written before the mode shipped is not _damaged_ for lacking a run, so `parseDescent` returns
+`null` for an absent field silently and `descentRuns` reads zero without a note. A repair banner on
+the home screen of every pre-existing save would have been the notice claiming something went wrong
+when nothing did.
+
+⚠️ **This is the last re-base the licence can carry, and the reason is the audience rather than the
+fields.** Milestone 22 is the last numbered system on the roadmap before presentation and onboarding,
+so the next thing that changes this shape is very likely to be doing it after a build has reached
+somebody. **A build that reaches a player makes the chain permanent and the next version 1 forever.**
+
+Everything all four re-bases wrote is simply part of the baseline shape now, and the current shape is
+**v0** again.
 
 **The argument is narrow and it is the only one that licenses either re-base: no save written by any
 of those versions has ever existed outside development.** Nobody has played this game but its

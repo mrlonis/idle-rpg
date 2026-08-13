@@ -9,7 +9,8 @@ import {
   type RateCurrencyId,
 } from '../core';
 import { BattleService } from './battle.service';
-import { factionName } from './content';
+import { factionList, factionName } from './content';
+import { DescentService } from './descent.service';
 import {
   CURRENCY_LABELS,
   formatAmounts,
@@ -112,6 +113,7 @@ export class HomeView {
   private readonly battles = inject(BattleService);
   private readonly formations = inject(FormationService);
   private readonly towerRuns = inject(TowerService);
+  private readonly descentRuns = inject(DescentService);
 
   protected readonly loadFailure = this.game.loadFailure;
   protected readonly saveIssues = this.game.saveIssues;
@@ -198,6 +200,34 @@ export class HomeView {
       view.tower.faction,
     )} only`;
   }
+
+  /**
+   * What the Descent card says under its name.
+   *
+   * Six states and every one of them names the next thing to do, which is the same rule the locked
+   * tower row is written to: optional content a player cannot yet reach should still say what
+   * reaches it. The copy lives here rather than in `DescentService` for the reason the tower detail
+   * does — the service supplies the fact behind a sentence, and the screen decides the sentence.
+   */
+  protected readonly descentDetail = computed(() => {
+    const needed = this.descentRuns.chaptersNeeded();
+    switch (this.descentRuns.phase()) {
+      case 'locked':
+        return `Finish ${needed === 1 ? '1 more chapter' : `${needed} more chapters`} to open the way down`;
+      case 'available':
+        return `Today: ${factionList(this.descentRuns.lock())}`;
+      case 'choosing':
+        return 'A card is waiting to be taken';
+      case 'ready': {
+        const fight = this.descentRuns.run()?.cleared ?? 0;
+        return `Fight ${fight + 1} of ${this.descentRuns.fights} · ${this.descentRuns.livesLeft()} attempts left`;
+      }
+      case 'complete':
+        return "Today's run is finished · opens again at 04:00 UTC";
+      case 'ended':
+        return 'Out of attempts · opens again at 04:00 UTC';
+    }
+  });
 
   /**
    * Why the player is suddenly back on this screen.

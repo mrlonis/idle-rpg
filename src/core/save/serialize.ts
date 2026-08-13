@@ -8,6 +8,7 @@ import {
   serializeWallet,
   type Wallet,
 } from '../currency';
+import { parseDescent, serializeDescent } from '../descent/run';
 import { emptyGearShop, type GearItem, type GearShopState } from '../gear/types';
 import { parseQuestWindows, type QuestWindow } from '../quests';
 import { type LevelCurveData } from '../roster/level';
@@ -102,6 +103,8 @@ export function toSaveData(state: GameState): CurrentSaveData {
     },
     dispatches: serializeDispatches(state.dispatches),
     towers: { ...state.towers },
+    descent: serializeDescent(state.descent),
+    descentRuns: state.descentRuns,
   };
 }
 
@@ -207,6 +210,18 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
   const quests = parseQuestWindows(record['quests'], note);
   const dispatches = parseDispatches(record['dispatches'], note);
   const towers = parseTowers(record['towers'], note);
+  const descent = parseDescent(record['descent'], note);
+  // ⚠️ Not run through `readCounter`: an absent field is the ordinary state of a save written
+  // before this mode shipped, and reporting it as a repaired field would put a "your save was
+  // recovered" notice on the home screen of every run that has simply never descended.
+  const rawDescentRuns = record['descentRuns'];
+  const descentRuns =
+    typeof rawDescentRuns === 'number' && Number.isInteger(rawDescentRuns) && rawDescentRuns >= 0
+      ? rawDescentRuns
+      : 0;
+  if (rawDescentRuns !== undefined && descentRuns === 0 && rawDescentRuns !== 0) {
+    note('descentRuns', `not a non-negative integer (${JSON.stringify(rawDescentRuns)})`, '0');
+  }
 
   return {
     state: {
@@ -231,6 +246,8 @@ export function fromSaveData(raw: unknown, options: RepairOptions): RepairResult
       quests,
       dispatches,
       towers,
+      descent,
+      descentRuns,
     },
     issues,
   };

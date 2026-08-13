@@ -107,6 +107,23 @@
 </section>
 
 <!--
+  The Descent. One card rather than a section of rows, because there is one of it — but it sits in
+  its own `<section>` beside the campaign and the towers for the reason those two are separate: a
+  player standing here is choosing between three *kinds* of thing, and a heading is what says so.
+
+  Every state is a link, unlike a locked tower row. The screen behind it is worth reading in all six
+  — it names today's three factions, the nine boards and their levels, and what is still owed before
+  the way opens — where a locked tower has nothing behind it but the row already says.
+-->
+<section class="descent" aria-labelledby="descent-label">
+  <h2 id="descent-label" class="section__heading">The Descent</h2>
+  <a class="descent__card" routerLink="/descent">
+    <span class="descent__name">The Descent</span>
+    <span class="descent__detail">{{ descentDetail() }}</span>
+  </a>
+</section>
+
+<!--
   One row per tower. A tower is optional content gated behind roster depth, so all three of its
   states have to read as a goal rather than as a fault:
 

@@ -42,6 +42,13 @@ sample buys speed by making the answer less true.
   early on, so floor 26 legitimately matches stage 36 — and the whole-tower crystal total, which is
   arithmetic over resolved content. ⚠️ **The test to be suspicious of is the one in the balance
   project that never calls `simulateBattle`.**
+- `data/descent.spec.ts` and `data/descent.balance.ts` are the same split again for milestone 22,
+  and the balance half is the first in the project that has **no authored stage to sweep**. The
+  Descent draws nine boards of twenty-four, reads its enemy level off whatever campaign the run has
+  cleared, and changes party shape as it goes — so every assertion is over a **whole run**, across
+  twenty days, at five campaign depths. That is the cost of deriving difficulty from progress: a
+  setting that works at the unlock and fails at four hundred clears ships broken for everybody past
+  it.
 
 `*.balance.ts` files are excluded from `tsconfig.app.json` so the app never bundles them, and
 included in `tsconfig.spec.json` so typed linting still covers them. A new one needs both.
@@ -416,6 +423,45 @@ backwards.** A factor of ten on the range costs almost nothing in resolution bec
 enormous — 16 steps over `[0.05, 500000]` resolves to 0.03% and over `[0.05, 5000000]` to 0.028% —
 while a single extra step nearly halves it, to 0.014%. So **widen the ceiling every chapter and add a
 step every few**, and check the arithmetic rather than applying a rule of thumb.
+
+### ⚠️ A seventh trap, from the Descent: a _share_ of a level is not a difficulty
+
+Milestone 22 authored the mode's difficulty as a share of the hardest campaign stage the run had
+cleared — 0.65 of it on the first fight to 0.90 on the last — which reads as "a fixed proportion of
+what the party can already beat" and is nothing of the kind.
+
+Enemy power is `perLevel ^ level`. **0.9 of level 14 is one level down, and 0.9 of level 588 is
+fifty-nine** — ×3.4 easier. Measured at four depths it read as a wall at chapter 1 (0 runs finished
+in 12) and a walkover from chapter 5 on (12 in 12, with **all five bodies at full health**), which is
+not a mis-tuned dial: it is a dial pointing in two directions at once.
+
+The fix is a level **offset**, which is the same number of steps along one exponential wherever it
+lands. The general form of the trap: ⚠️ **anything multiplying a quantity that is itself an exponent
+is a different thing at every depth.** Check a difficulty dial at two depths before believing it,
+which is what the five-depth sweep exists for.
+
+### ⚠️ An eighth, from the same file: a reference party for a _depth_ has to be bisected
+
+There is no authored stage to sweep in the Descent, so the sweep has to build a party for a campaign
+depth — and both arithmetic answers were wrong, in opposite directions:
+
+- **"The highest rung whose cap sits at or below the anchor"** is what the campaign's own margin rule
+  implies. It lags badly through the early chapters, where a party stands _above_ the rung its
+  content asks for: ×1.6 at anchor 85 and ×4.1 at anchor 160, a discontinuity nothing about the game
+  has.
+- **Power parity on `perLevel.common`** is right in shape and wrong in size. Enemy blocks climb
+  `perLevel.legendary` and `perLevel.ascended`, and that gap compounds over the **whole level** rather
+  than over a chapter — so the party is fifteen levels light at chapter 5 and eighty at chapter 10.
+  It read as a mode getting monotonically harder with depth: 20/20 at chapter 3, 0/20 at chapter 10.
+
+What works is bisecting the party's level against the **real campaign stage** it anchors on, to the
+level that clears it 90% of the time, cached per lock and depth. Milestone 21b reached the identical
+conclusion about the campaign's own margin rule: **bisect; do not solve.**
+
+⚠️ **The sweep's party carries no gear and no signature items** where a real player at those depths
+carries both, so every figure it reports is a **floor** on the real experience rather than an
+estimate of it. Say so beside the numbers; a reader who takes a floor for an estimate will retune
+against it.
 
 ### Scope a timeout guard to fights the party wins
 

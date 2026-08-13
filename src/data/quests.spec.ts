@@ -61,8 +61,12 @@ describe('quest content', () => {
     // authored ladder — and a daily a player at the end of the content can never finish is a
     // permanent empty row. The type already forbids it; this states why in the place somebody
     // would go to add one.
+    // ⚠️ `descentRuns` is on this list and `signatureLevels` is not, which is the pair that says
+    // what the rule actually is. The test is not "monotonic" — `clearedStages` is monotonic — it is
+    // "can a player make this move today". The Descent is offered afresh every day forever; signature
+    // levels stop dead once every item is maxed and do not move at all before the first one unlocks.
     for (const quest of quests) {
-      expect(['battleCount', 'pullCount'], quest.id).toContain(quest.counter);
+      expect(['battleCount', 'pullCount', 'descentRuns'], quest.id).toContain(quest.counter);
     }
   });
 });

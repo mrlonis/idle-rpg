@@ -3603,21 +3603,265 @@ pairing a taunt with a healer, and the crystal figures. Three stale claims were 
 `towers.ts` — it said one of seven was short, quoted the pre-21k crystal figures, and said every
 faction has at least twelve archetypes (fourteen now).
 
-## 22. The roguelite run
+## 22. The Descent — **COMPLETE**
 
-A multi-battle run where damage carries between fights, a choice of relic or buff arrives between
-them, and the whole thing resets. **Second of the two alternate ladders, deliberately.** It is a
-far larger build than towers and it wants a roster deep enough to field several teams at once —
-which towers are what create.
+The roguelite run, shipped. One run a day: three floors of three fights, health and energy carrying
+between them, the fallen staying down, and one card of three taken after every win. Twenty-four
+authored boards of which nine are drawn daily, fourteen card families of four rungs, a three-faction
+lock redrawn every day, and an enemy level read off the campaign the run has already cleared.
 
-What it adds that neither the campaign nor a tower does: **decisions inside a run rather than
-before one.** Everything else in this game is decided at the formation screen and then watched. A
-run where the third fight's relic depends on how the second went is the only place the game asks
-a question mid-flight.
+Full reference: **[descent](descent.md)**. What follows is what was decided and what the numbers said.
 
-**Do not build it before towers.** It is the most interesting thing on this list and the least
-structural, and taking it first would be choosing the fun problem over the one blocking
-everything else.
+### What it adds that nothing else in this game does
+
+**Decisions inside a run rather than before one**, which is the roadmap's own argument for it and the
+thing every choice below was measured against. Two mechanics carry it and both are _subtractive_:
+attrition, so a clean win is worth more than a win; and a choice with an opportunity cost, since the
+two cards not taken are gone. That second one is the first irreversible decision in this game that is
+not an ascension.
+
+### ⚠️ Two save fields, and everything else derived
+
+`descent` — the run in flight — and `descentRuns`. The day's nine boards, the day's three factions,
+the three cards on offer, every enemy level and every payout are pure functions of the run's seed,
+the day index and what the run has already taken.
+
+That is the `gearShopOffers` and `dailyBoard` idiom, taken as far as it goes: **rerolling is
+impossible rather than merely detectable**. Force-quitting and relaunching hands back the identical
+nine boards and the identical three cards, because there was never a draw written down to re-take.
+
+**The daily reset is one comparison.** A run carries the day it belongs to, so a run dated to
+yesterday is simply not today's run — no roll pass, no expiry flag, nothing to reconcile, and nothing
+owed for abandoning it because a run banks fight by fight. Compare `rollQuestWindows`, which _does_
+need a pass, because a window carries a baseline that has to be re-taken against counters that moved.
+
+### ⚠️ The difficulty dial was a share, and the sweep said it could not be
+
+The obvious authoring is a _share_ of the hardest campaign stage the run has cleared — 0.65 of it on
+the first fight to 0.90 on the last. It shipped in the first draft and it is wrong in a way that only
+appears when the mode is measured at more than one depth.
+
+Enemy power is `perLevel ^ level` with `perLevel` around 1.021, so a share is not a difficulty:
+**0.9 of level 14 is one level down and 0.9 of level 588 is fifty-nine**, which is ×3.4 easier.
+Measured over twelve days at each depth it read as a wall at chapter 1 (0/12 finished) and a walkover
+from chapter 5 on (12/12, **5.00 of five bodies at full health**).
+
+An **offset** is the same number of steps along one exponential wherever it lands. It ships at −8 on
+the first fight and +12 on the last, and the mode reads 0.50 to 1.00 finished with 3.2 to 4.7
+survivors across every depth from the unlock to the top of the ladder.
+
+⚠️ **The top offset is negative and the mode is still hard**, which is the reading most likely to
+look wrong. The anchor is a stage the party cleared with a full-health _best_ five; a Descent crew is
+drawn from three factions it did not choose, arrives at fight nine carrying eight fights of damage,
+and may be three bodies by then.
+
+### ⚠️ The reference party is bisected, and two closed forms were wrong in opposite directions
+
+There is no authored stage to sweep here, so the sweep needs a party for a _depth_ — and both
+arithmetic answers failed:
+
+- **"The highest rung whose cap sits below the anchor"** is what the campaign's margin rule implies,
+  and it lags badly through the early chapters, where a party stands _above_ the rung its content
+  asks for. It gave a party ×1.6 at anchor 85 and ×4.1 at anchor 160, which is a discontinuity
+  nothing about the game has.
+- **Power parity on `perLevel.common`** is right in shape and wrong in size: enemy blocks climb
+  `perLevel.legendary` and `perLevel.ascended`, and that gap compounds over the _whole_ level rather
+  than over a chapter. It read as a mode getting monotonically harder with depth — 20/20 at chapter 3
+  and 0/20 at chapter 10.
+
+So the party is **bisected against the real campaign stage**, at the level that clears it 90% of the
+time, cached per lock and depth. Milestone 21b recorded the same finding about the campaign's own
+margin rule and reached the same conclusion: **bisect; do not solve.**
+
+### ⚠️ It opens at chapter 3, not with the towers, and the daily quest is what forced it
+
+It was authored at chapter 1 — everything optional in this game opens at once, and the daily faction
+lock was meant to be what paced it. The sweep says the mode is not **finishable** at chapter 1 or 2:
+**0 runs in 20 at both**. A party with no ascension rung fields _one skill each_ — the kit gate opens
+at `elite` — against boards of four and five bodies with legendary anchors, and no level offset fixes
+that, because the binding constraint is board weight rather than level.
+
+What made that a blocker rather than a shrug is the **daily quest**. "Finish a Descent" reads
+`descentRuns`, and `core/quests.ts` forbids a quest a player cannot make move today — the same rule
+that keeps `clearedStages` off that list. Shipping it at chapter 1 would have shipped a permanent
+empty row for two chapters.
+
+### The card ladder, and the `gradeSoftness` fix taken up front
+
+Fourteen families of four rungs. A family already taken comes back **only higher**, which is an array
+index rather than a naming convention: `descent.spec.ts` asserts every rung is strictly larger than
+the one below it, because a repeat offered as a _downgrade_ still reads as a reward on screen.
+
+⚠️ **The rank tilt is authored as two ends rather than as a softness constant.** `gradeWeights` tilts
+by `1 + stageIndex / gradeSoftness`, which climbs without bound and has been hand-corrected once a
+chapter, five times, always to `stages / 2` — [gear](gear.md) records it as a standing tax and names
+the fix. This is that fix: a weight interpolated across a run's own eight choices reaches its end
+value on the last one however long the run is, so there is nothing to re-derive when content grows.
+Sovereign's weight is **zero** on the first choice, so "the cards get better as you go deeper" is a
+fact about the draw rather than an average somebody would have to notice.
+
+⚠️ **Three of the seven universal families move stats gear cannot** — crit chance, crit damage and
+life leech are bounded rates, so gear's percentage-of-your-own-stat rule pays nothing on them. They
+are **points**, and the four quantities are **percentages**, which is the same rescale split
+`LineupLadderStepData` already makes: an addition to a scaling quantity breaks the whole-board
+identity, and a percentage of a bounded rate pays almost nothing.
+
+⚠️ **`applyDescentBonus` conjures an absent stat where `applyGearBonus` leaves one absent.** The
+whole point of a life-steal card is that it reaches a character with no leech; a rule that skipped
+them would make the family pay only the handful of Monsters who already siphon.
+
+### ⚠️ The card offer shipped without the lock filter, and the screen is what caught it
+
+A faction family for a faction the day's lock **excludes** is a card that can pay nobody in any legal
+crew. Seven faction families against a three-faction lock is four of fourteen — better than a quarter
+of every offer — and three dead cards in one offer is a choice the player cannot make. Every test
+passed: the offer had three cards, they were the right ranks, the repeat rule held. It was visible in
+one glance at the screen, on a run holding a Wyrdsong on a Dwarf/Undead/Demon day.
+
+⚠️ **The fix moved the balance harder than the difficulty dial did.** Every dead card the sweep's
+greedy policy took was a wasted choice, so filtering them raised the finish rate from **0.79 to
+0.96** with nothing else changed, and the level line had to be re-aimed from −16/+4 to **−8/+12**.
+**The offer and the level line are one dial with two halves**; anything that changes what a card is
+worth re-aims the other.
+
+The rule now lives in `core/` rather than at the call site, so `descent.spec.ts` holds it instead of
+each caller remembering — and the two cases are both asserted, because "the lock filters" and "an
+empty lock filters nothing" fail in opposite directions.
+
+### ⚠️ A tuning sweep that cannot move is worse than no sweep
+
+Re-aiming the offsets meant running `descent.balance.ts` with an overridden `level`, and the override
+reached `descentLevel` but not `resolveDescentFight` — which computes the level again from the rules
+it is handed. **Every row of a five-setting sweep printed identically.** The reading that produces is
+"the difficulty dial does nothing", which is a conclusion somebody would act on.
+
+`descent.balance.ts` now carries a permanent assertion that a much harder setting measures harder,
+which is the cheapest possible guard on the plumbing every future retune goes through.
+
+### ⚠️ A faction card is the pattern `AGENTS.md` rejects, and the rejection does not reach it
+
+"+10% if two Fire units" is forbidden because it resolves to one optimal party, decided before the
+fight. This is **drawn**, three at a time out of fourteen, after the crew is locked for the run and
+after a daily faction lock nobody chose. There is nothing to optimise into — a crew built in the hope
+of Wyrdsong loses eight runs in nine — and what it _asks_ is the only question a card can ask a party
+that is already assembled: whether a narrow bonus on three of your five beats a broad one on all of
+them. **That argument does not generalise**; the next proposal of this shape makes its own.
+
+### ⚠️ Life steal is the one family with a termination argument
+
+Leech is taken off damage **dealt**, and closing pressure amplifies damage without amplifying
+healing — which is what breaks a closed sustain loop everywhere else. A party siphoning enough of its
+own output back does not win; it stalls, the ninety-second clock runs out, and a timeout is a
+**defeat**, costing one of a run's two lives. `maxLifeLeech` is 0.35 against a full stack of 0.34, so
+it binds on nothing shipped and exists for the fifth rung nobody has authored — the sense in which
+`MAX_RESIST` is a guard rather than a knob.
+
+### ⚠️ Every board is mixed-faction, which is the inverse of a tower
+
+The crew's factions are **drawn** and the board's are not. A mono-faction board would make roughly a
+seventh of days a walkover and a seventh a wall, decided by a matchup nobody chose — the exact
+opposite of what the matrix is for. Every board fields at least three factions and no faction holds
+more than a quarter of the pool.
+
+Two rules every board obeys: **no taunt paired with a healer** (the failure 15c found on the Dwarf
+Tower roof, and it costs a life here), and **no two `ascended` blocks**. The three floor-3 guardians
+are the Gate Warden, the Barrow Sovereign and the Wyrdroot Ancient — ⚠️ none of them a chapter final,
+a chapter lieutenant, a tower roof or the Unmade.
+
+### The retry is per run, and a defeat writes one field
+
+Two attempts across nine fights rather than one per fight: a retry per fight makes the mode a matter
+of persistence, and one across nine makes _when to spend it_ part of the run.
+
+⚠️ **The run is only ever written on a victory.** A defeat costs one life and changes nothing else,
+which is what makes the retry genuinely the same fight from the same state rather than a
+reconstruction of it — and why there is no "as it entered this fight" snapshot to roll back to.
+
+### What `simulateBattle` gained, and what it did not
+
+One optional fifth parameter: a `PartyOpening` of health fractions and energy, keyed by character id
+and applied to the **ally side alone**. Omitting it is bit-identical to the behaviour before it
+existed, which is what keeps the whole-board rescale identity and every recorded balance figure
+valid.
+
+⚠️ **Health is a fraction, never a quantity.** A maximum can move between two fights of one run — a
+level, a rung, a resonance floor, a gear swap, a signature level — and only a share survives that
+without reading as a wound nobody administered. The fallen leave the run's `party` **and** the health
+table: either alone would be a body on the board at zero health that every targeting rule has to step
+around, and one that goes on paying the lineup bonus for somebody who is not fighting.
+
+**The cards never reach the simulation.** They are folded into the authored stat block at party-build
+time exactly as gear and a signature item are, so nothing in `core/battle/` learns the mode exists.
+
+### ⚠️ `descentRuns` is the first counter added partly because a track pays against it
+
+`core/achievements.ts` warns about exactly this. What keeps it honest is that a run stores nothing
+else that survives its own day, so without it the mode has no long-term record at all and its own
+screen is the first thing that prints it — the same standing `pullCount` has. Two tracks read it at
+two intervals rather than a second stored integer for "fights won"; one counter says the same two
+things a second field would have.
+
+It is also the **third legal quest counter**. The test is not "is it monotonic" — `clearedStages` is
+monotonic — but "can a player always make it move today", and the Descent is offered afresh every day
+forever.
+
+### The lock became a list, and one resolver answers for both kinds
+
+`ActivityData.faction` is a tower's whole lock, authored once. The Descent's is three factions drawn
+daily, so the two cannot share a field: `FactionLock` is `readonly string[] | null`, and
+`FormationService.lockFor` resolves the static one for a tower and the daily one here. Both the crew
+editor and the battle path go through it — two implementations of one rule is how a screen ends up
+promising a legal crew that the fight refuses.
+
+⚠️ **`null` and `[]` are different answers**: `null` is "anybody may stand here" and `[]` is "nobody
+may", which is what a build shipping a lock over zero factions would mean. Keeping them distinct is
+what stops a missing lock from silently reading as an empty crew.
+
+### Auto-battle does not run in the Descent
+
+⚠️ The mode's premise rather than a limitation: a Descent fight cannot be repeated without a card
+being chosen first, so the loop would win one fight and stop, reporting "there is nothing left to
+fight" about a run that is eight fights from over.
+
+### The accessibility suite caught two things, both in the same pass
+
+- ⚠️ **A cleared fight row shipped at `opacity: 0.55`**, which drags `$muted` on `$surface` from
+  6.4:1 past the 4.5:1 floor — taking the level and the payout, the two things a cleared row still
+  says, below the bar along with the name. Replaced by a muted **name**, exactly as a locked tower row
+  does it.
+- ⚠️ **An `@empty` block inside a `<ul>` is a serious AXE violation**, because `@empty` renders its
+  content as a sibling of the items and a `<ul>` may directly contain only `<li>`. It sat on the one
+  state a new player sees first. Moved outside the list.
+
+Both are milestone 6's rule in action: when a fix and the suite disagree, look for the option that
+satisfies both.
+
+### What the guards did
+
+- **`towers.spec.ts` — "locks every tower and leaves the campaign unlocked".** Narrowed to the two
+  activity kinds that carry an _authored_ lock. The Descent correctly has no `faction` and is
+  correctly not unlocked, and reading the old assertion as "faction absent means anybody may enter"
+  is what would have made that silently wrong.
+- **`achievements.spec.ts` — "pays emblems on the chapter track and on no other".** Rewritten as the
+  rule it was always standing for: a track paying emblems must sit on an event that **already** pays
+  them. Finishing a chapter steps the emblem idle rate; finishing a Descent pays
+  `completionEmblems`. It now also asserts the two signature tracks pay none, which is the clause
+  that was doing the real work.
+- **`quests.spec.ts` — the counter allow-list.** `descentRuns` added, with the pair that says what
+  the rule actually is: it is on the list and `signatureLevels` is not.
+- **Nothing else moved.** No threshold was retuned, no shipped stage, floor or character was
+  re-authored, and `SAVE_VERSION` stayed at 0 — the fourth and last re-base, on the same licence as
+  the other three. All 2,101 unit tests, 86 balance tests and 291 end-to-end tests pass.
+
+### What was left undone, on purpose
+
+- **The mode ships no new status and no new effect kind.** Milestone 21's three-status budget was
+  spent and closed by 21d, and this needed nothing from it: everything a card does is a percentage or
+  a point on a stat the block already carries.
+- **No new enemy archetype.** Twenty-four boards out of the shipped 130, which is what the pool being
+  mixed-faction makes easy — and it is the first content milestone since 15c to add none.
+- **Nothing on the tab bar.** The Descent is a card on Home, which is the battle hub;
+  [navigation](navigation.md) is unchanged.
 
 ## 23. Puzzle maps
 

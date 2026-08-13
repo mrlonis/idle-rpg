@@ -9,7 +9,7 @@ import {
   type Row,
 } from '../core';
 import { BattleService } from './battle.service';
-import { characterById, factionName } from './content';
+import { characterById, factionList } from './content';
 import { FormationService } from './formation.service';
 import { lineupPanel } from './lineup-copy';
 import { type RosterEntryView } from './roster.service';
@@ -177,12 +177,20 @@ export class FormationView {
     }));
   });
 
-  /** What the lock says, in a line, or `null` for an activity with no lock. */
+  /**
+   * What the lock says, in a line, or `null` for an activity with no lock.
+   *
+   * ⚠️ **Reads a list since milestone 22**, because a tower's lock is one faction and the Descent's
+   * is three drawn afresh every day. One sentence covers both rather than a branch per activity
+   * kind: the grammar is the only thing that differs, and a screen that asked which kind of content
+   * it was drawing is exactly what `StageHeading` was generalised to avoid.
+   */
   protected readonly lockNote = computed(() => {
-    const faction = this.crew()?.lockFaction ?? null;
-    return faction === null
-      ? null
-      : `Only ${factionName(faction)} may enter. Everyone else is hidden below.`;
+    const lock = this.crew()?.lockFactions ?? null;
+    if (lock === null || lock.length === 0) {
+      return null;
+    }
+    return `Only ${factionList(lock)} may enter. Everyone else is hidden below.`;
   });
 
   /**
@@ -227,7 +235,7 @@ export class FormationView {
       return 'Somebody in this crew is away on a bounty.';
     }
     if (!crew.ready) {
-      return `Only ${factionName(crew.lockFaction ?? '')} may enter this tower.`;
+      return `Only ${factionList(crew.lockFactions ?? [])} may enter.`;
     }
     // Content rather than crew, so it comes last: the tower is either not open yet or finished, and
     // in both cases the line names the state instead of asking for a change nothing can make.

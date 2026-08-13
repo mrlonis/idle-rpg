@@ -40,19 +40,26 @@ starts at common rarity" is a true sentence that reads like a tautology. The rul
 is the same one, applied without exception: **never write either word bare.** Not "a common" —
 "a common-tier character", or "a character at common rarity".
 
-**"Floor" is the fourth collision, and milestone 15b added the third meaning.** It is a _place_ in a
-tower, a _lower bound_ in two progression systems, and neither reading suggests the other:
+**"Floor" is the fourth collision, and it now has five meanings.** It is a _place_ in two different
+systems, a _lower bound_ in three, and no reading suggests any of the others:
 
-| Written                 | Means                                                                         |
-| ----------------------- | ----------------------------------------------------------------------------- |
-| **a tower floor**       | One of a tower's hundred fights. `Floor 37`, climbed once, at a derived level |
-| **the growth floor**    | The rung a stat multiplier counts from — `rare` for every tier                |
-| **the resonance floor** | The fifth-highest invested level, which the whole roster is carried to        |
-| **the pity floor**      | The bad-luck bound under a pull's tier roll                                   |
+| Written                 | Means                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| **a tower floor**       | One of a tower's two hundred fights. `Floor 37`, climbed once, at a derived level |
+| **a Descent floor**     | A group of three fights inside one run, gone when the run is. `Floor 2`           |
+| **the growth floor**    | The rung a stat multiplier counts from — `rare` for every tier                    |
+| **the resonance floor** | The fifth-highest invested level, which the whole roster is carried to            |
+| **the pity floor**      | The bad-luck bound under a pull's tier roll                                       |
 
-The rule is the same shape as the one above: **the two bounds are never written bare.** "The floor"
-on its own means a tower floor now, and "the growth floor" or "the resonance floor" is spelled out —
-which is what the code already does (`growthFloor`, `resonanceFloor`, and `floorLevel` for the place).
+⚠️ **The two _places_ are the pair most likely to be confused, and they are opposites.** A tower
+floor is a permanent rung of a permanent climb, cleared once and never re-fought; a Descent floor is
+a third of one day's run and does not exist tomorrow. "Floor 2" means one of three things depending
+on which screen a reader has in mind, so **name the content**: "the Dwarf Tower's floor 37", "the
+Descent's second floor".
+
+The rule for the bounds is the same shape as the one above: **they are never written bare.** "The
+growth floor" and "the resonance floor" are spelled out, which is what the code already does
+(`growthFloor`, `resonanceFloor`, and `floorLevel` for the place).
 
 ---
 
@@ -245,6 +252,13 @@ somewhere. It is not a character's level and nothing derives one from the other.
 | **Signature tier**   | One of four rungs of a signature ability, reached at levels 1, 10, 20 and 30. ⚠️ **A fifth meaning of "tier"**, and the one most likely to be misread — it shares nothing with character tier, enemy tier, rarity or bounty tier. ⚠️ A rung **replaces** the one below it rather than stacking, so each restates everything the earlier rungs did.                                                                  |
 | **Skill override**   | How a signature ability changes a kit: a partial rewrite of an authored skill, merged once when the combatant is built. An absent field keeps what the skill said; ⚠️ `effects` **replaces** rather than appends, so "the same hit, harder" has to restate every clause.                                                                                                                                            |
 | **Opening status**   | A `StatusData` a signature rung puts on its **wearer** at tick 0 — the passive half of the vocabulary, reusing the status language whole. Permanent means a duration longer than `MAX_BATTLE_TICKS`. ⚠️ Never a `regen`: closing pressure does not amplify healing, so permanent sustain stalls a fight into a timeout, and a timeout is a defeat.                                                                  |
+| **Descent**          | The roguelite run, once a day: three **floors** of three fights, health and energy carrying between them, and one **card** of three taken after every win. ⚠️ **Its "floor" is not a tower's** — a Descent floor is a group of three fights inside one run and is gone when the run is, where a tower floor is a permanent rung of a permanent climb. See [descent](descent.md).                                    |
+| **Run**              | One day's attempt at the Descent, and the only thing the mode stores. A run holds its own copy of the crew, its members' health as **fractions**, the cards taken, and how many attempts are left. ⚠️ **It carries the day it belongs to, and that is the whole daily reset** — a run dated to yesterday is simply not today's, so nothing continues it and nothing blocks on it.                                   |
+| **Card**             | One rung of a Descent **family**, drawn three at a time and taken one at a time. Stored as `${familyId}:${rank}`. ⚠️ Not a relic and not an item: it lives only inside the run that took it, and nothing about it survives the day.                                                                                                                                                                                 |
+| **Family**           | A track of four cards, lowest to highest, of which a run may hold several rungs. A family already taken comes back **only higher**, which is why a family is a list rather than four unrelated cards. Fourteen ship: seven universal and one per faction.                                                                                                                                                           |
+| **Rank**             | A card's rung — `Lesser`, `Greater`, `Grand`, `Sovereign`. ⚠️ **A sixth meaning of "tier" wearing a different word on purpose**, and it shares nothing with character tier, enemy tier, rarity, bounty tier or signature tier. Its weight is interpolated across a run's own eight choices, so the tilt saturates rather than climbing without bound.                                                               |
+| **Anchor level**     | The enemy level of the hardest campaign stage a run has ever cleared, which is what a Descent fight is measured **offsets from** — never a share of. ⚠️ Not the resonance **anchor**, which is a character. Enemy power is exponential in level, so a share is a different difficulty at every depth and a fixed number of levels is the same one everywhere.                                                       |
+| **Daily lock**       | The three factions a Descent admits today, drawn from the run's seed against the day index. ⚠️ **A pure function of the day, never of what the run owns** — a roster-dependent lock could move under a player mid-run. A lock the roster cannot fill is a weaker crew, never a locked door.                                                                                                                         |
 
 ---
 

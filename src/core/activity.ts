@@ -31,7 +31,23 @@ import { CAMPAIGN_FORMATION, formationIn, type FormationBook, type PartyFormatio
  */
 
 /** What kind of content an activity points at. */
-export type ActivityKind = 'campaign' | 'tower';
+export type ActivityKind = 'campaign' | 'tower' | 'descent';
+
+/**
+ * The factions an activity admits **right now**, or `null` for no lock at all.
+ *
+ * ⚠️ **A list rather than a single id, and `null` rather than an empty list.** Towers were the only
+ * locked content until milestone 22, and a tower's lock is one faction authored once — so
+ * {@link ActivityData.faction} says it and nothing has to be resolved. The Descent's is three
+ * factions **drawn daily**, which is neither one nor authored, so the two cannot share a field: a
+ * lock has to be something a caller *computes* and passes in.
+ *
+ * `null` and `[]` are deliberately different answers. `null` is "anybody may stand here", which is
+ * the campaign; `[]` is "nobody may", which is what a build shipping a lock over zero factions would
+ * mean and is a state no content should reach — keeping them distinct is what stops a missing lock
+ * from silently reading as an empty crew.
+ */
+export type FactionLock = readonly string[] | null;
 
 /**
  * One activity, as `data/` authors it.
@@ -63,37 +79,69 @@ export const CAMPAIGN_ACTIVITY: ActivityData = {
 };
 
 /**
- * Whether `faction` may stand in `activity`.
+ * The lock an activity carries on its own, before anything dynamic is resolved.
  *
- * An unlocked activity accepts anybody, so the campaign's answer is always yes.
+ * A tower's whole lock; the Descent's is drawn daily and the caller that knows what a day is
+ * supplies it instead. This is what makes "the static lock" a thing with a name rather than an
+ * `activity.faction === undefined` check spelled out at four call sites.
  */
-export function factionMeetsLock(activity: ActivityData, faction: string): boolean {
-  return activity.faction === undefined || activity.faction === faction;
+export function lockOf(activity: ActivityData): FactionLock {
+  return activity.faction === undefined ? null : [activity.faction];
+}
+
+/** Whether `faction` may stand under `lock`. An absent lock accepts anybody. */
+export function meetsLock(lock: FactionLock, faction: string): boolean {
+  return lock === null || lock.includes(faction);
 }
 
 /**
- * Whether every character standing in `formation` is allowed to.
+ * Whether `faction` may stand in `activity`, under the activity's own static lock.
+ *
+ * An unlocked activity accepts anybody, so the campaign's answer is always yes. ⚠️ **Not the right
+ * question for the Descent**, whose lock is a function of the day — use {@link meetsLock} with the
+ * resolved lock there, which is what `FormationService` does for every activity so that one path
+ * covers both.
+ */
+export function factionMeetsLock(activity: ActivityData, faction: string): boolean {
+  return meetsLock(lockOf(activity), faction);
+}
+
+/**
+ * Whether every character standing in `formation` is allowed to under `lock`.
  *
  * Takes a faction resolver rather than a roster, because the only thing this needs of a character
- * is which faction it belongs to — and a resolver is what both callers already hold. An id that
+ * is which faction it belongs to — and a resolver is what every caller already holds. An id that
  * resolves to nothing fails the lock rather than passing it: a crew naming a character the build
  * cannot identify is a crew that should be rebuilt, not one that gets the benefit of the doubt.
+ *
+ * ⚠️ **An empty formation passes.** A player mid-reshuffle is entitled to an empty crew, and a
+ * party of nobody resolves as a defeat rather than as an error — exactly as it does for the
+ * campaign. What refuses an empty crew is the Fight control, which already refuses one everywhere.
  */
+export function partyMeetsFactionLock(
+  lock: FactionLock,
+  formation: PartyFormation,
+  factionOf: (defId: string) => string | undefined,
+): boolean {
+  if (lock === null) {
+    return true;
+  }
+  for (const defId of [...formation.front, ...formation.back]) {
+    const faction = factionOf(defId);
+    if (faction === undefined || !meetsLock(lock, faction)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/** Whether every character standing in `formation` satisfies `activity`'s own static lock. */
 export function partyMeetsLock(
   activity: ActivityData,
   formation: PartyFormation,
   factionOf: (defId: string) => string | undefined,
 ): boolean {
-  if (activity.faction === undefined) {
-    return true;
-  }
-  for (const defId of [...formation.front, ...formation.back]) {
-    const faction = factionOf(defId);
-    if (faction === undefined || !factionMeetsLock(activity, faction)) {
-      return false;
-    }
-  }
-  return true;
+  return partyMeetsFactionLock(lockOf(activity), formation, factionOf);
 }
 
 /**

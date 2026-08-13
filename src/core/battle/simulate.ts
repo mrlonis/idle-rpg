@@ -1,5 +1,5 @@
 import { mulberry32 } from '../mulberry32';
-import { type Numeric, ZERO } from '../numeric';
+import { type Numeric, ONE, ZERO } from '../numeric';
 import { deriveSeed } from '../rng';
 import { toEnemyCombatant } from '../roster/stats';
 import { ATB_THRESHOLD, MAX_BATTLE_TICKS, pressureAt, ticksToMs, ticksUntilReady } from './clock';
@@ -224,7 +224,62 @@ function encounterAt(stage: StageData, rules: CombatRules): FormationData {
   };
 }
 
-function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fighter[] {
+/**
+ * What one combatant carries into a fight that is not its first.
+ *
+ * ⚠️ **Health is a fraction of maximum, never a quantity**, which is what lets it be recorded at
+ * the end of one fight and honoured at the start of the next across anything that can move a
+ * maximum in between — a level, an ascension rung, a resonance floor, a gear swap. An absolute
+ * figure would read as a heal or a wound nobody administered, and against a curve worth ×10⁹ it
+ * would read as a very large one.
+ */
+export interface CombatantOpening {
+  /** Remaining health as a fraction of maximum. Clamped into `(0, 1]`. */
+  readonly health: number;
+  /** Energy carried in, clamped into `[0, MAX_ENERGY]`. */
+  readonly energy: number;
+}
+
+/**
+ * What the **party** carries into a fight, keyed by character id.
+ *
+ * Applied to the ally side alone, for the reason the lineup bonus is: an encounter is authored, so
+ * a wounded enemy is a stat block with a hidden step in it and the author could simply have written
+ * the smaller number. What this exists for is a run in which damage carries — see
+ * `core/descent/`.
+ *
+ * ⚠️ **Keyed by character id rather than by slot, and it can never name a body at zero.** One
+ * character cannot stand twice in a crew, so an id is unique on the party's side; and a fallen
+ * member is removed from the formation entirely rather than fielded at nothing, because a
+ * zero-health fighter is a body every targeting rule then has to step around and one that goes on
+ * paying the lineup bonus for somebody who is not fighting.
+ */
+export type PartyOpening = ReadonlyMap<string, CombatantOpening>;
+
+/**
+ * The health a fighter opens with: its maximum, or the share of it that survived the last fight.
+ *
+ * ⚠️ **Never zero.** A fighter at nothing is a corpse on the board — excluded from targeting,
+ * counted by the lineup bonus, and drawn as a fifth member who cannot act — and the whole reason
+ * {@link PartyOpening} is keyed by id is that the caller removes the fallen instead. The floor of
+ * one is a guard against a damaged share rather than a state anything can reach by playing, and at
+ * a late-game maximum it is indistinguishable from nothing anyway.
+ */
+function carriedHp(maxHp: Numeric, carried: CombatantOpening | undefined): Numeric {
+  if (carried === undefined) {
+    return maxHp;
+  }
+  const share = Number.isFinite(carried.health) ? Math.min(Math.max(carried.health, 0), 1) : 1;
+  const hp = maxHp.mul(share);
+  return hp.lt(ONE) ? ONE : hp;
+}
+
+function buildSide(
+  formation: FormationData,
+  side: Side,
+  rules: CombatRules,
+  opening?: PartyOpening,
+): Fighter[] {
   const ranks: readonly (readonly [Row, readonly CombatantData[]])[] = ROWS.map((row) => [
     row,
     row === 'front' ? formation.front : formation.back,
@@ -255,6 +310,12 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
       numbered.set(combatant.id, ordinal);
       const slot = fighters.length;
 
+      // Carried state, for a run in which damage persists between fights. Absent for every fight in
+      // the game bar the Descent's, and `carriedHp` short-circuits to `stats.hp` when it is — so the
+      // ordinary path is bit-identical to what it was before this parameter existed, which is what
+      // keeps the whole-board rescale identity and every recorded balance figure valid.
+      const carried = side === 'ally' ? opening?.get(combatant.id) : undefined;
+
       fighters.push({
         key: `${side}-${slot}`,
         side,
@@ -264,14 +325,17 @@ function buildSide(formation: FormationData, side: Side, rules: CombatRules): Fi
         name: (totals.get(combatant.id) ?? 0) > 1 ? `${combatant.name} ${ordinal}` : combatant.name,
         faction: combatant.faction,
         hasUltimate: combatant.skills.some((skill) => skill.ultimate),
+        // The **full** maximum whatever was carried in, so a wounded fighter reads as wounded on
+        // the bar rather than as a smaller fighter at full health.
         maxHp: stats.hp,
         base: stats,
         lineup,
         combatant,
-        hp: stats.hp,
+        hp: carriedHp(stats.hp, carried),
         // Empty, not full. An ultimate is a payoff rather than an opener — the single most
-        // consequential difference between energy and the MP pool it replaced.
-        energy: 0,
+        // consequential difference between energy and the MP pool it replaced. A carried bar is the
+        // one exception, and it is a bar the party filled in a fight it already fought.
+        energy: carried === undefined ? 0 : clampEnergy(carried.energy),
         gauge: 0,
         swinging: false,
         // Opening statuses land at tick 0, applied against the combatant's **own** stats — the
@@ -371,16 +435,20 @@ function snapshot(fighter: Fighter): CombatantSnapshot {
  * @param stage the encounter to fight, as authored in `data/`
  * @param seed a derived battle seed from {@link battleSeed} — not `state.rng.seed`
  * @param rules the parsed combat rules: row bonuses, the faction matrix and the guards
+ * @param opening what the **party** carries in from an earlier fight, or absent for a fresh one.
+ *   Only the Descent supplies it; every other fight in the game opens at full health and no
+ *   energy, and omitting it is bit-identical to the behaviour before it existed.
  */
 export function simulateBattle(
   party: FormationData,
   stage: StageData,
   seed: number,
   rules: CombatRules,
+  opening?: PartyOpening,
 ): BattleResult {
   const draw = mulberry32(seed);
   const fighters = [
-    ...buildSide(party, 'ally', rules),
+    ...buildSide(party, 'ally', rules, opening),
     ...buildSide(encounterAt(stage, rules), 'enemy', rules),
   ];
   const roster = fighters.map(snapshot);

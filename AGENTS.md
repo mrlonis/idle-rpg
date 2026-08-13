@@ -988,6 +988,111 @@ the two disagree, the code is right and both are stale.
     (`2-14` or `F37`), `place` locates it, `label` names it on a button, and no screen asks which
     kind of content it is drawing. `label` exists because the two kinds want opposite halves: a
     floor's name already is its position, so a shared template would read "F40 — Floor 40".
+- **[docs/descent.md](docs/descent.md)** — the roguelite run, added in milestone 22: one run a day,
+  three floors of three fights, health and energy carrying between them, and one card of three taken
+  after every win. Read it before touching `core/descent/` or `data/descent*.ts`. **The only content
+  in the game that asks a question mid-flight** — everything else is decided at the crew editor and
+  then watched.
+  - ⚠️ **It adds exactly two save fields and everything else is derived.** `descent` (the run in
+    flight) and `descentRuns`. The day's nine boards, its three factions, the three cards on offer,
+    every enemy level and every payout are pure functions of the seed, the day index and what the run
+    has taken — which is what makes **rerolling impossible rather than merely detectable**, the same
+    three arguments `gearShopOffers` and `dailyBoard` run on.
+  - ⚠️ **The daily reset is one comparison and there is no roll pass.** A run carries the day it
+    belongs to, so a run dated to yesterday is simply not today's run — nothing continues it, nothing
+    blocks on it, and nothing is owed for abandoning it because a run banks fight by fight. Compare
+    `rollQuestWindows`, which _does_ need a pass, because a window carries a baseline to re-take.
+  - ⚠️ **The difficulty dial is a level _offset_ from the hardest campaign stage cleared, never a
+    share of it — and the share version shipped in the first draft and was measured wrong.** Enemy
+    power is `perLevel ^ level`, so 0.9 of level 14 is one level down and 0.9 of level 588 is
+    **fifty-nine**, ×3.4 easier. That read as a wall at chapter 1 and a walkover with five bodies at
+    full health from chapter 5 on. It ships at **−8 to +12** levels, which is the same difficulty at
+    every depth by construction. ⚠️ **The top offset is negative and the mode is still hard**: the
+    anchor is a stage the party cleared with a full-health _best_ five.
+  - ⚠️ **The sweep's reference party is bisected against the real campaign stage, never solved.** Two
+    closed forms were tried and both were wrong in opposite directions — "the highest rung whose cap
+    sits below the anchor" lags through the early chapters where a party stands above the rung its
+    content asks for, and power parity on `perLevel.common` is right in shape and wrong in size,
+    because enemy blocks climb `perLevel.legendary` and `perLevel.ascended` and that gap compounds
+    over the whole level. Same conclusion milestone 21b reached about the campaign's margin rule:
+    **bisect; do not solve.**
+  - ⚠️ **It opens at chapter 3 rather than with the towers, and the daily quest is what forced it.**
+    A run finishes **0 times in 20** at chapters 1 and 2 — a party with no ascension rung fields one
+    skill each, and no level offset fixes that because the binding constraint is board weight. "Finish
+    a Descent" reads `descentRuns`, and `core/quests.ts` forbids a quest a player cannot make move
+    today, so shipping it earlier would have shipped a permanent empty row for two chapters.
+  - ⚠️ **The rank tilt is authored as two ends rather than as a softness constant, which is the fix
+    `docs/gear.md` names for `gradeSoftness`.** A weight interpolated across a run's own eight choices
+    saturates on the last one however long the run is, so there is nothing to re-derive when content
+    grows — where `gradeWeights` climbs without bound and has been hand-corrected once a chapter, five
+    times, always to `stages / 2`. Reach for this shape before a softness constant.
+  - **A card family's rungs are a list and each must be strictly larger than the one below.** A family
+    already taken comes back **only higher**, so a rung that is not larger is a downgrade the player
+    pays a choice for — and it reads as a reward on screen either way.
+  - ⚠️ **The offer is filtered by the day's lock, and it shipped without that.** A faction family for
+    a faction the lock excludes can pay nobody in any legal crew — four of fourteen families, better
+    than a quarter of every offer — and every test passed while it was broken, because the offer had
+    three cards of the right ranks obeying the repeat rule. **One glance at the screen found it.**
+    ⚠️ **It moved the balance harder than the difficulty dial did**: the finish rate went 0.79 → 0.96
+    with nothing else changed, and the level line had to be re-aimed. **The offer and the level line
+    are one dial with two halves.**
+  - ⚠️ **A tuning sweep that cannot move is worse than no sweep.** Re-aiming the offsets meant
+    overriding `level` in `descent.balance.ts`, and the override reached `descentLevel` but not
+    `resolveDescentFight` — so every row of a five-setting sweep printed identically, which reads as
+    "the difficulty dial does nothing". There is a permanent assertion that a much harder setting
+    measures harder; keep it, and add one wherever a sweep takes an override.
+  - ⚠️ **Four card stats are percentages and three are points, and the split is a rescale argument.**
+    `hp`/`atk`/`def`/`haste` climb with the level curve, so an addition to one breaks the whole-board
+    identity; `critChance`/`critDamageAmp`/`lifeLeech` are bounded rates, where a percentage of what a
+    character already has pays almost nothing. Same split `LineupLadderStepData` makes. ⚠️ And unlike
+    `applyGearBonus`, `applyDescentBonus` **conjures an absent stat** for the three additive ones — a
+    life-steal card that skipped characters with no leech would pay only the handful of Monsters who
+    already siphon.
+  - ⚠️ **Life steal is the one family with a termination argument.** Leech is taken off damage dealt
+    and closing pressure amplifies damage without amplifying healing, so a party siphoning enough of
+    its own output back stalls until the ninety-second clock ends the fight in a defeat — costing one
+    of a run's two lives. `maxLifeLeech` is 0.35 against a full stack of 0.34: a backstop against a
+    fifth rung, in the sense `MAX_RESIST` is a guard rather than a knob.
+  - ⚠️ **A faction card is the pattern this file rejects, and the rejection does not reach it.** It is
+    **drawn**, three at a time out of fourteen, after the crew is locked and after a faction lock
+    nobody chose — so there is nothing to optimise into, and what it asks is whether a narrow bonus on
+    three of your five beats a broad one on all of them. **That argument does not generalise**; the
+    next proposal of this shape makes its own, exactly as 8d's does.
+  - ⚠️ **Every board is mixed-faction, which is the inverse of a tower's rule.** The crew's factions
+    are drawn and the board's are not, so a mono-faction board would make a seventh of days a walkover
+    and a seventh a wall for reasons nobody chose. At least three factions per board, no faction above
+    a quarter of the pool. Also: **no taunt paired with a healer** (it costs a life here), **no two
+    `ascended` blocks**, and no chapter final, chapter lieutenant, tower roof or the Unmade.
+  - **The run is only ever written on a victory.** A defeat costs one life and touches nothing else,
+    which is what makes the retry the same fight from the same state rather than a reconstruction —
+    and why there is no "as it entered this fight" snapshot.
+  - ⚠️ **The crew is copied into the run and health is stored as a _fraction_.** Reading the formation
+    book per fight would let a swap walk a fresh five into the boss at full health; an absolute HP
+    figure would read as a wound nobody administered the moment a level, rung, resonance floor or gear
+    swap moved a maximum. **The fallen leave `party` and the health table together** — either alone is
+    a body on the board at zero health that every targeting rule steps around and that goes on paying
+    the lineup bonus.
+  - **`simulateBattle` gained one optional fifth parameter**, a `PartyOpening` of health fractions and
+    energy applied to the **ally side alone**. Omitting it is bit-identical to the behaviour before it
+    existed, which is what keeps the rescale identity and every recorded balance figure valid. **The
+    cards never reach the simulation** — they fold into the authored stat block at party-build time
+    exactly as gear and a signature item do.
+  - ⚠️ **Auto-battle never runs in the Descent**, and that is the premise rather than a limitation: a
+    fight cannot be repeated without a card being chosen, so the loop would win one fight and then
+    report "there is nothing left to fight" about a run eight fights from over.
+  - ⚠️ **`descentRuns` is the first counter added partly because a track pays against it**, which
+    `core/achievements.ts` warns about. What keeps it honest is that a run stores nothing else
+    surviving its own day, so the mode would otherwise have no long-term record and its own screen is
+    the first thing that prints it — `pullCount`'s standing. Two tracks read it at two intervals
+    rather than a second stored integer for "fights won".
+  - **A faction lock is a `FactionLock` — `readonly string[] | null` — resolved by
+    `FormationService.lockFor` for both kinds.** A tower's is authored and constant; the Descent's is
+    drawn daily. ⚠️ **`null` and `[]` are different answers**: `null` is "anybody may stand here" and
+    `[]` is "nobody may", which is what stops a missing lock from silently reading as an empty crew.
+  - **The Fight control lives on the Descent screen rather than on the crew editor**, which is the one
+    place the mode departs from "every battle passes through the crew editor" — a run in progress has
+    to come back there between fights, and routing it through the editor would ask the player to
+    re-confirm a crew that is locked for the rest of the run.
 - **Achievements and quests are ledgers over counters the run already keeps**, added in milestone
   14b. Read [`core/achievements.ts`](src/core/achievements.ts) and
   [`core/quests.ts`](src/core/quests.ts) before touching either.
@@ -1004,9 +1109,16 @@ the two disagree, the code is right and both are stale.
     exist for.
   - ⚠️ **No quest may be measured against `clearedStages`.** It counts _first_ clears, so it stops
     moving at the top of the authored ladder and the quest becomes permanently unfinishable. The
-    type forbids it; `battleCount` and `pullCount` always move. **An achievement measured against it
-    is fine and one is shipped** — a quest that stops moving is unfinishable, an achievement that
-    stops moving is one the player has finished.
+    type forbids it; `battleCount`, `pullCount` and `descentRuns` always move. **An achievement
+    measured against it is fine and one is shipped** — a quest that stops moving is unfinishable, an
+    achievement that stops moving is one the player has finished.
+    - ⚠️ **The test is not "is it monotonic" — it is "can a player always make it move today", and
+      `descentRuns` versus `signatureLevels` is the pair that says so.** `clearedStages` is
+      monotonic and forbidden; signature levels stop dead at 420 and do not move at all before the
+      first item unlocks, so they are forbidden too. The Descent is offered afresh every day forever,
+      which is what made it the third legal counter — and ⚠️ **it also constrains where that content
+      may _open_**: milestone 22 moved the Descent's unlock from chapter 1 to chapter 3 because a
+      mode that is visible and unfinishable makes its own daily quest a permanent empty row.
   - **"Counters the run already keeps" is a rule about the stored field, not about the counter.**
     `clearedChapters` is **derived** — `clearedStages` resolved against the shipped `LadderShape` —
     and adds no save field, no migration and nothing to the battle path, which is the whole of what
@@ -1274,18 +1386,24 @@ the two disagree, the code is right and both are stale.
   class a component assumes is global.
 - **[docs/saves.md](docs/saves.md)** — storage, the migration chain, load-time repair, and
   fixtures. **`SAVE_VERSION` is 0 and the migration table is empty.** The chain has been re-based
-  three times: five pre-release versions and four migrations the first time; the six that
+  four times: five pre-release versions and four migrations the first time; the six that
   accumulated on top of that baseline the second — gear (v0 → v1), the ladder's new bottom
   (v1 → v2), the achievement ledger, the quest windows, the bounty board and the legendary pity
-  counter; and milestone 16's three fields the third — `wallet.emblem`, `rates.emblem` and
-  `roster[].signature`. Every field they wrote is simply part of the baseline shape now.
+  counter; milestone 16's three fields the third — `wallet.emblem`, `rates.emblem` and
+  `roster[].signature`; and milestone 22's two the fourth — `descent` and `descentRuns`. Every field
+  they wrote is simply part of the baseline shape now.
   - ⚠️ **The third re-base is the least defensible use of the licence, precisely because it was the
     cheapest.** All three fields default correctly to zero, so the migration they did not need would
     have been three assignments of the value the decoder already produces for a missing key — and a
     version bump would have cost almost nothing. The reason not to take it was consistency with an
-    empty chain, not any property of those fields. **Weigh that before re-basing a fourth time.**
-    One visible cost, dev-only: a save from before it reports two repair issues on load, heals to
-    zero, and is otherwise fine.
+    empty chain, not any property of those fields. One visible cost, dev-only: a save from before it
+    reports two repair issues on load, heals to zero, and is otherwise fine.
+  - ⚠️ **The fourth is the last one that can ride on the licence, and it is a fact about the audience
+    rather than about the fields.** `descent` defaults to `null` and `descentRuns` to zero — neither
+    is even a reported repair issue, because a save written before the mode shipped is not damaged for
+    lacking a run. What closes the door is that milestone 22 is the last numbered system on the
+    roadmap before presentation: **a build that reaches a player makes the chain permanent and the
+    next version 1 forever.** Weigh that before reaching for a fifth.
   - ⚠️ **A re-base is licensed by one argument and nothing else: no save any of those versions
     wrote has ever existed outside development.** The rule it suspends is scoped rather than
     softened — _never delete or edit a migration once a build carrying it has reached a player_ —
@@ -1355,7 +1473,8 @@ Read it before starting a milestone, and specifically before:
   **`/formations` is the counter-example and it belongs to neither**: a crew is not something a
   player has earned, it is something they arrange about the roster they already hold, so it hangs
   off the **Roster** rather than Town or the bar. **Home is the battle hub** — anything a player
-  goes to _fight_ is a card there;
+  goes to _fight_ is a card there, which is where **The Descent** (`/descent`) landed in milestone
+  22 and why it cost the bar nothing;
 - building anything that fights on its own — "auto-battle" means two separate features, and only
   one of them is built. The **unlockable repeat** shipped in milestone 7: it is foreground-only,
   it commits and persists at the end of every fight, and switching it off when the app leaves the
@@ -1447,13 +1566,13 @@ The app is zoneless. The sim clock and the render clock are separate.
 - Migrations are pure `(old) => (new)` steps, chained. **Never delete or edit a migration once a
   build carrying it has reached a player** — they can return after any number of releases and
   their save has to walk the whole chain.
-  - **`SAVE_VERSION` is 0, and the table is empty.** Two re-bases collapsed eleven versions and ten
-    migrations into this one shape, both on the one argument that licenses it: no save any of them
-    wrote has ever existed outside development. [saves](docs/saves.md) records the resets and the
-    condition — a player loading a save — that closes the door on repeating them. **The chain walker
-    survived both**, tested against a synthetic history the whole time so that the first real
-    migration would land on proven code; that is exactly how gear's v0 → v1 landed, and it worked
-    first time.
+  - **`SAVE_VERSION` is 0, and the table is empty.** Four re-bases collapsed eleven versions, ten
+    migrations and five later fields into this one shape, all on the one argument that licenses it:
+    no save any of them wrote has ever existed outside development. [saves](docs/saves.md) records
+    the resets and the condition — a player loading a save — that closes the door on repeating them.
+    **The chain walker survived all of them**, tested against a synthetic history the whole time so
+    that the first real migration would land on proven code; that is exactly how gear's v0 → v1
+    landed, and it worked first time.
   - ⚠️ **The re-bases burned version numbers 1 through 6, twice each.** The old v1 was milestone 1's
     gold counter and the second v1 was the gear schema; the old v3 was the rate table and the second
     v3 was the achievement ledger. Nothing can tell any pair apart from the number alone, so a save
