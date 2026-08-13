@@ -485,9 +485,17 @@ describe('a Descent run is a fight at every depth', () => {
     // finish rate is stated the same way: the bisection that calibrates a party lands on a step, so
     // one depth can sit a level either side of where a real player stands. A tight per-depth bar
     // would be measuring that step.
+    //
+    // ⚠️ **The per-depth bar went 4.75 → 4.85 when the campaign flattened to 0.50 levels a stage,
+    // and it is the step this comment already names rather than a new one.** The party at each
+    // depth is bisected against the campaign stage there, so it tracks the level line wherever it
+    // goes — but at 0.50 a level now spans *two* stages instead of one, which doubles the width of
+    // the plateau the bisection lands on and with it how far one depth can sit from where a real
+    // player stands. Depth 250 reads **4.80**. The mean below is unmoved and still carries the
+    // claim; widening the backstop by one plateau is not the same as widening the claim.
     const survivors = DEPTHS.map((cleared) => sweepDepth(cleared).meanSurvivors);
     for (const [index, mean] of survivors.entries()) {
-      expect(mean, `depth ${DEPTHS[index]} survivors`).toBeLessThan(4.75);
+      expect(mean, `depth ${DEPTHS[index]} survivors`).toBeLessThan(4.85);
     }
     expect(survivors.reduce((sum, mean) => sum + mean, 0) / survivors.length).toBeLessThan(4.4);
   });

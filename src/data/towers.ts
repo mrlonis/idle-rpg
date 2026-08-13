@@ -33,18 +33,42 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ## Two hundred floors, levels 1 to 120
  *
- * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 588 and first
- * reaches 120 at `c5-s24`, so a tower's top floor is a fight the campaign asks for a quarter of the
- * way along it. That is the whole statement about where difficulty lives: a tower charges for roster
+ * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 200 and first
+ * reaches 95 at `c6-s40`, so a tower's top floor is a fight the campaign asks for about halfway
+ * along it. That is the whole statement about where difficulty lives: a tower charges for roster
  * *breadth*, and charging for investment as well would make it a second campaign that a player
  * behind on the first one cannot enter.
  *
+ * ⚠️ **That fraction moved from a quarter to a half when the campaign flattened**, and it is worth
+ * watching rather than restating: the tower's level line is fixed while the campaign's is planned to
+ * run for many more chapters, so the roof drifts back toward the *opening* of the ladder with every
+ * chapter authored. It is the right direction — optional content should not creep up the spine — but
+ * a roof that lands in the first tenth of the campaign has stopped charging for breadth at all.
+ *
  * ⚠️ **{@link topLevel} is deliberately *not* a rarity cap, and the assertion that said it was is
- * gone.** A tower closes **above** the cap of the rung it asks for — the campaign's own margin rule
- * — because a rung is worth ×1.6 and the enemy side has no rungs at all. `elite` caps at 100 and the
- * roof is 120, so the top band's crew is still derived (the highest cap strictly below the roof)
- * without a crew standing at parity with content it out-ranks. `towers.spec.ts` holds the margin and
- * holds separately that the *halfway* floor's level is a cap, which is what band 1's crew rests on.
+ * gone.** A tower closes **above** the cap of the rung it asks for, because a rung is worth ×1.6 and
+ * the enemy side has no rungs at all — so a crew standing at parity with content it out-ranks is not
+ * a test. `rare-plus` caps at 60 and the roof is 95, so the roof stays a fight.
+ *
+ * ## ⚠️ 120 → 95, because the campaign moved under it
+ *
+ * The campaign flattened to 0.50 levels a stage and now tops out at 200 rather than 588. A floor's
+ * lump is read off the campaign **at the stage fighting at the same level**, so a roof of 120 — which
+ * the flattened campaign does not reach until stage 240 — paid a two-hundred-floor tower **more per
+ * floor than the campaign pays per stage** (9,600 against 8,000). That is optional content displacing
+ * the spine, which is the one thing tower payouts may never do. 95 is the highest roof that keeps the
+ * lump under the campaign's stage-200 payout with real margin (7,600 against 8,000).
+ *
+ * ⚠️ **Do not "fix" this by moving the roof back up.** The bound is now the campaign's own level line
+ * and it moves whenever that does; `towers.spec.ts` checks the payout directly. The index-based
+ * version of that guard was **retired** in the same change — it compared a campaign stage index
+ * against a tower floor count, two different units that only ever agreed while the two ladders were a
+ * similar length.
+ *
+ * ⚠️ **The crews are the other half and they do not derive from the caps ladder any more.** Dropping
+ * the roof used to drop each crew's *rung* as well, because `towers.balance.ts` read the rung off
+ * `caps.indexOf(level)` — costing the crews ×1.6 where the content only lost its levels, which put
+ * **all seven roofs at 0%**. The rungs are pinned now and only the levels derive. See that file.
  *
  * ## ⚠️ The second hundred is a single straight line, and the retune it was expected to cause
  * evaporated
@@ -105,7 +129,7 @@ import { TOWER_UNDEAD } from './tower-undead';
 export const TOWER_RULES = {
   floors: 200,
   baseLevel: 1,
-  topLevel: 80,
+  topLevel: 95,
   /** The campaign's interval, reused. See {@link CHAPTER_CURVE}. */
   miniBossEvery: 10,
   floorSummons: {

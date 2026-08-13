@@ -38,7 +38,7 @@ import {
 /**
  * Chapter 8 — The Sunless Weald.
  *
- * Fifty stages, enemy levels 305 to 396. It **opens at the level chapter 7 closed on**, which is
+ * Fifty stages, enemy levels 125 to 150. It **opens at the level chapter 7 closed on**, which is
  * the rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Waking Barrows did not
@@ -174,7 +174,7 @@ export const CHAPTER_8 = {
   name: 'The Sunless Weald',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The glancing — stages 1 to 10, levels 305 to 324
+    // The glancing — stages 1 to 10, levels 125 to 130
     // -----------------------------------------------------------------------------------
     {
       // The seam, at the Barrows' own closing level: what followed the party out of the cairns,
@@ -283,7 +283,7 @@ export const CHAPTER_8 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The long loose — stages 11 to 20, levels 326 to 346
+    // The long loose — stages 11 to 20, levels 130 to 135
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **A band opener that is also a probe sample, which is the trap chapters 6 and 7 both fell
@@ -393,7 +393,7 @@ export const CHAPTER_8 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The rootbound — stages 21 to 30, levels 348 to 367
+    // The rootbound — stages 21 to 30, levels 135 to 140
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is **not** a probe sample — the stride puts those on s11 and s31 in this
@@ -436,7 +436,7 @@ export const CHAPTER_8 = {
       name: 'One Wood, Many Names',
       enemies: {
         front: [HEADSMAN, WEALDSHADOW_STALKER],
-        back: [HEARTROOT_TENDER, HEARTROOT_TENDER, GLOAMVINE_CREEPER],
+        back: [HEARTROOT_TENDER, LONGBOUGH_MARKSMAN, GLOAMVINE_CREEPER],
       },
       level: 136,
     },
@@ -510,7 +510,7 @@ export const CHAPTER_8 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The drawn root — stages 31 to 40, levels 369 to 389
+    // The drawn root — stages 31 to 40, levels 140 to 145
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **The second band opener on a probe sample, and it is heavy for the reason `c8-s11` is.**
@@ -620,7 +620,7 @@ export const CHAPTER_8 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The heartwood — stages 41 to 50, levels 391 to 411
+    // The heartwood — stages 41 to 50, levels 145 to 150
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is not a probe sample, so it is allowed to be the quiet one: the weald's

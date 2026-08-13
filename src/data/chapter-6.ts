@@ -39,7 +39,7 @@ import {
 /**
  * Chapter 6 — The Sundered Vault.
  *
- * Fifty stages, enemy levels 160 to 225. It **opens at the level chapter 5 closed on**, which is
+ * Fifty stages, enemy levels 75 to 100. It **opens at the level chapter 5 closed on**, which is
  * the rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Bound Marches did not
@@ -111,7 +111,7 @@ export const CHAPTER_6 = {
   name: 'The Sundered Vault',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The breach — stages 1 to 10, levels 160 to 172
+    // The breach — stages 1 to 10, levels 75 to 80
     // -----------------------------------------------------------------------------------
     {
       // The seam. A wholly mortal board at the Marches' own closing level, so the first fight of
@@ -211,7 +211,7 @@ export const CHAPTER_6 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The wards — stages 11 to 20, levels 173 to 185
+    // The wards — stages 11 to 20, levels 80 to 85
     // -----------------------------------------------------------------------------------
     {
       // The Archon arrives. A Runewarden already refused the party's setup; this takes it back and
@@ -310,7 +310,7 @@ export const CHAPTER_6 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The unsealed — stages 21 to 30, levels 187 to 198
+    // The unsealed — stages 21 to 30, levels 85 to 90
     // -----------------------------------------------------------------------------------
     {
       // The Harrower, and the inversion the band is named for: its wide turn only fires while four
@@ -404,7 +404,7 @@ export const CHAPTER_6 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The covenant — stages 31 to 40, levels 200 to 212
+    // The covenant — stages 31 to 40, levels 90 to 95
     // -----------------------------------------------------------------------------------
     {
       // The Breaker: harmless until it is wounded, and then aimed past the front rank at whatever
@@ -509,7 +509,7 @@ export const CHAPTER_6 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The heart — stages 41 to 50, levels 213 to 225
+    // The heart — stages 41 to 50, levels 95 to 100
     // -----------------------------------------------------------------------------------
     {
       id: 'c6-s41',

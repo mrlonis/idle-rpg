@@ -36,7 +36,7 @@ import {
 /**
  * Chapter 5 — The Bound Marches.
  *
- * Fifty stages, enemy levels 85 to 160. It **opens at the level chapter 4 closed on**, which is
+ * Fifty stages, enemy levels 50 to 75. It **opens at the level chapter 4 closed on**, which is
  * the rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Ashfall Reach did not
@@ -102,7 +102,7 @@ export const CHAPTER_5 = {
   name: 'The Bound Marches',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The march — stages 1 to 10, levels 85 to 99
+    // The march — stages 1 to 10, levels 50 to 55
     // -----------------------------------------------------------------------------------
     {
       // The seam. An Ashfall board at the Ashfall's own closing level, so the first fight of the
@@ -192,7 +192,7 @@ export const CHAPTER_5 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // Thorns — stages 11 to 20, levels 100 to 114
+    // Thorns — stages 11 to 20, levels 55 to 60
     // -----------------------------------------------------------------------------------
     {
       // Every lock below this is answered by doing more of something. This one is answered by
@@ -287,7 +287,7 @@ export const CHAPTER_5 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The Concord — stages 21 to 30, levels 116 to 129
+    // The Concord — stages 21 to 30, levels 60 to 65
     // -----------------------------------------------------------------------------------
     {
       // The link arrives. Two fifths of every hit is spread across whatever else is standing, so
@@ -375,7 +375,7 @@ export const CHAPTER_5 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The fuse — stages 31 to 40, levels 131 to 145
+    // The fuse — stages 31 to 40, levels 65 to 70
     // -----------------------------------------------------------------------------------
     {
       // A payload on the back rank with forty ticks on it. Nothing on the ladder has ever asked
@@ -469,7 +469,7 @@ export const CHAPTER_5 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The road — stages 41 to 50, levels 146 to 160
+    // The road — stages 41 to 50, levels 70 to 75
     // -----------------------------------------------------------------------------------
     {
       id: 'c5-s41',
@@ -504,7 +504,10 @@ export const CHAPTER_5 = {
     {
       id: 'c5-s45',
       name: 'The Last Concord',
-      enemies: { front: [COLOSSUS, RIVEN_MARCHWARDEN], back: [CONCORD_CANTOR, ASHEN_CHOIR] },
+      enemies: {
+        front: [COLOSSUS, RIVEN_MARCHWARDEN],
+        back: [CONCORD_CANTOR, ASHEN_CHOIR, MARCHWARD_PIKEMAN],
+      },
       level: 72,
     },
     {

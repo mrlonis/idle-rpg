@@ -38,7 +38,7 @@ import {
 /**
  * Chapter 10 — The Bleeding Wild.
  *
- * Fifty stages, enemy levels 490 to 588. It **opens at the level chapter 9 closed on**, which is the
+ * Fifty stages, enemy levels 175 to 200. It **opens at the level chapter 9 closed on**, which is the
  * rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Hollow Anvil did not
@@ -139,7 +139,7 @@ export const CHAPTER_10 = {
   name: 'The Bleeding Wild',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The wounded thing — stages 1 to 10, levels 490 to 508
+    // The wounded thing — stages 1 to 10, levels 175 to 180
     // -----------------------------------------------------------------------------------
     {
       // The seam, at the Anvil's own closing level: the hold's last patrol standing in the gate it
@@ -254,7 +254,7 @@ export const CHAPTER_10 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The red water — stages 11 to 20, levels 510 to 528
+    // The red water — stages 11 to 20, levels 180 to 185
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **A band opener that is also a probe sample, which is the trap chapters 6, 7 and 8 all
@@ -366,7 +366,7 @@ export const CHAPTER_10 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The pack — stages 21 to 30, levels 530 to 548
+    // The pack — stages 21 to 30, levels 185 to 190
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is **not** a probe sample — the stride puts those on s23 and s27 in this
@@ -471,7 +471,7 @@ export const CHAPTER_10 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The bellow — stages 31 to 40, levels 550 to 568
+    // The bellow — stages 31 to 40, levels 190 to 195
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **The second band opener on a probe sample, and it is heavy for the reason `c10-s11`
@@ -585,7 +585,7 @@ export const CHAPTER_10 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The bleeding wild — stages 41 to 50, levels 570 to 588
+    // The bleeding wild — stages 41 to 50, levels 195 to 200
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is not a probe sample, so it is allowed to be the quiet one — and what it

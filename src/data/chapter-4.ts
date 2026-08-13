@@ -17,7 +17,7 @@ import {
 /**
  * Chapter 4 — The Ashfall Reach.
  *
- * Forty stages, enemy levels 30 to 85. It **opens at the level chapter 3 closed on**, which is
+ * Forty stages, enemy levels 30 to 50. It **opens at the level chapter 3 closed on**, which is
  * the rule every chapter boundary follows: a name change and a boss behind you, not a step. The
  * First Cinder taught the Reach's opening locks on the way out of the mire; this chapter is where
  * they stop being lessons and start being the terrain.
@@ -51,7 +51,7 @@ export const CHAPTER_4 = {
   name: 'The Ashfall Reach',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The choir — stages 1 to 10, levels 30 to 43
+    // The choir — stages 1 to 10, levels 30 to 35
     // -----------------------------------------------------------------------------------
     {
       id: 'c4-s1',
@@ -120,7 +120,7 @@ export const CHAPTER_4 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The adamant road — stages 11 to 20, levels 44 to 57
+    // The adamant road — stages 11 to 20, levels 35 to 40
     // -----------------------------------------------------------------------------------
     {
       id: 'c4-s11',
@@ -191,7 +191,7 @@ export const CHAPTER_4 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // Tyrants — stages 21 to 30, levels 58 to 71
+    // Tyrants — stages 21 to 30, levels 40 to 45
     // -----------------------------------------------------------------------------------
     {
       id: 'c4-s21',
@@ -261,7 +261,7 @@ export const CHAPTER_4 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The run-in — stages 31 to 40, levels 72 to 85
+    // The run-in — stages 31 to 40, levels 45 to 50
     // -----------------------------------------------------------------------------------
     {
       id: 'c4-s31',

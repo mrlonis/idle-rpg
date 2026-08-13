@@ -13,8 +13,8 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 10 chapters, 400 stages, enemy levels 1–588 |
-| Towers           | 7 × 200 floors, enemy levels 1–120          |
+| Campaign         | 10 chapters, 400 stages, enemy levels 1–200 |
+| Towers           | 7 × 200 floors, enemy levels 1–95           |
 | Enemy archetypes | 130                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
@@ -39,48 +39,53 @@ routine.
 - `npm run test:unit`, then `npm run test:balance`. ⚠️ **The balance sweep is not optional on a
   chapter.** It is the only thing that reads the boards.
 
-### The level line: bisect, do not solve
+### The level line: 0.50 levels a stage, flat
 
-⚠️ **Every closed form tried for this has been wrong, in both directions.** The arithmetic is for
-knowing which way to guess; the bisect is the answer.
+**A chapter opens on the level the last one closed at and adds half a level a stage.** A fifty-stage
+chapter spans 25 levels, so the whole line is `open + round(25 * (i - 1) / 49)` — steps of 0 or 1,
+each level standing for two stages. There is nothing to bisect and nothing to solve.
 
-Each chapter closes further past the cap of the rung it asks for than the last one did, because
-each hands the party a **fresh rung (×1.6) on top of** the levels it climbs while the content
-climbs only the levels — so a constant margin is paid once and never again, and the gap compounds.
+| Chapter | Opens | Closes | Span |
+| ------- | ----- | ------ | ---- |
+| 4       | 30    | 50     | 20   |
+| 5       | 50    | 75     | 25   |
+| 6       | 75    | 100    | 25   |
+| 7       | 100   | 125    | 25   |
+| 8       | 125   | 150    | 25   |
+| 9       | 150   | 175    | 25   |
+| 10      | 175   | 200    | 25   |
 
-| Chapter | Rung             | Cap | Closes at | Margin  | Probe ratio |
-| ------- | ---------------- | --- | --------- | ------- | ----------- |
-| 5       | `elite-plus`     | 120 | 140       | +20     | 1.08        |
-| 6       | `legendary`      | 175 | 200       | +25     | 1.44        |
-| 7       | `legendary-plus` | 260 | 305       | **+45** | 1.16        |
-| 8       | `mythic`         | 340 | 396       | **+56** | 1.10        |
-| 9       | `mythic-plus`    | 420 | 490       | **+70** | 1.21        |
-| 10      | `ascended`       | 500 | 588       | **+88** | 1.12        |
+⚠️ **The margin rule is gone, and the whole bisect-the-final procedure with it.** Chapters used to
+close _past_ the cap of the rung they asked for, by a margin that grew +12 to +18 a chapter (+20 at
+chapter 5 up to +88 at chapter 10), because each chapter handed the party a fresh rung (×1.6) while
+the content climbed only levels. The flattening reverses that: **a chapter now runs entirely inside
+a cap the party already has**, which is how chapters 1 through 4 always worked. Nothing needs
+bisecting because nothing is being held at an edge.
 
-Four measured margins put the growth at **+12 to +18 a chapter and rising**. Two corrections are
-recorded in the arithmetic and both were found by authoring a chapter to a rule and measuring it:
-a constant +25 cancels (chapter 7 was a walkover at the briefed 285), and "+23 a chapter"
-over-corrects, because an enemy `ascended` block climbs `perLevel.ascended` against the party's
-`perLevel.common` and that 1.024-against-1.021 gap compounds over the **whole** level — worth about
-fifteen levels a chapter at this depth. Neither term is the whole answer.
+⚠️ **What this deliberately gives up, and where it is meant to come back from.** A 25-level chapter
+is **×1.68** of party power at `perLevel.common` = 1.021, against **×1.60** for one ascension rung —
+so finishing a chapter and taking its rung very nearly cancels the next chapter, and the campaign
+has no difficulty gradient of its own. That is a chosen trade, not an oversight: the ladder is
+planned for ~100 chapters, and **the escalation is intended to arrive from the enemy side** — enemy
+stat blocks carry no gear, and that is the axis meant to supply it.
 
-**The procedure:**
+**Three guards were widened to record the trade rather than hide it**, each naming the condition
+that restores it: `MOMENTUM_CEILING` (0.20 → 0.30), the survivors half of "still costs that party
+something at the top" (retired), and the longest-cleared-fight bar (0.75 → 0.80 of the timer). ⚠️
+**All three belong back where they were when enemy gear lands, and the honest test of that work is
+whether they can be moved back** — not whether the sweep is green. Do not widen any of them a second
+time.
 
-1. Bracket with the arithmetic. Expect it to be wrong by ten to twenty levels either way.
-2. **Bisect the chapter's final for the 90% edge.** The transition is a step function — chapter 9
-   read 100% at 496, 85% at 498, 25% at 500 and 0% at 502 — so a single trial at a chosen level
-   tells you almost nothing.
-3. **Back off to where the tuned party keeps three or four of five.** All five alive in single-digit
-   seconds is the walkover chapter 7's correction exists to catch.
-4. **Check the probe threshold** at the final against `pow(1.021, level - 1) * pow(1.6, rungsAboveRare)`.
-   It wants to land near **1.1–1.4**.
+**The runway:** 0.50 a stage reaches level 1000 at about **chapter 42**. 100 chapters under the
+current ceiling would need 0.20 a stage; 100 chapters _at_ 0.50 would need `maxLevel` ~2455 and
+`perLevel.common` down to ~1.0085 to hold the ×10⁹ range — a retune of every balance figure in the
+project, recorded here so it is a decision rather than a discovery.
 
-⚠️ **The board is not the variable and cannot be the fix.** When a chapter measures unclearable at
-the top, the level line is what moved: chapter 7's own final re-levelled to 411 also reads 0% for
-the party chapter 8 is tuned for, and chapter 8's final at 380 reads 100%. In the other direction,
-a board heavy enough to cost the tuned party a member at too low a level needed **three** ascended
-bodies and measured 1.86× the stage before it — a cliff, and the shape that makes six towers fail
-their sweep at once.
+⚠️ **The board is still not the difficulty dial.** Fix a step backwards with **weight** — a fifth
+body, a heavier back rank — never with levels. Two stages needed exactly this after the flattening
+(`c5-s45` and `c8-s23`): both sat at the _same_ level as the stage before them with a lighter board,
+which the old line's +2 levels a stage had been masking. ⚠️ **The front rank holds two**; a fifth
+body goes in the back.
 
 ⚠️ **Widen the difficulty probe's bracket, and add a step every few chapters.** It brackets the
 _party's_ power, so it grows with the margin rule rather than with the stage count. It has gone
@@ -187,13 +192,13 @@ The shipped ten, with the level range each closes over:
 | 1   | The Sunken Fen     | 10     | 1 → 14    | the three opening locks, fought by hand         |
 | 2   | The Drowned Ward   | 20     | 14 → 15   | teaching accuracy and penetration               |
 | 3   | The Cinder Mire    | 30     | 15 → 30   | the fen giving way to the ash                   |
-| 4   | The Ashfall Reach  | 40     | 30 → 85   | volume against the first real investment        |
-| 5   | The Bound Marches  | 50     | 85 → 160  | the first chapter past a rung's cap             |
-| 6   | The Sundered Vault | 50     | 160 → 225 | pairs, and the celestial tax                    |
-| 7   | The Waking Barrows | 50     | 225 → 305 | **how** the party's damage arrives              |
-| 8   | The Sunless Weald  | 50     | 305 → 396 | **where** it lands                              |
-| 9   | The Hollow Anvil   | 50     | 396 → 490 | whether anything the party does **stays done**  |
-| 10  | The Bleeding Wild  | 50     | 490 → 588 | what the damage **does to what it is spent on** |
+| 4   | The Ashfall Reach  | 40     | 30 → 50   | volume against the first real investment        |
+| 5   | The Bound Marches  | 50     | 50 → 75   | routing: where damage is _allowed_ to go        |
+| 6   | The Sundered Vault | 50     | 75 → 100  | pairs, and the celestial tax                    |
+| 7   | The Waking Barrows | 50     | 100 → 125 | **how** the party's damage arrives              |
+| 8   | The Sunless Weald  | 50     | 125 → 150 | **where** it lands                              |
+| 9   | The Hollow Anvil   | 50     | 150 → 175 | whether anything the party does **stays done**  |
+| 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on** |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -274,14 +279,19 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 
 `towers.balance.ts` fields one per band, both derived:
 
-| Band | Floors  | Rung        | Level           |
-| ---- | ------- | ----------- | --------------- |
-| 1    | 1–100   | `rare-plus` | 60 (`caps[3]`)  |
-| 2    | 101–200 | `elite`     | 100 (`caps[4]`) |
+| Band | Floors  | Rung        | Level                    |
+| ---- | ------- | ----------- | ------------------------ |
+| 1    | 1–100   | `rare-plus` | `min(halfway floor, 60)` |
+| 2    | 101–200 | `elite`     | `min(roof − 20, 100)`    |
 
-Band 1's level is the cap that **equals** the halfway floor's level; band 2's is the highest cap
-strictly **below** the roof. No gear on either — a player crewing seven towers has one bag to equip
-thirty-five characters from.
+⚠️ **The rungs are pinned and only the levels derive, and that is a correction.** Band 1 used to take
+its rung from `caps.indexOf(halfwayFloorLevel)` and band 2 from the highest cap below the roof —
+which tied each crew's **rung** to its level. When the campaign flattened and `topLevel` came down
+with it (120 → 95), that cost both crews a whole rung (×1.6) where the content only lost its levels,
+and **all seven roofs measured 0%**. Pinning the rungs holds both bands at the ratios the shipped
+seven hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the roof, to three decimals.
+
+No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low band**, on seven
 hundred floors that are already shipped. What ramps across a climb is **what a floor costs**, not
@@ -358,15 +368,23 @@ The guards that are known to be approaching, with the answer each one wants. See
 [testing](testing.md) for how to tell "content outgrew a threshold" from "this ratio moves every
 chapter regardless" — **sort every failure into those two before touching anything.**
 
-| Fires at    | Guard                                               | Reads now   | The answer                                                                                |
-| ----------- | --------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------- |
-| chapter 11  | `gear.spec.ts` — top grade's share of drops         | 18.7%       | `gradeSoftness` → 225. It is always `stages / 2`; what it wants is a saturating tilt      |
-| chapter 11  | `levels.spec.ts` — "charges real time"              | 16.1h / 24h | Income is the question again, and there is no retired guard left to fall back on          |
-| chapter 12  | `towers.spec.ts` — tower:campaign crystal ratio     | 1.466       | A third hundred, an eighth ladder, or accepting the campaign outgrew its optional content |
-| chapter 12  | `levels.spec.ts` — rungs unspent above the ladder   | 588 < 700   | **How long is the campaign meant to be** — see [history](history.md)                      |
-| chapter 12  | `gear.spec.ts` — "roughly doubles what gold is for" | floor 1     | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`            |
-| chapter 13+ | `banners.spec.ts` — roster-relative crystal ceiling | ~41 days    | Whether the roster kept up, not what number makes it green                                |
-| ~chapter 15 | The level curve is consumed entirely                | 588 / 1000  | A roadmap decision, not a threshold                                                       |
+Recomputed after the level line flattened to 0.50 a stage. **Every horizon moved out**, because the
+campaign now asks for 25 levels a chapter instead of ~90:
+
+| Fires at    | Guard                                               | Reads now  | The answer                                                                                |
+| ----------- | --------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| chapter 11  | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 225. It is always `stages / 2`; what it wants is a saturating tilt      |
+| chapter 12  | `towers.spec.ts` — tower:campaign crystal ratio     | 1.466      | A third hundred, an eighth ladder, or accepting the campaign outgrew its optional content |
+| chapter 12  | `gear.spec.ts` — "roughly doubles what gold is for" | floor 1    | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`            |
+| chapter 13+ | `banners.spec.ts` — roster-relative crystal ceiling | ~41 days   | Whether the roster kept up, not what number makes it green                                |
+| chapter 16  | `levels.spec.ts` — "charges real time"              | 7.5h / 24h | Income is the question again — 21.0h at chapter 15, 26.2h at 16. No retired guard left    |
+| chapter 30  | `levels.spec.ts` — rungs unspent above the ladder   | 200 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**            |
+| ~chapter 42 | The level curve is consumed entirely                | 200 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                      |
+
+⚠️ **The gear guard is now the first to fire and it is the only one still on its old schedule**,
+because it is a function of the **stage count** rather than the level line — `gradeSoftness` is
+always `stages / 2`, and the flattening did not change how many stages a chapter has. Sort by what a
+guard actually reads, not by where it used to sit in this table.
 
 ⚠️ **`gradeSoftness` is the one to re-derive by hand, once a chapter, deliberately.** It has landed
 on 18.7% five times and the solution has been `stages / 2` every time, which is what turned a tuning

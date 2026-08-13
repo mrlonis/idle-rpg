@@ -17,6 +17,7 @@ import {
   MAX_BATTLE_TICKS,
   matchedStageIndex,
   PARTY_SIZE,
+  rarityIndex,
   resolveLadder,
   resolveTower,
   simulateBattle,
@@ -163,14 +164,28 @@ const STRIDE = 4;
  * longer be a rarity cap. `towers.spec.ts` holds the margin in place of the cap match it used to
  * hold — see the note there for why the older, tighter-looking assertion was measuring nothing.
  */
+/**
+ * How far below the roof band 2 stands, in levels.
+ *
+ * ⚠️ **Measured, not chosen.** It is the gap the shipped build had — `topLevel` 120 against an
+ * `elite` crew capped at 100 — and pinning it is what reproduces that tuning after the campaign
+ * flattened to 0.50 levels a stage and brought `topLevel` down with it. The old derivation read the
+ * crew's level *off the caps ladder* ("highest cap strictly below the roof"), which tied the crew's
+ * **rung** to its level: dropping the roof by 40 dropped the crew a whole rung as well, costing it
+ * ×1.6 where the content only lost ×2.29 in levels, and every one of the seven roofs measured 0%.
+ * Pinning the rungs and deriving only the levels holds both bands at the ratios the shipped seven
+ * hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the roof, to three decimals.
+ */
+const ROOF_MARGIN = 20;
+
 const BAND_FLOORS = Math.floor(rules.floors / 2);
-const BAND_1_LEVEL = floorLevel(rules, BAND_FLOORS);
-const BAND_1_RARITY = (LEVEL_CURVE.caps as readonly number[]).indexOf(BAND_1_LEVEL);
-const BAND_2_RARITY = (LEVEL_CURVE.caps as readonly number[]).reduce(
-  (best, cap, index) => (cap < floorLevel(rules, rules.floors) ? index : best),
-  0,
+const BAND_1_RARITY = rarityIndex('rare-plus');
+const BAND_1_LEVEL = Math.min(floorLevel(rules, BAND_FLOORS), LEVEL_CURVE.caps[BAND_1_RARITY]);
+const BAND_2_RARITY = rarityIndex('elite');
+const BAND_2_LEVEL = Math.min(
+  floorLevel(rules, rules.floors) - ROOF_MARGIN,
+  LEVEL_CURVE.caps[BAND_2_RARITY],
 );
-const BAND_2_LEVEL = LEVEL_CURVE.caps[BAND_2_RARITY];
 
 /** Which crew meets a floor: the halfway floor is the last one band 1 is asked for. */
 const bandOf = (floor: number): 1 | 2 => (floor <= BAND_FLOORS ? 1 : 2);

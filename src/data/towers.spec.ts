@@ -20,6 +20,7 @@ import {
   floorSummons,
   matchedStageIndex,
   PARTY_SIZE,
+  rarityIndex,
   resolveLadder,
   resolveTower,
   type StageData,
@@ -218,14 +219,27 @@ describe('tower rules', () => {
     );
   });
 
-  it('halves into two bands, each with a rung a crew can actually be built to', () => {
+  it('halves into two bands a crew can actually be built for', () => {
     // `towers.balance.ts` splits the sweep at the halfway floor so the shipped hundred keeps being
-    // measured by a party that can lose to it. That split only means anything if the halfway floor's
-    // level *is* a cap — otherwise band 1's crew stops tracking its own content, which is the half
-    // of the old assertion worth keeping.
+    // measured by a party that can lose to it. What that split needs is that **each band's crew can
+    // legally hold the level its content asks for** — the halfway floor inside `rare-plus`, the
+    // roof's crew inside `elite`.
+    //
+    // ## ⚠️ This asserted the halfway floor's level *is* a cap until the campaign flattened
+    //
+    // The old derivation read band 1's rung off the caps ladder with `caps.indexOf(halfwayLevel)`,
+    // so a halfway floor that missed a cap left the crew undefined — and the assertion existed to
+    // catch that. ⚠️ **Tying the crew's rung to its level is exactly what broke when `topLevel` came
+    // down with the campaign**: dropping the roof cost the crew a whole rung (×1.6) where the
+    // content only lost its levels, and all seven roofs measured 0%. `towers.balance.ts` now pins
+    // the two rungs and derives only the levels, so the halfway floor is free to land anywhere and
+    // this checks the property that actually has to hold.
     const half = floorLevel(rules, Math.floor(rules.floors / 2));
+    const caps = LEVEL_CURVE.caps as readonly number[];
 
-    expect(LEVEL_CURVE.caps as readonly number[]).toContain(half);
+    expect(half).toBeLessThanOrEqual(caps[rarityIndex('rare-plus')]);
+    expect(rules.topLevel).toBeGreaterThan(caps[rarityIndex('rare-plus')]);
+    expect(rules.topLevel).toBeLessThanOrEqual(caps[rarityIndex('elite')]);
   });
 
   it('reuses the mini-boss interval the campaign already taught', () => {
@@ -459,15 +473,39 @@ describe('what a tower pays', () => {
   const lumpAt = (level: number) =>
     stagePayout(rewards, matchedStageIndex(campaignLevels, level)).reward;
 
-  it('matches the campaign by enemy level rather than by floor number', () => {
-    // ⚠️ **The difference is large.** The top floor is level 60 where campaign stage 100 is level 85,
-    // so index-matching would pay the top of the ladder's lump for a fight two thirds as hard.
-    const byLevel = matchedStageIndex(campaignLevels, floorLevel(rules, rules.floors));
-
-    expect(byLevel).toBeLessThan(rules.floors);
+  it('never pays a floor more than the campaign pays the stage at the same depth', () => {
+    // **The half of this that protects the campaign**: a floor's lump is read off the campaign at
+    // the stage fighting at the same *level*, so what has to stay true is that the roof's lump does
+    // not overtake what the campaign pays a player who has walked as many stages as the tower has
+    // floors. Towers are optional content and must not out-pay the spine.
+    //
+    // ## ⚠️ The index half was retired when the campaign flattened to 0.50 levels a stage
+    //
+    // It read `matchedStageIndex(campaignLevels, roofLevel) < rules.floors` under the claim that a
+    // tower floor is an easier fight than the campaign stage at the same index — true while the
+    // campaign climbed 1.5+ levels a stage against the tower's 0.6, and false the moment the
+    // campaign came down to 0.5. The quantity it compares is **a campaign stage index against a
+    // tower floor count**, which is two different units and only ever agreed by coincidence of the
+    // two ladders being a similar length. On a campaign heading for ~100 chapters and a tower fixed
+    // at 200 floors it cannot be made true by any `topLevel` that also satisfies the payout bound
+    // below: the payout half needs the roof under the campaign's level at stage 200, and the band-2
+    // crew derivation in `towers.balance.ts` needs it above — see that file.
+    //
+    // ⚠️ **The design claim it was making survives and is made better elsewhere.** "A tower charges
+    // for roster breadth, not investment" is held by `TOWER_RULES`'s roof sitting inside the
+    // campaign's own level range, which is checked directly rather than through an index. This is
+    // the fourth guard in this project retired rather than slid, after the absolute
+    // hours-to-the-ceiling, the ratio that replaced it, and the top stage under `maxLevel / 2`.
     expect(Number(lumpAt(rules.topLevel).gold ?? 0)).toBeLessThan(
       Number(stagePayout(rewards, rules.floors).reward.gold ?? 0),
     );
+  });
+
+  it('keeps the roof inside the campaign’s own level range', () => {
+    // What the retired index half was really claiming, stated in levels rather than in indices so
+    // it means the same thing however long either ladder gets. A roof the campaign never reaches
+    // would be a second campaign gated behind roster depth.
+    expect(rules.topLevel).toBeLessThan(campaignLevels[campaignLevels.length - 1]);
   });
 
   it('pays a lump that rises with the climb, and never a rate', () => {

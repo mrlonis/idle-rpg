@@ -38,7 +38,7 @@ import {
 /**
  * Chapter 7 — The Waking Barrows.
  *
- * Fifty stages, enemy levels 225 to 305. It **opens at the level chapter 6 closed on**, which is the
+ * Fifty stages, enemy levels 100 to 125. It **opens at the level chapter 6 closed on**, which is the
  * rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Sundered Vault did not
@@ -142,7 +142,7 @@ export const CHAPTER_7 = {
   name: 'The Waking Barrows',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The risen — stages 1 to 10, levels 225 to 241
+    // The risen — stages 1 to 10, levels 100 to 105
     // -----------------------------------------------------------------------------------
     {
       // The seam. A board built out of what followed the party out of the Vault, at the Vault's own
@@ -247,7 +247,7 @@ export const CHAPTER_7 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The tithe — stages 11 to 20, levels 242 to 257
+    // The tithe — stages 11 to 20, levels 105 to 110
     // -----------------------------------------------------------------------------------
     {
       // The Herald arrives, and it counts the party rather than looking at it. Every payload the
@@ -353,7 +353,7 @@ export const CHAPTER_7 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The bonefield — stages 21 to 30, levels 259 to 273
+    // The bonefield — stages 21 to 30, levels 110 to 115
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **A band opener that is also a difficulty-probe sample, which is where the Sundered Vault
@@ -458,7 +458,7 @@ export const CHAPTER_7 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The bound — stages 31 to 40, levels 275 to 289
+    // The bound — stages 31 to 40, levels 115 to 120
     // -----------------------------------------------------------------------------------
     {
       // The Warden arrives, and the band's pairing is a board rather than a body: the taunt says the
@@ -563,7 +563,7 @@ export const CHAPTER_7 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The crown — stages 41 to 50, levels 291 to 305
+    // The crown — stages 41 to 50, levels 120 to 125
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **The second band opener on a probe sample, and it is heavy for the same reason `c7-s21`

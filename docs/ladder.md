@@ -75,16 +75,28 @@ cost of carrying a running total by hand: `MORTAL_LADDER` alternates cheap and e
 constant, and "six more than the last chapter" was true twice and then repeated on faith.
 **Recompute it.**
 
-⚠️ **The cadence is the assumption under the levelling-versus-ascension guard.** A band climbs ~65
-levels and a rung only pays for 22.6, so the two axes drift apart by construction — which is why the
-guard measures the rungs' **share** of the climb in log space rather than a ratio. See
+⚠️ **The cadence is the assumption under the levelling-versus-ascension guard.** A band climbed ~65
+levels and a rung only pays for 22.6, so the two axes drifted apart by construction — which is why
+the guard measures the rungs' **share** of the climb in log space rather than a ratio. See
 [testing](testing.md).
+
+⚠️ **The flattening inverted that drift and it is the single most important consequence of the
+retune.** A band now climbs **25** levels — ×1.68 of party power — against a rung worth **×1.60**, so
+the two axes very nearly _cancel_ instead of drifting apart. A player who finishes a chapter and buys
+the rung it paid for is level with the next chapter rather than behind it, which is why the campaign
+has no difficulty gradient of its own and why the escalation is expected to arrive from enemy gear
+instead. [authoring](authoring.md) records the three guards widened to hold that trade in view and
+the condition that restores each.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 
 `chapters.spec.ts` held the top stage under `LEVEL_CURVE.maxLevel / 2` = 500, and `levels.spec.ts`
-held a ratio of what the ceiling costs to what the top stage demands, floor 4. Chapter 10 closes at
-**588** and reads **3.62**, failing both.
+held a ratio of what the ceiling costs to what the top stage demands, floor 4. Under the old line
+chapter 10 closed at **588** and read **3.62**, failing both.
+
+⚠️ **Both would pass again today — chapter 10 now closes at 200 — and neither is coming back.** A
+guard that a retune happens to satisfy is not thereby a good guard: the reasoning below is why they
+were retired, and it is about what they _measure_, not about what they read on any one ladder.
 
 **Neither was satisfiable by any chapter the margin rule permits.** `ascended` caps at 500, and a
 chapter closing below its own rung's cap is a walkover. And **both quantities fall on every chapter
@@ -96,22 +108,32 @@ asks for"** — the top stage must stay below `caps[12]` = 700. It cannot decay,
 is fixed however long the ladder gets. That is the third guard in this project retired rather than
 slid, after the absolute hours-to-the-ceiling and the ratio that replaced it.
 
-⚠️ **What was measured then and deliberately not guarded**: the level line adds ~90 levels a chapter
-(80, 91, 94, 98), so the rung claim fires at **chapter 12** and the curve is consumed around
-**chapter 15** — not the chapter 100 every one of these guards was written against, a premise untrue
-since milestone 21a's correction. **How long the campaign is meant to be is a roadmap decision**;
-see [history](history.md).
+⚠️ **What was measured then and deliberately not guarded**: the level line added ~90 levels a chapter
+(80, 91, 94, 98), so the rung claim fired at **chapter 12** and the curve was consumed around
+**chapter 15**.
+
+⚠️ **The flattening to 0.50 levels a stage moved both horizons out by a factor of about three.** A
+chapter now adds **25** levels, so the rung claim fires at **chapter 30** and the curve is consumed
+around **chapter 42**. That is what the retune bought, and it is the reason for it: the campaign is
+planned for ~100 chapters and the old line ran out at 14. ⚠️ **42 is still not 100** — reaching a
+hundred needs either 0.20 levels a stage or a `maxLevel` past 2400 with `perLevel.common` retuned to
+match. **How long the campaign is meant to be is still a roadmap decision**; see
+[history](history.md).
 
 ## Adding a chapter
 
 The procedure, the level line and the board constraints are all in [authoring](authoring.md). Two
 things belong here because they are facts about the ladder rather than about a session:
 
-- ⚠️ **A chapter that asks for a new ascension rung has to out-climb the rung it asks for.** A rung
-  is worth ×1.6 and the enemy side has **no rungs at all**, so a party matching the enemy's level
-  from one rung higher is ×1.6 ahead of the content with nothing in the numbers looking wrong. The
-  Bound Marches (chapter 5) are the first content where that bites; chapters 1 through 4 never met
-  it because each ran inside a cap the party already had.
+- ⚠️ **The margin rule is retired: a chapter no longer out-climbs the rung it asks for.** It read
+  "a chapter that asks for a new ascension rung has to out-climb it", because a rung is worth ×1.6
+  and the enemy side has **no rungs at all** — so a party matching the enemy's level from one rung
+  higher is ×1.6 ahead of the content. That held from chapter 5 (the Bound Marches) through chapter
+  10, with the margin growing +20 → +88. **The flattening to 0.50 levels a stage reversed it**: every
+  chapter now runs entirely inside a cap the party already has, which is how chapters 1 through 4
+  always worked. The campaign consumes 7 of 16 rungs rather than 11, and `mythic` — the signature-item
+  unlock — is deliberately **outside** it now. See [authoring](authoring.md) for the line and for the
+  difficulty gradient this knowingly trades away.
 - **Adding a chapter is an economy change as much as a content one**, and four or five guards will
   fire. Only some will be about the chapter. ⚠️ **Sort them first into "content outgrew a threshold"
   and "this ratio moves every chapter regardless"** — the first is a real retune and the second needs

@@ -38,7 +38,7 @@ import {
 /**
  * Chapter 9 — The Hollow Anvil.
  *
- * Fifty stages, enemy levels 396 to 490. It **opens at the level chapter 8 closed on**, which is the
+ * Fifty stages, enemy levels 150 to 175. It **opens at the level chapter 8 closed on**, which is the
  * rule every chapter boundary follows: a name change and a boss behind you, not a step.
  *
  * ## What it asks that the Sunless Weald did not
@@ -146,7 +146,7 @@ export const CHAPTER_9 = {
   name: 'The Hollow Anvil',
   stages: [
     // -----------------------------------------------------------------------------------
-    // The cold forge — stages 1 to 10, levels 396 to 413
+    // The cold forge — stages 1 to 10, levels 150 to 155
     // -----------------------------------------------------------------------------------
     {
       // The seam, at the Weald's own closing level: the wood that grew over the hold's gate, with
@@ -264,7 +264,7 @@ export const CHAPTER_9 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The quench — stages 11 to 20, levels 415 to 432
+    // The quench — stages 11 to 20, levels 155 to 160
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is **not** a probe sample — the stride puts those on s5, s9, s13 and s17
@@ -374,7 +374,7 @@ export const CHAPTER_9 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The grudge — stages 21 to 30, levels 434 to 452
+    // The grudge — stages 21 to 30, levels 160 to 165
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **A band opener that is also a probe sample, which is the trap chapters 6, 7 and 8 all
@@ -491,7 +491,7 @@ export const CHAPTER_9 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The oath — stages 31 to 40, levels 454 to 471
+    // The oath — stages 31 to 40, levels 165 to 170
     // -----------------------------------------------------------------------------------
     {
       // A band opener that is not a probe sample, so it is allowed to be the quiet one: four bodies,
@@ -601,7 +601,7 @@ export const CHAPTER_9 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // The hollow anvil — stages 41 to 50, levels 473 to 490
+    // The hollow anvil — stages 41 to 50, levels 170 to 175
     // -----------------------------------------------------------------------------------
     {
       // ⚠️ **The second band opener on a probe sample, and it is heavy for the reason `c9-s21` is.**

@@ -88,23 +88,27 @@ export const CHAPTER_CURVE = {
  * hand-authored twenty-four stage ladder, which paid 25 gold a second at enemy level 40 and 90 at
  * level 126: income proportional to roughly `level ** 1.12`.
  *
- * ⚠️ **Milestone 21b raised it to 1.45, because the relation it was protecting had quietly
- * inverted.** 1.13 was calibrated when enemy level was very nearly *linear* in the stage index.
- * Milestone 21a's corrected margin rule made it superlinear — each chapter must now close further
- * past its rung's cap than the last, so the level line accelerates — and over the shipped ladder
- * that is level ~`index ** 1.5`. Income at `index ** 1.13` against level at `index ** 1.5` is income
- * proportional to `level ** 0.80`: **sub**-linear in enemy level, where the calibration set it
- * slightly super-linear. At 1.45 it reads `level ** 1.00`. The number moved to keep the statement
- * true; the statement did not move.
+ * ⚠️ **Milestone 21b raised it to 1.45 and the level-line flattening brought it back to 1.00, by
+ * the same derivation both times.** 1.13 was calibrated when enemy level was very nearly *linear*
+ * in the stage index. 21a's corrected margin rule made it superlinear — each chapter closed further
+ * past its rung's cap than the last — and over that ladder level went as ~`index ** 1.5`, so income
+ * at `index ** 1.13` was income proportional to `level ** 0.80`: **sub**-linear where the
+ * calibration set it slightly super-linear. 1.45 restored `level ** 1.00`.
  *
- * ⚠️ **1.45 is deliberately short of a full restoration, and the band is worth knowing.** Putting
- * income back on `level ** 1.12` exactly would take the exponent to **1.60**; the failing guard in
- * `levels.spec.ts` needed only **1.42**. 1.45 is the conservative end of that band — income linear
- * in enemy level — and chapter 10 landed at **16.1 hours against the guard's ceiling of 24**, a
- * third of the headroom left rather than the twentieth 1.42 would have bought. What it costs is legible: a stage-100 clear pays ×4.4 what it did and a stage-10 clear
- * ×2.1, so mid-ladder progression is roughly twice as fast in wall-clock time. It does **not** make
- * any content easier — a party is capped by its ascension rung, not by its income, so what changed
- * is how long the wall takes to climb rather than how high it is.
+ * ⚠️ **The flattening to 0.50 levels a stage made the level line linear again, so the exponent had
+ * to come back with it.** Fitted over the new ladder past the tutorial, level goes as
+ * `index ** 1.003` — so income linear in enemy level is an exponent of **1.00**, which is what this
+ * is. The statement has never moved: *income tracks what the content asks of a party rather than
+ * how many stages the party has walked past.* Only the ladder underneath it has.
+ *
+ * ⚠️ **Do not read the drop from 1.45 as an income cut in the sense that matters.** The top of the
+ * ladder pays far less in absolute terms, but the level it *asks for* fell from 588 to 200 at the
+ * same time, and the quantity a player experiences is the ratio: maxing a character against the top
+ * of the ladder went from **16.1 hours to 7.5**, so progression is *faster*, not slower. What would
+ * have been the real cut is leaving the exponent at 1.45 — that reads **0.50 hours** and fires the
+ * floor of `levels.spec.ts`'s "charges real time", which is the guard saying the levelling curve
+ * has stopped being a progression system at all. Neither number is a difficulty change: a party is
+ * capped by its ascension rung, not by its income.
  *
  * ⚠️ **This is the lever milestone 21 named, and the alternatives were measured before it was
  * taken.** Flattening the essence curve was arithmetically insufficient: at an essence exponent of
