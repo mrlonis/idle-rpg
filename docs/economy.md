@@ -553,10 +553,17 @@ The guard read "level 1000 costs more than 500 hours of top-of-ladder gold" — 
 rather than the number. **Chapter 3 was that next thing, and following the note would have been
 wrong.**
 
-Income at the top of the ladder is `base × index ** 1.45` over the **linear** stage index, so it
+Income at the top of the ladder is `base × index ** exponent` over the **linear** stage index, so it
 rises with every chapter by design — and hours-to-the-ceiling therefore shrinks on every chapter,
 forever: 1,175 → 588 → 372 across two changes, reaching a weekend somewhere around chapter twelve
-with nothing whatsoever wrong. An assertion guaranteed to fail on all ninety-seven remaining
+with nothing whatsoever wrong.
+
+⚠️ **The exponent is 1.00 now, not the 1.45 this passage was written against**, and the reason is
+worth reading with the argument rather than as a correction to it. 21b raised it to 1.45 because the
+level line had become _superlinear_ in the stage index; the flattening to 0.50 levels a stage made
+the line linear again, so the exponent came back to match. **The rule it serves has never moved —
+income tracks what the content asks of a party** — and neither has this argument: whatever the
+exponent, income at the top rises with every chapter and any guard stated in absolute hours decays. An assertion guaranteed to fail on all ninety-seven remaining
 chapters is not a guard being tripped, it is a guard pointed at the wrong quantity. Steepening the
 level curve once per chapter to hold an absolute figure would be the same mistake spread over
 ninety-seven retunes, and would make the ceiling **permanently** unreachable — which is not what a

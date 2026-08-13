@@ -76,30 +76,21 @@ import {
  *
  * ## Where the levels come from
  *
- * 396 to 490, about 1.9 levels a stage against the Weald's 1.8 and the Barrows' 1.6. `mythic-plus`
- * caps at 420, so the margin is **+70** where chapter 8's was +56 and chapter 7's +45.
+ * 150 to 175, half a level a stage. The chapter runs inside `legendary`, which caps at 200, so the
+ * party reaches The Anvil Crowned twenty-five levels clear of it. The rung is thirty-two duplicate
+ * copies of each of the five — the same rung chapter 8 asked for, because the flattened line asks
+ * for a new one only every other chapter now.
  *
- * ⚠️ **The roadmap said ~458 and 21b's corrected rule says +66; both are low, and the number was
- * found the way 21b found its own — by bisecting.** Running 21b's arithmetic forward reproduces
- * chapter 8's shipped 396 almost exactly and points here at 486, which measures as a walkover: the
- * party the chapter is tuned for takes the final at 486 with **4.75 of five still standing**. The
- * transition is the step function `docs/testing.md` warns about — 100% at 496, 85% at 498, 25% at
- * 500 and 0% at 502 — so the close is 490, six levels above what the closed form predicted and
- * seven below the 90% edge.
+ * ⚠️ **It closed at 490 against `mythic-plus`'s cap of 420 until the flattening** — a **+70** deficit
+ * where chapter 8's was +56 and chapter 7's +45 — and it was found by bisection after both the
+ * roadmap's ~458 and 21b's corrected +66 measured as walkovers, the tuned party taking the final at
+ * 486 with 4.75 of five still standing.
  *
- * | Chapter | Party                   | Margin | Ratio |
- * | ------- | ----------------------- | ------ | ----- |
- * | 7       | `legendary-plus` at 260 | +45    | ~1.16 |
- * | 8       | `mythic` at 340         | +56    | 1.10  |
- * | 9       | `mythic-plus` at 420    | +70    | 1.21  |
- *
- * ⚠️ **Chapter 10 has ten levels of room and no more.** `chapters.spec.ts` holds the top of the
- * ladder under `LEVEL_CURVE.maxLevel / 2`, which is 500, and this chapter closes at 490. That guard
- * was written when two chapters could not be allowed to consume the curve and it is about to mean
- * something entirely different; see [authoring](../../docs/authoring.md).
- *
- * Still no lucky pull anywhere on the ladder: the rung is fifty-two duplicate copies of each of the
- * five, six more than chapter 8 asked for, and every one of them is bought with time.
+ * ⚠️ **The step function it recorded is the sharpest evidence of how narrow that tuning window
+ * was**: 100% at 496, 85% at 498, 25% at 500 and 0% at 502. Six levels covered the whole transition
+ * from a walkover to unclearable, which is why a single trial at a chosen level told you nothing and
+ * why [authoring](../../docs/authoring.md) prescribed bracketing with arithmetic and bisecting for
+ * the answer. A flat line has no such edge to find, and nothing here needs bisecting.
  *
  * ## What it draws on
  *

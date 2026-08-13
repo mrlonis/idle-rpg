@@ -254,9 +254,16 @@ levels: **−8** on the first fight, **+12** on the last, linearly between.
 
 The obvious authoring is a _share_ of the anchor — 0.65 to 0.90 — and it fails in a way that only
 shows up when the mode is measured at more than one depth. Enemy power is `perLevel ^ level` with
-`perLevel` around 1.021, so a share is not a difficulty at all: 0.9 of level 14 is one level down and
-0.9 of level 588 is **fifty-nine** levels down, which is ×3.4 easier. Measured, that read as a mode
+`perLevel` around 1.021, so a share is not a difficulty at all: 0.9 of level 14 is one level down
+while 0.9 of the top of the ladder is twenty levels down at today's 200, and was **fifty-nine** at
+the 588 this was measured against — ×1.5 and ×3.4 easier respectively. Measured, that read as a mode
 which is a wall at chapter 1 and a walkover with five bodies at full health from chapter 5 onward.
+
+⚠️ **The flattening to 0.50 levels a stage shrank the spread but did not change the finding, and the
+spread grows straight back as chapters are added.** A share's error is a function of how deep the
+ladder goes, and this one is planned for ~100 chapters — so re-deriving the offset as a share would
+fail again, later and more quietly. The offset is correct for a reason that does not depend on the
+current top.
 
 An offset is the same number of steps along one exponential wherever it lands. That is what lets
 twenty-four authored boards serve a four-hundred-stage campaign with nothing to re-derive per

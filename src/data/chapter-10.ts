@@ -72,32 +72,31 @@ import {
  *
  * ## Where the levels come from
  *
- * 490 to 588, almost exactly two levels a stage against the Anvil's 1.9 and the Weald's 1.8.
- * `ascended` caps at 500, so the margin is **+88** where chapter 9's was +70, chapter 8's +56 and
- * chapter 7's +45.
+ * 175 to 200, half a level a stage, closing the campaign **exactly on `legendary`'s cap of 200**. It
+ * is the one chapter that ends level with the rung it asks for rather than inside it, which is not a
+ * statement about The Everwound but simply where half a level a stage lands after ten chapters. The
+ * rung is thirty-two duplicate copies of each of the five, bought with time.
  *
- * ⚠️ **The roadmap said ~570 and that is a walkover** — the party the chapter is tuned for takes it
- * with all five alive in eight seconds. Bisecting instead: **100% at 592, 68% at 594, 25% at 596 and
- * 5% at 598**, which is the same step function every chapter since the weald has run into. Backing
- * off the edge to where the tuned party keeps four of five lands at 588.
+ * ## ⚠️ What the top of the ladder is now, and what it is not
  *
- * | Chapter | Party                   | Margin  | Ratio |
- * | ------- | ----------------------- | ------- | ----- |
- * | 7       | `legendary-plus` at 260 | +45     | ~1.16 |
- * | 8       | `mythic` at 340         | +56     | 1.10  |
- * | 9       | `mythic-plus` at 420    | +70     | 1.21  |
- * | 10      | `ascended` at 500       | **+88** | 1.12  |
+ * The campaign tops out at **200 of a possible 1000**, asking for seven of sixteen ascension rungs
+ * and stopping four short of `mythic`. So **signature items are deliberately outside the campaign** —
+ * they gate at `mythic` and belong to the towers, the Descent and Expeditions, which is the trade the
+ * flattening made knowingly. At half a level a stage the level curve is consumed around **chapter
+ * 42**, where the old line ran out at 14.
  *
- * ⚠️ **The margin has now grown every chapter and the closed form has under-predicted it twice
- * running.** 21b's corrected rule — "+23 a chapter less whatever the enemy's own curve has taken" —
- * pointed at ~+70 here, four levels short of what 21c measured for chapter 9 and eighteen short of
- * this. The arithmetic is a starting bracket; the bisect is the answer.
+ * ⚠️ **It closed at 588 against `ascended`'s cap of 500 until the flattening** — a **+88** deficit,
+ * the last and largest of the margins, found by bisection after the roadmap's ~570 measured as a
+ * walkover the tuned party took with all five alive in eight seconds. The margin had grown every
+ * chapter (+45, +56, +70, +88) and the closed form under-predicted it twice running, which is why
+ * the procedure was to bracket with arithmetic and bisect for the answer. There is nothing to bisect
+ * now; see [authoring](../../docs/authoring.md).
  *
- * Still no lucky pull anywhere on the ladder: the rung is **sixty-two** duplicate copies of each of
- * the five, ten more than chapter 9 asked for, and every one of them is bought with time. ⚠️ **Ten
- * rather than the six the last two chapters cost**, because `MORTAL_LADDER` alternates a cheap rung
- * with an expensive one and `ascended` is an expensive one — the odd rungs run 3, 4, 5, 6 and the
- * even ones 7, 8, 9, 10.
+ * ⚠️ **The rung ask is unchanged and still alternates cheap with expensive.** `MORTAL_LADDER` runs
+ * odd rungs 3, 4, 5, 6 and even ones 7, 8, 9, 10, so a chapter's copy cost is not a constant step and
+ * "six more than the last one" has been wrong more than once. **Recompute it** rather than adding
+ * six — and note the flattened line asks for a new rung only every other chapter, so consecutive
+ * chapters now often share one.
  *
  * ## What it draws on
  *

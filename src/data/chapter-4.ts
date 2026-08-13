@@ -33,10 +33,17 @@ import {
  *
  * ## Where the levels come from
  *
- * 30 to 85, climbing about a level and a half a stage. The top is where the old twenty-four
- * stage ladder ended, and it is there for the same reason it was there: a common-tier five at
- * level 90, four rungs up, clears it and loses a member doing so. Nothing in chapters 1 through 4
- * asks for a pull anybody had to be lucky for.
+ * 30 to 50, half a level a stage — the rate every chapter from here to the top of the ladder now
+ * shares. The chapter runs entirely inside `elite`, which caps at 100, so a player who has bought
+ * that rung stands fifty levels clear of the Ashfall Sovereign rather than short of it. Nothing in
+ * chapters 1 through 4 asks for a pull anybody had to be lucky for: the rung is twenty duplicate
+ * copies of each of the five, and every one of them is bought with time.
+ *
+ * ⚠️ **This closed at 85 until the level line was flattened**, where it sat on the top of the old
+ * twenty-four stage ladder for the reason that ladder ended there — a common-tier five at level 90,
+ * four rungs up, cleared it and lost a member doing so. That coincidence is gone and is not worth
+ * reconstructing. See [authoring](../../docs/authoring.md) for the flat line, and for the difficulty
+ * gradient it knowingly trades away.
  *
  * ## The final
  *

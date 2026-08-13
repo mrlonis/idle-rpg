@@ -58,24 +58,33 @@ import {
  * | The fuse  | 31–40  | a payload with a timer; when to spend the cleanse      |
  * | The road  | 41–50  | all four at once, and the thing they were bound for    |
  *
- * ## Where the levels come from, and the one thing this chapter does that neither below it does
+ * ## Where the levels come from
  *
- * 85 to 160, about a level and a half a stage. ⚠️ **The top is deliberately past the level cap of
- * the rung the chapter asks for**, and that is the whole difficulty statement: `elite-plus` caps at
- * 140, so a player who buys the ascension and levels it out is still twenty levels short at the
- * Chainsworn and has to make the difference up in composition, matchup and gear.
+ * 50 to 75, half a level a stage. The chapter runs inside `elite`, which caps at 100, so the party
+ * that has bought the rung arrives at The Chainsworn twenty-five levels clear of it. Still no lucky
+ * pull anywhere on the ladder: the rung is twenty duplicate copies of each of the five, bought with
+ * time — the same rung chapter 4 asked for, because the flattened line asks for a new one only every
+ * other chapter.
  *
- * **This was authored at 85 → 130 first and the balance sweep refused it**, in a way worth
- * recording because the arithmetic is not obvious. An ascension rung is worth ×1.6 and the enemy
- * side has **no rungs at all** — `toEnemyCombatant` deliberately never grew that third dial — so a
- * party matching the enemy's level from one rung higher is ×1.6 ahead of it, and every stage in the
- * chapter was a walkover for the party it was meant for. Twenty-three levels is what ×1.6 costs at
- * `perLevel.common`, and that is where the extra thirty at the top came from: **a chapter that asks
- * for a new rung has to out-climb the rung it asks for.** Chapters 1 through 4 never met this
- * because each ran inside a cap the party already had.
+ * ## ⚠️ This chapter is where the margin rule was found, and the flattening retired it
  *
- * Still no lucky pull anywhere on the ladder: the rung is twenty-four duplicate copies of each of
- * the five, which is four more than chapter 4 asked for and is bought with time.
+ * It closed at 160 against `elite-plus`'s cap of 140, and that twenty-level deficit was the whole
+ * difficulty statement: a player who bought the ascension and levelled it out was *still* short at
+ * the top and had to make the difference up in composition, matchup and gear.
+ *
+ * **It was authored at 85 → 130 first and the balance sweep refused it**, which is how the rule was
+ * found, and the arithmetic behind it is worth keeping because it did not stop being true. An
+ * ascension rung is worth ×1.6 and the enemy side has **no rungs at all** — `toEnemyCombatant`
+ * deliberately never grew that third dial — so a party matching the enemy's level from one rung
+ * higher is ×1.6 ahead of the content with nothing in the numbers looking wrong. Twenty-three levels
+ * is what ×1.6 costs at `perLevel.common`.
+ *
+ * ⚠️ **What changed is the level line, not the arithmetic.** Every chapter now runs inside a cap the
+ * party already holds — which is exactly what chapters 1 through 4 always did — so there is no
+ * deficit here to make up, and the ×1.6 the rule existed to charge for is handed over free. That is
+ * a deliberate trade for a ladder planned to run ~100 chapters; what it costs, and where the
+ * escalation is meant to arrive from instead, is recorded in
+ * [authoring](../../docs/authoring.md).
  *
  * ## What it draws on
  *

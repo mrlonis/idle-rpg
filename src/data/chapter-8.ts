@@ -79,50 +79,48 @@ import {
  * a tenth of every swing lands whatever the pool says, which is the termination guard
  * `data/combat.ts` argues for and not a tuning number.
  *
- * ## Where the levels come from, and the second correction to the margin rule
+ * ## Where the levels come from
  *
- * 305 to 396, about 1.86 levels a stage against the Barrows' 1.6 and the Vault's 1.3. `mythic` caps
- * at 340, so the margin is **+56** where chapter 7's was +45.
+ * 125 to 150, half a level a stage. The chapter runs inside `legendary`, which caps at 200, so the
+ * party reaches The Withered Crown fifty levels clear of it. The rung is thirty-two duplicate copies
+ * of each of the five, eight more than chapter 7 asked for, and every one of them is bought with
+ * time.
  *
- * ⚠️ **Milestone 21's roadmap said ~411 and 21a's corrected rule said +68, and both are wrong at
- * this end of the ladder — measured, the same way 21a measured the rule it replaced.** The party the
- * chapter is tuned for takes the final at 100% up to level 398, 85% at 400 and 45% at 402: a step
- * function, exactly as `docs/testing.md` warns, so the closing level is found by bisection and not
- * by arithmetic. ⚠️ **The board is not the variable** — chapter 7's own final re-levelled to 411
- * reads 0% for the same party, so what the chapter ran into is the level line and nothing else.
+ * ## ⚠️ The second correction to the margin rule, kept because the arithmetic outlived the rule
  *
- * **The correction is arithmetic and it is the enemy's own growth curve.** 21a derived "+23 levels a
- * chapter" from `perLevel.common`, because that is what the party climbs on. But an enemy `ascended`
- * block climbs on `perLevel.ascended` — 1.024 against 1.021 — and that gap compounds over the *whole*
- * level, not over the chapter: `(1.024 / 1.021) ** 411` is ×3.34 where `** 305` is ×2.45. The enemy
- * side therefore gains about **fifteen levels' worth** of head start across one chapter at this
- * depth, which comes straight off the margin: +23 − 15 ≈ **+8**, and +45 → +56 is +11. The rule is
- * not "+23 a chapter"; it is "+23 a chapter *less whatever the enemy's own curve has taken*", and the
- * second term grows.
+ * This chapter closed at 396 against `mythic`'s cap of 340 — a **+56** deficit where chapter 7's was
+ * +45 — and finding it corrected 21a's closed form a second time. **The correction is the enemy's own
+ * growth curve, and that has not stopped being true of any fight in this game.** 21a derived "+23
+ * levels a chapter" from `perLevel.common`, because that is what the *party* climbs on. An enemy
+ * `ascended` block climbs on `perLevel.ascended` — 1.024 against 1.021 — and that gap compounds over
+ * the **whole** level rather than over the chapter: `(1.024 / 1.021) ** 411` is ×3.34 where `** 305`
+ * is ×2.45, so the enemy side gained about **fifteen levels' worth** of head start across one chapter
+ * at that depth.
  *
- * | Chapter | Party                   | Margin | Ratio |
- * | ------- | ----------------------- | ------ | ----- |
- * | 6       | `legendary` at 200      | +25    | 1.44  |
- * | 7       | `legendary-plus` at 260 | +45    | ~1.16 |
- * | 8       | `mythic` at 340         | +56    | 1.10  |
+ * ⚠️ **Keep that in view wherever an enemy block is fielded far from where it was measured** — the
+ * two sides diverge with depth even when neither is retuned, which is a fact about the growth
+ * constants and not about any level line. What is gone is only the rule it was correcting: nothing
+ * closes past a cap now, and there is no margin to predict. See
+ * [authoring](../../docs/authoring.md).
  *
- * ⚠️ **So chapters 9 and 10 are re-derived downward again**, and by measurement rather than from
- * this: the roadmap's ~514 and ~617 assume the uncorrected rule. Bisect the final for the 90% edge,
- * back off to where the tuned party keeps a member or two, and check the ratio.
+ * ## ⚠️ It briefly closed the signature-item measurement gap, and the flattening reopened it
  *
- * Still no lucky pull anywhere on the ladder: the rung is forty-four duplicate copies of each of the
- * five, six more than chapter 7 asked for, and every one of them is bought with time.
+ * `docs/signature-items.md` carried the gap from milestone 16: `mythic` caps at 340 and the hardest
+ * authored stage was 225, so `data/signature.balance.ts` had to re-level the top encounter to
+ * measure anything at all. The Bound Marches, the Sundered Vault and the Waking Barrows were each
+ * expected to close it and none did; this chapter, closing at 396, finally did, and the probe
+ * stopped re-levelling.
  *
- * ## ⚠️ It is the first shipped content a signature item can be measured against
+ * ⚠️ **The flattened line reopened it and made it permanent.** The campaign now tops out at **200**
+ * against `mythic`'s cap of 340, so no shipped stage reaches the rung a signature item unlocks at —
+ * and unlike milestone 16's gap, no future chapter closes this one either, because the level line no
+ * longer chases a rung's cap. `signature.balance.ts` re-levels its top encounter again, permanently.
  *
- * `docs/signature-items.md` has carried the gap since milestone 16: `mythic` caps at 340 and the
- * hardest authored stage was 225, so `data/signature.balance.ts` had to re-level the top encounter
- * to measure anything at all. The Bound Marches, the Sundered Vault and the Waking Barrows were each
- * expected to close it and none did — 305 against 340 as recently as last chapter. This closes it,
- * and the probe stops re-levelling. ⚠️ **All fourteen recorded reach figures moved as a result**, and
- * the reason is that `contested()` picks the hardest stage and the hardest stage is now a different
- * board with a different id seeding a different sequence — not because the item or any stat block
- * changed.
+ * ⚠️ **That is a deliberate consequence, not a regression.** Signature items were moved out of the
+ * campaign on purpose when the line was flattened: the campaign is a shorter on-ramp now and the
+ * towers, the Descent and Expeditions carry the content past it. What it costs is that the probe
+ * measures items against a re-levelled board rather than an authored one — so **a reach figure
+ * recorded here is a statement about the item, not about any stage a player will meet.**
  *
  * ## What it draws on
  *

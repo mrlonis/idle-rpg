@@ -76,18 +76,20 @@ import {
  *
  * ## Where the levels come from
  *
- * 160 to 225, about one and a third levels a stage — flatter than the Marches' one and a half,
- * because the matrix is carrying difficulty the level dial had to carry there.
+ * 75 to 100, half a level a stage. **This chapter used to be the flat one** — one and a third levels
+ * a stage against the Marches' one and a half, deliberately, because the faction matrix was carrying
+ * difficulty the level dial had to carry there. That distinction has dissolved: the dial is flat
+ * everywhere now, and the matrix goes on doing the same job for nothing.
  *
- * ⚠️ **The top is past the level cap of the rung the chapter asks for**, which is the rule chapter 5
- * established and this one inherits: `legendary` caps at 200, so a player who buys the ascension and
- * levels it out is still **twenty-five levels short** at the Hollow Seraph and has to make the
- * difference up in composition, matchup and gear. An ascension rung is worth ×1.6 and the enemy side
- * has no rungs at all, so a chapter that closes *inside* the cap it asks for hands the party a ×1.6
- * nobody paid for and every stage in it is a walkover.
+ * The chapter runs inside `elite-plus`, which caps at 140, so the party reaches the Hollow Seraph
+ * forty levels clear of it. The rung is twenty-four duplicate copies of each of the five, four more
+ * than chapter 5 asked for, and every one of them is bought with time.
  *
- * Still no lucky pull anywhere on the ladder: the rung is thirty-two duplicate copies of each of the
- * five, eight more than chapter 5 asked for, and every one of them is bought with time.
+ * ⚠️ **It closed at 225 against `legendary`'s cap of 200 until the flattening**, under the rule
+ * chapter 5 established and this one inherited — a chapter closing *inside* the cap it asks for was
+ * said to hand the party a ×1.6 nobody paid for, and every stage in it a walkover. That is now the
+ * shape of the whole campaign, chosen rather than drifted into; see
+ * [authoring](../../docs/authoring.md).
  *
  * ## What it draws on
  *

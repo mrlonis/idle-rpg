@@ -69,41 +69,30 @@ import {
  * always wanted is the expensive one here and single-target focus is the cheap one. That question
  * needed no new mechanic; it needed thorns on something nobody treats carefully.
  *
- * ## Where the levels come from, and the rule they corrected
+ * ## Where the levels come from
  *
- * 225 to 305, a little over one and a half levels a stage. ⚠️ **Milestone 21's brief said 285, and
- * authoring it there is what proved the brief's margin rule wrong** — this is the one place chapter 7
- * departs from the roadmap it was written against, and the departure is arithmetic rather than taste.
+ * 100 to 125, half a level a stage. The chapter runs inside `elite-plus`, which caps at 140, so the
+ * party arrives at The Cairn King fifteen levels clear of it — **the narrowest cushion of any chapter
+ * on the flattened line**, and the closest the campaign now comes to the deficit the old line ran on.
+ * The rung is twenty-four duplicate copies of each of the five, the same rung chapter 6 asked for,
+ * and every one of them is bought with time.
  *
- * The rule as written: a chapter must close **+25 past the cap of the rung it asks for**, because a
- * rung is worth ×1.6, the enemy side has no rungs, and twenty-three levels is what ×1.6 costs at
- * `perLevel.common`. That is correct for the chapter where a cap is *first* out-climbed and wrong
- * for every chapter after it. **A constant margin cancels.** Each chapter hands the party a fresh
- * rung (×1.6) on top of the levels it climbs, while the content climbs only the levels — so if the
- * deficit stays at 25, the rung is free and the gap compounds. Measured as party power ÷ the
- * difficulty probe's threshold at each chapter's final:
+ * ## ⚠️ This chapter proved the margin rule, and the flattening then retired it
  *
- * | Chapter              | Party                   | Ratio    |
- * | -------------------- | ----------------------- | -------- |
- * | 5                    | `elite-plus` at 140     | 1.08     |
- * | 6                    | `legendary` at 200      | 1.44     |
- * | 7 at 285, as briefed | `legendary-plus` at 260 | **2.08** |
- * | 7 at 305, as shipped | `legendary-plus` at 260 | ~1.16    |
+ * It closed at 305 against `legendary-plus`'s cap of 260 — a **+45** deficit where milestone 21's
+ * brief had said +25. Authoring it at the briefed 285 is what proved the brief wrong, and the
+ * finding is worth keeping even though the rule it corrected is gone: **a constant margin cancels.**
+ * Each chapter handed the party a fresh rung (×1.6) on top of the levels it climbed while the
+ * content climbed only the levels, so a fixed deficit is paid once and never again and the gap
+ * compounds. At 285 every stage was a walkover for the party it was tuned for — the reference five
+ * finished The Cairn King with all of them alive in seven seconds.
  *
- * At 285 every stage in the chapter was a walkover for the party it was tuned for — the reference
- * five finished The Cairn King with all of them alive in seven seconds — and no board fixes that: a
- * board heavy enough to cost that party a member needed **three** ascended bodies and measured 1.86×
- * the stage before it, which is a cliff and the shape milestone 15c warns makes six towers fail at
- * once. ⚠️ **The margin has to grow by about twenty-three levels a chapter** — +45 here, and the
- * roadmap's remaining chapters re-derived to close at ~411, ~514 and ~617 rather than 365, 445 and
- * 525. See [authoring](../../docs/authoring.md).
- *
- * So the top is **forty-five levels past the cap of the rung the chapter asks for**: `legendary-plus`
- * caps at 260, and a player who buys the ascension and levels it out still arrives at The Cairn King
- * forty-five levels short, making the difference up in composition, matchup and gear.
- *
- * Still no lucky pull anywhere on the ladder: the rung is thirty-eight duplicate copies of each of
- * the five, six more than chapter 6 asked for, and every one of them is bought with time.
+ * ⚠️ **The other half of that finding is not historical and still binds: no board fixes a level
+ * line.** A board heavy enough to cost that party a member needed **three** ascended bodies and
+ * measured 1.86× the stage before it — a cliff, and the shape milestone 15c warns makes six towers
+ * fail their sweep at once. Weight is the right fix for a *step backwards* between two stages; it
+ * has never been a fix for a chapter sitting at the wrong level. See
+ * [authoring](../../docs/authoring.md).
  *
  * ## What it draws on
  *
