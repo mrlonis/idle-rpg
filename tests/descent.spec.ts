@@ -38,9 +38,17 @@ const DAY = Math.max(
 /**
  * A run past the unlock with a crew standing in every faction the lock can draw.
  *
- * ⚠️ **All seven factions are crewed**, because the day's three are drawn from the run's seed and a
- * test that seeded only one faction would pass or fail on a shuffle it does not control. What the
- * lock actually admits is asserted below rather than assumed.
+ * ⚠️ **All seven factions are owned, at least two deep, and both halves of that are load-bearing.**
+ * The day's three factions are drawn from the run's seed against *today's date*, so a fixture that
+ * left a faction empty passes or fails on a shuffle it does not control — a test that is green for
+ * weeks and then red on a morning nobody touched it.
+ *
+ * ⚠️ **Two deep rather than one, so the worst draw the shuffle can produce still fills a crew.**
+ * Three factions two deep is six, against the three the editor loop places. It shipped owning no
+ * Angel at all and one Undead, which made the worst draw *three* — and since the pool also shrinks
+ * as the crew fills, that draw could not place a third character. It went off on the first day the
+ * shuffle picked `undead, monster, angel`: green for weeks, then red on a morning nobody touched
+ * it. Both halves are guarded below rather than left to this comment.
  */
 const save = {
   version: 0,
@@ -71,6 +79,9 @@ const save = {
     { defId: 'sylvara', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
     { defId: 'nyxara', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
     { defId: 'mortlach', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
+    { defId: 'ghaul', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
+    { defId: 'celia', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
+    { defId: 'nael', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
     { defId: 'gnash', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
     { defId: 'ghorrak', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
     { defId: 'seren', rarity: 10, level: 400, copies: 0, gear: {}, signature: 0 },
@@ -150,8 +161,22 @@ test.describe('The Descent', () => {
     // three is what a player does, and it is what the lock is for.
     const rows = page.locator('.roster__toggle');
     await expect(rows.first()).toBeVisible();
-    for (let placed = 0; placed < 3; placed++) {
-      await rows.nth(placed).click();
+
+    const PLACED = 3;
+    const pool = await rows.count();
+
+    // ⚠️ Checked rather than assumed, so a fixture that drifts thin fails *here*, with the count in
+    // the message, instead of thirty seconds later on a row that never appears in three browsers.
+    expect(pool).toBeGreaterThanOrEqual(PLACED);
+
+    // ⚠️ **Settle between placements.** A placed character leaves the pool, but `click()` resolves
+    // before Angular has re-rendered it away — so two clicks on the top row can land on the *same*
+    // character and cycle them front-to-back instead of placing a second one. Waiting for the count
+    // to drop is what makes each iteration a placement rather than a race, and it is why this reads
+    // the top row every time rather than indexing into a list that is shrinking underneath it.
+    for (let placed = 0; placed < PLACED; placed++) {
+      await expect(rows).toHaveCount(pool - placed);
+      await rows.first().click();
     }
 
     // ⚠️ **Back through the router, not `page.goto`.** A crew edit reaches `GameState` immediately
