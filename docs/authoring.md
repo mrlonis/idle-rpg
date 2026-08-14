@@ -686,24 +686,39 @@ clears" means. It then walks the Descent: 5.00 survivors of five, against a bar 
 | `c11-s50` refielded at 250          | 250       | 192–193              | **6** |
 | `c12-s50`                           | 250       | **201**              | **7** |
 
-⚠️ **Three of those land within a level or two of a cap** (101, 141, 201), which is not a coincidence
-— the minimum level that clears is _drawn_ to a cap, because that is where power jumps. The bar has
-tolerated it before and fires now only because 250 is where the crossing finally lands above it.
+⚠️ **The rung crossing is a red herring, and chasing it is how this was nearly mis-fixed.** Deriving
+the party's rung from the **anchor** instead of from the bisected level looks like the obvious repair.
+Measured, it weakens the party by ×0.70 at three of the five depths, breaks two guards that were
+passing, and still leaves the deep end at **4.90**. The overshoot is real and it is not what the guard
+was reporting.
 
-⚠️ **Softening the final does not fix it and should not be attempted.** Measured: a boss cut by 30%,
-every escort swap, and dropping both of the chapter's suppressions all still read **201**, because a
-level-200 rung-6 party cannot take any board of that weight and a level-201 rung-7 party takes all of
-them. The only board that reads 6 is chapter 11's own, at 193. Authoring a final light enough to bisect
-under 200 would mean a chapter final weaker than every one since the Vault — **an honest restatement
-of the guard that a session would refuse to author, which is the tell that it is pointed at the wrong
-quantity.**
+⚠️ **Softening the chapter final does not fix it either.** A boss cut by 30%, every escort swap and
+dropping both of that chapter's suppressions all still read 201, because a level-200 rung-6 party
+cannot take any board of that weight and a level-201 rung-7 party takes all of them.
 
-**What it wants is a calibration that does not quantise.** Deriving the party's rung from the
-**anchor** — what a player at that depth actually holds, which is what the campaign's own seam
-parties record — and bisecting only the level removes the ×1.6 step entirely and is more faithful to a
-real player than "the cheapest rung admitting the bisected level". That moves every documented figure
-in `descent.balance.ts`, so it is a deliberate retune rather than a content session's edit. **Recorded
-rather than taken**, and the bar was **not** widened.
+**What the guard was actually reporting is that the Descent got easier the deeper it went** —
+monotonically, by construction, and with depth 250 already one hundredth under the bar before chapter
+12 existed. A monotonic quantity cannot be bounded by a constant, so a third widening would have been
+the guard measuring a drift rather than the mode.
+
+**The cause is that the level offset was flat while the party a depth implies is not a fixed distance
+from the anchor.** The calibration anchors on a chapter _final_, whose `legendary` and `ascended`
+blocks climb at 1.0225 and 1.024 against a mostly-`common` five's 1.021, and the ascension ladder hands
+the party a ×1.6 at every cap — both compounding over the whole level range while the offset did not
+move at all. `DescentLevelData.anchorSlope` is the fix: **0.11 levels per level of anchor**, with the
+two fixed offsets brought down by 3 so the shallow end is untouched.
+
+| survivors of five | anchor 30 | 50   | 75   | 125  | 250      |
+| ----------------- | --------- | ---- | ---- | ---- | -------- |
+| flat offset       | 3.20      | 4.15 | 4.15 | 4.80 | **5.00** |
+| with the slope    | 3.20      | 4.10 | 3.70 | 4.05 | **4.15** |
+
+**The bar stayed at 4.85, no board moved, and the chapter was not touched.**
+
+⚠️ **A flat offset could not have been retuned into this**, which is the general lesson: +24 levels
+brings the deep end to 4.15 and takes the shallowest from a 0.50 finish rate to **0.00**. When a dial
+has no setting that works at both ends of the range it is measured over, the dial is the wrong shape —
+the same finding `gradeSoftness` has been producing once a chapter for seven chapters.
 
 ⚠️ **`gradeSoftness` is the one to re-derive by hand, once a chapter, deliberately.** It has landed
 on 18.7% six times and the solution has been `stages / 2` every time, which is what turned a tuning

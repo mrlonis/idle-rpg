@@ -137,8 +137,15 @@ export const DESCENT_RULES = {
    * a card is worth re-aims this.
    */
   level: {
-    baseOffset: -8,
-    topOffset: 12,
+    baseOffset: -11,
+    topOffset: 9,
+    /**
+     * ⚠️ **The two fixed offsets came down by 3 when this arrived, so the shallow end is unchanged.**
+     * At the unlock's anchor of 30 the slope contributes +3.3, which puts the total back at about
+     * −8 / +12 — the pair the mode shipped with and the pair every figure below the fourth depth was
+     * tuned against. What moves is the deep end: +13.8 at anchor 125 and **+27.5 at anchor 250**.
+     */
+    anchorSlope: 0.11,
   },
   /**
    * What a run pays in crystals: 3,000 for a clean one, which is thirty pulls.

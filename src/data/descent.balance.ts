@@ -459,11 +459,15 @@ describe('a Descent run is a fight at every depth', () => {
     // the whole reason the retry exists — but a mode a player rarely finishes is a daily they stop
     // opening, and the quest measured against it is one they can never claim.
     //
-    // Measured over twenty days: 0.50 at the unlock, then 1.00 / 0.60 / 1.00 / 1.00. ⚠️ **The
+    // Measured over twenty days: **0.50 at the unlock, then 0.85 / 0.70 / 0.85 / 0.80**. ⚠️ **The
     // per-depth floor is deliberately below the worst reading and the mean is what carries the
     // claim** — the bisection that calibrates a party lands on a step, so a single depth can sit a
     // level either side of where a real player stands, and a tight per-depth bar would be measuring
     // that step rather than the mode.
+    //
+    // ⚠️ **Those figures moved in milestone 27** — they read 0.50 / 0.90 / 0.85 / 1.00 / 1.00 under
+    // the flat level offset, and the two 1.00s are the tell: the deep end had stopped being a fight
+    // at all. See {@link DescentLevelData.anchorSlope}.
     //
     // ⚠️ **The party here carries no gear and no signature items**, where a real player at these
     // depths carries both. So this is a floor on the real finish rate rather than an estimate of it.
@@ -476,7 +480,7 @@ describe('a Descent run is a fight at every depth', () => {
 
   it('gets most of the way down even when it does not finish', () => {
     // What makes a lost run acceptable: every fight pays as it is cleared, so a run that ends at
-    // fight eight has banked eight fights. Measured at 7.85 to 9.00 of nine.
+    // fight eight has banked eight fights. Measured at **7.85 to 8.70** of nine.
     for (const cleared of DEPTHS) {
       expect(sweepDepth(cleared).meanCleared, `depth ${cleared}`).toBeGreaterThan(FIGHTS * 0.75);
     }
@@ -485,20 +489,29 @@ describe('a Descent run is a fight at every depth', () => {
   it('is not a walkover at any depth', () => {
     // ⚠️ **Attrition is the mechanic, so this measures survivors rather than the win rate.** A run
     // finished with five bodies at full health is nine unrelated fights with a shared reward, and
-    // every decision in it was free. Measured at 3.20 to 4.65 of five, averaging 4.00.
+    // every decision in it was free. Measured at **3.20 to 4.15** of five, averaging **3.84**.
     //
     // ⚠️ **The mean carries the claim and the per-depth bar is the backstop**, for the reason the
     // finish rate is stated the same way: the bisection that calibrates a party lands on a step, so
     // one depth can sit a level either side of where a real player stands. A tight per-depth bar
     // would be measuring that step.
     //
-    // ⚠️ **The per-depth bar went 4.75 → 4.85 when the campaign flattened to 0.50 levels a stage,
-    // and it is the step this comment already names rather than a new one.** The party at each
-    // depth is bisected against the campaign stage there, so it tracks the level line wherever it
-    // goes — but at 0.50 a level now spans *two* stages instead of one, which doubles the width of
-    // the plateau the bisection lands on and with it how far one depth can sit from where a real
-    // player stands. Depth 250 reads **4.80**. The mean below is unmoved and still carries the
-    // claim; widening the backstop by one plateau is not the same as widening the claim.
+    // ## ⚠️ This is the guard that caught the flat level offset, and the bar was **not** widened
+    //
+    // It went 4.75 → 4.85 once, when the campaign flattened, on a plateau argument. Chapter 12 sent
+    // it past 4.85 again — depth 500 read a clean **5.00**, nobody ever dying — and the readings
+    // across the five depths were **3.20 / 4.15 / 4.15 / 4.80 / 5.00**: monotonic in depth, with
+    // depth 250 already one hundredth under the bar before that chapter existed.
+    //
+    // **A monotonic quantity cannot be bounded by a constant**, so a third widening would have been
+    // the guard measuring a drift rather than the mode. What it was actually reporting is that the
+    // Descent got easier the deeper it went, because the level offset was flat while the party the
+    // depth implies is not a fixed distance from the anchor. `anchorSlope` is the fix and the
+    // readings above are flat across depth rather than climbing. **The bar stayed at 4.85.**
+    //
+    // ⚠️ **Neither the boards nor chapter 12 were touched for this.** A boss cut by 30%, every
+    // escort swap and dropping both of that chapter's suppressions all left the calibration exactly
+    // where it was; the only lever that moved anything was the one that was the wrong shape.
     const survivors = DEPTHS.map((cleared) => sweepDepth(cleared).meanSurvivors);
     for (const [index, mean] of survivors.entries()) {
       expect(mean, `depth ${DEPTHS[index]} survivors`).toBeLessThan(4.85);
@@ -513,7 +526,12 @@ describe('a Descent run is a fight at every depth', () => {
     // through one and not the other, and **every row of a five-setting sweep printed identically**.
     // A tuning sweep that cannot move is worse than no sweep: it reads as "the dial does nothing",
     // which is a conclusion somebody would act on.
-    const harder: DescentRulesData = { ...descent, level: { baseOffset: 40, topOffset: 60 } };
+    // Slope held at the shipped value so this moves the one dial it is named for. Overriding the
+    // whole `level` block is what makes that explicit rather than inherited.
+    const harder: DescentRulesData = {
+      ...descent,
+      level: { baseOffset: 40, topOffset: 60, anchorSlope: descent.level.anchorSlope },
+    };
     const runs = Array.from({ length: DAYS }, (_, day) =>
       runDay(SEED, day, DEPTHS[DEPTHS.length - 1], true, harder),
     );

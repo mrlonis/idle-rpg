@@ -245,10 +245,13 @@ family, in exactly the sense `MAX_RESIST` is.
 
 ---
 
-## Difficulty: an offset, not a share
+## Difficulty: an offset, not a share — plus a slope
 
-The enemy level is the hardest campaign stage this run has ever cleared, plus a fixed number of
-levels: **−8** on the first fight, **+12** on the last, linearly between.
+The enemy level is the hardest campaign stage this run has ever cleared, plus **−11** on the first
+fight and **+9** on the last, linearly between, **plus 0.11 levels per level of anchor**.
+
+At the unlock's anchor of 30 the slope contributes +3.3, so the total is about −8 / +12 — the pair
+the mode shipped with. At the top of the shipped ladder it contributes **+27.5**.
 
 ### ⚠️ A share was the first draft and it was measured wrong
 
@@ -266,8 +269,33 @@ fail again, later and more quietly. The offset is correct for a reason that does
 current top.
 
 An offset is the same number of steps along one exponential wherever it lands. That is what lets
-twenty-four authored boards serve a four-hundred-stage campaign with nothing to re-derive per
+twenty-four authored boards serve a five-hundred-stage campaign with nothing to re-derive per
 chapter — milestone 10's argument applied to content fought once a day for the life of a run.
+
+### ⚠️ But the party is not a fixed distance from the anchor either, and that is what the slope fixes
+
+The paragraph above is right about the **boards** and it does not finish the argument. A fixed offset
+is the same difficulty everywhere only if the party meeting it is a fixed distance from the anchor,
+and it is not: the campaign stage the calibration anchors on is a chapter **final**, whose
+`legendary` and `ascended` blocks climb at 1.0225 and 1.024 against a mostly-`common` five's 1.021,
+and the ascension ladder hands the party a ×1.6 every time it crosses a cap. Both compound over the
+whole level range rather than over a chapter.
+
+Measured across the five sampled depths at a flat −8/+12, survivors of five:
+
+| anchor         | 30   | 50   | 75   | 125  | 250      |
+| -------------- | ---- | ---- | ---- | ---- | -------- |
+| flat offset    | 3.20 | 4.15 | 4.15 | 4.80 | **5.00** |
+| with the slope | 3.20 | 4.10 | 3.70 | 4.05 | **4.15** |
+
+**Monotonic, ending in a full walkover** — at the deepest sample nobody ever died. Raising the fixed
+offsets cannot fix that: +24 levels brings the deep end to a healthy 4.15 and takes the _shallowest_
+from a 0.50 finish rate to **0.00**. The shape was wrong, not the number.
+
+⚠️ **A slope of zero reproduces the original line exactly**, which is what makes the field safe to
+author and what the level-dial override in the sweep still relies on. And note what this is **not**:
+it is not the _share_ rejected above. A share replaces the anchor; this adds to it, so the mode is
+still an offset along one exponential — the offset just grows with how far the party has come.
 
 ### ⚠️ The top offset is negative and the mode is still hard
 

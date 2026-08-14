@@ -101,7 +101,9 @@ const RULES: DescentRulesData = {
     { name: 'Grand', start: 0, end: 8 },
   ],
   maxLifeLeech: 0.35,
-  level: { baseOffset: -10, topOffset: 5 },
+  // A zero slope reproduces the pre-milestone-27 line exactly, which is what keeps every level
+  // assertion in this file a statement about the two fixed offsets rather than about the anchor.
+  level: { baseOffset: -10, topOffset: 5, anchorSlope: 0 },
   summons: { perFight: 100, guardianMultiplier: 2, bossMultiplier: 5, completion: 1000 },
   completionEmblems: 25,
   lumpMultipliers: { gold: 2, xp: 2, essence: 5 },

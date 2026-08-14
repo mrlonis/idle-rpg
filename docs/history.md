@@ -128,11 +128,20 @@ are about **method** rather than about a tower:
   `gear/types.ts` already makes for `GEAR_ARCHETYPES` against `roster/`. That is what put the
   resolved bonus on `StageData` rather than on `CombatRulesData`, and the required `gearRules`
   parameter on `resolveLadder` follows from it.
-- ⚠️ **A guard fired that no horizon table listed, and it is not the campaign's.**
+- ⚠️ **A guard fired that no horizon table listed, and it found a real design bug in another mode.**
   `descent.balance.ts` samples `stages.length` as its deepest depth, so the top sample moves every
-  chapter — and its party calibration quantises power by ascension rung, which at chapter 12's
-  anchor lands one level above `legendary`'s cap. Softening the chapter final does not fix it and
-  would mean a final weaker than every one since the Vault. **Recorded, not widened.**
+  chapter. What it caught was that the Descent got **easier the deeper it went** — survivors
+  3.20 / 4.15 / 4.15 / 4.80 / **5.00** across the five depths, the deepest a full walkover where
+  nobody ever died, and depth 250 already one hundredth under the bar before chapter 12 existed.
+  The cause was a **flat** level offset against a party that is not a fixed distance from the anchor;
+  `DescentLevelData.anchorSlope` fixes the shape and the readings are now flat across depth. **The
+  bar was not widened, no board moved, and the chapter was not touched.**
+- ⚠️ **Two plausible fixes were measured and rejected first**, which is worth keeping because both
+  look right on paper. Deriving the calibration's rung from the anchor weakens the party ×0.70 at
+  three of five depths and breaks two passing guards; softening the chapter final does nothing at
+  all, because a rung-6 party at level 200 takes no board of that weight and a rung-7 party at 201
+  takes every one. **A dial with no setting that works at both ends of its range is the wrong shape**
+  — the same finding `gradeSoftness` has produced once a chapter for seven chapters running.
 - ⚠️ **A retired guard kept its horizon for three chapters.** The tower:campaign crystal ratio was
   listed as firing at chapter 12; `towers.spec.ts` had already retired it. A horizon is a claim about
   a **guard** as well as about a curve.

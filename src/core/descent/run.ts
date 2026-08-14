@@ -98,10 +98,15 @@ export function descentLevel(rules: DescentRulesData, anchor: number, fight: num
   const base = Number.isFinite(rules.level.baseOffset) ? rules.level.baseOffset : 0;
   const top = Number.isFinite(rules.level.topOffset) ? rules.level.topOffset : base;
   const progress = fights <= 1 ? 1 : (at - 1) / (fights - 1);
-  // ⚠️ Added, not multiplied. See {@link DescentLevelData}: enemy power is exponential in level, so
-  // a *share* of the anchor is a different difficulty at every depth and a fixed number of levels is
-  // the same one everywhere.
-  const level = positiveInt(anchor, 1) + (base + (top - base) * progress);
+  const atAnchor = positiveInt(anchor, 1);
+  // ⚠️ **A fixed offset plus a term proportional to the anchor**, and both halves are load-bearing.
+  // Enemy power is exponential in level, so the fixed part is the same difficulty step wherever it
+  // is applied — but the *party* the mode fields is not a fixed distance from the anchor, because
+  // enemy tier slopes and the ascension ladder both pull it away as the campaign deepens. See
+  // {@link DescentLevelData.anchorSlope} for the measurement that forced the second term, and note
+  // that a slope of zero reproduces the original line exactly.
+  const slope = Number.isFinite(rules.level.anchorSlope) ? rules.level.anchorSlope : 0;
+  const level = atAnchor + (base + (top - base) * progress) + Math.max(slope, 0) * atAnchor;
   return Math.max(Math.round(level), 1);
 }
 

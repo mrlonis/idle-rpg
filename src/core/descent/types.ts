@@ -212,6 +212,35 @@ export interface DescentLevelData {
   readonly baseOffset: number;
   /** Levels relative to the anchor the last fight is fought at. Linear between the two. */
   readonly topOffset: number;
+  /**
+   * Extra levels added per level of anchor, on top of the two fixed offsets.
+   *
+   * ## ⚠️ This exists because a fixed offset is **not** the same difficulty at every depth
+   *
+   * The comment on {@link baseOffset} used to argue that it was — enemy power is exponential in
+   * level, so a *share* of the anchor is a different difficulty at every depth while a fixed number
+   * of levels is the same one everywhere. The first half is right and the conclusion does not
+   * follow, because the **party** on the other side of that board is not a fixed distance from the
+   * anchor either.
+   *
+   * Two things pull it away, both compounding over the whole level range rather than over a chapter:
+   * enemy `legendary` and `ascended` blocks climb at 1.0225 and 1.024 against a mostly-`common`
+   * five's 1.021, so the campaign stage the calibration anchors on gets *relatively* heavier with
+   * depth; and the ascension ladder hands the party a ×1.6 every time it crosses a cap. The
+   * measurement, at a flat −8/+12 across the five sampled depths:
+   *
+   * | anchor | 30   | 50   | 75   | 125  | 250  |
+   * | ------ | ---- | ---- | ---- | ---- | ---- |
+   * | survivors of five | 3.20 | 4.15 | 4.15 | 4.80 | 5.00 |
+   *
+   * **Monotonic, and the deep end is a full walkover** — nobody ever dies. Raising the fixed offsets
+   * cannot fix it: +24 levels takes the deepest sample to a healthy 4.15 and takes the *shallowest*
+   * from a 0.50 finish rate to **0.00**. The shape is wrong, not the number.
+   *
+   * ⚠️ **Zero reproduces the old behaviour exactly**, which is what makes this safe to author and
+   * what the level-dial override in `descent.balance.ts` still relies on.
+   */
+  readonly anchorSlope: number;
 }
 
 /**
