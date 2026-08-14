@@ -93,6 +93,12 @@ import {
   IRONWAKE_CHARGE,
   QUICKLIME_CUT,
   THE_HOUR_UNKEPT,
+  THE_STRIKE_FALLS,
+  SLAG_SLAM,
+  KILN_LIGHT,
+  ASHPIT_RAKE,
+  THE_WHEEL_TURNS,
+  THE_WORKS_RUN_ON,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5089,6 +5095,191 @@ export const THE_HOURLESS_MARCH = {
   skills: [THE_HOUR_UNKEPT, QUICKLIME_CUT, IRONWAKE_CHARGE],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's third hundred floors — the Crownworks
+//
+// Five blocks: two Human, two Monster, one Demon. ⚠️ **The lean's own bench is not where all five
+// went, and that is on purpose.** A tower's new blocks belong to the faction that counters the one
+// it admits, and *four* factions counter Dwarves — human, monster (both ×1.05), angel and demon
+// (both ×1.10). Human was already the second-deepest faction in the game at 24 archetypes, so the
+// antagonist stays Human and the texture deepens the thin ones.
+//
+// ⚠️ **Nothing here restores anything.** This is the tower that measured what sustain costs on a
+// last floor: its roof was once `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five
+// could close it inside ninety seconds, while the identical board six levels lower cleared cleanly.
+// Against a party that cannot burst, every point of enemy sustain is a second of clock.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The host never learned how the works were built. It learned which lever makes the hammer fall.
+ *
+ * **The third hundred's axis on one body**, and the axis is a *product*. Measured against both
+ * Dwarf arrangements at the band-3 crew, four of these on a board, forty seeds: at `atk` 72 with
+ * `haste` 98 the weaker arrangement keeps **4.00** of five; at `atk` 86 with `haste` 98, 3.17; at
+ * `atk` 72 with `haste` 126, 3.05; **at both, 1.77.** Neither half is a fight and the pair is.
+ *
+ * ⚠️ **`haste` 118 is a ceiling this tower may not cross, and the reason is in another tower's
+ * file.** `tower-human.ts` records its third hundred as the place where speed stopped costing
+ * softness, and its four blocks as *the only ones in the game above `haste` 125 that are not thin*.
+ * A durable Dwarf-tower body at 130 would make that true of eight blocks in two towers and false as
+ * written. 80 `atk` is the shipped legendary ceiling — {@link STANDFAST_LANCER} and
+ * {@link IRONSLING_WRIGHT} are already there — so the product is bought without moving either
+ * register.
+ *
+ * ⚠️ **One skill, and it is a plain hit.** {@link THE_STRIKE_FALLS} carries the argument for why.
+ */
+export const CROWNWORKS_STRIKER = {
+  id: 'crownworks-striker',
+  name: 'Crownworks Striker',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 80,
+    def: 26,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.22,
+    magicResist: 0.05,
+  },
+  skills: [THE_STRIKE_FALLS],
+} as const;
+
+/**
+ * It grew its shell out of what the quench-pits threw away, and it will not be moved out of a door.
+ *
+ * The hundred's **second** dial, and the only "you may not choose your target" this tower is
+ * allowed. ⚠️ **The durability is on the taunting body itself** — the Sundered Vault's Sealward
+ * Custodian inversion — so the one thing the party may hit is the one thing it has to kill, and
+ * every pool in front of it depletes. Measured at 3.98 / **3.02** against a 4.25 / 4.00 control,
+ * the largest dial found on this tower that is not the swing.
+ *
+ * ⚠️ **It carries no restoration and it never stands on the roof.** With it on the last board the
+ * weaker arrangement reads **15%** against its own 75% bar; without it, 95%. That is 15c's finding
+ * arriving on the tower that produced it, and the reason {@link DRAW_THE_OATH} is reused here rather
+ * than a new taunt authored: the status vocabulary is closed, and a taunt is one of the shapes it
+ * already spends most carefully.
+ *
+ * Monster rather than Human because Monsters counter Dwarves too, and because a wall is what that
+ * faction's bench is for — {@link STONE_GOLEM}, {@link RIMEPLATE} and {@link SCARBOUND_BELLOWER} are
+ * all this shape and none of them fits the Crownworks.
+ */
+export const QUENCHPIT_IRONHIDE = {
+  id: 'quenchpit-ironhide',
+  name: 'Quenchpit Ironhide',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 58,
+    def: 44,
+    haste: 78,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.1,
+    magicResist: 0.05,
+  },
+  skills: [DRAW_THE_OATH, SLAG_SLAM],
+} as const;
+
+/**
+ * Something was bound into the kilns to keep them lit. It is still keeping them lit.
+ *
+ * The one damage-**type** statement the third hundred makes, and it is a small one honestly sized.
+ * ⚠️ **Not one Dwarf in either swept arrangement carries a point of `magicResist`**, while four of
+ * five carry 0.08 to 0.12 `physicalResist` — the highest mean of any faction in the game. That reads
+ * like a lock and measures like texture: four magical bodies leave the weaker arrangement at 3.40
+ * against a physical board's 3.88. **A tenth of a party member, so it is spice rather than a band.**
+ *
+ * The faction's own answer is Vurn Runewright, the only Dwarf carrying any magic resistance and a
+ * member of neither swept five — which is what makes this a question with an answer inside the
+ * roster rather than a wall.
+ */
+export const KILNSWORN_ADEPT = {
+  id: 'kilnsworn-adept',
+  name: 'Kilnsworn Adept',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 72,
+    def: 20,
+    haste: 104,
+    critChance: 0.09,
+    critDamageAmp: 0.75,
+    magicPierce: 0.24,
+    magicResist: 0.08,
+  },
+  skills: [KILN_LIGHT],
+} as const;
+
+/**
+ * It came up the cold flues years ago and nobody has been down them since to argue.
+ *
+ * Opening-band texture, and the hundred's only new `common`. The bands above it are built out of
+ * bodies that hit; this is what the first twenty floors are made of instead, so the escalation has
+ * somewhere to start from.
+ */
+export const ASHPIT_SCUTTLER = {
+  id: 'ashpit-scuttler',
+  name: 'Ashpit Scuttler',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 56,
+    def: 14,
+    haste: 114,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+  },
+  skills: [ASHPIT_RAKE],
+} as const;
+
+/**
+ * The hold built it, the host took the hall it stands in, and neither of them ever stopped it.
+ *
+ * The roof. ⚠️ **Lighter than {@link THE_BREACHLORD} it succeeds — 1240 against 1300 and 74 against
+ * 78 — and that is arithmetic rather than timidity.** An `ascended` block climbs at
+ * `perLevel.ascended` 1.024 while a mono-faction Dwarf five is mostly `common` at 1.021, so across
+ * the 47 levels this hundred spans the anchors pull away from the crew by about ×1.15. The shipped
+ * floor-200 board reads 100% with all five alive at its own level 95 and **28% with 0.47** at 142.
+ * So the third hundred's anchors get *lighter* as it climbs and the escalation comes from the other
+ * four slots — which is the inverse of the second hundred and the whole shape of the Crownworks.
+ *
+ * Measured as authored, on the board it stands on: **100% with 2.33 of five** for the reference
+ * arrangement and **95% with 1.60** for the weaker one, against a 90% and a 75% bar.
+ *
+ * ⚠️ **Nothing on it restores anything and no board it stands on carries a taunt.** This is the
+ * tower that taught the project that rule. 1240 hp and 74 `atk` sit a long way under
+ * {@link UNMADE}'s 1800 and 100.
+ */
+export const THE_CROWN_WHEEL = {
+  id: 'the-crown-wheel',
+  name: 'The Crown Wheel',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1240,
+    atk: 74,
+    def: 40,
+    haste: 100,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    critBlock: 0.08,
+    tenacity: 0.4,
+    physicalPierce: 0.28,
+    magicPierce: 0.15,
+    physicalResist: 0.06,
+    magicResist: 0.05,
+  },
+  skills: [THE_WHEEL_TURNS, THE_WORKS_RUN_ON],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -5234,4 +5425,9 @@ export const ENEMIES = [
   IRONWAKE_VANGUARD,
   QUICKLIME_SERJEANT,
   THE_HOURLESS_MARCH,
+  CROWNWORKS_STRIKER,
+  QUENCHPIT_IRONHIDE,
+  KILNSWORN_ADEPT,
+  ASHPIT_SCUTTLER,
+  THE_CROWN_WHEEL,
 ] as const;

@@ -136,7 +136,6 @@ const TOWER_UNIT = 100;
  * tower at a time.
  */
 const PENDING = new Set([
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

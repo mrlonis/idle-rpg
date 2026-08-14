@@ -5054,6 +5054,146 @@ export const THE_HOUR_UNKEPT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's third hundred floors — the Crownworks
+//
+// Five skills for five blocks. ⚠️ **Every one of them is a plain hit, and that is the finding
+// rather than a shortcut.** Measured against both Dwarf arrangements at the band-3 crew, one
+// anchor plus four bodies asking the same question, forty seeds, against a 4.38 / 4.00 control:
+//
+// - **Scope and aim are inert or negative.** `enemy-row-back` 5.00 / 4.28, `enemy-back`
+//   5.00 / 4.17, `enemy-highest` 5.00 / 4.25, `enemy-all` 4.95 / 4.00, `enemy-lowest` 4.92 / 4.00
+//   — every one of them at or *above* a board that simply hits the front rank. A Dwarf five heals
+//   and shields `ally-all` and guards `ally-all`, so **spread damage is the shape it answers
+//   best**. That is the exact inverse of the Demon Tower, where wide damage was the whole axis.
+// - **Riders are inert.** A 50%-chance {@link STUN} reads 4.13 / 4.00, a poison 4.08 / 4.00, a
+//   bomb 4.08 / 4.00. The stun buys 5.7 seconds against the weaker arrangement and not one life.
+// - **Statics are small.** `tenacity` 0.40 / 0.60 / 0.85 reads 3.45 / 3.23 / 3.08 and
+//   `physicalResist` 0.15 / 0.23 reads 3.58 / 3.33, both against crews that carry **no `insight`
+//   and no `magicResist` at all** — the two gaps that looked like locks and are worth a tenth each.
+//
+// What moves a Dwarf five is `atk` **and** rate of action, as a product rather than a sum, and how
+// many bodies on the board carry both. So the vocabulary stays shut and these are turns.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hammer comes down on whatever is under it, at the rate the wheel turns.
+ *
+ * ⚠️ **`atk` at the legendary ceiling on a body fast enough to spend it, and neither half is worth
+ * anything alone.** Four bodies at `atk` 72 and `haste` 98 leave the weaker arrangement at 4.00
+ * survivors; at `atk` 86 and `haste` 98, 3.17; at `atk` 72 and `haste` 126, 3.05; at both,
+ * **1.77**. The second hundred escalated weight and speed as two dials and this hundred is the
+ * product of them, which is why the Striker carries both and the texture around it carries neither.
+ *
+ * ⚠️ **`haste` 118 and not a point more, deliberately.** The Human Tower's third hundred is where
+ * speed stopped costing softness, and its four blocks are recorded there as **the only ones in the
+ * game above `haste` 125 that are not thin**. Reaching past 125 here would quietly make that claim
+ * false about somebody else's tower; the ceiling on `atk` buys the same product without touching it.
+ */
+export const THE_STRIKE_FALLS = {
+  id: 'the-strike-falls',
+  name: 'The Strike Falls',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * Slag over hide over slag again, and it has decided this doorway is its.
+ *
+ * The second dial, and it arrives a band after the first. ⚠️ **A taunt on a body that is *itself*
+ * the durability**, which is the Sundered Vault's Sealward Custodian inversion and the only form of
+ * "you may not choose your target" this tower is allowed: every pool the party is forced to chew
+ * through depletes. At hp 1400 / def 45 it reads 3.98 / **3.02** against a 4.25 / 4.00 control,
+ * which is the largest single dial found here that is not the swing itself.
+ *
+ * ⚠️ **It carries no restoration of any kind and it never stands on the roof.** Sustain behind
+ * something the party cannot aim past is the ninety-second clock, and this tower is the one that
+ * measured it: the Dwarf roof was once `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf
+ * five could close it. Measured here, the roof board with this body on it reads **15%** for the
+ * weaker arrangement against its own 75% bar, and 95% without it.
+ */
+export const SLAG_SLAM = {
+  id: 'slag-slam',
+  name: 'Slag-Slam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 40,
+  priority: 1,
+} as const;
+
+/**
+ * Bound to the kilns, and paid in what the kilns are pointed at.
+ *
+ * Magical, which against these two crews is the one type distinction that measures at all: **not
+ * one of the ten Dwarves in the two swept arrangements carries a point of `magicResist`**, while
+ * four of five carry 0.08 to 0.12 `physicalResist` — the highest mean in the game. ⚠️ **And it is
+ * worth a tenth of a party member, not a lock**: four magical bodies read 3.40 against a physical
+ * 3.88. Authored because it is free and true, not because a band could be built on it.
+ *
+ * The faction's own answer is Vurn Runewright, the only Dwarf with any magic resistance and a
+ * member of neither swept five — which is the shape a lock is supposed to have.
+ */
+export const KILN_LIGHT = {
+  id: 'kiln-light',
+  name: 'Kiln-Light',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** Something came up the flues while the works were cold, and stayed. Opening-band texture. */
+export const ASHPIT_RAKE = {
+  id: 'ashpit-rake',
+  name: 'Ashpit Rake',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.25 }],
+  cooldown: 45,
+  priority: 1,
+} as const;
+
+/**
+ * The great wheel of the Crownworks, which the hold built and the host never thought to stop.
+ *
+ * The roof's turn. ⚠️ **Aimed at the front rank rather than spread**, against every instinct and
+ * with the measurement behind it: a board that reaches the party's back row leaves a Dwarf five at
+ * **5.00** survivors where the same power into the front row leaves it at 4.38. Dwarves put their
+ * two largest bodies in front and heal from behind them, so damage taken off that front row is
+ * damage their `ally-all` sustain never has to answer.
+ *
+ * ⚠️ **The row attack beside it is the exception that proves it**, and it is a *front*-row sweep:
+ * it hits the two bodies the party has already committed to keeping alive rather than the three it
+ * has hidden. Measured as authored, the roof reads 100% with 2.33 of five for the reference
+ * arrangement and 95% with 1.60 for the weaker one.
+ */
+export const THE_WHEEL_TURNS = {
+  id: 'the-wheel-turns',
+  name: 'The Wheel Turns',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * Nothing here was built to stop. The works simply run on over whoever is standing in them.
+ *
+ * The roof's second turn, and a **front-row** sweep for the reason {@link THE_WHEEL_TURNS} records.
+ * ⚠️ **No status rides it.** Ten of them were measured one at a time against these crews and the
+ * whole spread was a fifth of a party member; a rider here would be decoration on the one board in
+ * the hundred that cannot afford any.
+ */
+export const THE_WORKS_RUN_ON = {
+  id: 'the-works-run-on',
+  name: 'The Works Run On',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 70,
+  priority: 1,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5315,4 +5455,10 @@ export const SKILLS = [
   IRONWAKE_CHARGE,
   QUICKLIME_CUT,
   THE_HOUR_UNKEPT,
+  THE_STRIKE_FALLS,
+  SLAG_SLAM,
+  KILN_LIGHT,
+  ASHPIT_RAKE,
+  THE_WHEEL_TURNS,
+  THE_WORKS_RUN_ON,
 ] as const;

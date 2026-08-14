@@ -15,7 +15,7 @@ boards, and a content session is mostly a conversation with it.
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 144                                         |
+| Enemy archetypes | 149                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -154,17 +154,23 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 16, demon 17, monster 19,
-  elf 21, dwarf 22, human 24, undead 25. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 16, demon 18, monster 21,
+  elf 21, dwarf 22, undead 25, human 26. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
 - ⚠️ **A lean is worth ten blocks, so it can reverse the ordering in one chapter.** The Standing Line
   took Human from **thinnest of the seven at 14 to deepest at 24** in a single session, which is why
   the depths are recomputed rather than read: the argument that picked a lean is stale the moment
-  that lean ships. The two thinnest factions are now Angels and Demons, and **neither may lead a
-  chapter** — so the next lean is a choice among Monster (19), Undead (21) and Elf (21) rather than
+  that lean ships. The two thinnest factions are still Angels and Demons, and **neither may lead a
+  chapter** — so the next lean is a choice among Monster (21), Elf (21) and Dwarf (22) rather than
   the obvious one, and it is the first time that has been true.
+- ⚠️ **A _tower's_ lean is fixed by the matrix, so when it lands on an already-deep faction the
+  blocks go elsewhere.** The Dwarf Tower leans Human and Human was second-deepest at 24, so its third
+  hundred put the boss and the recurring anchor there and spent the other three on Monsters and
+  Demons — **all four of which counter Dwarves**, so the lean stays live. The test is
+  `countersOf(tower.faction)`, not "the leader faction"; a substitute from outside that set quietly
+  switches the matrix off on the board it lands on.
 - ⚠️ **Do not lean a chapter on Angels or Demons.** A celestial deals ×1.10 to every mortal and the
   matrix has **no mortal → celestial row**, so a celestial-led board is a standing tax no mortal
   composition can answer — worth about nine levels of investment, silently, on top of whatever the
@@ -391,6 +397,20 @@ procedure:
 6. ⚠️ **Do not try to make the bottom of a band 2 hard**, but measure how much room there is on the
    tower's own crew before deciding how little the opening bands may carry — the same measurement
    reads three tenths of a second of span against one crew and threefold against another.
+7. ⚠️ **Field the _previous_ hundred's roof board at the new roof's level before authoring anything.**
+   A heavy block climbs at `perLevel.ascended` 1.024 or `perLevel.legendary` 1.0225 while a
+   mono-faction five is mostly `common` at 1.021, so across a hundred floors the anchors gain about
+   ×1.15 on the crew. The Dwarf Tower's floor-200 board reads 100% with all five alive at its own
+   level and **28% with 0.47 survivors** at the third hundred's roof — so that hundred's anchors had
+   to get _lighter_ than the ones they succeeded, and its escalation came out of the board's other
+   four slots instead. **This is not a Dwarf fact**; check it on every third hundred, because a band
+   sized by eye against the hundred below will be unwinnable at the top and nothing says so until the
+   sweep does.
+8. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
+   shipped block uses, which makes it tempting when a tower's axis is tempo and the tower above has
+   already spent `haste`. Measured: `atk` 72 with `attackSpeed` 45 reads 3.77 / 2.63 against `haste`
+   143's 3.48 / 2.35 — the same number — and `effectiveSpeed` sums the two before applying the slow
+   multiplier, so it is not even proof against a `slow`. **Do not spend a session re-measuring it.**
 
 Two rules that bind everywhere:
 
@@ -409,6 +429,13 @@ Two rules that bind everywhere:
 script before shipping — not by reading.** Three sessions in four found a shipped absolute claim
 that was wrong about the boards underneath it, and one found a `TOWER_RULES` doc block still
 prescribing a retune that had been measured and rejected a session earlier.
+
+⚠️ **Check the claims the file _already_ makes, not only the ones you are about to add.** The Dwarf
+Tower's third hundred found `tower-dwarf.ts` claiming "no board above floor 180 carries sustain of
+any kind" while three boards above it did — the Oathshield Vanguard's `recovery` on floors 186 and
+194 and the Sepulchre Hound's `lifeLeech` on 188. **The honest fix was the claim, not the boards**:
+what the tower actually forbids up there is a heal, a drain or a regeneration, and restating it that
+way keeps every measured figure valid where retuning three shipped floors would not.
 
 Run it **at the start of a session, not the end.** Each claim is a two-line predicate over the
 content; running them takes seconds and reading fifty boards carefully does not work. Things worth

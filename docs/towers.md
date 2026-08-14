@@ -5,9 +5,10 @@ shipped in milestone 15b with a single tower, the other six in 15c, and the seco
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight.** `TOWER_RULES` is one rule for all seven, so the height moved
-to 300 in a single session while the floors arrive one tower at a time — exactly as the second
-hundred did. A tower that has not been extended yet is on the `PENDING` list in
+⚠️ **The third hundred is in flight — Human and Dwarf have theirs; Elf, Undead, Monster, Angel and
+Demon are still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
+in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
+A tower that has not been extended yet is on the `PENDING` list in
 [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts), still authors 200 floors, and **has no boss
 until its own hundred lands**: `floorKindAt` reads the rules' height, so its floor 200 resolves as a
@@ -351,13 +352,15 @@ choosing; do not copy the last session's shape.**
     4.00 / 3.88 — **reaching past the front rank makes a Human board easier**, because the alternate
     fields no tank and damage taken off its front row is time it did not have to buy. The floors are
     fine; the reason written on them was not.
-- **Dwarf** — cannot do that. A Dwarf five out-lasts bulk and loses to the ninety-second clock, so it
-  escalates in **front** and forbids sustain above floor 180. Measured at the top floor's level: one
-  anchor plus a _bulky_ legendary reads 90% / 45.7s and 63% for the alternate; the same weight as a
-  _pressure_ legendary reads 100% / 33.0s and 90%; a shield support in the back rank reads **28% /
-  0%**. ⚠️ **The back rank is a cliff rather than a dial** — moving one body of the same output from
-  front to back takes the reference five from 100% to **10%**, because Dwarves carry the least reach
-  in the game.
+- **Dwarf, second hundred** — cannot do that. A Dwarf five out-lasts bulk and loses to the
+  ninety-second clock, so it escalates in **front** and forbids a heal, a drain or a regeneration
+  above floor 180. Measured at the top floor's level: one anchor plus a _bulky_ legendary reads
+  90% / 45.7s and 63% for the alternate; the same weight as a _pressure_ legendary reads
+  100% / 33.0s and 90%; a shield support in the back rank reads **28% / 0%**. ⚠️ **The back rank is a
+  cliff rather than a dial** — moving one body of the same output from front to back takes the
+  reference five from 100% to **10%**, because Dwarves carry the least reach in the game.
+- **Dwarf, third hundred** — the first where the escalation had to come from **the board's
+  composition rather than from any body on it**, because the anchors run out of room. See below.
 - **Elf** — can afford either (it takes the heaviest authorable board in eleven seconds against a
   ninety-second timer) but neither _threatens_ it: a shield support in the back rank leaves the
   weaker arrangement at 100% with 4.25 alive, while two anchors take it to 43%. It escalates through
@@ -383,6 +386,59 @@ choosing; do not copy the last session's shape.**
   every row between 3.92 and 4.00. An Angel five is `GUARD`, `BARRIER`, `AEGIS`, two or three heals
   and a cleanse, so the first question is free.
 - **Demon** — the last, and about **scope** rather than a mechanic. See below.
+
+### The Dwarf Tower's third hundred: the anchors run out of room
+
+⚠️ **A heavy enemy block outgrows a mono-faction crew across a hundred floors, and this is the first
+hundred where that decided the shape.** `perLevel.ascended` is 1.024 and `perLevel.legendary` 1.0225
+against a mostly-`common` five's 1.021, so over the 47 levels the third hundred spans the anchors
+gain about ×1.15 on the party. The shipped floor-200 board, fielded up its own level line against the
+band-3 crew, reads 100% with all five alive at level 95, 100% / 4.97 at 125, and **28% with 0.47** at 142. **The previous hundred's climax is unwinnable at this one's roof**, so the new anchors are
+_lighter_ than the ones they succeed — `THE_CROWN_WHEEL` is 1240/74 against `THE_BREACHLORD`'s
+1300/78 — and the escalation comes out of the other four slots: one body a board that swings, then
+two, then two behind a wall, then three, then nothing else at all.
+
+⚠️ **This generalises to every third hundred and nobody should re-derive it.** Check the previous
+hundred's roof board at the new roof's level **before** authoring anything; if it has fallen through
+the floor, the band is a composition problem rather than an anchor problem.
+
+What a Dwarf five actually answers to, one anchor plus four bodies at the roof's level, forty seeds:
+
+| Four bodies at        | reference | alternate |
+| --------------------- | --------- | --------- |
+| `atk` 72, `haste` 98  | 4.00      | 4.00      |
+| `atk` 86, `haste` 98  | 4.00      | 3.25      |
+| `atk` 72, `haste` 126 | 4.00      | 3.05      |
+| `atk` 86, `haste` 126 | **2.88**  | **1.77**  |
+
+**Weight and rate are a product rather than two dials**, which is what makes the third hundred
+distinct from the second — that one escalated them separately.
+
+⚠️ **Spread damage makes a Dwarf board _easier_, which inverts the Demon Tower exactly.** Against a
+4.38 / 4.00 control: `enemy-row-back` 5.00 / 4.28, `enemy-back` 5.00 / 4.17, `enemy-highest`
+5.00 / 4.25, `enemy-all` 4.95 / 4.00, `enemy-lowest` 4.92 / 4.00 — every scope and every aim at or
+_above_ saying nothing. A Dwarf five heals, shields and guards `ally-all`, so spreading damage is
+feeding the one thing it is built to do. Riders are inert too (a 50% stun 4.13 / 4.00, a poison
+4.08 / 4.00, a bomb 4.08 / 4.00).
+
+⚠️ **Two gaps that look like locks and are worth a tenth each.** No Dwarf character carries a point
+of `insight`, so `tenacity` cannot be bought past — and at 0.40 / 0.60 / 0.85 it reads
+3.45 / 3.23 / 3.08. Not one Dwarf in either swept arrangement carries any `magicResist` while four of
+five carry 0.08–0.12 `physicalResist`, the highest mean in the game — and four magical bodies read
+3.40 against a physical board's 3.88. ⚠️ **`insight` is absent from _every_ faction's roster** (two
+Monster characters aside), so tenacity is not this tower's lock any more than `dodge` was the Monster
+Tower's — the same "unanswerable is not the same as ours" test that shelved that one.
+
+⚠️ **`attackSpeed` is `haste` under another name and the measurement is worth not repeating.** It is
+the one `StatBlockData` field no shipped block uses, which makes it look like free novelty. `atk` 72
+with `attackSpeed` 45 reads 3.77 / 2.63 against `haste` 143's 3.48 / 2.35, and `effectiveSpeed` adds
+the two before applying the `slow` multiplier — so it is not even proof against the slow both Dwarf
+arrangements carry.
+
+**What is worth something beside the swing is a taunt on the body that is itself the durability** —
+3.98 / **3.02** at hp 1400 / def 45, the Sealward Custodian inversion. It arrives a band after the
+swing and never stands on the roof: with it on the last board the alternate reads **15%** against its
+own 75% bar, and 95% without it.
 
 ### The Angel Tower: tempo and aim, not mechanics
 

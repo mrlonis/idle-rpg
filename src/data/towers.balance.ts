@@ -221,7 +221,6 @@ const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.p
  * [`towers.spec.ts`](./towers.spec.ts).
  */
 const PENDING = new Set([
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',
