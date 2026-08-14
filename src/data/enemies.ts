@@ -105,6 +105,12 @@ import {
   SHARDLIGHT,
   THE_EDGE_IS_MADE,
   NOTHING_HOLDS_AN_EDGE,
+  CLOSE_OVER_IT,
+  KEEP_THE_SEED,
+  SEEDLIGHT,
+  RUN_THE_SEED_DOWN,
+  WHAT_FALLS_IS_SOWN,
+  THE_WOOD_DOES_NOT_END,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5462,6 +5468,171 @@ export const THE_EDGEWRIGHT = {
   skills: [THE_EDGE_IS_MADE, NOTHING_HOLDS_AN_EDGE],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Seedfall — the Undead Tower's third hundred.
+//
+// ⚠️ **The axis is how long the board takes to kill, and it is this crew's alone.** Measured at the
+// roof's level against both Undead arrangements, one anchor plus four identical bodies, forty seeds:
+// four bodies at hp 700 / 1000 / 1300 / 1600 / 2000 / 2400 read **3.85 / 3.00 / 2.63 / 2.00 / 2.00 /
+// 1.30** for the reference five and 4.00 / 4.00 / 3.10 / 2.38 / 1.07 / **0.05** for the alternate —
+// a smooth grade with **zero timeouts anywhere on it**, so it is difficulty rather than the clock.
+//
+// ⚠️ **`def` and `hp` are the same dial and neither is special**: `def` 70 on a 700-hp body reads
+// 3.00 / 21.6s and hp 1050 at `def` 20 reads 3.00 / 22.5s. The Dwarf Tower's "def is not a lever at
+// these levels" holds; what is a lever is the **pool**, whichever stat spells it.
+//
+// ⚠️ **The "is it ours" test comes back clean, which is what licenses the band.** At hp 1600 the
+// four-body board costs the Undead reference five three members (2.00) and the alternate 2.38, while
+// the **Elf** five takes it at 4.00 in twelve seconds and the **Dwarf** five at 4.00 in thirty-four
+// — the Dwarves are in the fight just as long and lose nobody. An Undead five sustains on
+// `lifeLeech` off damage dealt (0.36–0.40 summed across five, the highest in the game) and
+// `recovery` on its own turn, so incoming damage scales with the length of a fight while its health
+// back does not. A board that will not die is a board that starves it.
+//
+// ⚠️ **Two axes this hundred deliberately does not take.** Both Undead arrangements carry zero
+// `critBlock` and zero `critDamageResist` — but the Elf Tower's third hundred is built on crit, and
+// two towers with one lock is one tower shipped twice. Both carry zero `tenacity` — and so do the
+// Human, Elf, Monster and Demon crews, which is the same "unanswerable is not the same as ours" test
+// that shelved `dodge` on the Monster Tower.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A trunk that has been hit for two hundred floors and has closed over every one of them.
+ *
+ * **The hundred's spine**, on more of its slots than anything else. The heaviest Elven legendary in
+ * the game at 1160 — under {@link SCARBOUND_BELLOWER}'s 1180, which is the shipped ceiling and is
+ * not moved for this — with 56 `atk` on `haste` 64 to say what it is for: **the pool is the point
+ * and the damage is incidental.**
+ *
+ * ⚠️ **It carries `physicalResist` 0.12 and `magicResist` 0.10 together**, which is the shipped
+ * ceiling for that pair rather than past it — {@link CHARNEL_DRUDGE} is 0.12 / 0.10 — and the reason
+ * to carry both is that an Undead five splits its damage across the two types. A wall against one is
+ * a wall the other half of the party walks round.
+ */
+export const DEEPMAST_HEARTWOOD = {
+  id: 'deepmast-heartwood',
+  name: 'Deepmast Heartwood',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 1160,
+    atk: 56,
+    def: 38,
+    haste: 64,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+    magicResist: 0.1,
+  },
+  skills: [CLOSE_OVER_IT],
+} as const;
+
+/**
+ * The light the seedfall is kept under, and it is spent on the wood rather than on itself.
+ *
+ * The **Deepmast**'s body, and the hundred's one piece of shared durability. ⚠️ **A banked pool and
+ * never a heal** — see {@link KEEP_THE_SEED} — and it is on a body that is itself durable, which is
+ * the Sealward Custodian inversion: the thing the party may not ignore is the thing warding
+ * everything else.
+ *
+ * ⚠️ **It retires at floor 270 and that is measured, not taste.** A ward on a closing board is the
+ * ninety-second clock: the roof carrying one reads **75% / 55% at 45.1s mean and 56s worst**, and the
+ * roof carrying one *behind* the Heartwood reads 25% / 13%. The same board without it reads
+ * 98% / 95%. This tower's first hundred spent its heal in the Green Vigil for the same reason.
+ */
+export const SEEDLIGHT_KEEPER = {
+  id: 'seedlight-keeper',
+  name: 'Seedlight Keeper',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 56,
+    def: 34,
+    haste: 78,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    magicResist: 0.12,
+  },
+  skills: [KEEP_THE_SEED, SEEDLIGHT],
+} as const;
+
+/**
+ * What comes through a seedfall ahead of the fire, and it is not waiting for the wood.
+ *
+ * The hundred's **second dial**, and never more than one to a board — see
+ * {@link RUN_THE_SEED_DOWN} for the product that makes two of them a 0%. Thin at 700 against
+ * `haste` 128, which is the register the shipped roster keeps for that speed
+ * ({@link NIGHTMARCH_OUTRIDER} is 760 at 128) and is the mechanic's price rather than a discount on
+ * it.
+ */
+export const CINDERSEED_COURSER = {
+  id: 'cinderseed-courser',
+  name: 'Cinderseed Courser',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 70,
+    def: 18,
+    haste: 128,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    magicPierce: 0.2,
+    magicResist: 0.08,
+  },
+  skills: [RUN_THE_SEED_DOWN],
+} as const;
+
+/**
+ * The Sunbough fell, and this grew out of where it landed.
+ *
+ * The roof. ⚠️ **Lighter than both anchors it succeeds — 1320 against {@link THE_SUNBOUGH}'s 1520
+ * and {@link THE_WITHERED_CROWN}'s 1740 — and that is arithmetic rather than timidity**, the
+ * correction the Crownworks recorded and the Splintering Yards confirmed. An `ascended` block climbs
+ * at `perLevel.ascended` 1.024 where a mono-faction Undead five is mostly `common` at 1.021, so
+ * across the forty-seven levels this hundred spans the anchors gain about ×1.15 on the crew. Fielded
+ * up its own level line against the band-3 crew, the shipped floor-200 board reads 100% with all five
+ * alive at level 95, 100% / 5.00 at 120, and **53% with 0.88** at 142.
+ *
+ * ⚠️ **The two heavies it succeeds had to leave the closing floors, and that is the same
+ * arithmetic run over the tower's own bench.** On a light board at the roof's level the Withered
+ * Crown reads **30% / 13%** and the Sunbough **13% / 10%** — both harder than this roof by a long
+ * way — so the Withered Crown's last floor is 265, the Sunbough's is 284 and
+ * {@link THE_LONGSHADOW}'s is 281. Nothing but this anchors floors 286 to 300.
+ *
+ * It keeps the tower's idiom without re-spending it: `dodge` 0.18 is real but under every ascended
+ * Elf below it (0.22 to 0.28), because the evasion hundred is the one this succeeds rather than the
+ * one it is. **It restores nothing**, unlike all three roofs before it — a roof is where sustain
+ * stops being a lock and becomes the clock. Under the Unmade on both stats, which
+ * `enemies.spec.ts` holds: 1320 and 82 against 1800 and 100.
+ */
+export const THE_SEEDFATHER = {
+  id: 'the-seedfather',
+  name: 'The Seedfather',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1320,
+    atk: 82,
+    def: 46,
+    haste: 102,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    dodge: 0.18,
+    accuracy: 1.1,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  skills: [WHAT_FALLS_IS_SOWN, THE_WOOD_DOES_NOT_END],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -5617,4 +5788,8 @@ export const ENEMIES = [
   GLASSCHOIR_ARBITER,
   SHARDLIGHT_ACOLYTE,
   THE_EDGEWRIGHT,
+  DEEPMAST_HEARTWOOD,
+  SEEDLIGHT_KEEPER,
+  CINDERSEED_COURSER,
+  THE_SEEDFATHER,
 ] as const;

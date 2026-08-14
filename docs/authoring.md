@@ -15,7 +15,7 @@ boards, and a content session is mostly a conversation with it.
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 154                                         |
+| Enemy archetypes | 158                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -154,8 +154,8 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 18, demon 19, monster 21,
-  elf 21, dwarf 24, undead 25, human 26. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 19, demon 20, monster 21,
+  elf 23, dwarf 24, undead 25, human 26. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
@@ -163,7 +163,7 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   took Human from **thinnest of the seven at 14 to deepest at 24** in a single session, which is why
   the depths are recomputed rather than read: the argument that picked a lean is stale the moment
   that lean ships. The two thinnest factions are still Angels and Demons, and **neither may lead a
-  chapter** — so the next lean is a choice among Monster (21), Elf (21) and Dwarf (24) rather than
+  chapter** — so the next lean is a choice among Monster (21), Elf (23) and Dwarf (24) rather than
   the obvious one, and it is the first time that has been true.
   - **A tower may spend on a celestial where a chapter may not**, and the Elf Tower's third hundred
     is the worked example: Angels and Demons both counter Elves, so its four filler blocks went 2 to
@@ -384,6 +384,15 @@ procedure:
 
 1. **Measure before authoring.** Field both arrangements at the roof's level against a controlled
    board — one anchor plus four bodies all asking the same question — and vary only the mechanic.
+   - ⚠️ **Calibrate the control's weight first, or the whole sweep reads as a flat line.** The
+     Undead third hundred's first pass put the control at an anchor of 1300/84 behind bodies of
+     780/74 and measured **2.00 survivors on nineteen shapes out of nineteen** — the same two members
+     lived through everything and the other three died to everything, so the metric was saturated and
+     said nothing. Dropping the control to 1100/74 and 700/62 moved it to 3.83 / 4.00 and the same
+     nineteen shapes spread across 2.00 to 4.00. **Aim the control at ~4.00 of five** — the shipped
+     ones read 4.13 / 4.05, 4.35 / 4.00 and 4.38 / 4.00 — so there is room to fall in and a little to
+     rise into. Two or three throwaway sweeps buy this; it is the cheapest step here and skipping it
+     invalidates every row below.
 2. ⚠️ **Check both arrangements on every candidate board.** Which crew binds is not stable: two
    towers found the alternate binding, one found it flipping by mechanic, one found the reference
    much the stronger, and one found the two failing on **opposite axes** (weight breaks one, length
@@ -424,8 +433,23 @@ procedure:
      Elf Tower's own `THE_GRUDGEKEEPER` (1520/89) is heavier than the roof that succeeds it
      (1300/84), so boards carrying it above level 140 measured harder than the roof — 2.85 reference
      survivors against the roof's 3.42. A closing band may have to retire a block the tower has fielded
-     since its first hundred.
-8. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
+     since its first hundred. **The Undead third hundred retired two**: at level 142 on a light board
+     `THE_WITHERED_CROWN` reads 30% / 13% and `THE_SUNBOUGH` 13% / 10% against a roof of 100% / 93%,
+     so their last floors are 265 and 284 and nothing but the new roof anchors the last fifteen.
+8. ⚠️ **A stat can be the axis where every mechanic is inert, and the negative list is the
+   deliverable.** The Undead third hundred measured nineteen shapes and found the whole status
+   vocabulary worth 0.10 to 0.63 survivors, aim and scope worth _less than nothing_, and question
+   count flat — while plain enemy **durability** graded 3.85 → 1.30 across four bodies at hp 700 to
+   2400 with **zero timeouts**. ⚠️ **The timeout count is what tells that apart from the clock**: a
+   grade that costs survivors while every fight still ends in a death is difficulty; one that starts
+   timing out is the ninety seconds with a stat block attached. Check it explicitly rather than
+   inferring it from the win rate, because a wipe and a timeout are the same `defeat`.
+   - ⚠️ **A board-wide ward is the shipped shield rule in both directions, measured.** One back-rank
+     body warding `ally-all` is worth a real 0.75 of a survivor mid-band, and the **same body on the
+     roof** takes it from 100% / 93% to **75% / 55%** at 45s mean and 56s worst — a clock, not a
+     lock. A _self_-shield is worth 0.00: it prices against the wearer's own `atk` on a body that is
+     already dying.
+9. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
    shipped block uses, which makes it tempting when a tower's axis is tempo and the tower above has
    already spent `haste`. Measured: `atk` 72 with `attackSpeed` 45 reads 3.77 / 2.63 against `haste`
    143's 3.48 / 2.35 — the same number — and `effectiveSpeed` sums the two before applying the slow

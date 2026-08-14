@@ -5301,6 +5301,129 @@ export const NOTHING_HOLDS_AN_EDGE = {
   priority: 2,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Seedfall — the Undead Tower's third hundred.
+//
+// ⚠️ **The axis is durability and the skills are deliberately plain**, which is the finding rather
+// than a shortcut. Nineteen shapes were measured against both Undead arrangements at the roof's
+// level, controlled at one anchor plus four identical bodies, and almost every *mechanic* was worth
+// nothing: aim and scope read at or **above** a 3.83 / 4.00 control (`enemy-lowest` 4.00 / 4.00,
+// `enemy-back` 4.00 / 4.00, `enemy-highest` 4.00 / 4.00, `enemy-all` 4.00 / 4.00), a status one at a
+// time is worth between 0.10 and 0.63 of the reference five and **exactly zero** of the alternate,
+// and question *count* is nearly flat (3.88 → 3.42 → 3.45 → 3.10 → 3.00 across zero to four).
+//
+// What grades is how long the board takes to kill. See the head of the Seedfall section in
+// [`enemies.ts`](./enemies.ts) for why that is this crew's and nobody else's.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Bark closes over the wound, and the wound was the point of the last twenty minutes.
+ *
+ * ⚠️ **A plain hit on a long cooldown, because this block's contribution is its own health bar.**
+ * The Crownworks Striker and the Splinteryard Honer make the same call for the same reason: when
+ * the axis is a stat, a skill carrying a rider measures the rider instead. Sixty rather than
+ * fifty-five because the Heartwood is the slowest thing on most of these boards and a shorter
+ * cooldown would quietly make it a damage block.
+ */
+export const CLOSE_OVER_IT = {
+  id: 'close-over-it',
+  name: 'Close Over It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/**
+ * The light is put round the seed, and nothing gets at the seed until the light is spent.
+ *
+ * ⚠️ **A shield and never a heal, and on this tower that is a rule rather than a preference.** An
+ * Undead five cannot burst, so enemy sustain on a long board is the ninety-second clock wearing a
+ * defence — which is why the tower's first hundred spends its heal in the Green Vigil and nothing
+ * above floor 160 heals, drains or regenerates. A banked pool depletes: measured against a
+ * 3.83 / 4.00 control this is worth **3.00 / 4.00**, real and finite.
+ *
+ * ⚠️ **Cooldown 70 against {@link AEGIS}'s 55-tick duration**, so the ward is down for fifteen ticks
+ * in every cycle. A status that outlasts the cooldown applying it is a permanent absorb, which is
+ * the {@link BARRIER}-at-70-recast-every-60 mistake.
+ */
+export const KEEP_THE_SEED = {
+  id: 'keep-the-seed',
+  name: 'Keep the Seed',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/** The Keeper's own turn, when the seed is already kept. Magical, against a crew carrying 0.04. */
+export const SEEDLIGHT = {
+  id: 'seedlight',
+  name: 'Seedlight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.6 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/**
+ * Something in the seedfall burns faster than the wood grows, and it has been waiting to.
+ *
+ * The hundred's **second** dial, arriving at floor 266 and never more than one to a board.
+ * ⚠️ **Weight and rate are a product here rather than two dials, and the product is a cliff.**
+ * Against the same control: four bodies at `haste` 126 read 2.98 / 3.77, four at hp 1200 read
+ * 2.88 / 3.77, and four at **both** read 2.00 / **1.75** — which is also the only measurement in
+ * which the alternate five is the weaker of the two. Two of these behind an anchor at the roof's
+ * level reads 0%, so the Quickening spends one and the Seedcrown spends one.
+ */
+export const RUN_THE_SEED_DOWN = {
+  id: 'run-the-seed-down',
+  name: 'Run the Seed Down',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.7 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/**
+ * Everything that has climbed this wood fell off it, and every one of them fed it.
+ *
+ * The roof's turn. ⚠️ **`enemy-front` and no rider**, on the same measurement the Splintering Yards
+ * recorded a hundred floors of another tower away: against these two crews the front rank is where a
+ * roof's damage is worth the most, and every aim that reaches past it leaves the board **easier**
+ * than saying nothing.
+ */
+export const WHAT_FALLS_IS_SOWN = {
+  id: 'what-falls-is-sown',
+  name: 'What Falls Is Sown',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The roof's second turn, and the only wide voice in the hundred.
+ *
+ * `enemy-row-front` rather than `enemy-all`: the row is the two bodies an Undead five cannot hide,
+ * and spreading damage across all five measured **at** the control on both arrangements — a Dwarf
+ * Tower result arriving on a second crew, for the same reason. It is here for rhythm against
+ * {@link WHAT_FALLS_IS_SOWN} rather than as an escalation.
+ *
+ * ⚠️ **1.2 because it is wide, which is a rule and not a choice** — `skills.spec.ts` caps every
+ * `enemy-all` and `enemy-row-*` skill there so a sweep can never out-earn a single target. It was
+ * authored at 1.45 and the spec caught it, which is the whole reason that spec reads the target
+ * rather than the tier.
+ */
+export const THE_WOOD_DOES_NOT_END = {
+  id: 'the-wood-does-not-end',
+  name: 'The Wood Does Not End',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5574,4 +5697,10 @@ export const SKILLS = [
   SHARDLIGHT,
   THE_EDGE_IS_MADE,
   NOTHING_HOLDS_AN_EDGE,
+  CLOSE_OVER_IT,
+  KEEP_THE_SEED,
+  SEEDLIGHT,
+  RUN_THE_SEED_DOWN,
+  WHAT_FALLS_IS_SOWN,
+  THE_WOOD_DOES_NOT_END,
 ] as const;

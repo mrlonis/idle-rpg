@@ -9,14 +9,18 @@ import {
   BULWARK_ENEMY,
   CARRION_SWARM,
   CINDERLING,
+  CINDERSEED_COURSER,
+  CINDER_CULLER,
   COLOSSUS,
   CONCORD_CANTOR,
   COVENANT_BREAKER,
   CROWNBARK_BASTION,
+  DEEPMAST_HEARTWOOD,
   DUSKFERN_SKIRMISHER,
   EMBERSEED_WARLOCK,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLASSCHOIR_ARBITER,
   GLOAMVINE_CREEPER,
   GOLEM,
   GOREHIDE_MATRIARCH,
@@ -25,27 +29,37 @@ import {
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
+  KILNSWORN_ADEPT,
+  KNELL_CHANTER,
+  LITANY_BEARER,
   LONGBOUGH_MARKSMAN,
   LUMEN_ACOLYTE,
   MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTCANOPY_SINGER,
   PYRE,
+  QUENCHPIT_IRONHIDE,
   RADIANT_HERALD,
   RAVAGER,
   REDWATER_STALKER,
   RENDFANG_JACKAL,
   RIFTBORN_HARROWER,
+  RIFTEDGE_CANTOR,
   RIMEPLATE,
+  SCARBOUND_BELLOWER,
+  SEEDLIGHT_KEEPER,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHARDLIGHT_ACOLYTE,
   SKYSHRIKE,
   SLIME,
+  STILLNESS_CANTOR,
   STORMCALLER,
   SUNFADE_CHANTER,
   SUNMOTE_DANCER,
   THE_LONGSHADOW,
+  THE_SEEDFATHER,
   THE_SUNBOUGH,
   THE_WITHERED_CROWN,
   THORNBACK_GRAZER,
@@ -62,7 +76,7 @@ import {
 } from './enemies';
 
 /**
- * The Undead Tower — two hundred floors, enemy levels 1 to 120.
+ * The Undead Tower — three hundred floors, enemy levels 1 to 142.
  *
  * ## Why the enemies are mostly Elven
  *
@@ -116,8 +130,18 @@ import {
  * 21f's rule binds on its second tower. An Undead five takes the shipped floor 100 in **34.4
  * seconds** with two of five alive — the slowest crew reading in any tower, against an Elf five's
  * 10.8 — and the healer board above runs 30.8s mean and 50s max. So this tower's *own* first-hundred
- * thesis is the thing that would time it out: the Green Vigil is where it is spent, and **nothing
- * above floor 160 restores anything**. Checked by walking all two hundred floors with a script.
+ * thesis is the thing that would time it out: the Green Vigil is where it is spent, and **no board
+ * above floor 160 carries a heal, a drain or a regeneration**.
+ *
+ * ⚠️ **That claim used to read "nothing above floor 160 restores anything", and it was wrong about
+ * the boards underneath it.** Every anchor above floor 179 carries passive `recovery` — the
+ * Longshadow 6, the Sunbough 6, the Withered Crown 7, the Wyrdroot Ancient 9 with `healthRegen` 0.2
+ * — and the Covenant Breaker and Bramblehide Ravener carry `lifeLeech` from floor 165. **The honest
+ * fix was the claim rather than the boards**, exactly as the Crownworks found on the Dwarf Tower:
+ * restating what the tower actually forbids keeps every measured figure on those twenty floors
+ * valid, where retuning them would not. A few points of self-recovery on a body the party is
+ * already killing is not the mechanic the rule exists to stop; a cast heal on a board the party
+ * cannot aim past is.
  *
  * ## ⚠️ Which crew binds flips by mechanic, which is new
  *
@@ -134,7 +158,74 @@ import {
  * 2.9s. "Do not try to make the bottom of a band 2 hard" was a fact about the *Elf crew's damage*,
  * not about the band split. It still opens gently here, for rhythm rather than because it must.
  *
+ * ## ⚠️ The third hundred escalates through how long the board takes to kill
+ *
+ * A seventh tower and a seventh escalation, measured on these crews before anything was authored.
+ * Controlled at one anchor plus four identical bodies at the roof's level, forty seeds, against a
+ * **3.83 / 4.00** control:
+ *
+ * | Four bodies at   | reference | alternate |
+ * | ---------------- | --------- | --------- |
+ * | hp 700 (control) | 3.85      | 4.00      |
+ * | hp 1000          | 3.00      | 4.00      |
+ * | hp 1300          | 2.63      | 3.10      |
+ * | hp 1600          | **2.00**  | 2.38      |
+ * | hp 2000          | 2.00      | 1.07      |
+ * | hp 2400          | 1.30      | **0.05**  |
+ *
+ * **Zero timeouts anywhere on that grade**, which is what makes it difficulty rather than the clock:
+ * the alternate's collapse at 2400 is a wipe, not a fight that ran out. And it is **this crew's**
+ * rather than merely unanswerable — at hp 1600 the Elf five takes the same board at 4.00 in twelve
+ * seconds and the Dwarf five at 4.00 in **thirty-four**, in the fight just as long and losing nobody.
+ * An Undead five sustains on `lifeLeech` off damage dealt (0.36–0.40 summed across five, the highest
+ * in the game) and `recovery` on its own turn, so what it takes scales with the length of a fight
+ * while what it gets back does not. **A board that will not die is a board that starves it.**
+ *
+ * ⚠️ **`def` and `hp` are one dial**: `def` 70 on a 700-hp body reads 3.00 at 21.6s and hp 1050 at
+ * `def` 20 reads 3.00 at 22.5s. The Dwarf Tower's "def is not a lever at these levels" survives —
+ * the lever is the pool, whichever stat spells it.
+ *
+ * ⚠️ **Almost every *mechanic* measured inert, and that is most of the finding.** Aim and scope read
+ * at or **above** the control (`enemy-lowest`, `enemy-back`, `enemy-highest` and `enemy-all` all
+ * 4.00 / 4.00); a status one at a time is worth 0.10 to 0.63 of the reference five and **exactly
+ * nothing** of the alternate ({@link SAVAGED}, the permanent wound this crew has no cleanse for, is
+ * worth 0.10); stun does not even grade (0.35 reads 3.27 and 0.60 reads 3.30); and question *count*
+ * is flat, 3.88 → 3.42 → 3.45 → 3.10 → 3.00 across zero to four. A link, thorns, a tenacity wall and
+ * a magic wall are all inside a third of a survivor.
+ *
+ * ⚠️ **The second dial is tempo, and with weight it is a product rather than a sum.** Four bodies at
+ * `haste` 126 read 2.98 / 3.77 and four at hp 1200 read 2.88 / 3.77, but four at **both** read
+ * 2.00 / **1.75** — the one measurement in which the alternate is the weaker five. So the Quickening
+ * fields one fast body a board and the Seedcrown one, never two: two behind an anchor at the roof's
+ * level reads **0%**. ⚠️ **The claim is about that block and not about speed in general** — the
+ * hundred fields 32 Sunmote Dancers and 18 Bramblewalk Scouts above floor 200 and two of those on
+ * one board is ordinary texture. What is rationed is a fast body carrying real `atk`, and the
+ * Courser is the only one: fifteen appearances, never two to a board.
+ *
+ * ⚠️ **Two axes this hundred deliberately did not take.** Both arrangements carry zero `critBlock`
+ * and zero `critDamageResist` — but the Elf Tower's third hundred is built on crit, and two towers
+ * with one lock is one tower shipped twice. Both carry zero `tenacity`, and so do four of the other
+ * six crews, which is the same test that shelved `dodge` on the Monster Tower.
+ *
+ * ## ⚠️ The previous hundred's climax is unwinnable at this one's roof
+ *
+ * The shipped floor-200 board, fielded up its own level line against the band-3 crew, reads 100% with
+ * all five alive at level 95, 100% / 5.00 at 120, and **53% with 0.88** at 142 — the Crownworks
+ * collapse a third time. So {@link THE_SEEDFATHER} is **lighter** than both anchors it succeeds
+ * (1320 against the Sunbough's 1520 and the Withered Crown's 1740), and the two of them leave the
+ * closing floors: on a light board at level 142 the Withered Crown reads **30% / 13%** and the
+ * Sunbough **13% / 10%**, both harder than the roof itself. The Withered Crown's last floor is 265,
+ * the Sunbough's is 284 and the Longshadow's is 281 — nothing but the Seedfather anchors the last
+ * fifteen.
+ *
  * ## What the bands measure at
+ *
+ * Band 3 opens at floor 201 in 6.1 seconds with all five alive and **costs neither arrangement a
+ * member until floor 255**. From there: 22.0s / 4.00 at 260, 23.8s / 2.27 at 280, 24.1s / 3.05 at
+ * 290 and **29.3s at the roof** — 100% with 1.88 alive for the reference five and 93% with 1.82 for
+ * the alternate, against bars of 90% and 75%. The longest fight in the hundred is **41.4 seconds**
+ * against a 67.5-second bound on a cleared fight, so the tower's binding case is still the shipped
+ * floor 100 at 51.2s.
  *
  * Band 1 is untouched: floor 1 in 1.3 seconds, floor 50 in 9.1, floor 100 in **34.4** with two of
  * five alive. Band 2 reads 2.5s at floor 101, 6.2 at 124, 8.5 at 152, 17.2 at 180, 22.4 at 196 and
@@ -1660,6 +1751,826 @@ export const TOWER_UNDEAD = {
       enemies: {
         front: [THE_SUNBOUGH, DUSKFERN_SKIRMISHER],
         back: [SUNFADE_CHANTER, SUNMOTE_DANCER, WHISPERLEAF_ARCHER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Seedfall — Floors 201–220, levels 95–104 — past the Sunbough the wood seeds itself, and what grows back does not fall over when it is hit.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f201',
+      name: 'Floor 201',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, DEEPMAST_HEARTWOOD],
+        back: [WHISPERLEAF_ARCHER, GILDED_SENTRY, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [THORNBACK_GRAZER, HOLLOWBARK_SENTRY],
+        back: [GILDED_SENTRY, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, DUSKFERN_SKIRMISHER],
+        back: [BRAMBLEWALK_SCOUT, LITANY_BEARER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THORNBACK_GRAZER],
+        back: [LITANY_BEARER, SUNMOTE_DANCER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SUNMOTE_DANCER, VAULTLIGHT_CENSER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, DEEPMAST_HEARTWOOD],
+        back: [VAULTLIGHT_CENSER, LUMEN_ACOLYTE, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [THORNBACK_GRAZER, HOLLOWBARK_SENTRY],
+        back: [LUMEN_ACOLYTE, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, DUSKFERN_SKIRMISHER],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f210',
+      name: 'Floor 210 — The Seedfall',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, BRAMBLEWALK_SCOUT, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [GILDED_SENTRY, BRAMBLEWALK_SCOUT, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, DEEPMAST_HEARTWOOD],
+        back: [BRAMBLEWALK_SCOUT, LITANY_BEARER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f213',
+      name: 'Floor 213',
+      enemies: {
+        front: [THORNBACK_GRAZER, HOLLOWBARK_SENTRY],
+        back: [LITANY_BEARER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, DUSKFERN_SKIRMISHER],
+        back: [SUNMOTE_DANCER, VAULTLIGHT_CENSER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THORNBACK_GRAZER],
+        back: [VAULTLIGHT_CENSER, LUMEN_ACOLYTE, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [LUMEN_ACOLYTE, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [THORNBACK_GRAZER, HOLLOWBARK_SENTRY],
+        back: [WHISPERLEAF_ARCHER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, DUSKFERN_SKIRMISHER],
+        back: [GILDED_SENTRY, BRAMBLEWALK_SCOUT, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f220',
+      name: 'Floor 220 — The Seedfall',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, RADIANT_HERALD],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Deepmast — Floors 221–245, levels 105–116 — the seed is kept: a pool banked over the whole board, spent once and gone.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, WHISPERLEAF_ARCHER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [CONCORD_CANTOR, WEALDSHADOW_STALKER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [GOLEM, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SHARDLIGHT_ACOLYTE, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [SUNMOTE_DANCER, STILLNESS_CANTOR, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, STILLNESS_CANTOR, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [SEEDLIGHT_KEEPER, BRAMBLEWALK_SCOUT, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f230',
+      name: 'Floor 230 — The Deepmast',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, CONCORD_CANTOR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, DEEPMAST_HEARTWOOD],
+        back: [WEALDSHADOW_STALKER, SHARDLIGHT_ACOLYTE, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [SEEDLIGHT_KEEPER, SHARDLIGHT_ACOLYTE, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SEEDLIGHT_KEEPER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [GOLEM, DEEPMAST_HEARTWOOD],
+        back: [STILLNESS_CANTOR, BRAMBLEWALK_SCOUT, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, BRAMBLEWALK_SCOUT, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [WHISPERLEAF_ARCHER, CONCORD_CANTOR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [SEEDLIGHT_KEEPER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f240',
+      name: 'Floor 240 — The Deepmast',
+      enemies: {
+        front: [THE_LONGSHADOW, QUENCHPIT_IRONHIDE],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [SHARDLIGHT_ACOLYTE, SUNMOTE_DANCER, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SUNMOTE_DANCER, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [SEEDLIGHT_KEEPER, STILLNESS_CANTOR, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [BRAMBLEWALK_SCOUT, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [GOLEM, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Rootfast — Floors 246–265, levels 117–125 — the thing that must be killed is the thing that is hardest to kill, and it insists.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [CROWNBARK_BASTION, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CROWNBARK_BASTION],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [SERAPH_ADJUDICANT, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, WHISPERLEAF_ARCHER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-undead-f250',
+      name: 'Floor 250 — The Rootfast',
+      enemies: {
+        front: [CROWNBARK_BASTION, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [CROWNBARK_BASTION, DEEPMAST_HEARTWOOD],
+        back: [SUNMOTE_DANCER, LONGBOUGH_MARKSMAN, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CROWNBARK_BASTION],
+        back: [SEEDLIGHT_KEEPER, LONGBOUGH_MARKSMAN, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HOLLOWBARK_SENTRY],
+        back: [SUNFADE_CHANTER, WEALDSHADOW_STALKER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [THE_WITHERED_CROWN, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [CROWNBARK_BASTION, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, SERAPH_ADJUDICANT, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CROWNBARK_BASTION],
+        back: [WHISPERLEAF_ARCHER, KILNSWORN_ADEPT, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-undead-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, SUNMOTE_DANCER, LONGBOUGH_MARKSMAN],
+      },
+    },
+    {
+      id: 't-undead-f260',
+      name: 'Floor 260 — The Rootfast',
+      enemies: {
+        front: [THE_LONGSHADOW, CROWNBARK_BASTION],
+        back: [SEEDLIGHT_KEEPER, WEALDSHADOW_STALKER, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [CROWNBARK_BASTION, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, CONCORD_CANTOR, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CROWNBARK_BASTION],
+        back: [SEEDLIGHT_KEEPER, SUNFADE_CHANTER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [WEALDSHADOW_STALKER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HOLLOWBARK_SENTRY],
+        back: [SEEDLIGHT_KEEPER, SERAPH_ADJUDICANT, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f265',
+      name: 'Floor 265',
+      enemies: {
+        front: [THE_WITHERED_CROWN, DEEPMAST_HEARTWOOD],
+        back: [SEEDLIGHT_KEEPER, WHISPERLEAF_ARCHER, KILNSWORN_ADEPT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Quickening — Floors 266–285, levels 126–135 — the wood stops waiting. One body a board that moves faster than the dead do.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [CINDERSEED_COURSER, WHISPERLEAF_ARCHER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-undead-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DEEPMAST_HEARTWOOD],
+        back: [GLASSCHOIR_ARBITER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [THE_SUNBOUGH, QUENCHPIT_IRONHIDE],
+        back: [CINDERSEED_COURSER, SUNMOTE_DANCER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f270',
+      name: 'Floor 270 — The Quickening',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [DUSKFERN_SKIRMISHER, WEALDSHADOW_STALKER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [CINDERSEED_COURSER, WEALDSHADOW_STALKER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [THE_SUNBOUGH, QUENCHPIT_IRONHIDE],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-undead-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [CINDERSEED_COURSER, WHISPERLEAF_ARCHER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-undead-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, GLASSCHOIR_ARBITER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [SUNMOTE_DANCER, RIFTEDGE_CANTOR, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [THE_SUNBOUGH, QUENCHPIT_IRONHIDE],
+        back: [CINDERSEED_COURSER, DUSKFERN_SKIRMISHER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f280',
+      name: 'Floor 280 — The Quickening',
+      enemies: {
+        front: [THE_SUNBOUGH, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, SUNFADE_CHANTER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [THE_LONGSHADOW, DEEPMAST_HEARTWOOD],
+        back: [CINDERSEED_COURSER, CINDER_CULLER, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [CINDERSEED_COURSER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DEEPMAST_HEARTWOOD],
+        back: [WHISPERLEAF_ARCHER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-undead-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [THE_SUNBOUGH, QUENCHPIT_IRONHIDE],
+        back: [CINDERSEED_COURSER, GLASSCHOIR_ARBITER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [CINDERSEED_COURSER, SUNMOTE_DANCER, RIFTEDGE_CANTOR],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Seedcrown — Floors 286–300, levels 136–142 — weight and rate together, and at the top the wood that has already outlived everything that climbed it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [WHISPERLEAF_ARCHER, KNELL_CHANTER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [THE_SEEDFATHER, HOLLOWBARK_SENTRY],
+        back: [KNELL_CHANTER, SUNMOTE_DANCER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, DEEPMAST_HEARTWOOD],
+        back: [SUNMOTE_DANCER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f290',
+      name: 'Floor 290 — The Seedcrown',
+      enemies: {
+        front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
+        back: [BRAMBLEWALK_SCOUT, SHARDLIGHT_ACOLYTE, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [SHARDLIGHT_ACOLYTE, DUSKFERN_SKIRMISHER, SUNFADE_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [THE_SEEDFATHER, HOLLOWBARK_SENTRY],
+        back: [DUSKFERN_SKIRMISHER, SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [THE_SEEDFATHER, QUENCHPIT_IRONHIDE],
+        back: [WHISPERLEAF_ARCHER, KNELL_CHANTER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
+        back: [KNELL_CHANTER, SUNMOTE_DANCER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CROWNBARK_BASTION],
+        back: [SUNMOTE_DANCER, CINDER_CULLER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [THE_SEEDFATHER, HOLLOWBARK_SENTRY],
+        back: [CINDER_CULLER, BRAMBLEWALK_SCOUT, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, DEEPMAST_HEARTWOOD],
+        back: [BRAMBLEWALK_SCOUT, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f300',
+      name: 'Floor 300 — The Seedcrown',
+      enemies: {
+        front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
+        back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, SUNMOTE_DANCER],
       },
     },
   ],

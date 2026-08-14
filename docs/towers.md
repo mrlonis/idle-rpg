@@ -5,7 +5,7 @@ shipped in milestone 15b with a single tower, the other six in 15c, and the seco
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight — Human, Dwarf and Elf have theirs; Undead, Monster, Angel and
+⚠️ **The third hundred is in flight — Human, Dwarf, Elf and Undead have theirs; Monster, Angel and
 Demon are still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
 in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
 A tower that has not been extended yet is on the `PENDING` list in
@@ -303,10 +303,13 @@ With both crews at parity with the content this never arose. In band 2 they come
   twelve and **nine** levels apart; the Elf roof board reads 100% for the alternate at level 118,
   83% at 120 and 2% at 126 while the reference five is still at 100% at 126. Every board that costs
   the reference crew a second member takes the alternate below its own 75% bar.
-- **Undead Tower** — the pair **swaps places by mechanic**. In band 1 the alternate is far the
-  stronger (floor 100 costs it 1.6 of five against the reference crew's 3.0); on a `dodge` board at
-  the roof's level it is far the weaker (65% against 95%), because that arrangement's kit is three
-  single-target drains.
+- **Undead Tower** — the pair **swaps places by mechanic**, and band 3 gave a third answer again. In
+  band 1 the alternate is far the stronger (floor 100 costs it 1.6 of five against the reference
+  crew's 3.0); on a `dodge` board at the roof's level it is far the weaker (65% against 95%), because
+  that arrangement's kit is three single-target drains. In band 3 the **reference** five is the
+  weaker on nineteen of twenty measured shapes — the alternate sits at exactly 4.00 on most of them —
+  **except** under weight and rate together, which is the one place it drops below (1.75 against
+  2.00) and therefore the only place the closing bands could be sized against it.
 - **Monster Tower** — the **reference** five is much the stronger.
 - **Angel Tower** — the two fail on **opposite axes**: weight breaks the reference five, length
   breaks the alternate.
@@ -368,13 +371,16 @@ choosing; do not copy the last session's shape.**
   rather than time.
 - **Elf, third hundred** — the first where the axis is a **defensive gap in the crew's own stat
   block** rather than anything about the board's shape. See below.
-- **Undead** — the first that is **structural rather than a matter of weight**. At the roof's level,
+- **Undead, second hundred** — the first that is **structural rather than a matter of weight**. At the roof's level,
   controlled at one anchor plus two legendaries and two commons: `dodge` reads 95% / **65%** where
   burst reads 100% / 95%, a healer 98% / 90%, and slow, link and reach all 100% / 100%. `dodge` is
   the only shape that fails a bar, because **no Undead character carries a point of `accuracy`** (it
   is on four Elves and one Human, and in no gear archetype or signature item) and every Undead body
   sustains on `drain` and `lifeLeech` — so a miss costs the hit _and_ the health it would have
   returned.
+- **Undead, third hundred** — the first where the axis is **not a mechanic at all**, but how long the
+  board takes to kill. The same sustain engine the second hundred attacked at the source, attacked
+  instead by arithmetic. See below.
 - **Monster** — the first that is a **count** rather than a shape. Controlled at one anchor, one
   legendary and three commons at the roof's level, mean survivors of five: nothing 4.35 / 4.00, one
   lock repeated four times 4.13 / 3.92, three questions 4.00 / 2.70, **five questions 3.58 / 0.85**.
@@ -492,6 +498,70 @@ again, so `THE_EDGEWRIGHT` is lighter than `THE_WARDWRIGHT` (1300/84 against 156
   itself, which measured floor 298 at 2.85 reference survivors against the roof's 3.42. The band drops
   it after floor 294 and nothing but the Edgewright anchors the last six floors. **Check the previous
   hundred's anchors against the new roof, not only the previous hundred's roof board.**
+
+### The Undead Tower's third hundred: the board that will not die
+
+⚠️ **The Seedfall escalates through enemy durability, and it is the only tower where that is a
+lever at all.** Controlled at one anchor plus four identical bodies at the roof's level, forty seeds:
+
+| Four bodies at   | reference | alternate |
+| ---------------- | --------- | --------- |
+| hp 700 (control) | 3.85      | 4.00      |
+| hp 1000          | 3.00      | 4.00      |
+| hp 1300          | 2.63      | 3.10      |
+| hp 1600          | **2.00**  | 2.38      |
+| hp 2000          | 2.00      | 1.07      |
+| hp 2400          | 1.30      | **0.05**  |
+
+**Zero timeouts anywhere on that grade**, which is the whole of what separates it from the clock —
+the alternate's collapse at 2400 is a wipe, not a fight that ran out. Fights run 16s to 48s against
+a 90-second timer.
+
+⚠️ **The "is it ours" test comes back clean, and this is the case that shows what a positive answer
+looks like.** At hp 1600 the same board costs the Undead reference five three members and the
+alternate 2.62, while the **Elf** five takes it at 4.00 in twelve seconds and the **Dwarf** five at
+4.00 in **thirty-four** — the Dwarves are in the fight just as long and lose nobody, so length alone
+is not what is doing it. An Undead five is the only crew in the game whose sustain is entirely
+`lifeLeech` off damage dealt (0.36–0.40 summed across five, against the Monster crews' 0.27 and the
+Demon crews' 0.22) plus `recovery` on its own turn. What it takes scales with the length of a fight;
+what it gets back is capped by the enemy's pool. **A board that will not die is a board that starves
+it.**
+
+⚠️ **`def` and `hp` are one dial and neither is special.** `def` 70 on a 700-hp body reads 3.00 at
+21.6s; hp 1050 at `def` 20 reads 3.00 at 22.5s. The Dwarf Tower's "def is not a lever at these
+levels" survives intact — what is a lever is the **pool**, whichever stat spells it. `physicalResist`
+grades gently on top (0.10 / 0.20 / 0.30 → 3.55 / 3.33 / 3.13) and `magicResist` flattens after 0.14.
+
+⚠️ **Almost every mechanic measured inert, and the list is the finding.** Against a 3.83 / 4.00
+control: `enemy-lowest`, `enemy-back`, `enemy-highest` and `enemy-all` all read **4.00 / 4.00** —
+_easier_ than saying nothing, the third tower to find that. A status one at a time is worth 0.10 to
+0.63 of the reference five and **exactly zero** of the alternate, `SAVAGED` — the permanent wound
+this crew has no cleanse for — worst of all at 3.73. Stun does not grade (0.35 → 3.27, 0.60 → 3.30).
+Question _count_ is nearly flat (3.88 → 3.42 → 3.45 → 3.10 → 3.00 across zero to four), so the
+Monster Tower's axis is not this one's. A link, thorns, a `tenacity` 0.60 wall and a `magicResist`
+0.14 wall all sit inside a third of a survivor.
+
+⚠️ **The second dial is tempo, and with weight it is a product rather than a sum.** Four bodies at
+`haste` 126 read 2.98 / 3.77 and four at hp 1200 read 2.88 / 3.77; four at **both** read
+2.00 / **1.75** — the one measurement in the set where the alternate is the weaker five. The
+shipped bands spend one fast body carrying real `atk` per board and never two: two behind an anchor
+at the roof's level reads **0%**.
+
+⚠️ **A board-wide ward is worth a real 0.75 and is a clock at the top, which is both halves of the
+shipped shield rule.** One back-rank body warding `ally-all` reads 3.00 (`BARRIER`) and 2.98
+(`AEGIS`) against the 3.83 control — but the roof carrying one reads **75% / 55% at 45.1s mean and
+56s worst**, and the roof carrying one behind the bulk anchor reads 25% / 13%. The same roof without
+it reads 100% / 93%. So the Seedlight Keeper's last floor is 265, exactly as this tower's own first
+hundred spends its heal in the Green Vigil and stops. ⚠️ **A _self_-shield is worth nothing at all**
+(3.98): a pool priced against the wearer's own `atk` on a body the party is already killing.
+
+⚠️ **The Crownworks collapse, a third time.** The shipped floor-200 board fielded up its own level
+line against the band-3 crew reads 100% with all five alive at level 95, 100% / 5.00 at 120, and
+**53% with 0.88** at 142 — so `THE_SEEDFATHER` is 1320/82 against `THE_SUNBOUGH`'s 1520/90 and
+`THE_WITHERED_CROWN`'s 1740/98. And the tower's own anchors had to retire on the way up, the Elf
+Tower's `THE_GRUDGEKEEPER` lesson arriving again: at level 142 on a light board the Withered Crown
+reads **30% / 13%** and the Sunbough **13% / 10%**, both harder than the roof they precede. Their
+last floors are 265 and 284; nothing but the Seedfather anchors 286 to 300.
 
 ### The Angel Tower: tempo and aim, not mechanics
 

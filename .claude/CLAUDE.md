@@ -262,14 +262,23 @@ Asserted in `core/battle/simulate.spec.ts`.
   _later_ anchors are lighter than its earlier ones.** `perLevel.ascended` is 1.024 and
   `perLevel.legendary` 1.0225 against a mostly-`common` five's 1.021, worth about ×1.15 over the
   forty-seven levels a third hundred spans: the Dwarf Tower's floor-200 board reads 100% with all
-  five alive at its own level and **28%** at the third hundred's roof, the Elf Tower's **35%**.
+  five alive at its own level and **28%** at the third hundred's roof, the Elf Tower's **35%**, the
+  Undead Tower's **53%**.
   **Field the previous hundred's roof board at the new roof's level before authoring anything**, and
   expect the escalation to come from the board's composition rather than from its anchor.
   ⚠️ **"Lighter" is not "absent", and check the previous hundred's _anchors_ too, not only its roof
   board.** Boards of five legendaries with no anchor measured **flat** across twenty-five floors, and
   the Elf Tower's own `THE_GRUDGEKEEPER` (1520/89) is heavier than the roof succeeding it (1300/84) —
-  so a closing band may have to retire a block the tower has fielded since its first hundred.
-  [towers](../docs/towers.md)
+  so a closing band may have to retire a block the tower has fielded since its first hundred. The
+  Undead Tower's third hundred retired **two** on that arithmetic. [towers](../docs/towers.md)
+- ⚠️ **A grade that costs survivors is difficulty; one that starts timing out is the ninety-second
+  clock wearing a stat block. Count the timeouts explicitly** — a wipe and a timeout are the same
+  `defeat`, so a win rate cannot tell them apart. This is what licensed enemy **durability** as the
+  Undead Tower's third-hundred axis (four bodies from hp 700 to 2400 grade 3.85 → 1.30 survivors with
+  zero timeouts anywhere) where enemy _sustain_ on the same crew is forbidden. ⚠️ **A board-wide ward
+  is the shield rule in both directions**: worth a real 0.75 of a survivor mid-band, and on the roof
+  it takes the same board from 100% to **75%** at 45s mean. A _self_-shield is worth 0.00, because it
+  prices against the wearer's own `atk` on a body already dying. [towers](../docs/towers.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in
