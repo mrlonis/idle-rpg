@@ -15,7 +15,7 @@ boards, and a content session is mostly a conversation with it.
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 163                                         |
+| Enemy archetypes | 167                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -154,8 +154,8 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 19, demon 20, monster 21,
-  elf 23, dwarf 24, undead 25, human 26. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 21, monster 23, elf 23,
+  dwarf 24, undead 25, demon 25, human 26. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
@@ -169,6 +169,10 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
     is the worked example: Angels and Demons both counter Elves, so its four filler blocks went 2 to
     Angel and 1 to Demon behind a Dwarf lead, taking the two thinnest factions to 18 and 19. The
     standing ×1.10 that forbids a celestial-led _chapter_ is exactly what a tower is buying.
+  - ⚠️ **A _celestial_ tower has only two factions to substitute into, and that is the matrix rather
+    than a shortage.** `countersOf('angel')` is exactly `{demon, monster}`, so the Angel Tower's
+    third hundred had one choice for its non-lean blocks and took it: two Demon (the recurring
+    swinger and the roof) and two Monster, which moved Monsters off the joint-thinnest slot at 21.
 - ⚠️ **A _tower's_ lean is fixed by the matrix, so when it lands on an already-deep faction the
   blocks go elsewhere.** The Dwarf Tower leans Human and Human was second-deepest at 24, so its third
   hundred put the boss and the recurring anchor there and spent the other three on Monsters and

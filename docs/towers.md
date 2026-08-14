@@ -5,8 +5,8 @@ shipped in milestone 15b with a single tower, the other six in 15c, and the seco
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight — Human, Dwarf, Elf, Undead and Monster have theirs; Angel and
-Demon are still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
+⚠️ **The third hundred is in flight — Human, Dwarf, Elf, Undead, Monster and Angel have theirs;
+only the Demon Tower is still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
 in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
 A tower that has not been extended yet is on the `PENDING` list in
 [`towers.spec.ts`](../src/data/towers.spec.ts) and
@@ -316,7 +316,9 @@ With both crews at parity with the content this never arose. In band 2 they come
   that hundred is sized against the alternate, and the shipped roof closes at 100% / 2.85 against
   100% / 1.75.
 - **Angel Tower** — the two fail on **opposite axes**: weight breaks the reference five, length
-  breaks the alternate.
+  breaks the alternate. Band 3 keeps the split and sharpens it: on the cadence grade the reference
+  five goes 4.00 → 2.33 while the alternate goes 3.52 → **0.15**, so every board in the third hundred
+  is sized against the alternate, and the shipped roof closes at 100% / 3.63 against 90% / 2.42.
 
 **Check both arrangements on every candidate board.** "Size it against the alternate first" is true
 of two towers and is not a rule.
@@ -395,12 +397,15 @@ choosing; do not copy the last session's shape.**
 - **Monster, third hundred** — the first where the axis is a stat the crew **answered with the wrong
   stat**, and the first where the previous hundred's axis was exhausted by arithmetic rather than by
   measurement: five questions is the size of a board. See below.
-- **Angel** — the first where the honest finding was that **no mechanic is available at all**.
+- **Angel, second hundred** — the first where the honest finding was that **no mechanic is available
+  at all**.
   Twenty-two shapes measured against both arrangements at the roof's level — taunt, thorns, link,
   bomb, `SAVAGED`, `BLOODRISEN`, `dodge` 0.30, `tenacity` 0.60, a board stun, a board slow, a shield,
   `magicResist` 0.40, a healer, hex volume — and the **whole spread was 0.15 survivors of five**,
   every row between 3.92 and 4.00. An Angel five is `GUARD`, `BARRIER`, `AEGIS`, two or three heals
   and a cleanse, so the first question is free.
+- **Angel, third hundred** — the first where the axis is **not a stat and not a mechanic**, but how
+  large a single instance of damage is. See below.
 - **Demon** — the last, and about **scope** rather than a mechanic. See below.
 
 ### The Dwarf Tower's third hundred: the anchors run out of room
@@ -661,6 +666,74 @@ both crews at 4.00 survivors and buys only seconds — four healers take the alt
 against a 67.5s cleared-fight bar. Its bands therefore forbid a heal, a regeneration, a drain **and**
 `lifeLeech` above floor 160. **A faction that cannot burst turns every second of enemy sustain into
 the clock.**
+
+### The Angel Tower's third hundred: one blow, not four
+
+⚠️ **The Unmending escalates through the _size of one instance of damage_, which is a cadence rather
+than a mechanic, and the negatives are half the finding.** Controlled at one anchor plus four
+identical bodies at the roof's level, forty seeds, against a **3.98 / 3.80** control — the shipped
+register's own median pairing of power 1.35 on a 55-tick cooldown:
+
+| Four bodies at            | reference          | alternate          |
+| ------------------------- | ------------------ | ------------------ |
+| `magicResist` 0.15 → 0.70 | 4.00 → 3.88        | 3.70 → 3.45        |
+| `physicalResist` 0.45     | 4.00               | 3.77               |
+| `dodge` 0.30 on a 500 hp  | 4.00               | 3.80               |
+| `tenacity` 0.60           | 4.00               | 3.60               |
+| hp 1000 / 1400 / 2000     | 3.98 / 3.30 / 3.60 | 3.45 / 3.08 / 2.25 |
+| `critChance` 0.26 / 1.10  | 3.73               | 2.13               |
+| aim `enemy-highest`       | **4.10**           | **4.05**           |
+
+With damage per second **held constant** and both endpoints inside the shipped cooldown register of
+35 to 80:
+
+| Four bodies at     | reference      | alternate      |
+| ------------------ | -------------- | -------------- |
+| power 1.55 / cd 35 | 4.00           | 3.52           |
+| power 2.20 / cd 50 | 3.38 · 93%     | 1.02 · 38%     |
+| power 3.10 / cd 70 | **2.33 · 68%** | **0.15 · 13%** |
+
+**Zero timeouts on every row**, and the burst body deals _less_ damage over a fight than the control
+does — it basic-attacks between casts. Every Angel heal in the game names `ally-lowest` and is
+metered by a cooldown or an energy bar, so a stream of chip is exactly what the choir is built to
+answer and a body removed between two heal ticks cannot be healed at all. **A choir can out-heal a
+river and cannot out-heal a hammer.**
+
+⚠️ **The licence is margin rather than exclusivity, and that is weaker than the Closing's.** As a
+change on each crew's own control — calibrated per crew to the heaviest board still reading ~4.00,
+then swapping chip for burst — angel-alt **−2.38**, elf-alt −2.08, undead-alt −1.80, angel-ref −1.35,
+demon-alt −1.27, human-ref −1.05, dwarf-ref −1.02, monster-ref −0.63. It costs everybody about a
+member and costs the choir two. The other half of the argument is the register: the Angel crews
+tolerate far more `atk` before falling than any other five in the game (calibrated at 96 and 88
+against 48 to 72 for the rest), which is the same fact read from the other side.
+
+⚠️ **The magic ward came back a second time and was declined a second time.** It looks designed for
+this crew — no Angel skill deals physical damage, only the basic attack does, and the two
+arrangements carry 0.12 and **0.00** of `magicPierce` — and it is worth 0.10 and 0.35 of five across
+its entire range while adding six seconds a board. **A stat that reads as designed for a crew is not
+evidence.**
+
+⚠️ **The blow and the aim are a product**, so they arrive a band apart. Four bodies swinging 2.30 at
+the front rank read 2.98 · 95% / 1.07 · 57%; four swinging _less_, at 2.10, and naming `enemy-lowest`
+read **1.50 · 75% / 0.00**. No board carries more than two of the aimed version and the roof names
+nothing but the front rank.
+
+⚠️ **The band is built at the register and only the roof steps past** — the Splintering Yards' shape
+rather than the Closing's. The ceiling on a single-target enemy swing is the Covenant Breaker's 2.30
+at cd 45 over 215 damage effects whose median is 1.35; at exactly that pairing the blow is already
+worth 1.00 and 2.73 of five, and only the roof's own turn at 2.60 goes beyond it.
+
+⚠️ **`haste` is sharper still and was deliberately not spent again.** 126 on the same chassis reads
+1.98 · 78% and 0.30 · 20% — but that is the second hundred's axis, its closing band already forbids
+three bodies above 126, and both dials at once reads 0.00 for both arrangements.
+
+⚠️ **The collapse check came apart into two questions here, and they gave opposite answers.** The
+shipped floor-200 board reads 100% with all five alive at level 95, 100% / 5.00 at 125 and
+**73% / 1.60 against 50% / 0.85** at 142 — a collapse — while all nine `ascended` blocks the tower
+fields above floor 160 read 100% for both crews at 142 behind three soft bodies, the Unmade at
+1800/100 included at 4.33 / 4.38. What fails is the **pairing**: two ascended in one front rank. The
+new roof beside `THE_UNANSWERED` at level 142 reads **0%**. So no anchor retired — the second clean
+answer after the Closing — and no board in the hundred carries two.
 
 ### The Demon Tower: scope, not size
 

@@ -5551,6 +5551,139 @@ export const THE_RING_IS_SHUT = {
   priority: 2,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's third hundred — the blow that arrives whole
+//
+// ⚠️ **All four are the same idea at four sizes, and the idea is a *cadence* rather than a
+// mechanic.** Everything measured at level 142, one anchor plus four identical bodies, forty seeds,
+// against a **3.98 / 3.80** control — a body swinging the register's own median pairing of power
+// 1.35 on a 55-tick cooldown. The negatives are half the finding:
+//
+//   magicResist 0.15 → 0.70    ref 4.00 → 3.88   alt 3.70 → 3.45   (18.5s → 24.6s)
+//   physicalResist 0.45        ref 4.00          alt 3.77
+//   dodge 0.30 on a 500 body   ref 4.00          alt 3.80
+//   tenacity 0.60              ref 4.00          alt 3.60
+//   hp 1000 / 1400 / 2000      ref 3.98/3.30/3.60 alt 3.45/3.08/2.25 (21.5s → 35.3s)
+//   aim enemy-highest          ref 4.10          alt 4.05
+//
+// A magic ward is worth **0.10 and 0.35 of five across its entire range** and pays for it in six
+// seconds a board, which is the Demon Tower's rejected ward arriving on the crew it looked designed
+// for — this five deals no physical damage at all outside its basic attack and carries 0.12 of
+// `magicPierce` summed across five, and it still does not care. Enemy durability is not monotonic
+// and is paid in the clock. Aiming past the front rank leaves a board *easier* than saying nothing,
+// for the fifth tower running.
+//
+// What moves an Angel five is the **size of one instance of damage**. Damage per second held
+// constant, both endpoints inside the shipped cooldown register of 35 to 80:
+//
+//   power 1.55 / cd 35   ref 4.00          alt 3.52
+//   power 2.20 / cd 50   ref 3.38 · 93%    alt 1.02 · 38%
+//   power 3.10 / cd 70   ref 2.33 · 68%    alt 0.15 · 13%
+//
+// **Less total damage, delivered lumpier, kills more of this crew** — the burst body basic-attacks
+// between casts, so it deals *less* over a fight than the control does. Every Angel heal in the game
+// names `ally-lowest` and is metered by a cooldown or an energy bar, so a stream of chip is the one
+// thing the choir is built to answer and a body removed between two heal ticks cannot be healed at
+// all.
+//
+// ⚠️ **The licence here is margin rather than exclusivity, which is weaker than the Closing's and is
+// recorded as such.** As a change on each crew's own control — calibrated per crew to the heaviest
+// board that still reads ~4.00, then swapped chip for burst — angel-alt **−2.38**, elf-alt −2.08,
+// undead-alt −1.80, angel-ref −1.35, demon-alt −1.27, human-ref −1.05, dwarf-ref −1.02, monster-ref
+// −0.63. It costs everybody about a member and costs the choir two.
+//
+// ⚠️ **Zero timeouts on every row above**, which is what separates it from the clock: fights run 17
+// to 46 seconds against a 90-second timer, and the collapse at the bottom is a wipe.
+//
+// ⚠️ **`haste` is sharper still and is deliberately not spent again** — 126 on the same chassis reads
+// 1.98 · 78% and 0.30 · 20%. That is the second hundred's axis, its closing band already forbids
+// three bodies above 126, and both dials at once reads 0.00 for both arrangements.
+//
+// ⚠️ **The band is built *at* the shipped register and only the roof steps past.** The ceiling on a
+// single-target enemy swing is {@link BROKEN_COVENANT}'s 2.30 at cd 45, over 215 damage effects whose
+// median is 1.35, and at exactly that pairing the blow is already worth **1.00 and 2.73** of five.
+// That is the Splintering Yards' shape rather than the Closing's, and it is the difference between
+// this and the Demon Tower's rejected magic ward, which was worth 0.00 at its own register.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It does not cut twice. It has never had to.
+ *
+ * The hundred's spine, and the blow authored **at** the shipped ceiling: 2.30 on a 45-tick cooldown
+ * is {@link BROKEN_COVENANT} exactly, so nothing in the first four bands asks for a number the game
+ * has not already shipped. Between casts the body falls back to the basic attack, which is the whole
+ * of the shape — the cadence is what is authored here, not the volume.
+ */
+export const THE_SINGLE_STROKE = {
+  id: 'the-single-stroke',
+  name: 'The Single Stroke',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.3 }],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * It waits for the choir to choose, and then it takes what the choir chose.
+ *
+ * ⚠️ **The blow and the aim are a product rather than two dials**, which is why this arrives a band
+ * after {@link THE_SINGLE_STROKE} and why no board carries more than two of it. At level 142 against
+ * a 3.98 / 3.80 control, four bodies swinging 2.30 at the front rank read 2.98 · 95% / 1.07 · 57%;
+ * four swinging **less** at 2.10 and naming `enemy-lowest` read **1.50 · 75% / 0.00**. Every Angel
+ * heal in the game names `ally-lowest`, so this is the second half of the tower's own second-hundred
+ * finding arriving with something heavy enough to finish the job.
+ *
+ * Shares {@link HEADSMANS_ARC}'s 2.10 and 45 exactly, which is the pairing eight shipped blocks
+ * already use.
+ */
+export const SHATTERJAW = {
+  id: 'shatterjaw',
+  name: 'Shatterjaw',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * A common's version of the same argument: smaller, and still one piece.
+ *
+ * The hundred's **texture**, and the cheapest thing on it that the choir cannot answer by out-healing.
+ * 1.85 is under the register's ninetieth percentile of 2.05 and its 40-tick cooldown is above the
+ * shipped floor of 35 — deliberately the least of the four, because a board's escalation here is how
+ * many voices swing rather than how hard any one of them does.
+ */
+export const CLEAVE_THE_LINE = {
+  id: 'cleave-the-line',
+  name: 'Cleave the Line',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * There is a wound the verse can close and a wound it cannot, and this is the far side of it.
+ *
+ * The roof's turn, and ⚠️ **the one thing in the hundred past the register**: 2.60 against a shipped
+ * ceiling of 2.30, on the register's own median cooldown of 50. Stated here rather than discovered
+ * later, because a future session has to be able to see which of the two shapes this band is —
+ * the Splintering Yards built at their ceiling and stepped past only on the roof, and the Closing
+ * stepped past across a whole hundred.
+ *
+ * `enemy-front` and no rider, for the fourth tower running. Aiming a roof past the front rank makes
+ * it easier against a crew whose tanks stand there, which this tower measured for itself at
+ * `enemy-highest` 4.10 / 4.05 against a 3.90 / 3.20 control.
+ */
+export const NOTHING_IS_MENDED = {
+  id: 'nothing-is-mended',
+  name: 'Nothing Is Mended',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 50,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5836,4 +5969,8 @@ export const SKILLS = [
   SHUT_THE_RING,
   NOTHING_GETS_A_GRIP,
   THE_RING_IS_SHUT,
+  THE_SINGLE_STROKE,
+  SHATTERJAW,
+  CLEAVE_THE_LINE,
+  NOTHING_IS_MENDED,
 ] as const;

@@ -117,6 +117,10 @@ import {
   SHUT_THE_RING,
   NOTHING_GETS_A_GRIP,
   THE_RING_IS_SHUT,
+  THE_SINGLE_STROKE,
+  SHATTERJAW,
+  CLEAVE_THE_LINE,
+  NOTHING_IS_MENDED,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5852,6 +5856,162 @@ export const THE_UNBITTEN = {
   skills: [NOTHING_GETS_A_GRIP, THE_RING_IS_SHUT],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's third hundred — the Unmending, and its four blocks
+//
+// ⚠️ **Two Demon and two Monster, and the split is the matrix rather than a preference.**
+// `countersOf('angel')` is exactly `{demon, monster}` — Demons trade evenly with a celestial and
+// Monsters take five percent off one — so those are the only two factions a body may be substituted
+// into without switching the lean off on the board it lands on. The lean itself stays Demon, which
+// is what the tower has been since 15c: 45.0% of this hundred's five hundred slots and 52.6% of the
+// tower, against bounds of 35% and 65%. Monsters were tied-thinnest in the game at 21 archetypes
+// and were 3.4% of this tower; they leave here at 23 and 13.0%.
+//
+// ⚠️ **The hundred needs more swingers than four blocks can supply, and it does not author them.**
+// {@link KINGSWAY_LANCER}, {@link VANWARD_SPEAR}, {@link WEALDSHADOW_STALKER} and
+// {@link IRONSLING_WRIGHT} already carry a 2.00–2.15 blow, and so do the anchors this tower has
+// fielded since its first hundred — {@link THE_UNANSWERED} at 2.20 and {@link ASHFALL_SOVEREIGN} at
+// 2.10. So the escalation is *how much of a board swings one* rather than a stat rotated onto more
+// slots, and the hundred closes at 36 distinct blocks.
+//
+// ⚠️ **The collapse check came back clean on the anchors and dirty on the pairing**, which is the
+// Closing's answer rather than the Crownworks'. The shipped floor-200 board fielded up its own level
+// line against the band-3 crew reads 100% with all five alive at 95, 100% / 5.00 at 125, and
+// **73% / 1.60 against 50% / 0.85** at 142 — but every one of the nine `ascended` blocks it fields
+// above floor 160 reads 100% for both crews at 142 behind three soft bodies, {@link UNMADE} at
+// 1800/100 included, at 4.33 / 4.38. What broke floor 200 up there is that it stands **two** of them
+// in one front rank: {@link THE_LAST_MERCY} beside {@link THE_UNANSWERED} at the roof's level reads
+// **0%**. So no anchor retires and no board in the hundred carries two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The rite is one motion. It has never needed a second.
+ *
+ * The hundred's **spine**, on more of its slots than anything else, and the block the whole axis is
+ * named for. 880 of health is the Demon legendary register's shoulder ({@link COVENANT_BREAKER} is
+ * 900) and 74 of `atk` is its ceiling — deliberately ordinary weight, because what this body is for
+ * is the *cadence* rather than the volume. See {@link THE_SINGLE_STROKE} for the grade that licensed
+ * it and for why less total damage delivered lumpier kills more of this crew.
+ *
+ * {@link CUTPURSE} second so the block has something to do while the stroke is down; a blow on a
+ * 45-tick cooldown that fell back only to the basic attack would read as a body doing nothing for
+ * four seconds at a time.
+ */
+export const KILNSTROKE_CELEBRANT = {
+  id: 'kilnstroke-celebrant',
+  name: 'Kilnstroke Celebrant',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 880,
+    atk: 74,
+    def: 24,
+    haste: 92,
+    critChance: 0.11,
+    critDamageAmp: 0.75,
+    magicPierce: 0.15,
+  },
+  skills: [THE_SINGLE_STROKE, CUTPURSE],
+} as const;
+
+/**
+ * It lets the light settle on somebody first, and then it takes that one.
+ *
+ * The hundred's **second dial**, from floor 226 and never more than two to a board — see
+ * {@link SHATTERJAW} for the product that makes it two rather than four. Heavier than the Celebrant
+ * at 1120 because it has to survive to swing twice, which is inside the Monster legendary register
+ * ({@link SCARBOUND_BELLOWER} is 1180) at an `atk` two under its ceiling.
+ *
+ * ⚠️ **The `physicalPierce` is idiom rather than mechanism.** Monsters carry the game's only real
+ * armour-cutting and it does nothing to an Angel five, which has 0.09 of `physicalResist` summed
+ * across five — this block is here for the blow, and the pierce is what keeps it recognisably a
+ * Monster.
+ */
+export const SHATTERJAW_MAULER = {
+  id: 'shatterjaw-mauler',
+  name: 'Shatterjaw Mauler',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 76,
+    def: 26,
+    haste: 88,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.2,
+  },
+  skills: [SHATTERJAW, GORE],
+} as const;
+
+/**
+ * Nothing about it is clever. It only ever does one thing, and the one thing does not come apart.
+ *
+ * The hundred's **texture**, and the cheapest body on it the choir cannot out-heal. 620 and 60 sit
+ * mid-register for a Monster common, because the escalation here is the number of voices swinging
+ * rather than the size of any one of them — {@link CLEAVE_THE_LINE} is deliberately the least of the
+ * four blows.
+ */
+export const CLEFTHORN_GORER = {
+  id: 'clefthorn-gorer',
+  name: 'Clefthorn Gorer',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 620,
+    atk: 60,
+    def: 16,
+    haste: 92,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    physicalPierce: 0.12,
+  },
+  skills: [CLEAVE_THE_LINE],
+} as const;
+
+/**
+ * Three hundred floors of verses, and this is the one the choir does not get to finish.
+ *
+ * The roof. ⚠️ **Lighter than the anchor it succeeds — 1520 against {@link THE_UNANSWERED}'s 1540,
+ * and 91 of `atk` against 92 — and that is arithmetic rather than timidity**, the correction the
+ * Crownworks recorded and three hundreds have confirmed since. An `ascended` block climbs at
+ * `perLevel.ascended` 1.024 where a mono-faction Angel five is mostly `common` at 1.021, so across
+ * the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew. Under the
+ * Unmade on both stats, which `enemies.spec.ts` holds.
+ *
+ * ⚠️ **The weight it gives up comes back as {@link NOTHING_IS_MENDED}**, the one blow in the hundred
+ * past the shipped register at 2.60 against a ceiling of 2.30. Measured at level 142 behind
+ * {@link THORNBACK_GRAZER} and three swingers: **100% / 3.63 survivors / 21.6s** for the reference
+ * five and **90% / 2.42 / 35.0s** for the alternate, zero timeouts, longest fight 55s against a
+ * 90-second timer.
+ *
+ * ⚠️ **It restores nothing and names nothing but the front rank.** A roof is where sustain stops
+ * being a lock and becomes the clock, and aiming past the front rank against a crew whose two tanks
+ * stand there makes a board *easier* — this tower measured `enemy-highest` at 4.10 / 4.05 against a
+ * 3.98 / 3.80 control. {@link CINDER_STORM} and {@link RUINOUS_STOOP} are rhythm rather than
+ * escalation, and neither names `ally-lowest`'s target: the two {@link SHATTERJAW_MAULER}s standing
+ * behind this block are already the edge, and swapping the Grazer in front of them for a heavier
+ * body takes the same roof from 100% / 90% to **90% / 48%**.
+ */
+export const THE_LAST_MERCY = {
+  id: 'the-last-mercy',
+  name: 'The Last Mercy',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 91,
+    def: 46,
+    haste: 104,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    tenacity: 0.4,
+    physicalPierce: 0.22,
+    magicPierce: 0.22,
+  },
+  skills: [NOTHING_IS_MENDED, CINDER_STORM, RUINOUS_STOOP],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -6016,4 +6176,8 @@ export const ENEMIES = [
   CINDERPLATE_HOUNDSMAN,
   CLOSEWARD_SERAPH,
   THE_UNBITTEN,
+  KILNSTROKE_CELEBRANT,
+  SHATTERJAW_MAULER,
+  CLEFTHORN_GORER,
+  THE_LAST_MERCY,
 ] as const;

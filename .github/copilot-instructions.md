@@ -274,7 +274,12 @@ Asserted in `core/battle/simulate.spec.ts`.
   clean, and which crew collapses is not stable** — the Monster Tower's floor-200 board reads
   100% / 3.45 for its _reference_ five at the new roof and **8%** for its alternate, the reverse of
   the other three, and none of its twelve anchors had to retire. Run the check regardless; a clean
-  answer is a result. [towers](../docs/towers.md)
+  answer is a result. ⚠️ **The board and its anchors are two separate questions and the Angel Tower
+  is where they came apart**: its floor-200 board reads **73% / 1.60 against 50% / 0.85** at the new
+  roof, and every one of the nine `ascended` blocks it fields above floor 160 reads 100% for both
+  crews there, the Unmade at 1800/100 included at 4.33 / 4.38. What failed was the **pairing** — two
+  ascended in one front rank — so no anchor retired and no board in the new hundred carries two.
+  [towers](../docs/towers.md)
 - ⚠️ **A grade that costs survivors is difficulty; one that starts timing out is the ninety-second
   clock wearing a stat block. Count the timeouts explicitly** — a wipe and a timeout are the same
   `defeat`, so a win rate cannot tell them apart. This is what licensed enemy **durability** as the
@@ -288,12 +293,24 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in
   `towers.spec.ts` and `towers.balance.ts`; a filter ("the full height or two thirds of it") passes
   forever and never notices a tower nobody went back for. [towers](../docs/towers.md)
+- ⚠️ **An escalation axis does not have to be a stat or a mechanic. The _size of one instance of
+  damage_ is one, and on a crew that heals `ally-lowest` on a cooldown it is the only one.** Hold
+  damage per second constant and make each blow bigger and rarer: against the Angel crews at the
+  third hundred's roof level that grades 4.00 → 3.38 → 2.33 and 3.52 → 1.02 → 0.15 across power
+  1.55/cd 35, 2.20/cd 50 and 3.10/cd 70, **with zero timeouts** — the burst body deals _less_ over a
+  fight, because it basic-attacks between casts. A choir can out-heal a river and cannot out-heal a
+  hammer. ⚠️ **The licence there is margin rather than exclusivity**, which is weaker than a
+  Monster-Tower-style lock: the same swap costs every crew about a member (−0.63 to −2.08) and the
+  Angel alternate 2.38. Say which of the two it is. [towers](../docs/towers.md)
 - ⚠️ **Check a stat's shipped register before building a band on it, and say in the header which
-  side of it the band landed on.** Three answers have come back: the Demon magic ward was worth
+  side of it the band landed on.** Four answers have come back: the Demon magic ward was worth
   **0.00** at its register and was declined; the Elf Tower's `critChance` worked **at** the shipped
-  0.18 and only its roof stepped past; and the Monster Tower's `physicalResist` works **only above**
+  0.18 and only its roof stepped past; the Monster Tower's `physicalResist` works **only above**
   a register whose 0.23 ceiling is a lone outlier over a field of 0.12s, and was taken anyway on the
-  measurement. ⚠️ **Read the damage formula rather than the stat names to decide whether a lock is
+  measurement; and the magic ward came back a second time on the Angel crew — which deals no
+  physical damage but its basic attack and carries 0.12 of `magicPierce` across five — and was worth
+  **0.10 and 0.35 of five from 0.15 all the way to 0.70**, so it was declined again. ⚠️ **A stat that
+  reads as designed for a crew is not evidence; measure it.** ⚠️ **Read the damage formula rather than the stat names to decide whether a lock is
   _this_ crew's**: Monsters carry the game's only real `physicalPierce`, and pierce multiplies `def`
   while resist is applied afterwards untouched — so the crew built to open armour has no answer to
   that wall, while the Elves, equally 100% physical, lose 0.00 to it. [towers](../docs/towers.md)
@@ -301,7 +318,12 @@ Asserted in `core/battle/simulate.spec.ts`.
   meant forty boards when it was measured and a hundred and forty after the next hundred landed —
   which is how one session shipped a false claim, corrected it, and got the correction wrong the
   same way. **State the range you measured, not the threshold you mean**, and re-run the prose check
-  after the new content lands rather than only before it. [authoring](../docs/authoring.md)
+  after the new content lands rather than only before it. ⚠️ **Three towers have now shipped the
+  same wrong claim, and it is always the word "regeneration"** — Dwarf, Monster and Angel each said
+  no board above some floor carried one while `recovery` sat on the anchors underneath. `recovery`
+  and `healthRegen` are a regeneration in the plain sense and a `regen` **status** is not the same
+  thing; name the four separately or the claim is false the day it is written. The fix is always the
+  claim, never the boards. [authoring](../docs/authoring.md)
 - ⚠️ **A mistyped optional stat is silent in both directions.** An already-`as const` object is not a
   fresh literal, so TypeScript's excess-property check never runs on it. Audit the keys with a script
   whenever a session authors stat blocks; **delete a dead key rather than correcting it.**

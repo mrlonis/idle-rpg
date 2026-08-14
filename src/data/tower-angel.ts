@@ -1,6 +1,7 @@
 import {
   ASHEN_CHOIR,
   ASHFALL_SOVEREIGN,
+  ASHPIT_SCUTTLER,
   BANDIT,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
@@ -9,8 +10,11 @@ import {
   BRAMBLEWALK_SCOUT,
   CARRION_SWARM,
   CINDERLING,
+  CINDERPLATE_HOUNDSMAN,
   CINDERQUENCH_BEARER,
+  CINDERSEED_COURSER,
   CINDER_CULLER,
+  CLEFTHORN_GORER,
   COLOSSUS,
   COVENANT_BREAKER,
   COVENANT_EXECUTOR,
@@ -29,8 +33,12 @@ import {
   HEADSMAN,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
+  IRONSLING_WRIGHT,
+  KILNSTROKE_CELEBRANT,
+  KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
   LUMEN_ACOLYTE,
+  MARROWHUNT_ALPHA,
   MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTMARCH_OUTRIDER,
@@ -42,19 +50,25 @@ import {
   RENDFANG_JACKAL,
   REVENANT,
   RIFTBORN_HARROWER,
+  RIFTEDGE_CANTOR,
   RIFTSTEP_REAVER,
   RIMEPLATE,
   RUINWING_DEVOURER,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHATTERJAW_MAULER,
   SKYSHRIKE,
+  SLAGHIDE_PURSUER,
   STORMCALLER,
   SUNMOTE_DANCER,
+  THE_LAST_MERCY,
   THE_UNANSWERED,
+  THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
   UNMADE,
+  VANWARD_SPEAR,
   VAULTLIGHT_CENSER,
   WARDEN,
   WEALDSHADOW_STALKER,
@@ -66,7 +80,7 @@ import {
 } from './enemies';
 
 /**
- * The Angel Tower — two hundred floors, enemy levels 1 to 120.
+ * The Angel Tower — three hundred floors, enemy levels 1 to 142.
  *
  * ## Why the enemies are mostly Demons
  *
@@ -116,8 +130,73 @@ import {
  * one board reads 5% or below for it, and 38–65% for the alternate); length breaks the alternate,
  * whose five characters field **four** damage skills between them at `elite` and which is the
  * slowest party in the game. So denial is a *cost* on this tower rather than an escalation — a
- * healer leaves both crews at 4.00 survivors and buys nothing but eleven seconds — and no board
- * above floor 160 carries a heal, a regeneration, a drain or `lifeLeech`.
+ * healer leaves both crews at 4.00 survivors and buys nothing but eleven seconds.
+ *
+ * ## ⚠️ What is forbidden above floor 160, restated because the old wording was wrong
+ *
+ * This block used to say that no board above floor 160 carries "a heal, a regeneration, a drain or
+ * `lifeLeech`", and walking the floors rather than reading them says otherwise on the second clause.
+ * Over floors 161–300: **no board carries a `heal` effect, a `drain`, a `regen` status or a point of
+ * `lifeLeech`** — but 111 carry `recovery` and 29 carry `healthRegen`, both of which are a
+ * regeneration in the plain sense of the word, and both of which sit on the anchors this tower has
+ * fielded since its first hundred ({@link FIRST_CINDER} at 5, {@link ASHFALL_SOVEREIGN} at 7,
+ * {@link UNMADE} at 8, {@link WYRDROOT_ANCIENT} at 9 and 0.2).
+ *
+ * The honest fix is the claim rather than the boards, exactly as the Crownworks found for
+ * `tower-dwarf.ts` and the Closing for `tower-monster.ts` — this is the third tower to make the same
+ * mistake. Restating it keeps every measured figure on those floors valid where retuning a hundred
+ * and eleven shipped boards would invalidate all of them. ⚠️ **The counts are stated as a range
+ * rather than as a threshold**, because "above floor 160" meant forty boards when it was first
+ * written and means a hundred and forty now; over 161–200 alone the same counts read 37 and 6.
+ *
+ * ## ⚠️ The third hundred escalates through the *size of one blow*, which is a cadence rather than a
+ * mechanic
+ *
+ * The second hundred's two dials are spent — both at once already reads 0.00 for both arrangements —
+ * and the twenty-two shapes it ruled out stayed ruled out at the new roof's level. Against a
+ * **3.98 / 3.80** control at level 142: `magicResist` 0.15 → 0.70 moves the pair 4.00 → 3.88 and
+ * 3.70 → 3.45 while adding six seconds a board, `physicalResist` 0.45 reads 4.00 / 3.77, `dodge`
+ * 0.30 reads 4.00 / 3.80, `tenacity` 0.60 reads 4.00 / 3.60, and enemy durability from hp 1000 to
+ * 2000 is not even monotonic (3.98 / 3.30 / 3.60 against 3.45 / 3.08 / 2.25) and is paid entirely in
+ * the clock, 21.5s to 35.3s. Crit at the Elf Tower's own ceiling does move the alternate — 3.73 /
+ * 2.13 — and was declined anyway: it is that tower's lock, and this crew carries the game's highest
+ * `critDamageResist` at 0.76 and 0.96 summed across five.
+ *
+ * What moves an Angel five is how *large a single instance of damage is*. Same control, damage per
+ * second **held constant**, both endpoints inside the shipped cooldown register:
+ *
+ * ```
+ *   power 1.55 / cd 35    ref 4.00         alt 3.52
+ *   power 2.20 / cd 50    ref 3.38 · 93%   alt 1.02 · 38%
+ *   power 3.10 / cd 70    ref 2.33 · 68%   alt 0.15 · 13%
+ * ```
+ *
+ * **Less total damage, delivered lumpier, kills more of this crew** — because every Angel heal names
+ * `ally-lowest` on a cooldown, so a stream of chip is exactly what the choir is built to answer and a
+ * body removed between two heal ticks cannot be healed at all. The bands escalate by how much of a
+ * board swings one: **1.20 bodies a board over 201–220, 2.60 over 221–245, 3.52 over 246–270 and
+ * 4.50 over 271–290**, closing at 4.00 because the last band trades a voice for a slab of weight in
+ * front of the anchor. See {@link THE_SINGLE_STROKE} in `skills.ts` for the full grade and the
+ * seven-crew control.
+ *
+ * ⚠️ **The licence is margin rather than exclusivity, and that is weaker than the Closing's.** As a
+ * change on each crew's own calibrated control, burst costs angel-alt **−2.38** and angel-ref −1.35
+ * against elf-alt −2.08, undead-alt −1.80 and monster-ref −0.63 — everybody loses about a member and
+ * the choir loses two.
+ *
+ * ⚠️ **The blow and the aim are a product.** Four bodies swinging 2.30 at the front rank read
+ * 2.98 · 95% / 1.07 · 57%; four swinging **less**, at 2.10, and naming `enemy-lowest` read
+ * **1.50 · 75% / 0.00**. So the aim arrives a band later, no board carries more than two of it, and
+ * the roof names nothing but the front rank.
+ *
+ * ⚠️ **The collapse check came back clean on the anchors and dirty on the pairing.** The shipped
+ * floor-200 board fielded up its own level line against the band-3 crew reads 100% with all five
+ * alive at 95, 100% / 5.00 at 125 and **73% / 1.60 against 50% / 0.85** at 142 — but all nine
+ * `ascended` blocks this tower fields above floor 160 read 100% for both crews at 142 behind three
+ * soft bodies, {@link UNMADE} at 1800/100 included at 4.33 / 4.38. What breaks floor 200 up there is
+ * that it stands **two** of them in one front rank, and {@link THE_LAST_MERCY} beside
+ * {@link THE_UNANSWERED} at the roof's level reads 0%. So no anchor retires — the second hundred of
+ * four to find that — and no board in the third hundred carries two.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -1511,6 +1590,826 @@ export const TOWER_ANGEL = {
       enemies: {
         front: [THE_UNANSWERED, FIRST_CINDER],
         back: [RIFTSTEP_REAVER, QUENCHWRIGHT, CINDER_CULLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Slow Wound — Floors 201–220, levels 95–104 — one body a board swings something that arrives in one piece, and the rest of it is the chip the choir has answered for two hundred floors.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f201',
+      name: 'Floor 201',
+      enemies: {
+        front: [FIRST_CINDER, RIFTSTEP_REAVER],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [PALE_WARDEN, CINDERPLATE_HOUNDSMAN],
+        back: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [CLEFTHORN_GORER, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [RIFTSTEP_REAVER, CINDERQUENCH_BEARER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [WARDEN, RIFTEDGE_CANTOR],
+        back: [VANWARD_SPEAR, CINDER_CULLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [OATHBREAKER, CINDERSEED_COURSER],
+        back: [KILNSTROKE_CELEBRANT, ASHPIT_SCUTTLER, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-angel-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [FIRST_CINDER, SLAGHIDE_PURSUER],
+        back: [CLEFTHORN_GORER, MOONSONG_WEAVER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [COLOSSUS, CINDERPLATE_HOUNDSMAN],
+        back: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSWORN_ADEPT],
+        back: [VANWARD_SPEAR, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f210',
+      name: 'Floor 210 — The Slow Wound',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [RIFTSTEP_REAVER, CINDER_CULLER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [PALE_WARDEN, RIFTEDGE_CANTOR],
+        back: [KILNSTROKE_CELEBRANT, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERSEED_COURSER],
+        back: [CLEFTHORN_GORER, CINDER_CULLER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f213',
+      name: 'Floor 213',
+      enemies: {
+        front: [FIRST_CINDER, KILNSWORN_ADEPT],
+        back: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-angel-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [OATHBREAKER, SLAGHIDE_PURSUER],
+        back: [VANWARD_SPEAR, MOONSONG_WEAVER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [COLOSSUS, CINDERPLATE_HOUNDSMAN],
+        back: [KILNSTROKE_CELEBRANT, ASHPIT_SCUTTLER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [FIRST_CINDER, EMBERSEED_WARLOCK],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, RIFTEDGE_CANTOR],
+        back: [CLEFTHORN_GORER, DUSKFERN_SKIRMISHER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [PALE_WARDEN, CINDERSEED_COURSER],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [OATHBREAKER, KILNSWORN_ADEPT],
+        back: [VANWARD_SPEAR, RENDFANG_JACKAL, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f220',
+      name: 'Floor 220 — The Stroke Falls',
+      enemies: {
+        front: [PALE_WARDEN, KINGSWAY_LANCER],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, RIFTSTEP_REAVER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Second Stroke — Floors 221–245, levels 105–116 — two, and the tower starts drawing its swingers from every bench it has rather than from the two blocks this band introduced.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [CLEFTHORN_GORER, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [THE_UNANSWERED, RIFTEDGE_CANTOR],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [OATHBREAKER, CINDERPLATE_HOUNDSMAN],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [FIRST_CINDER, KILNSWORN_ADEPT],
+        back: [KINGSWAY_LANCER, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [THE_UNANSWERED, CINDERPLATE_HOUNDSMAN],
+        back: [SHATTERJAW_MAULER, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [COLOSSUS, CINDERSEED_COURSER],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CINDER_CULLER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, SLAGHIDE_PURSUER],
+        back: [KILNSTROKE_CELEBRANT, CINDERQUENCH_BEARER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f230',
+      name: 'Floor 230 — The Second Stroke',
+      enemies: {
+        front: [THE_UNANSWERED, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CINDER_CULLER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [FIRST_CINDER, RIFTEDGE_CANTOR],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [PALE_WARDEN, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSWORN_ADEPT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, CINDERPLATE_HOUNDSMAN],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [CLEFTHORN_GORER, RIFTSTEP_REAVER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [COLOSSUS, CINDERSEED_COURSER],
+        back: [SHATTERJAW_MAULER, KINGSWAY_LANCER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [FIRST_CINDER, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, MARROWHUNT_ALPHA],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, RIFTEDGE_CANTOR],
+        back: [CLEFTHORN_GORER, KILNSTROKE_CELEBRANT, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f240',
+      name: 'Floor 240 — The Verse Interrupted',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CINDER_CULLER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [OATHBREAKER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [FIRST_CINDER, IRONSLING_WRIGHT],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERPLATE_HOUNDSMAN],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [CLEFTHORN_GORER, SHATTERJAW_MAULER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [THE_UNANSWERED, CINDERSEED_COURSER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Gathering Hand — Floors 246–270, levels 117–128 — three, and the first boards that aim the blow at the body the choir has already committed a heal to.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [CLEFTHORN_GORER, VANWARD_SPEAR, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [THE_UNANSWERED, WEALDSHADOW_STALKER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f250',
+      name: 'Floor 250 — The Gathering Hand',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [COLOSSUS, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, KINGSWAY_LANCER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [VANWARD_SPEAR, CLEFTHORN_GORER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [OATHBREAKER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [THE_UNANSWERED, KINGSWAY_LANCER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [FIRST_CINDER, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSTROKE_CELEBRANT],
+        back: [CLEFTHORN_GORER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [UNMADE, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f260',
+      name: 'Floor 260 — Between Two Mercies',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [VANWARD_SPEAR, CLEFTHORN_GORER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [COLOSSUS, KILNSTROKE_CELEBRANT],
+        back: [VANWARD_SPEAR, WEALDSHADOW_STALKER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f265',
+      name: 'Floor 265',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [FIRST_CINDER, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [UNMADE, KILNSTROKE_CELEBRANT],
+        back: [VANWARD_SPEAR, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, KINGSWAY_LANCER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [THE_UNANSWERED, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f270',
+      name: 'Floor 270 — The Choir Behind',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, RIFTSTEP_REAVER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Blow Entire — Floors 271–290, levels 128–137 — four, and the anchors that have swung one since the second hundred are now the smallest part of what does.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [UNMADE, KILNSTROKE_CELEBRANT],
+        back: [VANWARD_SPEAR, CLEFTHORN_GORER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [FIRST_CINDER, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, CLEFTHORN_GORER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [THE_UNANSWERED, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f280',
+      name: 'Floor 280 — The Blow Entire',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [UNMADE, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [FIRST_CINDER, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [THE_UNANSWERED, SHATTERJAW_MAULER],
+        back: [KILNSTROKE_CELEBRANT, VANWARD_SPEAR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [UNMADE, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f290',
+      name: 'Floor 290 — Faster Than the Ward',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, KILNSTROKE_CELEBRANT],
+        back: [SHATTERJAW_MAULER, VANWARD_SPEAR, KILNSTROKE_CELEBRANT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Last Mercy — Floors 291–300, levels 138–142 — one anchor and never two, a slab in front of it to spend the clock on, and behind that everything the hundred has been building toward.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [THE_UNANSWERED, MARROWHUNT_ALPHA],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, MARROWHUNT_ALPHA],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [UNMADE, THORNBACK_GRAZER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [THE_LAST_MERCY, WRATHBORN],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [ASHFALL_SOVEREIGN, THORNBACK_GRAZER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_LAST_MERCY, MARROWHUNT_ALPHA],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [UNMADE, THORNBACK_GRAZER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [THE_LAST_MERCY, RIMEPLATE],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [THE_LAST_MERCY, THORNBACK_GRAZER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f300',
+      name: 'Floor 300 — The Last Mercy',
+      enemies: {
+        front: [THE_LAST_MERCY, THORNBACK_GRAZER],
+        back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, SHATTERJAW_MAULER],
       },
     },
   ],

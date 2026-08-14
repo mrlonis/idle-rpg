@@ -54,11 +54,29 @@ previous skeleton without changing its shape.
 | 23      | Puzzle maps — Expeditions                 | The only content that is not a ladder. Solvability is a Dijkstra run on every test pass                                                                          |
 | 24      | The level line flattened to 0.50 a stage  | Runway 14 chapters → 42. The margin rule retired; the campaign trades its own difficulty gradient for length                                                     |
 | 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                        |
+| 26      | Towers to 300 floors, six of seven landed | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. Only the Demon Tower is still on the previous height        |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
 system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and
 the roster to **140**, on the same terms.
+
+### What the third hundreds established
+
+Six of the seven towers now stand at 300 floors, one session each, and the findings that generalise
+are in [towers](towers.md) and [authoring](authoring.md). Two are worth stating here because they are
+about **method** rather than about a tower:
+
+- ⚠️ **The previous hundred's roof board and the previous hundred's anchors are two questions.** Four
+  towers found the board collapsing at the new roof's level and concluded the anchors had to get
+  lighter; the Monster and Angel Towers found the board collapsing while every anchor on it read
+  100%. In both of those the failure was the **pairing** — two `ascended` blocks in one front rank —
+  which is a composition fix rather than a stat one. Ask both.
+- ⚠️ **An escalation axis need not be a stat or a mechanic.** Five of the six are (support, front-rank
+  weight, a hidden burster, durability, `physicalResist`); the Angel Tower's is the **size of one
+  instance of damage**, held at constant damage per second. It is the only thing that moves a crew
+  whose every heal names `ally-lowest` on a cooldown, and it grades that crew from 3.52 to 0.15
+  survivors with **zero timeouts** — which is what makes it difficulty rather than the clock.
 
 ### What chapter 11 established, being the first chapter authored after the flattening
 
@@ -67,9 +85,11 @@ the roster to **140**, on the same terms.
   rule "the next rung up" was always right, and on the flat line it is a coin-flip that has to be
   evaluated. See [authoring](authoring.md).
 - ⚠️ **A lean can reverse the faction ordering in one session.** Ten Human blocks took the faction
-  from thinnest at 14 to deepest at 24, which means the two thinnest are now Angels and Demons —
+  from thinnest at 14 to deepest at 24, which means the two thinnest were then Angels and Demons —
   and **neither may lead a chapter**. The next lean is the first one that has to be chosen among
-  three middling factions rather than read off the bottom of the list.
+  three middling factions rather than read off the bottom of the list. ⚠️ **That ordering has since
+  moved twice and is stale as written** — the third hundreds took Demons to 25 and Monsters to 23,
+  leaving Angels the sole thinnest at 21. **Recompute it; do not read this sentence.**
 - ⚠️ **A horizon in a doc is a claim about a curve, and this project's curves move.** `gear.spec.ts`'s
   kit-hours guard was recorded as firing at chapter 12 and actually fires around chapter **180**: the
   projection was made while `STAGE_REWARDS.exponent` was 1.45, and the flattening brought it to 1.00,
