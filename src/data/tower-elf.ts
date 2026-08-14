@@ -1,5 +1,6 @@
 import {
   ACOLYTE,
+  ASHPIT_SCUTTLER,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
   BOAR,
@@ -7,8 +8,11 @@ import {
   BULWARK_ENEMY,
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
+  CARRION_SWARM,
   CHARNEL_DRUDGE,
   CINDERLING,
+  CINDERQUENCH_BEARER,
+  CINDER_CULLER,
   COLDFORGE_HAND,
   COLDHEARTH_IRONSWORN,
   COLOSSUS,
@@ -16,10 +20,12 @@ import {
   DEEPGALLERY_RUNNER,
   DEEPROCK_MINER,
   EDGETURN_WARDEN,
+  EMBERSEED_WARLOCK,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
   GLADE_STALKER,
+  GLASSCHOIR_ARBITER,
   GOLEM,
   GRAVEMOURN_KEEPER,
   GRAVETIDE_HERALD,
@@ -30,9 +36,12 @@ import {
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   IRONSLING_WRIGHT,
+  KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
+  KNELL_CHANTER,
   LUMEN_ACOLYTE,
   MARCHWARD_PIKEMAN,
+  MARROWHUNT_ALPHA,
   MOONSONG_WEAVER,
   NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
@@ -40,9 +49,14 @@ import {
   OATHSTONE_BASTION,
   PLUMBLINE_HAND,
   PYRE,
+  QUENCHPIT_IRONHIDE,
   QUENCHWRIGHT,
+  REDWATER_STALKER,
+  RENDFANG_JACKAL,
   REVENANT,
   RIFTBORN_HARROWER,
+  RIFTEDGE_CANTOR,
+  RIFTSTEP_REAVER,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
   RUNEWARDEN,
@@ -51,23 +65,28 @@ import {
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHARDLIGHT_ACOLYTE,
   SLAGBOUND_DRUDGE,
   SLIME,
+  SPLINTERYARD_HONER,
   STORMCALLER,
+  THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
   THE_GRUDGEKEEPER,
   THE_WARDWRIGHT,
   THORNBACK_GRAZER,
   THORNWEALD_WARDEN,
   VAULTBOUND_GAOLER,
+  VAULTLIGHT_CENSER,
   WARDEN,
   WEALDSHADOW_STALKER,
   WISP,
   WRATHBORN,
+  ZENITH_CHORISTER,
 } from './enemies';
 
 /**
- * The Elf Tower — two hundred floors, enemy levels 1 to 120.
+ * The Elf Tower — three hundred floors, enemy levels 1 to 142.
  *
  * ## Why the enemies are mostly Dwarven
  *
@@ -133,9 +152,62 @@ import {
  * falls from 100% to 2% for the alternate across eight levels while the reference is still at 100%.
  * Size everything here against the alternate.
  *
- * ⚠️ **No board pairs a taunt with anything that refills**, checked by walking all two hundred floors
- * with a script rather than by reading them. Re-run `npm run test:balance` after touching any band
- * above floor 180.
+ * ⚠️ **No board pairs a taunt with anything that refills**, checked by walking all three hundred
+ * floors with a script rather than by reading them. Re-run `npm run test:balance` after touching any
+ * band above floor 180.
+ *
+ * ## ⚠️ The third hundred is one stat, and the negative results are most of the finding
+ *
+ * The Splintering Yards escalate through **being crit at**, and that is the only mechanic of
+ * twenty-odd measured against both arrangements at the roof's level that graded rather than doing
+ * nothing or falling off a cliff. Against a control of one anchor plus four identical bodies:
+ *
+ * | four bodies at                    | reference | alternate |
+ * | --------------------------------- | --------- | --------- |
+ * | plain front-hitter (control)      | 3.25      | 2.25 · 93% |
+ * | `critChance` 0.18 / amp 1.00      | 3.20      | 1.73 · 80% |
+ * | `critChance` 0.22 / amp 1.00      | 3.00      | 1.07 · 57% |
+ * | `critChance` 0.26 / amp 1.10      | 2.92      | 0.72 · 48% |
+ *
+ * ⚠️ **Everything else was inert or a cliff.** `enemy-all` reads 98 / 90 / 75% across one, two and
+ * three voices and then **0%** at four, which is a trap rather than a dial; `enemy-row-front` is flat
+ * at every count from zero to four; reach (`enemy-back`, 98%) and `enemy-highest` (100%) leave a
+ * board **easier** than saying nothing; a link takes the weaker five from 2.08 survivors to
+ * **4.97**. Do not re-measure these.
+ *
+ * ⚠️ **It is this tower's lock and not merely an unanswerable one**, which is the test that shelved
+ * `dodge` on the Monster Tower. Both swept Elf arrangements carry **zero `critDamageResist` and zero
+ * `critBlock`** — the only crew in the game with neither, against the Dwarf five's 0.23 of block and
+ * the Angel five's 0.76 of resist — on the lowest mean HP in the game at 461. And the second hundred
+ * already made crit this tower's conversation in the mirror direction: {@link EDGETURN_WARDEN} holds
+ * the game's highest `critBlock` for the sole purpose of refusing an Elf five's crits.
+ *
+ * ## ⚠️ The old anchor is heavier than the new roof, and the closing band has to drop it
+ *
+ * Fielded up its own level line against the band-3 crew, the shipped floor-200 board reads 100% with
+ * all five alive at its own level 95, 100% / 4.90 at 125, and **35% with 0.70 survivors** at 142 —
+ * the same collapse the Dwarf Tower's third hundred measured, because an `ascended` block climbs at
+ * `perLevel.ascended` 1.024 against a mostly-`common` five's 1.021. So {@link THE_EDGEWRIGHT} is
+ * **lighter** than {@link THE_WARDWRIGHT} it succeeds (1300/84 against 1560/92).
+ *
+ * ⚠️ **The same arithmetic applies inside the hundred and it caught a first draft.** The tower's own
+ * {@link THE_GRUDGEKEEPER} is 1520/89 — heavier than the new roof — so a board carrying it above
+ * level 140 is harder than the roof itself, which measured floor 298 at 2.85 reference survivors
+ * against the roof's 3.42. The band drops it after floor 294 and nothing but the Edgewright anchors
+ * the last six floors.
+ *
+ * ⚠️ **Thinning the anchors out entirely is the opposite mistake, and the first draft made that one
+ * too.** Boards of five legendaries with no anchor at all measured **flat** across floors 271–295 —
+ * 4.00 reference survivors and an alternate reading 4.38 to 4.88, which is *easier* than the boards
+ * below them. The Dwarf Tower's finding is that a third hundred's anchors get lighter, not that they
+ * go away.
+ *
+ * ## What the third hundred measures at
+ *
+ * Floor 201 in two seconds with all five alive, 250 in four, 270 in five with 4.22, 280 in seven
+ * with 4.00, 290 in eight with 3.67. The roof takes the reference five 8.2 seconds and costs it 1.58
+ * of five; the alternate clears it at **88% with 2.02**. Floor 296 is the second Edgewright board and
+ * the only other real fight, at 3.73 and 88%.
  */
 export const TOWER_ELF = {
   id: 'tower-elf',
@@ -1503,6 +1575,826 @@ export const TOWER_ELF = {
       enemies: {
         front: [THE_WARDWRIGHT, EDGETURN_WARDEN],
         back: [IRONSLING_WRIGHT, RUNEWARDEN, PLUMBLINE_HAND],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Grinding Stair — Floors 201–220, levels 95–104 — the Wardwright is dead and the yards above him are still turning. One body a board carries the new edge, and it is the one that swings.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f201',
+      name: 'Floor 201',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [PLUMBLINE_HAND, DEEPGALLERY_RUNNER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SHARDLIGHT_ACOLYTE, CINDERQUENCH_BEARER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [PLUMBLINE_HAND, STORMCALLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [DEEPGALLERY_RUNNER, VAULTLIGHT_CENSER, STORMCALLER],
+      },
+    },
+    {
+      id: 't-elf-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [SHARDLIGHT_ACOLYTE, PLUMBLINE_HAND, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [COLDFORGE_HAND, SPLINTERYARD_HONER],
+        back: [KILNSWORN_ADEPT, CINDER_CULLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SHARDLIGHT_ACOLYTE, SERAPH_ADJUDICANT, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [PLUMBLINE_HAND, ZENITH_CHORISTER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f210',
+      name: 'Floor 210 — The Grinding Stair',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [CINDERQUENCH_BEARER, KILNSWORN_ADEPT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-elf-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [DEEPGALLERY_RUNNER, SHARDLIGHT_ACOLYTE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f213',
+      name: 'Floor 213',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [VAULTLIGHT_CENSER, PLUMBLINE_HAND, STORMCALLER],
+      },
+    },
+    {
+      id: 't-elf-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [COLDFORGE_HAND, SPLINTERYARD_HONER],
+        back: [SERAPH_ADJUDICANT, SHARDLIGHT_ACOLYTE, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [ZENITH_CHORISTER, KILNSWORN_ADEPT, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [PLUMBLINE_HAND, SHARDLIGHT_ACOLYTE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [CINDER_CULLER, ASHPIT_SCUTTLER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [SERAPH_ADJUDICANT, SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [VAULTLIGHT_CENSER, DEEPGALLERY_RUNNER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f220',
+      name: 'Floor 220 — The Whetted Stair',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Splinteryard — Floors 221–245, levels 105–116 — where the edge is put on. Two that swing, and the yard’s own fodder starts carrying a shard of it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SERAPH_ADJUDICANT, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-elf-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, PLUMBLINE_HAND, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, KILNSWORN_ADEPT, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-elf-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, MARROWHUNT_ALPHA, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, RIFTBORN_HARROWER],
+      },
+    },
+    {
+      id: 't-elf-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, PLUMBLINE_HAND, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-elf-f230',
+      name: 'Floor 230 — The Splinteryard',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, KILNSWORN_ADEPT, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-elf-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [COLDFORGE_HAND, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, KNELL_CHANTER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-elf-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, DEEPGALLERY_RUNNER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-elf-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, MARROWHUNT_ALPHA, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-elf-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTSTEP_REAVER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f240',
+      name: 'Floor 240 — The Honing Floor',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SERAPH_ADJUDICANT, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-elf-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, EMBERSEED_WARLOCK, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-elf-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-elf-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, PLUMBLINE_HAND],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Cantor's Line — Floors 246–270, levels 117–128 — a third voice, and it is the one that goes looking for whoever is already hurt.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-elf-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f250',
+      name: "Floor 250 — The Cantor's Line",
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-elf-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-elf-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-elf-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [SLAGBOUND_DRUDGE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f260',
+      name: 'Floor 260 — The Keening Floor',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-elf-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [MARCHWARD_PIKEMAN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-elf-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f265',
+      name: 'Floor 265',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [QUENCHWRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-elf-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-elf-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f270',
+      name: 'Floor 270 — The Line Sung Through',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, RIFTEDGE_CANTOR],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Glasslight Floor — Floors 271–290, levels 128–137 — a fourth voice, and an anchor back in front of it. Lighter than the Wardwright the band below closed on, because at this height an anchor grows faster than the crew does — and never absent, because without one the band measures flat.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [OATHSTONE_BASTION, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [OATHSTONE_BASTION, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f280',
+      name: 'Floor 280 — The Glasslight Floor',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [RIVEN_MARCHWARDEN, SPLINTERYARD_HONER],
+        back: [RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [OATHSTONE_BASTION, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [RIVEN_MARCHWARDEN, SPLINTERYARD_HONER],
+        back: [RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, GLASSCHOIR_ARBITER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-elf-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f290',
+      name: 'Floor 290 — The Glass Cut True',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER, GLASSCHOIR_ARBITER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Splintering — Floors 291–300, levels 138–142 — no passengers left. The Grudgekeeper takes his last four floors and then the band drops him: at these levels the tower’s own old anchor is heavier than its new roof, so above floor 294 the only thing standing in front is the one who made the edge.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [RIVEN_MARCHWARDEN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-elf-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [OATHSTONE_BASTION, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_EDGEWRIGHT, SPLINTERYARD_HONER],
+        back: [SERAPH_ADJUDICANT, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [OATHSTONE_BASTION, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, SPLINTERYARD_HONER],
+        back: [SPLINTERYARD_HONER, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-elf-f300',
+      name: 'Floor 300 — The Edgewright',
+      enemies: {
+        front: [THE_EDGEWRIGHT, SPLINTERYARD_HONER],
+        back: [PLUMBLINE_HAND, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
       },
     },
   ],

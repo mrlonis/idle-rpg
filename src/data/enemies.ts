@@ -99,6 +99,12 @@ import {
   ASHPIT_RAKE,
   THE_WHEEL_TURNS,
   THE_WORKS_RUN_ON,
+  PUT_THE_EDGE_ON,
+  THE_KEENING_NOTE,
+  GLASSLIGHT_VERDICT,
+  SHARDLIGHT,
+  THE_EDGE_IS_MADE,
+  NOTHING_HOLDS_AN_EDGE,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5280,6 +5286,182 @@ export const THE_CROWN_WHEEL = {
   skills: [THE_WHEEL_TURNS, THE_WORKS_RUN_ON],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Splintering Yards — the Elf Tower's third hundred.
+//
+// ⚠️ **One stat carries the whole band, and it is the one an Elf five has no answer to at all.**
+// Both swept Elf arrangements carry **zero `critDamageResist` and zero `critBlock`** — the only
+// crew in the game with neither, against Dwarves' 0.23 of block across five and Angels' 0.76 of
+// resist — on the lowest mean HP in the game (461, against Undead 880 and Dwarf 846). Measured at
+// the roof's level, four bodies at the shipped ceiling read **80% / 1.73** for the weaker
+// arrangement against a 93% / 2.25 control, and it grades the whole way: 57% at `critChance` 0.22
+// and 48% at 0.26.
+//
+// ⚠️ **It is genuinely this tower's rather than merely unanswerable**, which is the test that
+// shelved `dodge` on the Monster Tower. The tower's own second hundred already made crit its
+// conversation in the *mirror* direction — {@link EDGETURN_WARDEN} carries the highest `critBlock`
+// and `critDamageResist` in the game for the sole purpose of refusing an Elf five's crits — so
+// this hundred is the works turning that around and throwing them instead.
+//
+// ⚠️ **The register was checked before the band was built on it**, which is rule 4 in
+// `docs/authoring.md` and the thing the rejected Demon magic ward failed. The shipped ceilings are
+// `critChance` **0.18** (Headsman) and `critDamageAmp` **1.00** (Golem), and every legendary here
+// sits at or under both. Only the roof steps past, exactly as {@link THE_WARDWRIGHT} set the
+// game's `accuracy` ceiling one hundred below.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It puts the edge on everything that leaves the yard, and it has never once been asked to stop.
+ *
+ * **The hundred's spine**, on a hundred and ten of its five hundred slots. ⚠️ **Deliberately the
+ * *moderate* register and not the ceiling** — `critChance` 0.16 against the shipped 0.18 — because
+ * this band escalates by **how many bodies ask** rather than by how hard one of them asks. A spine
+ * authored at the ceiling would leave the closing bands nowhere to go but weight, and weight is
+ * exactly what has run out of room up here.
+ *
+ * ⚠️ **It carries the tower's `accuracy` signature at 1.12 and not a point more.** The second
+ * hundred is built on out-running an Elf five's evasion and its ceiling is the Wardwright's 1.25;
+ * this block inherits the idiom without touching that claim.
+ */
+export const SPLINTERYARD_HONER = {
+  id: 'splinteryard-honer',
+  name: 'Splinteryard Honer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 76,
+    def: 26,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    tenacity: 0.3,
+    accuracy: 1.12,
+    physicalPierce: 0.2,
+  },
+  skills: [PUT_THE_EDGE_ON],
+} as const;
+
+/**
+ * Something in the rift below the quench-pits learned the note the metal breaks on.
+ *
+ * The **second** voice, arriving at floor 245. Magical and aimed at whoever is already closest to
+ * going down — see {@link THE_KEENING_NOTE} for why that aim and not the back rank, which measured
+ * as a gift. At the shipped `critChance` ceiling, because unlike the spine this one is not asked to
+ * appear on a hundred boards.
+ */
+export const RIFTEDGE_CANTOR = {
+  id: 'riftedge-cantor',
+  name: 'Riftedge Cantor',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 74,
+    def: 20,
+    haste: 98,
+    critChance: 0.18,
+    critDamageAmp: 1,
+    magicPierce: 0.22,
+    magicResist: 0.08,
+  },
+  skills: [THE_KEENING_NOTE],
+} as const;
+
+/**
+ * The yards are lit by something that was bound to light them, and it has opinions about edges.
+ *
+ * The **fourth** voice, arriving at floor 271. ⚠️ **Thin and fast rather than another heavy body**,
+ * which is the whole point of it: 640 hp at `haste` 116 contributes *crit rolls per fight* where a
+ * bulkier block would contribute a bigger number the party's front rank was going to eat anyway.
+ * That is also its price — it is the softest thing on any board it stands on.
+ */
+export const GLASSCHOIR_ARBITER = {
+  id: 'glasschoir-arbiter',
+  name: 'Glasschoir Arbiter',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 640,
+    atk: 66,
+    def: 22,
+    haste: 116,
+    critChance: 0.18,
+    critDamageAmp: 0.95,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [GLASSLIGHT_VERDICT],
+} as const;
+
+/**
+ * What is swept up off the yard floor, still bright enough to cut with.
+ *
+ * The hundred's only new `common`, and the opening bands are made of it. It carries a real
+ * `critChance` at 0.14 so the band's sentence is true of the fodder as well as of the anchors —
+ * which is what stops floors 201–245 reading as the last hundred at a higher level.
+ */
+export const SHARDLIGHT_ACOLYTE = {
+  id: 'shardlight-acolyte',
+  name: 'Shardlight Acolyte',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 54,
+    def: 14,
+    haste: 108,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    magicResist: 0.1,
+  },
+  skills: [SHARDLIGHT],
+} as const;
+
+/**
+ * The Wardwright cut the wards. This one has spent a hundred floors sharpening what cut them.
+ *
+ * The roof. ⚠️ **Lighter than {@link THE_WARDWRIGHT} it succeeds — 1300 against 1560 and 84 against
+ * 92 — and that is arithmetic rather than timidity**, the same correction the Crownworks recorded.
+ * An `ascended` block climbs at `perLevel.ascended` 1.024 while a mono-faction Elf five is mostly
+ * `common` at 1.021, so across the 47 levels this hundred spans the anchors pull away by about
+ * ×1.15. Fielded up its own level line against the band-3 crew, the shipped floor-200 board reads
+ * 100% with all five alive at level 95, 100% / 4.90 at 125, and **35% with 0.70** at 142 — so this
+ * hundred's escalation had to come out of the board's other four slots, and its roof had to weigh
+ * less than the one below it.
+ *
+ * ⚠️ **`critChance` 0.22 and `critDamageAmp` 1.15 are the highest in the game**, above the
+ * Headsman's 0.18 and the Golem's 1.00, and that is the roof setting its own tower's headline
+ * exactly as the Wardwright set `accuracy` at 1.25 a hundred floors below. Nothing else in this
+ * hundred goes past the shipped register.
+ *
+ * ⚠️ **It restores nothing, and the Wardwright below it does.** A roof is where sustain stops being
+ * a lock and becomes the ninety-second clock; that the previous roof carries `recovery: 6` is a
+ * fact about a board an Elf five clears in twelve seconds and not a licence this one inherits.
+ * Under the Unmade on both stats, which `enemies.spec.ts` holds — 1300 and 84 against 1800 and 100.
+ */
+export const THE_EDGEWRIGHT = {
+  id: 'the-edgewright',
+  name: 'The Edgewright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 84,
+    def: 42,
+    haste: 96,
+    critChance: 0.22,
+    critDamageAmp: 1.15,
+    critDamageResist: 0.12,
+    critBlock: 0.08,
+    tenacity: 0.5,
+    accuracy: 1.15,
+    physicalPierce: 0.24,
+    physicalResist: 0.05,
+  },
+  skills: [THE_EDGE_IS_MADE, NOTHING_HOLDS_AN_EDGE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -5430,4 +5612,9 @@ export const ENEMIES = [
   KILNSWORN_ADEPT,
   ASHPIT_SCUTTLER,
   THE_CROWN_WHEEL,
+  SPLINTERYARD_HONER,
+  RIFTEDGE_CANTOR,
+  GLASSCHOIR_ARBITER,
+  SHARDLIGHT_ACOLYTE,
+  THE_EDGEWRIGHT,
 ] as const;

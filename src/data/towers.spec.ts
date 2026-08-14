@@ -135,13 +135,7 @@ const TOWER_UNIT = 100;
  * The third hundred is in flight: the height moved to 300 in this session and the floors follow one
  * tower at a time.
  */
-const PENDING = new Set([
-  'tower-elf',
-  'tower-undead',
-  'tower-monster',
-  'tower-angel',
-  'tower-demon',
-]);
+const PENDING = new Set(['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon']);
 
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {

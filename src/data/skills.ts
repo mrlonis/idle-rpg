@@ -5194,6 +5194,113 @@ export const THE_WORKS_RUN_ON = {
   priority: 1,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Splintering Yards — the Elf Tower's third hundred.
+//
+// ⚠️ **The whole band is one stat and no new vocabulary at all**, which is the finding rather
+// than a shortcut. Twenty-odd shapes were measured against both Elf arrangements at the roof's
+// level and almost every one was inert or a cliff: `enemy-all` reads 98 / 90 / 75% across one,
+// two and three voices and then **0%** at four; `enemy-row-front` is flat at every count; reach
+// and `enemy-highest` leave the board *easier* than saying nothing; a link takes the weaker five
+// from 2.08 survivors to **4.97**. What grades smoothly is **being crit at**, and it does so
+// entirely inside the register the game already ships.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The yard's whole business, and the reason anything above it cuts.
+ *
+ * ⚠️ **A plain hit, and the band is on the stat block rather than in here.** The Crownworks
+ * Striker's note makes the same call for the same reason: when the axis is a stat, a skill that
+ * also carries a rider measures the rider instead. Cooldown 55 rather than the Striker's 40
+ * because this hundred escalates by *how many bodies* ask rather than by how often one does —
+ * repeating a question is worth almost nothing and the count is worth everything.
+ */
+export const PUT_THE_EDGE_ON = {
+  id: 'put-the-edge-on',
+  name: 'Put the Edge On',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * It sings the note the metal was cut to, and finds whoever is closest to breaking on it.
+ *
+ * ⚠️ **`enemy-lowest` and not `enemy-back`, which is the opposite of the shipped instinct here.**
+ * The second hundred reaches for the rank an Elf five hides its support in, and measured against
+ * these crews at the roof's level that rank is a **gift**: `enemy-back` reads 100% / 98% against a
+ * control's 100% / 88%, because damage spent behind the front row is damage the party's two paper
+ * bodies never took. `enemy-lowest` is the only aim that measured *harder* than saying nothing
+ * (85%), and against the thinnest five in the game it is the honest one.
+ */
+export const THE_KEENING_NOTE = {
+  id: 'the-keening-note',
+  name: 'The Keening Note',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.9 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/**
+ * The light the yards work by, folded until it is thin enough to be an edge.
+ *
+ * Magical, so the fourth voice is not the same voice a fourth time — and fast, because this block's
+ * contribution is **crit rolls per fight** rather than the size of any one of them.
+ */
+export const GLASSLIGHT_VERDICT = {
+  id: 'glasslight-verdict',
+  name: 'Glasslight Verdict',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.75 }],
+  cooldown: 52,
+  priority: 2,
+} as const;
+
+/** What is left over when the light is folded. Opening-band texture that still carries an edge. */
+export const SHARDLIGHT = {
+  id: 'shardlight',
+  name: 'Shardlight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's turn, and the only one in the hundred that was ever going to land on its own.
+ *
+ * ⚠️ **`enemy-front`, and the measurement that settles it is the same one the Crownworks recorded
+ * in the mirror direction.** Against an Elf five the front rank is two bodies of 430 to 560 hp that
+ * the party cannot afford to lose and cannot hide, so the front row is where a roof's damage is
+ * worth the most — reaching past it reads 100% / 98% where this reads 100% / 88%.
+ */
+export const THE_EDGE_IS_MADE = {
+  id: 'the-edge-is-made',
+  name: 'The Edge Is Made',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Everything holds an edge for a while. The Edgewright has never met the thing that holds one.
+ *
+ * The roof's second turn. ⚠️ **No status rides it and no rank is swept.** Four wide voices on one
+ * board is the single cliff this hundred found — 75% for the weaker arrangement at three and
+ * **0%** at four — so the roof is the one board in the tower that may not carry one at all.
+ */
+export const NOTHING_HOLDS_AN_EDGE = {
+  id: 'nothing-holds-an-edge',
+  name: 'Nothing Holds an Edge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5461,4 +5568,10 @@ export const SKILLS = [
   ASHPIT_RAKE,
   THE_WHEEL_TURNS,
   THE_WORKS_RUN_ON,
+  PUT_THE_EDGE_ON,
+  THE_KEENING_NOTE,
+  GLASSLIGHT_VERDICT,
+  SHARDLIGHT,
+  THE_EDGE_IS_MADE,
+  NOTHING_HOLDS_AN_EDGE,
 ] as const;

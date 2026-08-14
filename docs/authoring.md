@@ -15,7 +15,7 @@ boards, and a content session is mostly a conversation with it.
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 149                                         |
+| Enemy archetypes | 154                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -154,8 +154,8 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 16, demon 18, monster 21,
-  elf 21, dwarf 22, undead 25, human 26. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 18, demon 19, monster 21,
+  elf 21, dwarf 24, undead 25, human 26. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
@@ -163,8 +163,12 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   took Human from **thinnest of the seven at 14 to deepest at 24** in a single session, which is why
   the depths are recomputed rather than read: the argument that picked a lean is stale the moment
   that lean ships. The two thinnest factions are still Angels and Demons, and **neither may lead a
-  chapter** — so the next lean is a choice among Monster (21), Elf (21) and Dwarf (22) rather than
+  chapter** — so the next lean is a choice among Monster (21), Elf (21) and Dwarf (24) rather than
   the obvious one, and it is the first time that has been true.
+  - **A tower may spend on a celestial where a chapter may not**, and the Elf Tower's third hundred
+    is the worked example: Angels and Demons both counter Elves, so its four filler blocks went 2 to
+    Angel and 1 to Demon behind a Dwarf lead, taking the two thinnest factions to 18 and 19. The
+    standing ×1.10 that forbids a celestial-led _chapter_ is exactly what a tower is buying.
 - ⚠️ **A _tower's_ lean is fixed by the matrix, so when it lands on an already-deep faction the
   blocks go elsewhere.** The Dwarf Tower leans Human and Human was second-deepest at 24, so its third
   hundred put the boss and the recurring anchor there and spent the other three on Monsters and
@@ -390,7 +394,12 @@ procedure:
    shipped twice.**
 4. ⚠️ **Check a stat's shipped register before building a band on it.** A magic ward reads well on
    paper and the highest `magicResist` on any shipped block is 0.14; at 0.15 the wall is worth
-   nothing, and it only bites at four times anything authored.
+   nothing, and it only bites at four times anything authored. ⚠️ **The check can also come back
+   positive, and that is the answer rather than a formality**: the Elf Tower's third hundred is built
+   on `critChance`, whose shipped ceiling is 0.18, and four bodies **at** that ceiling take the weaker
+   arrangement from 93% to 80%. The difference between the two cases is whether the crew has any of
+   the answering stat — every Elf in both arrangements carries **zero** `critDamageResist` and zero
+   `critBlock`.
 5. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's
    band openers.
@@ -401,11 +410,21 @@ procedure:
    A heavy block climbs at `perLevel.ascended` 1.024 or `perLevel.legendary` 1.0225 while a
    mono-faction five is mostly `common` at 1.021, so across a hundred floors the anchors gain about
    ×1.15 on the crew. The Dwarf Tower's floor-200 board reads 100% with all five alive at its own
-   level and **28% with 0.47 survivors** at the third hundred's roof — so that hundred's anchors had
-   to get _lighter_ than the ones they succeeded, and its escalation came out of the board's other
-   four slots instead. **This is not a Dwarf fact**; check it on every third hundred, because a band
-   sized by eye against the hundred below will be unwinnable at the top and nothing says so until the
-   sweep does.
+   level and **28% with 0.47 survivors** at the third hundred's roof; the Elf Tower's reads **35% with
+   0.70** — so both hundreds' anchors had to get _lighter_ than the ones they succeeded, and the
+   escalation came out of the board's other four slots instead. **This is not a Dwarf fact**; check it
+   on every third hundred, because a band sized by eye against the hundred below will be unwinnable at
+   the top and nothing says so until the sweep does.
+   - ⚠️ **"Lighter" does not mean "absent", and that is the opposite error waiting on the other
+     side.** The Elf third hundred first authored its closing bands as five legendaries with no anchor
+     at all and measured **flat** — 4.00 reference survivors across twenty-five floors with the
+     alternate at 4.38 to 4.88, _easier_ than the boards below. Restoring a mid-weight anchor was
+     worth a full survivor. A band needs an anchor; it needs a **smaller** one.
+   - ⚠️ **Check the previous hundred's _anchors_ against the new roof, not only its roof board.** The
+     Elf Tower's own `THE_GRUDGEKEEPER` (1520/89) is heavier than the roof that succeeds it
+     (1300/84), so boards carrying it above level 140 measured harder than the roof — 2.85 reference
+     survivors against the roof's 3.42. A closing band may have to retire a block the tower has fielded
+     since its first hundred.
 8. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
    shipped block uses, which makes it tempting when a tower's axis is tempo and the tower above has
    already spent `haste`. Measured: `atk` 72 with `attackSpeed` 45 reads 3.77 / 2.63 against `haste`

@@ -5,7 +5,7 @@ shipped in milestone 15b with a single tower, the other six in 15c, and the seco
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight — Human and Dwarf have theirs; Elf, Undead, Monster, Angel and
+⚠️ **The third hundred is in flight — Human, Dwarf and Elf have theirs; Undead, Monster, Angel and
 Demon are still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
 in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
 A tower that has not been extended yet is on the `PENDING` list in
@@ -361,10 +361,13 @@ choosing; do not copy the last session's shape.**
   reference five from 100% to **10%**, because Dwarves carry the least reach in the game.
 - **Dwarf, third hundred** — the first where the escalation had to come from **the board's
   composition rather than from any body on it**, because the anchors run out of room. See below.
-- **Elf** — can afford either (it takes the heaviest authorable board in eleven seconds against a
-  ninety-second timer) but neither _threatens_ it: a shield support in the back rank leaves the
-  weaker arrangement at 100% with 4.25 alive, while two anchors take it to 43%. It escalates through
-  a **wall that hides a burster**, because what an Elf five is short of is health rather than time.
+- **Elf, second hundred** — can afford either (it takes the heaviest authorable board in eleven
+  seconds against a ninety-second timer) but neither _threatens_ it: a shield support in the back rank
+  leaves the weaker arrangement at 100% with 4.25 alive, while two anchors take it to 43%. It
+  escalates through a **wall that hides a burster**, because what an Elf five is short of is health
+  rather than time.
+- **Elf, third hundred** — the first where the axis is a **defensive gap in the crew's own stat
+  block** rather than anything about the board's shape. See below.
 - **Undead** — the first that is **structural rather than a matter of weight**. At the roof's level,
   controlled at one anchor plus two legendaries and two commons: `dodge` reads 95% / **65%** where
   burst reads 100% / 95%, a healer 98% / 90%, and slow, link and reach all 100% / 100%. `dodge` is
@@ -439,6 +442,56 @@ arrangements carry.
 3.98 / **3.02** at hp 1400 / def 45, the Sealward Custodian inversion. It arrives a band after the
 swing and never stands on the roof: with it on the last board the alternate reads **15%** against its
 own 75% bar, and 95% without it.
+
+### The Elf Tower's third hundred: the crew's own missing stat
+
+⚠️ **The Splintering Yards escalate through being crit at, and the negative results are most of the
+finding.** Controlled at one anchor plus four identical bodies at the roof's level, forty seeds:
+
+| Four bodies at               | reference | alternate      |
+| ---------------------------- | --------- | -------------- |
+| plain front-hitter (control) | 3.25      | 2.25 · 93%     |
+| `critChance` 0.18 / amp 1.00 | 3.20      | 1.73 · **80%** |
+| `critChance` 0.22 / amp 1.00 | 3.00      | 1.07 · **57%** |
+| `critChance` 0.26 / amp 1.10 | 2.92      | 0.72 · **48%** |
+
+⚠️ **Every other shape measured was inert or a cliff, and none is worth re-measuring.** `enemy-all`
+reads 98 / 90 / 75% across one, two and three voices and then **0%** at four — a trap rather than a
+dial, and the reason no board in that hundred carries four wide voices. `enemy-row-front` is flat at
+every count from zero to four. Reach (`enemy-back`, 98%) and `enemy-highest` (100%) leave a board
+**easier** than saying nothing, which is the Human Tower's `NIGHT_RIDE` correction arriving on a
+second tower. A link takes the weaker five from 2.08 survivors to **4.97**.
+
+⚠️ **It is this tower's lock rather than merely an unanswerable one**, which is the test that shelved
+`dodge` on the Monster Tower. Both swept Elf arrangements carry **zero `critDamageResist` and zero
+`critBlock`** — the only crew in the game with neither, against the Dwarf five's 0.23 of block and the
+Angel five's 0.76 of resist — on the lowest mean HP in the game at 461. And the tower's own second
+hundred already made crit its conversation in the mirror direction: the Edgeturn Warden holds the
+game's highest `critBlock` for the sole purpose of refusing an Elf five's crits, so the third hundred
+is the works turning that around.
+
+⚠️ **The register was checked before the band was built on it**, and this is the case that shows the
+check can also come back positive. The shipped ceilings are `critChance` 0.18 (Headsman) and
+`critDamageAmp` 1.00 (Golem); every legendary in the hundred sits at or under both, and only the roof
+steps past — exactly as the Wardwright set the game's `accuracy` ceiling one hundred below. Contrast
+the rejected Demon magic ward, which was worth 0.00 at its own shipped register.
+
+#### ⚠️ Two opposite anchor mistakes, both made in the first draft
+
+The floor-200 board fielded up its own level line against the band-3 crew reads 100% with all five
+alive at level 95, 100% / 4.90 at 125, and **35% with 0.70** at 142 — the Dwarf Tower's collapse
+again, so `THE_EDGEWRIGHT` is lighter than `THE_WARDWRIGHT` (1300/84 against 1560/92).
+
+- ⚠️ **Thinning the anchors out _entirely_ is the opposite error.** Boards of five legendaries with no
+  anchor measured **flat** across floors 271–295: 4.00 reference survivors with the alternate at 4.38
+  to 4.88, which is _easier_ than the boards below them. The Dwarf finding is that a third hundred's
+  anchors get lighter, **not that they go away**. Restoring a mid-weight anchor was worth a full
+  survivor (4.88 → 4.03 for the alternate at level 133).
+- ⚠️ **The arithmetic also applies to the tower's _own_ existing heavy.** `THE_GRUDGEKEEPER` is
+  1520/89 — heavier than the new roof — so a board carrying it above level 140 is harder than the roof
+  itself, which measured floor 298 at 2.85 reference survivors against the roof's 3.42. The band drops
+  it after floor 294 and nothing but the Edgewright anchors the last six floors. **Check the previous
+  hundred's anchors against the new roof, not only the previous hundred's roof board.**
 
 ### The Angel Tower: tempo and aim, not mechanics
 
