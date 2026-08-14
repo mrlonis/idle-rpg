@@ -111,6 +111,12 @@ import {
   RUN_THE_SEED_DOWN,
   WHAT_FALLS_IS_SOWN,
   THE_WOOD_DOES_NOT_END,
+  SHELLED_RUSH,
+  SLAGHIDE_LUNGE,
+  LOOSE_THE_PLATED_PACK,
+  SHUT_THE_RING,
+  NOTHING_GETS_A_GRIP,
+  THE_RING_IS_SHUT,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5633,6 +5639,219 @@ export const THE_SEEDFATHER = {
   skills: [WHAT_FALLS_IS_SOWN, THE_WOOD_DOES_NOT_END],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Closing — the Monster Tower's third hundred.
+//
+// ⚠️ **The axis is `physicalResist`, and it is armour the crew spent its whole answer budget on the
+// wrong stat for.** Measured at the roof's level against both Monster arrangements, one anchor plus
+// four identical bodies, forty seeds, against a **4.00 / 3.35** control: four bodies at
+// `physicalResist` 0.23 / 0.34 / 0.45 / 0.55 / 0.70 read **4.00 / 4.00 / 3.80 / 3.02 / 2.02** for
+// the reference five and 3.00 / 3.00 / 2.88 / 2.00 / **0.00** for the alternate. Zero timeouts
+// anywhere on the grade, so it is difficulty rather than the clock.
+//
+// ⚠️ **The control that makes it a mechanism rather than a wall: the identical block spelled
+// `magicResist` 0.55 reads 4.00 / 3.42 — the control exactly, worth nothing at all.** Every damage
+// effect in both swept arrangements is `physical`: eleven of eleven and twelve of twelve.
+//
+// ⚠️ **And this is why it is *this* crew's rather than merely unanswerable.** Monsters carry the
+// game's only real armour-cutting — mean `physicalPierce` **0.145** against 0.040 or less for every
+// other faction, with Vharok at 0.35, Ghorrak 0.28, Ruk 0.25, Ozza 0.18 — and in
+// [`damage.ts`](../core/battle/damage.ts) pierce multiplies **`def`** while `resistedShare` is
+// applied afterwards with no pierce term in it. The one defence this crew is built to open is the
+// one this hundred does not use. Measured: `def` 70 alone costs it 0.00 / 0.35, the wall at 0.40
+// alone 0.02 / 0.35, and **both together 1.00 / 1.22**.
+//
+// ⚠️ **The "is it ours" test comes back clean.** The same 0.55 board against every crew at band-3
+// investment, as a change on that crew's own control: monster-alt **−1.30**, monster-ref **−0.98**,
+// undead-ref −1.00, dwarf-ref −0.42, elf-ref **0.00**, elf-alt −0.15, human-ref 0.00, angel-ref
+// −0.03, demon-ref −0.17. The Elves are the *other* 100%-physical roster and they barely notice,
+// because they kill the wall before it matters. It is the slow, high-`atk`, leech-sustained five
+// that a resist shaving every hit starves.
+//
+// ⚠️ **The register is the one thing this band knowingly steps past, and it is recorded rather than
+// hidden.** The shipped `physicalResist` ceiling is {@link GOLEM}'s **0.23** and that is a lone
+// outlier — the next four blocks in the game are 0.14, 0.12, 0.12 and 0.12. This hundred runs its
+// legendaries at 0.20 to 0.34 and its roof at 0.40, which is roughly double the practical register
+// across the whole band where the Splintering Yards built *at* their stat's ceiling and stepped past
+// it only on the roof. The licence is the measurement above rather than precedent: at the shipped
+// 0.23 the wall is already worth 0.35 of the alternate and a quarter again on fight length, which is
+// the opposite of the rejected Demon magic ward — that one was worth **0.00** at its own register.
+//
+// ⚠️ **The boards are lighter in raw stats than the second hundred's, and the armour supplies the
+// difference.** That is the "anchors get lighter" arithmetic arriving here in a new form. The
+// shipped floor-200 board fielded up its own level line against the band-3 crew reads 100% with all
+// five alive at level 95, 100% / 5.00 for the reference and 4.00 for the alternate at 125, and
+// 100% / 3.45 against **8% with 0.07** at 142 — this is the one tower of the four where the
+// collapse lands on the *alternate*, and the alternate is therefore what every board here is sized
+// against.
+//
+// ⚠️ **No anchor had to be retired, unlike the Elf and Undead hundreds.** All twelve `ascended`
+// blocks this tower fields above floor 160 read 100% for both crews at level 142 behind light
+// support — {@link THE_HORNCALLER} at 1560/91 is 100% / 4.00 and 100% / 3.15. What broke floor 200
+// at the new roof's level is its *support* rather than its anchor, so the escalation comes out of
+// the four soft slots exactly as the tower's own second hundred said it must.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Something that hatched in the kill-ground and grew a shell before it grew anything else.
+ *
+ * The hundred's **texture**, and the lightest body carrying the wall. `physicalResist` 0.20 sits
+ * just under {@link GOLEM}'s 0.23, which is the shipped ceiling, so the opening band is built
+ * entirely inside the register and only the bands above it step past. Thin at 440 because the wall
+ * is the whole of its contribution and a pool on top would be the Seedfall's axis rather than this
+ * one — measured, the two multiply: wall plus hp 1300 reads 2.92 / **1.00**.
+ */
+export const EMBERSHELL_WHELP = {
+  id: 'embershell-whelp',
+  name: 'Embershell Whelp',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 440,
+    atk: 48,
+    def: 16,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    physicalResist: 0.2,
+  },
+  skills: [SHELLED_RUSH],
+} as const;
+
+/**
+ * It has been run down, cornered and bitten through by better jaws than these, and it is still here.
+ *
+ * **The hundred's spine**, on more of its slots than anything else. `physicalResist` 0.30 against
+ * 820 of health and 62 of `atk`: the wall is the point and the weight is deliberately ordinary,
+ * because this crew's ceiling on raw weight is the lowest of the seven — one anchor over four
+ * *legendaries* measures 95% / 3% at the roof's level and any two anchors 8% / 0%.
+ *
+ * ⚠️ **`magicResist` stays at 0.06 and is nearly decorative**, which is the honest shape of the
+ * finding rather than an oversight. A wall is only a wall against the type the party actually
+ * deals, and against these two arrangements that is physical and nothing else.
+ */
+export const SLAGHIDE_PURSUER = {
+  id: 'slaghide-pursuer',
+  name: 'Slaghide Pursuer',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 62,
+    def: 24,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalResist: 0.3,
+    magicResist: 0.06,
+  },
+  skills: [SLAGHIDE_LUNGE],
+} as const;
+
+/**
+ * The pack that was bred to keep up with what the yards armour, and armoured to keep up with it.
+ *
+ * The hundred's **second dial**, from floor 271 and never more than one to a board — see
+ * {@link LOOSE_THE_PLATED_PACK} for the product that makes it one. Thin at 700 against `haste` 126,
+ * which is the register the shipped roster keeps for that speed ({@link NIGHTMARCH_OUTRIDER} is 760
+ * at 128) and is the mechanic's price rather than a discount on it. The wall comes down to 0.24 on
+ * it for the same reason: a body carrying both dials at full value is past the edge.
+ */
+export const CINDERPLATE_HOUNDSMAN = {
+  id: 'cinderplate-houndsman',
+  name: 'Cinderplate Houndsman',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 66,
+    def: 18,
+    haste: 126,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalResist: 0.24,
+  },
+  skills: [LOOSE_THE_PLATED_PACK],
+} as const;
+
+/**
+ * What answered the horn, and it did not come to run anything down. It came to stand where the ring
+ * shuts.
+ *
+ * The hundred's **mini-boss body**, anchoring every tenth floor from 210 up, and the heaviest wall
+ * under the roof at `physicalResist` 0.34. ⚠️ **It restores nothing and wards nothing** — see
+ * {@link SHUT_THE_RING} — which makes it the Sealward Custodian inversion: the durability is on the
+ * body the party must kill rather than spread over the board it stands in front of. A board-wide
+ * ward on a closing board of this tower is the ninety-second clock, which the Seedfall measured at
+ * 75% / 55% and 45.1 seconds mean, and a *self*-shield is worth 0.00 on a body already dying.
+ *
+ * A celestial because the tower may spend on one where a chapter may not: every faction counters
+ * Monsters, so the standing ×1.10 that forbids a celestial-led chapter is exactly what this tower is
+ * buying. It takes Angels from the thinnest faction in the game at 19 archetypes toward the middle.
+ */
+export const CLOSEWARD_SERAPH = {
+  id: 'closeward-seraph',
+  name: 'Closeward Seraph',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1000,
+    atk: 58,
+    def: 34,
+    haste: 80,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    physicalResist: 0.34,
+    magicResist: 0.08,
+  },
+  skills: [SHUT_THE_RING],
+} as const;
+
+/**
+ * The Horncaller called, for two hundred floors, and this is what he was calling.
+ *
+ * The roof. ⚠️ **Lighter than the anchor it succeeds — 1300 against {@link THE_HORNCALLER}'s 1560,
+ * and 76 of `atk` against 91 — and that is arithmetic rather than timidity**, the correction the
+ * Crownworks recorded and the Splintering Yards and the Seedfall both confirmed. An `ascended` block
+ * climbs at `perLevel.ascended` 1.024 where a mono-faction Monster five is mostly `common` at 1.021,
+ * so across the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew.
+ *
+ * ⚠️ **The weight it gives up comes back as `physicalResist` 0.40, which is the hundred's whole
+ * argument in one stat line.** Measured at level 142 behind four bodies at 680/58 and 0.28: this
+ * roof reads **100% / 3.30 survivors / 16.1s** for the reference five and **100% / 2.42 / 20.7s**
+ * for the alternate, with zero timeouts. The identical board with the wall taken off every slot
+ * reads 4.00 / 3.52 — so the armour is worth 0.70 and **1.10** of five, which is more than any other
+ * shape measured for this tower.
+ *
+ * ⚠️ **It restores nothing**, which breaks the tower's own habit deliberately: {@link THE_HORNCALLER}
+ * carries `recovery` 6 and so do twenty-eight other boards above floor 160. A roof is where sustain
+ * stops being a lock and becomes the clock. It keeps no `physicalPierce` either — the block that
+ * exists to punish this crew's penetration does not carry any itself.
+ *
+ * Under the Unmade on both stats, which `enemies.spec.ts` holds: 1300 and 76 against 1800 and 100.
+ */
+export const THE_UNBITTEN = {
+  id: 'the-unbitten',
+  name: 'The Unbitten',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 76,
+    def: 44,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critBlock: 0.14,
+    tenacity: 0.45,
+    physicalResist: 0.4,
+    magicResist: 0.1,
+  },
+  skills: [NOTHING_GETS_A_GRIP, THE_RING_IS_SHUT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -5792,4 +6011,9 @@ export const ENEMIES = [
   SEEDLIGHT_KEEPER,
   CINDERSEED_COURSER,
   THE_SEEDFATHER,
+  EMBERSHELL_WHELP,
+  SLAGHIDE_PURSUER,
+  CINDERPLATE_HOUNDSMAN,
+  CLOSEWARD_SERAPH,
+  THE_UNBITTEN,
 ] as const;

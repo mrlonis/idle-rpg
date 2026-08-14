@@ -5,7 +5,7 @@ shipped in milestone 15b with a single tower, the other six in 15c, and the seco
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight — Human, Dwarf, Elf and Undead have theirs; Monster, Angel and
+⚠️ **The third hundred is in flight — Human, Dwarf, Elf, Undead and Monster have theirs; Angel and
 Demon are still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
 in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
 A tower that has not been extended yet is on the `PENDING` list in
@@ -310,7 +310,11 @@ With both crews at parity with the content this never arose. In band 2 they come
   weaker on nineteen of twenty measured shapes — the alternate sits at exactly 4.00 on most of them —
   **except** under weight and rate together, which is the one place it drops below (1.75 against
   2.00) and therefore the only place the closing bands could be sized against it.
-- **Monster Tower** — the **reference** five is much the stronger.
+- **Monster Tower** — the **reference** five is much the stronger, and band 3 turns that from a note
+  into the whole constraint: at the third hundred's roof level the shipped floor-200 board reads
+  100% / 3.45 for the reference against **8% with 0.07 survivors** for the alternate. Every board in
+  that hundred is sized against the alternate, and the shipped roof closes at 100% / 2.85 against
+  100% / 1.75.
 - **Angel Tower** — the two fail on **opposite axes**: weight breaks the reference five, length
   breaks the alternate.
 
@@ -381,13 +385,16 @@ choosing; do not copy the last session's shape.**
 - **Undead, third hundred** — the first where the axis is **not a mechanic at all**, but how long the
   board takes to kill. The same sustain engine the second hundred attacked at the source, attacked
   instead by arithmetic. See below.
-- **Monster** — the first that is a **count** rather than a shape. Controlled at one anchor, one
+- **Monster, second hundred** — the first that is a **count** rather than a shape. Controlled at one anchor, one
   legendary and three commons at the roof's level, mean survivors of five: nothing 4.35 / 4.00, one
   lock repeated four times 4.13 / 3.92, three questions 4.00 / 2.70, **five questions 3.58 / 0.85**.
   Repeating a lock is worth almost nothing and the count is worth everything — a Monster five answers
   any single question by out-damaging it and has no second answer to spend on two more. The bands
   escalate two → three → four → five distinct questions. **Monsters are the only faction with no
   heal, no regeneration and no shield**, and no character carries `tenacity`, `accuracy` or `dodge`.
+- **Monster, third hundred** — the first where the axis is a stat the crew **answered with the wrong
+  stat**, and the first where the previous hundred's axis was exhausted by arithmetic rather than by
+  measurement: five questions is the size of a board. See below.
 - **Angel** — the first where the honest finding was that **no mechanic is available at all**.
   Twenty-two shapes measured against both arrangements at the roof's level — taunt, thorns, link,
   bomb, `SAVAGED`, `BLOODRISEN`, `dodge` 0.30, `tenacity` 0.60, a board stun, a board slow, a shield,
@@ -562,6 +569,69 @@ line against the band-3 crew reads 100% with all five alive at level 95, 100% / 
 Tower's `THE_GRUDGEKEEPER` lesson arriving again: at level 142 on a light board the Withered Crown
 reads **30% / 13%** and the Sunbough **13% / 10%**, both harder than the roof they precede. Their
 last floors are 265 and 284; nothing but the Seedfather anchors 286 to 300.
+
+### The Monster Tower's third hundred: armour the crew's penetration does not cut
+
+⚠️ **The Closing escalates through `physicalResist`, and the three negative results are half the
+finding.** Controlled at one anchor plus four identical bodies at the roof's level, forty seeds,
+against a **4.00 / 3.35** control:
+
+| Four bodies at                | reference          | alternate          |
+| ----------------------------- | ------------------ | ------------------ |
+| `tenacity` 0.40 / 0.60 / 0.85 | 4.00 / 4.00 / 4.00 | 3.48 / 3.52 / 3.50 |
+| aim `enemy-back`              | 4.08               | 4.00               |
+| aim `enemy-row-back`          | **4.42**           | 4.00               |
+| aim `enemy-highest`           | 4.25               | 4.00               |
+| `physicalResist` 0.23         | 4.00               | 3.00               |
+| `physicalResist` 0.34         | 4.00               | 3.00               |
+| `physicalResist` 0.45         | 3.80               | 2.88               |
+| `physicalResist` 0.55         | 3.02               | 2.00               |
+| `physicalResist` 0.70         | 2.02               | **0.00**           |
+
+**Zero timeouts anywhere on that grade**, so it is difficulty rather than the clock. A `tenacity`
+wall is worth **nothing at any value** — this crew's kits are almost pure damage, so there is nothing
+to refuse — and every aim past the front rank leaves a board _easier_ than saying nothing, which is
+now the fourth tower to find it.
+
+⚠️ **The control that makes it a mechanism rather than a wall is the damage type.** The identical
+block spelled `magicResist` 0.55 reads **4.00 / 3.42**: the control exactly, worth nothing. Every
+damage effect in both swept arrangements is `physical` — eleven of eleven and twelve of twelve.
+
+⚠️ **And this is why it is theirs.** Monsters carry the game's only real armour-cutting: mean
+`physicalPierce` **0.145** against 0.040 or less for every other faction. In `core/battle/damage.ts`
+pierce multiplies **`def`**, and `resistedShare` is applied afterwards with no pierce term in it — so
+the one defence this crew is built to open is the one this hundred does not use. Measured: `def` 70
+alone costs it 0.00 / 0.35, the wall at 0.40 alone 0.02 / 0.35, and **both together 1.00 / 1.22**.
+
+⚠️ **The "is it ours" test, as a change on each crew's own control**, wall at 0.55, band-3
+investment: monster-alt **−1.30**, monster-ref **−0.98**, undead-ref −1.00, dwarf-ref −0.42 (but
+19.3s → 34.6s), demon-ref −0.17, elf-alt −0.15, angel-ref −0.03, **elf-ref 0.00**, human-ref 0.00.
+The Elves are the _other_ 100%-physical roster and they barely notice, because they kill the wall
+before it matters. It is the slow, high-`atk`, leech-sustained five a resist starves.
+
+⚠️ **The one thing this band knowingly does that the Splintering Yards did not: it steps past the
+register across the whole hundred.** The shipped `physicalResist` ceiling is the Golem's **0.23** and
+that is a lone outlier — the next four blocks are 0.14, 0.12, 0.12, 0.12. The Closing runs its
+legendaries at 0.20–0.34 and its roof at 0.40. The licence is the measurement rather than precedent:
+at the shipped 0.23 the wall is already worth 0.35 of the alternate and a quarter again on fight
+length, which is the opposite of the rejected Demon magic ward — that one was worth **0.00** at its
+own register. **Record which side of that line a future band lands on before building it.**
+
+⚠️ **The collapse lands on the _alternate_ here, which is the reverse of the other three.** The
+shipped floor-200 board fielded up its own level line against the band-3 crew reads 100% with all
+five alive at 95, 100% / 5.00 and 4.00 at 125, and 100% / 3.45 against **8% with 0.07** at 142. So
+every board in the Closing is sized against the alternate.
+
+⚠️ **No anchor had to be retired, and that is the first third hundred where the check came back
+clean.** All twelve `ascended` blocks the second hundred fields above floor 160 read 100% for both
+crews at level 142 behind light support — `THE_HORNCALLER` at 1560/91 is 100% / 4.00 and
+100% / 3.15. What broke floor 200 up there is its _support_ rather than its anchor. **Run the check
+anyway**: a clean answer is a result, not a reason to skip it.
+
+The bands escalate by how many plated bodies stand on a board — one, two, three, then four with the
+rate joining the wall — and the plate rotates across all seven factions rather than sitting on the
+three blocks the session authored, which is what keeps the tower's flat spread flat: it closes at
+demon 17.16% to dwarf 11.12% over 1,439 slots, against bounds of 5% and 25%.
 
 ### The Angel Tower: tempo and aim, not mechanics
 

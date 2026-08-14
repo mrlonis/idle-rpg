@@ -270,7 +270,11 @@ Asserted in `core/battle/simulate.spec.ts`.
   board.** Boards of five legendaries with no anchor measured **flat** across twenty-five floors, and
   the Elf Tower's own `THE_GRUDGEKEEPER` (1520/89) is heavier than the roof succeeding it (1300/84) —
   so a closing band may have to retire a block the tower has fielded since its first hundred. The
-  Undead Tower's third hundred retired **two** on that arithmetic. [towers](../../docs/towers.md)
+  Undead Tower's third hundred retired **two** on that arithmetic. ⚠️ **The check can also come back
+  clean, and which crew collapses is not stable** — the Monster Tower's floor-200 board reads
+  100% / 3.45 for its _reference_ five at the new roof and **8%** for its alternate, the reverse of
+  the other three, and none of its twelve anchors had to retire. Run the check regardless; a clean
+  answer is a result. [towers](../../docs/towers.md)
 - ⚠️ **A grade that costs survivors is difficulty; one that starts timing out is the ninety-second
   clock wearing a stat block. Count the timeouts explicitly** — a wipe and a timeout are the same
   `defeat`, so a win rate cannot tell them apart. This is what licensed enemy **durability** as the
@@ -284,6 +288,20 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in
   `towers.spec.ts` and `towers.balance.ts`; a filter ("the full height or two thirds of it") passes
   forever and never notices a tower nobody went back for. [towers](../../docs/towers.md)
+- ⚠️ **Check a stat's shipped register before building a band on it, and say in the header which
+  side of it the band landed on.** Three answers have come back: the Demon magic ward was worth
+  **0.00** at its register and was declined; the Elf Tower's `critChance` worked **at** the shipped
+  0.18 and only its roof stepped past; and the Monster Tower's `physicalResist` works **only above**
+  a register whose 0.23 ceiling is a lone outlier over a field of 0.12s, and was taken anyway on the
+  measurement. ⚠️ **Read the damage formula rather than the stat names to decide whether a lock is
+  _this_ crew's**: Monsters carry the game's only real `physicalPierce`, and pierce multiplies `def`
+  while resist is applied afterwards untouched — so the crew built to open armour has no answer to
+  that wall, while the Elves, equally 100% physical, lose 0.00 to it. [towers](../../docs/towers.md)
+- ⚠️ **A prose claim phrased as a threshold has its range grow underneath it.** "Above floor 160"
+  meant forty boards when it was measured and a hundred and forty after the next hundred landed —
+  which is how one session shipped a false claim, corrected it, and got the correction wrong the
+  same way. **State the range you measured, not the threshold you mean**, and re-run the prose check
+  after the new content lands rather than only before it. [authoring](../../docs/authoring.md)
 - ⚠️ **A mistyped optional stat is silent in both directions.** An already-`as const` object is not a
   fresh literal, so TypeScript's excess-property check never runs on it. Audit the keys with a script
   whenever a session authors stat blocks; **delete a dead key rather than correcting it.**

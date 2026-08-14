@@ -15,7 +15,7 @@ boards, and a content session is mostly a conversation with it.
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 158                                         |
+| Enemy archetypes | 163                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -409,6 +409,20 @@ procedure:
    arrangement from 93% to 80%. The difference between the two cases is whether the crew has any of
    the answering stat — every Elf in both arrangements carries **zero** `critDamageResist` and zero
    `critBlock`.
+   - ⚠️ **There is a third answer, and the Monster third hundred is it: the stat works, but only
+     _above_ the register.** `physicalResist` ships at a ceiling of 0.23 that is a lone outlier — the
+     next four blocks are 0.14, 0.12, 0.12, 0.12 — and the wall costs the reference five nothing
+     until 0.45. It was taken anyway, on the measurement rather than on precedent: at the shipped
+     0.23 it is already worth 0.35 of the binding arrangement and a quarter again on fight length,
+     where the rejected magic ward was worth **0.00** at its own register. **A band that steps past
+     the register does so in the header, in writing, with the figure at the register stated** — the
+     Elf hundred built at its ceiling and stepped past only on the roof, and a later session must be
+     able to see which of the two shapes it is looking at.
+   - ⚠️ **The sharpest version of "is it ours" is a stat the crew answered with the _wrong_ stat.**
+     Monsters carry the game's only real `physicalPierce` (mean 0.145 against ≤0.040 everywhere
+     else), and pierce multiplies `def` while resist is applied afterwards untouched by it. The
+     Elves are 100% physical too and lose **0.00** to the same wall. **Read the damage formula, not
+     just the stat lines** — which stat answers which is not always what the names suggest.
 5. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's
    band openers.
@@ -429,6 +443,14 @@ procedure:
      at all and measured **flat** — 4.00 reference survivors across twenty-five floors with the
      alternate at 4.38 to 4.88, _easier_ than the boards below. Restoring a mid-weight anchor was
      worth a full survivor. A band needs an anchor; it needs a **smaller** one.
+   - ⚠️ **The check can also come back clean, and that is a result rather than a licence to skip
+     it.** The Monster third hundred is the first where no anchor had to retire: all twelve
+     `ascended` blocks its second hundred fields above floor 160 read 100% for both crews at the new
+     roof's level behind light support, `THE_HORNCALLER` at 1560/91 included. What had collapsed was
+     the floor-200 board's **support**, so the escalation came out of the four soft slots and the
+     anchors stayed. ⚠️ **Which crew collapses is not stable either** — three towers found the
+     reference five falling through the floor at the new roof and this one found the reference at
+     100% / 3.45 with the **alternate** at 8%.
    - ⚠️ **Check the previous hundred's _anchors_ against the new roof, not only its roof board.** The
      Elf Tower's own `THE_GRUDGEKEEPER` (1520/89) is heavier than the roof that succeeds it
      (1300/84), so boards carrying it above level 140 measured harder than the roof — 2.85 reference
@@ -479,6 +501,15 @@ any kind" while three boards above it did — the Oathshield Vanguard's `recover
 194 and the Sepulchre Hound's `lifeLeech` on 188. **The honest fix was the claim, not the boards**:
 what the tower actually forbids up there is a heal, a drain or a regeneration, and restating it that
 way keeps every measured figure valid where retuning three shipped floors would not.
+
+⚠️ **A claim phrased as a threshold has its range grow underneath it, so re-run the check on the
+claims you write _this_ session too.** The Monster third hundred found `tower-monster.ts` claiming
+"above floor 160 nothing on any board restores anything" while 29 of those 40 boards carried
+`recovery` — the same incident as the Dwarf one, same fix — and then **made the mistake a second time
+in the correction**: the replacement counts were measured over floors 161–200 and attached to the
+phrase "above floor 160", which the new hundred had just extended to 161–300, where the same counts
+read 21, 23, 26 and 72. **State the range you measured, not the threshold you mean**, and run the
+check again after the floors land.
 
 Run it **at the start of a session, not the end.** Each claim is a two-line predicate over the
 content; running them takes seconds and reading fifty boards carefully does not work. Things worth

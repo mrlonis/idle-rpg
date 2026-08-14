@@ -5424,6 +5424,133 @@ export const THE_WOOD_DOES_NOT_END = {
   priority: 2,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Closing — the Monster Tower's third hundred.
+//
+// ⚠️ **The axis is a stat and the skills are deliberately plain**, which is the Seedfall's finding
+// arriving on a second tower for a different reason. Four shapes were measured against both Monster
+// arrangements at the roof's level, one anchor plus four identical bodies, forty seeds, against a
+// 4.00 / 3.35 control: a `tenacity` wall reads **4.00 / 3.50 at every value from 0.40 to 0.85** —
+// dead, because this crew's kits are almost pure damage and there is nothing to refuse — and aim is
+// inert or negative again (`enemy-back` 4.08 / 4.00, `enemy-row-back` 4.42 / 4.00, `enemy-highest`
+// 4.25 / 4.00, all *easier* than saying nothing, the fourth tower to find it).
+//
+// What grades is `physicalResist`. See the head of the Closing section in
+// [`enemies.ts`](./enemies.ts) for why that is this crew's and nobody else's, and why the skills
+// below carry no riders: when the axis is a stat, a skill carrying one measures the rider instead.
+//
+// ⚠️ **Magical damage throughout, and that is the crew's stat block rather than faction flavour.**
+// Both swept Monster arrangements carry **zero** `magicResist` across all ten slots against 0.18 and
+// 0.23 of `physicalResist` summed, so a board that answers in the type the crew has no answer to
+// costs it a few percent for free. It is worth naming because it is the mirror of the axis: the
+// party is 100% physical and meets armour it cannot cut, and what comes back is the one type it
+// never armoured against.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A shell too green to be worth anything, on a body too small to be worth the turn.
+ *
+ * The hundred's **texture**, and the lightest thing carrying the wall. A plain hit because this
+ * block's contribution is the 0.20 on its stat line — the Deepmast Heartwood and the Crownworks
+ * Striker make the same call for the same reason.
+ */
+export const SHELLED_RUSH = {
+  id: 'shelled-rush',
+  name: 'Shelled Rush',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.3 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * It has been run down before. It has never been opened.
+ *
+ * **The hundred's spine**, on more of its slots than anything else. `enemy-front` and nothing else:
+ * against these two crews every aim that reaches past the front rank leaves a board measurably
+ * easier, and the Splintering Yards and the Seedfall both recorded the same result before this.
+ */
+export const SLAGHIDE_LUNGE = {
+  id: 'slaghide-lunge',
+  name: 'Slaghide Lunge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The pack is let go, and every one of them is wearing the yard's plate.
+ *
+ * The hundred's **second dial**, arriving at floor 271 and never more than one to a board.
+ * ⚠️ **The wall and the rate are a product rather than two dials.** Against the same control, a
+ * `physicalResist` 0.40 board reads 3.98 / 3.00 and a `haste` 132 board reads 4.00 / 3.00, and the
+ * two **together** read 3.00 / **1.95**. A pool is the same story and worse — wall plus hp 1300
+ * reads 2.92 / **1.00** at 42.4 seconds — which is why the closing bands spend the rate and leave
+ * the pool alone.
+ */
+export const LOOSE_THE_PLATED_PACK = {
+  id: 'loose-the-plated-pack',
+  name: 'Loose the Plated Pack',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+/**
+ * The ring the horn called for, standing where the ring is meant to close.
+ *
+ * The mini-boss body from floor 210 up, and the heaviest wall under the roof. ⚠️ **No ward, no
+ * heal and no regeneration**, on a body that is itself the durability — the Sealward Custodian
+ * inversion, and the only shape of shared defence this tower is allowed at these levels. A
+ * board-wide ward on a closing Monster board is the ninety-second clock rather than a lock, which
+ * the Seedfall measured at 75% / 55% and 45.1 seconds mean.
+ */
+export const SHUT_THE_RING = {
+  id: 'shut-the-ring',
+  name: 'Shut the Ring',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.6 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/**
+ * Two hundred floors of teeth, and not one of them has left a mark.
+ *
+ * The roof's turn. `enemy-front` and no rider, for the third tower running: the front rank is where
+ * a roof's damage is worth the most against a crew with no tank behind it to protect.
+ */
+export const NOTHING_GETS_A_GRIP = {
+  id: 'nothing-gets-a-grip',
+  name: 'Nothing Gets a Grip',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.95 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The roof's second turn, and the only wide voice in the hundred.
+ *
+ * `enemy-row-front` rather than `enemy-all`, and for the reason the Seedfall gives: spreading damage
+ * across all five measures **at** the control on both arrangements, where the row is the two bodies
+ * a Monster five cannot pull out of the way. Rhythm against {@link NOTHING_GETS_A_GRIP} rather than
+ * an escalation.
+ *
+ * ⚠️ **1.2 because it is wide**, which `skills.spec.ts` caps for every `enemy-all` and `enemy-row-*`
+ * skill so a sweep can never out-earn a single target.
+ */
+export const THE_RING_IS_SHUT = {
+  id: 'the-ring-is-shut',
+  name: 'The Ring Is Shut',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5703,4 +5830,10 @@ export const SKILLS = [
   RUN_THE_SEED_DOWN,
   WHAT_FALLS_IS_SOWN,
   THE_WOOD_DOES_NOT_END,
+  SHELLED_RUSH,
+  SLAGHIDE_LUNGE,
+  LOOSE_THE_PLATED_PACK,
+  SHUT_THE_RING,
+  NOTHING_GETS_A_GRIP,
+  THE_RING_IS_SHUT,
 ] as const;

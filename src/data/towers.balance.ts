@@ -220,7 +220,7 @@ const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.p
  * constant, the `owed` branch below, and the matching list in
  * [`towers.spec.ts`](./towers.spec.ts).
  */
-const PENDING = new Set(['tower-monster', 'tower-angel', 'tower-demon']);
+const PENDING = new Set(['tower-angel', 'tower-demon']);
 
 /** Bands of a hundred floors, so band `n` covers floors `(n-1)*100 + 1` through `n*100`. */
 const BAND_FLOORS = TOWER_BAND_UNIT;

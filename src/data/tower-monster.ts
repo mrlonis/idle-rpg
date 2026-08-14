@@ -2,6 +2,7 @@ import {
   ACOLYTE,
   ANTIPHON_ARCHON,
   ASHEN_CHOIR,
+  ASHPIT_SCUTTLER,
   BANDIT,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
@@ -16,21 +17,27 @@ import {
   CARRION_SWARM,
   CHARNEL_DRUDGE,
   CINDERLING,
+  CINDERPLATE_HOUNDSMAN,
   CINDERQUENCH_BEARER,
+  CLOSEWARD_SERAPH,
   COLDFORGE_HAND,
   COLDHEARTH_IRONSWORN,
   COLOSSUS,
+  CORTEGE_LANCER,
   CROWNBARK_BASTION,
   DEEPGALLERY_RUNNER,
   DEEPROCK_MINER,
   DUSKFERN_SKIRMISHER,
+  EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
+  EMBERSHELL_WHELP,
   FENLORD,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLOAMVINE_CREEPER,
   GOLEM,
   GOREHIDE_MATRIARCH,
   GRAVEMOURN_KEEPER,
@@ -43,12 +50,17 @@ import {
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
   IRONSLING_WRIGHT,
+  IRONWAKE_VANGUARD,
   KINGSWAY_LANCER,
+  KNELL_CHANTER,
+  LITANY_BEARER,
   LONGBOUGH_MARKSMAN,
   LUMEN_ACOLYTE,
   MARCHWARD_PIKEMAN,
   MARROWHUNT_ALPHA,
+  MIREWHELP,
   MOONSONG_WEAVER,
+  MUSTER_PIKE,
   NIGHTCANOPY_SINGER,
   NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
@@ -56,14 +68,18 @@ import {
   PALE_WARDEN,
   PLUMBLINE_HAND,
   PYRE,
+  QUENCHPIT_IRONHIDE,
   QUENCHWRIGHT,
+  QUICKLIME_SERJEANT,
   RADIANT_HERALD,
   RAVAGER,
   REDWATER_STALKER,
+  RELIQUARY_BEARER,
   RENDFANG_JACKAL,
   REVENANT,
   RIFTBORN_HARROWER,
   RIMEPLATE,
+  ROADWATCH_BOWMAN,
   RUINWING_DEVOURER,
   RUNEWARDEN,
   SCARBOUND_BELLOWER,
@@ -72,21 +88,30 @@ import {
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SIGNAL_RUNNER,
   SKYSHRIKE,
   SLAGBOUND_DRUDGE,
+  SLAGHIDE_PURSUER,
   SLIME,
+  STILLNESS_CANTOR,
   STORMCALLER,
   SUNFADE_CHANTER,
   SUNMOTE_DANCER,
   THE_BREACHLORD,
+  THE_CROWN_WHEEL,
+  THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
   THE_HORNCALLER,
   THE_REDMAW,
+  THE_SEEDFATHER,
+  THE_UNBITTEN,
+  THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
   TYRANT,
   UNDERVAULT_SAPPER,
   UNSEALED_WRETCH,
+  VANWARD_SPEAR,
   VAULTBOUND_GAOLER,
   VAULTLIGHT_CENSER,
   WARDEN,
@@ -99,7 +124,7 @@ import {
 } from './enemies';
 
 /**
- * The Monster Tower — two hundred floors, enemy levels 1 to 120.
+ * The Monster Tower — three hundred floors, enemy levels 1 to 142.
  *
  * ## The one tower with no counter-faction lean, and why that *is* its lean
  *
@@ -161,15 +186,75 @@ import {
  * does not focus: four of its eight bodies open with a row attack and three of its four drains name
  * `enemy-lowest`, so spreading a share of every blow is a board volunteering to die evenly.
  *
- * ⚠️ **This crew's weight ceiling is the lowest of the five towers extended so far.** At the roof's
- * level one anchor over four *legendaries* measures 95% / 3% and any two anchors is 8% / 0%. So a
- * board above floor 160 gets one anchor and four soft bodies, never two anchors, and the only way to
- * make it ask more is to make the soft ones sharper.
+ * ⚠️ **This crew's weight ceiling is the lowest of the seven.** At the roof's level one anchor over
+ * four *legendaries* measures 95% / 3% and any two anchors is 8% / 0%. So a board above floor 160
+ * gets one anchor and four soft bodies, never two anchors, and the only way to make it ask more is to
+ * make the soft ones sharper. **The third hundred is that rule taken to its end**: its boards are
+ * lighter in raw stats than the second hundred's and the difficulty is carried by a stat on the soft
+ * slots.
  *
- * ⚠️ **Sustain is spent in the middle band and forbidden above floor 160**, which is 15c's Dwarf-roof
- * rule and 21f's after it. A **shield** is the exception and stays allowed, because a pool banked
- * once depletes where a heal refills. Checked by walking all two hundred floors rather than by
- * reading them.
+ * ⚠️ **What is forbidden above floor 160 is a heal effect and a regeneration status, and that is a
+ * correction.** This block used to say "sustain … forbidden above floor 160", and walking the floors
+ * rather than reading them says otherwise. Over the second hundred's own floors 161–200: no board
+ * carries a `heal` or a `regen`, but **fourteen** carry a `drain`, ten carry `lifeLeech`, eleven
+ * carry `healthRegen` and **twenty-nine** carry `recovery` — including floor 200, where
+ * {@link THE_HORNCALLER} restores 6 at the top of every one of its turns. Over 161–300 the same
+ * counts read 21, 23, 26 and 72. The honest fix was the claim rather than the boards, exactly as the
+ * Crownworks found for `tower-dwarf.ts`: restating it keeps every measured figure on those floors
+ * valid where retuning twenty-nine shipped boards would invalidate all of them. A **shield** stays
+ * allowed for the reason it always was — a pool banked once depletes where a heal refills.
+ *
+ * ⚠️ **Read those counts as a range rather than as a threshold.** "Above floor 160" grew by a hundred
+ * floors when this hundred landed, so a figure measured against the second hundred silently stops
+ * describing the claim it is attached to. Both ranges are stated for that reason.
+ *
+ * ⚠️ **The closing band is stricter than the tower, deliberately.** Floors 291–300 carry no `drain`,
+ * no `lifeLeech`, no `recovery`, no `healthRegen` and no ward of any kind, because a roof is where
+ * sustain stops being a lock and becomes the ninety-second clock. {@link THE_UNBITTEN} restores
+ * nothing, which is the first roof this tower has had that does not.
+ *
+ * ## ⚠️ The third hundred escalates through armour this crew's penetration does not cut
+ *
+ * The second hundred's axis is spent: five questions is the size of a board. What replaced it was
+ * measured before anything was authored, against a **4.00 / 3.35** control at the roof's level — one
+ * anchor plus four identical bodies, forty seeds — and three of the four candidates came back dead:
+ *
+ * ```
+ *   tenacity 0.40 / 0.60 / 0.85   ref 4.00 / 4.00 / 4.00   alt 3.48 / 3.52 / 3.50
+ *   aim enemy-back                ref 4.08                 alt 4.00
+ *   aim enemy-row-back            ref 4.42                 alt 4.00
+ *   aim enemy-highest             ref 4.25                 alt 4.00
+ *   physicalResist 0.23 → 0.70    ref 4.00 → 2.02          alt 3.00 → 0.00
+ * ```
+ *
+ * A `tenacity` wall is worth **nothing at any value** — this crew's kits are almost pure damage, so
+ * there is nothing to refuse — and every aim that reaches past the front rank leaves a board *easier*
+ * than saying nothing, which is now the fourth tower to find it. What grades is `physicalResist`, and
+ * the control that makes it a mechanism rather than a wall is that the identical block spelled
+ * `magicResist` 0.55 reads **4.00 / 3.42**: the control exactly, worth nothing at all. Every damage
+ * effect in both swept arrangements is `physical` — eleven of eleven and twelve of twelve.
+ *
+ * ⚠️ **It is this crew's rather than merely unanswerable, and the reason is a stat it *does* carry.**
+ * Monsters own the game's only real armour-cutting: mean `physicalPierce` **0.145** against 0.040 or
+ * less for every other faction. In [`damage.ts`](../core/battle/damage.ts) pierce multiplies **`def`**
+ * and `resistedShare` is applied afterwards with no pierce term in it, so the one defence this crew is
+ * built to open is the one this hundred does not use. See the head of the Closing section in
+ * [`enemies.ts`](./enemies.ts) for the seven-crew control, which reads −1.30 for this tower's weaker
+ * arrangement and **0.00** for the Elves — the *other* 100%-physical roster.
+ *
+ * ⚠️ **The alternate five is what every board here is sized against, and that is new for this
+ * tower.** In the second hundred the reference five is much the stronger, and at the third hundred's
+ * roof level that gap becomes the whole constraint: the shipped floor-200 board fielded at level 142
+ * reads 100% / 3.45 for the reference and **8% with 0.07 survivors** for the alternate.
+ *
+ * ⚠️ **No anchor had to be retired, unlike the Elf and Undead third hundreds.** All twelve `ascended`
+ * blocks the *second hundred* fields above floor 160 read 100% for both crews at level 142 behind
+ * light support — {@link THE_HORNCALLER} at 1560/91 is 100% / 4.00 and 100% / 3.15. What broke floor
+ * 200 up there is its *support* rather than its anchor, so the escalation comes out of the four soft
+ * slots, which is what this tower's own second hundred already said it must. The four heaviest do
+ * still stand down before the roof — the Gravewright's last floor is 276, the Horncaller's 279, the
+ * Tyrant's 280 and the Redmaw's 282 — but that is rhythm for the closing band rather than the
+ * arithmetic that forced the Grudgekeeper and the Withered Crown off their own towers.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -1135,7 +1220,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Converging Horns — Floors 141–160, levels 67–76 — four questions, and the last band that carries a heal — above this floor nothing on any board restores anything.
+    // The Converging Horns — Floors 141–160, levels 67–76 — four questions, and the last band that carries a heal: above this floor no board carries a `heal` or a `regen` again. ⚠️ It used to say "nothing restores anything", and that was wrong about the boards underneath it — a drain, `lifeLeech` and `recovery` all appear above 160. See the head of this file.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f141',
@@ -1593,6 +1678,817 @@ export const TOWER_MONSTER = {
       enemies: {
         front: [THE_HORNCALLER, MARROWHUNT_ALPHA],
         back: [RUINWING_DEVOURER, MOONSONG_WEAVER, CINDERQUENCH_BEARER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Ring Closes — Floors 201–220, levels 95–104 — the horn has been answered, and what answered it does not run. One body a board wearing something these jaws do not open, and every one of them inside the register the game already shipped.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f201',
+      name: 'Floor 201',
+      enemies: { front: [PALE_WARDEN, GOLEM], back: [SKYSHRIKE, SEPULCHRE_HOUND, MOONSONG_WEAVER] },
+    },
+    {
+      id: 't-monster-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [WARDEN, SLAGBOUND_DRUDGE],
+        back: [MOONSONG_WEAVER, VANWARD_SPEAR, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [OATHBREAKER, CHARNEL_DRUDGE],
+        back: [ZENITH_CHORISTER, BARROWMIST_KEENER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [FENLORD, HOLLOWBARK_SENTRY],
+        back: [SEPULCHRE_HOUND, DEEPROCK_MINER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-monster-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [THE_CROWN_WHEEL, MUSTER_PIKE],
+        back: [DUSKFERN_SKIRMISHER, CARRION_SWARM, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [PALE_WARDEN, EMBERSHELL_WHELP],
+        back: [SKYSHRIKE, PLUMBLINE_HAND, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-monster-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [WARDEN, THORNBACK_GRAZER],
+        back: [SERAPH_ADJUDICANT, MARROWHUNT_ALPHA, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-monster-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [THE_BREACHLORD, GILDED_SENTRY],
+        back: [MOONSONG_WEAVER, ASHPIT_SCUTTLER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-monster-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [OATHBREAKER, CAIRNWARD_HUSK],
+        back: [KNELL_CHANTER, WHISPERLEAF_ARCHER, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f210',
+      name: 'Floor 210 — The Ring Closes',
+      enemies: {
+        front: [FENLORD, CLOSEWARD_SERAPH],
+        back: [SKYSHRIKE, DEEPROCK_MINER, SEPULCHRE_HOUND],
+      },
+    },
+    {
+      id: 't-monster-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [PALE_WARDEN, GLOAMVINE_CREEPER],
+        back: [RADIANT_HERALD, DUSKFERN_SKIRMISHER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GOLEM],
+        back: [MOONSONG_WEAVER, SIGNAL_RUNNER, SEPULCHRE_HOUND],
+      },
+    },
+    {
+      id: 't-monster-f213',
+      name: 'Floor 213',
+      enemies: { front: [WARDEN, GRAVEWAKE_THRALL], back: [SKYSHRIKE, QUENCHWRIGHT, MIREWHELP] },
+    },
+    {
+      id: 't-monster-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [OATHBREAKER, MARCHWARD_PIKEMAN],
+        back: [ZENITH_CHORISTER, BARROWMIST_KEENER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-monster-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [THE_BREACHLORD, SLAGBOUND_DRUDGE],
+        back: [SUNFADE_CHANTER, DUSKFERN_SKIRMISHER, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [FENLORD, VAULTBOUND_GAOLER],
+        back: [CARRION_SWARM, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-monster-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [PALE_WARDEN, CORTEGE_LANCER],
+        back: [SKYSHRIKE, LITANY_BEARER, IRONSLING_WRIGHT],
+      },
+    },
+    {
+      id: 't-monster-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [WARDEN, THORNBACK_GRAZER],
+        back: [SERAPH_ADJUDICANT, SEPULCHRE_HOUND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [THE_CROWN_WHEEL, HOLLOWBARK_SENTRY],
+        back: [MOONSONG_WEAVER, ROADWATCH_BOWMAN, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-monster-f220',
+      name: 'Floor 220 — The Answering Horn',
+      enemies: {
+        front: [OATHBREAKER, CLOSEWARD_SERAPH],
+        back: [DUSKFERN_SKIRMISHER, SKYSHRIKE, EMBERSHELL_WHELP],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Plated Ranks — Floors 221–245, levels 105–116 — two a board, and the first plate authored to be worn against this crew rather than found lying about the pool.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [THE_BREACHLORD, SLAGHIDE_PURSUER],
+        back: [GOLEM, SKYSHRIKE, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [FENLORD, CHARNEL_DRUDGE],
+        back: [SLAGBOUND_DRUDGE, MOONSONG_WEAVER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [PALE_WARDEN, SLAGHIDE_PURSUER],
+        back: [HOLLOWBARK_SENTRY, SKYSHRIKE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [BARROW_SOVEREIGN, GOLEM],
+        back: [GILDED_SENTRY, MARROWHUNT_ALPHA, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-monster-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [COLOSSUS, CAIRNWARD_HUSK],
+        back: [EMBERSHELL_WHELP, DUSKFERN_SKIRMISHER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-monster-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [OATHBREAKER, THORNBACK_GRAZER],
+        back: [SLAGHIDE_PURSUER, ZENITH_CHORISTER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, GRUDGEPLATE_SMITH],
+        back: [MUSTER_PIKE, BARROWMIST_KEENER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-monster-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLAGHIDE_PURSUER],
+        back: [GRAVEWAKE_THRALL, MOONSONG_WEAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [THE_BREACHLORD, GOLEM],
+        back: [GLOAMVINE_CREEPER, SKYSHRIKE, DEEPGALLERY_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f230',
+      name: 'Floor 230 — The Plated Ranks',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, DUSKFERN_SKIRMISHER, SEPULCHRE_HOUND],
+      },
+    },
+    {
+      id: 't-monster-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [FENLORD, MUSTER_PIKE],
+        back: [IRONWAKE_VANGUARD, SERAPH_ADJUDICANT, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [COLOSSUS, SLAGHIDE_PURSUER],
+        back: [CHARNEL_DRUDGE, MOONSONG_WEAVER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, HOLLOWBARK_SENTRY],
+        back: [EMBERSHELL_WHELP, DUSKFERN_SKIRMISHER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-monster-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [PALE_WARDEN, SLAGHIDE_PURSUER],
+        back: [GOLEM, NIGHTCANOPY_SINGER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-monster-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [OATHBREAKER, CORTEGE_LANCER],
+        back: [SLAGBOUND_DRUDGE, SKYSHRIKE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [THE_BREACHLORD, QUENCHPIT_IRONHIDE],
+        back: [CROWNBARK_BASTION, BARROWMIST_KEENER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [BARROW_SOVEREIGN, SLAGHIDE_PURSUER],
+        back: [MARCHWARD_PIKEMAN, MOONSONG_WEAVER, RELIQUARY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [FENLORD, EDGETURN_WARDEN],
+        back: [EMBERSHELL_WHELP, DUSKFERN_SKIRMISHER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-monster-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [IRONWAKE_VANGUARD, SKYSHRIKE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f240',
+      name: 'Floor 240 — The Shutfast Yard',
+      enemies: {
+        front: [COLOSSUS, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, GOLEM, SEPULCHRE_HOUND],
+      },
+    },
+    {
+      id: 't-monster-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GOLEM],
+        back: [SLAGHIDE_PURSUER, MOONSONG_WEAVER, IRONSLING_WRIGHT],
+      },
+    },
+    {
+      id: 't-monster-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [PALE_WARDEN, EDGETURN_WARDEN],
+        back: [EMBERSHELL_WHELP, DUSKFERN_SKIRMISHER, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-monster-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [OATHBREAKER, SLAGHIDE_PURSUER],
+        back: [HOLLOWBARK_SENTRY, SKYSHRIKE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CHARNEL_DRUDGE],
+        back: [MUSTER_PIKE, PYRE, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-monster-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [THE_BREACHLORD, SLAGHIDE_PURSUER],
+        back: [GOLEM, MOONSONG_WEAVER, STILLNESS_CANTOR],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Shutfast Line — Floors 246–270, levels 117–128 — three a board, and every faction the tower fields has brought the half of itself that wears armour.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [GOLEM, CHARNEL_DRUDGE, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [THE_EDGEWRIGHT, CHARNEL_DRUDGE],
+        back: [SLAGHIDE_PURSUER, EMBERSHELL_WHELP, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [FENLORD, CLOSEWARD_SERAPH],
+        back: [SLAGBOUND_DRUDGE, HOLLOWBARK_SENTRY, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [COLOSSUS, SLAGHIDE_PURSUER],
+        back: [EMBERSHELL_WHELP, CAIRNWARD_HUSK, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f250',
+      name: 'Floor 250 — The Shutfast Line',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, GOLEM, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [THE_SEEDFATHER, SLAGHIDE_PURSUER],
+        back: [GRAVEWAKE_THRALL, MUSTER_PIKE, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [OATHBREAKER, GOLEM],
+        back: [SLAGHIDE_PURSUER, CHARNEL_DRUDGE, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CLOSEWARD_SERAPH],
+        back: [MARCHWARD_PIKEMAN, IRONWAKE_VANGUARD, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [THORNBACK_GRAZER, EMBERSHELL_WHELP, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-monster-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [THE_BREACHLORD, QUENCHPIT_IRONHIDE],
+        back: [SLAGHIDE_PURSUER, GILDED_SENTRY, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [FENLORD, CLOSEWARD_SERAPH],
+        back: [EMBERSHELL_WHELP, HOLLOWBARK_SENTRY, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [THE_EDGEWRIGHT, SLAGHIDE_PURSUER],
+        back: [GOLEM, CAIRNBOUND_SENTINEL, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [COLOSSUS, CAIRNBOUND_SENTINEL],
+        back: [SLAGHIDE_PURSUER, EMBERSHELL_WHELP, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [BARROW_SOVEREIGN, CLOSEWARD_SERAPH],
+        back: [SLAGBOUND_DRUDGE, CHARNEL_DRUDGE, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f260',
+      name: 'Floor 260 — The Cage of Plate',
+      enemies: {
+        front: [THE_SEEDFATHER, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, GOLEM, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [OATHBREAKER, SLAGHIDE_PURSUER],
+        back: [CROWNBARK_BASTION, VAULTBOUND_GAOLER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, GOLEM],
+        back: [SLAGHIDE_PURSUER, GRUDGEPLATE_SMITH, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CLOSEWARD_SERAPH],
+        back: [EMBERSHELL_WHELP, IRONWAKE_VANGUARD, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [THE_BREACHLORD, SLAGHIDE_PURSUER],
+        back: [HOLLOWBARK_SENTRY, QUICKLIME_SERJEANT, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f265',
+      name: 'Floor 265',
+      enemies: { front: [FENLORD, THORNBACK_GRAZER], back: [SLAGHIDE_PURSUER, GOLEM, SKYSHRIKE] },
+    },
+    {
+      id: 't-monster-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [THE_EDGEWRIGHT, CLOSEWARD_SERAPH],
+        back: [EMBERSHELL_WHELP, SLAGBOUND_DRUDGE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [COLOSSUS, SLAGHIDE_PURSUER],
+        back: [CHARNEL_DRUDGE, OATHSHIELD_VANGUARD, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [BARROW_SOVEREIGN, EDGETURN_WARDEN],
+        back: [SLAGHIDE_PURSUER, GOLEM, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [THE_SEEDFATHER, CLOSEWARD_SERAPH],
+        back: [EMBERSHELL_WHELP, QUICKLIME_SERJEANT, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f270',
+      name: 'Floor 270 — The Narrow Plate',
+      enemies: {
+        front: [OATHBREAKER, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, GOLEM, EMBERSHELL_WHELP],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Plated Pack — Floors 271–290, levels 128–137 — the same plate on something that keeps up. One to a board and never two, because the wall and the rate are a product rather than two dials.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, GOLEM, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [TYRANT, CHARNEL_DRUDGE],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [THE_BREACHLORD, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [THE_REDMAW, GOLEM],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGBOUND_DRUDGE, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [THE_EDGEWRIGHT, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, HOLLOWBARK_SENTRY, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GOLEM],
+        back: [CINDERPLATE_HOUNDSMAN, CHARNEL_DRUDGE, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [OATHBREAKER, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, IRONWAKE_VANGUARD],
+      },
+    },
+    {
+      id: 't-monster-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [THE_SEEDFATHER, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, GOLEM, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [THE_HORNCALLER, THORNBACK_GRAZER],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f280',
+      name: 'Floor 280 — The Plated Pack',
+      enemies: {
+        front: [TYRANT, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, QUENCHPIT_IRONHIDE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-monster-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [THE_REDMAW, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, GOLEM, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, CHARNEL_DRUDGE, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [THE_BREACHLORD, GOLEM],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, EDGETURN_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [THE_EDGEWRIGHT, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP, HOLLOWBARK_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [OATHBREAKER, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, GOLEM, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [THE_SEEDFATHER, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, CROWNBARK_BASTION],
+      },
+    },
+    {
+      id: 't-monster-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CHARNEL_DRUDGE],
+        back: [CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP, SLAGBOUND_DRUDGE],
+      },
+    },
+    {
+      id: 't-monster-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [FENLORD, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, GOLEM, QUICKLIME_SERJEANT],
+      },
+    },
+    {
+      id: 't-monster-f290',
+      name: 'Floor 290 — Nothing Left to Run To',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CLOSEWARD_SERAPH],
+        back: [CINDERPLATE_HOUNDSMAN, SLAGHIDE_PURSUER, SLAGHIDE_PURSUER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Closing — Floors 291–300, levels 138–142 — the lightest boards in the hundred carrying the heaviest plate in the game. The old anchors are gone by 295, and nothing but the thing the horn called stands in front of the last six floors.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [THE_BREACHLORD, SLAGHIDE_PURSUER],
+        back: [SLAGHIDE_PURSUER, GOLEM, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [OATHBREAKER, SLAGHIDE_PURSUER],
+        back: [CLOSEWARD_SERAPH, THORNBACK_GRAZER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [THE_EDGEWRIGHT, SLAGHIDE_PURSUER],
+        back: [SLAGHIDE_PURSUER, CINDERPLATE_HOUNDSMAN, GOLEM],
+      },
+    },
+    {
+      id: 't-monster-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [THE_UNBITTEN, EMBERSHELL_WHELP],
+        back: [SLAGHIDE_PURSUER, GOLEM, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-monster-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_UNBITTEN, SLAGHIDE_PURSUER],
+        back: [EMBERSHELL_WHELP, CHARNEL_DRUDGE, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-monster-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [THE_UNBITTEN, CLOSEWARD_SERAPH],
+        back: [SLAGHIDE_PURSUER, EMBERSHELL_WHELP, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-monster-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [THE_UNBITTEN, SLAGHIDE_PURSUER],
+        back: [SLAGHIDE_PURSUER, EMBERSHELL_WHELP, GOLEM],
+      },
+    },
+    {
+      id: 't-monster-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [THE_UNBITTEN, SLAGHIDE_PURSUER],
+        back: [CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP, HOLLOWBARK_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f300',
+      name: 'Floor 300 — The Unbitten',
+      enemies: {
+        front: [THE_UNBITTEN, SLAGHIDE_PURSUER],
+        back: [SLAGHIDE_PURSUER, CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP],
       },
     },
   ],
