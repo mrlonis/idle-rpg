@@ -21,6 +21,7 @@ import {
   DRAW_THE_OATH,
   EMBERSEED,
   EVENSONG,
+  EVERYTHING_COMES_BACK_BLUNT,
   FADE,
   FLENSE,
   GATE_SLAM,
@@ -93,6 +94,7 @@ import {
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
+  THE_IRON_COMES_UP,
   THE_KEENING_NOTE,
   THE_KNELL,
   THE_LAST_AMEN,
@@ -106,6 +108,7 @@ import {
   THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_RING_IS_SHUT,
+  THE_RUST_HOLDS,
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
@@ -121,6 +124,7 @@ import {
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WHAT_FALLS_IS_SOWN,
+  WHAT_THE_FIELD_LEFT,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
@@ -592,6 +596,7 @@ export const SKYSHRIKE = {
   name: 'Sky-Shrike',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 480,
     atk: 63,
@@ -988,6 +993,7 @@ export const THORNLING = {
   name: 'Thornling',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 300,
     atk: 34,
@@ -1006,6 +1012,7 @@ export const GLADE_STALKER = {
   name: 'Glade Stalker',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 360,
     atk: 40,
@@ -1058,6 +1065,7 @@ export const MOONSONG_WEAVER = {
   name: 'Moonsong Weaver',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 560,
     atk: 62,
@@ -1436,6 +1444,7 @@ export const BRAMBLEWALK_SCOUT = {
   name: 'Bramblewalk Scout',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 460,
     atk: 52,
@@ -1970,6 +1979,7 @@ export const GRAVEWAKE_THRALL = {
   name: 'Gravewake Thrall',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 800,
     atk: 50,
@@ -2365,6 +2375,7 @@ export const HOLLOWBARK_SENTRY = {
   name: 'Hollowbark Sentry',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 840,
     atk: 46,
@@ -2389,6 +2400,7 @@ export const WHISPERLEAF_ARCHER = {
   name: 'Whisperleaf Archer',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 500,
     atk: 56,
@@ -2418,6 +2430,7 @@ export const GLOAMVINE_CREEPER = {
   name: 'Gloamvine Creeper',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 720,
     atk: 44,
@@ -2448,6 +2461,7 @@ export const WEALDSHADOW_STALKER = {
   name: 'Wealdshadow Stalker',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 76,
@@ -2476,6 +2490,7 @@ export const LONGBOUGH_MARKSMAN = {
   name: 'Longbough Marksman',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 780,
     atk: 78,
@@ -2535,6 +2550,7 @@ export const NIGHTCANOPY_SINGER = {
   name: 'Nightcanopy Singer',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 740,
     atk: 66,
@@ -2574,6 +2590,7 @@ export const THE_LONGSHADOW = {
   name: 'The Longshadow',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1500,
     atk: 92,
@@ -3144,6 +3161,7 @@ export const RENDFANG_JACKAL = {
   name: 'Rendfang Jackal',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 62,
@@ -3170,6 +3188,7 @@ export const CARRION_SWARM = {
   name: 'Carrion Swarm',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 400,
     atk: 54,
@@ -3965,6 +3984,7 @@ export const SUNMOTE_DANCER = {
   name: 'Sunmote Dancer',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 500,
     atk: 58,
@@ -3995,6 +4015,7 @@ export const SUNFADE_CHANTER = {
   name: 'Sunfade Chanter',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 700,
     atk: 64,
@@ -4032,6 +4053,7 @@ export const CROWNBARK_BASTION = {
   name: 'Crownbark Bastion',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1120,
     atk: 54,
@@ -4082,6 +4104,7 @@ export const THE_SUNBOUGH = {
   name: 'The Sunbough',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1520,
     atk: 90,
@@ -4667,6 +4690,7 @@ export const MUSTER_PIKE = {
   name: 'Muster Pike',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 900,
     atk: 48,
@@ -4692,6 +4716,7 @@ export const ROADWATCH_BOWMAN = {
   name: 'Roadwatch Bowman',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 500,
     atk: 62,
@@ -4815,6 +4840,7 @@ export const STANDFAST_LANCER = {
   name: 'Standfast Lancer',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 900,
     atk: 80,
@@ -5529,6 +5555,7 @@ export const DEEPMAST_HEARTWOOD = {
   name: 'Deepmast Heartwood',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1160,
     atk: 56,
@@ -5631,6 +5658,7 @@ export const THE_SEEDFATHER = {
   name: 'The Seedfather',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1320,
     atk: 82,
@@ -6189,6 +6217,299 @@ export const THE_UNFALTERING = {
   skills: [NO_EDGE_FINDS_IT, THE_LAST_AMEN],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Rustwood — milestone 27, chapter 12
+//
+// Ten blocks for the Elf lean: eight ordinary, a lieutenant and a final. The Standing Line stopped
+// moving and the wood went over what it left, so every one of these is a body wearing somebody
+// else's plate — which is the chapter's question stated in a stat block before any board states it.
+//
+// ## What these are for, and the two shapes they come in
+//
+// The chapter asks **how much of the party's damage survives contact**. A block answers that either
+// by being harder to hurt (`physicalResist`, `critBlock`, `critDamageResist`) or by making the party
+// hit softer ({@link WEAKEN}), and the eight are split across both so a board can ask it twice.
+//
+// ⚠️ **`magicResist` is deliberately absent as an axis, and that is measured rather than an
+// opinion.** Its shipped ceiling across a hundred and seventy-one blocks is **0.15** against
+// `physicalResist`'s 0.40, and the Demon Tower measured a magic ward worth **0.00** of five at its
+// own register. `physicalResist` is where this chapter builds because that is where the register is,
+// and because the reference fives are overwhelmingly physical.
+//
+// ⚠️ **Every one of these is authored at or below the shipped register on the stat it leans on.**
+// `physicalResist` tops out here at 0.18 against a shipped ceiling of 0.40 and a top-six of
+// [0.40, 0.34, 0.30, 0.24, 0.23, 0.20]; `critBlock` at 0.18 against a ceiling of 0.34; and
+// `critDamageResist` at 0.28 against 0.52. **No band in this chapter steps past the register** — the
+// Elf Tower's third hundred is the precedent for saying which side of it a band landed on, and this
+// one landed inside.
+//
+// ## ⚠️ Nothing here heals, drains or regenerates, and that is the clock rather than a preference
+//
+// Mitigation lengthens every fight it appears in, and `def` and `hp` multiply each other to extend a
+// fight nobody is going to win — which is exactly the stall `MAX_BATTLE_TICKS` bounds and a timeout
+// is scored a **defeat**. So the chapter's only restoration is a **shield**: {@link THE_RUST_HOLDS}
+// and {@link WHAT_THE_FIELD_LEFT} bank a pool once and deplete. No block below carries `recovery`,
+// `healthRegen` or `lifeLeech`, and none of the four kits authored for them restores health.
+
+/** The wood's foragers, working over what the line left behind. Light, quick, barely armoured. */
+export const RUSTLEAF_GLEANER = {
+  id: 'rustleaf-gleaner',
+  name: 'Rustleaf Gleaner',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 520,
+    atk: 58,
+    def: 14,
+    haste: 124,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.24,
+    accuracy: 1.05,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/** A thicket that has grown through a shield wall and kept the shields. */
+export const SCALEPLATE_BRAMBLE = {
+  id: 'scaleplate-bramble',
+  name: 'Scaleplate Bramble',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 880,
+    atk: 46,
+    def: 34,
+    haste: 62,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    physicalResist: 0.16,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/** Spines drawn from a quiver nobody came back for. The chapter's one fast magical body. */
+export const QUILLRUST_DARTER = {
+  id: 'quillrust-darter',
+  name: 'Quillrust Darter',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 500,
+    atk: 60,
+    def: 12,
+    haste: 132,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    dodge: 0.28,
+    magicPierce: 0.14,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/** Slow, wide and half metal. The creeper the party has to spend a turn on rather than aim past. */
+export const SLAGBLOOM_THICKET = {
+  id: 'slagbloom-thicket',
+  name: 'Slagbloom Thicket',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 760,
+    atk: 48,
+    def: 28,
+    haste: 66,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.14,
+  },
+  skills: [MIRE],
+} as const;
+
+/**
+ * The chapter's wall, and the one block that answers a crit build rather than a swing.
+ *
+ * `critBlock` 0.18 and `critDamageResist` 0.28 against shipped ceilings of 0.34 and 0.52 — inside
+ * the register on both. It is here because the reference fives crit: what this asks is whether the
+ * party's damage still arrives when the half of it that came from a lucky roll does not.
+ */
+export const IRONBARK_WARDEN = {
+  id: 'ironbark-warden',
+  name: 'Ironbark Warden',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1140,
+    atk: 56,
+    def: 40,
+    haste: 64,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.18,
+    critDamageResist: 0.28,
+    tenacity: 0.45,
+    physicalResist: 0.18,
+  },
+  skills: [CLOSE_OVER_IT, SHIELD_BASH],
+} as const;
+
+/**
+ * The body that puts the plate on everything else, once every seventy ticks.
+ *
+ * ⚠️ **A shield rather than a heal, and the distinction is the termination argument.** A board-wide
+ * pool banked once depletes under a party that keeps swinging; a board-wide regeneration behind the
+ * same armour is the ninety-second clock. It is also the reason this block is soft — 720 health and
+ * 20 `def` — so the answer to it is the answer the chapter wants taught: reach past the plate and
+ * kill the thing making more of it.
+ */
+export const RUSTSONG_CHANTER = {
+  id: 'rustsong-chanter',
+  name: 'Rustsong Chanter',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 720,
+    atk: 64,
+    def: 20,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    insight: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [THE_RUST_HOLDS, MOTE_LANCE],
+} as const;
+
+/** What the gleaners bring back is fitted to this. The chapter's opener, and it opens armour. */
+export const SPOILWOOD_REAVER = {
+  id: 'spoilwood-reaver',
+  name: 'Spoilwood Reaver',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 800,
+    atk: 80,
+    def: 20,
+    haste: 116,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    dodge: 0.2,
+    accuracy: 1.1,
+    physicalPierce: 0.2,
+  },
+  skills: [HEADSMANS_ARC, CUTPURSE],
+} as const;
+
+/**
+ * The chapter's question asked from the party's own side of the board.
+ *
+ * Every other block here makes the party's damage arrive against more armour;
+ * {@link EVERYTHING_COMES_BACK_BLUNT} makes it leave smaller. Same sentence, opposite end, and a
+ * board carrying both states the chapter twice in one turn order.
+ */
+export const CORROWEALD_SINGER = {
+  id: 'corroweald-singer',
+  name: 'Corroweald Singer',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 760,
+    atk: 66,
+    def: 22,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    insight: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [EVERYTHING_COMES_BACK_BLUNT, MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c12-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks — twenty blocks each appearing on
+ * exactly one board is most of what `enemies.spec.ts`'s orphan rule exists to discourage.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, the fourth chapter running to take
+ * that shape. {@link WHAT_THE_FIELD_LEFT} does nothing until the party has hurt something and then
+ * banks a pool on the body the party chose, so four appearances are four different fights against
+ * one block.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** The rule permits it and chapters 9, 10 and 11 all
+ * declined, because a second `ascended` anchor beside a boss is the sharpest non-linear weight step
+ * this game can author. What stands beside The Ironbloom is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_RECLAIMED = {
+  id: 'the-reclaimed',
+  name: 'The Reclaimed',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1480,
+    atk: 86,
+    def: 46,
+    haste: 90,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    critBlock: 0.16,
+    critDamageResist: 0.22,
+    tenacity: 0.45,
+    physicalPierce: 0.18,
+    physicalResist: 0.12,
+  },
+  skills: [WHAT_THE_FIELD_LEFT, CLOSE_OVER_IT, SHIELD_BASH],
+} as const;
+
+/**
+ * The chapter final: the wood wearing an army, and the twelfth body authored under the rule that a
+ * chapter's final is fielded nowhere else.
+ *
+ * 1770 health and 99 attack, **under {@link UNMADE}'s 1800 and 100 on both** — the ceiling nothing
+ * may reach, and the bar every chapter final since the Vault has respected rather than raised. What
+ * makes it the harder fight is the level it stands at and the questions it asks, which is the whole
+ * of the chapter's list on one board: plate that has to be opened, crits that stop landing, and the
+ * party's own attack cut before it swings.
+ *
+ * ⚠️ **It restores nothing.** {@link THE_IRON_COMES_UP} deals and sunders; the plate is in the stat
+ * block, where it depletes with the body. A final that re-banked a pool on a cadence behind this much
+ * mitigation is a fight the clock ends, and the clock ending a fight is a **defeat**.
+ */
+export const THE_IRONBLOOM = {
+  id: 'the-ironbloom',
+  name: 'The Ironbloom',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1770,
+    atk: 99,
+    def: 53,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.5,
+    physicalPierce: 0.24,
+    magicPierce: 0.2,
+    physicalResist: 0.16,
+  },
+  skills: [THE_IRON_COMES_UP, HEADSMANS_ARC, CLOSE_OVER_IT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -6361,4 +6682,14 @@ export const ENEMIES = [
   PLAINSONG_PRECENTOR,
   SCARWEAVE_TRAMPLER,
   THE_UNFALTERING,
+  RUSTLEAF_GLEANER,
+  SCALEPLATE_BRAMBLE,
+  QUILLRUST_DARTER,
+  SLAGBLOOM_THICKET,
+  IRONBARK_WARDEN,
+  RUSTSONG_CHANTER,
+  SPOILWOOD_REAVER,
+  CORROWEALD_SINGER,
+  THE_RECLAIMED,
+  THE_IRONBLOOM,
 ] as const;

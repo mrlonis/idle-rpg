@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
+| Campaign         | 12 chapters, 500 stages, enemy levels 1–250 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 171                                         |
+| Enemy archetypes | 181                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -55,6 +55,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 9       | 150   | 175    | 25   |
 | 10      | 175   | 200    | 25   |
 | 11      | 200   | 225    | 25   |
+| 12      | 225   | 250    | 25   |
 
 ⚠️ **The margin rule is gone, and the whole bisect-the-final procedure with it.** Chapters used to
 close _past_ the cap of the rung they asked for, by a margin that grew +12 to +18 a chapter (+20 at
@@ -68,7 +69,9 @@ is **×1.68** of party power at `perLevel.common` = 1.021, against **×1.60** fo
 so finishing a chapter and taking its rung very nearly cancels the next chapter, and the campaign
 has no difficulty gradient of its own. That is a chosen trade, not an oversight: the ladder is
 planned for ~100 chapters, and **the escalation is intended to arrive from the enemy side** — enemy
-stat blocks carry no gear, and that is the axis meant to supply it.
+stat blocks carried no gear, and that was the axis meant to supply it. ⚠️ **It landed in chapter 12
+and it is roughly an order of magnitude too small** — see the measurement below before planning
+around it.
 
 **Three guards were widened to record the trade rather than hide it**, each naming the condition
 that restores it: `MOMENTUM_CEILING` (0.20 → 0.30), the survivors half of "still costs that party
@@ -76,6 +79,42 @@ something at the top" (retired), and the longest-cleared-fight bar (0.75 → 0.8
 **All three belong back where they were when enemy gear lands, and the honest test of that work is
 whether they can be moved back** — not whether the sweep is green. Do not widen any of them a second
 time.
+
+### ⚠️ Enemy gear landed in chapter 12 and none of the three came back. Here is the measurement
+
+The Rustwood is the chapter that was supposed to close this, and it did not. Every figure below is
+from the ladder sweep's own harness, calibrated against the recorded `vaulted vs c9-s9` reading of
+**69.2s**, which it reproduces exactly.
+
+**The gap.** Take chapter 11's final, refield it at chapter 12's roof level of 250, and scale the
+enemy side by `k` — the pure form of what a gear percentage does:
+
+| ×k                            | invested party               | the party one chapter behind |
+| ----------------------------- | ---------------------------- | ---------------------------- |
+| 1.00                          | 100% / 5.00 survivors / 4.6s | 100% / 5.00 / 8.2s           |
+| 1.09 / 1.18 (a full Worn set) | 100% / 5.00 / 5.2–5.7s       | 100% / 5.00 / 8.6–9.3s       |
+| 2.00                          | 100% / 5.00 / 9.4s           | 100% / 3.83 / 22.2s          |
+| 3.00                          | 100% / **4.00** / 16.5s      | 0% / 0.00                    |
+| 4.00                          | **0%** / 0.00                | 0% / 0.00                    |
+
+Zero timeouts throughout, so weight up to ×3 is safe from the ninety-second clock, and the cliff
+between ×3 and ×4 is sharp.
+
+**What gear is worth.** A full Worn set is +8.6% health on a `tank` at level 1 and +17.6% at Worn's
+cap; a full **Relic** set at 100 is +166%. So the axis needs **×3** and its whole ladder end to end
+delivers about ×2.7 on one stat — **roughly an order of magnitude short at the bottom and still short
+at the top.**
+
+⚠️ **One of the three moves the wrong way.** Gear lengthens fights, so it _raises_ the
+longest-cleared-fight quantity the 0.75 bar bounds rather than lowering it. Restoring that bar gets
+harder as this axis grows, not easier.
+
+⚠️ **Do not read this as "chapter 12 was authored too light".** The Rustwood carries the full Worn
+ladder on every one of its fifty boards and the measurement is about the ladder, not the chapter. The
+next session to touch this should either size an enemy-side gear axis for the job — a steeper grade
+ladder, or a per-chapter grade step much larger than one rung — or accept that the campaign's
+escalation has to come from somewhere else. **Widening any of the three a second time is still
+forbidden.**
 
 **The runway:** 0.50 a stage reaches level 1000 at about **chapter 42**. 100 chapters under the
 current ceiling would need 0.20 a stage; 100 chapters _at_ 0.50 would need `maxLevel` ~2455 and
@@ -154,10 +193,19 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run elf 23, angel 24, dwarf 24,
-  monster 24, demon 25, undead 25, human 26 — the flattest the roster has ever been, because the
-  third hundred spent six of its seven sessions on whichever faction was thinnest at the time.
-  Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, dwarf 24, monster 24,
+  demon 25, undead 25, human 26, **elf 33** — The Rustwood's ten blocks took Elf from thinnest to
+  deepest by nine, which is the second time a single lean has reversed the ordering outright.
+  Recompute before choosing; **Angel, Dwarf and Monster are now joint-thinnest at 24**, and Angel is
+  barred from leading a chapter.
+- ⚠️ **Elf has now led twice — chapter 8 and chapter 12 — and that is the first repeat lead.** It was
+  legal because four chapters after the Sunless Weald, Elf was still the thinnest legal lead at 23.
+  What a repeat costs is that the chapter has to be a visibly different **place**: the Weald is the
+  Elves at home and The Rustwood is the Elves out on somebody else's battlefield, picking it over.
+- ⚠️ **The Rustwood's lean measures 92% of board slots, the heaviest any chapter has carried**,
+  against the Weald's 81%, The Bleeding Wild's 84% and The Standing Line's 83%. Stated rather than
+  rounded because it is out of family, and the cost is real: a pool that mono makes the faction
+  matchup nearly constant across fifty boards, which is the one axis a mixed pool keeps live.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
@@ -238,6 +286,7 @@ The shipped eleven, with the level range each closes over:
 | 9   | The Hollow Anvil   | 50     | 150 → 175 | whether anything the party does **stays done**  |
 | 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on** |
 | 11  | The Standing Line  | 50     | 200 → 225 | what the party spends it on **first**           |
+| 12  | The Rustwood       | 50     | 225 → 250 | how much of it **survives contact**             |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -560,6 +609,13 @@ recomputing every time:
 keeps every figure the authoring session recorded valid; correcting one hands a block stats it was
 never measured with.
 
+⚠️ **The check caught two wrong claims in chapter 12's own header before it shipped, which is what
+it is for.** The header said **6** boards carry `recovery` and the script said **10** — the fourth
+session running to miscount its own sustain — and it described the lean as "about eighty percent"
+where the measurement was **92%**. Both were fixed to the measured figure rather than the boards
+being changed to fit the prose. **Run it at the start and again after the boards land**; the first
+run cannot see counts that do not exist yet.
+
 ---
 
 ## What fires next
@@ -572,15 +628,29 @@ chapter regardless" — **sort every failure into those two before touching anyt
 way — one of them because its previous entry was still describing the pre-flattening income curve.
 Measure, do not copy this table forward.
 
-| Fires at     | Guard                                               | Reads now   | The answer                                                                                     |
-| ------------ | --------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| chapter 12   | `gear.spec.ts` — top grade's share of drops         | 18.7%       | `gradeSoftness` → 250. It is always `stages / 2`; what it wants is a saturating tilt           |
-| chapter 12   | `towers.spec.ts` — tower:campaign crystal ratio     | 1.314       | A third hundred, an eighth ladder, or accepting the campaign outgrew its optional content      |
-| chapter 14   | `banners.spec.ts` — roster-relative crystal ceiling | 38.2 days   | Whether the roster kept up, not what number makes it green. 35.0 at 12, 32.3 at 13, 30.0 at 14 |
-| chapter 16   | `levels.spec.ts` — "charges real time"              | 9.0h / 24h  | Income is the question again — 21.0h at chapter 15, 26.2h at 16. No retired guard left         |
-| chapter 30   | `levels.spec.ts` — rungs unspent above the ladder   | 225 < 700   | Was chapter 12 before the flattening. **How long is the campaign meant to be**                 |
-| ~chapter 42  | The level curve is consumed entirely                | 225 / 1000  | A roadmap decision, not a threshold. Was ~chapter 15                                           |
-| ~chapter 180 | `gear.spec.ts` — "roughly doubles what gold is for" | 19.85h of 1 | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`                 |
+| Fires at     | Guard                                               | Reads now  | The answer                                                                           |
+| ------------ | --------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| chapter 13   | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 275. It is always `stages / 2`; what it wants is a saturating tilt |
+| chapter 14   | `banners.spec.ts` — roster-relative crystal ceiling | —          | Whether the roster kept up, not what number makes it green                           |
+| chapter 16   | `levels.spec.ts` — "charges real time"              | —          | Income is the question again. No retired guard left                                  |
+| chapter 30   | `levels.spec.ts` — rungs unspent above the ladder   | 250 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**       |
+| ~chapter 42  | The level curve is consumed entirely                | 250 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                 |
+| ~chapter 180 | `gear.spec.ts` — "roughly doubles what gold is for" | —          | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`       |
+
+⚠️ **`gradeSoftness` fired at chapter 12 exactly as predicted and read 21.3% at five hundred stages;
+`stages / 2` = 250 restored 18.7% for the seventh time.** That is now seven landings on one figure
+with one solution, and it remains the strongest evidence in the project that the _shape_ is wrong
+rather than the number.
+
+⚠️ **The tower:campaign crystal ratio was listed here at chapter 12 and it did not fire, because the
+guard no longer exists** — `towers.spec.ts` retired it, and this table went on projecting a horizon
+for it anyway. That is the same method failure the gear kit-hours correction records, in a smaller
+form: **a horizon is a claim about a guard as well as about a curve, and a retired guard has no
+horizon.** Check the guard is still there before carrying its row forward.
+
+⚠️ **One guard fired that this table never listed: `descent.balance.ts`'s per-depth walkover bar.**
+It is not in the campaign's own suite, and it fires because the Descent's deepest sample is
+`stages.length` — so the top depth moves every time a chapter ships. See the note below.
 
 ⚠️ **The gear kit-hours guard was listed at chapter 12 and it is actually ~180**, which is the
 largest correction this table has ever carried and worth reading as a method failure rather than an
@@ -592,6 +662,48 @@ where it used to grow superlinearly, and a quantity that was collapsing fast is 
 1. Nothing about the guard changed; the curve underneath it did, and the entry was never re-measured.
    **Re-measure a horizon rather than carrying it forward** — a projected chapter number is a claim
    about a curve, and the curves in this project move.
+
+### ⚠️ The Descent's per-depth walkover bar, and why a chapter can trip it without being wrong
+
+`descent.balance.ts` samples five campaign depths and the deepest is `stages.length`, so **the top
+sample moves every time a chapter ships**. The mode's party at each depth is _bisected_ — the minimum
+level at which a three-faction five clears the campaign stage there — and its rung comes from
+`rarityFor(level)`, the cheapest rung whose cap admits that level.
+
+That makes party power a **step function of level**, jumping ×1.6 at each cap. Chapter 12 put the
+top depth's anchor at level 250, where the bisection lands at **201** — one level above `legendary`'s
+cap of **200** — so the calibrated party crosses a rung and arrives up to ×1.6 stronger than "just
+clears" means. It then walks the Descent: 5.00 survivors of five, against a bar of 4.85.
+
+**Measured, so the next session does not re-derive it:**
+
+| campaign stage the depth anchors on | its level | bisected party level | rung  |
+| ----------------------------------- | --------- | -------------------- | ----- |
+| `c7-s50`                            | 125       | 101                  | 5     |
+| `c9-s50`                            | 175       | 132–134              | 5     |
+| `c10-s50`                           | 200       | 141                  | 6     |
+| `c11-s50`                           | 225       | 168–170              | 6     |
+| `c11-s50` refielded at 250          | 250       | 192–193              | **6** |
+| `c12-s50`                           | 250       | **201**              | **7** |
+
+⚠️ **Three of those land within a level or two of a cap** (101, 141, 201), which is not a coincidence
+— the minimum level that clears is _drawn_ to a cap, because that is where power jumps. The bar has
+tolerated it before and fires now only because 250 is where the crossing finally lands above it.
+
+⚠️ **Softening the final does not fix it and should not be attempted.** Measured: a boss cut by 30%,
+every escort swap, and dropping both of the chapter's suppressions all still read **201**, because a
+level-200 rung-6 party cannot take any board of that weight and a level-201 rung-7 party takes all of
+them. The only board that reads 6 is chapter 11's own, at 193. Authoring a final light enough to bisect
+under 200 would mean a chapter final weaker than every one since the Vault — **an honest restatement
+of the guard that a session would refuse to author, which is the tell that it is pointed at the wrong
+quantity.**
+
+**What it wants is a calibration that does not quantise.** Deriving the party's rung from the
+**anchor** — what a player at that depth actually holds, which is what the campaign's own seam
+parties record — and bisecting only the level removes the ×1.6 step entirely and is more faithful to a
+real player than "the cheapest rung admitting the bisected level". That moves every documented figure
+in `descent.balance.ts`, so it is a deliberate retune rather than a content session's edit. **Recorded
+rather than taken**, and the bar was **not** widened.
 
 ⚠️ **`gradeSoftness` is the one to re-derive by hand, once a chapter, deliberately.** It has landed
 on 18.7% six times and the solution has been `stages / 2` every time, which is what turned a tuning

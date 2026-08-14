@@ -48,7 +48,7 @@ const TOP_GRADE = RULES.grades.length - 1;
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewardCurve: StageRewardCurveData = STAGE_REWARDS;
-const LADDER_LENGTH = resolveLadder(chapters, chapterCurve, rewardCurve).length;
+const LADDER_LENGTH = resolveLadder(chapters, chapterCurve, rewardCurve, GEAR_RULES).length;
 
 describe('the grade ladder', () => {
   it('gets better on both axes at once, so a rung is worth having twice over', () => {

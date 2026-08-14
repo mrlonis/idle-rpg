@@ -315,25 +315,30 @@ export const GEAR_RULES = {
     /**
      * How sharply grade odds improve with the linear stage index.
      *
-     * Two hundred and twenty-five. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this
+     * Two hundred and fifty. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this
      * is a **rate per stage** and the ladder's length is the other half of every number it produces.
      * Lower makes the ladder's bottom worthless faster; higher makes depth stop meaning anything.
      *
-     * ⚠️ **It has now been re-derived six times — by chapters 4, 7, 8, 9, 10 and 11 — and every time
-     * deliberately rather than by moving the threshold that caught it.** At ninety the top grade was
-     * 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
+     * ⚠️ **It has now been re-derived seven times — by chapters 4, 7, 8, 9, 10, 11 and 12 — and every
+     * time deliberately rather than by moving the threshold that caught it.** At ninety the top grade
+     * was 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
      * `< 0.2` bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop;
      * a hundred put it at 18.7% over two hundred. Chapter 7 took the ladder to two hundred and fifty
      * and it read **24.5%**, so a hundred and twenty-five restored 18.7%. Chapter 8 took it to three
      * hundred and it read **23.4%**, and a hundred and fifty restored 18.7% again. Chapter 9 took it
      * to three hundred and fifty and it read **22.6%**, answered with a hundred and seventy-five.
      * Chapter 10 took it to four hundred and it read **22.1%**. Chapter 11 took it to four hundred
-     * and fifty and it read **21.7%**.
+     * and fifty and it read **21.7%**. The Rustwood took it to five hundred and it read **21.3%**.
      *
-     * ⚠️ **Six landings and every one of them is 18.7%, which is the whole finding.** The solution
+     * ⚠️ **Seven landings and every one of them is 18.7%, which is the whole finding.** The solution
      * is always `gradeSoftness = stages / 2` — that is the value at which the tilt equals 3.0, and
      * 3.0 is what produces 18.7% whatever the ladder's length is. So the constant is not a tuning
      * number at all; it is the ladder's length divided by two, written down by hand once a chapter.
+     *
+     * ⚠️ **Enemy gear arriving in chapter 12 changed nothing here, and that is worth stating.** This
+     * constant tilts what the *player* finds; an enemy's set is authored on the stage as a grade and
+     * a level and never rolled, so it draws no weights and shifts no stream. The two uses of
+     * `GEAR_GRADES` are deliberately independent.
      *
      * ⚠️ **This is a guard that fires every chapter forever, and the shape rather than the number is
      * what is wrong.** A tilt linear in the stage index has no ceiling, so the top grade's share
@@ -356,7 +361,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 225,
+    gradeSoftness: 250,
   },
 
   /**

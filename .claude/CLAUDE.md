@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../docs/ladder.md)** — the campaign: eleven chapters, four hundred and fifty stages, what a
+- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twelve chapters, five hundred stages, what a
   stage authors, position versus clear count, the rung cadence, and the guards that were retired.
 - **[docs/ascension.md](../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
@@ -137,6 +137,15 @@ as a wrong number on a screen or a fight that never ends. Each names the doc car
   `stageIndex(ladder, position)` is the only way to a linear index. [ladder](../docs/ladder.md)
 - ⚠️ **`chaptersCleared` and `clearedStages` are different numbers and both type-check.** Passing one
   where the other belongs is wrong by the size of a chapter. [ladder](../docs/ladder.md)
+- ⚠️ **An enemy's `gearArchetype` is a bare string and an absent one is silent.** A stage authoring
+  `gear` prices a bonus per archetype; a body that declares none looks it up under `undefined`, gets
+  nothing, and fights naked on a board tuned as though it were kitted — nothing throws and nothing
+  renders wrong. `chapters.spec.ts` asserts every body on a geared board declares one and
+  `enemies.spec.ts` asserts every declared value is real. Same trap as a mistyped stat key.
+  [gear](../docs/gear.md)
+- ⚠️ **`resolveStage` and `resolveLadder` take the gear rules, required and never defaulted.** A
+  caller that omitted them would resolve every geared stage as an ungeared one — every screen would
+  keep saying the right thing and only the balance sweep would notice. [ladder](../docs/ladder.md)
 - ⚠️ **`toBattleCombatant` does not carry `CombatantData.opening`.** A character authoring a passive
   has it silently dropped; the only player-side route to one is a signature rung. `toEnemyCombatant`
   does carry it. [combat](../docs/combat.md)
@@ -213,6 +222,8 @@ Asserted in `core/battle/simulate.spec.ts`.
 - ⚠️ **Every gear and signature bonus is a percentage of the wearer's own stat, never a flat
   quantity.** A flat bonus is an **addition**, which is exactly what the identity forbids — and it is
   invisible against a curve worth ×10⁹ anyway. Bonuses are summed with each other, never compounded.
+  **This now binds on both sides of the board**: enemy gear is the same percentage off the same
+  tables, which is why a geared stage authors a grade and a level rather than a stat line.
 - ⚠️ **Anything additive, or any authored constant compared against a scaling quantity, breaks it.**
   Audit for those rather than waiting to notice.
 - **The exception is a bounded rate.** `critChance`, `critDamageAmp` and `lifeLeech` take **points**

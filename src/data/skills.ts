@@ -5783,6 +5783,110 @@ export const THE_LAST_AMEN = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Rustwood — milestone 27, chapter 12
+//
+// The chapter asks how much of the party's damage survives contact, so its turns are about
+// **arriving smaller** rather than about aim, order or persistence. Two shapes carry it: a pool
+// banked in front of a body, and the party's own attack cut before it swings.
+//
+// ⚠️ **Both are shields and suppressions, and neither is a heal, a drain or a regeneration.** That
+// is the ninety-second clock rather than a preference: mitigation already lengthens every fight on
+// these boards, and sustain the party cannot aim past on top of it is a timeout — which is scored a
+// defeat. A shield banks a pool once and depletes; a regeneration refills.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The wood puts on what the field left, and the party's opening arrives against it.
+ *
+ * The Chanter's whole contribution and it deals nothing: a pool in front of **every** body on its
+ * side, so the party's first exchange is spent on plate rather than on anything alive. The answer is
+ * that a pool depletes — this is a tax on the opening, not a wall, and a party that keeps swinging
+ * is through it inside two turns.
+ *
+ * ⚠️ **`AEGIS` runs 55 ticks against a 70-tick cooldown, and the fifteen-tick gap is the rule.** A
+ * status that outlasts the skill applying it is a permanent absorb rather than a turn — `BARRIER` at
+ * 70 recast every 60 is the shipped instance of that mistake, and it is what this cadence avoids.
+ */
+export const THE_RUST_HOLDS = {
+  id: 'the-rust-holds',
+  name: 'The Rust Holds',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * Everything the party swings has already been swung once.
+ *
+ * The other half of the chapter's question, asked from the party's own side of the board rather than
+ * from the enemy's: {@link WEAKEN} on all five, so the damage that arrives is smaller because the
+ * hand throwing it is. Paired with the plate on these boards it is the same sentence twice, which is
+ * what makes The Rustwood a place rather than a stat line.
+ *
+ * ⚠️ **It carries damage as well, at ×0.8 under the ×1.2 wide ceiling.** A pure debuff turn on a
+ * board already built to lengthen fights is a clock with a name; making the turn cost the party
+ * health too is what keeps it a threat rather than a delay.
+ */
+export const EVERYTHING_COMES_BACK_BLUNT = {
+  id: 'everything-comes-back-blunt',
+  name: 'Everything Comes Back Blunt',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.8 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * What the field left is fitted to whatever the party has just opened.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the fourth chapter
+ * running to take that shape, and the reason it works: it does nothing until the party has committed
+ * to killing something, and then banks a pool on precisely the body the party chose. Four appearances
+ * at four levels are four different fights, because the party arrives at each one with a different
+ * opening.
+ *
+ * `ally-lowest` rather than `ally-all` is what makes it an answer instead of a wall: it protects the
+ * one body that is losing, so the party's choice is re-priced rather than refused.
+ */
+export const WHAT_THE_FIELD_LEFT = {
+  id: 'what-the-field-left',
+  name: 'What the Field Left',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 60,
+  condition: { kind: 'ally-hurt', fraction: 0.8 },
+  priority: 5,
+} as const;
+
+/**
+ * Iron comes up through the wood, and there is nowhere on the board it does not reach.
+ *
+ * The final's reach, at ×1.0 against the ×1.2 wide ceiling — the same figure {@link THE_SUN_AT_NOON}
+ * takes and for the same reason: five small hits against the diminishing-`def` curve are worth far
+ * less than one big one, so a wide multiplier is read against the curve rather than against a
+ * single-target one.
+ *
+ * ⚠️ **It restores nothing and shields nothing.** The Ironbloom's own plate is in its stat block,
+ * where it depletes with the body rather than being re-banked on a cadence — which is the difference
+ * between a fight that ends and one the clock ends.
+ */
+export const THE_IRON_COMES_UP = {
+  id: 'the-iron-comes-up',
+  name: 'The Iron Comes Up',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6077,4 +6181,8 @@ export const SKILLS = [
   GRIND_THE_SEAM,
   NO_EDGE_FINDS_IT,
   THE_LAST_AMEN,
+  THE_RUST_HOLDS,
+  EVERYTHING_COMES_BACK_BLUNT,
+  WHAT_THE_FIELD_LEFT,
+  THE_IRON_COMES_UP,
 ] as const;

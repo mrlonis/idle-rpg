@@ -23,6 +23,7 @@ import {
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
 import { COMBAT_RULES } from './combat';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
@@ -60,7 +61,7 @@ import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
  */
 
 const rules: CombatRules = toCombatRules(COMBAT_RULES satisfies CombatRulesData);
-const ladder = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS);
+const ladder = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS, GEAR_RULES);
 const items: readonly SignatureItemData[] = SIGNATURE_ITEMS;
 const characters: readonly CharacterData[] = CHARACTERS;
 

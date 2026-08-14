@@ -96,7 +96,7 @@ const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
 
 /** The whole ladder, flattened and resolved exactly as `ui/content.ts` resolves it. */
-const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 
 /** Where each chapter ends, as a count of stages from the foot of the ladder. */
 const CHAPTER_ENDS: readonly number[] = chapters.reduce<number[]>((ends, chapter) => {
@@ -584,6 +584,32 @@ const WILDED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 12: the five that just took The Last Order, unchanged.
+ *
+ * ⚠️ **This is The Standing Line's {@link INVESTED}, kept under a new name rather than re-derived**
+ * — the eighth time that has happened and the eighth time for the same reason. Re-pointing a single
+ * "arrived" party at each new chapter would silently stop checking that the chapter below is still
+ * finishable by the party it was tuned for, and two named parties per seam is what makes "clears the
+ * chapter behind it, and walks only a little way into the one ahead" checkable at both boundaries at
+ * once.
+ *
+ * ⚠️ **It carries the same rung as {@link INVESTED} does, which is a first for this chain.** Every
+ * seam before this one differed from the next by a rung, a level or both; chapters 11 and 12 share
+ * `legendary-plus`, so these two parties differ **only** in level — 225 against 250, which is ×1.68
+ * of power. That is what a flat level line produces once a rung's cap is wide enough to hold two
+ * chapters, and it is the cleanest available statement of what a chapter is now worth.
+ */
+const LINED_RARITY = rarityIndex('legendary-plus');
+const LINED_LEVEL = Math.min(stages[CHAPTER_ENDS[10] - 1].level, LEVEL_CURVE.caps[LINED_RARITY]);
+
+const LINED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(LINED_LEVEL, LINED_RARITY),
+  LINED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -613,6 +639,13 @@ const WILDED: FormationData = mono(
  * (|Δln| 0.470). So chapter 11 takes `legendary-plus` — the first rung move in three chapters — and
  * it takes it **narrowly**. The caps ladder is coarse enough at this depth that picking by eye picks
  * the wrong one; compute it.
+ *
+ * ⚠️ **Chapter 12 stays on `legendary-plus`, and that answer is exact rather than narrow.** Against
+ * The Rustwood's close of 250, `legendary-plus` reads **10.4858** — |Δln| **0.0000** against chapter
+ * 11's own seam — because 250 is still under that rung's cap of 260, so the level term vanishes and
+ * the ratio is just `1.6 ** 5`. `mythic` reads 16.777 at |Δln| 0.470. Two chapters on one rung is
+ * what the flat line produces whenever a cap is wide enough to hold both, and moving it up by reflex
+ * would hand the party a ×1.6 The Rustwood never asked for.
  *
  * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_.** `legendary-plus`
  * caps at 260 against a top stage of 225, so this party finishes the ladder standing **level** with
@@ -756,6 +789,11 @@ const wildedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(WILDED, stage),
 }));
+const linedSweeps = stages.map((stage) => ({
+  label: 'lined',
+  stage,
+  ...sweep(LINED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -797,6 +835,7 @@ const everySweep = [
   ...wealdedSweeps,
   ...anvilledSweeps,
   ...wildedSweeps,
+  ...linedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -840,6 +879,9 @@ const ANVIL_END = CHAPTER_ENDS[8];
 
 /** The end of chapter 10 — The Bleeding Wild — where The Standing Line asks for the one after. */
 const WILD_END = CHAPTER_ENDS[9];
+
+/** The end of chapter 11 — The Standing Line — where The Rustwood picks the field over. */
+const LINE_END = CHAPTER_ENDS[10];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1171,6 +1213,38 @@ describe('ladder balance', () => {
     // bounded as a share of the whole ladder so it stays meaningful as chapters are added.
     const walked = wildedSweeps
       .slice(WILD_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 11 clear chapters 1 through 11', () => {
+    // The Rustwood's seam, measured the same way as the seven above it. This party is literally The
+    // Standing Line's `INVESTED` under a new name, so this assertion is the old "clearable end to
+    // end" claim kept alive after the ladder grew past it — the eighth time that has been needed.
+    const unreliable = linedSweeps
+      .slice(0, LINE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Rustwood as well', () => {
+    // ⚠️ **The first seam where the two parties differ by level alone.** Chapters 11 and 12 share
+    // `legendary-plus`, so this party and {@link INVESTED} are the same five at the same rung, 25
+    // levels apart — ×1.68, against a rung worth ×1.60 that neither of them is buying here. There is
+    // no gap at all for the level dial to open, and what stops the party has to be the boards.
+    //
+    // ⚠️ **The Rustwood is also the first chapter whose enemies wear gear, and it is measured at
+    // roughly a twentieth of what would be needed to matter here.** A full Worn set is +8.6% health
+    // on a `tank` at level 1 and +17.6% at Worn's cap; the enemy side needs ×3 to ×4 before the
+    // final stops being a fight this party's successor wins with all five alive. So this ceiling is
+    // held by the boards' composition, exactly as the seven below it are — the gear axis contributes
+    // to it, but it does not carry it. See {@link MOMENTUM_CEILING}.
+    const walked = linedSweeps
+      .slice(LINE_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

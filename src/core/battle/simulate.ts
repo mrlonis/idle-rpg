@@ -213,10 +213,22 @@ function speed(fighter: Fighter): number {
  * call site — the UI, three specs and a balance sweep — independently remembering to scale it.
  * Forgetting would field level-1 fodder against a level-200 party, which reads as a tuning
  * problem rather than as a missing call.
+ *
+ * **Gear enters on the same seam and inherits the same argument.** `stage.enemyGear` is priced by
+ * `resolveStage`, so what happens here is a lookup by the body's own archetype: a `tank` block
+ * takes the tank profile out of the stage's set and a `mage` block takes the mage one. A body that
+ * declares no archetype, or a stage that declares no gear, resolves to `undefined` and fights
+ * exactly as it did before milestone 27 — which is every enemy on every tower floor, every Descent
+ * board and every Expedition, and every campaign stage below The Rustwood.
  */
 function encounterAt(stage: StageData, rules: CombatRules): FormationData {
   const resolve = (enemy: EnemyData): CombatantData =>
-    toEnemyCombatant(enemy, rules.growth, stage.level);
+    toEnemyCombatant(
+      enemy,
+      rules.growth,
+      stage.level,
+      enemy.gearArchetype === undefined ? undefined : stage.enemyGear?.[enemy.gearArchetype],
+    );
 
   return {
     front: stage.enemies.front.map(resolve),

@@ -36,6 +36,7 @@ import {
 } from './banners';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
+import { GEAR_RULES } from './gear';
 
 const banners: readonly BannerData[] = BANNERS;
 const offers: readonly ShopOfferData[] = SPARK_SHOP;
@@ -45,7 +46,7 @@ const rewards: StageRewardCurveData = STAGE_REWARDS;
 
 /** How many stages this build ships, and every one of them resolved against the reward curve. */
 const LADDER_LENGTH = totalStages(ladderShape(chapters));
-const LADDER = resolveLadder(chapters, chapterCurve, rewards);
+const LADDER = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 
 /** The crystal curve, typed as `core/` takes it — which is what makes a malformed one a build error. */
 const summonRate: SummonRateCurve = SUMMON_RATE;

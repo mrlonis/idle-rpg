@@ -84,6 +84,7 @@ import {
   ZAPHIEL,
 } from './characters';
 import { COMBAT_RULES, FACTION_MATCHUPS } from './combat';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { TOWER_BAND_RUNGS, TOWER_BAND_UNIT, TOWER_RULES, TOWERS } from './towers';
@@ -105,7 +106,7 @@ const authoredRules: CombatRulesData = COMBAT_RULES;
 const combat: CombatRules = toCombatRules(authoredRules);
 
 /** The campaign, resolved exactly as `ui/content.ts` resolves it — what a floor's lump matches. */
-const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 const campaignLevels: readonly number[] = stages.map((stage) => stage.level);
 
 /** Every floor of every tower, resolved exactly as `ui/content.ts` resolves them. */

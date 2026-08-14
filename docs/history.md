@@ -55,6 +55,7 @@ previous skeleton without changing its shape.
 | 24      | The level line flattened to 0.50 a stage  | Runway 14 chapters → 42. The margin rule retired; the campaign trades its own difficulty gradient for length                                                     |
 | 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                        |
 | 26      | Towers to 300 floors, all seven landed    | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. The `PENDING` lists are gone for the second time            |
+| 27      | Chapter 12 — The Rustwood, and enemy gear | The escalation axis milestone 24 promised. Measured at **roughly a twentieth** of what it needs to be; none of the three widened guards came back                |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
@@ -106,6 +107,35 @@ are about **method** rather than about a tower:
   all shipped parts aimed somewhere new, and the sentence it asks — _what does the party spend its
   damage on first_ — is carried by `SkillConditionData`, which had seventeen enemy-side uses and
   fourteen of them in two shapes.
+
+### What chapter 12 established, being the chapter that tested the enemy-gear promise
+
+- ⚠️ **Enemy gear shipped and it is not the escalation axis.** Milestone 24 flattened the level line
+  and traded the campaign's difficulty gradient away against a written promise: the escalation would
+  come back from the enemy side, and `MOMENTUM_CEILING`, the survivors half of "still costs that
+  party something at the top" and the longest-cleared-fight bar were widened to hold the trade in
+  view until it did. **The Rustwood is that chapter and none of the three came back.** Measured, the
+  enemy side needs **×3 to ×4**; a full Worn set is **×1.09 to ×1.18** and the whole grade ladder end
+  to end is about ×2.7 on one stat. One of the three moves the wrong way — gear lengthens fights, so
+  it raises the quantity the 0.75 bar bounds. See [authoring](authoring.md) for the table.
+- **The mechanism is still worth having**, and it is deliberately small: a stage authors a grade and
+  a level, an enemy archetype names a gear archetype, and `resolveStage` prices it off the same
+  tables the player's bag uses. It is derived rather than authored, so retuning `data/gear.ts` moves
+  both sides at once — which is what makes a bigger enemy-side axis a retune rather than a rewrite.
+- ⚠️ **A type-only import cycle decided the shape.** `gear/types.ts` imported `ModifiableStat` from
+  `battle/types.ts`, so `battle/` could not name a gear type back without tripping `import/no-cycle`.
+  The five shared names moved **down** into `battle/types.ts` and are re-exported — the same move
+  `gear/types.ts` already makes for `GEAR_ARCHETYPES` against `roster/`. That is what put the
+  resolved bonus on `StageData` rather than on `CombatRulesData`, and the required `gearRules`
+  parameter on `resolveLadder` follows from it.
+- ⚠️ **A guard fired that no horizon table listed, and it is not the campaign's.**
+  `descent.balance.ts` samples `stages.length` as its deepest depth, so the top sample moves every
+  chapter — and its party calibration quantises power by ascension rung, which at chapter 12's
+  anchor lands one level above `legendary`'s cap. Softening the chapter final does not fix it and
+  would mean a final weaker than every one since the Vault. **Recorded, not widened.**
+- ⚠️ **A retired guard kept its horizon for three chapters.** The tower:campaign crystal ratio was
+  listed as firing at chapter 12; `towers.spec.ts` had already retired it. A horizon is a claim about
+  a **guard** as well as about a curve.
 
 ---
 

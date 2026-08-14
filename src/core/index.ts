@@ -233,6 +233,7 @@ export {
   type DamageType,
   type EnemyData,
   type EnemyFormationData,
+  type EnemyGearData,
   type FactionMatchupData,
   type FormationData,
   type LineupBonus,
@@ -428,12 +429,15 @@ export {
   gearProfile,
   gearScale,
   gradeAt,
+  gradeScale,
   isAligned,
+  isGearArchetype,
   isNeutralBonus,
   itemBonus,
   loadoutBonus,
   maxGearLevel,
   maxLoadoutBonus,
+  setBonus,
   type GearLookup,
 } from './gear/stats';
 export {

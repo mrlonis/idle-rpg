@@ -233,11 +233,23 @@ function applyTotalBonus(
  * a per-archetype one is a multiplication of a stat block the author is writing anyway. Both
  * spellings say what the block already says, so the block says it. `rungs` is passed as zero
  * here rather than plumbed through as a parameter nothing supplies.
+ *
+ * **Gear is the one dial this side gained back, in milestone 27, and it arrives resolved.** A
+ * stage names a grade and a level, `resolveStage` prices that against the shipped gear tables into
+ * one {@link GearBonus} per archetype, and the caller hands over the one this body wears. That is
+ * the same shape `level` and `signature` take on the player side and for the same reason: the
+ * question "what is this worth" belongs to whoever can see the content, and this function does
+ * arithmetic on a stat block.
+ *
+ * ⚠️ **Absent means ungeared, which is every enemy on every ladder but the campaign from The
+ * Rustwood on.** `applyTotalBonus` returns the block untouched, so nothing about a tower floor or
+ * a Descent board changed shape when this parameter arrived.
  */
 export function toEnemyCombatant(
   enemy: EnemyData,
   growth: GrowthData,
   level: number,
+  gear?: GearBonus,
 ): CombatantData {
   return {
     id: enemy.id,
@@ -246,7 +258,17 @@ export function toEnemyCombatant(
     // `growthFloor`, not `startRarityIndex`: what this means is "an enemy has climbed no
     // rungs", and since the copies-only rewrite the rung a multiplier is counted from is not always the rung
     // a tier starts on. The two agree for every tier but `common`, where they differ by two.
-    stats: scaleStats(enemy.stats, growth, enemy.tier, level, growthFloor(enemy.tier)),
+    //
+    // Gear lands **after** growth, exactly as it does in `toBattleCombatant` and for the identical
+    // reason: a percentage of the level-1 block is a fixed quantity the level curve leaves behind
+    // within a few dozen levels, and a percentage of the scaled block is worth the same proportion
+    // at level 225 as at level 1. Both are multiplications, so the whole-board rescale identity
+    // holds whichever order they are applied in.
+    stats: applyTotalBonus(
+      scaleStats(enemy.stats, growth, enemy.tier, level, growthFloor(enemy.tier)),
+      gear,
+      undefined,
+    ),
     basic: enemy.basic,
     skills: enemy.skills,
     // Carried through, which it was not until milestone 17. `opening` arrived for the passive half

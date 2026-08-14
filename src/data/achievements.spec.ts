@@ -14,6 +14,7 @@ import { maxSignatureLevel, signatureTotalCost } from '../core';
 import { ACHIEVEMENTS } from './achievements';
 import { PULL_COST } from './banners';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
+import { GEAR_RULES } from './gear';
 import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
 
 /**
@@ -26,7 +27,7 @@ const tracks: readonly AchievementTrackData[] = ACHIEVEMENTS;
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
-const LADDER: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const LADDER: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 
 /**
  * The tracks measured against the **campaign**, which is what every derived figure below is about.

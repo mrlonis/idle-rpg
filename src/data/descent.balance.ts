@@ -42,6 +42,7 @@ import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
 import { COMBAT_RULES } from './combat';
 import { DESCENT_BOARDS, DESCENT_FAMILIES, DESCENT_RULES } from './descent';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 
@@ -79,7 +80,12 @@ const descent: DescentRulesData = DESCENT_RULES;
 const families: readonly DescentFamilyData[] = DESCENT_FAMILIES;
 
 /** The campaign, resolved exactly as `ui/content.ts` resolves it — the Descent reads its levels. */
-const stages: readonly StageData[] = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS);
+const stages: readonly StageData[] = resolveLadder(
+  CHAPTERS,
+  CHAPTER_CURVE,
+  STAGE_REWARDS,
+  GEAR_RULES,
+);
 const campaignLevels: readonly number[] = stages.map((stage) => stage.level);
 
 const FIGHTS = descentFights(descent);

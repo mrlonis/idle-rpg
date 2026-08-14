@@ -8,6 +8,7 @@ import {
   type ChapterCurveData,
   type ChapterData,
   type EnemyData,
+  isGearArchetype,
   resolveLadder,
   type StageData,
   type StageRewardCurveData,
@@ -16,6 +17,7 @@ import {
 import { FACTIONS } from './ascension';
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { ENEMIES } from './enemies';
+import { GEAR_RULES } from './gear';
 import { TOWERS } from './towers';
 
 /**
@@ -29,7 +31,7 @@ const towers: readonly TowerData[] = TOWERS;
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
-const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 
 /** Every archetype id fielded anywhere a player can fight: the campaign and every tower. */
 const fielded = new Set<string>([
@@ -95,6 +97,21 @@ describe('enemy archetypes', () => {
         expect(status.kind, `${enemy.id}/${status.id}`).not.toBe('taunt');
       }
     }
+  });
+
+  it('only ever names a gear archetype this build actually ships', () => {
+    // ⚠️ **`EnemyData.gearArchetype` is a bare string, exactly as `faction` is**, because `core/`
+    // cannot import `data/` and typing it as the `GearArchetype` union would put `battle/` under
+    // `gear/` in the module graph. So the typo is caught here or nowhere — and it would be **silent
+    // in the worst direction**: `setBonus` returns nothing for an archetype it does not recognise,
+    // so a body authored as a `tnak` fights naked on a board tuned as though it were kitted, and no
+    // screen, spec or sweep says a word.
+    const wrong = enemies
+      .filter((enemy) => enemy.gearArchetype !== undefined)
+      .filter((enemy) => !isGearArchetype(enemy.gearArchetype ?? ''))
+      .map((enemy) => `${enemy.id} → ${enemy.gearArchetype}`);
+
+    expect(wrong).toEqual([]);
   });
 
   it('never lets a tower anchor outgrow the heaviest block the campaign already fields', () => {

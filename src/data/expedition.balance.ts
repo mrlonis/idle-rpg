@@ -41,6 +41,7 @@ import { CHARACTERS } from './characters';
 import { COMBAT_RULES } from './combat';
 import { DESCENT_FAMILIES } from './descent';
 import { EXPEDITION_MAPS, EXPEDITION_RULES } from './expedition';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 
@@ -81,7 +82,12 @@ const rules: CombatRules = toCombatRules(COMBAT_RULES satisfies CombatRulesData)
 const expedition: ExpeditionRulesData = EXPEDITION_RULES;
 const maps: readonly ExpeditionMapData[] = EXPEDITION_MAPS;
 
-const stages: readonly StageData[] = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS);
+const stages: readonly StageData[] = resolveLadder(
+  CHAPTERS,
+  CHAPTER_CURVE,
+  STAGE_REWARDS,
+  GEAR_RULES,
+);
 const campaignLevels: readonly number[] = stages.map((stage) => stage.level);
 
 /** One seed for the whole file, for `descent.balance.ts`'s reason: two spellings measure two modes. */

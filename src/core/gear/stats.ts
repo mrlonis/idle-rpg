@@ -1,6 +1,7 @@
 import { type StatBlockData } from '../battle/types';
 import { num, serialize } from '../numeric';
 import {
+  GEAR_ARCHETYPES,
   GEAR_SLOTS,
   GEAR_STATS,
   type GearArchetype,
@@ -93,17 +94,39 @@ export function gearScale(
   item: GearItem,
   wearerFaction: string | undefined,
 ): number {
-  const rung = gradeAt(rules, item.grade);
+  return gradeScale(rules, item.grade, item.level, isAligned(item, wearerFaction));
+}
+
+/**
+ * The same multiplier, for a grade and level that are not attached to an owned object.
+ *
+ * Split out of {@link gearScale} for the enemy side, which has no {@link GearItem} to hold: a
+ * stage authors a grade and a level and that is the whole of what it wears. Keeping one
+ * implementation is what makes "an enemy's Worn set is worth what a player's Worn set is worth" a
+ * fact about the code rather than a claim two functions have to keep agreeing on.
+ */
+export function gradeScale(
+  rules: GearRulesData,
+  grade: number,
+  level: number,
+  aligned: boolean,
+): number {
+  const rung = gradeAt(rules, grade);
   if (rung === undefined) {
     return 0;
   }
   const multiplier = Number.isFinite(rung.multiplier) ? Math.max(rung.multiplier, 0) : 0;
   const perLevel = Number.isFinite(rules.perLevel) ? Math.max(rules.perLevel, 0) : 0;
-  const level = clampGearLevel(rules, item.grade, item.level);
-  const alignment = isAligned(item, wearerFaction)
+  const clamped = clampGearLevel(rules, grade, level);
+  const alignment = aligned
     ? Math.max(Number.isFinite(rules.alignmentBonus) ? rules.alignmentBonus : 1, 1)
     : 1;
-  return multiplier * (1 + perLevel * (level - 1)) * alignment;
+  return multiplier * (1 + perLevel * (clamped - 1)) * alignment;
+}
+
+/** `true` when `id` names one of the archetypes this build ships. */
+export function isGearArchetype(id: string): id is GearArchetype {
+  return (GEAR_ARCHETYPES as readonly string[]).includes(id);
 }
 
 /** The authored profile for one slot on one archetype, or nothing when content omits it. */
@@ -238,14 +261,40 @@ export function applyGearBonus(stats: StatBlockData, bonus: GearBonus): StatBloc
  */
 export function maxLoadoutBonus(rules: GearRulesData, archetype: GearArchetype): GearBonus {
   const top = Math.max(rules.grades.length - 1, 0);
-  const rung = gradeAt(rules, top);
-  if (rung === undefined) {
+  return setBonus(rules, archetype, top, maxGearLevel(rules, top), true);
+}
+
+/**
+ * What a **full five-piece set** of one grade and level is worth to one archetype.
+ *
+ * The enemy side's whole gear pipeline, and the generalisation {@link maxLoadoutBonus} is now a
+ * call to. A player assembles a loadout out of five objects that arrived separately, so
+ * {@link loadoutBonus} reads them one at a time out of the bag; an enemy is authored as "kitted at
+ * this grade", which is every slot filled at once and nothing to look up.
+ *
+ * ⚠️ **Unaligned by default, and the enemy side never passes `true`.** Alignment is the player's
+ * 1.3× for matching a piece's faction to its wearer's, and an enemy's set has no faction on it to
+ * match — an aligned enemy set would be a thirty percent difficulty step decided by nothing the
+ * author wrote down. `maxLoadoutBonus` passes `true` because it is asking for the ceiling, which
+ * is the number the haste bound in `gear.spec.ts` is derived from.
+ *
+ * An archetype this build does not ship contributes nothing rather than throwing, which is the
+ * posture every other read path here takes.
+ */
+export function setBonus(
+  rules: GearRulesData,
+  archetype: string,
+  grade: number,
+  level: number,
+  aligned = false,
+): GearBonus {
+  if (!isGearArchetype(archetype)) {
     return NO_GEAR_BONUS;
   }
-  const scale =
-    Math.max(rung.multiplier, 0) *
-    (1 + Math.max(rules.perLevel, 0) * (maxGearLevel(rules, top) - 1)) *
-    Math.max(rules.alignmentBonus, 1);
+  const scale = gradeScale(rules, grade, level, aligned);
+  if (!(scale > 0)) {
+    return NO_GEAR_BONUS;
+  }
 
   const profiles = rules.profiles[archetype];
   const total: Partial<Record<GearStat, number>> = {};

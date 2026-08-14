@@ -269,6 +269,7 @@ export const STAGES: readonly StageData[] = resolveLadder(
   CHAPTERS_IN_ORDER,
   CHAPTER_RULES,
   STAGE_REWARD_CURVE,
+  GEAR,
 );
 
 /**

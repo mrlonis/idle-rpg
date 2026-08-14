@@ -481,36 +481,82 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 
 ## Enemies and gear
 
-**Enemies wear none, and are not planned to until chapter 10.** Difficulty on that side of the board
-is purely the stage's `level` against the archetype's tier — see [history](history.md).
+**Enemies wore none until chapter 12, and from The Rustwood on a campaign stage may author a set.**
+Below chapter 12, and on every tower floor, every Descent board and every Expedition, difficulty on
+that side of the board is still purely the stage's `level` against the archetype's tier.
 
-That is deliberate and it is the point of the milestone: a geared party flies through content tuned
-for an ungeared one, which is what makes gear feel like progress rather than a tax. The balance
-sweep measures it — the same five characters at the same investment clear meaningfully further with
-gear on, and further still with a full set.
+That gap was the point of milestone 12: a geared party flies through content tuned for an ungeared
+one, which is what makes gear feel like progress rather than a tax. The balance sweep still measures
+it — the same five characters at the same investment clear meaningfully further with gear on, and
+further still with a full set.
 
-Chapters 3 through 10 do not exist, so nothing implements enemy gear today and nothing should.
-When chapter 10 arrives, the shape to reach for is the one milestone 10 already established: fold
-the expected player gear budget into the enemy's authored stat block or its level, rather than
-building a second equipment system on the enemy side. `toEnemyCombatant` records why the enemy side
-has one fewer dial than the player side, and that argument applies here unchanged.
+### How a stage wears one
+
+- An **enemy archetype** names a `gearArchetype` — one of the five the player's bag uses. It says
+  what a body _is_, so a wall gets health out of a set and a glass cannon gets attack out of the
+  same one.
+- A **stage** authors `gear: { grade, level }` — a full five-piece set, not five slots. There is
+  nothing on that side of the board to equip, salvage or enhance, so five numbers that could only
+  ever be filled in would be a second inventory system for a side with no inventory.
+- `resolveStage` prices it into one `GearBonus` per archetype and hangs it on `StageData.enemyGear`,
+  beside the three derived payout fields. `toEnemyCombatant` applies it after growth, exactly as
+  `toBattleCombatant` does for the player.
+
+⚠️ **It is derived, never authored as percentages.** A chapter that wrote "+8.6% health" beside a
+Worn set would keep asserting 8.6% while `GEAR_PROFILES` was retuned underneath it — the coupling
+turned into a comment that [testing](testing.md) names as the `data/` failure mode. The chapter
+authors a grade and a level; what a grade is worth is `data/gear.ts`'s business on both sides.
+
+⚠️ **An enemy set is never aligned.** Alignment is the player's 1.3× for matching a piece's faction
+to its wearer's; an enemy's set has no faction on it, and an aligned one would be a thirty percent
+difficulty step decided by nothing an author wrote down.
+
+⚠️ **Absent `gearArchetype` on a geared board is silent**, which is why `chapters.spec.ts` asserts
+every body a geared stage fields declares one, and `enemies.spec.ts` asserts every declared value is
+a real archetype. `setBonus` returns nothing for an archetype it does not recognise, so a typo puts a
+naked body on a board tuned as though it were kitted and nothing anywhere says so.
+
+### ⚠️ It is roughly an order of magnitude too small to be the escalation axis
+
+This is the finding milestone 27 was supposed to test, and the answer is negative. Measured against
+the campaign's own seam parties:
+
+|                                        | worth                                                       |
+| -------------------------------------- | ----------------------------------------------------------- |
+| Full **Worn** set, level 1             | +8.6% hp / +2.4% atk on a `tank`; +3.8% / +6.2% on a `mage` |
+| Full **Worn** set at its cap of 20     | +17.6% hp / +4.9% atk on a `tank`                           |
+| Full **Relic** set at 100              | +166% hp / +46% atk on a `tank`                             |
+| **What the enemy side actually needs** | **×3 to ×4**                                                |
+
+A chapter final refielded at the next chapter's roof needs the enemy side scaled ×3 before the tuned
+party stops taking it with all five alive, and ×4 before it loses. Worn is ×1.09 to ×1.18 — no
+measurable change at all — and the whole grade ladder end to end is still short of ×3.
+
+So **the three guards widened against the promise of this axis do not come back**, and one of them
+moves the wrong way: gear lengthens fights, so adding it _raises_ the longest-cleared-fight quantity
+the 0.75 bar bounds. [authoring](authoring.md) records what each one measured.
+
+**What would close it is a gear axis sized for the enemy side rather than borrowed from the
+player's** — a steeper grade ladder, a per-chapter grade step much larger than one rung, or an
+escalation that is not gear at all. That is a milestone-sized retune and milestone 27 wrote it down
+rather than taking it.
 
 ---
 
 ## Where it lives
 
-| Module                                                    | What it holds                                          |
-| --------------------------------------------------------- | ------------------------------------------------------ |
-| [`core/gear/types.ts`](../src/core/gear/types.ts)         | The vocabulary, and the percentage argument in full    |
-| [`core/gear/stats.ts`](../src/core/gear/stats.ts)         | What a piece and a loadout are worth, and how it lands |
-| [`core/gear/inventory.ts`](../src/core/gear/inventory.ts) | Minting, equipping, salvage, enhancement, load repair  |
-| [`core/gear/roll.ts`](../src/core/gear/roll.ts)           | Drop rolls and the grade tilt                          |
-| [`core/gear/shop.ts`](../src/core/gear/shop.ts)           | The derived hourly stock and its pricing               |
-| [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients    |
-| [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system             |
-| [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                  |
-| [`ui/character-view.ts`](../src/ui/character-view.ts)     | The equipment panel, and the auto-equip button         |
-| [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                               |
+| Module                                                    | What it holds                                         |
+| --------------------------------------------------------- | ----------------------------------------------------- |
+| [`core/gear/types.ts`](../src/core/gear/types.ts)         | The vocabulary, and the percentage argument in full   |
+| [`core/gear/stats.ts`](../src/core/gear/stats.ts)         | What a piece, a loadout and an authored set are worth |
+| [`core/gear/inventory.ts`](../src/core/gear/inventory.ts) | Minting, equipping, salvage, enhancement, load repair |
+| [`core/gear/roll.ts`](../src/core/gear/roll.ts)           | Drop rolls and the grade tilt                         |
+| [`core/gear/shop.ts`](../src/core/gear/shop.ts)           | The derived hourly stock and its pricing              |
+| [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients   |
+| [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system            |
+| [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                 |
+| [`ui/character-view.ts`](../src/ui/character-view.ts)     | The equipment panel, and the auto-equip button        |
+| [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                              |
 
 Gear enters the simulation on the same seam as level and rung: `toBattleCombatant` takes a
 `GearBonus` and applies it **after** growth. Both operations are multiplications so they commute,
