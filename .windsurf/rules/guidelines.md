@@ -279,7 +279,12 @@ Asserted in `core/battle/simulate.spec.ts`.
   roof, and every one of the nine `ascended` blocks it fields above floor 160 reads 100% for both
   crews there, the Unmade at 1800/100 included at 4.33 / 4.38. What failed was the **pairing** — two
   ascended in one front rank — so no anchor retired and no board in the new hundred carries two.
-  [towers](../../docs/towers.md)
+  ⚠️ **And the block that has to retire is not necessarily the heaviest — the Demon Tower is where
+  that came apart.** Its floor-200 board reads **33% / 0.53** at the new roof, and behind light
+  support at that level its heaviest block, `HOLLOW_SERAPH` at 1760/99, reads **100% / 3.83** while
+  `THE_UNISON` at 1720/92 reads **98% / 0.23**. What fails there is the board-wide turn the previous
+  hundred was built on rather than the weight carrying it, so **field each candidate anchor alone
+  before concluding anything from the pair of stat lines.** [towers](../../docs/towers.md)
 - ⚠️ **A grade that costs survivors is difficulty; one that starts timing out is the ninety-second
   clock wearing a stat block. Count the timeouts explicitly** — a wipe and a timeout are the same
   `defeat`, so a win rate cannot tell them apart. This is what licensed enemy **durability** as the
@@ -303,17 +308,23 @@ Asserted in `core/battle/simulate.spec.ts`.
   Monster-Tower-style lock: the same swap costs every crew about a member (−0.63 to −2.08) and the
   Angel alternate 2.38. Say which of the two it is. [towers](../../docs/towers.md)
 - ⚠️ **Check a stat's shipped register before building a band on it, and say in the header which
-  side of it the band landed on.** Four answers have come back: the Demon magic ward was worth
+  side of it the band landed on.** Five answers have come back: the Demon magic ward was worth
   **0.00** at its register and was declined; the Elf Tower's `critChance` worked **at** the shipped
   0.18 and only its roof stepped past; the Monster Tower's `physicalResist` works **only above**
   a register whose 0.23 ceiling is a lone outlier over a field of 0.12s, and was taken anyway on the
-  measurement; and the magic ward came back a second time on the Angel crew — which deals no
+  measurement; the magic ward came back a second time on the Angel crew — which deals no
   physical damage but its basic attack and carries 0.12 of `magicPierce` across five — and was worth
-  **0.10 and 0.35 of five from 0.15 all the way to 0.70**, so it was declined again. ⚠️ **A stat that
+  **0.10 and 0.35 of five from 0.15 all the way to 0.70**, so it was declined again; and the Demon
+  Tower's `critBlock` worked **at** the Edgeturn Warden's shipped 0.24, costing the binding crew
+  0.59 of five there against 1.50 at 0.50, with only the roof past it. ⚠️ **A stat that
   reads as designed for a crew is not evidence; measure it.** ⚠️ **Read the damage formula rather than the stat names to decide whether a lock is
   _this_ crew's**: Monsters carry the game's only real `physicalPierce`, and pierce multiplies `def`
   while resist is applied afterwards untouched — so the crew built to open armour has no answer to
-  that wall, while the Elves, equally 100% physical, lose 0.00 to it. [towers](../../docs/towers.md)
+  that wall, while the Elves, equally 100% physical, lose 0.00 to it. ⚠️ **And check the control can
+  move before believing a flat grade** — the Demon crit grade first measured **completely inert**
+  against a control that also read ~4.00 of five, because a Demon five loses its glass cannon to
+  anything and its other four to almost nothing, so 4.00 there is a plateau rather than a midpoint.
+  [towers](../../docs/towers.md)
 - ⚠️ **A prose claim phrased as a threshold has its range grow underneath it.** "Above floor 160"
   meant forty boards when it was measured and a hundred and forty after the next hundred landed —
   which is how one session shipped a false claim, corrected it, and got the correction wrong the
@@ -323,7 +334,16 @@ Asserted in `core/battle/simulate.spec.ts`.
   no board above some floor carried one while `recovery` sat on the anchors underneath. `recovery`
   and `healthRegen` are a regeneration in the plain sense and a `regen` **status** is not the same
   thing; name the four separately or the claim is false the day it is written. The fix is always the
-  claim, never the boards. [authoring](../../docs/authoring.md)
+  claim, never the boards. ⚠️ **The Demon third hundred is what the fix looks like written down
+  first**: rather than an absolute, its header states the counts it measured — 26 boards carrying
+  `recovery`, 36 `lifeLeech`, one `healthRegen`, 21 fielding a heal, drain or shield kit — and makes
+  its only absolute claim about **the roof**, which is one board and stays checkable. ⚠️ **The same
+  failure has now happened once about _aim_ rather than sustain, so it is not a fact about the word
+  "regeneration".** The Angel Tower's roof shipped "names nothing but the front rank" while carrying
+  an `enemy-all` turn and an `enemy-row-back` one — **named in the very next sentence of its own doc
+  comment**. A _scope_ (`enemy-all`), a _reach_ (`enemy-row-back`, `enemy-back`) and a _selection_
+  (`enemy-lowest`, `enemy-highest`) are three different things and none of them is "the front rank";
+  say which one a claim is about. [authoring](../../docs/authoring.md)
 - ⚠️ **A mistyped optional stat is silent in both directions.** An already-`as const` object is not a
   fresh literal, so TypeScript's excess-property check never runs on it. Audit the keys with a script
   whenever a session authors stat blocks; **delete a dead key rather than correcting it.**

@@ -207,21 +207,6 @@ const ROOF_MARGIN = 20;
  */
 const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.perLevel.common));
 
-/**
- * Towers still standing at the previous height, by id.
- *
- * ⚠️ **A literal list of names, deliberately, and it is self-deleting.** `TOWER_RULES` is one rule
- * for all seven, so a height bump lands in a single session while the floors move in seven. Every
- * other quantity in this file derives from `tower.floors.length` and therefore *adapts* to a short
- * tower — which is precisely why a list is needed: a derivation passes forever and never notices a
- * tower nobody went back for.
- *
- * Delete your tower's name as you author its floors. The session that empties it deletes this
- * constant, the `owed` branch below, and the matching list in
- * [`towers.spec.ts`](./towers.spec.ts).
- */
-const PENDING = new Set(['tower-demon']);
-
 /** Bands of a hundred floors, so band `n` covers floors `(n-1)*100 + 1` through `n*100`. */
 const BAND_FLOORS = TOWER_BAND_UNIT;
 const BANDS = TOWER_BAND_RUNGS.length;
@@ -440,9 +425,11 @@ const alternates = towers.flatMap((tower) =>
  * Each tower's last **authored** floor, against the crew for the band that floor falls in.
  *
  * ⚠️ **Authored rather than the rules' height, and that is what makes it read a real fight while a
- * height bump is in flight.** A tower on the `PENDING` list closes inside band 2 and is swept by
- * band 2's crew; `floorKindAt` will call that floor a mini-boss until its own hundred lands, which
- * costs it a payout but not a fight. Reading `rules.floors` here would sweep an undefined stage.
+ * height bump is in flight.** All seven are the full height today, so the two agree — **keep the
+ * authored reading anyway.** A tower waiting for its floors closes inside the band below and is
+ * swept by that band's crew; `floorKindAt` calls its last floor a mini-boss until its own hundred
+ * lands, which costs it a payout but not a fight. Reading `rules.floors` here would sweep an
+ * undefined stage the day the next height bump lands.
  */
 const topFloors = towers.map((tower) => {
   const resolved = floorsOf(tower);
@@ -474,11 +461,12 @@ describe('tower balance', () => {
     // band's line-ups in `tower-<faction>.ts`, not the party — the party is derived from the tower's
     // own level line.
     //
-    // ⚠️ **Read over every tower since 21k, and it was read over a `PENDING` filter before that.**
-    // The height doubled in one session (21e) and the floors moved in seven, so for six sessions a
-    // tower still on its first hundred had no roof for this to read — `floorKindAt` reads the
-    // *rules'* height, so its last authored floor resolved as a mini-boss. All seven are the full
-    // height now. The count is still asserted so this cannot quietly become a loop over nothing.
+    // ⚠️ **Read over every tower, and it has twice been read over a list of names instead.** A
+    // height bump lands in one session and the floors move in seven, so for six sessions a tower
+    // still on the old height had no roof for this to read — `floorKindAt` reads the *rules'*
+    // height, so its last authored floor resolved as a mini-boss. That happened for the second
+    // hundred and again for the third; all seven are the full height now. The count is still
+    // asserted so this cannot quietly become a loop over nothing.
     expect(topFloors.length).toBe(towers.length);
     for (const top of topFloors) {
       expect(
@@ -508,9 +496,10 @@ describe('tower balance', () => {
     // band's party never has — and the ratio would say more about the rungs between them than about
     // the climb. The top band's own opener is the honest comparison and it is the same five.
     //
-    // ⚠️ **Per tower, because a PENDING tower's top band is not the rules' top band.** A tower still
-    // on the previous height closes inside band 2, so reading band 3's opener for it would find
-    // nothing and silently compare the roof against zero.
+    // ⚠️ **Per tower, because a tower waiting for its floors has a top band that is not the rules'
+    // top band.** One still on the previous height closes inside the band below, so reading the top
+    // band's opener for it would find nothing and silently compare the roof against zero. All seven
+    // are the full height today; this stays per tower for the next bump.
     for (const top of topFloors) {
       const band = bandOf(top.floors);
       const first = everyFloor.find(
@@ -590,17 +579,16 @@ describe('tower balance', () => {
       entries.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(entries.length, 1);
 
     for (const tower of towers) {
-      // ⚠️ **The height a tower is *expected* to have, not the height it has.** Deriving the band
-      // count from `tower.floors.length` would make this a filter — it would pass forever on a tower
-      // nobody went back for, which is the exact failure `PENDING` exists to prevent. A tower off the
-      // list owes every band the rules describe.
-      const owed = PENDING.has(tower.id) ? BANDS - 1 : BANDS;
-
-      for (let band = 1; band <= owed; band++) {
+      // ⚠️ **Every tower owes every band the rules describe, and this reads the rules rather than
+      // the content.** Deriving the band count from `tower.floors.length` would make it a filter —
+      // it would pass forever on a tower nobody went back for. While the third hundred was in
+      // flight a literal `PENDING` list of names subtracted a band from the towers still on the old
+      // height; all seven are the full height now and the list is gone. **Bring it back the same
+      // way the next time a height bump lands ahead of the floors.**
+      for (let band = 1; band <= BANDS; band++) {
         const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
 
-        // An empty band is a tower that lost its floors rather than one waiting for them — a PENDING
-        // tower's missing band is subtracted above rather than skipped here.
+        // An empty band is a tower that lost its floors, which is a failure rather than a wait.
         expect(mine.length, `${tower.id} band ${band} samples`).toBeGreaterThan(0);
         const half = Math.floor(mine.length / 2);
 

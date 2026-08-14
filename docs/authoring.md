@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped four hundred and fifty stages and fifteen hundred floors. `AGENTS.md` states the rules and the
+shipped four hundred and fifty stages and twenty-one hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -14,8 +14,8 @@ boards, and a content session is mostly a conversation with it.
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
-| Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
-| Enemy archetypes | 167                                         |
+| Towers           | 7 × 300 floors, enemy levels 1–142          |
+| Enemy archetypes | 171                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -154,17 +154,20 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 21, monster 23, elf 23,
-  dwarf 24, undead 25, demon 25, human 26. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run elf 23, angel 24, dwarf 24,
+  monster 24, demon 25, undead 25, human 26 — the flattest the roster has ever been, because the
+  third hundred spent six of its seven sessions on whichever faction was thinnest at the time.
+  Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
 - ⚠️ **A lean is worth ten blocks, so it can reverse the ordering in one chapter.** The Standing Line
   took Human from **thinnest of the seven at 14 to deepest at 24** in a single session, which is why
   the depths are recomputed rather than read: the argument that picked a lean is stale the moment
-  that lean ships. The two thinnest factions are still Angels and Demons, and **neither may lead a
-  chapter** — so the next lean is a choice among Monster (21), Elf (23) and Dwarf (24) rather than
-  the obvious one, and it is the first time that has been true.
+  that lean ships. ⚠️ **Angels and Demons are no longer the thinnest and the constraint has not
+  changed** — a celestial still may not lead a chapter, whatever the counts say, because the ×1.10
+  is a fact about the matrix rather than about depth. **Elf at 23 is now the thinnest legal lead**,
+  with Dwarf and Monster level behind it at 24.
   - **A tower may spend on a celestial where a chapter may not**, and the Elf Tower's third hundred
     is the worked example: Angels and Demons both counter Elves, so its four filler blocks went 2 to
     Angel and 1 to Demon behind a Dwarf lead, taking the two thinnest factions to 18 and 19. The
@@ -173,6 +176,13 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
     than a shortage.** `countersOf('angel')` is exactly `{demon, monster}`, so the Angel Tower's
     third hundred had one choice for its non-lean blocks and took it: two Demon (the recurring
     swinger and the roof) and two Monster, which moved Monsters off the joint-thinnest slot at 21.
+    ⚠️ **The Demon Tower is the tighter version of the same problem and worth reading before the next
+    celestial hundred**: `countersOf('demon')` is `{angel, monster}`, and Angel is already its lean —
+    so the **only** substitute source is Monster, one faction rather than two. It spent 3 Angel (the
+    spine, the texture body and the roof) and 1 Monster, taking Angels 21 → 24 off the thinnest slot
+    and Monsters 23 → 24. That single substitute also has to hold the 65% share down, which is why
+    its closing bands run **monster 29%** — in line with the Angel Tower's own 31.4%, and a fact
+    about which shipped blocks carry a defensive stat rather than a choice.
 - ⚠️ **A _tower's_ lean is fixed by the matrix, so when it lands on an already-deep faction the
   blocks go elsewhere.** The Dwarf Tower leans Human and Human was second-deepest at 24, so its third
   hundred put the boss and the recurring anchor there and spent the other three on Monsters and
@@ -351,6 +361,14 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 **boss**: `floorKindAt` reads the rules' height, so its old top floor resolves as a mini-boss paying
 ×2 rather than ×5.
 
+**It has now run to completion twice** — 21e–21k for the second hundred and 21l–21r for the third —
+and both times the last session deleted the constant, the branches, and the prose describing them.
+⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
+**authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
+computed **per tower**. Both are no-ops while every tower is the full height and both are what stop
+the sweep reading an undefined stage the day the next bump lands. The comments in
+`towers.balance.ts` say so at each site.
+
 ### The two crews
 
 `towers.balance.ts` fields one per band, both derived:
@@ -375,16 +393,16 @@ fourteen hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the two
 
 No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
-⚠️ **A single upgraded crew would stop the sweep saying anything about the low band**, on seven
-hundred floors that are already shipped. What ramps across a climb is **what a floor costs**, not
+⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
+**two thousand and one hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
 whether it is possible — a floor is climbed once and there is no way around one, so a floor the crew
 cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Seven towers gave seven answers. Read the crew's failure mode before choosing; do not copy the
-last session's shape.** [towers](towers.md) carries them all in full. What generalises is only the
-procedure:
+⚠️ **Fourteen hundreds gave fourteen answers, and no two towers escalate the same way. Read the
+crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
+carries them all in full. What generalises is only the procedure:
 
 1. **Measure before authoring.** Field both arrangements at the roof's level against a controlled
    board — one anchor plus four bodies all asking the same question — and vary only the mechanic.
@@ -514,6 +532,15 @@ in the correction**: the replacement counts were measured over floors 161–200 
 phrase "above floor 160", which the new hundred had just extended to 161–300, where the same counts
 read 21, 23, 26 and 72. **State the range you measured, not the threshold you mean**, and run the
 check again after the floors land.
+
+⚠️ **The fourth instance was about _aim_, not sustain, which is what proves this is not a fact about
+the word "regeneration".** The Demon third hundred's check found the Angel Tower's roof shipped
+"**It restores nothing and names nothing but the front rank**" while carrying `CINDER_STORM` at
+`enemy-all` and `RUINOUS_STOOP` at `enemy-row-back` — **both named in the very next sentence of the
+same doc comment**, which is how a session writes a contradiction without seeing it. A _scope_
+(`enemy-all`), a _reach_ (`enemy-row-back`, `enemy-back`) and a _selection_ (`enemy-lowest`,
+`enemy-highest`) are three different things and none of them is "the front rank". The fix was the
+claim in both places, and the Demon roof's own version was rewritten the same way before it shipped.
 
 Run it **at the start of a session, not the end.** Each claim is a two-line predicate over the
 content; running them takes seconds and reading fifty boards carefully does not work. Things worth

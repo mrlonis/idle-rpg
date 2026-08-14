@@ -5684,6 +5684,105 @@ export const NOTHING_IS_MENDED = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's third hundred — milestone 21r's three Angel blocks and one Monster
+//
+// ⚠️ **Four ordinary turns and nothing clever, because the hundred's axis is a stat rather than a
+// mechanic.** What escalates across floors 201–300 is `critBlock` and `critDamageResist` on the
+// bodies carrying these skills; the skills themselves are the register's own median so that
+// nothing here confounds the measurement. See [`tower-demon.ts`](./tower-demon.ts) for the grade.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The note held past the point where a voice should have broken.
+ *
+ * {@link EVENSONG_WARDEN}'s turn, and the hundred's spine. 1.35 magical on a 50-tick cooldown is the
+ * shipped register's own median pairing — deliberately unremarkable, because the body swinging it
+ * carries `critBlock` at exactly the shipped ceiling and **that** is what the band is made of. A
+ * heavier blow here would have made the sweep unable to say which of the two was doing the work.
+ */
+export const EVENSONG = {
+  id: 'evensong',
+  name: 'Evensong',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.35 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * Before anything is sung, somebody decides what true is.
+ *
+ * {@link PLAINSONG_PRECENTOR}'s turn, and the lightest of the four: 1.2 sits under the magical
+ * register's median of 1.3, because the Precentor is the **texture** body — the one a board spends
+ * to reach three carriers rather than two. The escalation in the opening bands is how many voices
+ * refuse an edge, not how hard any of them swings.
+ */
+export const SET_THE_PITCH = {
+  id: 'set-the-pitch',
+  name: 'Set the Pitch',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * A hide healed over so many times there is no seam left to open.
+ *
+ * {@link SCARWEAVE_TRAMPLER}'s turn, and the hundred's only **physical** one. That is the point of
+ * fielding a Monster here rather than a fourth Angel: the boards need a body of comparable weight
+ * that still counters Demons, and one whose damage arrives on the other axis keeps a five-Angel
+ * board from being one repeated fight. 1.45 on 55 ticks is inside the register on both.
+ */
+export const GRIND_THE_SEAM = {
+  id: 'grind-the-seam',
+  name: 'Grind the Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The blade goes in exactly where it was aimed, and finds the note unbroken.
+ *
+ * The roof's turn. 2.1 magical is under the shipped single-target magical ceiling of 2.45
+ * ({@link UNMAKING}) and matches {@link LONG_SILENCE}'s pairing at 55 — ⚠️ **the blow is
+ * deliberately not the escalation here**, which is what separates this roof from the Angel Tower's:
+ * the Unmending's roof stepped past the register on its swing, and this one steps past on
+ * `critBlock` and `critDamageResist` instead.
+ *
+ * `enemy-front` and no rider, for the fifth tower running. Aiming a roof past the front rank has
+ * measured *easier* on every tower that tried it.
+ */
+export const NO_EDGE_FINDS_IT = {
+  id: 'no-edge-finds-it',
+  name: 'No Edge Finds It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.1 }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The choir, agreeing about one last thing.
+ *
+ * The roof's second turn, and **rhythm rather than escalation**. 0.95 across five is well under
+ * {@link RUIN_UNBOUND}'s 1.15 ceiling on a wide magical turn, because board-wide damage is this
+ * tower's *second* hundred and re-spending it at the top would be the Last Verse a hundred floors
+ * later at a higher level. It is here so the roof has a second thing to do between swings, not
+ * because the hundred needs it.
+ */
+export const THE_LAST_AMEN = {
+  id: 'the-last-amen',
+  name: 'The Last Amen',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 0.95 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5973,4 +6072,9 @@ export const SKILLS = [
   SHATTERJAW,
   CLEAVE_THE_LINE,
   NOTHING_IS_MENDED,
+  EVENSONG,
+  SET_THE_PITCH,
+  GRIND_THE_SEAM,
+  NO_EDGE_FINDS_IT,
+  THE_LAST_AMEN,
 ] as const;

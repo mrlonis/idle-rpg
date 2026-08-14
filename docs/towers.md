@@ -1,19 +1,19 @@
 # Faction towers
 
 Seven towers, one per faction, **three hundred floors each at enemy levels 1 to 142**. The system
-shipped in milestone 15b with a single tower, the other six in 15c, and the second hundred floors
-across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
-[authoring](authoring.md) is the procedure for adding floors.
+shipped in milestone 15b with a single tower, the other six in 15c, the second hundred floors across
+21e–21k and the third across 21l–21r. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+them; [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The third hundred is in flight — Human, Dwarf, Elf, Undead, Monster and Angel have theirs;
-only the Demon Tower is still on two hundred.** `TOWER_RULES` is one rule for all seven, so the height moved to 300
-in a single session while the floors arrive one tower at a time — exactly as the second hundred did.
-A tower that has not been extended yet is on the `PENDING` list in
-[`towers.spec.ts`](../src/data/towers.spec.ts) and
-[`towers.balance.ts`](../src/data/towers.balance.ts), still authors 200 floors, and **has no boss
-until its own hundred lands**: `floorKindAt` reads the rules' height, so its floor 200 resolves as a
-mini-boss paying ×2 rather than ×5. That is licensed by one argument and one only — **no build
-carrying this has ever reached a player.**
+**All seven are the full height and every tower has its boss back.** `TOWER_RULES` is one rule for
+all seven, so the height moved to 300 in a single session while the floors arrived one tower at a
+time — exactly as the second hundred did. While that was in flight, a tower waiting for its floors
+sat on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
+[`towers.balance.ts`](../src/data/towers.balance.ts), still authored 200 floors, and **had no boss
+until its own hundred landed**: `floorKindAt` reads the rules' height, so its floor 200 resolved as a
+mini-boss paying ×2 rather than ×5. That was licensed by one argument and one only — **no build
+carrying it has ever reached a player.** Both lists are gone; ⚠️ **bring them back exactly that way
+the next time a height bump lands ahead of the floors.**
 
 Adding a tower is a row in [`data/towers.ts`](../src/data/towers.ts), a matching row in
 [`data/activities.ts`](../src/data/activities.ts), two achievement tracks, and its floors.
@@ -287,8 +287,8 @@ what a correctly tuned low band reads — so confirm the ratio before concluding
 characters from, so tuning against a fully geared five would tune for a party nobody with seven crews
 can field.
 
-⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on fourteen
-hundred floors that are already shipped. A band-2 crew walks over floor 40.
+⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
+**two thousand and one hundred** floors this build ships. A band-2 crew walks over floor 40.
 
 **A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
 there is no way around one, so a floor the crew cannot pass stops the tower outright — which makes
@@ -319,9 +319,14 @@ With both crews at parity with the content this never arose. In band 2 they come
   breaks the alternate. Band 3 keeps the split and sharpens it: on the cadence grade the reference
   five goes 4.00 → 2.33 while the alternate goes 3.52 → **0.15**, so every board in the third hundred
   is sized against the alternate, and the shipped roof closes at 100% / 3.63 against 90% / 2.42.
+- **Demon Tower** — the **alternate** again, and by the widest margin of the seven. The whole
+  crit-denial grade moves the reference five 4.00 → 3.98 and the alternate 3.92 → **2.42**; the
+  floor-200 board at the third hundred's roof level reads 100% / 3.83 against **33% / 0.53**. Every
+  board in that hundred is sized against the alternate, and the shipped roof closes at 100% / 3.88
+  against 90% / 1.60.
 
 **Check both arrangements on every candidate board.** "Size it against the alternate first" is true
-of two towers and is not a rule.
+of three towers and is still not a rule.
 
 ### ⚠️ The bottom of a band 2 is not a fight — but how little composition buys there is a fact about the crew
 
@@ -406,7 +411,11 @@ choosing; do not copy the last session's shape.**
   and a cleanse, so the first question is free.
 - **Angel, third hundred** — the first where the axis is **not a stat and not a mechanic**, but how
   large a single instance of damage is. See below.
-- **Demon** — the last, and about **scope** rather than a mechanic. See below.
+- **Demon, second hundred** — the last of that round, and about **scope** rather than a mechanic. See
+  below.
+- **Demon, third hundred** — the last hundred of the last tower, and the first where the axis is a
+  stat that **denies the crew's own signature stat**: `critBlock` and `critDamageResist` against the
+  crit-heaviest roster in the game. See below.
 
 ### The Dwarf Tower's third hundred: the anchors run out of room
 
@@ -421,7 +430,10 @@ two, then two behind a wall, then three, then nothing else at all.
 
 ⚠️ **This generalises to every third hundred and nobody should re-derive it.** Check the previous
 hundred's roof board at the new roof's level **before** authoring anything; if it has fallen through
-the floor, the band is a composition problem rather than an anchor problem.
+the floor, the band is a composition problem rather than an anchor problem. ⚠️ **And field each
+candidate anchor alone rather than reading the pair of stat lines** — the Demon Tower's heaviest
+block survives at the new roof while the lighter block above it does not, because what fails there is
+a board-wide turn rather than weight.
 
 What a Dwarf five actually answers to, one anchor plus four bodies at the roof's level, forty seeds:
 
@@ -735,7 +747,7 @@ fields above floor 160 read 100% for both crews at 142 behind three soft bodies,
 new roof beside `THE_UNANSWERED` at level 142 reads **0%**. So no anchor retired — the second clean
 answer after the Closing — and no board in the hundred carries two.
 
-### The Demon Tower: scope, not size
+### The Demon Tower's second hundred: scope, not size
 
 Controlled at one anchor plus four bodies all asking the same question at the roof's level, forty
 seeds, against a **4.13 / 4.05** control:
@@ -764,6 +776,73 @@ Angel five, where it reads 4.00 / 3.95.
 ⚠️ **Weight is not available there at all.** The Unison beside a Hierophant reads 95% / 3.17 for the
 reference five and **5%** for the alternate; beside a Colossus 70% / 0%. No board in that hundred
 carries two `ascended` blocks.
+
+### The Demon Tower's third hundred: the edge that finds nothing
+
+⚠️ **The Long Amen escalates through crit denial, and it is the first axis that attacks the stat the
+crew is named for.** The two swept Demon arrangements carry `critChance` **Σ1.21 / Σ1.43** (x̄ 0.242
+and 0.286) and `critDamageAmp` **Σ4.50 / Σ5.05**, against the Elf five's 1.03 / 3.67 and every other
+crew in the game at or under 0.77 / 3.40. Controlled at one anchor plus four identical bodies at the
+roof's level, forty seeds, against a **4.00 / 3.92** control:
+
+| Four bodies at                  | reference | alternate |
+| ------------------------------- | --------- | --------- |
+| `critBlock` 0.16                | 4.00      | 3.75      |
+| `critBlock` 0.24 — the register | 4.00      | **3.33**  |
+| `critBlock` 0.40                | 3.98      | **2.85**  |
+| `critBlock` 0.50                | 4.00      | **2.50**  |
+| `critDamageResist` 0.32 — reg.  | 4.00      | 3.73      |
+| `critDamageResist` 1.10         | 3.98      | 2.92      |
+| both, 0.40 + 0.75               | 4.00      | **2.42**  |
+
+**Zero timeouts on every row**, fights 7.1s to 13.5s. ⚠️ **`critDamageResist` is much the weaker
+half** — it needs three times its register to reach what `critBlock` does at 0.40 — so no board is
+built on it alone.
+
+⚠️ **The count matters more than the size until the register is reached.** At the register pair, by
+how many of four carry it: 3.77 → 3.77 → 3.67 → **3.33** → 3.35. That is this tower's own
+second-hundred thesis arriving on the other side of the board: the second hundred found a Demon five
+is answered board-wide in what a board _does_, and the third finds the same about what a board _is_.
+
+⚠️ **`core/battle/damage.ts` licenses this closing a door outright, and it is the only lock that
+may.** Crit chance is `critChance − critBlock` clamped at zero, and the comment there says why: _a
+hit that never crits still kills, so a crit-immune archetype cannot stall a battle the way an
+unhittable one could._ Compare `MAX_RESIST`, which exists precisely because resist **can** reach
+zero damage.
+
+⚠️ **The first control measured the whole axis as inert, and the control was the bug.** Four bodies
+at 780/**68** also read 4.00 / 3.92, and on that board the entire grade from `critBlock` 0.10 to full
+crit immunity spans 4.00 to 3.92 — nothing at all. Both controls sit at ~4.00 and only one has
+anywhere to fall: a Demon five loses its glass cannon to anything and its other four to almost
+nothing, so **4.00 is a plateau rather than a midpoint**. This is the Seedfall's saturation trap
+arriving from the opposite end — that one saturated at 2.00 and this one at 4.00. ⚠️ **Confirm the
+control's survivor count actually moves under a heavier board before trusting a flat row.**
+
+⚠️ **"Is it ours" comes back the sharpest it has for any tower.** As a change on each crew's own
+control — calibrated per crew to the heaviest board still reading ~4.00, then the pair at 0.40 and
+0.32: demon-alt **−1.25**, demon-ref −0.35, elf-ref −0.30, elf-alt −0.15, undead-alt −0.13,
+undead-ref −0.05, human-alt −0.02, and **0.00 for every Human, Dwarf, Monster and Angel arrangement
+swept**. The Elves are the only other crit-heavy roster and lose a quarter of what the Demons do.
+
+⚠️ **The band is built at the register and only the roof steps past** — the Splintering Yards' shape.
+The ceilings are the Edgeturn Warden's `critBlock` **0.24** over 44 blocks carrying any and
+`critDamageResist` **0.32** over 27; the three new legendaries run 0.16 / 0.20 / 0.24 and
+0.25 / 0.28 / 0.32, and only `THE_UNFALTERING` goes beyond at 0.34 and 0.52.
+
+⚠️ **The Unison retires, and it is the tower's own _roof_ that had to go rather than its heaviest
+body — the first time the collapse has come apart that way.** The shipped floor-200 board reads 100%
+with all five alive at level 95, 100% / 4.78 at 125 and **33% / 0.53** at 142. But behind light
+support at 142 the **Hollow Seraph at 1760/99 reads 100% / 3.83** while **The Unison at 1720/92 reads
+98% / 0.23**: what fails is not weight but the board-wide turn the second hundred was built on,
+against the glassier arrangement. Both stop at floor 200 and the new hundred fields neither.
+
+⚠️ **"No board carries two `ascended` blocks" survives a whole rung of investment.** At 142 against
+the band-3 crews, Hollow Seraph beside The Unison is **0% / 0%**, beside the Barrow Sovereign
+100% / **5%**, beside the Wyrdroot Ancient 100% / **8%**. No board in the hundred pairs any.
+
+The roof closes at **100% / 3.88 / 9.8s** against **90% / 1.60 / 18.7s**. ⚠️ **The axis carries it
+rather than riding along**: the same five bodies with both stats stripped to zero read 100% / 4.00
+and 100% / 3.65, so the refusal is worth 1.2 of five on the last floor.
 
 ## What the measurements settled, tower by tower
 

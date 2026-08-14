@@ -1,5 +1,6 @@
 import {
   ANTIPHON,
+  ASHPIT_RAKE,
   AT_THE_HALT,
   BARROW_TITHE,
   BIND_THE_CONCORD,
@@ -10,6 +11,8 @@ import {
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CINDER_STORM,
+  CLEAVE_THE_LINE,
+  CLOSE_OVER_IT,
   COUCHED_LANCE,
   CULL_THE_EMBERS,
   CUTPURSE,
@@ -17,16 +20,23 @@ import {
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
+  EVENSONG,
   FADE,
   FLENSE,
   GATE_SLAM,
   GLACIAL_SLAM,
+  GLASSLIGHT_VERDICT,
   GORE,
+  GRIND_THE_SEAM,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
   HUSH_THE_MANY,
+  IRONWAKE_CHARGE,
   IRON_FOR_IRON,
+  KEEP_THE_SEED,
+  KILN_LIGHT,
   LITANY,
+  LOOSE_THE_PLATED_PACK,
   MASSED_LITANY,
   MAUL,
   MEND,
@@ -35,13 +45,20 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NOTHING_GETS_A_GRIP,
+  NOTHING_HOLDS_AN_EDGE,
+  NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NO_ANSWER_COMES,
+  NO_EDGE_FINDS_IT,
   ONE_VOICE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
+  PROCESSION_STEP,
+  PUT_THE_EDGE_ON,
+  QUICKLIME_CUT,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
@@ -50,9 +67,18 @@ import {
   RUINOUS_ARC,
   RUINOUS_STOOP,
   RUNEWARD,
+  RUN_THE_SEED_DOWN,
+  SEEDLIGHT,
+  SET_THE_PITCH,
   SEVENFOLD_HEX,
+  SHARDLIGHT,
+  SHATTERJAW,
+  SHELLED_RUSH,
   SHIELD_BASH,
   SHRIKE_DIVE,
+  SHUT_THE_RING,
+  SLAGHIDE_LUNGE,
+  SLAG_SLAM,
   SLUNG_ANVIL,
   STONE_FIST,
   SUNFADE,
@@ -63,9 +89,13 @@ import {
   THE_COLOURS_STAND,
   THE_COUNTERSIGN,
   THE_DEBT_CALLED,
+  THE_EDGE_IS_MADE,
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
+  THE_HOUR_UNKEPT,
+  THE_KEENING_NOTE,
   THE_KNELL,
+  THE_LAST_AMEN,
   THE_LAST_MUSTER,
   THE_LAST_VERSE,
   THE_LINE_REFORMS,
@@ -75,52 +105,27 @@ import {
   THE_ORDER_STANDS,
   THE_PACK_ANSWERS,
   THE_QUENCH,
+  THE_RING_IS_SHUT,
   THE_SEAL_BREAKS,
+  THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
+  THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
   THE_WARDS_HOLD,
+  THE_WHEEL_TURNS,
+  THE_WOOD_DOES_NOT_END,
+  THE_WORKS_RUN_ON,
   THORNLASH,
   TYRANTS_CLAIM,
   UNDERMINE,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
+  WHAT_FALLS_IS_SOWN,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
   ZENITHFALL,
-  PROCESSION_STEP,
-  IRONWAKE_CHARGE,
-  QUICKLIME_CUT,
-  THE_HOUR_UNKEPT,
-  THE_STRIKE_FALLS,
-  SLAG_SLAM,
-  KILN_LIGHT,
-  ASHPIT_RAKE,
-  THE_WHEEL_TURNS,
-  THE_WORKS_RUN_ON,
-  PUT_THE_EDGE_ON,
-  THE_KEENING_NOTE,
-  GLASSLIGHT_VERDICT,
-  SHARDLIGHT,
-  THE_EDGE_IS_MADE,
-  NOTHING_HOLDS_AN_EDGE,
-  CLOSE_OVER_IT,
-  KEEP_THE_SEED,
-  SEEDLIGHT,
-  RUN_THE_SEED_DOWN,
-  WHAT_FALLS_IS_SOWN,
-  THE_WOOD_DOES_NOT_END,
-  SHELLED_RUSH,
-  SLAGHIDE_LUNGE,
-  LOOSE_THE_PLATED_PACK,
-  SHUT_THE_RING,
-  NOTHING_GETS_A_GRIP,
-  THE_RING_IS_SHUT,
-  THE_SINGLE_STROKE,
-  SHATTERJAW,
-  CLEAVE_THE_LINE,
-  NOTHING_IS_MENDED,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -5985,13 +5990,20 @@ export const CLEFTHORN_GORER = {
  * five and **90% / 2.42 / 35.0s** for the alternate, zero timeouts, longest fight 55s against a
  * 90-second timer.
  *
- * ⚠️ **It restores nothing and names nothing but the front rank.** A roof is where sustain stops
- * being a lock and becomes the clock, and aiming past the front rank against a crew whose two tanks
- * stand there makes a board *easier* — this tower measured `enemy-highest` at 4.10 / 4.05 against a
- * 3.98 / 3.80 control. {@link CINDER_STORM} and {@link RUINOUS_STOOP} are rhythm rather than
- * escalation, and neither names `ally-lowest`'s target: the two {@link SHATTERJAW_MAULER}s standing
- * behind this block are already the edge, and swapping the Grazer in front of them for a heavier
- * body takes the same roof from 100% / 90% to **90% / 48%**.
+ * ⚠️ **It restores nothing, and its *escalating* turn names nothing but the front rank.** A roof is
+ * where sustain stops being a lock and becomes the clock, and aiming past the front rank against a
+ * crew whose two tanks stand there makes a board *easier* — this tower measured `enemy-highest` at
+ * 4.10 / 4.05 against a 3.98 / 3.80 control. {@link CINDER_STORM} (`enemy-all`) and
+ * {@link RUINOUS_STOOP} (`enemy-row-back`) are rhythm rather than escalation, and neither names
+ * `ally-lowest`'s target: the two {@link SHATTERJAW_MAULER}s standing behind this block are already
+ * the edge, and swapping the Grazer in front of them for a heavier body takes the same roof from
+ * 100% / 90% to **90% / 48%**.
+ *
+ * ⚠️ **This paragraph shipped as a flat "names nothing but the front rank" and that was false the
+ * day it was written** — the very next sentence names the two turns that contradict it. The Demon
+ * Tower's prose check found it. **The fix is the claim, never the boards**, and the general form is
+ * that a *scope* (`enemy-all`) and a *reach* (`enemy-row-back`) are neither of them "the front
+ * rank"; say which of the three a claim is about.
  */
 export const THE_LAST_MERCY = {
   id: 'the-last-mercy',
@@ -6010,6 +6022,171 @@ export const THE_LAST_MERCY = {
     magicPierce: 0.22,
   },
   skills: [NOTHING_IS_MENDED, CINDER_STORM, RUINOUS_STOOP],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's third hundred — milestone 21r's three Angel blocks and one Monster
+//
+// The seventh tower's last hundred, and the seventh faction's turn to be deepened by one. Angels
+// were the thinnest roster in the game at **21** and go to 24 here; the fourth block is a Monster,
+// taking that faction 23 → 24. ⚠️ **Both are inside `countersOf('demon')`**, which is exactly
+// `{angel, monster}` — a substitute drawn from anywhere else would switch the matchup matrix off on
+// the board it landed on, and the Demon Tower has no third option.
+//
+// ## What the four are for
+//
+// The hundred escalates through **crit denial**, so every block below carries `critBlock` and
+// `critDamageResist` and the three legendaries carry them **at or under the shipped register** —
+// {@link EDGETURN_WARDEN}'s 0.24 and 0.32, which are the ceilings over 44 and 27 shipped blocks.
+// Only {@link THE_UNFALTERING} steps past. That is the Splintering Yards' shape rather than the
+// Closing's, and [`tower-demon.ts`](./tower-demon.ts) carries the grade that licensed it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It has sung this every evening for longer than the tower has stood, and it does not rush.
+ *
+ * **The hundred's spine.** `critBlock` 0.24 and `critDamageResist` 0.32 are the shipped ceilings
+ * exactly — {@link EDGETURN_WARDEN} holds both, for the mirror-image purpose of refusing an Elf
+ * five's crits — so a band built on this block asks for no number the game has not already fielded.
+ *
+ * ⚠️ **The stat is the whole of it and {@link EVENSONG} is deliberately ordinary.** Against a
+ * 4.00 / 3.92 control at level 142, four bodies at `critBlock` 0.24 read 4.00 / **3.33**: the cost
+ * lands almost entirely on the alternate arrangement, which is the crew every board in this hundred
+ * is sized against.
+ *
+ * At 820 hp it is the heaviest of the three new legendaries, because it is the one a board keeps
+ * standing longest — a refusal only counts for as long as the body carrying it is alive, which is
+ * the same argument the Knell Chanter's 660 makes in the other direction.
+ */
+export const EVENSONG_WARDEN = {
+  id: 'evensong-warden',
+  name: 'Evensong Warden',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 80,
+    def: 28,
+    haste: 96,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    critBlock: 0.24,
+    critDamageResist: 0.32,
+    magicResist: 0.12,
+  },
+  skills: [EVENSONG],
+} as const;
+
+/**
+ * Somebody has to decide what true is before anybody can be flat.
+ *
+ * **The texture body**, and the one that makes the opening bands work at all. The hundred's first
+ * dial is how *many* voices refuse an edge rather than how hard any one of them does: measured at
+ * level 142 against a 3.77 control, one carrier reads 3.77, two 3.67, three **3.33** and four 3.35.
+ * A board reaches three by spending this rather than a third Warden, which is also what keeps the
+ * front ranks from becoming one repeated pair.
+ *
+ * `critBlock` 0.16 sits between {@link CHARNEL_DRUDGE}'s and {@link THE_WARDWRIGHT}'s, well inside
+ * the register.
+ */
+export const PLAINSONG_PRECENTOR = {
+  id: 'plainsong-precentor',
+  name: 'Plainsong Precentor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 74,
+    def: 24,
+    haste: 104,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    critBlock: 0.16,
+    critDamageResist: 0.25,
+    magicResist: 0.12,
+  },
+  skills: [SET_THE_PITCH],
+} as const;
+
+/**
+ * Scar over scar over scar, until there is nowhere left that is new.
+ *
+ * The hundred's Monster, and the reason it is not a fourth Angel: the lean has to stay under 65% of
+ * the whole tower's slots and this is the only other faction that counters Demons, so the substitute
+ * that holds the share down is also the one that keeps the matrix live. It carries the axis at 0.20
+ * and 0.28 — inside the register, between the Precentor and the Warden — and {@link GRIND_THE_SEAM}
+ * is the hundred's only physical damage, so a board that fields it is not a five-Angel board twice.
+ *
+ * Heavier and slower than either Angel legendary, which is the faction's idiom and also what a
+ * closing band wants in a filler slot: something that survives long enough for its refusal to be
+ * worth having.
+ */
+export const SCARWEAVE_TRAMPLER = {
+  id: 'scarweave-trampler',
+  name: 'Scarweave Trampler',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 78,
+    def: 30,
+    haste: 92,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    critBlock: 0.2,
+    critDamageResist: 0.28,
+    physicalResist: 0.12,
+  },
+  skills: [GRIND_THE_SEAM],
+} as const;
+
+/**
+ * Three hundred floors, and the note has not once gone off true.
+ *
+ * The roof. ⚠️ **Lighter than the block it succeeds — 1440 against {@link THE_UNISON}'s 1720, and
+ * 86 of `atk` against 92 — and that is arithmetic rather than timidity.** An `ascended` block climbs
+ * at `perLevel.ascended` 1.024 where a mono-faction Demon five is mostly `common` at 1.021, so
+ * across the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew. Under
+ * the Unmade on both stats, which `enemies.spec.ts` holds.
+ *
+ * ⚠️ **The weight it gives up comes back as the axis, and this is the one place in the hundred past
+ * the register**: `critBlock` 0.34 against a shipped ceiling of 0.24, and `critDamageResist` 0.52
+ * against 0.32. Stated here rather than discovered later, because a future session has to be able to
+ * see which of the two shapes this band is — the Splintering Yards built at their ceiling and
+ * stepped past only on the roof, and the Closing stepped past across a whole hundred. This is the
+ * former.
+ *
+ * ⚠️ **It restores nothing, it never reaches for a *row* past the front rank, and it stands beside
+ * no second `ascended` block.** All three are rules this tower measured for itself: a roof is where
+ * sustain stops being a lock and becomes the clock; `enemy-back`, `enemy-lowest` and
+ * `enemy-highest` all leave a board easier than saying nothing, on four towers now; and two
+ * `ascended` in one front rank is still 0% for the alternate arrangement at level 142, which is the
+ * second hundred's finding surviving a whole rung of investment.
+ *
+ * ⚠️ **"Names only the front rank" would be the wrong claim and it was written that way first.**
+ * {@link THE_LAST_AMEN} is `enemy-all`, which is a *scope* rather than a reach past the rank — the
+ * two are different things and the prose check is what separates them. What is true is the
+ * narrower statement above: neither of its turns selects a body the front rank is protecting.
+ */
+export const THE_UNFALTERING = {
+  id: 'the-unfaltering',
+  name: 'The Unfaltering',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1440,
+    atk: 86,
+    def: 48,
+    haste: 102,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critBlock: 0.34,
+    critDamageResist: 0.52,
+    tenacity: 0.4,
+    magicPierce: 0.2,
+    magicResist: 0.15,
+  },
+  skills: [NO_EDGE_FINDS_IT, THE_LAST_AMEN],
 } as const;
 
 export const ENEMIES = [
@@ -6180,4 +6357,8 @@ export const ENEMIES = [
   SHATTERJAW_MAULER,
   CLEFTHORN_GORER,
   THE_LAST_MERCY,
+  EVENSONG_WARDEN,
+  PLAINSONG_PRECENTOR,
+  SCARWEAVE_TRAMPLER,
+  THE_UNFALTERING,
 ] as const;
