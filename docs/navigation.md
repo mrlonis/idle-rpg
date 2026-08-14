@@ -111,11 +111,15 @@ first; everything below it is optional content gated behind it. Of the two optio
 Descent is the one that **resets daily** — a player opening this screen once a day should meet it
 before seven ladders that will still be there next week.
 
-⚠️ **Its card is always a link, unlike a locked tower row.** A locked tower has nothing behind it
-that the row does not already say; the Descent screen is worth reading in all six of its states — it
-names today's three factions, the nine boards it drew and their levels, and what is still owed before
-the way opens. Every state also names the next thing to do, which is the locked tower row's rule
-generalised rather than a second one.
+⚠️ **Its card is a link in five of its six states and inert in the sixth, exactly like a tower row —
+and that is a reversal.** It used to be a link in all six, on the argument that the Descent screen
+was worth reading even while locked: it names today's three factions, the nine boards it drew and
+their levels, and what is still owed before the way opens. The first three of those are the parts a
+locked run cannot see, so what a locked player actually reaches is a screen restating the card's own
+line with nothing on it to do — a tap into a dead end, which is the thing the locked tower row was
+written to avoid. **Expeditions' card carries the same two states for the same reason.** Every state
+still names the next thing to do, which is the locked tower row's rule generalised rather than a
+second one, and a locked card is the tower row's inert grey rather than the accent.
 
 ⚠️ **The Fight control for a Descent lives on the Descent screen rather than on the crew editor**,
 which is the one place the game departs from "every battle passes through the crew editor". A run in

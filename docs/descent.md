@@ -478,3 +478,10 @@ edited by the one editor, at `/formations/descent`.
 Six states, and every one names the next thing to do — the same rule Home's locked tower row is spent
 on: `locked` names the chapters still owed, `available` names today's factions, `choosing` is the
 offer, `ready` is the fight, `complete` and `ended` say when the way opens again.
+
+⚠️ **Home's card is only a link in the five states that are not `locked`.** It was a link in all six
+until the locked screen was read as a player first meets it. That branch is two paragraphs — what
+the mode is, and the chapters still owed — and the second is the card's own line again. Today's
+lock, the boards and the party all sit in the `@default` branch, so there is nothing behind the
+locked card but the sentence the player has already read and no control to press. The card is the
+tower row's inert grey while locked.

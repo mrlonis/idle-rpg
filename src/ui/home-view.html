@@ -111,29 +111,45 @@
   its own `<section>` beside the campaign and the towers for the reason those two are separate: a
   player standing here is choosing between three *kinds* of thing, and a heading is what says so.
 
-  Every state is a link, unlike a locked tower row. The screen behind it is worth reading in all six
-  — it names today's three factions, the nine boards and their levels, and what is still owed before
-  the way opens — where a locked tower has nothing behind it but the row already says.
+  ⚠️ **Locked is inert, exactly like a locked tower row**, and that is a reversal. Both cards used
+  to be links in all of their states, on the argument that the screen behind them was worth reading
+  even while locked. It is not: the locked screen restates the card's own line and offers nothing to
+  do, so the tap was a dead end. The card names its own key and waits, which is what a locked tower
+  has always done.
 -->
 <section class="descent" aria-labelledby="descent-label">
   <h2 id="descent-label" class="section__heading">The Descent</h2>
-  <a class="descent__card" routerLink="/descent">
-    <span class="descent__name">The Descent</span>
-    <span class="descent__detail">{{ descentDetail() }}</span>
-  </a>
+  @if (descentLocked()) {
+    <p class="descent__card descent__card--inert">
+      <span class="descent__name">The Descent</span>
+      <span class="descent__detail">{{ descentDetail() }}</span>
+    </p>
+  } @else {
+    <a class="descent__card descent__card--open" routerLink="/descent">
+      <span class="descent__name">The Descent</span>
+      <span class="descent__detail">{{ descentDetail() }}</span>
+    </a>
+  }
 </section>
 
 <!--
   Expeditions. The same shape as the Descent's card and for the same reason — one card, its own
-  heading, every state a link: the index behind it names the three maps and what each is waiting
-  on, so even the locked state has a screen worth reading.
+  heading, and the same two states: a link once the way is open, an inert row that names the
+  chapters still owed until then.
 -->
 <section class="descent" aria-labelledby="expeditions-label">
   <h2 id="expeditions-label" class="section__heading">Expeditions</h2>
-  <a class="descent__card" routerLink="/expeditions">
-    <span class="descent__name">Expeditions</span>
-    <span class="descent__detail">{{ expeditionDetail() }}</span>
-  </a>
+  @if (expeditionsLocked()) {
+    <p class="descent__card descent__card--inert">
+      <span class="descent__name">Expeditions</span>
+      <span class="descent__detail">{{ expeditionDetail() }}</span>
+    </p>
+  } @else {
+    <a class="descent__card descent__card--open" routerLink="/expeditions">
+      <span class="descent__name">Expeditions</span>
+      <span class="descent__detail">{{ expeditionDetail() }}</span>
+    </a>
+  }
 </section>
 
 <!--
