@@ -434,9 +434,13 @@ const ARRIVED: FormationData = mono(
  * behind it, and walks only a little way into the one ahead" checkable at both boundaries at once.
  *
  * Both numbers are derived from where chapter 5 ends, so a retune of that chapter re-aims this.
- * `elite-plus` is the rung it carries and its cap of 140 is **below** chapter 5's closing level of
- * 160 — which is not an error, it is the difficulty statement the Bound Marches shipped: a chapter
- * that asks for a rung has to climb past the cap that rung buys.
+ * `elite` is the rung it carries and its cap of 100 is **above** chapter 5's closing level of 75, so
+ * the party stands level with the content rather than behind it.
+ *
+ * ⚠️ **That is the flattening, and it reversed what this comment used to say.** Under the margin
+ * rule every chapter closed *past* the cap of the rung it asked for and this note recorded a
+ * fourteen-level deficit against a chapter closing at 160. The rule is retired: a chapter now runs
+ * entirely inside a cap the party already holds. See [ladder](../../docs/ladder.md).
  */
 const MARCHED_RARITY = ELITE;
 const MARCHED_LEVEL = Math.min(stages[CHAPTER_ENDS[4] - 1].level, LEVEL_CURVE.caps[MARCHED_RARITY]);
@@ -459,9 +463,8 @@ const MARCHED: FormationData = mono(
  * boundaries at once.
  *
  * Both numbers are derived from where chapter 6 ends, so a retune of that chapter re-aims this.
- * `legendary` is the rung it carries and its cap of 200 is **below** chapter 6's closing level of
- * 225 — which is the difficulty statement every chapter since the Bound Marches ships: a chapter
- * that asks for a rung has to climb past the cap that rung buys.
+ * `elite-plus` is the rung it carries and its cap of 140 is above chapter 6's closing level of 100,
+ * so this stands level with the content — the flat line's shape, not the retired margin rule's.
  */
 const VAULTED_RARITY = rarityIndex('elite-plus');
 const VAULTED_LEVEL = Math.min(stages[CHAPTER_ENDS[5] - 1].level, LEVEL_CURVE.caps[VAULTED_RARITY]);
@@ -484,10 +487,10 @@ const VAULTED: FormationData = mono(
  * at once.
  *
  * Both numbers are derived from where chapter 7 ends, so a retune of that chapter re-aims this.
- * `legendary-plus` is the rung it carries and its cap of 260 is **below** chapter 7's closing level
- * of 305 — which is the difficulty statement every chapter since the Bound Marches ships, and by a
- * wider margin each time: a chapter that asks for a rung has to climb past the cap that rung buys,
- * and by *more* than the last one did, or the fresh rung it hands the party is free.
+ * `elite-plus` is the rung it carries and its cap of 140 is above chapter 7's closing level of 125,
+ * so this stands level with the content. ⚠️ **It shares its rung with {@link VAULTED}**, which is
+ * what the flat line does: a chapter often asks for the same rung as the one below it, and moving
+ * the rung up by reflex hands the party a ×1.6 the content never asked for.
  */
 const BARROWED_RARITY = rarityIndex('elite-plus');
 const BARROWED_LEVEL = Math.min(
@@ -513,9 +516,8 @@ const BARROWED: FormationData = mono(
  * once.
  *
  * Both numbers are derived from where chapter 8 ends, so a retune of that chapter re-aims this.
- * `mythic` is the rung it carries and its cap of 340 is **below** chapter 8's closing level of 396 —
- * the difficulty statement every chapter since the Bound Marches ships, and by a wider margin each
- * time.
+ * `legendary` is the rung it carries and its cap of 200 is above chapter 8's closing level of 150,
+ * so this stands level with the content.
  */
 const WEALDED_RARITY = LEGENDARY;
 const WEALDED_LEVEL = Math.min(stages[CHAPTER_ENDS[7] - 1].level, LEVEL_CURVE.caps[WEALDED_RARITY]);
@@ -538,9 +540,9 @@ const WEALDED: FormationData = mono(
  * once.
  *
  * Both numbers are derived from where chapter 9 ends, so a retune of that chapter re-aims this.
- * `mythic-plus` is the rung it carries and its cap of 420 is **seventy levels below** chapter 9's
- * closing level of 490 — the difficulty statement every chapter since the Bound Marches ships, and
- * by a wider margin each time.
+ * `legendary` is the rung it carries and its cap of 200 is above chapter 9's closing level of 175,
+ * so this stands level with the content. It shares its rung with {@link WEALDED} and
+ * {@link WILDED} — three consecutive chapters on one rung, which is what the flat line looks like.
  */
 const ANVILLED_RARITY = LEGENDARY;
 const ANVILLED_LEVEL = Math.min(
@@ -556,6 +558,32 @@ const ANVILLED: FormationData = mono(
 );
 
 /**
+ * The party that arrives in chapter 11: the five that just took The Everwound, unchanged.
+ *
+ * ⚠️ **This is The Bleeding Wild's {@link INVESTED}, kept under a new name rather than re-derived**
+ * — the seventh time that has happened and the seventh time for the same reason. Re-pointing a
+ * single "arrived" party at each new chapter would silently stop checking that the chapter below is
+ * still finishable by the party it was tuned for, and two named parties per seam is what makes
+ * "clears the chapter behind it, and walks only a little way into the one ahead" checkable at both
+ * boundaries at once.
+ *
+ * Both numbers are derived from where chapter 10 ends, so a retune of that chapter re-aims this.
+ * `legendary` is the rung it carries and its cap of 200 is **exactly** chapter 10's closing level,
+ * which is the one seam where the party stands precisely level with the content rather than inside
+ * its own cap. That is not a statement about The Everwound; it is where half a level a stage lands
+ * after ten chapters.
+ */
+const WILDED_RARITY = LEGENDARY;
+const WILDED_LEVEL = Math.min(stages[CHAPTER_ENDS[9] - 1].level, LEVEL_CURVE.caps[WILDED_RARITY]);
+
+const WILDED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(WILDED_LEVEL, WILDED_RARITY),
+  WILDED_RARITY,
+);
+
+/**
  * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
  * terms.
  *
@@ -568,33 +596,37 @@ const ANVILLED: FormationData = mono(
  * instead of restated — extending the ladder re-aims this party at the new top rather than leaving
  * it describing the old one.
  *
- * ⚠️ **The rung moves with the ladder, and it has to.** `elite` caps at 100 and the Bound Marches
- * close at 160, so milestone 17 took this to `elite-plus`; `elite-plus` caps at 140 and the Sundered
- * Vault closes at 225, so milestone 18 took it to `legendary`; `legendary` caps at 200 and the
- * Waking Barrows close at 305, so milestone 21a took it to `legendary-plus`; that caps at 260 and
- * the Sunless Weald closes at 396, so 21b took it to `mythic`; that caps at 340 and the Hollow Anvil
- * closes at 490, so 21c took it to `mythic-plus`; that caps at 420 and The Bleeding Wild closes at
- * 588, so milestone 21d takes it to `ascended`. In every case `legal` would have thrown rather than
- * quietly fielding an under-levelled party, which is exactly what that guard is for.
- * **A rung roughly every fifty stages** is the cadence — it read "one per chapter" until the re-cut
- * multiplied the boundaries without moving the rung asks — and what this rung costs a player over
- * the Hollow Anvil party is six more duplicate copies of each of the five: 56 against 50.
+ * ## ⚠️ Picking the rung is no longer "the next one up", and this is the trap the flattening left
  *
- * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_, and every chapter
- * from 3 on has those differ — by more each time.** `ascended` caps at 500 against a top stage of
- * 588, so this party finishes the ladder **eighty-eight levels below the thing it is fighting**,
- * where the Anvil left it seventy behind, the Weald fifty-six and the Marches twenty. That growth is
- * 21a's correction and it is arithmetic: a rung is worth ×1.6 and the enemy side has no rungs, so a
- * chapter that asks for an ascension has to climb past the cap that ascension buys — and because each
- * chapter hands the party a *fresh* rung on top of the levels it climbs, a constant margin cancels
- * and the gap compounds. The clamp is `Math.min` rather than a written number so a retune of either
- * side moves it.
+ * Under the margin rule each chapter out-climbed a fresh cap, so the rung advanced every chapter and
+ * "move it up one" was correct — `elite-plus` at 17, `legendary` at 18, `legendary-plus` at 21a,
+ * `mythic` at 21b, `mythic-plus` at 21c, `ascended` at 21d. **On the flat line a new chapter often
+ * asks for the same rung as the one below it**: chapters 4–5 share `elite`, 6–7 share `elite-plus`,
+ * and 8, 9 and 10 all share `legendary`. Moving it up anyway hands the party a ×1.6 the content never
+ * asked for, and the sweep answers with walkovers three chapters deep rather than with a failure at
+ * the seam.
  *
- * **Level 200 at `legendary` until milestone 10, then 90, then 85, then 140, then 200 again at the
- * rung it started at, then 260, 340, 420, now 500 four rungs above.** Every one of those moves was
- * the same move — the party is defined by where the content is, never by a number.
+ * **The rung is the one that reproduces the power ratio the seam below it had**, which is
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)` evaluated for
+ * every rung and taken closest in **log** space. Chapter 10's seam reads **6.5536**; against chapter
+ * 11's close of 225, `legendary` reads 3.898 (|Δln| 0.520) and `legendary-plus` reads 10.486
+ * (|Δln| 0.470). So chapter 11 takes `legendary-plus` — the first rung move in three chapters — and
+ * it takes it **narrowly**. The caps ladder is coarse enough at this depth that picking by eye picks
+ * the wrong one; compute it.
+ *
+ * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_.** `legendary-plus`
+ * caps at 260 against a top stage of 225, so this party finishes the ladder standing **level** with
+ * the thing it is fighting — which is how every chapter has worked since the margin rule was retired,
+ * and the reason the campaign has no difficulty gradient of its own. The clamp is `Math.min` rather
+ * than a written number so a retune of either side moves it, and `legal` throws rather than quietly
+ * fielding an under-levelled party.
+ *
+ * **A rung roughly every hundred stages** is the cadence the flat line produces, where it was one per
+ * fifty. What this rung costs a player over The Bleeding Wild's party is ten more duplicate copies of
+ * each of the five — `MORTAL_LADDER` alternates cheap and expensive rungs, so **recompute it** rather
+ * than adding a constant.
  */
-const INVESTED_RARITY = LEGENDARY;
+const INVESTED_RARITY = rarityIndex('legendary-plus');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -719,6 +751,11 @@ const anvilledSweeps = stages.map((stage) => ({
   stage,
   ...sweep(ANVILLED, stage),
 }));
+const wildedSweeps = stages.map((stage) => ({
+  label: 'wilded',
+  stage,
+  ...sweep(WILDED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -759,6 +796,7 @@ const everySweep = [
   ...barrowedSweeps,
   ...wealdedSweeps,
   ...anvilledSweeps,
+  ...wildedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -799,6 +837,9 @@ const WEALD_END = CHAPTER_ENDS[7];
 
 /** The end of chapter 9 — the Hollow Anvil — where The Bleeding Wild asks for the one after. */
 const ANVIL_END = CHAPTER_ENDS[8];
+
+/** The end of chapter 10 — The Bleeding Wild — where The Standing Line asks for the one after. */
+const WILD_END = CHAPTER_ENDS[9];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1093,6 +1134,43 @@ describe('ladder balance', () => {
     // bounded as a share of the whole ladder so it stays meaningful as chapters are added.
     const walked = anvilledSweeps
       .slice(ANVIL_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 10 clear chapters 1 through 10', () => {
+    // The Standing Line's seam, measured the same way as the six above it. This party is literally
+    // The Bleeding Wild's `INVESTED` under a new name, so this assertion is the old "clearable end to
+    // end" claim kept alive after the ladder grew past it — the seventh time that has been needed and
+    // the seventh time the alternative would have been to stop checking the chapter below.
+    const unreliable = wildedSweeps
+      .slice(0, WILD_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Standing Line as well', () => {
+    // ⚠️ **The assertion The Standing Line exists to satisfy, and it is the first seam on the flat
+    // line where the level dial contributes nothing at all.** The chapter climbs 200 to 225 at half a
+    // level a stage, and this party arrives at `legendary`'s cap of exactly 200 — so it is 25 levels
+    // behind at the top and level with the content at the bottom, which is ×1.68 across the whole
+    // chapter against a rung worth ×1.60. Under the margin rule the gap did the work; here there is
+    // almost no gap, and what stops the party has to be the boards.
+    //
+    // What is meant to stop it is that every board here has an opinion about **what the party spends
+    // its damage on first**: a board-wide buff carried by the softest body on the field, a charge that
+    // only lands while the party is whole, a rank that puts back whatever a cleanse takes off, and an
+    // answer aimed past the wall at whoever spent the setup turn. None of it is forced — there is no
+    // taunt in the chapter — so all of it is a choice the party can get wrong.
+    //
+    // A ceiling on momentum rather than a wall at the boundary, exactly as the six below it are, and
+    // bounded as a share of the whole ladder so it stays meaningful as chapters are added.
+    const walked = wildedSweeps
+      .slice(WILD_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

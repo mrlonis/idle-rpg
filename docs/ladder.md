@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Ten chapters and four hundred stages**
-— 10, 20, 30, 40 and then six of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Eleven chapters and four hundred and
+fifty stages** — 10, 20, 30, 40 and then seven of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -16,7 +16,7 @@ is gone rather than deferred; revisit deliberately if fifty ever reads as too sh
 **The chapter-size formula and the authored chapters are two statements of one fact.** `chapterSize`
 says how long a chapter should be and `LadderShape` says how long the authored ones are;
 `chapters.spec.ts` is what keeps them equal. ⚠️ **Never derive the shipped ladder's length from the
-formula** — a build that ships ten chapters must not be talked into believing it has a hundred.
+formula** — a build that ships eleven chapters must not be talked into believing it has a hundred.
 
 **Whether a stage is a mini-boss or a boss is a rule, not a field**: every tenth stage of a chapter
 and the last one, so the rhythm is identical at either chapter length. What `data/` authors is a
@@ -24,7 +24,7 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
-Withered Crown, The Anvil Crowned and The Everwound. A re-cut that moves a boundary owes the new
+Withered Crown, The Anvil Crowned, The Everwound and The Last Order. A re-cut that moves a boundary owes the new
 final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
@@ -64,10 +64,12 @@ silently win. See [economy](economy.md) for the income curve itself.
 
 ## The rung cadence
 
-**A rung per fifty-stage band.** It read "one rung per chapter" until milestone 19 multiplied the
-boundaries without moving a rung ask. Copies asked of a mortal character by the end of each band:
-**20** by the fen's fifty stages, 24 by the Marches, 32 by the Vault, 38 by the Barrows, 44 by the
-Weald, 50 by the Anvil, 62 by the Wild.
+**A rung per fifty-stage band** was the cadence under the margin rule. ⚠️ **The flattening halved it
+and the reference parties are the record of that**: chapters 4–5 share `elite`, 6–7 share
+`elite-plus`, 8–9–10 share `legendary`, and chapter 11 is the first rung move in three — to
+`legendary-plus`, and it won the log-space comparison by five hundredths of a nat. Copies asked of a
+mortal character by the end of each band: **20** by the fen's fifty stages, 24 by the Marches, 32 by
+the Vault, 38 by the Barrows, 44 by the Weald, 50 by the Anvil, 62 by the Wild.
 
 ⚠️ **Three of those were quoted wrong by one or two for several milestones**, which is the ordinary
 cost of carrying a running total by hand: `MORTAL_LADDER` alternates cheap and expensive rungs

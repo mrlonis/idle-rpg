@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: ten chapters, four hundred stages, what a
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: eleven chapters, four hundred and fifty stages, what a
   stage authors, position versus clear count, the rung cadence, and the guards that were retired.
 - **[docs/ascension.md](docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.

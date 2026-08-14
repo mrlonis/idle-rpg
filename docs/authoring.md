@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped four hundred stages and fourteen hundred floors. `AGENTS.md` states the rules and the
+shipped four hundred and fifty stages and fourteen hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 10 chapters, 400 stages, enemy levels 1–200 |
+| Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
 | Towers           | 7 × 200 floors, enemy levels 1–95           |
-| Enemy archetypes | 130                                         |
+| Enemy archetypes | 140                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -54,6 +54,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 8       | 125   | 150    | 25   |
 | 9       | 150   | 175    | 25   |
 | 10      | 175   | 200    | 25   |
+| 11      | 200   | 225    | 25   |
 
 ⚠️ **The margin rule is gone, and the whole bisect-the-final procedure with it.** Chapters used to
 close _past_ the cap of the rung they asked for, by a margin that grew +12 to +18 a chapter (+20 at
@@ -153,11 +154,17 @@ is the reading that means "a quarter of what you meet here is something you have
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run human 14, angel 16, demon 17,
-  monster 19, undead 21, elf 21, dwarf 22. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 16, demon 17, monster 19,
+  undead 21, elf 21, dwarf 22, human 24. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
+- ⚠️ **A lean is worth ten blocks, so it can reverse the ordering in one chapter.** The Standing Line
+  took Human from **thinnest of the seven at 14 to deepest at 24** in a single session, which is why
+  the depths are recomputed rather than read: the argument that picked a lean is stale the moment
+  that lean ships. The two thinnest factions are now Angels and Demons, and **neither may lead a
+  chapter** — so the next lean is a choice among Monster (19), Undead (21) and Elf (21) rather than
+  the obvious one, and it is the first time that has been true.
 - ⚠️ **Do not lean a chapter on Angels or Demons.** A celestial deals ×1.10 to every mortal and the
   matrix has **no mortal → celestial row**, so a celestial-led board is a standing tax no mortal
   composition can answer — worth about nine levels of investment, silently, on top of whatever the
@@ -171,7 +178,7 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
 ### The enemy roster, and what `enemies.spec.ts` holds
 
-A hundred and thirty archetypes ship, and the distribution is deliberately uneven — a chapter or
+A hundred and forty archetypes ship, and the distribution is deliberately uneven — a chapter or
 tower leaning on a faction needs depth in it. The invariants:
 
 - **Every faction carries at least four archetypes, and owns a `common`, a `legendary` and an
@@ -192,7 +199,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped ten, with the level range each closes over:
+The shipped eleven, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -206,6 +213,7 @@ The shipped ten, with the level range each closes over:
 | 8   | The Sunless Weald  | 50     | 125 → 150 | **where** it lands                              |
 | 9   | The Hollow Anvil   | 50     | 150 → 175 | whether anything the party does **stays done**  |
 | 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on** |
+| 11  | The Standing Line  | 50     | 200 → 225 | what the party spends it on **first**           |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -220,7 +228,7 @@ rather than at a boundary where it would read as a new game.
 Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTED` renamed to a
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
-`WEALDED` → `ANVILLED` → `INVESTED`.
+`WEALDED` → `ANVILLED` → `WILDED` → `INVESTED`.
 
 ⚠️ **Picking that rung is no longer "the next one up", and this is the trap the flattening left
 here.** Under the margin rule each chapter out-climbed a fresh cap, so the rung advanced every
@@ -235,6 +243,14 @@ the sweep answers with walkovers three chapters deep rather than with a failure 
 closest in **log** space; the caps ladder is coarse enough at this depth that the two candidates
 either side of the answer can sit 20–40% out, and picking by eye picks the wrong one. This is how
 the seven shipped seams were re-derived after the flattening.
+
+⚠️ **The answer can be genuinely close, and chapter 11 is the worked example.** Chapter 10's seam
+reads **6.5536**; against chapter 11's close of 225, `legendary` reads 3.898 (|Δln| **0.520**) and
+`legendary-plus` reads 10.486 (|Δln| **0.470**). `legendary-plus` wins by five hundredths of a nat
+after three chapters on one rung — so the log-space comparison is not a formality that confirms an
+obvious answer, it is the thing that decides. **Compute both neighbours and print the margin**; a
+near-tie is worth recording in the chapter header, because the sweep is what settles it and a later
+retune of either side flips it.
 
 **They accumulate rather than being re-pointed**, because re-aiming a single "arrived" party would
 silently stop checking that the chapter below is still finishable by the party it was tuned for.
@@ -389,26 +405,33 @@ The guards that are known to be approaching, with the answer each one wants. See
 [testing](testing.md) for how to tell "content outgrew a threshold" from "this ratio moves every
 chapter regardless" — **sort every failure into those two before touching anything.**
 
-Recomputed after the level line flattened to 0.50 a stage. **Every horizon moved out**, because the
-campaign now asks for 25 levels a chapter instead of ~90:
+**Every reading below was re-measured after chapter 11 landed**, and two of the horizons moved a long
+way — one of them because its previous entry was still describing the pre-flattening income curve.
+Measure, do not copy this table forward.
 
-| Fires at    | Guard                                               | Reads now  | The answer                                                                                |
-| ----------- | --------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
-| chapter 11  | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 225. It is always `stages / 2`; what it wants is a saturating tilt      |
-| chapter 12  | `towers.spec.ts` — tower:campaign crystal ratio     | 1.466      | A third hundred, an eighth ladder, or accepting the campaign outgrew its optional content |
-| chapter 12  | `gear.spec.ts` — "roughly doubles what gold is for" | floor 1    | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`            |
-| chapter 13+ | `banners.spec.ts` — roster-relative crystal ceiling | ~41 days   | Whether the roster kept up, not what number makes it green                                |
-| chapter 16  | `levels.spec.ts` — "charges real time"              | 7.5h / 24h | Income is the question again — 21.0h at chapter 15, 26.2h at 16. No retired guard left    |
-| chapter 30  | `levels.spec.ts` — rungs unspent above the ladder   | 200 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**            |
-| ~chapter 42 | The level curve is consumed entirely                | 200 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                      |
+| Fires at     | Guard                                               | Reads now   | The answer                                                                                     |
+| ------------ | --------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| chapter 12   | `gear.spec.ts` — top grade's share of drops         | 18.7%       | `gradeSoftness` → 250. It is always `stages / 2`; what it wants is a saturating tilt           |
+| chapter 12   | `towers.spec.ts` — tower:campaign crystal ratio     | 1.314       | A third hundred, an eighth ladder, or accepting the campaign outgrew its optional content      |
+| chapter 14   | `banners.spec.ts` — roster-relative crystal ceiling | 38.2 days   | Whether the roster kept up, not what number makes it green. 35.0 at 12, 32.3 at 13, 30.0 at 14 |
+| chapter 16   | `levels.spec.ts` — "charges real time"              | 9.0h / 24h  | Income is the question again — 21.0h at chapter 15, 26.2h at 16. No retired guard left         |
+| chapter 30   | `levels.spec.ts` — rungs unspent above the ladder   | 225 < 700   | Was chapter 12 before the flattening. **How long is the campaign meant to be**                 |
+| ~chapter 42  | The level curve is consumed entirely                | 225 / 1000  | A roadmap decision, not a threshold. Was ~chapter 15                                           |
+| ~chapter 180 | `gear.spec.ts` — "roughly doubles what gold is for" | 19.85h of 1 | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`                 |
 
-⚠️ **The gear guard is now the first to fire and it is the only one still on its old schedule**,
-because it is a function of the **stage count** rather than the level line — `gradeSoftness` is
-always `stages / 2`, and the flattening did not change how many stages a chapter has. Sort by what a
-guard actually reads, not by where it used to sit in this table.
+⚠️ **The gear kit-hours guard was listed at chapter 12 and it is actually ~180**, which is the
+largest correction this table has ever carried and worth reading as a method failure rather than an
+arithmetic one. The quantity is `kit gold / (base × stages ** exponent)`, and the **exponent came
+down from 1.45 to 1.00 with the level line** — so income now grows _linearly_ in the stage count
+where it used to grow superlinearly, and a quantity that was collapsing fast is now decaying as
+`1 / stages`. From 19.85 hours it needs the ladder to reach about 8,900 stages to touch the floor of
+
+1. Nothing about the guard changed; the curve underneath it did, and the entry was never re-measured.
+   **Re-measure a horizon rather than carrying it forward** — a projected chapter number is a claim
+   about a curve, and the curves in this project move.
 
 ⚠️ **`gradeSoftness` is the one to re-derive by hand, once a chapter, deliberately.** It has landed
-on 18.7% five times and the solution has been `stages / 2` every time, which is what turned a tuning
+on 18.7% six times and the solution has been `stages / 2` every time, which is what turned a tuning
 number into a finding. Writing it several chapters ahead to save edits was tried and declined, and
 the decline was right: the landing that made the pattern visible would have been silent.
 

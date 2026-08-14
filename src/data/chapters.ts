@@ -1,5 +1,6 @@
 import { CHAPTER_1 } from './chapter-1';
 import { CHAPTER_10 } from './chapter-10';
+import { CHAPTER_11 } from './chapter-11';
 import { CHAPTER_2 } from './chapter-2';
 import { CHAPTER_3 } from './chapter-3';
 import { CHAPTER_4 } from './chapter-4';
@@ -252,4 +253,5 @@ export const CHAPTERS = [
   CHAPTER_8,
   CHAPTER_9,
   CHAPTER_10,
+  CHAPTER_11,
 ] as const;

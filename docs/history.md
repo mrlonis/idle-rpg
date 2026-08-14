@@ -53,10 +53,31 @@ previous skeleton without changing its shape.
 | 22      | The Descent                               | The difficulty dial is a level **offset**, never a share — a share is ×3.4 easier at depth                                                                       |
 | 23      | Puzzle maps — Expeditions                 | The only content that is not a ladder. Solvability is a Dijkstra run on every test pass                                                                          |
 | 24      | The level line flattened to 0.50 a stage  | Runway 14 chapters → 42. The margin rule retired; the campaign trades its own difficulty gradient for length                                                     |
+| 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                        |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
-system, and nothing changed in `ui/` or `core/`.
+system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and
+the roster to **140**, on the same terms.
+
+### What chapter 11 established, being the first chapter authored after the flattening
+
+- ⚠️ **The seam rung is computed, and the answer can be a near-tie.** Chapters 8, 9 and 10 all share
+  `legendary`; chapter 11 moves to `legendary-plus` by |Δln| **0.470 against 0.520**. Under the margin
+  rule "the next rung up" was always right, and on the flat line it is a coin-flip that has to be
+  evaluated. See [authoring](authoring.md).
+- ⚠️ **A lean can reverse the faction ordering in one session.** Ten Human blocks took the faction
+  from thinnest at 14 to deepest at 24, which means the two thinnest are now Angels and Demons —
+  and **neither may lead a chapter**. The next lean is the first one that has to be chosen among
+  three middling factions rather than read off the bottom of the list.
+- ⚠️ **A horizon in a doc is a claim about a curve, and this project's curves move.** `gear.spec.ts`'s
+  kit-hours guard was recorded as firing at chapter 12 and actually fires around chapter **180**: the
+  projection was made while `STAGE_REWARDS.exponent` was 1.45, and the flattening brought it to 1.00,
+  turning a fast collapse into a `1 / stages` decay. **Re-measure, do not carry forward.**
+- **The status vocabulary stayed closed and was not argued with.** The chapter's seven new turns are
+  all shipped parts aimed somewhere new, and the sentence it asks — _what does the party spend its
+  damage on first_ — is carried by `SkillConditionData`, which had seventeen enemy-side uses and
+  fourteen of them in two shapes.
 
 ---
 
@@ -139,12 +160,12 @@ That is a good shape and nothing explains it to anybody.
 
 ⚠️ **The level line was flattened to 0.50 levels a stage and every horizon below moved out by about
 a factor of three.** It added ~90 levels a chapter (80, 91, 94, 98 across chapters 7–10) and now adds
-**25**, so chapter 10 closes at **200** rather than 588:
+**25**, so chapter 10 closes at **200** rather than 588 and chapter 11 at **225**:
 
 - `levels.spec.ts`'s "leaves rungs unspent above everything the ladder asks for" fires at
   **chapter 30** — the top stage must stay below `caps[12]` = 700 — where it used to fire at 12;
-- `levels.spec.ts`'s "charges real time" is now the **first** to fire, at **chapter 16** (7.5h of 24
-  today, 21.0h at chapter 15, 26.2h at 16);
+- `levels.spec.ts`'s "charges real time" is now the **first** of the long-range ones to fire, at
+  **chapter 16** (9.0h of 24 after chapter 11, 21.0h at chapter 15, 26.2h at 16);
 - the level curve is consumed entirely around **chapter 42**, where it used to be ~15.
 
 ⚠️ **42 is still not the ~100 chapters the campaign is planned for**, and closing that needs either

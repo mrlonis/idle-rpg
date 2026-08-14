@@ -4694,6 +4694,251 @@ export const THE_LAST_VERSE = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Standing Line — chapter 11
+//
+// ⚠️ **Seven turns and no new status.** Milestone 21 licensed three statuses across four chapters,
+// spent them and closed; a later chapter argues from nothing exactly as 17 and 21c did, and this one
+// has nothing to argue. Every piece below is shipped vocabulary **aimed somewhere it has never been
+// aimed**, which is the bar `AGENTS.md` sets.
+//
+// ## The chapter's sentence is the `condition` field, which is why this reads differently
+//
+// Chapters 7 through 10 each asked a question about the party's own damage — how it arrives, where
+// it lands, whether it stays done, what it does to the thing it is spent on. This one asks **what
+// the party spends it on first**, and the part of the vocabulary that says "first" is not a status
+// at all. It is {@link SkillConditionData}, which has been on the enemy side since milestone 4 and
+// carries seventeen skills, fourteen of which are one of two shapes.
+//
+// | Skill              | The aiming that is new                                                     |
+// | ------------------ | -------------------------------------------------------------------------- |
+// | Pass the Word      | the first board-wide buff carried by a **common**                          |
+// | The Order Stands   | the first turn to apply **two** friendly stat-mods at once                  |
+// | At the Halt        | the first `enemies-at-least: 5` — the party *entirely* whole                |
+// | The Line Reforms   | the first `status-absent` gate aimed at the party's **back rank**           |
+// | The Countersign    | the first **offensive** turn conditioned on `ally-afflicted`                |
+// | The Colours Stand  | the first **shield** aimed at `ally-lowest`                                 |
+// | The Standing Order | the first board-wide cleanse that is not also a ward                       |
+//
+// ## ⚠️ No taunt anywhere in this chapter, and that is the design rather than an omission
+//
+// Chapters 9 and 10 both close on a taunt band — the one body the party may hit is the one it
+// cannot open, and then the one it must not wound. A taunt makes the order **forced**, and this
+// chapter is about the order being *chosen wrongly*: every board here leaves the party free to aim
+// anywhere and charges it for aiming badly. It also removes the clock risk that {@link GUARD} on
+// five bodies would otherwise carry, which is the second reason and the one that would have decided
+// it alone.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The order is shouted down the line by somebody who is not going to survive shouting it.
+ *
+ * ⚠️ **The first board-wide buff in the game carried by a `common`.** Every other one — {@link
+ * HERALDS_ANTHEM}, {@link ANTIPHON}, {@link RUNEWARD}, {@link THE_LAST_MUSTER} — sits on a legendary
+ * or an anchor, which makes "kill the caller" a plan the party has to spend real damage on. On
+ * fodder it becomes a *priority* instead: the cheapest, softest body on the board is the one that
+ * has to die first, and a party that clears the front rank in the order the front rank presents
+ * itself will never touch it.
+ *
+ * {@link HASTE} rather than {@link RALLY} or {@link GUARD}, because haste is the buff that is worth
+ * the most and reads as the least — a third more gauge fill is a third more of everything the board
+ * was ever going to do, arriving as "that fight felt fast" rather than as a number.
+ *
+ * ⚠️ **Safe for the clock, and deliberately the one of the chapter's three board-wide buffs that
+ * is.** Haste on the enemy side can only ever make a fight resolve sooner. The band's other
+ * statement, {@link THE_ORDER_STANDS}, is the one that lengthens a fight, and it is carried by a
+ * body the party can also reach.
+ */
+export const PASS_THE_WORD = {
+  id: 'pass-the-word',
+  name: 'Pass the Word',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * Nobody rescinded it, so it stands.
+ *
+ * ⚠️ **The first turn in the game to apply two friendly stat-mods at once.** {@link RUNEWARD} and
+ * {@link ANTIPHON} pair a cleanse with one buff and {@link HERALDS_ANTHEM} casts one alone; this
+ * braces and sharpens the whole line in a single action, which is what makes one back-rank body
+ * worth more than either wall standing in front of it. The chapter's whole lock is that the party
+ * has to notice.
+ *
+ * ⚠️ **Seventy-five against a forty-five tick {@link STANDARD} duration**, which is the same rule
+ * every re-applying skill in this file keeps and it matters more here than usual: a thirty-tick gap
+ * is the window in which a board that has just been re-armed is only itself, and it is where a party
+ * that killed in the right order gets paid.
+ *
+ * ⚠️ **{@link GUARD} is the one part of this chapter that lengthens a fight**, and it is bounded on
+ * purpose — `def` diminishes and can never reach zero, where a resist multiplies and can. It is also
+ * why nothing in this chapter puts health back and why nothing in it wears a taunt: three ways to
+ * make a fight longer on one board is the ninety-second clock, and a timeout is scored a defeat.
+ */
+export const THE_ORDER_STANDS = {
+  id: 'the-order-stands',
+  name: 'The Order Stands',
+  target: 'ally-all',
+  effects: [
+    { kind: 'status', status: GUARD },
+    { kind: 'status', status: RALLY },
+  ],
+  cooldown: 75,
+  priority: 5,
+} as const;
+
+/**
+ * A charge is delivered against a line that is still a line.
+ *
+ * ⚠️ **The first `enemies-at-least: 5` in the game** — the party *entirely* whole, where {@link
+ * COUCHED_LANCE} and {@link RIFTFALL} both ask for four. One body is the whole difference: at four
+ * the condition is a late-fight fade, and at five it switches off the moment the party takes its
+ * first loss, which front-loads the board's weight into the opening exchange and hands the rest of
+ * the fight back.
+ *
+ * **That is the band's argument and it is deliberately generous.** A chapter whose lock is *order*
+ * has to make the opening turns the expensive ones, or "kill the right thing first" costs nothing to
+ * get wrong. Pairing this with {@link COUCHED_LANCE} on the same block is a two-step decay: five
+ * bodies and it lands both, four and it lands one, three and the block is a swinging body.
+ *
+ * `enemy-highest` is the party's wall by construction, so the charge goes where a charge goes.
+ */
+export const AT_THE_HALT = {
+  id: 'at-the-halt',
+  name: 'At the Halt',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 50,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 4,
+} as const;
+
+/**
+ * The rank that was blunted steps back, and the one behind it steps up.
+ *
+ * ⚠️ **The first `status-absent` gate aimed at the party's back rank.** The five shipped gates are
+ * {@link WITHERHEX}, {@link MOONSONG} and {@link SEVENFOLD_HEX} on the whole board, {@link MIRE} on
+ * the front rank and {@link THE_LONG_LOOSE} on the back — and that last one is a **defence** shred,
+ * which is a statement about a rank the party is not defending. This is {@link WEAKEN} on the three
+ * bodies the party keeps its damage in, re-landing the instant it is cleared.
+ *
+ * **The gate is the point rather than the debuff.** A cleanse answers this exactly once and then
+ * invites it back, so the turn the party spends on the symptom is a turn spent for nothing. The
+ * answer is the body casting it, which stands in the enemy's own back rank — so the chapter's
+ * question is asked twice on one board: reach past the wall, and pick the right thing when you get
+ * there.
+ *
+ * Ordinary damage rather than a large hit, because what it spends its turn on is the setup.
+ */
+export const THE_LINE_REFORMS = {
+  id: 'the-line-reforms',
+  name: 'The Line Reforms',
+  target: 'enemy-row-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.9 },
+    { kind: 'status', status: WEAKEN, chance: 0.85 },
+  ],
+  cooldown: 55,
+  condition: { kind: 'status-absent', statusId: 'weaken' },
+  priority: 3,
+} as const;
+
+/**
+ * You gave a sign, and the line has one for it.
+ *
+ * ⚠️ **The first offensive turn in the game conditioned on `ally-afflicted`.** The condition has one
+ * shipped use — {@link THE_BARROW_FORGETS}, which *cleanses* — so until now a party's setup turn
+ * being noticed has only ever meant it being undone. This answers it with damage instead, and aims
+ * that answer at `enemy-back`, which is where the setup came from.
+ *
+ * **It fires because the party acted, which is what makes it a question about order.** A board with
+ * this on it charges for the debuff turn rather than refusing it, so opening with a shred is a
+ * legitimate play that costs something and opening with damage is a legitimate play that does not.
+ * Neither is wrong; the chapter only insists that the party has decided.
+ *
+ * {@link SLOW} rather than a wound, because what the turn takes back is *tempo* — the party spent an
+ * action to make its next one better, and this is the line taking that action's value back out.
+ * Forty-five ticks is the shortest cooldown in the chapter for the same reason {@link IRON_FOR_IRON}
+ * carries one: it only ever fires in answer to something, so a party that never sets up never sees it.
+ */
+export const THE_COUNTERSIGN = {
+  id: 'the-countersign',
+  name: 'The Countersign',
+  target: 'enemy-back',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.85 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 45,
+  condition: { kind: 'ally-afflicted' },
+  priority: 4,
+} as const;
+
+/**
+ * The colours go to whoever the party has decided to kill.
+ *
+ * ⚠️ **The first shield aimed at `ally-lowest`.** Every board-wide shield in the game — {@link
+ * BULWARK}, {@link CHOIR_OF_ASH}, {@link RELIQUARY_SEAL}, {@link THE_WARDS_HOLD} — is a statement the
+ * board makes about itself. `ally-lowest` is where {@link IRON_FOR_IRON} and {@link
+ * DRAW_INTO_THE_ROOT} put a **reactive** protection, and neither of those is a pool. This one banks
+ * one on the exact body the party has committed to, so the kill it had already earned arrives a turn
+ * or two later than it planned — which on a board that re-arms every seventy-five ticks is the
+ * difference between a fight and the same fight twice.
+ *
+ * ⚠️ **A shield rather than a heal, and the distinction is a termination argument rather than a
+ * preference.** Closing pressure amplifies damage without bound past `PRESSURE_AFTER_TICKS` and
+ * deliberately does not amplify healing, so sustain that refills makes a fight longer and a long
+ * fight is a **defeat**. {@link AEGIS} banks 2.3 of the applier's `atk` once and depletes; it cannot
+ * outrun anything.
+ *
+ * **The lieutenant's signature, and conditioned rather than an opening turn**, which is the shape
+ * {@link THE_GRUDGEKEEPER} and {@link THE_PACK_ANSWERS} both took and the reason a lieutenant standing
+ * on four boards is four fights rather than one stat block four times. It does nothing at all until
+ * the party has hurt something, so what it answers is what the party chose.
+ */
+export const THE_COLOURS_STAND = {
+  id: 'the-colours-stand',
+  name: 'The Colours Stand',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 60,
+  condition: { kind: 'ally-hurt', fraction: 0.6 },
+  priority: 4,
+} as const;
+
+/**
+ * It is given again, in the same words, to whoever is left to hear it.
+ *
+ * ⚠️ **The first board-wide cleanse in the game that is not also a ward.** {@link RUNEWARD} and
+ * {@link ANTIPHON} pair two removals with a buff, which reads as a support keeping its own side
+ * tidy; {@link THE_BARROW_FORGETS} takes three off **one** body. Three off *every* body, with the
+ * whole line sharpened in the same action, is the chapter's sentence at an anchor's weight: every
+ * setup turn the party has spent on this board is spent again, and the board is stronger for the
+ * asking.
+ *
+ * ⚠️ **Eighty ticks, the longest cooldown in the chapter**, because this is the one turn on the one
+ * body that can undo a whole opening. The gap is what the fight is fought in, and a party that opened
+ * on the escort rather than on the thing casting this will meet it twice.
+ *
+ * **The final's own turn, and the only skill in the chapter it does not share.** Its other three are
+ * bands 2, 3 and 4 in one body — the charge that only lands while the party is whole, the rank that
+ * re-forms, and the answer to the party's own sign — which is what makes the last board the chapter
+ * restated rather than a bigger stat block.
+ */
+export const THE_STANDING_ORDER = {
+  id: 'the-standing-order',
+  name: 'The Standing Order',
+  target: 'ally-all',
+  effects: [
+    { kind: 'cleanse', count: 3 },
+    { kind: 'status', status: RALLY },
+  ],
+  cooldown: 80,
+  priority: 5,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -4944,4 +5189,11 @@ export const SKILLS = [
   ONE_VOICE,
   NOTHING_IS_SPARED,
   THE_LAST_VERSE,
+  PASS_THE_WORD,
+  THE_ORDER_STANDS,
+  AT_THE_HALT,
+  THE_LINE_REFORMS,
+  THE_COUNTERSIGN,
+  THE_COLOURS_STAND,
+  THE_STANDING_ORDER,
 ] as const;

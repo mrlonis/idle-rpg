@@ -315,11 +315,11 @@ export const GEAR_RULES = {
     /**
      * How sharply grade odds improve with the linear stage index.
      *
-     * Two hundred. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this is a **rate per
-     * stage** and the ladder's length is the other half of every number it produces. Lower makes the
-     * ladder's bottom worthless faster; higher makes depth stop meaning anything.
+     * Two hundred and twenty-five. `gradeWeights` tilts by `1 + stageIndex / gradeSoftness`, so this
+     * is a **rate per stage** and the ladder's length is the other half of every number it produces.
+     * Lower makes the ladder's bottom worthless faster; higher makes depth stop meaning anything.
      *
-     * ⚠️ **It has now been re-derived five times — by chapters 4, 7, 8, 9 and 10 — and every time
+     * ⚠️ **It has now been re-derived six times — by chapters 4, 7, 8, 9, 10 and 11 — and every time
      * deliberately rather than by moving the threshold that caught it.** At ninety the top grade was
      * 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
      * `< 0.2` bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop;
@@ -327,9 +327,10 @@ export const GEAR_RULES = {
      * and it read **24.5%**, so a hundred and twenty-five restored 18.7%. Chapter 8 took it to three
      * hundred and it read **23.4%**, and a hundred and fifty restored 18.7% again. Chapter 9 took it
      * to three hundred and fifty and it read **22.6%**, answered with a hundred and seventy-five.
-     * Chapter 10 took it to four hundred and it read **22.1%**.
+     * Chapter 10 took it to four hundred and it read **22.1%**. Chapter 11 took it to four hundred
+     * and fifty and it read **21.7%**.
      *
-     * ⚠️ **Five landings and every one of them is 18.7%, which is the whole finding.** The solution
+     * ⚠️ **Six landings and every one of them is 18.7%, which is the whole finding.** The solution
      * is always `gradeSoftness = stages / 2` — that is the value at which the tilt equals 3.0, and
      * 3.0 is what produces 18.7% whatever the ladder's length is. So the constant is not a tuning
      * number at all; it is the ladder's length divided by two, written down by hand once a chapter.
@@ -355,7 +356,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 200,
+    gradeSoftness: 225,
   },
 
   /**

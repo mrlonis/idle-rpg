@@ -1,5 +1,6 @@
 import {
   ANTIPHON,
+  AT_THE_HALT,
   BARROW_TITHE,
   BIND_THE_CONCORD,
   BLOOD_CALLS_BLOOD,
@@ -39,6 +40,7 @@ import {
   ONE_VOICE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
+  PASS_THE_WORD,
   PILLAR_OF_LIGHT,
   RAKE,
   RELIQUARY_SEAL,
@@ -58,18 +60,23 @@ import {
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
+  THE_COLOURS_STAND,
+  THE_COUNTERSIGN,
   THE_DEBT_CALLED,
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
   THE_KNELL,
   THE_LAST_MUSTER,
   THE_LAST_VERSE,
+  THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
+  THE_ORDER_STANDS,
   THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_SEAL_BREAKS,
+  THE_STANDING_ORDER,
   THE_SUN_AT_NOON,
   THE_WARDS_HOLD,
   THORNLASH,
@@ -4565,6 +4572,376 @@ export const THE_UNISON = {
 
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
+// ---------------------------------------------------------------------------------------
+// The Standing Line — chapter 11
+//
+// Ten blocks, all **Human**, which takes the faction 14 → **24**. That is the largest single move
+// any lean has made and it is the right one twice over: Human was the thinnest of the seven by a
+// clear margin, and Angels and Demons — the next two thinnest at 16 and 17 — are barred from
+// leading a chapter, because a celestial deals ×1.10 to every mortal and the matrix has no mortal →
+// celestial row to answer it. ⚠️ **Recompute the depths before choosing the next lean**: this
+// chapter takes Human from last to first, so the argument that picked it does not repeat.
+//
+// ## What the blocks are for
+//
+// The chapter asks **what the party spends its damage on first**, so every block below is a rung on
+// a priority list rather than a lock:
+//
+// | Block                | Where it should be in the order                                      |
+// | -------------------- | -------------------------------------------------------------------- |
+// | Signal Runner        | first, and it is fodder — the trap the whole chapter is built on      |
+// | Order Serjeant       | first on any board without a Runner on it                            |
+// | Reserve Ensign       | before the cleanse, never after it                                   |
+// | Countersign Captain  | before the party's own setup turn, or not at all                     |
+// | Standfast Lancer     | last, because it decays on its own                                   |
+// | The Colour Serjeant  | whenever the party has already committed — which is the trick        |
+//
+// ⚠️ **Nothing here restores health, and nothing here wears a taunt.** Three of the chapter's turns
+// are board-wide buffs and one of them is {@link GUARD}, so a fight here is already longer than a
+// fight in the Bleeding Wild; a healer or a wall on top of that is the ninety-second clock, and a
+// timeout is scored a **defeat**. {@link AEGIS} on {@link THE_COLOURS_STAND} is the one thing on the
+// enemy side that puts anything back and it is a pool that depletes rather than a heal that refills.
+//
+// ⚠️ **Both `ascended` blocks stay under {@link UNMADE} on `hp` and `atk`**, which
+// `enemies.spec.ts` holds — 1500/88 and 1740/96 against 1800/100. What makes the final the harder
+// fight is the questions it asks and the level it is fielded at, which is the rule every chapter
+// boss since the Vault has kept.
+//
+// ⚠️ **No Human `ascended` block here carries {@link GATE_SLAM}, and that is deliberate.** All five
+// the faction already ships — {@link WARDEN}, {@link OATHBREAKER}, {@link PALE_WARDEN},
+// {@link THE_BREACHLORD} and the note on {@link THE_HORNCALLER} — lean on `stun@enemy-all`, and a
+// sixth would be this chapter's climax stating the faction's idiom instead of its own.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Somebody has to hold the ditch, and it is not going to be anybody who was asked.
+ *
+ * The chapter's plain body: slow, armoured, and standing where an attack goes. It carries nothing
+ * that answers the party and nothing that threatens it, which is what a board needs underneath four
+ * blocks that all want the party's attention — a wall the party is *allowed* to spend its opening on
+ * is what makes spending it there a mistake rather than a trap.
+ *
+ * ⚠️ **The heaviest Human `common` in the game at 900**, past {@link VAULTBOUND_GAOLER}'s 760, and
+ * the register is checked rather than assumed: {@link THORNBACK_GRAZER} sits at 940 across the seam
+ * and this chapter needs a front rank that survives long enough for the back one to be the question.
+ */
+export const MUSTER_PIKE = {
+  id: 'muster-pike',
+  name: 'Muster Pike',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 900,
+    atk: 48,
+    def: 34,
+    haste: 66,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    tenacity: 0.2,
+    physicalResist: 0.08,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The road is watched from both ends, and neither end was told why.
+ *
+ * The back rank's ordinary body, and the one that makes a board of five feel like five: enough reach
+ * to be worth killing and not enough to be the reason a fight is lost. It is the filler slot the
+ * chapter's substitutions run through, which is why it is authored at nothing more than a bow.
+ */
+export const ROADWATCH_BOWMAN = {
+  id: 'roadwatch-bowman',
+  name: 'Roadwatch Bowman',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 62,
+    def: 12,
+    haste: 112,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.12,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * The whole chapter, standing in the back rank on four hundred and thirty hit points.
+ *
+ * ⚠️ **The cheapest body in the game that buffs the whole board**, and the trap band 1 exists to
+ * spring. {@link PASS_THE_WORD} is worth a third more of everything its side does; a party that
+ * clears the front rank in the order the front rank presents itself pays that for the entire fight,
+ * and a party that reaches past it once ends the board's advantage in a single turn.
+ *
+ * ⚠️ **Deliberately the softest thing in the chapter and among the fastest**, which is the licence
+ * for putting a board-wide buff on fodder at all: it acts early, so the cost of ignoring it lands
+ * immediately, and it dies to one reaching turn, so the lesson is cheap the first time it is learned.
+ * A body this important that were also durable would be a lock rather than a priority.
+ */
+export const SIGNAL_RUNNER = {
+  id: 'signal-runner',
+  name: 'Signal Runner',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 430,
+    atk: 50,
+    def: 10,
+    haste: 130,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+  },
+  skills: [PASS_THE_WORD],
+} as const;
+
+/**
+ * The front rank goes forward while there is still a line behind it to go forward from.
+ *
+ * {@link COUCHED_LANCE} on a `common`, which is the first time the faction's heaviest single hit has
+ * been carried by anything cheap. It costs nothing in balance terms — power multiplies the carrier's
+ * own `atk`, so a 58-attack body lands two thirds of what {@link KINGSWAY_LANCER} does with it — and
+ * it costs a great deal in tempo, because it front-loads a board of fodder into its opening exchange
+ * and leaves the rest of the fight quieter.
+ *
+ * **The band's cheap statement**, standing under {@link STANDFAST_LANCER} the way the Runner stands
+ * under the Serjeant: the same idea at a price a player meets on an ordinary board.
+ */
+export const VANWARD_SPEAR = {
+  id: 'vanward-spear',
+  name: 'Vanward Spear',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 58,
+    def: 16,
+    haste: 106,
+    critChance: 0.15,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.14,
+  },
+  skills: [COUCHED_LANCE],
+} as const;
+
+/**
+ * The one who keeps saying it, long after there is anyone left to say it to.
+ *
+ * The band's other half and the chapter's central body. {@link THE_ORDER_STANDS} braces and sharpens
+ * all five at once on a seventy-five tick cadence, so the board the party is fighting is not the
+ * board it measured — and the thirty-tick window between the buff lapsing and being re-cast is where
+ * a party that killed this first gets paid.
+ *
+ * ⚠️ **Almost no offence of its own**, like every support the enemy side ships. What it costs the
+ * party is what the other four do through it, which is the only honest way to price a body whose
+ * whole contribution is a multiplier — a caller that also hit hard would be a reason to kill it that
+ * has nothing to do with the calling.
+ *
+ * `tenacity` rather than bulk: the party's cheapest answer to a buffer is a stun or a slow aimed at
+ * it, and a body that simply refuses those once in four is a body worth spending a real turn on.
+ */
+export const ORDER_SERJEANT = {
+  id: 'order-serjeant',
+  name: 'Order Serjeant',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 60,
+    def: 24,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    tenacity: 0.25,
+    magicResist: 0.06,
+  },
+  skills: [THE_ORDER_STANDS, CUTPURSE],
+} as const;
+
+/**
+ * It only works against a line, and it stops the moment there is no line to work against.
+ *
+ * Band 2 in one block: {@link AT_THE_HALT} while the party is entirely whole, {@link COUCHED_LANCE}
+ * while it is four, and a swinging body after that. **Two conditions on one kit is a decay curve**,
+ * and it is the chapter's argument that the opening exchange is the expensive one — a party that
+ * trades a member early buys the rest of the fight at a discount it did not know it was being
+ * offered.
+ *
+ * ⚠️ **Authored to be answerable by *losing*, which is the one shape of encounter this game has
+ * never built**, and the reason it is safe: every other board in the campaign gets harder as the
+ * party thins out. This one gets easier, so it can carry the faction's highest `atk` outside the
+ * `ascended` tier without being a cliff.
+ */
+export const STANDFAST_LANCER = {
+  id: 'standfast-lancer',
+  name: 'Standfast Lancer',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 80,
+    def: 26,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.3,
+    magicResist: 0.04,
+  },
+  skills: [AT_THE_HALT, COUCHED_LANCE],
+} as const;
+
+/**
+ * There is always another rank, and it is always the same rank.
+ *
+ * Band 3, and the block that makes a cleanse the wrong turn. {@link THE_LINE_REFORMS} puts
+ * {@link WEAKEN} back on the party's whole back rank the moment nobody is carrying it, so removing
+ * it is an invitation rather than an answer — the party's damage is blunted, and the turn it spends
+ * un-blunting it is a turn it also did not spend killing this.
+ *
+ * ⚠️ **`insight` rather than a higher authored chance**, which is the rule any block built to land a
+ * status against this depth of ladder follows: `statusChance` is `authored + insight − tenacity`, so
+ * a party that has bought the stat the game gave it for exactly this refuses the debuff outright
+ * however confidently it is written. Buying the pool is the honest answer; inflating the chance is
+ * the answer that stops working the moment the party invests.
+ */
+export const RESERVE_ENSIGN = {
+  id: 'reserve-ensign',
+  name: 'Reserve Ensign',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 840,
+    atk: 70,
+    def: 22,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    insight: 0.28,
+    magicResist: 0.06,
+  },
+  skills: [THE_LINE_REFORMS, CUTPURSE],
+} as const;
+
+/**
+ * Give the sign and it is answered. That is the whole of what a countersign is.
+ *
+ * Band 4, and the only block in the chapter that does nothing at all until the party acts.
+ * {@link THE_COUNTERSIGN} is conditioned on the enemy side carrying a hostile status, so a party
+ * that opens with a shred, a slow or a wound is answered past its own front rank on the next turn,
+ * and a party that opens with damage is not.
+ *
+ * ⚠️ **A cost rather than a refusal, and the distinction is what keeps the board answerable.** The
+ * Hollow Anvil's `tenacity` band made the setup turn *fail*; this lets it land and bills for it.
+ * Both are statements about the party's own turn and only one of them can be answered by choosing
+ * differently, which is why this chapter takes that one.
+ *
+ * Standing in the front rank on purpose: the answer reaches past a wall, so the body giving it does
+ * not need to hide behind one.
+ */
+export const COUNTERSIGN_CAPTAIN = {
+  id: 'countersign-captain',
+  name: 'Countersign Captain',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 960,
+    atk: 74,
+    def: 30,
+    haste: 90,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    insight: 0.22,
+    tenacity: 0.3,
+    physicalPierce: 0.2,
+  },
+  skills: [THE_COUNTERSIGN, SHIELD_BASH],
+} as const;
+
+/**
+ * The colours are not a flag. They are the thing everybody on the field is looking at.
+ *
+ * **The chapter's lieutenant**, standing on `c11-s10`, `s20`, `s30` and `s40` at 205, 210, 215 and
+ * 220 — one recurring antagonist that gets harder because the ladder does, rather than four one-shot
+ * stat blocks. ⚠️ **Reactive rather than an opening turn**, which is the third chapter running to
+ * take that shape and the reason it works: {@link THE_COLOURS_STAND} does nothing until the party has
+ * hurt something, and then banks a pool on precisely the body the party chose. Four appearances are
+ * four different fights because the party arrives at each with a different opening.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** The rule permits it — the Gravewright does on
+ * `c7-s50` — and chapters 9 and 10 both declined, because a second `ascended` anchor beside the boss
+ * is the sharpest non-linear weight step this game can author. What stands beside The Last Order is
+ * the Captain, at a legendary's weight.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_COLOUR_SERJEANT = {
+  id: 'the-colour-serjeant',
+  name: 'The Colour Serjeant',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1500,
+    atk: 88,
+    def: 44,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_COLOURS_STAND, THE_ORDER_STANDS, SHIELD_BASH],
+} as const;
+
+/**
+ * Whatever it was for is a long way behind it now, and it has not been told.
+ *
+ * **The eleventh body authored under the rule that a chapter's final is fielded nowhere else**, and
+ * no other chapter's final appears anywhere in this one.
+ *
+ * Its four turns are the chapter restated rather than a bigger stat block: {@link AT_THE_HALT} is
+ * band 2, {@link THE_LINE_REFORMS} is band 3, {@link THE_COUNTERSIGN} is band 4, and
+ * {@link THE_STANDING_ORDER} — the only skill in the chapter nothing else carries — is band 1 at an
+ * anchor's weight, taking three hostile statuses off **every** body on its side and sharpening all
+ * five in the same action. A party that opened on the escort meets the whole board again.
+ *
+ * ⚠️ **Three of its four turns are offensive, which is deliberate against a body that buffs.** A
+ * final that spent most of its actions setting up is a final a patient party is happy to be given,
+ * and this chapter already lengthens a fight through {@link GUARD}. The eighty-tick cooldown on the
+ * ultimate is the longest in the chapter for the same reason.
+ *
+ * ⚠️ **Nothing on it restores anything**, and no board it stands on carries a taunt — the discipline
+ * every roof and every final in this project has kept since 15c measured what a healer behind a wall
+ * costs. 1740 hp and 96 `atk` sit under {@link UNMADE}'s 1800 and 100, which is the ceiling
+ * `enemies.spec.ts` holds and nothing may reach.
+ */
+export const THE_LAST_ORDER = {
+  id: 'the-last-order',
+  name: 'The Last Order',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 96,
+    def: 54,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.24,
+    critBlock: 0.12,
+    tenacity: 0.55,
+    physicalPierce: 0.26,
+    magicPierce: 0.16,
+    physicalResist: 0.07,
+    magicResist: 0.07,
+  },
+  skills: [THE_STANDING_ORDER, AT_THE_HALT, THE_COUNTERSIGN, THE_LINE_REFORMS],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -4696,4 +5073,14 @@ export const ENEMIES = [
   STILLNESS_CANTOR,
   KNELL_CHANTER,
   THE_UNISON,
+  MUSTER_PIKE,
+  ROADWATCH_BOWMAN,
+  SIGNAL_RUNNER,
+  VANWARD_SPEAR,
+  ORDER_SERJEANT,
+  STANDFAST_LANCER,
+  RESERVE_ENSIGN,
+  COUNTERSIGN_CAPTAIN,
+  THE_COLOUR_SERJEANT,
+  THE_LAST_ORDER,
 ] as const;

@@ -37,7 +37,7 @@ feel free, the rarity-cap clause in level resonance is what has stopped working.
 ## ⚠️ The three things a tower clear may never touch
 
 **`clearedStages`, the ladder position, and any idle rate.** The clear count drives the idle crystal
-rate, and the shipped four hundred stages already take it to ×4.5 the base — seven towers of two
+rate, and the shipped four hundred and fifty stages already take it to ×5.5 the base — seven towers of two
 hundred floors feeding it would reach ×18, and the roster-relative ceiling in `banners.spec.ts`
 would put the whole roster inside three weeks.
 

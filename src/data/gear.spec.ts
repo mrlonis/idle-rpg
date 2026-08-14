@@ -264,9 +264,20 @@ describe('the enhancement curve', () => {
     // writes it down rather than taking the scope. It is written down in
     // [authoring](../../docs/authoring.md).
     //
-    // The floor is 1 so the guard still catches a gear curve authored at nothing, and it fires again
-    // around chapter twelve. At that point the question is whether gear costs have been made to
-    // scale, not what number goes here.
+    // The floor is 1 so the guard still catches a gear curve authored at nothing. When it does fire,
+    // the question is whether gear costs have been made to scale, not what number goes here.
+    //
+    // ## ⚠️ It said "fires again around chapter twelve" and that was a stale projection
+    //
+    // Re-measured at chapter 11 it reads **19.85 hours** against a floor of 1, and it decays as
+    // `1 / stages` — so the floor is about **8,900 stages** away, near chapter 180. The projection
+    // was made while `STAGE_REWARDS.exponent` was 1.45 and top-of-ladder income grew superlinearly
+    // in the stage count; the level-line flattening brought the exponent back to **1.00**, which
+    // turned a fast collapse into a slow one and moved this horizon by ~170 chapters. Nothing about
+    // the guard changed — the curve underneath it did, and nobody re-measured.
+    //
+    // ⚠️ **The lesson is about projections rather than about gear**: a predicted chapter number is a
+    // claim about a curve, and this project's curves move. See [authoring](../../docs/authoring.md).
     const topOfLadder =
       STAGE_REWARDS.baseRates.gold * Math.pow(LADDER_LENGTH, STAGE_REWARDS.exponent);
     const partyKit = toCap(TOP_GRADE, goldStep) * GEAR_SLOTS.length * 5;
