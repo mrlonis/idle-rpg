@@ -89,6 +89,10 @@ import {
   WITHERING_TOUCH,
   WRATH_UNBOUND,
   ZENITHFALL,
+  PROCESSION_STEP,
+  IRONWAKE_CHARGE,
+  QUICKLIME_CUT,
+  THE_HOUR_UNKEPT,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -4942,6 +4946,149 @@ export const THE_LAST_ORDER = {
   skills: [THE_STANDING_ORDER, AT_THE_HALT, THE_COUNTERSIGN, THE_LINE_REFORMS],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's third hundred floors
+//
+// Four Undead blocks on one axis: **a body that acts too often, and pays for it in bulk rather than
+// in softness.** Undead go 21 → 25 and become the deepest faction; the lean is forced rather than
+// chosen, since Undead are what counters Humans.
+//
+// ⚠️ **The axis is the inverse of the Angel Tower's, and that is what makes it this tower's.** Every
+// block above `haste` 125 that this game ships is thin — the heaviest is the Nightmarch Outrider at
+// 760 hp — because speed was priced in softness where it was last measured. Against both Human
+// arrangements the pairing reads backwards: at `haste` 144 a 420-hp body leaves the weaker
+// arrangement at 3.77 survivors and an 1120-hp body leaves it at 1.07. **A Human five kills a thin
+// fast body before it acts twice.** So these four break the pairing, which nothing else does.
+//
+// ⚠️ **Every one of them stays inside the shipped register.** `haste` tops out at 152 across all
+// 140 blocks and crit at 0.18 / 1.0; nothing here exceeds either. The dial is the *pairing*, not a
+// bigger number — and `docs/authoring.md`'s rule about checking a stat's register before building a
+// band on it is what stopped this reaching for `haste` 160, which measured well and cannot be
+// authored.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The cortege never arrived, so it is still walking.
+ *
+ * The band's opening statement and the cheapest body carrying it: `haste` 122 on 830 hp, where the
+ * only other `common` above 120 is a 210-hp Wisp. ⚠️ **A `common` is the right tier for the first
+ * appearance of an axis**, because a hundred floors has to teach it before it can charge for it —
+ * and a fodder body that takes two turns to the party's one is the whole lesson in a form the crew
+ * can still walk through.
+ */
+export const CORTEGE_LANCER = {
+  id: 'cortege-lancer',
+  name: 'Cortege Lancer',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 830,
+    atk: 46,
+    def: 30,
+    haste: 122,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    physicalResist: 0.08,
+  },
+  skills: [PROCESSION_STEP],
+} as const;
+
+/**
+ * Armour that heavy is supposed to come with a cost. This one never paid it.
+ *
+ * The middle bands' body, and the first that is genuinely both: `haste` 134 on 940 hp with 36 `def`.
+ * Measured at four to a board it takes the reference five to 3.17 survivors and the weaker
+ * arrangement to 2.60, against a 4.00 / 2.95 control.
+ *
+ * ⚠️ **Nothing on it restores anything and it carries no `lifeLeech`.** The faction's idiom is
+ * sustain — `drain` and leech in place of a healer — and a fast body that also heals is the
+ * ninety-second clock rather than a lock. Speed is the only thing this block is allowed to be about.
+ */
+export const IRONWAKE_VANGUARD = {
+  id: 'ironwake-vanguard',
+  name: 'Ironwake Vanguard',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 48,
+    def: 36,
+    haste: 134,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [IRONWAKE_CHARGE, PROCESSION_STEP],
+} as const;
+
+/**
+ * It keeps the time the rest of them march to, and it is not a generous time.
+ *
+ * The closing band's body: `haste` 144 on 1000 hp with crit at the shipped ceiling. ⚠️ **The two
+ * dials at once are past the edge**, so this is the block that may never fill a board — four of them
+ * read 2.50 / 1.02 against the weaker arrangement's 75% bar, where two of four read 3.90 / 3.42.
+ * **No board carries more than two**, which is a constraint on the floors rather than on the stats,
+ * and `tower-human.ts` is where it is checked.
+ */
+export const QUICKLIME_SERJEANT = {
+  id: 'quicklime-serjeant',
+  name: 'Quicklime Serjeant',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 1000,
+    atk: 52,
+    def: 34,
+    haste: 144,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.12,
+    physicalResist: 0.08,
+  },
+  skills: [QUICKLIME_CUT, IRONWAKE_CHARGE],
+} as const;
+
+/**
+ * The Deathless Marshal halted its column. Nobody gave this one the order.
+ *
+ * The roof, and **the fastest `ascended` block in the game by twelve points** — the previous
+ * high-water mark is The Unanswered at 112, and every anchor above 1500 hp sits between 88 and 106.
+ * That is the band's whole argument arriving on the one body allowed to carry weight with it.
+ *
+ * ⚠️ **1660 hp and 95 `atk` sit under {@link UNMADE}'s 1800 and 100**, the ceiling
+ * `enemies.spec.ts` holds and nothing may reach. The speed is where this block is different; the
+ * weight is deliberately not, because 15b measured that a front rank's weight is sharply non-linear
+ * and pairing the two heaviest blocks in the game takes a reference crew to single digits.
+ *
+ * ⚠️ **Nothing on it restores anything, and no board it stands on carries a taunt.** The rule every
+ * roof has kept since 15c measured what a healer behind a wall costs: against a party that cannot
+ * burst, sustain on the last floor is the ninety-second clock rather than a lock.
+ */
+export const THE_HOURLESS_MARCH = {
+  id: 'the-hourless-march',
+  name: 'The Hourless March',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1660,
+    atk: 76,
+    def: 50,
+    haste: 124,
+    critChance: 0.15,
+    critDamageAmp: 0.92,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.26,
+    magicPierce: 0.18,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_HOUR_UNKEPT, QUICKLIME_CUT, IRONWAKE_CHARGE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -5083,4 +5230,8 @@ export const ENEMIES = [
   COUNTERSIGN_CAPTAIN,
   THE_COLOUR_SERJEANT,
   THE_LAST_ORDER,
+  CORTEGE_LANCER,
+  IRONWAKE_VANGUARD,
+  QUICKLIME_SERJEANT,
+  THE_HOURLESS_MARCH,
 ] as const;

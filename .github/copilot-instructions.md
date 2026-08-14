@@ -89,8 +89,8 @@ them is how they get reversed by accident.
 
 **Content modes**
 
-- **[docs/towers.md](../docs/towers.md)** — seven faction towers, two hundred floors each. What a tower
-  is for, the three fields a clear may never touch, the two crews, and seven towers' worth of
+- **[docs/towers.md](../docs/towers.md)** — seven faction towers, three hundred floors each. What a
+  tower is for, the three fields a clear may never touch, the three crews, and seven towers' worth of
   measured escalation findings.
 - **[docs/descent.md](../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
@@ -253,6 +253,16 @@ Asserted in `core/battle/simulate.spec.ts`.
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](../docs/authoring.md)
+- ⚠️ **A tower band's crew owes 23 more levels of margin for every rung it takes past the first**,
+  because `ln(1.6) / ln(perLevel.common)` is 22.6. Reusing `ROOF_MARGIN` unchanged on a new hundred
+  gives ×2.703 against the shipped ×1.689 — and **the failure is invisible in the sweep**, because a
+  walkover and a correctly tuned low band both read 100% with five alive. Confirm the power ratio
+  before concluding anything about the boards. [towers](../docs/towers.md)
+- ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
+  not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
+  `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in
+  `towers.spec.ts` and `towers.balance.ts`; a filter ("the full height or two thirds of it") passes
+  forever and never notices a tower nobody went back for. [towers](../docs/towers.md)
 - ⚠️ **A mistyped optional stat is silent in both directions.** An already-`as const` object is not a
   fresh literal, so TypeScript's excess-property check never runs on it. Audit the keys with a script
   whenever a session authors stat blocks; **delete a dead key rather than correcting it.**

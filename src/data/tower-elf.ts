@@ -154,7 +154,7 @@ export const TOWER_ELF = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Root Stair — Floors 1–12, levels 1–8 — delvers and fodder, and the first speed check.
+    // The Root Stair — Floors 1–12, levels 1–6 — delvers and fodder, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f1',
@@ -218,7 +218,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Delvers’ Cut — Floors 13–28, levels 8–17 — the locks arrive: a refreshed absorb, a party-wide debuff, an evasion wall.
+    // The Delvers’ Cut — Floors 13–28, levels 7–14 — the locks arrive: a refreshed absorb, a party-wide debuff, an evasion wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f13',
@@ -302,7 +302,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Iron Grove — Floors 29–48, levels 18–29 — armour on both axes, and the first thing that takes an answer back.
+    // The Iron Grove — Floors 29–48, levels 14–23 — armour on both axes, and the first thing that takes an answer back.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f29',
@@ -415,7 +415,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Stonewright Reach — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Stonewright Reach — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f49',
@@ -525,7 +525,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Siege — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Long Siege — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f69',
@@ -612,7 +612,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Crown of Stone — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Stonewright waiting above them.
+    // The Crown of Stone — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Stonewright waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f85',
@@ -696,7 +696,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Warded Stair — Floors 101–120, levels 61–72 — past the Stonewright's crown the stone is cut with wards, and the first bodies on the stair that do not miss.
+    // The Warded Stair — Floors 101–120, levels 48–57 — past the Stonewright's crown the stone is cut with wards, and the first bodies on the stair that do not miss.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f101',
@@ -854,7 +854,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sighting Gallery — Floors 121–140, levels 73–84 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
+    // The Sighting Gallery — Floors 121–140, levels 58–67 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f121',
@@ -1015,7 +1015,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Slingworks — Floors 141–160, levels 85–96 — the engines that throw over a wall, aimed at the rank an Elf five keeps its answers in.
+    // The Slingworks — Floors 141–160, levels 67–76 — the engines that throw over a wall, aimed at the rank an Elf five keeps its answers in.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f141',
@@ -1179,7 +1179,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Turned Edge — Floors 161–180, levels 97–108 — stone laid so a crit is worth nothing, and behind it the engines finally get their turns.
+    // The Turned Edge — Floors 161–180, levels 76–85 — stone laid so a crit is worth nothing, and behind it the engines finally get their turns.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f161',
@@ -1343,7 +1343,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Wardwright's Cut — Floors 181–200, levels 109–120 — one anchor a board behind a wall that has to come down first, and the Wardwright at the top of the stair.
+    // The Wardwright's Cut — Floors 181–200, levels 86–95 — one anchor a board behind a wall that has to come down first, and the Wardwright at the top of the stair.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f181',

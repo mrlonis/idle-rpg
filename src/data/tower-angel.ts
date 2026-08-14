@@ -138,7 +138,7 @@ export const TOWER_ANGEL = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Ember Gate — Floors 1–12, levels 1–8 — imps and fodder, and the first speed check.
+    // The Ember Gate — Floors 1–12, levels 1–6 — imps and fodder, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f1',
@@ -202,7 +202,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Cinder Choir — Floors 13–28, levels 8–17 — the locks arrive: a wide magical wave, an evasion wall, and two hexes at once.
+    // The Cinder Choir — Floors 13–28, levels 7–14 — the locks arrive: a wide magical wave, an evasion wall, and two hexes at once.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f13',
@@ -292,7 +292,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Wrathfall — Floors 29–48, levels 18–29 — the escalation lock, and armour that stops answering the question.
+    // The Wrathfall — Floors 29–48, levels 14–23 — the escalation lock, and armour that stops answering the question.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f29',
@@ -408,7 +408,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Burning — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Long Burning — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f49',
@@ -518,7 +518,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Unmaking — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Unmaking — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f69',
@@ -617,7 +617,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Black Stair — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Unmade waiting above them.
+    // The Black Stair — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Unmade waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f85',
@@ -710,7 +710,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Quickening — Floors 101–120, levels 61–72 — past the Black Stair the boards stop waiting — the first cheap body that goes for whoever is already hurt, and a rank that keeps arriving before the choir does.
+    // The Quickening — Floors 101–120, levels 48–57 — past the Black Stair the boards stop waiting — the first cheap body that goes for whoever is already hurt, and a rank that keeps arriving before the choir does.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f101',
@@ -868,7 +868,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Wounded First — Floors 121–140, levels 73–84 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
+    // The Wounded First — Floors 121–140, levels 58–67 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f121',
@@ -1032,7 +1032,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Unkept Hour — Floors 141–160, levels 85–96 — the bodies that are past the front rank before the ward is up, and the last band that carries a heal — above this floor nothing on any board restores anything.
+    // The Unkept Hour — Floors 141–160, levels 67–76 — the bodies that are past the front rank before the ward is up, and the last band that carries a heal — above this floor nothing on any board restores anything.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f141',
@@ -1196,7 +1196,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Narrow Mercy — Floors 161–180, levels 97–108 — two anchors a board and never two heavy ones, nothing that restores, and something fast enough that the shields land on a body already gone.
+    // The Narrow Mercy — Floors 161–180, levels 76–85 — two anchors a board and never two heavy ones, nothing that restores, and something fast enough that the shields land on a body already gone.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f161',
@@ -1351,7 +1351,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Unanswered — Floors 181–200, levels 109–120 — two medium anchors, never two heavy ones and never three bodies above `haste` 126, because both dials at once is a board neither arrangement clears — and at the top, the verse that arrives late.
+    // The Unanswered — Floors 181–200, levels 86–95 — two medium anchors, never two heavy ones and never three bodies above `haste` 126, because both dials at once is a board neither arrangement clears — and at the top, the verse that arrives late.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f181',

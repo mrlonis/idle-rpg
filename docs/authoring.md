@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped four hundred and fifty stages and fourteen hundred floors. `AGENTS.md` states the rules and the
+shipped four hundred and fifty stages and fifteen hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -14,8 +14,8 @@ boards, and a content session is mostly a conversation with it.
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
 | Campaign         | 11 chapters, 450 stages, enemy levels 1–225 |
-| Towers           | 7 × 200 floors, enemy levels 1–95           |
-| Enemy archetypes | 140                                         |
+| Towers           | 7 × 300 floors (rules), enemy levels 1–142  |
+| Enemy archetypes | 144                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -155,7 +155,7 @@ A chapter leans on one faction and its new blocks go there, which is what gives 
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
 - **Deepen a thin faction rather than a deep one.** The seven now run angel 16, demon 17, monster 19,
-  undead 21, elf 21, dwarf 22, human 24. Recompute before choosing.
+  elf 21, dwarf 22, human 24, undead 25. Recompute before choosing.
 - ⚠️ **Check what the remaining sessions already cover.** Milestone 21 fixed its four leans up front
   and still nearly closed with Human as a standout thin faction at 13 against Dwarf's 22, because
   three later sessions each leaned elsewhere.
@@ -285,18 +285,43 @@ authors five bands each asking a different question, where a tower asks one ques
 times. A tower session deepens a faction exactly as a chapter session does, at four against ten.
 
 ⚠️ **Budget for the lean overshoot rather than discovering it.** Authored from the lean's own bench
-a second hundred comes out at 66–86% against a 65% ceiling, every session, without exception. Fix
-it **during** authoring by substituting comparable-weight bodies through the filler slots — and
-⚠️ **draw the substitutes only from factions that also counter the tower's**, or the swap quietly
-turns the lean off on that board.
+a new hundred comes out at 66–86% against a 65% ceiling, every session, without exception — the
+Human third hundred landed at 73.6%, taking the whole tower to 65.34%. Fix it **during** authoring
+by substituting comparable-weight bodies through the filler slots — and ⚠️ **draw the substitutes
+only from factions that also counter the tower's**, or the swap quietly turns the lean off on that
+board.
+
+⚠️ **Two ways of doing that substitution are not equivalent, and the obvious one is wrong.**
+Replacing every occurrence of a handful of filler blocks hits whichever band leans hardest on
+filler — which is the _opening_ band, since the late bands are mostly axis blocks. That reads as a
+tower whose first twenty floors belong to a different faction. **Spread the swap across every band
+instead**, converting one texture slot at a time in a fixed order and never touching an axis block
+or an anchor.
+
+⚠️ **If the swap has to take nearly every filler slot, the boards are too axis-dense.** The Human
+third hundred first authored 192 Lancers across a hundred floors, which left the axis blocks alone
+at 65.5% of the tower — so no arrangement of the remaining slots could reach the ceiling. Lower the
+density and bring the lean's own bench back as texture; it fixes the share and the repetition at
+once (37 distinct blocks over that hundred, against 13 before).
 
 ### Extending a tower's height
 
-⚠️ **Reach first for the top level at which the new slope meets the old one.** Doubling to 200
-floors and doubling `topLevel` to 120 gives 119/199 = 0.5980 against the shipped 59/99 = 0.5960 —
-**ten of the seven hundred shipped floors move, each by one level**, and the retune evaporates. The
-prescribed 140 would have put 46 of those 700 floors under the 90% bar and taken six of seven roofs
-from 100% to 0%.
+⚠️ **Solve for the top level at which the new slope meets the old one.** `floorLevel` draws one line
+from floor 1, so raising `floors` re-draws it underneath content that already shipped — and solving
+the slope is what makes the expected retune evaporate. It has worked twice: 100 → 200 floors at
+`topLevel` 60 → 120 moved **10 of 700** shipped floors by one level, and 200 → 300 at 95 → **142**
+moved **17 of 200**. The neighbours are much worse and the penalty is not smooth (141 moves 84, 143
+moves 50), so solve rather than eyeball.
+
+⚠️ **A round _slope_ is the trap.** Exactly 0.50 levels a floor wants a roof of 150 at 300 floors,
+which moves 172 shipped floors by up to 5 levels **and** lands its lump exactly on the campaign's
+stage-300 payout — the one bound a tower may never cross. Check the payout bound before the roof.
+
+⚠️ **A height bump also needs a new rung in `TOWER_BAND_RUNGS`**, one per hundred floors, or
+`towers.spec.ts` fails. See the crew table below for the margin that rung costs.
+
+21e's roadmap prescribed 140 and a retune of all seven hundred shipped floors; it would have put 46
+of those 700 under the 90% bar and taken six of seven roofs from 100% to 0%.
 
 ⚠️ **Check that the roof is a fight second; do not start from the roof.** A tower closes _above_ the
 cap of the rung it asks for — the campaign's margin rule — and `topLevel` being a rarity cap is the
@@ -316,17 +341,23 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 
 `towers.balance.ts` fields one per band, both derived:
 
-| Band | Floors  | Rung        | Level                    |
-| ---- | ------- | ----------- | ------------------------ |
-| 1    | 1–100   | `rare-plus` | `min(halfway floor, 60)` |
-| 2    | 101–200 | `elite`     | `min(roof − 20, 100)`    |
+| Band | Floors  | Rung         | Level | Margin under its band's top floor |
+| ---- | ------- | ------------ | ----- | --------------------------------- |
+| 1    | 1–100   | `rare-plus`  | 48    | 0 — parity                        |
+| 2    | 101–200 | `elite`      | 75    | 20 (`ROOF_MARGIN`)                |
+| 3    | 201–300 | `elite-plus` | 99    | 43 (`ROOF_MARGIN` + 23)           |
+
+⚠️ **Each further rung costs 23 more levels of margin**, because `ln(1.6) / ln(1.021)` is 22.6.
+Reusing `ROOF_MARGIN` unchanged on a new band gives ×2.703 against band 2's ×1.689 — a walkover, and
+one that is **invisible in the sweep output** because a walkover and a correctly tuned low band both
+read 100% with five alive. The rungs are pinned in `data/towers.ts`; only the levels derive.
 
 ⚠️ **The rungs are pinned and only the levels derive, and that is a correction.** Band 1 used to take
 its rung from `caps.indexOf(halfwayFloorLevel)` and band 2 from the highest cap below the roof —
 which tied each crew's **rung** to its level. When the campaign flattened and `topLevel` came down
 with it (120 → 95), that cost both crews a whole rung (×1.6) where the content only lost its levels,
 and **all seven roofs measured 0%**. Pinning the rungs holds both bands at the ratios the shipped
-seven hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the roof, to three decimals.
+fourteen hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the two-hundred-floor roof.
 
 No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
@@ -338,7 +369,7 @@ cannot pass stops the tower outright.
 ### How it escalates is a per-tower answer
 
 ⚠️ **Seven towers gave seven answers. Read the crew's failure mode before choosing; do not copy the
-last session's shape.** `AGENTS.md` carries all seven in full. What generalises is only the
+last session's shape.** [towers](towers.md) carries them all in full. What generalises is only the
 procedure:
 
 1. **Measure before authoring.** Field both arrangements at the roof's level against a controlled

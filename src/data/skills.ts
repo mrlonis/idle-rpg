@@ -4939,6 +4939,121 @@ export const THE_STANDING_ORDER = {
   priority: 5,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's third hundred floors
+//
+// Four skills for four Undead blocks, the ratio a tower session runs on. The **axis is the stat
+// block rather than the vocabulary**, and this section exists mostly to give four fast bodies
+// something to do with the turns they keep taking.
+//
+// ⚠️ **Measured, and the negative result is the finding.** Against both Human arrangements at the
+// band-3 crew, ten statuses one at a time — STUN, SLOW, WEAKEN, SUNDER, POISON, BLEED, BURN,
+// SAVAGED, HEXBRAND, DOOMBRAND — span **0.14 survivors in total**, every row between 2.88 and 3.02
+// against a 2.95 control. Aim is inert or negative, question *count* is worth nothing
+// (2.90 → 2.92 → 2.92 across one, two and four distinct questions), and the second hundred's own
+// axis — a thickened support line — is spent (taunt 4.78, link 4.83, shield 4.75 against a 4.92
+// control, with the alternate flat at 4.00 for all four).
+//
+// What moves is `haste` on a body that **survives to use it**. So these skills are deliberately
+// plain: a status riding one of them is texture, and nothing here may be load-bearing.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The step never breaks, because the thing setting it stopped needing to breathe.
+ *
+ * ⚠️ **A short cooldown on a durable body, which is the whole band in one skill.** Every fast block
+ * this game ships is thin — the heaviest thing above `haste` 125 is the Nightmarch Outrider at 760
+ * hp — because {@link docs/towers.md} priced speed in softness on the Angel Tower, where `haste` on
+ * a durable body was worth almost nothing and on a thin one was the strongest dial there was.
+ * **Against a Human five that reads exactly backwards**: at `haste` 144 a 420-hp body leaves the
+ * weaker arrangement at 3.77 survivors and an 1120-hp body leaves it at **1.07**, because a Human
+ * five kills the thin one before it acts twice.
+ *
+ * So this is the plainest possible turn and the block around it is the mechanic.
+ */
+export const PROCESSION_STEP = {
+  id: 'procession-step',
+  name: 'Procession Step',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * It was told to hold the pace. Nobody has told it anything since.
+ *
+ * A heavier version of the same statement, on a body with the armour to keep making it. ⚠️ **Aimed
+ * at the front rank rather than past it, which is the correction this hundred is built on.** The
+ * shipped tower reaches for the back row on the argument that it is where the party's healing
+ * lives; measured against both Human arrangements at the band it ships in, `enemy-back` reads
+ * 4.83 / 4.00 where `enemy-front` reads 4.00 / 3.88. **Reaching past the front rank makes a Human
+ * board easier** — the alternate five fields no tank, so damage taken off its front row is time it
+ * did not have to buy.
+ */
+export const IRONWAKE_CHARGE = {
+  id: 'ironwake-charge',
+  name: 'Ironwake Charge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 45,
+  priority: 3,
+} as const;
+
+/**
+ * Quicklime does not slow anything down. That is rather the point of it.
+ *
+ * The closing band's rider, and the **second** dial rather than a replacement for the first: crit
+ * inside the shipped register (0.18 / 1.0 are the ceilings) is worth 3.00 → 2.60 on its own, which
+ * is barely more than the statuses that are worth nothing. Paired with `haste` 144 on four bodies it
+ * reads **53%** for the weaker arrangement, against its own 75% bar.
+ *
+ * ⚠️ **So the two dials at once are past the edge, and they arrive a band apart.** No board below
+ * the closing twenty carries both, and no board anywhere carries both on more than two bodies —
+ * measured at 3.90 / 3.42 for two of four, against 2.50 / 1.02 for four of four.
+ */
+export const QUICKLIME_CUT = {
+  id: 'quicklime-cut',
+  name: 'Quicklime Cut',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * The Marshal's column halted two hundred floors ago. This is what kept walking.
+ *
+ * The roof's own turn: the band's whole argument stated once, at the weight an anchor is allowed to
+ * carry. ⚠️ **Conditioned on the party still being whole**, the shape {@link COUCHED_LANCE} uses and
+ * for the same reason — it front-loads the board's damage, and a fight decided early is a fight that
+ * *ends*. On a body this fast an unconditioned version of it would be the ninety-second clock rather
+ * than a roof.
+ *
+ * ⚠️ **No _healer_ on the roof, and the distinction is the one 15c measured.** Against a party that
+ * cannot burst, a heal on the last floor is the clock wearing a boss's stat block — the Dwarf
+ * Tower's failure. A **shield** is the safe form of the same idea, because a pool banked once
+ * depletes where a heal refills, which is why the Reliquary Bearer still stands on this board; the
+ * small `lifeLeech` and `drain` the Undead legendaries carry are likewise not sustain the party has
+ * to outpace. **No board in this hundred carries a heal at all**, checked with a script rather than
+ * by reading.
+ */
+export const THE_HOUR_UNKEPT = {
+  id: 'the-hour-unkept',
+  name: 'The Hour Unkept',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 55,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -5196,4 +5311,8 @@ export const SKILLS = [
   THE_COUNTERSIGN,
   THE_COLOURS_STAND,
   THE_STANDING_ORDER,
+  PROCESSION_STEP,
+  IRONWAKE_CHARGE,
+  QUICKLIME_CUT,
+  THE_HOUR_UNKEPT,
 ] as const;

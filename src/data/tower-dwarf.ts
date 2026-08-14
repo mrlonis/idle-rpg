@@ -149,7 +149,7 @@ export const TOWER_DWARF = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Cracked Gate — Floors 1–12, levels 1–8 — a levy at the door, and the first speed check.
+    // The Cracked Gate — Floors 1–12, levels 1–6 — a levy at the door, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f1',
@@ -213,7 +213,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sundered Hall — Floors 13–28, levels 8–17 — the locks arrive: a healer behind two bodies, a party-wide debuff, an evasion wall.
+    // The Sundered Hall — Floors 13–28, levels 7–14 — the locks arrive: a healer behind two bodies, a party-wide debuff, an evasion wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f13',
@@ -297,7 +297,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Ashen Foundry — Floors 29–48, levels 18–29 — the caster ranks, and armour that stops answering the question.
+    // The Ashen Foundry — Floors 29–48, levels 14–23 — the caster ranks, and armour that stops answering the question.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f29',
@@ -401,7 +401,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Kingsway — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Kingsway — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f49',
@@ -505,7 +505,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Siege Above — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Siege Above — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f69',
@@ -589,7 +589,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Crown Stair — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Crown-Taker waiting above them.
+    // The Crown Stair — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Crown-Taker waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f85',
@@ -676,7 +676,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Kingsway Above — Floors 101–120, levels 61–72 — the host that took the hold, camped on the road it came up, and the blocks the first hundred never met.
+    // The Kingsway Above — Floors 101–120, levels 48–57 — the host that took the hold, camped on the road it came up, and the blocks the first hundred never met.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f101',
@@ -834,7 +834,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Undervault — Floors 121–140, levels 73–84 — somebody has found the seams, and armour stops being an answer.
+    // The Undervault — Floors 121–140, levels 58–67 — somebody has found the seams, and armour stops being an answer.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f121',
@@ -992,7 +992,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Muster Field — Floors 141–160, levels 85–96 — numbers and tempo, so the fight is decided before a Dwarf five has finished settling into it.
+    // The Muster Field — Floors 141–160, levels 67–76 — numbers and tempo, so the fight is decided before a Dwarf five has finished settling into it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f141',
@@ -1150,7 +1150,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Standing Camp — Floors 161–180, levels 97–108 — an ascended block on every front rank, with a lance beside it rather than a second wall.
+    // The Standing Camp — Floors 161–180, levels 76–85 — an ascended block on every front rank, with a lance beside it rather than a second wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f161',
@@ -1314,7 +1314,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Breach — Floors 181–200, levels 109–120 — one anchor a board and everything else spent on the turn, and the Breachlord at the top of the wall.
+    // The Breach — Floors 181–200, levels 86–95 — one anchor a board and everything else spent on the turn, and the Breachlord at the top of the wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f181',

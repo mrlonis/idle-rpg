@@ -164,7 +164,7 @@ export const TOWER_UNDEAD = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Green Gate — Floors 1–12, levels 1–8 — thorns and fodder, and the first speed check.
+    // The Green Gate — Floors 1–12, levels 1–6 — thorns and fodder, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f1',
@@ -228,7 +228,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Singing Wood — Floors 13–28, levels 8–17 — the locks arrive: a party-wide slow, a healer with nothing to kill, a back rank that is not safe.
+    // The Singing Wood — Floors 13–28, levels 7–14 — the locks arrive: a party-wide slow, a healer with nothing to kill, a back rank that is not safe.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f13',
@@ -333,7 +333,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Thornfall — Floors 29–48, levels 18–29 — a wall that regrows, and every lock met in combination.
+    // The Thornfall — Floors 29–48, levels 14–23 — a wall that regrows, and every lock met in combination.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f29',
@@ -467,7 +467,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Deep Bough — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Deep Bough — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f49',
@@ -613,7 +613,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Heartwood Vigil — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Heartwood Vigil — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f69',
@@ -724,7 +724,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Canopy — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Wyrdroot waiting above them.
+    // The Canopy — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Wyrdroot waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f85',
@@ -853,7 +853,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Open Crown — Floors 101–120, levels 61–72 — past the Wyrdroot the wood breaks into light and open air, and the first bodies that will not stand still to be hit.
+    // The Open Crown — Floors 101–120, levels 48–57 — past the Wyrdroot the wood breaks into light and open air, and the first bodies that will not stand still to be hit.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f101',
@@ -1008,7 +1008,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sunward Reach — Floors 121–140, levels 73–84 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
+    // The Sunward Reach — Floors 121–140, levels 58–67 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f121',
@@ -1172,7 +1172,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Green Vigil — Floors 141–160, levels 85–96 — the first hundred's own lock restated at height: a heal with nothing to kill, on a board that cannot be out-traded. The last band that carries one.
+    // The Green Vigil — Floors 141–160, levels 67–76 — the first hundred's own lock restated at height: a heal with nothing to kill, on a board that cannot be out-traded. The last band that carries one.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f141',
@@ -1336,7 +1336,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Warded Bough — Floors 161–180, levels 97–108 — bark that has closed over the same wound a hundred times, and behind it everything the party has spent the climb missing. Nothing above this floor restores anything.
+    // The Warded Bough — Floors 161–180, levels 76–85 — bark that has closed over the same wound a hundred times, and behind it everything the party has spent the climb missing. Nothing above this floor restores anything.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f161',
@@ -1500,7 +1500,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sunbough — Floors 181–200, levels 109–120 — one anchor a board and an evasive board around it, and at the top the thing the whole wood was reaching for.
+    // The Sunbough — Floors 181–200, levels 86–95 — one anchor a board and an evasive board around it, and at the top the thing the whole wood was reaching for.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f181',

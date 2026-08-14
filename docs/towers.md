@@ -1,9 +1,18 @@
 # Faction towers
 
-Seven towers, one per faction, **two hundred floors each at enemy levels 1 to 120**. The system
+Seven towers, one per faction, **three hundred floors each at enemy levels 1 to 142**. The system
 shipped in milestone 15b with a single tower, the other six in 15c, and the second hundred floors
 across 21e–21k. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
+
+⚠️ **The third hundred is in flight.** `TOWER_RULES` is one rule for all seven, so the height moved
+to 300 in a single session while the floors arrive one tower at a time — exactly as the second
+hundred did. A tower that has not been extended yet is on the `PENDING` list in
+[`towers.spec.ts`](../src/data/towers.spec.ts) and
+[`towers.balance.ts`](../src/data/towers.balance.ts), still authors 200 floors, and **has no boss
+until its own hundred lands**: `floorKindAt` reads the rules' height, so its floor 200 resolves as a
+mini-boss paying ×2 rather than ×5. That is licensed by one argument and one only — **no build
+carrying this has ever reached a player.**
 
 Adding a tower is a row in [`data/towers.ts`](../src/data/towers.ts), a matching row in
 [`data/activities.ts`](../src/data/activities.ts), two achievement tracks, and its floors.
@@ -37,8 +46,8 @@ feel free, the rarity-cap clause in level resonance is what has stopped working.
 ## ⚠️ The three things a tower clear may never touch
 
 **`clearedStages`, the ladder position, and any idle rate.** The clear count drives the idle crystal
-rate, and the shipped four hundred and fifty stages already take it to ×5.5 the base — seven towers of two
-hundred floors feeding it would reach ×18, and the roster-relative ceiling in `banners.spec.ts`
+rate, and the shipped four hundred and fifty stages already take it to ×5.5 the base — seven towers of
+three hundred floors feeding it would reach ×24, and the roster-relative ceiling in `banners.spec.ts`
 would put the whole roster inside three weeks.
 
 Progress is **one integer per tower** in `GameState.towers`, and `applyTowerResult` is a separate
@@ -65,12 +74,11 @@ must follow a formula is the retyping [testing](testing.md) forbids.
 ⚠️ **A tower closes _above_ the cap of the rung it asks for** — the campaign's own margin rule — and
 `topLevel` being a rarity cap is the opposite of what makes a roof a fight. A rung is worth ×1.6 and
 **the enemy side has no rungs at all**, so a crew at parity with the content is only a fair test at
-the first rung above `rare`, which is where the shipped hundred sat and why it worked. The roof is
-**120 against an `elite` crew capped at 100** — a margin of +20.
+the first rung above `rare`. The roof is **142 against an `elite-plus` crew capped at 140**.
 
-Milestone 21e measured the alternative: at `elite-plus` (three rungs, ×4.096) a level-140 five takes
-**the heaviest board this game can author** — five `ascended` blocks with an Unmade in front — at
-100% with all five alive in nine seconds, and no line-up fixes it.
+Milestone 21e measured what happens without the margin: at `elite-plus` (three rungs, ×4.096) a
+level-140 five takes **the heaviest board this game can author** — five `ascended` blocks with an
+Unmade in front — at 100% with all five alive in nine seconds, and no line-up fixes it.
 
 | Crew         | Rungs | The heaviest authorable board at the crew's own level |
 | ------------ | ----- | ----------------------------------------------------- |
@@ -78,14 +86,32 @@ Milestone 21e measured the alternative: at `elite-plus` (three rungs, ×4.096) a
 | `elite`      | 2     | 100%, 4.30 survivors                                  |
 | `elite-plus` | 3     | 100%, 5.00 survivors, 9s                              |
 
-### ⚠️ Extending a tower: reach first for where the new slope meets the old one
+### ⚠️ Extending a tower: solve for where the new slope meets the old one
 
-Doubling to 200 floors and doubling `topLevel` to 120 gives 119/199 = 0.5980 against the shipped
-59/99 = 0.5960 — **ten of the seven hundred shipped floors move, each by one level**, and the retune
-the roadmap had budgeted for does not exist. It is arithmetic rather than luck: 199 ≈ 2×99 + 1 and
-119 ≈ 2×59 + 1, so doubling the floor count and the top level together leaves the line where it was.
+`floorLevel` draws **one line from floor 1**, so raising `floors` re-draws it underneath content that
+already shipped. Solving for the top level at which the new slope meets the old one is what makes the
+expected retune disappear, and it has now worked twice:
 
-The prescribed 140 would have put **46 of those 700 floors under the 90% bar** and taken six of seven
+| Extension | Floors    | topLevel | New slope | Old slope | Shipped floors that move |
+| --------- | --------- | -------- | --------- | --------- | ------------------------ |
+| 21e       | 100 → 200 | 60 → 120 | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
+| this one  | 200 → 300 | 95 → 142 | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
+
+**142 is where the two slopes meet**: 299 ≈ 1.5025 × 199 and 141 = 1.5 × 94.
+
+⚠️ **The neighbours are much worse and the penalty is not smooth**, so solve rather than eyeball —
+141 moves 84 floors and 143 moves 50, against 142's 17. ⚠️ **A round _slope_ is the trap**: exactly
+0.50 levels a floor wants a roof of 150, which moves 172 of the 200 shipped floors by up to 5 levels
+**and** lands its lump exactly on the campaign's stage-300 payout, failing the one bound that may
+never be crossed. The highest roof that clears it at 300 floors is 149.
+
+⚠️ **Making `floorLevel` piecewise would preserve every shipped floor exactly**, and it has been
+declined twice — it is a `core/` change and a content session may not take one. It stays the right
+answer if a future extension cannot be solved this way; record it as a finding rather than reaching
+for it.
+
+21e's roadmap prescribed 140 and a retune of all seven hundred shipped floors, and both halves
+measured wrong: it would have put **46 of those 700 floors under the 90% bar** and taken six of seven
 roofs from 100% to 0%. **Check the roof is a fight second; do not start from the roof.**
 
 ⚠️ **If the height moves in one session and the floors move in seven, use a self-deleting
@@ -115,7 +141,27 @@ campaign's level curve is nearly flat through chapter 1's tail where the tower's
 
 Crystals are **100 a floor** (×2 mini-boss, ×5 roof), **500 per five floors**, and **10,000 per
 hundred floors** — see [achievements](achievements.md) for why the per-floor figure is deliberately
-not the campaign's 250, and for the tower:campaign ratio that guards it.
+not the campaign's 250. `Spire Conqueror` stays `every: 100`, so a three-hundred-floor tower pays it
+three times; the tie it holds with a chapter's completion award is stated **per hundred floors**.
+
+### ⚠️ The tower:campaign crystal ratio was asserted and has been retired
+
+It read `sum(crystalsPerTower) / campaignCrystals` against a floor of 1.3 and a ceiling of 4. **The
+floor is what killed it**: that quantity falls by construction every time a chapter ships and rises in
+one step every time the towers grow, so it had been moved 2 → 1.5 → 1.3 → 1.1 → 0.7 → 1.3 across five
+sessions and spent six of them parked at a placeholder watching nothing. The third hundred takes it
+from 1.40 to **2.09**, which would have been a sixth slide. Retiring it is the call recorded in
+[authoring](authoring.md) for three earlier guards, on the test that applies here: **when the honest
+restatement of a guard is a number you would refuse to author, the guard is pointed at the wrong
+quantity.**
+
+⚠️ **The stable ceiling went with it, and what that gives up is real.** Nothing now fails if a future
+session ships an eighth ladder or a fourth hundred and the towers quietly become the run's main
+crystal income. The question both halves were asking — _is seven towers still the right amount of
+optional content beside the campaign of the day_ — is a design question a threshold was never going
+to answer. **Recompute both totals when extending either side**; the arithmetic is a dozen lines and
+nothing does it for you now. At three hundred floors: seven towers pay **653,100** (233,100 from
+floors, 420,000 from tracks) against an eleven-chapter campaign's **312,500**.
 
 ## The lock, and when towers open
 
@@ -199,21 +245,48 @@ carries the lowest `atk` in the game, and for the Angel five, which is four supp
 party that cannot burst, the last floor is where sustain stops being a lock and becomes the clock.
 The roof dropped the Acolyte; the mini-bosses below it kept theirs.
 
-## The two crews, and which one binds
+## The three crews, and which one binds
 
-The balance target is **two crews, one per band, both levels derived rather than chosen**:
+The balance target is **one crew per hundred floors, rungs pinned in `data/towers.ts` and every level
+derived rather than chosen**:
 
-| Band | Floors  | Rung        | Level           | Against       |
-| ---- | ------- | ----------- | --------------- | ------------- |
-| 1    | 1–100   | `rare-plus` | 60 (`caps[3]`)  | level 60 top  |
-| 2    | 101–200 | `elite`     | 100 (`caps[4]`) | level 120 top |
+| Band | Floors  | Rung         | Level | Against top floor | Power ratio |
+| ---- | ------- | ------------ | ----- | ----------------- | ----------- |
+| 1    | 1–100   | `rare-plus`  | 48    | level 48          | ×1.600      |
+| 2    | 101–200 | `elite`      | 75    | level 95          | ×1.689      |
+| 3    | 201–300 | `elite-plus` | 99    | level 142         | ×1.676      |
 
-Band 1's level is the cap that **equals** the halfway floor's level; band 2's is the highest cap
-strictly **below** the roof. **No gear on either** — a player crewing seven towers has one bag to
-equip thirty-five characters from, so tuning against a fully geared five would tune for a party
-nobody with seven crews can field.
+⚠️ **The rungs are pinned and only the levels derive, and that is a correction.** They used to come
+off the caps ladder, which tied each crew's **rung** to its level — so when the campaign flattened and
+`topLevel` came down with it, both crews lost a whole rung (×1.6) where the content only lost its
+levels and **all seven roofs measured 0%**.
 
-⚠️ **A single upgraded crew would stop the sweep saying anything about the low band**, on seven
+⚠️ **Band 1 stands at parity with its own top floor and the bands above it do not.** Band 1's crew is
+one rung over `rare` — the first rung at which a party is a fair test at all — so it has no rung to
+pay back. Every band above owes `ROOF_MARGIN` (20) once, **plus 23 levels for each further rung**,
+because `ln(1.6) / ln(1.021)` is 22.6. The margins run 0, 20, 43.
+
+⚠️ **Reusing the margin unchanged on a new band is a walkover, and it is not a small one.** Measured
+against band 2's ×1.689 at a level-142 roof:
+
+| Band 3 crew                   | Ratio      |
+| ----------------------------- | ---------- |
+| `elite-plus`, margin 20 → 122 | **×2.703** |
+| `elite-plus`, margin 43 → 99  | ×1.676     |
+| `elite`, margin 42 → 100      | ×1.072     |
+
+The failure is **invisible in the output** — every floor reads 100% with five alive, which is also
+what a correctly tuned low band reads — so confirm the ratio before concluding anything about boards.
+
+⚠️ **`elite-plus` hands over no new skill.** `KIT_RULES.unlocks` is `elite` / `legendary` /
+`ascended`, so band 3's crew is band 2's kit at ×1.6 and twenty-four more levels. The next kit step is
+`legendary`, which caps at 200 and is a fourth hundred's business.
+
+**No gear on any of them** — a player crewing seven towers has one bag to equip thirty-five
+characters from, so tuning against a fully geared five would tune for a party nobody with seven crews
+can field.
+
+⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on fourteen
 hundred floors that are already shipped. A band-2 crew walks over floor 40.
 
 **A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
@@ -257,9 +330,27 @@ the game. **Measure it on the tower's own crew**, and author the opening bands f
 ⚠️ **How a second hundred escalates is a per-tower answer. Read the crew's failure mode before
 choosing; do not copy the last session's shape.**
 
-- **Human** — thins its anchors and thickens the board's **support** (links, shields, a taunt), the
-  inverse of the shipped hundred's climax. The alternate clears two-anchor boards to about level 108
-  and falls off a cliff by 117.
+- **Human, second hundred** — thins its anchors and thickens the board's **support** (links,
+  shields, a taunt), the inverse of the first hundred's climax. The alternate clears two-anchor
+  boards to about level 108 and falls off a cliff by 117.
+- **Human, third hundred** — the first where the answer was **the stat block and nothing else**, and
+  the negative results are the finding. Ten statuses one at a time span **0.14 survivors in total**
+  (2.88–3.02 against a 2.95 control); question _count_ is worth nothing (2.90 → 2.92 → 2.92 across
+  one, two and four); aim is inert or **negative** (`enemy-front` 2.98 against `enemy-back` 3.90);
+  and the second hundred's own support axis is spent (taunt 4.78, link 4.83, shield 4.75 against a
+  4.92 control, the alternate flat at 4.00 for all four). What moves is **`haste` on a body that
+  survives to use it**: at `haste` 144 a 420-hp body leaves the alternate at 3.77 and an 1120-hp body
+  at **1.07**. ⚠️ **The exact inverse of the Angel Tower's rule**, and the shipped register encodes
+  the Angel version — **every one of the 140 blocks above `haste` 125 is thin**, the heaviest being
+  the Nightmarch Outrider at 760 hp. So that hundred is where speed stops costing softness, and its
+  four blocks are the only ones in the game that break the pairing. Crit is the second dial and
+  arrives a band late; the two at once are past the edge.
+  - ⚠️ **It also found a shipped doc claim to be wrong.** `NIGHT_RIDE` reaches for `enemy-back` on
+    the argument that it is the row the party's healing lives in. Measured at the band it ships in
+    with the chassis held constant, `enemy-back` reads 4.83 / 4.00 where `enemy-front` reads
+    4.00 / 3.88 — **reaching past the front rank makes a Human board easier**, because the alternate
+    fields no tank and damage taken off its front row is time it did not have to buy. The floors are
+    fine; the reason written on them was not.
 - **Dwarf** — cannot do that. A Dwarf five out-lasts bulk and loses to the ninety-second clock, so it
   escalates in **front** and forbids sustain above floor 180. Measured at the top floor's level: one
   anchor plus a _bulky_ legendary reads 90% / 45.7s and 63% for the alternate; the same weight as a

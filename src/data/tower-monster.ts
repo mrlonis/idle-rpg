@@ -190,7 +190,7 @@ export const TOWER_MONSTER = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Open Field — Floors 1–12, levels 1–8 — one of everything, and the first speed check.
+    // The Open Field — Floors 1–12, levels 1–6 — one of everything, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f1',
@@ -254,7 +254,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Seven Banners — Floors 13–28, levels 8–17 — the locks arrive, one faction at a time, and never twice in a row.
+    // The Seven Banners — Floors 13–28, levels 7–14 — the locks arrive, one faction at a time, and never twice in a row.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f13',
@@ -338,7 +338,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Hunters Above — Floors 29–48, levels 18–29 — the sharp questions, and every faction asking a different one.
+    // The Hunters Above — Floors 29–48, levels 14–23 — the sharp questions, and every faction asking a different one.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f29',
@@ -454,7 +454,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Ring of Spears — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Ring of Spears — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f49',
@@ -594,7 +594,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Circling Gate — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, and never the same one twice running.
+    // The Circling Gate — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, and never the same one twice running.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f69',
@@ -711,7 +711,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Last Banner — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, drawn from every faction that hunts Monsters, which is all of them.
+    // The Last Banner — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, drawn from every faction that hunts Monsters, which is all of them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f85',
@@ -837,7 +837,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Chase — Floors 101–120, levels 61–72 — past the last banner the field opens, and the hunt stops being a line of bodies and starts being a chase.
+    // The Long Chase — Floors 101–120, levels 48–57 — past the last banner the field opens, and the hunt stops being a line of bodies and starts being a chase.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f101',
@@ -974,7 +974,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Beaters' Line — Floors 121–140, levels 73–84 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
+    // The Beaters' Line — Floors 121–140, levels 58–67 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f121',
@@ -1135,7 +1135,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Converging Horns — Floors 141–160, levels 85–96 — four questions, and the last band that carries a heal — above this floor nothing on any board restores anything.
+    // The Converging Horns — Floors 141–160, levels 67–76 — four questions, and the last band that carries a heal — above this floor nothing on any board restores anything.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f141',
@@ -1296,7 +1296,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Narrowed Ground — Floors 161–180, levels 97–108 — an anchor to a board and never two, with four questions standing behind it.
+    // The Narrowed Ground — Floors 161–180, levels 76–85 — an anchor to a board and never two, with four questions standing behind it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f161',
@@ -1448,7 +1448,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Horncaller — Floors 181–200, levels 109–120 — five questions and one anchor a board, and at the top the horn all hundred floors of banners were listening for.
+    // The Horncaller — Floors 181–200, levels 86–95 — five questions and one anchor a board, and at the top the horn all hundred floors of banners were listening for.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f181',

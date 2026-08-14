@@ -134,7 +134,7 @@ export const TOWER_DEMON = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Gilded Gate — Floors 1–12, levels 1–8 — motes and sentries, and the first speed check.
+    // The Gilded Gate — Floors 1–12, levels 1–6 — motes and sentries, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f1',
@@ -198,7 +198,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Choir Stair — Floors 13–28, levels 8–17 — the locks arrive: a refreshed absorb on five bodies, a back rank that is not safe, an evasion wall.
+    // The Choir Stair — Floors 13–28, levels 7–14 — the locks arrive: a refreshed absorb on five bodies, a back rank that is not safe, an evasion wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f13',
@@ -300,7 +300,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Weighing — Floors 29–48, levels 18–29 — the priority lock, and armour that stops answering the question.
+    // The Weighing — Floors 29–48, levels 14–23 — the priority lock, and armour that stops answering the question.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f29',
@@ -440,7 +440,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Watch — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Long Watch — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f49',
@@ -589,7 +589,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Radiant Vigil — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Radiant Vigil — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f69',
@@ -712,7 +712,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Gilded Crown — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Hierophant waiting above them.
+    // The Gilded Crown — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Hierophant waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f85',
@@ -841,7 +841,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Massed Verse — Floors 101–120, levels 61–72 — the first bodies that speak to all five at once, and nothing rides along with it yet.
+    // The Massed Verse — Floors 101–120, levels 48–57 — the first bodies that speak to all five at once, and nothing rides along with it yet.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f101',
@@ -993,7 +993,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Hush — Floors 121–140, levels 73–84 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
+    // The Hush — Floors 121–140, levels 58–67 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f121',
@@ -1154,7 +1154,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Tolling — Floors 141–160, levels 85–96 — the rider becomes the turn itself, on the lightest legendary body this tower fields.
+    // The Tolling — Floors 141–160, levels 67–76 — the rider becomes the turn itself, on the lightest legendary body this tower fields.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f141',
@@ -1318,7 +1318,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Whole Choir — Floors 161–180, levels 97–108 — the slow and the stun on one board, and the first roofs heavy enough to keep both alive.
+    // The Whole Choir — Floors 161–180, levels 76–85 — the slow and the stun on one board, and the first roofs heavy enough to keep both alive.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f161',
@@ -1482,7 +1482,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Last Verse — Floors 181–200, levels 109–120 — three voices on one board, and above them the body that is all three by itself.
+    // The Last Verse — Floors 181–200, levels 86–95 — three voices on one board, and above them the body that is all three by itself.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f181',
