@@ -204,6 +204,20 @@ export class HomeView {
   }
 
   /**
+   * Whether the Descent card is a link.
+   *
+   * ⚠️ **A locked card is inert, exactly like a locked tower row**, and that is a reversal. Both
+   * cards used to be links in every state on the argument that the screen behind them was worth
+   * reading while locked — it names the mode and what is still owed. In practice the locked screen
+   * says what the card already says and offers nothing to do, so the link was a tap into a
+   * dead end. The row states its own key instead, which is what a locked tower has always done.
+   */
+  protected readonly descentLocked = computed(() => this.descentRuns.phase() === 'locked');
+
+  /** The same, for Expeditions. See `descentLocked`. */
+  protected readonly expeditionsLocked = computed(() => !this.expeditions.isUnlocked());
+
+  /**
    * What the Descent card says under its name.
    *
    * Six states and every one of them names the next thing to do, which is the same rule the locked

@@ -11,9 +11,11 @@ import {
   COLOSSUS,
   CONCORD_CANTOR,
   DEEPROCK_MINER,
+  EVENSONG_WARDEN,
   FREE_BLADE,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLASSCHOIR_ARBITER,
   GOLEM,
   GRAVETIDE_HERALD,
   HEADSMAN,
@@ -23,19 +25,27 @@ import {
   KNELL_CHANTER,
   LITANY_BEARER,
   LUMEN_ACOLYTE,
+  MARROWHUNT_ALPHA,
   MOONSONG_WEAVER,
   NIGHTMARCH_OUTRIDER,
   OATHSHIELD_VANGUARD,
+  PLAINSONG_PRECENTOR,
   RADIANT_HERALD,
   REVENANT,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
+  SCARBOUND_BELLOWER,
+  SCARWEAVE_TRAMPLER,
   SEALWARD_CUSTODIAN,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHARDLIGHT_ACOLYTE,
+  SHATTERJAW_MAULER,
   STILLNESS_CANTOR,
   STORMCALLER,
+  THE_UNBITTEN,
+  THE_UNFALTERING,
   THE_UNISON,
   UNMADE,
   VAULTLIGHT_CENSER,
@@ -47,7 +57,11 @@ import {
 } from './enemies';
 
 /**
- * The Demon Tower — two hundred floors, enemy levels 1 to 120.
+ * The Demon Tower — three hundred floors, enemy levels 1 to 142.
+ *
+ * **The seventh tower to reach the third hundred and the last one to get there**, which closes a
+ * height bump that landed in one session and took seven to fill. The `PENDING` lists in
+ * `towers.spec.ts` and `towers.balance.ts` went with it.
  *
  * ## Why the enemies are mostly Angels
  *
@@ -115,6 +129,102 @@ import {
  * worst reference reading is 100% and the worst alternate **78%**, at floor 194. The longest
  * cleared fight anywhere in the new hundred is 37.5s against a 67.5s bar, and no floor times out.
  *
+ * ## ⚠️ The third hundred: the choir refuses the edge the faction is named for
+ *
+ * The last hundred of the last tower, and the seventh different answer again. The axis is **crit
+ * denial** — `critBlock` and `critDamageResist` on the bodies a Demon five has to get through —
+ * and the case for it is that this is the crew the stat was waiting for. The two swept Demon
+ * arrangements carry `critChance` **Σ1.21 and Σ1.43** (x̄ 0.242 and 0.286) and `critDamageAmp`
+ * **Σ4.50 and Σ5.05**, against the Elf five's 1.03 / 3.67 and **every other crew in the game at or
+ * under 0.77 / 3.40**. `core/battle/damage.ts` resolves a crit as `critChance − critBlock` and its
+ * worth as `1 + max(critDamageAmp − critDamageResist, 0)`, and it licenses the chance reaching zero
+ * in as many words: *a hit that never crits still kills, so a crit-immune archetype cannot stall a
+ * battle the way an unhittable one could.* This is the one shape in the game that may close a door
+ * outright without becoming the ninety-second clock.
+ *
+ * Measured against both arrangements at the roof's level before a floor was authored, on a
+ * controlled board of one anchor (1500/88) plus four identical bodies (780/88), forty seeds — mean
+ * survivors of five, reference / alternate, against a **4.00 / 3.92** control:
+ *
+ * | Four bodies at                       | reference   | alternate   |
+ * | ------------------------------------ | ----------- | ----------- |
+ * | `critBlock` 0.10 / 0.16              | 4.00 / 4.00 | 3.70 / 3.75 |
+ * | `critBlock` 0.24 — *the register*    | 4.00        | **3.33**    |
+ * | `critBlock` 0.32 / 0.40 / 0.50       | 3.98 / 3.98 / 4.00 | 3.17 / **2.85** / **2.50** |
+ * | `critDamageResist` 0.32 — *register* | 4.00        | 3.73        |
+ * | `critDamageResist` 0.75 / 1.10       | 4.00 / 3.98 | 3.50 / 2.92 |
+ * | both, 0.24 + 0.32                    | 3.98        | 3.38        |
+ * | both, 0.40 + 0.75                    | 4.00        | **2.42**    |
+ *
+ * **Zero timeouts on every row**, fights running 7.1s to 13.5s against a ninety-second timer, so it
+ * is difficulty rather than the clock. ⚠️ **`critDamageResist` is much the weaker of the two and is
+ * never the whole of a board** — it needs 1.10, three times its register, to reach what `critBlock`
+ * does at 0.40.
+ *
+ * ⚠️ **The count matters more than the size until the register is reached, which is this tower's own
+ * second-hundred thesis arriving on the other side of the board.** At the register pair, by how many
+ * of the four carry it: 3.77 → 3.77 → 3.67 → **3.33** → 3.35 across none, one, two, three and four.
+ * A Demon five is answered board-wide or it is not answered at all — the second hundred found that
+ * about what a board *does*, and the third finds it about what a board *is*. So the bands escalate
+ * one carrier → two → three → the board entire → the board entire with the pair on it.
+ *
+ * ⚠️ **The first control measured this axis as completely inert, and the control was the bug.** A
+ * board of four 780/**68** bodies reads 4.00 / 3.92 as well, and on it the entire grade from
+ * `critBlock` 0.10 to full crit immunity spans **4.00 to 3.92** — nothing. Both controls sit at
+ * ~4.00 of five and only one of them has anywhere to fall: the crew loses its glass cannon to
+ * anything and its other four to nothing, so 4.00 is a **plateau** rather than a midpoint. ⚠️
+ * **Check that the control's survivor count moves before trusting a flat row**, which is the
+ * Seedfall's saturation trap arriving from the opposite direction — that one saturated at the
+ * bottom and this one at the top.
+ *
+ * ⚠️ **"Is it ours" comes back the sharpest it has for any tower.** As a change on each crew's own
+ * control — calibrated per crew to the heaviest board still reading ~4.00, then the pair applied at
+ * 0.40 and 0.32: demon-alt **−1.25**, demon-ref −0.35, elf-ref −0.30, elf-alt −0.15, undead-alt
+ * −0.13, undead-ref −0.05, human-alt −0.02, and **0.00 for every Human, Dwarf, Monster and Angel
+ * arrangement swept**. The Elves are the only other crit-heavy roster and they lose a quarter of
+ * what the Demons do. Contrast the Closing's `physicalResist`, which cost undead-ref a full member
+ * and dwarf-ref 0.42 on its way to being taken.
+ *
+ * ⚠️ **The band is built at the register and only the roof steps past** — the Splintering Yards'
+ * shape rather than the Closing's, and stated here in writing so a later session can tell which it
+ * is looking at. The shipped ceilings are the Edgeturn Warden's `critBlock` **0.24** over 44 blocks
+ * that carry any and `critDamageResist` **0.32** over 27; the three new legendaries run 0.16 / 0.20 /
+ * 0.24 and 0.25 / 0.28 / 0.32, and only {@link THE_UNFALTERING} goes beyond at 0.34 and 0.52.
+ *
+ * ⚠️ **The Unison retires, and it is the tower's *roof* that had to go rather than its heaviest
+ * body.** The shipped floor-200 board fielded up its own level line against the band-3 crew reads
+ * 100% with all five alive at level 95, 100% / 4.78 at 125, and **33% with 0.53** at 142 — the
+ * fourth tower to collapse there. But the block underneath it is the one that survives: behind light
+ * support at level 142 the **Hollow Seraph at 1760/99 reads 100% / 3.83** while **The Unison at
+ * 1720/92 reads 98% / 0.23**, so what fails is not weight but the board-wide turn the second hundred
+ * was built on, against the glassier of the two arrangements. Both stop at the second hundred; the
+ * new hundred fields neither, and {@link THE_UNFALTERING} is 1440/86 against the Unison's 1720/92.
+ *
+ * ⚠️ **The second hundred's "no board carries two `ascended` blocks" survives a whole rung of
+ * investment and stays.** At level 142 against the band-3 crews: Hollow Seraph beside The Unison is
+ * **0% / 0%**, beside the Barrow Sovereign 100% / **5%**, beside the Wyrdroot Ancient 100% / **8%**.
+ * Only the two lightest pair legally, and no board in this hundred pairs any.
+ *
+ * ⚠️ **Every board in the third hundred is sized against the *alternate* arrangement**, which is the
+ * Closing's answer rather than this tower's second hundred. The collapse above lands on it, and so
+ * does the whole of the axis: the reference five moves 4.00 → 3.98 across the entire grade.
+ *
+ * The roof is The Unfaltering and an Evensong Warden over a Shatterjaw Mauler, a Scarweave Trampler
+ * and a Scarbound Bellower: **100% / 3.88 survivors / 9.8s** for the reference five and **90% /
+ * 1.60 / 18.7s** for the alternate, against bars of 90% and 75%. ⚠️ **The axis carries it rather
+ * than riding along** — the same five bodies with `critBlock` and `critDamageResist` stripped to
+ * zero read 100% / 4.00 and 100% / 3.65, so the refusal is worth 1.2 of five on the last floor.
+ * Every floor of 201–300 was swept individually against both arrangements: the worst reference
+ * reading is **100%**, the worst alternate **90%** at the roof, **no floor times out**, and the
+ * longest fight anywhere is 28.7s against a 67.5s bar.
+ *
+ * ⚠️ **What this hundred restores, stated as counts rather than as an absolute.** Over floors
+ * 201–300: 26 boards carry `recovery`, 36 carry `lifeLeech`, one carries `healthRegen` (floor 218),
+ * and 21 field a block whose kit contains a heal, a drain or a shield. What is actually forbidden is
+ * narrower and it is the roof: **the last floor carries none of the four**, because a roof is where
+ * sustain stops being a lock and becomes the clock. Three towers have now shipped the same false
+ * absolute about sustain, always on the word "regeneration"; the counts above are the fix.
+ *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
 export const TOWER_DEMON = {
@@ -134,7 +244,7 @@ export const TOWER_DEMON = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Gilded Gate — Floors 1–12, levels 1–8 — motes and sentries, and the first speed check.
+    // The Gilded Gate — Floors 1–12, levels 1–6 — motes and sentries, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f1',
@@ -198,7 +308,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Choir Stair — Floors 13–28, levels 8–17 — the locks arrive: a refreshed absorb on five bodies, a back rank that is not safe, an evasion wall.
+    // The Choir Stair — Floors 13–28, levels 7–14 — the locks arrive: a refreshed absorb on five bodies, a back rank that is not safe, an evasion wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f13',
@@ -300,7 +410,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Weighing — Floors 29–48, levels 18–29 — the priority lock, and armour that stops answering the question.
+    // The Weighing — Floors 29–48, levels 14–23 — the priority lock, and armour that stops answering the question.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f29',
@@ -440,7 +550,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Long Watch — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Long Watch — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f49',
@@ -589,7 +699,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Radiant Vigil — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Radiant Vigil — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f69',
@@ -712,7 +822,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Gilded Crown — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Hierophant waiting above them.
+    // The Gilded Crown — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Hierophant waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f85',
@@ -841,7 +951,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Massed Verse — Floors 101–120, levels 61–72 — the first bodies that speak to all five at once, and nothing rides along with it yet.
+    // The Massed Verse — Floors 101–120, levels 48–57 — the first bodies that speak to all five at once, and nothing rides along with it yet.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f101',
@@ -993,7 +1103,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Hush — Floors 121–140, levels 73–84 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
+    // The Hush — Floors 121–140, levels 58–67 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f121',
@@ -1154,7 +1264,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Tolling — Floors 141–160, levels 85–96 — the rider becomes the turn itself, on the lightest legendary body this tower fields.
+    // The Tolling — Floors 141–160, levels 67–76 — the rider becomes the turn itself, on the lightest legendary body this tower fields.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f141',
@@ -1318,7 +1428,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Whole Choir — Floors 161–180, levels 97–108 — the slow and the stun on one board, and the first roofs heavy enough to keep both alive.
+    // The Whole Choir — Floors 161–180, levels 76–85 — the slow and the stun on one board, and the first roofs heavy enough to keep both alive.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f161',
@@ -1482,7 +1592,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Last Verse — Floors 181–200, levels 109–120 — three voices on one board, and above them the body that is all three by itself.
+    // The Last Verse — Floors 181–200, levels 86–95 — three voices on one board, and above them the body that is all three by itself.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f181',
@@ -1633,6 +1743,826 @@ export const TOWER_DEMON = {
       enemies: {
         front: [THE_UNISON, LITANY_BEARER],
         back: [KNELL_CHANTER, STILLNESS_CANTOR, LUMEN_ACOLYTE],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Unbroken Line — Floors 201–220, levels 95–104 — one voice a board refuses an edge, and the tower stops paying the Demon crit it has been paying for two hundred floors.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f201',
+      name: 'Floor 201',
+      enemies: {
+        front: [CONCORD_CANTOR, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, HEADSMAN],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [ASHEN_CHOIR, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, ZENITH_CHORISTER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, MOONSONG_WEAVER, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, RIVEN_MARCHWARDEN],
+        back: [KNELL_CHANTER, VAULTLIGHT_CENSER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [GILDED_SENTRY, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, COLDHEARTH_IRONSWORN],
+        back: [KNELL_CHANTER, SHARDLIGHT_ACOLYTE, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [CONCORD_CANTOR, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, WEALDSHADOW_STALKER],
+        back: [KNELL_CHANTER, ZENITH_CHORISTER, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f210',
+      name: 'Floor 210 — The Unbroken Line',
+      enemies: {
+        front: [THE_UNBITTEN, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-demon-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [ASHEN_CHOIR, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, VAULTLIGHT_CENSER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, OATHSHIELD_VANGUARD],
+        back: [STILLNESS_CANTOR, SHARDLIGHT_ACOLYTE, STORMCALLER],
+      },
+    },
+    {
+      id: 't-demon-f213',
+      name: 'Floor 213',
+      enemies: {
+        front: [GLASSCHOIR_ARBITER, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, RADIANT_HERALD, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, BLOODGORGE_HOUND],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, ZENITH_CHORISTER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, GRAVETIDE_HERALD],
+        back: [STILLNESS_CANTOR, VAULTLIGHT_CENSER, BANDIT],
+      },
+    },
+    {
+      id: 't-demon-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [CONCORD_CANTOR, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, SHARDLIGHT_ACOLYTE, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, SENTINEL],
+        back: [STILLNESS_CANTOR, RADIANT_HERALD, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [ASHEN_CHOIR, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, LITANY_BEARER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f220',
+      name: 'Floor 220 — The Unbroken Line',
+      enemies: {
+        front: [THE_UNBITTEN, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, SERAPH_ADJUDICANT, REVENANT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Answering Voice — Floors 221–240, levels 105–114 — a second refusal joins it, and the two stand in the same rank.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, HEADSMAN],
+        back: [EVENSONG_WARDEN, ZENITH_CHORISTER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [EVENSONG_WARDEN, CONCORD_CANTOR],
+        back: [PLAINSONG_PRECENTOR, RADIANT_HERALD, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, VAULTLIGHT_CENSER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, SHARDLIGHT_ACOLYTE, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, COLDHEARTH_IRONSWORN],
+        back: [EVENSONG_WARDEN, LITANY_BEARER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [EVENSONG_WARDEN, GLASSCHOIR_ARBITER],
+        back: [PLAINSONG_PRECENTOR, ZENITH_CHORISTER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [ASHEN_CHOIR, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, RADIANT_HERALD, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, VAULTLIGHT_CENSER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-demon-f230',
+      name: 'Floor 230 — The Answering Voice',
+      enemies: {
+        front: [THE_UNBITTEN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SERAPH_ADJUDICANT, STORMCALLER],
+      },
+    },
+    {
+      id: 't-demon-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [EVENSONG_WARDEN, WEALDSHADOW_STALKER],
+        back: [PLAINSONG_PRECENTOR, LITANY_BEARER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, RIVEN_MARCHWARDEN],
+        back: [EVENSONG_WARDEN, SHARDLIGHT_ACOLYTE, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [EVENSONG_WARDEN, CONCORD_CANTOR],
+        back: [PLAINSONG_PRECENTOR, ZENITH_CHORISTER, GRAVETIDE_HERALD],
+      },
+    },
+    {
+      id: 't-demon-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [BLOODGORGE_HOUND, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, RADIANT_HERALD, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [STILLNESS_CANTOR, VAULTLIGHT_CENSER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, OATHSHIELD_VANGUARD],
+        back: [EVENSONG_WARDEN, LITANY_BEARER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [EVENSONG_WARDEN, GLASSCHOIR_ARBITER],
+        back: [PLAINSONG_PRECENTOR, SHARDLIGHT_ACOLYTE, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, ZENITH_CHORISTER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [KNELL_CHANTER, SERAPH_ADJUDICANT, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f240',
+      name: 'Floor 240 — The Answering Voice',
+      enemies: {
+        front: [THE_UNBITTEN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, RADIANT_HERALD, HEADSMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Choir Entire — Floors 241–260, levels 114–123 — three of five refuse, which is where the measured cliff is.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [SCARWEAVE_TRAMPLER, LITANY_BEARER, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, ZENITH_CHORISTER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [SCARWEAVE_TRAMPLER, RADIANT_HERALD, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER],
+        back: [EVENSONG_WARDEN, VAULTLIGHT_CENSER, WRATHBORN],
+      },
+    },
+    {
+      id: 't-demon-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [EVENSONG_WARDEN, CONCORD_CANTOR],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, PLAINSONG_PRECENTOR],
+        back: [EVENSONG_WARDEN, SHARDLIGHT_ACOLYTE, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [EVENSONG_WARDEN, GLASSCHOIR_ARBITER],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-demon-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [ASHEN_CHOIR, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-demon-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, LITANY_BEARER, STORMCALLER],
+      },
+    },
+    {
+      id: 't-demon-f250',
+      name: 'Floor 250 — The Choir Entire',
+      enemies: {
+        front: [THE_UNBITTEN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-demon-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [SCARWEAVE_TRAMPLER, ZENITH_CHORISTER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, COLDHEARTH_IRONSWORN],
+        back: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [PLAINSONG_PRECENTOR, RADIANT_HERALD, GRAVETIDE_HERALD],
+      },
+    },
+    {
+      id: 't-demon-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, WEALDSHADOW_STALKER],
+        back: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER, REVENANT],
+      },
+    },
+    {
+      id: 't-demon-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [EVENSONG_WARDEN, CONCORD_CANTOR],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-demon-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SHARDLIGHT_ACOLYTE, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-demon-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [SCARWEAVE_TRAMPLER, LITANY_BEARER, HEADSMAN],
+      },
+    },
+    {
+      id: 't-demon-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, SCARWEAVE_TRAMPLER],
+        back: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR, SHADE],
+      },
+    },
+    {
+      id: 't-demon-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [EVENSONG_WARDEN, GLASSCHOIR_ARBITER],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-demon-f260',
+      name: 'Floor 260 — The Choir Entire',
+      enemies: {
+        front: [THE_UNBITTEN, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, RADIANT_HERALD],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Sealed Verse — Floors 261–280, levels 124–133 — the whole board refuses, and the Trampler brings the only physical damage in the hundred.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [PLAINSONG_PRECENTOR, SCARBOUND_BELLOWER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, GOLEM, BLOODGORGE_HOUND],
+      },
+    },
+    {
+      id: 't-demon-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [EVENSONG_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-demon-f265',
+      name: 'Floor 265',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [PLAINSONG_PRECENTOR, RIMEPLATE, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND],
+        back: [EVENSONG_WARDEN, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [EVENSONG_WARDEN, MARROWHUNT_ALPHA],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, GOLEM],
+      },
+    },
+    {
+      id: 't-demon-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, SCARWEAVE_TRAMPLER],
+        back: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-demon-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [EVENSONG_WARDEN, BLOODGORGE_HOUND],
+        back: [SCARWEAVE_TRAMPLER, RIMEPLATE, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f270',
+      name: 'Floor 270 — The Sealed Verse',
+      enemies: {
+        front: [THE_UNBITTEN, EVENSONG_WARDEN],
+        back: [SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [PLAINSONG_PRECENTOR, GOLEM, BLOODGORGE_HOUND],
+      },
+    },
+    {
+      id: 't-demon-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, MARROWHUNT_ALPHA],
+        back: [EVENSONG_WARDEN, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [EVENSONG_WARDEN, PLAINSONG_PRECENTOR],
+        back: [SCARWEAVE_TRAMPLER, RIMEPLATE, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-demon-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND],
+      },
+    },
+    {
+      id: 't-demon-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [PLAINSONG_PRECENTOR, GOLEM, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND],
+        back: [EVENSONG_WARDEN, SCARBOUND_BELLOWER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-demon-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARBOUND_BELLOWER],
+        back: [PLAINSONG_PRECENTOR, SCARWEAVE_TRAMPLER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [PLAINSONG_PRECENTOR, RIMEPLATE, BLOODGORGE_HOUND],
+      },
+    },
+    {
+      id: 't-demon-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [EVENSONG_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, GOLEM, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f280',
+      name: 'Floor 280 — The Sealed Verse',
+      enemies: {
+        front: [THE_UNBITTEN, SCARWEAVE_TRAMPLER],
+        back: [EVENSONG_WARDEN, SCARBOUND_BELLOWER, BLOODGORGE_HOUND],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Long Amen — Floors 281–300, levels 133–142 — the pair of stats together on every body, and above them the one block past the register.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [SCARBOUND_BELLOWER, MARROWHUNT_ALPHA, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, GOLEM, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARBOUND_BELLOWER],
+        back: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, MARROWHUNT_ALPHA],
+        back: [EVENSONG_WARDEN, RIMEPLATE, SCARBOUND_BELLOWER],
+      },
+    },
+    {
+      id: 't-demon-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [SHATTERJAW_MAULER, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, EVENSONG_WARDEN],
+        back: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-demon-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [EVENSONG_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, GOLEM, SCARBOUND_BELLOWER],
+      },
+    },
+    {
+      id: 't-demon-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARBOUND_BELLOWER],
+        back: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f290',
+      name: 'Floor 290 — The Long Amen',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [SHATTERJAW_MAULER, SCARBOUND_BELLOWER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, BLOODGORGE_HOUND],
+        back: [EVENSONG_WARDEN, GOLEM, SCARBOUND_BELLOWER],
+      },
+    },
+    {
+      id: 't-demon-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SCARWEAVE_TRAMPLER, MARROWHUNT_ALPHA, PLAINSONG_PRECENTOR],
+      },
+    },
+    {
+      id: 't-demon-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARBOUND_BELLOWER],
+        back: [SCARWEAVE_TRAMPLER, SHATTERJAW_MAULER, GLASSCHOIR_ARBITER],
+      },
+    },
+    {
+      id: 't-demon-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, EVENSONG_WARDEN],
+        back: [SCARBOUND_BELLOWER, BLOODGORGE_HOUND, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [EVENSONG_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [SHATTERJAW_MAULER, GOLEM, SCARBOUND_BELLOWER],
+      },
+    },
+    {
+      id: 't-demon-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, MARROWHUNT_ALPHA],
+        back: [EVENSONG_WARDEN, SCARBOUND_BELLOWER, BLOODGORGE_HOUND],
+      },
+    },
+    {
+      id: 't-demon-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [THE_UNFALTERING, SCARWEAVE_TRAMPLER],
+        back: [EVENSONG_WARDEN, SHATTERJAW_MAULER, SCARBOUND_BELLOWER],
+      },
+    },
+    {
+      id: 't-demon-f300',
+      name: 'Floor 300 — The Unfaltering',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER],
       },
     },
   ],

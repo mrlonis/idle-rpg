@@ -186,7 +186,7 @@ export const CHAPTER_3 = {
     },
 
     // -----------------------------------------------------------------------------------
-    // Out of the fen — stages 21 to 30, levels 16 to 29
+    // Out of the fen — stages 21 to 30, levels 16 to 30
     // -----------------------------------------------------------------------------------
     {
       // The back-rank lock. Twenty-nine stages have rewarded putting the fragile things behind

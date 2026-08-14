@@ -177,7 +177,11 @@ from the pool bound in `expedition.spec.ts`.
 
 ## What the screens draw
 
-Home carries an Expeditions card beside the Descent's, same shape, every state a link. The index
+Home carries an Expeditions card beside the Descent's, same shape and the same two states: a link
+once the first map is open, and an inert grey row naming the chapters still owed until then. That is
+the locked tower row's treatment, and it is a reversal — the card was a link in both states. Before
+the first map opens all three index rows are inert too, so the screen behind the card is the card's
+own line plus three names nothing can be done with. The index
 (`/expeditions`) is three rows — open, underway, completed, or locked with the key named. The map
 screen (`/expeditions/:mapId`) is a CSS grid of tiles: camps are buttons wearing their grid letter
 and stamina cost (the letter is also the battle heading's big line — the one cross-reference the

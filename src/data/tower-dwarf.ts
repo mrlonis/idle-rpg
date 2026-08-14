@@ -1,5 +1,7 @@
 import {
   ACOLYTE,
+  ANTIPHON_ARCHON,
+  ASHPIT_SCUTTLER,
   BANDIT,
   BARROWMIST_KEENER,
   BOAR,
@@ -9,76 +11,103 @@ import {
   CARRION_SWARM,
   CHARNEL_DRUDGE,
   CINDERLING,
+  CINDER_CULLER,
   COLDFORGE_HAND,
   COLOSSUS,
+  COUNTERSIGN_CAPTAIN,
+  CROWNWORKS_STRIKER,
   DEEPGALLERY_RUNNER,
   DUSKFERN_SKIRMISHER,
+  EMBERSEED_WARLOCK,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
   GLADE_STALKER,
   GLOAMVINE_CREEPER,
   GOLEM,
+  GOREHIDE_MATRIARCH,
   GRAVEMOURN_KEEPER,
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
   HAG,
   HEADSMAN,
   HEARTROOT_TENDER,
+  HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
+  KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
+  KNELL_CHANTER,
+  LITANY_BEARER,
   LONGBOUGH_MARKSMAN,
   LUMEN_ACOLYTE,
+  MARROWHUNT_ALPHA,
   MIREWHELP,
   MOONSONG_WEAVER,
+  MUSTER_PIKE,
   NIGHTCANOPY_SINGER,
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
+  ORDER_SERJEANT,
   PYRE,
+  QUENCHPIT_IRONHIDE,
   RAVAGER,
+  REDWATER_STALKER,
   RENDFANG_JACKAL,
+  RESERVE_ENSIGN,
   REVENANT,
+  RIFTBORN_HARROWER,
+  RIFTSTEP_REAVER,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
+  ROADWATCH_BOWMAN,
   RUNEWARDEN,
   SCARBOUND_BELLOWER,
   SENTINEL,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SIGNAL_RUNNER,
   SKYSHRIKE,
   SLAGBOUND_DRUDGE,
   SLIME,
+  STANDFAST_LANCER,
   STORMCALLER,
   THE_BREACHLORD,
+  THE_CROWN_WHEEL,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
   UNDERVAULT_SAPPER,
+  VANWARD_SPEAR,
   VAULTBOUND_GAOLER,
   WARDEN,
   WEALDSHADOW_STALKER,
   WHISPERLEAF_ARCHER,
   WISP,
   WRATHBORN,
+  ZENITH_CHORISTER,
 } from './enemies';
 
 /**
- * The Dwarf Tower — two hundred floors, enemy levels 1 to 120.
+ * The Dwarf Tower — three hundred floors, enemy levels 1 to 142.
  *
  * ## Why the enemies are mostly Human
  *
  * Humans beat Dwarves in the matchup cycle, so this is the tower that punishes the crew it admits.
- * About three fifths of the slots are Human and the rest are spread across the other six factions,
- * which is the shape the matrix needs: a mono-Dwarf five meets fights it is unfavoured in *and*
- * fights it is favoured in, rather than a mirror match that would switch the matrix off entirely.
- * [`towers.spec.ts`](./towers.spec.ts) measures the share rather than trusting this paragraph.
+ * About three fifths of the slots are Human — **61.3%** across the whole tower — and the rest are
+ * spread across the other six factions, which is the shape the matrix needs: a mono-Dwarf five meets
+ * fights it is unfavoured in *and* fights it is favoured in, rather than a mirror match that would
+ * switch the matrix off entirely. [`towers.spec.ts`](./towers.spec.ts) measures the share rather than
+ * trusting this paragraph.
  *
- * ⚠️ **The second hundred wanted to be far more Human than that** — authored from the lean's own
- * newly deepened bench it came out at 86%, exactly as 21e's did — and it is held down by
- * substituting non-Human bodies of comparable weight through the filler slots. That is a thing to
- * do on purpose rather than a thing that happens.
+ * ⚠️ **Every hundred so far has wanted to be far more Human than that** — authored from the lean's
+ * own bench the second came out at 86%, exactly as 21e's did — and each is held down by substituting
+ * non-Human bodies of comparable weight through the filler slots. That is a thing to do on purpose
+ * rather than a thing that happens. The third hundred landed at **63.4%** by drawing its texture from
+ * the other three factions that also counter Dwarves: Monsters and Humans at ×1.05, Demons and Angels
+ * at ×1.10. ⚠️ **Drawing a substitute from anywhere else quietly switches the lean off on that
+ * board.**
  *
  * ## What a Dwarf five is, and what this tower charges it for
  *
@@ -114,23 +143,94 @@ import {
  * reach in the game, so pressure they cannot aim at is not a harder fight, it is a different one.
  * Escalate in front.
  *
+ * ## ⚠️ The third hundred: the board stops having passengers
+ *
+ * The Crownworks — floors 201–300, levels 95–142, the hold's own forge-halls above the breach with
+ * the host working them. Its shape is **not** a third dial on top of the second hundred's two, and
+ * the reason is arithmetic rather than taste.
+ *
+ * ⚠️ **An anchor outgrows this crew across a hundred floors, so the anchors get _lighter_ as it
+ * climbs.** `perLevel.ascended` is 1.024 and `perLevel.legendary` 1.0225, while a mono-faction Dwarf
+ * five is mostly `common` at 1.021 — so over the 47 levels this hundred spans, the heavy blocks pull
+ * away by roughly ×1.15 more than the party does. Measured on the shipped floor-200 board fielded up
+ * its own level line against the band-3 crew:
+ *
+ * | The floor-200 board, fielded at | reference five  | alternate five |
+ * | ------------------------------- | --------------- | -------------- |
+ * | level 95 (its own)              | 100% / 5.00     | 100% / 5.00    |
+ * | level 125                       | 100% / 4.97     | 100% / 4.00    |
+ * | level 142 (the roof)            | **28% / 0.47**  | **5% / 0.05**  |
+ *
+ * So the second hundred's climax is unwinnable at the third's roof, and the escalation has to come
+ * out of the **other four slots**: floors 201–220 field one body that swings, 221–245 two, 246–270
+ * two behind a wall, 271–290 three, and 291–300 nothing else at all.
+ *
+ * ⚠️ **What moves a Dwarf five is `atk` and rate of action _as a product_, and nothing else does.**
+ * One anchor plus four bodies whose whole kit is their swing, at the roof's level, forty seeds —
+ * survivors of five, and neither factor alone is a fight:
+ *
+ * | Four bodies at        | reference | alternate |
+ * | --------------------- | --------- | --------- |
+ * | `atk` 72, `haste` 98  | 4.00      | 4.00      |
+ * | `atk` 86, `haste` 98  | 4.00      | 3.25      |
+ * | `atk` 72, `haste` 126 | 4.00      | 3.05      |
+ * | `atk` 86, `haste` 126 | **2.88**  | **1.77**  |
+ *
+ * ⚠️ **`attackSpeed` measures identically to `haste` and is not the loophole it looks like.** It is
+ * the one field of `StatBlockData` no shipped block uses, and `atk` 72 with `attackSpeed` 45 reads
+ * 3.77 / 2.63 against `haste` 143's 3.48 / 2.35 — the same number. `effectiveSpeed` adds the two and
+ * applies the slow multiplier to the **sum**, so it is not even proof against the `slow` both Dwarf
+ * arrangements carry. Recorded so the next session does not spend the measurement again.
+ *
+ * ⚠️ **The negative results are the rest of the finding and they are unusually strong.** Against a
+ * 4.38 / 4.00 control, scope and aim are inert or *worse than saying nothing* — `enemy-row-back`
+ * 5.00 / 4.28, `enemy-back` 5.00 / 4.17, `enemy-highest` 5.00 / 4.25, `enemy-all` 4.95 / 4.00,
+ * `enemy-lowest` 4.92 / 4.00, every one of them at or above it. **A Dwarf five heals, shields and
+ * guards `ally-all`, so spread damage is the shape it answers best** — the exact inverse of the Demon Tower, where wide
+ * damage was the whole axis. Riders are inert (a 50% stun 4.13 / 4.00, a poison 4.08 / 4.00, a bomb
+ * 4.08 / 4.00). `tenacity` at 0.40 / 0.60 / 0.85 reads 3.45 / 3.23 / 3.08 and `physicalResist` at
+ * 0.15 / 0.23 reads 3.58 / 3.33, on crews that carry **no `insight` and no `magicResist` at all** —
+ * the two gaps that looked like locks, each worth a tenth of a party member.
+ *
+ * The one shape that is worth something beside the swing is
+ * [`QUENCHPIT_IRONHIDE`](./enemies.ts) — a taunt on the body that is *itself* the durability, at
+ * 3.98 / **3.02**. It arrives a band after the swing does and it never stands on the roof.
+ *
  * ## What the bands measure at
  *
  * Band 1: floor 1 in one second, floor 50 in seven, floor 100 in forty-four with three of five
  * down. Band 2: floor 101 in five seconds, floor 160 in fourteen, floor 200 in thirty-six at 98%
- * with 2.3 alive, and the alternate five takes the roof at **88% with 1.5**. Win rate is 100% almost
- * the whole way, which is the intended shape — a floor is climbed once and there is no way around
- * one. What ramps is what it costs: nobody dies below floor 80 in band 1 or floor 185 in band 2.
+ * with 2.3 alive, and the alternate five takes it at **88% with 1.5**. Band 3: floor 201 in eight
+ * seconds, floor 250 in twelve, floor 290 in twenty at 4.03, floor 299 in twenty-eight at 3.00, and
+ * the roof in **thirty-three seconds at 2.77 — 42.3s and 1.82 for the alternate five.** Win rate is
+ * 100% almost the whole way, which is the intended shape — a floor is climbed once and there is no
+ * way around one. What ramps is what it costs: the reference five loses nobody below floor 80 in
+ * band 1, floor 185 in band 2 or **floor 280** in band 3, and the alternate first pays at **251**.
+ *
+ * ⚠️ **The roof is the tightest fight in the project against the timer and it is worth knowing.**
+ * The alternate five's longest single attempt on floor 300 is **62.5 seconds** against the sweep's
+ * 67.5-second bar for a cleared fight, and no other floor in the hundred passes 39.2. A heavier roof
+ * was measured and rejected for exactly this reason rather than for its win rate.
  *
  * ⚠️ **The roof is far lighter than the Human Tower's and that is 15c's rule rather than an
  * oversight**: anchors are sized against the tower's own crew, never to a shared weight. A roof at
  * The Deathless Marshal's weight reads **0%** for both Dwarf arrangements. See
- * [`THE_BREACHLORD`](./enemies.ts).
+ * [`THE_BREACHLORD`](./enemies.ts) and [`THE_CROWN_WHEEL`](./enemies.ts) — which is *lighter* than
+ * the Breachlord it succeeds, for the growth reason above.
  *
- * ⚠️ **No board pairs a taunt with a body that heals**, and no board above floor 180 carries sustain
- * of any kind — checked by walking all two hundred floors with a script rather than by reading them,
- * which is how the one board that broke it was found. Re-run `npm run test:balance` after touching
- * any band above floor 68 or floor 180.
+ * ⚠️ **No board pairs a taunt with a body that heals**, and **no board above floor 200 restores
+ * anything at all** — checked by walking all three hundred floors with a script rather than by
+ * reading them, which is how the one board that broke it was found.
+ *
+ * ⚠️ **The stricter claim this file used to make about floor 180 was wrong, and the script is what
+ * caught it.** Three boards above 180 do carry restoration: the Oathshield Vanguard's `recovery` 5 on
+ * floors 186 and 194, and the Sepulchre Hound's `lifeLeech` 0.10 on floor 188. Both are the tolerable
+ * form and neither is what 15c measured — the Vanguard's recovery sits on the body that is *itself*
+ * the taunt, so the party is already hitting the thing that heals, and a tenth of leech on a body in
+ * the open is not sustain anyone has to outpace. **What is forbidden above floor 180 is a heal, a
+ * drain or a regeneration**, and there is none.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 68, floor 180 or floor 270.
  */
 export const TOWER_DWARF = {
   id: 'tower-dwarf',
@@ -149,7 +249,7 @@ export const TOWER_DWARF = {
   unlockClears: 10,
   floors: [
     // -------------------------------------------------------------------------------------
-    // The Cracked Gate — Floors 1–12, levels 1–8 — a levy at the door, and the first speed check.
+    // The Cracked Gate — Floors 1–12, levels 1–6 — a levy at the door, and the first speed check.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f1',
@@ -213,7 +313,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sundered Hall — Floors 13–28, levels 8–17 — the locks arrive: a healer behind two bodies, a party-wide debuff, an evasion wall.
+    // The Sundered Hall — Floors 13–28, levels 7–14 — the locks arrive: a healer behind two bodies, a party-wide debuff, an evasion wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f13',
@@ -297,7 +397,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Ashen Foundry — Floors 29–48, levels 18–29 — the caster ranks, and armour that stops answering the question.
+    // The Ashen Foundry — Floors 29–48, levels 14–23 — the caster ranks, and armour that stops answering the question.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f29',
@@ -401,7 +501,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Kingsway — Floors 49–68, levels 30–41 — two walls a floor, and the first boards with no soft slot in them.
+    // The Kingsway — Floors 49–68, levels 24–33 — two walls a floor, and the first boards with no soft slot in them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f49',
@@ -505,7 +605,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Siege Above — Floors 69–84, levels 42–51 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
+    // The Siege Above — Floors 69–84, levels 33–40 — an ascended block anchors every front rank, so reaching the back is a decision rather than a formality.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f69',
@@ -589,7 +689,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Crown Stair — Floors 85–100, levels 51–60 — two ascended blocks in front of three legendaries, and the Crown-Taker waiting above them.
+    // The Crown Stair — Floors 85–100, levels 41–48 — two ascended blocks in front of three legendaries, and the Crown-Taker waiting above them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f85',
@@ -676,7 +776,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Kingsway Above — Floors 101–120, levels 61–72 — the host that took the hold, camped on the road it came up, and the blocks the first hundred never met.
+    // The Kingsway Above — Floors 101–120, levels 48–57 — the host that took the hold, camped on the road it came up, and the blocks the first hundred never met.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f101',
@@ -834,7 +934,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Undervault — Floors 121–140, levels 73–84 — somebody has found the seams, and armour stops being an answer.
+    // The Undervault — Floors 121–140, levels 58–67 — somebody has found the seams, and armour stops being an answer.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f121',
@@ -992,7 +1092,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Muster Field — Floors 141–160, levels 85–96 — numbers and tempo, so the fight is decided before a Dwarf five has finished settling into it.
+    // The Muster Field — Floors 141–160, levels 67–76 — numbers and tempo, so the fight is decided before a Dwarf five has finished settling into it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f141',
@@ -1150,7 +1250,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Standing Camp — Floors 161–180, levels 97–108 — an ascended block on every front rank, with a lance beside it rather than a second wall.
+    // The Standing Camp — Floors 161–180, levels 76–85 — an ascended block on every front rank, with a lance beside it rather than a second wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f161',
@@ -1314,7 +1414,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Breach — Floors 181–200, levels 109–120 — one anchor a board and everything else spent on the turn, and the Breachlord at the top of the wall.
+    // The Breach — Floors 181–200, levels 86–95 — one anchor a board and everything else spent on the turn, and the Breachlord at the top of the wall.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f181',
@@ -1474,6 +1574,826 @@ export const TOWER_DWARF = {
       enemies: {
         front: [THE_BREACHLORD, KINGSWAY_LANCER],
         back: [STORMCALLER, SERAPH_ADJUDICANT, UNDERVAULT_SAPPER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Stair Above the Breach — Floors 201–220, levels 95–104 — the Breachlord is dead and the works above him are lit. One body a board is new, and it is the one that swings.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f201',
+      name: 'Floor 201',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [STORMCALLER, ASHPIT_SCUTTLER, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f202',
+      name: 'Floor 202',
+      enemies: {
+        front: [THE_BREACHLORD, KINGSWAY_LANCER],
+        back: [SKYSHRIKE, PYRE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f203',
+      name: 'Floor 203',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [SERAPH_ADJUDICANT, CINDER_CULLER, UNDERVAULT_SAPPER],
+      },
+    },
+    {
+      id: 't-dwarf-f204',
+      name: 'Floor 204',
+      enemies: {
+        front: [WARDEN, UNDERVAULT_SAPPER],
+        back: [DUSKFERN_SKIRMISHER, ASHPIT_SCUTTLER, VAULTBOUND_GAOLER],
+      },
+    },
+    {
+      id: 't-dwarf-f205',
+      name: 'Floor 205',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [LITANY_BEARER, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f206',
+      name: 'Floor 206',
+      enemies: {
+        front: [OATHBREAKER, STORMCALLER],
+        back: [CINDERLING, SKYSHRIKE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f207',
+      name: 'Floor 207',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [ZENITH_CHORISTER, CARRION_SWARM, STORMCALLER],
+      },
+    },
+    {
+      id: 't-dwarf-f208',
+      name: 'Floor 208',
+      enemies: {
+        front: [OATHBREAKER, KINGSWAY_LANCER],
+        back: [PYRE, BRAMBLEWALK_SCOUT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f209',
+      name: 'Floor 209',
+      enemies: {
+        front: [WARDEN, CROWNWORKS_STRIKER],
+        back: [RENDFANG_JACKAL, VANWARD_SPEAR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-dwarf-f210',
+      name: 'Floor 210 — The Stair Above the Breach',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [STORMCALLER, SERAPH_ADJUDICANT, UNDERVAULT_SAPPER],
+      },
+    },
+    {
+      id: 't-dwarf-f211',
+      name: 'Floor 211',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [STORMCALLER, ASHPIT_SCUTTLER, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f212',
+      name: 'Floor 212',
+      enemies: {
+        front: [THE_BREACHLORD, STORMCALLER],
+        back: [SKYSHRIKE, PYRE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f213',
+      name: 'Floor 213',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [SERAPH_ADJUDICANT, CINDER_CULLER, UNDERVAULT_SAPPER],
+      },
+    },
+    {
+      id: 't-dwarf-f214',
+      name: 'Floor 214',
+      enemies: {
+        front: [WARDEN, KINGSWAY_LANCER],
+        back: [DUSKFERN_SKIRMISHER, ASHPIT_SCUTTLER, VAULTBOUND_GAOLER],
+      },
+    },
+    {
+      id: 't-dwarf-f215',
+      name: 'Floor 215',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [LITANY_BEARER, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f216',
+      name: 'Floor 216',
+      enemies: {
+        front: [OATHBREAKER, UNDERVAULT_SAPPER],
+        back: [CINDERLING, SKYSHRIKE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f217',
+      name: 'Floor 217',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [ZENITH_CHORISTER, CARRION_SWARM, STORMCALLER],
+      },
+    },
+    {
+      id: 't-dwarf-f218',
+      name: 'Floor 218',
+      enemies: {
+        front: [OATHBREAKER, STORMCALLER],
+        back: [PYRE, BRAMBLEWALK_SCOUT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f219',
+      name: 'Floor 219',
+      enemies: {
+        front: [WARDEN, CROWNWORKS_STRIKER],
+        back: [RENDFANG_JACKAL, VANWARD_SPEAR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-dwarf-f220',
+      name: 'Floor 220 — The Stair Above the Breach',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [KINGSWAY_LANCER, KILNSWORN_ADEPT, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Bellowsyard — Floors 221–245, levels 105–116 — the host has the bellows going, and the hold's own halls give it room to work. Two bodies a board that swing, and the soft slots start to go.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f221',
+      name: 'Floor 221',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [KILNSWORN_ADEPT, ROADWATCH_BOWMAN, PYRE],
+      },
+    },
+    {
+      id: 't-dwarf-f222',
+      name: 'Floor 222',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [MARROWHUNT_ALPHA, VANWARD_SPEAR, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f223',
+      name: 'Floor 223',
+      enemies: {
+        front: [THE_BREACHLORD, KINGSWAY_LANCER],
+        back: [RIFTBORN_HARROWER, SIGNAL_RUNNER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f224',
+      name: 'Floor 224',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [ORDER_SERJEANT, SERAPH_ADJUDICANT, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f225',
+      name: 'Floor 225',
+      enemies: {
+        front: [OATHBREAKER, REDWATER_STALKER],
+        back: [KILNSWORN_ADEPT, RAVAGER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f226',
+      name: 'Floor 226',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [EMBERSEED_WARLOCK, VANWARD_SPEAR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-dwarf-f227',
+      name: 'Floor 227',
+      enemies: {
+        front: [STANDFAST_LANCER, RESERVE_ENSIGN],
+        back: [STORMCALLER, RENDFANG_JACKAL, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f228',
+      name: 'Floor 228',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [WEALDSHADOW_STALKER, SIGNAL_RUNNER, GOREHIDE_MATRIARCH],
+      },
+    },
+    {
+      id: 't-dwarf-f229',
+      name: 'Floor 229',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [ROADWATCH_BOWMAN, RIFTSTEP_REAVER, RESERVE_ENSIGN],
+      },
+    },
+    {
+      id: 't-dwarf-f230',
+      name: 'Floor 230 — The Bellowsyard',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [STANDFAST_LANCER, KILNSWORN_ADEPT, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f231',
+      name: 'Floor 231',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [VANWARD_SPEAR, ANTIPHON_ARCHON, UNDERVAULT_SAPPER],
+      },
+    },
+    {
+      id: 't-dwarf-f232',
+      name: 'Floor 232',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, REDWATER_STALKER],
+        back: [MIREWHELP, KILNSWORN_ADEPT, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-dwarf-f233',
+      name: 'Floor 233',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [ROADWATCH_BOWMAN, HEXBOUND_TORMENTOR, ORDER_SERJEANT],
+      },
+    },
+    {
+      id: 't-dwarf-f234',
+      name: 'Floor 234',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, RESERVE_ENSIGN],
+        back: [SKYSHRIKE, KILNSWORN_ADEPT, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f235',
+      name: 'Floor 235',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [PYRE, MARROWHUNT_ALPHA, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f236',
+      name: 'Floor 236',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [SKYSHRIKE, RIFTBORN_HARROWER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f237',
+      name: 'Floor 237',
+      enemies: {
+        front: [OATHBREAKER, KINGSWAY_LANCER],
+        back: [ASHPIT_SCUTTLER, ORDER_SERJEANT, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-dwarf-f238',
+      name: 'Floor 238',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [ROADWATCH_BOWMAN, KILNSWORN_ADEPT, RAVAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f239',
+      name: 'Floor 239',
+      enemies: {
+        front: [STANDFAST_LANCER, REDWATER_STALKER],
+        back: [MUSTER_PIKE, EMBERSEED_WARLOCK, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f240',
+      name: 'Floor 240 — The Bellowsyard',
+      enemies: {
+        front: [THE_BREACHLORD, CROWNWORKS_STRIKER],
+        back: [COUNTERSIGN_CAPTAIN, MARROWHUNT_ALPHA, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f241',
+      name: 'Floor 241',
+      enemies: {
+        front: [THE_BREACHLORD, RESERVE_ENSIGN],
+        back: [KILNSWORN_ADEPT, WEALDSHADOW_STALKER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f242',
+      name: 'Floor 242',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [GOREHIDE_MATRIARCH, ROADWATCH_BOWMAN, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-dwarf-f243',
+      name: 'Floor 243',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [RESERVE_ENSIGN, CINDER_CULLER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f244',
+      name: 'Floor 244',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, KINGSWAY_LANCER],
+        back: [MARROWHUNT_ALPHA, VANWARD_SPEAR, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-dwarf-f245',
+      name: 'Floor 245',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [UNDERVAULT_SAPPER, MIREWHELP, KILNSWORN_ADEPT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Quenchyard — Floors 246–270, levels 117–128 — a thing in the quench-pits has decided the door is its, and while it stands there it is the only body the party is allowed to answer.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f246',
+      name: 'Floor 246',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [STANDFAST_LANCER, KILNSWORN_ADEPT, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f247',
+      name: 'Floor 247',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, MARROWHUNT_ALPHA, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f248',
+      name: 'Floor 248',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, REDWATER_STALKER],
+        back: [COUNTERSIGN_CAPTAIN, RIFTBORN_HARROWER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f249',
+      name: 'Floor 249',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, EMBERSEED_WARLOCK, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f250',
+      name: 'Floor 250 — The Quenchyard',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [STANDFAST_LANCER, COUNTERSIGN_CAPTAIN, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f251',
+      name: 'Floor 251',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-dwarf-f252',
+      name: 'Floor 252',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, STANDFAST_LANCER],
+        back: [ORDER_SERJEANT, GOREHIDE_MATRIARCH, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f253',
+      name: 'Floor 253',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-dwarf-f254',
+      name: 'Floor 254',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [ROADWATCH_BOWMAN, COUNTERSIGN_CAPTAIN, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f255',
+      name: 'Floor 255',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [RIFTSTEP_REAVER, SIGNAL_RUNNER, CROWNWORKS_STRIKER],
+      },
+    },
+    {
+      id: 't-dwarf-f256',
+      name: 'Floor 256',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, REDWATER_STALKER],
+        back: [MARROWHUNT_ALPHA, STANDFAST_LANCER, LONGBOUGH_MARKSMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f257',
+      name: 'Floor 257',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [VANWARD_SPEAR, CROWNWORKS_STRIKER, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-dwarf-f258',
+      name: 'Floor 258',
+      enemies: {
+        front: [OATHBREAKER, QUENCHPIT_IRONHIDE],
+        back: [ROADWATCH_BOWMAN, KILNSWORN_ADEPT, RESERVE_ENSIGN],
+      },
+    },
+    {
+      id: 't-dwarf-f259',
+      name: 'Floor 259',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [RAVAGER, STANDFAST_LANCER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f260',
+      name: 'Floor 260 — The Quenchyard',
+      enemies: {
+        front: [OATHBREAKER, QUENCHPIT_IRONHIDE],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f261',
+      name: 'Floor 261',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [VANWARD_SPEAR, COUNTERSIGN_CAPTAIN, RIFTBORN_HARROWER],
+      },
+    },
+    {
+      id: 't-dwarf-f262',
+      name: 'Floor 262',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [SIGNAL_RUNNER, CROWNWORKS_STRIKER, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-dwarf-f263',
+      name: 'Floor 263',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [ROADWATCH_BOWMAN, STANDFAST_LANCER, RAVAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f264',
+      name: 'Floor 264',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, REDWATER_STALKER],
+        back: [MUSTER_PIKE, CROWNWORKS_STRIKER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f265',
+      name: 'Floor 265',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [WEALDSHADOW_STALKER, ORDER_SERJEANT, GOREHIDE_MATRIARCH],
+      },
+    },
+    {
+      id: 't-dwarf-f266',
+      name: 'Floor 266',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, QUENCHPIT_IRONHIDE],
+        back: [VANWARD_SPEAR, CROWNWORKS_STRIKER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-dwarf-f267',
+      name: 'Floor 267',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [KNELL_CHANTER, ROADWATCH_BOWMAN, COUNTERSIGN_CAPTAIN],
+      },
+    },
+    {
+      id: 't-dwarf-f268',
+      name: 'Floor 268',
+      enemies: {
+        front: [STANDFAST_LANCER, STANDFAST_LANCER],
+        back: [KILNSWORN_ADEPT, RIFTSTEP_REAVER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f269',
+      name: 'Floor 269',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, MARROWHUNT_ALPHA, STANDFAST_LANCER],
+      },
+    },
+    {
+      id: 't-dwarf-f270',
+      name: 'Floor 270 — The Quenchyard',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, COUNTERSIGN_CAPTAIN, KILNSWORN_ADEPT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Trip-Hammer Floor — Floors 271–290, levels 128–137 — three hammers behind the wall, and the anchors thin out to make room for them — because at this height an anchor grows faster than the crew does.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f271',
+      name: 'Floor 271',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f272',
+      name: 'Floor 272',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f273',
+      name: 'Floor 273',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f274',
+      name: 'Floor 274',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, REDWATER_STALKER],
+        back: [CROWNWORKS_STRIKER, COUNTERSIGN_CAPTAIN, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f275',
+      name: 'Floor 275',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, MARROWHUNT_ALPHA, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f276',
+      name: 'Floor 276',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, RIFTBORN_HARROWER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f277',
+      name: 'Floor 277',
+      enemies: {
+        front: [STANDFAST_LANCER, MARROWHUNT_ALPHA],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-dwarf-f278',
+      name: 'Floor 278',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f279',
+      name: 'Floor 279',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, RAVAGER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f280',
+      name: 'Floor 280 — The Trip-Hammer Floor',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, COUNTERSIGN_CAPTAIN],
+      },
+    },
+    {
+      id: 't-dwarf-f281',
+      name: 'Floor 281',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, REDWATER_STALKER],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f282',
+      name: 'Floor 282',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, GOREHIDE_MATRIARCH, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f283',
+      name: 'Floor 283',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-dwarf-f284',
+      name: 'Floor 284',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, MARROWHUNT_ALPHA],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f285',
+      name: 'Floor 285',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, ORDER_SERJEANT],
+      },
+    },
+    {
+      id: 't-dwarf-f286',
+      name: 'Floor 286',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f287',
+      name: 'Floor 287',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, KILNSWORN_ADEPT, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f288',
+      name: 'Floor 288',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, REDWATER_STALKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f289',
+      name: 'Floor 289',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, COUNTERSIGN_CAPTAIN, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f290',
+      name: 'Floor 290 — The Trip-Hammer Floor',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, MARROWHUNT_ALPHA],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Crown Wheel — Floors 291–300, levels 138–142 — no passengers left. Every slot on the board is a body that swings, and the thing the hold built to keep them swinging is at the top of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f291',
+      name: 'Floor 291',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, COUNTERSIGN_CAPTAIN, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f292',
+      name: 'Floor 292',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f293',
+      name: 'Floor 293',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f294',
+      name: 'Floor 294',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, MARROWHUNT_ALPHA, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f295',
+      name: 'Floor 295',
+      enemies: {
+        front: [STANDFAST_LANCER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, RIFTBORN_HARROWER],
+      },
+    },
+    {
+      id: 't-dwarf-f296',
+      name: 'Floor 296',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CROWNWORKS_STRIKER],
+        back: [STANDFAST_LANCER, ROADWATCH_BOWMAN, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f297',
+      name: 'Floor 297',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, COUNTERSIGN_CAPTAIN, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-dwarf-f298',
+      name: 'Floor 298',
+      enemies: {
+        front: [COUNTERSIGN_CAPTAIN, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-dwarf-f299',
+      name: 'Floor 299',
+      enemies: {
+        front: [OATHBREAKER, CROWNWORKS_STRIKER],
+        back: [CROWNWORKS_STRIKER, STANDFAST_LANCER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f300',
+      name: 'Floor 300 — The Crown Wheel',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CROWNWORKS_STRIKER],
+        back: [STORMCALLER, KILNSWORN_ADEPT, ROADWATCH_BOWMAN],
       },
     },
   ],

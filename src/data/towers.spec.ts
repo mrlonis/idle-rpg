@@ -17,9 +17,10 @@ import {
   FRONT_ROW_SIZE,
   floorKindAt,
   floorLevel,
-  floorSummons,
   matchedStageIndex,
   PARTY_SIZE,
+  type RarityId,
+  rarityIndex,
   resolveLadder,
   resolveTower,
   type StageData,
@@ -36,7 +37,7 @@ import { CHARACTERS } from './characters';
 import { FACTION_MATCHUPS } from './combat';
 import { ENEMIES } from './enemies';
 import { LEVEL_CURVE } from './levels';
-import { TOWER_RULES, TOWERS } from './towers';
+import { TOWER_BAND_RUNGS, TOWER_BAND_UNIT, TOWER_RULES, TOWERS } from './towers';
 
 /**
  * Conformance is asserted through typed locals rather than annotations on the data itself.
@@ -107,60 +108,9 @@ function slotsOf(tower: TowerData): readonly string[] {
   ]);
 }
 
-/**
- * What one full climb of one tower pays in crystals, floors plus its own achievement tracks.
- *
- * ⚠️ **Measured over the floors the tower actually authors, not the height the rules state.** Those
- * are the same number now that all seven are the full height, and they differed for every session of
- * 21e–21k while six of them were not — counting the rules' height would have measured a projection
- * rather than the game, which is the exact mistake 15c fixed when it stopped multiplying one tower's
- * payout by `FACTIONS.length`.
- */
-function crystalsPerTower(tower: TowerData): number {
-  const height = tower.floors.length;
-  const floors = Array.from({ length: height }, (_, offset) =>
-    floorSummons(rules, offset + 1),
-  ).reduce((total, value) => total + value, 0);
-  const awards = tracks
-    .filter((track) => track.counter === 'towerFloors' && track.tower === tower.id)
-    .reduce(
-      (total, track) => total + Math.floor(height / track.every) * (track.reward.summons ?? 0),
-      0,
-    );
-  return floors + awards;
-}
-
 /** A tower's two achievement tracks, floor track first. */
 function tracksFor(tower: TowerData): readonly AchievementTrackData[] {
   return tracks.filter((track) => track.counter === 'towerFloors' && track.tower === tower.id);
-}
-
-/**
- * What climbing the whole shipped campaign pays in crystals: first clears plus its own tracks.
- *
- * ⚠️ **Both halves, because they are one decision.** `chapters.ts` flattened the first-clear payout
- * and `achievements.ts` paid the difference back on the tracks — see either file — so a comparison
- * against the first clears alone measures half of a redistribution and reads the campaign as five
- * times poorer than it is.
- */
-function campaignCrystals(): number {
-  const clears = stages
-    .map((stage, index) => stagePayout(rewards, index + 1, stage.kind).firstClearSummons)
-    .reduce((total, value) => total + value, 0);
-  // ⚠️ **Only the tracks measured against campaign progress**, named rather than inferred from
-  // "not a tower track". That inference was what this did, and milestone 16 broke it: the two
-  // signature tracks are neither campaign nor tower, and being read as campaign ones meant their
-  // interval was measured against `stages.length` — inventing 85,000 crystals the ladder does not
-  // pay and taking this ratio from 3.2 to 1.4. A track counting something else entirely is a third
-  // category, and the honest thing is for this to say which two it means.
-  const awards = tracks.reduce((total, track) => {
-    if (track.counter !== 'clearedStages' && track.counter !== 'clearedChapters') {
-      return total;
-    }
-    const counter = track.counter === 'clearedChapters' ? chapters.length : stages.length;
-    return total + Math.floor(counter / track.every) * (track.reward.summons ?? 0);
-  }, 0);
-  return clears + awards;
 }
 
 /**
@@ -218,14 +168,58 @@ describe('tower rules', () => {
     );
   });
 
-  it('halves into two bands, each with a rung a crew can actually be built to', () => {
-    // `towers.balance.ts` splits the sweep at the halfway floor so the shipped hundred keeps being
-    // measured by a party that can lose to it. That split only means anything if the halfway floor's
-    // level *is* a cap — otherwise band 1's crew stops tracking its own content, which is the half
-    // of the old assertion worth keeping.
-    const half = floorLevel(rules, Math.floor(rules.floors / 2));
+  it('divides into bands of a hundred, each with a crew that can legally hold its level', () => {
+    // `towers.balance.ts` splits the sweep every hundred floors so each shipped hundred keeps being
+    // measured by a party that can lose to it. What that split needs is that **each band's crew can
+    // legally hold the level its content asks for** — a cap at or above the level the band's own
+    // crew stands at, one rung further up the ladder per band.
+    //
+    // ## ⚠️ This asserted the halfway floor's level *is* a cap until the campaign flattened
+    //
+    // The old derivation read band 1's rung off the caps ladder with `caps.indexOf(halfwayLevel)`,
+    // so a halfway floor that missed a cap left the crew undefined — and the assertion existed to
+    // catch that. ⚠️ **Tying the crew's rung to its level is exactly what broke when `topLevel` came
+    // down with the campaign**: dropping the roof cost the crew a whole rung (×1.6) where the
+    // content only lost its levels, and all seven roofs measured 0%. `towers.balance.ts` pins the
+    // rungs and derives only the levels, so a band boundary is free to land anywhere and this checks
+    // the property that actually has to hold.
+    //
+    // ## ⚠️ The rungs are a list, not a pair, and it has to keep up with the height
+    //
+    // The two-band version named `rare-plus` and `elite` inline. A third hundred needs a third rung,
+    // and a fourth would need a fourth — so the height and this list are one decision. Deriving the
+    // count off `rules.floors` is what makes a height bump that nobody wired a crew for a failing
+    // test rather than a band swept by whichever crew happened to be last.
+    const caps = LEVEL_CURVE.caps as readonly number[];
+    const rungs: readonly RarityId[] = TOWER_BAND_RUNGS;
+    const bands = Math.ceil(rules.floors / TOWER_BAND_UNIT);
 
-    expect(LEVEL_CURVE.caps as readonly number[]).toContain(half);
+    expect(rungs, `${bands} bands of ${TOWER_BAND_UNIT} floors`).toHaveLength(bands);
+
+    // Strictly ascending, so a band is never crewed at or below the rung the band under it used.
+    // The typed local above is what proves each name is a rung the ladder actually has.
+    const indices = rungs.map((rung) => rarityIndex(rung));
+
+    expect(indices, indices.join(' < ')).toEqual([...indices].sort((a, b) => a - b));
+    expect(new Set(indices).size).toBe(indices.length);
+
+    // ⚠️ **Every band below the top closes at or under its own crew's cap**, so that crew can stand
+    // at parity with the content it is asked to clear. Only the roof is allowed past its cap.
+    for (const [index, rung] of rungs.slice(0, -1).entries()) {
+      const top = floorLevel(rules, (index + 1) * TOWER_BAND_UNIT);
+      const cap = caps[rarityIndex(rung)];
+
+      expect(
+        top,
+        `band ${index + 1} closes at ${top} against ${rung}'s cap ${cap}`,
+      ).toBeLessThanOrEqual(cap);
+    }
+
+    // ⚠️ **The roof closes above the cap of the rung its own band asks for.** The margin rule
+    // restated where it actually bites: a roof at or below the top crew's cap is content that crew
+    // can out-level, and `elite-plus` at parity takes the heaviest board this game can author at
+    // 100% with all five alive. The abstract version of this is the caps-ladder test above.
+    expect(rules.topLevel).toBeGreaterThan(caps[rarityIndex(rungs[rungs.length - 1])]);
   });
 
   it('reuses the mini-boss interval the campaign already taught', () => {
@@ -264,12 +258,13 @@ describe('tower content', () => {
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
     //
-    // ⚠️ **This carried a `PENDING` literal through milestones 21e–21k and 21k deleted it**, which
-    // is the whole reason it was a hand-maintained list of names rather than a filter. `TOWER_RULES`
-    // is one rule for all seven, so the height doubled in a single session while the floors moved in
-    // seven — and a filter reading "either the full height or half of it" would have passed forever
-    // and never noticed a tower nobody went back for. All seven are now the full height and this is
-    // a plain equality again.
+    // ⚠️ **This is a plain equality again, and getting it back is the point.** `TOWER_RULES` is one
+    // rule for all seven, so a height bump lands in a single session while the floors move in seven
+    // — and for the six sessions in between, a literal `PENDING` list of names carried the towers
+    // still on the old height. A filter — "the full height or two thirds of it" — would have passed
+    // forever and never noticed a tower nobody went back for. Each session deleted its own name and
+    // the last one deleted the list. It has now happened twice, 21e–21k and again for the third
+    // hundred; **do it exactly this way the next time the height moves.**
     for (const tower of towers) {
       expect(tower.floors.length, tower.id).toBe(rules.floors);
     }
@@ -356,9 +351,16 @@ describe('tower content', () => {
 
   it('puts a mini-boss on every tenth floor and the boss on the roof', () => {
     for (const tower of towers) {
+      const height = tower.floors.length;
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
 
-      expect(kinds[rules.floors - 1], tower.id).toBe('boss');
+      // ⚠️ **All seven have their boss back.** While the third hundred was in flight this branched
+      // on a `PENDING` list: a tower still on the previous height has no boss at all, because
+      // `floorKindAt` reads the *rules'* height and its last floor lands on the mini-boss interval,
+      // paying ×2 instead of ×5. That was asserted rather than skipped so the cost of leaving a
+      // tower on the list stayed on the record — reach for the same shape the next time the height
+      // moves, and delete it the same way when the last tower lands.
+      expect(kinds[height - 1], tower.id).toBe('boss');
       expect(
         kinds.filter((kind) => kind === 'boss'),
         tower.id,
@@ -459,15 +461,39 @@ describe('what a tower pays', () => {
   const lumpAt = (level: number) =>
     stagePayout(rewards, matchedStageIndex(campaignLevels, level)).reward;
 
-  it('matches the campaign by enemy level rather than by floor number', () => {
-    // ⚠️ **The difference is large.** The top floor is level 60 where campaign stage 100 is level 85,
-    // so index-matching would pay the top of the ladder's lump for a fight two thirds as hard.
-    const byLevel = matchedStageIndex(campaignLevels, floorLevel(rules, rules.floors));
-
-    expect(byLevel).toBeLessThan(rules.floors);
+  it('never pays a floor more than the campaign pays the stage at the same depth', () => {
+    // **The half of this that protects the campaign**: a floor's lump is read off the campaign at
+    // the stage fighting at the same *level*, so what has to stay true is that the roof's lump does
+    // not overtake what the campaign pays a player who has walked as many stages as the tower has
+    // floors. Towers are optional content and must not out-pay the spine.
+    //
+    // ## ⚠️ The index half was retired when the campaign flattened to 0.50 levels a stage
+    //
+    // It read `matchedStageIndex(campaignLevels, roofLevel) < rules.floors` under the claim that a
+    // tower floor is an easier fight than the campaign stage at the same index — true while the
+    // campaign climbed 1.5+ levels a stage against the tower's 0.6, and false the moment the
+    // campaign came down to 0.5. The quantity it compares is **a campaign stage index against a
+    // tower floor count**, which is two different units and only ever agreed by coincidence of the
+    // two ladders being a similar length. On a campaign heading for ~100 chapters and a tower fixed
+    // at 200 floors it cannot be made true by any `topLevel` that also satisfies the payout bound
+    // below: the payout half needs the roof under the campaign's level at stage 200, and the band-2
+    // crew derivation in `towers.balance.ts` needs it above — see that file.
+    //
+    // ⚠️ **The design claim it was making survives and is made better elsewhere.** "A tower charges
+    // for roster breadth, not investment" is held by `TOWER_RULES`'s roof sitting inside the
+    // campaign's own level range, which is checked directly rather than through an index. This is
+    // the fourth guard in this project retired rather than slid, after the absolute
+    // hours-to-the-ceiling, the ratio that replaced it, and the top stage under `maxLevel / 2`.
     expect(Number(lumpAt(rules.topLevel).gold ?? 0)).toBeLessThan(
       Number(stagePayout(rewards, rules.floors).reward.gold ?? 0),
     );
+  });
+
+  it('keeps the roof inside the campaign’s own level range', () => {
+    // What the retired index half was really claiming, stated in levels rather than in indices so
+    // it means the same thing however long either ladder gets. A roof the campaign never reaches
+    // would be a second campaign gated behind roster depth.
+    expect(rules.topLevel).toBeLessThan(campaignLevels[campaignLevels.length - 1]);
   });
 
   it('pays a lump that rises with the climb, and never a rate', () => {
@@ -494,66 +520,35 @@ describe('what a tower pays', () => {
     expect(rules.floorSummons.base).toBeLessThan(rewards.firstClearSummons.base);
   });
 
-  it('makes seven towers a multiple of the campaign rather than a replacement for it', () => {
-    // Measured over the shipped content, both halves on both sides: floors and their tracks against
-    // first clears and theirs. **Summed over the towers that actually ship** since 15c filled the
-    // roster in — it was one tower's payout times `FACTIONS.length` while six of them were still
-    // unwritten, which measured a projection rather than the game.
-    //
-    // ⚠️ **The two bounds are not the same kind of claim, and only one of them is stable.** The
-    // ceiling — towers must not replace the campaign — compares two totals that both grow, and it
-    // holds indefinitely. The floor did not, for as long as the towers were fixed at seven ladders
-    // of a hundred floors while the campaign grew a chapter at a time: this ratio then fell by
-    // construction as content shipped. Over the four-chapter ladder it read 3.17 at two chapters,
-    // 2.12 at three, 1.59 at four, and the floor had been moved 2 → 1.5 to buy exactly that chapter.
-    //
-    // **The six-chapter re-cut then moved the ratio without adding a stage**: the same two hundred
-    // stages hold six chapter boundaries instead of four, so Chapter Conqueror pays 60,000 against
-    // the old 40,000 and the ratio reads ~1.37. That was accepted deliberately — the award stayed
-    // 10,000 because it is what tower-topping ties to and because a linear payout cannot compound
-    // past a flat `PULL_COST` — so the floor was re-derived to 1.3, which bought **the re-cut and
-    // nothing more**, with the prediction written into it that chapter 7 would fire it again and
-    // that the answer would be to grow the towers rather than to move the number.
-    //
-    // ## ⚠️ Chapter 7 fired it, the answer *was* to grow the towers, and milestone 21 did that
-    //
-    // **It landed in eleven sessions rather than one.** Its four chapters moved only the campaign
-    // side while the tower side stayed at the shipped 219,100, so the ratio fell all the way through
-    // them: 1.37 → **1.13** at chapter 7 (21a) → **0.96** at 8 (21b) → **0.83** at 9 → **0.74** at
-    // 10. Sessions 21e–21k then doubled every tower to two hundred floors and took the tower side to
-    // **436,100** against the ten-chapter campaign's 297,500: 0.74 → 0.835 (Human) → 0.940 (Dwarf) →
-    // 1.045 (Elf) → 1.150 (Undead) → 1.255 (Monster) → 1.361 (Angel) → **1.466** (Demon).
-    //
-    // ⚠️ **The step is exactly 31,300 crystals — one tower's second hundred — so it is exactly
-    // +0.1052 every time by construction**, seven for seven. Do not check it by subtracting the
-    // rounded figures: 1.255 → 1.361 looks like +0.106.
-    //
-    // ## ⚠️ The floor was a placeholder for six sessions and 21k is what restores it
-    //
-    // It was 1.3 before milestone 21, 1.1 for 21a alone, and then **0.7 in a single edit covering
-    // 21b through 21d** — because re-deriving a quantity that is *supposed* to fall, three times, to
-    // three numbers all known in advance, is three edits that measure nothing. The acknowledged
-    // price was that it watched nothing from 21b until now. That was the same call 21a made on
-    // `levels.spec.ts`'s ceiling ratio and the opposite of the one 21b made on `gear.ts`'s
-    // `gradeSoftness`; the distinction is whether the quantity is meant to move.
-    //
-    // **It is back at 1.3, which is where it was before the milestone rather than a new bar.** The
-    // measured 1.466 leaves about 11% of headroom, and that headroom is the point: this ratio falls
-    // again as soon as the campaign grows, reading **1.314** after an eleventh fifty-stage chapter
-    // and **1.190** after a twelfth. So 1.3 survives chapter 11 and fires at chapter 12 — and 1.4,
-    // which was the alternative, would have fired on the very next chapter shipped.
-    //
-    // ⚠️ **A failure here now is the original question again rather than a number to slide**:
-    // whether seven towers of two hundred floors is still the right amount of optional content
-    // beside the campaign of the day. The towers are no longer fixed while the campaign grows —
-    // growing them is what this milestone was — so the honest answers are a third hundred, an eighth
-    // ladder, or accepting that the campaign has outgrown its optional content.
-    const seven = towers.reduce((total, tower) => total + crystalsPerTower(tower), 0);
-    const campaign = campaignCrystals();
-    const note = `seven towers ${seven} against a campaign of ${campaign}`;
-
-    expect(seven / campaign, note).toBeGreaterThan(1.3);
-    expect(seven / campaign, note).toBeLessThan(4);
+  /*
+   * ⚠️ **The tower:campaign crystal ratio used to be asserted here and has been retired.**
+   *
+   * It read `sum(crystalsPerTower) / campaignCrystals` against a floor of 1.3 and a ceiling of 4,
+   * and the floor is what killed it. That quantity falls by construction every time a chapter ships
+   * and rises in one step every time the towers grow, so the floor had been moved 2 → 1.5 → 1.3 →
+   * 1.1 → 0.7 → 1.3 across five sessions and spent six of them parked at a placeholder watching
+   * nothing. The third hundred takes the ratio from 1.40 to **2.09**, which would have meant a sixth
+   * slide. `docs/authoring.md` records the alternative as a real option — three guards have been
+   * retired rather than slid — on the test that applies here: **when the honest restatement of a
+   * guard is a number you would refuse to author, the guard is pointed at the wrong quantity.**
+   *
+   * ⚠️ **The ceiling went with it, and that half was stable.** Keeping it would have meant keeping
+   * `crystalsPerTower` and `campaignCrystals` for an assertion with roughly ×1.9 of slack. The
+   * question both halves were really asking — *is seven towers still the right amount of optional
+   * content beside the campaign of the day* — is a design question a threshold was never going to
+   * answer, and it is now asked in prose in [`towers.ts`](./towers.ts) with the arithmetic written
+   * out beside it. **Recompute both totals when extending either side.**
+   */
+  it('pays the climb its rhythm through the two multipliers, not the base', () => {
+    // What survives of the retired arithmetic, and the half that is a genuine invariant rather than a
+    // ratio between two totals that both move. A flat base is the rule every crystal payout in this
+    // game follows — a pull costs a flat `PULL_COST` forever, so anything scaling with how far a run
+    // has come pays most to the player who needs it least — which leaves the mini-boss and the roof
+    // as the only places a climb is allowed to feel like it peaked.
+    expect(rules.floorSummons.bossMultiplier).toBeGreaterThan(
+      rules.floorSummons.miniBossMultiplier,
+    );
+    expect(rules.floorSummons.miniBossMultiplier).toBeGreaterThan(1);
   });
 });
 

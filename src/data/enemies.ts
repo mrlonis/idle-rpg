@@ -1,5 +1,7 @@
 import {
   ANTIPHON,
+  ASHPIT_RAKE,
+  AT_THE_HALT,
   BARROW_TITHE,
   BIND_THE_CONCORD,
   BLOOD_CALLS_BLOOD,
@@ -9,6 +11,8 @@ import {
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CINDER_STORM,
+  CLEAVE_THE_LINE,
+  CLOSE_OVER_IT,
   COUCHED_LANCE,
   CULL_THE_EMBERS,
   CUTPURSE,
@@ -16,16 +20,23 @@ import {
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
+  EVENSONG,
   FADE,
   FLENSE,
   GATE_SLAM,
   GLACIAL_SLAM,
+  GLASSLIGHT_VERDICT,
   GORE,
+  GRIND_THE_SEAM,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
   HUSH_THE_MANY,
+  IRONWAKE_CHARGE,
   IRON_FOR_IRON,
+  KEEP_THE_SEED,
+  KILN_LIGHT,
   LITANY,
+  LOOSE_THE_PLATED_PACK,
   MASSED_LITANY,
   MAUL,
   MEND,
@@ -34,12 +45,20 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NOTHING_GETS_A_GRIP,
+  NOTHING_HOLDS_AN_EDGE,
+  NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NO_ANSWER_COMES,
+  NO_EDGE_FINDS_IT,
   ONE_VOICE,
   OPEN_THE_VEIN,
   PALL_OF_YEARS,
+  PASS_THE_WORD,
   PILLAR_OF_LIGHT,
+  PROCESSION_STEP,
+  PUT_THE_EDGE_ON,
+  QUICKLIME_CUT,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
@@ -48,9 +67,18 @@ import {
   RUINOUS_ARC,
   RUINOUS_STOOP,
   RUNEWARD,
+  RUN_THE_SEED_DOWN,
+  SEEDLIGHT,
+  SET_THE_PITCH,
   SEVENFOLD_HEX,
+  SHARDLIGHT,
+  SHATTERJAW,
+  SHELLED_RUSH,
   SHIELD_BASH,
   SHRIKE_DIVE,
+  SHUT_THE_RING,
+  SLAGHIDE_LUNGE,
+  SLAG_SLAM,
   SLUNG_ANVIL,
   STONE_FIST,
   SUNFADE,
@@ -58,25 +86,41 @@ import {
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
+  THE_COLOURS_STAND,
+  THE_COUNTERSIGN,
   THE_DEBT_CALLED,
+  THE_EDGE_IS_MADE,
   THE_FIELD_CLOSES,
   THE_HORN_SOUNDS,
+  THE_HOUR_UNKEPT,
+  THE_KEENING_NOTE,
   THE_KNELL,
+  THE_LAST_AMEN,
   THE_LAST_MUSTER,
   THE_LAST_VERSE,
+  THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
+  THE_ORDER_STANDS,
   THE_PACK_ANSWERS,
   THE_QUENCH,
+  THE_RING_IS_SHUT,
   THE_SEAL_BREAKS,
+  THE_SINGLE_STROKE,
+  THE_STANDING_ORDER,
+  THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
   THE_WARDS_HOLD,
+  THE_WHEEL_TURNS,
+  THE_WOOD_DOES_NOT_END,
+  THE_WORKS_RUN_ON,
   THORNLASH,
   TYRANTS_CLAIM,
   UNDERMINE,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
+  WHAT_FALLS_IS_SOWN,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
@@ -4565,6 +4609,1586 @@ export const THE_UNISON = {
 
 /** Every enemy, for the specs that check ids are unique and that every kit points at a real
  * skill. */
+// ---------------------------------------------------------------------------------------
+// The Standing Line — chapter 11
+//
+// Ten blocks, all **Human**, which takes the faction 14 → **24**. That is the largest single move
+// any lean has made and it is the right one twice over: Human was the thinnest of the seven by a
+// clear margin, and Angels and Demons — the next two thinnest at 16 and 17 — are barred from
+// leading a chapter, because a celestial deals ×1.10 to every mortal and the matrix has no mortal →
+// celestial row to answer it. ⚠️ **Recompute the depths before choosing the next lean**: this
+// chapter takes Human from last to first, so the argument that picked it does not repeat.
+//
+// ## What the blocks are for
+//
+// The chapter asks **what the party spends its damage on first**, so every block below is a rung on
+// a priority list rather than a lock:
+//
+// | Block                | Where it should be in the order                                      |
+// | -------------------- | -------------------------------------------------------------------- |
+// | Signal Runner        | first, and it is fodder — the trap the whole chapter is built on      |
+// | Order Serjeant       | first on any board without a Runner on it                            |
+// | Reserve Ensign       | before the cleanse, never after it                                   |
+// | Countersign Captain  | before the party's own setup turn, or not at all                     |
+// | Standfast Lancer     | last, because it decays on its own                                   |
+// | The Colour Serjeant  | whenever the party has already committed — which is the trick        |
+//
+// ⚠️ **Nothing here restores health, and nothing here wears a taunt.** Three of the chapter's turns
+// are board-wide buffs and one of them is {@link GUARD}, so a fight here is already longer than a
+// fight in the Bleeding Wild; a healer or a wall on top of that is the ninety-second clock, and a
+// timeout is scored a **defeat**. {@link AEGIS} on {@link THE_COLOURS_STAND} is the one thing on the
+// enemy side that puts anything back and it is a pool that depletes rather than a heal that refills.
+//
+// ⚠️ **Both `ascended` blocks stay under {@link UNMADE} on `hp` and `atk`**, which
+// `enemies.spec.ts` holds — 1500/88 and 1740/96 against 1800/100. What makes the final the harder
+// fight is the questions it asks and the level it is fielded at, which is the rule every chapter
+// boss since the Vault has kept.
+//
+// ⚠️ **No Human `ascended` block here carries {@link GATE_SLAM}, and that is deliberate.** All five
+// the faction already ships — {@link WARDEN}, {@link OATHBREAKER}, {@link PALE_WARDEN},
+// {@link THE_BREACHLORD} and the note on {@link THE_HORNCALLER} — lean on `stun@enemy-all`, and a
+// sixth would be this chapter's climax stating the faction's idiom instead of its own.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Somebody has to hold the ditch, and it is not going to be anybody who was asked.
+ *
+ * The chapter's plain body: slow, armoured, and standing where an attack goes. It carries nothing
+ * that answers the party and nothing that threatens it, which is what a board needs underneath four
+ * blocks that all want the party's attention — a wall the party is *allowed* to spend its opening on
+ * is what makes spending it there a mistake rather than a trap.
+ *
+ * ⚠️ **The heaviest Human `common` in the game at 900**, past {@link VAULTBOUND_GAOLER}'s 760, and
+ * the register is checked rather than assumed: {@link THORNBACK_GRAZER} sits at 940 across the seam
+ * and this chapter needs a front rank that survives long enough for the back one to be the question.
+ */
+export const MUSTER_PIKE = {
+  id: 'muster-pike',
+  name: 'Muster Pike',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 900,
+    atk: 48,
+    def: 34,
+    haste: 66,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    tenacity: 0.2,
+    physicalResist: 0.08,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The road is watched from both ends, and neither end was told why.
+ *
+ * The back rank's ordinary body, and the one that makes a board of five feel like five: enough reach
+ * to be worth killing and not enough to be the reason a fight is lost. It is the filler slot the
+ * chapter's substitutions run through, which is why it is authored at nothing more than a bow.
+ */
+export const ROADWATCH_BOWMAN = {
+  id: 'roadwatch-bowman',
+  name: 'Roadwatch Bowman',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 500,
+    atk: 62,
+    def: 12,
+    haste: 112,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.12,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * The whole chapter, standing in the back rank on four hundred and thirty hit points.
+ *
+ * ⚠️ **The cheapest body in the game that buffs the whole board**, and the trap band 1 exists to
+ * spring. {@link PASS_THE_WORD} is worth a third more of everything its side does; a party that
+ * clears the front rank in the order the front rank presents itself pays that for the entire fight,
+ * and a party that reaches past it once ends the board's advantage in a single turn.
+ *
+ * ⚠️ **Deliberately the softest thing in the chapter and among the fastest**, which is the licence
+ * for putting a board-wide buff on fodder at all: it acts early, so the cost of ignoring it lands
+ * immediately, and it dies to one reaching turn, so the lesson is cheap the first time it is learned.
+ * A body this important that were also durable would be a lock rather than a priority.
+ */
+export const SIGNAL_RUNNER = {
+  id: 'signal-runner',
+  name: 'Signal Runner',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 430,
+    atk: 50,
+    def: 10,
+    haste: 130,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+  },
+  skills: [PASS_THE_WORD],
+} as const;
+
+/**
+ * The front rank goes forward while there is still a line behind it to go forward from.
+ *
+ * {@link COUCHED_LANCE} on a `common`, which is the first time the faction's heaviest single hit has
+ * been carried by anything cheap. It costs nothing in balance terms — power multiplies the carrier's
+ * own `atk`, so a 58-attack body lands two thirds of what {@link KINGSWAY_LANCER} does with it — and
+ * it costs a great deal in tempo, because it front-loads a board of fodder into its opening exchange
+ * and leaves the rest of the fight quieter.
+ *
+ * **The band's cheap statement**, standing under {@link STANDFAST_LANCER} the way the Runner stands
+ * under the Serjeant: the same idea at a price a player meets on an ordinary board.
+ */
+export const VANWARD_SPEAR = {
+  id: 'vanward-spear',
+  name: 'Vanward Spear',
+  faction: 'human',
+  tier: 'common',
+  stats: {
+    hp: 560,
+    atk: 58,
+    def: 16,
+    haste: 106,
+    critChance: 0.15,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.14,
+  },
+  skills: [COUCHED_LANCE],
+} as const;
+
+/**
+ * The one who keeps saying it, long after there is anyone left to say it to.
+ *
+ * The band's other half and the chapter's central body. {@link THE_ORDER_STANDS} braces and sharpens
+ * all five at once on a seventy-five tick cadence, so the board the party is fighting is not the
+ * board it measured — and the thirty-tick window between the buff lapsing and being re-cast is where
+ * a party that killed this first gets paid.
+ *
+ * ⚠️ **Almost no offence of its own**, like every support the enemy side ships. What it costs the
+ * party is what the other four do through it, which is the only honest way to price a body whose
+ * whole contribution is a multiplier — a caller that also hit hard would be a reason to kill it that
+ * has nothing to do with the calling.
+ *
+ * `tenacity` rather than bulk: the party's cheapest answer to a buffer is a stun or a slow aimed at
+ * it, and a body that simply refuses those once in four is a body worth spending a real turn on.
+ */
+export const ORDER_SERJEANT = {
+  id: 'order-serjeant',
+  name: 'Order Serjeant',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 60,
+    def: 24,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    tenacity: 0.25,
+    magicResist: 0.06,
+  },
+  skills: [THE_ORDER_STANDS, CUTPURSE],
+} as const;
+
+/**
+ * It only works against a line, and it stops the moment there is no line to work against.
+ *
+ * Band 2 in one block: {@link AT_THE_HALT} while the party is entirely whole, {@link COUCHED_LANCE}
+ * while it is four, and a swinging body after that. **Two conditions on one kit is a decay curve**,
+ * and it is the chapter's argument that the opening exchange is the expensive one — a party that
+ * trades a member early buys the rest of the fight at a discount it did not know it was being
+ * offered.
+ *
+ * ⚠️ **Authored to be answerable by *losing*, which is the one shape of encounter this game has
+ * never built**, and the reason it is safe: every other board in the campaign gets harder as the
+ * party thins out. This one gets easier, so it can carry the faction's highest `atk` outside the
+ * `ascended` tier without being a cliff.
+ */
+export const STANDFAST_LANCER = {
+  id: 'standfast-lancer',
+  name: 'Standfast Lancer',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 80,
+    def: 26,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.3,
+    magicResist: 0.04,
+  },
+  skills: [AT_THE_HALT, COUCHED_LANCE],
+} as const;
+
+/**
+ * There is always another rank, and it is always the same rank.
+ *
+ * Band 3, and the block that makes a cleanse the wrong turn. {@link THE_LINE_REFORMS} puts
+ * {@link WEAKEN} back on the party's whole back rank the moment nobody is carrying it, so removing
+ * it is an invitation rather than an answer — the party's damage is blunted, and the turn it spends
+ * un-blunting it is a turn it also did not spend killing this.
+ *
+ * ⚠️ **`insight` rather than a higher authored chance**, which is the rule any block built to land a
+ * status against this depth of ladder follows: `statusChance` is `authored + insight − tenacity`, so
+ * a party that has bought the stat the game gave it for exactly this refuses the debuff outright
+ * however confidently it is written. Buying the pool is the honest answer; inflating the chance is
+ * the answer that stops working the moment the party invests.
+ */
+export const RESERVE_ENSIGN = {
+  id: 'reserve-ensign',
+  name: 'Reserve Ensign',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 840,
+    atk: 70,
+    def: 22,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    insight: 0.28,
+    magicResist: 0.06,
+  },
+  skills: [THE_LINE_REFORMS, CUTPURSE],
+} as const;
+
+/**
+ * Give the sign and it is answered. That is the whole of what a countersign is.
+ *
+ * Band 4, and the only block in the chapter that does nothing at all until the party acts.
+ * {@link THE_COUNTERSIGN} is conditioned on the enemy side carrying a hostile status, so a party
+ * that opens with a shred, a slow or a wound is answered past its own front rank on the next turn,
+ * and a party that opens with damage is not.
+ *
+ * ⚠️ **A cost rather than a refusal, and the distinction is what keeps the board answerable.** The
+ * Hollow Anvil's `tenacity` band made the setup turn *fail*; this lets it land and bills for it.
+ * Both are statements about the party's own turn and only one of them can be answered by choosing
+ * differently, which is why this chapter takes that one.
+ *
+ * Standing in the front rank on purpose: the answer reaches past a wall, so the body giving it does
+ * not need to hide behind one.
+ */
+export const COUNTERSIGN_CAPTAIN = {
+  id: 'countersign-captain',
+  name: 'Countersign Captain',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 960,
+    atk: 74,
+    def: 30,
+    haste: 90,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    insight: 0.22,
+    tenacity: 0.3,
+    physicalPierce: 0.2,
+  },
+  skills: [THE_COUNTERSIGN, SHIELD_BASH],
+} as const;
+
+/**
+ * The colours are not a flag. They are the thing everybody on the field is looking at.
+ *
+ * **The chapter's lieutenant**, standing on `c11-s10`, `s20`, `s30` and `s40` at 205, 210, 215 and
+ * 220 — one recurring antagonist that gets harder because the ladder does, rather than four one-shot
+ * stat blocks. ⚠️ **Reactive rather than an opening turn**, which is the third chapter running to
+ * take that shape and the reason it works: {@link THE_COLOURS_STAND} does nothing until the party has
+ * hurt something, and then banks a pool on precisely the body the party chose. Four appearances are
+ * four different fights because the party arrives at each with a different opening.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** The rule permits it — the Gravewright does on
+ * `c7-s50` — and chapters 9 and 10 both declined, because a second `ascended` anchor beside the boss
+ * is the sharpest non-linear weight step this game can author. What stands beside The Last Order is
+ * the Captain, at a legendary's weight.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_COLOUR_SERJEANT = {
+  id: 'the-colour-serjeant',
+  name: 'The Colour Serjeant',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1500,
+    atk: 88,
+    def: 44,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_COLOURS_STAND, THE_ORDER_STANDS, SHIELD_BASH],
+} as const;
+
+/**
+ * Whatever it was for is a long way behind it now, and it has not been told.
+ *
+ * **The eleventh body authored under the rule that a chapter's final is fielded nowhere else**, and
+ * no other chapter's final appears anywhere in this one.
+ *
+ * Its four turns are the chapter restated rather than a bigger stat block: {@link AT_THE_HALT} is
+ * band 2, {@link THE_LINE_REFORMS} is band 3, {@link THE_COUNTERSIGN} is band 4, and
+ * {@link THE_STANDING_ORDER} — the only skill in the chapter nothing else carries — is band 1 at an
+ * anchor's weight, taking three hostile statuses off **every** body on its side and sharpening all
+ * five in the same action. A party that opened on the escort meets the whole board again.
+ *
+ * ⚠️ **Three of its four turns are offensive, which is deliberate against a body that buffs.** A
+ * final that spent most of its actions setting up is a final a patient party is happy to be given,
+ * and this chapter already lengthens a fight through {@link GUARD}. The eighty-tick cooldown on the
+ * ultimate is the longest in the chapter for the same reason.
+ *
+ * ⚠️ **Nothing on it restores anything**, and no board it stands on carries a taunt — the discipline
+ * every roof and every final in this project has kept since 15c measured what a healer behind a wall
+ * costs. 1740 hp and 96 `atk` sit under {@link UNMADE}'s 1800 and 100, which is the ceiling
+ * `enemies.spec.ts` holds and nothing may reach.
+ */
+export const THE_LAST_ORDER = {
+  id: 'the-last-order',
+  name: 'The Last Order',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1740,
+    atk: 96,
+    def: 54,
+    haste: 94,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.24,
+    critBlock: 0.12,
+    tenacity: 0.55,
+    physicalPierce: 0.26,
+    magicPierce: 0.16,
+    physicalResist: 0.07,
+    magicResist: 0.07,
+  },
+  skills: [THE_STANDING_ORDER, AT_THE_HALT, THE_COUNTERSIGN, THE_LINE_REFORMS],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Human Tower's third hundred floors
+//
+// Four Undead blocks on one axis: **a body that acts too often, and pays for it in bulk rather than
+// in softness.** Undead go 21 → 25 and become the deepest faction; the lean is forced rather than
+// chosen, since Undead are what counters Humans.
+//
+// ⚠️ **The axis is the inverse of the Angel Tower's, and that is what makes it this tower's.** Every
+// block above `haste` 125 that this game ships is thin — the heaviest is the Nightmarch Outrider at
+// 760 hp — because speed was priced in softness where it was last measured. Against both Human
+// arrangements the pairing reads backwards: at `haste` 144 a 420-hp body leaves the weaker
+// arrangement at 3.77 survivors and an 1120-hp body leaves it at 1.07. **A Human five kills a thin
+// fast body before it acts twice.** So these four break the pairing, which nothing else does.
+//
+// ⚠️ **Every one of them stays inside the shipped register.** `haste` tops out at 152 across all
+// 140 blocks and crit at 0.18 / 1.0; nothing here exceeds either. The dial is the *pairing*, not a
+// bigger number — and `docs/authoring.md`'s rule about checking a stat's register before building a
+// band on it is what stopped this reaching for `haste` 160, which measured well and cannot be
+// authored.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The cortege never arrived, so it is still walking.
+ *
+ * The band's opening statement and the cheapest body carrying it: `haste` 122 on 830 hp, where the
+ * only other `common` above 120 is a 210-hp Wisp. ⚠️ **A `common` is the right tier for the first
+ * appearance of an axis**, because a hundred floors has to teach it before it can charge for it —
+ * and a fodder body that takes two turns to the party's one is the whole lesson in a form the crew
+ * can still walk through.
+ */
+export const CORTEGE_LANCER = {
+  id: 'cortege-lancer',
+  name: 'Cortege Lancer',
+  faction: 'undead',
+  tier: 'common',
+  stats: {
+    hp: 830,
+    atk: 46,
+    def: 30,
+    haste: 122,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    physicalResist: 0.08,
+  },
+  skills: [PROCESSION_STEP],
+} as const;
+
+/**
+ * Armour that heavy is supposed to come with a cost. This one never paid it.
+ *
+ * The middle bands' body, and the first that is genuinely both: `haste` 134 on 940 hp with 36 `def`.
+ * Measured at four to a board it takes the reference five to 3.17 survivors and the weaker
+ * arrangement to 2.60, against a 4.00 / 2.95 control.
+ *
+ * ⚠️ **Nothing on it restores anything and it carries no `lifeLeech`.** The faction's idiom is
+ * sustain — `drain` and leech in place of a healer — and a fast body that also heals is the
+ * ninety-second clock rather than a lock. Speed is the only thing this block is allowed to be about.
+ */
+export const IRONWAKE_VANGUARD = {
+  id: 'ironwake-vanguard',
+  name: 'Ironwake Vanguard',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 940,
+    atk: 48,
+    def: 36,
+    haste: 134,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [IRONWAKE_CHARGE, PROCESSION_STEP],
+} as const;
+
+/**
+ * It keeps the time the rest of them march to, and it is not a generous time.
+ *
+ * The closing band's body: `haste` 144 on 1000 hp with crit at the shipped ceiling. ⚠️ **The two
+ * dials at once are past the edge**, so this is the block that may never fill a board — four of them
+ * read 2.50 / 1.02 against the weaker arrangement's 75% bar, where two of four read 3.90 / 3.42.
+ * **No board carries more than two**, which is a constraint on the floors rather than on the stats,
+ * and `tower-human.ts` is where it is checked.
+ */
+export const QUICKLIME_SERJEANT = {
+  id: 'quicklime-serjeant',
+  name: 'Quicklime Serjeant',
+  faction: 'undead',
+  tier: 'legendary',
+  stats: {
+    hp: 1000,
+    atk: 52,
+    def: 34,
+    haste: 144,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    physicalPierce: 0.12,
+    physicalResist: 0.08,
+  },
+  skills: [QUICKLIME_CUT, IRONWAKE_CHARGE],
+} as const;
+
+/**
+ * The Deathless Marshal halted its column. Nobody gave this one the order.
+ *
+ * The roof, and **the fastest `ascended` block in the game by twelve points** — the previous
+ * high-water mark is The Unanswered at 112, and every anchor above 1500 hp sits between 88 and 106.
+ * That is the band's whole argument arriving on the one body allowed to carry weight with it.
+ *
+ * ⚠️ **1660 hp and 95 `atk` sit under {@link UNMADE}'s 1800 and 100**, the ceiling
+ * `enemies.spec.ts` holds and nothing may reach. The speed is where this block is different; the
+ * weight is deliberately not, because 15b measured that a front rank's weight is sharply non-linear
+ * and pairing the two heaviest blocks in the game takes a reference crew to single digits.
+ *
+ * ⚠️ **Nothing on it restores anything, and no board it stands on carries a taunt.** The rule every
+ * roof has kept since 15c measured what a healer behind a wall costs: against a party that cannot
+ * burst, sustain on the last floor is the ninety-second clock rather than a lock.
+ */
+export const THE_HOURLESS_MARCH = {
+  id: 'the-hourless-march',
+  name: 'The Hourless March',
+  faction: 'undead',
+  tier: 'ascended',
+  stats: {
+    hp: 1660,
+    atk: 76,
+    def: 50,
+    haste: 124,
+    critChance: 0.15,
+    critDamageAmp: 0.92,
+    critDamageResist: 0.2,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.26,
+    magicPierce: 0.18,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [THE_HOUR_UNKEPT, QUICKLIME_CUT, IRONWAKE_CHARGE],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's third hundred floors — the Crownworks
+//
+// Five blocks: two Human, two Monster, one Demon. ⚠️ **The lean's own bench is not where all five
+// went, and that is on purpose.** A tower's new blocks belong to the faction that counters the one
+// it admits, and *four* factions counter Dwarves — human, monster (both ×1.05), angel and demon
+// (both ×1.10). Human was already the second-deepest faction in the game at 24 archetypes, so the
+// antagonist stays Human and the texture deepens the thin ones.
+//
+// ⚠️ **Nothing here restores anything.** This is the tower that measured what sustain costs on a
+// last floor: its roof was once `Oathbreaker + Warden` behind a Marsh Acolyte and no Dwarf five
+// could close it inside ninety seconds, while the identical board six levels lower cleared cleanly.
+// Against a party that cannot burst, every point of enemy sustain is a second of clock.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The host never learned how the works were built. It learned which lever makes the hammer fall.
+ *
+ * **The third hundred's axis on one body**, and the axis is a *product*. Measured against both
+ * Dwarf arrangements at the band-3 crew, four of these on a board, forty seeds: at `atk` 72 with
+ * `haste` 98 the weaker arrangement keeps **4.00** of five; at `atk` 86 with `haste` 98, 3.17; at
+ * `atk` 72 with `haste` 126, 3.05; **at both, 1.77.** Neither half is a fight and the pair is.
+ *
+ * ⚠️ **`haste` 118 is a ceiling this tower may not cross, and the reason is in another tower's
+ * file.** `tower-human.ts` records its third hundred as the place where speed stopped costing
+ * softness, and its four blocks as *the only ones in the game above `haste` 125 that are not thin*.
+ * A durable Dwarf-tower body at 130 would make that true of eight blocks in two towers and false as
+ * written. 80 `atk` is the shipped legendary ceiling — {@link STANDFAST_LANCER} and
+ * {@link IRONSLING_WRIGHT} are already there — so the product is bought without moving either
+ * register.
+ *
+ * ⚠️ **One skill, and it is a plain hit.** {@link THE_STRIKE_FALLS} carries the argument for why.
+ */
+export const CROWNWORKS_STRIKER = {
+  id: 'crownworks-striker',
+  name: 'Crownworks Striker',
+  faction: 'human',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 80,
+    def: 26,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.22,
+    magicResist: 0.05,
+  },
+  skills: [THE_STRIKE_FALLS],
+} as const;
+
+/**
+ * It grew its shell out of what the quench-pits threw away, and it will not be moved out of a door.
+ *
+ * The hundred's **second** dial, and the only "you may not choose your target" this tower is
+ * allowed. ⚠️ **The durability is on the taunting body itself** — the Sundered Vault's Sealward
+ * Custodian inversion — so the one thing the party may hit is the one thing it has to kill, and
+ * every pool in front of it depletes. Measured at 3.98 / **3.02** against a 4.25 / 4.00 control,
+ * the largest dial found on this tower that is not the swing.
+ *
+ * ⚠️ **It carries no restoration and it never stands on the roof.** With it on the last board the
+ * weaker arrangement reads **15%** against its own 75% bar; without it, 95%. That is 15c's finding
+ * arriving on the tower that produced it, and the reason {@link DRAW_THE_OATH} is reused here rather
+ * than a new taunt authored: the status vocabulary is closed, and a taunt is one of the shapes it
+ * already spends most carefully.
+ *
+ * Monster rather than Human because Monsters counter Dwarves too, and because a wall is what that
+ * faction's bench is for — {@link STONE_GOLEM}, {@link RIMEPLATE} and {@link SCARBOUND_BELLOWER} are
+ * all this shape and none of them fits the Crownworks.
+ */
+export const QUENCHPIT_IRONHIDE = {
+  id: 'quenchpit-ironhide',
+  name: 'Quenchpit Ironhide',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1150,
+    atk: 58,
+    def: 44,
+    haste: 78,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    tenacity: 0.3,
+    physicalResist: 0.1,
+    magicResist: 0.05,
+  },
+  skills: [DRAW_THE_OATH, SLAG_SLAM],
+} as const;
+
+/**
+ * Something was bound into the kilns to keep them lit. It is still keeping them lit.
+ *
+ * The one damage-**type** statement the third hundred makes, and it is a small one honestly sized.
+ * ⚠️ **Not one Dwarf in either swept arrangement carries a point of `magicResist`**, while four of
+ * five carry 0.08 to 0.12 `physicalResist` — the highest mean of any faction in the game. That reads
+ * like a lock and measures like texture: four magical bodies leave the weaker arrangement at 3.40
+ * against a physical board's 3.88. **A tenth of a party member, so it is spice rather than a band.**
+ *
+ * The faction's own answer is Vurn Runewright, the only Dwarf carrying any magic resistance and a
+ * member of neither swept five — which is what makes this a question with an answer inside the
+ * roster rather than a wall.
+ */
+export const KILNSWORN_ADEPT = {
+  id: 'kilnsworn-adept',
+  name: 'Kilnsworn Adept',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 72,
+    def: 20,
+    haste: 104,
+    critChance: 0.09,
+    critDamageAmp: 0.75,
+    magicPierce: 0.24,
+    magicResist: 0.08,
+  },
+  skills: [KILN_LIGHT],
+} as const;
+
+/**
+ * It came up the cold flues years ago and nobody has been down them since to argue.
+ *
+ * Opening-band texture, and the hundred's only new `common`. The bands above it are built out of
+ * bodies that hit; this is what the first twenty floors are made of instead, so the escalation has
+ * somewhere to start from.
+ */
+export const ASHPIT_SCUTTLER = {
+  id: 'ashpit-scuttler',
+  name: 'Ashpit Scuttler',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 540,
+    atk: 56,
+    def: 14,
+    haste: 114,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+  },
+  skills: [ASHPIT_RAKE],
+} as const;
+
+/**
+ * The hold built it, the host took the hall it stands in, and neither of them ever stopped it.
+ *
+ * The roof. ⚠️ **Lighter than {@link THE_BREACHLORD} it succeeds — 1240 against 1300 and 74 against
+ * 78 — and that is arithmetic rather than timidity.** An `ascended` block climbs at
+ * `perLevel.ascended` 1.024 while a mono-faction Dwarf five is mostly `common` at 1.021, so across
+ * the 47 levels this hundred spans the anchors pull away from the crew by about ×1.15. The shipped
+ * floor-200 board reads 100% with all five alive at its own level 95 and **28% with 0.47** at 142.
+ * So the third hundred's anchors get *lighter* as it climbs and the escalation comes from the other
+ * four slots — which is the inverse of the second hundred and the whole shape of the Crownworks.
+ *
+ * Measured as authored, on the board it stands on: **100% with 2.33 of five** for the reference
+ * arrangement and **95% with 1.60** for the weaker one, against a 90% and a 75% bar.
+ *
+ * ⚠️ **Nothing on it restores anything and no board it stands on carries a taunt.** This is the
+ * tower that taught the project that rule. 1240 hp and 74 `atk` sit a long way under
+ * {@link UNMADE}'s 1800 and 100.
+ */
+export const THE_CROWN_WHEEL = {
+  id: 'the-crown-wheel',
+  name: 'The Crown Wheel',
+  faction: 'human',
+  tier: 'ascended',
+  stats: {
+    hp: 1240,
+    atk: 74,
+    def: 40,
+    haste: 100,
+    critChance: 0.13,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.15,
+    critBlock: 0.08,
+    tenacity: 0.4,
+    physicalPierce: 0.28,
+    magicPierce: 0.15,
+    physicalResist: 0.06,
+    magicResist: 0.05,
+  },
+  skills: [THE_WHEEL_TURNS, THE_WORKS_RUN_ON],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Splintering Yards — the Elf Tower's third hundred.
+//
+// ⚠️ **One stat carries the whole band, and it is the one an Elf five has no answer to at all.**
+// Both swept Elf arrangements carry **zero `critDamageResist` and zero `critBlock`** — the only
+// crew in the game with neither, against Dwarves' 0.23 of block across five and Angels' 0.76 of
+// resist — on the lowest mean HP in the game (461, against Undead 880 and Dwarf 846). Measured at
+// the roof's level, four bodies at the shipped ceiling read **80% / 1.73** for the weaker
+// arrangement against a 93% / 2.25 control, and it grades the whole way: 57% at `critChance` 0.22
+// and 48% at 0.26.
+//
+// ⚠️ **It is genuinely this tower's rather than merely unanswerable**, which is the test that
+// shelved `dodge` on the Monster Tower. The tower's own second hundred already made crit its
+// conversation in the *mirror* direction — {@link EDGETURN_WARDEN} carries the highest `critBlock`
+// and `critDamageResist` in the game for the sole purpose of refusing an Elf five's crits — so
+// this hundred is the works turning that around and throwing them instead.
+//
+// ⚠️ **The register was checked before the band was built on it**, which is rule 4 in
+// `docs/authoring.md` and the thing the rejected Demon magic ward failed. The shipped ceilings are
+// `critChance` **0.18** (Headsman) and `critDamageAmp` **1.00** (Golem), and every legendary here
+// sits at or under both. Only the roof steps past, exactly as {@link THE_WARDWRIGHT} set the
+// game's `accuracy` ceiling one hundred below.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It puts the edge on everything that leaves the yard, and it has never once been asked to stop.
+ *
+ * **The hundred's spine**, on a hundred and ten of its five hundred slots. ⚠️ **Deliberately the
+ * *moderate* register and not the ceiling** — `critChance` 0.16 against the shipped 0.18 — because
+ * this band escalates by **how many bodies ask** rather than by how hard one of them asks. A spine
+ * authored at the ceiling would leave the closing bands nowhere to go but weight, and weight is
+ * exactly what has run out of room up here.
+ *
+ * ⚠️ **It carries the tower's `accuracy` signature at 1.12 and not a point more.** The second
+ * hundred is built on out-running an Elf five's evasion and its ceiling is the Wardwright's 1.25;
+ * this block inherits the idiom without touching that claim.
+ */
+export const SPLINTERYARD_HONER = {
+  id: 'splinteryard-honer',
+  name: 'Splinteryard Honer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  stats: {
+    hp: 800,
+    atk: 76,
+    def: 26,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.9,
+    tenacity: 0.3,
+    accuracy: 1.12,
+    physicalPierce: 0.2,
+  },
+  skills: [PUT_THE_EDGE_ON],
+} as const;
+
+/**
+ * Something in the rift below the quench-pits learned the note the metal breaks on.
+ *
+ * The **second** voice, arriving at floor 245. Magical and aimed at whoever is already closest to
+ * going down — see {@link THE_KEENING_NOTE} for why that aim and not the back rank, which measured
+ * as a gift. At the shipped `critChance` ceiling, because unlike the spine this one is not asked to
+ * appear on a hundred boards.
+ */
+export const RIFTEDGE_CANTOR = {
+  id: 'riftedge-cantor',
+  name: 'Riftedge Cantor',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 760,
+    atk: 74,
+    def: 20,
+    haste: 98,
+    critChance: 0.18,
+    critDamageAmp: 1,
+    magicPierce: 0.22,
+    magicResist: 0.08,
+  },
+  skills: [THE_KEENING_NOTE],
+} as const;
+
+/**
+ * The yards are lit by something that was bound to light them, and it has opinions about edges.
+ *
+ * The **fourth** voice, arriving at floor 271. ⚠️ **Thin and fast rather than another heavy body**,
+ * which is the whole point of it: 640 hp at `haste` 116 contributes *crit rolls per fight* where a
+ * bulkier block would contribute a bigger number the party's front rank was going to eat anyway.
+ * That is also its price — it is the softest thing on any board it stands on.
+ */
+export const GLASSCHOIR_ARBITER = {
+  id: 'glasschoir-arbiter',
+  name: 'Glasschoir Arbiter',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 640,
+    atk: 66,
+    def: 22,
+    haste: 116,
+    critChance: 0.18,
+    critDamageAmp: 0.95,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [GLASSLIGHT_VERDICT],
+} as const;
+
+/**
+ * What is swept up off the yard floor, still bright enough to cut with.
+ *
+ * The hundred's only new `common`, and the opening bands are made of it. It carries a real
+ * `critChance` at 0.14 so the band's sentence is true of the fodder as well as of the anchors —
+ * which is what stops floors 201–245 reading as the last hundred at a higher level.
+ */
+export const SHARDLIGHT_ACOLYTE = {
+  id: 'shardlight-acolyte',
+  name: 'Shardlight Acolyte',
+  faction: 'angel',
+  tier: 'common',
+  stats: {
+    hp: 520,
+    atk: 54,
+    def: 14,
+    haste: 108,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    magicResist: 0.1,
+  },
+  skills: [SHARDLIGHT],
+} as const;
+
+/**
+ * The Wardwright cut the wards. This one has spent a hundred floors sharpening what cut them.
+ *
+ * The roof. ⚠️ **Lighter than {@link THE_WARDWRIGHT} it succeeds — 1300 against 1560 and 84 against
+ * 92 — and that is arithmetic rather than timidity**, the same correction the Crownworks recorded.
+ * An `ascended` block climbs at `perLevel.ascended` 1.024 while a mono-faction Elf five is mostly
+ * `common` at 1.021, so across the 47 levels this hundred spans the anchors pull away by about
+ * ×1.15. Fielded up its own level line against the band-3 crew, the shipped floor-200 board reads
+ * 100% with all five alive at level 95, 100% / 4.90 at 125, and **35% with 0.70** at 142 — so this
+ * hundred's escalation had to come out of the board's other four slots, and its roof had to weigh
+ * less than the one below it.
+ *
+ * ⚠️ **`critChance` 0.22 and `critDamageAmp` 1.15 are the highest in the game**, above the
+ * Headsman's 0.18 and the Golem's 1.00, and that is the roof setting its own tower's headline
+ * exactly as the Wardwright set `accuracy` at 1.25 a hundred floors below. Nothing else in this
+ * hundred goes past the shipped register.
+ *
+ * ⚠️ **It restores nothing, and the Wardwright below it does.** A roof is where sustain stops being
+ * a lock and becomes the ninety-second clock; that the previous roof carries `recovery: 6` is a
+ * fact about a board an Elf five clears in twelve seconds and not a licence this one inherits.
+ * Under the Unmade on both stats, which `enemies.spec.ts` holds — 1300 and 84 against 1800 and 100.
+ */
+export const THE_EDGEWRIGHT = {
+  id: 'the-edgewright',
+  name: 'The Edgewright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 84,
+    def: 42,
+    haste: 96,
+    critChance: 0.22,
+    critDamageAmp: 1.15,
+    critDamageResist: 0.12,
+    critBlock: 0.08,
+    tenacity: 0.5,
+    accuracy: 1.15,
+    physicalPierce: 0.24,
+    physicalResist: 0.05,
+  },
+  skills: [THE_EDGE_IS_MADE, NOTHING_HOLDS_AN_EDGE],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Seedfall — the Undead Tower's third hundred.
+//
+// ⚠️ **The axis is how long the board takes to kill, and it is this crew's alone.** Measured at the
+// roof's level against both Undead arrangements, one anchor plus four identical bodies, forty seeds:
+// four bodies at hp 700 / 1000 / 1300 / 1600 / 2000 / 2400 read **3.85 / 3.00 / 2.63 / 2.00 / 2.00 /
+// 1.30** for the reference five and 4.00 / 4.00 / 3.10 / 2.38 / 1.07 / **0.05** for the alternate —
+// a smooth grade with **zero timeouts anywhere on it**, so it is difficulty rather than the clock.
+//
+// ⚠️ **`def` and `hp` are the same dial and neither is special**: `def` 70 on a 700-hp body reads
+// 3.00 / 21.6s and hp 1050 at `def` 20 reads 3.00 / 22.5s. The Dwarf Tower's "def is not a lever at
+// these levels" holds; what is a lever is the **pool**, whichever stat spells it.
+//
+// ⚠️ **The "is it ours" test comes back clean, which is what licenses the band.** At hp 1600 the
+// four-body board costs the Undead reference five three members (2.00) and the alternate 2.38, while
+// the **Elf** five takes it at 4.00 in twelve seconds and the **Dwarf** five at 4.00 in thirty-four
+// — the Dwarves are in the fight just as long and lose nobody. An Undead five sustains on
+// `lifeLeech` off damage dealt (0.36–0.40 summed across five, the highest in the game) and
+// `recovery` on its own turn, so incoming damage scales with the length of a fight while its health
+// back does not. A board that will not die is a board that starves it.
+//
+// ⚠️ **Two axes this hundred deliberately does not take.** Both Undead arrangements carry zero
+// `critBlock` and zero `critDamageResist` — but the Elf Tower's third hundred is built on crit, and
+// two towers with one lock is one tower shipped twice. Both carry zero `tenacity` — and so do the
+// Human, Elf, Monster and Demon crews, which is the same "unanswerable is not the same as ours" test
+// that shelved `dodge` on the Monster Tower.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A trunk that has been hit for two hundred floors and has closed over every one of them.
+ *
+ * **The hundred's spine**, on more of its slots than anything else. The heaviest Elven legendary in
+ * the game at 1160 — under {@link SCARBOUND_BELLOWER}'s 1180, which is the shipped ceiling and is
+ * not moved for this — with 56 `atk` on `haste` 64 to say what it is for: **the pool is the point
+ * and the damage is incidental.**
+ *
+ * ⚠️ **It carries `physicalResist` 0.12 and `magicResist` 0.10 together**, which is the shipped
+ * ceiling for that pair rather than past it — {@link CHARNEL_DRUDGE} is 0.12 / 0.10 — and the reason
+ * to carry both is that an Undead five splits its damage across the two types. A wall against one is
+ * a wall the other half of the party walks round.
+ */
+export const DEEPMAST_HEARTWOOD = {
+  id: 'deepmast-heartwood',
+  name: 'Deepmast Heartwood',
+  faction: 'elf',
+  tier: 'legendary',
+  stats: {
+    hp: 1160,
+    atk: 56,
+    def: 38,
+    haste: 64,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+    magicResist: 0.1,
+  },
+  skills: [CLOSE_OVER_IT],
+} as const;
+
+/**
+ * The light the seedfall is kept under, and it is spent on the wood rather than on itself.
+ *
+ * The **Deepmast**'s body, and the hundred's one piece of shared durability. ⚠️ **A banked pool and
+ * never a heal** — see {@link KEEP_THE_SEED} — and it is on a body that is itself durable, which is
+ * the Sealward Custodian inversion: the thing the party may not ignore is the thing warding
+ * everything else.
+ *
+ * ⚠️ **It retires at floor 270 and that is measured, not taste.** A ward on a closing board is the
+ * ninety-second clock: the roof carrying one reads **75% / 55% at 45.1s mean and 56s worst**, and the
+ * roof carrying one *behind* the Heartwood reads 25% / 13%. The same board without it reads
+ * 98% / 95%. This tower's first hundred spent its heal in the Green Vigil for the same reason.
+ */
+export const SEEDLIGHT_KEEPER = {
+  id: 'seedlight-keeper',
+  name: 'Seedlight Keeper',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1020,
+    atk: 56,
+    def: 34,
+    haste: 78,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    magicResist: 0.12,
+  },
+  skills: [KEEP_THE_SEED, SEEDLIGHT],
+} as const;
+
+/**
+ * What comes through a seedfall ahead of the fire, and it is not waiting for the wood.
+ *
+ * The hundred's **second dial**, and never more than one to a board — see
+ * {@link RUN_THE_SEED_DOWN} for the product that makes two of them a 0%. Thin at 700 against
+ * `haste` 128, which is the register the shipped roster keeps for that speed
+ * ({@link NIGHTMARCH_OUTRIDER} is 760 at 128) and is the mechanic's price rather than a discount on
+ * it.
+ */
+export const CINDERSEED_COURSER = {
+  id: 'cinderseed-courser',
+  name: 'Cinderseed Courser',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 70,
+    def: 18,
+    haste: 128,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    magicPierce: 0.2,
+    magicResist: 0.08,
+  },
+  skills: [RUN_THE_SEED_DOWN],
+} as const;
+
+/**
+ * The Sunbough fell, and this grew out of where it landed.
+ *
+ * The roof. ⚠️ **Lighter than both anchors it succeeds — 1320 against {@link THE_SUNBOUGH}'s 1520
+ * and {@link THE_WITHERED_CROWN}'s 1740 — and that is arithmetic rather than timidity**, the
+ * correction the Crownworks recorded and the Splintering Yards confirmed. An `ascended` block climbs
+ * at `perLevel.ascended` 1.024 where a mono-faction Undead five is mostly `common` at 1.021, so
+ * across the forty-seven levels this hundred spans the anchors gain about ×1.15 on the crew. Fielded
+ * up its own level line against the band-3 crew, the shipped floor-200 board reads 100% with all five
+ * alive at level 95, 100% / 5.00 at 120, and **53% with 0.88** at 142.
+ *
+ * ⚠️ **The two heavies it succeeds had to leave the closing floors, and that is the same
+ * arithmetic run over the tower's own bench.** On a light board at the roof's level the Withered
+ * Crown reads **30% / 13%** and the Sunbough **13% / 10%** — both harder than this roof by a long
+ * way — so the Withered Crown's last floor is 265, the Sunbough's is 284 and
+ * {@link THE_LONGSHADOW}'s is 281. Nothing but this anchors floors 286 to 300.
+ *
+ * It keeps the tower's idiom without re-spending it: `dodge` 0.18 is real but under every ascended
+ * Elf below it (0.22 to 0.28), because the evasion hundred is the one this succeeds rather than the
+ * one it is. **It restores nothing**, unlike all three roofs before it — a roof is where sustain
+ * stops being a lock and becomes the clock. Under the Unmade on both stats, which
+ * `enemies.spec.ts` holds: 1320 and 82 against 1800 and 100.
+ */
+export const THE_SEEDFATHER = {
+  id: 'the-seedfather',
+  name: 'The Seedfather',
+  faction: 'elf',
+  tier: 'ascended',
+  stats: {
+    hp: 1320,
+    atk: 82,
+    def: 46,
+    haste: 102,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    dodge: 0.18,
+    accuracy: 1.1,
+    physicalResist: 0.08,
+    magicResist: 0.08,
+  },
+  skills: [WHAT_FALLS_IS_SOWN, THE_WOOD_DOES_NOT_END],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Closing — the Monster Tower's third hundred.
+//
+// ⚠️ **The axis is `physicalResist`, and it is armour the crew spent its whole answer budget on the
+// wrong stat for.** Measured at the roof's level against both Monster arrangements, one anchor plus
+// four identical bodies, forty seeds, against a **4.00 / 3.35** control: four bodies at
+// `physicalResist` 0.23 / 0.34 / 0.45 / 0.55 / 0.70 read **4.00 / 4.00 / 3.80 / 3.02 / 2.02** for
+// the reference five and 3.00 / 3.00 / 2.88 / 2.00 / **0.00** for the alternate. Zero timeouts
+// anywhere on the grade, so it is difficulty rather than the clock.
+//
+// ⚠️ **The control that makes it a mechanism rather than a wall: the identical block spelled
+// `magicResist` 0.55 reads 4.00 / 3.42 — the control exactly, worth nothing at all.** Every damage
+// effect in both swept arrangements is `physical`: eleven of eleven and twelve of twelve.
+//
+// ⚠️ **And this is why it is *this* crew's rather than merely unanswerable.** Monsters carry the
+// game's only real armour-cutting — mean `physicalPierce` **0.145** against 0.040 or less for every
+// other faction, with Vharok at 0.35, Ghorrak 0.28, Ruk 0.25, Ozza 0.18 — and in
+// [`damage.ts`](../core/battle/damage.ts) pierce multiplies **`def`** while `resistedShare` is
+// applied afterwards with no pierce term in it. The one defence this crew is built to open is the
+// one this hundred does not use. Measured: `def` 70 alone costs it 0.00 / 0.35, the wall at 0.40
+// alone 0.02 / 0.35, and **both together 1.00 / 1.22**.
+//
+// ⚠️ **The "is it ours" test comes back clean.** The same 0.55 board against every crew at band-3
+// investment, as a change on that crew's own control: monster-alt **−1.30**, monster-ref **−0.98**,
+// undead-ref −1.00, dwarf-ref −0.42, elf-ref **0.00**, elf-alt −0.15, human-ref 0.00, angel-ref
+// −0.03, demon-ref −0.17. The Elves are the *other* 100%-physical roster and they barely notice,
+// because they kill the wall before it matters. It is the slow, high-`atk`, leech-sustained five
+// that a resist shaving every hit starves.
+//
+// ⚠️ **The register is the one thing this band knowingly steps past, and it is recorded rather than
+// hidden.** The shipped `physicalResist` ceiling is {@link GOLEM}'s **0.23** and that is a lone
+// outlier — the next four blocks in the game are 0.14, 0.12, 0.12 and 0.12. This hundred runs its
+// legendaries at 0.20 to 0.34 and its roof at 0.40, which is roughly double the practical register
+// across the whole band where the Splintering Yards built *at* their stat's ceiling and stepped past
+// it only on the roof. The licence is the measurement above rather than precedent: at the shipped
+// 0.23 the wall is already worth 0.35 of the alternate and a quarter again on fight length, which is
+// the opposite of the rejected Demon magic ward — that one was worth **0.00** at its own register.
+//
+// ⚠️ **The boards are lighter in raw stats than the second hundred's, and the armour supplies the
+// difference.** That is the "anchors get lighter" arithmetic arriving here in a new form. The
+// shipped floor-200 board fielded up its own level line against the band-3 crew reads 100% with all
+// five alive at level 95, 100% / 5.00 for the reference and 4.00 for the alternate at 125, and
+// 100% / 3.45 against **8% with 0.07** at 142 — this is the one tower of the four where the
+// collapse lands on the *alternate*, and the alternate is therefore what every board here is sized
+// against.
+//
+// ⚠️ **No anchor had to be retired, unlike the Elf and Undead hundreds.** All twelve `ascended`
+// blocks this tower fields above floor 160 read 100% for both crews at level 142 behind light
+// support — {@link THE_HORNCALLER} at 1560/91 is 100% / 4.00 and 100% / 3.15. What broke floor 200
+// at the new roof's level is its *support* rather than its anchor, so the escalation comes out of
+// the four soft slots exactly as the tower's own second hundred said it must.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Something that hatched in the kill-ground and grew a shell before it grew anything else.
+ *
+ * The hundred's **texture**, and the lightest body carrying the wall. `physicalResist` 0.20 sits
+ * just under {@link GOLEM}'s 0.23, which is the shipped ceiling, so the opening band is built
+ * entirely inside the register and only the bands above it step past. Thin at 440 because the wall
+ * is the whole of its contribution and a pool on top would be the Seedfall's axis rather than this
+ * one — measured, the two multiply: wall plus hp 1300 reads 2.92 / **1.00**.
+ */
+export const EMBERSHELL_WHELP = {
+  id: 'embershell-whelp',
+  name: 'Embershell Whelp',
+  faction: 'demon',
+  tier: 'common',
+  stats: {
+    hp: 440,
+    atk: 48,
+    def: 16,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    physicalResist: 0.2,
+  },
+  skills: [SHELLED_RUSH],
+} as const;
+
+/**
+ * It has been run down, cornered and bitten through by better jaws than these, and it is still here.
+ *
+ * **The hundred's spine**, on more of its slots than anything else. `physicalResist` 0.30 against
+ * 820 of health and 62 of `atk`: the wall is the point and the weight is deliberately ordinary,
+ * because this crew's ceiling on raw weight is the lowest of the seven — one anchor over four
+ * *legendaries* measures 95% / 3% at the roof's level and any two anchors 8% / 0%.
+ *
+ * ⚠️ **`magicResist` stays at 0.06 and is nearly decorative**, which is the honest shape of the
+ * finding rather than an oversight. A wall is only a wall against the type the party actually
+ * deals, and against these two arrangements that is physical and nothing else.
+ */
+export const SLAGHIDE_PURSUER = {
+  id: 'slaghide-pursuer',
+  name: 'Slaghide Pursuer',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 62,
+    def: 24,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalResist: 0.3,
+    magicResist: 0.06,
+  },
+  skills: [SLAGHIDE_LUNGE],
+} as const;
+
+/**
+ * The pack that was bred to keep up with what the yards armour, and armoured to keep up with it.
+ *
+ * The hundred's **second dial**, from floor 271 and never more than one to a board — see
+ * {@link LOOSE_THE_PLATED_PACK} for the product that makes it one. Thin at 700 against `haste` 126,
+ * which is the register the shipped roster keeps for that speed ({@link NIGHTMARCH_OUTRIDER} is 760
+ * at 128) and is the mechanic's price rather than a discount on it. The wall comes down to 0.24 on
+ * it for the same reason: a body carrying both dials at full value is past the edge.
+ */
+export const CINDERPLATE_HOUNDSMAN = {
+  id: 'cinderplate-houndsman',
+  name: 'Cinderplate Houndsman',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 66,
+    def: 18,
+    haste: 126,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalResist: 0.24,
+  },
+  skills: [LOOSE_THE_PLATED_PACK],
+} as const;
+
+/**
+ * What answered the horn, and it did not come to run anything down. It came to stand where the ring
+ * shuts.
+ *
+ * The hundred's **mini-boss body**, anchoring every tenth floor from 210 up, and the heaviest wall
+ * under the roof at `physicalResist` 0.34. ⚠️ **It restores nothing and wards nothing** — see
+ * {@link SHUT_THE_RING} — which makes it the Sealward Custodian inversion: the durability is on the
+ * body the party must kill rather than spread over the board it stands in front of. A board-wide
+ * ward on a closing board of this tower is the ninety-second clock, which the Seedfall measured at
+ * 75% / 55% and 45.1 seconds mean, and a *self*-shield is worth 0.00 on a body already dying.
+ *
+ * A celestial because the tower may spend on one where a chapter may not: every faction counters
+ * Monsters, so the standing ×1.10 that forbids a celestial-led chapter is exactly what this tower is
+ * buying. It takes Angels from the thinnest faction in the game at 19 archetypes toward the middle.
+ */
+export const CLOSEWARD_SERAPH = {
+  id: 'closeward-seraph',
+  name: 'Closeward Seraph',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 1000,
+    atk: 58,
+    def: 34,
+    haste: 80,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.35,
+    physicalResist: 0.34,
+    magicResist: 0.08,
+  },
+  skills: [SHUT_THE_RING],
+} as const;
+
+/**
+ * The Horncaller called, for two hundred floors, and this is what he was calling.
+ *
+ * The roof. ⚠️ **Lighter than the anchor it succeeds — 1300 against {@link THE_HORNCALLER}'s 1560,
+ * and 76 of `atk` against 91 — and that is arithmetic rather than timidity**, the correction the
+ * Crownworks recorded and the Splintering Yards and the Seedfall both confirmed. An `ascended` block
+ * climbs at `perLevel.ascended` 1.024 where a mono-faction Monster five is mostly `common` at 1.021,
+ * so across the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew.
+ *
+ * ⚠️ **The weight it gives up comes back as `physicalResist` 0.40, which is the hundred's whole
+ * argument in one stat line.** Measured at level 142 behind four bodies at 680/58 and 0.28: this
+ * roof reads **100% / 3.30 survivors / 16.1s** for the reference five and **100% / 2.42 / 20.7s**
+ * for the alternate, with zero timeouts. The identical board with the wall taken off every slot
+ * reads 4.00 / 3.52 — so the armour is worth 0.70 and **1.10** of five, which is more than any other
+ * shape measured for this tower.
+ *
+ * ⚠️ **It restores nothing**, which breaks the tower's own habit deliberately: {@link THE_HORNCALLER}
+ * carries `recovery` 6 and so do twenty-eight other boards above floor 160. A roof is where sustain
+ * stops being a lock and becomes the clock. It keeps no `physicalPierce` either — the block that
+ * exists to punish this crew's penetration does not carry any itself.
+ *
+ * Under the Unmade on both stats, which `enemies.spec.ts` holds: 1300 and 76 against 1800 and 100.
+ */
+export const THE_UNBITTEN = {
+  id: 'the-unbitten',
+  name: 'The Unbitten',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1300,
+    atk: 76,
+    def: 44,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critBlock: 0.14,
+    tenacity: 0.45,
+    physicalResist: 0.4,
+    magicResist: 0.1,
+  },
+  skills: [NOTHING_GETS_A_GRIP, THE_RING_IS_SHUT],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's third hundred — the Unmending, and its four blocks
+//
+// ⚠️ **Two Demon and two Monster, and the split is the matrix rather than a preference.**
+// `countersOf('angel')` is exactly `{demon, monster}` — Demons trade evenly with a celestial and
+// Monsters take five percent off one — so those are the only two factions a body may be substituted
+// into without switching the lean off on the board it lands on. The lean itself stays Demon, which
+// is what the tower has been since 15c: 45.0% of this hundred's five hundred slots and 52.6% of the
+// tower, against bounds of 35% and 65%. Monsters were tied-thinnest in the game at 21 archetypes
+// and were 3.4% of this tower; they leave here at 23 and 13.0%.
+//
+// ⚠️ **The hundred needs more swingers than four blocks can supply, and it does not author them.**
+// {@link KINGSWAY_LANCER}, {@link VANWARD_SPEAR}, {@link WEALDSHADOW_STALKER} and
+// {@link IRONSLING_WRIGHT} already carry a 2.00–2.15 blow, and so do the anchors this tower has
+// fielded since its first hundred — {@link THE_UNANSWERED} at 2.20 and {@link ASHFALL_SOVEREIGN} at
+// 2.10. So the escalation is *how much of a board swings one* rather than a stat rotated onto more
+// slots, and the hundred closes at 36 distinct blocks.
+//
+// ⚠️ **The collapse check came back clean on the anchors and dirty on the pairing**, which is the
+// Closing's answer rather than the Crownworks'. The shipped floor-200 board fielded up its own level
+// line against the band-3 crew reads 100% with all five alive at 95, 100% / 5.00 at 125, and
+// **73% / 1.60 against 50% / 0.85** at 142 — but every one of the nine `ascended` blocks it fields
+// above floor 160 reads 100% for both crews at 142 behind three soft bodies, {@link UNMADE} at
+// 1800/100 included, at 4.33 / 4.38. What broke floor 200 up there is that it stands **two** of them
+// in one front rank: {@link THE_LAST_MERCY} beside {@link THE_UNANSWERED} at the roof's level reads
+// **0%**. So no anchor retires and no board in the hundred carries two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The rite is one motion. It has never needed a second.
+ *
+ * The hundred's **spine**, on more of its slots than anything else, and the block the whole axis is
+ * named for. 880 of health is the Demon legendary register's shoulder ({@link COVENANT_BREAKER} is
+ * 900) and 74 of `atk` is its ceiling — deliberately ordinary weight, because what this body is for
+ * is the *cadence* rather than the volume. See {@link THE_SINGLE_STROKE} for the grade that licensed
+ * it and for why less total damage delivered lumpier kills more of this crew.
+ *
+ * {@link CUTPURSE} second so the block has something to do while the stroke is down; a blow on a
+ * 45-tick cooldown that fell back only to the basic attack would read as a body doing nothing for
+ * four seconds at a time.
+ */
+export const KILNSTROKE_CELEBRANT = {
+  id: 'kilnstroke-celebrant',
+  name: 'Kilnstroke Celebrant',
+  faction: 'demon',
+  tier: 'legendary',
+  stats: {
+    hp: 880,
+    atk: 74,
+    def: 24,
+    haste: 92,
+    critChance: 0.11,
+    critDamageAmp: 0.75,
+    magicPierce: 0.15,
+  },
+  skills: [THE_SINGLE_STROKE, CUTPURSE],
+} as const;
+
+/**
+ * It lets the light settle on somebody first, and then it takes that one.
+ *
+ * The hundred's **second dial**, from floor 226 and never more than two to a board — see
+ * {@link SHATTERJAW} for the product that makes it two rather than four. Heavier than the Celebrant
+ * at 1120 because it has to survive to swing twice, which is inside the Monster legendary register
+ * ({@link SCARBOUND_BELLOWER} is 1180) at an `atk` two under its ceiling.
+ *
+ * ⚠️ **The `physicalPierce` is idiom rather than mechanism.** Monsters carry the game's only real
+ * armour-cutting and it does nothing to an Angel five, which has 0.09 of `physicalResist` summed
+ * across five — this block is here for the blow, and the pierce is what keeps it recognisably a
+ * Monster.
+ */
+export const SHATTERJAW_MAULER = {
+  id: 'shatterjaw-mauler',
+  name: 'Shatterjaw Mauler',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 1120,
+    atk: 76,
+    def: 26,
+    haste: 88,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.2,
+  },
+  skills: [SHATTERJAW, GORE],
+} as const;
+
+/**
+ * Nothing about it is clever. It only ever does one thing, and the one thing does not come apart.
+ *
+ * The hundred's **texture**, and the cheapest body on it the choir cannot out-heal. 620 and 60 sit
+ * mid-register for a Monster common, because the escalation here is the number of voices swinging
+ * rather than the size of any one of them — {@link CLEAVE_THE_LINE} is deliberately the least of the
+ * four blows.
+ */
+export const CLEFTHORN_GORER = {
+  id: 'clefthorn-gorer',
+  name: 'Clefthorn Gorer',
+  faction: 'monster',
+  tier: 'common',
+  stats: {
+    hp: 620,
+    atk: 60,
+    def: 16,
+    haste: 92,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    physicalPierce: 0.12,
+  },
+  skills: [CLEAVE_THE_LINE],
+} as const;
+
+/**
+ * Three hundred floors of verses, and this is the one the choir does not get to finish.
+ *
+ * The roof. ⚠️ **Lighter than the anchor it succeeds — 1520 against {@link THE_UNANSWERED}'s 1540,
+ * and 91 of `atk` against 92 — and that is arithmetic rather than timidity**, the correction the
+ * Crownworks recorded and three hundreds have confirmed since. An `ascended` block climbs at
+ * `perLevel.ascended` 1.024 where a mono-faction Angel five is mostly `common` at 1.021, so across
+ * the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew. Under the
+ * Unmade on both stats, which `enemies.spec.ts` holds.
+ *
+ * ⚠️ **The weight it gives up comes back as {@link NOTHING_IS_MENDED}**, the one blow in the hundred
+ * past the shipped register at 2.60 against a ceiling of 2.30. Measured at level 142 behind
+ * {@link THORNBACK_GRAZER} and three swingers: **100% / 3.63 survivors / 21.6s** for the reference
+ * five and **90% / 2.42 / 35.0s** for the alternate, zero timeouts, longest fight 55s against a
+ * 90-second timer.
+ *
+ * ⚠️ **It restores nothing, and its *escalating* turn names nothing but the front rank.** A roof is
+ * where sustain stops being a lock and becomes the clock, and aiming past the front rank against a
+ * crew whose two tanks stand there makes a board *easier* — this tower measured `enemy-highest` at
+ * 4.10 / 4.05 against a 3.98 / 3.80 control. {@link CINDER_STORM} (`enemy-all`) and
+ * {@link RUINOUS_STOOP} (`enemy-row-back`) are rhythm rather than escalation, and neither names
+ * `ally-lowest`'s target: the two {@link SHATTERJAW_MAULER}s standing behind this block are already
+ * the edge, and swapping the Grazer in front of them for a heavier body takes the same roof from
+ * 100% / 90% to **90% / 48%**.
+ *
+ * ⚠️ **This paragraph shipped as a flat "names nothing but the front rank" and that was false the
+ * day it was written** — the very next sentence names the two turns that contradict it. The Demon
+ * Tower's prose check found it. **The fix is the claim, never the boards**, and the general form is
+ * that a *scope* (`enemy-all`) and a *reach* (`enemy-row-back`) are neither of them "the front
+ * rank"; say which of the three a claim is about.
+ */
+export const THE_LAST_MERCY = {
+  id: 'the-last-mercy',
+  name: 'The Last Mercy',
+  faction: 'demon',
+  tier: 'ascended',
+  stats: {
+    hp: 1520,
+    atk: 91,
+    def: 46,
+    haste: 104,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    tenacity: 0.4,
+    physicalPierce: 0.22,
+    magicPierce: 0.22,
+  },
+  skills: [NOTHING_IS_MENDED, CINDER_STORM, RUINOUS_STOOP],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's third hundred — milestone 21r's three Angel blocks and one Monster
+//
+// The seventh tower's last hundred, and the seventh faction's turn to be deepened by one. Angels
+// were the thinnest roster in the game at **21** and go to 24 here; the fourth block is a Monster,
+// taking that faction 23 → 24. ⚠️ **Both are inside `countersOf('demon')`**, which is exactly
+// `{angel, monster}` — a substitute drawn from anywhere else would switch the matchup matrix off on
+// the board it landed on, and the Demon Tower has no third option.
+//
+// ## What the four are for
+//
+// The hundred escalates through **crit denial**, so every block below carries `critBlock` and
+// `critDamageResist` and the three legendaries carry them **at or under the shipped register** —
+// {@link EDGETURN_WARDEN}'s 0.24 and 0.32, which are the ceilings over 44 and 27 shipped blocks.
+// Only {@link THE_UNFALTERING} steps past. That is the Splintering Yards' shape rather than the
+// Closing's, and [`tower-demon.ts`](./tower-demon.ts) carries the grade that licensed it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It has sung this every evening for longer than the tower has stood, and it does not rush.
+ *
+ * **The hundred's spine.** `critBlock` 0.24 and `critDamageResist` 0.32 are the shipped ceilings
+ * exactly — {@link EDGETURN_WARDEN} holds both, for the mirror-image purpose of refusing an Elf
+ * five's crits — so a band built on this block asks for no number the game has not already fielded.
+ *
+ * ⚠️ **The stat is the whole of it and {@link EVENSONG} is deliberately ordinary.** Against a
+ * 4.00 / 3.92 control at level 142, four bodies at `critBlock` 0.24 read 4.00 / **3.33**: the cost
+ * lands almost entirely on the alternate arrangement, which is the crew every board in this hundred
+ * is sized against.
+ *
+ * At 820 hp it is the heaviest of the three new legendaries, because it is the one a board keeps
+ * standing longest — a refusal only counts for as long as the body carrying it is alive, which is
+ * the same argument the Knell Chanter's 660 makes in the other direction.
+ */
+export const EVENSONG_WARDEN = {
+  id: 'evensong-warden',
+  name: 'Evensong Warden',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 820,
+    atk: 80,
+    def: 28,
+    haste: 96,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    critBlock: 0.24,
+    critDamageResist: 0.32,
+    magicResist: 0.12,
+  },
+  skills: [EVENSONG],
+} as const;
+
+/**
+ * Somebody has to decide what true is before anybody can be flat.
+ *
+ * **The texture body**, and the one that makes the opening bands work at all. The hundred's first
+ * dial is how *many* voices refuse an edge rather than how hard any one of them does: measured at
+ * level 142 against a 3.77 control, one carrier reads 3.77, two 3.67, three **3.33** and four 3.35.
+ * A board reaches three by spending this rather than a third Warden, which is also what keeps the
+ * front ranks from becoming one repeated pair.
+ *
+ * `critBlock` 0.16 sits between {@link CHARNEL_DRUDGE}'s and {@link THE_WARDWRIGHT}'s, well inside
+ * the register.
+ */
+export const PLAINSONG_PRECENTOR = {
+  id: 'plainsong-precentor',
+  name: 'Plainsong Precentor',
+  faction: 'angel',
+  tier: 'legendary',
+  stats: {
+    hp: 700,
+    atk: 74,
+    def: 24,
+    haste: 104,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    critBlock: 0.16,
+    critDamageResist: 0.25,
+    magicResist: 0.12,
+  },
+  skills: [SET_THE_PITCH],
+} as const;
+
+/**
+ * Scar over scar over scar, until there is nowhere left that is new.
+ *
+ * The hundred's Monster, and the reason it is not a fourth Angel: the lean has to stay under 65% of
+ * the whole tower's slots and this is the only other faction that counters Demons, so the substitute
+ * that holds the share down is also the one that keeps the matrix live. It carries the axis at 0.20
+ * and 0.28 — inside the register, between the Precentor and the Warden — and {@link GRIND_THE_SEAM}
+ * is the hundred's only physical damage, so a board that fields it is not a five-Angel board twice.
+ *
+ * Heavier and slower than either Angel legendary, which is the faction's idiom and also what a
+ * closing band wants in a filler slot: something that survives long enough for its refusal to be
+ * worth having.
+ */
+export const SCARWEAVE_TRAMPLER = {
+  id: 'scarweave-trampler',
+  name: 'Scarweave Trampler',
+  faction: 'monster',
+  tier: 'legendary',
+  stats: {
+    hp: 900,
+    atk: 78,
+    def: 30,
+    haste: 92,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    critBlock: 0.2,
+    critDamageResist: 0.28,
+    physicalResist: 0.12,
+  },
+  skills: [GRIND_THE_SEAM],
+} as const;
+
+/**
+ * Three hundred floors, and the note has not once gone off true.
+ *
+ * The roof. ⚠️ **Lighter than the block it succeeds — 1440 against {@link THE_UNISON}'s 1720, and
+ * 86 of `atk` against 92 — and that is arithmetic rather than timidity.** An `ascended` block climbs
+ * at `perLevel.ascended` 1.024 where a mono-faction Demon five is mostly `common` at 1.021, so
+ * across the forty-seven levels this hundred spans an anchor gains about ×1.15 on the crew. Under
+ * the Unmade on both stats, which `enemies.spec.ts` holds.
+ *
+ * ⚠️ **The weight it gives up comes back as the axis, and this is the one place in the hundred past
+ * the register**: `critBlock` 0.34 against a shipped ceiling of 0.24, and `critDamageResist` 0.52
+ * against 0.32. Stated here rather than discovered later, because a future session has to be able to
+ * see which of the two shapes this band is — the Splintering Yards built at their ceiling and
+ * stepped past only on the roof, and the Closing stepped past across a whole hundred. This is the
+ * former.
+ *
+ * ⚠️ **It restores nothing, it never reaches for a *row* past the front rank, and it stands beside
+ * no second `ascended` block.** All three are rules this tower measured for itself: a roof is where
+ * sustain stops being a lock and becomes the clock; `enemy-back`, `enemy-lowest` and
+ * `enemy-highest` all leave a board easier than saying nothing, on four towers now; and two
+ * `ascended` in one front rank is still 0% for the alternate arrangement at level 142, which is the
+ * second hundred's finding surviving a whole rung of investment.
+ *
+ * ⚠️ **"Names only the front rank" would be the wrong claim and it was written that way first.**
+ * {@link THE_LAST_AMEN} is `enemy-all`, which is a *scope* rather than a reach past the rank — the
+ * two are different things and the prose check is what separates them. What is true is the
+ * narrower statement above: neither of its turns selects a body the front rank is protecting.
+ */
+export const THE_UNFALTERING = {
+  id: 'the-unfaltering',
+  name: 'The Unfaltering',
+  faction: 'angel',
+  tier: 'ascended',
+  stats: {
+    hp: 1440,
+    atk: 86,
+    def: 48,
+    haste: 102,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    critBlock: 0.34,
+    critDamageResist: 0.52,
+    tenacity: 0.4,
+    magicPierce: 0.2,
+    magicResist: 0.15,
+  },
+  skills: [NO_EDGE_FINDS_IT, THE_LAST_AMEN],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -4696,4 +6320,45 @@ export const ENEMIES = [
   STILLNESS_CANTOR,
   KNELL_CHANTER,
   THE_UNISON,
+  MUSTER_PIKE,
+  ROADWATCH_BOWMAN,
+  SIGNAL_RUNNER,
+  VANWARD_SPEAR,
+  ORDER_SERJEANT,
+  STANDFAST_LANCER,
+  RESERVE_ENSIGN,
+  COUNTERSIGN_CAPTAIN,
+  THE_COLOUR_SERJEANT,
+  THE_LAST_ORDER,
+  CORTEGE_LANCER,
+  IRONWAKE_VANGUARD,
+  QUICKLIME_SERJEANT,
+  THE_HOURLESS_MARCH,
+  CROWNWORKS_STRIKER,
+  QUENCHPIT_IRONHIDE,
+  KILNSWORN_ADEPT,
+  ASHPIT_SCUTTLER,
+  THE_CROWN_WHEEL,
+  SPLINTERYARD_HONER,
+  RIFTEDGE_CANTOR,
+  GLASSCHOIR_ARBITER,
+  SHARDLIGHT_ACOLYTE,
+  THE_EDGEWRIGHT,
+  DEEPMAST_HEARTWOOD,
+  SEEDLIGHT_KEEPER,
+  CINDERSEED_COURSER,
+  THE_SEEDFATHER,
+  EMBERSHELL_WHELP,
+  SLAGHIDE_PURSUER,
+  CINDERPLATE_HOUNDSMAN,
+  CLOSEWARD_SERAPH,
+  THE_UNBITTEN,
+  KILNSTROKE_CELEBRANT,
+  SHATTERJAW_MAULER,
+  CLEFTHORN_GORER,
+  THE_LAST_MERCY,
+  EVENSONG_WARDEN,
+  PLAINSONG_PRECENTOR,
+  SCARWEAVE_TRAMPLER,
+  THE_UNFALTERING,
 ] as const;

@@ -197,19 +197,24 @@ class FakeDescent {
 }
 
 /**
- * The one-line detail of the named battle-hub card.
+ * The named battle-hub card.
  *
  * Two cards share the `.descent__*` classes — the shape is the same on purpose — so a bare
- * `querySelector('.descent__detail')` only ever reads the first. The heading is what tells them
+ * `querySelector('.descent__card')` only ever reads the first. The heading is what tells them
  * apart, exactly as it does for a screen reader.
  */
-function cardDetail(el: HTMLElement, name: string): string {
+function card(el: HTMLElement, name: string): Element | null {
   for (const section of el.querySelectorAll('section')) {
     if (section.querySelector('.section__heading')?.textContent?.trim() === name) {
-      return section.querySelector('.descent__detail')?.textContent ?? '';
+      return section.querySelector('.descent__card');
     }
   }
-  return '';
+  return null;
+}
+
+/** The one-line detail of the named battle-hub card. */
+function cardDetail(el: HTMLElement, name: string): string {
+  return card(el, name)?.querySelector('.descent__detail')?.textContent ?? '';
 }
 
 /** Only what the Expeditions card reads, for `FakeDescent`'s reason. */
@@ -763,6 +768,33 @@ describe('HomeView', () => {
       expect(cardDetail(underway.el, 'Expeditions')).toContain(
         'attempt underway on The Second Map',
       );
+    });
+
+    it('makes a locked Descent or Expeditions card inert rather than a link', async () => {
+      // ⚠️ Both were links in every state once, on the argument that the screen behind them was
+      // worth reading while locked. It restates the card's own line and offers nothing to do, so
+      // the tap was a dead end. Same treatment as a locked tower row: inert, and it names its key.
+      const locked = await render((_game, _battles, _formations, _towers, descent, expeditions) => {
+        descent.phase.set('locked');
+        expeditions.isUnlocked.set(false);
+      });
+
+      for (const name of ['The Descent', 'Expeditions']) {
+        const row = card(locked.el, name);
+        expect(row?.tagName).toBe('P');
+        expect(row?.getAttribute('href')).toBeNull();
+        expect(row?.classList.contains('descent__card--inert')).toBe(true);
+      }
+
+      const open = await render();
+
+      for (const name of ['The Descent', 'Expeditions']) {
+        const row = card(open.el, name);
+        expect(row?.tagName).toBe('A');
+        expect(row?.classList.contains('descent__card--open')).toBe(true);
+      }
+      expect(card(open.el, 'The Descent')?.getAttribute('href')).toBe('/descent');
+      expect(card(open.el, 'Expeditions')?.getAttribute('href')).toBe('/expeditions');
     });
 
     it('keeps the hint inside the campaign section, next to the control it points at', async () => {

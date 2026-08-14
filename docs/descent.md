@@ -254,9 +254,16 @@ levels: **−8** on the first fight, **+12** on the last, linearly between.
 
 The obvious authoring is a _share_ of the anchor — 0.65 to 0.90 — and it fails in a way that only
 shows up when the mode is measured at more than one depth. Enemy power is `perLevel ^ level` with
-`perLevel` around 1.021, so a share is not a difficulty at all: 0.9 of level 14 is one level down and
-0.9 of level 588 is **fifty-nine** levels down, which is ×3.4 easier. Measured, that read as a mode
+`perLevel` around 1.021, so a share is not a difficulty at all: 0.9 of level 14 is one level down
+while 0.9 of the top of the ladder is twenty levels down at today's 200, and was **fifty-nine** at
+the 588 this was measured against — ×1.5 and ×3.4 easier respectively. Measured, that read as a mode
 which is a wall at chapter 1 and a walkover with five bodies at full health from chapter 5 onward.
+
+⚠️ **The flattening to 0.50 levels a stage shrank the spread but did not change the finding, and the
+spread grows straight back as chapters are added.** A share's error is a function of how deep the
+ladder goes, and this one is planned for ~100 chapters — so re-deriving the offset as a share would
+fail again, later and more quietly. The offset is correct for a reason that does not depend on the
+current top.
 
 An offset is the same number of steps along one exponential wherever it lands. That is what lets
 twenty-four authored boards serve a four-hundred-stage campaign with nothing to re-derive per
@@ -471,3 +478,10 @@ edited by the one editor, at `/formations/descent`.
 Six states, and every one names the next thing to do — the same rule Home's locked tower row is spent
 on: `locked` names the chapters still owed, `available` names today's factions, `choosing` is the
 offer, `ready` is the fight, `complete` and `ended` say when the way opens again.
+
+⚠️ **Home's card is only a link in the five states that are not `locked`.** It was a link in all six
+until the locked screen was read as a player first meets it. That branch is two paragraphs — what
+the mode is, and the chapters still owed — and the second is the card's own line again. Today's
+lock, the boards and the party all sit in the `@default` branch, so there is nothing behind the
+locked card but the sentence the player has already read and no control to press. The card is the
+tower row's inert grey while locked.

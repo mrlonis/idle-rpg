@@ -178,13 +178,13 @@
   @include t.numeric;
 }
 
-// The Descent's card. Deliberately the tower row's shape rather than the campaign card's: it is
-// optional daily content sitting beside seven other optional ladders, and giving it the Fight
-// control's size would claim it is the spine of the game.
+// The Descent's card, and the Expeditions card beside it. Deliberately the tower row's shape rather
+// than the campaign card's: it is optional content sitting beside seven other optional ladders, and
+// giving it the Fight control's size would claim it is the spine of the game.
 //
-// ⚠️ **Always a link, unlike a locked tower row**, so it never wears the inert grey. A locked tower
-// has nothing behind it that the row does not already say; the Descent screen is worth reading in
-// every state — it names today's three factions, the nine boards, and what is still owed.
+// It is the tower row's *state* handling too, now. One rule serves the link and the inert
+// paragraph, so a locked card is the same shape as an open one — a destination the player does not
+// have the key to yet, not a different kind of thing.
 .descent__card {
   @include t.card;
   display: flex;
@@ -195,16 +195,32 @@
   min-height: t.$tap-target;
   margin: 0;
   padding: 0.625rem 0.875rem;
-  border-color: t.$accent;
-  background: t.$accent-bg;
+  color: t.$text;
   text-decoration: none;
   @include t.focus-ring;
+}
+
+// The accent is the open state's, exactly as it is for a tower — see the note on `.tower--open` for
+// why it is applied by hand rather than by including `button-primary`.
+.descent__card--open {
+  border-color: t.$accent;
+  background: t.$accent-bg;
+
+  .descent__name {
+    color: t.$accent;
+  }
+}
+
+// Not `opacity`, for `.tower--inert`'s reason: it would take the detail line — the part naming the
+// chapters still owed — below the contrast floor along with the rest. The muted name is the whole
+// visual signal and the copy beside it says the same thing in words.
+.descent__card--inert .descent__name {
+  color: t.$muted;
 }
 
 .descent__name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: t.$accent;
 }
 
 .descent__detail {
