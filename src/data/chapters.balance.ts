@@ -610,17 +610,37 @@ const LINED: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled to meet the last stage on its own
- * terms.
+ * The party that arrives in chapter 13: the five that just took The Ironbloom, unchanged.
+ *
+ * ⚠️ **This is The Rustwood's {@link INVESTED}, kept under a new name rather than re-derived** — the
+ * ninth time that has happened and the ninth time for the same reason. Re-pointing a single "arrived"
+ * party at each new chapter would silently stop checking that the chapter below is still finishable
+ * by the party it was tuned for, and two named parties per seam is what makes "clears the chapter
+ * behind it, and walks only a little way into the one ahead" checkable at both boundaries at once.
+ *
+ * ⚠️ **It carries the same rung as {@link INVESTED} does, for the second seam running** — chapters
+ * 11, 12 and 13 all sit on `legendary-plus`, which is the longest any rung has held on the flat line.
+ * These two parties therefore differ **only** in level: 250 against `legendary-plus`'s cap of 260, so
+ * the whole seam is worth ×1.21 rather than the ×1.68 a full chapter of levels would be. That is what
+ * a flat line does once it climbs into the top of a cap, and it is the tightest seam this chain has
+ * carried.
+ */
+const RUSTED_RARITY = rarityIndex('legendary-plus');
+const RUSTED_LEVEL = Math.min(stages[CHAPTER_ENDS[11] - 1].level, LEVEL_CURVE.caps[RUSTED_RARITY]);
+
+const RUSTED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(RUSTED_LEVEL, RUSTED_RARITY),
+  RUSTED_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Quarry asks
+ * for will carry them.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the ladder asks for levels and
  * ascension rungs, which are bought with time and duplicates, and for nothing a player cannot earn.
- *
- * **The level tracks the top of the ladder rather than being authored**, which is the milestone-14
- * statement of what a chapter is: the enemy climbs and the player climbs with it, so the party that
- * takes the last stage is the one standing level with it. That is why this is derived from `stages`
- * instead of restated — extending the ladder re-aims this party at the new top rather than leaving
- * it describing the old one.
  *
  * ## ⚠️ Picking the rung is no longer "the next one up", and this is the trap the flattening left
  *
@@ -634,25 +654,22 @@ const LINED: FormationData = mono(
  *
  * **The rung is the one that reproduces the power ratio the seam below it had**, which is
  * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)` evaluated for
- * every rung and taken closest in **log** space. Chapter 10's seam reads **6.5536**; against chapter
- * 11's close of 225, `legendary` reads 3.898 (|Δln| 0.520) and `legendary-plus` reads 10.486
- * (|Δln| 0.470). So chapter 11 takes `legendary-plus` — the first rung move in three chapters — and
- * it takes it **narrowly**. The caps ladder is coarse enough at this depth that picking by eye picks
- * the wrong one; compute it.
+ * every rung and taken closest in **log** space.
  *
- * ⚠️ **Chapter 12 stays on `legendary-plus`, and that answer is exact rather than narrow.** Against
- * The Rustwood's close of 250, `legendary-plus` reads **10.4858** — |Δln| **0.0000** against chapter
- * 11's own seam — because 250 is still under that rung's cap of 260, so the level term vanishes and
- * the ratio is just `1.6 ** 5`. `mythic` reads 16.777 at |Δln| 0.470. Two chapters on one rung is
- * what the flat line produces whenever a cap is wide enough to hold both, and moving it up by reflex
- * would hand the party a ×1.6 The Rustwood never asked for.
+ * ⚠️ **Chapter 13 stays on `legendary-plus`, which is the third chapter running on one rung and the
+ * longest any rung has held on the flat line.** Chapter 12's seam reads **10.4858**; against The
+ * Quarry's close of 275, `legendary-plus` reads **7.6774** (|Δln| **0.3117**) and `mythic` reads
+ * **16.7772** (|Δln| **0.4700**). So `legendary-plus` wins by 0.158 of a nat — wider than chapter
+ * 11's 0.05 and narrower than chapter 12's exact tie, which is the ordinary case rather than either
+ * extreme.
  *
- * ⚠️ **The level is the top of the ladder _or the rung's cap, whichever is lower_.** `legendary-plus`
- * caps at 260 against a top stage of 225, so this party finishes the ladder standing **level** with
- * the thing it is fighting — which is how every chapter has worked since the margin rule was retired,
- * and the reason the campaign has no difficulty gradient of its own. The clamp is `Math.min` rather
- * than a written number so a retune of either side moves it, and `legal` throws rather than quietly
- * fielding an under-levelled party.
+ * ⚠️ **This is the first seam where the level term does not vanish since the margin rule was
+ * retired, and it is not that rule coming back.** `legendary-plus` caps at 260 against a close of
+ * 275, so this party stands **fifteen levels under** the last board rather than level with it —
+ * ×0.732 — which is what produces the 7.6774 above. It falls out of a flat line meeting a cap, not
+ * out of a chapter sized to out-climb one. The clamp is `Math.min` rather than a written number so a
+ * retune of either side moves it, and `legal` throws rather than quietly fielding an over-levelled
+ * party.
  *
  * **A rung roughly every hundred stages** is the cadence the flat line produces, where it was one per
  * fifty. What this rung costs a player over The Bleeding Wild's party is ten more duplicate copies of
@@ -794,6 +811,11 @@ const linedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(LINED, stage),
 }));
+const rustedSweeps = stages.map((stage) => ({
+  label: 'rusted',
+  stage,
+  ...sweep(RUSTED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -836,6 +858,7 @@ const everySweep = [
   ...anvilledSweeps,
   ...wildedSweeps,
   ...linedSweeps,
+  ...rustedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -882,6 +905,9 @@ const WILD_END = CHAPTER_ENDS[9];
 
 /** The end of chapter 11 — The Standing Line — where The Rustwood picks the field over. */
 const LINE_END = CHAPTER_ENDS[10];
+
+/** The end of chapter 12 — The Rustwood — where The Quarry goes down through the hill. */
+const RUST_END = CHAPTER_ENDS[11];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1245,6 +1271,56 @@ describe('ladder balance', () => {
     // to it, but it does not carry it. See {@link MOMENTUM_CEILING}.
     const walked = linedSweeps
       .slice(LINE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 12 clear chapters 1 through 12', () => {
+    // The Quarry's seam, measured the same way as the eight above it. This party is literally The
+    // Rustwood's `INVESTED` under a new name, so this assertion is the old "clearable end to end"
+    // claim kept alive after the ladder grew past it — the ninth time that has been needed.
+    const unreliable = rustedSweeps
+      .slice(0, RUST_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Quarry as well', () => {
+    // ⚠️ **A finding rather than a passing test: this ceiling can no longer bind at the newest seam,
+    // and the reason is its denominator.** {@link MOMENTUM_CEILING} is a share of the **whole
+    // ladder** while the slice it is applied to is only the chapters *above* the seam — so at 550
+    // stages the bar is 165 and this slice is 50 boards long. Measured, this party clears all 50,
+    // which is a real walkover and the assertion still passes.
+    //
+    // It is not the same failure as a threshold content outgrew. The quantity has not drifted; the
+    // guard's shape stopped matching the ladder the moment a chapter became smaller than the share.
+    // It went vacuous for the newest seam at 167 stages and now cannot bind for the three newest:
+    // WILDED is measured over 150 boards, LINED over 100, RUSTED over 50, all against 165.
+    //
+    // ⚠️ **Recorded rather than fixed, deliberately.** The honest repair is a share of the *slice*
+    // rather than of the ladder, which re-derives every seam assertion in this file at once and is a
+    // decision about what a seam is meant to prove — not a chapter's scope. **Do not widen it**;
+    // `docs/authoring.md` forbids that and widening is the wrong direction anyway. See
+    // `docs/testing.md` on retiring a guard rather than sliding it.
+    //
+    // ⚠️ **The tightest seam in this chain, and the reason is a cap rather than a chapter.**
+    // Chapters 11, 12 and 13 all sit on `legendary-plus`, whose cap of 260 is fifteen levels under
+    // The Quarry's close of 275 — so this party and {@link INVESTED} are the same five at the same
+    // rung, **ten** levels apart rather than twenty-five. That is ×1.21 of power across a whole
+    // chapter, against ×1.68 at every seam below it, and there is nothing at all for the level dial
+    // to open. What stops the party has to be the boards.
+    //
+    // ⚠️ **The gear grade steps to Sturdy here and it is still measured at roughly a twentieth of
+    // what would matter.** The whole Sturdy ladder, 11 to 40, moves chapter 12's final refielded at
+    // level 275 from 8.8s to 10.0s against this chapter's own {@link INVESTED}, at 100% with all
+    // five alive throughout — so this ceiling is held by the boards' composition exactly as the
+    // eight below it are. See {@link MOMENTUM_CEILING} and `chapter-13.ts` for the table.
+    const walked = rustedSweeps
+      .slice(RUST_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

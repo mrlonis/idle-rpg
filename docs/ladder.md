@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twelve chapters and five hundred
-stages** — 10, 20, 30, 40 and then eight of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Thirteen chapters and five hundred and
+fifty stages** — 10, 20, 30, 40 and then nine of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -18,7 +18,7 @@ is gone rather than deferred; revisit deliberately if fifty ever reads as too sh
 **The chapter-size formula and the authored chapters are two statements of one fact.** `chapterSize`
 says how long a chapter should be and `LadderShape` says how long the authored ones are;
 `chapters.spec.ts` is what keeps them equal. ⚠️ **Never derive the shipped ladder's length from the
-formula** — a build that ships twelve chapters must not be talked into believing it has a hundred.
+formula** — a build that ships thirteen chapters must not be talked into believing it has a hundred.
 
 **Whether a stage is a mini-boss or a boss is a rule, not a field**: every tenth stage of a chapter
 and the last one, so the rhythm is identical at either chapter length. What `data/` authors is a
@@ -26,7 +26,7 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
-Withered Crown, The Anvil Crowned, The Everwound, The Last Order and The Ironbloom. A re-cut that
+Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom and The Undercut. A re-cut that
 moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
@@ -73,7 +73,12 @@ and the reference parties are the record of that**: chapters 4–5 share `elite`
 stays on `legendary-plus` and that answer is exact rather than narrow**: its close of 250 sits under
 that rung's cap of 260, so the level term vanishes and the ratio is `1.6 ** 5` = 10.4858 — |Δln|
 **0.0000** against chapter 11's own seam, where `mythic` reads 16.777 at 0.470. Two chapters on one
-rung is what the flat line produces whenever a cap is wide enough to hold both. Copies asked of a
+rung is what the flat line produces whenever a cap is wide enough to hold both. ⚠️ **Chapter 13 makes
+it three, which is the longest any rung has held on the flat line**, and it is the first seam since
+the margin rule was retired where the level term does _not_ vanish: 275 is fifteen levels above the
+cap, so `legendary-plus` reads **7.6774** (|Δln| 0.3117) against `mythic`'s 16.7772 (0.4700). That is
+a flat line climbing into the top of a cap rather than the margin rule returning — **expect every
+further chapter on this rung to close further above it.** Copies asked of a
 mortal character by the end of each band: **20** by the fen's fifty stages, 24 by the Marches, 32 by
 the Vault, 38 by the Barrows, 44 by the Weald, 50 by the Anvil, 62 by the Wild.
 

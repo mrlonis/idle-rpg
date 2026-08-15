@@ -269,18 +269,21 @@ bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine
 Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — taking it to
 125; 21b's fired it at three hundred — **23.4%** — taking it to 150; 21c's at three hundred and fifty
 — **22.6%** — taking it to 175; 21d's at four hundred — **22.1%** — taking it to 200; and The
-Standing Line at four hundred and fifty — **21.7%** — taking it to **225**. Every one restores 18.7%
-over the ladder that actually ships. Same move, longer ladder, six times now.
+Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; The Rustwood at five
+hundred — **21.3%** — taking it to **250**; and The Quarry at five hundred and fifty — **21.1%** —
+taking it to **275**. Every one restores 18.7% over the ladder that actually ships. Same move, longer
+ladder, eight times now.
 
-⚠️ **Six re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Eight re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 12
-will want 250. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 14
+will want 300. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
-[authoring](authoring.md).
+[authoring](authoring.md), which now records **two more dials with the same diagnosis** — the
+Descent's `anchorSlope` and `chapters.balance.ts`'s `MOMENTUM_CEILING`.
 
 ⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
 bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
@@ -485,6 +488,13 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 Below chapter 12, and on every tower floor, every Descent board and every Expedition, difficulty on
 that side of the board is still purely the stage's `level` against the archetype's tier.
 
+⚠️ **A chapter picks up the grade ladder where the last one left it, and the level does not restart
+at 1.** The Rustwood closed on Worn 20, worth `1.00 × (1 + 0.055 × 19)` = **2.045**; Sturdy at level 1
+is **1.350**, so a clean grade boundary is a step _backwards_ at the seam. The Quarry opens at
+**Sturdy 11** (2.093) — the first level of the new grade that clears the old grade's cap — and closes
+at Sturdy 40 (**4.246**). Do the arithmetic rather than restarting the level; the overlap that makes
+enhancement worth doing is the same overlap that makes a grade boundary a dip.
+
 That gap was the point of milestone 12: a geared party flies through content tuned for an ungeared
 one, which is what makes gear feel like progress rather than a tax. The balance sweep still measures
 it — the same five characters at the same investment clear meaningfully further with gear on, and
@@ -531,6 +541,23 @@ the campaign's own seam parties:
 A chapter final refielded at the next chapter's roof needs the enemy side scaled ×3 before the tuned
 party stops taking it with all five alive, and ×4 before it loses. Worn is ×1.09 to ×1.18 — no
 measurable change at all — and the whole grade ladder end to end is still short of ×3.
+
+⚠️ **Chapter 13 stepped the grade and re-measured it, and the answer is the same.** Chapter 12's final
+refielded at level 275 against The Quarry's own seam party reads **100% with all five alive at every
+rung of the Sturdy ladder**; the whole ladder from Worn 20 to Sturdy 40 moves the fight from **8.8s to
+10.0s** and costs **zero** survivors:
+
+| Enemy gear                    | vs the seam party at 260     |
+| ----------------------------- | ---------------------------- |
+| Worn 20 — chapter 12's close  | 100% / 5.00 survivors / 8.8s |
+| Sturdy 11 — chapter 13 opens  | 100% / 5.00 / 8.8s           |
+| Sturdy 20                     | 100% / 5.00 / 9.1s           |
+| Sturdy 30                     | 100% / 5.00 / 9.5s           |
+| Sturdy 40 — chapter 13 closes | 100% / 5.00 / 10.0s          |
+
+So **a whole grade step is worth about ×1.15 of one archetype's headline stat**, against the ×3 the
+axis needs — and at one grade a chapter the ladder is exhausted by chapter 16 having delivered ×2.7.
+This is now measured twice, from two different grades, and neither reading is close.
 
 So **the three guards widened against the promise of this axis do not come back**, and one of them
 moves the wrong way: gear lengthens fights, so adding it _raises_ the longest-cleared-fight quantity

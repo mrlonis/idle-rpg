@@ -74,14 +74,16 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twelve chapters, five hundred stages, what a
+- **[docs/ladder.md](../docs/ladder.md)** — the campaign: thirteen chapters, five hundred and fifty stages, what a
   stage authors, position versus clear count, the rung cadence, and the guards that were retired.
 - **[docs/ascension.md](../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](../docs/level-resonance.md)** — the level the whole roster shares. **Read
   it before writing anything that reads a character's level.**
 - **[docs/gear.md](../docs/gear.md)** — the third progression axis: five slots, five archetypes, a
-  five-rung grade ladder, and the hourly gear shop.
+  five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
+  measured twice, at two grades, and a whole grade step is worth about ×1.15 against the ×3 it would
+  need. Read it before planning a chapter's difficulty around it.
 - **[docs/signature-items.md](../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -137,6 +139,9 @@ as a wrong number on a screen or a fight that never ends. Each names the doc car
   `stageIndex(ladder, position)` is the only way to a linear index. [ladder](../docs/ladder.md)
 - ⚠️ **`chaptersCleared` and `clearedStages` are different numbers and both type-check.** Passing one
   where the other belongs is wrong by the size of a chapter. [ladder](../docs/ladder.md)
+- ⚠️ **A geared chapter owes a `gearArchetype` on every block it fields, returning ones included**,
+  and the ladder's grade level does **not** restart at 1 at a grade boundary — Worn 20 is worth 2.045
+  and Sturdy 1 only 1.350, so a clean restart is a step backwards. [gear](../docs/gear.md)
 - ⚠️ **An enemy's `gearArchetype` is a bare string and an absent one is silent.** A stage authoring
   `gear` prices a bonus per archetype; a body that declares none looks it up under `undefined`, gets
   nothing, and fights naked on a board tuned as though it were kitted — nothing throws and nothing

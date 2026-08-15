@@ -141,11 +141,42 @@ export const DESCENT_RULES = {
     topOffset: 9,
     /**
      * ⚠️ **The two fixed offsets came down by 3 when this arrived, so the shallow end is unchanged.**
-     * At the unlock's anchor of 30 the slope contributes +3.3, which puts the total back at about
+     * At the unlock's anchor of 30 the slope contributes +3.0, which puts the total back at about
      * −8 / +12 — the pair the mode shipped with and the pair every figure below the fourth depth was
-     * tuned against. What moves is the deep end: +13.8 at anchor 125 and **+27.5 at anchor 250**.
+     * tuned against. What moves is the deep end: +12.5 at anchor 125 and **+27.5 at anchor 275**.
+     *
+     * ## ⚠️ It was 0.11 for exactly one chapter, and the re-derivation is the finding
+     *
+     * Milestone 27 added this at **0.11** because the deep end had stopped being a fight — 5.00
+     * survivors of five at anchor 250. One chapter later The Quarry's depth read **0.30 finished and
+     * 2.45 survivors** against a per-depth floor of 0.40: the same dial, overshot in the opposite
+     * direction, in one chapter. **0.10 restores 0.50 / 3.50** and moves the four shallower depths by
+     * at most one reading (0.85 → 0.80, 0.70 → 0.65, 0.85 → 0.80), with zero timeouts anywhere.
+     *
+     * ⚠️ **The overshoot is not a chapter being mis-tuned, and the arithmetic says why.** Each chapter
+     * raises the anchor by 25, which raises these boards by 25 plus the slope's own 2.75 — while the
+     * *party* the depth implies is bisected against the chapter final and rose only **20** (201 at
+     * anchor 250, 221 at 275). So the gap between the party and the boards it fights widens by about
+     * **7.75 levels every chapter, by construction**, and no constant here is right for more than one
+     * or two of them.
+     *
+     * ⚠️ **The reason the party gains less than the anchor is a rung, and it is a _step_.** Party power
+     * is `perLevel ^ level × 1.6 ^ rung`, and `rarityFor` hands out a rung at each cap — so at anchor
+     * 250 the bisection landed on **201**, one level past `legendary`'s cap of 200, and arrived
+     * carrying a fresh ×1.6. At anchor 275 it lands on 221, thirty-nine levels inside the same rung,
+     * and carries nothing new. Milestone 27 recorded that step as a *red herring* for the easiness it
+     * was fixing; it is the direct cause of the hardness measured here.
+     *
+     * ⚠️ **So the shape is wrong rather than the number, and this is the second dial in the project
+     * with that diagnosis** — `gear.ts`'s `gradeSoftness` is the first, and it has now been
+     * re-derived eight times. What this eventually wants is a board level keyed off **the calibrated
+     * party's own level** rather than off the anchor, which is what makes the rung step cancel instead
+     * of accumulate. Recorded rather than taken: it re-derives every figure in `descent.balance.ts`
+     * and is a decision about what the mode's difficulty is anchored to. ⚠️ **Do not batch a value
+     * several chapters ahead** — the landing is the only thing that will force the shape fix, which is
+     * exactly the call `gradeSoftness` records having got right.
      */
-    anchorSlope: 0.11,
+    anchorSlope: 0.1,
   },
   /**
    * What a run pays in crystals: 3,000 for a clean one, which is thirty pulls.

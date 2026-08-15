@@ -56,11 +56,13 @@ previous skeleton without changing its shape.
 | 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                        |
 | 26      | Towers to 300 floors, all seven landed    | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. The `PENDING` lists are gone for the second time            |
 | 27      | Chapter 12 — The Rustwood, and enemy gear | The escalation axis milestone 24 promised. Measured at **roughly a twentieth** of what it needs to be; none of the three widened guards came back                |
+| 28      | Chapter 13 — The Quarry                   | The gear grade steps and it is worth **nothing**: a whole grade is +1.2s of fight and zero survivors. Two more dials found with the `gradeSoftness` diagnosis    |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
 system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and
-the roster to **140**, on the same terms.
+the roster to **140**, on the same terms; chapters 12 and 13 take it to **550 stages** and **191
+archetypes**, still with no change in `ui/` or `core/`.
 
 ### What the third hundreds established
 
@@ -145,6 +147,44 @@ are about **method** rather than about a tower:
 - ⚠️ **A retired guard kept its horizon for three chapters.** The tower:campaign crystal ratio was
   listed as firing at chapter 12; `towers.spec.ts` had already retired it. A horizon is a claim about
   a **guard** as well as about a curve.
+
+### What chapter 13 established, being the chapter that stepped the gear grade
+
+- ⚠️ **A grade step is worth nothing either, and that is the second independent measurement.** The
+  Quarry runs the whole **Sturdy** ladder, 11 to 40, on all fifty boards. Chapter 12's final refielded
+  at level 275 against The Quarry's own seam party reads **100% with all five alive at every rung of
+  it**, and the ladder end to end moves the fight from **8.8s to 10.0s**. So a whole grade is ×1.15 of
+  one archetype's headline stat against the ×3 the axis needs, and at one grade a chapter the ladder
+  is exhausted by chapter 16 having delivered ×2.7. **Two chapters, two grades, one answer: enemy
+  gear is texture, not escalation.** None of the three widened guards came back here either.
+- ⚠️ **A grade boundary is a step _backwards_ unless the level is carried over, and the arithmetic is
+  easy to miss.** Worn at its cap of 20 is worth `1.00 × (1 + 0.055 × 19)` = **2.045** and Sturdy at
+  level 1 is **1.350**, so restarting the level at 1 makes the new chapter's first board weaker than
+  the old chapter's last. The Quarry opens at **Sturdy 11** (2.093), the first level of the new grade
+  that clears the old grade's cap.
+- ⚠️ **A geared chapter owes a `gearArchetype` on every block it fields, including the returning
+  ones.** Only 34 archetypes carried one after The Rustwood, so this chapter added one to **26**
+  returning blocks before a board could be authored. `chapters.spec.ts` catches it, loudly, in the
+  middle of tuning — do it first.
+- ⚠️ **Two more dials now have the `gradeSoftness` diagnosis, and both were found by guards firing
+  outside the chapter's own suite.** The Descent's `anchorSlope`, added at 0.11 one chapter ago to
+  stop the deep end being a walkover, overshot to **0.30 finished / 2.45 survivors** in a single
+  chapter and came down to 0.10; the gap it corrects widens ~7.75 levels a chapter by construction,
+  because party power is a **step** function of the rung the bisection lands in and board level is
+  continuous. And `chapters.balance.ts`'s `MOMENTUM_CEILING` has stopped being able to bind at the
+  newest seam — it is a share of the whole ladder against a slice that is only the chapters above the
+  seam, so the bar is 165 boards and the slice is 50. **Neither is a threshold content outgrew.**
+- ⚠️ **A monotonicity guard was measuring a real trade rather than the bug it was written for.**
+  `signature.balance.ts` compares a signature rung's reach against the rung below; Seraphine's top
+  rung read **430 against 431** on the new top-of-ladder board. Checked at fourteen bisection steps
+  and 200 trials, so not quantization: her capstone makes `unwavering-light` — an `ally-all` heal that
+  is her **ultimate** — unconditional, and at the damage margin where reach is measured a healing turn
+  is a turn not spent on Judgement. **The only rung in fourteen characters that trades in that
+  direction, because it is the only one that unconditions a heal.**
+- **Monster is the only lean that costs the faction matchup nothing.** Every faction is ×1.05 into
+  Monsters and Monsters are ×1.05 into all seven — the wildcard row — so an 85% mono-Monster pool
+  still reads differently to every party, which is exactly the cost The Rustwood's 92% mono-Elf lean
+  paid.
 
 ---
 

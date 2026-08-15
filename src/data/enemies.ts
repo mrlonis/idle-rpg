@@ -1,4 +1,6 @@
 import {
+  ACID_WIND,
+  ALREADY_BEHIND_YOU,
   ANTIPHON,
   ASHPIT_RAKE,
   AT_THE_HALT,
@@ -10,12 +12,14 @@ import {
   BULWARK,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
+  CHOKE_THE_DRIFT,
   CINDER_STORM,
   CLEAVE_THE_LINE,
   CLOSE_OVER_IT,
   COUCHED_LANCE,
   CULL_THE_EMBERS,
   CUTPURSE,
+  CUT_BENEATH_IT,
   DOOMKNELL,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
@@ -23,6 +27,7 @@ import {
   EVENSONG,
   EVERYTHING_COMES_BACK_BLUNT,
   FADE,
+  FLATTEN_THE_EDGE,
   FLENSE,
   GATE_SLAM,
   GLACIAL_SLAM,
@@ -38,6 +43,7 @@ import {
   KILN_LIGHT,
   LITANY,
   LOOSE_THE_PLATED_PACK,
+  MARROW_CRUNCH,
   MASSED_LITANY,
   MAUL,
   MEND,
@@ -50,6 +56,7 @@ import {
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
+  NOTHING_TAKES_HOLD,
   NO_ANSWER_COMES,
   NO_EDGE_FINDS_IT,
   ONE_VOICE,
@@ -60,6 +67,7 @@ import {
   PROCESSION_STEP,
   PUT_THE_EDGE_ON,
   QUICKLIME_CUT,
+  RAGGED_SWIPE,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
@@ -91,7 +99,9 @@ import {
   THE_COUNTERSIGN,
   THE_DEBT_CALLED,
   THE_EDGE_IS_MADE,
+  THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
+  THE_GROUND_GOES,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
   THE_IRON_COMES_UP,
@@ -269,6 +279,7 @@ export const BOAR = {
   name: 'Tusked Boar',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 37,
@@ -308,6 +319,7 @@ export const GOLEM = {
   name: 'Stone Golem',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1000,
     atk: 42,
@@ -623,6 +635,7 @@ export const RAVAGER = {
   name: 'Barbed Ravager',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 900,
     atk: 62,
@@ -783,6 +796,7 @@ export const TYRANT = {
   name: 'Bonefall Tyrant',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1550,
     atk: 96,
@@ -948,6 +962,7 @@ export const DEEPROCK_MINER = {
   name: 'Deeprock Miner',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 500,
     atk: 42,
@@ -1426,6 +1441,7 @@ export const MARCHWARD_PIKEMAN = {
   name: 'Marchward Pikeman',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 700,
     atk: 50,
@@ -2743,6 +2759,7 @@ export const SLAGBOUND_DRUDGE = {
   name: 'Slagbound Drudge',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 780,
     atk: 48,
@@ -2770,6 +2787,7 @@ export const CINDERQUENCH_BEARER = {
   name: 'Cinderquench Bearer',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 540,
     atk: 56,
@@ -2795,6 +2813,7 @@ export const DEEPGALLERY_RUNNER = {
   name: 'Deepgallery Runner',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 470,
     atk: 60,
@@ -2884,6 +2903,7 @@ export const GRUDGEPLATE_SMITH = {
   name: 'Grudgeplate Smith',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 820,
     atk: 62,
@@ -3106,6 +3126,7 @@ export const MIREWHELP = {
   name: 'Mirewhelp',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 520,
     atk: 58,
@@ -3132,6 +3153,7 @@ export const THORNBACK_GRAZER = {
   name: 'Thornback Grazer',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 940,
     atk: 46,
@@ -3220,6 +3242,7 @@ export const GOREHIDE_MATRIARCH = {
   name: 'Gorehide Matriarch',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 1020,
     atk: 58,
@@ -3246,6 +3269,7 @@ export const REDWATER_STALKER = {
   name: 'Redwater Stalker',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 880,
     atk: 78,
@@ -3314,6 +3338,7 @@ export const SCARBOUND_BELLOWER = {
   name: 'Scarbound Bellower',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1180,
     atk: 70,
@@ -3355,6 +3380,7 @@ export const THE_REDMAW = {
   name: 'The Redmaw',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1480,
     atk: 91,
@@ -3822,6 +3848,7 @@ export const PLUMBLINE_HAND = {
   name: 'Plumbline Hand',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 540,
     atk: 52,
@@ -3852,6 +3879,7 @@ export const IRONSLING_WRIGHT = {
   name: 'Ironsling Wright',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 780,
     atk: 80,
@@ -3890,6 +3918,7 @@ export const EDGETURN_WARDEN = {
   name: 'Edgeturn Warden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1080,
     atk: 58,
@@ -4239,6 +4268,7 @@ export const MARROWHUNT_ALPHA = {
   name: 'Marrowhunt Alpha',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 940,
     atk: 74,
@@ -5223,6 +5253,7 @@ export const QUENCHPIT_IRONHIDE = {
   name: 'Quenchpit Ironhide',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 58,
@@ -5281,6 +5312,7 @@ export const ASHPIT_SCUTTLER = {
   name: 'Ashpit Scuttler',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 540,
     atk: 56,
@@ -5375,6 +5407,7 @@ export const SPLINTERYARD_HONER = {
   name: 'Splinteryard Honer',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 800,
     atk: 76,
@@ -5965,6 +5998,7 @@ export const SHATTERJAW_MAULER = {
   name: 'Shatterjaw Mauler',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1120,
     atk: 76,
@@ -5990,6 +6024,7 @@ export const CLEFTHORN_GORER = {
   name: 'Clefthorn Gorer',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 60,
@@ -6154,6 +6189,7 @@ export const SCARWEAVE_TRAMPLER = {
   name: 'Scarweave Trampler',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 900,
     atk: 78,
@@ -6510,6 +6546,352 @@ export const THE_IRONBLOOM = {
   skills: [THE_IRON_COMES_UP, HEADSMANS_ARC, CLOSE_OVER_IT],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Quarry — chapter 13
+//
+// Ten blocks: eight ordinary, the lieutenant and the final. The lean is **Monster**, which was
+// joint-thinnest of the seven at 24 alongside Dwarf and Angel — and Angels and Demons may not lead a
+// chapter at all, because a celestial deals ×1.10 to every mortal and the matrix has no
+// mortal → celestial row. Monster led chapter 10 as well, four chapters back but one, so the
+// setting had to be a visibly different place: The Bleeding Wild is Monsters at home and this is
+// Monsters denned in a hole somebody else cut.
+//
+// ⚠️ **Monster is the one lean that costs the matchup nothing**, which is the opposite of The
+// Rustwood's problem. `FACTION_MATCHUPS` gives every faction ×1.05 into Monsters and Monsters ×1.05
+// into everything, so a board this mono still reads differently to every party — where a 92%
+// mono-Elf chapter made the matchup very nearly a constant across fifty boards.
+//
+// ## The four locks, and which side of the shipped register each one is built on
+//
+// The chapter asks whether the party's damage lands **at all**, so every block below is a way for a
+// swing to fail. Where a band sits against the shipped ceiling is stated rather than implied:
+//
+// | Band          | Stat               | Authored | Shipped field                    | Side    |
+// | ------------- | ------------------ | -------- | -------------------------------- | ------- |
+// | The missing   | `dodge`            | 0.30     | 0.55, 0.34, **0.30**, 0.28, 0.28 | inside  |
+// | The flat edge | `critBlock`        | 0.24     | 0.34, **0.24**, 0.24, 0.20, 0.18 | at it   |
+// | The flat edge | `critDamageResist` | 0.32     | 0.52, **0.32**, 0.32, 0.28, 0.28 | at it   |
+// | The unbound   | `tenacity`         | 0.80     | 0.85, 0.85, **0.80**, 0.75, 0.70 | inside  |
+// | The stolen    | `insight`          | 0.24     | 0.32, 0.28, 0.22, 0.20, 0.20     | inside  |
+//
+// ⚠️ **Only {@link THE_UNDERCUT} steps past any of them**, at `critBlock` 0.28 and
+// `critDamageResist` 0.40 — past the field of 0.24 and 0.32 and under `THE_UNFALTERING`'s lone
+// 0.34 / 0.52. That is the Elf Tower's shape rather than the Monster Tower's: built **at** the
+// register and stepping past on one board, which is one board and stays checkable.
+//
+// ## ⚠️ Nothing here heals, drains, regenerates or shields, and this is a Monster chapter
+//
+// The faction's idiom is `lifeLeech` in place of a healer, so this is the deliberate omission rather
+// than an accident of which blocks were free: **none of the ten below carries `recovery`,
+// `healthRegen` or `lifeLeech`, and none of the seven kits authored for them restores anything.**
+// The chapter's returning texture is filtered on the same rule — see `chapter-13.ts` for the counts
+// over all fifty boards, measured with a script rather than by reading.
+//
+// The reason is the clock rather than a preference. Three of the chapter's turns carry {@link SLOW},
+// which lengthens a fight from the party's own side by taking its turns away; a heal on top of that,
+// behind bodies the party keeps missing, is `MAX_BATTLE_TICKS` with a stat block attached, and a
+// timeout is scored a **defeat**.
+
+/** Loose stone, and something in it that was never where the swing went. */
+export const SCREEBACK_DARTER = {
+  id: 'screeback-darter',
+  name: 'Screeback Darter',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 540,
+    atk: 62,
+    def: 12,
+    haste: 128,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.3,
+    tenacity: 0.2,
+    physicalPierce: 0.14,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * The band's second half, and the first body here that is hard to hit **and** worth hitting.
+ *
+ * `dodge: 0.28` on a legendary stat block, against a shipped field of 0.55, 0.34, 0.30, 0.28 —
+ * inside it. ⚠️ **The answer is reach and focus fire rather than a stat**: only five of the
+ * fifty-six shipped characters carry `accuracy` at all, so evasion is a lock no roster can buy its
+ * way past, and what licenses it is **where it is put**. Both of this band's pools sit on soft
+ * bodies the party can delete in a turn if it aims at them first.
+ */
+export const GALLERY_SLIPFANG = {
+  id: 'gallery-slipfang',
+  name: 'Gallery Slipfang',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 860,
+    atk: 78,
+    def: 22,
+    haste: 116,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    dodge: 0.28,
+    accuracy: 1.1,
+    tenacity: 0.25,
+    physicalPierce: 0.2,
+  },
+  skills: [ALREADY_BEHIND_YOU, CUTPURSE],
+} as const;
+
+/** Soft white stone, and the thing that eats it. The band's common, and it is mostly armour. */
+export const CHALKHIDE_BROWSER = {
+  id: 'chalkhide-browser',
+  name: 'Chalkhide Browser',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 900,
+    atk: 48,
+    def: 30,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.25,
+    physicalResist: 0.12,
+  },
+  skills: [RAGGED_SWIPE],
+} as const;
+
+/**
+ * The band's block, and the one that answers a crit build rather than a swing.
+ *
+ * `critBlock: 0.24` and `critDamageResist: 0.32` are **exactly** the shipped field's second rung —
+ * `EDGETURN_WARDEN` and `EVENSONG_WARDEN` both carry the same pair — so this band is built *at* the
+ * register rather than past it. It is here because both of the reference five's damage dealers crit:
+ * Rin at 0.22 / 0.8 and Pyra at 0.25 / 0.9, and neither of them carries a point of
+ * `critDamageResist` in return.
+ *
+ * ⚠️ **Its turn is deliberately plain.** {@link FLATTEN_THE_EDGE} is 1.1 across a row with no rider,
+ * because a second lock on the skill would make the band's measurement unattributable.
+ */
+export const DUSTPLATE_GRINDER = {
+  id: 'dustplate-grinder',
+  name: 'Dustplate Grinder',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1160,
+    atk: 62,
+    def: 42,
+    haste: 68,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.24,
+    critDamageResist: 0.32,
+    tenacity: 0.4,
+    physicalResist: 0.14,
+  },
+  skills: [FLATTEN_THE_EDGE, RAGGED_SWIPE],
+} as const;
+
+/** What lives in the flooded bottom of a working. Nothing the party pins to it stays pinned. */
+export const SUMPWATER_BROOD = {
+  id: 'sumpwater-brood',
+  name: 'Sumpwater Brood',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 560,
+    atk: 60,
+    def: 14,
+    haste: 106,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    tenacity: 0.6,
+    magicPierce: 0.16,
+  },
+  skills: [ACID_WIND],
+} as const;
+
+/**
+ * The waste rock above the seam, walking.
+ *
+ * `tenacity: 0.80` is the third-highest shipped and inside a ceiling of 0.85, and
+ * {@link NOTHING_TAKES_HOLD} says the same thing as a turn: two hostile statuses off every body on
+ * its side, every sixty ticks.
+ *
+ * ⚠️ **A cleanse is not sustain, and that is why this band is authorable at all.** It restores no
+ * health and banks no pool — what the party loses is the turn it spent, which is a choice re-priced
+ * rather than a fight the clock ends. ⚠️ **Only two of the fifty-six shipped characters carry
+ * `insight`, and both of them are Monsters**, so this lock's only stat answer is the lean faction
+ * itself at monster-on-monster ×1.10. Stated because it is unusual, not because it is a problem: a
+ * status is a *rider* on these boards rather than the damage, so a party whose control is stripped
+ * is slowed down rather than stopped.
+ */
+export const OVERBURDEN_HULK = {
+  id: 'overburden-hulk',
+  name: 'Overburden Hulk',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1220,
+    atk: 60,
+    def: 44,
+    haste: 60,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.8,
+    physicalResist: 0.14,
+  },
+  skills: [NOTHING_TAKES_HOLD, RAGGED_SWIPE],
+} as const;
+
+/** A drift is a horizontal working, and this is what waits at the mouth of one. */
+export const DRIFTMOUTH_CHOKER = {
+  id: 'driftmouth-choker',
+  name: 'Driftmouth Choker',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 620,
+    atk: 56,
+    def: 18,
+    haste: 98,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    tenacity: 0.3,
+    insight: 0.2,
+  },
+  skills: [CHOKE_THE_DRIFT],
+} as const;
+
+/**
+ * A bench is a quarry's terrace, and this one is sixty feet of it coming down at once.
+ *
+ * The band's wide turn sits here rather than on an anchor, and the block is soft for it — 820 health
+ * and 22 `def` — so the answer is the answer every evasion band in this chapter wants taught: aim
+ * past the front rank and delete the thing making the problem.
+ *
+ * ⚠️ **{@link THE_FACE_COMES_DOWN} is conditioned on {@link SLOW} being absent.** Unconditioned it
+ * would be a turn tax with no decision in it and four boards carrying it would be one board carried
+ * four times; conditioned, a party that cleanses is asking for it again and a party that does not is
+ * simply slower.
+ */
+export const BENCHLINE_LURKER = {
+  id: 'benchline-lurker',
+  name: 'Benchline Lurker',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 820,
+    atk: 68,
+    def: 22,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.3,
+    insight: 0.24,
+    magicResist: 0.1,
+  },
+  skills: [THE_FACE_COMES_DOWN, ACID_WIND],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c13-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason
+ * `enemies.spec.ts`'s orphan rule exists: twenty blocks each appearing on exactly one board is what
+ * that rule discourages.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, the fifth chapter running to take
+ * that shape and the first to condition on a status rather than on a wound.
+ * {@link CUT_BENEATH_IT} does nothing while the party already carries a slow, so what it asks
+ * changes with what the party learned on the boards below — which is what makes four appearances
+ * four different fights against one block.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 12 all declined it, because a
+ * second `ascended` anchor beside a boss is the sharpest non-linear weight step this game can
+ * author. What stands beside The Undercut is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_DEEPCUT = {
+  id: 'the-deepcut',
+  name: 'The Deepcut',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1500,
+    atk: 88,
+    def: 44,
+    haste: 96,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    dodge: 0.22,
+    critBlock: 0.14,
+    critDamageResist: 0.24,
+    tenacity: 0.5,
+    insight: 0.2,
+    physicalPierce: 0.24,
+    physicalResist: 0.06,
+  },
+  skills: [CUT_BENEATH_IT, MARROW_CRUNCH, GORE],
+} as const;
+
+/**
+ * The chapter final: the thing the quarry was cut down onto, and the thirteenth body authored under
+ * the rule that a chapter's final is fielded nowhere else.
+ *
+ * 1780 health and 99 attack, **under {@link UNMADE}'s 1800 and 100 on both** — the ceiling nothing
+ * may reach, and the bar every chapter final since the Vault has respected rather than raised. What
+ * makes it the harder fight is the level it stands at and the four questions on one board: a body
+ * that is not where the swing went, a crit that arrives ordinary, a status that comes straight off,
+ * and a turn taken before it is spent.
+ *
+ * ⚠️ **This is the one board in the chapter that steps past the shipped register**, at
+ * `critBlock: 0.28` and `critDamageResist: 0.40` — past the field of 0.24 and 0.32 and under
+ * `THE_UNFALTERING`'s lone 0.34 and 0.52. One board, stated in writing, and checkable.
+ *
+ * ⚠️ **It restores nothing, and that is the chapter's one absolute claim.** No `recovery`, no
+ * `healthRegen`, no `lifeLeech`, and {@link THE_GROUND_GOES} deals and slows rather than banking a
+ * pool. A final that re-shielded on a cadence behind this much refusal is a fight the clock ends,
+ * and the clock ending a fight is a **defeat**.
+ */
+export const THE_UNDERCUT = {
+  id: 'the-undercut',
+  name: 'The Undercut',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1780,
+    atk: 99,
+    def: 54,
+    haste: 100,
+    critChance: 0.15,
+    critDamageAmp: 0.9,
+    dodge: 0.2,
+    critBlock: 0.28,
+    critDamageResist: 0.4,
+    tenacity: 0.6,
+    insight: 0.24,
+    physicalPierce: 0.26,
+    magicPierce: 0.2,
+    physicalResist: 0.14,
+  },
+  skills: [THE_GROUND_GOES, HEADSMANS_ARC, MARROW_CRUNCH],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -6692,4 +7074,14 @@ export const ENEMIES = [
   CORROWEALD_SINGER,
   THE_RECLAIMED,
   THE_IRONBLOOM,
+  SCREEBACK_DARTER,
+  GALLERY_SLIPFANG,
+  CHALKHIDE_BROWSER,
+  DUSTPLATE_GRINDER,
+  SUMPWATER_BROOD,
+  OVERBURDEN_HULK,
+  DRIFTMOUTH_CHOKER,
+  BENCHLINE_LURKER,
+  THE_DEEPCUT,
+  THE_UNDERCUT,
 ] as const;

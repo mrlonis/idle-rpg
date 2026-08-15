@@ -248,10 +248,35 @@ family, in exactly the sense `MAX_RESIST` is.
 ## Difficulty: an offset, not a share — plus a slope
 
 The enemy level is the hardest campaign stage this run has ever cleared, plus **−11** on the first
-fight and **+9** on the last, linearly between, **plus 0.11 levels per level of anchor**.
+fight and **+9** on the last, linearly between, **plus 0.10 levels per level of anchor**.
 
-At the unlock's anchor of 30 the slope contributes +3.3, so the total is about −8 / +12 — the pair
+At the unlock's anchor of 30 the slope contributes +3.0, so the total is about −8 / +12 — the pair
 the mode shipped with. At the top of the shipped ladder it contributes **+27.5**.
+
+### ⚠️ The slope is the wrong shape and it will need re-deriving every chapter
+
+It arrived at **0.11** in milestone 27, when the mode's deepest depth had stopped being a fight at
+all. One chapter later that depth read **0.30 finished and 2.45 survivors of five** against a floor of
+0.40 — the same dial, overshot the other way, in one chapter. **0.10 restores 0.50 / 3.50** and moves
+the four shallower depths by at most one reading.
+
+The arithmetic says no constant lasts. A chapter raises the anchor by 25, which raises these boards by
+25 **plus the slope's own 2.75**, while the party the depth implies is bisected against the chapter
+final and rose only **20** — level 201 at anchor 250, level 221 at anchor 275. The gap widens about
+**7.75 levels every chapter, by construction.**
+
+⚠️ **The reason the party gains less than the anchor is a rung, and it is a step.** Party power is
+`perLevel ^ level × 1.6 ^ rung`, and the calibration takes its rung from `rarityFor(bisected level)` —
+so at anchor 250 the bisection landed on **201**, one level past `legendary`'s cap of 200, and arrived
+carrying a fresh ×1.6; at anchor 275 it lands 39 levels inside the same rung and carries nothing new.
+Milestone 27 recorded that step as a **red herring** for the easiness it was fixing; it is the direct
+cause of the hardness measured a chapter later.
+
+What this eventually wants is a board level keyed off the **calibrated party's own level** rather than
+off the anchor, so the rung step cancels instead of accumulating. Recorded rather than taken: it
+re-derives every figure in `descent.balance.ts`. ⚠️ **Do not batch a value several chapters ahead** —
+the landing is the only thing that will force the shape fix, which is the call `gradeSoftness` records
+having got right. See [authoring](authoring.md).
 
 ### ⚠️ A share was the first draft and it was measured wrong
 

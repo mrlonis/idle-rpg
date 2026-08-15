@@ -5887,6 +5887,170 @@ export const THE_IRON_COMES_UP = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Quarry — chapter 13
+//
+// The chapter asks whether the party's damage lands **at all**, where The Rustwood asked how much
+// of it survived contact. So its turns are about the swing failing rather than about the swing
+// arriving smaller: a body that is already somewhere else, a face that comes down on everybody, and
+// a side that shrugs off whatever the party pinned to it.
+//
+// ⚠️ **Three of the five carry {@link SLOW} and none of them carries a heal, a drain or a
+// regeneration.** A slow is the one debuff that lengthens a fight from the *party's* side — it buys
+// the enemy no health, only the party fewer turns — so it is the one shape here that has to be
+// counted against `MAX_BATTLE_TICKS` rather than assumed safe. Two of the three are conditioned on
+// {@link SLOW} being absent, which is what stops the board re-spending a turn on a party that is
+// already slowed and what bounds the whole band. The timeout count is asserted at zero by
+// `chapters.balance.ts`; see the chapter header for what it measured.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The gallery is a hundred feet of dark and it was never where the swing went.
+ *
+ * The Slipfang's turn: `enemy-back` at 1.7 physical, under the shipped single-target physical
+ * ceiling and matching {@link SUNDERJAW}'s reach. It is a **reach** rather than a lock — the block's
+ * argument is `dodge: 0.28` in the stat block, and the skill is there so the body that cannot be hit
+ * is also a body worth hitting.
+ */
+export const ALREADY_BEHIND_YOU = {
+  id: 'already-behind-you',
+  name: 'Already Behind You',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Stone dust, packed into every seam the party opened.
+ *
+ * The Grinder's turn, and deliberately plain: 1.1 across the front rank with no rider at all. The
+ * band's whole question is in the stat block — `critBlock: 0.24` and `critDamageResist: 0.32`, both
+ * **at** the shipped register rather than past it — and a skill carrying a second lock on top would
+ * make the measurement unattributable.
+ */
+export const FLATTEN_THE_EDGE = {
+  id: 'flatten-the-edge',
+  name: 'Flatten the Edge',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.1 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Whatever the party pinned to it comes off with the next fall of spoil.
+ *
+ * The tenacity band stated as a turn rather than as a stat: two hostile statuses off **every** body
+ * on its side, on a sixty-tick cadence. `RUNEWARD` and `ANTIPHON` are the shipped precedents for the
+ * shape and both pair the cleanse with a buff; this one does not, because the band is about the
+ * party's control failing and not about the board getting stronger for it.
+ *
+ * ⚠️ **A cleanse is not sustain and this distinction is the reason the band is allowed.** It
+ * restores no health and banks no pool — what it costs the party is the turn it spent applying
+ * something, which is a re-priced choice rather than a fight the clock ends.
+ */
+export const NOTHING_TAKES_HOLD = {
+  id: 'nothing-takes-hold',
+  name: 'Nothing Takes Hold',
+  target: 'ally-all',
+  effects: [{ kind: 'cleanse', count: 2 }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * A drift mouth closes on whoever was standing in the front of it.
+ *
+ * The Choker's turn: a row, and the party a third slower for it. ×1.05 across the front rank sits
+ * under the wide physical ceiling, and the chance of 0.75 is the shipped figure for a row-wide
+ * status rather than a new one.
+ */
+export const CHOKE_THE_DRIFT = {
+  id: 'choke-the-drift',
+  name: 'Choke the Drift',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: SLOW, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Sixty feet of working face, arriving all at once.
+ *
+ * The band's wide turn, and ⚠️ **conditioned on {@link SLOW} being absent** for the reason
+ * {@link MOONSONG} and {@link MIRE} are: a board that re-spends this on an already-slowed party is
+ * a turn tax with no decision in it, and four boards carrying it would then be one board carried
+ * four times. Conditioned, it fires once and then waits for the party to shed it — so a party that
+ * cleanses is asking for it again and a party that does not is simply slower.
+ *
+ * ×0.85 across five, under the ×1.15 wide physical ceiling, because five small hits against the
+ * diminishing-`def` curve are worth far less than one big one.
+ */
+export const THE_FACE_COMES_DOWN = {
+  id: 'the-face-comes-down',
+  name: 'The Face Comes Down',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.85 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 65,
+  condition: { kind: 'status-absent', statusId: 'slow' },
+  priority: 4,
+} as const;
+
+/**
+ * It takes the ground out from under the block before it takes the block.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the fifth chapter
+ * running to take that shape. It does nothing while the party is already slowed, so what it asks
+ * changes with what the party did on the four boards it stands on: a party that cleanses meets it
+ * every sixty ticks, a party that eats the slow meets it once.
+ *
+ * ⚠️ **Undercutting is what a quarry does to a block it means to drop, and the party is the block.**
+ * The name is the mechanic: the turn removed is the one the party had already earned.
+ */
+export const CUT_BENEATH_IT = {
+  id: 'cut-beneath-it',
+  name: 'Cut Beneath It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.9 },
+    { kind: 'status', status: SLOW, chance: 0.85 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'status-absent', statusId: 'slow' },
+  priority: 5,
+} as const;
+
+/**
+ * The whole working goes, and there is nothing on the floor of it that is not under the fall.
+ *
+ * The final's reach, at ×1.0 against the ×1.15 wide physical ceiling — the same figure
+ * {@link THE_IRON_COMES_UP} takes, and read against the diminishing-`def` curve for the same reason.
+ *
+ * ⚠️ **Unconditioned, unlike the three above it, and that is the final saying the chapter once more
+ * without the escape valve.** A party that has learned to shed the slow on the boards below arrives
+ * here and finds the answer does not work — but it costs a **cooldown** rather than a permanent
+ * state, so it is a harder fight rather than a longer one. ⚠️ **It restores nothing**, and that is
+ * the chapter's one absolute claim: no heal, no drain, no shield and no regeneration on this board.
+ */
+export const THE_GROUND_GOES = {
+  id: 'the-ground-goes',
+  name: 'The Ground Goes',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6185,4 +6349,11 @@ export const SKILLS = [
   EVERYTHING_COMES_BACK_BLUNT,
   WHAT_THE_FIELD_LEFT,
   THE_IRON_COMES_UP,
+  ALREADY_BEHIND_YOU,
+  FLATTEN_THE_EDGE,
+  NOTHING_TAKES_HOLD,
+  CHOKE_THE_DRIFT,
+  THE_FACE_COMES_DOWN,
+  CUT_BENEATH_IT,
+  THE_GROUND_GOES,
 ] as const;
