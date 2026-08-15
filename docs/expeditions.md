@@ -104,6 +104,67 @@ Three findings from `expedition.balance.ts`, all bought by measurement:
   bar. The sweep's route policy is deliberately the honest floor: cheapest route, greedy card,
   three retries per camp, no gear, no signature items.
 
+### ⚠️ Chapter 16 broke the deepest depth, and the fix was an anchor cap
+
+The Spoilfield took the ladder to 700 stages, and `expedition.balance.ts` read **0.00 finished** for
+the Causeway and the Spine at the deepest depth against a bar of 0.90. ⚠️ **Nothing about the maps
+changed and no camp was mis-authored.** A camp's level is a fixed `levelOffset` off the run's anchor —
+the hardest campaign stage cleared — and that anchor's level climbs 25 a chapter, while the party each
+depth implies is bisected against the campaign stage there and had **stopped climbing**: 244.7 at
+anchor 300, 247.7 at 325 and **241** at 350.
+
+⚠️ **That is the campaign's rarity cap arriving here.** Since chapter 13 the ladder runs above
+`legendary-plus`'s cap of 260, so each chapter final is authored lighter than the last to stay
+clearable — The Doorstone 1480/88, The Unnumbered 680/40, The Inheritor 250/24 — and a lighter final
+bisects lower. [descent](descent.md) carries the full measurement.
+
+**`ExpeditionRulesData.anchorCap` is the fix**, the same clamp the Descent carries, at **322**. No
+camp's `levelOffset` moved: the cap binds only above its own value, so every depth below it is
+untouched.
+
+### ⚠️ It was picked on the card control, because the finish rate cannot choose
+
+This mode is one-time content **meant** to become a completion as the campaign deepens — every depth
+above the unlock already reads 1.00 finished on all three maps — so "does it finish" cannot tell a
+well-aimed deep end from a walkover. What can is whether the sweep's own permanent control still
+moves. Measured on the Spine at the deepest depth, carded against bare:
+
+| cap     | Spine finished / survivors | carded − bare survivors |
+| ------- | -------------------------- | ----------------------- |
+| 316     | 1.00 / 5.00                | 0.00 — control dead     |
+| 318     | 1.00 / 4.80                | +0.90                   |
+| **322** | **1.00 / 4.50**            | **+1.60**               |
+| 325     | 1.00 / 3.40                | +0.10                   |
+| 328     | 0.90 / 3.50                | **−1.30** — fails       |
+
+⚠️ **A cap that reads 5.00 survivors passes every assertion in this mode's sweep while measuring
+nothing** — the "a sweep that cannot move" failure the Descent's milestone wrote down — which is why
+this was not set to the first green value. 322 is the widest the control opens and sits six levels
+clear of where the mode stops finishing.
+
+⚠️ **Not the Descent's 316, and that is not an inconsistency.** The two modes turn an anchor into a
+board differently — this authors a fixed offset per camp, the Descent ramps across nine fights — so
+each was solved against its own boards. Landing six levels apart is the check that both measured the
+same thing.
+
+⚠️ **This does not equalise difficulty across depths and is not meant to.** At this cap the deep end
+sits at about **×0.66** of the unlock's difficulty, which is the mode's design: a commitment when it
+opens and a completion later. **Do not "fix" that.** ⚠️ **What moves the cap is a rung, not a
+chapter** — the plateau exists because the campaign's tuning target plateaued at `legendary-plus`.
+
+**The shipped readings**: the Ford and the Causeway finish at 1.00 at every depth; the Spine reads
+0.50 at the unlock and 1.00 above it, with 4.50 survivors at the deepest. Zero timeouts anywhere.
+
+⚠️ **`DEPTHS` is derived from the chapter list now**, every chapter end from the unlock up, where it
+used to be four hand-picked depths ending at the top of the ladder — the same hole the Descent's
+sample had. Unlike the Descent's, this mode holds at every one of them.
+
+⚠️ **Deriving it silently re-pointed every indexed assertion, which is the trap to know about.**
+`DEPTHS[3]` was the deepest sample and the card control was measured there; once the list is derived
+it is chapter 6, and every one of those assertions kept passing while measuring something else. The
+arc assertions now name their depths — `UNLOCK`, `chapterEnd(5)`, `chapterEnd(7)`, `TOP` — rather than
+indexing the sample. **Name the depth; do not index the sample.**
+
 ⚠️ **The sweep carries the two permanent controls the Descent's milestone mandated**: a
 much-harder setting (+18 levels) must measure harder — it takes the Spine's unlock finish rate
 from 0.50 to 0.00 — and cards must measure as worth taking (survivors 4.80 against 4.10 at the

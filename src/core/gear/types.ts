@@ -1,4 +1,4 @@
-import { type ModifiableStat } from '../battle/types';
+import { type GearStatProfile } from '../battle/types';
 import { type Numeric } from '../numeric';
 
 /**
@@ -144,28 +144,28 @@ export function loadoutItems(loadout: GearLoadout): readonly string[] {
 }
 
 /**
- * The stats a piece may move, as fractions of the wearer's own value.
+ * The stat vocabulary a bonus is expressed in, re-exported from where it is declared.
  *
- * A narrow record rather than the whole stat block, and the narrowness is the design. `hp`, `atk`
- * and `def` are the three quantities a percentage is meaningful on; `haste` is included because
- * boots are the piece that buys turns and is bounded for it. `recovery` is deliberately absent
- * even though it scales — it is already a percentage of health in effect, and a second multiplier
- * on it would make a regeneration wall the cheapest thing in the game to build, which is the
- * shape 8c's tick cap exists to bound.
+ * ⚠️ **All five moved down into `battle/types.ts` in milestone 27 and this is a re-export, not a
+ * declaration.** Enemy gear needs `StageData` — which is declared in `battle/types.ts` — to carry
+ * a resolved {@link GearBonus} per archetype, and a `battle/` file cannot name a type this module
+ * owns without closing a loop `import/no-cycle` rejects. Moving the shared half **down** is the
+ * same move this file already makes for {@link GEAR_ARCHETYPES}, which sits here rather than in
+ * `roster/` because `roster/` depends on `gear/`.
+ *
+ * Re-exporting rather than relocating the import sites is the same courtesy `roster/types.ts`
+ * does for `CharacterRole`: the name still resolves from the module a reader expects to find it
+ * in, and the declaration sits in the lower module so the graph stays a tree. The `Extract` over
+ * `ModifiableStat` survives the move, which is the coupling that would have been lost by spelling
+ * the union out a second time here.
  */
-export type GearStat = Extract<ModifiableStat, 'atk' | 'def' | 'haste'> | 'hp';
-
-/** Every stat gear can move, in the order a sheet lists them. */
-export const GEAR_STATS = ['hp', 'atk', 'def', 'haste'] as const satisfies readonly GearStat[];
-
-/** Fractions of the wearer's base stat, before grade and level scale them. */
-export type GearStatProfile = Readonly<Partial<Record<GearStat, number>>>;
-
-/** The total percentage bonus a loadout contributes, per stat. Absent means the stat is untouched. */
-export type GearBonus = Readonly<Partial<Record<GearStat, number>>>;
-
-/** No gear, or gear worth nothing. Shared so the empty case is one object rather than many. */
-export const NO_GEAR_BONUS: GearBonus = {};
+export {
+  GEAR_STATS,
+  type GearBonus,
+  type GearStat,
+  type GearStatProfile,
+  NO_GEAR_BONUS,
+} from '../battle/types';
 
 /** One rung of the grade ladder, as authored in `data/`. */
 export interface GearGradeData {

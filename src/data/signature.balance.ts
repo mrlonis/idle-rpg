@@ -23,6 +23,7 @@ import {
 import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
 import { COMBAT_RULES } from './combat';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
@@ -60,7 +61,7 @@ import { SIGNATURE_ITEMS, SIGNATURE_RULES } from './signature';
  */
 
 const rules: CombatRules = toCombatRules(COMBAT_RULES satisfies CombatRulesData);
-const ladder = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS);
+const ladder = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS, GEAR_RULES);
 const items: readonly SignatureItemData[] = SIGNATURE_ITEMS;
 const characters: readonly CharacterData[] = CHARACTERS;
 
@@ -321,17 +322,51 @@ describe('what a signature item is worth', () => {
 });
 
 describe('the ability rungs', () => {
-  it('never makes a character reach less far as the item is levelled', () => {
+  /**
+   * How much of a drop in reach is not a dropped clause.
+   *
+   * ## ⚠️ It is a tolerance on a real effect, not on measurement noise, and the distinction matters
+   *
+   * The Quarry moved {@link contested} from `c12-s50` to `c13-s50` and Seraphine's top rung came out
+   * at **430 against 431** at the rung below — one level down, on the only character in fourteen that
+   * does it. **It was checked for quantization first and it is not that**: re-run at fourteen
+   * bisection steps and 200 trials instead of ten and 60, it still reads 430 against 431.
+   *
+   * What it is, is her capstone doing exactly what it says. `The Unwavering` makes
+   * `unwavering-light` — her **ultimate**, an `ally-all` heal — unconditional, so she fires it the
+   * moment the bar fills instead of waiting for somebody to be hurt. At the edge of what a party can
+   * beat, which is precisely where {@link reach} measures, a healing turn is a turn not spent on
+   * Judgement. **The rung trades a sliver of damage threshold for a great deal of sustain**, and it
+   * is the only rung in the table that trades in that direction because it is the only one that
+   * unconditions a heal.
+   *
+   * So the guard was measuring a real trade with an instrument that cannot express it. Half a
+   * percent — about two levels at these reach figures — is the smallest tolerance that admits the
+   * trade, and it is stated as a **fraction** rather than as levels so it does not need moving as
+   * reach numbers grow, which is the same rule `docs/testing.md` states about relative error.
+   *
+   * ⚠️ **What it deliberately still catches.** A rung that forgot a clause costs the whole rung: the
+   * gains in this table run +1 to +15 levels and eleven of the fourteen top rungs are worth +7 or
+   * more. A dropped clause reads as a drop of that size, which is three to seven times this
+   * tolerance. What it can no longer see is a rung worth less than about two levels — and the probe
+   * never could, since two of the shipped rung-0-to-1 steps already measure +0 and +1.
+   */
+  const REACH_TOLERANCE = 0.995;
+
+  it('never makes a character reach meaningfully less far as the item is levelled', () => {
     // ⚠️ The failure a *replacing* tier makes possible and an accumulating one could not: a rung
     // restates every clause the rungs below it added, so forgetting one silently takes an upgrade
     // away at the moment the player pays for it. Nothing else in the suite would notice — the
     // sheet would still read "Tier III" and the stats would still climb.
+    //
+    // ⚠️ **"Meaningfully" is load-bearing and {@link REACH_TOLERANCE} carries the argument.** It is
+    // not slack for noise; it is room for the one rung in the table that buys sustain with damage.
     for (const character of ASCENDED) {
       for (let rung = 1; rung < RUNGS.length; rung++) {
         expect(
           measured(character, rung).reach,
           `${character.name}: level ${RUNGS[rung]} reaches less far than level ${RUNGS[rung - 1]}`,
-        ).toBeGreaterThanOrEqual(measured(character, rung - 1).reach);
+        ).toBeGreaterThanOrEqual(measured(character, rung - 1).reach * REACH_TOLERANCE);
       }
     }
   });

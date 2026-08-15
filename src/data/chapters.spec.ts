@@ -23,6 +23,7 @@ import {
 import { AUTO_BATTLE_UNLOCK_CHAPTERS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { BRAN, MIRA, RIN, STARTER_FORMATION } from './characters';
 import { ENEMIES } from './enemies';
+import { GEAR_RULES } from './gear';
 import { LEVEL_CURVE } from './levels';
 
 /**
@@ -37,7 +38,7 @@ const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
 
 /** The whole ladder, flattened and resolved exactly as the game resolves it. */
-const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 
 /** Where the starter party is expected to stop: the healer lock. */
 const WALL = stages.findIndex((stage) => stage.id === 'c1-s7');
@@ -90,6 +91,41 @@ describe('stage content', () => {
     for (const stage of stages) {
       expect(stage.enemies.front.length, stage.id).toBeLessThanOrEqual(FRONT_ROW_SIZE);
       expect(stage.enemies.back.length, stage.id).toBeLessThanOrEqual(BACK_ROW_SIZE);
+    }
+  });
+
+  it('never fields a body without a gear archetype on a board that authors gear', () => {
+    // ⚠️ **The silent half of enemy gear, and the reason `gearArchetype` may stay optional.** A
+    // stage's `gear` is priced per archetype; a body that declares none looks the bonus up under
+    // `undefined`, gets nothing, and fights naked on a board tuned as though every enemy on it were
+    // kitted. Nothing throws, nothing renders wrong, and the only symptom is a board that is easier
+    // than the sweep was told — which is exactly the class of failure `docs/authoring.md` says to
+    // audit for rather than wait to notice.
+    //
+    // Derived from the stages rather than from a list of chapter ids, so a later chapter that
+    // authors gear is covered the day it lands rather than the day somebody remembers this.
+    const naked = stages
+      .filter((stage) => stage.gear !== undefined)
+      .flatMap((stage) =>
+        [...stage.enemies.front, ...stage.enemies.back]
+          .filter((enemy) => enemy.gearArchetype === undefined)
+          .map((enemy) => `${stage.id}/${enemy.id}`),
+      );
+
+    expect(naked).toEqual([]);
+  });
+
+  it('prices a bonus for every archetype a geared board fields', () => {
+    // The other end of the same seam: `resolveStage` is what turns an authored grade into
+    // percentages, so a geared stage whose `enemyGear` came back empty would mean the derivation
+    // silently produced nothing — the same failure from the ladder's side rather than the board's.
+    for (const stage of stages.filter((s) => s.gear !== undefined)) {
+      for (const enemy of [...stage.enemies.front, ...stage.enemies.back]) {
+        const bonus = stage.enemyGear?.[enemy.gearArchetype ?? ''];
+
+        expect(bonus, `${stage.id}/${enemy.id}`).toBeDefined();
+        expect(Number(bonus?.hp ?? 0), `${stage.id}/${enemy.id} hp`).toBeGreaterThan(0);
+      }
     }
   });
 

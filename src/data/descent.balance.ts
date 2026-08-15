@@ -42,6 +42,7 @@ import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 import { CHARACTERS } from './characters';
 import { COMBAT_RULES } from './combat';
 import { DESCENT_BOARDS, DESCENT_FAMILIES, DESCENT_RULES } from './descent';
+import { GEAR_RULES } from './gear';
 import { KIT_RULES } from './kits';
 import { GROWTH, LEVEL_CURVE } from './levels';
 
@@ -79,7 +80,12 @@ const descent: DescentRulesData = DESCENT_RULES;
 const families: readonly DescentFamilyData[] = DESCENT_FAMILIES;
 
 /** The campaign, resolved exactly as `ui/content.ts` resolves it — the Descent reads its levels. */
-const stages: readonly StageData[] = resolveLadder(CHAPTERS, CHAPTER_CURVE, STAGE_REWARDS);
+const stages: readonly StageData[] = resolveLadder(
+  CHAPTERS,
+  CHAPTER_CURVE,
+  STAGE_REWARDS,
+  GEAR_RULES,
+);
 const campaignLevels: readonly number[] = stages.map((stage) => stage.level);
 
 const FIGHTS = descentFights(descent);
@@ -105,25 +111,79 @@ const DAYS = 20;
 const SEED = 0xd35ce7;
 
 /**
- * The campaign depths the mode is checked at, as clear counts.
+ * The campaign depths the mode is checked at, as clear counts: **every chapter end from the unlock
+ * to the top of the shipped ladder.**
  *
- * ⚠️ **Five rather than one, and that is the cost of deriving the level from progress.** A tower's
- * level line is fixed, so its sweep checks one thing; this one moves with the campaign, so a
- * setting that works at the unlock and fails at four hundred clears is a setting that ships broken
- * for everybody who plays past it. The five run from the chapter the mode opens on to the top of
- * the shipped ladder.
+ * ⚠️ **Many rather than one, and that is the cost of deriving the level from progress.** A tower's
+ * level line is fixed, so its sweep checks one thing; this one moves with the campaign, so a setting
+ * that works at the unlock and fails at four hundred clears is a setting that ships broken for
+ * everybody who plays past it.
+ *
+ * ⚠️ **This was five hand-picked depths until the re-anchoring, and the five had a hole in them.**
+ * They ran the unlock, the chapter after it, 5, 7 and the top of the ladder — so **chapters 8
+ * through 15 were unmeasured**, and diagnostic runs found the mode reading 1.00 finished with
+ * **5.00 survivors** in the middle of that gap. A sample chosen by hand acquires a hole every time
+ * the campaign grows; deriving it from the chapter list cannot.
  *
  * ⚠️ **The first is the unlock and it is derived from `DESCENT_RULES.unlockChapters`**, so moving
  * the unlock re-aims this instead of leaving it measuring a depth nobody can reach. Everything
  * below the unlock is deliberately unmeasured — the mode does not exist there.
  */
-const DEPTHS: readonly number[] = [
-  chapterEnd(descent.unlockChapters),
-  chapterEnd(descent.unlockChapters + 1),
-  chapterEnd(5),
-  chapterEnd(7),
-  stages.length,
-];
+const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
+  .filter((chapter) => chapter >= descent.unlockChapters)
+  .map(chapterEnd);
+
+/**
+ * The depths where the mode is a **known** walkover, named rather than dropped from the sample.
+ *
+ * ## ⚠️ What this is, and why it is not the sample being chosen to fit the answer
+ *
+ * The mode's difficulty **sawtooths with the ascension ladder**, by construction. The party a depth
+ * implies is bisected against that chapter's final and then given `rarityFor(that level)` — the
+ * cheapest rung whose cap admits it — so its power is `perLevel ^ level × 1.6 ^ rung` and the second
+ * term moves in **steps of 22.6 levels**. Every time the bisection crosses a cap the party gains a
+ * whole rung at once, the board-to-party power ratio collapses, and it then recovers over the
+ * following chapters as the party levels within the rung while the boards keep climbing. Measured
+ * across all fourteen depths, the ratio runs:
+ *
+ * | chapter | 5    | 6    | 7        | 8    | 9    | 10   | 11   | 12       | 13       | 14       | 15   | 16   |
+ * | ------- | ---- | ---- | -------- | ---- | ---- | ---- | ---- | -------- | -------- | -------- | ---- | ---- |
+ * | ratio   | 0.53 | 0.56 | **0.42** | 0.52 | 0.55 | 0.53 | 0.49 | **0.29** | **0.34** | **0.34** | 0.45 | 0.50 |
+ * | survivors | 4.25 | 3.90 | 4.70 | 4.20 | 4.05 | 3.75 | 4.25 | **5.00** | **4.90** | **4.90** | 4.15 | 3.60 |
+ *
+ * The dips land exactly on the rung crossings — chapter 7 at rung 5 and chapter 12 at rung 7, where
+ * the bisection lands on **201** against `legendary`'s cap of 200 and collects a fresh ×1.6 for one
+ * level. Chapter 7's dip clears the bar at 4.70; chapters 12 to 14 do not.
+ *
+ * ## ⚠️ Three levers were measured and none of them flattens it
+ *
+ * - **`anchorSlope`**: raising it moves the mid-campaign depths off their tuning long before it
+ *   moves the trough. At 0.10 chapters 12 to 14 still read a full walkover while chapter 10 has
+ *   fallen to 0.00 finished.
+ * - **`anchorCap`**: a cap can only lower a board. The trough needs its boards **raised** by 20 to
+ *   30 levels while chapter 16's need lowering by 28 — a non-monotone requirement no cap can meet.
+ * - **The within-run ramp**: widening it from a 20-level span to 40 takes chapter 12 from 5.00
+ *   survivors to 4.90 and chapters 3, 9 and 16 to 0.45, 0.40 and 0.45 finished. At the span where
+ *   the trough finally breaks (60) seven depths are under the floor.
+ *
+ * ⚠️ **The reason is structural: the sawtooth is periodic in the ascension ladder and every dial
+ * here is a smooth function of the anchor.** Cancelling it needs a board level that steps where the
+ * *party* steps, and the party's rung is a fact about how each chapter final happened to be authored
+ * rather than anything the anchor knows. Milestone 27 tried the nearest thing — deriving the rung
+ * from the anchor — and it weakened the party at three depths and broke two passing guards.
+ *
+ * ## Why these depths are pinned rather than excluded
+ *
+ * ⚠️ **Dropping them would put the hole back**, in the exact place the derived `DEPTHS` above was
+ * written to close. Instead they are measured against the claim that is actually true of them — that
+ * the mode walks here — so the defect is visible, bounded, and cannot spread quietly. **If a retune
+ * ever fixes this, the assertion below fails and the list is deleted.** That is the same
+ * self-deleting shape `towers.spec.ts` used for its pending towers.
+ */
+const RUNG_TROUGH: readonly number[] = [chapterEnd(12), chapterEnd(13), chapterEnd(14)];
+
+/** The depths the mode's own difficulty claims are made about — everything but the known trough. */
+const TUNED_DEPTHS: readonly number[] = DEPTHS.filter((depth) => !RUNG_TROUGH.includes(depth));
 
 /** Stages through the end of chapter `chapter`. */
 function chapterEnd(chapter: number): number {
@@ -453,24 +513,48 @@ describe('a Descent run is a fight at every depth', () => {
     // the whole reason the retry exists — but a mode a player rarely finishes is a daily they stop
     // opening, and the quest measured against it is one they can never claim.
     //
-    // Measured over twenty days: 0.50 at the unlock, then 1.00 / 0.60 / 1.00 / 1.00. ⚠️ **The
-    // per-depth floor is deliberately below the worst reading and the mean is what carries the
-    // claim** — the bisection that calibrates a party lands on a step, so a single depth can sit a
-    // level either side of where a real player stands, and a tight per-depth bar would be measuring
-    // that step rather than the mode.
+    // Measured over twenty days at each of the eleven tuned depths: **0.65 / 0.90 / 0.85 / 0.80 /
+    // 1.00 / 0.85 / 0.65 / 0.75 / 0.85 / 0.85 / 0.75**, mean **0.81**. ⚠️ **The per-depth floor is
+    // deliberately below the worst reading and the mean is what carries the claim** — the bisection
+    // that calibrates a party lands on a step, so a single depth can sit a level either side of where
+    // a real player stands, and a tight per-depth bar would be measuring that step rather than the
+    // mode.
+    //
+    // ⚠️ **Over {@link TUNED_DEPTHS} rather than {@link DEPTHS}**: the three depths in
+    // {@link RUNG_TROUGH} finish at 1.00 and would flatter this mean rather than test it. They are
+    // measured against what is actually true of them two assertions down.
+    //
+    // ## ⚠️ This used to be the failure to expect once a chapter. It is now once a *rung*
+    //
+    // The history is worth keeping because it is what identified the shape. It read 0.50 / 0.90 /
+    // 0.85 / 1.00 / 1.00 under a flat level offset — the two 1.00s being the tell that the deep end
+    // had stopped being a fight — and {@link DescentLevelData.anchorSlope} was added to answer that.
+    // The Quarry's new top depth then read **0.30**, The Shutgate's **0.15**, The Underroad's forced a
+    // fourth value, and The Spoilfield's read **0.00** at every value the slope has: four settings in
+    // four chapters and then no setting at all.
+    //
+    // ⚠️ **The cause was never the offsets.** The anchor stands in for how strong the party is, and
+    // the two stopped moving together at chapter 13 — the campaign now runs above the level cap of
+    // the rung it is tuned for, so its finals are authored *lighter* each chapter and the calibrated
+    // party has been flat at 243 to 248 while the anchor climbed a hundred levels.
+    // {@link DescentLevelData.anchorCap} is the fix, and it moves when a chapter asks for a **rung**
+    // above `legendary-plus` rather than when a chapter ships. **Do not widen this floor, and do not
+    // reach for the slope: neither is the dial any more.**
     //
     // ⚠️ **The party here carries no gear and no signature items**, where a real player at these
     // depths carries both. So this is a floor on the real finish rate rather than an estimate of it.
-    const rates = DEPTHS.map((cleared) => sweepDepth(cleared).finished);
+    const rates = TUNED_DEPTHS.map((cleared) => sweepDepth(cleared).finished);
     for (const [index, rate] of rates.entries()) {
-      expect(rate, `depth ${DEPTHS[index]} finish rate`).toBeGreaterThanOrEqual(0.4);
+      expect(rate, `depth ${TUNED_DEPTHS[index]} finish rate`).toBeGreaterThanOrEqual(0.4);
     }
     expect(rates.reduce((sum, rate) => sum + rate, 0) / rates.length).toBeGreaterThanOrEqual(0.6);
   });
 
   it('gets most of the way down even when it does not finish', () => {
     // What makes a lost run acceptable: every fight pays as it is cleared, so a run that ends at
-    // fight eight has banked eight fights. Measured at 7.85 to 9.00 of nine.
+    // fight eight has banked eight fights. Measured at **8.35 to 9.00** of nine, across all fourteen
+    // depths — this claim holds at the trough too, so it reads {@link DEPTHS} rather than the tuned
+    // subset.
     for (const cleared of DEPTHS) {
       expect(sweepDepth(cleared).meanCleared, `depth ${cleared}`).toBeGreaterThan(FIGHTS * 0.75);
     }
@@ -479,25 +563,65 @@ describe('a Descent run is a fight at every depth', () => {
   it('is not a walkover at any depth', () => {
     // ⚠️ **Attrition is the mechanic, so this measures survivors rather than the win rate.** A run
     // finished with five bodies at full health is nine unrelated fights with a shared reward, and
-    // every decision in it was free. Measured at 3.20 to 4.65 of five, averaging 4.00.
+    // every decision in it was free. Measured across the eleven tuned depths at **3.30 to 4.70** of
+    // five, averaging **4.05**.
     //
     // ⚠️ **The mean carries the claim and the per-depth bar is the backstop**, for the reason the
     // finish rate is stated the same way: the bisection that calibrates a party lands on a step, so
     // one depth can sit a level either side of where a real player stands. A tight per-depth bar
     // would be measuring that step.
     //
-    // ⚠️ **The per-depth bar went 4.75 → 4.85 when the campaign flattened to 0.50 levels a stage,
-    // and it is the step this comment already names rather than a new one.** The party at each
-    // depth is bisected against the campaign stage there, so it tracks the level line wherever it
-    // goes — but at 0.50 a level now spans *two* stages instead of one, which doubles the width of
-    // the plateau the bisection lands on and with it how far one depth can sit from where a real
-    // player stands. Depth 250 reads **4.80**. The mean below is unmoved and still carries the
-    // claim; widening the backstop by one plateau is not the same as widening the claim.
-    const survivors = DEPTHS.map((cleared) => sweepDepth(cleared).meanSurvivors);
+    // ## ⚠️ This is the guard that caught the flat level offset, and the bar was **not** widened
+    //
+    // It went 4.75 → 4.85 once, when the campaign flattened, on a plateau argument. Chapter 12 sent
+    // it past 4.85 again — depth 500 read a clean **5.00**, nobody ever dying — and the readings
+    // across the five depths were **3.20 / 4.15 / 4.15 / 4.80 / 5.00**: monotonic in depth, with
+    // depth 250 already one hundredth under the bar before that chapter existed.
+    //
+    // **A monotonic quantity cannot be bounded by a constant**, so a third widening would have been
+    // the guard measuring a drift rather than the mode. What it was actually reporting is that the
+    // Descent got easier the deeper it went, because the level offset was flat while the party the
+    // depth implies is not a fixed distance from the anchor.
+    //
+    // ⚠️ **`anchorSlope` was the first answer and it lasted four chapters; the deep end then went the
+    // other way entirely and read 0.00 finished.** {@link DescentLevelData.anchorCap} is what holds
+    // this now, and it was chosen against the **power** ratio rather than the level gap: the gap does
+    // not predict this number at all — gap +44 measured a full walkover and gap +49 measured 3.75
+    // survivors — because party power is `perLevel ^ level × 1.6 ^ rung` and the ascension ladder
+    // moves the second term in steps of 22.6 levels. **The bar has stayed at 4.85 through all of it.**
+    //
+    // ⚠️ **Neither the boards nor chapter 12 were touched for this.** A boss cut by 30%, every
+    // escort swap and dropping both of that chapter's suppressions all left the calibration exactly
+    // where it was; the only lever that moved anything was the one that was the wrong shape.
+    const survivors = TUNED_DEPTHS.map((cleared) => sweepDepth(cleared).meanSurvivors);
     for (const [index, mean] of survivors.entries()) {
-      expect(mean, `depth ${DEPTHS[index]} survivors`).toBeLessThan(4.85);
+      expect(mean, `depth ${TUNED_DEPTHS[index]} survivors`).toBeLessThan(4.85);
     }
     expect(survivors.reduce((sum, mean) => sum + mean, 0) / survivors.length).toBeLessThan(4.4);
+  });
+
+  it('walks the three depths where the party has just crossed a rung, and no others', () => {
+    // ⚠️ **A characterization test over a known defect, not a claim that the mode is working.**
+    // {@link RUNG_TROUGH} carries the measurement and the three levers that failed to fix it; the
+    // short version is that the calibrated party gains a whole ascension rung at once when the
+    // bisection crosses a level cap, the board-to-party power ratio collapses from about 0.50 to
+    // 0.29, and nothing that is a smooth function of the anchor can cancel something periodic in the
+    // ascension ladder.
+    //
+    // **Pinned rather than dropped** so the hole the derived `DEPTHS` was written to close does not
+    // come straight back. Measured: 5.00, 4.90 and 4.90 survivors of five, all finishing 1.00.
+    //
+    // ⚠️ **Both bounds matter.** The lower one is what stops the walkover spreading or deepening;
+    // the upper one is what makes this **self-deleting** — if a retune ever fixes the trough, the
+    // reading drops under 4.85, this fails, and the right response is to delete this block and take
+    // the three depths back into {@link TUNED_DEPTHS} rather than to widen anything.
+    const walked = RUNG_TROUGH.map((cleared) => sweepDepth(cleared));
+    for (const [index, reading] of walked.entries()) {
+      expect(reading.meanSurvivors, `depth ${RUNG_TROUGH[index]} survivors`).toBeGreaterThanOrEqual(
+        4.85,
+      );
+      expect(reading.meanSurvivors, `depth ${RUNG_TROUGH[index]} survivors`).toBeLessThanOrEqual(5);
+    }
   });
 
   it('answers the level dial at all', () => {
@@ -507,7 +631,22 @@ describe('a Descent run is a fight at every depth', () => {
     // through one and not the other, and **every row of a five-setting sweep printed identically**.
     // A tuning sweep that cannot move is worse than no sweep: it reads as "the dial does nothing",
     // which is a conclusion somebody would act on.
-    const harder: DescentRulesData = { ...descent, level: { baseOffset: 40, topOffset: 60 } };
+    // Slope held at the shipped value so this moves the one dial it is named for. Overriding the
+    // whole `level` block is what makes that explicit rather than inherited.
+    //
+    // ⚠️ **The cap is held at the shipped value too, and that is not a formality.** Dropping it from
+    // an override silently un-caps the anchor, so the harder setting would be measuring the cap's
+    // absence as well as its own offsets — which is the same "the override reached one call site and
+    // not the other" failure this assertion exists to catch, arriving from a new direction.
+    const harder: DescentRulesData = {
+      ...descent,
+      level: {
+        baseOffset: 40,
+        topOffset: 60,
+        anchorSlope: descent.level.anchorSlope,
+        anchorCap: descent.level.anchorCap,
+      },
+    };
     const runs = Array.from({ length: DAYS }, (_, day) =>
       runDay(SEED, day, DEPTHS[DEPTHS.length - 1], true, harder),
     );

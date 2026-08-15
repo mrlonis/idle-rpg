@@ -3,7 +3,14 @@
 // builder's jsdom default so a stray DOM reference fails here rather than only in the
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
-import { type EnemyFormationData, type StageEncounterData } from './battle/types';
+import {
+  type EnemyFormationData,
+  type EnemyGearData,
+  type StageData,
+  type StageEncounterData,
+} from './battle/types';
+import { maxLoadoutBonus } from './gear/stats';
+import { type GearRulesData, type GearSlot, type GearStatProfile } from './gear/types';
 import {
   advancePosition,
   type ChapterCurveData,
@@ -13,6 +20,7 @@ import {
   type LadderShape,
   positionAt,
   resolveLadder,
+  resolveStage,
   stageIndex,
   stageKindAt,
   stagePayout,
@@ -52,6 +60,68 @@ const NOBODY: EnemyFormationData = { front: [], back: [] };
 function encounter(id: string): StageEncounterData {
   return { id, name: id, enemies: NOBODY, level: 1 };
 }
+
+/**
+ * A two-rung gear ladder with one profile per archetype, for resolving enemy gear.
+ *
+ * Round numbers rather than the shipped ones: what these tests check is that a stage's authored
+ * grade and level reach the right arithmetic, and a tenth is a value a reader can multiply in
+ * their head. What the *shipped* profiles are worth is `data/gear.spec.ts`'s business.
+ */
+const GEAR_PROFILE: Readonly<Record<GearSlot, GearStatProfile>> = {
+  head: { hp: 0.1 },
+  arms: { atk: 0.1 },
+  chest: { hp: 0.2 },
+  legs: { def: 0.1 },
+  boots: { haste: 0.05 },
+};
+
+const GEAR: GearRulesData = {
+  grades: [
+    {
+      id: 'plain',
+      name: 'Plain',
+      multiplier: 1,
+      maxLevel: 10,
+      salvage: 10,
+      weight: 100,
+      priceSeconds: 10,
+      unlockIndex: 1,
+    },
+    {
+      id: 'good',
+      name: 'Good',
+      multiplier: 2,
+      maxLevel: 20,
+      salvage: 40,
+      weight: 20,
+      priceSeconds: 60,
+      unlockIndex: 4,
+    },
+  ],
+  profiles: {
+    tank: GEAR_PROFILE,
+    brawler: GEAR_PROFILE,
+    mage: GEAR_PROFILE,
+    ranger: GEAR_PROFILE,
+    support: GEAR_PROFILE,
+  },
+  perLevel: 0.1,
+  alignmentBonus: 1.3,
+  unalignedChance: 0.35,
+  enhance: {
+    alloy: { coefficient: 1, exponent: 1 },
+    gold: { coefficient: 1, exponent: 1 },
+  },
+  drops: {
+    normal: { min: 1, max: 1 },
+    miniBoss: { min: 1, max: 1 },
+    boss: { min: 1, max: 1 },
+    gradeSoftness: 100,
+  },
+  shop: { offers: 1, refreshMs: 1000, minGoldPerSecond: 1 },
+  inventoryLimit: 10,
+};
 
 describe('chapter size', () => {
   it('holds the first band at the base length', () => {
@@ -258,7 +328,7 @@ describe('resolving a ladder', () => {
   ];
 
   it('flattens chapters into the order they are climbed', () => {
-    const stages = resolveLadder(chapters, CURVE, REWARDS);
+    const stages = resolveLadder(chapters, CURVE, REWARDS, GEAR);
 
     expect(stages.map((stage) => stage.id)).toEqual([
       'a1',
@@ -275,7 +345,7 @@ describe('resolving a ladder', () => {
   it('pays each stage by its place on the whole ladder, not within its chapter', () => {
     // Income is continuous across a chapter boundary, which is what makes the seam invisible: the
     // first stage of chapter 2 pays more than the last stage of chapter 1, not less.
-    const stages = resolveLadder(chapters, CURVE, REWARDS);
+    const stages = resolveLadder(chapters, CURVE, REWARDS, GEAR);
     const rates = stages.map((stage) => Number(stage.rates.gold));
 
     for (let index = 1; index < rates.length; index++) {
@@ -284,7 +354,7 @@ describe('resolving a ladder', () => {
   });
 
   it('marks the last stage of each chapter a boss', () => {
-    const stages = resolveLadder(chapters, CURVE, REWARDS);
+    const stages = resolveLadder(chapters, CURVE, REWARDS, GEAR);
 
     expect(stages.map((stage) => stage.kind)).toEqual([
       'normal',
@@ -300,6 +370,77 @@ describe('resolving a ladder', () => {
 
   it('describes the ladder it just resolved', () => {
     expect(ladderShape(chapters)).toEqual({ chapters: [5, 3] });
-    expect(totalStages(ladderShape(chapters))).toBe(resolveLadder(chapters, CURVE, REWARDS).length);
+    expect(totalStages(ladderShape(chapters))).toBe(
+      resolveLadder(chapters, CURVE, REWARDS, GEAR).length,
+    );
+  });
+});
+
+describe('resolving enemy gear', () => {
+  const geared = (gear: EnemyGearData): StageData =>
+    resolveStage({ ...encounter('g1'), gear }, 1, 'normal', REWARDS, GEAR);
+
+  it('leaves an ungeared stage carrying nothing at all', () => {
+    // The state every stage below The Rustwood is in, and every board on every other ladder. An
+    // empty object here rather than `undefined` would make `stage.enemyGear?.[archetype]` resolve
+    // to `undefined` anyway, but it would also make "is this a geared stage" unanswerable — which
+    // is the question `chapters.spec.ts` asks to catch a body fielded without an archetype.
+    expect(resolveStage(encounter('a1'), 1, 'normal', REWARDS, GEAR).enemyGear).toBeUndefined();
+  });
+
+  it('prices a full set out of the shipped profiles rather than an authored percentage', () => {
+    // The fixture's profile is a tenth of health on the head, a fifth on the chest and nothing
+    // else, so a grade-0 level-1 set is +30% health — the sum of the five slots at ×1.00. What
+    // this is really asserting is that the stage authored a *grade*, not a number: retuning the
+    // profile moves this and a chapter that had written "+30%" beside its boards would not.
+    const bonus = geared({ grade: 0, level: 1 }).enemyGear?.['tank'];
+
+    expect(bonus?.hp).toBeCloseTo(0.3, 10);
+    expect(bonus?.atk).toBeCloseTo(0.1, 10);
+    expect(bonus?.def).toBeCloseTo(0.1, 10);
+    expect(bonus?.haste).toBeCloseTo(0.05, 10);
+  });
+
+  it('climbs with the enhancement level and again with the grade', () => {
+    // Both axes, because a grade is worth more twice over — a bigger multiplier and further to
+    // climb — and the enemy side has to inherit both or "Worn to Sturdy" would be a smaller step
+    // on this side of the board than on the player's.
+    const base = Number(geared({ grade: 0, level: 1 }).enemyGear?.['tank']?.hp);
+    const enhanced = Number(geared({ grade: 0, level: 10 }).enemyGear?.['tank']?.hp);
+    const better = Number(geared({ grade: 1, level: 1 }).enemyGear?.['tank']?.hp);
+
+    // ×(1 + 0.1 × 9) on the fixture's `perLevel`, and ×2 on the second grade's multiplier.
+    expect(enhanced).toBeCloseTo(base * 1.9, 10);
+    expect(better).toBeCloseTo(base * 2, 10);
+  });
+
+  it('never pays an enemy set the alignment bonus', () => {
+    // A player's piece pays 1.3× when its faction matches its wearer's. An enemy's set carries no
+    // faction to match, so an aligned one would be a thirty percent difficulty step decided by
+    // nothing an author wrote down. The ceiling below is `maxLoadoutBonus`, which *is* aligned.
+    const enemy = Number(geared({ grade: 1, level: 20 }).enemyGear?.['tank']?.hp);
+    const ceiling = Number(maxLoadoutBonus(GEAR, 'tank').hp);
+
+    expect(enemy).toBeCloseTo(ceiling / GEAR.alignmentBonus, 10);
+  });
+
+  it('clamps a grade and a level the content could not honour', () => {
+    // Same posture as every other authored number crossing into the simulation: fold it into the
+    // ladder rather than validate it. A grade past the top is the top; a level past its grade's
+    // cap is the cap.
+    const past = geared({ grade: 99, level: 999 }).enemyGear?.['tank']?.hp;
+    const top = geared({ grade: 1, level: 20 }).enemyGear?.['tank']?.hp;
+
+    expect(past).toBeCloseTo(Number(top), 10);
+  });
+
+  it('prices every archetype, so a board may field any of them', () => {
+    expect(Object.keys(geared({ grade: 0, level: 1 }).enemyGear ?? {}).sort()).toEqual([
+      'brawler',
+      'mage',
+      'ranger',
+      'support',
+      'tank',
+    ]);
   });
 });

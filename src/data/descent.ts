@@ -137,8 +137,135 @@ export const DESCENT_RULES = {
    * a card is worth re-aims this.
    */
   level: {
-    baseOffset: -8,
-    topOffset: 12,
+    baseOffset: -11,
+    topOffset: 9,
+    /**
+     * ⚠️ **The two fixed offsets came down by 3 when this arrived, so the shallow end is unchanged.**
+     * At the unlock's anchor of 30 the slope contributes +2.25, which puts the total back at about
+     * −9 / +11 — near enough the pair the mode shipped with, and the pair every figure below the
+     * fourth depth was tuned against. What moves is the deep end: +9.4 at anchor 125 and **+22.5 at
+     * anchor 300**.
+     *
+     * ## ⚠️ Four settings in four chapters, and that is the finding rather than the tuning history
+     *
+     * Milestone 27 added this at **0.11** because the deep end had stopped being a fight — 5.00
+     * survivors of five at anchor 250. The Quarry's depth then read **0.30 finished and 2.45
+     * survivors** against a per-depth floor of 0.40, and **0.10** restored 0.50 / 3.50. The Shutgate's
+     * depth read **0.15 finished** — the same dial, the same direction, the same one-chapter life —
+     * and took it to **0.075**. The Underroad is the fourth in a row, and it is now **0.022**.
+     *
+     * ⚠️ **Four settings in four chapters is no longer a tuning history, it is a measurement of the
+     * shape.** Each chapter raises the anchor by 25, which raises these boards by 25 plus the slope's
+     * own contribution — while the *party* the depth implies is bisected against the chapter final and
+     * rises only about **20**. So the gap widens roughly **7.5 to 7.75 levels every chapter, by
+     * construction**, and no constant here is right for more than one of them.
+     *
+     * ⚠️ **The re-derivation is now arithmetic rather than a bisection, which is worth knowing before
+     * the next one.** Solving "hold the party-to-board gap where it was" gives
+     * `s = (gap + anchor − baseOffset − anchor) / anchor` at the new anchor, and for chapter 14 that
+     * predicted **0.075** exactly — confirmed by sweeping 0.08 (still 0.30 at the deep end) and 0.07
+     * (passes with room).
+     *
+     * ⚠️ **For chapter 15 the same closed form predicted 0.058 and the answer was 0.022, which is a
+     * finding about the form rather than a miss.** It assumes the calibrated party rises by about 20
+     * a chapter, which held while chapter finals were authored at a steady weight. The Underroad's
+     * final is roughly **half** The Doorstone's stat line — the cap's gradient forced it — so the
+     * bisection rose only **9.7** (235 → 244.7 over the three sampled locks) against an anchor that
+     * rose the full 25. **Measure the bisection at both depths before predicting**; do not carry the
+     * per-chapter figure forward, because it is a fact about how the chapter above was authored.
+     *
+     * ⚠️ **The reason the party gains less than the anchor is a rung, and it is a _step_.** Party power
+     * is `perLevel ^ level × 1.6 ^ rung`, and `rarityFor` hands out a rung at each cap — so at anchor
+     * 250 the bisection landed on **201**, one level past `legendary`'s cap of 200, and arrived
+     * carrying a fresh ×1.6. At anchor 275 it lands on 221 and at 300 further inside the same rung,
+     * carrying nothing new either time. Milestone 27 recorded that step as a *red herring* for the
+     * easiness it was fixing; it is the direct cause of the hardness measured twice since.
+     *
+     * ## ⚠️ Chapter 16 is where the dial ran out entirely, and its sign assumption broke
+     *
+     * The Spoilfield took the top depth to 700 clears and **no value of this constant passes it.**
+     * Measured over the mode's own sweep: at 0.022 the deep end reads **0.00 finished / 2.8 floors
+     * of 9**; at 0.010 it reads 0.00 / 3.2; at 0.005, 0.00 / 3.55; and at **0.000** it still reads
+     * 0.00 / 3.7 *while the depth-250 walkover bar breaks in the other direction* (4.85 survivors
+     * against a bar of `< 4.85`). Holding the party-to-board gap where chapter 15 had it needs about
+     * **−0.063**, which takes ten more levels off the mid-campaign depths that are already too easy.
+     * **There is no setting that works at both ends of the range this is measured over**, which is
+     * the definition of the wrong dial rather than the wrong number.
+     *
+     * ⚠️ **And the reason is not the one modelled above: the calibrated party stopped rising at
+     * all, and then went backwards.** Bisected against the campaign stage each depth anchors on,
+     * over three locks:
+     *
+     * | depth | anchor stage | bisected party level |
+     * | ----- | ------------ | -------------------- |
+     * | 600   | `c14-s50`, level 300 | 234.7        |
+     * | 650   | `c15-s50`, level 325 | 243.7 (+9.0) |
+     * | 700   | `c16-s50`, level 350 | **240.0 (−3.7)** |
+     *
+     * The anchor's *level* rose the full 25 and these boards rose 25.6 with it, while the party the
+     * depth implies **fell**. ⚠️ **That is the rarity cap's gradient arriving here**: since chapter 14
+     * the campaign has run entirely above `legendary-plus`'s cap of 260, so every chapter final is
+     * authored **lighter** than the one before it to stay clearable by a party that cannot climb — The
+     * Doorstone 1480/88, The Unnumbered 680/40, The Inheritor 250/24. A lighter final bisects lower.
+     * **The model above assumes the party gains about 20 a chapter; it gained 9.7 at chapter 15 and
+     * −3.7 at chapter 16, so the assumption is not merely mis-sized, its sign is wrong.**
+     *
+     * ⚠️ **`data/expedition-maps.ts` fails identically and for the same reason**, with no dial at all
+     * — its camps author a fixed `levelOffset` against the same anchor. Two modes, one cause.
+     *
+     * ⚠️ **So the shape is wrong rather than the number, and this is the second dial in the project
+     * with that diagnosis** — `gear.ts`'s `gradeSoftness` is the first, and it has now been
+     * re-derived ten times. What this eventually wants is a board level keyed off **the calibrated
+     * party's own level** rather than off the anchor, which is what makes the rung step cancel instead
+     * of accumulate. Recorded rather than taken: it re-derives every figure in `descent.balance.ts`
+     * and is a decision about what the mode's difficulty is anchored to. ⚠️ **Do not batch a value
+     * several chapters ahead** — the landing is the only thing that will force the shape fix, which is
+     * exactly the call `gradeSoftness` records having got right. **Re-derive it from the measured
+     * bisection at both depths; chapter 15's landing shows the prediction alone is not enough.**
+     *
+     * ## ⚠️ None of the above is the live dial any more — {@link DescentLevelData.anchorCap} is
+     *
+     * The re-anchoring that followed chapter 16 **retired this as the deep end's dial** and left it
+     * at 0.022, doing the job it does below the cap and nothing above it. Read `anchorCap`'s comment
+     * before touching this number: the deep depths now all field the same capped anchor, so moving
+     * this reaches the *shallow* half hardest and buys nothing where the failure was.
+     *
+     * ⚠️ **Measured, so the next session does not re-derive it.** With the cap in place, raising this
+     * moves the mid-campaign depths off their tuning long before it moves the deep end at all: at
+     * 0.10 the deep depths still read a full walkover (1.00 finished, 5.00 survivors) while depth 400
+     * has already fallen to 0.00; at 0.22 the deep end finally reads 0.85 / 4.25 and depths 150 and
+     * 250 have collapsed to 0.30 and 0.15. **There is no setting of this constant that fixes the deep
+     * end, with or without the cap.** That is what made the cap the answer rather than a fifth value
+     * here.
+     *
+     * ⚠️ **Leave it at 0.022 unless the shallow depths themselves drift.** It is a fact about depths
+     * 60 through 500 now.
+     */
+    anchorSlope: 0.022,
+    /**
+     * ⚠️ **316, and it is derived rather than chosen — see {@link DescentLevelData.anchorCap} for the
+     * whole argument, the measurement and the condition that moves it.**
+     *
+     * The short version: the anchor stands in for how strong the party is, and the two stopped moving
+     * together at chapter 13, when the campaign began running above `legendary-plus`'s level cap of
+     * **260**. The party this mode calibrates has been flat at **243 to 248** across the last four
+     * chapters while the anchor climbed a hundred levels, so an uncapped anchor is a difficulty that
+     * runs away from its own player forever.
+     *
+     * Solving "hold the board-to-party **power** ratio at 0.50" — the value measured to give 0.75
+     * finished and 3.60 survivors of five, against 1.00 / 5.00 at 0.35 and 0.10 / 2.45 at 0.60 — puts
+     * the mid-run board at level 322, and this is the anchor that produces it.
+     *
+     * ⚠️ **Not 260.** That is the rung's cap and it is the right *reason* for a plateau, but fielding
+     * it directly reads 1.00 finished with **5.00 survivors** at all three deep depths: a walkover.
+     * The party is not standing *at* its cap, it is standing 17 levels under it with five ascension
+     * rungs in hand, and the rungs are worth 22.6 levels each. **Convert to power before picking the
+     * number.**
+     *
+     * ⚠️ **It binds only above 316, so no depth below it moved and no figure they were tuned against
+     * had to be re-derived.**
+     */
+    anchorCap: 316,
   },
   /**
    * What a run pays in crystals: 3,000 for a clean one, which is thirty pulls.

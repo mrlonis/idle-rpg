@@ -212,6 +212,107 @@ export interface DescentLevelData {
   readonly baseOffset: number;
   /** Levels relative to the anchor the last fight is fought at. Linear between the two. */
   readonly topOffset: number;
+  /**
+   * Extra levels added per level of anchor, on top of the two fixed offsets.
+   *
+   * ## ⚠️ This exists because a fixed offset is **not** the same difficulty at every depth
+   *
+   * The comment on {@link baseOffset} used to argue that it was — enemy power is exponential in
+   * level, so a *share* of the anchor is a different difficulty at every depth while a fixed number
+   * of levels is the same one everywhere. The first half is right and the conclusion does not
+   * follow, because the **party** on the other side of that board is not a fixed distance from the
+   * anchor either.
+   *
+   * Two things pull it away, both compounding over the whole level range rather than over a chapter:
+   * enemy `legendary` and `ascended` blocks climb at 1.0225 and 1.024 against a mostly-`common`
+   * five's 1.021, so the campaign stage the calibration anchors on gets *relatively* heavier with
+   * depth; and the ascension ladder hands the party a ×1.6 every time it crosses a cap. The
+   * measurement, at a flat −8/+12 across the five sampled depths:
+   *
+   * | anchor | 30   | 50   | 75   | 125  | 250  |
+   * | ------ | ---- | ---- | ---- | ---- | ---- |
+   * | survivors of five | 3.20 | 4.15 | 4.15 | 4.80 | 5.00 |
+   *
+   * **Monotonic, and the deep end is a full walkover** — nobody ever dies. Raising the fixed offsets
+   * cannot fix it: +24 levels takes the deepest sample to a healthy 4.15 and takes the *shallowest*
+   * from a 0.50 finish rate to **0.00**. The shape is wrong, not the number.
+   *
+   * ⚠️ **Zero reproduces the old behaviour exactly**, which is what makes this safe to author and
+   * what the level-dial override in `descent.balance.ts` still relies on.
+   *
+   * ⚠️ **This dial ran out of range at chapter 16 and {@link anchorCap} is what replaced it.** Read
+   * that comment before touching this one: the slope is still here and still does its job below the
+   * cap, but the deep end is no longer its problem.
+   */
+  readonly anchorSlope: number;
+  /**
+   * The highest anchor these boards will read, in campaign enemy levels.
+   *
+   * ## ⚠️ Why an anchor needs a ceiling at all
+   *
+   * The anchor is the enemy level of the hardest campaign stage cleared, and it was standing in for
+   * *how strong the party is*. That worked while the two moved together. It stopped at chapter 13,
+   * when the campaign began running entirely above `legendary-plus`'s level cap of 260: from there
+   * the ladder's **level** keeps climbing 25 a chapter while the party it is tuned for cannot, so
+   * every chapter final is authored **lighter** than the one before it — The Doorstone 1480/88, The
+   * Unnumbered 680/40, The Inheritor 250/24.
+   *
+   * Measured, the party this mode calibrates — bisected against the campaign stage each depth
+   * anchors on, over three faction locks — **stopped climbing and then went backwards**:
+   *
+   * | depth | anchor stage         | bisected party level |
+   * | ----- | -------------------- | -------------------- |
+   * | 400   | `c10-s50`, level 200 | 143.7                |
+   * | 500   | `c12-s50`, level 250 | 201.0                |
+   * | 600   | `c14-s50`, level 300 | 244.7                |
+   * | 650   | `c15-s50`, level 325 | 247.7                |
+   * | 700   | `c16-s50`, level 350 | **242.7**            |
+   *
+   * So an uncapped anchor is a difficulty that runs away from its own player at 25 levels a chapter,
+   * forever. {@link anchorSlope} was the fourth attempt to absorb that and it exhausted its range —
+   * see its comment for the sweep proving no value works at both ends.
+   *
+   * ## ⚠️ The right coordinate is the power ratio, not the level gap, and that is what set this
+   *
+   * The level gap between the party and the board does **not** predict difficulty: measured across
+   * nine depths, gap +44 read a full walkover and gap +49 read 3.75 survivors, because a party's
+   * power is `perLevel ^ level × 1.6 ^ rung` and the ascension ladder moves the second term in steps.
+   * The ratio of board power to party power does predict it, tightly:
+   *
+   * | board / party power | 0.29 | 0.34 | 0.42 | 0.49 | 0.53 | 0.54 | 1.02 |
+   * | ------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+   * | runs finished       | 1.00 | 1.00 | 1.00 | 0.65 | 0.75 | 0.40 | 0.00 |
+   * | survivors of five   | 5.00 | 4.90 | 4.70 | 3.30 | 3.75 | 2.75 | 3.45 |
+   *
+   * **A ratio near 0.50 is the mode working**; below 0.42 nobody dies and above 0.55 nothing
+   * finishes. Solving `perLevel ^ (board − party) / 1.6 ^ rung = 0.50` for the board level at the
+   * plateau — party 242.7 at `legendary-plus`, and `ln(1.6) / ln(1.021)` = 22.6 levels a rung — gives
+   * a mid-run board of **322**, and the mid-run board is `cap × (1 + anchorSlope) + (baseOffset +
+   * topOffset) / 2`. That solves to **316**.
+   *
+   * ⚠️ **Derived, not rounded.** Sweeping it confirms the prediction exactly: cap 300 reads a ratio
+   * of 0.35 and 1.00 finished with 4.90 survivors, 310 reads 0.44 and 0.90 / 4.25, **316 reads 0.50
+   * and 0.75 / 3.60**, 320 reads 0.54 and 0.50 / 2.90, and 325 reads 0.60 and 0.10 / 2.45.
+   *
+   * ## ⚠️ What this does and does not fix
+   *
+   * It binds only above 316, so **every depth below it is untouched** and every figure those depths
+   * were tuned against still holds — which is the property that made this preferable to moving the
+   * offsets, since those reach the unlock and +24 levels there takes it from a 0.50 finish rate to
+   * 0.00.
+   *
+   * ⚠️ **It caps the mode's lump as well as its difficulty**, because the payout is matched to the
+   * level the fight is fought at. That is deliberate: a run paying like a level-350 stage while
+   * fighting level-316 boards is an arbitrage, and the two have to move together.
+   *
+   * ⚠️ **It is not permanent, and the condition that moves it is not a chapter shipping.** This
+   * plateau exists because the campaign's own tuning target plateaued at `legendary-plus`. **When a
+   * chapter asks for a rung above that, the party starts climbing again and this has to climb with
+   * it** — and the check is the power ratio above, not the level gap. Until then, a new chapter
+   * changes nothing here, which is the whole point: `anchorSlope` needed re-deriving once a chapter
+   * for four chapters running and this needs it once a *rung*.
+   */
+  readonly anchorCap: number;
 }
 
 /**

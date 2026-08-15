@@ -80,14 +80,26 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: eleven chapters, four hundred and fifty stages, what a
-  stage authors, position versus clear count, the rung cadence, and the guards that were retired.
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: sixteen chapters, seven hundred stages,
+  what a stage authors, position versus clear count, the rung cadence, and the guards that were
+  retired.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares. **Read
   it before writing anything that reads a character's level.**
 - **[docs/gear.md](../../docs/gear.md)** — the third progression axis: five slots, five archetypes, a
-  five-rung grade ladder, and the hourly gear shop.
+  five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
+  measured three times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
+  would need; chapter 16's whole Relic ramp measured **0.08 of a survivor**. Read it before planning a
+  chapter's difficulty around it. ⚠️ **The grade ladder is now exhausted**: chapter 16 closed on Relic
+  100 and there is no sixth grade, so chapter 17 cannot step this axis at all. ⚠️ **The campaign's
+  gradient came back from a rarity cap instead**: chapters 11 through 16 all sit on `legendary-plus`,
+  whose cap of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the
+  party it is tuned for and the seam ratio falls by exactly `perLevel.common ** -25` = **1.680 a
+  chapter, by construction** — 10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154. ⚠️ **That has driven the
+  board budget below the shipped enemy pool's floor**: chapter 16's boards are ×0.4 of chapter 15's,
+  and a seventeenth chapter on this rung cannot be authored out of the pool. See
+  [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -100,7 +112,9 @@ them is how they get reversed by accident.
   measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
-  mid-flight.**
+  mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
+  — because the anchor stopped standing for how strong the party is; read it before touching either
+  mode's level line.
 - **[docs/expeditions.md](../../docs/expeditions.md)** — the puzzle maps: three hand-authored grids solved
   once each, a stamina budget, and an exit sealed behind a boss.
 - **[docs/achievements.md](../../docs/achievements.md)** — achievements and quests as ledgers over counters
@@ -143,6 +157,18 @@ as a wrong number on a screen or a fight that never ends. Each names the doc car
   `stageIndex(ladder, position)` is the only way to a linear index. [ladder](../../docs/ladder.md)
 - ⚠️ **`chaptersCleared` and `clearedStages` are different numbers and both type-check.** Passing one
   where the other belongs is wrong by the size of a chapter. [ladder](../../docs/ladder.md)
+- ⚠️ **A geared chapter owes a `gearArchetype` on every block it fields, returning ones included**,
+  and the ladder's grade level does **not** restart at 1 at a grade boundary — Worn 20 is worth 2.045
+  and Sturdy 1 only 1.350, so a clean restart is a step backwards. [gear](../../docs/gear.md)
+- ⚠️ **An enemy's `gearArchetype` is a bare string and an absent one is silent.** A stage authoring
+  `gear` prices a bonus per archetype; a body that declares none looks it up under `undefined`, gets
+  nothing, and fights naked on a board tuned as though it were kitted — nothing throws and nothing
+  renders wrong. `chapters.spec.ts` asserts every body on a geared board declares one and
+  `enemies.spec.ts` asserts every declared value is real. Same trap as a mistyped stat key.
+  [gear](../../docs/gear.md)
+- ⚠️ **`resolveStage` and `resolveLadder` take the gear rules, required and never defaulted.** A
+  caller that omitted them would resolve every geared stage as an ungeared one — every screen would
+  keep saying the right thing and only the balance sweep would notice. [ladder](../../docs/ladder.md)
 - ⚠️ **`toBattleCombatant` does not carry `CombatantData.opening`.** A character authoring a passive
   has it silently dropped; the only player-side route to one is a signature rung. `toEnemyCombatant`
   does carry it. [combat](../../docs/combat.md)
@@ -219,11 +245,48 @@ Asserted in `core/battle/simulate.spec.ts`.
 - ⚠️ **Every gear and signature bonus is a percentage of the wearer's own stat, never a flat
   quantity.** A flat bonus is an **addition**, which is exactly what the identity forbids — and it is
   invisible against a curve worth ×10⁹ anyway. Bonuses are summed with each other, never compounded.
+  **This now binds on both sides of the board**: enemy gear is the same percentage off the same
+  tables, which is why a geared stage authors a grade and a level rather than a stat line.
 - ⚠️ **Anything additive, or any authored constant compared against a scaling quantity, breaks it.**
   Audit for those rather than waiting to notice.
 - **The exception is a bounded rate.** `critChance`, `critDamageAmp` and `lifeLeech` take **points**
   rather than percentages, because a percentage of a bounded rate pays almost nothing.
   [descent](../../docs/descent.md)
+- ⚠️ **A level gap does not predict difficulty and the power ratio does, which is the same identity
+  read backwards.** Party power is `perLevel ^ level × 1.6 ^ rung` and the ascension ladder moves the
+  second term in **steps of 22.6 levels** (`ln(1.6) / ln(1.021)`) — so measured across nine Descent
+  depths a gap of +44 read a full walkover and +49 read 3.75 survivors, while board-over-party power
+  is monotone: 0.29 → 1.00 finished, 0.50 → 0.75, 1.02 → 0.00. **A ratio near 0.50 is a mode
+  working.** Convert to power before picking a level for anything keyed off the campaign; the naive
+  clamp to the rung's own cap reads 5.00 survivors because the party stands under its cap holding
+  rungs. [descent](../../docs/descent.md)
+- ⚠️ **A mode keyed off "the hardest campaign stage cleared" needs a ceiling on it.** That anchor was
+  standing in for how strong the party is, and the two stopped moving together at chapter 13: the
+  campaign now runs above the level cap of the rung it is tuned for, so its finals are authored
+  _lighter_ every chapter and the calibrated party has been flat while the anchor climbed a hundred
+  levels. Uncapped, the Descent and Expeditions both read **0.00 finished** at the deepest depth the
+  moment chapter 16 shipped. ⚠️ **The caps move when a chapter asks for a _rung_ above
+  `legendary-plus`, not when a chapter ships.** [descent](../../docs/descent.md)
+- ⚠️ **A hand-picked list of sample depths acquires a hole every time the campaign grows; derive it
+  from the chapter list.** Both mode sweeps sampled chapters 3, 5, 7 and the top, so **chapters 8
+  through 15 went unmeasured** — and the Descent was reading 1.00 finished with **5.00 survivors** in
+  the middle of that gap. ⚠️ **Deriving a sample silently re-points every index into it**: Expeditions
+  measured its card control at `DEPTHS[3]`, the deepest sample before and chapter 6 after, and the
+  assertion kept passing while measuring something else. **Name the depth; do not index the sample.**
+  [descent](../../docs/descent.md)
+- ⚠️ **The Descent's difficulty sawtooths with the ascension ladder and no dial can flatten it.** The
+  calibrated party gains a whole rung at once when the bisection crosses a level cap, so the power
+  ratio dips to 0.29 at chapters 12–14 against ~0.52 elsewhere and those depths are walkovers.
+  `anchorSlope`, `anchorCap` and the within-run ramp were each measured and each breaks other depths
+  first — **the sawtooth is periodic in the ladder and every dial is smooth in the anchor.** The three
+  depths are **pinned** by `RUNG_TROUGH` at 4.85–5.00 survivors rather than dropped from the sample:
+  visible, bounded, and self-deleting when a retune fixes it. [descent](../../docs/descent.md)
+- ⚠️ **When every reading saturates, tune against the sweep's own control rather than its outcome.**
+  Expeditions is one-time content meant to become a completion, so every depth above its unlock reads
+  1.00 finished by design and no anchor cap can be chosen on a finish rate. **A cap that reads 5.00
+  survivors passes every assertion in that file while measuring nothing** — what chose it was the
+  carded-against-bare margin: 0.00 at cap 316, +1.60 at 322, −1.30 at 328. Do not take the first green
+  value. [expeditions](../../docs/expeditions.md)
 
 ### The economy
 
@@ -255,10 +318,39 @@ Asserted in `core/battle/simulate.spec.ts`.
   heavy anchor is what made six towers fail their sweep at once.
 - **An enemy is a level-1 stat block plus a tier; a stage is archetypes plus a `level`.** Author an
   archetype's _shape_ and let the stage's level say how big it is.
+- ⚠️ **A board's raw health total is the wrong quantity to compare against, and it gets more wrong
+  every chapter.** `perLevel` is 1.024 / 1.0225 / 1.021, so at level 350 an `ascended` block is worth
+  **×2.784** of a `common` one and **×1.668** of a `legendary` one — up from ×2.587 and ×1.608 at 325.
+  Measured, one chapter-15 board at 2,980 raw health read 4.00 survivors and another at 3,100 read
+  **0%**, because in common-equivalent terms they were 4,283 and 5,581; and chapter 16's final is
+  authored at **250 health and 24 attack**, which is **696 and 67** in common-equivalent terms.
+  **Convert to common-equivalent weight before comparing two boards, and certainly two chapters.**
+  [authoring](../../docs/authoring.md)
+- ⚠️ **A mechanic's worth is a function of where its board stands on the plateau, not of the
+  mechanic, and a figure quoted without the weight it was measured at means nothing.** Measured at
+  chapter 16's roof, `THORNMAIL` across a whole board is worth **0.00** survivors at 900 total
+  health, **0.20** at 1,060 and **1.33** at 1,160 — the mechanic identical in all three rows. **State
+  the weight with the figure.** [authoring](../../docs/authoring.md)
+- ⚠️ **A debuff caster the party cannot reach is the sustain-behind-a-taunt failure wearing a
+  different stat.** A `WEAKEN`-on-`enemy-all` body measured **4.00 survivors in the front rank and
+  0.10 in the back** at the same weight, because the party cannot aim past it and the status never
+  lapses in practice. Put a board-wide debuffer where it can be killed. [authoring](../../docs/authoring.md)
+- ⚠️ **An anchor sweep that reads flat is usually a saturated control rather than an inert anchor.**
+  Chapter 15's final measured 0% at every weight from 880/54 down to 520/34; the cause was a
+  `RALLY`-on-`ally-all` body on the same board, worth more than the anchor's whole stat line at that
+  budget, and removing it took the board to 100%. **Check the control can move before concluding
+  anything.**
 - **Every archetype must be fielded somewhere**, and "somewhere" is every ladder rather than the
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](../../docs/authoring.md)
+- ⚠️ **A mechanic can be worth _only_ fight length, and that is the ninety-second clock rather than a
+  difficulty.** Measured across chapter 14's whole refusal vocabulary — `def` past the register,
+  `physicalResist` to 0.60, board-wide barriers, aegises, guards and weakens, and instance size at held
+  damage per second — **none is worth more than 0.08 of a survivor and several are worth eleven seconds
+  of fight.** What moves a tuned party is the anchor slot, and its response there is a cliff. **Count
+  the timeouts and check the control can move before believing either a positive or a negative.**
+  [testing](../../docs/testing.md)
 - ⚠️ **A tower band's crew owes 23 more levels of margin for every rung it takes past the first**,
   because `ln(1.6) / ln(perLevel.common)` is 22.6. Reusing `ROOF_MARGIN` unchanged on a new hundred
   gives ×2.703 against the shipped ×1.689 — and **the failure is invisible in the sweep**, because a

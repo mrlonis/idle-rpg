@@ -55,6 +55,47 @@ export type DamageType = 'physical' | 'magical';
 export type ModifiableStat = 'atk' | 'def' | 'haste';
 
 /**
+ * The stats a piece of gear may move, as fractions of the wearer's own value.
+ *
+ * A narrow record rather than the whole stat block, and the narrowness is the design. `hp`, `atk`
+ * and `def` are the three quantities a percentage is meaningful on; `haste` is included because
+ * boots are the piece that buys turns and is bounded for it. `recovery` is deliberately absent
+ * even though it scales — it is already a percentage of health in effect, and a second multiplier
+ * on it would make a regeneration wall the cheapest thing in the game to build, which is the
+ * shape 8c's tick cap exists to bound.
+ *
+ * ## ⚠️ It lives here rather than in `gear/types.ts`, and that is what keeps the graph a tree
+ *
+ * It was declared in `gear/types.ts` until milestone 27, in terms of {@link ModifiableStat}
+ * imported from this file — so `gear/` depended on `battle/` and nothing could go the other way.
+ * That was free while gear was the player's alone. Enemy gear needs {@link StageData} to carry a
+ * resolved bonus per archetype, and `StageData` is declared here, so this file would have had to
+ * name a `gear/` type and close a loop `import/no-cycle` rejects.
+ *
+ * Moving the shared half **down** is the same move `gear/types.ts` already makes for
+ * `GEAR_ARCHETYPES`, which sits there rather than in `roster/` because `roster/` depends on
+ * `gear/`. `gear/types.ts` re-exports all five names, so no import site outside this file changed
+ * — and the `Extract` below is what still guarantees a gear stat is a stat something can modify,
+ * which is the coupling that would have been lost by spelling the union out a second time.
+ */
+export type GearStat = Extract<ModifiableStat, 'atk' | 'def' | 'haste'> | 'hp';
+
+/** Every stat gear can move, in the order a sheet lists them. */
+export const GEAR_STATS = ['hp', 'atk', 'def', 'haste'] as const satisfies readonly GearStat[];
+
+/** Fractions of the wearer's base stat, before grade and level scale them. */
+export type GearStatProfile = Readonly<Partial<Record<GearStat, number>>>;
+
+/**
+ * The total percentage bonus a loadout — or a whole authored set — contributes, per stat. Absent
+ * means the stat is untouched.
+ */
+export type GearBonus = Readonly<Partial<Record<GearStat, number>>>;
+
+/** No gear, or gear worth nothing. Shared so the empty case is one object rather than many. */
+export const NO_GEAR_BONUS: GearBonus = {};
+
+/**
  * The plain stat block authored in `data/`.
  *
  * The six required fields are what a combatant **is**. The rest default to nothing (or, for
@@ -501,6 +542,54 @@ export interface FormationData {
  */
 export interface EnemyData extends CombatantData {
   readonly tier: CharacterTier;
+  /**
+   * Which gear profile this body wears when the stage it stands on is a geared one.
+   *
+   * One of `GEAR_ARCHETYPES` — `tank`, `brawler`, `mage`, `ranger`, `support` — as a bare string,
+   * for the reason {@link CombatantData.faction} is one: `core/` cannot import `data/`, and typing
+   * it as the union would put `battle/` under `gear/` in the module graph. `data/enemies.spec.ts`
+   * asserts every value is a real archetype, which is where a typo is caught.
+   *
+   * **It says what a body is, not what it is carrying.** A wall takes the `tank` profile and gets
+   * health out of a set; a glass cannon takes `mage` and gets attack out of the same set. That is
+   * the whole reason the enemy side reuses the player's authored profiles rather than one shared
+   * multiplier — gear that paid every body the same would be a level in disguise, and the level is
+   * a dial the stage already has.
+   *
+   * ⚠️ **Absent means this body wears nothing, even on a geared stage, and that is silent.** It is
+   * optional because a hundred and seventy-one shipped blocks predate enemy gear and towers,
+   * Expeditions and the Descent never field a geared board at all. What stops the silence being a
+   * bug is `chapters.spec.ts`, which asserts every archetype fielded on a stage carrying
+   * {@link StageEncounterData.gear} declares one.
+   */
+  readonly gearArchetype?: string;
+}
+
+/**
+ * What the enemies on one stage are wearing: a grade off the shipped ladder, and a level on it.
+ *
+ * **A full five-piece set rather than five slots.** There is nothing on the enemy side to equip,
+ * salvage or enhance — a stage says "these bodies are kitted at Worn 12" and the simulation prices
+ * it off the same `GEAR_GRADES` and `GEAR_PROFILES` the player's bag is priced off. Authoring five
+ * slots would be five numbers that could only ever be filled in, and a second inventory system on
+ * a side of the board that has no inventory.
+ *
+ * ⚠️ **Both numbers are indices into content, so they clamp rather than validate.** `gradeAt` and
+ * `clampGearLevel` fold an out-of-range grade or level into the authored ladder, which is the same
+ * posture every other authored number takes through `content.ts`.
+ *
+ * ⚠️ **This is the escalation axis the level line gave up, and it is deliberately small at the
+ * bottom.** A full Worn set is worth +8.6% health to a `tank` at level 1 and +17.6% at Worn's cap
+ * of 20; the whole ladder, at Relic 100, is +166%. So a geared chapter is a texture change, and
+ * only the *grade* climbing across many chapters makes it a gradient. See
+ * [authoring](../../../docs/authoring.md) for the three guards that were widened against the
+ * promise of this axis and what each one measured when it arrived.
+ */
+export interface EnemyGearData {
+  /** Index into the authored grade ladder. Higher is better. */
+  readonly grade: number;
+  /** Enhancement level, at least 1 and never above the grade's cap. */
+  readonly level: number;
 }
 
 /** An encounter's line-up, in two rows. The enemy-side mirror of {@link FormationData}. */
@@ -933,6 +1022,25 @@ export interface StageEncounterData {
    * wherever the sweep says it lands.
    */
   readonly level: number;
+  /**
+   * The gear every body on this board is wearing, or absent for an ungeared stage.
+   *
+   * **The stage's second difficulty dial, and the first one added since milestone 10.** The level
+   * above scales both sides of the board identically; this scales only the enemy side, which is
+   * what makes it the axis that can restore a gradient the level line cannot. It is applied as a
+   * percentage of the enemy's own scaled block, so it is a multiplication and the whole-board
+   * rescale identity `simulate.spec.ts` asserts survives it — the same argument that forces player
+   * gear to be a percentage.
+   *
+   * ⚠️ **A stage that declares this must field only archetypes that declare a
+   * {@link EnemyData.gearArchetype}**, or the bodies that do not silently fight naked on a board
+   * tuned as though they were not. `chapters.spec.ts` is what catches it.
+   *
+   * Campaign only, deliberately. Towers, the Descent and Expeditions never author it, so they are
+   * untouched by construction — the tower sweep crews two thousand one hundred floors with
+   * ungeared parties at pinned rungs, and putting gear on that side is its own retune.
+   */
+  readonly gear?: EnemyGearData;
 }
 
 /**
@@ -943,6 +1051,12 @@ export interface StageEncounterData {
  * being passed alongside it because `simulateBattle` builds a {@link BattleReward} out of them,
  * and a fight that had to be told separately what it was worth would be one more thing a caller
  * could get out of step.
+ *
+ * ⚠️ **{@link enemyGear} is the fourth derived field and it arrives the same way, for a reason
+ * worth stating**: what a Worn set is worth is a function of the shipped grade ladder and the
+ * shipped profiles, so a stage that authored the percentages would be retyping `data/gear.ts` —
+ * which is the failure `docs/testing.md` names as turning a coupling into a comment. The stage
+ * authors the grade and the level; `resolveStage` prices them.
  */
 export interface StageData extends StageEncounterData {
   /**
@@ -974,6 +1088,17 @@ export interface StageData extends StageEncounterData {
    * pulls, which is the opposite of how a paid game would tune this.
    */
   readonly firstClearSummons?: AuthoredAmount;
+  /**
+   * What this stage's {@link StageEncounterData.gear} is worth, keyed by gear archetype.
+   *
+   * Absent on an ungeared stage, which is every stage before The Rustwood and every board on every
+   * other ladder. An archetype missing from the map wears nothing — see
+   * {@link EnemyData.gearArchetype} for what stops that being silent.
+   *
+   * Keyed by a bare string rather than by `GearArchetype`, for the reason the field it is looked up
+   * with is: naming the union here would put `battle/` under `gear/` in the module graph.
+   */
+  readonly enemyGear?: Readonly<Record<string, GearBonus>>;
 }
 
 /** A stat block after parsing and clamping, as the simulation uses it. */

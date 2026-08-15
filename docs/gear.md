@@ -269,18 +269,23 @@ bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine
 Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.5%** — taking it to
 125; 21b's fired it at three hundred — **23.4%** — taking it to 150; 21c's at three hundred and fifty
 — **22.6%** — taking it to 175; 21d's at four hundred — **22.1%** — taking it to 200; and The
-Standing Line at four hundred and fifty — **21.7%** — taking it to **225**. Every one restores 18.7%
-over the ladder that actually ships. Same move, longer ladder, six times now.
+Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; The Rustwood at five
+hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and fifty — **21.1%** — taking
+it to **275**; The Shutgate at six hundred — **20.9%** — taking it to **300**; The Underroad at
+six hundred and fifty — **20.7%** — taking it to **325**; and The Spoilfield at seven hundred —
+**20.5%** — taking it to **350**. Every one restores 18.7% over the ladder that actually ships. Same
+move, longer ladder, eleven times now.
 
-⚠️ **Six re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Eleven re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 12
-will want 250. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 17
+will want 375. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
-[authoring](authoring.md).
+[authoring](authoring.md), which now records **two more dials with the same diagnosis** — the
+Descent's `anchorSlope` and `chapters.balance.ts`'s `MOMENTUM_CEILING`.
 
 ⚠️ **Do not re-derive it several chapters ahead to save edits.** 21b declined 200, which would have
 bought the whole milestone in one go, on the grounds that this quantity is **not** meant to move: at
@@ -481,36 +486,133 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 
 ## Enemies and gear
 
-**Enemies wear none, and are not planned to until chapter 10.** Difficulty on that side of the board
-is purely the stage's `level` against the archetype's tier — see [history](history.md).
+**Enemies wore none until chapter 12, and from The Rustwood on a campaign stage may author a set.**
+Below chapter 12, and on every tower floor, every Descent board and every Expedition, difficulty on
+that side of the board is still purely the stage's `level` against the archetype's tier.
 
-That is deliberate and it is the point of the milestone: a geared party flies through content tuned
-for an ungeared one, which is what makes gear feel like progress rather than a tax. The balance
-sweep measures it — the same five characters at the same investment clear meaningfully further with
-gear on, and further still with a full set.
+⚠️ **A chapter picks up the grade ladder where the last one left it, and the level does not restart
+at 1.** The Rustwood closed on Worn 20, worth `1.00 × (1 + 0.055 × 19)` = **2.045**; Sturdy at level 1
+is **1.350**, so a clean grade boundary is a step _backwards_ at the seam. The Quarry opens at
+**Sturdy 11** (2.093) — the first level of the new grade that clears the old grade's cap — and closes
+at Sturdy 40 (**4.246**). Do the arithmetic rather than restarting the level; the overlap that makes
+enhancement worth doing is the same overlap that makes a grade boundary a dip.
 
-Chapters 3 through 10 do not exist, so nothing implements enemy gear today and nothing should.
-When chapter 10 arrives, the shape to reach for is the one milestone 10 already established: fold
-the expected player gear budget into the enemy's authored stat block or its level, rather than
-building a second equipment system on the enemy side. `toEnemyCombatant` records why the enemy side
-has one fewer dial than the player side, and that argument applies here unchanged.
+The five geared chapters, each running its grade to that grade's cap:
+
+| Chapter | Grade      | Opens at        | Closes at        |
+| ------- | ---------- | --------------- | ---------------- |
+| 12      | Worn       | 1 (**1.000**)   | 20 (**2.045**)   |
+| 13      | Sturdy     | 11 (**2.093**)  | 40 (**4.246**)   |
+| 14      | Fine       | 26 (**4.275**)  | 60 (**7.641**)   |
+| 15      | Masterwork | 42 (**7.649**)  | 80 (**12.561**)  |
+| 16      | Relic      | 59 (**12.570**) | 100 (**19.335**) |
+
+⚠️ **The ladder is now exhausted, and chapter 16 was the last chapter that could step it.** Relic 100
+is the top of the whole ladder and there is no sixth grade, so **chapter 17 has no rung left** — it
+writes that down rather than taking the scope. Given the measurements below, what runs out is texture
+rather than difficulty.
+
+⚠️ **Chapter 16 measured the within-chapter ramp directly and it is the fourth consecutive chapter to
+find the same thing.** Relic 59 → 100 on one board at the roof moves it from **4.08 survivors in 11.9
+seconds to 4.00 in 15.1** — 0.08 of a survivor and a quarter more fight. **The whole top grade, end to
+end, is worth fight length.**
+
+That gap was the point of milestone 12: a geared party flies through content tuned for an ungeared
+one, which is what makes gear feel like progress rather than a tax. The balance sweep still measures
+it — the same five characters at the same investment clear meaningfully further with gear on, and
+further still with a full set.
+
+### How a stage wears one
+
+- An **enemy archetype** names a `gearArchetype` — one of the five the player's bag uses. It says
+  what a body _is_, so a wall gets health out of a set and a glass cannon gets attack out of the
+  same one.
+- A **stage** authors `gear: { grade, level }` — a full five-piece set, not five slots. There is
+  nothing on that side of the board to equip, salvage or enhance, so five numbers that could only
+  ever be filled in would be a second inventory system for a side with no inventory.
+- `resolveStage` prices it into one `GearBonus` per archetype and hangs it on `StageData.enemyGear`,
+  beside the three derived payout fields. `toEnemyCombatant` applies it after growth, exactly as
+  `toBattleCombatant` does for the player.
+
+⚠️ **It is derived, never authored as percentages.** A chapter that wrote "+8.6% health" beside a
+Worn set would keep asserting 8.6% while `GEAR_PROFILES` was retuned underneath it — the coupling
+turned into a comment that [testing](testing.md) names as the `data/` failure mode. The chapter
+authors a grade and a level; what a grade is worth is `data/gear.ts`'s business on both sides.
+
+⚠️ **An enemy set is never aligned.** Alignment is the player's 1.3× for matching a piece's faction
+to its wearer's; an enemy's set has no faction on it, and an aligned one would be a thirty percent
+difficulty step decided by nothing an author wrote down.
+
+⚠️ **Absent `gearArchetype` on a geared board is silent**, which is why `chapters.spec.ts` asserts
+every body a geared stage fields declares one, and `enemies.spec.ts` asserts every declared value is
+a real archetype. `setBonus` returns nothing for an archetype it does not recognise, so a typo puts a
+naked body on a board tuned as though it were kitted and nothing anywhere says so.
+
+### ⚠️ It is roughly an order of magnitude too small to be the escalation axis
+
+This is the finding milestone 27 was supposed to test, and the answer is negative. Measured against
+the campaign's own seam parties:
+
+|                                        | worth                                                       |
+| -------------------------------------- | ----------------------------------------------------------- |
+| Full **Worn** set, level 1             | +8.6% hp / +2.4% atk on a `tank`; +3.8% / +6.2% on a `mage` |
+| Full **Worn** set at its cap of 20     | +17.6% hp / +4.9% atk on a `tank`                           |
+| Full **Relic** set at 100              | +166% hp / +46% atk on a `tank`                             |
+| **What the enemy side actually needs** | **×3 to ×4**                                                |
+
+A chapter final refielded at the next chapter's roof needs the enemy side scaled ×3 before the tuned
+party stops taking it with all five alive, and ×4 before it loses. Worn is ×1.09 to ×1.18 — no
+measurable change at all — and the whole grade ladder end to end is still short of ×3.
+
+⚠️ **Chapter 13 stepped the grade and re-measured it, and the answer is the same.** Chapter 12's final
+refielded at level 275 against The Quarry's own seam party reads **100% with all five alive at every
+rung of the Sturdy ladder**; the whole ladder from Worn 20 to Sturdy 40 moves the fight from **8.8s to
+10.0s** and costs **zero** survivors:
+
+| Enemy gear                    | vs the seam party at 260     |
+| ----------------------------- | ---------------------------- |
+| Worn 20 — chapter 12's close  | 100% / 5.00 survivors / 8.8s |
+| Sturdy 11 — chapter 13 opens  | 100% / 5.00 / 8.8s           |
+| Sturdy 20                     | 100% / 5.00 / 9.1s           |
+| Sturdy 30                     | 100% / 5.00 / 9.5s           |
+| Sturdy 40 — chapter 13 closes | 100% / 5.00 / 10.0s          |
+
+So **a whole grade step is worth about ×1.15 of one archetype's headline stat**, against the ×3 the
+axis needs — and at one grade a chapter the ladder was exhausted by chapter 16 having delivered ×2.7.
+This is now measured **three times**, from three different grades — ×1.09–1.18 at Worn, ×1.15 at
+Sturdy, and 0.08 of a survivor across the whole Relic ramp — and no reading is close.
+
+⚠️ **What actually restored the campaign's gradient was the rarity cap, not this.** Since chapter 13
+the ladder has run above `legendary-plus`'s cap of 260, so the seam ratio divides by
+`perLevel.common ** 25` = 1.680 every chapter by construction — and that has now driven three
+consecutive chapters to author _lighter_ blocks than the one before them. **The axis this was
+supposed to supply arrived from somewhere else and this one is spent.**
+
+So **the three guards widened against the promise of this axis do not come back**, and one of them
+moves the wrong way: gear lengthens fights, so adding it _raises_ the longest-cleared-fight quantity
+the 0.75 bar bounds. [authoring](authoring.md) records what each one measured.
+
+**What would close it is a gear axis sized for the enemy side rather than borrowed from the
+player's** — a steeper grade ladder, a per-chapter grade step much larger than one rung, or an
+escalation that is not gear at all. That is a milestone-sized retune and milestone 27 wrote it down
+rather than taking it.
 
 ---
 
 ## Where it lives
 
-| Module                                                    | What it holds                                          |
-| --------------------------------------------------------- | ------------------------------------------------------ |
-| [`core/gear/types.ts`](../src/core/gear/types.ts)         | The vocabulary, and the percentage argument in full    |
-| [`core/gear/stats.ts`](../src/core/gear/stats.ts)         | What a piece and a loadout are worth, and how it lands |
-| [`core/gear/inventory.ts`](../src/core/gear/inventory.ts) | Minting, equipping, salvage, enhancement, load repair  |
-| [`core/gear/roll.ts`](../src/core/gear/roll.ts)           | Drop rolls and the grade tilt                          |
-| [`core/gear/shop.ts`](../src/core/gear/shop.ts)           | The derived hourly stock and its pricing               |
-| [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients    |
-| [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system             |
-| [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                  |
-| [`ui/character-view.ts`](../src/ui/character-view.ts)     | The equipment panel, and the auto-equip button         |
-| [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                               |
+| Module                                                    | What it holds                                         |
+| --------------------------------------------------------- | ----------------------------------------------------- |
+| [`core/gear/types.ts`](../src/core/gear/types.ts)         | The vocabulary, and the percentage argument in full   |
+| [`core/gear/stats.ts`](../src/core/gear/stats.ts)         | What a piece, a loadout and an authored set are worth |
+| [`core/gear/inventory.ts`](../src/core/gear/inventory.ts) | Minting, equipping, salvage, enhancement, load repair |
+| [`core/gear/roll.ts`](../src/core/gear/roll.ts)           | Drop rolls and the grade tilt                         |
+| [`core/gear/shop.ts`](../src/core/gear/shop.ts)           | The derived hourly stock and its pricing              |
+| [`data/gear.ts`](../src/data/gear.ts)                     | Grades, profiles, costs, drop and shop coefficients   |
+| [`ui/gear.service.ts`](../src/ui/gear.service.ts)         | The seam, and the only clock in the system            |
+| [`ui/bag-view.ts`](../src/ui/bag-view.ts)                 | The bag: everything nobody is wearing                 |
+| [`ui/character-view.ts`](../src/ui/character-view.ts)     | The equipment panel, and the auto-equip button        |
+| [`ui/gear-shop-view.ts`](../src/ui/gear-shop-view.ts)     | The hourly shop, in Town                              |
 
 Gear enters the simulation on the same seam as level and rung: `toBattleCombatant` takes a
 `GearBonus` and applies it **after** growth. Both operations are multiplications so they commute,

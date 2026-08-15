@@ -36,6 +36,7 @@ import { AUTO_BATTLE_UNLOCK_CHAPTERS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } f
 import { CHARACTERS } from './characters';
 import { FACTION_MATCHUPS } from './combat';
 import { ENEMIES } from './enemies';
+import { GEAR_RULES } from './gear';
 import { LEVEL_CURVE } from './levels';
 import { TOWER_BAND_RUNGS, TOWER_BAND_UNIT, TOWER_RULES, TOWERS } from './towers';
 
@@ -56,7 +57,7 @@ const tracks: readonly AchievementTrackData[] = ACHIEVEMENTS;
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
-const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards);
+const stages: readonly StageData[] = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 const campaignLevels: readonly number[] = stages.map((stage) => stage.level);
 
 const ENEMY_FACTIONS = new Map<string, string>(

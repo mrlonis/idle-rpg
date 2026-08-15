@@ -341,4 +341,45 @@ describe('toEnemyCombatant', () => {
 
     expect(gate.hp.eq(400)).toBe(true);
   });
+
+  it('wears the gear it is handed, as a percentage of its own scaled block', () => {
+    // The milestone 27 dial, and the *only* one this side gained back since milestone 10. A
+    // percentage rather than a quantity for the same reason the player's is: a flat bonus that
+    // meant something at level 1 is invisible at level 225, and an addition is what the
+    // whole-board rescale identity forbids.
+    const naked = toCombatStats(toEnemyCombatant(OGRE, GROWTH, 200).stats);
+    const kitted = toCombatStats(
+      toEnemyCombatant(OGRE, GROWTH, 200, { hp: 0.2, atk: 0.1, haste: 0.05 }).stats,
+    );
+
+    expect(kitted.hp.div(naked.hp).toNumber()).toBeCloseTo(1.2, 10);
+    expect(kitted.atk.div(naked.atk).toNumber()).toBeCloseTo(1.1, 10);
+    expect(kitted.haste).toBeCloseTo(naked.haste * 1.05, 10);
+    // Untouched: `def` was not in the bonus, and `dodge` is not a stat gear can reach at all.
+    expect(kitted.def.eq(naked.def)).toBe(true);
+    expect(kitted.dodge).toBe(naked.dodge);
+  });
+
+  it('is worth the same proportion at every level, which is the whole reason it is a percentage', () => {
+    // The claim `docs/gear.md` makes about the player's bag, asserted on the enemy side because
+    // this is where a flat bonus would have been the tempting authoring — a stage already writes a
+    // level, so "+400 atk on this board" reads as a smaller edit than a grade does.
+    const share = (level: number): number => {
+      const naked = toCombatStats(toEnemyCombatant(OGRE, GROWTH, level).stats);
+      const kitted = toCombatStats(toEnemyCombatant(OGRE, GROWTH, level, { hp: 0.176 }).stats);
+      return kitted.hp.div(naked.hp).toNumber();
+    };
+
+    expect(share(1)).toBeCloseTo(share(225), 10);
+    expect(share(225)).toBeCloseTo(1.176, 10);
+  });
+
+  it('leaves the block untouched when it is handed nothing', () => {
+    // Every enemy on every tower floor, every Descent board, every Expedition, and every campaign
+    // stage below The Rustwood. The parameter arriving must not have changed any of them.
+    const naked = toEnemyCombatant(OGRE, GROWTH, 120);
+
+    expect(toEnemyCombatant(OGRE, GROWTH, 120, undefined)).toEqual(naked);
+    expect(toEnemyCombatant(OGRE, GROWTH, 120, {})).toEqual(naked);
+  });
 });

@@ -181,6 +181,28 @@ export interface ExpeditionRulesData {
    * back stalls into the ninety-second clock.
    */
   readonly maxLifeLeech: number;
+  /**
+   * The highest anchor a camp will read, in campaign enemy levels.
+   *
+   * ⚠️ **The same clamp as {@link DescentLevelData.anchorCap}, for the same cause, and that comment
+   * carries the whole argument.** The short version: the anchor is the hardest campaign stage
+   * cleared, and it was standing in for *how strong the party is*. The two stopped moving together
+   * at chapter 13, when the campaign began running above `legendary-plus`'s level cap of 260 — from
+   * there the ladder's level climbs 25 a chapter while the party it is tuned for cannot, so each
+   * chapter final is authored lighter than the last. Measured, the party this mode calibrates reads
+   * 244.7 at anchor 300, 247.7 at 325 and **242.7** at 350: flat, then backwards.
+   *
+   * ⚠️ **Its own number rather than the Descent's, because the two modes convert an anchor into a
+   * board differently** — this one authors a fixed `levelOffset` per camp where the Descent ramps
+   * across nine fights. Both were solved the same way, by holding the board-to-party **power** ratio
+   * rather than the level gap; see `expedition.balance.ts` for this mode's measurement.
+   *
+   * ⚠️ **It binds only above its own value, so every depth below it is untouched** and no camp's
+   * `levelOffset` had to move. **It is not permanent**: the plateau exists because the campaign's
+   * tuning target plateaued, so a chapter asking for a rung above `legendary-plus` starts the party
+   * climbing again and this has to climb with it.
+   */
+  readonly anchorCap: number;
   readonly summons: ExpeditionSummonsData;
   /** Emblems paid once, on first completing a map. Flat, for the reason the crystals are. */
   readonly completionEmblems: number;

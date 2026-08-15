@@ -580,6 +580,18 @@ three assertions replaced one — and milestone 21d then retired one of the thre
   quantity as the absolute-hours guard it replaced, one derivative further out. When it fired, the
   question its comment prescribed was "has the ladder come far enough to have earned the distance it
   has closed", which is not a question a threshold can answer.
+- ~~**Idle crystals never pay out the whole roster faster than a run can enjoy it**~~ — days to buy
+  `ROSTER_COPIES` at a full clear's crystal rate, floor 30. ⚠️ **Retired at chapter 14**, and it is the
+  fourth guard in this project retired rather than slid. It was itself the _fix_ for two decaying
+  bounds, on the argument that measuring against the **roster** rather than the ladder would make it
+  content-independent — and it decayed anyway, because the roster is **static** content while the
+  ladder is **growing** content. Measured: 38.2 days at 450 stages, 35.0 at 500, 32.3 at 550, **30.0
+  at 600**, 26.2 at 700, 19.1 at 1000. Its own comment prescribed "look at whether the roster has kept
+  up", and that costs about **five new ascended-tier characters per chapter, forever** — 200 by the
+  campaign's planned length, against the seven a whole milestone once produced. **A denominator that
+  only grows when somebody decides to grow it is a constant with extra steps.** What was ever at risk
+  is unchanged and still bounded: a crystal rate that _compounds_ past a flat `PULL_COST`, and
+  `SUMMON_RATE.perStage` stays at 1.
 - **Rungs are left unspent above everything the ladder asks for.** The structural half, in the
   currency the game actually progresses in: hours inflate with income and rungs do not, and there are
   sixteen of them however long the ladder gets. A player finishing the shipped content must still

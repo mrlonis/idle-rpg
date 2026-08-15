@@ -1,11 +1,19 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Eleven chapters and four hundred and
-fifty stages** — 10, 20, 30, 40 and then seven of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Sixteen chapters and seven hundred
+stages** — 10, 20, 30, 40 and then twelve of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
-19 so the boundaries land where a session does; the last four are milestone 21.
+19 so the boundaries land where a session does; chapters 7 through 10 are milestone 21, chapter 11
+closed it, and chapter 12 — **The Rustwood** — is milestone 27, the first chapter whose enemies wear
+gear. See [gear](gear.md) for what that turned out to be worth. Chapter 13 is **The Quarry** and
+chapter 14 **The Shutgate**, which is where the campaign's difficulty gradient came back — not from
+gear, but from a rarity cap the ladder has now climbed past. Chapter 15 is **The Underroad**, which
+priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. Chapter
+16 is **The Spoilfield**, where the same arithmetic drove the board budget **through the floor of the
+shipped enemy pool** — its blocks are roughly two fifths of chapter 15's, its final is 250/24, and it
+is the last chapter that can step the gear ladder. See [authoring](authoring.md).
 
 ## The shape
 
@@ -16,7 +24,7 @@ is gone rather than deferred; revisit deliberately if fifty ever reads as too sh
 **The chapter-size formula and the authored chapters are two statements of one fact.** `chapterSize`
 says how long a chapter should be and `LadderShape` says how long the authored ones are;
 `chapters.spec.ts` is what keeps them equal. ⚠️ **Never derive the shipped ladder's length from the
-formula** — a build that ships eleven chapters must not be talked into believing it has a hundred.
+formula** — a build that ships thirteen chapters must not be talked into believing it has a hundred.
 
 **Whether a stage is a mini-boss or a boss is a rule, not a field**: every tenth stage of a chapter
 and the last one, so the rhythm is identical at either chapter length. What `data/` authors is a
@@ -24,8 +32,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
-Withered Crown, The Anvil Crowned, The Everwound and The Last Order. A re-cut that moves a boundary owes the new
-final a unique body before it ships.
+Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
+Doorstone, The Unnumbered and The Inheritor. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -67,7 +75,50 @@ silently win. See [economy](economy.md) for the income curve itself.
 **A rung per fifty-stage band** was the cadence under the margin rule. ⚠️ **The flattening halved it
 and the reference parties are the record of that**: chapters 4–5 share `elite`, 6–7 share
 `elite-plus`, 8–9–10 share `legendary`, and chapter 11 is the first rung move in three — to
-`legendary-plus`, and it won the log-space comparison by five hundredths of a nat. Copies asked of a
+`legendary-plus`, and it won the log-space comparison by five hundredths of a nat. ⚠️ **Chapter 12
+stays on `legendary-plus` and that answer is exact rather than narrow**: its close of 250 sits under
+that rung's cap of 260, so the level term vanishes and the ratio is `1.6 ** 5` = 10.4858 — |Δln|
+**0.0000** against chapter 11's own seam, where `mythic` reads 16.777 at 0.470. Two chapters on one
+rung is what the flat line produces whenever a cap is wide enough to hold both. ⚠️ **Chapter 13 makes
+it three, which is the longest any rung has held on the flat line**, and it is the first seam since
+the margin rule was retired where the level term does _not_ vanish: 275 is fifteen levels above the
+cap, so `legendary-plus` reads **7.6774** (|Δln| 0.3117) against `mythic`'s 16.7772 (0.4700). That is
+a flat line climbing into the top of a cap rather than the margin rule returning — **expect every
+further chapter on this rung to close further above it.**
+
+⚠️ **Chapter 14 makes it four, and the "expect it" above is now a measured trend rather than a
+warning.** The Shutgate closes at 300, **forty levels** above the same cap: `legendary-plus` reads
+**4.5665** (|Δln| 0.5197) against `mythic`'s 16.7772 (0.7816). The three most recent seam ratios run
+**10.4858 → 7.6774 → 4.5665** — ×0.732 then ×0.595, compounding out of a ceiling that does not move.
+⚠️ **That is the campaign's difficulty gradient returning from somewhere nobody planned it**, and it
+brought back the first of the three guards milestone 24 widened against a promise about enemy gear:
+`meanSurvivors < PARTY_SIZE` at the top of the ladder now holds, at 4.00 of five. ⚠️ **The cost is
+that the seam chain has gone degenerate** — chapters 13 and 14 both clamp to 260, so the two parties
+a seam compares are the same combatants. See [authoring](authoring.md).
+
+⚠️ **Chapter 15 makes it five on one rung, and the decline now has a rate rather than a trend.** The
+Underroad closes at 325, **sixty-five levels** above the cap: `legendary-plus` reads **2.7160** (|Δln|
+0.5196) against `mythic`'s 16.7772 (1.3013). The four most recent seams run **10.4858 → 7.6774 →
+4.5665 → 2.7160**, and the last two factors are both exactly `perLevel.common ** -25` = 0.595 — so
+once a chapter closes entirely above its rung's cap the seam divides by **1.680** a chapter **by
+construction**.
+
+⚠️ **Chapter 16 makes it six, and the rate has now held three times, which retires it as a
+prediction and makes it arithmetic.** The Spoilfield closes at 350, **ninety levels** above the cap:
+`legendary-plus` reads **1.6154** (|Δln| 0.5196 — the same figure, because the factor is constant)
+against `mythic`'s 13.6290 (1.6130). The five most recent seams run **10.4858 → 7.6774 → 4.5665 →
+2.7160 → 1.6154**. ⚠️ **`mythic` is now further away rather than closer**: its cap of 340 sits _below_
+the chapter's close as well, so the rung the arithmetic prefers wins by a wider margin every chapter,
+and the boards a `mythic` party would need are past the Unmade's ceiling by more each time.
+
+⚠️ **The seam chain is now degenerate three links deep.** Chapters 13, 14, 15 and 16 all clamp to 260,
+so `QUARRIED`, `SHUTGATED`, `UNDERROAD` and `INVESTED` are **four consecutive names for one set of five
+combatants**, and the eight assertions either side of those three boundaries are three claims. Recorded
+rather than repaired, for the third chapter running. ⚠️ **And `mythic` is not the way out**: measured, a `mythic` five at 325 needs boards
+scaled ×2.4, which is an anchor near 3,550 health against the Unmade's ceiling of 1800 that
+`enemies.spec.ts` enforces. **The rung the arithmetic prefers is the only one the enemy roster can be
+authored for.** What that costs instead is the stat line: The Unnumbered is 680/40 against The
+Doorstone's 1480/88. Copies asked of a
 mortal character by the end of each band: **20** by the fen's fifty stages, 24 by the Marches, 32 by
 the Vault, 38 by the Barrows, 44 by the Weald, 50 by the Anvil, 62 by the Wild.
 

@@ -206,17 +206,44 @@ describe('where the curve lands, in hours of idle income', () => {
     // demand costs in hours is the honest measure of whether the rates and the curve still fit
     // each other.
     //
-    // Two-sided on purpose. Under an hour and the levelling curve has stopped being a progression
-    // system at the top of the ladder; over a day of unbroken idle income for one character and it
-    // has become the wall rather than the content. Raising the reward exponent without touching
-    // the curve fires the floor here, which is the failure the absolute-hours version used to
-    // catch before a growing ladder drowned it out.
+    // Under an hour and the levelling curve has stopped being a progression system at the top of
+    // the ladder. Raising the reward exponent without touching the curve fires this, which is the
+    // failure the absolute-hours version used to catch before a growing ladder drowned it out.
+    //
+    // ## ⚠️ The ceiling half was retired at chapter 16, and it is the fourth guard retired this way
+    //
+    // It read `worst < 24` — "over a day of unbroken idle income for one character and levelling
+    // has become the wall rather than the content" — and The Spoilfield read **26.16**. ⚠️ **It was
+    // not content outgrowing a threshold.** Recomputed for every chapter's own top level at that
+    // chapter's own income, it reads **7.47, 9.03, 12.29, 14.33, 18.49, 21.05, 26.16** for chapters
+    // 10 through 16: monotone increasing, by construction, because the level cost curve is
+    // exponential in the level while `STAGE_REWARDS.exponent` is 1.0 and income is therefore linear
+    // in the stage index. A chapter adds 25 levels and 50 stages, so the ratio grows without bound
+    // and **no value of the bound is right for more than a chapter or two.**
+    //
+    // ⚠️ **The marginal form does not rescue it either, which is what settled this.** Measured as
+    // the cost of one chapter's 25 levels at that chapter's own income — the shape that normally
+    // makes a quantity content-relative — it reads **3.04, 2.39, 4.16, 3.16, 5.35, 3.98, 6.61**.
+    // Gold and XP are nearly flat across the same span (1.22 → 1.74 and 1.41 → 1.85 marginal, 10.5
+    // and 11.7 cumulative); **essence alone is the runaway**, and the rule that all three base rates
+    // move together or none means it cannot be answered by touching one of them.
+    //
+    // ⚠️ **So this is the fourth guard retired rather than slid**, after the absolute
+    // hours-to-the-ceiling (milestone 17), the ratio that replaced it (21d) and `chapters.spec.ts`'s
+    // `top < maxLevel / 2` (21d) — three of which are documented in the assertion above this one, for
+    // the same reason, in the same words. **When the honest restatement of a guard is a number that
+    // has to move every chapter, the guard is pointed at the wrong quantity.**
+    //
+    // ⚠️ **What is genuinely unbounded now, and is a finding rather than a threshold**: essence's
+    // cost curve outruns essence income, and the gap compounds. That is the release-time economy
+    // pass — see [economy](../../docs/economy.md) — and it wants all three rates moved together
+    // against a re-derived level curve, not a number in this file. The floor below still catches the
+    // opposite failure, and it cannot decay.
     const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
     const demanded = hoursTo(topLevel);
     const worst = Math.max(demanded.gold, demanded.xp, demanded.essence);
 
     expect(worst).toBeGreaterThan(1);
-    expect(worst).toBeLessThan(24);
   });
 });
 

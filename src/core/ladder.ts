@@ -1,9 +1,12 @@
 import {
   type AuthoredCurrencies,
+  type GearBonus,
   type StageData,
   type StageEncounterData,
   type StageKind,
 } from './battle/types';
+import { setBonus } from './gear/stats';
+import { GEAR_ARCHETYPES, type GearRulesData } from './gear/types';
 
 /**
  * The ladder, in chapters.
@@ -393,6 +396,7 @@ export function resolveStage(
   index: number,
   kind: StageKind,
   curve: StageRewardCurveData,
+  gearRules: GearRulesData,
 ): StageData {
   const payout = stagePayout(curve, index, kind);
   return {
@@ -401,20 +405,56 @@ export function resolveStage(
     reward: payout.reward,
     rates: payout.rates,
     firstClearSummons: payout.firstClearSummons,
+    ...(encounter.gear === undefined
+      ? {}
+      : { enemyGear: enemyGearBonuses(gearRules, encounter.gear.grade, encounter.gear.level) }),
   };
 }
 
-/** The whole authored ladder, flattened and resolved, in the order it is climbed. */
+/**
+ * What one authored grade and level is worth to each of the five archetypes.
+ *
+ * All five are priced rather than only the ones this board fields, because the map is built once
+ * per stage at ladder-resolution time and read once per enemy per battle — so the saving would be
+ * four object entries against a lookup that would otherwise have to know the formation.
+ *
+ * ⚠️ **Derived here rather than authored in `data/`, and that is the `docs/testing.md` rule
+ * applied.** A chapter that wrote "+8.6% health" beside a Worn set would keep asserting 8.6%
+ * forever while `GEAR_PROFILES` was retuned underneath it. What the chapter authors is the grade
+ * and the level; what a grade is worth is `data/gear.ts`'s business, on both sides of the board.
+ */
+function enemyGearBonuses(
+  rules: GearRulesData,
+  grade: number,
+  level: number,
+): Readonly<Record<string, GearBonus>> {
+  const bonuses: Record<string, GearBonus> = {};
+  for (const archetype of GEAR_ARCHETYPES) {
+    // Unaligned: an enemy's set carries no faction, so there is nothing for the 1.3× to match.
+    bonuses[archetype] = setBonus(rules, archetype, grade, level);
+  }
+  return bonuses;
+}
+
+/**
+ * The whole authored ladder, flattened and resolved, in the order it is climbed.
+ *
+ * ⚠️ **`gearRules` is required and never defaulted**, for the reason `setFormation` takes its
+ * activity that way: a caller that omitted it would resolve every geared stage as an ungeared one
+ * — the boards would field naked bodies at levels tuned for kitted ones, every screen would keep
+ * saying the right thing, and only the balance sweep would ever notice.
+ */
 export function resolveLadder(
   chapters: readonly ChapterData[],
   chapterCurve: ChapterCurveData,
   rewardCurve: StageRewardCurveData,
+  gearRules: GearRulesData,
 ): readonly StageData[] {
   const resolved: StageData[] = [];
   for (const chapter of chapters) {
     for (const [offset, encounter] of chapter.stages.entries()) {
       const kind = stageKindAt(chapterCurve, chapter.stages.length, offset + 1);
-      resolved.push(resolveStage(encounter, resolved.length + 1, kind, rewardCurve));
+      resolved.push(resolveStage(encounter, resolved.length + 1, kind, rewardCurve, gearRules));
     }
   }
   return resolved;

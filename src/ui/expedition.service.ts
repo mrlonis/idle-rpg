@@ -313,7 +313,7 @@ export class ExpeditionService {
             camp: {
               name: camp.name,
               stamina: camp.stamina,
-              level: expeditionLevel(anchor, camp),
+              level: expeditionLevel(EXPEDITION, anchor, camp),
               boss: camp.boss,
               cleared: cleared.has(char),
               fightable: fightable.has(char),
@@ -422,8 +422,11 @@ export class ExpeditionService {
       return null;
     }
     const anchor = anchorFor(state);
-    const lump = expeditionLump(EXPEDITION, this.matchedReward(expeditionLevel(anchor, camp)));
-    return { map, camp, stage: resolveExpeditionCamp(map, camp, anchor, lump) };
+    const lump = expeditionLump(
+      EXPEDITION,
+      this.matchedReward(expeditionLevel(EXPEDITION, anchor, camp)),
+    );
+    return { map, camp, stage: resolveExpeditionCamp(EXPEDITION, map, camp, anchor, lump) };
   }
 
   /**
@@ -439,7 +442,7 @@ export class ExpeditionService {
     result: ExpeditionBattleOutcome,
   ): GameState {
     const anchor = anchorFor(state);
-    const level = expeditionLevel(anchor, hit.camp);
+    const level = expeditionLevel(EXPEDITION, anchor, hit.camp);
     return applyExpeditionResult(
       state,
       EXPEDITION,

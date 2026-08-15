@@ -187,10 +187,25 @@ export function nextExpeditionCamp(
   return fightableExpeditionCamps(map, run).find((camp) => camp.cell === cell) ?? null;
 }
 
-/** The level `camp` fights at against `anchor` — a fixed offset along the curve, floored at 1. */
-export function expeditionLevel(anchor: number, camp: ExpeditionCampData): number {
+/**
+ * The level `camp` fights at against `anchor` — a fixed offset along the curve, floored at 1.
+ *
+ * ⚠️ **The anchor is clamped by {@link ExpeditionRulesData.anchorCap} before the offset is applied**,
+ * which is what stops the mode's difficulty running away from its own player: the anchor stands in
+ * for how strong the party is, and the two stopped moving together once the campaign began running
+ * above the level cap of the rung it is tuned for. An absent or non-finite cap leaves the anchor
+ * alone, so a rules object without one reproduces the old line exactly.
+ */
+export function expeditionLevel(
+  rules: ExpeditionRulesData,
+  anchor: number,
+  camp: ExpeditionCampData,
+): number {
   const offset = Number.isFinite(camp.levelOffset) ? camp.levelOffset : 0;
-  return Math.max(Math.round(Math.max(anchor, 1) + offset), 1);
+  const cap = rules.anchorCap;
+  const raw = Math.max(anchor, 1);
+  const capped = Number.isFinite(cap) ? Math.min(raw, Math.max(cap, 1)) : raw;
+  return Math.max(Math.round(capped + offset), 1);
 }
 
 /**
@@ -202,6 +217,7 @@ export function expeditionLevel(anchor: number, camp: ExpeditionCampData): numbe
  * {@link applyExpeditionResult} and nowhere else.
  */
 export function resolveExpeditionCamp(
+  rules: ExpeditionRulesData,
   map: ExpeditionMapData,
   camp: ExpeditionCampData,
   anchor: number,
@@ -211,7 +227,7 @@ export function resolveExpeditionCamp(
     id: expeditionStageId(map.id, camp.cell),
     name: camp.name,
     enemies: camp.enemies,
-    level: expeditionLevel(anchor, camp),
+    level: expeditionLevel(rules, anchor, camp),
     kind: camp.boss ? 'boss' : 'normal',
     reward: lump,
     rates: {},

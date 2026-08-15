@@ -209,7 +209,8 @@ Three ways out, and which one applies is worth thinking about rather than guessi
   reduced to a formality.
 - **Change the denominator to something that grows with the numerator.** The crystal ceiling became
   "a full clear must not buy the roster's copies in under thirty days". A roster that grows raises
-  it exactly as a ladder that grows lowers it.
+  it exactly as a ladder that grows lowers it. ⚠️ **That one was retired at chapter 14, and the way it
+  failed is the most useful part of this section** — see below.
 - **Accept the decay and schedule the reminder.** The tower floor moved 2 → 1.5, which buys one
   chapter on purpose. Sometimes the ratio falling _is_ the signal — seven hundred floors really was
   becoming a smaller share of the game — and the honest response is a note that fires again soon
@@ -392,6 +393,29 @@ question calls for, and never cite the reach figure as evidence a mechanic is sm
 **The corollary is a content fact rather than a testing one:** a mechanic gated far beyond the
 authored ladder has nothing to be swept against, and no sweep over shipped stages can ever bound it.
 
+### ⚠️ The second way out has a failure mode of its own: a denominator that grows only if somebody grows it
+
+"Change the denominator to something that grows with the numerator" is the middle option above, and
+the crystal ceiling is the worked example — it replaced two decaying bounds by measuring idle income
+against `ROSTER_COPIES` rather than against the ladder. **It decayed anyway, and was retired at
+chapter 14 as the fourth guard in this project retired rather than slid.**
+
+The distinction the original fix missed: `ROSTER_COPIES` is **static content** and the ladder is
+**growing content**. A denominator only tracks a numerator if something makes it track — and nothing
+did, because the roster last grew in milestone 20 while the ladder has since grown by two hundred
+stages. Measured over the shipped curve, days-to-max-the-roster reads 38.2 at 450 stages, 35.0 at
+500, 32.3 at 550, **30.0 at 600**, 26.2 at 700 and 19.1 at 1000: monotone, with nothing wrong.
+
+⚠️ **The test to apply before reaching for this fix is whether the denominator grows _on the same
+schedule as the numerator, automatically_.** Here it does not: holding the bar needs about **five new
+ascended-tier characters per chapter, forever** — 200 by the campaign's planned length, against the
+seven a whole milestone once produced. A denominator that only grows when a human decides to grow it
+is a constant with extra steps.
+
+**When the honest restatement of a guard is a number that has to move every chapter, the guard is
+pointed at the wrong quantity.** What was ever genuinely at risk — a crystal rate that _compounds_
+past a flat `PULL_COST` — is unchanged and still bounded by the assertions around it.
+
 ### ⚠️ A fifth trap, from chapter 7: what a board asks and what it weighs are different numbers
 
 The difficulty probe bisects for the **power multiplier** at which the reference five clear a stage.
@@ -420,6 +444,58 @@ measured 1,859 against the second's 2,588. What separates them is the lock: a **
 archers** is worth about a quarter more than a **bound back rank**. A bind costs the party its route
 and a taunt costs it its targets, and the probe reads the second as heavier. It took two passes of
 adding weight to clear the tolerance.
+
+### ⚠️ A seventh trap, from chapter 14: a mechanic can be worth _only_ fight length
+
+The Shutgate is built on refusal — plate, wards, resist, a blunted swing — and against the party it
+is tuned for **every one of those measures inert**. Held against a control reading 4.03 survivors of
+five at 12.7s, varying one thing at a time:
+
+| The mechanic, varied alone                    | survivors   | fight        |
+| --------------------------------------------- | ----------- | ------------ |
+| `def` 44 → 170 on a front-rank body           | 4.03 → 4.00 | 12.7 → 15.5s |
+| `physicalResist` 0.08 → 0.60, board-wide      | 4.03 → 4.00 | 13.0 → 24.3s |
+| `hp` ×2.3 on the back rank                    | 4.08 → 4.00 | 13.7 → 22.9s |
+| a barrier, an aegis or a guard on `ally-all`  | 4.00        | 13.2–14.2s   |
+| a weaken at 0.8 on `enemy-all`                | 4.00        | 15.7s        |
+| one instance's size at held damage per second | 4.08 → 4.00 | 12.5 → 12.8s |
+
+**Nothing is worth more than 0.08 of a survivor and several are worth eleven seconds**, which is the
+ninety-second clock rather than a difficulty. ⚠️ **The control was checked and can move** — the same
+board grades 5.00 → 4.03 across ten levels, and swapping its anchor grades it to 0.00 — so this is a
+negative result about the mechanics rather than a plateau, which is the Demon Tower's lesson applied
+in the other direction.
+
+The general rule this adds to the trap above: **a board's question, a board's weight and a board's
+fight length are three independent quantities, and only weight is what the probe reads.** A mechanic
+that moves only the third is not difficulty, and on a faction whose idiom is armour it is the specific
+failure that faction is warned about.
+
+### ⚠️ An eighth trap, from chapter 15: a board's raw health total is not its weight
+
+The Underroad's boards are half the stat lines of The Shutgate's, and two of them differed by 4% of
+raw health and by the entire outcome: `c15-s49` at **2,980** read 4.00 survivors, and the first draft
+of `c15-s50` at **3,100** read **0%**. In common-equivalent terms they were **4,283** and **5,581**.
+
+The cause is that `perLevel` is 1.024 / 1.0225 / 1.021 for `ascended` / `legendary` / `common`, so the
+premium compounds over the whole level rather than over a chapter: at level 325 an `ascended` block is
+worth **×2.587** of a `common` one and **×1.608** of a `legendary` one, against ×1.550 for the second
+of those one chapter earlier. **Convert a board to common-equivalent weight before comparing it to
+anything** — another board, and above all another chapter. Two lines of arithmetic over the tier
+column, and it is the only way a chapter's budget stays a number a reader can check.
+
+### ⚠️ A ninth, from the same chapter: a flat anchor sweep is usually a saturated control
+
+Chapter 15's final read **0% at every anchor weight from 880/54 down to 520/34** — a stat block that
+looked completely inert, in a chapter whose two previous sessions had both recorded genuinely inert
+mechanics, which is exactly the context in which the wrong conclusion is easy. It was not the anchor:
+a `RALLY`-on-`ally-all` body stood on the same board, and ×1.3 `atk` across five is worth more than
+the anchor's whole stat line at that budget. Removing it took the same board from 0% to 100%.
+
+**This is the Demon Tower's control-calibration lesson in a third direction.** There the control sat
+at a plateau and read ~4.00 of five whatever was done to it; here it sat at the floor and read 0.00.
+⚠️ **Both look like a clean negative result and neither is one.** Before believing any sweep over one
+variable, vary the variable to both extremes and check the metric moves at all.
 
 ### ⚠️ Check a chapter's header against its boards with a script, not by reading
 

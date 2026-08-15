@@ -1,27 +1,36 @@
 import {
+  ACID_WIND,
+  ALREADY_BEHIND_YOU,
   ANTIPHON,
   ASHPIT_RAKE,
+  AHEAD_OF_THE_COLUMN,
   AT_THE_HALT,
   BARROW_TITHE,
   BIND_THE_CONCORD,
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
   BROKEN_COVENANT,
+  BANK_THE_WARD,
   BULWARK,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
+  CHOKE_THE_DRIFT,
   CINDER_STORM,
   CLEAVE_THE_LINE,
   CLOSE_OVER_IT,
   COUCHED_LANCE,
   CULL_THE_EMBERS,
   CUTPURSE,
+  CUT_BENEATH_IT,
   DOOMKNELL,
+  DRESS_THE_RANKS,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
   EVENSONG,
+  EVERYTHING_COMES_BACK_BLUNT,
   FADE,
+  FLATTEN_THE_EDGE,
   FLENSE,
   GATE_SLAM,
   GLACIAL_SLAM,
@@ -34,9 +43,11 @@ import {
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
   KEEP_THE_SEED,
+  KEEP_THE_STEP,
   KILN_LIGHT,
   LITANY,
   LOOSE_THE_PLATED_PACK,
+  MARROW_CRUNCH,
   MASSED_LITANY,
   MAUL,
   MEND,
@@ -49,6 +60,8 @@ import {
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
+  NOTHING_SMALL_MOVES_IT,
+  NOTHING_TAKES_HOLD,
   NO_ANSWER_COMES,
   NO_EDGE_FINDS_IT,
   ONE_VOICE,
@@ -57,8 +70,11 @@ import {
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
+  PUT_IT_ON_THE_CART,
   PUT_THE_EDGE_ON,
+  PUT_OUT_THE_LAMPS,
   QUICKLIME_CUT,
+  RAGGED_SWIPE,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
@@ -70,6 +86,7 @@ import {
   RUN_THE_SEED_DOWN,
   SEEDLIGHT,
   SET_THE_PITCH,
+  SET_THE_STONE,
   SEVENFOLD_HEX,
   SHARDLIGHT,
   SHATTERJAW,
@@ -83,16 +100,22 @@ import {
   STONE_FIST,
   SUNFADE,
   THE_ANVIL_FALLS,
+  THE_BAR_HOLDS,
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
+  THE_COURSE_HOLDS,
   THE_COUNTERSIGN,
+  THE_COUNT_DOES_NOT_STOP,
   THE_DEBT_CALLED,
   THE_EDGE_IS_MADE,
+  THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
+  THE_GROUND_GOES,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
+  THE_IRON_COMES_UP,
   THE_KEENING_NOTE,
   THE_KNELL,
   THE_LAST_AMEN,
@@ -106,6 +129,7 @@ import {
   THE_PACK_ANSWERS,
   THE_QUENCH,
   THE_RING_IS_SHUT,
+  THE_RUST_HOLDS,
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
@@ -115,17 +139,29 @@ import {
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
+  THERE_IS_NO_END_TO_IT,
   THORNLASH,
   TYRANTS_CLAIM,
   UNDERMINE,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WHAT_FALLS_IS_SOWN,
+  WHAT_THE_FIELD_LEFT,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
   ZENITHFALL,
+  COUNT_IT_ALL_AGAIN,
+  CUT_THE_STRAPS,
+  EVERYTHING_YOU_LEFT,
+  LOAD_THE_CART,
+  ROPED_TOGETHER,
+  SPINES_STILL_IN_IT,
+  STRIP_THE_FALLEN,
+  TAKE_IT_OFF_THE_COUNT,
+  WHAT_THE_DEAD_KEPT,
+  WRITTEN_DOWN_BESIDE_IT,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -228,6 +264,7 @@ export const SLIME = {
   name: 'Slime',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 290,
     atk: 25,
@@ -247,6 +284,7 @@ export const WISP = {
   name: 'Wisp',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 210,
     atk: 30,
@@ -265,6 +303,7 @@ export const BOAR = {
   name: 'Tusked Boar',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 37,
@@ -284,6 +323,7 @@ export const BANDIT = {
   name: 'Bandit',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 520,
     atk: 46,
@@ -304,6 +344,7 @@ export const GOLEM = {
   name: 'Stone Golem',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1000,
     atk: 42,
@@ -353,6 +394,7 @@ export const ACOLYTE = {
   name: 'Marsh Acolyte',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 420,
     atk: 58,
@@ -377,6 +419,7 @@ export const HAG = {
   name: 'Bog Hag',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 650,
     atk: 46,
@@ -426,6 +469,7 @@ export const BULWARK_ENEMY = {
   name: 'Iron Bulwark',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 820,
     atk: 40,
@@ -479,6 +523,7 @@ export const SHADE = {
   name: 'Fen Shade',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 590,
     atk: 47,
@@ -564,6 +609,7 @@ export const SENTINEL = {
   name: 'Cairn Sentinel',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 780,
     atk: 70,
@@ -592,6 +638,7 @@ export const SKYSHRIKE = {
   name: 'Sky-Shrike',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 480,
     atk: 63,
@@ -618,6 +665,7 @@ export const RAVAGER = {
   name: 'Barbed Ravager',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 900,
     atk: 62,
@@ -705,7 +753,12 @@ export const HIEROPHANT = {
     critChance: 0.04,
     critDamageAmp: 0.5,
     magicResist: 0.1,
-    receivedHealing: 0.25,
+    // ⚠️ **A `receivedHealing: 0.25` sat here and was deleted by chapter 14's prose check.** It is
+    // not a `StatBlockData` field and never was — an already-`as const` object is not a fresh
+    // literal, so TypeScript's excess-property check never ran on it and nothing anywhere read it.
+    // **Deleted rather than corrected**, which is the zero-behaviour-change fix: every figure this
+    // block was ever measured with stays valid, where guessing at the stat it meant would hand it
+    // one it was never tuned with. See [authoring](../../docs/authoring.md) on auditing stat keys.
   },
   skills: [LITANY, BULWARK],
 } as const;
@@ -723,6 +776,7 @@ export const HEADSMAN = {
   name: 'Gallows Headsman',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 980,
     atk: 72,
@@ -749,6 +803,7 @@ export const COLOSSUS = {
   name: 'Adamant Colossus',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1250,
     atk: 88,
@@ -778,6 +833,7 @@ export const TYRANT = {
   name: 'Bonefall Tyrant',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1550,
     atk: 96,
@@ -875,6 +931,7 @@ export const FREE_BLADE = {
   name: 'Free Company Blade',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 540,
     atk: 44,
@@ -925,6 +982,7 @@ export const FORGE_THRALL = {
   name: 'Forge Thrall',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 600,
     atk: 33,
@@ -943,6 +1001,7 @@ export const DEEPROCK_MINER = {
   name: 'Deeprock Miner',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 500,
     atk: 42,
@@ -967,6 +1026,7 @@ export const RUNEWARDEN = {
   name: 'Runewarden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 860,
     atk: 52,
@@ -988,6 +1048,7 @@ export const THORNLING = {
   name: 'Thornling',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 300,
     atk: 34,
@@ -1006,6 +1067,7 @@ export const GLADE_STALKER = {
   name: 'Glade Stalker',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 360,
     atk: 40,
@@ -1058,6 +1120,7 @@ export const MOONSONG_WEAVER = {
   name: 'Moonsong Weaver',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 560,
     atk: 62,
@@ -1418,6 +1481,7 @@ export const MARCHWARD_PIKEMAN = {
   name: 'Marchward Pikeman',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 700,
     atk: 50,
@@ -1436,6 +1500,7 @@ export const BRAMBLEWALK_SCOUT = {
   name: 'Bramblewalk Scout',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 460,
     atk: 52,
@@ -1463,6 +1528,7 @@ export const RIVEN_MARCHWARDEN = {
   name: 'Riven Marchwarden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 66,
@@ -1970,6 +2036,7 @@ export const GRAVEWAKE_THRALL = {
   name: 'Gravewake Thrall',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 800,
     atk: 50,
@@ -1988,6 +2055,7 @@ export const BARROWMIST_KEENER = {
   name: 'Barrowmist Keener',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 520,
     atk: 48,
@@ -2006,6 +2074,7 @@ export const SEPULCHRE_HOUND = {
   name: 'Sepulchre Hound',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 52,
@@ -2036,6 +2105,7 @@ export const CAIRNWARD_HUSK = {
   name: 'Cairnward Husk',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 760,
     atk: 46,
@@ -2101,6 +2171,7 @@ export const GRAVETIDE_HERALD = {
   name: 'Gravetide Herald',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 820,
     atk: 70,
@@ -2138,6 +2209,7 @@ export const BONECHAIN_WARDEN = {
   name: 'Bonechain Warden',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 960,
     atk: 60,
@@ -2166,6 +2238,7 @@ export const GRAVEMOURN_KEEPER = {
   name: 'Gravemourn Keeper',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 780,
     atk: 58,
@@ -2365,6 +2438,7 @@ export const HOLLOWBARK_SENTRY = {
   name: 'Hollowbark Sentry',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 840,
     atk: 46,
@@ -2389,6 +2463,7 @@ export const WHISPERLEAF_ARCHER = {
   name: 'Whisperleaf Archer',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 500,
     atk: 56,
@@ -2418,6 +2493,7 @@ export const GLOAMVINE_CREEPER = {
   name: 'Gloamvine Creeper',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 720,
     atk: 44,
@@ -2448,6 +2524,7 @@ export const WEALDSHADOW_STALKER = {
   name: 'Wealdshadow Stalker',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 76,
@@ -2476,6 +2553,7 @@ export const LONGBOUGH_MARKSMAN = {
   name: 'Longbough Marksman',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 780,
     atk: 78,
@@ -2535,6 +2613,7 @@ export const NIGHTCANOPY_SINGER = {
   name: 'Nightcanopy Singer',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 740,
     atk: 66,
@@ -2574,6 +2653,7 @@ export const THE_LONGSHADOW = {
   name: 'The Longshadow',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1500,
     atk: 92,
@@ -2707,6 +2787,7 @@ export const COLDFORGE_HAND = {
   name: 'Coldforge Hand',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 52,
@@ -2726,6 +2807,7 @@ export const SLAGBOUND_DRUDGE = {
   name: 'Slagbound Drudge',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 780,
     atk: 48,
@@ -2753,6 +2835,7 @@ export const CINDERQUENCH_BEARER = {
   name: 'Cinderquench Bearer',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 540,
     atk: 56,
@@ -2778,6 +2861,7 @@ export const DEEPGALLERY_RUNNER = {
   name: 'Deepgallery Runner',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 470,
     atk: 60,
@@ -2809,6 +2893,7 @@ export const COLDHEARTH_IRONSWORN = {
   name: 'Coldhearth Ironsworn',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 840,
     atk: 76,
@@ -2836,6 +2921,7 @@ export const QUENCHWRIGHT = {
   name: 'Quenchwright',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 800,
     atk: 74,
@@ -2867,6 +2953,7 @@ export const GRUDGEPLATE_SMITH = {
   name: 'Grudgeplate Smith',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 820,
     atk: 62,
@@ -2909,6 +2996,7 @@ export const OATHSTONE_BASTION = {
   name: 'Oathstone Bastion',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 64,
@@ -2956,6 +3044,7 @@ export const THE_GRUDGEKEEPER = {
   name: 'The Grudgekeeper',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1520,
     atk: 89,
@@ -3010,6 +3099,7 @@ export const THE_ANVIL_CROWNED = {
   name: 'The Anvil Crowned',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1750,
     atk: 97,
@@ -3089,6 +3179,7 @@ export const MIREWHELP = {
   name: 'Mirewhelp',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 520,
     atk: 58,
@@ -3115,6 +3206,7 @@ export const THORNBACK_GRAZER = {
   name: 'Thornback Grazer',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 940,
     atk: 46,
@@ -3144,6 +3236,7 @@ export const RENDFANG_JACKAL = {
   name: 'Rendfang Jackal',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 62,
@@ -3170,6 +3263,7 @@ export const CARRION_SWARM = {
   name: 'Carrion Swarm',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 400,
     atk: 54,
@@ -3201,6 +3295,7 @@ export const GOREHIDE_MATRIARCH = {
   name: 'Gorehide Matriarch',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 1020,
     atk: 58,
@@ -3227,6 +3322,7 @@ export const REDWATER_STALKER = {
   name: 'Redwater Stalker',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 880,
     atk: 78,
@@ -3295,6 +3391,7 @@ export const SCARBOUND_BELLOWER = {
   name: 'Scarbound Bellower',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1180,
     atk: 70,
@@ -3336,6 +3433,7 @@ export const THE_REDMAW = {
   name: 'The Redmaw',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1480,
     atk: 91,
@@ -3453,6 +3551,7 @@ export const CHARNEL_DRUDGE = {
   name: 'Charnel Drudge',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 840,
     atk: 52,
@@ -3486,6 +3585,7 @@ export const NIGHTMARCH_OUTRIDER = {
   name: 'Nightmarch Outrider',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 760,
     atk: 78,
@@ -3645,6 +3745,7 @@ export const FORLORN_LEVY = {
   name: 'Forlorn Levy',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 520,
     atk: 56,
@@ -3803,6 +3904,7 @@ export const PLUMBLINE_HAND = {
   name: 'Plumbline Hand',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 540,
     atk: 52,
@@ -3833,6 +3935,7 @@ export const IRONSLING_WRIGHT = {
   name: 'Ironsling Wright',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 780,
     atk: 80,
@@ -3871,6 +3974,7 @@ export const EDGETURN_WARDEN = {
   name: 'Edgeturn Warden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1080,
     atk: 58,
@@ -3914,6 +4018,7 @@ export const THE_WARDWRIGHT = {
   name: 'The Wardwright',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'support',
   stats: {
     hp: 1560,
     atk: 92,
@@ -3965,6 +4070,7 @@ export const SUNMOTE_DANCER = {
   name: 'Sunmote Dancer',
   faction: 'elf',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 500,
     atk: 58,
@@ -3995,6 +4101,7 @@ export const SUNFADE_CHANTER = {
   name: 'Sunfade Chanter',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 700,
     atk: 64,
@@ -4032,6 +4139,7 @@ export const CROWNBARK_BASTION = {
   name: 'Crownbark Bastion',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1120,
     atk: 54,
@@ -4082,6 +4190,7 @@ export const THE_SUNBOUGH = {
   name: 'The Sunbough',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1520,
     atk: 90,
@@ -4216,6 +4325,7 @@ export const MARROWHUNT_ALPHA = {
   name: 'Marrowhunt Alpha',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 940,
     atk: 74,
@@ -4667,6 +4777,7 @@ export const MUSTER_PIKE = {
   name: 'Muster Pike',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 900,
     atk: 48,
@@ -4692,6 +4803,7 @@ export const ROADWATCH_BOWMAN = {
   name: 'Roadwatch Bowman',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 500,
     atk: 62,
@@ -4722,6 +4834,7 @@ export const SIGNAL_RUNNER = {
   name: 'Signal Runner',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 430,
     atk: 50,
@@ -4750,6 +4863,7 @@ export const VANWARD_SPEAR = {
   name: 'Vanward Spear',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 58,
@@ -4815,6 +4929,7 @@ export const STANDFAST_LANCER = {
   name: 'Standfast Lancer',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 900,
     atk: 80,
@@ -5014,6 +5129,7 @@ export const CORTEGE_LANCER = {
   name: 'Cortege Lancer',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 830,
     atk: 46,
@@ -5042,6 +5158,7 @@ export const IRONWAKE_VANGUARD = {
   name: 'Ironwake Vanguard',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 940,
     atk: 48,
@@ -5070,6 +5187,7 @@ export const QUICKLIME_SERJEANT = {
   name: 'Quicklime Serjeant',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 1000,
     atk: 52,
@@ -5197,6 +5315,7 @@ export const QUENCHPIT_IRONHIDE = {
   name: 'Quenchpit Ironhide',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 58,
@@ -5255,6 +5374,7 @@ export const ASHPIT_SCUTTLER = {
   name: 'Ashpit Scuttler',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 540,
     atk: 56,
@@ -5349,6 +5469,7 @@ export const SPLINTERYARD_HONER = {
   name: 'Splinteryard Honer',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 800,
     atk: 76,
@@ -5466,6 +5587,7 @@ export const THE_EDGEWRIGHT = {
   name: 'The Edgewright',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1300,
     atk: 84,
@@ -5529,6 +5651,7 @@ export const DEEPMAST_HEARTWOOD = {
   name: 'Deepmast Heartwood',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1160,
     atk: 56,
@@ -5631,6 +5754,7 @@ export const THE_SEEDFATHER = {
   name: 'The Seedfather',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1320,
     atk: 82,
@@ -5937,6 +6061,7 @@ export const SHATTERJAW_MAULER = {
   name: 'Shatterjaw Mauler',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1120,
     atk: 76,
@@ -5962,6 +6087,7 @@ export const CLEFTHORN_GORER = {
   name: 'Clefthorn Gorer',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 60,
@@ -6126,6 +6252,7 @@ export const SCARWEAVE_TRAMPLER = {
   name: 'Scarweave Trampler',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 900,
     atk: 78,
@@ -6187,6 +6314,1692 @@ export const THE_UNFALTERING = {
     magicResist: 0.15,
   },
   skills: [NO_EDGE_FINDS_IT, THE_LAST_AMEN],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Rustwood — milestone 27, chapter 12
+//
+// Ten blocks for the Elf lean: eight ordinary, a lieutenant and a final. The Standing Line stopped
+// moving and the wood went over what it left, so every one of these is a body wearing somebody
+// else's plate — which is the chapter's question stated in a stat block before any board states it.
+//
+// ## What these are for, and the two shapes they come in
+//
+// The chapter asks **how much of the party's damage survives contact**. A block answers that either
+// by being harder to hurt (`physicalResist`, `critBlock`, `critDamageResist`) or by making the party
+// hit softer ({@link WEAKEN}), and the eight are split across both so a board can ask it twice.
+//
+// ⚠️ **`magicResist` is deliberately absent as an axis, and that is measured rather than an
+// opinion.** Its shipped ceiling across a hundred and seventy-one blocks is **0.15** against
+// `physicalResist`'s 0.40, and the Demon Tower measured a magic ward worth **0.00** of five at its
+// own register. `physicalResist` is where this chapter builds because that is where the register is,
+// and because the reference fives are overwhelmingly physical.
+//
+// ⚠️ **Every one of these is authored at or below the shipped register on the stat it leans on.**
+// `physicalResist` tops out here at 0.18 against a shipped ceiling of 0.40 and a top-six of
+// [0.40, 0.34, 0.30, 0.24, 0.23, 0.20]; `critBlock` at 0.18 against a ceiling of 0.34; and
+// `critDamageResist` at 0.28 against 0.52. **No band in this chapter steps past the register** — the
+// Elf Tower's third hundred is the precedent for saying which side of it a band landed on, and this
+// one landed inside.
+//
+// ## ⚠️ Nothing here heals, drains or regenerates, and that is the clock rather than a preference
+//
+// Mitigation lengthens every fight it appears in, and `def` and `hp` multiply each other to extend a
+// fight nobody is going to win — which is exactly the stall `MAX_BATTLE_TICKS` bounds and a timeout
+// is scored a **defeat**. So the chapter's only restoration is a **shield**: {@link THE_RUST_HOLDS}
+// and {@link WHAT_THE_FIELD_LEFT} bank a pool once and deplete. No block below carries `recovery`,
+// `healthRegen` or `lifeLeech`, and none of the four kits authored for them restores health.
+
+/** The wood's foragers, working over what the line left behind. Light, quick, barely armoured. */
+export const RUSTLEAF_GLEANER = {
+  id: 'rustleaf-gleaner',
+  name: 'Rustleaf Gleaner',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 520,
+    atk: 58,
+    def: 14,
+    haste: 124,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.24,
+    accuracy: 1.05,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/** A thicket that has grown through a shield wall and kept the shields. */
+export const SCALEPLATE_BRAMBLE = {
+  id: 'scaleplate-bramble',
+  name: 'Scaleplate Bramble',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 880,
+    atk: 46,
+    def: 34,
+    haste: 62,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    physicalResist: 0.16,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/** Spines drawn from a quiver nobody came back for. The chapter's one fast magical body. */
+export const QUILLRUST_DARTER = {
+  id: 'quillrust-darter',
+  name: 'Quillrust Darter',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 500,
+    atk: 60,
+    def: 12,
+    haste: 132,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    dodge: 0.28,
+    magicPierce: 0.14,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/** Slow, wide and half metal. The creeper the party has to spend a turn on rather than aim past. */
+export const SLAGBLOOM_THICKET = {
+  id: 'slagbloom-thicket',
+  name: 'Slagbloom Thicket',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 760,
+    atk: 48,
+    def: 28,
+    haste: 66,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.14,
+  },
+  skills: [MIRE],
+} as const;
+
+/**
+ * The chapter's wall, and the one block that answers a crit build rather than a swing.
+ *
+ * `critBlock` 0.18 and `critDamageResist` 0.28 against shipped ceilings of 0.34 and 0.52 — inside
+ * the register on both. It is here because the reference fives crit: what this asks is whether the
+ * party's damage still arrives when the half of it that came from a lucky roll does not.
+ */
+export const IRONBARK_WARDEN = {
+  id: 'ironbark-warden',
+  name: 'Ironbark Warden',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1140,
+    atk: 56,
+    def: 40,
+    haste: 64,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.18,
+    critDamageResist: 0.28,
+    tenacity: 0.45,
+    physicalResist: 0.18,
+  },
+  skills: [CLOSE_OVER_IT, SHIELD_BASH],
+} as const;
+
+/**
+ * The body that puts the plate on everything else, once every seventy ticks.
+ *
+ * ⚠️ **A shield rather than a heal, and the distinction is the termination argument.** A board-wide
+ * pool banked once depletes under a party that keeps swinging; a board-wide regeneration behind the
+ * same armour is the ninety-second clock. It is also the reason this block is soft — 720 health and
+ * 20 `def` — so the answer to it is the answer the chapter wants taught: reach past the plate and
+ * kill the thing making more of it.
+ */
+export const RUSTSONG_CHANTER = {
+  id: 'rustsong-chanter',
+  name: 'Rustsong Chanter',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 720,
+    atk: 64,
+    def: 20,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    insight: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [THE_RUST_HOLDS, MOTE_LANCE],
+} as const;
+
+/** What the gleaners bring back is fitted to this. The chapter's opener, and it opens armour. */
+export const SPOILWOOD_REAVER = {
+  id: 'spoilwood-reaver',
+  name: 'Spoilwood Reaver',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 800,
+    atk: 80,
+    def: 20,
+    haste: 116,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    dodge: 0.2,
+    accuracy: 1.1,
+    physicalPierce: 0.2,
+  },
+  skills: [HEADSMANS_ARC, CUTPURSE],
+} as const;
+
+/**
+ * The chapter's question asked from the party's own side of the board.
+ *
+ * Every other block here makes the party's damage arrive against more armour;
+ * {@link EVERYTHING_COMES_BACK_BLUNT} makes it leave smaller. Same sentence, opposite end, and a
+ * board carrying both states the chapter twice in one turn order.
+ */
+export const CORROWEALD_SINGER = {
+  id: 'corroweald-singer',
+  name: 'Corroweald Singer',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 760,
+    atk: 66,
+    def: 22,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    insight: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [EVERYTHING_COMES_BACK_BLUNT, MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c12-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks — twenty blocks each appearing on
+ * exactly one board is most of what `enemies.spec.ts`'s orphan rule exists to discourage.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, the fourth chapter running to take
+ * that shape. {@link WHAT_THE_FIELD_LEFT} does nothing until the party has hurt something and then
+ * banks a pool on the body the party chose, so four appearances are four different fights against
+ * one block.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** The rule permits it and chapters 9, 10 and 11 all
+ * declined, because a second `ascended` anchor beside a boss is the sharpest non-linear weight step
+ * this game can author. What stands beside The Ironbloom is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_RECLAIMED = {
+  id: 'the-reclaimed',
+  name: 'The Reclaimed',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1480,
+    atk: 86,
+    def: 46,
+    haste: 90,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    critBlock: 0.16,
+    critDamageResist: 0.22,
+    tenacity: 0.45,
+    physicalPierce: 0.18,
+    physicalResist: 0.12,
+  },
+  skills: [WHAT_THE_FIELD_LEFT, CLOSE_OVER_IT, SHIELD_BASH],
+} as const;
+
+/**
+ * The chapter final: the wood wearing an army, and the twelfth body authored under the rule that a
+ * chapter's final is fielded nowhere else.
+ *
+ * 1770 health and 99 attack, **under {@link UNMADE}'s 1800 and 100 on both** — the ceiling nothing
+ * may reach, and the bar every chapter final since the Vault has respected rather than raised. What
+ * makes it the harder fight is the level it stands at and the questions it asks, which is the whole
+ * of the chapter's list on one board: plate that has to be opened, crits that stop landing, and the
+ * party's own attack cut before it swings.
+ *
+ * ⚠️ **It restores nothing.** {@link THE_IRON_COMES_UP} deals and sunders; the plate is in the stat
+ * block, where it depletes with the body. A final that re-banked a pool on a cadence behind this much
+ * mitigation is a fight the clock ends, and the clock ending a fight is a **defeat**.
+ */
+export const THE_IRONBLOOM = {
+  id: 'the-ironbloom',
+  name: 'The Ironbloom',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1770,
+    atk: 99,
+    def: 53,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.9,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.5,
+    physicalPierce: 0.24,
+    magicPierce: 0.2,
+    physicalResist: 0.16,
+  },
+  skills: [THE_IRON_COMES_UP, HEADSMANS_ARC, CLOSE_OVER_IT],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Quarry — chapter 13
+//
+// Ten blocks: eight ordinary, the lieutenant and the final. The lean is **Monster**, which was
+// joint-thinnest of the seven at 24 alongside Dwarf and Angel — and Angels and Demons may not lead a
+// chapter at all, because a celestial deals ×1.10 to every mortal and the matrix has no
+// mortal → celestial row. Monster led chapter 10 as well, four chapters back but one, so the
+// setting had to be a visibly different place: The Bleeding Wild is Monsters at home and this is
+// Monsters denned in a hole somebody else cut.
+//
+// ⚠️ **Monster is the one lean that costs the matchup nothing**, which is the opposite of The
+// Rustwood's problem. `FACTION_MATCHUPS` gives every faction ×1.05 into Monsters and Monsters ×1.05
+// into everything, so a board this mono still reads differently to every party — where a 92%
+// mono-Elf chapter made the matchup very nearly a constant across fifty boards.
+//
+// ## The four locks, and which side of the shipped register each one is built on
+//
+// The chapter asks whether the party's damage lands **at all**, so every block below is a way for a
+// swing to fail. Where a band sits against the shipped ceiling is stated rather than implied:
+//
+// | Band          | Stat               | Authored | Shipped field                    | Side    |
+// | ------------- | ------------------ | -------- | -------------------------------- | ------- |
+// | The missing   | `dodge`            | 0.30     | 0.55, 0.34, **0.30**, 0.28, 0.28 | inside  |
+// | The flat edge | `critBlock`        | 0.24     | 0.34, **0.24**, 0.24, 0.20, 0.18 | at it   |
+// | The flat edge | `critDamageResist` | 0.32     | 0.52, **0.32**, 0.32, 0.28, 0.28 | at it   |
+// | The unbound   | `tenacity`         | 0.80     | 0.85, 0.85, **0.80**, 0.75, 0.70 | inside  |
+// | The stolen    | `insight`          | 0.24     | 0.32, 0.28, 0.22, 0.20, 0.20     | inside  |
+//
+// ⚠️ **Only {@link THE_UNDERCUT} steps past any of them**, at `critBlock` 0.28 and
+// `critDamageResist` 0.40 — past the field of 0.24 and 0.32 and under `THE_UNFALTERING`'s lone
+// 0.34 / 0.52. That is the Elf Tower's shape rather than the Monster Tower's: built **at** the
+// register and stepping past on one board, which is one board and stays checkable.
+//
+// ## ⚠️ Nothing here heals, drains, regenerates or shields, and this is a Monster chapter
+//
+// The faction's idiom is `lifeLeech` in place of a healer, so this is the deliberate omission rather
+// than an accident of which blocks were free: **none of the ten below carries `recovery`,
+// `healthRegen` or `lifeLeech`, and none of the seven kits authored for them restores anything.**
+// The chapter's returning texture is filtered on the same rule — see `chapter-13.ts` for the counts
+// over all fifty boards, measured with a script rather than by reading.
+//
+// The reason is the clock rather than a preference. Three of the chapter's turns carry {@link SLOW},
+// which lengthens a fight from the party's own side by taking its turns away; a heal on top of that,
+// behind bodies the party keeps missing, is `MAX_BATTLE_TICKS` with a stat block attached, and a
+// timeout is scored a **defeat**.
+
+/** Loose stone, and something in it that was never where the swing went. */
+export const SCREEBACK_DARTER = {
+  id: 'screeback-darter',
+  name: 'Screeback Darter',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 540,
+    atk: 62,
+    def: 12,
+    haste: 128,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.3,
+    tenacity: 0.2,
+    physicalPierce: 0.14,
+  },
+  skills: [CUTPURSE],
+} as const;
+
+/**
+ * The band's second half, and the first body here that is hard to hit **and** worth hitting.
+ *
+ * `dodge: 0.28` on a legendary stat block, against a shipped field of 0.55, 0.34, 0.30, 0.28 —
+ * inside it. ⚠️ **The answer is reach and focus fire rather than a stat**: only five of the
+ * fifty-six shipped characters carry `accuracy` at all, so evasion is a lock no roster can buy its
+ * way past, and what licenses it is **where it is put**. Both of this band's pools sit on soft
+ * bodies the party can delete in a turn if it aims at them first.
+ */
+export const GALLERY_SLIPFANG = {
+  id: 'gallery-slipfang',
+  name: 'Gallery Slipfang',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 860,
+    atk: 78,
+    def: 22,
+    haste: 116,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    dodge: 0.28,
+    accuracy: 1.1,
+    tenacity: 0.25,
+    physicalPierce: 0.2,
+  },
+  skills: [ALREADY_BEHIND_YOU, CUTPURSE],
+} as const;
+
+/** Soft white stone, and the thing that eats it. The band's common, and it is mostly armour. */
+export const CHALKHIDE_BROWSER = {
+  id: 'chalkhide-browser',
+  name: 'Chalkhide Browser',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 900,
+    atk: 48,
+    def: 30,
+    haste: 64,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.25,
+    physicalResist: 0.12,
+  },
+  skills: [RAGGED_SWIPE],
+} as const;
+
+/**
+ * The band's block, and the one that answers a crit build rather than a swing.
+ *
+ * `critBlock: 0.24` and `critDamageResist: 0.32` are **exactly** the shipped field's second rung —
+ * `EDGETURN_WARDEN` and `EVENSONG_WARDEN` both carry the same pair — so this band is built *at* the
+ * register rather than past it. It is here because both of the reference five's damage dealers crit:
+ * Rin at 0.22 / 0.8 and Pyra at 0.25 / 0.9, and neither of them carries a point of
+ * `critDamageResist` in return.
+ *
+ * ⚠️ **Its turn is deliberately plain.** {@link FLATTEN_THE_EDGE} is 1.1 across a row with no rider,
+ * because a second lock on the skill would make the band's measurement unattributable.
+ */
+export const DUSTPLATE_GRINDER = {
+  id: 'dustplate-grinder',
+  name: 'Dustplate Grinder',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1160,
+    atk: 62,
+    def: 42,
+    haste: 68,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.24,
+    critDamageResist: 0.32,
+    tenacity: 0.4,
+    physicalResist: 0.14,
+  },
+  skills: [FLATTEN_THE_EDGE, RAGGED_SWIPE],
+} as const;
+
+/** What lives in the flooded bottom of a working. Nothing the party pins to it stays pinned. */
+export const SUMPWATER_BROOD = {
+  id: 'sumpwater-brood',
+  name: 'Sumpwater Brood',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 560,
+    atk: 60,
+    def: 14,
+    haste: 106,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    tenacity: 0.6,
+    magicPierce: 0.16,
+  },
+  skills: [ACID_WIND],
+} as const;
+
+/**
+ * The waste rock above the seam, walking.
+ *
+ * `tenacity: 0.80` is the third-highest shipped and inside a ceiling of 0.85, and
+ * {@link NOTHING_TAKES_HOLD} says the same thing as a turn: two hostile statuses off every body on
+ * its side, every sixty ticks.
+ *
+ * ⚠️ **A cleanse is not sustain, and that is why this band is authorable at all.** It restores no
+ * health and banks no pool — what the party loses is the turn it spent, which is a choice re-priced
+ * rather than a fight the clock ends. ⚠️ **Only two of the fifty-six shipped characters carry
+ * `insight`, and both of them are Monsters**, so this lock's only stat answer is the lean faction
+ * itself at monster-on-monster ×1.10. Stated because it is unusual, not because it is a problem: a
+ * status is a *rider* on these boards rather than the damage, so a party whose control is stripped
+ * is slowed down rather than stopped.
+ */
+export const OVERBURDEN_HULK = {
+  id: 'overburden-hulk',
+  name: 'Overburden Hulk',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1220,
+    atk: 60,
+    def: 44,
+    haste: 60,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    tenacity: 0.8,
+    physicalResist: 0.14,
+  },
+  skills: [NOTHING_TAKES_HOLD, RAGGED_SWIPE],
+} as const;
+
+/** A drift is a horizontal working, and this is what waits at the mouth of one. */
+export const DRIFTMOUTH_CHOKER = {
+  id: 'driftmouth-choker',
+  name: 'Driftmouth Choker',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 620,
+    atk: 56,
+    def: 18,
+    haste: 98,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    tenacity: 0.3,
+    insight: 0.2,
+  },
+  skills: [CHOKE_THE_DRIFT],
+} as const;
+
+/**
+ * A bench is a quarry's terrace, and this one is sixty feet of it coming down at once.
+ *
+ * The band's wide turn sits here rather than on an anchor, and the block is soft for it — 820 health
+ * and 22 `def` — so the answer is the answer every evasion band in this chapter wants taught: aim
+ * past the front rank and delete the thing making the problem.
+ *
+ * ⚠️ **{@link THE_FACE_COMES_DOWN} is conditioned on {@link SLOW} being absent.** Unconditioned it
+ * would be a turn tax with no decision in it and four boards carrying it would be one board carried
+ * four times; conditioned, a party that cleanses is asking for it again and a party that does not is
+ * simply slower.
+ */
+export const BENCHLINE_LURKER = {
+  id: 'benchline-lurker',
+  name: 'Benchline Lurker',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 820,
+    atk: 68,
+    def: 22,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.3,
+    insight: 0.24,
+    magicResist: 0.1,
+  },
+  skills: [THE_FACE_COMES_DOWN, ACID_WIND],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c13-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason
+ * `enemies.spec.ts`'s orphan rule exists: twenty blocks each appearing on exactly one board is what
+ * that rule discourages.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, the fifth chapter running to take
+ * that shape and the first to condition on a status rather than on a wound.
+ * {@link CUT_BENEATH_IT} does nothing while the party already carries a slow, so what it asks
+ * changes with what the party learned on the boards below — which is what makes four appearances
+ * four different fights against one block.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 12 all declined it, because a
+ * second `ascended` anchor beside a boss is the sharpest non-linear weight step this game can
+ * author. What stands beside The Undercut is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and under every chapter final since the Vault.
+ */
+export const THE_DEEPCUT = {
+  id: 'the-deepcut',
+  name: 'The Deepcut',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1500,
+    atk: 88,
+    def: 44,
+    haste: 96,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    dodge: 0.22,
+    critBlock: 0.14,
+    critDamageResist: 0.24,
+    tenacity: 0.5,
+    insight: 0.2,
+    physicalPierce: 0.24,
+    physicalResist: 0.06,
+  },
+  skills: [CUT_BENEATH_IT, MARROW_CRUNCH, GORE],
+} as const;
+
+/**
+ * The chapter final: the thing the quarry was cut down onto, and the thirteenth body authored under
+ * the rule that a chapter's final is fielded nowhere else.
+ *
+ * 1780 health and 99 attack, **under {@link UNMADE}'s 1800 and 100 on both** — the ceiling nothing
+ * may reach, and the bar every chapter final since the Vault has respected rather than raised. What
+ * makes it the harder fight is the level it stands at and the four questions on one board: a body
+ * that is not where the swing went, a crit that arrives ordinary, a status that comes straight off,
+ * and a turn taken before it is spent.
+ *
+ * ⚠️ **This is the one board in the chapter that steps past the shipped register**, at
+ * `critBlock: 0.28` and `critDamageResist: 0.40` — past the field of 0.24 and 0.32 and under
+ * `THE_UNFALTERING`'s lone 0.34 and 0.52. One board, stated in writing, and checkable.
+ *
+ * ⚠️ **It restores nothing, and that is the chapter's one absolute claim.** No `recovery`, no
+ * `healthRegen`, no `lifeLeech`, and {@link THE_GROUND_GOES} deals and slows rather than banking a
+ * pool. A final that re-shielded on a cadence behind this much refusal is a fight the clock ends,
+ * and the clock ending a fight is a **defeat**.
+ */
+export const THE_UNDERCUT = {
+  id: 'the-undercut',
+  name: 'The Undercut',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1780,
+    atk: 99,
+    def: 54,
+    haste: 100,
+    critChance: 0.15,
+    critDamageAmp: 0.9,
+    dodge: 0.2,
+    critBlock: 0.28,
+    critDamageResist: 0.4,
+    tenacity: 0.6,
+    insight: 0.24,
+    physicalPierce: 0.26,
+    magicPierce: 0.2,
+    physicalResist: 0.14,
+  },
+  skills: [THE_GROUND_GOES, HEADSMANS_ARC, MARROW_CRUNCH],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Shutgate — chapter 14's ten, and the lean that takes Dwarf from joint-thinnest to deepest
+//
+// Dwarf stood at 24 with Angel when this chapter was planned — joint-thinnest of the seven — and
+// **Angel is barred from leading a chapter**, because a celestial deals ×1.10 to every mortal and
+// the matrix has no mortal → celestial row. So Dwarf was the only faction that both wanted a lean
+// and could take one. Ten blocks take it to **34**, level with Monster. ⚠️ **Recompute the depths
+// before choosing the next lean**; this is the fourth time one session has reversed the ordering.
+//
+// ## ⚠️ These are the lightest anchors any chapter has authored, and that is the finding
+//
+// `THE_DEADBOLT` is 1400/84 and `THE_DOORSTONE` 1480/88, against The Quarry's 1500/88 and 1780/99
+// one chapter below. **A later chapter's anchors are now lighter than an earlier one's**, which is
+// the campaign arriving at the rule the towers' third hundreds hit first — and it is the level line
+// doing the work, not a softer chapter. Measured: chapter 13's own final board refielded at this
+// chapter's roof level of 300 with the Fine set reads **0% with nobody left standing** against the
+// party this chapter is tuned for. See `chapter-14.ts` for the table and for why the cause is a
+// rarity cap rather than gear.
+//
+// ## ⚠️ Nothing here heals, drains or regenerates, and one block banks a pool
+//
+// None of the ten carries `recovery`, `healthRegen` or `lifeLeech`, and the only restorative effect
+// in the chapter is {@link BANK_THE_WARD} — a {@link BARRIER}, which is banked once and depletes.
+// That is deliberate and it is a **Dwarf** chapter making the distinction: this faction owns the
+// tankiest blocks in the game, so a Dwarven chapter is the one most able to run the ninety-second
+// clock out, and what makes it hard has to be refusal rather than health. Every returning block the
+// chapter fields is filtered on the same rule — see `chapter-14.ts` for the counts over all fifty
+// boards, measured with a script.
+
+/**
+ * A gate is only as good as the last course laid into it, and this is what stands on that course.
+ *
+ * The plate band's common, and `def: 58` is **exactly** the shipped field's ceiling —
+ * {@link UNMADE}'s own — on a `common`-tier body. The band is built *at* the register here and
+ * steps past it only on {@link RINGWALL_HAMMERER} and the final.
+ *
+ * ⚠️ **The health is paid for out of the plate rather than added to it.** 800 against the 1080 and
+ * 1150 the shipped Dwarf tanks carry, because a chapter whose whole vocabulary lengthens fights
+ * cannot also make every body a bigger health bar.
+ */
+export const GATEFAST_WARDEN = {
+  id: 'gatefast-warden',
+  name: 'Gatefast Warden',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 800,
+    atk: 52,
+    def: 58,
+    haste: 60,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    tenacity: 0.35,
+    physicalResist: 0.16,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The ring wall is the course that goes all the way round, and this is what holds the joint in it.
+ *
+ * ⚠️ **`def: 66` steps past the shipped register, in writing, with the figure at the register
+ * stated**: the ceiling over all one hundred and ninety-one blocks is {@link UNMADE}'s **58**, and
+ * the heaviest Dwarf tank is {@link EDGETURN_WARDEN}'s 44. This is the chapter's headline stat and
+ * it is the one place a band here is authored above what has shipped.
+ *
+ * ⚠️ **Measured, the step is worth almost nothing in survivors and a real amount in seconds**, which
+ * is stated here rather than left to be discovered: against the party this chapter is tuned for,
+ * `def` from 44 to 170 on a front-rank body moves the board from 4.03 survivors of five to 4.00 and
+ * the fight from 12.7s to 15.5s. `def` is a **fight-length** axis against this crew, not a
+ * difficulty one — see `chapter-14.ts` for the full negative list.
+ */
+export const RINGWALL_HAMMERER = {
+  id: 'ringwall-hammerer',
+  name: 'Ringwall Hammerer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 74,
+    def: 66,
+    haste: 80,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.35,
+    physicalResist: 0.12,
+  },
+  skills: [THE_COURSE_HOLDS, SHIELD_BASH],
+} as const;
+
+/**
+ * Somebody is still laying courses down here, and has been for a very long time.
+ *
+ * The band's caster, and the one that says the plate as a **turn**: {@link SET_THE_STONE} puts
+ * {@link GUARD} across its whole side every sixty ticks against the status's own forty-five, so
+ * there is a window in every cycle. Soft for a mason — 860 health and 36 `def` — because the window
+ * is not the only answer the band offers.
+ */
+export const STONECOURSE_MASON = {
+  id: 'stonecourse-mason',
+  name: 'Stonecourse Mason',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 860,
+    atk: 60,
+    def: 36,
+    haste: 84,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    tenacity: 0.4,
+    physicalResist: 0.08,
+  },
+  skills: [SET_THE_STONE, SHIELD_BASH],
+} as const;
+
+/** Bracework is what holds a course while the mortar takes. This is what does the holding. */
+export const BRACEWORK_DELVER = {
+  id: 'bracework-delver',
+  name: 'Bracework Delver',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 640,
+    atk: 60,
+    def: 26,
+    haste: 94,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    tenacity: 0.2,
+    physicalPierce: 0.12,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/**
+ * A kinstone is what a hold puts its own dead into the wall as. It is still holding the wall.
+ *
+ * `physicalResist: 0.30` is the shipped field's **third rung** — 0.40 on {@link THE_UNBITTEN}, 0.34
+ * on the Closeward Seraph, 0.30 on the Slaghide Pursuer — so this band is authored **at** the
+ * register rather than past it, unlike the plate above it.
+ */
+export const KINSTONE_BEARER = {
+  id: 'kinstone-bearer',
+  name: 'Kinstone Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 780,
+    atk: 50,
+    def: 46,
+    haste: 62,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    tenacity: 0.3,
+    physicalResist: 0.3,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * A boltfast is the socket a bar drops into. Everything about this one is the socket.
+ *
+ * `physicalResist: 0.34` is level with the second rung of the shipped field and under
+ * {@link THE_UNBITTEN}'s 0.40. ⚠️ **Measured against the party this chapter is tuned for, a
+ * board-wide resist of 0.34 is worth 0.03 survivors and four and a half seconds**, and 0.60 — well
+ * past anything shipped — is worth 0.03 survivors and eleven seconds. The Monster Tower's third
+ * hundred found the same stat biting only above 0.45 against a crew with pierce; this crew carries
+ * **none at all**, and it still does not bite. Stated because the band is authored knowing it.
+ */
+export const BOLTFAST_IRONSIDE = {
+  id: 'boltfast-ironside',
+  name: 'Boltfast Ironside',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1000,
+    atk: 66,
+    def: 50,
+    haste: 70,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.16,
+    tenacity: 0.45,
+    physicalResist: 0.34,
+  },
+  skills: [THE_ANVIL_FALLS, SHIELD_BASH],
+} as const;
+
+/**
+ * The wards were set on the day the gate was shut, and somebody has been re-setting them since.
+ *
+ * ⚠️ **The softest body this chapter fields, and that is what licenses the band.** 600 health and 20
+ * `def` in the back rank: a pool the party cannot delete the source of is a clock rather than a
+ * lock, and {@link BANK_THE_WARD} is deliberately carried by the thing on the board most worth
+ * aiming at. The same argument The Quarry made about where an evasion pool may sit.
+ */
+export const WARDSTONE_KEEPER = {
+  id: 'wardstone-keeper',
+  name: 'Wardstone Keeper',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 600,
+    atk: 58,
+    def: 20,
+    haste: 96,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    tenacity: 0.25,
+  },
+  skills: [BANK_THE_WARD],
+} as const;
+
+/** Deep lamps are what a hold reads its own galleries by, and this is what decides who gets to. */
+export const DEEPLAMP_SEALER = {
+  id: 'deeplamp-sealer',
+  name: 'Deeplamp Sealer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 820,
+    atk: 70,
+    def: 24,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.3,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [PUT_OUT_THE_LAMPS, MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c14-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason
+ * `enemies.spec.ts`'s orphan rule exists. ⚠️ **Its signature is conditioned rather than an opening
+ * turn** — the sixth chapter running to take that shape, and the first to condition on **how many
+ * of the party are still standing**: {@link THE_BAR_HOLDS} does nothing once the party is down to
+ * three, so what it asks changes with how the four boards below it went.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 13 all declined it, because a
+ * second `ascended` anchor beside a boss is the sharpest non-linear weight step this game can
+ * author — and at this chapter's level gap that step is measurably a cliff rather than a slope.
+ * What stands beside The Doorstone is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and **under every chapter final since the Vault** — see
+ * the section header for why a later chapter's anchors are now the lighter ones.
+ */
+export const THE_DEADBOLT = {
+  id: 'the-deadbolt',
+  name: 'The Deadbolt',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1400,
+    atk: 84,
+    def: 62,
+    haste: 84,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.5,
+    physicalPierce: 0.2,
+    physicalResist: 0.18,
+  },
+  skills: [THE_BAR_HOLDS, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The chapter final: the block the hold was shut with, and the fourteenth body authored under the
+ * rule that a chapter's final is fielded nowhere else.
+ *
+ * 1480 health and 88 attack, well under {@link UNMADE}'s 1800 and 100 — and **under The Undercut's
+ * 1780 and 99 one chapter below it**, which is the first time a chapter final has been authored
+ * lighter than the one before. ⚠️ **That is the level line rather than a softer chapter.** This
+ * board stands at enemy level 300 against a party clamped at `legendary-plus`'s cap of 260, so it is
+ * fielded ×1.81 higher on the growth curve than The Undercut was; refielding The Undercut's own
+ * board here reads **0% with nobody standing.** See `chapter-14.ts`.
+ *
+ * ⚠️ **`def: 70` is the chapter's headline stat and it steps past the shipped register**, whose
+ * ceiling is {@link UNMADE}'s 58. `physicalResist: 0.30` sits at the register's third rung. Both are
+ * measured and both are worth seconds rather than survivors; what makes this the harder fight is
+ * where it stands on the curve and the four questions on one board.
+ *
+ * ⚠️ **It restores nothing and banks nothing.** No `recovery`, no `healthRegen`, no `lifeLeech`, no
+ * heal, no drain and no pool: the ward is a band and not a boss, and a final that re-banked behind
+ * this much `def` is a fight the ninety-second clock ends — which is scored a **defeat**.
+ */
+export const THE_DOORSTONE = {
+  id: 'the-doorstone',
+  name: 'The Doorstone',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1480,
+    atk: 88,
+    def: 70,
+    haste: 86,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    critBlock: 0.2,
+    critDamageResist: 0.3,
+    tenacity: 0.6,
+    physicalPierce: 0.22,
+    physicalResist: 0.3,
+  },
+  skills: [NOTHING_SMALL_MOVES_IT, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Chapter 15 — The Underroad. Ten Undead blocks, and every one of them is lighter than the
+// chapter below it by roughly half.
+//
+// ⚠️ **That is the level line, not a softer chapter, and it is the second chapter running to
+// come down.** These stand at enemy levels 300 to 325 against a party clamped at
+// `legendary-plus`'s cap of **260** — sixty-five levels under the last board, where The
+// Shutgate's party stood forty under. At `perLevel.ascended` = 1.024 the gap is worth ×1.80
+// over chapter 14 alone, so a block written at half the size is fielded at very nearly the
+// same weight. Measured, chapter 14's own final board refielded at level 310 reads **0% with
+// nobody standing** against the same party; at 325 it reads 0% in 11.5 seconds.
+//
+// ⚠️ **The whole board has to come down, not just the anchor.** With The Doorstone deleted
+// outright, the four remaining chapter-14 bodies at level 325 still read 35% with 0.68
+// survivors — so a light anchor propped up by heavy support is not an arrangement that exists
+// here. The chapter's board budget is roughly **2,200 to 2,900 health and 165 to 222 attack
+// across all five bodies**, flat from the first stage to the last, and the level line supplies
+// the whole gradient.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It went ahead to see how much further there was. It has not come back and it has not stopped.
+ *
+ * The opening band's reach, and the thinnest thing on the road: 360 health at `haste` 138, which
+ * sits inside the shipped register rather than past it — the ceiling over the whole pool is the
+ * Skyshrike's **152**, with the Wisp at 148 and the Quicklime Serjeant at 144. ⚠️ **The band is
+ * authored _at_ that register and nothing in the chapter steps past it**, which is the shape the
+ * Elf Tower's third hundred took with `critChance` and the opposite of the Monster Tower's
+ * `physicalResist`.
+ *
+ * Thin on purpose. Every fast block this game ships is thin, and the Angel Tower measured why:
+ * `haste` on a durable body is worth almost nothing and on a soft one is the strongest dial there
+ * is — so speed is paid for in health here rather than added on top of it.
+ */
+export const ROADGAUNT_OUTRIDER = {
+  id: 'roadgaunt-outrider',
+  name: 'Roadgaunt Outrider',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 360,
+    atk: 44,
+    def: 10,
+    haste: 138,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.12,
+    physicalPierce: 0.12,
+  },
+  skills: [AHEAD_OF_THE_COLUMN],
+} as const;
+
+/**
+ * Somebody has to carry the light. Nobody said it had to be able to see.
+ *
+ * The second outrider, faster and softer still at `haste` 144 — level with the Quicklime Serjeant
+ * and four short of the Wisp. Magical where {@link ROADGAUNT_OUTRIDER} is physical, so the opening
+ * band cannot be answered with one resist.
+ */
+export const TALLOWLIGHT_RUNNER = {
+  id: 'tallowlight-runner',
+  name: 'Tallowlight Runner',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 330,
+    atk: 40,
+    def: 8,
+    haste: 144,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    magicPierce: 0.12,
+    magicResist: 0.08,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * One of the ranks. There is no way to tell which one, and that is the band's whole point.
+ *
+ * The ranks band's body, and deliberately the plainest stat block in the chapter: no reach, no
+ * status, no condition, and {@link PROCESSION_STEP} for a turn. ⚠️ **What the band asks is that
+ * nothing on it is individually a problem** — the answer to a column is not a lock, it is whether
+ * the party's damage runs out before the road does.
+ */
+export const UNDERROAD_RANKER = {
+  id: 'underroad-ranker',
+  name: 'Underroad Ranker',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 520,
+    atk: 46,
+    def: 26,
+    haste: 92,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    physicalResist: 0.1,
+  },
+  skills: [PROCESSION_STEP],
+} as const;
+
+/**
+ * The standard has not been lowered, so the rank behind it has not been told it may stop.
+ *
+ * The ranks band's caster, carrying {@link DRESS_THE_RANKS} — {@link RALLY} across the column on a
+ * fifty-five tick cadence against the status's own forty-five, so there is a window in every cycle.
+ *
+ * ⚠️ **A buff on the enemy side is not the flat synergy bonus this project forbids.** That rule is
+ * about a bonus a *party* gets for its own composition and asks nothing of the encounter; this is a
+ * body on a board, standing in a rank the party can reach, and deleting it turns the bonus off.
+ */
+export const STEPFALL_STANDARD = {
+  id: 'stepfall-standard',
+  name: 'Stepfall Standard',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 600,
+    atk: 52,
+    def: 20,
+    haste: 96,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    insight: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [DRESS_THE_RANKS, PROCESSION_STEP],
+} as const;
+
+/**
+ * It is keeping time for a march that arrived a long time ago and was never told.
+ *
+ * The drum band's caster and the chapter's tempo axis: {@link KEEP_THE_STEP} puts {@link HASTE}
+ * across the column every sixty ticks against the status's forty-five, so a quarter of each cycle
+ * is silence.
+ *
+ * ⚠️ **The softest legendary the chapter fields, in the back rank, on purpose.** A tempo whose
+ * source the party cannot delete is a clock rather than a lock — the same reason chapter 14's ward
+ * sits on the Wardstone Keeper and the Undead Tower's board-wide ward sits where it does.
+ */
+export const DEADPACE_DRUMMER = {
+  id: 'deadpace-drummer',
+  name: 'Deadpace Drummer',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 560,
+    atk: 50,
+    def: 16,
+    haste: 104,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.15,
+    magicResist: 0.12,
+  },
+  skills: [KEEP_THE_STEP, MOTE_LANCE],
+} as const;
+
+/**
+ * Worn down to the length of the road rather than by anything that happened on it.
+ *
+ * The drum band's weight, and the only place in the chapter where `physicalResist` reaches 0.20 —
+ * two rungs under the shipped field's ceiling of {@link THE_UNBITTEN}'s 0.40 and under chapter
+ * 14's own Boltfast Ironside at 0.34. ⚠️ **Stated because a stat's register is worth checking
+ * before a band is built on it**, and this one is texture rather than the band's axis: the axis is
+ * the drummer's cadence and this is the body that survives long enough to benefit from it.
+ */
+export const MILEWORN_HUSK = {
+  id: 'mileworn-husk',
+  name: 'Mileworn Husk',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 480,
+    atk: 44,
+    def: 24,
+    haste: 88,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    physicalResist: 0.2,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * Whatever stops walking goes on the cart. The cart is what the column is really for.
+ *
+ * The train band's finisher, carrying {@link PUT_IT_ON_THE_CART} at `enemy-lowest` — ⚠️ **a
+ * _selection_ rather than a reach**, which is a different question from
+ * {@link AHEAD_OF_THE_COLUMN}'s rank and worth saying in as many words. It punishes a party that
+ * spread its damage and left five bodies half-standing, which is exactly what the drum band above
+ * it rewards.
+ */
+export const HOLLOWCART_DROVER = {
+  id: 'hollowcart-drover',
+  name: 'Hollowcart Drover',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 620,
+    atk: 54,
+    def: 22,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.16,
+    physicalResist: 0.06,
+  },
+  skills: [PUT_IT_ON_THE_CART, PROCESSION_STEP],
+} as const;
+
+/**
+ * It set out carrying a lamp. It is still carrying the handle.
+ *
+ * The train band's soft magical body — what the column picked up on the way rather than what set
+ * out with it. Magical, so the train band cannot be answered with the physical resist the drum band
+ * above it wants.
+ */
+export const LAMPLESS_PILGRIM = {
+  id: 'lampless-pilgrim',
+  name: 'Lampless Pilgrim',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 440,
+    atk: 42,
+    def: 12,
+    haste: 94,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicPierce: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on all four mini-bosses at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason `enemies.spec.ts`'s
+ * orphan rule exists. ⚠️ **Its signature is conditioned rather than an opening turn** — the seventh
+ * chapter running to take that shape — and {@link THE_COUNT_DOES_NOT_STOP} conditions on the party
+ * being **whole**, at five standing, where chapter 14's {@link THE_BAR_HOLDS} switched off at
+ * three. So the *first* casualty is what buys the answer here rather than the second, and the four
+ * boards it stands on are four different fights.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 14 all declined it: a second
+ * `ascended` anchor beside a boss is the sharpest non-linear weight step this game can author, and
+ * at this chapter's sixty-five level gap it is a cliff rather than a slope. What stands beside The
+ * Unnumbered is a legendary.
+ *
+ * ⚠️ **It restores nothing.** No `recovery`, no `healthRegen`, no `lifeLeech` and no drain — see
+ * `chapter-15.ts` for the counts the whole chapter is measured against.
+ *
+ * Sized under {@link UNMADE} on both stats by a wide margin, and under The Deadbolt's 1400 and 84
+ * one chapter below.
+ */
+export const THE_TALLYMAN = {
+  id: 'the-tallyman',
+  name: 'The Tallyman',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 800,
+    atk: 50,
+    def: 34,
+    haste: 96,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.18,
+    critDamageResist: 0.24,
+    tenacity: 0.45,
+    physicalPierce: 0.18,
+    physicalResist: 0.16,
+  },
+  skills: [THE_COUNT_DOES_NOT_STOP, PROCESSION_STEP, GORE],
+} as const;
+
+/**
+ * The chapter final: the head of the column, and the fifteenth body authored under the rule that a
+ * chapter's final is fielded nowhere else.
+ *
+ * 680 health and 40 attack, far under {@link UNMADE}'s 1800 and 100 — and **under The Doorstone's
+ * 1480 and 88 one chapter below**, which is the second chapter running that a final has been
+ * authored lighter than the one before it. ⚠️ **That is the level line rather than a softer
+ * chapter.** This board stands at enemy level 325 against a party clamped at `legendary-plus`'s cap
+ * of 260, so it is fielded ×1.80 higher on the growth curve than The Doorstone was; refielding The
+ * Doorstone's own board here reads **0% with nobody standing in 11.5 seconds**.
+ *
+ * ## ⚠️ Why it is lighter than half, and the thing a session sizing an anchor has to know
+ *
+ * The chapter's board budget is roughly half chapter 14's, and this block is **less than half** —
+ * because **an `ascended` block is worth ×2.587 of a `common` one at level 325 and ×1.608 of a
+ * `legendary` one**, and both premiums grow with the level. `perLevel.ascended` is 1.024 against
+ * `perLevel.common`'s 1.021, so the ratio is `(1.024 / 1.021) ** 324`. At chapter 14's close of 300
+ * the ascended-over-legendary premium was ×1.550; twenty-five levels later it is ×1.608, and it
+ * keeps going.
+ *
+ * ⚠️ **So a board's raw health total is the wrong quantity to author against and it gets more wrong
+ * every chapter.** Measured: `c15-s49` at 2,980 raw health reads 4.00 survivors and the first draft
+ * of this board at 3,100 read **0%** — a 4% difference in raw weight and the whole outcome — because
+ * in common-equivalent terms they were 4,283 and 5,581. Convert to common-equivalent weight before
+ * comparing two boards, and certainly before comparing two chapters.
+ *
+ * ⚠️ **Its own stat line was measured as inert before it came down, which is the other half.** At
+ * 880/54 behind the ranks band's standard, this board read 0% at *every* weight from 880/54 to
+ * 520/34 — the fight was decided by turn economy rather than by the anchor. What made it a fight was
+ * taking the standard off the board; what set the final weight was the sweep below it. **Check that
+ * the control can move before concluding anything from an anchor sweep.**
+ *
+ * ⚠️ **`haste: 100` and nothing else steps anywhere near a register.** The chapter's axis is tempo
+ * and its own fastest authored body is {@link TALLOWLIGHT_RUNNER} at 144, inside a shipped field
+ * whose ceiling is 152 — so unlike The Doorstone's `def: 70` there is no stat here authored above
+ * what has shipped. Said explicitly because a later session should be able to see which of the two
+ * shapes it is looking at.
+ *
+ * ⚠️ **It restores nothing and drains nothing.** No `recovery`, no `healthRegen`, no `lifeLeech`,
+ * no heal, no drain and no pool: a final that fed off a slowed party is the ninety-second clock
+ * with a stat block attached, and a timeout is scored a **defeat**.
+ */
+export const THE_UNNUMBERED = {
+  id: 'the-unnumbered',
+  name: 'The Unnumbered',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 680,
+    atk: 40,
+    def: 30,
+    haste: 100,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critBlock: 0.16,
+    critDamageResist: 0.26,
+    tenacity: 0.55,
+    physicalPierce: 0.22,
+    physicalResist: 0.18,
+  },
+  skills: [THERE_IS_NO_END_TO_IT, PUT_IT_ON_THE_CART, PROCESSION_STEP],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Chapter 16 — The Spoilfield. Ten Human blocks, and they are the lightest bodies this game
+// has ever authored.
+//
+// ⚠️ **The stat lines are small because the level line is enormous, and this is the third
+// chapter running to come down.** These stand at enemy levels 325 to 350 against a party
+// clamped at `legendary-plus`'s cap of **260** — **ninety levels** under the last board, where
+// The Underroad's party stood sixty-five under and The Shutgate's forty. Measured, The
+// Underroad's own final board refielded at level 330 with this chapter's gear reads **0% with
+// nobody standing**; at 350 it reads 0% in 5.8 seconds and has to be scaled to **×0.4** before
+// it reads four survivors again.
+//
+// ⚠️ **The board budget has now fallen through the floor of the shipped pool, and that is the
+// finding this chapter exists to record.** A board here totals roughly **1,660 health at the
+// first stage falling to 1,060 at the last** across all five bodies — 210 to 330 a body — and
+// the whole pool holds **48 blocks of 211** at or under 560 health, one of them under 250.
+// The twenty-four returning blocks this chapter fields are almost the entire light tail of the
+// game. A seventeenth chapter on this rung cannot be authored out of the pool at all. See
+// [authoring](../../docs/authoring.md).
+//
+// ⚠️ **Author against common-equivalent weight, never raw health.** `perLevel` is 1.024 /
+// 1.0225 / 1.021, so at level 350 an `ascended` block is worth **×2.784** of a `common` one and
+// **×1.668** of a `legendary` one — up from ×2.587 and ×1.608 at chapter 15's close. The
+// premium grows every chapter and it is what makes two boards of equal raw health different
+// fights.
+//
+// ⚠️ **The whole board comes down, not just the anchor.** Chapter 15 established that with The
+// Doorstone deleted outright the rest of its predecessor's board still read 35%; the same holds
+// here. A light anchor propped up by heavy support is not an arrangement that exists in this
+// chapter.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They are not here for you. You are standing on part of the field they have not got to yet.
+ *
+ * The opening band's plainest body and the lightest block this game ships outside the Wisp: 175
+ * health at `haste` 118, wearing a full Relic set the stage authors. ⚠️ **The gear is most of what
+ * it is** — a set at Relic 100 is +112% health and +89% attack on a `brawler` profile, so this body
+ * fights at rather more than twice its stat line and the stat line is the smaller half of it.
+ *
+ * That is the chapter in one block. The Spoilfield asks whether it is the party's own damage at
+ * all, and the first thing it says is that the number written here is not the board.
+ */
+export const SPOIL_PICKER = {
+  id: 'spoil-picker',
+  name: 'Spoil Picker',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 175,
+    atk: 36,
+    def: 6,
+    haste: 118,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.12,
+  },
+  skills: [STRIP_THE_FALLEN],
+} as const;
+
+/**
+ * Plate does not come off a person. It comes off the straps, and then the person comes out of it.
+ *
+ * The opening band's armour turn: {@link CUT_THE_STRAPS} lands {@link SUNDER} on the front rank
+ * behind a small blow. Slower and stouter than {@link SPOIL_PICKER} at `haste` 96, because the
+ * trade it names is done kneeling down.
+ */
+export const HARNESS_CUTTER = {
+  id: 'harness-cutter',
+  name: 'Harness Cutter',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 200,
+    atk: 38,
+    def: 10,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+  },
+  skills: [CUT_THE_STRAPS],
+} as const;
+
+/**
+ * The cart is the only thing on this field anybody is loyal to.
+ *
+ * The opening band's support, and ⚠️ **it carries {@link GUARD} rather than {@link RALLY} on
+ * purpose**: measured at the roof a board-wide rally costs the tuned party **2.26 of five** where
+ * the same body and the same cadence carrying a guard costs **0.08**. The chapter spends exactly
+ * one rally and spends it on the final. See {@link LOAD_THE_CART}.
+ *
+ * The stoutest common in the chapter at `def` 14 and `haste` 84, which is the `support` gear
+ * profile doing what it says — a set at Relic 100 is +128% health on this body against a ranger's
+ * +81%.
+ */
+export const SPOILCART_HAND = {
+  id: 'spoilcart-hand',
+  name: 'Spoilcart Hand',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 220,
+    atk: 30,
+    def: 14,
+    haste: 84,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    physicalResist: 0.08,
+  },
+  skills: [LOAD_THE_CART],
+} as const;
+
+/**
+ * The pockets first. The plate is not going anywhere and the pockets might be.
+ *
+ * The opening band's **reach** — {@link WHAT_THE_DEAD_KEPT} is an `enemy-back` turn, which is a
+ * reach rather than a scope or a selection. Four sessions have had to correct a claim that ran the
+ * three together, so this comment says which one it is.
+ */
+export const HEAPFOOT_RUMMAGER = {
+  id: 'heapfoot-rummager',
+  name: 'Heapfoot Rummager',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 205,
+    atk: 40,
+    def: 8,
+    haste: 114,
+    critChance: 0.16,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.1,
+  },
+  skills: [WHAT_THE_DEAD_KEPT],
+} as const;
+
+/**
+ * It was made to be hard to hit. Nobody asked it whether it minded who was inside it.
+ *
+ * The thorned band's carrier, and the block the chapter is named around. {@link THORNMAIL} as an
+ * `opening`, so it is true from the first tick: a quarter of what reaches this body is dealt
+ * straight back at whatever dealt it.
+ *
+ * ## ⚠️ Why a 330-health body reflecting is not the Cairn King reflecting
+ *
+ * `THORNMAIL` ships on nine blocks and **not one of them is under 760 health** — the Chainsworn at
+ * 1700, The Cairn King at 1780, The Anvil Crowned at 1750. What is new here is the weight it sits
+ * on. A reflect prices against **the attacker's blow**, which is the scaling quantity, and against
+ * the wearer's health, which is not; so the thinner the wearer, the more blows the party has to
+ * spend and the less of the reflect it gets to skip. This is the same body doing the same thing at
+ * a fifth of the size and it is worth more, not less.
+ *
+ * ⚠️ **And it is worth almost nothing away from the cliff, which is the honest half.** Measured
+ * against a live control at level 350 and Relic 100, `THORNMAIL` across a whole board reads
+ * **0.00** survivors at 900 total health, **0.20** at 1,060 and **1.33** at 1,160. The mechanic did
+ * not change between those three rows; where the board stood did. **State the weight with the
+ * figure or the figure means nothing.**
+ *
+ * ⚠️ **A reflect can never run the ninety-second clock out**, which is the property that made it
+ * this chapter's axis rather than a wall. It is strictly extra damage on a schedule the party
+ * controls — every measured board carrying it finished *faster* than its own control, and the sweep
+ * counted **zero timeouts** at every weight.
+ */
+export const THORNPLATE_WEARER = {
+  id: 'thornplate-wearer',
+  name: 'Thornplate Wearer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 330,
+    atk: 42,
+    def: 20,
+    haste: 82,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    physicalResist: 0.12,
+  },
+  opening: [THORNMAIL],
+  skills: [SPINES_STILL_IN_IT],
+} as const;
+
+/**
+ * Whoever had it last did not take it off either.
+ *
+ * The second {@link THORNMAIL} carrier, lighter and faster than {@link THORNPLATE_WEARER} so that
+ * a board can field both without fielding the same body twice. ⚠️ **Two carriers in one front rank
+ * is the heaviest arrangement this chapter uses** and it measured 0.13 of five at the roof against
+ * one carrier's 0.13 — the second is worth nothing on its own, which is why the closing band pairs
+ * a carrier with the clerk's {@link TAKE_IT_OFF_THE_COUNT} instead of with another carrier.
+ */
+export const DEADMANS_MAIL = {
+  id: 'deadmans-mail',
+  name: "Deadman's Mail",
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 295,
+    atk: 44,
+    def: 17,
+    haste: 92,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    physicalResist: 0.09,
+  },
+  opening: [THORNMAIL],
+  skills: [SPINES_STILL_IN_IT],
+} as const;
+
+/**
+ * One rope through five belts. It was for the cart.
+ *
+ * The chained band's body: {@link ROPED_TOGETHER} puts {@link CHAINBOND} across the crew every
+ * sixty ticks, so a blow aimed at one of them is two fifths spread across the rest.
+ *
+ * ⚠️ **A link conserves damage and cannot cascade**, so this costs the party its **route** rather
+ * than its progress and no version of it runs the clock out. ⚠️ **Cast rather than authored as an
+ * `opening`, and that is the whole difference**: as an opening on all five the same status measured
+ * **0.75 of five** where the cast measured **0.25**, because an opening costs the board no turn.
+ * A bind the party can watch arrive is a route problem; a permanent one on a board this thin is a
+ * wall.
+ */
+export const ROPEWALK_CREW = {
+  id: 'ropewalk-crew',
+  name: 'Ropewalk Crew',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 285,
+    atk: 46,
+    def: 13,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+  },
+  skills: [ROPED_TOGETHER],
+} as const;
+
+/**
+ * Whatever you are swinging, it goes on the list at what the list says it is worth.
+ *
+ * The quartermaster's line, and ⚠️ **the second largest lever in the chapter after the final's own
+ * rally**. {@link TAKE_IT_OFF_THE_COUNT} puts {@link WEAKEN} across the party every fifty ticks;
+ * measured at the roof it costs the tuned party **1.66 of five** and takes the mean fight from 13.4
+ * to 21.4 seconds, against the same status measuring **0.00** at every band opening above it.
+ *
+ * ⚠️ **The fight length is the part to watch.** It is the one turn here that lengthens a fight
+ * rather than shortening it — the whole rest of the chapter's vocabulary is reflect, which is extra
+ * damage. Worst measured is **39.6 seconds** against a ninety-second timer and the sweep counts zero
+ * timeouts, but this is the block a later session would have to look at first if that ever changed.
+ */
+export const QUARTERMASTERS_CLERK = {
+  id: 'quartermasters-clerk',
+  name: "Quartermaster's Clerk",
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 265,
+    atk: 48,
+    def: 11,
+    haste: 104,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+    magicPierce: 0.14,
+  },
+  skills: [TAKE_IT_OFF_THE_COUNT],
+} as const;
+
+/**
+ * The lieutenant: four appearances at four levels, and the only body on this field that is keeping
+ * a record of it.
+ *
+ * 480 health and 44 attack, ⚠️ **lighter than The Tallyman's 800/50 one chapter below and far under
+ * {@link UNMADE}'s 1800 and 100** — the third chapter running that a lieutenant has been authored
+ * lighter than the one before it, and the level line is why. It stands at levels 330, 335, 340 and
+ * 345 against a party clamped at 260.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, which is the eighth chapter
+ * running to take that shape, and {@link WRITTEN_DOWN_BESIDE_IT} switches off at **four** standing —
+ * the first threshold between the two shipped ones, chapter 14's three and chapter 15's five. So it
+ * survives the party's first loss and stops at its second, which makes it smaller as the fight turns
+ * rather than larger. The opposite direction is the one shape nobody may author.
+ *
+ * ⚠️ **It restores nothing and drains nothing**, and neither does any board it stands on.
+ */
+export const THE_QUARTERMASTER = {
+  id: 'the-quartermaster',
+  name: 'The Quartermaster',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 400,
+    atk: 40,
+    def: 26,
+    haste: 90,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    critBlock: 0.15,
+    critDamageResist: 0.24,
+    tenacity: 0.5,
+    physicalResist: 0.15,
+  },
+  skills: [WRITTEN_DOWN_BESIDE_IT, CUT_THE_STRAPS, STRIP_THE_FALLEN],
+} as const;
+
+/**
+ * The chapter final, and the sixteenth body authored under the rule that a chapter's final is
+ * fielded nowhere else.
+ *
+ * It is wearing the fifteen chapters the party walked through to get here. 420 health and 38
+ * attack — ⚠️ **lighter than The Unnumbered's 680/40 one chapter below, and lighter than its own
+ * lieutenant**, which is the third chapter running to author a final under its predecessor and the
+ * second to author one under its own recurring anchor. Both are the level line: this board stands
+ * at enemy level **350** against a party at **260**, ×1.68 further up the growth curve than The
+ * Unnumbered's board and ×2.784 on `perLevel.ascended` against a common five.
+ *
+ * In common-equivalent terms 420 at `ascended` is **1,169** — against a whole board's budget of
+ * roughly 1,825 — so the final is two thirds of its own board's weight and the four bodies beside
+ * it total 640 raw health where the chapter's other boards at that level carry over 900.
+ *
+ * ## ⚠️ Its board is priced against {@link COUNT_IT_ALL_AGAIN} rather than around it
+ *
+ * The final is the one place this chapter spends a board-wide {@link RALLY}, and that turn is
+ * worth **2.26 of five** at this level — larger than this block's entire stat line. Chapter 15
+ * recorded the failure that comes from not pricing it: its own final first read **0% at every
+ * anchor weight from 880/54 down to 520/34**, and the cause was a rally on the same board rather
+ * than the anchor. **Check the control can move before concluding anything from an anchor sweep**,
+ * and price the buff as a body.
+ *
+ * ⚠️ **It carries {@link THORNMAIL} and nothing that restores or drains.** No `recovery`, no
+ * `healthRegen`, no `lifeLeech`, no heal, no drain and no pool anywhere on `c16-s50`. A reflect is
+ * the safe half of this chapter's vocabulary precisely because it can only ever shorten a fight.
+ *
+ * ⚠️ **No stat here is authored above its shipped register.** `haste` 96 against a pool ceiling of
+ * 152, `def` 22 against The Doorstone's 70, `physicalResist` 0.16 against a ceiling of 0.30. The
+ * chapter's difficulty is where it stands, not what it is made of — said explicitly so a later
+ * session can see which of the two shapes it is looking at.
+ */
+export const THE_INHERITOR = {
+  id: 'the-inheritor',
+  name: 'The Inheritor',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 250,
+    atk: 24,
+    def: 22,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critBlock: 0.16,
+    critDamageResist: 0.26,
+    tenacity: 0.55,
+    physicalPierce: 0.2,
+    physicalResist: 0.16,
+  },
+  opening: [THORNMAIL],
+  skills: [EVERYTHING_YOU_LEFT, COUNT_IT_ALL_AGAIN, STRIP_THE_FALLEN],
 } as const;
 
 export const ENEMIES = [
@@ -6361,4 +8174,54 @@ export const ENEMIES = [
   PLAINSONG_PRECENTOR,
   SCARWEAVE_TRAMPLER,
   THE_UNFALTERING,
+  RUSTLEAF_GLEANER,
+  SCALEPLATE_BRAMBLE,
+  QUILLRUST_DARTER,
+  SLAGBLOOM_THICKET,
+  IRONBARK_WARDEN,
+  RUSTSONG_CHANTER,
+  SPOILWOOD_REAVER,
+  CORROWEALD_SINGER,
+  THE_RECLAIMED,
+  THE_IRONBLOOM,
+  SCREEBACK_DARTER,
+  GALLERY_SLIPFANG,
+  CHALKHIDE_BROWSER,
+  DUSTPLATE_GRINDER,
+  SUMPWATER_BROOD,
+  OVERBURDEN_HULK,
+  DRIFTMOUTH_CHOKER,
+  BENCHLINE_LURKER,
+  THE_DEEPCUT,
+  THE_UNDERCUT,
+  GATEFAST_WARDEN,
+  RINGWALL_HAMMERER,
+  STONECOURSE_MASON,
+  BRACEWORK_DELVER,
+  KINSTONE_BEARER,
+  BOLTFAST_IRONSIDE,
+  WARDSTONE_KEEPER,
+  DEEPLAMP_SEALER,
+  THE_DEADBOLT,
+  THE_DOORSTONE,
+  ROADGAUNT_OUTRIDER,
+  TALLOWLIGHT_RUNNER,
+  UNDERROAD_RANKER,
+  STEPFALL_STANDARD,
+  DEADPACE_DRUMMER,
+  MILEWORN_HUSK,
+  HOLLOWCART_DROVER,
+  LAMPLESS_PILGRIM,
+  THE_TALLYMAN,
+  THE_UNNUMBERED,
+  SPOIL_PICKER,
+  HARNESS_CUTTER,
+  SPOILCART_HAND,
+  HEAPFOOT_RUMMAGER,
+  THORNPLATE_WEARER,
+  DEADMANS_MAIL,
+  ROPEWALK_CREW,
+  QUARTERMASTERS_CLERK,
+  THE_QUARTERMASTER,
+  THE_INHERITOR,
 ] as const;

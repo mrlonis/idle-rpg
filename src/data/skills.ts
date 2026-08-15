@@ -5783,6 +5783,819 @@ export const THE_LAST_AMEN = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Rustwood — milestone 27, chapter 12
+//
+// The chapter asks how much of the party's damage survives contact, so its turns are about
+// **arriving smaller** rather than about aim, order or persistence. Two shapes carry it: a pool
+// banked in front of a body, and the party's own attack cut before it swings.
+//
+// ⚠️ **Both are shields and suppressions, and neither is a heal, a drain or a regeneration.** That
+// is the ninety-second clock rather than a preference: mitigation already lengthens every fight on
+// these boards, and sustain the party cannot aim past on top of it is a timeout — which is scored a
+// defeat. A shield banks a pool once and depletes; a regeneration refills.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The wood puts on what the field left, and the party's opening arrives against it.
+ *
+ * The Chanter's whole contribution and it deals nothing: a pool in front of **every** body on its
+ * side, so the party's first exchange is spent on plate rather than on anything alive. The answer is
+ * that a pool depletes — this is a tax on the opening, not a wall, and a party that keeps swinging
+ * is through it inside two turns.
+ *
+ * ⚠️ **`AEGIS` runs 55 ticks against a 70-tick cooldown, and the fifteen-tick gap is the rule.** A
+ * status that outlasts the skill applying it is a permanent absorb rather than a turn — `BARRIER` at
+ * 70 recast every 60 is the shipped instance of that mistake, and it is what this cadence avoids.
+ */
+export const THE_RUST_HOLDS = {
+  id: 'the-rust-holds',
+  name: 'The Rust Holds',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * Everything the party swings has already been swung once.
+ *
+ * The other half of the chapter's question, asked from the party's own side of the board rather than
+ * from the enemy's: {@link WEAKEN} on all five, so the damage that arrives is smaller because the
+ * hand throwing it is. Paired with the plate on these boards it is the same sentence twice, which is
+ * what makes The Rustwood a place rather than a stat line.
+ *
+ * ⚠️ **It carries damage as well, at ×0.8 under the ×1.2 wide ceiling.** A pure debuff turn on a
+ * board already built to lengthen fights is a clock with a name; making the turn cost the party
+ * health too is what keeps it a threat rather than a delay.
+ */
+export const EVERYTHING_COMES_BACK_BLUNT = {
+  id: 'everything-comes-back-blunt',
+  name: 'Everything Comes Back Blunt',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.8 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * What the field left is fitted to whatever the party has just opened.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the fourth chapter
+ * running to take that shape, and the reason it works: it does nothing until the party has committed
+ * to killing something, and then banks a pool on precisely the body the party chose. Four appearances
+ * at four levels are four different fights, because the party arrives at each one with a different
+ * opening.
+ *
+ * `ally-lowest` rather than `ally-all` is what makes it an answer instead of a wall: it protects the
+ * one body that is losing, so the party's choice is re-priced rather than refused.
+ */
+export const WHAT_THE_FIELD_LEFT = {
+  id: 'what-the-field-left',
+  name: 'What the Field Left',
+  target: 'ally-lowest',
+  effects: [{ kind: 'status', status: AEGIS }],
+  cooldown: 60,
+  condition: { kind: 'ally-hurt', fraction: 0.8 },
+  priority: 5,
+} as const;
+
+/**
+ * Iron comes up through the wood, and there is nowhere on the board it does not reach.
+ *
+ * The final's reach, at ×1.0 against the ×1.2 wide ceiling — the same figure {@link THE_SUN_AT_NOON}
+ * takes and for the same reason: five small hits against the diminishing-`def` curve are worth far
+ * less than one big one, so a wide multiplier is read against the curve rather than against a
+ * single-target one.
+ *
+ * ⚠️ **It restores nothing and shields nothing.** The Ironbloom's own plate is in its stat block,
+ * where it depletes with the body rather than being re-banked on a cadence — which is the difference
+ * between a fight that ends and one the clock ends.
+ */
+export const THE_IRON_COMES_UP = {
+  id: 'the-iron-comes-up',
+  name: 'The Iron Comes Up',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SUNDER, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Quarry — chapter 13
+//
+// The chapter asks whether the party's damage lands **at all**, where The Rustwood asked how much
+// of it survived contact. So its turns are about the swing failing rather than about the swing
+// arriving smaller: a body that is already somewhere else, a face that comes down on everybody, and
+// a side that shrugs off whatever the party pinned to it.
+//
+// ⚠️ **Three of the five carry {@link SLOW} and none of them carries a heal, a drain or a
+// regeneration.** A slow is the one debuff that lengthens a fight from the *party's* side — it buys
+// the enemy no health, only the party fewer turns — so it is the one shape here that has to be
+// counted against `MAX_BATTLE_TICKS` rather than assumed safe. Two of the three are conditioned on
+// {@link SLOW} being absent, which is what stops the board re-spending a turn on a party that is
+// already slowed and what bounds the whole band. The timeout count is asserted at zero by
+// `chapters.balance.ts`; see the chapter header for what it measured.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The gallery is a hundred feet of dark and it was never where the swing went.
+ *
+ * The Slipfang's turn: `enemy-back` at 1.7 physical, under the shipped single-target physical
+ * ceiling and matching {@link SUNDERJAW}'s reach. It is a **reach** rather than a lock — the block's
+ * argument is `dodge: 0.28` in the stat block, and the skill is there so the body that cannot be hit
+ * is also a body worth hitting.
+ */
+export const ALREADY_BEHIND_YOU = {
+  id: 'already-behind-you',
+  name: 'Already Behind You',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Stone dust, packed into every seam the party opened.
+ *
+ * The Grinder's turn, and deliberately plain: 1.1 across the front rank with no rider at all. The
+ * band's whole question is in the stat block — `critBlock: 0.24` and `critDamageResist: 0.32`, both
+ * **at** the shipped register rather than past it — and a skill carrying a second lock on top would
+ * make the measurement unattributable.
+ */
+export const FLATTEN_THE_EDGE = {
+  id: 'flatten-the-edge',
+  name: 'Flatten the Edge',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.1 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Whatever the party pinned to it comes off with the next fall of spoil.
+ *
+ * The tenacity band stated as a turn rather than as a stat: two hostile statuses off **every** body
+ * on its side, on a sixty-tick cadence. `RUNEWARD` and `ANTIPHON` are the shipped precedents for the
+ * shape and both pair the cleanse with a buff; this one does not, because the band is about the
+ * party's control failing and not about the board getting stronger for it.
+ *
+ * ⚠️ **A cleanse is not sustain and this distinction is the reason the band is allowed.** It
+ * restores no health and banks no pool — what it costs the party is the turn it spent applying
+ * something, which is a re-priced choice rather than a fight the clock ends.
+ */
+export const NOTHING_TAKES_HOLD = {
+  id: 'nothing-takes-hold',
+  name: 'Nothing Takes Hold',
+  target: 'ally-all',
+  effects: [{ kind: 'cleanse', count: 2 }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * A drift mouth closes on whoever was standing in the front of it.
+ *
+ * The Choker's turn: a row, and the party a third slower for it. ×1.05 across the front rank sits
+ * under the wide physical ceiling, and the chance of 0.75 is the shipped figure for a row-wide
+ * status rather than a new one.
+ */
+export const CHOKE_THE_DRIFT = {
+  id: 'choke-the-drift',
+  name: 'Choke the Drift',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.05 },
+    { kind: 'status', status: SLOW, chance: 0.75 },
+  ],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Sixty feet of working face, arriving all at once.
+ *
+ * The band's wide turn, and ⚠️ **conditioned on {@link SLOW} being absent** for the reason
+ * {@link MOONSONG} and {@link MIRE} are: a board that re-spends this on an already-slowed party is
+ * a turn tax with no decision in it, and four boards carrying it would then be one board carried
+ * four times. Conditioned, it fires once and then waits for the party to shed it — so a party that
+ * cleanses is asking for it again and a party that does not is simply slower.
+ *
+ * ×0.85 across five, under the ×1.15 wide physical ceiling, because five small hits against the
+ * diminishing-`def` curve are worth far less than one big one.
+ */
+export const THE_FACE_COMES_DOWN = {
+  id: 'the-face-comes-down',
+  name: 'The Face Comes Down',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.85 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 65,
+  condition: { kind: 'status-absent', statusId: 'slow' },
+  priority: 4,
+} as const;
+
+/**
+ * It takes the ground out from under the block before it takes the block.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the fifth chapter
+ * running to take that shape. It does nothing while the party is already slowed, so what it asks
+ * changes with what the party did on the four boards it stands on: a party that cleanses meets it
+ * every sixty ticks, a party that eats the slow meets it once.
+ *
+ * ⚠️ **Undercutting is what a quarry does to a block it means to drop, and the party is the block.**
+ * The name is the mechanic: the turn removed is the one the party had already earned.
+ */
+export const CUT_BENEATH_IT = {
+  id: 'cut-beneath-it',
+  name: 'Cut Beneath It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.9 },
+    { kind: 'status', status: SLOW, chance: 0.85 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'status-absent', statusId: 'slow' },
+  priority: 5,
+} as const;
+
+/**
+ * The whole working goes, and there is nothing on the floor of it that is not under the fall.
+ *
+ * The final's reach, at ×1.0 against the ×1.15 wide physical ceiling — the same figure
+ * {@link THE_IRON_COMES_UP} takes, and read against the diminishing-`def` curve for the same reason.
+ *
+ * ⚠️ **Unconditioned, unlike the three above it, and that is the final saying the chapter once more
+ * without the escape valve.** A party that has learned to shed the slow on the boards below arrives
+ * here and finds the answer does not work — but it costs a **cooldown** rather than a permanent
+ * state, so it is a harder fight rather than a longer one. ⚠️ **It restores nothing**, and that is
+ * the chapter's one absolute claim: no heal, no drain, no shield and no regeneration on this board.
+ */
+export const THE_GROUND_GOES = {
+  id: 'the-ground-goes',
+  name: 'The Ground Goes',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Shutgate — chapter 14
+//
+// The chapter asks whether the party's damage arrives **big enough**, where The Quarry asked
+// whether it arrived at all. So its turns are about the blow being blunted rather than deflected:
+// a course set against it, a pool banked in front of it, and — three times over — the swing itself
+// made smaller before it lands.
+//
+// ⚠️ **Three of the six carry {@link WEAKEN} and none of the six restores health.** A weaken is the
+// mirror of {@link SLOW}: it lengthens a fight from the party's own side by shrinking what each of
+// its turns is worth rather than by giving the board anything. Against `atk² / (atk + def)` it is
+// worth more than the quarter it reads — a party at three quarters of its attack delivers about
+// two thirds of its damage into a wall of this chapter's `def`, because the formula is superlinear
+// in the attacker's own stat. That is the chapter's sentence stated as arithmetic.
+//
+// ⚠️ **{@link BANK_THE_WARD} is the one restorative shape here and it is a pool, not a heal.** A
+// barrier banks once and depletes; it cannot outrun closing pressure and it cannot refill. It sits
+// on a soft, back-rank body the party can aim at, which is what licenses it — see
+// `chapter-14.ts` for the measured cost, which is 0.00 survivors and +0.7s of fight.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold's own masonry, brought down on whatever is standing at the head of the party.
+ *
+ * The plate band's turn, and ⚠️ **deliberately plain** for the reason {@link FLATTEN_THE_EDGE} is:
+ * ×1.15 across the front rank with no rider at all. The band's whole argument is in the stat block
+ * — `def` at 58 and 66 against a shipped field whose ceiling is {@link UNMADE}'s 58 — and a skill
+ * carrying a second lock would make that unattributable.
+ */
+export const THE_COURSE_HOLDS = {
+  id: 'the-course-holds',
+  name: 'The Course Holds',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * A course of stone set into the gap, while the party is still working at the last one.
+ *
+ * The plate said as a **turn** rather than as a stat: {@link GUARD} across the mason's whole side,
+ * on a sixty-tick cadence against the status's own forty-five, so there is a window in every cycle
+ * where the board is only what its stat block says. That gap is the band's answer — the same shape
+ * `data/skills.spec.ts` holds a taunt to, and here it is a courtesy the band is authored around
+ * rather than a rule.
+ *
+ * ⚠️ **Unconditioned, and specifically not conditioned on being hurt.** A board that armours itself
+ * as it is wounded is the one defensive shape nobody may author: it is the ninety-second clock with
+ * a narrative attached. This one is set on a metronome whether it is needed or not.
+ */
+export const SET_THE_STONE = {
+  id: 'set-the-stone',
+  name: 'Set the Stone',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The wards the hold was sealed with, banked across everything still inside it.
+ *
+ * ⚠️ **A pool rather than a heal, and the distinction is the whole reason this band exists.** A
+ * {@link BARRIER} is banked once, absorbs until it is spent and cannot be spent twice; a heal puts
+ * health back and can be re-bought every cooldown. Closing pressure amplifies damage without bound
+ * past `PRESSURE_AFTER_TICKS` and deliberately does not amplify healing, so a pool is the one
+ * restorative shape that cannot stall a fight into the timer — and a timeout is scored a **defeat**.
+ *
+ * Cast at eighty ticks against the status's seventy, so it lapses before it is re-banked. It sits
+ * on {@link WARDSTONE_KEEPER}, which is the softest body this chapter fields — 600 health and 20
+ * `def` in the back rank — because a pool the party cannot delete the source of is a clock rather
+ * than a lock.
+ */
+export const BANK_THE_WARD = {
+  id: 'bank-the-ward',
+  name: 'Bank the Ward',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 80,
+  priority: 5,
+} as const;
+
+/**
+ * Every lamp in the gallery put out at once, and the party swinging at what it can no longer see.
+ *
+ * The ward band's damage, and where the chapter's {@link WEAKEN} is trailed one band early — the
+ * same thing The Quarry did with its first slow on `c13-s8` and The Rustwood with its suppression
+ * on `c12-s16`. Magical, so the resist that answers it is not the one this chapter's plate is built
+ * out of: a board that refuses physical damage should not also be the board that only takes magic.
+ *
+ * ×0.9 across five, under the ×1.2 wide ceiling `data/skills.spec.ts` holds.
+ */
+export const PUT_OUT_THE_LAMPS = {
+  id: 'put-out-the-lamps',
+  name: 'Put Out the Lamps',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.9 },
+    { kind: 'status', status: WEAKEN, chance: 0.7 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * A bar is set against a crowd. Against three it is just a door with something behind it.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the sixth chapter
+ * running to take that shape, and the first to condition on **how many of the party are still
+ * standing**. While four or more are up, The Deadbolt spends its turn holding the way and blunting
+ * everything that comes at it; once the party is down to three it stops barring and simply fights.
+ *
+ * So the four boards it stands on are four different fights against one block, and the fight
+ * *shortens* as it goes badly rather than lengthening — which is the direction a conditioned turn
+ * on a chapter this full of blunting has to move. A party that keeps all five alive meets this
+ * every sixty ticks; a party that has traded two members never sees it again.
+ */
+export const THE_BAR_HOLDS = {
+  id: 'the-bar-holds',
+  name: 'The Bar Holds',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.95 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/**
+ * You do not break a doorstone. You cut under it, and this one was cut under from the other side.
+ *
+ * The final's reach, at ×1.0 against the ×1.2 wide ceiling — the same figure
+ * {@link THE_GROUND_GOES} and {@link THE_IRON_COMES_UP} take, and read against the diminishing-`def`
+ * curve for the same reason.
+ *
+ * ⚠️ **Unconditioned, unlike {@link THE_BAR_HOLDS} above it, and that is the final saying the
+ * chapter once more without the escape valve.** A party that learned to trade a body to switch the
+ * lieutenant's turn off arrives here and finds the answer does not work — but it costs a
+ * **cooldown** rather than a permanent state, so it is a harder fight rather than a longer one.
+ *
+ * ⚠️ **It restores nothing and banks nothing.** No heal, no drain, no regeneration and no pool on
+ * this board: the ward is a band, not a boss, and a final that re-banked behind this much `def` is a
+ * fight the clock ends.
+ */
+export const NOTHING_SMALL_MOVES_IT = {
+  id: 'nothing-small-moves-it',
+  name: 'Nothing Small Moves It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * The outriders are on the road before the column is, and they do not stop to fight what they pass.
+ *
+ * Chapter 15's opening band, and the one skill in it that reaches. ⚠️ **A _reach_ rather than a
+ * scope or a selection** — `enemy-back` names a rank, not the whole board and not the softest body
+ * — which is the distinction the Angel Tower's roof shipped a false claim about and which this
+ * chapter states in its own header rather than leaving to be inferred.
+ *
+ * Short cooldown on a very thin body: {@link ROADGAUNT_OUTRIDER} is 360 health at `haste` 138,
+ * which is the pairing the shipped register supports. Every fast block this game ships is thin, and
+ * the Angel Tower measured why — speed on a durable body is worth almost nothing and on a thin one
+ * is the strongest dial there is.
+ */
+export const AHEAD_OF_THE_COLUMN = {
+  id: 'ahead-of-the-column',
+  name: 'Ahead of the Column',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 35,
+  priority: 3,
+} as const;
+
+/**
+ * The rank closes up. It has been closing up for a very long time and it is good at it.
+ *
+ * The ranks band's turn, and the chapter's answer to "is there an end to it" said as a buff rather
+ * than as a body count: {@link RALLY} across the standard's whole side on a fifty-five tick cadence
+ * against the status's own forty-five, so a sixth of every cycle is a window where the column is
+ * only what its stat block says. Same shape as chapter 14's {@link SET_THE_STONE} and the same
+ * courtesy — a board with no window is a wall rather than a rhythm.
+ *
+ * ⚠️ **Unconditioned, and specifically not conditioned on the column being hurt.** A body that
+ * sharpens itself as it is wounded is the offensive spelling of the one defensive shape nobody may
+ * author; this is on a metronome whether it is needed or not.
+ */
+export const DRESS_THE_RANKS = {
+  id: 'dress-the-ranks',
+  name: 'Dress the Ranks',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The drum is the only thing on the underroad that was ever in charge, and it is still keeping time.
+ *
+ * The drum band's turn: {@link HASTE} across the column every sixty ticks against the status's
+ * forty-five, so a quarter of each cycle is silence. ⚠️ **Tempo rather than weight, and the two are
+ * not interchangeable** — `haste` buys *turns*, so a third more of it is a third more of everything
+ * the column was ever going to do, which is why {@link SLOW} is described as the most quietly
+ * powerful debuff in the game and why its mirror is worth authoring a band around.
+ *
+ * It sits on {@link DEADPACE_DRUMMER}, a 560-health body in the back rank — the softest thing on
+ * the boards that carry it, for the reason chapter 14 put its ward on the Wardstone Keeper. A
+ * tempo the party cannot delete the source of is a clock rather than a lock.
+ */
+export const KEEP_THE_STEP = {
+  id: 'keep-the-step',
+  name: 'Keep the Step',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever stops walking goes on the cart, and the cart is what the column is really for.
+ *
+ * The train band's turn, and ⚠️ **a _selection_ rather than a reach or a scope**: `enemy-lowest`
+ * names the softest standing body wherever it is, which is a different question from
+ * {@link AHEAD_OF_THE_COLUMN}'s rank. Stating which of the three a skill is about is the correction
+ * four sessions have now had to make after the fact.
+ *
+ * A finisher rather than an opener, at ×1.5 on one target. It punishes a party that has spread its
+ * damage and left five bodies half-standing, which is the exact shape the drum band above it
+ * rewards — so the two bands ask opposite things of the same party.
+ */
+export const PUT_IT_ON_THE_CART = {
+  id: 'put-it-on-the-cart',
+  name: 'Put It on the Cart',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 45,
+  priority: 4,
+} as const;
+
+/**
+ * It is not counting the dead. It is counting how far there is left to go, and it has never
+ * finished.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the seventh
+ * chapter running to take that shape, and the first to condition on the party being **whole**.
+ * Chapter 14's {@link THE_BAR_HOLDS} switched off at three standing; this one switches off at
+ * four, so a party that has traded a single body has already changed the fight.
+ *
+ * That is the sharper version of the same idea and it is deliberate. The Tallyman's four boards are
+ * four different fights, and the *first* casualty is what buys the answer rather than the second —
+ * so the band openers below it are where a party decides whether to spend one.
+ *
+ * ⚠️ **{@link SLOW} rather than {@link WEAKEN}, which is the chapter's axis rather than chapter
+ * 14's.** The Shutgate blunted the party's swing; this takes the turns the swing would have been
+ * spent on. Both are `stat-mod` statuses on a `STANDARD` forty-five ticks against a sixty-tick
+ * cooldown, so neither can be held up permanently.
+ */
+export const THE_COUNT_DOES_NOT_STOP = {
+  id: 'the-count-does-not-stop',
+  name: 'The Count Does Not Stop',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.95 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 5,
+} as const;
+
+/**
+ * The head of the column, which has been the head of the column since before the gate was shut.
+ *
+ * The chapter final's reach, at ×1.0 across five against the ×1.2 wide ceiling
+ * `data/skills.spec.ts` holds — the same figure {@link NOTHING_SMALL_MOVES_IT} takes one chapter
+ * below.
+ *
+ * ⚠️ **Unconditioned, unlike {@link THE_COUNT_DOES_NOT_STOP} above it**, which is the final saying
+ * the chapter once more with the escape valve removed: a party that learned to spend a body to
+ * switch the lieutenant's turn off arrives here and finds the answer gone. It costs a **cooldown**
+ * rather than a permanent state, so it is a harder fight rather than a longer one — which is the
+ * only direction a chapter built on tempo is allowed to move.
+ *
+ * ⚠️ **It restores nothing and drains nothing.** No heal, no drain, no regeneration and no pool in
+ * this kit or anywhere on the board it closes: a final that fed off a slowed party is the
+ * ninety-second clock with a stat block attached, and a timeout is scored a **defeat**.
+ */
+export const THERE_IS_NO_END_TO_IT = {
+  id: 'there-is-no-end-to-it',
+  name: 'There Is No End to It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Chapter 16 — The Spoilfield. The turns of a trade rather than of an army.
+//
+// The chapter asks whether it is the party's own damage at all, and the vocabulary is
+// {@link THORNMAIL} — a returning status carried on nine shipped blocks, none of them under
+// 760 health. What is new here is the **weight** it sits on: a 300-health body reflecting a
+// quarter of what a level-260 party swings at a level-350 board is a different proposition to
+// the Cairn King doing it, because the party's blow is the scaling quantity and the wearer's
+// health is not.
+//
+// ⚠️ **Nothing in this band is worth what it looks like away from the cliff.** Measured against
+// a live control at the roof, `THORNMAIL` across a whole board is worth **0.00** survivors at
+// 900 total health, **0.20** at 1,060 and **1.33** at 1,160. The mechanic did not change; where
+// the board stands did. See `chapter-16.ts` for the table and for why every figure in it is
+// stated with the weight it was measured at.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They are not fighting for the field. They are already finished with the part of it you are
+ * standing on.
+ *
+ * The opening band's finisher, at ×1.4 on the softest body standing. A picker's turn is spent on
+ * whatever is nearly down rather than on whatever is dangerous, which is the fiction and also the
+ * shape that punishes a party for spreading its damage — the same question
+ * {@link PUT_IT_ON_THE_CART} asks one chapter below, kept because The Spoilfield's opening band
+ * has to be a fight without carrying a status.
+ */
+export const STRIP_THE_FALLEN = {
+  id: 'strip-the-fallen',
+  name: 'Strip the Fallen',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * The straps first. The plate is only attached to somebody by the straps.
+ *
+ * {@link SUNDER} on the front rank behind a small blow, and it is the opening band's whole claim
+ * to being about armour: a trade that undresses the dead for a living is good at getting a
+ * breastplate off something that is still moving.
+ *
+ * ⚠️ **Measured at 0.00 survivors against a live control at the roof**, which is stated rather
+ * than hidden. It is texture and the level line is the difficulty — the third chapter running to
+ * record that about its own opening band.
+ */
+export const CUT_THE_STRAPS = {
+  id: 'cut-the-straps',
+  name: 'Cut the Straps',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.1 },
+    { kind: 'status', status: SUNDER },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * Everything goes on the cart. The cart is the only thing here anybody is loyal to.
+ *
+ * {@link GUARD} across the crew on a fifty-five tick cadence against the status's own forty-five,
+ * so a fifth of every cycle is a window where the field is only what its stat blocks say — the
+ * same courtesy {@link DRESS_THE_RANKS} and {@link SET_THE_STONE} extend, and for the same reason:
+ * a board with no window is a wall rather than a rhythm.
+ *
+ * ⚠️ **`GUARD` rather than {@link RALLY}, and the choice is measured rather than flavoured.** At
+ * the roof a `RALLY` on `ally-all` costs the tuned party **2.26 of five** — more than any anchor's
+ * whole stat line and the single largest lever on any board in this chapter — where `GUARD` on the
+ * same body and the same cadence costs **0.08**. The opening band gets the small one. See
+ * {@link COUNT_IT_ALL_AGAIN} for the one board-wide rally the chapter spends.
+ */
+export const LOAD_THE_CART = {
+  id: 'load-the-cart',
+  name: 'Load the Cart',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The pockets are worth going through before the plate is. The plate is not going anywhere.
+ *
+ * The opening band's **reach** — a `enemy-back` turn, which is a reach rather than a scope or a
+ * selection, and this comment says which of the three on purpose. Four sessions have now had to
+ * correct a claim that confused them.
+ */
+export const WHAT_THE_DEAD_KEPT = {
+  id: 'what-the-dead-kept',
+  name: 'What the Dead Kept',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 35,
+  priority: 3,
+} as const;
+
+/**
+ * It was made to be hard to hit. Nobody asked whether it minded who was inside it.
+ *
+ * The thorned band's plain turn. The block carrying it does its work through {@link THORNMAIL} as
+ * an `opening`, so its kit is deliberately ordinary — a body whose stat line is the smallest thing
+ * about it.
+ */
+export const SPINES_STILL_IN_IT = {
+  id: 'spines-still-in-it',
+  name: 'Spines Still In It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 30,
+  priority: 3,
+} as const;
+
+/**
+ * A rope through five belts. It was for the cart and it works just as well on people.
+ *
+ * {@link CHAINBOND} across the crew every sixty ticks against the status's own lingering duration,
+ * so the bind lapses before it is recast and the party gets its route back on a schedule.
+ *
+ * ⚠️ **A link conserves damage and cannot cascade** — a share resolves through `statusDamage`,
+ * which never re-enters the attack path — so this costs the party its **route** rather than its
+ * progress, and no version of it runs the ninety-second clock out. Measured at the roof it is
+ * worth **0.25 of five** and four tenths of a second; on the plateau below it is worth 0.00.
+ *
+ * ⚠️ **Cast rather than authored as an `opening`, and the difference is not cosmetic.** As an
+ * opening on all five the same status measured **0.75 of five** at a weight where the cast version
+ * measured nothing — because an opening costs the board no turn and this costs it one. The
+ * chapter takes the cast: a bind the party can watch arrive is a route problem, and a permanent
+ * one on a board this thin is a wall.
+ */
+export const ROPED_TOGETHER = {
+  id: 'roped-together',
+  name: 'Roped Together',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 75,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever you are swinging, it is going on the list at what the list says it is worth.
+ *
+ * {@link WEAKEN} across the party every fifty ticks, and ⚠️ **it is the second largest lever this
+ * chapter has** — measured at the roof it costs the tuned party **1.66 of five** and takes the
+ * mean fight from 13.4 to 21.4 seconds, against the same status measuring **0.00** at the band
+ * openings above it. That is the plateau rather than the status: chapter 14 measured its whole
+ * refusal vocabulary inert against a party standing forty levels under its boards, and this party
+ * stands **ninety** under.
+ *
+ * ⚠️ **Eight seconds of fight is the part to watch rather than the survivors.** It is the one turn
+ * in this chapter that lengthens a fight rather than shortening it, which is why the clerk carries
+ * it and the closing band's anchors do not: worst measured is 39.6 seconds against a ninety-second
+ * timer, and a timeout is scored a defeat.
+ */
+export const TAKE_IT_OFF_THE_COUNT = {
+  id: 'take-it-off-the-count',
+  name: 'Take It Off the Count',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * There is a number for a person. It is written down beside what they were wearing.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the eighth
+ * chapter running to take that shape. It answers what the party is doing rather than announcing
+ * itself, so four appearances at four levels are four different fights against one block.
+ *
+ * **It switches off at four standing**, which is the first threshold to sit between the two
+ * shipped ones: {@link THE_BAR_HOLDS} stops at three and {@link THE_COUNT_DOES_NOT_STOP} needs the
+ * party whole at five. So this one survives the party's first loss and stops at its second — a
+ * lieutenant that stops writing when there is not enough left to be worth the ink.
+ *
+ * ⚠️ **The direction is deliberate and it is the only direction allowed.** A body that sharpens
+ * itself as the fight turns against it is the offensive spelling of the one shape nobody may
+ * author; this gets *smaller* as the party loses members, which is a courtesy rather than a
+ * spiral.
+ *
+ * ⚠️ **It is a damage turn and not a sustain one.** No heal, no drain, no regeneration and no pool
+ * anywhere in this kit: a lieutenant feeding off a party it has just weakened is the ninety-second
+ * clock with a stat block attached.
+ */
+export const WRITTEN_DOWN_BESIDE_IT = {
+  id: 'written-down-beside-it',
+  name: 'Written Down Beside It',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/**
+ * Count it again. It is always more than it was.
+ *
+ * ⚠️ **The one board-wide {@link RALLY} this chapter spends, and it is spent on the final.** At the
+ * roof it is worth **2.26 of five** — larger than any anchor's whole stat line, and the exact shape
+ * chapter 15 recorded as the cause of a final that read 0% at every anchor weight from 880/54 down
+ * to 520/34. The final's board is priced **against** this turn rather than around it: the four
+ * bodies standing with The Inheritor total 640 health where the chapter's other boards at that
+ * level carry over 900.
+ *
+ * ⚠️ **On a sixty-tick cadence against the status's own forty-five**, so a quarter of every cycle
+ * is a window. A board-wide buff with no window is the one shape that turns a final into a wall.
+ */
+export const COUNT_IT_ALL_AGAIN = {
+  id: 'count-it-all-again',
+  name: 'Count It All Again',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * It is wearing the fifteen chapters you walked through to get here.
+ *
+ * The chapter final's turn, at ×1.0 across five — the same figure {@link THERE_IS_NO_END_TO_IT}
+ * and {@link NOTHING_SMALL_MOVES_IT} take, and under the ×1.2 wide ceiling `data/skills.spec.ts`
+ * holds.
+ *
+ * **Unconditioned**, so the escape valve the lieutenant's condition offers is gone by the time the
+ * party reaches the thing the lieutenant was keeping the list for. It costs a cooldown rather than
+ * a permanent state, which is a harder fight rather than a longer one.
+ *
+ * ⚠️ **It restores nothing and drains nothing**, and neither does anything else on `c16-s50`.
+ */
+export const EVERYTHING_YOU_LEFT = {
+  id: 'everything-you-left',
+  name: 'Everything You Left',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6077,4 +6890,37 @@ export const SKILLS = [
   GRIND_THE_SEAM,
   NO_EDGE_FINDS_IT,
   THE_LAST_AMEN,
+  THE_RUST_HOLDS,
+  EVERYTHING_COMES_BACK_BLUNT,
+  WHAT_THE_FIELD_LEFT,
+  THE_IRON_COMES_UP,
+  ALREADY_BEHIND_YOU,
+  FLATTEN_THE_EDGE,
+  NOTHING_TAKES_HOLD,
+  CHOKE_THE_DRIFT,
+  THE_FACE_COMES_DOWN,
+  CUT_BENEATH_IT,
+  THE_GROUND_GOES,
+  THE_COURSE_HOLDS,
+  SET_THE_STONE,
+  BANK_THE_WARD,
+  PUT_OUT_THE_LAMPS,
+  THE_BAR_HOLDS,
+  NOTHING_SMALL_MOVES_IT,
+  AHEAD_OF_THE_COLUMN,
+  DRESS_THE_RANKS,
+  KEEP_THE_STEP,
+  PUT_IT_ON_THE_CART,
+  THE_COUNT_DOES_NOT_STOP,
+  THERE_IS_NO_END_TO_IT,
+  STRIP_THE_FALLEN,
+  CUT_THE_STRAPS,
+  LOAD_THE_CART,
+  WHAT_THE_DEAD_KEPT,
+  SPINES_STILL_IN_IT,
+  ROPED_TOGETHER,
+  TAKE_IT_OFF_THE_COUNT,
+  WRITTEN_DOWN_BESIDE_IT,
+  COUNT_IT_ALL_AGAIN,
+  EVERYTHING_YOU_LEFT,
 ] as const;

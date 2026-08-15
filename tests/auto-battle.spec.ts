@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 import {
   type ChapterCurveData,
   type ChapterData,
+  type GearRulesData,
   ladderShape,
   positionAt,
   resolveLadder,
@@ -13,6 +14,7 @@ import {
   AUTO_BATTLE_UNLOCK_CHAPTERS,
   CHAPTER_CURVE,
   CHAPTERS,
+  GEAR_RULES,
   STAGE_REWARDS,
   SUMMON_RATE,
 } from '../src/data';
@@ -36,9 +38,10 @@ const BACKUP_KEY = 'CapacitorStorage.save.bak';
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
+const gearRules: GearRulesData = GEAR_RULES;
 
 const LADDER = ladderShape(chapters);
-const STAGES = resolveLadder(chapters, chapterCurve, rewards);
+const STAGES = resolveLadder(chapters, chapterCurve, rewards, gearRules);
 const CLEARS = totalStages(LADDER);
 const top = STAGES[CLEARS - 1];
 
