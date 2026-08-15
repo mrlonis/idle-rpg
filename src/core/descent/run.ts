@@ -98,7 +98,15 @@ export function descentLevel(rules: DescentRulesData, anchor: number, fight: num
   const base = Number.isFinite(rules.level.baseOffset) ? rules.level.baseOffset : 0;
   const top = Number.isFinite(rules.level.topOffset) ? rules.level.topOffset : base;
   const progress = fights <= 1 ? 1 : (at - 1) / (fights - 1);
-  const atAnchor = positiveInt(anchor, 1);
+  // ⚠️ **The anchor is clamped before anything reads it**, which is what stops the mode's difficulty
+  // running away from its own player. The anchor stands in for how strong the party is, and the two
+  // stopped moving together once the campaign began running above the level cap of the rung it is
+  // tuned for — see {@link DescentLevelData.anchorCap} for the measurement and for the condition
+  // that moves it. An absent or non-finite cap leaves the anchor alone, so a rules object without
+  // one reproduces the old line exactly.
+  const cap = rules.level.anchorCap;
+  const raw = positiveInt(anchor, 1);
+  const atAnchor = Number.isFinite(cap) ? Math.min(raw, Math.max(cap, 1)) : raw;
   // ⚠️ **A fixed offset plus a term proportional to the anchor**, and both halves are load-bearing.
   // Enemy power is exponential in level, so the fixed part is the same difficulty step wherever it
   // is applied — but the *party* the mode fields is not a fixed distance from the anchor, because

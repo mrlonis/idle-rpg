@@ -308,7 +308,7 @@ function runAttempt(
       stagePayout(STAGE_REWARDS, matchedStageIndex(campaignLevels, anchor + tuned.levelOffset))
         .reward,
     );
-    const stage = resolveExpeditionCamp(map, tuned, anchor, lump);
+    const stage = resolveExpeditionCamp(expedition, map, tuned, anchor, lump);
 
     let won = false;
     for (let retry = 0; retry < RETRIES_PER_CAMP && !won; retry++) {
@@ -437,6 +437,10 @@ describe('the arc across the three maps', () => {
     // Measured 1.00 everywhere for both. The floor is set below that so a character retune does
     // not flip the suite over a single unlucky seed, but these two are the mode's on-ramp and a
     // reading under 0.9 here is a real regression, not noise.
+    //
+    // ⚠️ **The Causeway read 0.00 at the deepest depth when chapter 16 shipped**, and no camp was
+    // mis-authored: the anchor had run away from the party it stands in for. See
+    // {@link ExpeditionRulesData.anchorCap}.
     for (const map of maps.slice(0, 2)) {
       for (const depth of DEPTHS) {
         expect(measure(map, depth).finished, `${map.id} depth ${depth}`).toBeGreaterThanOrEqual(
@@ -447,7 +451,7 @@ describe('the arc across the three maps', () => {
   });
 
   it('makes the Spine a commitment at the unlock and a completion by mid-campaign', () => {
-    // Measured 0.50 / 0.80 / 1.00 / 1.00 across the four depths — the unlock figure is the same
+    // Measured 0.50 / 1.00 / 1.00 / 1.00 across the four depths — the unlock figure is the same
     // 0.50 the Descent ships at that depth, reached the same way (three-retry patience, no gear).
     // ⚠️ The first draft measured 0.00 at two depths and the fix was **weight, not level**: the
     // route stacked four guardian-weight boards in a row, and offsets moved the reading barely at
@@ -487,9 +491,16 @@ describe('the sweep itself can move', () => {
   });
 
   it('measures the cards as worth taking', () => {
-    // The same run at the top of the shipped campaign, with and without cards: 4.80 against 4.10
-    // mean survivors. The margin is the point — cards are a lean, not a solution, exactly as the
-    // Descent tuned them.
+    // The same run at the top of the shipped campaign, with and without cards: **4.50 finished at
+    // 1.00 against 2.90 at 0.90** — a margin of 1.60 survivors. The margin is the point: cards are a
+    // lean, not a solution, exactly as the Descent tuned them.
+    //
+    // ⚠️ **This control is what chose {@link ExpeditionRulesData.anchorCap}, and it is the one
+    // assertion in this file that a too-low cap kills silently.** Every depth above the unlock reads
+    // 1.00 finished by design — the mode is one-time content meant to become a completion — so a
+    // finish rate cannot tell a well-aimed deep end from a walkover. At a cap of 316 this reads 5.00
+    // against 5.00 and passes while measuring nothing; 322 is where the margin is widest. **Check
+    // this margin, not the finish rate, if the cap is ever re-derived.**
     const carded = measure(maps[2], DEPTHS[3], true);
     const bare = measure(maps[2], DEPTHS[3], false);
 

@@ -459,26 +459,28 @@ describe('a Descent run is a fight at every depth', () => {
     // the whole reason the retry exists — but a mode a player rarely finishes is a daily they stop
     // opening, and the quest measured against it is one they can never claim.
     //
-    // Measured over twenty days: **0.50 at the unlock, then 0.85 / 0.70 / 0.85 / 0.80**. ⚠️ **The
-    // per-depth floor is deliberately below the worst reading and the mean is what carries the
-    // claim** — the bisection that calibrates a party lands on a step, so a single depth can sit a
-    // level either side of where a real player stands, and a tight per-depth bar would be measuring
-    // that step rather than the mode.
+    // Measured over twenty days: **0.65 / 0.90 / 0.85 / 1.00 / 0.75**, mean 0.83. ⚠️ **The per-depth
+    // floor is deliberately below the worst reading and the mean is what carries the claim** — the
+    // bisection that calibrates a party lands on a step, so a single depth can sit a level either
+    // side of where a real player stands, and a tight per-depth bar would be measuring that step
+    // rather than the mode.
     //
-    // ⚠️ **Those figures moved in milestone 27** — they read 0.50 / 0.90 / 0.85 / 1.00 / 1.00 under
-    // the flat level offset, and the two 1.00s are the tell: the deep end had stopped being a fight
-    // at all. See {@link DescentLevelData.anchorSlope}.
+    // ## ⚠️ This used to be the failure to expect once a chapter. It is now once a *rung*
     //
-    // ⚠️ **They moved again when The Quarry landed, and again when The Shutgate did.** At
-    // `anchorSlope` 0.11 The Quarry's new top depth read **0.30 / 2.45 survivors**, under this floor,
-    // and 0.10 restored it. One chapter later The Shutgate's top depth read **0.15**, and the slope
-    // came down again to **0.075** — a third setting in three chapters, each lasting exactly one.
+    // The history is worth keeping because it is what identified the shape. It read 0.50 / 0.90 /
+    // 0.85 / 1.00 / 1.00 under a flat level offset — the two 1.00s being the tell that the deep end
+    // had stopped being a fight — and {@link DescentLevelData.anchorSlope} was added to answer that.
+    // The Quarry's new top depth then read **0.30**, The Shutgate's **0.15**, The Underroad's forced a
+    // fourth value, and The Spoilfield's read **0.00** at every value the slope has: four settings in
+    // four chapters and then no setting at all.
     //
-    // ⚠️ **This is the failure to expect once a chapter, and the floor is not the thing to move.**
-    // The gap between the calibrated party and the boards it fights widens about 7.5 levels every
-    // chapter by construction — see `DescentLevelData.anchorSlope` for the arithmetic, for the closed
-    // form that now *predicts* the next value rather than bisecting for it, and for why the dial's
-    // *shape* is what is wrong. Re-derive the slope; do not widen this.
+    // ⚠️ **The cause was never the offsets.** The anchor stands in for how strong the party is, and
+    // the two stopped moving together at chapter 13 — the campaign now runs above the level cap of
+    // the rung it is tuned for, so its finals are authored *lighter* each chapter and the calibrated
+    // party has been flat at 243 to 248 while the anchor climbed a hundred levels.
+    // {@link DescentLevelData.anchorCap} is the fix, and it moves when a chapter asks for a **rung**
+    // above `legendary-plus` rather than when a chapter ships. **Do not widen this floor, and do not
+    // reach for the slope: neither is the dial any more.**
     //
     // ⚠️ **The party here carries no gear and no signature items**, where a real player at these
     // depths carries both. So this is a floor on the real finish rate rather than an estimate of it.
@@ -491,7 +493,7 @@ describe('a Descent run is a fight at every depth', () => {
 
   it('gets most of the way down even when it does not finish', () => {
     // What makes a lost run acceptable: every fight pays as it is cleared, so a run that ends at
-    // fight eight has banked eight fights. Measured at **7.85 to 8.70** of nine.
+    // fight eight has banked eight fights. Measured at **8.35 to 9.00** of nine.
     for (const cleared of DEPTHS) {
       expect(sweepDepth(cleared).meanCleared, `depth ${cleared}`).toBeGreaterThan(FIGHTS * 0.75);
     }
@@ -500,7 +502,7 @@ describe('a Descent run is a fight at every depth', () => {
   it('is not a walkover at any depth', () => {
     // ⚠️ **Attrition is the mechanic, so this measures survivors rather than the win rate.** A run
     // finished with five bodies at full health is nine unrelated fights with a shared reward, and
-    // every decision in it was free. Measured at **3.20 to 4.15** of five, averaging **3.84**.
+    // every decision in it was free. Measured at **3.30 to 4.70** of five, averaging **4.06**.
     //
     // ⚠️ **The mean carries the claim and the per-depth bar is the backstop**, for the reason the
     // finish rate is stated the same way: the bisection that calibrates a party lands on a step, so
@@ -517,8 +519,14 @@ describe('a Descent run is a fight at every depth', () => {
     // **A monotonic quantity cannot be bounded by a constant**, so a third widening would have been
     // the guard measuring a drift rather than the mode. What it was actually reporting is that the
     // Descent got easier the deeper it went, because the level offset was flat while the party the
-    // depth implies is not a fixed distance from the anchor. `anchorSlope` is the fix and the
-    // readings above are flat across depth rather than climbing. **The bar stayed at 4.85.**
+    // depth implies is not a fixed distance from the anchor.
+    //
+    // ⚠️ **`anchorSlope` was the first answer and it lasted four chapters; the deep end then went the
+    // other way entirely and read 0.00 finished.** {@link DescentLevelData.anchorCap} is what holds
+    // this now, and it was chosen against the **power** ratio rather than the level gap: the gap does
+    // not predict this number at all — gap +44 measured a full walkover and gap +49 measured 3.75
+    // survivors — because party power is `perLevel ^ level × 1.6 ^ rung` and the ascension ladder
+    // moves the second term in steps of 22.6 levels. **The bar has stayed at 4.85 through all of it.**
     //
     // ⚠️ **Neither the boards nor chapter 12 were touched for this.** A boss cut by 30%, every
     // escort swap and dropping both of that chapter's suppressions all left the calibration exactly
@@ -539,9 +547,19 @@ describe('a Descent run is a fight at every depth', () => {
     // which is a conclusion somebody would act on.
     // Slope held at the shipped value so this moves the one dial it is named for. Overriding the
     // whole `level` block is what makes that explicit rather than inherited.
+    //
+    // ⚠️ **The cap is held at the shipped value too, and that is not a formality.** Dropping it from
+    // an override silently un-caps the anchor, so the harder setting would be measuring the cap's
+    // absence as well as its own offsets — which is the same "the override reached one call site and
+    // not the other" failure this assertion exists to catch, arriving from a new direction.
     const harder: DescentRulesData = {
       ...descent,
-      level: { baseOffset: 40, topOffset: 60, anchorSlope: descent.level.anchorSlope },
+      level: {
+        baseOffset: 40,
+        topOffset: 60,
+        anchorSlope: descent.level.anchorSlope,
+        anchorCap: descent.level.anchorCap,
+      },
     };
     const runs = Array.from({ length: DAYS }, (_, day) =>
       runDay(SEED, day, DEPTHS[DEPTHS.length - 1], true, harder),

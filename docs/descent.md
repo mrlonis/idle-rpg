@@ -253,24 +253,21 @@ fight and **+9** on the last, linearly between, **plus 0.022 levels per level of
 At the unlock's anchor of 30 the slope contributes +0.7, so the total is about −10 / +10 — near enough
 the pair the mode shipped with. At the top of the shipped ladder it contributes **+7.7**.
 
-### ⚠️ The slope is the wrong shape, and at chapter 16 it ran out of range entirely
+### ⚠️ The slope was the wrong shape, and at chapter 16 it ran out of range entirely
 
 It arrived at **0.11** in milestone 27, when the mode's deepest depth had stopped being a fight at
 all. One chapter later that depth read **0.30 finished and 2.45 survivors of five** against a floor of
 0.40 — the same dial, overshot the other way — and **0.10** restored 0.50 / 3.50. One chapter after
 _that_ the new deepest depth read **0.15 finished**, and the slope came down to **0.075**. The
-Underroad took it to **0.022**. ⚠️ **Four settings in four chapters, each lasting exactly one**, which
-is the shape finding stated as a schedule rather than as an argument.
+Underroad took it to **0.022**. ⚠️ **Four settings in four chapters, each lasting exactly one.**
 
-⚠️ **The Spoilfield is where it stopped having a setting at all, and that is the finding rather than
-a fifth number.** Swept over the mode's own sweep at the new deepest depth of 700 clears: **0.022 →
-0.00 finished / 2.8 floors of 9; 0.010 → 0.00 / 3.2; 0.005 → 0.00 / 3.55; 0.000 → 0.00 / 3.7** — and
-at 0.000 the mid-campaign depth breaks in the _other_ direction, reading 4.85 survivors against a
-walkover bar of `< 4.85`. Holding chapter 15's party-to-board gap needs about **−0.063**, which takes
-ten more levels off depths that are already too easy. **No value works at both ends of the range this
-is measured over**, which is the definition of the wrong dial rather than the wrong number.
+⚠️ **The Spoilfield is where it stopped having a setting at all.** Swept at the new deepest depth of
+700 clears: **0.022 → 0.00 finished / 2.8 floors of 9; 0.010 → 0.00 / 3.2; 0.005 → 0.00 / 3.55;
+0.000 → 0.00 / 3.7** — and at 0.000 the mid-campaign depth breaks in the _other_ direction, reading
+4.85 survivors against a walkover bar of `< 4.85`. **No value works at both ends of the range this is
+measured over.**
 
-### ⚠️ And the model's sign is wrong: the calibrated party has stopped rising
+### ⚠️ The cause: the anchor stopped standing for what it stood for
 
 The arithmetic used to say the gap widens about 7.5 levels a chapter — the anchor rises 25 and the
 party the depth implies rises about 20. **Measured at chapter 16, the party went backwards.** Bisected
@@ -278,39 +275,77 @@ against the campaign stage each depth anchors on, over three faction locks:
 
 | depth | anchor stage         | bisected party level |
 | ----- | -------------------- | -------------------- |
-| 600   | `c14-s50`, level 300 | 234.7                |
-| 650   | `c15-s50`, level 325 | 243.7 (+9.0)         |
-| 700   | `c16-s50`, level 350 | **240.0 (−3.7)**     |
+| 400   | `c10-s50`, level 200 | 143.7                |
+| 500   | `c12-s50`, level 250 | 201.0                |
+| 600   | `c14-s50`, level 300 | 244.7                |
+| 650   | `c15-s50`, level 325 | 247.7                |
+| 700   | `c16-s50`, level 350 | **242.7**            |
 
-⚠️ **That is the campaign's rarity cap arriving here.** Since chapter 14 the ladder has run entirely
-above `legendary-plus`'s cap of 260, so every chapter final is authored **lighter** than the one before
-it to stay clearable by a party that cannot climb — The Doorstone 1480/88, The Unnumbered 680/40, The
-Inheritor 250/24. A lighter final bisects lower. So the anchor's _level_ rose the full 25, these boards
-rose 25.6 with it, and the party fell: a gap that widened about **29 levels in one chapter** against a
-model expecting 7.75.
+⚠️ **That is the campaign's rarity cap arriving here.** Since chapter 13 the ladder has run above
+`legendary-plus`'s cap of 260, so every chapter final is authored **lighter** than the one before it to
+stay clearable by a party that cannot climb — The Doorstone 1480/88, The Unnumbered 680/40, The
+Inheritor 250/24. A lighter final bisects lower. The anchor was standing in for _how strong the party
+is_; the two stopped moving together, and an uncapped anchor is therefore a difficulty that runs away
+from its own player at 25 levels a chapter, forever.
 
-⚠️ **The closed form was already known to be unreliable and this is why.** It predicted 0.075 for
-chapter 14 exactly, then **0.058** for chapter 15 where the answer was **0.022**, because it assumes
-the party rises about 20 a chapter. It rose 9.7 at chapter 15 and **−3.7** at chapter 16. **Measure
-the bisection at both depths; do not predict.**
+### ⚠️ The fix is `anchorCap`, and the coordinate that set it is the power ratio
 
-⚠️ **`data/expedition-maps.ts` fails identically and for the same reason**, with no dial at all — its
-camps author a fixed `levelOffset` against the same anchor. Two modes, one cause. See
-[expeditions](expeditions.md).
+The level gap between the party and the board **does not predict difficulty**: gap +44 measured a full
+walkover and gap +49 measured 3.75 survivors, because party power is `perLevel ^ level × 1.6 ^ rung`
+and the ascension ladder moves the second term in **steps of 22.6 levels**. The ratio of board power
+to party power does predict it, tightly:
 
-### What the fix is, and why chapter 16 did not take it
+| board / party power | 0.29 | 0.34 | 0.42 | 0.49 | 0.53 | 0.54 | 1.02 |
+| ------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| runs finished       | 1.00 | 1.00 | 1.00 | 0.65 | 0.75 | 0.40 | 0.00 |
+| survivors of five   | 5.00 | 4.90 | 4.70 | 3.30 | 3.75 | 2.75 | 3.45 |
 
-A board level keyed off the **calibrated party's own level** rather than off the anchor, so the rung
-step cancels instead of accumulating. The clean formulation the measurement points at is
-`min(campaign level, the cap of the rung that content asks for)` — which is what the bisected party
-actually tracks, and which has been flat at 260 since chapter 13.
+**A ratio near 0.50 is the mode working**; below 0.42 nobody dies and above 0.55 nothing finishes.
+Solving for the board level at the plateau — party 242.7 at `legendary-plus` — gives a mid-run board of
+**322**, and the anchor that produces it is **316**. Sweeping confirmed the prediction exactly: cap 300
+reads ratio 0.35 and 1.00 finished / 4.90 survivors, 310 reads 0.44 and 0.90 / 4.25, **316 reads 0.50
+and 0.75 / 3.60**, 320 reads 0.54 and 0.50 / 2.90, 325 reads 0.60 and 0.10 / 2.45.
 
-⚠️ **A naive clamp to 260 overshoots into walkovers**, so the two fixed offsets have to be re-derived
-at the same time, and so does every measured figure in `descent.balance.ts` and
-`expedition.balance.ts`. That is a milestone, not a chapter — so chapter 16 **left the slope at 0.022
-with the sweep red at depth 700**, deliberately, because moving it would buy nothing and would lose the
-record of what the sweep is reporting. ⚠️ **Do not tune this dial; re-anchor the mode.** See
-[authoring](authoring.md).
+⚠️ **Not 260, which is the rung's cap and the right _reason_ for a plateau.** Fielding it directly
+reads 1.00 finished with **5.00 survivors** at all three deep depths — a walkover — because the party
+is not standing _at_ its cap, it is standing 17 levels under it with five ascension rungs in hand.
+**Convert to power before picking the number.**
+
+**The shipped readings**, over twenty days at each of the five depths:
+
+| depth               | 60   | 100  | 150  | 250  | 700  | mean |
+| ------------------- | ---- | ---- | ---- | ---- | ---- | ---- |
+| finished            | 0.65 | 0.90 | 0.85 | 1.00 | 0.75 | 0.83 |
+| survivors of five   | 3.30 | 4.45 | 4.25 | 4.70 | 3.60 | 4.06 |
+| fights cleared of 9 | 8.35 | 8.80 | 8.85 | 9.00 | 8.70 | —    |
+
+Zero timeouts everywhere; longest fight 57.8s against the 81s bar.
+
+⚠️ **The cap binds only above 316, so no depth below it moved** and every figure those depths were
+tuned against still holds — which is what made this preferable to moving the offsets, since those
+reach the unlock and +24 levels there takes it from a 0.50 finish rate to 0.00.
+
+⚠️ **It caps the mode's lump as well as its difficulty**, because the payout is matched to the level
+the fight is fought at. Deliberate: a run paying like a level-350 stage while fighting level-316
+boards is an arbitrage.
+
+⚠️ **`anchorSlope` is still there and still does its job below the cap.** It is a fact about depths 60
+through 500 now. With the cap in place, raising it moves the mid-campaign depths off their tuning long
+before it moves the deep end at all — at 0.10 the deep depths still read a full walkover while depth
+400 has already fallen to 0.00. **Leave it at 0.022.**
+
+⚠️ **What moves this cap is a rung, not a chapter.** The plateau exists because the campaign's own
+tuning target plateaued at `legendary-plus`. A seventeenth chapter changes nothing here — which is the
+whole point, after four chapters of re-deriving a constant. When a chapter asks for a rung **above**
+that, the party starts climbing again and the cap has to climb with it, and the check is the power
+ratio above rather than the level gap. **`data/expedition-maps.ts` carries the same clamp at 322 for
+the same cause**; see [expeditions](expeditions.md).
+
+⚠️ **One blind spot this measurement exposed and did not close.** `DEPTHS` samples chapters 3, 4, 5, 7
+and the top of the ladder, so **chapters 8 through 15 are unmeasured** — and the diagnostic depths run
+for this work read 1.00 finished with **5.00 survivors** at depths 500 and 600 in the shipped build.
+The mode is a walkover through the late-mid campaign and the sweep cannot see it. Recorded rather than
+fixed: adding a depth there fails immediately and wants its own tuning pass.
 
 ### ⚠️ A share was the first draft and it was measured wrong
 

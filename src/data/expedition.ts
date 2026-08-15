@@ -43,6 +43,47 @@ export const EXPEDITION_RULES = {
   /** The Descent's clamp, for the Descent's reason — see `DescentRulesData.maxLifeLeech`. */
   maxLifeLeech: DESCENT_RULES.maxLifeLeech,
   /**
+   * ⚠️ **322 — the anchor these camps stop reading past, and the same clamp the Descent carries.**
+   * {@link ExpeditionRulesData.anchorCap} holds the argument; this holds the number and how it was
+   * picked.
+   *
+   * The anchor stands in for how strong the party is, and the two stopped moving together at chapter
+   * 13, when the campaign began running above `legendary-plus`'s level cap of 260. Measured, the five
+   * this mode calibrates reads **241** at the top of the shipped ladder against an anchor of **350**,
+   * and it read 244.7 at anchor 300 — flat, then backwards, while the anchor climbed a hundred
+   * levels. Uncapped, the Causeway and the Spine both read **0.00 finished** at that depth.
+   *
+   * ## ⚠️ Picked on the card control rather than on a finish rate, because the finish rate saturates
+   *
+   * This mode is one-time content that is **meant** to become a completion as the campaign deepens —
+   * every depth above the unlock already reads 1.00 finished on all three maps — so "does it finish"
+   * cannot choose between candidate caps. What can is whether the sweep's own permanent control still
+   * moves. Measured on the Spine at the deepest depth, carded against bare:
+   *
+   * | cap | Spine finished / survivors | carded − bare survivors |
+   * | --- | -------------------------- | ----------------------- |
+   * | 316 | 1.00 / 5.00                | 0.00 — control dead     |
+   * | 318 | 1.00 / 4.80                | +0.90                   |
+   * | **322** | **1.00 / 4.50**        | **+1.60**               |
+   * | 325 | 1.00 / 3.40                | +0.10                   |
+   * | 328 | 0.90 / 3.50                | **−1.30** — fails       |
+   *
+   * **322 is the widest the control opens**, and it sits six levels clear of the setting where the
+   * mode stops finishing. ⚠️ **A cap that reads 5.00 survivors passes every assertion in
+   * `expedition.balance.ts` while measuring nothing** — that is the "a sweep that cannot move" failure
+   * the Descent's milestone wrote down, and it is why this was not simply set to the first green value.
+   *
+   * ⚠️ **Not the Descent's 316, and the difference is not an inconsistency.** The two modes turn an
+   * anchor into a board differently — this authors a fixed offset per camp, the Descent ramps across
+   * nine fights — so each was solved against its own boards. That they landed six levels apart is the
+   * check that both are measuring the same thing.
+   *
+   * ⚠️ **This does not equalise difficulty across depths and is not meant to.** At this cap the deep
+   * end still sits at about **×0.66** of the unlock's difficulty, which is the mode's design: a
+   * commitment when it opens and a completion later. Do not "fix" that.
+   */
+  anchorCap: 322,
+  /**
    * Crystals: 150 a camp, ×5 on a map's boss, 1,500 for first completing a map.
    *
    * One-time, so these are sized against *events* rather than against a day of income: the whole

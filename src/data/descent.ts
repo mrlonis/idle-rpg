@@ -223,17 +223,49 @@ export const DESCENT_RULES = {
      * exactly the call `gradeSoftness` records having got right. **Re-derive it from the measured
      * bisection at both depths; chapter 15's landing shows the prediction alone is not enough.**
      *
-     * ⚠️ **Left at 0.022 deliberately at chapter 16, with `descent.balance.ts` red at depth 700.**
-     * Every candidate was swept and none passes, so moving it would buy nothing and would lose the
-     * record of what the sweep is reporting. **Do not tune this; re-anchor the mode.** The clean
-     * formulation the measurement points at is that a depth's boards should key off
-     * `min(campaign level, the cap of the rung that content asks for)` — which is what the bisected
-     * party actually tracks, and which has been flat at 260 since chapter 13 — rather than off the
-     * raw campaign level. ⚠️ **A naive clamp to 260 overshoots into walkovers**, so the two fixed
-     * offsets have to be re-derived at the same time, and so does every figure in
-     * `descent.balance.ts` and `expedition.balance.ts`. That is a milestone, not a chapter.
+     * ## ⚠️ None of the above is the live dial any more — {@link DescentLevelData.anchorCap} is
+     *
+     * The re-anchoring that followed chapter 16 **retired this as the deep end's dial** and left it
+     * at 0.022, doing the job it does below the cap and nothing above it. Read `anchorCap`'s comment
+     * before touching this number: the deep depths now all field the same capped anchor, so moving
+     * this reaches the *shallow* half hardest and buys nothing where the failure was.
+     *
+     * ⚠️ **Measured, so the next session does not re-derive it.** With the cap in place, raising this
+     * moves the mid-campaign depths off their tuning long before it moves the deep end at all: at
+     * 0.10 the deep depths still read a full walkover (1.00 finished, 5.00 survivors) while depth 400
+     * has already fallen to 0.00; at 0.22 the deep end finally reads 0.85 / 4.25 and depths 150 and
+     * 250 have collapsed to 0.30 and 0.15. **There is no setting of this constant that fixes the deep
+     * end, with or without the cap.** That is what made the cap the answer rather than a fifth value
+     * here.
+     *
+     * ⚠️ **Leave it at 0.022 unless the shallow depths themselves drift.** It is a fact about depths
+     * 60 through 500 now.
      */
     anchorSlope: 0.022,
+    /**
+     * ⚠️ **316, and it is derived rather than chosen — see {@link DescentLevelData.anchorCap} for the
+     * whole argument, the measurement and the condition that moves it.**
+     *
+     * The short version: the anchor stands in for how strong the party is, and the two stopped moving
+     * together at chapter 13, when the campaign began running above `legendary-plus`'s level cap of
+     * **260**. The party this mode calibrates has been flat at **243 to 248** across the last four
+     * chapters while the anchor climbed a hundred levels, so an uncapped anchor is a difficulty that
+     * runs away from its own player forever.
+     *
+     * Solving "hold the board-to-party **power** ratio at 0.50" — the value measured to give 0.75
+     * finished and 3.60 survivors of five, against 1.00 / 5.00 at 0.35 and 0.10 / 2.45 at 0.60 — puts
+     * the mid-run board at level 322, and this is the anchor that produces it.
+     *
+     * ⚠️ **Not 260.** That is the rung's cap and it is the right *reason* for a plateau, but fielding
+     * it directly reads 1.00 finished with **5.00 survivors** at all three deep depths: a walkover.
+     * The party is not standing *at* its cap, it is standing 17 levels under it with five ascension
+     * rungs in hand, and the rungs are worth 22.6 levels each. **Convert to power before picking the
+     * number.**
+     *
+     * ⚠️ **It binds only above 316, so no depth below it moved and no figure they were tuned against
+     * had to be re-derived.**
+     */
+    anchorCap: 316,
   },
   /**
    * What a run pays in crystals: 3,000 for a clean one, which is thirty pulls.

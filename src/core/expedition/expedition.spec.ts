@@ -93,6 +93,9 @@ const RULES: ExpeditionRulesData = {
     { name: 'Grand', start: 0, end: 8 },
   ],
   maxLifeLeech: 0.35,
+  // Infinite reproduces the pre-re-anchoring line exactly, which keeps every level assertion in
+  // this file a statement about a camp's own offset rather than about the anchor.
+  anchorCap: Number.POSITIVE_INFINITY,
   summons: { perCamp: 100, bossMultiplier: 5, completion: 1000 },
   completionEmblems: 25,
   lumpMultipliers: { gold: 2, xp: 2, essence: 5 },
@@ -362,20 +365,20 @@ describe('the small arithmetic', () => {
 
   it('offsets the level off the anchor and floors it at 1', () => {
     const [a, , c] = MAP.camps;
-    expect(expeditionLevel(100, a)).toBe(96);
-    expect(expeditionLevel(100, c)).toBe(102);
-    expect(expeditionLevel(2, a)).toBe(1);
+    expect(expeditionLevel(RULES, 100, a)).toBe(96);
+    expect(expeditionLevel(RULES, 100, c)).toBe(102);
+    expect(expeditionLevel(RULES, 2, a)).toBe(1);
   });
 
   it('resolves a camp into a stage that cannot touch the campaign payout path', () => {
     const [a, , c] = MAP.camps;
-    const stage = resolveExpeditionCamp(MAP, a, 50, { gold: 10 });
+    const stage = resolveExpeditionCamp(RULES, MAP, a, 50, { gold: 10 });
     expect(stage.id).toBe(expeditionStageId('trial', 'a'));
     expect(stage.kind).toBe('normal');
     expect(stage.level).toBe(46);
     expect(stage.rates).toEqual({});
     expect(stage.firstClearSummons).toBe(0);
-    expect(resolveExpeditionCamp(MAP, c, 50, {}).kind).toBe('boss');
+    expect(resolveExpeditionCamp(RULES, MAP, c, 50, {}).kind).toBe('boss');
   });
 
   it('multiplies the boss camp crystals and prices a chest off both idioms', () => {

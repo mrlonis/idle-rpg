@@ -839,20 +839,48 @@ rates together or none" means it cannot be answered by moving one of them. The f
 ceiling is gone, and what is left is a **finding** for the release-time economy pass rather than a
 number in a spec file.
 
-### ⚠️ Chapter 16 also put the Descent and Expeditions red, and it is not fixable by tuning
+### ⚠️ Chapter 16 put the Descent and Expeditions red, and the fix was to stop trusting the anchor
 
-Both modes derive board levels from the campaign **level** at a depth, which climbs 25 a chapter,
+Both modes derived board levels from the campaign **level** at a depth, which climbs 25 a chapter,
 while the party each depth implies is **bisected against the chapter final** — and finals have been
-getting _lighter_ for three chapters because of the rarity cap's gradient. Measured: the bisected
-party reads 234.7 at depth 600, 243.7 at 650 and **240.0 at 700**. It went backwards.
+getting _lighter_ for three chapters because of the rarity cap's gradient. Measured, the bisected
+party reads 244.7 at depth 600, 247.7 at 650 and **242.7 at 700**: flat, then backwards.
 
-⚠️ **`anchorSlope` was swept and no value passes** — 0.022, 0.010, 0.005 and 0.000 all read 0.00
-finished at the deep end, and 0.000 already breaks the mid-campaign walkover bar in the other
-direction. **A dial with no setting that works at both ends of its range is the wrong dial**, which is
-the third time this project has reached that conclusion after `gradeSoftness` and the flat Descent
-offset. The repair is to re-anchor both modes off `min(campaign level, the cap of the rung the content
-asks for)`; it re-derives every figure in two balance files and is a milestone rather than a chapter.
-**Chapter 16 recorded it and left the sweep red rather than tuning a dial that cannot help.**
+⚠️ **`anchorSlope` was swept and no value passed** — 0.022, 0.010, 0.005 and 0.000 all read 0.00
+finished at the deep end, and 0.000 already broke the mid-campaign walkover bar in the other
+direction. **A dial with no setting that works at both ends of its range is the wrong dial**, the
+third time this project has reached that conclusion after `gradeSoftness` and the flat Descent offset.
+
+**Both modes now clamp the anchor** — `DescentLevelData.anchorCap` at 316 and
+`ExpeditionRulesData.anchorCap` at 322 — and the clamp binds only above its own value, so **no depth
+below it moved and no offset had to be re-derived**.
+
+### ⚠️ Two findings from that work worth carrying into any mode keyed off the campaign
+
+1. ⚠️ **The level gap does not predict difficulty; the power ratio does.** Measured across nine
+   depths, a gap of +44 read a full walkover and +49 read 3.75 survivors — because party power is
+   `perLevel ^ level × 1.6 ^ rung` and the ascension ladder moves the second term in **steps of 22.6
+   levels** (`ln(1.6) / ln(1.021)`). Board-over-party power, by contrast, is monotone: **0.29 → 1.00
+   finished, 0.42 → 1.00, 0.50 → 0.75, 0.54 → 0.40, 1.02 → 0.00.** A ratio near **0.50** is a mode
+   working. **Convert to power before picking a level**; the naive clamp to the rung's own cap of 260
+   reads 5.00 survivors — a walkover — because the party stands 17 levels under its cap holding five
+   rungs.
+2. ⚠️ **When every reading saturates, tune against the sweep's own control instead.** Expeditions is
+   one-time content meant to become a completion, so every depth above its unlock reads 1.00 finished
+   by design and no cap can be chosen on a finish rate. What chose it was the carded-against-bare
+   control: 0.00 survivors of margin at cap 316, **+1.60 at 322**, −1.30 at 328. ⚠️ **A cap that reads
+   5.00 survivors passes every assertion in that file while measuring nothing** — do not take the
+   first green value.
+
+⚠️ **Both caps move when a chapter asks for a _rung_ above `legendary-plus`, not when a chapter
+ships.** That is the whole gain: `anchorSlope` needed re-deriving once a chapter for four chapters
+running, and this needs it once a rung.
+
+⚠️ **One blind spot the work exposed and did not close.** The Descent's `DEPTHS` samples chapters 3,
+4, 5, 7 and the top of the ladder, so **chapters 8 through 15 are unmeasured** — and diagnostic runs
+read 1.00 finished with **5.00 survivors** at depths 500 and 600. The mode is a walkover through the
+late-mid campaign and its sweep cannot see it. Adding a depth there fails immediately and wants its
+own tuning pass.
 
 ### ⚠️ The roster-relative crystal ceiling fired at chapter 14 and was **retired**, which is the fourth
 

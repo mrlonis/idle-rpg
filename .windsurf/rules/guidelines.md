@@ -106,7 +106,9 @@ them is how they get reversed by accident.
   measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
-  mid-flight.**
+  mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
+  — because the anchor stopped standing for how strong the party is; read it before touching either
+  mode's level line.
 - **[docs/expeditions.md](../../docs/expeditions.md)** — the puzzle maps: three hand-authored grids solved
   once each, a stamina budget, and an exit sealed behind a boss.
 - **[docs/achievements.md](../../docs/achievements.md)** — achievements and quests as ledgers over counters
@@ -244,6 +246,27 @@ Asserted in `core/battle/simulate.spec.ts`.
 - **The exception is a bounded rate.** `critChance`, `critDamageAmp` and `lifeLeech` take **points**
   rather than percentages, because a percentage of a bounded rate pays almost nothing.
   [descent](../../docs/descent.md)
+- ⚠️ **A level gap does not predict difficulty and the power ratio does, which is the same identity
+  read backwards.** Party power is `perLevel ^ level × 1.6 ^ rung` and the ascension ladder moves the
+  second term in **steps of 22.6 levels** (`ln(1.6) / ln(1.021)`) — so measured across nine Descent
+  depths a gap of +44 read a full walkover and +49 read 3.75 survivors, while board-over-party power
+  is monotone: 0.29 → 1.00 finished, 0.50 → 0.75, 1.02 → 0.00. **A ratio near 0.50 is a mode
+  working.** Convert to power before picking a level for anything keyed off the campaign; the naive
+  clamp to the rung's own cap reads 5.00 survivors because the party stands under its cap holding
+  rungs. [descent](../../docs/descent.md)
+- ⚠️ **A mode keyed off "the hardest campaign stage cleared" needs a ceiling on it.** That anchor was
+  standing in for how strong the party is, and the two stopped moving together at chapter 13: the
+  campaign now runs above the level cap of the rung it is tuned for, so its finals are authored
+  _lighter_ every chapter and the calibrated party has been flat while the anchor climbed a hundred
+  levels. Uncapped, the Descent and Expeditions both read **0.00 finished** at the deepest depth the
+  moment chapter 16 shipped. ⚠️ **The caps move when a chapter asks for a _rung_ above
+  `legendary-plus`, not when a chapter ships.** [descent](../../docs/descent.md)
+- ⚠️ **When every reading saturates, tune against the sweep's own control rather than its outcome.**
+  Expeditions is one-time content meant to become a completion, so every depth above its unlock reads
+  1.00 finished by design and no anchor cap can be chosen on a finish rate. **A cap that reads 5.00
+  survivors passes every assertion in that file while measuring nothing** — what chose it was the
+  carded-against-bare margin: 0.00 at cap 316, +1.60 at 322, −1.30 at 328. Do not take the first green
+  value. [expeditions](../../docs/expeditions.md)
 
 ### The economy
 
