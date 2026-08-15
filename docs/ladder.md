@@ -1,13 +1,15 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Thirteen chapters and five hundred and
-fifty stages** — 10, 20, 30, 40 and then nine of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Fourteen chapters and six hundred
+stages** — 10, 20, 30, 40 and then ten of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
 19 so the boundaries land where a session does; chapters 7 through 10 are milestone 21, chapter 11
 closed it, and chapter 12 — **The Rustwood** — is milestone 27, the first chapter whose enemies wear
-gear. See [gear](gear.md) for what that turned out to be worth.
+gear. See [gear](gear.md) for what that turned out to be worth. Chapter 13 is **The Quarry** and
+chapter 14 **The Shutgate**, which is where the campaign's difficulty gradient came back — not from
+gear, but from a rarity cap the ladder has now climbed past. See [authoring](authoring.md).
 
 ## The shape
 
@@ -26,8 +28,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
-Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom and The Undercut. A re-cut that
-moves a boundary owes the new final a unique body before it ships.
+Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut and The
+Doorstone. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -78,7 +80,17 @@ it three, which is the longest any rung has held on the flat line**, and it is t
 the margin rule was retired where the level term does _not_ vanish: 275 is fifteen levels above the
 cap, so `legendary-plus` reads **7.6774** (|Δln| 0.3117) against `mythic`'s 16.7772 (0.4700). That is
 a flat line climbing into the top of a cap rather than the margin rule returning — **expect every
-further chapter on this rung to close further above it.** Copies asked of a
+further chapter on this rung to close further above it.**
+
+⚠️ **Chapter 14 makes it four, and the "expect it" above is now a measured trend rather than a
+warning.** The Shutgate closes at 300, **forty levels** above the same cap: `legendary-plus` reads
+**4.5665** (|Δln| 0.5197) against `mythic`'s 16.7772 (0.7816). The three most recent seam ratios run
+**10.4858 → 7.6774 → 4.5665** — ×0.732 then ×0.595, compounding out of a ceiling that does not move.
+⚠️ **That is the campaign's difficulty gradient returning from somewhere nobody planned it**, and it
+brought back the first of the three guards milestone 24 widened against a promise about enemy gear:
+`meanSurvivors < PARTY_SIZE` at the top of the ladder now holds, at 4.00 of five. ⚠️ **The cost is
+that the seam chain has gone degenerate** — chapters 13 and 14 both clamp to 260, so the two parties
+a seam compares are the same combatants. See [authoring](authoring.md). Copies asked of a
 mortal character by the end of each band: **20** by the fen's fifty stages, 24 by the Marches, 32 by
 the Vault, 38 by the Barrows, 44 by the Weald, 50 by the Anvil, 62 by the Wild.
 

@@ -469,15 +469,16 @@ describe('a Descent run is a fight at every depth', () => {
     // the flat level offset, and the two 1.00s are the tell: the deep end had stopped being a fight
     // at all. See {@link DescentLevelData.anchorSlope}.
     //
-    // ⚠️ **They moved again when The Quarry landed, and the deep end is now the reading to watch.**
-    // At `anchorSlope` 0.11 the new top depth read **0.30 / 2.45 survivors**, under this floor; the
-    // slope came down to 0.10 and it reads **0.50 / 3.50**, with the four shallower depths within one
-    // reading of where they were. The current five are **0.50 / 0.80 / 0.65 / 0.80 / 0.50**.
+    // ⚠️ **They moved again when The Quarry landed, and again when The Shutgate did.** At
+    // `anchorSlope` 0.11 The Quarry's new top depth read **0.30 / 2.45 survivors**, under this floor,
+    // and 0.10 restored it. One chapter later The Shutgate's top depth read **0.15**, and the slope
+    // came down again to **0.075** — a third setting in three chapters, each lasting exactly one.
     //
     // ⚠️ **This is the failure to expect once a chapter, and the floor is not the thing to move.**
-    // The gap between the calibrated party and the boards it fights widens about 7.75 levels every
-    // chapter by construction — see `DescentLevelData.anchorSlope` for the arithmetic and for why the
-    // dial's *shape* is what is wrong. Re-derive the slope; do not widen this.
+    // The gap between the calibrated party and the boards it fights widens about 7.5 levels every
+    // chapter by construction — see `DescentLevelData.anchorSlope` for the arithmetic, for the closed
+    // form that now *predicts* the next value rather than bisecting for it, and for why the dial's
+    // *shape* is what is wrong. Re-derive the slope; do not widen this.
     //
     // ⚠️ **The party here carries no gear and no signature items**, where a real player at these
     // depths carries both. So this is a floor on the real finish rate rather than an estimate of it.

@@ -248,22 +248,28 @@ family, in exactly the sense `MAX_RESIST` is.
 ## Difficulty: an offset, not a share — plus a slope
 
 The enemy level is the hardest campaign stage this run has ever cleared, plus **−11** on the first
-fight and **+9** on the last, linearly between, **plus 0.10 levels per level of anchor**.
+fight and **+9** on the last, linearly between, **plus 0.075 levels per level of anchor**.
 
-At the unlock's anchor of 30 the slope contributes +3.0, so the total is about −8 / +12 — the pair
-the mode shipped with. At the top of the shipped ladder it contributes **+27.5**.
+At the unlock's anchor of 30 the slope contributes +2.25, so the total is about −9 / +11 — near enough
+the pair the mode shipped with. At the top of the shipped ladder it contributes **+22.5**.
 
 ### ⚠️ The slope is the wrong shape and it will need re-deriving every chapter
 
 It arrived at **0.11** in milestone 27, when the mode's deepest depth had stopped being a fight at
 all. One chapter later that depth read **0.30 finished and 2.45 survivors of five** against a floor of
-0.40 — the same dial, overshot the other way, in one chapter. **0.10 restores 0.50 / 3.50** and moves
-the four shallower depths by at most one reading.
+0.40 — the same dial, overshot the other way — and **0.10** restored 0.50 / 3.50. One chapter after
+_that_ the new deepest depth read **0.15 finished**, and the slope came down again to **0.075**.
+⚠️ **Three settings in three chapters, each lasting exactly one**, which is the shape finding stated
+as a schedule rather than as an argument.
 
 The arithmetic says no constant lasts. A chapter raises the anchor by 25, which raises these boards by
-25 **plus the slope's own 2.75**, while the party the depth implies is bisected against the chapter
-final and rose only **20** — level 201 at anchor 250, level 221 at anchor 275. The gap widens about
-**7.75 levels every chapter, by construction.**
+25 **plus the slope's own contribution**, while the party the depth implies is bisected against the
+chapter final and rises only about **20** — level 201 at anchor 250, 221 at 275. The gap widens about
+**7.5 levels every chapter, by construction.**
+
+⚠️ **Re-derive it closed-form rather than by bisection.** Solving "hold the party-to-board gap where it
+was" predicted **0.075** for chapter 14 exactly, and one sweep either side confirmed it: 0.08 still
+reads 0.30 at the deep end and 0.07 passes with room. **Chapter 15 will want about 0.058.**
 
 ⚠️ **The reason the party gains less than the anchor is a rung, and it is a step.** Party power is
 `perLevel ^ level × 1.6 ^ rung`, and the calibration takes its rung from `rarityFor(bisected level)` —

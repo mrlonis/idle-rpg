@@ -80,7 +80,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: thirteen chapters, five hundred and fifty stages, what a
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: fourteen chapters, six hundred stages, what a
   stage authors, position versus clear count, the rung cadence, and the guards that were retired.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
@@ -88,8 +88,11 @@ them is how they get reversed by accident.
   it before writing anything that reads a character's level.**
 - **[docs/gear.md](../../docs/gear.md)** — the third progression axis: five slots, five archetypes, a
   five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
-  measured twice, at two grades, and a whole grade step is worth about ×1.15 against the ×3 it would
-  need. Read it before planning a chapter's difficulty around it.
+  measured three times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
+  would need. Read it before planning a chapter's difficulty around it. ⚠️ **The campaign's gradient
+  came back from a rarity cap instead**: chapters 11 through 14 all sit on `legendary-plus`, whose cap
+  of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the party it is
+  tuned for and the seam ratio falls ×0.6 a chapter. See [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -275,6 +278,13 @@ Asserted in `core/battle/simulate.spec.ts`.
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](../../docs/authoring.md)
+- ⚠️ **A mechanic can be worth _only_ fight length, and that is the ninety-second clock rather than a
+  difficulty.** Measured across chapter 14's whole refusal vocabulary — `def` past the register,
+  `physicalResist` to 0.60, board-wide barriers, aegises, guards and weakens, and instance size at held
+  damage per second — **none is worth more than 0.08 of a survivor and several are worth eleven seconds
+  of fight.** What moves a tuned party is the anchor slot, and its response there is a cliff. **Count
+  the timeouts and check the control can move before believing either a positive or a negative.**
+  [testing](../../docs/testing.md)
 - ⚠️ **A tower band's crew owes 23 more levels of margin for every rung it takes past the first**,
   because `ln(1.6) / ln(perLevel.common)` is 22.6. Reusing `ROOF_MARGIN` unchanged on a new hundred
   gives ×2.703 against the shipped ×1.689 — and **the failure is invisible in the sweep**, because a

@@ -6051,6 +6051,165 @@ export const THE_GROUND_GOES = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Shutgate — chapter 14
+//
+// The chapter asks whether the party's damage arrives **big enough**, where The Quarry asked
+// whether it arrived at all. So its turns are about the blow being blunted rather than deflected:
+// a course set against it, a pool banked in front of it, and — three times over — the swing itself
+// made smaller before it lands.
+//
+// ⚠️ **Three of the six carry {@link WEAKEN} and none of the six restores health.** A weaken is the
+// mirror of {@link SLOW}: it lengthens a fight from the party's own side by shrinking what each of
+// its turns is worth rather than by giving the board anything. Against `atk² / (atk + def)` it is
+// worth more than the quarter it reads — a party at three quarters of its attack delivers about
+// two thirds of its damage into a wall of this chapter's `def`, because the formula is superlinear
+// in the attacker's own stat. That is the chapter's sentence stated as arithmetic.
+//
+// ⚠️ **{@link BANK_THE_WARD} is the one restorative shape here and it is a pool, not a heal.** A
+// barrier banks once and depletes; it cannot outrun closing pressure and it cannot refill. It sits
+// on a soft, back-rank body the party can aim at, which is what licenses it — see
+// `chapter-14.ts` for the measured cost, which is 0.00 survivors and +0.7s of fight.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold's own masonry, brought down on whatever is standing at the head of the party.
+ *
+ * The plate band's turn, and ⚠️ **deliberately plain** for the reason {@link FLATTEN_THE_EDGE} is:
+ * ×1.15 across the front rank with no rider at all. The band's whole argument is in the stat block
+ * — `def` at 58 and 66 against a shipped field whose ceiling is {@link UNMADE}'s 58 — and a skill
+ * carrying a second lock would make that unattributable.
+ */
+export const THE_COURSE_HOLDS = {
+  id: 'the-course-holds',
+  name: 'The Course Holds',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * A course of stone set into the gap, while the party is still working at the last one.
+ *
+ * The plate said as a **turn** rather than as a stat: {@link GUARD} across the mason's whole side,
+ * on a sixty-tick cadence against the status's own forty-five, so there is a window in every cycle
+ * where the board is only what its stat block says. That gap is the band's answer — the same shape
+ * `data/skills.spec.ts` holds a taunt to, and here it is a courtesy the band is authored around
+ * rather than a rule.
+ *
+ * ⚠️ **Unconditioned, and specifically not conditioned on being hurt.** A board that armours itself
+ * as it is wounded is the one defensive shape nobody may author: it is the ninety-second clock with
+ * a narrative attached. This one is set on a metronome whether it is needed or not.
+ */
+export const SET_THE_STONE = {
+  id: 'set-the-stone',
+  name: 'Set the Stone',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The wards the hold was sealed with, banked across everything still inside it.
+ *
+ * ⚠️ **A pool rather than a heal, and the distinction is the whole reason this band exists.** A
+ * {@link BARRIER} is banked once, absorbs until it is spent and cannot be spent twice; a heal puts
+ * health back and can be re-bought every cooldown. Closing pressure amplifies damage without bound
+ * past `PRESSURE_AFTER_TICKS` and deliberately does not amplify healing, so a pool is the one
+ * restorative shape that cannot stall a fight into the timer — and a timeout is scored a **defeat**.
+ *
+ * Cast at eighty ticks against the status's seventy, so it lapses before it is re-banked. It sits
+ * on {@link WARDSTONE_KEEPER}, which is the softest body this chapter fields — 600 health and 20
+ * `def` in the back rank — because a pool the party cannot delete the source of is a clock rather
+ * than a lock.
+ */
+export const BANK_THE_WARD = {
+  id: 'bank-the-ward',
+  name: 'Bank the Ward',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: BARRIER }],
+  cooldown: 80,
+  priority: 5,
+} as const;
+
+/**
+ * Every lamp in the gallery put out at once, and the party swinging at what it can no longer see.
+ *
+ * The ward band's damage, and where the chapter's {@link WEAKEN} is trailed one band early — the
+ * same thing The Quarry did with its first slow on `c13-s8` and The Rustwood with its suppression
+ * on `c12-s16`. Magical, so the resist that answers it is not the one this chapter's plate is built
+ * out of: a board that refuses physical damage should not also be the board that only takes magic.
+ *
+ * ×0.9 across five, under the ×1.2 wide ceiling `data/skills.spec.ts` holds.
+ */
+export const PUT_OUT_THE_LAMPS = {
+  id: 'put-out-the-lamps',
+  name: 'Put Out the Lamps',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 0.9 },
+    { kind: 'status', status: WEAKEN, chance: 0.7 },
+  ],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * A bar is set against a crowd. Against three it is just a door with something behind it.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the sixth chapter
+ * running to take that shape, and the first to condition on **how many of the party are still
+ * standing**. While four or more are up, The Deadbolt spends its turn holding the way and blunting
+ * everything that comes at it; once the party is down to three it stops barring and simply fights.
+ *
+ * So the four boards it stands on are four different fights against one block, and the fight
+ * *shortens* as it goes badly rather than lengthening — which is the direction a conditioned turn
+ * on a chapter this full of blunting has to move. A party that keeps all five alive meets this
+ * every sixty ticks; a party that has traded two members never sees it again.
+ */
+export const THE_BAR_HOLDS = {
+  id: 'the-bar-holds',
+  name: 'The Bar Holds',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.95 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/**
+ * You do not break a doorstone. You cut under it, and this one was cut under from the other side.
+ *
+ * The final's reach, at ×1.0 against the ×1.2 wide ceiling — the same figure
+ * {@link THE_GROUND_GOES} and {@link THE_IRON_COMES_UP} take, and read against the diminishing-`def`
+ * curve for the same reason.
+ *
+ * ⚠️ **Unconditioned, unlike {@link THE_BAR_HOLDS} above it, and that is the final saying the
+ * chapter once more without the escape valve.** A party that learned to trade a body to switch the
+ * lieutenant's turn off arrives here and finds the answer does not work — but it costs a
+ * **cooldown** rather than a permanent state, so it is a harder fight rather than a longer one.
+ *
+ * ⚠️ **It restores nothing and banks nothing.** No heal, no drain, no regeneration and no pool on
+ * this board: the ward is a band, not a boss, and a final that re-banked behind this much `def` is a
+ * fight the clock ends.
+ */
+export const NOTHING_SMALL_MOVES_IT = {
+  id: 'nothing-small-moves-it',
+  name: 'Nothing Small Moves It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: WEAKEN, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6356,4 +6515,10 @@ export const SKILLS = [
   THE_FACE_COMES_DOWN,
   CUT_BENEATH_IT,
   THE_GROUND_GOES,
+  THE_COURSE_HOLDS,
+  SET_THE_STONE,
+  BANK_THE_WARD,
+  PUT_OUT_THE_LAMPS,
+  THE_BAR_HOLDS,
+  NOTHING_SMALL_MOVES_IT,
 ] as const;

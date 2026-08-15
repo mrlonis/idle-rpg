@@ -9,6 +9,7 @@ import {
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
   BROKEN_COVENANT,
+  BANK_THE_WARD,
   BULWARK,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
@@ -56,6 +57,7 @@ import {
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
+  NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES_HOLD,
   NO_ANSWER_COMES,
   NO_EDGE_FINDS_IT,
@@ -66,6 +68,7 @@ import {
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
   PUT_THE_EDGE_ON,
+  PUT_OUT_THE_LAMPS,
   QUICKLIME_CUT,
   RAGGED_SWIPE,
   RAKE,
@@ -79,6 +82,7 @@ import {
   RUN_THE_SEED_DOWN,
   SEEDLIGHT,
   SET_THE_PITCH,
+  SET_THE_STONE,
   SEVENFOLD_HEX,
   SHARDLIGHT,
   SHATTERJAW,
@@ -92,10 +96,12 @@ import {
   STONE_FIST,
   SUNFADE,
   THE_ANVIL_FALLS,
+  THE_BAR_HOLDS,
   THE_BARROW_FORGETS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
+  THE_COURSE_HOLDS,
   THE_COUNTERSIGN,
   THE_DEBT_CALLED,
   THE_EDGE_IS_MADE,
@@ -442,6 +448,7 @@ export const BULWARK_ENEMY = {
   name: 'Iron Bulwark',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 820,
     atk: 40,
@@ -580,6 +587,7 @@ export const SENTINEL = {
   name: 'Cairn Sentinel',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 780,
     atk: 70,
@@ -723,7 +731,12 @@ export const HIEROPHANT = {
     critChance: 0.04,
     critDamageAmp: 0.5,
     magicResist: 0.1,
-    receivedHealing: 0.25,
+    // ⚠️ **A `receivedHealing: 0.25` sat here and was deleted by chapter 14's prose check.** It is
+    // not a `StatBlockData` field and never was — an already-`as const` object is not a fresh
+    // literal, so TypeScript's excess-property check never ran on it and nothing anywhere read it.
+    // **Deleted rather than corrected**, which is the zero-behaviour-change fix: every figure this
+    // block was ever measured with stays valid, where guessing at the stat it meant would hand it
+    // one it was never tuned with. See [authoring](../../docs/authoring.md) on auditing stat keys.
   },
   skills: [LITANY, BULWARK],
 } as const;
@@ -767,6 +780,7 @@ export const COLOSSUS = {
   name: 'Adamant Colossus',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1250,
     atk: 88,
@@ -944,6 +958,7 @@ export const FORGE_THRALL = {
   name: 'Forge Thrall',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 600,
     atk: 33,
@@ -987,6 +1002,7 @@ export const RUNEWARDEN = {
   name: 'Runewarden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 860,
     atk: 52,
@@ -1488,6 +1504,7 @@ export const RIVEN_MARCHWARDEN = {
   name: 'Riven Marchwarden',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 66,
@@ -2740,6 +2757,7 @@ export const COLDFORGE_HAND = {
   name: 'Coldforge Hand',
   faction: 'dwarf',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 52,
@@ -2845,6 +2863,7 @@ export const COLDHEARTH_IRONSWORN = {
   name: 'Coldhearth Ironsworn',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 840,
     atk: 76,
@@ -2872,6 +2891,7 @@ export const QUENCHWRIGHT = {
   name: 'Quenchwright',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 800,
     atk: 74,
@@ -2946,6 +2966,7 @@ export const OATHSTONE_BASTION = {
   name: 'Oathstone Bastion',
   faction: 'dwarf',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 64,
@@ -2993,6 +3014,7 @@ export const THE_GRUDGEKEEPER = {
   name: 'The Grudgekeeper',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1520,
     atk: 89,
@@ -3047,6 +3069,7 @@ export const THE_ANVIL_CROWNED = {
   name: 'The Anvil Crowned',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1750,
     atk: 97,
@@ -3962,6 +3985,7 @@ export const THE_WARDWRIGHT = {
   name: 'The Wardwright',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'support',
   stats: {
     hp: 1560,
     atk: 92,
@@ -5525,6 +5549,7 @@ export const THE_EDGEWRIGHT = {
   name: 'The Edgewright',
   faction: 'dwarf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1300,
     atk: 84,
@@ -6892,6 +6917,330 @@ export const THE_UNDERCUT = {
   skills: [THE_GROUND_GOES, HEADSMANS_ARC, MARROW_CRUNCH],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Shutgate — chapter 14's ten, and the lean that takes Dwarf from joint-thinnest to deepest
+//
+// Dwarf stood at 24 with Angel when this chapter was planned — joint-thinnest of the seven — and
+// **Angel is barred from leading a chapter**, because a celestial deals ×1.10 to every mortal and
+// the matrix has no mortal → celestial row. So Dwarf was the only faction that both wanted a lean
+// and could take one. Ten blocks take it to **34**, level with Monster. ⚠️ **Recompute the depths
+// before choosing the next lean**; this is the fourth time one session has reversed the ordering.
+//
+// ## ⚠️ These are the lightest anchors any chapter has authored, and that is the finding
+//
+// `THE_DEADBOLT` is 1400/84 and `THE_DOORSTONE` 1480/88, against The Quarry's 1500/88 and 1780/99
+// one chapter below. **A later chapter's anchors are now lighter than an earlier one's**, which is
+// the campaign arriving at the rule the towers' third hundreds hit first — and it is the level line
+// doing the work, not a softer chapter. Measured: chapter 13's own final board refielded at this
+// chapter's roof level of 300 with the Fine set reads **0% with nobody left standing** against the
+// party this chapter is tuned for. See `chapter-14.ts` for the table and for why the cause is a
+// rarity cap rather than gear.
+//
+// ## ⚠️ Nothing here heals, drains or regenerates, and one block banks a pool
+//
+// None of the ten carries `recovery`, `healthRegen` or `lifeLeech`, and the only restorative effect
+// in the chapter is {@link BANK_THE_WARD} — a {@link BARRIER}, which is banked once and depletes.
+// That is deliberate and it is a **Dwarf** chapter making the distinction: this faction owns the
+// tankiest blocks in the game, so a Dwarven chapter is the one most able to run the ninety-second
+// clock out, and what makes it hard has to be refusal rather than health. Every returning block the
+// chapter fields is filtered on the same rule — see `chapter-14.ts` for the counts over all fifty
+// boards, measured with a script.
+
+/**
+ * A gate is only as good as the last course laid into it, and this is what stands on that course.
+ *
+ * The plate band's common, and `def: 58` is **exactly** the shipped field's ceiling —
+ * {@link UNMADE}'s own — on a `common`-tier body. The band is built *at* the register here and
+ * steps past it only on {@link RINGWALL_HAMMERER} and the final.
+ *
+ * ⚠️ **The health is paid for out of the plate rather than added to it.** 800 against the 1080 and
+ * 1150 the shipped Dwarf tanks carry, because a chapter whose whole vocabulary lengthens fights
+ * cannot also make every body a bigger health bar.
+ */
+export const GATEFAST_WARDEN = {
+  id: 'gatefast-warden',
+  name: 'Gatefast Warden',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 800,
+    atk: 52,
+    def: 58,
+    haste: 60,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    tenacity: 0.35,
+    physicalResist: 0.16,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * The ring wall is the course that goes all the way round, and this is what holds the joint in it.
+ *
+ * ⚠️ **`def: 66` steps past the shipped register, in writing, with the figure at the register
+ * stated**: the ceiling over all one hundred and ninety-one blocks is {@link UNMADE}'s **58**, and
+ * the heaviest Dwarf tank is {@link EDGETURN_WARDEN}'s 44. This is the chapter's headline stat and
+ * it is the one place a band here is authored above what has shipped.
+ *
+ * ⚠️ **Measured, the step is worth almost nothing in survivors and a real amount in seconds**, which
+ * is stated here rather than left to be discovered: against the party this chapter is tuned for,
+ * `def` from 44 to 170 on a front-rank body moves the board from 4.03 survivors of five to 4.00 and
+ * the fight from 12.7s to 15.5s. `def` is a **fight-length** axis against this crew, not a
+ * difficulty one — see `chapter-14.ts` for the full negative list.
+ */
+export const RINGWALL_HAMMERER = {
+  id: 'ringwall-hammerer',
+  name: 'Ringwall Hammerer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 74,
+    def: 66,
+    haste: 80,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.35,
+    physicalResist: 0.12,
+  },
+  skills: [THE_COURSE_HOLDS, SHIELD_BASH],
+} as const;
+
+/**
+ * Somebody is still laying courses down here, and has been for a very long time.
+ *
+ * The band's caster, and the one that says the plate as a **turn**: {@link SET_THE_STONE} puts
+ * {@link GUARD} across its whole side every sixty ticks against the status's own forty-five, so
+ * there is a window in every cycle. Soft for a mason — 860 health and 36 `def` — because the window
+ * is not the only answer the band offers.
+ */
+export const STONECOURSE_MASON = {
+  id: 'stonecourse-mason',
+  name: 'Stonecourse Mason',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 860,
+    atk: 60,
+    def: 36,
+    haste: 84,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    tenacity: 0.4,
+    physicalResist: 0.08,
+  },
+  skills: [SET_THE_STONE, SHIELD_BASH],
+} as const;
+
+/** Bracework is what holds a course while the mortar takes. This is what does the holding. */
+export const BRACEWORK_DELVER = {
+  id: 'bracework-delver',
+  name: 'Bracework Delver',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 640,
+    atk: 60,
+    def: 26,
+    haste: 94,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    tenacity: 0.2,
+    physicalPierce: 0.12,
+  },
+  skills: [STONE_FIST],
+} as const;
+
+/**
+ * A kinstone is what a hold puts its own dead into the wall as. It is still holding the wall.
+ *
+ * `physicalResist: 0.30` is the shipped field's **third rung** — 0.40 on {@link THE_UNBITTEN}, 0.34
+ * on the Closeward Seraph, 0.30 on the Slaghide Pursuer — so this band is authored **at** the
+ * register rather than past it, unlike the plate above it.
+ */
+export const KINSTONE_BEARER = {
+  id: 'kinstone-bearer',
+  name: 'Kinstone Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 780,
+    atk: 50,
+    def: 46,
+    haste: 62,
+    critChance: 0.02,
+    critDamageAmp: 0.5,
+    tenacity: 0.3,
+    physicalResist: 0.3,
+  },
+  skills: [SHIELD_BASH],
+} as const;
+
+/**
+ * A boltfast is the socket a bar drops into. Everything about this one is the socket.
+ *
+ * `physicalResist: 0.34` is level with the second rung of the shipped field and under
+ * {@link THE_UNBITTEN}'s 0.40. ⚠️ **Measured against the party this chapter is tuned for, a
+ * board-wide resist of 0.34 is worth 0.03 survivors and four and a half seconds**, and 0.60 — well
+ * past anything shipped — is worth 0.03 survivors and eleven seconds. The Monster Tower's third
+ * hundred found the same stat biting only above 0.45 against a crew with pierce; this crew carries
+ * **none at all**, and it still does not bite. Stated because the band is authored knowing it.
+ */
+export const BOLTFAST_IRONSIDE = {
+  id: 'boltfast-ironside',
+  name: 'Boltfast Ironside',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1000,
+    atk: 66,
+    def: 50,
+    haste: 70,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.16,
+    tenacity: 0.45,
+    physicalResist: 0.34,
+  },
+  skills: [THE_ANVIL_FALLS, SHIELD_BASH],
+} as const;
+
+/**
+ * The wards were set on the day the gate was shut, and somebody has been re-setting them since.
+ *
+ * ⚠️ **The softest body this chapter fields, and that is what licenses the band.** 600 health and 20
+ * `def` in the back rank: a pool the party cannot delete the source of is a clock rather than a
+ * lock, and {@link BANK_THE_WARD} is deliberately carried by the thing on the board most worth
+ * aiming at. The same argument The Quarry made about where an evasion pool may sit.
+ */
+export const WARDSTONE_KEEPER = {
+  id: 'wardstone-keeper',
+  name: 'Wardstone Keeper',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 600,
+    atk: 58,
+    def: 20,
+    haste: 96,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    tenacity: 0.25,
+  },
+  skills: [BANK_THE_WARD],
+} as const;
+
+/** Deep lamps are what a hold reads its own galleries by, and this is what decides who gets to. */
+export const DEEPLAMP_SEALER = {
+  id: 'deeplamp-sealer',
+  name: 'Deeplamp Sealer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 820,
+    atk: 70,
+    def: 24,
+    haste: 98,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    tenacity: 0.3,
+    magicPierce: 0.2,
+    magicResist: 0.1,
+  },
+  skills: [PUT_OUT_THE_LAMPS, MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on `c14-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason
+ * `enemies.spec.ts`'s orphan rule exists. ⚠️ **Its signature is conditioned rather than an opening
+ * turn** — the sixth chapter running to take that shape, and the first to condition on **how many
+ * of the party are still standing**: {@link THE_BAR_HOLDS} does nothing once the party is down to
+ * three, so what it asks changes with how the four boards below it went.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 13 all declined it, because a
+ * second `ascended` anchor beside a boss is the sharpest non-linear weight step this game can
+ * author — and at this chapter's level gap that step is measurably a cliff rather than a slope.
+ * What stands beside The Doorstone is a legendary.
+ *
+ * Sized under {@link UNMADE} on both stats, and **under every chapter final since the Vault** — see
+ * the section header for why a later chapter's anchors are now the lighter ones.
+ */
+export const THE_DEADBOLT = {
+  id: 'the-deadbolt',
+  name: 'The Deadbolt',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1400,
+    atk: 84,
+    def: 62,
+    haste: 84,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.5,
+    physicalPierce: 0.2,
+    physicalResist: 0.18,
+  },
+  skills: [THE_BAR_HOLDS, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
+/**
+ * The chapter final: the block the hold was shut with, and the fourteenth body authored under the
+ * rule that a chapter's final is fielded nowhere else.
+ *
+ * 1480 health and 88 attack, well under {@link UNMADE}'s 1800 and 100 — and **under The Undercut's
+ * 1780 and 99 one chapter below it**, which is the first time a chapter final has been authored
+ * lighter than the one before. ⚠️ **That is the level line rather than a softer chapter.** This
+ * board stands at enemy level 300 against a party clamped at `legendary-plus`'s cap of 260, so it is
+ * fielded ×1.81 higher on the growth curve than The Undercut was; refielding The Undercut's own
+ * board here reads **0% with nobody standing.** See `chapter-14.ts`.
+ *
+ * ⚠️ **`def: 70` is the chapter's headline stat and it steps past the shipped register**, whose
+ * ceiling is {@link UNMADE}'s 58. `physicalResist: 0.30` sits at the register's third rung. Both are
+ * measured and both are worth seconds rather than survivors; what makes this the harder fight is
+ * where it stands on the curve and the four questions on one board.
+ *
+ * ⚠️ **It restores nothing and banks nothing.** No `recovery`, no `healthRegen`, no `lifeLeech`, no
+ * heal, no drain and no pool: the ward is a band and not a boss, and a final that re-banked behind
+ * this much `def` is a fight the ninety-second clock ends — which is scored a **defeat**.
+ */
+export const THE_DOORSTONE = {
+  id: 'the-doorstone',
+  name: 'The Doorstone',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1480,
+    atk: 88,
+    def: 70,
+    haste: 86,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    critBlock: 0.2,
+    critDamageResist: 0.3,
+    tenacity: 0.6,
+    physicalPierce: 0.22,
+    physicalResist: 0.3,
+  },
+  skills: [NOTHING_SMALL_MOVES_IT, THE_ANVIL_FALLS, GLACIAL_SLAM],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -7084,4 +7433,14 @@ export const ENEMIES = [
   BENCHLINE_LURKER,
   THE_DEEPCUT,
   THE_UNDERCUT,
+  GATEFAST_WARDEN,
+  RINGWALL_HAMMERER,
+  STONECOURSE_MASON,
+  BRACEWORK_DELVER,
+  KINSTONE_BEARER,
+  BOLTFAST_IRONSIDE,
+  WARDSTONE_KEEPER,
+  DEEPLAMP_SEALER,
+  THE_DEADBOLT,
+  THE_DOORSTONE,
 ] as const;

@@ -57,12 +57,14 @@ previous skeleton without changing its shape.
 | 26      | Towers to 300 floors, all seven landed    | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. The `PENDING` lists are gone for the second time            |
 | 27      | Chapter 12 — The Rustwood, and enemy gear | The escalation axis milestone 24 promised. Measured at **roughly a twentieth** of what it needs to be; none of the three widened guards came back                |
 | 28      | Chapter 13 — The Quarry                   | The gear grade steps and it is worth **nothing**: a whole grade is +1.2s of fight and zero survivors. Two more dials found with the `gradeSoftness` diagnosis    |
+| 29      | Chapter 14 — The Shutgate                 | The difficulty gradient came back — from a **rarity cap**, not from gear. One of the three widened guards restored; a fourth guard retired                       |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
 system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and
 the roster to **140**, on the same terms; chapters 12 and 13 take it to **550 stages** and **191
-archetypes**, still with no change in `ui/` or `core/`.
+archetypes**, and chapter 14 to **600 stages** and **201** — still with no change in `ui/` or
+`core/`.
 
 ### What the third hundreds established
 
@@ -147,6 +149,45 @@ are about **method** rather than about a tower:
 - ⚠️ **A retired guard kept its horizon for three chapters.** The tower:campaign crystal ratio was
   listed as firing at chapter 12; `towers.spec.ts` had already retired it. A horizon is a claim about
   a **guard** as well as about a curve.
+
+### What chapter 14 established, being the chapter the rung's cap ran out under
+
+- ⚠️ **The campaign's difficulty gradient is back and enemy gear is not what brought it.** Milestone
+  24 flattened the level line, traded the gradient away, and named enemy gear as the axis that would
+  restore it; chapters 12 and 13 measured that axis at a twentieth of what it needs and then at ×1.15
+  a grade. What restored it is `legendary-plus`'s **cap of 260**, which the campaign passed at chapter
+  12: The Shutgate closes at 300, so the party it is tuned for stands **forty levels** under its last
+  board. The three most recent seam ratios read **10.4858 → 7.6774 → 4.5665**, ×0.595 a chapter and
+  compounding. ⚠️ **One of the three widened guards came back on that** — `meanSurvivors < PARTY_SIZE`
+  at the top of the ladder, measured at 4.00 of five with zero timeouts — **and it does not license
+  moving either of the other two**, whose problems are their own shapes rather than the gradient.
+- ⚠️ **The seam chain has gone degenerate, which is a second and sharper instance of chapter 13's
+  finding.** Chapters 13 and 14 both close above the same cap, so `QUARRIED` and `INVESTED` clamp to
+  260 and are literally the same combatants: the two assertions a seam exists to make either side of a
+  boundary are now one claim, and the momentum ceiling is vacuous by construction rather than by
+  arithmetic.
+- ⚠️ **A later chapter's anchors are now the _lighter_ ones, and the campaign has reached the rule the
+  towers' third hundreds established.** Chapter 13's final board refielded at chapter 14's roof level
+  reads **0% with nobody standing**, so The Doorstone is 1480/88 against The Undercut's 1780/99 — the
+  first chapter final authored lighter than the one before it. **Field the previous chapter's final at
+  the new roof before authoring anything.**
+- ⚠️ **The chapter's own subject measured inert, and the negative list is the deliverable.** The
+  Shutgate asks whether the party's damage arrives _big enough_, and against the party it is tuned for
+  **every refusal mechanic in the game is worth 0.03 survivors or less**: `def` from 44 to 170 reads
+  4.03 → 4.00, board-wide `physicalResist` from 0.08 to 0.60 reads 4.03 → 4.00, and a board-wide
+  barrier, aegis, guard or weaken all read 4.00 — while the fight grows by between half a second and
+  eleven. **Refusal is a fight-length axis, which is the ninety-second clock rather than a difficulty**,
+  and it is exactly the failure a Dwarf lean is warned about. What moves this crew is the anchor slot,
+  and its response there is a cliff: board-wide `atk` ×1.6 reads 3.98, ×2.0 reads 1.43, ×2.5 reads 0.00.
+- ⚠️ **A fourth guard was retired rather than slid.** `banners.spec.ts`'s roster-relative crystal
+  ceiling fired at 29.99 days against 30, and it failed the way it was written to fix — it measured
+  against the roster to avoid decaying with content, but the roster is static and the ladder grows, so
+  it falls on every chapter by construction. Holding it needs five new ascended-tier characters per
+  chapter, forever. See [economy](economy.md).
+- ⚠️ **The prose check earned its place again, twice in one session.** The chapter header claimed an
+  85.2% lean while the boards measured **90.0%**, and claimed 10 boards carrying a shield where the
+  count was **20**. It also found a dead stat key — `receivedHealing` on the Ashen Hierophant — that had
+  shipped silently since the stat collapse, and deleted rather than corrected it.
 
 ### What chapter 13 established, being the chapter that stepped the gear grade
 

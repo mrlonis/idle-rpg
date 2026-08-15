@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 13 chapters, 550 stages, enemy levels 1–275 |
+| Campaign         | 14 chapters, 600 stages, enemy levels 1–300 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 191                                         |
+| Enemy archetypes | 201                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -57,6 +57,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 11      | 200   | 225    | 25   |
 | 12      | 225   | 250    | 25   |
 | 13      | 250   | 275    | 25   |
+| 14      | 275   | 300    | 25   |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -64,6 +65,43 @@ its seam party stands fifteen levels under the last board. That falls out of a f
 into the top of a cap, not out of a chapter sized to out-climb one — and it is what makes chapter
 13's seam ratio 7.6774 rather than the 10.4858 chapters 11 and 12 shared. **Expect it from here on**:
 every further chapter on this rung closes further above the cap.
+
+### ⚠️ Chapter 14 is where that stopped being a footnote: the cap is now the difficulty gradient
+
+The Shutgate closes at **300** against the same cap of 260, so its seam party stands **forty levels**
+under the last board — ×2.29 at `perLevel.common`. The three most recent seam ratios read **10.4858,
+7.6774, 4.5665**: ×0.732 and then ×0.595, compounding, from a ceiling that does not move.
+
+⚠️ **This is the gradient milestone 24 traded away, arriving from somewhere nobody planned it, and it
+brought one of the three widened guards back.** `chapters.balance.ts`'s "still costs that party
+something at the top" is restored to `meanSurvivors < PARTY_SIZE`: the invested party takes The
+Shutgate's final at **4.00 of five**, with zero timeouts. **Gear is not what restored it**, and the
+other two are still out — the momentum ceiling cannot bind for a reason of its own shape, and the
+longest-cleared-fight bar moves the wrong way as content lengthens fights. **One coming back does not
+license moving either of the others.**
+
+⚠️ **Two consequences a chapter-15 session meets immediately.** The seam chain has gone **degenerate**
+— chapters 13 and 14 both clamp to 260, so `QUARRIED` and `INVESTED` are literally the same
+combatants and the two assertions either side of the seam are one claim. And **the anchors have to
+get lighter**; see the next section.
+
+### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
+
+The campaign has reached the rule the towers' third hundreds established. Chapter 13's own final
+board, refielded against chapter 14's seam party:
+
+| `c13-s50`'s board, refielded | reading                      |
+| ---------------------------- | ---------------------------- |
+| level 275, Fine 26           | 100% / 5.00 survivors / 9.3s |
+| level 285, Fine 40           | 100% / 4.88 / 13.6s          |
+| level 290, Fine 47           | 100% / 3.40 / 21.1s          |
+| level 295, Fine 54           | **43%** / 1.15 / 33.0s       |
+| level 300, Fine 60           | **0%** / 0.00                |
+
+So chapter 14's final is **1480/88 against The Undercut's 1780/99**, and its lieutenant 1400/84
+against The Deepcut's 1500/88 — **the first time a chapter final has been authored lighter than the
+one before it.** That is the level line doing the work: The Doorstone stands ×1.81 higher on the
+growth curve, so it is a bigger body written as a smaller stat block. **Expect to keep coming down.**
 
 ⚠️ **The margin rule is gone, and the whole bisect-the-final procedure with it.** Chapters used to
 close _past_ the cap of the rung they asked for, by a margin that grew +12 to +18 a chapter (+20 at
@@ -210,11 +248,12 @@ worth leaving in place — they make the next geared chapter cheaper.
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run dwarf 24, angel 24, undead 25,
-  demon 25, human 26, elf 33, **monster 34** — The Quarry's ten blocks took Monster from joint-thinnest
-  to deepest, which is the **third** time a single lean has reversed the ordering outright and the
-  second in a row. Recompute before choosing; **Dwarf and Angel are now joint-thinnest at 24**, Angel
-  is barred, and so Dwarf is the only faction that both wants a lean and may take one.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, undead 25, demon 25,
+  human 26, elf 33, monster 34, **dwarf 34** — The Shutgate's ten blocks took Dwarf from joint-thinnest
+  to joint-deepest, which is the **fourth** time a single lean has reversed the ordering outright and
+  the third in a row. Recompute before choosing; **Angel is now thinnest of the seven at 24 and is
+  barred**, so the next lean is the first that has to be chosen between Undead and Demon at 25 rather
+  than read off the bottom of the list.
 - ⚠️ **Monster is the one lean that costs the faction matchup nothing, and it is worth knowing before
   picking a heavy one.** `FACTION_MATCHUPS` gives every faction ×1.05 into Monsters and Monsters ×1.05
   into all seven, ×1.10 into themselves — the wildcard row — so a mono-Monster pool still reads
@@ -224,6 +263,11 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   legal because four chapters after the Sunless Weald, Elf was still the thinnest legal lead at 23.
   What a repeat costs is that the chapter has to be a visibly different **place**: the Weald is the
   Elves at home and The Rustwood is the Elves out on somebody else's battlefield, picking it over.
+- **The Shutgate is 85.2% and so was The Quarry**, against the Weald's 81.5%, The Bleeding Wild's
+  83.9% and The Standing Line's 83.2%. ⚠️ **The Shutgate's first draft measured 90.0% while its header
+  already claimed 85.2%** — the header was written from the intent and the boards were never counted
+  until the prose check ran. The fix was twelve board slots rather than the sentence. **Count the
+  share; do not write the one you meant to author.**
 - **The Quarry came back to 85.2%**, against the Weald's 81.5%, The Bleeding Wild's 83.9% and The
   Standing Line's 83.2% — in family, and deliberately so after the note below. What bought it was six
   returning blocks from **one** other faction rather than a scatter: a dwarven quarry needs the crew
@@ -297,7 +341,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped eleven, with the level range each closes over:
+The shipped thirteen, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -313,6 +357,8 @@ The shipped eleven, with the level range each closes over:
 | 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on** |
 | 11  | The Standing Line  | 50     | 200 → 225 | what the party spends it on **first**           |
 | 12  | The Rustwood       | 50     | 225 → 250 | how much of it **survives contact**             |
+| 13  | The Quarry         | 50     | 250 → 275 | whether it lands **at all**                     |
+| 14  | The Shutgate       | 50     | 275 → 300 | whether it arrives **big enough**               |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -327,7 +373,15 @@ rather than at a boundary where it would read as a new game.
 Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTED` renamed to a
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
-`WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `INVESTED`.
+`WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `INVESTED`.
+
+⚠️ **The last link is now degenerate, and a chapter-15 session should expect it to stay that way.**
+Chapters 13 and 14 both close above `legendary-plus`'s cap of 260, so `QUARRIED` and `INVESTED` both
+clamp to 260 and are **the same five characters at the same level at the same rung**. The two
+assertions the seam exists to make either side of a boundary are therefore one claim, and the
+momentum ceiling — already non-binding for its own separate reason — is vacuous by construction.
+Recorded rather than repaired: the repair is the share-of-the-slice one `MOMENTUM_CEILING` already
+names, and it re-derives every seam in the file at once.
 
 ⚠️ **Picking that rung is no longer "the next one up", and this is the trap the flattening left
 here.** Under the margin rule each chapter out-climbed a fresh cap, so the rung advanced every
@@ -657,17 +711,35 @@ Measure, do not copy this table forward.
 | Fires at      | Guard                                               | Reads now  | The answer                                                                           |
 | ------------- | --------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
 | every chapter | `descent.balance.ts` — per-depth finish rate        | 0.50 deep  | `anchorSlope`, re-derived. **The shape is wrong**; see below                         |
-| chapter 14    | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 300. It is always `stages / 2`; what it wants is a saturating tilt |
-| chapter 14    | `banners.spec.ts` — roster-relative crystal ceiling | —          | Whether the roster kept up, not what number makes it green                           |
+| chapter 15    | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 325. It is always `stages / 2`; what it wants is a saturating tilt |
 | chapter 16    | `levels.spec.ts` — "charges real time"              | —          | Income is the question again. No retired guard left                                  |
-| chapter 30    | `levels.spec.ts` — rungs unspent above the ladder   | 250 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**       |
-| ~chapter 42   | The level curve is consumed entirely                | 250 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                 |
+| chapter 30    | `levels.spec.ts` — rungs unspent above the ladder   | 300 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**       |
+| ~chapter 42   | The level curve is consumed entirely                | 300 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                 |
 | ~chapter 180  | `gear.spec.ts` — "roughly doubles what gold is for" | —          | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`       |
 
-⚠️ **`gradeSoftness` fired again at chapter 13 and read 21.1% at five hundred and fifty stages;
-`stages / 2` = 275 restored 18.7% for the eighth time.** That is now eight landings on one figure
-with one solution, and it remains the strongest evidence in the project that the _shape_ is wrong
-rather than the number.
+⚠️ **`gradeSoftness` fired again at chapter 14 and read 20.9% at six hundred stages; `stages / 2` =
+300 restored 18.7% for the ninth time.** That is now nine landings on one figure with one solution,
+and it remains the strongest evidence in the project that the _shape_ is wrong rather than the number.
+
+### ⚠️ The roster-relative crystal ceiling fired at chapter 14 and was **retired**, which is the fourth
+
+`banners.spec.ts`'s "never pays out the whole roster faster than a run can enjoy it" read **29.99
+days** against a bar of 30 the day the ladder reached six hundred stages, and it is gone.
+
+⚠️ **It failed in exactly the way it was written to fix, and that is the finding.** It replaced two
+bounds that measured the ladder against itself, on the argument that measuring against the **roster**
+would make it independent of content. It is not: the roster is _static_ content and the ladder is
+_growing_ content, so `ROSTER_COPIES` is a constant while `pullsPerDay` climbs linearly. Measured —
+38.2 days at 450 stages, 35.0 at 500, 32.3 at 550, **30.0 at 600**, 26.2 at 700, 19.1 at 1000 — it is
+monotone decreasing and nothing has to be wrong for it to fire.
+
+⚠️ **The answer its own comment prescribed was measured and is not available.** "Look at whether the
+roster has kept up" costs **five new ascended-tier characters per chapter, forever**: 5 to hold 30
+days at 650 stages, 10 at 700, 20 at 800, and roughly 200 by the ~100 chapters the campaign is planned
+for. Milestone 20 added **seven** and was a whole milestone; seven here buys 33.3 days and fails again
+at chapter 15. **When the honest restatement of a guard is a number that has to move every chapter, the
+guard is pointed at the wrong quantity.** What is still bounded is the thing that was ever at risk — a
+crystal rate that _compounds_ past a flat `PULL_COST` — and `SUMMON_RATE.perStage` stays at 1.
 
 ### ⚠️ Two more guards now have the `gradeSoftness` diagnosis, and both arrived in chapter 13
 
@@ -773,7 +845,12 @@ the party a ×1.6 at every cap — both compounding over the whole level range w
 move at all. `DescentLevelData.anchorSlope` is the fix: **0.11 levels per level of anchor**, with the
 two fixed offsets brought down by 3 so the shallow end is untouched.
 
-⚠️ **0.11 lasted exactly one chapter and is now 0.10** — the table below is the milestone-27 reading
+⚠️ **0.11 lasted one chapter, 0.10 lasted one chapter, and it is now 0.075** — a third setting in
+three chapters, each with a one-chapter life, which is the shape finding stated as a schedule rather
+than as an argument. The re-derivation is now closed-form rather than a bisection: solving "hold the
+party-to-board gap where it was" predicted **0.075** for chapter 14 exactly, confirmed by one sweep
+either side (0.08 still reads 0.30 at the deep end, 0.07 passes with room). **Chapter 15 will want
+about 0.058.** The stale note below is the milestone-27 reading — the table below is the milestone-27 reading
 and the deep column is stale. See the `anchorSlope` finding above for why no constant here lasts, and
 `data/descent.ts` for the arithmetic.
 

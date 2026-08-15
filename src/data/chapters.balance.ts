@@ -636,7 +636,46 @@ const RUSTED: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Quarry asks
+ * The party that arrives in chapter 14: the five that just took The Undercut, unchanged.
+ *
+ * ⚠️ **This is The Quarry's {@link INVESTED}, kept under a new name rather than re-derived** — the
+ * tenth time that has happened and the tenth time for the same reason. Re-pointing a single "arrived"
+ * party at each new chapter would silently stop checking that the chapter below is still finishable
+ * by the party it was tuned for.
+ *
+ * ⚠️ **It is the first link in this chain that is _identical_ to the one above it, and that is a
+ * finding rather than an oversight.** Chapters 11 through 14 all sit on `legendary-plus`, whose cap
+ * of **260** the campaign passed at chapter 12: The Quarry closes at 275 and The Shutgate at 300, so
+ * both clamp to the same 260 and this party and {@link INVESTED} are the **same five characters at
+ * the same level at the same rung**. The seam chain exists to compare two parties at a boundary and
+ * at this boundary there is only one.
+ *
+ * **What that means for the two assertions below is stated at each of them**: "clears chapters 1
+ * through 13" and "is clearable end to end" become the same claim, and the momentum ceiling — already
+ * non-binding at this seam for its own separate reason — becomes vacuous by construction rather than
+ * by arithmetic. ⚠️ **Recorded, not fixed.** The repair is the one `MOMENTUM_CEILING` already names,
+ * and it is a decision about what a seam is meant to prove rather than a chapter's scope.
+ *
+ * ⚠️ **The chapter is not thereby easier — it is the hardest since the flattening.** The party cannot
+ * follow the content up the curve at all: The Shutgate's last board stands **forty levels** above it,
+ * which is ×2.29 at `perLevel.common` and arrives entirely from the cap. See {@link INVESTED} for the
+ * seam ratios and `chapter-14.ts` for what that measures as on the boards.
+ */
+const QUARRIED_RARITY = rarityIndex('legendary-plus');
+const QUARRIED_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[12] - 1].level,
+  LEVEL_CURVE.caps[QUARRIED_RARITY],
+);
+
+const QUARRIED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(QUARRIED_LEVEL, QUARRIED_RARITY),
+  QUARRIED_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Shutgate asks
  * for will carry them.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the ladder asks for levels and
@@ -656,20 +695,26 @@ const RUSTED: FormationData = mono(
  * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)` evaluated for
  * every rung and taken closest in **log** space.
  *
- * ⚠️ **Chapter 13 stays on `legendary-plus`, which is the third chapter running on one rung and the
- * longest any rung has held on the flat line.** Chapter 12's seam reads **10.4858**; against The
- * Quarry's close of 275, `legendary-plus` reads **7.6774** (|Δln| **0.3117**) and `mythic` reads
- * **16.7772** (|Δln| **0.4700**). So `legendary-plus` wins by 0.158 of a nat — wider than chapter
- * 11's 0.05 and narrower than chapter 12's exact tie, which is the ordinary case rather than either
- * extreme.
+ * ⚠️ **Chapter 14 stays on `legendary-plus`, which is the fourth chapter running on one rung and the
+ * longest any rung has held.** Chapter 13's seam reads **7.6774**; against The Shutgate's close of
+ * 300, `legendary-plus` reads **4.5665** (|Δln| **0.5197**) and `mythic` reads **16.7772** (|Δln|
+ * **0.7816**). So `legendary-plus` wins by 0.26 of a nat. Moving it up by reflex would hand the party
+ * a ×1.6 **and** forty levels at once, which is ×3.67 the content never asked for.
  *
- * ⚠️ **This is the first seam where the level term does not vanish since the margin rule was
- * retired, and it is not that rule coming back.** `legendary-plus` caps at 260 against a close of
- * 275, so this party stands **fifteen levels under** the last board rather than level with it —
- * ×0.732 — which is what produces the 7.6774 above. It falls out of a flat line meeting a cap, not
- * out of a chapter sized to out-climb one. The clamp is `Math.min` rather than a written number so a
- * retune of either side moves it, and `legal` throws rather than quietly fielding an over-levelled
- * party.
+ * ## ⚠️ The seam ratio is now falling a constant factor a chapter, and that is the gradient returning
+ *
+ * The three most recent seams read **10.4858**, **7.6774** and **4.5665** — ×0.732 and then ×0.595 —
+ * because `legendary-plus` caps at **260** and each chapter closes further above it. This party stands
+ * **forty levels** under The Shutgate's last board where The Quarry's stood fifteen under and every
+ * chapter before that stood level with its own close.
+ *
+ * ⚠️ **This is the difficulty gradient milestone 24 traded away, arriving from somewhere nobody
+ * planned it.** The flattening's whole trade was that a chapter is ×1.68 and a rung ×1.60 so the two
+ * cancel, with **enemy gear** named as the axis that would restore the difference; gear was measured
+ * at a twentieth of what it needs in chapter 12 and at ×1.15 a grade in chapter 13. The **rarity cap**
+ * restored it instead, and it compounds on its own: every further chapter on this rung closes further
+ * above a ceiling that does not move. The clamp is `Math.min` rather than a written number so a retune
+ * of either side moves it, and `legal` throws rather than quietly fielding an over-levelled party.
  *
  * **A rung roughly every hundred stages** is the cadence the flat line produces, where it was one per
  * fifty. What this rung costs a player over The Bleeding Wild's party is ten more duplicate copies of
@@ -816,6 +861,11 @@ const rustedSweeps = stages.map((stage) => ({
   stage,
   ...sweep(RUSTED, stage),
 }));
+const quarriedSweeps = stages.map((stage) => ({
+  label: 'quarried',
+  stage,
+  ...sweep(QUARRIED, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -859,6 +909,7 @@ const everySweep = [
   ...wildedSweeps,
   ...linedSweeps,
   ...rustedSweeps,
+  ...quarriedSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -908,6 +959,9 @@ const LINE_END = CHAPTER_ENDS[10];
 
 /** The end of chapter 12 — The Rustwood — where The Quarry goes down through the hill. */
 const RUST_END = CHAPTER_ENDS[11];
+
+/** The end of chapter 13 — The Quarry — where The Shutgate is on the other side of the floor. */
+const QUARRY_END = CHAPTER_ENDS[12];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1327,6 +1381,45 @@ describe('ladder balance', () => {
     expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
   });
 
+  it('lets the party that finished chapter 13 clear chapters 1 through 13', () => {
+    // The Shutgate's seam, measured the same way as the nine above it. ⚠️ **This party is not merely
+    // The Quarry's `INVESTED` under a new name — it is the same combatants as *this* file's
+    // {@link INVESTED} as well**, because chapters 13 and 14 both close above `legendary-plus`'s cap
+    // of 260 and both clamp to it. So this assertion and "is clearable end to end" below are two
+    // statements of one claim for the first time in the chain. See {@link QUARRIED}.
+    const unreliable = quarriedSweeps
+      .slice(0, QUARRY_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Shutgate as well', () => {
+    // ⚠️ **Vacuous by construction rather than by arithmetic, and that is a second and sharper
+    // instance of the finding chapter 13 recorded one seam below.** {@link MOMENTUM_CEILING} is a
+    // share of the *whole ladder* — 180 boards at 600 stages — while this slice is 50, so it could
+    // not bind here whatever it measured. On top of that, {@link QUARRIED} and {@link INVESTED} are
+    // now the **same party**, so "does not walk the chapter ahead" and "clears the chapter ahead"
+    // are asserted of one set of combatants and the first is required to be false.
+    //
+    // ⚠️ **Kept rather than deleted, and deliberately not widened or narrowed.** The honest repair
+    // is the one {@link MOMENTUM_CEILING} names: a share of the *slice* rather than of the ladder,
+    // which re-derives every seam assertion in this file at once and is a decision about what a seam
+    // is meant to prove. Deleting this one would quietly lose the record of why.
+    //
+    // ⚠️ **What the seam actually costs is not nothing, it is just not measured here.** The Shutgate
+    // stands **forty levels** above the cap this party is clamped at — ×2.29 — where The Quarry stood
+    // fifteen above and every chapter below that stood level with its close. That gradient is real
+    // and it shows up in the two assertions underneath this one, both of which it restores.
+    const walked = quarriedSweeps
+      .slice(QUARRY_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
   it('is clearable end to end by an invested party of common-tier characters', () => {
     // Without a lucky banner. The top of the ladder is allowed to demand investment; it is not
     // allowed to demand an ascended-tier pull, because there is no way to buy one.
@@ -1341,23 +1434,32 @@ describe('ladder balance', () => {
     // A ladder cleared without ever losing a party member has no texture, and the last boss
     // would read exactly like the first stage of the ladder.
     //
-    // ## ⚠️ The survivors half was retired when the campaign flattened to 0.50 levels a stage
+    // ## ⚠️ The survivors half was retired when the campaign flattened, and chapter 14 restores it
     //
-    // It read `top.meanSurvivors < 5` and the invested party now takes the final with all five
-    // alive. That is the same arithmetic {@link MOMENTUM_CEILING} records — a chapter is worth
-    // ×1.68 and the rung it pays for is ×1.60 — arriving at the one stage where there is no next
-    // chapter to absorb it. **Unlike the momentum ceiling there is nothing to widen**: five of five
-    // is the ceiling of the quantity, so the assertion could only be deleted or made vacuous.
+    // It read `top.meanSurvivors < 5`, and from milestone 24 through chapter 13 the invested party
+    // took the final with all five alive — the same arithmetic {@link MOMENTUM_CEILING} records, a
+    // chapter worth ×1.68 against a rung worth ×1.60, arriving at the one stage with no next chapter
+    // to absorb it. It was one of **three** guards widened or retired against a written promise that
+    // enemy gear would restore the gradient.
     //
-    // ⚠️ **What is kept is the half that still measures something**: the top of the ladder has to
-    // be a materially longer fight than the bottom of it. That survives the flattening because it
-    // compares two stages on the *same* line rather than a party against content, and it is what
-    // would catch a level curve that had stopped saying anything at all.
+    // ⚠️ **It is back, and gear is not what brought it back.** Gear was measured at a twentieth of
+    // what it needs in chapter 12 and at ×1.15 a grade in chapter 13. What restored this is the
+    // **rarity cap**: chapters 11 through 14 all sit on `legendary-plus`, whose cap of 260 the
+    // campaign passed at chapter 12, so The Shutgate's final stands forty levels above the party that
+    // is meant to take it and it costs that party a member — 4.00 of five, measured, with zero
+    // timeouts. See {@link QUARRIED}.
     //
-    // **This comes back with enemy gear**, on the same terms as the momentum ceiling: the test of
-    // that work is whether `meanSurvivors < 5` can be restored here.
+    // ⚠️ **It is therefore restored on a cause nobody planned, and the other two are not.** The
+    // momentum ceiling cannot bind at this seam for a reason of its own shape, and the
+    // longest-cleared-fight bar moves the *wrong* way as content lengthens fights. **This is the
+    // first of the three to come back and it does not license moving either of the others.**
+    //
+    // The seconds half is kept alongside it rather than replaced: it compares two stages on the same
+    // line rather than a party against content, and it is what would catch a level curve that had
+    // stopped saying anything at all.
     const top = investedSweeps[investedSweeps.length - 1];
 
+    expect(top.meanSurvivors).toBeLessThan(PARTY_SIZE);
     expect(top.meanSeconds).toBeGreaterThan(investedSweeps[0].meanSeconds * 3);
   });
 

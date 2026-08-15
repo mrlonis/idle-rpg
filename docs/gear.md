@@ -270,16 +270,16 @@ Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.
 125; 21b's fired it at three hundred — **23.4%** — taking it to 150; 21c's at three hundred and fifty
 — **22.6%** — taking it to 175; 21d's at four hundred — **22.1%** — taking it to 200; and The
 Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; The Rustwood at five
-hundred — **21.3%** — taking it to **250**; and The Quarry at five hundred and fifty — **21.1%** —
-taking it to **275**. Every one restores 18.7% over the ladder that actually ships. Same move, longer
-ladder, eight times now.
+hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and fifty — **21.1%** — taking
+it to **275**; and The Shutgate at six hundred — **20.9%** — taking it to **300**. Every one restores
+18.7% over the ladder that actually ships. Same move, longer ladder, nine times now.
 
-⚠️ **Eight re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Nine re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 14
-will want 300. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 15
+will want 325. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
 [authoring](authoring.md), which now records **two more dials with the same diagnosis** — the

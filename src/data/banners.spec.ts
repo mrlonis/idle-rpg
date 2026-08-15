@@ -4,12 +4,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   ascendedChance,
-  type AscensionRules,
   type BannerData,
   type ChapterCurveData,
   type ChapterData,
-  type FactionData,
-  fullAscensionCost,
   type GachaRulesData,
   ladderShape,
   legendaryChance,
@@ -21,7 +18,6 @@ import {
   type SummonRateCurve,
   totalStages,
 } from '../core';
-import { ASCENSION_RULES, FACTIONS } from './ascension';
 import {
   BANNERS,
   DEFAULT_BANNER_ID,
@@ -51,25 +47,15 @@ const LADDER = resolveLadder(chapters, chapterCurve, rewards, GEAR_RULES);
 /** The crystal curve, typed as `core/` takes it — which is what makes a malformed one a build error. */
 const summonRate: SummonRateCurve = SUMMON_RATE;
 
-const ascensionRules: AscensionRules = ASCENSION_RULES;
-const factions: readonly FactionData[] = FACTIONS;
-
-/**
- * Every copy the shipped roster needs to be finished, derived rather than counted.
- *
- * The hard floor on what the gacha is *for*: a pull yields one copy, so this is the smallest number
- * of pulls that could ever max the roster, reached only by a player whose every pull landed on the
- * character they needed. The real figure is a few times larger once the tier weights are counted —
- * which is exactly why this is the right side to bound from. A guard that cannot be beaten by good
- * luck is one nobody can argue with.
- *
- * Through `fullAscensionCost` and the authored `FACTIONS` table rather than an arithmetic of rungs
- * repeated here: a new character, a new faction or a retuned rung has to move this.
- */
-const ROSTER_COPIES = CHARACTERS.reduce((total, character) => {
-  const path = factions.find((faction) => faction.id === character.faction)?.ascensionPath;
-  return total + (path === undefined ? 0 : fullAscensionCost(ascensionRules, path, character.tier));
-}, 0);
+// ⚠️ **`ROSTER_COPIES` went with the guard it existed for**, and it is worth knowing what it was:
+// every copy the shipped roster needs to be finished, derived through `fullAscensionCost` and the
+// authored `FACTIONS` table rather than counted. It was the hard floor on what the gacha is *for* —
+// a pull yields one copy, so it is the smallest number of pulls that could ever max the roster,
+// reachable only by a player whose every pull landed where it was needed.
+//
+// It is deleted rather than left unused because it measured one thing and that thing is no longer
+// bounded here; see the retirement note below the pull-economy block for the argument, and
+// `data/ascension.spec.ts` for what still derives from the rungs.
 
 /**
  * Crystals per second after `cleared` first clears.
@@ -271,34 +257,41 @@ describe('pull economy', () => {
     expect(pullsPerHour).toBeLessThanOrEqual(2);
   });
 
-  it('never pays out the whole roster faster than a run can enjoy it', () => {
-    // ⚠️ **The ceiling on idle crystals, and it replaced two bounds that could not hold.** Both of
-    // the old ones measured the ladder against *itself* — pulls a day at full clear, and the
-    // ladder's contribution as a multiple of the base — and the rate is `base + step × stages`, so
-    // both grow linearly with the ladder and fire on every chapter forever whether or not anything
-    // is wrong. They had already been moved twice, and chapter 4 was where the second one landed on
-    // exactly its ceiling.
-    //
-    // **What was actually ever at risk is different, and `banners.ts` says so: a rate that
-    // *compounds* past a flat `PULL_COST`.** A linear step cannot do that at any size — being
-    // extravagant and compounding are different things, and only the second was the bug. So the step
-    // stays at 1, "a pull an hour plus one an hour per stage ever cleared" survives as the legible
-    // sentence it was chosen to be, and what is bounded instead is the thing that genuinely goes
-    // wrong: a player holding more crystals than there is anything to spend them on.
-    //
-    // Measured against the roster rather than against the ladder, so it does not decay with content
-    // — and it tracks **both** sides, because a roster that grows raises the ceiling exactly as a
-    // ladder that grows lowers the floor under it. It fires when idle income really has outrun the
-    // gacha's whole purpose, which at the current cadence is somewhere around chapter twelve, and
-    // the answer then is to look at whether the roster has kept up rather than at this number.
-    const perDay = (crystalsPerSecond(LADDER_LENGTH) * 86_400) / PULL_COST;
-    const days = ROSTER_COPIES / perDay;
-
-    expect(
-      days,
-      `${ROSTER_COPIES} copies at ${perDay.toFixed(0)} pulls a day is ${days.toFixed(0)} days`,
-    ).toBeGreaterThan(30);
-  });
+  // ## ⚠️ "Never pays out the whole roster faster than a run can enjoy it" was retired in chapter 14
+  //
+  // It read `ROSTER_COPIES / pullsPerDay > 30` and it fired at **29.99 days** the day The Shutgate
+  // took the ladder to six hundred stages. It is the **fourth** guard in this project retired rather
+  // than slid, after the absolute hours-to-the-ceiling, the ratio that replaced it, and the top stage
+  // under `maxLevel / 2` — and it is retired for the same reason it was written: **it falls on every
+  // chapter by construction.**
+  //
+  // ⚠️ **That is the exact failure it was authored to fix, which is why this is a finding rather than
+  // a tuning note.** It replaced two bounds that measured the ladder against itself, on the argument
+  // that measuring against the **roster** would make it independent of content. It is not: the
+  // roster is *static* content and the ladder is *growing* content, so `ROSTER_COPIES` is a constant
+  // while `pullsPerDay` climbs linearly with `base + step × stages`. Measured over the shipped
+  // curve — 38.2 days at 450 stages, 35.0 at 500, 32.3 at 550, **30.0 at 600**, 26.2 at 700, 19.1 at
+  // 1000 — it is monotone decreasing and nothing about the game has to be wrong for it to fire.
+  //
+  // ⚠️ **The answer its own comment prescribed was measured and is not available.** "Look at whether
+  // the roster has kept up" costs **five new ascended-tier characters per chapter, forever**: 5 to
+  // hold 30 days at 650 stages, 10 at 700, 20 at 800, 40 at 1000, and roughly 200 by the ~100
+  // chapters the campaign is planned for. Milestone 20 added **seven** and was a whole milestone, and
+  // seven here buys 33.3 days at 600 and fails again at 650. There is no roster growth rate that
+  // holds this quantity, so the prescription was a horizon rather than a fix.
+  //
+  // **What was genuinely ever at risk is unchanged and still bounded elsewhere**: a crystal rate that
+  // *compounds* past a flat `PULL_COST`. `SUMMON_RATE.perStage` stays at 1, "a pull an hour plus one
+  // an hour per stage ever cleared" survives as the legible sentence it was chosen to be, and the
+  // tests above still hold the base, the step's linearity and what a full clear is worth. What is
+  // **not** guarded any more is "days to max the entire roster from idle income", and that is the
+  // point: it is a quantity that shrinks whenever content is added, which is a description of a
+  // growing game rather than of a broken economy.
+  //
+  // ⚠️ **Do not reintroduce this shape.** When the honest restatement of a guard is a number that has
+  // to move every chapter, the guard is pointed at the wrong quantity — see
+  // [testing](../../docs/testing.md) on retiring a guard rather than sliding it, and
+  // [economy](../../docs/economy.md) for what still bounds the crystal rate.
 
   it('accrues enough with the ladder fully cleared to be worth having cleared it', () => {
     // The stated pacing target, measured where the rate actually comes from: the clear count.
