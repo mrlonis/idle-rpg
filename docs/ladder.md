@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Fifteen chapters and six hundred and
-fifty stages** — 10, 20, 30, 40 and then eleven of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Sixteen chapters and seven hundred
+stages** — 10, 20, 30, 40 and then twelve of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -10,8 +10,10 @@ closed it, and chapter 12 — **The Rustwood** — is milestone 27, the first ch
 gear. See [gear](gear.md) for what that turned out to be worth. Chapter 13 is **The Quarry** and
 chapter 14 **The Shutgate**, which is where the campaign's difficulty gradient came back — not from
 gear, but from a rarity cap the ladder has now climbed past. Chapter 15 is **The Underroad**, which
-priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. See
-[authoring](authoring.md).
+priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. Chapter
+16 is **The Spoilfield**, where the same arithmetic drove the board budget **through the floor of the
+shipped enemy pool** — its blocks are roughly two fifths of chapter 15's, its final is 250/24, and it
+is the last chapter that can step the gear ladder. See [authoring](authoring.md).
 
 ## The shape
 
@@ -31,7 +33,7 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone and The Unnumbered. A re-cut that moves a boundary owes the new final a unique body before it ships.
+Doorstone, The Unnumbered and The Inheritor. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -99,7 +101,20 @@ Underroad closes at 325, **sixty-five levels** above the cap: `legendary-plus` r
 0.5196) against `mythic`'s 16.7772 (1.3013). The four most recent seams run **10.4858 → 7.6774 →
 4.5665 → 2.7160**, and the last two factors are both exactly `perLevel.common ** -25` = 0.595 — so
 once a chapter closes entirely above its rung's cap the seam divides by **1.680** a chapter **by
-construction**. ⚠️ **And `mythic` is not the way out**: measured, a `mythic` five at 325 needs boards
+construction**.
+
+⚠️ **Chapter 16 makes it six, and the rate has now held three times, which retires it as a
+prediction and makes it arithmetic.** The Spoilfield closes at 350, **ninety levels** above the cap:
+`legendary-plus` reads **1.6154** (|Δln| 0.5196 — the same figure, because the factor is constant)
+against `mythic`'s 13.6290 (1.6130). The five most recent seams run **10.4858 → 7.6774 → 4.5665 →
+2.7160 → 1.6154**. ⚠️ **`mythic` is now further away rather than closer**: its cap of 340 sits _below_
+the chapter's close as well, so the rung the arithmetic prefers wins by a wider margin every chapter,
+and the boards a `mythic` party would need are past the Unmade's ceiling by more each time.
+
+⚠️ **The seam chain is now degenerate three links deep.** Chapters 13, 14, 15 and 16 all clamp to 260,
+so `QUARRIED`, `SHUTGATED`, `UNDERROAD` and `INVESTED` are **four consecutive names for one set of five
+combatants**, and the eight assertions either side of those three boundaries are three claims. Recorded
+rather than repaired, for the third chapter running. ⚠️ **And `mythic` is not the way out**: measured, a `mythic` five at 325 needs boards
 scaled ×2.4, which is an anchor near 3,550 health against the Unmade's ceiling of 1800 that
 `enemies.spec.ts` enforces. **The rung the arithmetic prefers is the only one the enemy roster can be
 authored for.** What that costs instead is the stat line: The Unnumbered is 680/40 against The

@@ -181,6 +181,38 @@ export const DESCENT_RULES = {
      * carrying nothing new either time. Milestone 27 recorded that step as a *red herring* for the
      * easiness it was fixing; it is the direct cause of the hardness measured twice since.
      *
+     * ## ⚠️ Chapter 16 is where the dial ran out entirely, and its sign assumption broke
+     *
+     * The Spoilfield took the top depth to 700 clears and **no value of this constant passes it.**
+     * Measured over the mode's own sweep: at 0.022 the deep end reads **0.00 finished / 2.8 floors
+     * of 9**; at 0.010 it reads 0.00 / 3.2; at 0.005, 0.00 / 3.55; and at **0.000** it still reads
+     * 0.00 / 3.7 *while the depth-250 walkover bar breaks in the other direction* (4.85 survivors
+     * against a bar of `< 4.85`). Holding the party-to-board gap where chapter 15 had it needs about
+     * **−0.063**, which takes ten more levels off the mid-campaign depths that are already too easy.
+     * **There is no setting that works at both ends of the range this is measured over**, which is
+     * the definition of the wrong dial rather than the wrong number.
+     *
+     * ⚠️ **And the reason is not the one modelled above: the calibrated party stopped rising at
+     * all, and then went backwards.** Bisected against the campaign stage each depth anchors on,
+     * over three locks:
+     *
+     * | depth | anchor stage | bisected party level |
+     * | ----- | ------------ | -------------------- |
+     * | 600   | `c14-s50`, level 300 | 234.7        |
+     * | 650   | `c15-s50`, level 325 | 243.7 (+9.0) |
+     * | 700   | `c16-s50`, level 350 | **240.0 (−3.7)** |
+     *
+     * The anchor's *level* rose the full 25 and these boards rose 25.6 with it, while the party the
+     * depth implies **fell**. ⚠️ **That is the rarity cap's gradient arriving here**: since chapter 14
+     * the campaign has run entirely above `legendary-plus`'s cap of 260, so every chapter final is
+     * authored **lighter** than the one before it to stay clearable by a party that cannot climb — The
+     * Doorstone 1480/88, The Unnumbered 680/40, The Inheritor 250/24. A lighter final bisects lower.
+     * **The model above assumes the party gains about 20 a chapter; it gained 9.7 at chapter 15 and
+     * −3.7 at chapter 16, so the assumption is not merely mis-sized, its sign is wrong.**
+     *
+     * ⚠️ **`data/expedition-maps.ts` fails identically and for the same reason**, with no dial at all
+     * — its camps author a fixed `levelOffset` against the same anchor. Two modes, one cause.
+     *
      * ⚠️ **So the shape is wrong rather than the number, and this is the second dial in the project
      * with that diagnosis** — `gear.ts`'s `gradeSoftness` is the first, and it has now been
      * re-derived ten times. What this eventually wants is a board level keyed off **the calibrated
@@ -190,6 +222,16 @@ export const DESCENT_RULES = {
      * several chapters ahead** — the landing is the only thing that will force the shape fix, which is
      * exactly the call `gradeSoftness` records having got right. **Re-derive it from the measured
      * bisection at both depths; chapter 15's landing shows the prediction alone is not enough.**
+     *
+     * ⚠️ **Left at 0.022 deliberately at chapter 16, with `descent.balance.ts` red at depth 700.**
+     * Every candidate was swept and none passes, so moving it would buy nothing and would lose the
+     * record of what the sweep is reporting. **Do not tune this; re-anchor the mode.** The clean
+     * formulation the measurement points at is that a depth's boards should key off
+     * `min(campaign level, the cap of the rung that content asks for)` — which is what the bisected
+     * party actually tracks, and which has been flat at 260 since chapter 13 — rather than off the
+     * raw campaign level. ⚠️ **A naive clamp to 260 overshoots into walkovers**, so the two fixed
+     * offsets have to be re-derived at the same time, and so does every figure in
+     * `descent.balance.ts` and `expedition.balance.ts`. That is a milestone, not a chapter.
      */
     anchorSlope: 0.022,
   },

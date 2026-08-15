@@ -104,6 +104,26 @@ Three findings from `expedition.balance.ts`, all bought by measurement:
   bar. The sweep's route policy is deliberately the honest floor: cheapest route, greedy card,
   three retries per camp, no gear, no signature items.
 
+### ⚠️ Chapter 16 broke the deepest depth, and the cause is the Descent's exactly
+
+The Spoilfield took the ladder to 700 stages, and `expedition.balance.ts` now reads **0.00 finished**
+for the Causeway and the Spine at the deepest depth against a bar of 0.90. ⚠️ **Nothing about the maps
+changed and no camp is mis-authored.** A camp's level is a fixed `levelOffset` off the run's anchor —
+the hardest campaign stage cleared — and that anchor's level climbs 25 a chapter, while the party each
+depth implies is bisected against the campaign stage there and has **stopped climbing**: 234.7 at
+depth 600, 243.7 at 650 and **240.0 at 700**.
+
+⚠️ **That is the campaign's rarity cap arriving here.** Since chapter 14 the ladder runs above
+`legendary-plus`'s cap of 260, so each chapter final is authored lighter than the last to stay
+clearable — The Doorstone 1480/88, The Unnumbered 680/40, The Inheritor 250/24 — and a lighter final
+bisects lower. [descent](descent.md) carries the full measurement, including the sweep proving the
+Descent's own `anchorSlope` has no setting that works at both ends.
+
+⚠️ **This mode has no dial at all**, so there was nothing to sweep: the repair is the same re-anchoring
+the Descent needs, keyed off `min(campaign level, the cap of the rung that content asks for)` rather
+than the raw anchor, with every camp's `levelOffset` re-derived alongside it. **Two modes, one cause,
+one fix.** Chapter 16 recorded it rather than taking it; see [authoring](authoring.md).
+
 ⚠️ **The sweep carries the two permanent controls the Descent's milestone mandated**: a
 much-harder setting (+18 levels) must measure harder — it takes the Spine's unlock finish rate
 from 0.50 to 0.00 — and cards must measure as worth taking (survivors 4.80 against 4.10 at the

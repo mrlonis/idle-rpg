@@ -6357,6 +6357,245 @@ export const THERE_IS_NO_END_TO_IT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 16 — The Spoilfield. The turns of a trade rather than of an army.
+//
+// The chapter asks whether it is the party's own damage at all, and the vocabulary is
+// {@link THORNMAIL} — a returning status carried on nine shipped blocks, none of them under
+// 760 health. What is new here is the **weight** it sits on: a 300-health body reflecting a
+// quarter of what a level-260 party swings at a level-350 board is a different proposition to
+// the Cairn King doing it, because the party's blow is the scaling quantity and the wearer's
+// health is not.
+//
+// ⚠️ **Nothing in this band is worth what it looks like away from the cliff.** Measured against
+// a live control at the roof, `THORNMAIL` across a whole board is worth **0.00** survivors at
+// 900 total health, **0.20** at 1,060 and **1.33** at 1,160. The mechanic did not change; where
+// the board stands did. See `chapter-16.ts` for the table and for why every figure in it is
+// stated with the weight it was measured at.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They are not fighting for the field. They are already finished with the part of it you are
+ * standing on.
+ *
+ * The opening band's finisher, at ×1.4 on the softest body standing. A picker's turn is spent on
+ * whatever is nearly down rather than on whatever is dangerous, which is the fiction and also the
+ * shape that punishes a party for spreading its damage — the same question
+ * {@link PUT_IT_ON_THE_CART} asks one chapter below, kept because The Spoilfield's opening band
+ * has to be a fight without carrying a status.
+ */
+export const STRIP_THE_FALLEN = {
+  id: 'strip-the-fallen',
+  name: 'Strip the Fallen',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * The straps first. The plate is only attached to somebody by the straps.
+ *
+ * {@link SUNDER} on the front rank behind a small blow, and it is the opening band's whole claim
+ * to being about armour: a trade that undresses the dead for a living is good at getting a
+ * breastplate off something that is still moving.
+ *
+ * ⚠️ **Measured at 0.00 survivors against a live control at the roof**, which is stated rather
+ * than hidden. It is texture and the level line is the difficulty — the third chapter running to
+ * record that about its own opening band.
+ */
+export const CUT_THE_STRAPS = {
+  id: 'cut-the-straps',
+  name: 'Cut the Straps',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.1 },
+    { kind: 'status', status: SUNDER },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * Everything goes on the cart. The cart is the only thing here anybody is loyal to.
+ *
+ * {@link GUARD} across the crew on a fifty-five tick cadence against the status's own forty-five,
+ * so a fifth of every cycle is a window where the field is only what its stat blocks say — the
+ * same courtesy {@link DRESS_THE_RANKS} and {@link SET_THE_STONE} extend, and for the same reason:
+ * a board with no window is a wall rather than a rhythm.
+ *
+ * ⚠️ **`GUARD` rather than {@link RALLY}, and the choice is measured rather than flavoured.** At
+ * the roof a `RALLY` on `ally-all` costs the tuned party **2.26 of five** — more than any anchor's
+ * whole stat line and the single largest lever on any board in this chapter — where `GUARD` on the
+ * same body and the same cadence costs **0.08**. The opening band gets the small one. See
+ * {@link COUNT_IT_ALL_AGAIN} for the one board-wide rally the chapter spends.
+ */
+export const LOAD_THE_CART = {
+  id: 'load-the-cart',
+  name: 'Load the Cart',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: GUARD }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The pockets are worth going through before the plate is. The plate is not going anywhere.
+ *
+ * The opening band's **reach** — a `enemy-back` turn, which is a reach rather than a scope or a
+ * selection, and this comment says which of the three on purpose. Four sessions have now had to
+ * correct a claim that confused them.
+ */
+export const WHAT_THE_DEAD_KEPT = {
+  id: 'what-the-dead-kept',
+  name: 'What the Dead Kept',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 35,
+  priority: 3,
+} as const;
+
+/**
+ * It was made to be hard to hit. Nobody asked whether it minded who was inside it.
+ *
+ * The thorned band's plain turn. The block carrying it does its work through {@link THORNMAIL} as
+ * an `opening`, so its kit is deliberately ordinary — a body whose stat line is the smallest thing
+ * about it.
+ */
+export const SPINES_STILL_IN_IT = {
+  id: 'spines-still-in-it',
+  name: 'Spines Still In It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 30,
+  priority: 3,
+} as const;
+
+/**
+ * A rope through five belts. It was for the cart and it works just as well on people.
+ *
+ * {@link CHAINBOND} across the crew every sixty ticks against the status's own lingering duration,
+ * so the bind lapses before it is recast and the party gets its route back on a schedule.
+ *
+ * ⚠️ **A link conserves damage and cannot cascade** — a share resolves through `statusDamage`,
+ * which never re-enters the attack path — so this costs the party its **route** rather than its
+ * progress, and no version of it runs the ninety-second clock out. Measured at the roof it is
+ * worth **0.25 of five** and four tenths of a second; on the plateau below it is worth 0.00.
+ *
+ * ⚠️ **Cast rather than authored as an `opening`, and the difference is not cosmetic.** As an
+ * opening on all five the same status measured **0.75 of five** at a weight where the cast version
+ * measured nothing — because an opening costs the board no turn and this costs it one. The
+ * chapter takes the cast: a bind the party can watch arrive is a route problem, and a permanent
+ * one on a board this thin is a wall.
+ */
+export const ROPED_TOGETHER = {
+  id: 'roped-together',
+  name: 'Roped Together',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 75,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever you are swinging, it is going on the list at what the list says it is worth.
+ *
+ * {@link WEAKEN} across the party every fifty ticks, and ⚠️ **it is the second largest lever this
+ * chapter has** — measured at the roof it costs the tuned party **1.66 of five** and takes the
+ * mean fight from 13.4 to 21.4 seconds, against the same status measuring **0.00** at the band
+ * openings above it. That is the plateau rather than the status: chapter 14 measured its whole
+ * refusal vocabulary inert against a party standing forty levels under its boards, and this party
+ * stands **ninety** under.
+ *
+ * ⚠️ **Eight seconds of fight is the part to watch rather than the survivors.** It is the one turn
+ * in this chapter that lengthens a fight rather than shortening it, which is why the clerk carries
+ * it and the closing band's anchors do not: worst measured is 39.6 seconds against a ninety-second
+ * timer, and a timeout is scored a defeat.
+ */
+export const TAKE_IT_OFF_THE_COUNT = {
+  id: 'take-it-off-the-count',
+  name: 'Take It Off the Count',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * There is a number for a person. It is written down beside what they were wearing.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the eighth
+ * chapter running to take that shape. It answers what the party is doing rather than announcing
+ * itself, so four appearances at four levels are four different fights against one block.
+ *
+ * **It switches off at four standing**, which is the first threshold to sit between the two
+ * shipped ones: {@link THE_BAR_HOLDS} stops at three and {@link THE_COUNT_DOES_NOT_STOP} needs the
+ * party whole at five. So this one survives the party's first loss and stops at its second — a
+ * lieutenant that stops writing when there is not enough left to be worth the ink.
+ *
+ * ⚠️ **The direction is deliberate and it is the only direction allowed.** A body that sharpens
+ * itself as the fight turns against it is the offensive spelling of the one shape nobody may
+ * author; this gets *smaller* as the party loses members, which is a courtesy rather than a
+ * spiral.
+ *
+ * ⚠️ **It is a damage turn and not a sustain one.** No heal, no drain, no regeneration and no pool
+ * anywhere in this kit: a lieutenant feeding off a party it has just weakened is the ninety-second
+ * clock with a stat block attached.
+ */
+export const WRITTEN_DOWN_BESIDE_IT = {
+  id: 'written-down-beside-it',
+  name: 'Written Down Beside It',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/**
+ * Count it again. It is always more than it was.
+ *
+ * ⚠️ **The one board-wide {@link RALLY} this chapter spends, and it is spent on the final.** At the
+ * roof it is worth **2.26 of five** — larger than any anchor's whole stat line, and the exact shape
+ * chapter 15 recorded as the cause of a final that read 0% at every anchor weight from 880/54 down
+ * to 520/34. The final's board is priced **against** this turn rather than around it: the four
+ * bodies standing with The Inheritor total 640 health where the chapter's other boards at that
+ * level carry over 900.
+ *
+ * ⚠️ **On a sixty-tick cadence against the status's own forty-five**, so a quarter of every cycle
+ * is a window. A board-wide buff with no window is the one shape that turns a final into a wall.
+ */
+export const COUNT_IT_ALL_AGAIN = {
+  id: 'count-it-all-again',
+  name: 'Count It All Again',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * It is wearing the fifteen chapters you walked through to get here.
+ *
+ * The chapter final's turn, at ×1.0 across five — the same figure {@link THERE_IS_NO_END_TO_IT}
+ * and {@link NOTHING_SMALL_MOVES_IT} take, and under the ×1.2 wide ceiling `data/skills.spec.ts`
+ * holds.
+ *
+ * **Unconditioned**, so the escape valve the lieutenant's condition offers is gone by the time the
+ * party reaches the thing the lieutenant was keeping the list for. It costs a cooldown rather than
+ * a permanent state, which is a harder fight rather than a longer one.
+ *
+ * ⚠️ **It restores nothing and drains nothing**, and neither does anything else on `c16-s50`.
+ */
+export const EVERYTHING_YOU_LEFT = {
+  id: 'everything-you-left',
+  name: 'Everything You Left',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6674,4 +6913,14 @@ export const SKILLS = [
   PUT_IT_ON_THE_CART,
   THE_COUNT_DOES_NOT_STOP,
   THERE_IS_NO_END_TO_IT,
+  STRIP_THE_FALLEN,
+  CUT_THE_STRAPS,
+  LOAD_THE_CART,
+  WHAT_THE_DEAD_KEPT,
+  SPINES_STILL_IN_IT,
+  ROPED_TOGETHER,
+  TAKE_IT_OFF_THE_COUNT,
+  WRITTEN_DOWN_BESIDE_IT,
+  COUNT_IT_ALL_AGAIN,
+  EVERYTHING_YOU_LEFT,
 ] as const;

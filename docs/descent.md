@@ -248,41 +248,69 @@ family, in exactly the sense `MAX_RESIST` is.
 ## Difficulty: an offset, not a share — plus a slope
 
 The enemy level is the hardest campaign stage this run has ever cleared, plus **−11** on the first
-fight and **+9** on the last, linearly between, **plus 0.075 levels per level of anchor**.
+fight and **+9** on the last, linearly between, **plus 0.022 levels per level of anchor**.
 
-At the unlock's anchor of 30 the slope contributes +2.25, so the total is about −9 / +11 — near enough
-the pair the mode shipped with. At the top of the shipped ladder it contributes **+22.5**.
+At the unlock's anchor of 30 the slope contributes +0.7, so the total is about −10 / +10 — near enough
+the pair the mode shipped with. At the top of the shipped ladder it contributes **+7.7**.
 
-### ⚠️ The slope is the wrong shape and it will need re-deriving every chapter
+### ⚠️ The slope is the wrong shape, and at chapter 16 it ran out of range entirely
 
 It arrived at **0.11** in milestone 27, when the mode's deepest depth had stopped being a fight at
 all. One chapter later that depth read **0.30 finished and 2.45 survivors of five** against a floor of
 0.40 — the same dial, overshot the other way — and **0.10** restored 0.50 / 3.50. One chapter after
-_that_ the new deepest depth read **0.15 finished**, and the slope came down again to **0.075**.
-⚠️ **Three settings in three chapters, each lasting exactly one**, which is the shape finding stated
-as a schedule rather than as an argument.
+_that_ the new deepest depth read **0.15 finished**, and the slope came down to **0.075**. The
+Underroad took it to **0.022**. ⚠️ **Four settings in four chapters, each lasting exactly one**, which
+is the shape finding stated as a schedule rather than as an argument.
 
-The arithmetic says no constant lasts. A chapter raises the anchor by 25, which raises these boards by
-25 **plus the slope's own contribution**, while the party the depth implies is bisected against the
-chapter final and rises only about **20** — level 201 at anchor 250, 221 at 275. The gap widens about
-**7.5 levels every chapter, by construction.**
+⚠️ **The Spoilfield is where it stopped having a setting at all, and that is the finding rather than
+a fifth number.** Swept over the mode's own sweep at the new deepest depth of 700 clears: **0.022 →
+0.00 finished / 2.8 floors of 9; 0.010 → 0.00 / 3.2; 0.005 → 0.00 / 3.55; 0.000 → 0.00 / 3.7** — and
+at 0.000 the mid-campaign depth breaks in the _other_ direction, reading 4.85 survivors against a
+walkover bar of `< 4.85`. Holding chapter 15's party-to-board gap needs about **−0.063**, which takes
+ten more levels off depths that are already too easy. **No value works at both ends of the range this
+is measured over**, which is the definition of the wrong dial rather than the wrong number.
 
-⚠️ **Re-derive it closed-form rather than by bisection.** Solving "hold the party-to-board gap where it
-was" predicted **0.075** for chapter 14 exactly, and one sweep either side confirmed it: 0.08 still
-reads 0.30 at the deep end and 0.07 passes with room. **Chapter 15 will want about 0.058.**
+### ⚠️ And the model's sign is wrong: the calibrated party has stopped rising
 
-⚠️ **The reason the party gains less than the anchor is a rung, and it is a step.** Party power is
-`perLevel ^ level × 1.6 ^ rung`, and the calibration takes its rung from `rarityFor(bisected level)` —
-so at anchor 250 the bisection landed on **201**, one level past `legendary`'s cap of 200, and arrived
-carrying a fresh ×1.6; at anchor 275 it lands 39 levels inside the same rung and carries nothing new.
-Milestone 27 recorded that step as a **red herring** for the easiness it was fixing; it is the direct
-cause of the hardness measured a chapter later.
+The arithmetic used to say the gap widens about 7.5 levels a chapter — the anchor rises 25 and the
+party the depth implies rises about 20. **Measured at chapter 16, the party went backwards.** Bisected
+against the campaign stage each depth anchors on, over three faction locks:
 
-What this eventually wants is a board level keyed off the **calibrated party's own level** rather than
-off the anchor, so the rung step cancels instead of accumulating. Recorded rather than taken: it
-re-derives every figure in `descent.balance.ts`. ⚠️ **Do not batch a value several chapters ahead** —
-the landing is the only thing that will force the shape fix, which is the call `gradeSoftness` records
-having got right. See [authoring](authoring.md).
+| depth | anchor stage         | bisected party level |
+| ----- | -------------------- | -------------------- |
+| 600   | `c14-s50`, level 300 | 234.7                |
+| 650   | `c15-s50`, level 325 | 243.7 (+9.0)         |
+| 700   | `c16-s50`, level 350 | **240.0 (−3.7)**     |
+
+⚠️ **That is the campaign's rarity cap arriving here.** Since chapter 14 the ladder has run entirely
+above `legendary-plus`'s cap of 260, so every chapter final is authored **lighter** than the one before
+it to stay clearable by a party that cannot climb — The Doorstone 1480/88, The Unnumbered 680/40, The
+Inheritor 250/24. A lighter final bisects lower. So the anchor's _level_ rose the full 25, these boards
+rose 25.6 with it, and the party fell: a gap that widened about **29 levels in one chapter** against a
+model expecting 7.75.
+
+⚠️ **The closed form was already known to be unreliable and this is why.** It predicted 0.075 for
+chapter 14 exactly, then **0.058** for chapter 15 where the answer was **0.022**, because it assumes
+the party rises about 20 a chapter. It rose 9.7 at chapter 15 and **−3.7** at chapter 16. **Measure
+the bisection at both depths; do not predict.**
+
+⚠️ **`data/expedition-maps.ts` fails identically and for the same reason**, with no dial at all — its
+camps author a fixed `levelOffset` against the same anchor. Two modes, one cause. See
+[expeditions](expeditions.md).
+
+### What the fix is, and why chapter 16 did not take it
+
+A board level keyed off the **calibrated party's own level** rather than off the anchor, so the rung
+step cancels instead of accumulating. The clean formulation the measurement points at is
+`min(campaign level, the cap of the rung that content asks for)` — which is what the bisected party
+actually tracks, and which has been flat at 260 since chapter 13.
+
+⚠️ **A naive clamp to 260 overshoots into walkovers**, so the two fixed offsets have to be re-derived
+at the same time, and so does every measured figure in `descent.balance.ts` and
+`expedition.balance.ts`. That is a milestone, not a chapter — so chapter 16 **left the slope at 0.022
+with the sweep red at depth 700**, deliberately, because moving it would buy nothing and would lose the
+record of what the sweep is reporting. ⚠️ **Do not tune this dial; re-anchor the mode.** See
+[authoring](authoring.md).
 
 ### ⚠️ A share was the first draft and it was measured wrong
 

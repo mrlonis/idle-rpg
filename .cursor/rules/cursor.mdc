@@ -80,7 +80,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: fifteen chapters, six hundred and fifty stages,
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: sixteen chapters, seven hundred stages,
   what a stage authors, position versus clear count, the rung cadence, and the guards that were
   retired.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
@@ -90,11 +90,16 @@ them is how they get reversed by accident.
 - **[docs/gear.md](../../docs/gear.md)** — the third progression axis: five slots, five archetypes, a
   five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
   measured three times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
-  would need. Read it before planning a chapter's difficulty around it. ⚠️ **The campaign's gradient
-  came back from a rarity cap instead**: chapters 11 through 15 all sit on `legendary-plus`, whose cap
-  of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the party it is
-  tuned for and the seam ratio falls by exactly `perLevel.common ** -25` = **1.680 a chapter, by
-  construction**. See [authoring](../../docs/authoring.md).
+  would need; chapter 16's whole Relic ramp measured **0.08 of a survivor**. Read it before planning a
+  chapter's difficulty around it. ⚠️ **The grade ladder is now exhausted**: chapter 16 closed on Relic
+  100 and there is no sixth grade, so chapter 17 cannot step this axis at all. ⚠️ **The campaign's
+  gradient came back from a rarity cap instead**: chapters 11 through 16 all sit on `legendary-plus`,
+  whose cap of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the
+  party it is tuned for and the seam ratio falls by exactly `perLevel.common ** -25` = **1.680 a
+  chapter, by construction** — 10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154. ⚠️ **That has driven the
+  board budget below the shipped enemy pool's floor**: chapter 16's boards are ×0.4 of chapter 15's,
+  and a seventeenth chapter on this rung cannot be authored out of the pool. See
+  [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -277,12 +282,22 @@ Asserted in `core/battle/simulate.spec.ts`.
 - **An enemy is a level-1 stat block plus a tier; a stage is archetypes plus a `level`.** Author an
   archetype's _shape_ and let the stage's level say how big it is.
 - ⚠️ **A board's raw health total is the wrong quantity to compare against, and it gets more wrong
-  every chapter.** `perLevel` is 1.024 / 1.0225 / 1.021, so at level 325 an `ascended` block is worth
-  **×2.587** of a `common` one and **×1.608** of a `legendary` one — up from ×1.550 at level 300.
+  every chapter.** `perLevel` is 1.024 / 1.0225 / 1.021, so at level 350 an `ascended` block is worth
+  **×2.784** of a `common` one and **×1.668** of a `legendary` one — up from ×2.587 and ×1.608 at 325.
   Measured, one chapter-15 board at 2,980 raw health read 4.00 survivors and another at 3,100 read
-  **0%**, because in common-equivalent terms they were 4,283 and 5,581. **Convert to
-  common-equivalent weight before comparing two boards, and certainly two chapters.**
+  **0%**, because in common-equivalent terms they were 4,283 and 5,581; and chapter 16's final is
+  authored at **250 health and 24 attack**, which is **696 and 67** in common-equivalent terms.
+  **Convert to common-equivalent weight before comparing two boards, and certainly two chapters.**
   [authoring](../../docs/authoring.md)
+- ⚠️ **A mechanic's worth is a function of where its board stands on the plateau, not of the
+  mechanic, and a figure quoted without the weight it was measured at means nothing.** Measured at
+  chapter 16's roof, `THORNMAIL` across a whole board is worth **0.00** survivors at 900 total
+  health, **0.20** at 1,060 and **1.33** at 1,160 — the mechanic identical in all three rows. **State
+  the weight with the figure.** [authoring](../../docs/authoring.md)
+- ⚠️ **A debuff caster the party cannot reach is the sustain-behind-a-taunt failure wearing a
+  different stat.** A `WEAKEN`-on-`enemy-all` body measured **4.00 survivors in the front rank and
+  0.10 in the back** at the same weight, because the party cannot aim past it and the status never
+  lapses in practice. Put a board-wide debuffer where it can be killed. [authoring](../../docs/authoring.md)
 - ⚠️ **An anchor sweep that reads flat is usually a saturated control rather than an inert anchor.**
   Chapter 15's final measured 0% at every weight from 880/54 down to 520/34; the cause was a
   `RALLY`-on-`ally-all` body on the same board, worth more than the anchor's whole stat line at that

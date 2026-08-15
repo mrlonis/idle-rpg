@@ -152,6 +152,16 @@ import {
   WITHERING_TOUCH,
   WRATH_UNBOUND,
   ZENITHFALL,
+  COUNT_IT_ALL_AGAIN,
+  CUT_THE_STRAPS,
+  EVERYTHING_YOU_LEFT,
+  LOAD_THE_CART,
+  ROPED_TOGETHER,
+  SPINES_STILL_IN_IT,
+  STRIP_THE_FALLEN,
+  TAKE_IT_OFF_THE_COUNT,
+  WHAT_THE_DEAD_KEPT,
+  WRITTEN_DOWN_BESIDE_IT,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -254,6 +264,7 @@ export const SLIME = {
   name: 'Slime',
   faction: 'monster',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 290,
     atk: 25,
@@ -312,6 +323,7 @@ export const BANDIT = {
   name: 'Bandit',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 520,
     atk: 46,
@@ -382,6 +394,7 @@ export const ACOLYTE = {
   name: 'Marsh Acolyte',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 420,
     atk: 58,
@@ -918,6 +931,7 @@ export const FREE_BLADE = {
   name: 'Free Company Blade',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 540,
     atk: 44,
@@ -3731,6 +3745,7 @@ export const FORLORN_LEVY = {
   name: 'Forlorn Levy',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 520,
     atk: 56,
@@ -4819,6 +4834,7 @@ export const SIGNAL_RUNNER = {
   name: 'Signal Runner',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'ranger',
   stats: {
     hp: 430,
     atk: 50,
@@ -4847,6 +4863,7 @@ export const VANWARD_SPEAR = {
   name: 'Vanward Spear',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 58,
@@ -7616,6 +7633,375 @@ export const THE_UNNUMBERED = {
   skills: [THERE_IS_NO_END_TO_IT, PUT_IT_ON_THE_CART, PROCESSION_STEP],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 16 — The Spoilfield. Ten Human blocks, and they are the lightest bodies this game
+// has ever authored.
+//
+// ⚠️ **The stat lines are small because the level line is enormous, and this is the third
+// chapter running to come down.** These stand at enemy levels 325 to 350 against a party
+// clamped at `legendary-plus`'s cap of **260** — **ninety levels** under the last board, where
+// The Underroad's party stood sixty-five under and The Shutgate's forty. Measured, The
+// Underroad's own final board refielded at level 330 with this chapter's gear reads **0% with
+// nobody standing**; at 350 it reads 0% in 5.8 seconds and has to be scaled to **×0.4** before
+// it reads four survivors again.
+//
+// ⚠️ **The board budget has now fallen through the floor of the shipped pool, and that is the
+// finding this chapter exists to record.** A board here totals roughly **1,660 health at the
+// first stage falling to 1,060 at the last** across all five bodies — 210 to 330 a body — and
+// the whole pool holds **48 blocks of 211** at or under 560 health, one of them under 250.
+// The twenty-four returning blocks this chapter fields are almost the entire light tail of the
+// game. A seventeenth chapter on this rung cannot be authored out of the pool at all. See
+// [authoring](../../docs/authoring.md).
+//
+// ⚠️ **Author against common-equivalent weight, never raw health.** `perLevel` is 1.024 /
+// 1.0225 / 1.021, so at level 350 an `ascended` block is worth **×2.784** of a `common` one and
+// **×1.668** of a `legendary` one — up from ×2.587 and ×1.608 at chapter 15's close. The
+// premium grows every chapter and it is what makes two boards of equal raw health different
+// fights.
+//
+// ⚠️ **The whole board comes down, not just the anchor.** Chapter 15 established that with The
+// Doorstone deleted outright the rest of its predecessor's board still read 35%; the same holds
+// here. A light anchor propped up by heavy support is not an arrangement that exists in this
+// chapter.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They are not here for you. You are standing on part of the field they have not got to yet.
+ *
+ * The opening band's plainest body and the lightest block this game ships outside the Wisp: 175
+ * health at `haste` 118, wearing a full Relic set the stage authors. ⚠️ **The gear is most of what
+ * it is** — a set at Relic 100 is +112% health and +89% attack on a `brawler` profile, so this body
+ * fights at rather more than twice its stat line and the stat line is the smaller half of it.
+ *
+ * That is the chapter in one block. The Spoilfield asks whether it is the party's own damage at
+ * all, and the first thing it says is that the number written here is not the board.
+ */
+export const SPOIL_PICKER = {
+  id: 'spoil-picker',
+  name: 'Spoil Picker',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 175,
+    atk: 36,
+    def: 6,
+    haste: 118,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.12,
+  },
+  skills: [STRIP_THE_FALLEN],
+} as const;
+
+/**
+ * Plate does not come off a person. It comes off the straps, and then the person comes out of it.
+ *
+ * The opening band's armour turn: {@link CUT_THE_STRAPS} lands {@link SUNDER} on the front rank
+ * behind a small blow. Slower and stouter than {@link SPOIL_PICKER} at `haste` 96, because the
+ * trade it names is done kneeling down.
+ */
+export const HARNESS_CUTTER = {
+  id: 'harness-cutter',
+  name: 'Harness Cutter',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 200,
+    atk: 38,
+    def: 10,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+  },
+  skills: [CUT_THE_STRAPS],
+} as const;
+
+/**
+ * The cart is the only thing on this field anybody is loyal to.
+ *
+ * The opening band's support, and ⚠️ **it carries {@link GUARD} rather than {@link RALLY} on
+ * purpose**: measured at the roof a board-wide rally costs the tuned party **2.26 of five** where
+ * the same body and the same cadence carrying a guard costs **0.08**. The chapter spends exactly
+ * one rally and spends it on the final. See {@link LOAD_THE_CART}.
+ *
+ * The stoutest common in the chapter at `def` 14 and `haste` 84, which is the `support` gear
+ * profile doing what it says — a set at Relic 100 is +128% health on this body against a ranger's
+ * +81%.
+ */
+export const SPOILCART_HAND = {
+  id: 'spoilcart-hand',
+  name: 'Spoilcart Hand',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 220,
+    atk: 30,
+    def: 14,
+    haste: 84,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    physicalResist: 0.08,
+  },
+  skills: [LOAD_THE_CART],
+} as const;
+
+/**
+ * The pockets first. The plate is not going anywhere and the pockets might be.
+ *
+ * The opening band's **reach** — {@link WHAT_THE_DEAD_KEPT} is an `enemy-back` turn, which is a
+ * reach rather than a scope or a selection. Four sessions have had to correct a claim that ran the
+ * three together, so this comment says which one it is.
+ */
+export const HEAPFOOT_RUMMAGER = {
+  id: 'heapfoot-rummager',
+  name: 'Heapfoot Rummager',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 205,
+    atk: 40,
+    def: 8,
+    haste: 114,
+    critChance: 0.16,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.1,
+  },
+  skills: [WHAT_THE_DEAD_KEPT],
+} as const;
+
+/**
+ * It was made to be hard to hit. Nobody asked it whether it minded who was inside it.
+ *
+ * The thorned band's carrier, and the block the chapter is named around. {@link THORNMAIL} as an
+ * `opening`, so it is true from the first tick: a quarter of what reaches this body is dealt
+ * straight back at whatever dealt it.
+ *
+ * ## ⚠️ Why a 330-health body reflecting is not the Cairn King reflecting
+ *
+ * `THORNMAIL` ships on nine blocks and **not one of them is under 760 health** — the Chainsworn at
+ * 1700, The Cairn King at 1780, The Anvil Crowned at 1750. What is new here is the weight it sits
+ * on. A reflect prices against **the attacker's blow**, which is the scaling quantity, and against
+ * the wearer's health, which is not; so the thinner the wearer, the more blows the party has to
+ * spend and the less of the reflect it gets to skip. This is the same body doing the same thing at
+ * a fifth of the size and it is worth more, not less.
+ *
+ * ⚠️ **And it is worth almost nothing away from the cliff, which is the honest half.** Measured
+ * against a live control at level 350 and Relic 100, `THORNMAIL` across a whole board reads
+ * **0.00** survivors at 900 total health, **0.20** at 1,060 and **1.33** at 1,160. The mechanic did
+ * not change between those three rows; where the board stood did. **State the weight with the
+ * figure or the figure means nothing.**
+ *
+ * ⚠️ **A reflect can never run the ninety-second clock out**, which is the property that made it
+ * this chapter's axis rather than a wall. It is strictly extra damage on a schedule the party
+ * controls — every measured board carrying it finished *faster* than its own control, and the sweep
+ * counted **zero timeouts** at every weight.
+ */
+export const THORNPLATE_WEARER = {
+  id: 'thornplate-wearer',
+  name: 'Thornplate Wearer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 330,
+    atk: 42,
+    def: 20,
+    haste: 82,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    physicalResist: 0.12,
+  },
+  opening: [THORNMAIL],
+  skills: [SPINES_STILL_IN_IT],
+} as const;
+
+/**
+ * Whoever had it last did not take it off either.
+ *
+ * The second {@link THORNMAIL} carrier, lighter and faster than {@link THORNPLATE_WEARER} so that
+ * a board can field both without fielding the same body twice. ⚠️ **Two carriers in one front rank
+ * is the heaviest arrangement this chapter uses** and it measured 0.13 of five at the roof against
+ * one carrier's 0.13 — the second is worth nothing on its own, which is why the closing band pairs
+ * a carrier with the clerk's {@link TAKE_IT_OFF_THE_COUNT} instead of with another carrier.
+ */
+export const DEADMANS_MAIL = {
+  id: 'deadmans-mail',
+  name: "Deadman's Mail",
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 295,
+    atk: 44,
+    def: 17,
+    haste: 92,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    physicalResist: 0.09,
+  },
+  opening: [THORNMAIL],
+  skills: [SPINES_STILL_IN_IT],
+} as const;
+
+/**
+ * One rope through five belts. It was for the cart.
+ *
+ * The chained band's body: {@link ROPED_TOGETHER} puts {@link CHAINBOND} across the crew every
+ * sixty ticks, so a blow aimed at one of them is two fifths spread across the rest.
+ *
+ * ⚠️ **A link conserves damage and cannot cascade**, so this costs the party its **route** rather
+ * than its progress and no version of it runs the clock out. ⚠️ **Cast rather than authored as an
+ * `opening`, and that is the whole difference**: as an opening on all five the same status measured
+ * **0.75 of five** where the cast measured **0.25**, because an opening costs the board no turn.
+ * A bind the party can watch arrive is a route problem; a permanent one on a board this thin is a
+ * wall.
+ */
+export const ROPEWALK_CREW = {
+  id: 'ropewalk-crew',
+  name: 'Ropewalk Crew',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 285,
+    atk: 46,
+    def: 13,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+  },
+  skills: [ROPED_TOGETHER],
+} as const;
+
+/**
+ * Whatever you are swinging, it goes on the list at what the list says it is worth.
+ *
+ * The quartermaster's line, and ⚠️ **the second largest lever in the chapter after the final's own
+ * rally**. {@link TAKE_IT_OFF_THE_COUNT} puts {@link WEAKEN} across the party every fifty ticks;
+ * measured at the roof it costs the tuned party **1.66 of five** and takes the mean fight from 13.4
+ * to 21.4 seconds, against the same status measuring **0.00** at every band opening above it.
+ *
+ * ⚠️ **The fight length is the part to watch.** It is the one turn here that lengthens a fight
+ * rather than shortening it — the whole rest of the chapter's vocabulary is reflect, which is extra
+ * damage. Worst measured is **39.6 seconds** against a ninety-second timer and the sweep counts zero
+ * timeouts, but this is the block a later session would have to look at first if that ever changed.
+ */
+export const QUARTERMASTERS_CLERK = {
+  id: 'quartermasters-clerk',
+  name: "Quartermaster's Clerk",
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 265,
+    atk: 48,
+    def: 11,
+    haste: 104,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+    magicPierce: 0.14,
+  },
+  skills: [TAKE_IT_OFF_THE_COUNT],
+} as const;
+
+/**
+ * The lieutenant: four appearances at four levels, and the only body on this field that is keeping
+ * a record of it.
+ *
+ * 480 health and 44 attack, ⚠️ **lighter than The Tallyman's 800/50 one chapter below and far under
+ * {@link UNMADE}'s 1800 and 100** — the third chapter running that a lieutenant has been authored
+ * lighter than the one before it, and the level line is why. It stands at levels 330, 335, 340 and
+ * 345 against a party clamped at 260.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening turn**, which is the eighth chapter
+ * running to take that shape, and {@link WRITTEN_DOWN_BESIDE_IT} switches off at **four** standing —
+ * the first threshold between the two shipped ones, chapter 14's three and chapter 15's five. So it
+ * survives the party's first loss and stops at its second, which makes it smaller as the fight turns
+ * rather than larger. The opposite direction is the one shape nobody may author.
+ *
+ * ⚠️ **It restores nothing and drains nothing**, and neither does any board it stands on.
+ */
+export const THE_QUARTERMASTER = {
+  id: 'the-quartermaster',
+  name: 'The Quartermaster',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 400,
+    atk: 40,
+    def: 26,
+    haste: 90,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    critBlock: 0.15,
+    critDamageResist: 0.24,
+    tenacity: 0.5,
+    physicalResist: 0.15,
+  },
+  skills: [WRITTEN_DOWN_BESIDE_IT, CUT_THE_STRAPS, STRIP_THE_FALLEN],
+} as const;
+
+/**
+ * The chapter final, and the sixteenth body authored under the rule that a chapter's final is
+ * fielded nowhere else.
+ *
+ * It is wearing the fifteen chapters the party walked through to get here. 420 health and 38
+ * attack — ⚠️ **lighter than The Unnumbered's 680/40 one chapter below, and lighter than its own
+ * lieutenant**, which is the third chapter running to author a final under its predecessor and the
+ * second to author one under its own recurring anchor. Both are the level line: this board stands
+ * at enemy level **350** against a party at **260**, ×1.68 further up the growth curve than The
+ * Unnumbered's board and ×2.784 on `perLevel.ascended` against a common five.
+ *
+ * In common-equivalent terms 420 at `ascended` is **1,169** — against a whole board's budget of
+ * roughly 1,825 — so the final is two thirds of its own board's weight and the four bodies beside
+ * it total 640 raw health where the chapter's other boards at that level carry over 900.
+ *
+ * ## ⚠️ Its board is priced against {@link COUNT_IT_ALL_AGAIN} rather than around it
+ *
+ * The final is the one place this chapter spends a board-wide {@link RALLY}, and that turn is
+ * worth **2.26 of five** at this level — larger than this block's entire stat line. Chapter 15
+ * recorded the failure that comes from not pricing it: its own final first read **0% at every
+ * anchor weight from 880/54 down to 520/34**, and the cause was a rally on the same board rather
+ * than the anchor. **Check the control can move before concluding anything from an anchor sweep**,
+ * and price the buff as a body.
+ *
+ * ⚠️ **It carries {@link THORNMAIL} and nothing that restores or drains.** No `recovery`, no
+ * `healthRegen`, no `lifeLeech`, no heal, no drain and no pool anywhere on `c16-s50`. A reflect is
+ * the safe half of this chapter's vocabulary precisely because it can only ever shorten a fight.
+ *
+ * ⚠️ **No stat here is authored above its shipped register.** `haste` 96 against a pool ceiling of
+ * 152, `def` 22 against The Doorstone's 70, `physicalResist` 0.16 against a ceiling of 0.30. The
+ * chapter's difficulty is where it stands, not what it is made of — said explicitly so a later
+ * session can see which of the two shapes it is looking at.
+ */
+export const THE_INHERITOR = {
+  id: 'the-inheritor',
+  name: 'The Inheritor',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 250,
+    atk: 24,
+    def: 22,
+    haste: 96,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critBlock: 0.16,
+    critDamageResist: 0.26,
+    tenacity: 0.55,
+    physicalPierce: 0.2,
+    physicalResist: 0.16,
+  },
+  opening: [THORNMAIL],
+  skills: [EVERYTHING_YOU_LEFT, COUNT_IT_ALL_AGAIN, STRIP_THE_FALLEN],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -7828,4 +8214,14 @@ export const ENEMIES = [
   LAMPLESS_PILGRIM,
   THE_TALLYMAN,
   THE_UNNUMBERED,
+  SPOIL_PICKER,
+  HARNESS_CUTTER,
+  SPOILCART_HAND,
+  HEAPFOOT_RUMMAGER,
+  THORNPLATE_WEARER,
+  DEADMANS_MAIL,
+  ROPEWALK_CREW,
+  QUARTERMASTERS_CLERK,
+  THE_QUARTERMASTER,
+  THE_INHERITOR,
 ] as const;

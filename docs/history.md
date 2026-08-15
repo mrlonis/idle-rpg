@@ -357,8 +357,13 @@ a factor of three.** It added ~90 levels a chapter (80, 91, 94, 98 across chapte
 
 - `levels.spec.ts`'s "leaves rungs unspent above everything the ladder asks for" fires at
   **chapter 30** — the top stage must stay below `caps[12]` = 700 — where it used to fire at 12;
-- `levels.spec.ts`'s "charges real time" is now the **first** of the long-range ones to fire, at
-  **chapter 16** (9.0h of 24 after chapter 11, 21.0h at chapter 15, 26.2h at 16);
+- `levels.spec.ts`'s "charges real time" fired at **chapter 16** and its **ceiling half was
+  retired** — the fourth guard in the project retired rather than slid. Recomputed per chapter it
+  reads 7.47, 9.03, 12.29, 14.33, 18.49, 21.05, **26.16** for chapters 10–16: monotone increasing by
+  construction, because level cost is exponential and income is linear in the stage index. ⚠️ **The
+  marginal form does not rescue it either** (3.04 → 6.61 over the same span), and **essence alone is
+  the runaway** — gold and XP sit at 10.5h and 11.7h. The floor is kept; the finding is that essence's
+  cost curve outruns essence income and compounds, which is the release-time economy pass;
 - the level curve is consumed entirely around **chapter 42**, where it used to be ~15.
 
 ⚠️ **42 is still not the ~100 chapters the campaign is planned for**, and closing that needs either

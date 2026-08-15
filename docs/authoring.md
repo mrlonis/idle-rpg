@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 15 chapters, 650 stages, enemy levels 1–325 |
+| Campaign         | 16 chapters, 700 stages, enemy levels 1–350 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 211                                         |
+| Enemy archetypes | 221                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -59,6 +59,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 13      | 250   | 275    | 25   |
 | 14      | 275   | 300    | 25   |
 | 15      | 300   | 325    | 25   |
+| 16      | 325   | 350    | 25   |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -119,6 +120,41 @@ cause was a `RALLY`-on-`ally-all` body on the same board, worth more than the an
 at that budget. Taking it off took the same board to 100%. **Check the control can move before
 concluding anything from an anchor sweep** — the same discipline the Demon Tower's `critBlock` band
 recorded, arriving from the opposite direction.
+
+### ⚠️ Chapter 16 is where the budget fell through the floor of the enemy pool
+
+The Spoilfield closes at **350** against the same cap of 260 — **ninety levels**, ×6.49 — and its seam
+reads **1.6154**. The five most recent are **10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154**, and the
+last three factors are all exactly 0.595. The rate is now measured three times rather than predicted.
+
+1. ⚠️ **The board budget is past what the shipped pool can supply, and this is the finding chapter 16
+   exists to record.** Refielding chapter 15's final against chapter 16's party and gear: at level 325
+   / Relic 59 it reads 100% / 3.58, at 330 / Relic 67 **0%**, and at 350 / Relic 100 it must be scaled
+   to **×0.4** before it reads four survivors again. A board here totals **2,715 common-equivalent at
+   s1 falling to 1,541 at s50**. Of the **211** blocks that existed before The Spoilfield, **48** sat
+   at or under 560 health and exactly **one** under 250 — so its twenty-four returning blocks are very
+   nearly the whole light tail of the game, and its four new commons (175, 200, 205, 220) are the
+   lightest bodies the project has ever shipped outside the Wisp. ⚠️ **A seventeenth chapter on this
+   rung cannot be authored out of the pool at all.**
+2. ⚠️ **The gear ladder is exhausted.** Chapter 16 runs Relic 59 → 100, and Relic 100 is the top of the
+   whole ladder. **Chapter 17 is the first chapter in five that cannot step this axis at all**, and a
+   sixth grade is a `data/` rule change rather than a chapter. The ramp inside chapter 16 measured
+   **0.08 of a survivor and a quarter more fight** end to end, which is the fourth consecutive chapter
+   to measure gear as fight length rather than difficulty.
+3. ⚠️ **A mechanic's worth is a function of where the board stands on the plateau, not of the
+   mechanic**, and this is the sharpest measurement of that anywhere in the project. Against a
+   calibrated control at level 350 / Relic 100, `THORNMAIL` across a whole board is worth **0.00**
+   survivors at 900 total health, **0.20** at 1,060 and **1.33** at 1,160. **State the weight with the
+   figure or the figure means nothing.** ⚠️ **And the first control built was saturated** — reading
+   exactly 4.00 at every weight from 900 to 1,180, which made the entire vocabulary look inert. Aim the
+   control into the band where it _moves_, then vary the mechanic.
+4. ⚠️ **A debuff caster the party cannot reach is the sustain-behind-a-taunt failure wearing a
+   different stat.** A `WEAKEN`-on-`enemy-all` body measured **4.00 survivors in the front rank and
+   0.10 in the back**, at the same weight, because the party cannot aim past it and the status never
+   lapses in practice. Chapter 16 puts its clerk in the front rank on every board as a rule.
+5. ⚠️ **Raw health is now badly misleading and gets worse every chapter.** At level 350 an `ascended`
+   block is worth **×2.784** of a `common` one and **×1.668** of a `legendary` one, up from ×2.587 and
+   ×1.608 at chapter 15's close. The Inheritor's 250/24 is **696/67** in common-equivalent terms.
 
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
@@ -289,10 +325,16 @@ chapter yet**, so it is a fact about the lean rather than about the chapter.
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, human 26,
-  elf 33, monster 34, dwarf 34, **undead 35** — The Underroad's ten blocks took Undead from thinnest
-  to deepest, which is the **fifth** time a single lean has reversed the ordering outright and the
-  fourth in a row. Recompute before choosing.
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, elf 33,
+  monster 34, dwarf 34, undead 35, **human 36** — The Spoilfield's ten blocks took Human from thinnest
+  legal lead to deepest of all seven, which is the **sixth** time a single lean has reversed the
+  ordering outright and the fifth in a row. Recompute before choosing.
+  - ⚠️ **The thinnest legal lead is now Elf at 33, and the gap to the celestials is enormous.** Angel
+    at 24 and Demon at 25 are both barred, and the five mortal factions now run 33, 34, 34, 35, 36 —
+    within three of each other. **The depth argument has stopped discriminating between the legal
+    leads**, so the next chapter picks on setting and on which faction's idiom fits the question,
+    with depth as a tiebreak. The celestials' 24 and 25 remain a tower's problem rather than a
+    chapter's.
   - ⚠️ **The bottom of the list is now two celestials deep, so it cannot be read off any more.** Angel
     at 24 and Demon at 25 are the two thinnest and **both are barred from leading a chapter**, so the
     thinnest legal lead is **Human at 26** — eight blocks clear of the bottom. A chapter-16 session
@@ -303,10 +345,22 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   into all seven, ×1.10 into themselves — the wildcard row — so a mono-Monster pool still reads
   differently to every party. That is the exact cost The Rustwood's 92% mono-Elf lean paid, and The
   Quarry did not pay it. **No other faction has this property.**
+- ⚠️ **Human is the second repeat lead, at chapters 11 and 16, and it paid the gear bill instead.**
+  The Standing Line is the Humans as an army holding a line; The Spoilfield is the Humans after every
+  army has gone through, making a living off what the armies left. Same faction, no shared fiction,
+  and only the seven lightest of its blocks in common — because the weight budget could not afford the
+  rest. ⚠️ **The `gearArchetype` bill landed here as predicted**: only 3 of 26 Human blocks carried
+  one, so the seven it fields cost six one-line edits before a board could be authored. It was cheap
+  only because the budget let it field seven Humans rather than twenty.
 - ⚠️ **Elf has now led twice — chapter 8 and chapter 12 — and that is the first repeat lead.** It was
   legal because four chapters after the Sunless Weald, Elf was still the thinnest legal lead at 23.
   What a repeat costs is that the chapter has to be a visibly different **place**: the Weald is the
   Elves at home and The Rustwood is the Elves out on somebody else's battlefield, picking it over.
+- **The Spoilfield is 84.0%**, counted after the boards landed rather than written from the intent —
+  in family, between The Bleeding Wild's 83.9% and The Quarry's 85.2%. Its 40 non-Human slots over 17
+  blocks **thin monotonically across the bands — 15, 12, 9, 3, 1** — which is a fiction (the field's
+  other scavengers give out as the party nears the trade itself) doing the job the weight budget
+  needed anyway: the late bands cannot afford a 500-health returning body.
 - **The Shutgate is 85.2% and so was The Quarry**, against the Weald's 81.5%, The Bleeding Wild's
   83.9% and The Standing Line's 83.2%. ⚠️ **The Shutgate's first draft measured 90.0% while its header
   already claimed 85.2%** — the header was written from the intent and the boards were never counted
@@ -753,19 +807,52 @@ chapter regardless" — **sort every failure into those two before touching anyt
 way — one of them because its previous entry was still describing the pre-flattening income curve.
 Measure, do not copy this table forward.
 
-| Fires at      | Guard                                               | Reads now  | The answer                                                                           |
-| ------------- | --------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
-| every chapter | `descent.balance.ts` — per-depth finish rate        | 0.50 deep  | `anchorSlope`, re-derived. **The shape is wrong**; see below                         |
-| chapter 16    | `gear.spec.ts` — top grade's share of drops         | 18.7%      | `gradeSoftness` → 350. It is always `stages / 2`; what it wants is a saturating tilt |
-| chapter 16    | `levels.spec.ts` — "charges real time"              | —          | Income is the question again. No retired guard left                                  |
-| chapter 30    | `levels.spec.ts` — rungs unspent above the ladder   | 300 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**       |
-| ~chapter 42   | The level curve is consumed entirely                | 300 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                 |
-| ~chapter 180  | `gear.spec.ts` — "roughly doubles what gold is for" | —          | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`       |
+| Fires at      | Guard                                                          | Reads now  | The answer                                                                           |
+| ------------- | -------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| every chapter | `descent.balance.ts` — per-depth finish rate                   | 0.50 deep  | `anchorSlope`, re-derived. **The shape is wrong**; see below                         |
+| chapter 17    | `gear.spec.ts` — top grade's share of drops                    | 18.7%      | `gradeSoftness` → 375. It is always `stages / 2`; what it wants is a saturating tilt |
+| every chapter | `descent.balance.ts` / `expedition.balance.ts` — deepest depth | **red**    | Re-anchor both modes. `anchorSlope` has no working setting; see below                |
+| chapter 17    | `gear.spec.ts` — the grade ladder is exhausted                 | Relic 100  | Nothing. There is no sixth grade; write it down                                      |
+| chapter 30    | `levels.spec.ts` — rungs unspent above the ladder              | 300 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**       |
+| ~chapter 42   | The level curve is consumed entirely                           | 300 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                 |
+| ~chapter 180  | `gear.spec.ts` — "roughly doubles what gold is for"            | —          | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`       |
 
-⚠️ **`gradeSoftness` fired again at chapter 15 and read 20.7% at six hundred and fifty stages;
-`stages / 2` = 325 restored 18.7% for the tenth time.** That is now ten landings on one figure with
-one solution, and it remains the strongest evidence in the project that the _shape_ is wrong rather
-than the number.
+⚠️ **`gradeSoftness` fired again at chapter 16 and read 20.5% at seven hundred stages; `stages / 2`
+= 350 restored 18.7% for the eleventh time.** That is now eleven landings on one figure with one
+solution, and it remains the strongest evidence in the project that the _shape_ is wrong rather than
+the number.
+
+### ⚠️ Chapter 16 retired the "charges real time" ceiling — the fourth guard retired rather than slid
+
+`levels.spec.ts` held the top of the ladder's levelling demand under 24 hours of idle income and The
+Spoilfield read **26.16**. ⚠️ **It was not content outgrowing a threshold.** Recomputed for every
+chapter's own top level at that chapter's own income it reads **7.47, 9.03, 12.29, 14.33, 18.49,
+21.05, 26.16** for chapters 10 through 16 — monotone increasing by construction, because the level
+cost curve is exponential in the level while `STAGE_REWARDS.exponent` is 1.0 and income is therefore
+linear in the stage index.
+
+⚠️ **The marginal form does not rescue it, which is what settled it.** Measured as one chapter's 25
+levels at that chapter's own income — the shape that normally makes a quantity content-relative — it
+reads **3.04, 2.39, 4.16, 3.16, 5.35, 3.98, 6.61**. Gold and XP are nearly flat (1.22 → 1.74 and 1.41
+→ 1.85 marginal; 10.5 and 11.7 cumulative); **essence alone runs away**, and "scale all three base
+rates together or none" means it cannot be answered by moving one of them. The floor is kept, the
+ceiling is gone, and what is left is a **finding** for the release-time economy pass rather than a
+number in a spec file.
+
+### ⚠️ Chapter 16 also put the Descent and Expeditions red, and it is not fixable by tuning
+
+Both modes derive board levels from the campaign **level** at a depth, which climbs 25 a chapter,
+while the party each depth implies is **bisected against the chapter final** — and finals have been
+getting _lighter_ for three chapters because of the rarity cap's gradient. Measured: the bisected
+party reads 234.7 at depth 600, 243.7 at 650 and **240.0 at 700**. It went backwards.
+
+⚠️ **`anchorSlope` was swept and no value passes** — 0.022, 0.010, 0.005 and 0.000 all read 0.00
+finished at the deep end, and 0.000 already breaks the mid-campaign walkover bar in the other
+direction. **A dial with no setting that works at both ends of its range is the wrong dial**, which is
+the third time this project has reached that conclusion after `gradeSoftness` and the flat Descent
+offset. The repair is to re-anchor both modes off `min(campaign level, the cap of the rung the content
+asks for)`; it re-derives every figure in two balance files and is a milestone rather than a chapter.
+**Chapter 16 recorded it and left the sweep red rather than tuning a dial that cannot help.**
 
 ### ⚠️ The roster-relative crystal ceiling fired at chapter 14 and was **retired**, which is the fourth
 

@@ -143,6 +143,8 @@ export { CHAPTER_11 } from './chapter-11';
 export { CHAPTER_12 } from './chapter-12';
 export { CHAPTER_13 } from './chapter-13';
 export { CHAPTER_14 } from './chapter-14';
+export { CHAPTER_15 } from './chapter-15';
+export { CHAPTER_16 } from './chapter-16';
 export { AUTO_BATTLE_UNLOCK_CHAPTERS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 export { STATUSES } from './statuses';
 export { TOWER_ANGEL } from './tower-angel';
