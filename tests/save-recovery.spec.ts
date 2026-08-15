@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 import {
   type ChapterCurveData,
   type ChapterData,
+  type GearRulesData,
   ladderShape,
   num,
   positionAt,
@@ -11,7 +12,7 @@ import {
   summonRatePerSecond,
   totalStages,
 } from '../src/core';
-import { CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
+import { CHAPTER_CURVE, CHAPTERS, GEAR_RULES, STAGE_REWARDS, SUMMON_RATE } from '../src/data';
 import { formatNumeric, formatRate } from '../src/ui/format-numeric';
 import { FIGHT_LINK, startFight } from './flows';
 
@@ -56,9 +57,10 @@ async function seedSave(page: Page, save: unknown): Promise<void> {
 const chapters: readonly ChapterData[] = CHAPTERS;
 const chapterCurve: ChapterCurveData = CHAPTER_CURVE;
 const rewards: StageRewardCurveData = STAGE_REWARDS;
+const gearRules: GearRulesData = GEAR_RULES;
 
 const LADDER = ladderShape(chapters);
-const STAGES = resolveLadder(chapters, chapterCurve, rewards);
+const STAGES = resolveLadder(chapters, chapterCurve, rewards, gearRules);
 const CLEARS = totalStages(LADDER);
 
 /**
