@@ -341,11 +341,67 @@ that, the party starts climbing again and the cap has to climb with it, and the 
 ratio above rather than the level gap. **`data/expedition-maps.ts` carries the same clamp at 322 for
 the same cause**; see [expeditions](expeditions.md).
 
-⚠️ **One blind spot this measurement exposed and did not close.** `DEPTHS` samples chapters 3, 4, 5, 7
-and the top of the ladder, so **chapters 8 through 15 are unmeasured** — and the diagnostic depths run
-for this work read 1.00 finished with **5.00 survivors** at depths 500 and 600 in the shipped build.
-The mode is a walkover through the late-mid campaign and the sweep cannot see it. Recorded rather than
-fixed: adding a depth there fails immediately and wants its own tuning pass.
+### ⚠️ The sweep's own sample had a hole in it, and closing it found a sawtooth
+
+`DEPTHS` was five hand-picked depths — the unlock, the chapter after it, 5, 7 and the top of the
+ladder — so **chapters 8 through 15 were unmeasured**. It is now **derived from the chapter list**:
+every chapter end from the unlock up, fourteen depths. A hand-picked sample acquires a hole every
+time the campaign grows; a derived one cannot.
+
+⚠️ **What the hole was hiding is that the mode's difficulty sawtooths with the ascension ladder.**
+The party a depth implies is bisected against that chapter's final and then given `rarityFor(that
+level)` — the cheapest rung whose cap admits it — so its power is `perLevel ^ level × 1.6 ^ rung` and
+the second term moves in **steps of 22.6 levels**. Every time the bisection crosses a cap the party
+gains a whole rung at once, the power ratio collapses, and it recovers over the following chapters as
+the party levels within the rung while the boards keep climbing:
+
+| chapter   | 5    | 6    | 7        | 8    | 9    | 10   | 11   | 12       | 13       | 14       | 15   | 16   |
+| --------- | ---- | ---- | -------- | ---- | ---- | ---- | ---- | -------- | -------- | -------- | ---- | ---- |
+| ratio     | 0.53 | 0.56 | **0.42** | 0.52 | 0.55 | 0.53 | 0.49 | **0.29** | **0.34** | **0.34** | 0.45 | 0.50 |
+| survivors | 4.25 | 3.90 | 4.70     | 4.20 | 4.05 | 3.75 | 4.25 | **5.00** | **4.90** | **4.90** | 4.15 | 3.60 |
+
+The dips land exactly on the rung crossings. At chapter 12 the bisection lands on **201** against
+`legendary`'s cap of 200 and collects a fresh ×1.6 for one level. Chapter 7's dip clears the walkover
+bar at 4.70; chapters 12 to 14 do not.
+
+### ⚠️ Three levers were measured against it and none of them works
+
+- **`anchorSlope`** — raising it moves the mid-campaign depths off their tuning long before it moves
+  the trough: at 0.10 chapters 12 to 14 still read a full walkover while chapter 10 has fallen to
+  0.00 finished.
+- **`anchorCap`** — a cap can only lower a board. The trough needs its boards **raised** by 20 to 30
+  levels while chapter 16's need lowering by 28: a non-monotone requirement no cap can meet.
+- **The within-run ramp** — widening it from a 20-level span to 40 takes chapter 12 from 5.00
+  survivors to 4.90 and chapters 3, 9 and 16 to 0.45, 0.40 and 0.45 finished. At the span where the
+  trough finally breaks (60), seven depths are under the floor.
+
+⚠️ **The reason is structural.** The sawtooth is **periodic in the ascension ladder** and every dial
+here is a **smooth function of the anchor**. Cancelling it needs a board level that steps where the
+_party_ steps, and the party's rung is a fact about how each chapter final happened to be authored
+rather than anything the anchor knows. Milestone 27 tried the nearest available thing — deriving the
+rung from the anchor — and it weakened the party at three depths and broke two passing guards.
+
+### The trough is pinned rather than dropped
+
+`RUNG_TROUGH` names chapters 12 to 14 and asserts what is actually true of them: **between 4.85 and
+5.00 survivors, all finishing 1.00.** Dropping them would put the hole straight back in the place the
+derived `DEPTHS` was written to close; pinning them keeps the defect visible and stops it spreading
+or deepening.
+
+⚠️ **Both bounds matter, and the upper one is what makes it self-deleting.** If a retune ever fixes
+the trough the reading falls under 4.85, that assertion fails, and the right response is to delete the
+block and take the three depths back into `TUNED_DEPTHS` — **not** to widen anything.
+
+**The shipped readings**, twenty days at each of the fourteen depths:
+
+| chapter             | 3    | 4    | 5    | 6    | 7    | 8    | 9    | 10   | 11   | 12   | 13   | 14   | 15   | 16   |
+| ------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| finished            | 0.65 | 0.90 | 0.85 | 0.80 | 1.00 | 0.85 | 0.65 | 0.75 | 0.85 | 1.00 | 1.00 | 1.00 | 0.85 | 0.75 |
+| survivors of five   | 3.30 | 4.45 | 4.25 | 3.90 | 4.70 | 4.20 | 4.05 | 3.75 | 4.25 | 5.00 | 4.90 | 4.90 | 4.15 | 3.60 |
+| fights cleared of 9 | 8.35 | 8.80 | 8.85 | 8.55 | 9.00 | 8.75 | 8.40 | 8.75 | 8.85 | 9.00 | 9.00 | 9.00 | 8.85 | 8.70 |
+
+Over the eleven tuned depths: mean finished **0.81**, mean survivors **4.05**. **Zero timeouts
+anywhere**, longest fight 57.8s against the 81s bar.
 
 ### ⚠️ A share was the first draft and it was measured wrong
 

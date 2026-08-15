@@ -107,12 +107,22 @@ function chapterEnd(chapter: number): number {
  * The campaign depths the mode is checked at. The first is the unlock, derived from the rules so
  * moving the gate re-aims the sweep — the same discipline `descent.balance.ts` records.
  */
-const DEPTHS: readonly number[] = [
-  chapterEnd(expedition.unlockChapters),
-  chapterEnd(5),
-  chapterEnd(7),
-  stages.length,
-];
+const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
+  .filter((chapter) => chapter >= expedition.unlockChapters)
+  .map(chapterEnd);
+
+/**
+ * The two depths the arc assertions below name, held as constants rather than as indices into
+ * {@link DEPTHS}.
+ *
+ * ⚠️ **Because `DEPTHS` is derived now, an index into it means a different chapter every time the
+ * campaign grows.** It used to be four hand-picked depths ending at the top of the ladder, so
+ * `DEPTHS[3]` was the deepest sample and the card control was measured there; deriving the list took
+ * `DEPTHS[3]` to chapter 6 and left every one of those assertions passing while measuring something
+ * else. **Name the depth; do not index the sample.**
+ */
+const UNLOCK = chapterEnd(expedition.unlockChapters);
+const TOP = stages.length;
 
 function anchorAt(cleared: number): number {
   return campaignLevels[Math.min(Math.max(cleared, 1), campaignLevels.length) - 1];
@@ -457,14 +467,14 @@ describe('the arc across the three maps', () => {
     // route stacked four guardian-weight boards in a row, and offsets moved the reading barely at
     // all until the mid-route camps were rebuilt to a one-to-three-anchor ramp.
     const spine = maps[2];
-    expect(measure(spine, DEPTHS[0]).finished).toBeGreaterThanOrEqual(0.3);
-    expect(measure(spine, DEPTHS[1]).finished).toBeGreaterThanOrEqual(0.6);
-    expect(measure(spine, DEPTHS[2]).finished).toBeGreaterThanOrEqual(0.9);
-    expect(measure(spine, DEPTHS[3]).finished).toBeGreaterThanOrEqual(0.9);
+    expect(measure(spine, UNLOCK).finished).toBeGreaterThanOrEqual(0.3);
+    expect(measure(spine, chapterEnd(5)).finished).toBeGreaterThanOrEqual(0.6);
+    expect(measure(spine, chapterEnd(7)).finished).toBeGreaterThanOrEqual(0.9);
+    expect(measure(spine, TOP).finished).toBeGreaterThanOrEqual(0.9);
   });
 
   it('orders the maps: nothing earlier is harder than anything later, at the unlock', () => {
-    const rates = maps.map((map) => measure(map, DEPTHS[0]).finished);
+    const rates = maps.map((map) => measure(map, UNLOCK).finished);
     for (let index = 1; index < rates.length; index++) {
       expect(rates[index], maps[index].id).toBeLessThanOrEqual(rates[index - 1] + 1e-9);
     }
@@ -473,8 +483,8 @@ describe('the arc across the three maps', () => {
   it('makes attrition real where the mode is meant to bite', () => {
     // A run that ends with five bodies at full strength is a mode whose cards and carried damage
     // mean nothing. Measured at the unlock: 4.10 on the Causeway, 2.90 on the Spine.
-    expect(measure(maps[1], DEPTHS[0]).meanSurvivors).toBeLessThan(5);
-    expect(measure(maps[2], DEPTHS[0]).meanSurvivors).toBeLessThan(4);
+    expect(measure(maps[1], UNLOCK).meanSurvivors).toBeLessThan(5);
+    expect(measure(maps[2], UNLOCK).meanSurvivors).toBeLessThan(4);
   });
 });
 
@@ -484,8 +494,8 @@ describe('the sweep itself can move', () => {
     // reaches nothing prints identical rows for every setting and reads as "the dial does
     // nothing". Eighteen levels is about ×1.45 of enemy power — measured, it takes the Spine's
     // unlock finish rate from 0.50 to 0.00.
-    const shipped = measure(maps[2], DEPTHS[0]);
-    const harder = measure(maps[2], DEPTHS[0], true, 18);
+    const shipped = measure(maps[2], UNLOCK);
+    const harder = measure(maps[2], UNLOCK, true, 18);
 
     expect(harder.finished).toBeLessThan(shipped.finished);
   });
@@ -501,8 +511,8 @@ describe('the sweep itself can move', () => {
     // finish rate cannot tell a well-aimed deep end from a walkover. At a cap of 316 this reads 5.00
     // against 5.00 and passes while measuring nothing; 322 is where the margin is widest. **Check
     // this margin, not the finish rate, if the cap is ever re-derived.**
-    const carded = measure(maps[2], DEPTHS[3], true);
-    const bare = measure(maps[2], DEPTHS[3], false);
+    const carded = measure(maps[2], TOP, true);
+    const bare = measure(maps[2], TOP, false);
 
     expect(carded.meanSurvivors).toBeGreaterThanOrEqual(bare.meanSurvivors);
     expect(carded.finished).toBeGreaterThanOrEqual(bare.finished);

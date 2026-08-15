@@ -267,6 +267,20 @@ Asserted in `core/battle/simulate.spec.ts`.
   levels. Uncapped, the Descent and Expeditions both read **0.00 finished** at the deepest depth the
   moment chapter 16 shipped. ⚠️ **The caps move when a chapter asks for a _rung_ above
   `legendary-plus`, not when a chapter ships.** [descent](../../docs/descent.md)
+- ⚠️ **A hand-picked list of sample depths acquires a hole every time the campaign grows; derive it
+  from the chapter list.** Both mode sweeps sampled chapters 3, 5, 7 and the top, so **chapters 8
+  through 15 went unmeasured** — and the Descent was reading 1.00 finished with **5.00 survivors** in
+  the middle of that gap. ⚠️ **Deriving a sample silently re-points every index into it**: Expeditions
+  measured its card control at `DEPTHS[3]`, the deepest sample before and chapter 6 after, and the
+  assertion kept passing while measuring something else. **Name the depth; do not index the sample.**
+  [descent](../../docs/descent.md)
+- ⚠️ **The Descent's difficulty sawtooths with the ascension ladder and no dial can flatten it.** The
+  calibrated party gains a whole rung at once when the bisection crosses a level cap, so the power
+  ratio dips to 0.29 at chapters 12–14 against ~0.52 elsewhere and those depths are walkovers.
+  `anchorSlope`, `anchorCap` and the within-run ramp were each measured and each breaks other depths
+  first — **the sawtooth is periodic in the ladder and every dial is smooth in the anchor.** The three
+  depths are **pinned** by `RUNG_TROUGH` at 4.85–5.00 survivors rather than dropped from the sample:
+  visible, bounded, and self-deleting when a retune fixes it. [descent](../../docs/descent.md)
 - ⚠️ **When every reading saturates, tune against the sweep's own control rather than its outcome.**
   Expeditions is one-time content meant to become a completion, so every depth above its unlock reads
   1.00 finished by design and no anchor cap can be chosen on a finish rate. **A cap that reads 5.00

@@ -153,8 +153,17 @@ opens and a completion later. **Do not "fix" that.** ⚠️ **What moves the cap
 chapter** — the plateau exists because the campaign's tuning target plateaued at `legendary-plus`.
 
 **The shipped readings**: the Ford and the Causeway finish at 1.00 at every depth; the Spine reads
-0.50 at the unlock and 1.00 at the three depths above it, with 4.50 survivors at the deepest. Zero
-timeouts anywhere.
+0.50 at the unlock and 1.00 above it, with 4.50 survivors at the deepest. Zero timeouts anywhere.
+
+⚠️ **`DEPTHS` is derived from the chapter list now**, every chapter end from the unlock up, where it
+used to be four hand-picked depths ending at the top of the ladder — the same hole the Descent's
+sample had. Unlike the Descent's, this mode holds at every one of them.
+
+⚠️ **Deriving it silently re-pointed every indexed assertion, which is the trap to know about.**
+`DEPTHS[3]` was the deepest sample and the card control was measured there; once the list is derived
+it is chapter 6, and every one of those assertions kept passing while measuring something else. The
+arc assertions now name their depths — `UNLOCK`, `chapterEnd(5)`, `chapterEnd(7)`, `TOP` — rather than
+indexing the sample. **Name the depth; do not index the sample.**
 
 ⚠️ **The sweep carries the two permanent controls the Descent's milestone mandated**: a
 much-harder setting (+18 levels) must measure harder — it takes the Spine's unlock finish rate

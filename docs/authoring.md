@@ -876,11 +876,40 @@ below it moved and no offset had to be re-derived**.
 ships.** That is the whole gain: `anchorSlope` needed re-deriving once a chapter for four chapters
 running, and this needs it once a rung.
 
-⚠️ **One blind spot the work exposed and did not close.** The Descent's `DEPTHS` samples chapters 3,
-4, 5, 7 and the top of the ladder, so **chapters 8 through 15 are unmeasured** — and diagnostic runs
-read 1.00 finished with **5.00 survivors** at depths 500 and 600. The mode is a walkover through the
-late-mid campaign and its sweep cannot see it. Adding a depth there fails immediately and wants its
-own tuning pass.
+### ⚠️ Both modes' depth samples were hand-picked and both had the same hole
+
+The Descent's `DEPTHS` sampled chapters 3, 4, 5, 7 and the top of the ladder; Expeditions' sampled 3,
+5, 7 and the top — so **chapters 8 through 15 were unmeasured in both**. Both are now **derived from
+the chapter list**: every chapter end from the unlock up. ⚠️ **A hand-picked sample acquires a hole
+every time the campaign grows and a derived one cannot**, which is the same argument that put
+`chapterEnd(unlockChapters)` in place of a literal in the first entry.
+
+⚠️ **Deriving a sample silently re-points every index into it.** Expeditions measured its card
+control at `DEPTHS[3]` — the deepest sample under the old list, and chapter 6 under the new one — and
+every such assertion kept passing while measuring something else. **Name the depth; do not index the
+sample.**
+
+### ⚠️ Closing that hole found a sawtooth, and it is not tunable
+
+The Descent's difficulty **sawtooths with the ascension ladder**. The party a depth implies is
+bisected against that chapter's final and given `rarityFor(that level)`, so its power is
+`perLevel ^ level × 1.6 ^ rung` and the second term steps by **22.6 levels** at each cap. Measured
+across all fourteen depths, the power ratio dips exactly on the crossings — 0.42 at chapter 7 and
+**0.29 / 0.34 / 0.34** at chapters 12 to 14 against about 0.52 elsewhere — and chapters 12 to 14 read
+**5.00 / 4.90 / 4.90** survivors of five: walkovers.
+
+**Three levers were measured and none flattens it**: `anchorSlope` breaks chapter 10 before it moves
+the trough, `anchorCap` can only lower a board where the trough needs raising, and widening the
+within-run ramp puts seven depths under the floor before the trough breaks. ⚠️ **The reason is
+structural — the sawtooth is periodic in the ascension ladder and every dial is a smooth function of
+the anchor.** Cancelling it needs a board that steps where the _party_ steps, and the party's rung is
+a fact about how each chapter final was authored rather than anything the anchor knows.
+
+⚠️ **So the trough is pinned rather than dropped.** `RUNG_TROUGH` names those three depths and
+asserts what is true of them — 4.85 to 5.00 survivors — which keeps the defect visible, stops it
+spreading, and **self-deletes**: a retune that fixes it makes that assertion fail, and the response is
+to delete the block rather than widen anything. **Dropping the depths instead would have put the hole
+straight back where the derived sample was written to close it.**
 
 ### ⚠️ The roster-relative crystal ceiling fired at chapter 14 and was **retired**, which is the fourth
 
