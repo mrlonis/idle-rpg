@@ -271,15 +271,16 @@ Milestone 21a's chapter fired it again at two hundred and fifty stages — **24.
 — **22.6%** — taking it to 175; 21d's at four hundred — **22.1%** — taking it to 200; and The
 Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; The Rustwood at five
 hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and fifty — **21.1%** — taking
-it to **275**; and The Shutgate at six hundred — **20.9%** — taking it to **300**. Every one restores
-18.7% over the ladder that actually ships. Same move, longer ladder, nine times now.
+it to **275**; The Shutgate at six hundred — **20.9%** — taking it to **300**; and The Underroad at
+six hundred and fifty — **20.7%** — taking it to **325**. Every one restores 18.7% over the ladder
+that actually ships. Same move, longer ladder, ten times now.
 
-⚠️ **Nine re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Ten re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 15
-will want 325. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter; chapter 16
+will want 350. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
 [authoring](authoring.md), which now records **two more dials with the same diagnosis** — the
@@ -494,6 +495,20 @@ is **1.350**, so a clean grade boundary is a step _backwards_ at the seam. The Q
 **Sturdy 11** (2.093) — the first level of the new grade that clears the old grade's cap — and closes
 at Sturdy 40 (**4.246**). Do the arithmetic rather than restarting the level; the overlap that makes
 enhancement worth doing is the same overlap that makes a grade boundary a dip.
+
+The four geared chapters, each running its grade to that grade's cap:
+
+| Chapter | Grade      | Opens at       | Closes at       |
+| ------- | ---------- | -------------- | --------------- |
+| 12      | Worn       | 1 (**1.000**)  | 20 (**2.045**)  |
+| 13      | Sturdy     | 11 (**2.093**) | 40 (**4.246**)  |
+| 14      | Fine       | 26 (**4.275**) | 60 (**7.641**)  |
+| 15      | Masterwork | 42 (**7.649**) | 80 (**12.561**) |
+
+⚠️ **Chapter 15 is the second-to-last chapter that can do this.** Relic is one grade up and one
+chapter away, and there is no sixth grade — so **chapter 17 has no rung left to step to** and a
+session finding that writes it down rather than taking the scope. Given the three measurements below,
+what runs out is texture rather than difficulty.
 
 That gap was the point of milestone 12: a geared party flies through content tuned for an ungeared
 one, which is what makes gear feel like progress rather than a tax. The balance sweep still measures

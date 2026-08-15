@@ -74,8 +74,9 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: fourteen chapters, six hundred stages, what a
-  stage authors, position versus clear count, the rung cadence, and the guards that were retired.
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: fifteen chapters, six hundred and fifty stages,
+  what a stage authors, position versus clear count, the rung cadence, and the guards that were
+  retired.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares. **Read
@@ -84,9 +85,10 @@ them is how they get reversed by accident.
   five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
   measured three times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
   would need. Read it before planning a chapter's difficulty around it. ⚠️ **The campaign's gradient
-  came back from a rarity cap instead**: chapters 11 through 14 all sit on `legendary-plus`, whose cap
+  came back from a rarity cap instead**: chapters 11 through 15 all sit on `legendary-plus`, whose cap
   of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the party it is
-  tuned for and the seam ratio falls ×0.6 a chapter. See [authoring](../../docs/authoring.md).
+  tuned for and the seam ratio falls by exactly `perLevel.common ** -25` = **1.680 a chapter, by
+  construction**. See [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -268,6 +270,18 @@ Asserted in `core/battle/simulate.spec.ts`.
   heavy anchor is what made six towers fail their sweep at once.
 - **An enemy is a level-1 stat block plus a tier; a stage is archetypes plus a `level`.** Author an
   archetype's _shape_ and let the stage's level say how big it is.
+- ⚠️ **A board's raw health total is the wrong quantity to compare against, and it gets more wrong
+  every chapter.** `perLevel` is 1.024 / 1.0225 / 1.021, so at level 325 an `ascended` block is worth
+  **×2.587** of a `common` one and **×1.608** of a `legendary` one — up from ×1.550 at level 300.
+  Measured, one chapter-15 board at 2,980 raw health read 4.00 survivors and another at 3,100 read
+  **0%**, because in common-equivalent terms they were 4,283 and 5,581. **Convert to
+  common-equivalent weight before comparing two boards, and certainly two chapters.**
+  [authoring](../../docs/authoring.md)
+- ⚠️ **An anchor sweep that reads flat is usually a saturated control rather than an inert anchor.**
+  Chapter 15's final measured 0% at every weight from 880/54 down to 520/34; the cause was a
+  `RALLY`-on-`ally-all` body on the same board, worth more than the anchor's whole stat line at that
+  budget, and removing it took the board to 100%. **Check the control can move before concluding
+  anything.**
 - **Every archetype must be fielded somewhere**, and "somewhere" is every ladder rather than the
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the

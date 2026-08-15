@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Fourteen chapters and six hundred
-stages** — 10, 20, 30, 40 and then ten of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Fifteen chapters and six hundred and
+fifty stages** — 10, 20, 30, 40 and then eleven of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -9,7 +9,9 @@ The first six chapters are the two hundred stages the four-chapter cut carried, 
 closed it, and chapter 12 — **The Rustwood** — is milestone 27, the first chapter whose enemies wear
 gear. See [gear](gear.md) for what that turned out to be worth. Chapter 13 is **The Quarry** and
 chapter 14 **The Shutgate**, which is where the campaign's difficulty gradient came back — not from
-gear, but from a rarity cap the ladder has now climbed past. See [authoring](authoring.md).
+gear, but from a rarity cap the ladder has now climbed past. Chapter 15 is **The Underroad**, which
+priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. See
+[authoring](authoring.md).
 
 ## The shape
 
@@ -28,8 +30,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
-Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut and The
-Doorstone. A re-cut that moves a boundary owes the new final a unique body before it ships.
+Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
+Doorstone and The Unnumbered. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -90,7 +92,18 @@ warning.** The Shutgate closes at 300, **forty levels** above the same cap: `leg
 brought back the first of the three guards milestone 24 widened against a promise about enemy gear:
 `meanSurvivors < PARTY_SIZE` at the top of the ladder now holds, at 4.00 of five. ⚠️ **The cost is
 that the seam chain has gone degenerate** — chapters 13 and 14 both clamp to 260, so the two parties
-a seam compares are the same combatants. See [authoring](authoring.md). Copies asked of a
+a seam compares are the same combatants. See [authoring](authoring.md).
+
+⚠️ **Chapter 15 makes it five on one rung, and the decline now has a rate rather than a trend.** The
+Underroad closes at 325, **sixty-five levels** above the cap: `legendary-plus` reads **2.7160** (|Δln|
+0.5196) against `mythic`'s 16.7772 (1.3013). The four most recent seams run **10.4858 → 7.6774 →
+4.5665 → 2.7160**, and the last two factors are both exactly `perLevel.common ** -25` = 0.595 — so
+once a chapter closes entirely above its rung's cap the seam divides by **1.680** a chapter **by
+construction**. ⚠️ **And `mythic` is not the way out**: measured, a `mythic` five at 325 needs boards
+scaled ×2.4, which is an anchor near 3,550 health against the Unmade's ceiling of 1800 that
+`enemies.spec.ts` enforces. **The rung the arithmetic prefers is the only one the enemy roster can be
+authored for.** What that costs instead is the stat line: The Unnumbered is 680/40 against The
+Doorstone's 1480/88. Copies asked of a
 mortal character by the end of each band: **20** by the fen's fifty stages, 24 by the Marches, 32 by
 the Vault, 38 by the Barrows, 44 by the Weald, 50 by the Anvil, 62 by the Wild.
 

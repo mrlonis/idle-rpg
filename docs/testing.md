@@ -471,6 +471,32 @@ fight length are three independent quantities, and only weight is what the probe
 that moves only the third is not difficulty, and on a faction whose idiom is armour it is the specific
 failure that faction is warned about.
 
+### ⚠️ An eighth trap, from chapter 15: a board's raw health total is not its weight
+
+The Underroad's boards are half the stat lines of The Shutgate's, and two of them differed by 4% of
+raw health and by the entire outcome: `c15-s49` at **2,980** read 4.00 survivors, and the first draft
+of `c15-s50` at **3,100** read **0%**. In common-equivalent terms they were **4,283** and **5,581**.
+
+The cause is that `perLevel` is 1.024 / 1.0225 / 1.021 for `ascended` / `legendary` / `common`, so the
+premium compounds over the whole level rather than over a chapter: at level 325 an `ascended` block is
+worth **×2.587** of a `common` one and **×1.608** of a `legendary` one, against ×1.550 for the second
+of those one chapter earlier. **Convert a board to common-equivalent weight before comparing it to
+anything** — another board, and above all another chapter. Two lines of arithmetic over the tier
+column, and it is the only way a chapter's budget stays a number a reader can check.
+
+### ⚠️ A ninth, from the same chapter: a flat anchor sweep is usually a saturated control
+
+Chapter 15's final read **0% at every anchor weight from 880/54 down to 520/34** — a stat block that
+looked completely inert, in a chapter whose two previous sessions had both recorded genuinely inert
+mechanics, which is exactly the context in which the wrong conclusion is easy. It was not the anchor:
+a `RALLY`-on-`ally-all` body stood on the same board, and ×1.3 `atk` across five is worth more than
+the anchor's whole stat line at that budget. Removing it took the same board from 0% to 100%.
+
+**This is the Demon Tower's control-calibration lesson in a third direction.** There the control sat
+at a plateau and read ~4.00 of five whatever was done to it; here it sat at the floor and read 0.00.
+⚠️ **Both look like a clean negative result and neither is one.** Before believing any sweep over one
+variable, vary the variable to both extremes and check the metric moves at all.
+
 ### ⚠️ Check a chapter's header against its boards with a script, not by reading
 
 Three sessions in four have found a chapter's own prose wrong about its own boards: chapter 7's Cairn

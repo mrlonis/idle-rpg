@@ -146,15 +146,15 @@ export const DESCENT_RULES = {
      * fourth depth was tuned against. What moves is the deep end: +9.4 at anchor 125 and **+22.5 at
      * anchor 300**.
      *
-     * ## ⚠️ 0.11 lasted one chapter, 0.10 lasted one chapter, and that is the finding
+     * ## ⚠️ Four settings in four chapters, and that is the finding rather than the tuning history
      *
      * Milestone 27 added this at **0.11** because the deep end had stopped being a fight — 5.00
      * survivors of five at anchor 250. The Quarry's depth then read **0.30 finished and 2.45
      * survivors** against a per-depth floor of 0.40, and **0.10** restored 0.50 / 3.50. The Shutgate's
      * depth read **0.15 finished** — the same dial, the same direction, the same one-chapter life —
-     * and it is now **0.075**.
+     * and took it to **0.075**. The Underroad is the fourth in a row, and it is now **0.022**.
      *
-     * ⚠️ **Three settings in three chapters is no longer a tuning history, it is a measurement of the
+     * ⚠️ **Four settings in four chapters is no longer a tuning history, it is a measurement of the
      * shape.** Each chapter raises the anchor by 25, which raises these boards by 25 plus the slope's
      * own contribution — while the *party* the depth implies is bisected against the chapter final and
      * rises only about **20**. So the gap widens roughly **7.5 to 7.75 levels every chapter, by
@@ -164,7 +164,15 @@ export const DESCENT_RULES = {
      * the next one.** Solving "hold the party-to-board gap where it was" gives
      * `s = (gap + anchor − baseOffset − anchor) / anchor` at the new anchor, and for chapter 14 that
      * predicted **0.075** exactly — confirmed by sweeping 0.08 (still 0.30 at the deep end) and 0.07
-     * (passes with room). Predict it, then confirm with one run; do not bisect blind.
+     * (passes with room).
+     *
+     * ⚠️ **For chapter 15 the same closed form predicted 0.058 and the answer was 0.022, which is a
+     * finding about the form rather than a miss.** It assumes the calibrated party rises by about 20
+     * a chapter, which held while chapter finals were authored at a steady weight. The Underroad's
+     * final is roughly **half** The Doorstone's stat line — the cap's gradient forced it — so the
+     * bisection rose only **9.7** (235 → 244.7 over the three sampled locks) against an anchor that
+     * rose the full 25. **Measure the bisection at both depths before predicting**; do not carry the
+     * per-chapter figure forward, because it is a fact about how the chapter above was authored.
      *
      * ⚠️ **The reason the party gains less than the anchor is a rung, and it is a _step_.** Party power
      * is `perLevel ^ level × 1.6 ^ rung`, and `rarityFor` hands out a rung at each cap — so at anchor
@@ -175,14 +183,15 @@ export const DESCENT_RULES = {
      *
      * ⚠️ **So the shape is wrong rather than the number, and this is the second dial in the project
      * with that diagnosis** — `gear.ts`'s `gradeSoftness` is the first, and it has now been
-     * re-derived nine times. What this eventually wants is a board level keyed off **the calibrated
+     * re-derived ten times. What this eventually wants is a board level keyed off **the calibrated
      * party's own level** rather than off the anchor, which is what makes the rung step cancel instead
      * of accumulate. Recorded rather than taken: it re-derives every figure in `descent.balance.ts`
      * and is a decision about what the mode's difficulty is anchored to. ⚠️ **Do not batch a value
      * several chapters ahead** — the landing is the only thing that will force the shape fix, which is
-     * exactly the call `gradeSoftness` records having got right. **Chapter 15 will want about 0.058.**
+     * exactly the call `gradeSoftness` records having got right. **Re-derive it from the measured
+     * bisection at both depths; chapter 15's landing shows the prediction alone is not enough.**
      */
-    anchorSlope: 0.075,
+    anchorSlope: 0.022,
   },
   /**
    * What a run pays in crystals: 3,000 for a clean one, which is thirty pulls.

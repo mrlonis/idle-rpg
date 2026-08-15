@@ -319,7 +319,7 @@ export const GEAR_RULES = {
      * is a **rate per stage** and the ladder's length is the other half of every number it produces.
      * Lower makes the ladder's bottom worthless faster; higher makes depth stop meaning anything.
      *
-     * ⚠️ **It has now been re-derived nine times — by chapters 4, 7, 8, 9, 10, 11, 12, 13 and 14 — and every
+     * ⚠️ **It has now been re-derived ten times — by chapters 4, 7, 8, 9, 10, 11, 12, 13, 14 and 15 — and every
      * time deliberately rather than by moving the threshold that caught it.** At ninety the top grade
      * was 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
      * `< 0.2` bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop;
@@ -331,9 +331,10 @@ export const GEAR_RULES = {
      * and fifty and it read **21.7%**. The Rustwood took it to five hundred and it read **21.3%**.
      * The Quarry took it to five hundred and fifty and it read **21.1%**; two hundred and
      * seventy-five restored 18.7%. The Shutgate took it to six hundred and it read **20.9%**; three
-     * hundred restored 18.7%.
+     * hundred restored 18.7%. The Underroad took it to six hundred and fifty and it read **20.7%**;
+     * three hundred and twenty-five restored 18.7%.
      *
-     * ⚠️ **Nine landings and every one of them is 18.7%, which is the whole finding.** The solution
+     * ⚠️ **Ten landings and every one of them is 18.7%, which is the whole finding.** The solution
      * is always `gradeSoftness = stages / 2` — that is the value at which the tilt equals 3.0, and
      * 3.0 is what produces 18.7% whatever the ladder's length is. So the constant is not a tuning
      * number at all; it is the ladder's length divided by two, written down by hand once a chapter.
@@ -356,7 +357,7 @@ export const GEAR_RULES = {
      * 21a *did* re-derive four chapters ahead: that quantity is **meant** to fall as the ladder
      * grows, so batching it costs only vigilance, and it was retired outright in 21d. This one is not
      * meant to do anything, so firing on schedule is the only thing that will eventually force the
-     * fix. **Chapter 15 lands on it again and will want 325.**
+     * fix. **Chapter 16 lands on it again and will want 350.**
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -364,7 +365,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 300,
+    gradeSoftness: 325,
   },
 
   /**

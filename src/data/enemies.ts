@@ -3,6 +3,7 @@ import {
   ALREADY_BEHIND_YOU,
   ANTIPHON,
   ASHPIT_RAKE,
+  AHEAD_OF_THE_COLUMN,
   AT_THE_HALT,
   BARROW_TITHE,
   BIND_THE_CONCORD,
@@ -22,6 +23,7 @@ import {
   CUTPURSE,
   CUT_BENEATH_IT,
   DOOMKNELL,
+  DRESS_THE_RANKS,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   EMBERSEED,
@@ -41,6 +43,7 @@ import {
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
   KEEP_THE_SEED,
+  KEEP_THE_STEP,
   KILN_LIGHT,
   LITANY,
   LOOSE_THE_PLATED_PACK,
@@ -67,6 +70,7 @@ import {
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
+  PUT_IT_ON_THE_CART,
   PUT_THE_EDGE_ON,
   PUT_OUT_THE_LAMPS,
   QUICKLIME_CUT,
@@ -103,6 +107,7 @@ import {
   THE_COLOURS_STAND,
   THE_COURSE_HOLDS,
   THE_COUNTERSIGN,
+  THE_COUNT_DOES_NOT_STOP,
   THE_DEBT_CALLED,
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
@@ -134,6 +139,7 @@ import {
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
+  THERE_IS_NO_END_TO_IT,
   THORNLASH,
   TYRANTS_CLAIM,
   UNDERMINE,
@@ -267,6 +273,7 @@ export const WISP = {
   name: 'Wisp',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 210,
     atk: 30,
@@ -399,6 +406,7 @@ export const HAG = {
   name: 'Bog Hag',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 650,
     atk: 46,
@@ -502,6 +510,7 @@ export const SHADE = {
   name: 'Fen Shade',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 590,
     atk: 47,
@@ -754,6 +763,7 @@ export const HEADSMAN = {
   name: 'Gallows Headsman',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 980,
     atk: 72,
@@ -2031,6 +2041,7 @@ export const BARROWMIST_KEENER = {
   name: 'Barrowmist Keener',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 520,
     atk: 48,
@@ -2049,6 +2060,7 @@ export const SEPULCHRE_HOUND = {
   name: 'Sepulchre Hound',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 52,
@@ -2079,6 +2091,7 @@ export const CAIRNWARD_HUSK = {
   name: 'Cairnward Husk',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 760,
     atk: 46,
@@ -2144,6 +2157,7 @@ export const GRAVETIDE_HERALD = {
   name: 'Gravetide Herald',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 820,
     atk: 70,
@@ -2181,6 +2195,7 @@ export const BONECHAIN_WARDEN = {
   name: 'Bonechain Warden',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 960,
     atk: 60,
@@ -2209,6 +2224,7 @@ export const GRAVEMOURN_KEEPER = {
   name: 'Gravemourn Keeper',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 780,
     atk: 58,
@@ -3521,6 +3537,7 @@ export const CHARNEL_DRUDGE = {
   name: 'Charnel Drudge',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 840,
     atk: 52,
@@ -3554,6 +3571,7 @@ export const NIGHTMARCH_OUTRIDER = {
   name: 'Nightmarch Outrider',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 760,
     atk: 78,
@@ -5094,6 +5112,7 @@ export const CORTEGE_LANCER = {
   name: 'Cortege Lancer',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 830,
     atk: 46,
@@ -5122,6 +5141,7 @@ export const IRONWAKE_VANGUARD = {
   name: 'Ironwake Vanguard',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 940,
     atk: 48,
@@ -5150,6 +5170,7 @@ export const QUICKLIME_SERJEANT = {
   name: 'Quicklime Serjeant',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 1000,
     atk: 52,
@@ -7241,6 +7262,360 @@ export const THE_DOORSTONE = {
   skills: [NOTHING_SMALL_MOVES_IT, THE_ANVIL_FALLS, GLACIAL_SLAM],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 15 — The Underroad. Ten Undead blocks, and every one of them is lighter than the
+// chapter below it by roughly half.
+//
+// ⚠️ **That is the level line, not a softer chapter, and it is the second chapter running to
+// come down.** These stand at enemy levels 300 to 325 against a party clamped at
+// `legendary-plus`'s cap of **260** — sixty-five levels under the last board, where The
+// Shutgate's party stood forty under. At `perLevel.ascended` = 1.024 the gap is worth ×1.80
+// over chapter 14 alone, so a block written at half the size is fielded at very nearly the
+// same weight. Measured, chapter 14's own final board refielded at level 310 reads **0% with
+// nobody standing** against the same party; at 325 it reads 0% in 11.5 seconds.
+//
+// ⚠️ **The whole board has to come down, not just the anchor.** With The Doorstone deleted
+// outright, the four remaining chapter-14 bodies at level 325 still read 35% with 0.68
+// survivors — so a light anchor propped up by heavy support is not an arrangement that exists
+// here. The chapter's board budget is roughly **2,200 to 2,900 health and 165 to 222 attack
+// across all five bodies**, flat from the first stage to the last, and the level line supplies
+// the whole gradient.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It went ahead to see how much further there was. It has not come back and it has not stopped.
+ *
+ * The opening band's reach, and the thinnest thing on the road: 360 health at `haste` 138, which
+ * sits inside the shipped register rather than past it — the ceiling over the whole pool is the
+ * Skyshrike's **152**, with the Wisp at 148 and the Quicklime Serjeant at 144. ⚠️ **The band is
+ * authored _at_ that register and nothing in the chapter steps past it**, which is the shape the
+ * Elf Tower's third hundred took with `critChance` and the opposite of the Monster Tower's
+ * `physicalResist`.
+ *
+ * Thin on purpose. Every fast block this game ships is thin, and the Angel Tower measured why:
+ * `haste` on a durable body is worth almost nothing and on a soft one is the strongest dial there
+ * is — so speed is paid for in health here rather than added on top of it.
+ */
+export const ROADGAUNT_OUTRIDER = {
+  id: 'roadgaunt-outrider',
+  name: 'Roadgaunt Outrider',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 360,
+    atk: 44,
+    def: 10,
+    haste: 138,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    dodge: 0.12,
+    physicalPierce: 0.12,
+  },
+  skills: [AHEAD_OF_THE_COLUMN],
+} as const;
+
+/**
+ * Somebody has to carry the light. Nobody said it had to be able to see.
+ *
+ * The second outrider, faster and softer still at `haste` 144 — level with the Quicklime Serjeant
+ * and four short of the Wisp. Magical where {@link ROADGAUNT_OUTRIDER} is physical, so the opening
+ * band cannot be answered with one resist.
+ */
+export const TALLOWLIGHT_RUNNER = {
+  id: 'tallowlight-runner',
+  name: 'Tallowlight Runner',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 330,
+    atk: 40,
+    def: 8,
+    haste: 144,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    magicPierce: 0.12,
+    magicResist: 0.08,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * One of the ranks. There is no way to tell which one, and that is the band's whole point.
+ *
+ * The ranks band's body, and deliberately the plainest stat block in the chapter: no reach, no
+ * status, no condition, and {@link PROCESSION_STEP} for a turn. ⚠️ **What the band asks is that
+ * nothing on it is individually a problem** — the answer to a column is not a lock, it is whether
+ * the party's damage runs out before the road does.
+ */
+export const UNDERROAD_RANKER = {
+  id: 'underroad-ranker',
+  name: 'Underroad Ranker',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 520,
+    atk: 46,
+    def: 26,
+    haste: 92,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    physicalResist: 0.1,
+  },
+  skills: [PROCESSION_STEP],
+} as const;
+
+/**
+ * The standard has not been lowered, so the rank behind it has not been told it may stop.
+ *
+ * The ranks band's caster, carrying {@link DRESS_THE_RANKS} — {@link RALLY} across the column on a
+ * fifty-five tick cadence against the status's own forty-five, so there is a window in every cycle.
+ *
+ * ⚠️ **A buff on the enemy side is not the flat synergy bonus this project forbids.** That rule is
+ * about a bonus a *party* gets for its own composition and asks nothing of the encounter; this is a
+ * body on a board, standing in a rank the party can reach, and deleting it turns the bonus off.
+ */
+export const STEPFALL_STANDARD = {
+  id: 'stepfall-standard',
+  name: 'Stepfall Standard',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 600,
+    atk: 52,
+    def: 20,
+    haste: 96,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    insight: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [DRESS_THE_RANKS, PROCESSION_STEP],
+} as const;
+
+/**
+ * It is keeping time for a march that arrived a long time ago and was never told.
+ *
+ * The drum band's caster and the chapter's tempo axis: {@link KEEP_THE_STEP} puts {@link HASTE}
+ * across the column every sixty ticks against the status's forty-five, so a quarter of each cycle
+ * is silence.
+ *
+ * ⚠️ **The softest legendary the chapter fields, in the back rank, on purpose.** A tempo whose
+ * source the party cannot delete is a clock rather than a lock — the same reason chapter 14's ward
+ * sits on the Wardstone Keeper and the Undead Tower's board-wide ward sits where it does.
+ */
+export const DEADPACE_DRUMMER = {
+  id: 'deadpace-drummer',
+  name: 'Deadpace Drummer',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 560,
+    atk: 50,
+    def: 16,
+    haste: 104,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    insight: 0.15,
+    magicResist: 0.12,
+  },
+  skills: [KEEP_THE_STEP, MOTE_LANCE],
+} as const;
+
+/**
+ * Worn down to the length of the road rather than by anything that happened on it.
+ *
+ * The drum band's weight, and the only place in the chapter where `physicalResist` reaches 0.20 —
+ * two rungs under the shipped field's ceiling of {@link THE_UNBITTEN}'s 0.40 and under chapter
+ * 14's own Boltfast Ironside at 0.34. ⚠️ **Stated because a stat's register is worth checking
+ * before a band is built on it**, and this one is texture rather than the band's axis: the axis is
+ * the drummer's cadence and this is the body that survives long enough to benefit from it.
+ */
+export const MILEWORN_HUSK = {
+  id: 'mileworn-husk',
+  name: 'Mileworn Husk',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 480,
+    atk: 44,
+    def: 24,
+    haste: 88,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.14,
+    physicalResist: 0.2,
+  },
+  skills: [GORE],
+} as const;
+
+/**
+ * Whatever stops walking goes on the cart. The cart is what the column is really for.
+ *
+ * The train band's finisher, carrying {@link PUT_IT_ON_THE_CART} at `enemy-lowest` — ⚠️ **a
+ * _selection_ rather than a reach**, which is a different question from
+ * {@link AHEAD_OF_THE_COLUMN}'s rank and worth saying in as many words. It punishes a party that
+ * spread its damage and left five bodies half-standing, which is exactly what the drum band above
+ * it rewards.
+ */
+export const HOLLOWCART_DROVER = {
+  id: 'hollowcart-drover',
+  name: 'Hollowcart Drover',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 620,
+    atk: 54,
+    def: 22,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.16,
+    physicalResist: 0.06,
+  },
+  skills: [PUT_IT_ON_THE_CART, PROCESSION_STEP],
+} as const;
+
+/**
+ * It set out carrying a lamp. It is still carrying the handle.
+ *
+ * The train band's soft magical body — what the column picked up on the way rather than what set
+ * out with it. Magical, so the train band cannot be answered with the physical resist the drum band
+ * above it wants.
+ */
+export const LAMPLESS_PILGRIM = {
+  id: 'lampless-pilgrim',
+  name: 'Lampless Pilgrim',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 440,
+    atk: 42,
+    def: 12,
+    haste: 94,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicPierce: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [MOTE_LANCE],
+} as const;
+
+/**
+ * The chapter's lieutenant, standing on all four mini-bosses at rising levels.
+ *
+ * A recurring antagonist rather than four one-shot stat blocks, for the reason `enemies.spec.ts`'s
+ * orphan rule exists. ⚠️ **Its signature is conditioned rather than an opening turn** — the seventh
+ * chapter running to take that shape — and {@link THE_COUNT_DOES_NOT_STOP} conditions on the party
+ * being **whole**, at five standing, where chapter 14's {@link THE_BAR_HOLDS} switched off at
+ * three. So the *first* casualty is what buys the answer here rather than the second, and the four
+ * boards it stands on are four different fights.
+ *
+ * ⚠️ **It does not stand on the chapter's final.** Chapters 9 through 14 all declined it: a second
+ * `ascended` anchor beside a boss is the sharpest non-linear weight step this game can author, and
+ * at this chapter's sixty-five level gap it is a cliff rather than a slope. What stands beside The
+ * Unnumbered is a legendary.
+ *
+ * ⚠️ **It restores nothing.** No `recovery`, no `healthRegen`, no `lifeLeech` and no drain — see
+ * `chapter-15.ts` for the counts the whole chapter is measured against.
+ *
+ * Sized under {@link UNMADE} on both stats by a wide margin, and under The Deadbolt's 1400 and 84
+ * one chapter below.
+ */
+export const THE_TALLYMAN = {
+  id: 'the-tallyman',
+  name: 'The Tallyman',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 800,
+    atk: 50,
+    def: 34,
+    haste: 96,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.18,
+    critDamageResist: 0.24,
+    tenacity: 0.45,
+    physicalPierce: 0.18,
+    physicalResist: 0.16,
+  },
+  skills: [THE_COUNT_DOES_NOT_STOP, PROCESSION_STEP, GORE],
+} as const;
+
+/**
+ * The chapter final: the head of the column, and the fifteenth body authored under the rule that a
+ * chapter's final is fielded nowhere else.
+ *
+ * 680 health and 40 attack, far under {@link UNMADE}'s 1800 and 100 — and **under The Doorstone's
+ * 1480 and 88 one chapter below**, which is the second chapter running that a final has been
+ * authored lighter than the one before it. ⚠️ **That is the level line rather than a softer
+ * chapter.** This board stands at enemy level 325 against a party clamped at `legendary-plus`'s cap
+ * of 260, so it is fielded ×1.80 higher on the growth curve than The Doorstone was; refielding The
+ * Doorstone's own board here reads **0% with nobody standing in 11.5 seconds**.
+ *
+ * ## ⚠️ Why it is lighter than half, and the thing a session sizing an anchor has to know
+ *
+ * The chapter's board budget is roughly half chapter 14's, and this block is **less than half** —
+ * because **an `ascended` block is worth ×2.587 of a `common` one at level 325 and ×1.608 of a
+ * `legendary` one**, and both premiums grow with the level. `perLevel.ascended` is 1.024 against
+ * `perLevel.common`'s 1.021, so the ratio is `(1.024 / 1.021) ** 324`. At chapter 14's close of 300
+ * the ascended-over-legendary premium was ×1.550; twenty-five levels later it is ×1.608, and it
+ * keeps going.
+ *
+ * ⚠️ **So a board's raw health total is the wrong quantity to author against and it gets more wrong
+ * every chapter.** Measured: `c15-s49` at 2,980 raw health reads 4.00 survivors and the first draft
+ * of this board at 3,100 read **0%** — a 4% difference in raw weight and the whole outcome — because
+ * in common-equivalent terms they were 4,283 and 5,581. Convert to common-equivalent weight before
+ * comparing two boards, and certainly before comparing two chapters.
+ *
+ * ⚠️ **Its own stat line was measured as inert before it came down, which is the other half.** At
+ * 880/54 behind the ranks band's standard, this board read 0% at *every* weight from 880/54 to
+ * 520/34 — the fight was decided by turn economy rather than by the anchor. What made it a fight was
+ * taking the standard off the board; what set the final weight was the sweep below it. **Check that
+ * the control can move before concluding anything from an anchor sweep.**
+ *
+ * ⚠️ **`haste: 100` and nothing else steps anywhere near a register.** The chapter's axis is tempo
+ * and its own fastest authored body is {@link TALLOWLIGHT_RUNNER} at 144, inside a shipped field
+ * whose ceiling is 152 — so unlike The Doorstone's `def: 70` there is no stat here authored above
+ * what has shipped. Said explicitly because a later session should be able to see which of the two
+ * shapes it is looking at.
+ *
+ * ⚠️ **It restores nothing and drains nothing.** No `recovery`, no `healthRegen`, no `lifeLeech`,
+ * no heal, no drain and no pool: a final that fed off a slowed party is the ninety-second clock
+ * with a stat block attached, and a timeout is scored a **defeat**.
+ */
+export const THE_UNNUMBERED = {
+  id: 'the-unnumbered',
+  name: 'The Unnumbered',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 680,
+    atk: 40,
+    def: 30,
+    haste: 100,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critBlock: 0.16,
+    critDamageResist: 0.26,
+    tenacity: 0.55,
+    physicalPierce: 0.22,
+    physicalResist: 0.18,
+  },
+  skills: [THERE_IS_NO_END_TO_IT, PUT_IT_ON_THE_CART, PROCESSION_STEP],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -7443,4 +7818,14 @@ export const ENEMIES = [
   DEEPLAMP_SEALER,
   THE_DEADBOLT,
   THE_DOORSTONE,
+  ROADGAUNT_OUTRIDER,
+  TALLOWLIGHT_RUNNER,
+  UNDERROAD_RANKER,
+  STEPFALL_STANDARD,
+  DEADPACE_DRUMMER,
+  MILEWORN_HUSK,
+  HOLLOWCART_DROVER,
+  LAMPLESS_PILGRIM,
+  THE_TALLYMAN,
+  THE_UNNUMBERED,
 ] as const;

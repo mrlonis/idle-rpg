@@ -6211,6 +6211,153 @@ export const NOTHING_SMALL_MOVES_IT = {
 } as const;
 
 /**
+ * The outriders are on the road before the column is, and they do not stop to fight what they pass.
+ *
+ * Chapter 15's opening band, and the one skill in it that reaches. ⚠️ **A _reach_ rather than a
+ * scope or a selection** — `enemy-back` names a rank, not the whole board and not the softest body
+ * — which is the distinction the Angel Tower's roof shipped a false claim about and which this
+ * chapter states in its own header rather than leaving to be inferred.
+ *
+ * Short cooldown on a very thin body: {@link ROADGAUNT_OUTRIDER} is 360 health at `haste` 138,
+ * which is the pairing the shipped register supports. Every fast block this game ships is thin, and
+ * the Angel Tower measured why — speed on a durable body is worth almost nothing and on a thin one
+ * is the strongest dial there is.
+ */
+export const AHEAD_OF_THE_COLUMN = {
+  id: 'ahead-of-the-column',
+  name: 'Ahead of the Column',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 35,
+  priority: 3,
+} as const;
+
+/**
+ * The rank closes up. It has been closing up for a very long time and it is good at it.
+ *
+ * The ranks band's turn, and the chapter's answer to "is there an end to it" said as a buff rather
+ * than as a body count: {@link RALLY} across the standard's whole side on a fifty-five tick cadence
+ * against the status's own forty-five, so a sixth of every cycle is a window where the column is
+ * only what its stat block says. Same shape as chapter 14's {@link SET_THE_STONE} and the same
+ * courtesy — a board with no window is a wall rather than a rhythm.
+ *
+ * ⚠️ **Unconditioned, and specifically not conditioned on the column being hurt.** A body that
+ * sharpens itself as it is wounded is the offensive spelling of the one defensive shape nobody may
+ * author; this is on a metronome whether it is needed or not.
+ */
+export const DRESS_THE_RANKS = {
+  id: 'dress-the-ranks',
+  name: 'Dress the Ranks',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: RALLY }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The drum is the only thing on the underroad that was ever in charge, and it is still keeping time.
+ *
+ * The drum band's turn: {@link HASTE} across the column every sixty ticks against the status's
+ * forty-five, so a quarter of each cycle is silence. ⚠️ **Tempo rather than weight, and the two are
+ * not interchangeable** — `haste` buys *turns*, so a third more of it is a third more of everything
+ * the column was ever going to do, which is why {@link SLOW} is described as the most quietly
+ * powerful debuff in the game and why its mirror is worth authoring a band around.
+ *
+ * It sits on {@link DEADPACE_DRUMMER}, a 560-health body in the back rank — the softest thing on
+ * the boards that carry it, for the reason chapter 14 put its ward on the Wardstone Keeper. A
+ * tempo the party cannot delete the source of is a clock rather than a lock.
+ */
+export const KEEP_THE_STEP = {
+  id: 'keep-the-step',
+  name: 'Keep the Step',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * Whatever stops walking goes on the cart, and the cart is what the column is really for.
+ *
+ * The train band's turn, and ⚠️ **a _selection_ rather than a reach or a scope**: `enemy-lowest`
+ * names the softest standing body wherever it is, which is a different question from
+ * {@link AHEAD_OF_THE_COLUMN}'s rank. Stating which of the three a skill is about is the correction
+ * four sessions have now had to make after the fact.
+ *
+ * A finisher rather than an opener, at ×1.5 on one target. It punishes a party that has spread its
+ * damage and left five bodies half-standing, which is the exact shape the drum band above it
+ * rewards — so the two bands ask opposite things of the same party.
+ */
+export const PUT_IT_ON_THE_CART = {
+  id: 'put-it-on-the-cart',
+  name: 'Put It on the Cart',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 45,
+  priority: 4,
+} as const;
+
+/**
+ * It is not counting the dead. It is counting how far there is left to go, and it has never
+ * finished.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn** — the seventh
+ * chapter running to take that shape, and the first to condition on the party being **whole**.
+ * Chapter 14's {@link THE_BAR_HOLDS} switched off at three standing; this one switches off at
+ * four, so a party that has traded a single body has already changed the fight.
+ *
+ * That is the sharper version of the same idea and it is deliberate. The Tallyman's four boards are
+ * four different fights, and the *first* casualty is what buys the answer rather than the second —
+ * so the band openers below it are where a party decides whether to spend one.
+ *
+ * ⚠️ **{@link SLOW} rather than {@link WEAKEN}, which is the chapter's axis rather than chapter
+ * 14's.** The Shutgate blunted the party's swing; this takes the turns the swing would have been
+ * spent on. Both are `stat-mod` statuses on a `STANDARD` forty-five ticks against a sixty-tick
+ * cooldown, so neither can be held up permanently.
+ */
+export const THE_COUNT_DOES_NOT_STOP = {
+  id: 'the-count-does-not-stop',
+  name: 'The Count Does Not Stop',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.95 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 5,
+} as const;
+
+/**
+ * The head of the column, which has been the head of the column since before the gate was shut.
+ *
+ * The chapter final's reach, at ×1.0 across five against the ×1.2 wide ceiling
+ * `data/skills.spec.ts` holds — the same figure {@link NOTHING_SMALL_MOVES_IT} takes one chapter
+ * below.
+ *
+ * ⚠️ **Unconditioned, unlike {@link THE_COUNT_DOES_NOT_STOP} above it**, which is the final saying
+ * the chapter once more with the escape valve removed: a party that learned to spend a body to
+ * switch the lieutenant's turn off arrives here and finds the answer gone. It costs a **cooldown**
+ * rather than a permanent state, so it is a harder fight rather than a longer one — which is the
+ * only direction a chapter built on tempo is allowed to move.
+ *
+ * ⚠️ **It restores nothing and drains nothing.** No heal, no drain, no regeneration and no pool in
+ * this kit or anywhere on the board it closes: a final that fed off a slowed party is the
+ * ninety-second clock with a stat block attached, and a timeout is scored a **defeat**.
+ */
+export const THERE_IS_NO_END_TO_IT = {
+  id: 'there-is-no-end-to-it',
+  name: 'There Is No End to It',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1 },
+    { kind: 'status', status: SLOW, chance: 0.8 },
+  ],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
  * One list rather than `Object.values(module)`, because `data/` is plain data and that is a
@@ -6521,4 +6668,10 @@ export const SKILLS = [
   PUT_OUT_THE_LAMPS,
   THE_BAR_HOLDS,
   NOTHING_SMALL_MOVES_IT,
+  AHEAD_OF_THE_COLUMN,
+  DRESS_THE_RANKS,
+  KEEP_THE_STEP,
+  PUT_IT_ON_THE_CART,
+  THE_COUNT_DOES_NOT_STOP,
+  THERE_IS_NO_END_TO_IT,
 ] as const;
