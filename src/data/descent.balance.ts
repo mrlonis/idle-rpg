@@ -228,6 +228,14 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * consecutive chapters have now each added one entry. **The prediction is no longer a prediction;
  * budget an entry per chapter until the repair lands.**
  *
+ * ## ⚠️ Chapter 21 added the seventh, on schedule, for the fourth consecutive chapter
+ *
+ * `chapterEnd(21)` — depth **970** — failed at **5.00 survivors of five** the moment The Longebb
+ * shipped. Four consecutive chapters, four entries, each for the identical reason: The Longebb closes
+ * at level 485 and the cap holds the board at **316**, so depths 850, 910 and 970 now field the
+ * **same board** against three parties bisected against three progressively lighter chapter finals.
+ * **The list is a schedule and the schedule has not slipped once.**
+ *
  * ⚠️ **That growth is the argument for the repair, not for a different guard, and a session should
  * resist two tempting edits.** Deriving the tail of this list — "every depth the cap clamps" — would
  * be true today and would silently absorb a depth that becomes a walkover for some *other* reason,
@@ -244,6 +252,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(18),
   chapterEnd(19),
   chapterEnd(20),
+  chapterEnd(21),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

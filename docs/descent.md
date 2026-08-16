@@ -422,7 +422,7 @@ depth where the mode can still move.
 
 ### The trough is pinned rather than dropped
 
-`RUNG_TROUGH` names chapters 12 to 14 and chapters 18, 19 and 20, and asserts what is actually true of
+`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 21, and asserts what is actually true of
 them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
 straight back in the place the derived `DEPTHS` was written to close; pinning them keeps the defect
 visible and stops it spreading or deepening.
@@ -434,9 +434,12 @@ important thing on this page for a session planning the next chapter.** `chapter
 the **identical board** while the party at each is bisected against its own chapter's final. The
 deeper depth is therefore at least as strong against the same boards, by construction.
 
-⚠️ **Chapter 20 added the sixth, on schedule, so the prediction has now been checked.** Depth 910
-failed at **5.00 of five** the day The Commonage shipped, for exactly the stated reason. Three
-consecutive chapters have each added one entry; this is arithmetic rather than a forecast now.
+⚠️ **Chapter 20 added the sixth and chapter 21 the seventh, both on schedule.** Depth 910 failed at
+**5.00 of five** the day The Commonage shipped and depth **970** the day The Longebb did, both for
+exactly the stated reason: `anchorCap` holds the board at 316, so depths 850, 910 and 970 now field
+the **same board** against three parties bisected against three progressively lighter chapter finals.
+**Four consecutive chapters have each added one entry and the schedule has not slipped once** — this
+is arithmetic rather than a forecast.
 
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than

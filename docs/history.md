@@ -404,6 +404,18 @@ has re-formed one link deep, and the countdown resumes: chapter 20 reads 1.7069,
 chapter 22 0.6048, so **`mythic` buys about three chapters** exactly as `legendary-plus` bought
 seven.
 
+⚠️ **Chapter 20 stayed on `mythic` a second time and chapter 21 a third, and the countdown the entry
+above wrote down was right about the arithmetic and wrong about the pool.** The projection said the
+rung buys about three chapters; chapter 20 measured it buying about one and a half, and The Longebb
+is the half. Its seam is **0.8241** — the first reading under 1.00 on this rung, and the first time a
+chapter has stayed on a rung whose seam is under 1.00. **That is still a derivation rather than an
+override**, because what licenses an override is the seam _below_ being wrong and chapter 20's is
+1.5373: the chapter was authorable and its sixty boards all clear at 100% with zero timeouts.
+`mythic-plus` was fielded rather than assumed this time and takes chapter 20's own final at level 485
+with all five alive in 3.2 seconds — a walkover three chapters deep. **What moves the rung next is
+the pool**, and it is one chapter away: chapter 22 closes at 515, where the whole shipped Monster
+light tail is worth ×1.86 less than a board needs.
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
 they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
 rungs rather than 11 until chapter 18 took the eighth. The

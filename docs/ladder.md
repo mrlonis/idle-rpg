@@ -29,7 +29,8 @@ the point. See [authoring](authoring.md).
 **cap is a schedule rather than a constant**: `raisedMaxFromChapter` 20 and `raisedMaxStages` 60, so
 chapters 1–19 hold fifty and 20 onward hold sixty. **The long ladder is still more chapters, not
 longer ones**; this steps **once**, on the deliberate revisit the old "permanent cap of fifty" note
-invited, and a second step needs its own argument rather than this one as precedent.
+invited, and a second step needs its own argument rather than this one as precedent. Chapter 21 is
+the first chapter for which sixty is simply what the formula says, with nothing to decide.
 
 ⚠️ **A raised cap only ever applies from its own chapter on, and `chapterSize` refuses a lowering.**
 That is what makes the step cheap: `min(ramp, cap)` with the ramp already past every cap means no
@@ -50,8 +51,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring, The Interest and The
-Undivided. A re-cut that moves a boundary owes the new final a unique body before it ships.
+Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring, The Interest, The Undivided
+and The Unreturned. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -253,7 +254,40 @@ and 170 health authored before its closing bands could exist.
 health and every one is a **Monster** — The Quickmire's seventeen are still the light tail of the
 whole game — while the four lightest Undead or Human blocks total 790 before a boss. **A chapter 21
 leaning Monster does not meet this wall; every other lean does.** Re-measure the lean's own light
-tail at chapter 21, not the pool's.
+tail at chapter 21, not the pool's. ⚠️ **Chapter 21 leaned Monster and the prediction held exactly**
+— fifteen of the 272 blocks that preceded it sit at or under 200 common-equivalent at level 485, and
+**eleven are Monsters**.
+
+## ⚠️ Chapter 21 stays on `mythic` a third time, and its own seam is the first under 1.00 on it
+
+The Longebb closes at **485** — sixty stages again, and the first chapter for which sixty is the
+schedule rather than an exception. Against chapter 20's seam of 1.5373, `mythic` reads **0.8241**
+(|Δln| **0.6235**) and `mythic-plus` **6.9529** (|Δln| **1.5091**): `mythic` by 0.886 of a nat.
+
+⚠️ **The seam it lands on is 0.8241 — under 1.00, which is the reading that licensed chapter 18's
+override — and it still does not license one.** The Slowgrowth's move rested on the seam **below** it
+being wrong (0.9608) _and_ on a board budget of 129 common-equivalent per body against a pool whose
+lightest body was 100, so no chapter existed on the old rung. Here the seam below is 1.5373 and the
+chapter was authorable: sixty boards, all at 100%, zero timeouts, longest fight 29.1s against a 72s
+bar. **What licenses an override is the seam below being wrong, never this chapter's own seam being
+small.** Three chapters running have now had to say which of the two they are doing.
+
+⚠️ **`mythic-plus` was _fielded_ rather than reasoned about, which chapter 15 failed to do.** Chapter
+20's own final refielded at level 485 reads **100% with all five alive in 3.2 seconds** against a
+`mythic-plus` five and **0%** against the `mythic` one. The arithmetic and the measurement agree
+here; record that they were checked.
+
+⚠️ **The degenerate chain reaches four links.** Chapters 18 through 21 all clamp to `mythic`'s cap of
+340, so `SLOWGROWTH`, `BACKCUT`, `COMMONAGE` and `INVESTED` are one set of five. The Longebb's last
+board stands **a hundred and forty-five levels** above the cap — ×20.36.
+
+⚠️ **This is the half chapter 20's pool projection predicted, and the closing band is at the floor.**
+The budget runs **1,445 → 804** common-equivalent, and the whole shipped Monster mid-weight tier —
+Carrion Swarm through Driftmouth Choker — reads **1.45 to 4.00 survivors at level 475** and **0.00 to
+0.50 at 485**. What is left at 485 is the eleven light Monsters The Quickmire authored, which read
+**3.75 of five unaided**. **Chapter 22 closes at 515, where the same boards are worth ×1.86 more and
+nothing shipped can stand on one** — expect `mythic-plus` on the pool while the log-space rule still
+prefers staying put.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

@@ -957,38 +957,68 @@ const BACKCUT: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Commonage asks
+ * The party that arrives in chapter 21: the five that just took The Unreturned's chapter, unchanged.
+ *
+ * ⚠️ **This is The Commonage's `INVESTED`, kept under a new name rather than re-derived** — the
+ * seventeenth time, for the seventeenth time for the same reason: re-aiming one "arrived" party at
+ * the newest chapter would silently stop checking that every chapter below it is still finishable by
+ * the party it was tuned for.
+ *
+ * ⚠️ **The degenerate chain reaches four links.** Chapters 18 through 21 all close above `mythic`'s
+ * cap of **340** and all clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT}, this party and
+ * {@link INVESTED} are one set of five combatants — one link deeper than the five-link stretch
+ * chapters 13 through 17 recorded, one rung down. See {@link INVESTED} for why the rung stays put a
+ * third time and for the measurement that finally settles it.
+ */
+const COMMONAGE_RARITY = rarityIndex('mythic');
+const COMMONAGE_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[19] - 1].level,
+  LEVEL_CURVE.caps[COMMONAGE_RARITY],
+);
+
+const COMMONAGE: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(COMMONAGE_LEVEL, COMMONAGE_RARITY),
+  COMMONAGE_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Longebb asks
  * for will carry them.
  *
  * Still common tier, and still no pull anyone had to be lucky for.
  *
- * ## ⚠️ Chapter 20 stays on `mythic` for the second chapter running, and the pool is what will move it
+ * ## ⚠️ Chapter 21 stays on `mythic` for the third chapter running, and the seam it lands on is
+ * under 1.00
  *
  * **The rule that picks a rung reproduces the power ratio the seam below it had**,
- * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated
- * for every rung and taken closest in **log** space. Against chapter 19's seam of **2.8677** and
- * The Commonage's close of 455, `mythic` reads **1.5373** (|Δln| **0.6237**) and `mythic-plus`
- * **12.9700** (|Δln| **1.5099**). `mythic` wins by 0.886 of a nat.
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated for
+ * every rung and taken closest in **log** space. Against chapter 20's seam of **1.5373** and The
+ * Longebb's close of 485, `mythic` reads **0.8241** (|Δln| **0.6235**) and `mythic-plus` **6.9529**
+ * (|Δln| **1.5091**). `mythic` wins by 0.886 of a nat.
  *
- * ⚠️ **This is a stay rather than an override, and chapter 19 established that a stay needs its own
- * argument.** {@link SLOWGROWTH}'s move rested on the seam below it being *wrong* — 0.9608, under
- * 1.00, with a board budget of 129 common-equivalent per body against a pool whose lightest body was
- * 100, so no chapter existed on the old rung at all. Here the seam is 1.5373, comfortably above
- * 1.00, and the chapter was authorable.
+ * ⚠️ **A seam under 1.00 is the reading that licensed chapter 18's override, and it does not license
+ * one here.** {@link SLOWGROWTH}'s move rested on the seam **below** it being wrong — 0.9608 — *and*
+ * on a board budget of 129 common-equivalent per body against a pool whose lightest body was 100, so
+ * no chapter existed on the old rung at all. Here the seam below is 1.5373, comfortably above 1.00,
+ * and the chapter was authorable: The Longebb's sixty boards all clear at 100% with zero timeouts.
+ * **What licenses an override is the seam below being wrong, never this chapter's own seam being
+ * small.** Three chapters in a row have now had to say which of the two they are doing.
  *
- * ⚠️ **But it was close, and what nearly bound was the *pool* rather than the seam.** At level 455
- * the lightest five shipped commons that can stand together read 3% and 0.03 survivors, and The
- * Commonage had to author two bodies lighter than anything the game had ever shipped — 150 and 170
- * health — before its closing bands could exist at all. Chapter 19 projected this rung buying about
- * three chapters on the arithmetic; on the pool it buys about one and a half, because a
- * **sixty**-stage chapter climbs thirty levels rather than twenty-five. **Re-measure the pool at
- * chapter 21 before re-deriving the seam.**
+ * ⚠️ **`mythic-plus` was fielded rather than reasoned about, which chapter 15 failed to do.** Chapter
+ * 20's own final, refielded at level 485: against a `mythic-plus` five it reads **100% with all five
+ * alive in 3.2 seconds** — a walkover, and the sweep would have answered with walkovers three
+ * chapters deep. Against this party it reads 0%. **The arithmetic and the measurement agree here;
+ * record that they were checked rather than assumed.**
  *
- * ⚠️ **The degenerate chain reaches three links.** Chapters 18, 19 and 20 all close above `mythic`'s
- * cap of 340 and all clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT} and this party are one set
- * of five combatants and the assertions either side of two boundaries are one claim. Chapter 19
- * predicted exactly this; recorded rather than repaired, as chapters 13 through 17 recorded it one
- * rung down.
+ * ⚠️ **What moves the rung next is the pool, and it is one chapter away.** Chapter 19 projected this
+ * rung buying about three chapters and chapter 20 measured it buying about one and a half; The
+ * Longebb is the half. Its closing band is at the floor — at level 485 the five heaviest shipped
+ * light Monsters read **3.75 of five unaided**, and the whole returning mid-weight tier reads 0.03 to
+ * 0.50. A chapter 22 closes at 515, where the same boards are worth ×1.86 more and nothing shipped
+ * can stand on one. **Measure the pool before re-deriving the seam**, and expect `mythic-plus` on the
+ * pool while the log-space rule still prefers staying put.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
@@ -1003,22 +1033,6 @@ const INVESTED: FormationData = mono(
   INVESTED_RARITY,
 );
 
-/**
- * The most heavily boosted party the lineup bonus permits.
- *
- * Five Demons, which since milestone 8e is buildable without a single lucky pull: three commons
- * and two legendaries. That is the top rung of the composition ladder *and* all five steps of the
- * Demon track underneath it, and nothing legal stacks higher.
- *
- * **This replaced three Demons and two Angels**, which was the maximum only while a mono-five was
- * unreachable — the Angels stood in as wildcards to fill the rung and paid nothing on the Demon
- * track, so it reached three of the five steps rather than all of them. Leaving it as it was would
- * have meant the guard below quietly stopped watching the worst case the moment 8e shipped.
- *
- * It is here as a **guard rather than a tuning target**. Nothing asserts this party should beat
- * anything; what it is watched for is the failure mode a bonus to health and defence makes more
- * likely, which is a party that survives a fight it cannot win until the clock ends it.
- */
 const BOOSTED: FormationData = mono(
   [THREX, VEXIS],
   [PYRA, NYXARA, SANGUINE],
@@ -1168,6 +1182,11 @@ const backcutSweeps = stages.map((stage) => ({
   stage,
   ...sweep(BACKCUT, stage),
 }));
+const commonageSweeps = stages.map((stage) => ({
+  label: 'commonage',
+  stage,
+  ...sweep(COMMONAGE, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1285,6 +1304,9 @@ const SLOWGROWTH_END = CHAPTER_ENDS[17];
 
 /** Where The Backcut ends, for the seam either side of the nineteenth boundary. */
 const BACKCUT_END = CHAPTER_ENDS[18];
+
+/** Where The Commonage ends, for the seam either side of the twentieth boundary. */
+const COMMONAGE_END = CHAPTER_ENDS[19];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1956,6 +1978,38 @@ describe('ladder balance', () => {
     // sixty-stage chapter costs.**
     const walked = backcutSweeps
       .slice(BACKCUT_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 20 clear chapters 1 through 20', () => {
+    // The Longebb's seam, measured the same way as the sixteen above it. ⚠️ **The degenerate chain
+    // reaches four links.** Chapters 18 through 21 all close above `mythic`'s cap of **340** and all
+    // clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT}, {@link COMMONAGE} and {@link INVESTED} are
+    // one set of five combatants. See {@link INVESTED} for why the rung stays put a third time, and
+    // for the `mythic-plus` walkover that was fielded rather than reasoned about this time.
+    const unreliable = commonageSweeps
+      .slice(0, COMMONAGE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Longebb as well', () => {
+    // ⚠️ **Vacuous by construction for the seventh time**, for the reasons the six above it are:
+    // {@link MOMENTUM_CEILING} is a share of the whole ladder — 291 boards at 970 stages — where this
+    // slice is 60, and {@link COMMONAGE} and {@link INVESTED} are the same party. Kept rather than
+    // deleted so the record of *why* survives. `docs/authoring.md` forbids widening it.
+    //
+    // ⚠️ **What the seam costs is real**: The Longebb's last board stands **a hundred and forty-five
+    // levels** above the cap this party is clamped at — ×20.36 — and its seam ratio is **0.8241**, the
+    // first reading under 1.00 on `mythic`. That is why its boards are authored at roughly half
+    // chapter 20's: the budget runs 1,445 common-equivalent at `c21-s1` down to **804** at the final.
+    const walked = commonageSweeps
+      .slice(COMMONAGE_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

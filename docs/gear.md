@@ -298,17 +298,23 @@ Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; 
 hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and fifty — **21.1%** — taking
 it to **275**; The Shutgate at six hundred — **20.9%** — taking it to **300**; The Underroad at
 six hundred and fifty — **20.7%** — taking it to **325**; and The Spoilfield at seven hundred —
-**20.5%** — taking it to **350**. Every one restores 18.7% over the ladder that actually ships. Same
-move, longer ladder, twelve times now.
+**20.5%** — taking it to **350**; The Quickmire at seven hundred and fifty, taking it to **375**;
+The Slowgrowth at eight hundred — **20.3%** — taking it to **400**; The Backcut at eight hundred and
+fifty, taking it to **425**; The Commonage at nine hundred and ten, taking it to **455**; and The
+Longebb at nine hundred and seventy — **20.3%** — taking it to **485**. Every one restores 18.7% over
+the ladder that actually ships. Same move, longer ladder, fifteen times now.
 
-⚠️ **Twelve re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Fifteen re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
 chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will want 425" and it wanted
-425 — which retires the last reading under which this might have been noise. **Chapter 20 will want 450.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+425 — which retires the last reading under which this might have been noise. ⚠️ **Chapter 20's
+prediction of 450 was the first _wrong_ one, and only because it assumed a fifty-stage chapter**: The
+Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
+arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
+length** — chapter 21's prediction of 485 was made that way and was right, and **chapter 22 will want 515.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 17
-will want 375. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
 [authoring](authoring.md), which now records **two more dials with the same diagnosis** — the

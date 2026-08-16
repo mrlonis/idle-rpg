@@ -7375,6 +7375,189 @@ export const NOBODY_HERE_IS_ONE_THING = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 21 — The Longebb
+//
+// The chapter asks whether the party's damage still holds its value, so every turn below moves
+// the exchange rate rather than the stat line: what the board takes back ({@link TAKE_IT_BACK}),
+// what stops closing ({@link NOTHING_CLOSES_HERE}), what a wound is worth to the thing carrying
+// it ({@link MARKED_BY_THE_WATER}), and what the party's own attack is worth by the end
+// ({@link IT_IS_ALL_WORTH_LESS}).
+//
+// ⚠️ **Every one of the four was priced before a board was written**, against a control of an
+// anchor at 255/29 behind four bodies at 148/23 at level 485 and Relic 100 — 847 common-equivalent,
+// reading 3.25 of five and moving (3.98 at 813, 2.70 at 860, 1.88 at 920). See `chapter-21.ts` for
+// the whole table; the four that matter are `lifeLeech` 0.05 → 0.40 at **0.17 → 0.85**,
+// {@link SAVAGED} on a scope at **1.27**, {@link BLOODRISEN} on `self` across five at **1.98**, and
+// {@link WEAKEN} on a scope at **3.25** — a total wipe from one carrier, which is why exactly one
+// body in the chapter casts it and why its board is the lightest in the chapter.
+// ---------------------------------------------------------------------------------------
+
+/** The first band's turn: what it takes off you it keeps. Its carrier drinks 12% of what it deals. */
+export const TAKE_IT_BACK = {
+  id: 'take-it-back',
+  name: 'Take It Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/** The same argument from the back rank, and a deeper draught for standing where it is safe. */
+export const DRAWN_DOWN = {
+  id: 'drawn-down',
+  name: 'Drawn Down',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/**
+ * The second band's turn: {@link SAVAGED} on the scope rather than on a selection.
+ *
+ * ⚠️ **Worth 1.27 of five on the scope, −0.48 on `enemy-back` and −0.63 on `enemy-lowest`** at the
+ * control above — one status carrying **three signs**, which is the sharpest version yet of the rule
+ * chapter 17 found on {@link STUN} and chapter 19 on {@link BLOODRISEN}. A wound spread across five
+ * is attrition; the same wound aimed is the party's damage being *concentrated for it*, which is
+ * what a party wants. Author the scope or do not author the mechanic.
+ */
+export const NOTHING_CLOSES_HERE = {
+  id: 'nothing-closes-here',
+  name: 'Nothing Closes Here',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.85 },
+    { kind: 'status', status: SAVAGED, chance: 1 },
+  ],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The third band's turn: a body that is worth more to the board once the party has hurt it.
+ *
+ * {@link BLOODRISEN} on `self`, conditioned on the caster being under three fifths — so it costs the
+ * party nothing if the party finishes what it starts, and arms the board for the rest of the fight
+ * if it does not.
+ *
+ * ⚠️ **Worth 1.98 of five across all five carriers at chapter 21's control, against the 0.15 chapter
+ * 19 measured for the identical shape.** Same status, same scope, two chapters apart, thirteen times
+ * the price — because the board underneath it is a third of the weight and a permanent multiplier on
+ * a light board is a larger share of it. **A figure quoted without the weight it was measured at
+ * means nothing.**
+ */
+export const MARKED_BY_THE_WATER = {
+  id: 'marked-by-the-water',
+  name: 'Marked By The Water',
+  target: 'self',
+  effects: [{ kind: 'status', status: BLOODRISEN, chance: 1 }],
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter's most expensive turn, and the only body that carries it.
+ *
+ * {@link WEAKEN} on `enemy-all` measured **3.25 of five — a total wipe from one carrier** — against
+ * the same control, where chapter 19 read 0.30 and chapter 20 read 0.95. Nothing about the status
+ * changed; the board did. On a board this light the party's throughput is the only thing keeping it
+ * alive, so a third off the party's attack is the whole fight.
+ *
+ * ⚠️ **No damage rider and a seventy-tick cooldown**, both deliberate, and even so its carrier is
+ * fielded in the **front** rank only up to level 480 — at 485 the front-rank version reads 1.32 of
+ * five at a 78% win rate against 3.15 from the back. That is a fact about **front-rank weight
+ * setting the fight length**, not about where a debuffer belongs; see `chapter-21.ts`.
+ */
+export const IT_IS_ALL_WORTH_LESS = {
+  id: 'it-is-all-worth-less',
+  name: 'It Is All Worth Less',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN, chance: 1 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The closing band's plain turn. Nothing clever left down here; there is nothing left to be clever with. */
+export const LOW_AND_LOWER = {
+  id: 'low-and-lower',
+  name: 'Low And Lower',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.25 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * It only spreads the wound while four of the party still stand, so the four boards it anchors are
+ * four different fights against one block: early, when the party is whole, it is the board's whole
+ * argument; late, after the party has lost two, it stops and {@link NOTHING_IS_COMING_BACK} is all
+ * it has. That is the shape `docs/authoring.md` prefers to an opening — the block answers what the
+ * party is doing rather than announcing itself.
+ */
+export const THE_TIDE_DOES_NOT_TURN = {
+  id: 'the-tide-does-not-turn',
+  name: 'The Tide Does Not Turn',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.8 },
+    { kind: 'status', status: SAVAGED, chance: 1 },
+  ],
+  condition: { kind: 'enemies-at-least', count: 4 },
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has left once the condition lapses. */
+export const NOTHING_IS_COMING_BACK = {
+  id: 'nothing-is-coming-back',
+  name: 'Nothing Is Coming Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 52,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, with nothing else on
+ * the board doing it.
+ *
+ * {@link WEAKEN} on `enemy-all` is worth 3.25 of five here, so this is the only stage in The Longebb
+ * where the party meets it beside a boss — and the board it stands on is the lightest the chapter
+ * authors for exactly that reason.
+ */
+export const IT_WAS_WORTH_MORE_THIS_MORNING = {
+  id: 'it-was-worth-more-this-morning',
+  name: 'It Was Worth More This Morning',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN, chance: 1 }],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
+/** The finisher. `enemy-lowest`, because by the time it fires there is usually only one answer left. */
+export const THE_LAST_OF_THE_WATER = {
+  id: 'the-last-of-the-water',
+  name: 'The Last Of The Water',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The final's plain turn, and the name of the thing it is. */
+export const KEEP_NOTHING = {
+  id: 'keep-nothing',
+  name: 'Keep Nothing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -7746,4 +7929,15 @@ export const SKILLS = [
   NONE_OF_US_IS_THE_ONE,
   ONE_GRAVE_BETWEEN_US,
   NOBODY_HERE_IS_ONE_THING,
+  TAKE_IT_BACK,
+  DRAWN_DOWN,
+  NOTHING_CLOSES_HERE,
+  MARKED_BY_THE_WATER,
+  IT_IS_ALL_WORTH_LESS,
+  LOW_AND_LOWER,
+  THE_TIDE_DOES_NOT_TURN,
+  NOTHING_IS_COMING_BACK,
+  IT_WAS_WORTH_MORE_THIS_MORNING,
+  THE_LAST_OF_THE_WATER,
+  KEEP_NOTHING,
 ] as const;

@@ -74,16 +74,18 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty chapters, nine hundred and ten
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty-one chapters, nine hundred and seventy
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven
-  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapters 19 and 20 both stayed
-  on it, and that a stay is a derivation rather than an override is the point**: what licenses an
-  override is the seam below it being _wrong_ (0.9608, under 1.00) rather than the margin being
-  large. The chain is three links deep and `mythic`'s arithmetic runs to about chapter 22.
+  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapters 19, 20 and 21 all
+  stayed on it, and that a stay is a derivation rather than an override is the point**: what licenses
+  an override is the seam _below_ being wrong (0.9608, under 1.00), never the margin being large and
+  never this chapter's own seam being small. The chain is **four links** deep.
   ⚠️ **What actually binds is the pool rather than the seam, and chapter 20 is where they came
   apart**: the arithmetic said three chapters and the enemy pool gave about one and a half. **Measure
-  the pool before re-deriving the seam.**
+  the pool before re-deriving the seam.** ⚠️ **Chapter 21 is the half, and it is the first chapter
+  whose own seam is under 1.00 on `mythic` (0.8241)** — its closing band sits at the floor of what
+  the pool can field, and chapter 22 closes at 515 where nothing shipped can stand on a board.
 - ⚠️ **A chapter is fifty stages up to chapter 19 and sixty from chapter 20, and the cap is a
   _schedule_ rather than a constant** — `CHAPTER_CURVE.raisedMaxFromChapter` / `raisedMaxStages`, so
   the length stays derived and `chapters.spec.ts` still holds every chapter equal to `chapterSize`.
@@ -409,6 +411,18 @@ Asserted in `core/battle/simulate.spec.ts`.
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](../../docs/authoring.md)
+- ⚠️ **A status's price is a function of the board under it, and chapter 21 measured four inversions
+  at once.** Against a control of 847 common-equivalent at level 485 reading 3.25 of five — roughly a
+  third of chapter 20's weight — `CHAINBOND` on `ally-all` is worth **0.00** where chapter 20 read
+  1.78; `WEAKEN` on `enemy-all` is a **total wipe from one carrier** (3.25) where chapter 19 read 0.30
+  and chapter 20 read 0.95; `BLOODRISEN` on `self` across five is **1.98** where chapter 19 read 0.15.
+  **Re-price every mechanic against this chapter's own control; a figure quoted without its weight
+  means nothing.** ⚠️ **`SAVAGED` now carries _three signs on one status_** — −0.63 on a selection,
+  −0.48 on a reach and **+1.27** on a scope — which is the scope-versus-selection rule with chapter
+  20's negative arm attached. ⚠️ **`lifeLeech` is the rare reading that is a dial rather than a
+  cliff**: 0.17 → 0.85 monotone across 0.05 → 0.40, zero timeouts to 0.25. ⚠️ **`tenacity` is the
+  register check's eighth answer and it is flat** — 0.25 at 0.20 and 0.33 at 0.60.
+  [authoring](../../docs/authoring.md)
 - ⚠️ **A mechanic can price with the _wrong sign_, and a taunt is the one that does.** Measured at
   chapter 20's control — 2,099 common-equivalent at level 455, reading 3.35 of five, and it moves —
   `OATHSHIELD` reads **4.00 on the front anchor, 3.80 on two carriers and 3.63 from the back rank**:
@@ -427,18 +441,34 @@ Asserted in `core/battle/simulate.spec.ts`.
   itself, with an innocent escort (four escorts and no boss read 4.00). What settled it was the
   **attack**: at 200 health, 30 reads 0%, 16 reads 13%, 10 reads 73%. Its lieutenant came down
   250/52 → **190/18** and its final 230/56 → **175/16**. **Shortlist on weight; settle on attack.**
-  [authoring](../../docs/authoring.md)
+  ⚠️ **Chapter 21 inverted the second half of that, so measure which of the two binds.** At level 485
+  a fifth **`common`** body is free at any attack from 16 to 30 — 4.00 of five across the whole sweep
+  — while a fifth **`ascended`** body grades **4.00 / 3.50 / 1.85 / 0.15** across 149 / 248 / 372 /
+  496 common-equivalent with its attack held at 5. **An ascended anchor is fight length and the
+  escort is the rate that converts length into deaths**: the same 496-weight anchor reads 0.15 behind
+  an escort summing 89 attack and **3.92** behind one summing 68. Shortlist on weight, then settle on
+  whichever of the two the escort leaves free. [authoring](../../docs/authoring.md)
 - ⚠️ **Make board weight smooth in the stage index when the locks step at band boundaries.** A
   per-band weight drop cancels against the new band's lock and reads as a step _backwards_ on the
   probe — `c20-s53` measured 0.780 against the 0.85 bar. ⚠️ **And a mini-boss is a peak nothing
   covers**: the boundary-skip in `chapters.balance.ts` is for a chapter _boss_ only, so the samples
   after a mini-boss are a chapter's thinnest margin (`c20-s13` read 0.860). Lift them — but **not in
-  the closing band**, which has no weight to spare. [authoring](../../docs/authoring.md)
+  the closing band**, which has no weight to spare. ⚠️ **Chapter 21 fired the same rule at a _band_
+  boundary rather than after a mini-boss**: `c21-s31` opens the first band to carry two locks at once
+  and measured **0.849** against the 0.85 bar, because the weight drop that paid for the new lock is
+  the only half the probe can see. **A band that adds a lock opens heavier, not lighter.**
+  [authoring](../../docs/authoring.md)
 - ⚠️ **A pool wall can be a _faction_ wall, and chapter 20 is where that distinction mattered.**
   Twelve blocks sit under 150 health and **every one is a Monster**, while the four lightest Undead
   or Human blocks total 790 — so The Commonage had to author bodies at 150 and 170 to have a closing
   band while the light bodies it needed already existed in a faction it could not field. **Check the
-  lean's own light tail, not the pool's.** [authoring](../../docs/authoring.md)
+  lean's own light tail, not the pool's.** ⚠️ **And the tail can be bounded by _attack_ rather than
+  by weight, which chapter 21 is where it mattered.** The Longebb's Undead texture blocks are light
+  enough for any board it authors — 150, 170 and 210 health — and carry **30 to 36 attack** against
+  the light Monsters' 16 to 24, so its non-lean slots run **6, 6, 1, 6, 0, 0** across six bands and
+  the closing two field none. That took the lean to **93.7% of board slots, the heaviest any chapter
+  has carried**, which is only legal because Monster is the wildcard row of `FACTION_MATCHUPS` and
+  costs the matchup nothing. [authoring](../../docs/authoring.md)
 - ⚠️ **A mechanic can be worth _only_ fight length, and that is the ninety-second clock rather than a
   difficulty.** Measured across chapter 14's whole refusal vocabulary — `def` past the register,
   `physicalResist` to 0.60, board-wide barriers, aegises, guards and weakens, and instance size at held

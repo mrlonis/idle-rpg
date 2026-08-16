@@ -35,6 +35,7 @@ import {
   CUT_BENEATH_IT,
   CUT_THE_STRAPS,
   DOOMKNELL,
+  DRAWN_DOWN,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
   DRESS_THE_RANKS,
@@ -58,6 +59,9 @@ import {
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
   IT_ADDS_UP_EITHER_WAY,
+  IT_IS_ALL_WORTH_LESS,
+  IT_WAS_WORTH_MORE_THIS_MORNING,
+  KEEP_NOTHING,
   KEEP_THE_SEED,
   KEEP_THE_STEP,
   KILN_LIGHT,
@@ -65,6 +69,8 @@ import {
   LITANY,
   LOAD_THE_CART,
   LOOSE_THE_PLATED_PACK,
+  LOW_AND_LOWER,
+  MARKED_BY_THE_WATER,
   MARROW_CRUNCH,
   MASSED_LITANY,
   MAUL,
@@ -77,10 +83,12 @@ import {
   NOBODY_HERE_IS_ONE_THING,
   NONE_OF_THEM_THE_ONE,
   NONE_OF_US_IS_THE_ONE,
+  NOTHING_CLOSES_HERE,
   NOTHING_GETS_A_GRIP,
   NOTHING_HERE_HURRIES,
   NOTHING_HERE_IS_FREE,
   NOTHING_HOLDS_AN_EDGE,
+  NOTHING_IS_COMING_BACK,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NOTHING_SMALL_MOVES_IT,
@@ -137,6 +145,7 @@ import {
   STONE_FIST,
   STRIP_THE_FALLEN,
   SUNFADE,
+  TAKE_IT_BACK,
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
   TAKE_THE_WEIGHT,
@@ -162,6 +171,7 @@ import {
   THE_KNELL,
   THE_LAST_AMEN,
   THE_LAST_MUSTER,
+  THE_LAST_OF_THE_WATER,
   THE_LAST_VERSE,
   THE_LINE_REFORMS,
   THE_LINE_TRUE,
@@ -181,6 +191,7 @@ import {
   THE_STONE_STANDS,
   THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
+  THE_TIDE_DOES_NOT_TURN,
   THE_WARDS_HOLD,
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
@@ -9673,6 +9684,284 @@ export const THE_UNDIVIDED = {
   skills: [ONE_GRAVE_BETWEEN_US, NOBODY_HERE_IS_ONE_THING, WHAT_THE_FIELD_KEPT],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 21 — The Longebb. Ten new blocks: eight ordinary, the lieutenant and the final.
+//
+// The third Monster lead, after The Bleeding Wild and The Quickmire, and the first faction to lead
+// three chapters. ⚠️ **The pool is what chose it and the choice was not free**: at level 485 the
+// board budget is roughly 800 common-equivalent for a board of five, and of the 272 blocks that
+// existed before this chapter **fifteen** sit at or under 200 — **eleven of them Monsters**, and
+// they are The Quickmire's own bench. Chapter 20 predicted this in writing: "a chapter 21 leaning
+// Monster does not hit this wall; every other lean does."
+//
+// ⚠️ **These are authored light and *slow*, which is the reverse of the Monster idiom and the
+// reverse of The Quickmire.** Measured at chapter 21's control, a fifth **common** body is free at
+// any attack from 16 to 30 — 4.00 of five across the whole sweep — while a fifth **ascended** body
+// grades 4.00 / 3.50 / 1.85 / 0.15 across 149 / 248 / 372 / 496 common-equivalent with its attack
+// held at 5. So down here **health sets the fight length and the escort's attack converts length
+// into deaths**, which is why every ordinary block below runs 150 to 400 health and why the two
+// ascended ones are the lightest uniques the campaign has ever authored.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The first thing in the water that does not give anything back.
+ *
+ * The opening band's front rank and the chapter's first statement: 12% of everything it deals it
+ * keeps. `lifeLeech` grades **0.17 → 0.85 of five across 0.05 → 0.40** at this chapter's control —
+ * the smoothest band anything measured for The Longebb produced, and the only one that is a dial
+ * rather than a cliff, which is why the chapter opens on it.
+ */
+export const EBBDRIFT_LATCHER = {
+  id: 'ebbdrift-latcher',
+  name: 'Ebbdrift Latcher',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 400,
+    atk: 44,
+    def: 11,
+    haste: 104,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.12,
+  },
+  skills: [TAKE_IT_BACK],
+} as const;
+
+/** The same mouth from the back rank, and a deeper draught for standing where it is safe. */
+export const SLACKRUN_SIPPER = {
+  id: 'slackrun-sipper',
+  name: 'Slackrun Sipper',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 320,
+    atk: 42,
+    def: 7,
+    haste: 114,
+    critChance: 0.15,
+    critDamageAmp: 0.8,
+    lifeLeech: 0.16,
+  },
+  skills: [DRAWN_DOWN],
+} as const;
+
+/**
+ * The second band's carrier: {@link SAVAGED} on the scope, from the front rank where it can be
+ * killed.
+ *
+ * Worth **1.27 of five** on `enemy-all` against −0.48 on `enemy-back` and −0.63 on `enemy-lowest` —
+ * one status with three signs. See {@link NOTHING_CLOSES_HERE}.
+ */
+export const LONGEBB_RENDER = {
+  id: 'longebb-render',
+  name: 'Longebb Render',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 340,
+    atk: 38,
+    def: 9,
+    haste: 108,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.12,
+  },
+  skills: [NOTHING_CLOSES_HERE],
+} as const;
+
+/** Hurt it and do not finish it, and it is worth more to the board than it was before you started. */
+export const BAREMARK_GNAWER = {
+  id: 'baremark-gnawer',
+  name: 'Baremark Gnawer',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 270,
+    atk: 34,
+    def: 8,
+    haste: 110,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+  },
+  skills: [MARKED_BY_THE_WATER],
+} as const;
+
+/** The same wound-response from the back rank, on a body thin enough that the party can reach it. */
+export const CHANNELBED_STALKER = {
+  id: 'channelbed-stalker',
+  name: 'Channelbed Stalker',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 250,
+    atk: 32,
+    def: 6,
+    haste: 116,
+    critChance: 0.16,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.14,
+  },
+  skills: [MARKED_BY_THE_WATER],
+} as const;
+
+/**
+ * The only body in the chapter that casts {@link IT_IS_ALL_WORTH_LESS}, and the most expensive
+ * single block The Longebb fields.
+ *
+ * ⚠️ **{@link WEAKEN} on `enemy-all` is worth 3.25 of five here — a total wipe from one carrier.**
+ * It is authored at 210 health so it dies, it carries no damage rider, and its boards are the
+ * lightest in the chapter. Fielded in the **front** rank up to level 480 and in the **back** at 485,
+ * on the measurement rather than on the rule: at 485 front reads 1.32 of five at a 78% win rate
+ * against 3.15 from the back, because the heavier front rank lengthens the fight rather than because
+ * the debuffer is out of reach.
+ */
+export const SALTBLEACH_CRIER = {
+  id: 'saltbleach-crier',
+  name: 'Saltbleach Crier',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 210,
+    atk: 28,
+    def: 8,
+    haste: 108,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    energyRegen: 6,
+  },
+  skills: [IT_IS_ALL_WORTH_LESS],
+} as const;
+
+/** A neap is the tide at its smallest reach. This is what lives at that mark and does not leave it. */
+export const NEAPMARK_WRETCH = {
+  id: 'neapmark-wretch',
+  name: 'Neapmark Wretch',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 165,
+    atk: 24,
+    def: 7,
+    haste: 112,
+    critChance: 0.13,
+    critDamageAmp: 0.7,
+    lifeLeech: 0.08,
+  },
+  skills: [LOW_AND_LOWER],
+} as const;
+
+/**
+ * The closing band's back rank, and the lightest new body in the chapter.
+ *
+ * No skill at all, which is the honest authoring of a board that has nothing left: at 485 the five
+ * heaviest **shipped** light Monsters read 3.75 of five unaided, so the closing band's job is weight
+ * and placement rather than another question.
+ */
+export const LOWMARK_DRIFTER = {
+  id: 'lowmark-drifter',
+  name: 'Lowmark Drifter',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 150,
+    atk: 23,
+    def: 5,
+    haste: 120,
+    critChance: 0.17,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.14,
+  },
+} as const;
+
+/**
+ * The lieutenant: five appearances at levels 460, 465, 470, 475 and 480, and the thing that has been
+ * taking the water out from under the chapter since its first band.
+ *
+ * ⚠️ **85 health and 5 attack, the lightest lieutenant the campaign has authored**, and far under
+ * {@link UNMADE} on both. That is not a soft block: an `ascended` body carries a **×3.845** premium
+ * on health, attack and defence alike at level 460 and **×4.077** at 480, so this is **327**
+ * common-equivalent on its first board and **347** on its last — 18% of the board it anchors at
+ * `c21-s10` and **37%** at `c21-s50`, where it reads 2.98 of five against 4.00. **The escalation
+ * across its five boards is the premium compounding against a party whose cap does not move**, and
+ * no stat line had to change to produce it.
+ *
+ * Its signature is {@link THE_TIDE_DOES_NOT_TURN}, a **conditioned** turn rather than an opening
+ * one, so the five boards are five different fights against one block.
+ */
+export const THE_UNDERTOW = {
+  id: 'the-undertow',
+  name: 'The Undertow',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 85,
+    atk: 5,
+    def: 10,
+    haste: 108,
+    critChance: 0.14,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.18,
+    tenacity: 0.4,
+  },
+  skills: [THE_TIDE_DOES_NOT_TURN, NOTHING_IS_COMING_BACK],
+} as const;
+
+/**
+ * The water that went out and did not come back, and the chapter's final — fielded nowhere else,
+ * the twenty-first body authored under that rule. {@link THE_UNDERTOW} does not stand on it.
+ *
+ * ⚠️ **85 health and 5 attack**, which is **352 common-equivalent** at level 485 — the lightest
+ * chapter final the campaign has ever authored in raw stats, and the third consecutive final lighter
+ * than the one before it in both raw health and common-equivalent weight: The Backcut's 520/58
+ * (1,804), The Commonage's 175/16 (663), this one's 85/5 (352), each standing thirty levels higher
+ * than the last.
+ *
+ * ⚠️ **It was bisected on _health_, which inverts chapter 20's rule.** The Commonage's final failed
+ * at every stat line until its *attack* came down. Behind the same four escorts at level 485 this one
+ * reads:
+ *
+ * | stat line | with {@link IT_WAS_WORTH_MORE_THIS_MORNING} | without it |
+ * | --------- | ------------------------------------------- | ---------- |
+ * | 120 / 7   | **0%**                                      | 83% / 1.88 |
+ * | 100 / 6   | 57% / 1.02                                  | 100% / 3.65 |
+ * | 85 / 5    | **98% / 2.67**                              | —          |
+ * | 70 / 5    | 100% / 3.40                                 | —          |
+ * | 60 / 4    | 100% / 3.98                                 | —          |
+ *
+ * The attack barely moves between those rows and the health moves everything, because an `ascended`
+ * anchor down here is **fight length** and the escort beside it is what converts length into deaths.
+ * **Shortlist on weight, settle on whichever of the two the escort leaves free** — and note that
+ * more than a third of this block's whole price is the one turn it casts.
+ */
+export const THE_UNRETURNED = {
+  id: 'the-unreturned',
+  name: 'The Unreturned',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 85,
+    atk: 5,
+    def: 12,
+    haste: 106,
+    critChance: 0.15,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.2,
+    tenacity: 0.45,
+  },
+  skills: [IT_WAS_WORTH_MORE_THIS_MORNING, THE_LAST_OF_THE_WATER, KEEP_NOTHING],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -9946,4 +10235,14 @@ export const ENEMIES = [
   BINDWEED_DEAD,
   THE_TITHING,
   THE_UNDIVIDED,
+  EBBDRIFT_LATCHER,
+  SLACKRUN_SIPPER,
+  LONGEBB_RENDER,
+  BAREMARK_GNAWER,
+  CHANNELBED_STALKER,
+  SALTBLEACH_CRIER,
+  NEAPMARK_WRETCH,
+  LOWMARK_DRIFTER,
+  THE_UNDERTOW,
+  THE_UNRETURNED,
 ] as const;
