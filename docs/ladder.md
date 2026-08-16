@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Eighteen chapters and eight hundred
-stages** — 10, 20, 30, 40 and then fourteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Nineteen chapters and eight hundred and
+fifty stages** — 10, 20, 30, 40 and then fifteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -18,8 +18,10 @@ whose gear does not ramp at all (Relic 100 on every board), the first that had t
 blocks** because the pool cannot supply a returning majority at its weight, and the first whose seam
 ratio falls **below 1.00**. Chapter 18 is **The Slowgrowth**, which is where that arithmetic ran out
 and the campaign moved a rung for the first time in seven chapters — to `mythic`, against the
-log-space rule rather than with it, because there is no chapter 18 on `legendary-plus` at all. See
-[authoring](authoring.md).
+log-space rule rather than with it, because there is no chapter 18 on `legendary-plus` at all.
+Chapter 19 is **The Backcut**, which **stays** on `mythic` — the rule and the pool agree for the
+first time in eight chapters, so it is a derivation rather than an override, and the distinction is
+the point. See [authoring](authoring.md).
 
 ## The shape
 
@@ -39,7 +41,7 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone, The Unnumbered, The Inheritor and The Latecomer. A re-cut that moves a boundary owes the
+Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring and The Interest. A re-cut that moves a boundary owes the
 new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
@@ -192,6 +194,33 @@ party something at the top" still holds at 4.00 of five with zero timeouts.
 `DescentLevelData.anchorCap` and `ExpeditionRulesData.anchorCap` were conditioned on "a chapter asks
 for a rung above `legendary-plus`" rather than on a chapter shipping. This is the first time that
 condition has fired. See [descent](descent.md) and [expeditions](expeditions.md).
+
+## ⚠️ Chapter 19 stays on `mythic`, and that it is _not_ an override is the point
+
+The Backcut closes at 425 and asks for **`mythic`** again. Against chapter 18's seam of 4.8214,
+`mythic` reads **2.8677** (|Δln| **0.5196**) and `mythic-plus` **24.1942** (|Δln| **1.6130**) — so
+the log-space rule prefers staying put by 1.09 of a nat, **numerically the same margin chapter 18
+overrode**, and this chapter does not override it.
+
+⚠️ **What licensed chapter 18's override was that the seam below it was wrong, and nothing of that
+kind holds here.** The Slowgrowth inherited a seam of 0.9608 — under 1.00, meaning the content was
+nominally ahead of the party it was tuned for — and a board budget of 129 common-equivalent per body
+against a pool whose lightest body is 100. At 2.8677 this seam is comfortably above 1.00, and **166 of 248 blocks sit inside the band
+its ordinary slots use**. **A rung move argues its own case
+every time; "the chapter below moved one" is not a case.**
+
+⚠️ **The degenerate seam chain restarts, one link deep, and it will deepen on schedule.** Chapters 18
+and 19 both close above `mythic`'s cap of **340** and both clamp to it, so `SLOWGROWTH` and
+`INVESTED` are the same five combatants — exactly the shape chapters 13 through 17 recorded four
+times, one rung higher. The Backcut's last board stands **eighty-five levels** above the cap, ×5.83,
+and every further chapter on this rung divides the seam by `perLevel.common ** 25` = 1.680 **by
+construction**: chapter 20 reads **1.7069**, chapter 21 **1.0161**, chapter 22 **0.6048**.
+
+⚠️ **So `mythic` buys about three chapters, and the board budget runs out before the arithmetic
+does.** That is the same countdown `legendary-plus` ran, and the next rung — `mythic-plus`, cap 420 —
+is not due yet. **Re-measure it at chapter 21 rather than carrying this projection forward**; the
+chapter-15 projection about `mythic` was correct when written, quoted unchanged for three chapters,
+and false by the time it mattered.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

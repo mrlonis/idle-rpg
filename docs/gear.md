@@ -299,10 +299,12 @@ hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and f
 it to **275**; The Shutgate at six hundred — **20.9%** — taking it to **300**; The Underroad at
 six hundred and fifty — **20.7%** — taking it to **325**; and The Spoilfield at seven hundred —
 **20.5%** — taking it to **350**. Every one restores 18.7% over the ladder that actually ships. Same
-move, longer ladder, eleven times now.
+move, longer ladder, twelve times now.
 
-⚠️ **Eleven re-derivations landing on the same 18.7% is the tell that the number is being solved for
-and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+⚠️ **Twelve re-derivations landing on the same 18.7% is the tell that the number is being solved for
+and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
+chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will want 425" and it wanted
+425 — which retires the last reading under which this might have been noise. **Chapter 20 will want 450.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
 grade's share climbs without bound and no constant is right for more than one chapter; chapter 17

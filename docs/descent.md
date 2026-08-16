@@ -422,10 +422,25 @@ depth where the mode can still move.
 
 ### The trough is pinned rather than dropped
 
-`RUNG_TROUGH` names chapters 12 to 14 and chapter 18, and asserts what is actually true of them: **between 4.85 and
-5.00 survivors, all finishing 1.00.** Dropping them would put the hole straight back in the place the
-derived `DEPTHS` was written to close; pinning them keeps the defect visible and stops it spreading
-or deepening.
+`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 and 19, and asserts what is actually true of
+them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
+straight back in the place the derived `DEPTHS` was written to close; pinning them keeps the defect
+visible and stops it spreading or deepening.
+
+⚠️ **Chapter 19 turned the chapter-18 entry from an instance into a schedule, and that is the most
+important thing on this page for a session planning the next chapter.** `chapterEnd(19)` failed at
+**5.00 of five** the day The Backcut shipped, and it is the _same_ cause rather than a second one:
+`anchorCap` holds the board at **316** at depth 800 and at depth 850 alike, so the two depths field
+the **identical board** while the party at each is bisected against its own chapter's final. The
+deeper depth is therefore at least as strong against the same boards, by construction.
+
+⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
+chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than
+for a different guard, and two tempting edits are both wrong. **Deriving** the tail of the list
+("every depth the cap clamps") is true today and would silently absorb a depth that became a walkover
+for some other reason, which is exactly what the literal list prevents. **Dropping** the depths puts
+back the hole the derived `DEPTHS` closed. Keep adding literals, keep the count visible, and let the
+list's length be the pressure.
 
 ⚠️ **Both bounds matter, and the upper one is what makes it self-deleting.** If a retune ever fixes
 the trough the reading falls under 4.85, that assertion fails, and the right response is to delete the

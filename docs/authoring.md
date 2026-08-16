@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 18 chapters, 800 stages, enemy levels 1–400 |
+| Campaign         | 19 chapters, 850 stages, enemy levels 1–425 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 248                                         |
+| Enemy archetypes | 258                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -62,6 +62,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 16      | 325   | 350    | 25   |
 | 17      | 350   | 375    | 25   |
 | 18      | 375   | 400    | 25   |
+| 19      | 400   | 425    | 25   |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -259,7 +260,10 @@ body this game has ever shipped is 100. **There is no chapter 18 on that rung**,
    normal **8 new ordinary blocks plus the lieutenant and the final**, not chapter 17's fifteen.
 4. ⚠️ **The move is what both mode anchor caps were waiting for, and only one of them moved.**
    Expeditions passed unchanged at 322. The Descent's cap has **no working setting** — see
-   [descent](descent.md) — and its deepest depth is pinned in `RUNG_TROUGH` instead.
+   [descent](descent.md) — and its deepest depth is pinned in `RUNG_TROUGH` instead. ⚠️ **Chapter 19
+   showed that pin is a schedule rather than an instance**: the cap clamps the board from chapter 13
+   on, so every new deepest depth is a walkover by construction and `RUNG_TROUGH` gains one entry a
+   chapter until the `core/` repair lands. **Expect to add one, and do not derive the list.**
 
 ### ⚠️ What chapter 18 measured about weight, and the two shapes that generalise
 
@@ -285,6 +289,101 @@ Priced against a control of five walls at level 390 and Relic 100 against the `m
    almost any real board and the other four to almost nothing until the board cliffs — the shape the
    Demon Tower's `critBlock` band records, arriving from the opposite direction. **Budget the
    escalation on the probe threshold and use survivors only as a legality check.**
+
+### ⚠️ Chapter 19 is where staying on a rung had to be argued as hard as moving one
+
+The Backcut closes at **425** and asks for **`mythic`** again. Against chapter 18's seam of 4.8214,
+`mythic` reads **2.8677** (|Δln| **0.5196**) and `mythic-plus` **24.1942** (|Δln| **1.6130**) — the
+rule prefers staying put by 1.09 of a nat, which is **numerically the same margin chapter 18
+overrode**, and this chapter does not override it.
+
+1. ⚠️ **An override is licensed by the seam below it being wrong, not by the size of the margin.**
+   The Slowgrowth inherited 0.9608 — under 1.00 — and a budget of 129 common-equivalent per body
+   against a pool whose lightest body is 100, so no chapter existed on the old rung. Here the seam is
+   2.8677 and **166 of the 248 blocks that existed before it sit inside the band its ordinary slots use — 380 to 2,140 common-equivalent at level 425, median 760**. **Say which of
+   the two a chapter is doing, every time.** Two chapters in a row have now had to, from opposite
+   sides.
+2. ⚠️ **The degenerate chain re-forms, and it is periodic rather than a one-off.** Chapters 18 and 19
+   both clamp to `mythic`'s cap of 340, so `SLOWGROWTH` and `INVESTED` are one set of five — the
+   shape chapters 13 through 17 recorded four times, one rung up. The Backcut stands **eighty-five
+   levels** above the cap (×5.83) and each further chapter divides the seam by 1.680: chapter 20
+   **1.7069**, chapter 21 **1.0161**, chapter 22 **0.6048**. **`mythic` buys about three chapters**,
+   and as with `legendary-plus` the pool will run out before the arithmetic does. Re-measure at
+   chapter 21 rather than carrying this forward.
+3. ⚠️ **The 25% quota landed at the quota for the second chapter running** — 8 new ordinary of 32
+   fielded, **25.0%** — which is the rung move still paying out. Budget the normal ten blocks.
+4. ⚠️ **The `gearArchetype` bill was zero for the second chapter running**, because the lean was
+   Dwarf and The Shutgate paid it five chapters ago (34 of 34 carry one), and the Undead texture was
+   covered by The Underroad. **That is a fact about the lean, not a trend** — the bill still lands on
+   whichever faction has not yet led a geared chapter.
+
+### ⚠️ What chapter 19 measured about placement, and the four shapes that generalise
+
+Priced against one calibrated control — an anchor of 620/60 behind four bodies of 300/48 at level 425
+and Relic 100, **4,390 common-equivalent, reading 3.88 of five**, and it **moves** (4.00 at 3,900,
+2.00 at 4,700). Zero timeouts on every row.
+
+| shape                                       | survivors | worth    | longest |
+| ------------------------------------------- | --------- | -------- | ------- |
+| `THORNMAIL` on the **back three**           | 3.88      | **0.00** | 36.0s   |
+| `SUNDER` on `enemy-all`, one front carrier  | 3.77      | 0.10     | 37.7s   |
+| `ROOTBOUND` on the **back three**           | 3.77      | 0.10     | 37.0s   |
+| `GUARD` on `ally-all`, one front carrier    | 3.73      | 0.15     | 37.7s   |
+| `BLOODRISEN` on `self`, all five            | 3.73      | 0.15     | 36.8s   |
+| `WEAKEN` on `enemy-all`, one front carrier  | 3.58      | 0.30     | 39.0s   |
+| `THORNMAIL` on the **front two**            | 3.50      | 0.38     | 41.9s   |
+| `SAVAGED` on `enemy-all`, one front carrier | 3.35      | 0.52     | 43.0s   |
+| `THORNMAIL` on **all five**                 | 2.92      | 0.95     | 68.7s   |
+| `ROOTBOUND` on **all five**                 | 2.83      | 1.05     | 46.0s   |
+| `ROOTBOUND` all five + `THORNMAIL` anchor   | 2.25      | **1.63** | 55.0s   |
+| `BLOODRISEN` on `ally-all`, one carrier     | **0.00**  | **3.88** | 33.2s   |
+
+1. ⚠️ **A reflect prices where the party is _aiming_, and on a protected back rank it prices at
+   exactly 0.00.** That is the mirror image of chapter 16's finding that a board-wide debuffer is
+   worth 4.00 survivors in the front rank and 0.10 in the back. **Same rank, opposite sign**: a
+   debuffer is worth more where it cannot be reached and a reflect is worth nothing there, because it
+   only bills what is actually struck. Neither is a fact about the status. **A whole chapter's
+   difficulty curve can be one status walking from the back rank to the front to the whole board.**
+2. ⚠️ **`BLOODRISEN` on a scope is a cliff and not a dial, and it is the sharpest
+   scope-versus-selection reading on record.** One carrier applying it to `ally-all` on a wound
+   condition is a **total wipe from either rank**, while the same status on `self` across all five
+   reads 0.15 and on `ally-lowest` 0.08. **There is nothing between 0.08 and 3.88.** Chapter 17
+   measured `STUN` at 0.00 on a selection against 2.60 on a scope; this is that at five times the
+   spread, and it is why no board in The Backcut carries one.
+3. ⚠️ **All-five reflect is a clock and the arrangement that is _harder_ is also eleven seconds
+   shorter.** 0.95 of a survivor at **68.7s** against the 0.80 bar's 72.0, versus link-across-the-
+   board-plus-front-rank-reflect at **1.63 at 55.0s**. Chapter 18's longest board was 34.4s and this
+   chapter's is 48.0s. **Count the seconds as well as the survivors before choosing between two
+   arrangements of one lock.**
+4. ⚠️ **Most of the status vocabulary is inert at this weight** — `SUNDER`, `GUARD` and a back-rank
+   link all read 0.10 to 0.15. A chapter spending boards on those is texture wearing a mechanic's
+   clothes. **Reach for the stat block, or for placement, before the vocabulary.**
+
+### ⚠️ Three ways chapter 19's authored boards failed where its control did not
+
+The synthetic control read well and the first authored draft failed **21 of 50** — chapter 17's
+finding, reproduced exactly. What the diagnosis turned up generalises:
+
+1. ⚠️ **Two heavy anchors in one front rank is the failure, not any anchor.** Every returning Dwarf
+   legendary reads 100% with 4.00 of five **alone** at level 425 behind four light bodies, the
+   heaviest at 2,143 common-equivalent included. Two of them together read **0% at 5,536**. That is
+   the Angel Tower's third-hundred finding arriving on a campaign board: **field each candidate
+   anchor alone before concluding anything from a pair of stat lines**, and cap a board at one.
+2. ⚠️ **Two `enemy-back` turns on one body is not a heavier body, it is the party's back rank
+   deleted.** A 520/76 ranger carrying two of them read **0% beside any second legendary** at 3,449
+   common-equivalent where two other legendaries at 3,598 read 4.00 — a board 4% lighter losing the
+   whole fight. At one turn and 60 attack the same body reads 100% / 4.10 alone. **Chapter 18 caught
+   this on a board; chapter 19 caught it on a stat line.**
+3. ⚠️ **A final that fails at every stat line is the escort, and the fight getting _longer_ as the
+   boss shrinks is the tell.** The Backcut's final read 0% from 660/70 all the way down to 380/46
+   with the fight lengthening at each step. Removing one legendary from its escort let the boss sit
+   at 520/58 reading 100% / 3.36 / 50.0s. **Check the control can move** — chapter 15's rule, on a
+   final rather than on an anchor sweep.
+4. ⚠️ **Composition beats weight so completely that a heavier escort can be the easier one.** Two
+   tanks at 700/50 and 800/52 are **easier** than two brawlers at 620/52 and 640/60, and `c19-s17` at
+   4,006 common-equivalent probes at 13,244 where `c19-s25` at 4,244 probes at 11,593. Chapter 18
+   found no scalar predicts a board; this chapter found the ordering can **invert**. Weight
+   shortlists; only the probe ranks.
 
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
@@ -578,7 +677,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped seventeen, with the level range each closes over:
+The shipped nineteen, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -600,6 +699,7 @@ The shipped seventeen, with the level range each closes over:
 | 16  | The Spoilfield     | 50     | 325 → 350 | whether it is **the party's own damage at all** |
 | 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**         |
 | 18  | The Slowgrowth     | 50     | 375 → 400 | whether it **adds up**                          |
+| 19  | The Backcut        | 50     | 400 → 425 | whether the party can **afford** to spend it    |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -615,9 +715,12 @@ Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTE
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
-`SPOILED` → `QUICKMIRED` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18**: `QUARRIED`
-through `QUICKMIRED` are five names for one set of five combatants, and `INVESTED` is the first party
-in six chapters that differs from the one below it.
+`SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
+and restarted at chapter 19**: `QUARRIED` through `QUICKMIRED` are five names for one set of five
+combatants on `legendary-plus`, and `SLOWGROWTH` and `INVESTED` are now two names for one set on
+`mythic`. **Expect a second identical link at chapter 20 and a third at 21** — the chain is a
+function of a cap the ladder has climbed past, so it re-forms every time a rung move stops being
+recent.
 
 ⚠️ **The last _two_ links are now degenerate, and a chapter-16 session should expect a third.**
 Chapters 13, 14 and 15 all close above `legendary-plus`'s cap of 260, so `QUARRIED`, `SHUTGATED` and

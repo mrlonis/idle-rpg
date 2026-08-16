@@ -74,10 +74,14 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: eighteen chapters, eight hundred stages, what
-  a stage authors, position versus clear count, the rung cadence, and the guards that were retired.
-  ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven chapters**, and
-  it ended the five-link degenerate seam chain.
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: nineteen chapters, eight hundred and fifty
+  stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
+  were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven
+  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapter 19 stayed on it, and
+  that it is a derivation rather than an override is the point**: the log-space margin is the same
+  1.09 nats chapter 18 overrode, and what licensed that override was the seam below it being _wrong_
+  (0.9608, under 1.00) rather than the margin being large. The chain has re-formed one link deep and
+  `mythic` buys about three chapters — 1.7069, 1.0161, 0.6048 at chapters 20, 21 and 22.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares. **Read
@@ -98,7 +102,9 @@ them is how they get reversed by accident.
   ⚠️ **A chapter 18 on that rung was arithmetically impossible**: the budget would have been 129 → 91
   common-equivalent per body, and of 238 shipped blocks **five** sit at or under 129 and **none**
   at or under 91. **The move to `mythic` is what fixed it**, and it needed no `data/` rule change —
-  see below. See [authoring](../../docs/authoring.md).
+  see below. ⚠️ **The same arithmetic restarted one rung up at chapter 19**: `mythic` caps at 340
+  against The Backcut's close of 425, so the 0.595-a-chapter halving resumes and the rung buys about
+  three chapters. See [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -278,8 +284,13 @@ Asserted in `core/battle/simulate.spec.ts`.
   ratio dips to 0.29 at chapters 12–14 against ~0.52 elsewhere and those depths are walkovers.
   `anchorSlope`, `anchorCap` and the within-run ramp were each measured and each breaks other depths
   first — **the sawtooth is periodic in the ladder and every dial is smooth in the anchor.** The three
-  depths are **pinned** by `RUNG_TROUGH` at 4.85–5.00 survivors rather than dropped from the sample:
-  visible, bounded, and self-deleting when a retune fixes it. [descent](../../docs/descent.md)
+  depths — and, since chapter 18, the deepest one as well — are **pinned** by `RUNG_TROUGH` at
+  4.85–5.00 survivors rather than dropped from the sample: visible, bounded, and self-deleting when a
+  retune fixes it. ⚠️ **Chapter 19 turned the deepest-depth entry into a schedule**: `anchorCap`
+  clamps the board at 316 from chapter 13 on, so depths 800 and 850 field the **identical** board
+  while their parties are bisected against different finals — **one new entry per chapter, forever,
+  until the board level is keyed off the calibrated party instead of the anchor.** Keep adding
+  literals; do not derive the tail and do not drop the depths. [descent](../../docs/descent.md)
 - ⚠️ **When every reading saturates, tune against the sweep's own control rather than its outcome.**
   Expeditions is one-time content meant to become a completion, so every depth above its unlock reads
   1.00 finished by design and no anchor cap can be chosen on a finish rate. **A cap that reads 5.00
@@ -344,7 +355,29 @@ Asserted in `core/battle/simulate.spec.ts`.
   `enemy-highest` is worth **0.00** survivors at one caster _and_ at two, while the identical status
   on `enemy-all` is worth **2.60**. Author the scope or do not author the mechanic — and say which of
   the three a prose claim is about, because conflating them has shipped a false claim four times.
+  ⚠️ **Chapter 19 measured the sharpest version and it is a cliff with nothing in the middle**:
+  `BLOODRISEN` from one carrier on `ally-all` is a **total wipe** — 3.88 survivors off a control at
+  3.88 — from the front rank _or_ the back, where the same status on `self` across all five is worth
+  0.15 and on `ally-lowest` 0.08. **There is nothing between 0.08 and 3.88, so no band can be built
+  on it.** [authoring](../../docs/authoring.md)
+- ⚠️ **A reflect prices where the party is _aiming_, and on a protected back rank it prices at
+  exactly 0.00 — the mirror image of a debuffer, same rank, opposite sign.** Chapter 16 measured a
+  board-wide debuffer at 4.00 survivors in the front rank and 0.10 in the back, because the party
+  cannot aim past it; chapter 19 measured `THORNMAIL` at **0.00 on the back three, 0.08 on the anchor
+  alone, 0.38 on the front two and 0.95 across all five**, because a reflect only ever bills what is
+  actually struck. **Neither is a fact about the status.** A whole chapter's difficulty curve can be
+  one status walking forward a rank at a time. ⚠️ **And the all-five arrangement is a clock**: 0.95
+  of a survivor at **68.7s** against the 0.80 bar's 72.0, where a link across the board plus a
+  front-rank reflect is worth **1.63 at 55.0s** — harder _and_ thirteen seconds shorter. **Count the
+  seconds as well as the survivors before choosing between two arrangements of one lock.**
   [authoring](../../docs/authoring.md)
+- ⚠️ **Two heavy anchors in one front rank is the failure, not any anchor, and it now has a campaign
+  instance as well as a tower one.** At chapter 19's weight every returning Dwarf legendary reads
+  100% with 4.00 of five **alone** behind four light bodies — the heaviest at 2,143 common-equivalent
+  included — and two together read **0%**. ⚠️ **Two `enemy-back` turns on one body is the same trap
+  on a stat line**: a 520/76 ranger carrying two read 0% beside any second legendary at 3,449
+  common-equivalent where two other legendaries at 3,598 read 4.00. **Field each candidate anchor
+  alone before concluding anything from a pair of stat lines.** [authoring](../../docs/authoring.md)
 - ⚠️ **A stat can work only _below_ its shipped register, which is the sixth answer the register
   check has given.** `haste` ships at a ceiling of 152 over a median of 98, and a board-wide 144
   reads **0.00 of five** at chapter 17's weight where 100 reads 3.80 — the opposite of the Monster
@@ -380,12 +413,20 @@ Asserted in `core/battle/simulate.spec.ts`.
   reads 4.00 → 4.00 → 3.92 → **0.00**. **A durability chapter's identity is its health and its
   difficulty is the attack standing behind it**; pushing health alone walks the chapter into the
   timer rather than making it hard. [authoring](../../docs/authoring.md)
+- ⚠️ **A final that fails at every stat line is its escort, and the fight getting _longer_ as the
+  boss shrinks is the tell.** Chapter 19's final read 0% from 660/70 down to 380/46 with the fight
+  lengthening at every step; removing one legendary from its escort let the boss sit at 520/58
+  reading 100% with 3.36 of five. Same rule as chapter 15's anchor sweep, on a final.
+  [authoring](../../docs/authoring.md)
 - ⚠️ **No scalar predicts a board, and three were tried at chapter 18.** Common-equivalent health,
   attack-equivalent and a throughput product all mis-rank the shipped boards — a five-wall board at
   12,673 absolute weight reads 4.00 survivors where a five-attacker board at 12,920 reads **0.97** —
   because difficulty is throughput times fight length and fight length is set by the health. Use
   common-equivalent weight to _shortlist_ and the **difficulty probe's own threshold** to budget a
-  spine; measure every authored board before believing any of it. [authoring](../../docs/authoring.md)
+  spine; measure every authored board before believing any of it. ⚠️ **Chapter 19 found the ordering
+  can outright invert**: two tank escorts at 700/50 and 800/52 are _easier_ than two brawlers at
+  620/52 and 640/60 despite more health, and `c19-s17` at 4,006 common-equivalent probes at 13,244
+  where `c19-s25` at 4,244 probes at 11,593. [authoring](../../docs/authoring.md)
 - ⚠️ **Re-measure a projection before carrying it forward; chapter 18 is where one inverted.**
   Chapter 15 measured that a `mythic` party would need boards past the Unmade's ceiling and chapters
   16 and 17 both quoted it unchanged. Three further halvings happened underneath the claim, and by

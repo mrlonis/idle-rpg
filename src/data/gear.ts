@@ -361,7 +361,9 @@ export const GEAR_RULES = {
      * 21a *did* re-derive four chapters ahead: that quantity is **meant** to fall as the ladder
      * grows, so batching it costs only vigilance, and it was retired outright in 21d. This one is not
      * meant to do anything, so firing on schedule is the only thing that will eventually force the
-     * fix. **Chapter 19 lands on it again and will want 425.**
+     * fix. **Chapter 19 landed on it and wanted 425, exactly as this line predicted — the twelfth
+     * landing, the twelfth time the answer was `stages / 2`, and the first time the prediction was
+     * written down a chapter in advance and then checked. Chapter 20 will want 450.**
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -369,7 +371,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 400,
+    gradeSoftness: 425,
   },
 
   /**

@@ -497,6 +497,32 @@ at a plateau and read ~4.00 of five whatever was done to it; here it sat at the 
 ⚠️ **Both look like a clean negative result and neither is one.** Before believing any sweep over one
 variable, vary the variable to both extremes and check the metric moves at all.
 
+### ⚠️ A tenth, from chapter 19: the same saturated-control failure, on a chapter _final_
+
+The Backcut's final read **0% at every stat line from 660/70 down to 380/46** — and it was not the
+boss. The tell is that **the fight got _longer_ as the boss got smaller**, 13.8s to 16.9s, which is
+what a board does when the killing is being done by something else on it. One legendary in the escort
+was the cause; removing it let the boss sit at **520/58** reading 100% with 3.36 of five.
+
+⚠️ **That is chapter 15's ninth trap arriving on a different slot, and the diagnostic is worth
+naming separately: when a sweep over one body reads flat, sweep it to a size that should be trivial
+and check the board becomes trivial too.** If it does not, the variable is not the one being swept.
+The fight-length column is what distinguishes the two cases at a glance — a genuinely inert anchor
+leaves fight length flat as well, and a saturated control does not.
+
+### ⚠️ An eleventh, from the same chapter: composition can invert the weight ordering outright
+
+Chapter 18 established that no scalar predicts a board. Chapter 19 found the stronger version: a
+board with **more** common-equivalent health can be the **easier** one. Two tank escorts at 700/50
+and 800/52 are easier than two brawlers at 620/52 and 640/60; `c19-s17` at 4,006 common-equivalent
+probes at **13,244** while `c19-s25` at 4,244 probes at **11,593**.
+
+The cause is the one chapter 18 measured — difficulty is throughput times fight length, and health
+sets the fight length rather than the difficulty — but the consequence is sharper than "the scalar is
+noisy": **the ordering is not merely imprecise, it reverses.** Use common-equivalent weight to
+_shortlist_ candidate boards and the difficulty probe's own threshold to rank them. Never author a
+spine on weight.
+
 ### ⚠️ Check a chapter's header against its boards with a script, not by reading
 
 Three sessions in four have found a chapter's own prose wrong about its own boards: chapter 7's Cairn

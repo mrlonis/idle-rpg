@@ -7,6 +7,7 @@ import {
   ANTIPHON,
   ASHPIT_RAKE,
   AT_THE_HALT,
+  BACKSTROKE,
   BANK_THE_WARD,
   BARROW_TITHE,
   BIND_THE_CONCORD,
@@ -24,8 +25,10 @@ import {
   COUCHED_LANCE,
   COUNT_IT_ALL_AGAIN,
   COUNT_THE_RINGS,
+  COURSE_BY_COURSE,
   CULL_THE_EMBERS,
   CUTPURSE,
+  CUT_AND_COME_BACK,
   CUT_BENEATH_IT,
   CUT_THE_STRAPS,
   DOOMKNELL,
@@ -39,6 +42,7 @@ import {
   FADE,
   FLATTEN_THE_EDGE,
   FLENSE,
+  GALLERY_SHOT,
   GATE_SLAM,
   GLACIAL_SLAM,
   GLASSLIGHT_VERDICT,
@@ -49,6 +53,7 @@ import {
   HUSH_THE_MANY,
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
+  IT_ADDS_UP_EITHER_WAY,
   KEEP_THE_SEED,
   KEEP_THE_STEP,
   KILN_LIGHT,
@@ -67,6 +72,7 @@ import {
   NONE_OF_THEM_THE_ONE,
   NOTHING_GETS_A_GRIP,
   NOTHING_HERE_HURRIES,
+  NOTHING_HERE_IS_FREE,
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
@@ -77,6 +83,7 @@ import {
   NO_EDGE_FINDS_IT,
   ONE_VOICE,
   OPEN_THE_VEIN,
+  PAID_EITHER_WAY,
   PALL_OF_YEARS,
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
@@ -100,6 +107,7 @@ import {
   RUN_THE_SEED_DOWN,
   SEEDLIGHT,
   SETTLE_IN,
+  SET_INTO_THE_COURSE,
   SET_THE_PITCH,
   SET_THE_STONE,
   SEVENFOLD_HEX,
@@ -107,18 +115,21 @@ import {
   SHATTERJAW,
   SHELLED_RUSH,
   SHIELD_BASH,
+  SHORT_MEASURE,
   SHRIKE_DIVE,
   SHUT_THE_RING,
   SLAGHIDE_LUNGE,
   SLAG_SLAM,
   SLUNG_ANVIL,
   SPINES_STILL_IN_IT,
+  SPITELIGHT,
   STILL_COUNTING,
   STONE_FIST,
   STRIP_THE_FALLEN,
   SUNFADE,
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
+  TAKE_THE_WEIGHT,
   THERE_IS_NO_END_TO_IT,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
@@ -171,6 +182,7 @@ import {
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WHAT_FALLS_IS_SOWN,
+  WHAT_IT_COST_YOU,
   WHAT_THE_DEAD_KEPT,
   WHAT_THE_FIELD_LEFT,
   WHAT_THE_WATER_LEFT,
@@ -8902,6 +8914,341 @@ export const THE_LAST_RING = {
   skills: [NOTHING_HERE_HURRIES, ADD_IT_UP, RING_BY_RING],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Backcut — chapter 19's ten blocks, enemy levels 400 to 425
+//
+// Dwarven workings that were armoured against something, never disarmed, and have had nobody to
+// tell them the argument is over. The chapter's question is **whether the party can afford to
+// spend its damage**, and the answer is a fact about *where it aims*.
+//
+// ⚠️ **Six of the ten carry an `opening`, and the openings are the chapter rather than the stat
+// lines.** Measured against a calibrated control at level 425 and Relic 100 — an anchor of 620/60
+// behind four bodies of 300/48, **4,390 common-equivalent, reading 3.88 of five**, which moves
+// (4.00 at 3,900 and 2.00 at 4,700):
+//
+// | where the reflect sits          | survivors | worth    | longest fight |
+// | ------------------------------- | --------- | -------- | ------------- |
+// | {@link THORNMAIL}, back three   | 3.88      | **0.00** | 36.0s         |
+// | {@link THORNMAIL}, anchor only  | 3.80      | 0.08     | 38.3s         |
+// | {@link THORNMAIL}, front two    | 3.50      | 0.38     | 41.9s         |
+// | {@link THORNMAIL}, all five     | 2.92      | 0.95     | **68.7s**     |
+// | {@link ROOTBOUND}, back three   | 3.77      | 0.10     | 37.0s         |
+// | {@link ROOTBOUND}, all five     | 2.83      | 1.05     | 46.0s         |
+//
+// ⚠️ **A reflect is worth exactly nothing on a body the party is not aiming at, which is the
+// mirror of chapter 16's finding and worth stating beside it.** The Spoilfield measured a
+// board-wide debuffer at 4.00 survivors in the front rank and 0.10 in the back, because the party
+// cannot aim past it. A reflect is the same rank, opposite sign: it bills only what is actually
+// struck, so on a protected back rank it bills nothing at all. **Neither is a fact about the
+// status; both are facts about where the party's damage goes.**
+//
+// ⚠️ **All-five reflect is the shape this chapter may not author**, and the reason is the clock
+// rather than the difficulty. 68.7 seconds against the 0.80 bar's 72.0 is most of the headroom
+// spent before an anchor's weight is added, and chapter 18's longest board was 34.4s. The
+// arrangement the chapter actually runs on is a link across the board with the reflect held to the
+// front rank, which measured **1.63 at 55.0s**.
+//
+// ⚠️ **`BLOODRISEN` was measured and refused, and it is the sharpest scope-versus-selection
+// reading on record.** One carrier applying it to `ally-all` on a wound condition reads **0.00
+// survivors — a total wipe — at 3.88 off the control**, from the front rank *or* the back, while
+// the identical status on `self` across all five reads 0.15 and on `ally-lowest` 0.08. There is
+// nothing between 0.08 and 3.88, so it is a cliff rather than a dial and no band could be built on
+// it. Chapter 17 measured `STUN` at 0.00 on a selection against 2.60 on a scope; this is the same
+// finding at five times the spread.
+//
+// ⚠️ **The weight budget is the rung move's, halved once.** Chapter 18 ran boards of 5,514 to
+// 8,799 common-equivalent; The Backcut's run **3,745 to 5,875**. At level 425 an `ascended` block
+// is worth **×3.470** of a `common` one and **×1.862** of a `legendary` one, so
+// {@link THE_INTEREST} at 520 health is **1,804** in common-equivalent terms where the 620-health
+// {@link PROPGALLERY_HAND} beside it is 620. **Convert before comparing.**
+//
+// ⚠️ **And no scalar orders these boards, which chapter 18 measured and this chapter confirms
+// twice.** `c19-s17` at 4,006 common-equivalent reads a difficulty threshold of 13,244 while
+// `c19-s25` at 4,244 reads 11,593; and an escort of two tanks at 700/50 and 800/52 is **easier**
+// than one of two brawlers at 620/52 and 640/60 despite carrying more health, because attack is
+// the cliff and health is fight length. Weight shortlists; only the probe ranks.
+// ---------------------------------------------------------------------------------------
+
+/** Two hundred feet of gallery and one hewer still cutting the face it was set at. */
+export const BACKCUT_HEWER = {
+  id: 'backcut-hewer',
+  name: 'Backcut Hewer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 420,
+    atk: 58,
+    def: 30,
+    haste: 68,
+    critChance: 0.07,
+    critDamageAmp: 0.6,
+    physicalResist: 0.08,
+  },
+  skills: [CUT_AND_COME_BACK],
+} as const;
+
+/**
+ * A prop holds the roof up. This one has been holding it up for long enough to resent it.
+ *
+ * ⚠️ **The chapter's teaching body, and it carries the reflect where the reflect is worth 0.08.**
+ * It stands in the back rank on every band 1 board, so a party that opens by killing the front
+ * rank never pays it — which is the point. The tax is introduced where it costs nothing and moves
+ * forward a band at a time.
+ */
+export const PROPGALLERY_HAND = {
+  id: 'propgallery-hand',
+  name: 'Propgallery Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 620,
+    atk: 46,
+    def: 38,
+    haste: 58,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.12,
+    physicalResist: 0.14,
+  },
+  opening: [THORNMAIL],
+  skills: [TAKE_THE_WEIGHT],
+} as const;
+
+/** Somebody has to write down what came out, and somebody has to write down what it cost. */
+export const SHORTMEASURE_CLERK = {
+  id: 'shortmeasure-clerk',
+  name: 'Shortmeasure Clerk',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 400,
+    atk: 60,
+    def: 26,
+    haste: 70,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    physicalResist: 0.06,
+  },
+  skills: [SHORT_MEASURE],
+} as const;
+
+/** The lamp is still lit. Nobody has been down here to put it out and it would not go. */
+export const SPITELAMP_BEARER = {
+  id: 'spitelamp-bearer',
+  name: 'Spitelamp Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 380,
+    atk: 58,
+    def: 24,
+    haste: 66,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.1,
+  },
+  skills: [SPITELIGHT],
+} as const;
+
+/**
+ * Set into the course and load-bearing, which is a thing you can do to a delver as well as a stone.
+ *
+ * ⚠️ **The chapter's light {@link ROOTBOUND} carrier**, and the reason the link is authored as an
+ * `opening` rather than cast: a link only ever shares to other holders of the same id, so a board
+ * binds the bodies that carry it and leaves the rest out. That is what lets band 3 bind a back rank
+ * and leave its wall unbound, and what makes reach buy spread rather than a kill.
+ */
+export const SEAMBOUND_DELVER = {
+  id: 'seambound-delver',
+  name: 'Seambound Delver',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 480,
+    atk: 52,
+    def: 32,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    physicalResist: 0.1,
+  },
+  opening: [ROOTBOUND],
+  skills: [SET_INTO_THE_COURSE],
+} as const;
+
+/** Laid the courses that hold this place shut, and stayed to see that they held. */
+export const IRONTALLY_MASON = {
+  id: 'irontally-mason',
+  name: 'Irontally Mason',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 600,
+    atk: 56,
+    def: 40,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    critBlock: 0.14,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+  },
+  opening: [ROOTBOUND],
+  skills: [COURSE_BY_COURSE, SET_INTO_THE_COURSE],
+} as const;
+
+/**
+ * It does not swing first. It has never once had to.
+ *
+ * The chapter's front-rank reflect, and the block band 2 exists to introduce — the same status the
+ * {@link PROPGALLERY_HAND} carries for 0.08 of a survivor, moved to where the party has to hit it.
+ */
+export const BACKSTROKE_IRONSIDE = {
+  id: 'backstroke-ironside',
+  name: 'Backstroke Ironside',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 660,
+    atk: 60,
+    def: 46,
+    haste: 58,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.18,
+    critDamageResist: 0.26,
+    tenacity: 0.45,
+    physicalResist: 0.16,
+  },
+  opening: [THORNMAIL],
+  skills: [BACKSTROKE],
+} as const;
+
+/**
+ * A gallery cut straight for a hundred yards is a gallery you can shoot straight down.
+ *
+ * ⚠️ **One `enemy-back` skill and not two, and the first draft had two.** Measured, a 520/76 draft
+ * carrying both {@link GALLERY_SHOT} and {@link SHORT_MEASURE} read **0% beside any second
+ * legendary** at 3,449 common-equivalent, where two other new legendaries at 3,598 read 4.00 of
+ * five — a board 4% lighter losing the whole fight. Two reaching turns on one body is not a heavier
+ * body, it is a body that deletes the party's back rank before the front rank has moved. **That is
+ * the {@link LONGBOUGH_MARKSMAN} trap chapter 18 caught on `c18-s11`, arriving on a stat line
+ * instead of on a board.**
+ *
+ * At 520/60 with one reaching turn it reads 100% / 4.10 alone behind four light bodies.
+ */
+export const GRUDGEBOLT_SLINGER = {
+  id: 'grudgebolt-slinger',
+  name: 'Grudgebolt Slinger',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 520,
+    atk: 60,
+    def: 30,
+    haste: 72,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    physicalResist: 0.08,
+  },
+  skills: [GALLERY_SHOT],
+} as const;
+
+/**
+ * The lieutenant, anchoring all four mini-boss boards at rising levels.
+ *
+ * ⚠️ **Its stat line was settled by fielding all four appearances, which is chapter 17's rule and
+ * the reason it exists.** An `ascended` block climbs at `perLevel.ascended` 1.024 against a party
+ * frozen at `mythic`'s cap of 340, so a recurring anchor correct on `c19-s10` is unwinnable on
+ * `c19-s40` — The Pacemaker graded 4.00 → 3.55 → 1.73 → fail before it came down. See
+ * `chapter-19.ts` for the four readings this one settled on.
+ *
+ * It carries the reflect as an `opening` and stands in the **front** rank on all four boards, which
+ * is the only placement at which its own lock is worth anything.
+ */
+export const THE_BACKSWING = {
+  id: 'the-backswing',
+  name: 'The Backswing',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 560,
+    atk: 62,
+    def: 50,
+    haste: 62,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.2,
+    critDamageResist: 0.3,
+    tenacity: 0.5,
+    physicalResist: 0.16,
+    magicResist: 0.1,
+  },
+  opening: [THORNMAIL],
+  skills: [WHAT_IT_COST_YOU, PAID_EITHER_WAY],
+} as const;
+
+/**
+ * What the workings have been quietly accruing since the last dwarf walked out of them.
+ *
+ * The chapter's final, fielded nowhere else — the nineteenth body authored under that rule, and
+ * {@link THE_BACKSWING} does not stand on it.
+ *
+ * ⚠️ **520 health and 58 attack, comfortably under {@link UNMADE} on both**, and in
+ * common-equivalent terms **1,804** at level 425 — **38%** of its own board's 4,704, in family with
+ * The Last Ring's 43%. **The share is the quantity that carries across a chapter; the health is
+ * not.**
+ *
+ * ⚠️ **It was authored at 660/70 and every draft above 520/58 was unwinnable, which is a fact about
+ * the escort rather than about the boss.** With {@link IRONTALLY_MASON} on the board the final read
+ * 0% at *every* stat line down to 380/46 — the fight lengthening as the boss shrank, which is the
+ * signature of the escort doing the killing. Chapter 15's rule, arriving on a final: **check the
+ * control can move before concluding anything.** Swapping the mason for a second tank and settling
+ * at 520/58 reads 100% / 3.36 survivors / 39.3s mean / 50.0s worst, the hardest board in the
+ * chapter, against a 0.80 bar of 72.0s.
+ *
+ * ⚠️ **The cliff above it is the clock and it is sharp.** 540/60 reads 98% at 74.5s worst and
+ * 560/62 reads 76% at 78.0s — both past the bar — where 520/58 sits at 50.0s. **The board-wide
+ * reflect is what makes the last twenty health matter**, so this stat line may not be raised without
+ * re-measuring the fight length rather than the survivor count.
+ *
+ * ⚠️ **It is the only body in the chapter that spreads the tax rather than carrying it.**
+ * {@link NOTHING_HERE_IS_FREE} is the chapter's one board-wide turn and it lands on the chapter's
+ * last board, which is the argument finished: everywhere else The Backcut charges for aiming at
+ * one thing, and here there is no free thing left to aim at.
+ */
+export const THE_INTEREST = {
+  id: 'the-interest',
+  name: 'The Interest',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 520,
+    atk: 58,
+    def: 54,
+    haste: 64,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.22,
+    critDamageResist: 0.32,
+    tenacity: 0.55,
+    physicalResist: 0.18,
+    magicResist: 0.12,
+  },
+  opening: [THORNMAIL],
+  skills: [IT_ADDS_UP_EITHER_WAY, NOTHING_HERE_IS_FREE, BACKSTROKE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -9151,4 +9498,14 @@ export const ENEMIES = [
   UNDERBOUGH_CREEPER,
   THE_UNHURRIED,
   THE_LAST_RING,
+  BACKCUT_HEWER,
+  PROPGALLERY_HAND,
+  SHORTMEASURE_CLERK,
+  SPITELAMP_BEARER,
+  SEAMBOUND_DELVER,
+  IRONTALLY_MASON,
+  BACKSTROKE_IRONSIDE,
+  GRUDGEBOLT_SLINGER,
+  THE_BACKSWING,
+  THE_INTEREST,
 ] as const;

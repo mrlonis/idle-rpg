@@ -206,12 +206,36 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  *
  * ⚠️ **Do not "fix" this by raising the cap.** Depth 700 is the load-bearing reading and it is the
  * one that breaks.
+ *
+ * ## ⚠️ Chapter 19 added a fifth, and it turns that entry from an instance into a schedule
+ *
+ * `chapterEnd(19)` failed at **5.00 survivors of five** the moment The Backcut shipped, and it is
+ * not a second cause — it is the *same* one, now shown to repeat. The Backcut closes at level 425
+ * and the cap holds the board at **316**, exactly as it holds it at depth 800: the two depths field
+ * the **identical board**, while the party at each is bisected against its own chapter's final. So
+ * the deeper depth is at least as strong against the same boards, by construction.
+ *
+ * ⚠️ **Every chapter from here adds an entry to this list until the repair lands, and that is
+ * arithmetic rather than a prediction.** The cap binds at every depth whose campaign level exceeds
+ * 316, which is every depth past chapter 13; the board therefore stops moving while the party keeps
+ * gaining a chapter of levels and, periodically, a rung. **The list grows by one per chapter,
+ * forever.**
+ *
+ * ⚠️ **That growth is the argument for the repair, not for a different guard, and a session should
+ * resist two tempting edits.** Deriving the tail of this list — "every depth the cap clamps" — would
+ * be true today and would silently absorb a depth that becomes a walkover for some *other* reason,
+ * which is the whole failure the literal list exists to prevent; and dropping the depths puts back
+ * the hole the derived {@link DEPTHS} was written to close. **Keep adding literals and keep the
+ * count visible.** The repair is still the one {@link DescentLevelData.anchorCap} names — a board
+ * level keyed off the calibrated party's own level rather than off the anchor — and it is still a
+ * `core/` change a content session may not take.
  */
 const RUNG_TROUGH: readonly number[] = [
   chapterEnd(12),
   chapterEnd(13),
   chapterEnd(14),
   chapterEnd(18),
+  chapterEnd(19),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

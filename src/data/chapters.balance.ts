@@ -819,13 +819,22 @@ const QUICKMIRED: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Slowgrowth
- * asks for will carry them.
+ * The party that arrives in chapter 19: the five that just took The Last Ring, unchanged.
+ *
+ * ⚠️ **This is The Slowgrowth's {@link INVESTED}, kept under a new name rather than re-derived** —
+ * the fifteenth time that has happened, for the fifteenth time for the same reason: re-aiming one
+ * "arrived" party at the newest chapter would silently stop checking that every chapter below it is
+ * still finishable by the party it was tuned for.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the ladder asks for levels and
  * ascension rungs, which are bought with time and duplicates, and for nothing a player cannot earn.
  *
- * ## ⚠️ Chapter 18 moves the rung to `mythic`, and it is the first move in seven chapters
+ * ⚠️ **It carries the same rung as {@link INVESTED} does, which restarts the degenerate chain one
+ * chapter after chapter 18 ended one.** Chapters 18 and 19 both close above `mythic`'s cap of 340
+ * and both clamp to it, so this party and the one ahead of it are the same five combatants and the
+ * two assertions either side of the boundary are one claim. See {@link INVESTED}.
+ *
+ * ## ⚠️ Chapter 18 moved the rung to `mythic`, and it was the first move in seven chapters
  *
  * **The rule that picks a rung is the one that reproduces the power ratio the seam below it had**,
  * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated for
@@ -881,10 +890,56 @@ const QUICKMIRED: FormationData = mono(
  *
  * The clamp here is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party. **A rung roughly every hundred
- * stages** is the cadence the flat line produces, where it was one per fifty; this one arrives after
+ * stages** is the cadence the flat line produces, where it was one per fifty; that one arrived after
  * three hundred and fifty. What it costs a player over The Quickmire's party is more duplicate copies
  * of each of the five — `MORTAL_LADDER` alternates cheap and expensive rungs, so **recompute it**
  * rather than adding a constant.
+ */
+const SLOWGROWTH_RARITY = rarityIndex('mythic');
+const SLOWGROWTH_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[17] - 1].level,
+  LEVEL_CURVE.caps[SLOWGROWTH_RARITY],
+);
+
+const SLOWGROWTH: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(SLOWGROWTH_LEVEL, SLOWGROWTH_RARITY),
+  SLOWGROWTH_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Backcut asks
+ * for will carry them.
+ *
+ * Still common tier, and still no pull anyone had to be lucky for.
+ *
+ * ## ⚠️ Chapter 19 stays on `mythic`, and this time the rule and the pool agree
+ *
+ * **The rule that picks a rung reproduces the power ratio the seam below it had**,
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated
+ * for every rung and taken closest in **log** space. Against chapter 18's seam of **4.8214** and
+ * The Backcut's close of 425, `mythic` reads **2.8677** (|Δln| **0.5196**) and `mythic-plus`
+ * **24.1942** (|Δln| **1.6130**). `mythic` wins by 1.09 of a nat.
+ *
+ * ⚠️ **That is numerically the same margin chapter 18 overrode, and this chapter does not override
+ * it.** {@link SLOWGROWTH}'s override rested on the seam below it being *wrong* — 0.9608, under
+ * 1.00, with a board budget of 129 common-equivalent per body against a pool whose lightest body
+ * is 100, so there was no chapter 18 on `legendary-plus` at all. None of that holds here: at
+ * 2.8677 the seam is comfortably above 1.00 and **166 of the 248 blocks that existed before it sit
+ * inside the band its ordinary slots use**. **A rung move needs its own argument every time; "the chapter below moved
+ * one" is not one.**
+ *
+ * ⚠️ **The seam chain goes degenerate again, one link deep, and it will deepen.** `mythic` caps at
+ * 340 and this chapter closes at 425, so this party and {@link SLOWGROWTH} clamp to the same level
+ * and are the **same five combatants** — the shape chapters 13 through 17 recorded four times.
+ * Every further chapter on this rung divides the seam by `perLevel.common ** 25` = 1.680, by
+ * construction rather than by tuning: chapter 20 reads **1.7069**, chapter 21 **1.0161** and
+ * chapter 22 **0.6048**. **This rung buys about three chapters**, and the board budget runs out
+ * before the arithmetic does. `mythic-plus` at cap 420 is the next one and it is not due yet.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
  */
 const INVESTED_RARITY = rarityIndex('mythic');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
@@ -1051,6 +1106,11 @@ const quickmiredSweeps = stages.map((stage) => ({
   stage,
   ...sweep(QUICKMIRED, stage),
 }));
+const slowgrowthSweeps = stages.map((stage) => ({
+  label: 'slowgrowth',
+  stage,
+  ...sweep(SLOWGROWTH, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1162,6 +1222,9 @@ const SPOILFIELD_END = CHAPTER_ENDS[15];
 
 /** Where The Quickmire ends. */
 const QUICKMIRE_END = CHAPTER_ENDS[16];
+
+/** Where The Slowgrowth ends, for the seam either side of the eighteenth boundary. */
+const SLOWGROWTH_END = CHAPTER_ENDS[17];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1760,6 +1823,45 @@ describe('ladder balance', () => {
     // every seam in this file at once.
     const walked = quickmiredSweeps
       .slice(QUICKMIRE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 18 clear chapters 1 through 18', () => {
+    // The Backcut's seam, measured the same way as the fourteen above it. ⚠️ **The degenerate chain
+    // restarts here, one link deep.** Chapter 18 ended a five-link stretch by moving the rung to
+    // `mythic`; chapters 18 and 19 both close above `mythic`'s cap of **340** and both clamp to it,
+    // so {@link SLOWGROWTH} and {@link INVESTED} are once again one set of five combatants. The rate
+    // that produced the last chain applies unchanged to this one — `perLevel.common ** 25` = 1.680 a
+    // chapter — so expect a second identical link at chapter 20 and a third at 21. See
+    // {@link INVESTED} for why the rung nonetheless stays put.
+    const unreliable = slowgrowthSweeps
+      .slice(0, SLOWGROWTH_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Backcut as well', () => {
+    // ⚠️ **Vacuous by construction again, for the reason the four above it are.**
+    // {@link MOMENTUM_CEILING} is a share of the *whole ladder* — 255 boards at 850 stages — while
+    // this slice is 50, so it cannot bind here whatever it measures; and {@link SLOWGROWTH} and
+    // {@link INVESTED} are the same party, so "walks the chapter ahead" and "clears the chapter
+    // ahead" are asserted of one set of combatants with opposite required answers.
+    //
+    // ⚠️ **Do not widen it and do not delete it.** `docs/authoring.md` forbids widening; deleting
+    // would lose the record of *why* this stopped measuring anything, which is that the guard's
+    // denominator is the ladder where the claim is about the slice.
+    //
+    // ⚠️ **What the seam costs is real and is measured two assertions down.** The Backcut's last
+    // board stands **eighty-five levels** above the cap this party is clamped at — ×5.83 — which is
+    // why chapter 19's boards are authored at roughly 0.595 of chapter 18's. That is the same
+    // arithmetic that ran under chapters 13 through 17, one rung higher up.
+    const walked = slowgrowthSweeps
+      .slice(SLOWGROWTH_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

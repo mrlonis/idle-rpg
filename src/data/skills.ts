@@ -6991,6 +6991,180 @@ export const ADD_IT_UP = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Backcut — chapter 19's ten turns
+//
+// ⚠️ **Not one of these applies the chapter's lock, and that is the whole design.** The Backcut's
+// axis is {@link THORNMAIL} and {@link ROOTBOUND} placed as `opening` passives, priced by *where*
+// on the board they sit rather than by how large they are — measured at the chapter's own weight,
+// a reflect is worth **0.00** on a protected back rank, 0.08 on the anchor alone, 0.38 on the
+// front two and 0.95 across all five. So the tax is a fact about the formation and these turns are
+// what the bodies carrying it do with the rest of their time.
+//
+// ⚠️ **Which is why every one of them is plain damage.** A chapter whose lock is placement cannot
+// also spend its boards on statuses: the same sweep prices `SUNDER` on `enemy-all` at 0.10 and
+// `GUARD` on `ally-all` at 0.15 here, so a status turn would be texture pretending to be a
+// mechanic. The one exception is the final's, below.
+// ---------------------------------------------------------------------------------------
+
+/** Swung into the seam, and the seam is what the swing comes back off. */
+export const CUT_AND_COME_BACK = {
+  id: 'cut-and-come-back',
+  name: 'Cut and Come Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 46,
+  priority: 1,
+} as const;
+
+/** What a prop is for. It has been doing it since before anyone here was born. */
+export const TAKE_THE_WEIGHT = {
+  id: 'take-the-weight',
+  name: 'Take the Weight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 52,
+  priority: 1,
+} as const;
+
+/** A measure short is a measure owed, and it is written down either way. */
+export const SHORT_MEASURE = {
+  id: 'short-measure',
+  name: 'Short Measure',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/** The lamp was lit to be spiteful about something and nobody remembers what. */
+export const SPITELIGHT = {
+  id: 'spitelight',
+  name: 'Spitelight',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * Stone set into stone, which is the fiction {@link ROOTBOUND} is wearing down here.
+ *
+ * The Elves grew their link; the Dwarves *built* theirs, and it is the same status because the
+ * status vocabulary is closed and this is exactly what it already says. The turn itself is plain
+ * damage — the link is the body's `opening`, not this.
+ */
+export const SET_INTO_THE_COURSE = {
+  id: 'set-into-the-course',
+  name: 'Set Into the Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Every course laid true, and every one of them laid to hold the next one down. */
+export const COURSE_BY_COURSE = {
+  id: 'course-by-course',
+  name: 'Course by Course',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/** The stroke that comes after yours, and it was always going to. */
+export const BACKSTROKE = {
+  id: 'backstroke',
+  name: 'Backstroke',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 56,
+  priority: 2,
+} as const;
+
+/** Loosed flat down a gallery that was cut straight for exactly this. */
+export const GALLERY_SHOT = {
+  id: 'gallery-shot',
+  name: 'Gallery Shot',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * The shape [authoring](../../docs/authoring.md) prefers, for the reason chapter 18's
+ * {@link COUNT_THE_RINGS} records: it answers what the party is doing, so four appearances are
+ * four different fights against one block rather than four readings of one stat line.
+ *
+ * ⚠️ **The condition is `enemies-at-least`, not a wound.** The Backswing is the chapter's argument
+ * about placement said as a turn: it hits hardest while the party is still whole and spreading its
+ * damage, and stops asking the question once the party has started finishing things. That is the
+ * legal direction — a body that answers a wound with a *bigger swing* shortens the fight, where
+ * the banned mirror answers one with a thicker hide and lengthens a fight that was going to end.
+ */
+export const WHAT_IT_COST_YOU = {
+  id: 'what-it-cost-you',
+  name: 'What It Cost You',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 58,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's plain turn, for after the party has stopped spreading it around. */
+export const PAID_EITHER_WAY = {
+  id: 'paid-either-way',
+  name: 'Paid Either Way',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn.
+ *
+ * `enemy-front` and no rider, on the measurement five closing bodies have now produced: against a
+ * five the front rank is where a boss's damage is worth the most, and every aim that reaches past
+ * it leaves the board **easier** than saying nothing.
+ */
+export const IT_ADDS_UP_EITHER_WAY = {
+  id: 'it-adds-up-either-way',
+  name: 'It Adds Up Either Way',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.15 }],
+  cooldown: 54,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter's **one** board-wide turn, on the one board that carries one.
+ *
+ * ⚠️ **It spreads the tax rather than adding a new one**, which is what makes the final the
+ * chapter's argument finished rather than a different chapter's boss. Everything The Backcut has
+ * charged for has been a fact about where a body stands; this puts the charge on everything at
+ * once, so on the last board of the chapter there is nowhere left to aim that is free.
+ *
+ * ⚠️ **A cast reflect and not a cast heal, a ward or a regeneration**, and the distinction is the
+ * termination argument rather than taste: {@link THORNMAIL} can only ever *shorten* a fight,
+ * because it is extra damage on a schedule the party controls and puts nothing back. The ninety
+ * seconds are still the binding constraint on this board — see `chapter-19.ts` for the measured
+ * fight lengths, which is why this is the only board-wide reflect in the chapter.
+ */
+export const NOTHING_HERE_IS_FREE = {
+  id: 'nothing-here-is-free',
+  name: 'Nothing Here Is Free',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: THORNMAIL }],
+  cooldown: 90,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -7336,4 +7510,16 @@ export const SKILLS = [
   WHAT_THE_WATER_LEFT,
   NOTHING_HERE_HURRIES,
   ADD_IT_UP,
+  CUT_AND_COME_BACK,
+  TAKE_THE_WEIGHT,
+  SHORT_MEASURE,
+  SPITELIGHT,
+  SET_INTO_THE_COURSE,
+  COURSE_BY_COURSE,
+  BACKSTROKE,
+  GALLERY_SHOT,
+  WHAT_IT_COST_YOU,
+  PAID_EITHER_WAY,
+  IT_ADDS_UP_EITHER_WAY,
+  NOTHING_HERE_IS_FREE,
 ] as const;
