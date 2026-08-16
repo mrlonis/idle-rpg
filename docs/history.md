@@ -429,6 +429,21 @@ chapter 24 1.0711, chapter 25 0.5742, so the arithmetic buys about two and a hal
 pool will run out first — **as it has both times now.** `ascended` at cap 500 is the last rung the
 campaign can spend.
 
+⚠️ **Chapter 23 stayed on `mythic-plus`, and the pool wall it found is a different shape from the two
+before it.** The Evenfall closes at 545, where `mythic-plus` reads 1.9981 against `ascended`'s
+16.8578 — the rule prefers staying put by 0.886 of a nat, both seams are above 1.00, and the chapter
+was authorable, so it is a **derivation**. What it measured on the way is new: every previous pool
+wall was a **weight** wall, and this one is an **attack** wall. Because chapters 22 and 23 clamp to
+the same cap of 420, the party is literally unchanged while the boards climb thirty levels — so an
+authored `atk` is worth ×1.87 more than the identical number a chapter below. Filtering the 292
+shipped blocks on weight alone passes 117; adding attack leaves **55**, and none at all from either
+celestial. ⚠️ **It fired as an authoring error before it was understood as a rule**: the chapter's ten
+new blocks were first drafted with chapter-22 attack values and every board read 0%, including the
+lieutenant at all five appearances and the final at every stat line. **The escort is the constraint at
+this depth, not the anchor.** The chapter also inverted chapter 14's refusal finding outright, nine
+chapters later — `def` past its register and `physicalResist` were measured worth ≤0.08 of a survivor
+at The Shutgate's weight and are worth 1.65 and 2.30 here.
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
 they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
 rungs rather than 11 until chapter 18 took the eighth. The

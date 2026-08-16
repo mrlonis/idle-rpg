@@ -41,6 +41,7 @@ import {
   DRESS_THE_RANKS,
   EMBERSEED,
   EVENSONG,
+  EVEN_LIGHT,
   EVERYTHING_AT_ONCE,
   EVERYTHING_COMES_BACK_BLUNT,
   EVERYTHING_YOU_LEFT,
@@ -63,6 +64,7 @@ import {
   IT_ADDS_UP_EITHER_WAY,
   IT_HAS_NOT_LET_GO,
   IT_IS_ALL_WORTH_LESS,
+  IT_WAS_NEVER_GOING_TO,
   IT_WAS_WORTH_MORE_THIS_MORNING,
   KEEP_NOTHING,
   KEEP_THE_SEED,
@@ -96,10 +98,13 @@ import {
   NOTHING_IS_COMING_BACK,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
+  NOTHING_LANDS_BETTER,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES_HOLD,
+  NOTHING_TELLS,
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
+  NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
@@ -129,6 +134,7 @@ import {
   RUNEWARD,
   RUN_THEM_DOWN,
   RUN_THE_SEED_DOWN,
+  SAME_AS_THE_LAST,
   SEEDLIGHT,
   SETTLE_IN,
   SET_INTO_THE_COURSE,
@@ -171,6 +177,7 @@ import {
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
+  THE_GREEN_TAKES_IT,
   THE_GROUND_GOES,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
@@ -181,6 +188,7 @@ import {
   THE_LAST_MUSTER,
   THE_LAST_OF_THE_WATER,
   THE_LAST_VERSE,
+  THE_LIGHT_GOES_FLAT,
   THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
@@ -207,6 +215,7 @@ import {
   THE_WORKS_RUN_ON,
   THE_YEAR_IT_DROWNED,
   THORNLASH,
+  TURNED_ASIDE,
   TYRANTS_CLAIM,
   UNDERBOUGH_SNARE,
   UNDERMINE,
@@ -10276,6 +10285,277 @@ export const THE_OVERSTRIKE = {
   skills: [THE_OVERSTRIKE_FALLS, NOTHING_HELD_BACK, TAKE_UP_THE_SLACK],
 } as const;
 
+/*
+ * Chapter 23 — The Evenfall. Ten Elf blocks, and the chapter's whole premise is in their stat
+ * blocks rather than in their kits: `critBlock` and `critDamageResist` in bands 1 and 2,
+ * `physicalResist` from band 3, and `magicResist` beside it in band 6.
+ *
+ * ⚠️ **Every authored `atk` here is roughly half what the same body would carry a chapter below,
+ * and that is not a typo.** The party is unchanged from chapter 22 — both chapters clamp to
+ * `mythic-plus`'s cap of 420 — while the boards climb thirty levels, so an authored number is worth
+ * `perLevel ** 30` more than it was. The first draft of these ten carried chapter-22 attack values
+ * and **every board reading fell off a cliff**: the escort, not the anchor, is what converts a long
+ * fight into deaths at this depth. See `docs/authoring.md`.
+ */
+
+/** Band 1 texture: the light here is even, and nothing it does is better than the last thing. */
+export const EVENLIGHT_TENDER = {
+  id: 'evenlight-tender',
+  name: 'Evenlight Tender',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 480,
+    atk: 26,
+    def: 14,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.12,
+    critDamageResist: 0.16,
+  },
+  skills: [EVEN_LIGHT],
+} as const;
+
+/** Band 1's quick body. Its `critBlock` is at the shipped median and it is meant to be. */
+export const FLATSHADE_STALKER = {
+  id: 'flatshade-stalker',
+  name: 'Flatshade Stalker',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 400,
+    atk: 30,
+    def: 11,
+    haste: 122,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    critBlock: 0.14,
+  },
+  skills: [NOTHING_TELLS],
+} as const;
+
+/** Band 2: the first body to carry both halves of the crit lock at once. */
+export const DULLEDGE_BRIAR = {
+  id: 'dulledge-briar',
+  name: 'Dulledge Briar',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 540,
+    atk: 28,
+    def: 18,
+    haste: 96,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    critBlock: 0.2,
+    critDamageResist: 0.28,
+  },
+  skills: [NO_BETTER_HOUR],
+} as const;
+
+/**
+ * The opening bands' wall, and the block that carries the crit lock at its fullest without the skin.
+ *
+ * ⚠️ **It carries no `physicalResist` at all, and that is deliberate rather than an omission.** The
+ * chapter's first two bands are the crit lock alone, and this body stands on more of them than any
+ * other — a `physicalResist` here, at any value, would put the skin on every board in the chapter
+ * and make the band table's claim false on the day it was written. `physicalResist` is the second
+ * most common optional stat in the pool (134 blocks, median 0.10), so the opening bands are
+ * assembled out of what does **not** carry it rather than around what does.
+ */
+export const GLASSBARK_SENTRY = {
+  id: 'glassbark-sentry',
+  name: 'Glassbark Sentry',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 660,
+    atk: 24,
+    def: 30,
+    haste: 66,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    critBlock: 0.22,
+    critDamageResist: 0.3,
+  },
+  skills: [TURNED_ASIDE],
+} as const;
+
+/** Bands 4 and 5: the reach, and the only `enemy-back` turn this chapter's commons carry. */
+export const NOONLESS_ARCHER = {
+  id: 'noonless-archer',
+  name: 'Noonless Archer',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 430,
+    atk: 31,
+    def: 12,
+    haste: 118,
+    critChance: 0.13,
+    critDamageAmp: 0.75,
+    critBlock: 0.2,
+    physicalResist: 0.14,
+  },
+  skills: [NOTHING_TELLS],
+} as const;
+
+/** Bands 5 and 6: the first body to refuse magic as well, ahead of the closing band. */
+export const SHADOWLESS_DANCER = {
+  id: 'shadowless-dancer',
+  name: 'Shadowless Dancer',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 460,
+    atk: 30,
+    def: 13,
+    haste: 114,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.24,
+    critDamageResist: 0.34,
+    magicResist: 0.2,
+  },
+  skills: [EVEN_LIGHT],
+} as const;
+
+/** Bands 3 and 4's anchor. One anchor to a board; see `chapter-23.ts` for why that is a rule here. */
+export const GREYLEAF_WARDEN = {
+  id: 'greyleaf-warden',
+  name: 'Greyleaf Warden',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 470,
+    atk: 28,
+    def: 30,
+    haste: 72,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.22,
+    critDamageResist: 0.3,
+    physicalResist: 0.16,
+    tenacity: 0.4,
+  },
+  skills: [THE_GREEN_TAKES_IT],
+} as const;
+
+/**
+ * Bands 5 and 6's anchor, and the block carrying the chapter's premise at its fullest.
+ *
+ * `physicalResist` 0.22 and `magicResist` 0.24 are both **past the register as it stood before this
+ * chapter** — medians of 0.10 either way, against ceilings of 0.40 and **0.16**. ⚠️ **This block and
+ * {@link THE_EVENFALL} are what moved the `magicResist` ceiling to 0.26**, so quoting 0.16 after
+ * chapter 23 shipped is quoting a register the chapter itself changed: state the range measured, not
+ * the threshold meant. `physicalResist` is stepped past its median and stays well inside its
+ * ceiling; `magicResist` is the one this chapter raised, and only on its two closing-band bodies.
+ */
+export const EVENFERN_CREEPER = {
+  id: 'evenfern-creeper',
+  name: 'Evenfern Creeper',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 500,
+    atk: 25,
+    def: 36,
+    haste: 62,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.28,
+    critDamageResist: 0.4,
+    physicalResist: 0.22,
+    magicResist: 0.24,
+    tenacity: 0.45,
+  },
+  skills: [TURNED_ASIDE, THE_GREEN_TAKES_IT],
+} as const;
+
+/**
+ * The lieutenant: standing on `c23-s10`, `s20`, `s30`, `s40` and `s50` at rising levels.
+ *
+ * ⚠️ **Fielded at all five of its appearances before its stat line was settled**, which is chapter
+ * 17's rule and matters more in a sixty-stage chapter because there are five boards rather than
+ * four. At 300/26 behind a light escort it grades **4.65 → 4.00 → 4.00 → 4.00 → 3.58** across levels
+ * 520, 525, 530, 535 and 540, with the fight running 16.2s to 35.5s and no timeouts anywhere.
+ */
+export const THE_UNBETTERED = {
+  id: 'the-unbettered',
+  name: 'The Unbettered',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 300,
+    atk: 26,
+    def: 34,
+    haste: 68,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.24,
+    critDamageResist: 0.32,
+    physicalResist: 0.14,
+    physicalPierce: 0.2,
+    tenacity: 0.45,
+  },
+  skills: [IT_WAS_NEVER_GOING_TO, SAME_AS_THE_LAST],
+} as const;
+
+/**
+ * The chapter's final — fielded nowhere else, the twenty-third body authored under that rule.
+ * {@link THE_UNBETTERED} does not stand on it.
+ *
+ * ⚠️ **Its first draft failed at every stat line from 300/24 down to 165/13 and the diagnosis was
+ * not the escort.** Chapter 19's tell — a fight *lengthening* as the boss shrinks — pointed here,
+ * and chapter 20's rule settled it: shortlist on weight, settle on **attack**. Behind the chapter's
+ * own cool escort at level 545 it grades:
+ *
+ * | stat line | reading                 |
+ * | --------- | ----------------------- |
+ * | 250 / 20  | 0% / 0.00               |
+ * | 210 / 16  | 88% / 2.30 / worst 61.7s |
+ * | 195 / 15  | 100% / 4.00 / 24.3s     |
+ * | 165 / 13  | 100% / 4.00 / 21.9s     |
+ *
+ * ⚠️ **The cliff between 210 and 195 is the whole margin, so this ships at 190/14** — one step
+ * inside it rather than on it, because a marginal clear is exactly the fight that lands in the
+ * longest-cleared-fight guard.
+ *
+ * ⚠️ **Under the Unmade on both stats**, as every chapter boss since chapter 4 has been.
+ */
+export const THE_EVENFALL = {
+  id: 'the-evenfall',
+  name: 'The Evenfall',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 190,
+    atk: 14,
+    def: 32,
+    haste: 70,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critBlock: 0.3,
+    critDamageResist: 0.44,
+    physicalResist: 0.24,
+    magicResist: 0.26,
+    magicPierce: 0.22,
+    tenacity: 0.5,
+  },
+  skills: [THE_LIGHT_GOES_FLAT, NOTHING_LANDS_BETTER],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -10569,4 +10849,14 @@ export const ENEMIES = [
   GANTRY_WARDEN,
   THE_HELDBACK,
   THE_OVERSTRIKE,
+  EVENLIGHT_TENDER,
+  FLATSHADE_STALKER,
+  DULLEDGE_BRIAR,
+  GLASSBARK_SENTRY,
+  NOONLESS_ARCHER,
+  SHADOWLESS_DANCER,
+  GREYLEAF_WARDEN,
+  EVENFERN_CREEPER,
+  THE_UNBETTERED,
+  THE_EVENFALL,
 ] as const;

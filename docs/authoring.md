@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
-| Campaign         | 22 chapters, 1030 stages, enemy levels 1–515 |
+| Campaign         | 23 chapters, 1090 stages, enemy levels 1–545 |
 | Towers           | 7 × 300 floors, enemy levels 1–142           |
-| Enemy archetypes | 292                                          |
+| Enemy archetypes | 302                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -72,6 +72,7 @@ section below before assuming ten more boards is ten more boards.
 | 20      | 425   | 455    | **30** |
 | 21      | 455   | 485    | 30     |
 | 22      | 485   | 515    | 30     |
+| 23      | 515   | 545    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -682,6 +683,97 @@ On the legal single-target form, one front carrier:
    longest fight a party actually **clears**, so a marginal clear is exactly the fight that lands in
    it. **Count the seconds as well as the survivors.**
 
+### ⚠️ Chapter 23 is where the pool wall stopped being a weight wall and became an attack wall
+
+The Evenfall closes at **545** and **stays** on `mythic-plus`. Against chapter 22's seam of 3.7273,
+`mythic` reads **0.2368** (|Δln| 2.7561), `mythic-plus` **1.9981** (|Δln| **0.6235**) and `ascended`
+**16.8578** (|Δln| **1.5091**) — `mythic-plus` by 0.886 of a nat, and both the seam below and this
+chapter's own are above 1.00, so nothing licenses an override. Five chapters running have now had to
+say which of the two they are doing.
+
+1. ⚠️ **The party is unchanged from the chapter below, and that is the finding this chapter exists to
+   record.** Chapters 22 and 23 both clamp to `mythic-plus`'s cap of 420, so the seam is degenerate at
+   one link and the five combatants are literally the same. What moved is only the **boards**, thirty
+   levels — so an authored stat here is worth `perLevel ** 30` = **×1.87** more than the identical
+   number one chapter below, and the board budget is **×0.536** of chapter 22's in common-equivalent
+   terms (2,200 to 4,000 against 7,400 to 9,500).
+2. ⚠️ **A degenerate seam makes the chapter below's measured price table transferable, which is the
+   one time that is true.** Chapter 21 wrote "do not carry a table forward" about four inversions in
+   one chapter, and the reason was always that the _board under the mechanic_ had changed. Here the
+   party is identical and equal **absolute** weight is equal difficulty, so chapter 22's readings hold
+   at 0.536× the common-equivalent figure. **Spot-check it rather than assuming it**; what does not
+   transfer is anything priced against a chapter whose party differs.
+3. ⚠️ **The binding pool constraint is _attack_, not weight, and this is the first chapter where the
+   two disagreed outright.** Filtering the 292 shipped blocks on common-equivalent weight alone passes
+   **117**; adding an attack filter at what chapter 22's boards actually carried leaves **55** — 15
+   Elf, 15 Undead, 10 Dwarf, 10 Monster, 5 Human, and **none** from either celestial. That is chapter
+   21's Undead-texture finding ("the tail can be bounded by attack rather than by weight") arriving as
+   the chapter's _main_ constraint rather than as a note about one faction's texture.
+4. ⚠️ **It fired as an authoring error before it was understood as a rule.** The chapter's ten new
+   blocks were first drafted with chapter-23 _health_ and chapter-22 _attack_, and **every board read
+   0%** — the lieutenant at all five of its appearances, the final at every stat line from 300/24 down
+   to 165/13, and bands 5 and 6 outright. Halving the authored `atk` and changing nothing else took
+   the six band representatives to 5.00 / 5.00 / 5.00 / 4.08 / 4.00 / 4.00. **An anchor sets the fight
+   length and the escort sets the rate at which length becomes deaths** — chapter 21 measured that and
+   this chapter is what it looks like when you get it wrong.
+5. ⚠️ **The quota landed at the quota for the fourth chapter running**: 32 distinct fielded, ten new —
+   **26.7%** of ordinary archetypes under the shipped rule and **31.3%** counting the lieutenant and
+   the boss inside the fraction. Budget the normal ten blocks. The `gearArchetype` bill was **zero**
+   for the fourth chapter running, because The Rustwood and The Slowgrowth paid the Elf one and The
+   Commonage the Undead one.
+
+### ⚠️ What chapter 23 measured, and the nine-chapter inversion it found
+
+Priced against one calibrated control — an anchor of 1,887/174 behind four bodies of 1,062/147 at
+level 545 and Relic 100, **6,135 common-equivalent, reading 3.55 of five**, and it **moves** (3.98 at
+5,892, 2.90 at 6,355, 2.70 at 6,412). Zero timeouts on every row.
+
+| shape                                  | survivors | worth    |
+| -------------------------------------- | --------- | -------- |
+| `magicResist` 0.16 across five         | 3.35      | 0.20     |
+| `def` 46 across five                   | 3.15      | 0.40     |
+| `critBlock` 0.16 across five           | 3.13      | 0.42     |
+| `critBlock` 0.28 on the front two      | 2.95      | 0.60     |
+| `critBlock` 0.28 across five           | 2.80      | 0.75     |
+| **complete crit immunity** across five | 2.67      | **0.88** |
+| `physicalResist` 0.18 across five      | 2.55      | 1.00     |
+| `magicResist` 0.75 across five         | 2.38      | 1.17     |
+| `dodge` 0.20 across five               | 2.20      | 1.35     |
+| `def` 70 across five                   | 1.90      | 1.65     |
+| both resists at 0.20 across five       | 1.77      | 1.78     |
+| `physicalResist` 0.30 across five      | 1.25      | 2.30     |
+| `dodge` 0.30 across five               | 1.23      | 2.32     |
+| `physicalResist` 0.45 across five      | 0.05      | **3.50** |
+| `def` 110 across five                  | 0.00      | 3.55     |
+
+1. ⚠️ **This inverts chapter 14's refusal finding outright, nine chapters later.** The Shutgate
+   measured `def` past its register and `physicalResist` to 0.60 as worth **no more than 0.08 of a
+   survivor** and concluded the whole refusal vocabulary was fight length rather than difficulty. Here
+   `def` 70 is worth **1.65** and `physicalResist` 0.30 is worth **2.30**, both with zero timeouts.
+   **A negative result has a weight attached to it exactly as a positive one does**, and a nine-chapter
+   old refusal list is not a fact about the vocabulary.
+2. ⚠️ **A lock is worth what the party has staked on the thing it denies, which is the register check
+   asked from the _party's_ side.** Crit denial saturates inside its own shipped register — `critBlock`
+   grades 0.42 → 0.75 across 0.16 → 0.28 and then flat (0.34 reads 2.77, 0.45 reads 2.73), and
+   **complete immunity to both crit chance and crit damage is worth 0.88 of one member.** The cause is
+   the calibrated five: only Rin (0.22) and Pyra (0.25) carry crit worth denying and the other three
+   sit at 0.02 to 0.05. The Demon Tower's `critBlock` band read 0.59 at 0.24 against a crew _built_ on
+   crit. **Check the register on both sides of the board before building a band on a stat.**
+3. ⚠️ **Everything else in the refusal vocabulary is a cliff, so the chapter is built on the dial and
+   textured with the cliffs.** `physicalResist` runs 1.00 → 2.30 → **3.50** across 0.18 → 0.30 → 0.45
+   and `def` 0.40 → 1.65 → **3.55** across 46 → 70 → 110; neither steps six times. No shipped board
+   carries `physicalResist` above 0.24 or `def` past its register.
+4. ⚠️ **A pairing can be worth more than either half at twice the value.** Both resists at 0.20
+   together read **1.78** where `physicalResist` alone at 0.30 reads 2.30 and `magicResist` alone at
+   0.30 reads 0.32 — so the closing band buys its step from the _combination_ rather than from pushing
+   one stat further into a cliff.
+5. ⚠️ **A stat that is common in the pool cannot carry a band claim about presence.** `physicalResist`
+   is on 139 of 302 blocks at a median of 0.10, so "the skin arrives in band 3" is false the day it is
+   written. The Evenfall's band table states **bodies per board at or above 0.12** — 0–1, 0–1, 1–3, 3,
+   2–3, 1–3 — which is the Demon Tower's counts-not-absolutes fix applied to a chapter, and it also
+   forced a shipped block to be re-authored: {@link GLASSBARK_SENTRY} carries **no `physicalResist` at
+   all** because it stands on more opening-band boards than anything else.
+
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
 The campaign has reached the rule the towers' third hundreds established. Chapter 13's own final
@@ -857,10 +949,14 @@ chapter yet**, so it is a fact about the lean rather than about the chapter.
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, elf 43,
-  dwarf 44, **human 46**, undead 49, monster 61 — chapter 22's ten Human blocks took Human off the
-  thinnest legal slot, so **Elf at 43 is the thinnest legal lead** and the four mortal factions run
-  43, 44, 46, 49 within six of each other. The reading before it: angel 24, demon 25, human 36,
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, dwarf 44,
+  **human 46**, undead 49, elf 53, monster 61 — chapter 23's ten Elf blocks took Elf from thinnest
+  legal to second-deepest, so **Dwarf at 44 is the thinnest legal lead**, with Human at 46 and Undead
+  at 49 behind it. ⚠️ **A lean is worth ten blocks and that is now enough to move a faction across
+  the whole ordering in one session**, for the ninth time. The reading before it: angel 24, demon 25,
+  elf 43, dwarf 44, **human 46**, undead 49, monster 61 — chapter 22's ten Human blocks took Human
+  off the thinnest legal slot, so **Elf at 43 was the thinnest legal lead** and the four mortal
+  factions ran 43, 44, 46, 49 within six of each other. The reading before it: angel 24, demon 25, human 36,
   elf 43, dwarf 44, undead 49, **monster 61** — and ⚠️ **chapter 21 is the first time the depth
   argument was overruled outright by the pool.** Monster was already deepest by seven and led again
   anyway, because it is the only faction whose bench is light enough to stand on a board at level 485. **When the budget and the depth argument disagree, the budget wins and the chapter says so.**
@@ -1007,6 +1103,7 @@ The shipped twenty-one, with the level range each closes over:
 | 20  | The Commonage      | **60** | 425 → 455 | whether it gets to **choose where it goes**     |
 | 21  | The Longebb        | 60     | 455 → 485 | whether it **still holds its value**            |
 | 22  | The Downstroke     | 60     | 485 → 515 | whether it **arrives all at once**              |
+| 23  | The Evenfall       | 60     | 515 → 545 | whether it **ever lands well**                  |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -1022,7 +1119,8 @@ Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTE
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
-`SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `BACKCUT` → `COMMONAGE` → `LONGEBB` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
+`SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `BACKCUT` → `COMMONAGE` → `LONGEBB` → `DOWNSTROKE` →
+`INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
 and restarted at chapter 19**: `QUARRIED` through `QUICKMIRED` are five names for one set of five
 combatants on `legendary-plus`, and `SLOWGROWTH` and `INVESTED` are now two names for one set on
 `mythic`. **Expect a second identical link at chapter 20 and a third at 21** — the chain is a
@@ -1382,7 +1480,11 @@ length** — chapter 20's prediction was wrong by five only because it assumed a
 and chapter 21's, predicted a chapter ahead as 485, was right. ⚠️ **Chapter 22 landed on it and
 wanted 515, exactly as predicted — the sixteenth landing and the third correct prediction.** It read
 20.2% at 1,030 stages. Chapter 23 wants **545**; a session with the appetite should write the
-saturating tilt rather than re-derive `stages / 2` a seventeenth time.
+saturating tilt rather than re-derive `stages / 2` a seventeenth time. ⚠️ **Chapter 23 landed on it and wanted
+545, exactly as predicted — the seventeenth landing and the fourth prediction checked a chapter
+ahead.** It read 20.2% at 1,090 stages. Chapter 24 wants **575**. **Seventeen landings is past the
+point where re-deriving is learning anything**; the next session in `data/gear.ts` for any reason
+should write the saturating tilt while it is already there.
 
 ### ⚠️ Chapter 16 retired the "charges real time" ceiling — the fourth guard retired rather than slid
 

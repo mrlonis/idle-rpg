@@ -387,13 +387,21 @@ export const GEAR_RULES = {
      * appetite should write one rather than re-deriving `stages / 2` a seventeenth time. Chapter 23
      * will want **545**.
      *
+     * ⚠️ **Chapter 23 landed on it and wanted 545, exactly as predicted — the seventeenth landing,
+     * the seventeenth time the answer was `stages / 2`, and the fourth prediction checked a chapter
+     * in advance.** It read **20.2%** at 1,090 stages. The prediction record is now three right out
+     * of four, and the one miss was an assumption about a chapter's *length* rather than about this
+     * rule. Chapter 24 will want **575**. ⚠️ **Seventeen landings is past the point where re-deriving
+     * is learning anything** — the next session to touch `data/gear.ts` for any reason should write
+     * the saturating tilt while it is already in the file.
+     *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
      * their way through the stage-7 lock is untouched — that test fields grade 0 at level 1
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 515,
+    gradeSoftness: 545,
   },
 
   /**

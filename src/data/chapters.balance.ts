@@ -1011,12 +1011,14 @@ const LONGEBB: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Downstroke asks
- * for will carry them.
+ * The party that arrives in chapter 23: the five that just took The Downstroke, unchanged.
  *
- * Still common tier, and still no pull anyone had to be lucky for.
+ * ⚠️ **This is The Downstroke's `INVESTED`, kept under a new name rather than re-derived** — the
+ * nineteenth time, for the same reason every time: re-aiming one "arrived" party at the newest
+ * chapter would silently stop checking that every chapter below it is still finishable by the party
+ * it was tuned for.
  *
- * ## ⚠️ Chapter 22 moves the rung to `mythic-plus`, and it is an **override**
+ * ## ⚠️ Chapter 22 moved the rung to `mythic-plus`, and it was an **override**
  *
  * **The rule that picks a rung reproduces the power ratio the seam below it had**,
  * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated for
@@ -1051,6 +1053,61 @@ const LONGEBB: FormationData = mono(
  * **0.5742**. The arithmetic buys about two and a half chapters and the **pool** will run out first,
  * exactly as it did on `mythic`. **Measure the pool before re-deriving the seam.** The next rung,
  * `ascended`, caps at 500 and is the last the campaign can spend.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const DOWNSTROKE_RARITY = rarityIndex('mythic-plus');
+const DOWNSTROKE_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[21] - 1].level,
+  LEVEL_CURVE.caps[DOWNSTROKE_RARITY],
+);
+
+const DOWNSTROKE: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(DOWNSTROKE_LEVEL, DOWNSTROKE_RARITY),
+  DOWNSTROKE_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Evenfall asks
+ * for will carry them.
+ *
+ * Still common tier, and still no pull anyone had to be lucky for.
+ *
+ * ## ⚠️ Chapter 23 stays on `mythic-plus`, and that is a **derivation** rather than an override
+ *
+ * Against chapter 22's seam of **3.7273** and The Evenfall's close of 545, `mythic` reads **0.2368**
+ * (|Δln| 2.7561), `mythic-plus` **1.9981** (|Δln| **0.6235**) and `ascended` **16.8578** (|Δln|
+ * 1.5091). **`mythic-plus` wins by 0.886 of a nat** — numerically the same margin chapters 18 and 22
+ * overrode and chapters 19, 20 and 21 stayed on.
+ *
+ * ⚠️ **What licenses an override is the seam *below* being wrong, and here it is not.**
+ * {@link DOWNSTROKE} landed on **3.7273**, comfortably above 1.00, and this chapter's own seam of
+ * **1.9981** is above it too. The pool agrees rather than merely permitting: **55 shipped blocks are
+ * both light enough and cool enough** for The Evenfall's boards — 15 Elf, 15 Undead, 10 Dwarf, 10
+ * Monster, 5 Human — where chapter 22's override was licensed by the five lightest bodies in the
+ * game reading 0%. **Five chapters running have now had to say which of the two they are doing.**
+ *
+ * ⚠️ **This party and {@link DOWNSTROKE} are the same five combatants**, because chapters 22 and 23
+ * both close above `mythic-plus`'s cap of 420 and both clamp to it. That restarts the degenerate
+ * chain one rung up, at one link — the shape chapters 13 through 17 recorded five deep and chapters
+ * 18 through 21 four deep. **Expect a second link at chapter 24.**
+ *
+ * ⚠️ **The practical consequence is an authoring trap rather than a testing one, and this chapter
+ * fell into it.** With the party frozen and the boards thirty levels higher, an authored stat is
+ * worth `perLevel ** 30` = ×1.87 more than the identical number one chapter below. The Evenfall's
+ * first ten blocks carried chapter-22 attack values and **every board fell off a cliff**; halving the
+ * authored `atk` and nothing else fixed all six bands. See [`chapter-23.ts`](./chapter-23.ts).
+ *
+ * ⚠️ **What moves the rung next.** Each further sixty-stage chapter divides the seam by
+ * `perLevel.common ** 30` = **1.867**: chapter 24 reads **1.0703**, chapter 25 **0.5733**. The
+ * arithmetic buys about one and a half more chapters and the **pool** will run out first, exactly as
+ * it did on `legendary-plus` and on `mythic`. **Measure the pool before re-deriving the seam** — at
+ * this chapter's own depth only 55 of 292 blocks are already fieldable, and the binding quantity is
+ * their **attack** rather than their weight. The next rung, `ascended`, caps at 500 and is the last
+ * the campaign can spend.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
@@ -1224,6 +1281,11 @@ const longebbSweeps = stages.map((stage) => ({
   stage,
   ...sweep(LONGEBB, stage),
 }));
+const downstrokeSweeps = stages.map((stage) => ({
+  label: 'downstroke',
+  stage,
+  ...sweep(DOWNSTROKE, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1272,6 +1334,7 @@ const everySweep = [
   ...underroadSweeps,
   ...quickmiredSweeps,
   ...longebbSweeps,
+  ...downstrokeSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1348,6 +1411,9 @@ const COMMONAGE_END = CHAPTER_ENDS[19];
 
 /** Where The Longebb ends, for {@link LONGEBB}'s seam. */
 const LONGEBB_END = CHAPTER_ENDS[20];
+
+/** Where The Downstroke ends, for {@link DOWNSTROKE}'s seam. */
+const DOWNSTROKE_END = CHAPTER_ENDS[21];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2086,6 +2152,39 @@ describe('ladder balance', () => {
     // `docs/authoring.md` forbids widening it and the honest repair is a share of the *slice*.
     const walked = longebbSweeps
       .slice(LONGEBB_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 22 clear chapters 1 through 22', () => {
+    // The Evenfall's seam, measured the same way as the eighteen above it.
+    const unreliable = downstrokeSweeps
+      .slice(0, DOWNSTROKE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Evenfall as well', () => {
+    // ⚠️ **Vacuous by construction again, and the reason is the degenerate chain restarting.**
+    // Chapters 22 and 23 both close above `mythic-plus`'s cap of 420 and both clamp to it, so
+    // {@link DOWNSTROKE} and {@link INVESTED} are the same five combatants — the assertion above and
+    // this one are therefore one claim, exactly as they were for chapters 13 through 17 on
+    // `legendary-plus` and 18 through 21 on `mythic`. {@link MOMENTUM_CEILING} is a share of the
+    // whole ladder (327 boards at 1,090 stages) against a slice of 60, so it could not bind on the
+    // count either. Kept rather than deleted so the record of *why* survives; `docs/authoring.md`
+    // forbids widening it and names the honest repair — a share of the *slice*.
+    //
+    // ⚠️ **What the seam costs is real even though the assertion is vacuous.** The Evenfall's last
+    // board stands **a hundred and twenty-five levels** above the cap this party is clamped at —
+    // ×13.44 — and its seam ratio is **1.9981**. That is why its boards are authored at roughly half
+    // chapter 22's: the budget runs about 2,200 common-equivalent at `c23-s1` to 4,000 at its
+    // heaviest and 3,017 at the final.
+    const walked = downstrokeSweeps
+      .slice(DOWNSTROKE_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

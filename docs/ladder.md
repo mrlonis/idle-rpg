@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-two chapters and one thousand
-and thirty stages** — 10, 20, 30, 40, then fifteen of fifty and three of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Twenty-three chapters and one thousand
+and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and four of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -24,7 +24,9 @@ first time in eight chapters, so it is a derivation rather than an override, and
 the point. Chapters 20 and 21 — **The Commonage** and **The Longebb** — stay on it too and are the
 first chapters longer than fifty. Chapter 22 is **The Downstroke**, which moves the rung to
 `mythic-plus`: the campaign's **second override**, licensed because at level 515 the five lightest
-bodies in the whole game read 0% against a `mythic` five. See [authoring](authoring.md).
+bodies in the whole game read 0% against a `mythic` five. Chapter 23 is **The Evenfall**, which
+**stays** on `mythic-plus` — a derivation, and the first chapter whose binding pool constraint is the
+returning blocks' **attack** rather than their weight. See [authoring](authoring.md).
 
 ## The shape
 

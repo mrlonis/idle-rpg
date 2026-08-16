@@ -7726,6 +7726,142 @@ export const NOTHING_HELD_BACK = {
 } as const;
 
 /**
+ * Chapter 23's texture turn, and the reason The Evenfall needs so few new skills.
+ *
+ * ⚠️ **The Evenfall's whole premise is a *stat*, so its skills are plain damage and nothing else.**
+ * `docs/authoring.md` says to reach for the stat block before the vocabulary; a chapter asking
+ * whether the party's damage ever lands *well* asks it with `critBlock`, `critDamageResist`,
+ * `physicalResist` and `magicResist`, none of which can be a status without a `core/` change. What
+ * the skills do here is carry the board's throughput, which at level 545 is the quantity that
+ * actually binds — see {@link NOTHING_TELLS}.
+ */
+export const EVEN_LIGHT = {
+  id: 'even-light',
+  name: 'Even Light',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+/** Band 2's turn: the same blow as band 1's, and no hour in this chapter is a better one. */
+export const NO_BETTER_HOUR = {
+  id: 'no-better-hour',
+  name: 'No Better Hour',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Bands 3 and 4: the first turn that names more than one body, and it is at the wide cap.
+ *
+ * ⚠️ **`skills.spec.ts` holds `enemy-row-front`, `enemy-row-back` and `enemy-all` to power 1.2**,
+ * which is the rule chapter 22 discovered by pricing a whole chapter on a skill the game refuses to
+ * let anybody author. This one is 1.15 and is inside it by construction.
+ */
+export const TURNED_ASIDE = {
+  id: 'turned-aside',
+  name: 'Turned Aside',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** Bands 4 and 5: the chapter's largest single-target blow outside its two unique bodies. */
+export const THE_GREEN_TAKES_IT = {
+  id: 'the-green-takes-it',
+  name: 'The Green Takes It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.25 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The reach: bands 4 through 6 name the party's back rank with it.
+ *
+ * ⚠️ **One `enemy-back` turn per body, which is chapter 19's rule on a stat line rather than on a
+ * board.** A 520/76 ranger carrying two of them read 0% beside any second legendary where two other
+ * legendaries 4% heavier read 4.00. No block in this chapter carries two.
+ */
+export const NOTHING_TELLS = {
+  id: 'nothing-tells',
+  name: 'Nothing Tells',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * The shape `docs/authoring.md` prefers, for the reason chapter 22 recorded: it only fires once the
+ * block is under fifty-five hundredths, so the five boards it anchors are five different fights
+ * against one stat line rather than five copies of one.
+ *
+ * ⚠️ **A wound *condition* on a damage turn is not the forbidden wound-response.** What is barred is
+ * a body that **armours** itself as it is hurt — the ninety-second clock with a narrative attached.
+ * This spends rather than banks.
+ */
+export const IT_WAS_NEVER_GOING_TO = {
+  id: 'it-was-never-going-to',
+  name: 'It Was Never Going To',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.7 }],
+  condition: { kind: 'self-hurt', fraction: 0.55 },
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has while it is still whole, and why its early boards are not free. */
+export const SAME_AS_THE_LAST = {
+  id: 'same-as-the-last',
+  name: 'Same As The Last',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, on the scope.
+ *
+ * **Magic where the rest of the chapter is physical**, which is the closing band's own lock read
+ * from the other side — the boards spend six bands refusing physical damage and the body that
+ * closes them deals the kind they have taught the party not to expect.
+ */
+export const THE_LIGHT_GOES_FLAT = {
+  id: 'the-light-goes-flat',
+  name: 'The Light Goes Flat',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 68,
+  priority: 4,
+} as const;
+
+/**
+ * The final's plain turn.
+ *
+ * ⚠️ **Worth 2.00 of five on its own, which is more than the boss's whole stat line.** Measured at
+ * 250/20 behind the chapter's own escort: no skills at all reads 93% / 2.15, this turn alone reads
+ * 13% / 0.15, and both together 0%. That is chapter 21's finding reproduced — more than a third of a
+ * final's price can be one turn — and it is why this boss ships at 190/14 rather than at the weight
+ * a chapter-22 conversion would have predicted.
+ */
+export const NOTHING_LANDS_BETTER = {
+  id: 'nothing-lands-better',
+  name: 'Nothing Lands Better',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
  * One list rather than `Object.values(module)`, because `data/` is plain data and that is a
@@ -8116,4 +8252,13 @@ export const SKILLS = [
   TAKE_UP_THE_SLACK,
   THE_OVERSTRIKE_FALLS,
   NOTHING_HELD_BACK,
+  EVEN_LIGHT,
+  NO_BETTER_HOUR,
+  TURNED_ASIDE,
+  THE_GREEN_TAKES_IT,
+  NOTHING_TELLS,
+  IT_WAS_NEVER_GOING_TO,
+  SAME_AS_THE_LAST,
+  THE_LIGHT_GOES_FLAT,
+  NOTHING_LANDS_BETTER,
 ] as const;

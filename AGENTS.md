@@ -74,20 +74,34 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-two chapters, one thousand and thirty
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-three chapters, one thousand and ninety
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic` and chapter 22 moved it to
   `mythic-plus`; both are overrides against the log-space rule, and they are the only two the
-  campaign has.** Chapters 19, 20 and 21 all _stayed_ on `mythic`, and that a stay is a derivation
-  rather than an override is the point: what licenses an override is the seam _below_ being wrong
-  (under 1.00) **and** the pool being unable to supply a board — never the margin being large and
-  never this chapter's own seam being small. ⚠️ **Chapter 21's own seam was 0.8241, under 1.00, and
-  it still did not license an override, because its chapter was authorable.** Chapter 22's is
-  licensed because it is not: at level 515 the **five lightest bodies in the game read 0% against a
-  `mythic` five**. ⚠️ **What binds is the pool rather than the seam**, and the arithmetic has now been
-  right and early twice — `mythic` was projected to buy three chapters and bought one and a half.
-  **Measure the pool before re-deriving the seam.** The degenerate chain reached four links on
-  `mythic` and restarts at one on `mythic-plus`.
+  campaign has.** Chapters 19, 20, 21 and 23 all _stayed_ on the rung below them, and that a stay is
+  a derivation rather than an override is the point: what licenses an override is the seam _below_
+  being wrong (under 1.00) **and** the pool being unable to supply a board — never the margin being
+  large and never this chapter's own seam being small. ⚠️ **Chapter 21's own seam was 0.8241, under
+  1.00, and it still did not license an override, because its chapter was authorable.** Chapter 22's
+  is licensed because it is not: at level 515 the **five lightest bodies in the game read 0% against
+  a `mythic` five**. ⚠️ **What binds is the pool rather than the seam**, and the arithmetic has now
+  been right and early twice — `mythic` was projected to buy three chapters and bought one and a
+  half. **Measure the pool before re-deriving the seam.** The degenerate chain reached four links on
+  `mythic` and is at one on `mythic-plus`; expect a second at chapter 24.
+- ⚠️ **A pool wall can be an _attack_ wall rather than a weight wall, and chapter 23 is where that
+  happened.** When two chapters clamp to the same rung cap the party is **literally unchanged** while
+  the boards climb, so an authored `atk` is worth `perLevel ** 30` = ×1.87 more than the identical
+  number a chapter below. Filtering the shipped pool on common-equivalent weight alone passes 117 of
+  292 blocks at level 545; **adding attack leaves 55**, and none from either celestial. ⚠️ **It fired
+  as an authoring error first**: The Evenfall's ten new blocks were drafted with chapter-23 health and
+  chapter-22 attack and **every board read 0%** — the lieutenant at all five appearances and the final
+  at every stat line — and halving the authored `atk` alone fixed all six bands. **Convert attack as
+  well as weight when carrying a budget across a chapter boundary.** [authoring](docs/authoring.md)
+- ⚠️ **A degenerate seam is the one time a chapter's measured price table transfers.** "Do not carry a
+  table forward" is a rule about the _board under the mechanic_ changing; when the party is identical,
+  equal absolute weight is equal difficulty and the chapter below's readings hold at 0.536× the
+  common-equivalent figure. Spot-check rather than assume, and nothing priced against a different
+  party transfers at all. [authoring](docs/authoring.md)
 - ⚠️ **A chapter is fifty stages up to chapter 19 and sixty from chapter 20, and the cap is a
   _schedule_ rather than a constant** — `CHAPTER_CURVE.raisedMaxFromChapter` / `raisedMaxStages`, so
   the length stays derived and `chapters.spec.ts` still holds every chapter equal to `chapterSize`.
@@ -446,6 +460,28 @@ Asserted in `core/battle/simulate.spec.ts`.
   fast **and** over 1,600 common-equivalent, while six blocks at haste 96–114 at or under 560 are fielded
   freely. Its header states the measurement (median `haste` 72 across 300 slots; everything above 92
   at or under 560) rather than the threshold it means. [authoring](docs/authoring.md)
+- ⚠️ **A _negative_ result carries a weight the same way a positive one does, and chapter 23 inverted
+  one nine chapters old.** Chapter 14 measured `def` past its register and `physicalResist` to 0.60 as
+  worth **no more than 0.08 of a survivor** and concluded the refusal vocabulary was fight length
+  rather than difficulty. Against chapter 23's control — 6,135 common-equivalent at level 545, reading
+  3.55 of five — `def` 70 is worth **1.65**, `physicalResist` 0.30 **2.30** and 0.45 **3.50**, all with
+  zero timeouts. **A recorded "X is inert" is a claim about a curve, and the curves in this project
+  move.** [authoring](docs/authoring.md)
+- ⚠️ **A lock is worth what the _party_ has staked on the thing it denies, which is the register check
+  asked from the other side of the board.** Chapter 23's crit denial saturates inside its own shipped
+  register — `critBlock` grades 0.42 → 0.75 across 0.16 → 0.28 and then flat, and **complete immunity
+  to both crit chance and crit damage is worth 0.88 of one member** — because only two of the
+  calibrated five carry crit worth denying (0.22 and 0.25) against the other three at 0.02–0.05. The
+  Demon Tower's `critBlock` band read 0.59 at 0.24 against a crew _built_ on crit. **Check the
+  register on both sides before building a band on a stat.** ⚠️ **And a pairing can beat either half
+  pushed further**: both resists at 0.20 read 1.78 where `magicResist` alone at 0.30 reads 0.32.
+  [authoring](docs/authoring.md)
+- ⚠️ **A band claim about a _common_ stat cannot be about presence.** `physicalResist` sits on 139 of
+  302 blocks at a median of 0.10, so "the skin arrives in band 3" is false the day it is written.
+  Chapter 23's band table states **bodies per board at or above 0.12** (0–1, 0–1, 1–3, 3, 2–3, 1–3),
+  which is the Demon Tower's counts-not-absolutes fix applied to a chapter — and it forced a block to
+  be authored _without_ the stat, because that body stands on more opening-band boards than anything
+  else. [authoring](docs/authoring.md)
 - ⚠️ **A status's price is a function of the board under it, and chapter 21 measured four inversions
   at once.** Against a control of 847 common-equivalent at level 485 reading 3.25 of five — roughly a
   third of chapter 20's weight — `CHAINBOND` on `ally-all` is worth **0.00** where chapter 20 read
