@@ -41,11 +41,13 @@ import {
   DRESS_THE_RANKS,
   EMBERSEED,
   EVENSONG,
+  EVERYTHING_AT_ONCE,
   EVERYTHING_COMES_BACK_BLUNT,
   EVERYTHING_YOU_LEFT,
   FADE,
   FLATTEN_THE_EDGE,
   FLENSE,
+  FULL_WEIGHT,
   GALLERY_SHOT,
   GATE_SLAM,
   GLACIAL_SLAM,
@@ -59,6 +61,7 @@ import {
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
   IT_ADDS_UP_EITHER_WAY,
+  IT_HAS_NOT_LET_GO,
   IT_IS_ALL_WORTH_LESS,
   IT_WAS_WORTH_MORE_THIS_MORNING,
   KEEP_NOTHING,
@@ -68,6 +71,7 @@ import {
   LIE_FALLOW,
   LITANY,
   LOAD_THE_CART,
+  LONG_HAUL,
   LOOSE_THE_PLATED_PACK,
   LOW_AND_LOWER,
   MARKED_BY_THE_WATER,
@@ -85,6 +89,7 @@ import {
   NONE_OF_US_IS_THE_ONE,
   NOTHING_CLOSES_HERE,
   NOTHING_GETS_A_GRIP,
+  NOTHING_HELD_BACK,
   NOTHING_HERE_HURRIES,
   NOTHING_HERE_IS_FREE,
   NOTHING_HOLDS_AN_EDGE,
@@ -99,6 +104,7 @@ import {
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
   OPEN_THE_VEIN,
+  OVER_THE_LINE,
   OVER_THE_STUBBLE,
   PAID_EITHER_WAY,
   PALL_OF_YEARS,
@@ -149,6 +155,7 @@ import {
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
   TAKE_THE_WEIGHT,
+  TAKE_UP_THE_SLACK,
   THERE_IS_NO_END_TO_IT,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
@@ -156,6 +163,7 @@ import {
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
+  THE_CORD_DRAWS,
   THE_COUNTERSIGN,
   THE_COUNT_DOES_NOT_STOP,
   THE_COURSE_HOLDS,
@@ -179,6 +187,7 @@ import {
   THE_LONG_LOOSE,
   THE_MIRE_TAKES_A_STEP,
   THE_ORDER_STANDS,
+  THE_OVERSTRIKE_FALLS,
   THE_PACK_ANSWERS,
   THE_PACK_TURNS,
   THE_QUENCH,
@@ -421,6 +430,7 @@ export const WARDEN = {
   name: 'Gate Warden',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 850,
     atk: 46,
@@ -766,6 +776,7 @@ export const STORMCALLER = {
   name: 'Fen Stormcaller',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 770,
     atk: 73,
@@ -908,6 +919,7 @@ export const OATHBREAKER = {
   name: 'The Oathbreaker',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1220,
     atk: 74,
@@ -1437,6 +1449,7 @@ export const OATHSHIELD_VANGUARD = {
   name: 'Oathshield Vanguard',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1020,
     atk: 64,
@@ -1838,6 +1851,7 @@ export const VAULTBOUND_GAOLER = {
   name: 'Vaultbound Gaoler',
   faction: 'human',
   tier: 'common',
+  gearArchetype: 'tank',
   stats: {
     hp: 760,
     atk: 48,
@@ -3832,6 +3846,7 @@ export const KINGSWAY_LANCER = {
   name: 'Kingsway Lancer',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 800,
     atk: 78,
@@ -3867,6 +3882,7 @@ export const UNDERVAULT_SAPPER = {
   name: 'Undervault Sapper',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 760,
     atk: 66,
@@ -4952,6 +4968,7 @@ export const ORDER_SERJEANT = {
   name: 'Order Serjeant',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 820,
     atk: 60,
@@ -5017,6 +5034,7 @@ export const RESERVE_ENSIGN = {
   name: 'Reserve Ensign',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 840,
     atk: 70,
@@ -5051,6 +5069,7 @@ export const COUNTERSIGN_CAPTAIN = {
   name: 'Countersign Captain',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 960,
     atk: 74,
@@ -5333,6 +5352,7 @@ export const CROWNWORKS_STRIKER = {
   name: 'Crownworks Striker',
   faction: 'human',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 80,
@@ -9962,6 +9982,300 @@ export const THE_UNRETURNED = {
   skills: [IT_WAS_WORTH_MORE_THIS_MORNING, THE_LAST_OF_THE_WATER, KEEP_NOTHING],
 } as const;
 
+// --- Chapter 22, The Downstroke -------------------------------------------------------------
+//
+// ⚠️ **These are the first blocks authored heavy in five chapters, and the rung move is why.** The
+// campaign moved to `mythic-plus` at chapter 22 because nothing shipped could stand on a board at
+// level 515 — the five lightest bodies in the game read **0% of five** there against the `mythic`
+// party. One rung up, the pool re-opens: 181 of 282 blocks sit inside the band chapter 22's
+// ordinary slots use. So these run 700 to 1,220 health where The Longebb's ran 150 to 400, and
+// they sit **at** the shipped ceilings rather than past them (common 940, legendary 1,220).
+//
+// ⚠️ **The chapter's stat signature is `haste`, and it goes *down*.** Every block here runs 62 to
+// 80 against a shipped median of 96, with `atk` raised to match — the stat-block form of the
+// chapter's axis. That lands **inside** the shipped register on the low side rather than past it:
+// the floor is 52 and twelve blocks already sit at or under 60. Chapter 17 measured the same stat
+// from the other end and found it a cliff **above** its register; this is the answer from below,
+// and it is a dial. See `chapter-22.ts` for the grade.
+
+/** Band 1 texture: the yard hands. Slow, heavy, and swinging things meant for timber. */
+export const MUSTERYARD_HAND = {
+  id: 'musteryard-hand',
+  name: 'Musteryard Hand',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 820,
+    atk: 66,
+    def: 28,
+    haste: 74,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    physicalPierce: 0.14,
+  },
+  skills: [LONG_HAUL],
+} as const;
+
+/** Band 2 texture: the crew on the winch, whose whole job is the pause before the release. */
+export const WINDLASS_CREW = {
+  id: 'windlass-crew',
+  name: 'Windlass Crew',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'support',
+  stats: {
+    hp: 760,
+    atk: 58,
+    def: 26,
+    haste: 70,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.3,
+    magicResist: 0.06,
+  },
+  skills: [LONG_HAUL],
+} as const;
+
+/**
+ * The pawls are what stop a drawn engine running backwards — and in band 6 they are what lets go.
+ *
+ * This is the chapter's carrier of {@link EVERYTHING_AT_ONCE}, standing in the **back rank** on
+ * every band-6 board. At the wide cap of power 1.2 the same body is worth 0.07 of a survivor in
+ * front and **0.64** behind; see the skill for why this chapter takes the back-rank arrangement
+ * where chapter 16's debuffer rule prescribes the front.
+ */
+export const PAWLSET_WRIGHT = {
+  id: 'pawlset-wright',
+  name: 'Pawlset Wright',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 700,
+    atk: 72,
+    def: 22,
+    haste: 78,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.18,
+  },
+  skills: [EVERYTHING_AT_ONCE, TAKE_UP_THE_SLACK],
+} as const;
+
+/**
+ * Band 3's weight: the counterweight itself, and the slowest thing on any board in the chapter.
+ *
+ * `haste` 62 against a shipped median of 96, which is the low end of the register rather than past
+ * it — ten blocks already sit at or under it.
+ */
+export const COUNTERWEIGHT_BEARER = {
+  id: 'counterweight-bearer',
+  name: 'Counterweight Bearer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1150,
+    atk: 62,
+    def: 42,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    critBlock: 0.12,
+    tenacity: 0.35,
+    physicalResist: 0.1,
+  },
+  skills: [LONG_HAUL],
+} as const;
+
+/** The ram crew's serjeant, and the chapter's ordinary carrier of {@link THE_CORD_DRAWS}. */
+export const RAMHEAD_SERJEANT = {
+  id: 'ramhead-serjeant',
+  name: 'Ramhead Serjeant',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 980,
+    atk: 84,
+    def: 30,
+    haste: 72,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.22,
+    magicResist: 0.05,
+  },
+  skills: [THE_CORD_DRAWS, TAKE_UP_THE_SLACK],
+} as const;
+
+/**
+ * Band 3's carrier, and the chapter's second step up the instance-size grade.
+ *
+ * The gang that lays the track the engine is dragged along, and the first body a player meets
+ * carrying {@link FULL_WEIGHT} — worth **0.83** of a survivor at chapter 22's control against
+ * {@link THE_CORD_DRAWS}'s 0.43. It appears from band 3 onward rather than in one band, which is
+ * the chapter's locks accumulating rather than rotating.
+ */
+export const TRACKWAY_GANG = {
+  id: 'trackway-gang',
+  name: 'Trackway Gang',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 70,
+    def: 30,
+    haste: 76,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.16,
+    physicalResist: 0.06,
+  },
+  skills: [FULL_WEIGHT],
+} as const;
+
+/**
+ * Band 5's carrier: the clerk who lays the engine on its mark, and the chapter's reach.
+ *
+ * The one body in the chapter that names the party's back rank, which is why it stands in the
+ * front — a board-wide turn the party cannot reach is priced somewhere else entirely, and this one
+ * is meant to be answerable.
+ */
+export const SIGHTLINE_CLERK = {
+  id: 'sightline-clerk',
+  name: 'Sightline Clerk',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 900,
+    atk: 76,
+    def: 26,
+    haste: 68,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    magicPierce: 0.24,
+    insight: 0.2,
+  },
+  skills: [OVER_THE_LINE, TAKE_UP_THE_SLACK],
+} as const;
+
+/**
+ * Band 6's weight: the frame the whole thing hangs in.
+ *
+ * ⚠️ **It was authored at 1,220 — level with {@link RINGBARK_ELDER}, the heaviest legendary the game
+ * ships — and came down to 1,100 on the clock rather than on survivors.** Five of it at level 512
+ * reads 3.17 of five at a mean of 58.6s and a **worst of 70.8s** against the 72s bar, where 1,100
+ * reads 4.00 at 53.5s and a worst of 55.0. That is chapter 18's rule on a stat line: enemy health is
+ * fight length, and a durable body with `haste` 64 walks toward the ninety-second clock rather than
+ * toward difficulty. **No board in the chapter fields five of these**; the ceiling was found on the
+ * extreme and the shipped value keeps the margin anyway.
+ */
+export const GANTRY_WARDEN = {
+  id: 'gantry-warden',
+  name: 'Gantry Warden',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1100,
+    atk: 58,
+    def: 44,
+    haste: 64,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.14,
+    critDamageResist: 0.2,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+  },
+  skills: [LONG_HAUL],
+} as const;
+
+/**
+ * The lieutenant: the drawn engine, standing on `c22-s10`, `s20`, `s30` and `s40` at rising levels.
+ *
+ * ⚠️ **Its signature is conditioned rather than an opening**, which is the shape
+ * `docs/authoring.md` prefers: {@link IT_HAS_NOT_LET_GO} only fires once the block itself is under
+ * three fifths, so the four boards it anchors are four different fights against one stat line —
+ * early, behind a light escort, the party kills it before the turn ever comes; late it does not.
+ *
+ * ⚠️ **Fielded at all four of its levels before its stat line was settled**, which is the check
+ * chapter 17 had to learn: an `ascended` block climbs at 1.024 against a party frozen at its rung's
+ * cap, so an anchor correct on its first board can be unwinnable on its fourth.
+ */
+export const THE_HELDBACK = {
+  id: 'the-heldback',
+  name: 'The Heldback',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 640,
+    atk: 54,
+    def: 40,
+    haste: 66,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    physicalResist: 0.08,
+  },
+  skills: [IT_HAS_NOT_LET_GO, TAKE_UP_THE_SLACK],
+} as const;
+
+/**
+ * The chapter's final — fielded nowhere else, the twenty-second body authored under that rule.
+ * {@link THE_HELDBACK} does not stand on it.
+ *
+ * ⚠️ **The first chapter final authored *heavier* than the one before it since chapter 13**, and the
+ * rung move is the whole reason: The Longebb's was 85/5 at level 485 and this is 460/42 thirty
+ * levels higher against a party a rung stronger. Every final from 14 to 21 came down; this one goes
+ * back up, once, and the next will start coming down again.
+ *
+ * ⚠️ **Bisected behind a *light* escort, because the first draft failed at every stat line.** At
+ * 700/62 it read 0% and its band-6 escort read **0% with no boss on the board at all** — chapter
+ * 19's signature, and the fix was the escort rather than the boss. Behind four light bodies at
+ * level 515 it grades:
+ *
+ * | stat line | reading                   |
+ * | --------- | ------------------------- |
+ * | 540 / 48  | 52% / 0.95                |
+ * | 500 / 46  | 85% / 2.30                |
+ * | 480 / 44  | 92% / 2.98                |
+ * | 460 / 42  | **100% / 3.67 / 18.5s**   |
+ * | 440 / 40  | 100% / 3.85               |
+ *
+ * At 480/44 the headline turn is worth **0.82 of a survivor** on its own — 3.80 without it against
+ * 2.98 with it — which is the chapter's own axis being the largest single thing the final does.
+ *
+ * ⚠️ **Under the Unmade on both stats**, as every chapter boss since has been — the ceiling is
+ * 1800/100 and `enemies.spec.ts` enforces it.
+ */
+export const THE_OVERSTRIKE = {
+  id: 'the-overstrike',
+  name: 'The Overstrike',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 460,
+    atk: 42,
+    def: 38,
+    haste: 68,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.24,
+    physicalResist: 0.06,
+  },
+  skills: [THE_OVERSTRIKE_FALLS, NOTHING_HELD_BACK, TAKE_UP_THE_SLACK],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -10245,4 +10559,14 @@ export const ENEMIES = [
   LOWMARK_DRIFTER,
   THE_UNDERTOW,
   THE_UNRETURNED,
+  MUSTERYARD_HAND,
+  WINDLASS_CREW,
+  PAWLSET_WRIGHT,
+  COUNTERWEIGHT_BEARER,
+  RAMHEAD_SERJEANT,
+  TRACKWAY_GANG,
+  SIGHTLINE_CLERK,
+  GANTRY_WARDEN,
+  THE_HELDBACK,
+  THE_OVERSTRIKE,
 ] as const;

@@ -416,6 +416,19 @@ with all five alive in 3.2 seconds — a walkover three chapters deep. **What mo
 the pool**, and it is one chapter away: chapter 22 closes at 515, where the whole shipped Monster
 light tail is worth ×1.86 less than a board needs.
 
+⚠️ **Chapter 22 moved the rung to `mythic-plus`, and it is the campaign's second override — the
+prediction one entry above being checked and holding.** The Downstroke closes at 515, where `mythic`
+reads 0.4418 against `mythic-plus`'s 3.7273: the log-space rule prefers staying put by 0.886 of a nat
+and the chapter overrides it. **What licenses it is the pool, exactly as chapter 21 said it would
+be** — at level 515 the **five lightest bodies in the entire game** read 0% with 0.00 survivors
+against a `mythic` five, so there is no chapter 22 on that rung at all. The move re-opens the pool
+(181 of 282 blocks land inside the ordinary-slot band, against 116 of 238 after chapter 18's move),
+ends the four-link degenerate chain, and makes The Downstroke's boards the **first authored heavier
+than the chapter below them since chapter 13**. The countdown restarts: chapter 23 reads 1.9981,
+chapter 24 1.0711, chapter 25 0.5742, so the arithmetic buys about two and a half chapters and the
+pool will run out first — **as it has both times now.** `ascended` at cap 500 is the last rung the
+campaign can spend.
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
 they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
 rungs rather than 11 until chapter 18 took the eighth. The

@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Nineteen chapters and eight hundred and
-fifty stages** — 10, 20, 30, 40 and then fifteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Twenty-two chapters and one thousand
+and thirty stages** — 10, 20, 30, 40, then fifteen of fifty and three of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -21,7 +21,10 @@ and the campaign moved a rung for the first time in seven chapters — to `mythi
 log-space rule rather than with it, because there is no chapter 18 on `legendary-plus` at all.
 Chapter 19 is **The Backcut**, which **stays** on `mythic` — the rule and the pool agree for the
 first time in eight chapters, so it is a derivation rather than an override, and the distinction is
-the point. See [authoring](authoring.md).
+the point. Chapters 20 and 21 — **The Commonage** and **The Longebb** — stay on it too and are the
+first chapters longer than fifty. Chapter 22 is **The Downstroke**, which moves the rung to
+`mythic-plus`: the campaign's **second override**, licensed because at level 515 the five lightest
+bodies in the whole game read 0% against a `mythic` five. See [authoring](authoring.md).
 
 ## The shape
 
@@ -288,6 +291,49 @@ Carrion Swarm through Driftmouth Choker — reads **1.45 to 4.00 survivors at le
 **3.75 of five unaided**. **Chapter 22 closes at 515, where the same boards are worth ×1.86 more and
 nothing shipped can stand on one** — expect `mythic-plus` on the pool while the log-space rule still
 prefers staying put.
+
+## ⚠️ Chapter 22 moves the rung to `mythic-plus`, and it is the campaign's second override
+
+The Downstroke closes at **515** — sixty stages again — and asks for **`mythic-plus`**. Against
+chapter 21's seam of 0.8241, `mythic` reads **0.4418** (|Δln| **0.6235**) and `mythic-plus`
+**3.7273** (|Δln| **1.5091**): the log-space rule prefers staying put by 0.886 of a nat, **and this
+chapter overrides it.** It is the second override the campaign has, after chapter 18, and the two
+have the same shape.
+
+⚠️ **What licenses an override is the seam _below_ being wrong, and this time it is.** Chapter 21
+landed on 0.8241 — under 1.00 — and declined to override, correctly, because its own chapter was
+still authorable out of the pool. Thirty levels later that is no longer true. Measured at level 515
+against a `mythic` five:
+
+| board                                                                 | reading       |
+| --------------------------------------------------------------------- | ------------- |
+| the **five lightest bodies in the game** (100/104/106/122/126 health) | **0% / 0.00** |
+| the five heaviest of The Quickmire's light Monsters                   | **0% / 0.00** |
+| (the same five lightest bodies at level 485)                          | 100% / 4.00   |
+
+**There is no chapter 22 on `mythic`** — not a hard one, not any. Chapter 21 predicted exactly this
+in writing and the prediction held.
+
+⚠️ **The move re-opens the pool, which is the other half of what an override buys.** Against the
+`mythic-plus` five a board at 515 reads 4.00 of five at about 9,500 common-equivalent and 0.00 at
+11,900, and **181 of the 282 blocks that preceded The Downstroke sit inside the band its ordinary
+slots use** — against 116 of 238 after chapter 18's move. Nothing in `data/` had to change, and the
+chapter's boards are the **first authored heavier than the chapter below them since chapter 13**.
+
+⚠️ **The boundary is a walkover and that is the honest consequence of a rung move.** Chapter 21's own
+final refielded at level 515 reads **100% with all five alive in 3.1 seconds** against the new party.
+Chapter 18's boundary read the same way.
+
+⚠️ **The degenerate chain ended at four links and restarts at one.** Chapters 18 through 21 all
+clamped to `mythic`'s cap of 340; `LONGEBB` and `INVESTED` are now genuinely different fives, so the
+seam assertions either side of that boundary say something for the first time since chapter 17. The
+Downstroke's last board stands **ninety-five levels** above `mythic-plus`'s cap of 420.
+
+⚠️ **Each further sixty-stage chapter on this rung divides the seam by `perLevel.common ** 30` =
+1.867**: chapter 23 reads **1.9981**, chapter 24 **1.0711**, chapter 25 **0.5742**. So the arithmetic
+buys about two and a half chapters — and `mythic` was projected to buy three and the **pool** gave one
+and a half. **Measure the pool before re-deriving the seam.** The next rung, `ascended`, caps at 500
+and is the last the campaign can spend.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

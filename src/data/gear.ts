@@ -379,13 +379,21 @@ export const GEAR_RULES = {
      * `CHAPTER_CURVE` rather than from the last chapter's length is what made it right this time;
      * chapter 22 will want **515**.
      *
+     * ⚠️ **Chapter 22 landed on it and wanted 515, exactly as predicted — the sixteenth landing, the
+     * sixteenth time the answer was `stages / 2`, and the third prediction checked a chapter in
+     * advance.** It read **20.2%** at 1,030 stages against a 20% bar. Sixteen landings on one figure
+     * with one solution is now the strongest evidence in the project that the **shape** is wrong
+     * rather than the number: what this dial wants is a saturating tilt, and a session that has the
+     * appetite should write one rather than re-deriving `stages / 2` a seventeenth time. Chapter 23
+     * will want **545**.
+     *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
      * their way through the stage-7 lock is untouched — that test fields grade 0 at level 1
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 485,
+    gradeSoftness: 515,
   },
 
   /**

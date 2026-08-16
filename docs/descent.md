@@ -435,8 +435,10 @@ the **identical board** while the party at each is bisected against its own chap
 deeper depth is therefore at least as strong against the same boards, by construction.
 
 ⚠️ **Chapter 20 added the sixth and chapter 21 the seventh, both on schedule.** Depth 910 failed at
-**5.00 of five** the day The Commonage shipped and depth **970** the day The Longebb did, both for
-exactly the stated reason: `anchorCap` holds the board at 316, so depths 850, 910 and 970 now field
+**5.00 of five** the day The Commonage shipped, depth **970** the day The Longebb did and depth
+**1,030** the day The Downstroke did — the last of those also crossing a **rung**, because chapter 22
+moved the campaign to `mythic-plus` and the party a depth implies gains a whole ×1.6 at once. All for
+exactly the stated reason: `anchorCap` holds the board at 316, so depths 850, 910, 970 and 1,030 field
 the **same board** against three parties bisected against three progressively lighter chapter finals.
 **Four consecutive chapters have each added one entry and the schedule has not slipped once** — this
 is arithmetic rather than a forecast.

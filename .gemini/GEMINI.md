@@ -74,18 +74,20 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twenty-one chapters, nine hundred and seventy
+- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twenty-two chapters, one thousand and thirty
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
-  were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven
-  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapters 19, 20 and 21 all
-  stayed on it, and that a stay is a derivation rather than an override is the point**: what licenses
-  an override is the seam _below_ being wrong (0.9608, under 1.00), never the margin being large and
-  never this chapter's own seam being small. The chain is **four links** deep.
-  ⚠️ **What actually binds is the pool rather than the seam, and chapter 20 is where they came
-  apart**: the arithmetic said three chapters and the enemy pool gave about one and a half. **Measure
-  the pool before re-deriving the seam.** ⚠️ **Chapter 21 is the half, and it is the first chapter
-  whose own seam is under 1.00 on `mythic` (0.8241)** — its closing band sits at the floor of what
-  the pool can field, and chapter 22 closes at 515 where nothing shipped can stand on a board.
+  were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic` and chapter 22 moved it to
+  `mythic-plus`; both are overrides against the log-space rule, and they are the only two the
+  campaign has.** Chapters 19, 20 and 21 all _stayed_ on `mythic`, and that a stay is a derivation
+  rather than an override is the point: what licenses an override is the seam _below_ being wrong
+  (under 1.00) **and** the pool being unable to supply a board — never the margin being large and
+  never this chapter's own seam being small. ⚠️ **Chapter 21's own seam was 0.8241, under 1.00, and
+  it still did not license an override, because its chapter was authorable.** Chapter 22's is
+  licensed because it is not: at level 515 the **five lightest bodies in the game read 0% against a
+  `mythic` five**. ⚠️ **What binds is the pool rather than the seam**, and the arithmetic has now been
+  right and early twice — `mythic` was projected to buy three chapters and bought one and a half.
+  **Measure the pool before re-deriving the seam.** The degenerate chain reached four links on
+  `mythic` and restarts at one on `mythic-plus`.
 - ⚠️ **A chapter is fifty stages up to chapter 19 and sixty from chapter 20, and the cap is a
   _schedule_ rather than a constant** — `CHAPTER_CURVE.raisedMaxFromChapter` / `raisedMaxStages`, so
   the length stays derived and `chapters.spec.ts` still holds every chapter equal to `chapterSize`.
@@ -411,6 +413,39 @@ Asserted in `core/battle/simulate.spec.ts`.
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](../docs/authoring.md)
+- ⚠️ **A wide skill is capped at power 1.2 and a mechanic priced on one that is not is a mechanic
+  nobody may author.** `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to
+  1.2; single-target turns are uncapped. Chapter 22 priced its whole premise on `enemy-row-front` at
+  power 1.55 to 3.10 and **every row described a skill the game refuses** — the cap caught it, not
+  the sweep, and re-measuring on the legal single-target form roughly halved the axis (0.09 / 0.43 /
+  0.83 / 1.72 across power 1.20 / 1.90 / 2.60 / 3.60). **Check what a target is allowed to carry
+  before pricing a mechanic on it.** [authoring](../docs/authoring.md)
+- ⚠️ **The size of one instance of damage is a _dial_ where almost everything else at depth is a
+  cliff, and that is what a six-band chapter needs** — but only as a **skill**. Traded on a single
+  body's `atk` against its `haste` at held damage per second it is **non-monotone**: 3.08 / 2.39 /
+  2.20 / **2.91** / 2.55 / **3.01** across ×1.0 to ×4.0 at 160 trials, because past about ×2.5 the
+  body's period exceeds the fight and the second swing never lands. **Nominal damage per second stops
+  describing a body once its cooldown is longer than the battle.** Board-wide the same trade is a
+  dial to ×1.45 and then a cliff. [authoring](../docs/authoring.md)
+- ⚠️ **The aim rule holds on a plain damage scope, and the first measurement of it was confounded.**
+  The same escort body casting `enemy-all` at the wide cap is worth **0.07 of a survivor from the
+  front rank and 0.42–0.64 from the back**. ⚠️ **A rank comparison must be carried on one body** —
+  chapter 22's first table put the anchor in front and an escort behind and read the reverse. ⚠️ **And
+  chapter 16's "put a board-wide caster where it can be killed" does not generalise from a debuff to
+  damage**: that rule answers an unreachable status that never lapses (4.00 against 0.10), where a
+  damage scope bills once and depletes. **Take the measurement, not the precedent.**
+  [authoring](../docs/authoring.md)
+- ⚠️ **A returning block's _kit_ can invert its stat line, and weight will not warn you.** Chapter
+  22's `c22-s58` read **8% with 0.10 survivors** with the Order Serjeant at 1,706 common-equivalent in
+  an escort slot and **4.00** with the Edgeturn Warden at 2,247 — a board 5% heavier being the easy
+  one, because the lighter body carries a board-wide `RALLY` that is a total wipe at that weight. The
+  same block is affordable three bands earlier. **Read what a returning block does, not only what it
+  weighs.** [authoring](../docs/authoring.md)
+- ⚠️ **A refusal can be a _joint_ condition on two stats, and stating only one of them ships a false
+  claim.** Chapter 22 refuses fast bodies — but every board it lost in tuning lost to one that was
+  fast **and** over 1,600 common-equivalent, while six blocks at haste 96–114 at or under 560 are fielded
+  freely. Its header states the measurement (median `haste` 72 across 300 slots; everything above 92
+  at or under 560) rather than the threshold it means. [authoring](../docs/authoring.md)
 - ⚠️ **A status's price is a function of the board under it, and chapter 21 measured four inversions
   at once.** Against a control of 847 common-equivalent at level 485 reading 3.25 of five — roughly a
   third of chapter 20's weight — `CHAINBOND` on `ally-all` is worth **0.00** where chapter 20 read

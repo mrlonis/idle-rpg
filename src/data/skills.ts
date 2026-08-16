@@ -7558,6 +7558,173 @@ export const KEEP_NOTHING = {
   priority: 2,
 } as const;
 
+// --- Chapter 22, The Downstroke -------------------------------------------------------------
+//
+// The chapter's axis is the **size of one instance of damage**, held against the rate it arrives
+// at. Every turn below is deliberately slower and heavier than its band would otherwise carry, and
+// the stat blocks in `enemies.ts` do the same thing with `haste` and `atk`. See `chapter-22.ts`
+// for the measured grade; the short form is that this axis is a **dial** where almost everything
+// else at this weight is a cliff.
+
+/**
+ * Band 1's plain turn: the ordinary blow, already too big and too slow for the band it is in.
+ *
+ * Nothing clever — it is here so the party meets the chapter's habit before it meets the chapter's
+ * mechanic.
+ */
+export const LONG_HAUL = {
+  id: 'long-haul',
+  name: 'Long Haul',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/**
+ * Band 2's carrier, and the first turn in the chapter that is worth measuring on its own.
+ *
+ * ⚠️ **It is a single-target turn because the wide targets are capped at power 1.2**, and that cap
+ * is the whole reason this chapter's axis is shaped the way it is: `enemy-all`, `enemy-row-front`
+ * and `enemy-row-back` may not carry a big blow at all, so "bigger and rarer" has to be aimed.
+ * `skills.spec.ts` holds the cap; a first draft of this chapter measured the axis on
+ * `enemy-row-front` at power 1.55 to 3.10 and every one of those rows describes a skill the game
+ * will not let anybody author.
+ *
+ * Priced against chapter 22's control — an anchor of 3,200/295 behind four bodies of 1,800/250 at
+ * level 515, 10,400 common-equivalent, reading 3.08 of five — this shape on **one** front carrier
+ * grades **0.09 / 0.14 / 0.43 / 0.60 / 0.83 / 0.86 / 1.72** of a survivor at power 1.20 / 1.55 /
+ * 1.90 / 2.20 / 2.60 / 3.10 / 3.60 against cooldowns 25 / 35 / 42 / 50 / 60 / 70 / 80. **Monotone,
+ * with zero timeouts on every row**, which is what a six-band chapter needs and what nothing else
+ * at this weight offers.
+ */
+export const THE_CORD_DRAWS = {
+  id: 'the-cord-draws',
+  name: 'The Cord Draws',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 42,
+  priority: 3,
+} as const;
+
+/**
+ * Band 3's step: the same turn again, bigger and rarer by the same amount.
+ *
+ * Worth **0.83** of a survivor at chapter 22's control against {@link THE_CORD_DRAWS}'s 0.43 — one
+ * step up a grade that runs 0.09 to 1.72 across the whole range of instance size.
+ */
+export const FULL_WEIGHT = {
+  id: 'full-weight',
+  name: 'Full Weight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * Band 5: the blow acquires a **reach**, which is the axis moving rather than growing.
+ *
+ * `enemy-back` rather than `enemy-row-back` — it falls through to the front once the back is empty,
+ * so it never has an empty selection.
+ */
+export const OVER_THE_LINE = {
+  id: 'over-the-line',
+  name: 'Over The Line',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Band 6: the blow on the **scope**, and the chapter's most expensive shape.
+ *
+ * ⚠️ **A damage scope prices where the party cannot reach it, which is the aim rule arriving on a
+ * damage turn rather than on a debuff.** Measured with the *same* body carrying it in each rank at
+ * the wide cap of 1.2, it is worth **0.07 of a survivor from the front rank** and **0.42 to 0.64
+ * from the back** across cooldowns 70, 60 and 50. Chapter 16 measured that shape on a `WEAKEN` and
+ * chapter 19 on a reflect with the opposite sign; this is the first time it has been measured on
+ * plain damage, and it behaves like the debuff.
+ *
+ * ⚠️ **So this one is carried from the *back* rank, which is the opposite of what chapter 16's rule
+ * prescribes, and the difference is that a scope worth 0.07 is not a lock.** What chapter 16 forbids
+ * is an unreachable body applying a status that never lapses — it measured 4.00 against 0.10, a
+ * fortyfold swing, and the board was unanswerable. This is damage: it bills once and depletes
+ * nothing, the party can still reach the caster once the front rank falls, and the gap is 0.07
+ * against 0.64. **Take the measurement, not the precedent.**
+ *
+ * ⚠️ **The first draft of this measurement was confounded and read the reverse**, because the front
+ * arm happened to be carried by the board's anchor and the back arm by an escort — two variables,
+ * one row. **Carry a rank comparison on one body.**
+ */
+export const EVERYTHING_AT_ONCE = {
+  id: 'everything-at-once',
+  name: 'Everything At Once',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * It holds everything until it has been hurt, which is the block's whole fiction and what makes its
+ * four appearances four different fights: on the boards where the party kills it quickly the turn
+ * never comes, and on the boards where it does not, it arrives all at once.
+ *
+ * ⚠️ **A wound *condition* on a damage turn is not the forbidden wound-response.** What
+ * `docs/authoring.md` bars is a body that **armours itself** as it is hurt — the ninety-second clock
+ * with a narrative attached. This one spends rather than banks, and every fight it appears in still
+ * ends in a death.
+ */
+export const IT_HAS_NOT_LET_GO = {
+  id: 'it-has-not-let-go',
+  name: 'It Has Not Let Go',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  cooldown: 58,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has while it is still whole, and the reason its early boards are not free. */
+export const TAKE_UP_THE_SLACK = {
+  id: 'take-up-the-slack',
+  name: 'Take Up The Slack',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, by the only body on the
+ * board that can ask it.
+ *
+ * The scope is what makes it the chapter's peak rather than a bigger version of band 5, and the
+ * board underneath it is authored light for exactly that reason.
+ */
+export const THE_OVERSTRIKE_FALLS = {
+  id: 'the-overstrike-falls',
+  name: 'The Overstrike Falls',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/** The final's plain turn. It has been drawing back for the whole chapter; this is the rest of it. */
+export const NOTHING_HELD_BACK = {
+  id: 'nothing-held-back',
+  name: 'Nothing Held Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 52,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -7940,4 +8107,13 @@ export const SKILLS = [
   IT_WAS_WORTH_MORE_THIS_MORNING,
   THE_LAST_OF_THE_WATER,
   KEEP_NOTHING,
+  LONG_HAUL,
+  THE_CORD_DRAWS,
+  FULL_WEIGHT,
+  OVER_THE_LINE,
+  EVERYTHING_AT_ONCE,
+  IT_HAS_NOT_LET_GO,
+  TAKE_UP_THE_SLACK,
+  THE_OVERSTRIKE_FALLS,
+  NOTHING_HELD_BACK,
 ] as const;

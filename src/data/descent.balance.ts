@@ -236,6 +236,15 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * **same board** against three parties bisected against three progressively lighter chapter finals.
  * **The list is a schedule and the schedule has not slipped once.**
  *
+ * ## ⚠️ Chapter 22 added the eighth, on schedule, for the fifth consecutive chapter
+ *
+ * `chapterEnd(22)` — depth **1,030** — failed the moment The Downstroke shipped, for the identical
+ * reason a fifth time. ⚠️ **This one also crosses a *rung*, which is the sawtooth and the schedule
+ * arriving together**: chapter 22 moved the campaign to `mythic-plus`, so the party this depth
+ * implies gains a whole ×1.6 at once while {@link DescentLevelData.anchorCap} holds its board at
+ * **316** exactly as it has since chapter 13. Depths 850, 910, 970 and 1,030 now field the **same
+ * board**. **Five consecutive chapters, five entries; the schedule has not slipped once.**
+ *
  * ⚠️ **That growth is the argument for the repair, not for a different guard, and a session should
  * resist two tempting edits.** Deriving the tail of this list — "every depth the cap clamps" — would
  * be true today and would silently absorb a depth that becomes a walkover for some *other* reason,
@@ -253,6 +262,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(19),
   chapterEnd(20),
   chapterEnd(21),
+  chapterEnd(22),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */
