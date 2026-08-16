@@ -12,6 +12,26 @@ Companion references: [attributes](attributes.md) for the stat block gear multip
 
 ---
 
+## ⚠️ The ladder is exhausted and chapter 17 is the first chapter that could not step it
+
+Chapter 16 closed on **Relic 100**, the top of the whole grade ladder. There is no grade 5 and no
+Relic 101, so **The Quickmire carries grade 4 / level 100 on all fifty of its boards, flat**. That
+is recorded as a finding rather than answered as scope, and the reason it costs nothing is that the
+axis has now been measured four times and never as difficulty:
+
+| measured                                    | worth                              |
+| ------------------------------------------- | ---------------------------------- |
+| chapter 12 — a full Worn set                | +8.6% to +17.6% on one stat        |
+| chapter 12 — what escalation actually needs | **×3**                             |
+| chapter 13 — one whole grade step           | ×1.15                              |
+| chapter 16 — the whole Relic 59 → 100 ramp  | **0.08 of a survivor**, +25% fight |
+| chapter 17 — the same ramp at its weight    | **0.05 of a survivor**             |
+
+⚠️ **A sixth grade is a `data/` rule change rather than a chapter**, and a grade sized to carry the
+campaign's escalation would have to be roughly an order of magnitude larger than the five shipped
+ones — which is a retune of the drop table, the shop, the enhancement curve and every figure in this
+file, not an extra row in `GEAR_GRADES`. **Do not add one as part of authoring a chapter.**
+
 ## The one rule everything else follows from
 
 ⚠️ **Every gear bonus is a percentage, never a flat quantity.**

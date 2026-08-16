@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Sixteen chapters and seven hundred
-stages** — 10, 20, 30, 40 and then twelve of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Seventeen chapters and seven hundred
+and fifty stages** — 10, 20, 30, 40 and then thirteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -13,7 +13,10 @@ gear, but from a rarity cap the ladder has now climbed past. Chapter 15 is **The
 priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. Chapter
 16 is **The Spoilfield**, where the same arithmetic drove the board budget **through the floor of the
 shipped enemy pool** — its blocks are roughly two fifths of chapter 15's, its final is 250/24, and it
-is the last chapter that can step the gear ladder. See [authoring](authoring.md).
+is the last chapter that can step the gear ladder. Chapter 17 is **The Quickmire**, the first chapter
+whose gear does not ramp at all (Relic 100 on every board), the first that had to be **57.7% new
+blocks** because the pool cannot supply a returning majority at its weight, and the first whose seam
+ratio falls **below 1.00**. See [authoring](authoring.md).
 
 ## The shape
 
@@ -33,7 +36,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone, The Unnumbered and The Inheritor. A re-cut that moves a boundary owes the new final a unique body before it ships.
+Doorstone, The Unnumbered, The Inheritor and The Latecomer. A re-cut that moves a boundary owes the
+new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -140,6 +144,18 @@ the rung it paid for is level with the next chapter rather than behind it, which
 has no difficulty gradient of its own and why the escalation is expected to arrive from enemy gear
 instead. [authoring](authoring.md) records the three guards widened to hold that trade in view and
 the condition that restores each.
+
+⚠️ **Chapter 17 makes it seven on one rung, and the seam has gone below 1.00 for the first time.**
+The Quickmire closes at 375, **a hundred and fifteen levels** above the cap: `legendary-plus` reads
+**0.9608** (|Δln| 0.5196 — the same figure again, because the factor is constant) against `mythic`'s
+8.1062 (1.6130). The six most recent seams run **10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154 →
+0.9608**. ⚠️ **Below 1.00 means the content at the top of the ladder is nominally ahead of the party
+it is tuned for**, and nothing the party gains changes that — what keeps the chapter winnable is that
+its boards are half the weight of the one below. A chapter 18 on this rung reads **0.5718**.
+
+⚠️ **The seam chain is now degenerate four links deep**: chapters 13 through 17 all clamp to 260, so
+`QUARRIED`, `SHUTGATED`, `UNDERROAD`, `SPOILED` and `INVESTED` are **five consecutive names for one
+set of five combatants**. Recorded rather than repaired, for the fourth chapter running.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

@@ -6596,6 +6596,233 @@ export const EVERYTHING_YOU_LEFT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 17 — The Quickmire. Turns, and how few of them the party gets.
+//
+// ⚠️ **The whole band vocabulary was priced against one calibrated control** — an anchor of
+// 230/18 behind four bodies of 110/20 at enemy level 375 and Relic 100, totalling 1,131
+// common-equivalent and reading **3.83 of five**. The control **moves**: 4.00 at 931, 3.77 at
+// 1,131, 2.70 at 1,231, 0.65 at 1,331 and 0.00 at 1,431. Every figure below is against that row
+// and means nothing without it.
+//
+// | shape                                          | survivors | worth    |
+// | ---------------------------------------------- | --------- | -------- |
+// | control                                        | 3.83      | —        |
+// | {@link STUN} on a **selection** (`enemy-highest`), ×1 | 3.85 | **0.00** |
+// | the same, ×2 casters                           | 3.88      | **0.00** |
+// | board `haste` 100                              | 3.80      | 0.03     |
+// | an `opening` turn dealing `enemy-all` damage   | 3.48      | 0.35     |
+// | {@link SLOW} on `enemy-front` + damage, ×2     | 3.00      | 0.83     |
+// | {@link SLOW} on `enemy-all`, caster in the **front** rank | 2.00 | 1.83 |
+// | board `haste` 118                              | 1.88      | 1.95     |
+// | {@link HASTE} on `ally-all`, one caster        | 1.45      | 2.38     |
+// | {@link SLOW} on `enemy-all`, caster in the **back** rank | 1.43 | 2.40 |
+// | {@link STUN} on a **scope** (`enemy-all`), cd 75 | 1.23    | **2.60** |
+// | board `haste` 130                              | 0.42      | 3.41     |
+// | board `haste` 144 or 152                       | 0.00      | 3.83     |
+//
+// ⚠️ **Zero timeouts on every row**, longest fight 54.7 seconds against a ninety-second timer.
+//
+// Four findings the chapter is built on:
+//
+// 1. ⚠️ **A `STUN` on a selection is worth nothing and the same status on a scope is worth
+//    2.60.** Not a difference of degree — one caster and two casters both read 0.00. A *scope*
+//    (`enemy-all`), a *reach* (`enemy-back`) and a *selection* (`enemy-highest`) are three
+//    different things and the Angel Tower's roof shipped a false claim conflating them. **This
+//    chapter authors no stun on a selection anywhere**, because it measured as an empty square.
+// 2. ⚠️ **`SLOW` on `enemy-all` is worth 2.40 from the back rank and 1.83 from the front.** That
+//    is the sustain-behind-a-taunt failure wearing a debuff, the same shape chapter 16 measured
+//    at 3.90 on a `WEAKEN`. **Every board-wide slow in this chapter stands in the front rank**,
+//    where the party can aim at it.
+// 3. ⚠️ **The party carries zero `tenacity` and zero `dodge` across all five**, which is what
+//    licenses a status-led band at all — the same test the Elf Tower's `critChance` hundred
+//    passed and the Demon Tower's magic ward failed.
+// 4. ⚠️ **Haste is a cliff rather than a slope, and this chapter builds *below* its register.**
+//    See {@link RUN_THEM_DOWN} and the header of `chapter-17.ts`.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They do not chase you. They are simply already there.
+ *
+ * The opening band's plain turn, and the block it sits on is the chapter's whole thesis in one
+ * line: nothing here is a wall, everything here has already moved.
+ *
+ * ⚠️ **Named as the anchor for the haste finding.** The shipped `haste` register runs to a ceiling
+ * of **152** (the Sky-Shrike) over a median of **98**, and a session reading that register would
+ * reasonably build a tempo band at the top of it. Measured, that is unsurvivable: at the control's
+ * weight a board-wide `haste` of 144 reads **0.00 of five** and 130 reads 0.42, where 118 reads
+ * 1.88 and 100 reads 3.80. **The chapter's seventeen new blocks therefore run 106 to 126 and stop —
+ * below the register, deliberately, and stated here in writing** so a later session can see which
+ * of the two shapes it is looking at. ⚠️ **That is a claim about the new blocks and not about the
+ * chapter's boards**, which also field the returning Wisp at 148 and Slime at 78: what a *board*
+ * may not do is carry the top of that range across all five slots at once. Stated as the range
+ * measured rather than as the threshold meant — a claim phrased the other way has shipped false
+ * four times in this project. That is the opposite of the Monster Tower's `physicalResist` band, which had to
+ * step *past* its register to be worth anything, and it is the third distinct answer the register
+ * check has produced.
+ */
+export const RUN_THEM_DOWN = {
+  id: 'run-them-down',
+  name: 'Run Them Down',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * The pack does not decide to go. It notices that it has gone.
+ *
+ * The second band's turn and the chapter's first real lock: {@link HASTE} across the board, worth
+ * **2.38 of five** against the control — the largest single mechanic in the chapter that is not
+ * the final's. A board that buys its own tempo is asking the party's damage to arrive sooner than
+ * it can, which is the question the whole chapter is about.
+ *
+ * ⚠️ **On a fifty-five tick cadence against the status's own forty-five**, so a fifth of every
+ * cycle is a window in which the board is only what its stat blocks say — the same courtesy
+ * {@link LOAD_THE_CART} and {@link DRESS_THE_RANKS} extend, and for the same reason: a board-wide
+ * buff with no window is a wall rather than a rhythm.
+ */
+export const THE_PACK_TURNS = {
+  id: 'the-pack-turns',
+  name: 'The Pack Turns',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The ground gives, and then it holds, and the holding is the part that costs you.
+ *
+ * The third band's signature: {@link SLOW} across the party from a body standing in the **front
+ * rank**. Worth **1.83 of five** there against **2.40** from the back — and the difference is the
+ * whole reason the placement is a rule rather than a preference. A board-wide debuffer the party
+ * cannot select is the sustain-behind-a-taunt failure with a different stat on it: the status
+ * never lapses in practice, because nothing can reach the thing reapplying it.
+ *
+ * ⚠️ **Every carrier of this skill in chapter 17 stands in the front rank, on every board.**
+ */
+export const THE_MIRE_TAKES_A_STEP = {
+  id: 'the-mire-takes-a-step',
+  name: 'The Mire Takes a Step',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 55,
+  priority: 5,
+} as const;
+
+/**
+ * One blow, arriving before the blow you were answering.
+ *
+ * The fourth band's turn: a single large instance rather than a wide one. The Angel Tower's third
+ * hundred established that **the size of one instance of damage is an escalation axis in its own
+ * right** against a crew that heals on a cooldown — hold damage per second constant and make each
+ * blow bigger and rarer, and a choir that can out-heal a river cannot out-heal a hammer. This is
+ * that finding fielded on a campaign board, at ×1.5 into the front rank on a forty-tick cadence.
+ */
+export const AHEAD_OF_THE_ANSWER = {
+  id: 'ahead-of-the-answer',
+  name: 'Ahead of the Answer',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * It is counting how long you have been standing there.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn**, which is the
+ * ninth chapter running to take that shape. It switches off at **five** standing — so it is true
+ * for exactly as long as the party is whole and gone the moment it is not, which makes the block
+ * **smaller as the fight turns rather than larger**. The opposite direction is the one shape
+ * nobody may author.
+ *
+ * ⚠️ **Five is a tighter threshold than either shipped one** — chapter 14's three, chapter 15's
+ * five and chapter 16's four — and it is the tightest the vocabulary allows, because what it gates
+ * is a board-wide {@link SLOW} rather than a damage turn. Measured on the final's board at 960
+ * common-equivalent, the same scope stun reads **1.45 of five** conditioned this way against
+ * **0.93** conditioned at four: the tighter gate is worth half a survivor back to the party.
+ */
+export const STILL_COUNTING = {
+  id: 'still-counting',
+  name: 'Still Counting',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 5,
+} as const;
+
+/**
+ * Four of them move at once and none of them was the one you were watching.
+ *
+ * The lieutenant's second turn, at ×1.0 across five — the same figure {@link EVERYTHING_YOU_LEFT}
+ * and {@link THERE_IS_NO_END_TO_IT} take, and under the ×1.2 wide ceiling `data/skills.spec.ts`
+ * holds.
+ */
+export const NONE_OF_THEM_THE_ONE = {
+  id: 'none-of-them-the-one',
+  name: 'None of Them the One',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 65,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter final's turn, and the **only** board-wide {@link STUN} in the chapter.
+ *
+ * ⚠️ **A scope stun is worth 2.60 of five and a selection stun is worth 0.00.** That measurement
+ * is why this exists at all and why nothing else in the chapter carries one: the cheap version of
+ * the idea is an empty square, and the expensive version is large enough that a chapter may spend
+ * it exactly once. The Spoilfield spent its one board-wide {@link RALLY} the same way, on its
+ * final, for the same reason.
+ *
+ * ⚠️ **Conditioned on the party still being whole**, so it lapses at the party's first loss. On a
+ * board of the final's shape at 960 common-equivalent the readings are **3.15 of five with no stun
+ * at all**, **1.45** conditioned this way and **0.93** conditioned at four standing — so the gate is
+ * worth a real half survivor and the mechanic is worth 1.70 rather than the control's 2.60. The
+ * board is priced **against** this turn rather than around it: `c17-s50` totals **763**
+ * common-equivalent, the lightest board in the campaign, where `c17-s31` twenty stages above it
+ * carries 1,106.
+ *
+ * ⚠️ **Its board may not also carry the board-wide {@link HASTE}.** The final first stood behind a
+ * {@link THE_PACK_TURNS} caster and read 78%; the two board-wide turns together are the chapter's
+ * most expensive shape and no board in it carries both.
+ *
+ * ⚠️ **Seventy-five ticks against a status duration of sixteen.** A stun is deliberately the
+ * shortest status in the game — it costs its victim the turn it had already earned rather than
+ * removing it — so a fight can never deadlock behind one, and this cadence leaves four fifths of
+ * every cycle clear. The measured fight is **13.9 seconds, longest 15.0, with zero timeouts.**
+ */
+export const NOT_YOUR_TURN = {
+  id: 'not-your-turn',
+  name: 'Not Your Turn',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: STUN }],
+  cooldown: 75,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 6,
+} as const;
+
+/**
+ * It was never going to be a fair race and it is not pretending otherwise.
+ *
+ * The final's damage turn. Single-target into whatever is furthest along, which is a **selection**
+ * rather than a scope or a reach — said explicitly, because four sessions running have shipped a
+ * claim that ran the three together.
+ */
+export const THE_RACE_WAS_DECIDED = {
+  id: 'the-race-was-decided',
+  name: 'The Race Was Decided',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 45,
+  priority: 5,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -6923,4 +7150,12 @@ export const SKILLS = [
   WRITTEN_DOWN_BESIDE_IT,
   COUNT_IT_ALL_AGAIN,
   EVERYTHING_YOU_LEFT,
+  RUN_THEM_DOWN,
+  THE_PACK_TURNS,
+  THE_MIRE_TAKES_A_STEP,
+  AHEAD_OF_THE_ANSWER,
+  STILL_COUNTING,
+  NONE_OF_THEM_THE_ONE,
+  NOT_YOUR_TURN,
+  THE_RACE_WAS_DECIDED,
 ] as const;

@@ -129,6 +129,7 @@ export { GEAR_GRADES, GEAR_PROFILES, GEAR_RULES } from './gear';
 export { KIT_RULES } from './kits';
 export { GROWTH, LEVEL_CURVE } from './levels';
 export { SKILLS } from './skills';
+export { CHAPTER_17 } from './chapter-17';
 export { CHAPTER_1 } from './chapter-1';
 export { CHAPTER_2 } from './chapter-2';
 export { CHAPTER_3 } from './chapter-3';

@@ -74,25 +74,28 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: sixteen chapters, seven hundred stages,
-  what a stage authors, position versus clear count, the rung cadence, and the guards that were
-  retired.
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: seventeen chapters, seven hundred and fifty
+  stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
+  were retired.
 - **[docs/ascension.md](docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](docs/level-resonance.md)** — the level the whole roster shares. **Read
   it before writing anything that reads a character's level.**
 - **[docs/gear.md](docs/gear.md)** — the third progression axis: five slots, five archetypes, a
   five-rung grade ladder, and the hourly gear shop. ⚠️ **Enemy gear is texture, not escalation** —
-  measured three times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
-  would need; chapter 16's whole Relic ramp measured **0.08 of a survivor**. Read it before planning a
-  chapter's difficulty around it. ⚠️ **The grade ladder is now exhausted**: chapter 16 closed on Relic
-  100 and there is no sixth grade, so chapter 17 cannot step this axis at all. ⚠️ **The campaign's
-  gradient came back from a rarity cap instead**: chapters 11 through 16 all sit on `legendary-plus`,
-  whose cap of 260 the ladder passed at chapter 12, so a chapter now closes tens of levels above the
-  party it is tuned for and the seam ratio falls by exactly `perLevel.common ** -25` = **1.680 a
-  chapter, by construction** — 10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154. ⚠️ **That has driven the
-  board budget below the shipped enemy pool's floor**: chapter 16's boards are ×0.4 of chapter 15's,
-  and a seventeenth chapter on this rung cannot be authored out of the pool. See
+  measured four times, at three grades, and a whole grade step is worth about ×1.15 against the ×3 it
+  would need; chapter 16's whole Relic ramp measured **0.08 of a survivor** and chapter 17's the same
+  ramp **0.05**. Read it before planning a chapter's difficulty around it. ⚠️ **The grade ladder is
+  exhausted and chapter 17 is the first chapter that could not step it** — every board in The
+  Quickmire carries Relic 100 flat, and a sixth grade is a `data/` rule change rather than a chapter.
+  ⚠️ **The campaign's gradient came back from a rarity cap instead**: chapters 11 through 17 all sit
+  on `legendary-plus`, whose cap of 260 the ladder passed at chapter 12, so a chapter now closes tens
+  of levels above the party it is tuned for and the seam ratio falls by exactly
+  `perLevel.common ** -25` = **1.680 a chapter, by construction** — 10.4858 → 7.6774 → 4.5665 →
+  2.7160 → 1.6154 → **0.9608**, which is the first below 1.00. ⚠️ **That has driven the board budget
+  below the shipped enemy pool's floor**: chapter 17's boards are half of chapter 16's, only **13** of
+  the 221 blocks that preceded it are light enough to field at all, and it had to be authored **57.7%
+  new**. Budget ~15 new ordinary blocks for the next chapter, not 8. See
   [authoring](docs/authoring.md).
 - **[docs/signature-items.md](docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
@@ -334,6 +337,29 @@ Asserted in `core/battle/simulate.spec.ts`.
   `RALLY`-on-`ally-all` body on the same board, worth more than the anchor's whole stat line at that
   budget, and removing it took the board to 100%. **Check the control can move before concluding
   anything.**
+- ⚠️ **A scope, a reach and a selection are three different things, and the gap between the first
+  and the third can be the whole mechanic.** Measured at chapter 17's weight, a `STUN` on
+  `enemy-highest` is worth **0.00** survivors at one caster _and_ at two, while the identical status
+  on `enemy-all` is worth **2.60**. Author the scope or do not author the mechanic — and say which of
+  the three a prose claim is about, because conflating them has shipped a false claim four times.
+  [authoring](docs/authoring.md)
+- ⚠️ **A stat can work only _below_ its shipped register, which is the sixth answer the register
+  check has given.** `haste` ships at a ceiling of 152 over a median of 98, and a board-wide 144
+  reads **0.00 of five** at chapter 17's weight where 100 reads 3.80 — the opposite of the Monster
+  Tower's `physicalResist`, which had to step past its register. **State which side of the register a
+  band landed on, and scope the claim to what was measured**: The Quickmire's new blocks run 106–126
+  while its boards reach 148 on a returning body. [towers](docs/towers.md)
+- ⚠️ **One board-wide turn per board.** Two is the most expensive shape available and it is easy to
+  author by accident: chapter 17 paired two `SLOW` casters on one board and read 48%, and paired a
+  `SLOW` or a `STUN` with a board-wide `HASTE` on two more and read 30% and 78%.
+- ⚠️ **A synthetic control tells you a mechanic's price and nothing about a board.** Chapter 17 tuned
+  fourteen sampled boards against generic stat blocks, all reading well, and the authored chapter
+  then failed **22 of 50** on the real sweep — a block's kit and its escort are part of its weight and
+  a stand-in has neither. **Measure every authored board before believing the chapter.**
+- ⚠️ **Field all four of a lieutenant's appearances before settling its stat line.** An `ascended`
+  block climbs at 1.024 against a party frozen at its rung's cap, so a recurring anchor correct on its
+  first board is unwinnable on its fourth: chapter 17's graded **4.00 → 3.55 → 1.73 → fail** before it
+  came down from 265/21 to 142/15.
 - **Every archetype must be fielded somewhere**, and "somewhere" is every ladder rather than the
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the

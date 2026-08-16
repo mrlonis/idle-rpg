@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 16 chapters, 700 stages, enemy levels 1–350 |
+| Campaign         | 17 chapters, 750 stages, enemy levels 1–375 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 221                                         |
+| Enemy archetypes | 238                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -60,6 +60,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 14      | 275   | 300    | 25   |
 | 15      | 300   | 325    | 25   |
 | 16      | 325   | 350    | 25   |
+| 17      | 350   | 375    | 25   |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -155,6 +156,82 @@ last three factors are all exactly 0.595. The rate is now measured three times r
 5. ⚠️ **Raw health is now badly misleading and gets worse every chapter.** At level 350 an `ascended`
    block is worth **×2.784** of a `common` one and **×1.668** of a `legendary` one, up from ×2.587 and
    ×1.608 at chapter 15's close. The Inheritor's 250/24 is **696/67** in common-equivalent terms.
+
+### ⚠️ Chapter 17 is where the pool stopped being able to supply a returning majority
+
+The Quickmire closes at **375** against the same cap of 260 — **a hundred and fifteen levels**,
+×10.91 — and its seam reads **0.9608**. The six most recent are **10.4858 → 7.6774 → 4.5665 →
+2.7160 → 1.6154 → 0.9608**, and the last four factors are all exactly 0.595. The rate is now
+measured four times.
+
+1. ⚠️ **The seam has fallen below 1.00 and that is a threshold worth naming.** The top of the ladder
+   is nominally _ahead_ of the party it is tuned for. Nothing the party gains fixes it — what keeps
+   the chapter winnable is entirely that its boards are half the weight of the one below. A chapter
+   18 on this rung reads **0.5718**.
+2. ⚠️ **Chapter 16 predicted "a seventeenth chapter on this rung cannot be authored out of the pool"
+   and it was right about the pool and wrong about the chapter.** It can be authored — by writing
+   most of it. Of the **221** blocks that existed before The Quickmire, exactly **13** sit at or
+   under 400 common-equivalent at level 375 and **5** at or under 250; the chapter fields **11** of
+   those thirteen and authors **17** new ones. **The 25% rule inverts here: the chapter is 57.7%
+   new, and not by choice.** The quota is a floor, so nothing is violated — but a session planning
+   the next chapter should budget for ~15 new ordinary blocks rather than 8, because twenty-four
+   light-enough returning blocks do not exist and no arrangement of the shipped pool produces them.
+3. ⚠️ **The returning blocks thin monotonically across the bands and reach zero.** 11, 7, 4, 2 and
+   **0** distinct across the five bands — the same shape The Spoilfield's non-lean texture took, one
+   chapter further along, and the closing band is now the first in the campaign that fields nothing
+   shipped at all.
+4. ⚠️ **The gear ladder is exhausted and this is the first chapter that could not step it.** Every
+   board carries Relic 100, flat. That is the honest reading rather than a loss: chapter 16's whole
+   ramp measured 0.08 of a survivor, chapter 13's grade step ×1.15, and four consecutive chapters
+   have measured this axis as fight length. **A sixth grade is a `data/` rule change, not a
+   chapter.**
+5. ⚠️ **A synthetic control is not a board, and the gap between them cost this session a whole tuning
+   pass.** Fourteen sampled boards were tuned against generic stat blocks and every one read well;
+   the authored chapter then failed **22 of 50** on the real sweep, because a block's _kit_ and its
+   _escort_ are part of its weight and a stand-in has neither. The four `ascended` anchors had to
+   come down 250→160, 240→165, 265→142 and 175→112. **Tune the control to find the mechanic's price;
+   then measure every authored board before believing the chapter.**
+6. ⚠️ **Field all four of a lieutenant's appearances before settling its stat line.** The Pacemaker
+   at 265/21 graded **4.00 → 3.55 → 1.73 → fail** across levels 355, 360, 365 and 370: an `ascended`
+   block climbs at 1.024 against a party frozen at its rung's cap, so a recurring anchor that is
+   correct on its first board is unwinnable on its fourth. At 142/15 it reads 4.00 / 4.00 / 3.75 /
+   3.85.
+
+### ⚠️ What chapter 17 measured about tempo, and the three shapes that generalise
+
+Priced against one calibrated control — an anchor of 230/18 behind four bodies of 110/20 at level
+375 and Relic 100, **1,131 common-equivalent, reading 3.83 of five**, and it **moves** (4.00 at 931,
+2.70 at 1,231, 0.00 at 1,431). Zero timeouts on every row.
+
+| shape                                               | survivors | worth     |
+| --------------------------------------------------- | --------- | --------- |
+| `STUN` on a **selection**, one or two casters       | 3.85/3.88 | **0.00**  |
+| board `haste` 100                                   | 3.80      | 0.03      |
+| an `opening` turn dealing `enemy-all` damage        | 3.48      | 0.35      |
+| `SLOW` on `enemy-all`, caster in the **front** rank | 2.00      | 1.83      |
+| board `haste` 118                                   | 1.88      | 1.95      |
+| `HASTE` on `ally-all`, one caster                   | 1.45      | 2.38      |
+| `SLOW` on `enemy-all`, caster in the **back** rank  | 1.43      | 2.40      |
+| `STUN` on a **scope** (`enemy-all`)                 | 1.23      | **2.60**  |
+| board `haste` 130 / 144                             | 0.42/0.00 | 3.41/3.83 |
+
+1. ⚠️ **Scope and selection are not degrees of the same thing.** The identical status is worth
+   **0.00** on `enemy-highest` (at one caster _and_ at two) and **2.60** on `enemy-all`. A _scope_, a
+   _reach_ and a _selection_ are three different things and conflating them has now shipped a false
+   claim four times. Author the scope or do not author the mechanic.
+2. ⚠️ **The register check has a sixth answer: a stat that works only _below_ its register.** `haste`
+   ships at a ceiling of 152 over a median of 98, and 144 board-wide reads **0.00 of five**. That is
+   the opposite of the Monster Tower's `physicalResist`, which had to step _past_ its register.
+   ⚠️ **And the claim has to be scoped to what was measured** — chapter 17's _new blocks_ run 106–126
+   while its _boards_ reach 148 on a returning Wisp. Say which.
+3. ⚠️ **A tempo axis bites the real party harder than the difficulty probe reports.** Chapter 16
+   reads 4.00 survivors at a probe threshold of 2,160 where chapter 17 reads 2.4–2.8 at the same
+   threshold, because the probe scales a party uniformly and tempo is not a uniform quantity.
+   **Tune a tempo band against survivors; use the probe only for the escalation shape.**
+4. ⚠️ **Two board-wide turns on one board is the most expensive shape available and it is easy to
+   author by accident.** `c17-s30` paired two `SLOW` casters and read 48%; `c17-s40` and `c17-s50`
+   each paired a `SLOW` or `STUN` with the board-wide `HASTE` and read 30% and 78%. **One board-wide
+   turn per board** is the rule the chapter ended up with.
 
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
@@ -287,6 +364,12 @@ All four have been broken by a session that had already written the rule down.
 with the boss and the lieutenant excluded from both sides of the fraction. A fifty-stage chapter
 fields 32–35 distinct archetypes, so the quota is **8 new ordinary blocks**.
 
+⚠️ **From chapter 17 the quota stopped being the binding constraint and the pool started being
+one.** The Quickmire fields 26 ordinary archetypes of which **15 are new — 57.7%** — because only 13
+shipped blocks are light enough to stand on any of its boards and only 5 on its closing ones. The
+rule is a floor and is satisfied; what a session needs to budget for is **~15 new ordinary blocks
+rather than 8**, and a closing band that fields nothing shipped at all.
+
 ⚠️ **The denominator is what the chapter _fields_, not the shipped pool.** Over the whole pool it
 compounds to ~90 new blocks across four chapters and puts every per-faction depth guard under
 pressure at once; over board slots it is satisfiable by five blocks used heavily. Fielded-distinct
@@ -326,9 +409,12 @@ A chapter leans on one faction and its new blocks go there, which is what gives 
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
 - **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, elf 33,
-  monster 34, dwarf 34, undead 35, **human 36** — The Spoilfield's ten blocks took Human from thinnest
-  legal lead to deepest of all seven, which is the **sixth** time a single lean has reversed the
-  ordering outright and the fifth in a row. Recompute before choosing.
+  dwarf 34, undead 35, human 36, **monster 51** — The Quickmire's seventeen blocks took Monster from
+  joint-middle to deepest of all seven by a margin of fifteen, which is the **seventh** time a single
+  lean has reversed the ordering outright and the sixth in a row. Recompute before choosing.
+  - ⚠️ **A lean is now worth seventeen blocks rather than ten**, for the pool reason above, so it
+    moves the ordering further and faster than the entries below describe. **Elf at 33 is the
+    thinnest legal lead**; angel 24 and demon 25 remain barred.
   - ⚠️ **The thinnest legal lead is now Elf at 33, and the gap to the celestials is enormous.** Angel
     at 24 and Demon at 25 are both barred, and the five mortal factions now run 33, 34, 34, 35, 36 —
     within three of each other. **The depth argument has stopped discriminating between the legal
@@ -439,7 +525,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped fifteen, with the level range each closes over:
+The shipped seventeen, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -458,6 +544,8 @@ The shipped fifteen, with the level range each closes over:
 | 13  | The Quarry         | 50     | 250 → 275 | whether it lands **at all**                     |
 | 14  | The Shutgate       | 50     | 275 → 300 | whether it arrives **big enough**               |
 | 15  | The Underroad      | 50     | 300 → 325 | whether there is **an end to it**               |
+| 16  | The Spoilfield     | 50     | 325 → 350 | whether it is **the party's own damage at all** |
+| 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**         |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -472,7 +560,8 @@ rather than at a boundary where it would read as a new game.
 Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTED` renamed to a
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
-`WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `INVESTED`.
+`WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
+`SPOILED` → `INVESTED`.
 
 ⚠️ **The last _two_ links are now degenerate, and a chapter-16 session should expect a third.**
 Chapters 13, 14 and 15 all close above `legendary-plus`'s cap of 260, so `QUARRIED`, `SHUTGATED` and
