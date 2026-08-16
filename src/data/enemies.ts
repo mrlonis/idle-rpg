@@ -3,7 +3,9 @@ import {
   ADD_IT_UP,
   AHEAD_OF_THE_ANSWER,
   AHEAD_OF_THE_COLUMN,
+  ALONG_THE_FURROW,
   ALREADY_BEHIND_YOU,
+  ANSWERED_TOGETHER,
   ANTIPHON,
   ASHPIT_RAKE,
   AT_THE_HALT,
@@ -15,6 +17,7 @@ import {
   BLOOD_RISEN,
   BROKEN_COVENANT,
   BULWARK,
+  CHAFF_IN_THE_THROAT,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
   CHOKE_THE_DRIFT,
@@ -48,6 +51,7 @@ import {
   GLASSLIGHT_VERDICT,
   GORE,
   GRIND_THE_SEAM,
+  GROWN_THROUGH_IT,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
   HUSH_THE_MANY,
@@ -57,6 +61,7 @@ import {
   KEEP_THE_SEED,
   KEEP_THE_STEP,
   KILN_LIGHT,
+  LIE_FALLOW,
   LITANY,
   LOAD_THE_CART,
   LOOSE_THE_PLATED_PACK,
@@ -69,7 +74,9 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NOBODY_HERE_IS_ONE_THING,
   NONE_OF_THEM_THE_ONE,
+  NONE_OF_US_IS_THE_ONE,
   NOTHING_GETS_A_GRIP,
   NOTHING_HERE_HURRIES,
   NOTHING_HERE_IS_FREE,
@@ -81,8 +88,10 @@ import {
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_EDGE_FINDS_IT,
+  ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
   OPEN_THE_VEIN,
+  OVER_THE_STUBBLE,
   PAID_EITHER_WAY,
   PALL_OF_YEARS,
   PASS_THE_WORD,
@@ -98,6 +107,7 @@ import {
   RIFTFALL,
   RIFTSTEP,
   RING_BY_RING,
+  RING_THE_PASSBELL,
   ROOTWAKE,
   ROPED_TOGETHER,
   RUINOUS_ARC,
@@ -168,6 +178,7 @@ import {
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
+  THE_STONE_STANDS,
   THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
   THE_WARDS_HOLD,
@@ -179,13 +190,16 @@ import {
   TYRANTS_CLAIM,
   UNDERBOUGH_SNARE,
   UNDERMINE,
+  UP_THROUGH_THE_TURF,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WHAT_FALLS_IS_SOWN,
   WHAT_IT_COST_YOU,
   WHAT_THE_DEAD_KEPT,
+  WHAT_THE_FIELD_KEPT,
   WHAT_THE_FIELD_LEFT,
   WHAT_THE_WATER_LEFT,
+  WHOSE_HAND_IS_THAT,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
@@ -9249,6 +9263,416 @@ export const THE_INTEREST = {
   skills: [IT_ADDS_UP_EITHER_WAY, NOTHING_HERE_IS_FREE, BACKSTROKE],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Commonage — chapter 20's twelve blocks, enemy levels 425 to 455
+//
+// ⚠️ **The lightest bodies the campaign has ever authored, and the arithmetic is why.** The
+// chapter's board budget runs **2,550 down to 2,100 common-equivalent** — 510 to 420 per body on a
+// board of five — against The Backcut's 3,745 to 5,875 one chapter below. That is not a softer
+// chapter: the party is frozen at `mythic`'s cap of 340 while these boards stand at 425 to 455, so
+// a body worth 420 here asks what a body worth 5,875 asked there.
+//
+// ⚠️ **Measured, the squeeze arrived a chapter earlier than the seam arithmetic projected.** At
+// level 455 the *lightest five shipped commons that can stand together* — 2,320 common-equivalent
+// — read **3% and 0.03 survivors**, and a five of ordinary chapter-19 bodies reads 0%. Of the 258
+// blocks that existed before this chapter, **34** sit at or under 450 common-equivalent at level
+// 455 and **28** at or under 400. So the ten ordinary blocks below are authored into the band the
+// pool cannot supply, exactly as The Quickmire's seventeen were on the rung below.
+//
+// ⚠️ **Undead owns almost none of this chapter's vocabulary and that is what gave these blocks a
+// job.** {@link ROOTBOUND} ships on Elves and Dwarves, {@link THORNMAIL} on Dwarves and two Humans,
+// and the only Undead carriers are {@link BONECHAIN_WARDEN} at 1,829 common-equivalent and two
+// bosses past 5,600 — every one of them multiples of a whole board's budget here. The lock had to
+// be authored light or not at all.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It never came all the way up. The turf closed over it and it kept going anyway.
+ *
+ * The chapter's opening bound body, and the lightest of the ten. It carries {@link ROOTBOUND} as an
+ * `opening` — true from the first tick, permanent, and **partial**, sharing only to other holders
+ * of the same id — so a board can bind its back three and leave its front rank out of it, which is
+ * band 2's whole lesson.
+ */
+export const TURFBOUND_SLEEPER = {
+  id: 'turfbound-sleeper',
+  name: 'Turfbound Sleeper',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 265,
+    atk: 40,
+    def: 26,
+    haste: 96,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    physicalResist: 0.08,
+  },
+  opening: [ROOTBOUND],
+  skills: [UP_THROUGH_THE_TURF],
+} as const;
+
+/**
+ * A furrow is a straight line, and it was walking this one before anybody was buried under it.
+ *
+ * The front-rank half of the same lock. Heavier than {@link TURFBOUND_SLEEPER} because it stands
+ * where the party has to go through, which is band 3.
+ */
+export const GRAVEFURROW_WALKER = {
+  id: 'gravefurrow-walker',
+  name: 'Gravefurrow Walker',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 330,
+    atk: 44,
+    def: 32,
+    haste: 92,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    physicalResist: 0.1,
+  },
+  opening: [ROOTBOUND],
+  skills: [ALONG_THE_FURROW],
+} as const;
+
+/** The hand that comes up first is never the hand anybody put there. */
+export const ONEGRAVE_HAND = {
+  id: 'onegrave-hand',
+  name: 'Onegrave Hand',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 240,
+    atk: 42,
+    def: 22,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+  },
+  opening: [ROOTBOUND],
+  skills: [WHOSE_HAND_IS_THAT],
+} as const;
+
+/**
+ * A boundary marker with nobody left on either side of it to argue about.
+ *
+ * The chapter's plain wall, and deliberately the only body in the ten with no lock on it at all —
+ * a board of five carriers has nothing for the party to aim *at*, and a board needs one square
+ * where aiming is still free so the rest of it can charge for the ones where it is not.
+ */
+export const MEERSTONE_HUSK = {
+  id: 'meerstone-husk',
+  name: 'Meerstone Husk',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 415,
+    atk: 38,
+    def: 40,
+    haste: 74,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    physicalResist: 0.14,
+    tenacity: 0.35,
+  },
+  skills: [THE_STONE_STANDS],
+} as const;
+
+/**
+ * Threshing dust that never settled, and it goes where the wind goes rather than where it is aimed.
+ *
+ * The chapter's one *new* reaching body, and it is a `common` rather than a legendary on purpose —
+ * see {@link CHAFF_IN_THE_THROAT} for the chapter-19 measurement that sets the rule. ⚠️ **The rule
+ * is one reaching turn per _body_, not per board**, and the distinction is the whole of it: no body
+ * fielded in The Commonage carries two `enemy-back` turns, while boards fielding up to three
+ * separate one-turn carriers measure fine. Chapter 19's finding was about a stat line, and
+ * restating it as a board rule would be a claim this chapter's own boards break fifteen times.
+ */
+export const CHAFFMOUTH_GAUNT = {
+  id: 'chaffmouth-gaunt',
+  name: 'Chaffmouth Gaunt',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 280,
+    atk: 44,
+    def: 20,
+    haste: 108,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    magicResist: 0.12,
+  },
+  skills: [CHAFF_IN_THE_THROAT],
+} as const;
+
+/**
+ * Stubble is what is left standing after everything worth taking has gone. It still runs.
+ *
+ * ⚠️ **`haste` 118, which is *below* the shipped register on purpose.** Chapter 17 measured a
+ * board-wide 144 at **0.00 of five** against 100's 3.80 — a stat that works only under its own
+ * ceiling of 152 — and this chapter is not a tempo chapter. The Commonage's new blocks run 74 to
+ * 118 and nothing on any of its boards exceeds the Wisp's shipped 148.
+ */
+export const STUBBLEFIELD_RUNNER = {
+  id: 'stubblefield-runner',
+  name: 'Stubblefield Runner',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 235,
+    atk: 40,
+    def: 18,
+    haste: 118,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+  },
+  skills: [OVER_THE_STUBBLE],
+} as const;
+
+/**
+ * Cut before it headed, and it has been standing in the stubble ever since.
+ *
+ * ⚠️ **150 health, the lightest body outside the Monster faction and sixty under the Wisp.** It is
+ * *not* the lightest in the game — twelve blocks sit under it and **every one of them is a
+ * Monster**, from the Rivenmire Sprinter's 100 up, which is The Quickmire's seventeen blocks still
+ * being the light tail of the whole pool. **The squeeze that produced this block is a faction
+ * squeeze rather than an absolute one**, and that is worth stating precisely: the bodies existed and
+ * this chapter could not field them without abandoning an 86.7% Undead lean.
+ *
+ * It exists because the closing bands measured as unauthorable out of anything heavier: at level 455
+ * a five-body board carrying an `ascended` anchor reads 100% at **1,330** common-equivalent and
+ * **0%** at 1,535, and the four lightest *Undead or Human* blocks the pool already held total 790 on
+ * their own, before a boss. The Quickmire authored the lightest bodies of its rung for the same reason one rung down;
+ * this is that a rung later and thirty levels higher.
+ */
+export const SHEAFLESS_SHADE = {
+  id: 'sheafless-shade',
+  name: 'Sheafless Shade',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 150,
+    atk: 34,
+    def: 14,
+    haste: 102,
+    critChance: 0.07,
+    critDamageAmp: 0.55,
+  },
+  skills: [OVER_THE_STUBBLE],
+} as const;
+
+/**
+ * Bindweed goes through a crop rather than over it, and it takes the crop with it.
+ *
+ * The closing bands' bound body, and the light end of {@link ROOTBOUND} — see
+ * {@link SHEAFLESS_SHADE} for why the last twenty stages needed bodies under two hundred at all.
+ */
+export const BINDWEED_DEAD = {
+  id: 'bindweed-dead',
+  name: 'Bindweed Dead',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 170,
+    atk: 36,
+    def: 18,
+    haste: 94,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    physicalResist: 0.06,
+  },
+  opening: [ROOTBOUND],
+  skills: [UP_THROUGH_THE_TURF],
+} as const;
+
+/**
+ * Rung for one and answered by all of them.
+ *
+ * The chapter's only lock that lapses. See {@link RING_THE_PASSBELL}: a cast link is a window the
+ * party waits out where a permanent one is the shape of every fight on the board, and it is worth
+ * **1.78 of five** at the chapter's control against the board-wide `ROOTBOUND`'s 2.35.
+ */
+export const PASSBELL_RINGER = {
+  id: 'passbell-ringer',
+  name: 'Passbell Ringer',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 300,
+    atk: 42,
+    def: 28,
+    haste: 88,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    magicResist: 0.14,
+  },
+  skills: [RING_THE_PASSBELL, WHOSE_HAND_IS_THAT],
+} as const;
+
+/**
+ * A fallow year, imposed on whoever is standing in the field.
+ *
+ * The chapter's board-wide turn, and **it stands in the front rank on every board that fields it**.
+ * Chapter 16 measured a `WEAKEN`-on-`enemy-all` body at 4.00 survivors in the front rank and 0.10
+ * in the back, because a party cannot aim past a back-rank debuffer and the status never lapses in
+ * practice — the sustain-behind-a-taunt failure wearing a different stat.
+ */
+export const FALLOWMARCH_WARDEN = {
+  id: 'fallowmarch-warden',
+  name: 'Fallowmarch Warden',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 320,
+    atk: 46,
+    def: 30,
+    haste: 84,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    magicResist: 0.16,
+    tenacity: 0.3,
+  },
+  skills: [LIE_FALLOW, ALONG_THE_FURROW],
+} as const;
+
+/**
+ * A quickset hedge is a fence somebody grew. This one has been growing for a very long time.
+ *
+ * The chapter's reflect carrier, arriving in band 5 rather than band 1 — which is the axis The
+ * Backcut walked in the opposite direction. Priced at this chapter's control, {@link THORNMAIL} on
+ * the front two is worth **1.05 of five** where the board-wide link is 2.35, so it is the chapter's
+ * *second* tax rather than its first.
+ */
+export const QUICKSET_DEAD = {
+  id: 'quickset-dead',
+  name: 'Quickset Dead',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 285,
+    atk: 48,
+    def: 38,
+    haste: 76,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    physicalResist: 0.14,
+    critBlock: 0.16,
+    tenacity: 0.4,
+  },
+  opening: [THORNMAIL],
+  skills: [GROWN_THROUGH_IT],
+} as const;
+
+/** Gleaning is taking what is left, and on this ground there is always something left. */
+export const AFTERGRASS_GLEANER = {
+  id: 'aftergrass-gleaner',
+  name: 'Aftergrass Gleaner',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 340,
+    atk: 52,
+    def: 26,
+    haste: 94,
+    critChance: 0.11,
+    critDamageAmp: 0.7,
+    physicalResist: 0.08,
+  },
+  skills: [WHAT_THE_FIELD_KEPT, UP_THROUGH_THE_TURF],
+} as const;
+
+/**
+ * The lieutenant, anchoring all **five** mini-boss boards at rising levels.
+ *
+ * A tithing is ten households answerable for each other's conduct — the oldest version of the thing
+ * this chapter is about, and the reason the party cannot get an answer out of any one of them.
+ *
+ * ⚠️ **Sixty stages means five appearances rather than four, and its stat line was settled by
+ * fielding all five.** An `ascended` block climbs at `perLevel.ascended` 1.024 against a party
+ * frozen at `mythic`'s cap of 340, so a recurring anchor correct on `c20-s10` at level 430 is
+ * unwinnable on `c20-s50` at 450 — chapter 17's rule, with one more appearance to survive than the
+ * rule was written for. See `chapter-20.ts` for the five readings this settled on.
+ *
+ * ⚠️ **It carries no lock of its own**, which is the correction the extra appearance forced: an
+ * anchor that is also a carrier prices twice on the boards where its escort is already bound, and
+ * band 5's boards field it beside a {@link QUICKSET_DEAD}. Its signature is conditioned instead —
+ * see {@link ANSWERED_TOGETHER}.
+ */
+export const THE_TITHING = {
+  id: 'the-tithing',
+  name: 'The Tithing',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 190,
+    atk: 18,
+    def: 44,
+    haste: 80,
+    critChance: 0.07,
+    critDamageAmp: 0.6,
+    critBlock: 0.18,
+    critDamageResist: 0.28,
+    tenacity: 0.45,
+    physicalResist: 0.15,
+    magicResist: 0.1,
+  },
+  skills: [ANSWERED_TOGETHER, NONE_OF_US_IS_THE_ONE],
+} as const;
+
+/**
+ * What one grave becomes when nobody comes back to say whose it was.
+ *
+ * The chapter's final, fielded nowhere else — the twentieth body authored under that rule, and
+ * {@link THE_TITHING} does not stand on it.
+ *
+ * ⚠️ **230 health and 56 attack, far under {@link UNMADE} on both**, and **872 common-equivalent**
+ * at level 455 — **41%** of its own board's 2,100, in family with The Interest's 38% and The Last
+ * Ring's 43%. **The share is the quantity that carries across a chapter; the health is not**, and
+ * this is the third consecutive chapter final authored lighter in raw health than the one before
+ * it (520 → 230) while standing thirty levels higher.
+ *
+ * ⚠️ **It is the only body in the chapter that *gives* the lock rather than carrying it.**
+ * {@link NOBODY_HERE_IS_ONE_THING} puts {@link ROOTBOUND} on `ally-all`, so the final board is the
+ * one board in The Commonage where every slot is bound whatever it was authored as — the argument
+ * finished. Everywhere else the chapter charges for aiming at a particular thing; here there is no
+ * particular thing left.
+ */
+export const THE_UNDIVIDED = {
+  id: 'the-undivided',
+  name: 'The Undivided',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 175,
+    atk: 16,
+    def: 48,
+    haste: 82,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.2,
+    critDamageResist: 0.3,
+    tenacity: 0.5,
+    physicalResist: 0.16,
+    magicResist: 0.12,
+  },
+  skills: [ONE_GRAVE_BETWEEN_US, NOBODY_HERE_IS_ONE_THING, WHAT_THE_FIELD_KEPT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -9508,4 +9932,18 @@ export const ENEMIES = [
   GRUDGEBOLT_SLINGER,
   THE_BACKSWING,
   THE_INTEREST,
+  TURFBOUND_SLEEPER,
+  GRAVEFURROW_WALKER,
+  ONEGRAVE_HAND,
+  MEERSTONE_HUSK,
+  CHAFFMOUTH_GAUNT,
+  STUBBLEFIELD_RUNNER,
+  PASSBELL_RINGER,
+  FALLOWMARCH_WARDEN,
+  QUICKSET_DEAD,
+  AFTERGRASS_GLEANER,
+  SHEAFLESS_SHADE,
+  BINDWEED_DEAD,
+  THE_TITHING,
+  THE_UNDIVIDED,
 ] as const;

@@ -86,8 +86,19 @@ export interface ChapterCurveData {
   readonly stepStages: number;
   /** Chapters per band. */
   readonly chaptersPerBand: number;
-  /** The most stages a chapter may ever hold. Growth stops here rather than continuing. */
+  /** The most stages a chapter may hold. Growth stops here rather than continuing. */
   readonly maxStages: number;
+  /**
+   * A later, higher {@link maxStages}, from {@link raisedMaxFromChapter} on.
+   *
+   * The ramp underneath never stopped — `baseStages + stepStages * band` passes any of these caps
+   * within the first dozen chapters — so raising the cap for later chapters is the whole of a
+   * second ramp. Omit either this or {@link raisedMaxFromChapter} and the cap never moves, which
+   * is what keeps every curve authored before this field valid.
+   */
+  readonly raisedMaxStages?: number;
+  /** The first chapter {@link raisedMaxStages} applies to. */
+  readonly raisedMaxFromChapter?: number;
   /** Every nth stage of a chapter is a mini-boss. The chapter's last stage is a boss instead. */
   readonly miniBossEvery: number;
 }
@@ -166,15 +177,34 @@ function positiveInt(value: number, fallback: number): number {
  *
  * Clamps rather than trusting, like everything else that reads authored numbers: a curve with a
  * zero step or a `maxStages` below `baseStages` still yields a chapter somebody can fight.
+ *
+ * ⚠️ **The cap is a schedule, not a constant, and that is the only thing a second ramp needs.**
+ * The `baseStages + stepStages * band` ramp underneath runs past every cap this game will ever
+ * author within a dozen chapters, so `min(ramp, cap)` with a cap that steps once is exactly a
+ * chapter length that plateaus, steps, and plateaus again. A raised cap only ever applies from
+ * its own chapter on, so **no chapter authored below it can change length** — which is what makes
+ * raising it a formula edit rather than a re-cut of the whole ladder.
  */
 export function chapterSize(curve: ChapterCurveData, chapter: number): number {
   const base = positiveInt(curve.baseStages, 1);
   const step = Number.isFinite(curve.stepStages) ? Math.max(Math.floor(curve.stepStages), 0) : 0;
   const perBand = positiveInt(curve.chaptersPerBand, 1);
-  const max = Math.max(positiveInt(curve.maxStages, base), base);
   const index = positiveInt(chapter, 1);
   const band = Math.floor((index - 1) / perBand);
-  return Math.min(base + step * band, max);
+  return Math.min(base + step * band, cappedAt(curve, index, base));
+}
+
+/** {@link ChapterCurveData.maxStages}, or the raised one once the schedule reaches `chapter`. */
+function cappedAt(curve: ChapterCurveData, chapter: number, base: number): number {
+  const max = Math.max(positiveInt(curve.maxStages, base), base);
+  const raised = curve.raisedMaxStages;
+  const from = curve.raisedMaxFromChapter;
+  if (raised === undefined || from === undefined) return max;
+  if (!Number.isFinite(raised) || !Number.isFinite(from)) return max;
+  if (chapter < Math.floor(from)) return max;
+  // Raising is the only direction: a schedule that lowered the cap would shorten a chapter that
+  // has already shipped at its old length, which is a save-visible re-cut rather than a curve edit.
+  return Math.max(max, Math.min(Math.floor(raised), Number.MAX_SAFE_INTEGER));
 }
 
 /** Every stage in chapters 1..`chapters`, which is where a chapter number lands on the ladder. */

@@ -909,8 +909,10 @@ const SLOWGROWTH: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Backcut asks
- * for will carry them.
+ * The party that arrives in chapter 20: the five that just took The Interest, unchanged.
+ *
+ * ⚠️ **This is The Backcut's `INVESTED`, kept under a new name rather than re-derived** — the
+ * sixteenth time, for the sixteenth time for the same reason.
  *
  * Still common tier, and still no pull anyone had to be lucky for.
  *
@@ -937,6 +939,56 @@ const SLOWGROWTH: FormationData = mono(
  * construction rather than by tuning: chapter 20 reads **1.7069**, chapter 21 **1.0161** and
  * chapter 22 **0.6048**. **This rung buys about three chapters**, and the board budget runs out
  * before the arithmetic does. `mythic-plus` at cap 420 is the next one and it is not due yet.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const BACKCUT_RARITY = rarityIndex('mythic');
+const BACKCUT_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[18] - 1].level,
+  LEVEL_CURVE.caps[BACKCUT_RARITY],
+);
+
+const BACKCUT: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(BACKCUT_LEVEL, BACKCUT_RARITY),
+  BACKCUT_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Commonage asks
+ * for will carry them.
+ *
+ * Still common tier, and still no pull anyone had to be lucky for.
+ *
+ * ## ⚠️ Chapter 20 stays on `mythic` for the second chapter running, and the pool is what will move it
+ *
+ * **The rule that picks a rung reproduces the power ratio the seam below it had**,
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated
+ * for every rung and taken closest in **log** space. Against chapter 19's seam of **2.8677** and
+ * The Commonage's close of 455, `mythic` reads **1.5373** (|Δln| **0.6237**) and `mythic-plus`
+ * **12.9700** (|Δln| **1.5099**). `mythic` wins by 0.886 of a nat.
+ *
+ * ⚠️ **This is a stay rather than an override, and chapter 19 established that a stay needs its own
+ * argument.** {@link SLOWGROWTH}'s move rested on the seam below it being *wrong* — 0.9608, under
+ * 1.00, with a board budget of 129 common-equivalent per body against a pool whose lightest body was
+ * 100, so no chapter existed on the old rung at all. Here the seam is 1.5373, comfortably above
+ * 1.00, and the chapter was authorable.
+ *
+ * ⚠️ **But it was close, and what nearly bound was the *pool* rather than the seam.** At level 455
+ * the lightest five shipped commons that can stand together read 3% and 0.03 survivors, and The
+ * Commonage had to author two bodies lighter than anything the game had ever shipped — 150 and 170
+ * health — before its closing bands could exist at all. Chapter 19 projected this rung buying about
+ * three chapters on the arithmetic; on the pool it buys about one and a half, because a
+ * **sixty**-stage chapter climbs thirty levels rather than twenty-five. **Re-measure the pool at
+ * chapter 21 before re-deriving the seam.**
+ *
+ * ⚠️ **The degenerate chain reaches three links.** Chapters 18, 19 and 20 all close above `mythic`'s
+ * cap of 340 and all clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT} and this party are one set
+ * of five combatants and the assertions either side of two boundaries are one claim. Chapter 19
+ * predicted exactly this; recorded rather than repaired, as chapters 13 through 17 recorded it one
+ * rung down.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
@@ -1111,6 +1163,11 @@ const slowgrowthSweeps = stages.map((stage) => ({
   stage,
   ...sweep(SLOWGROWTH, stage),
 }));
+const backcutSweeps = stages.map((stage) => ({
+  label: 'backcut',
+  stage,
+  ...sweep(BACKCUT, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1225,6 +1282,9 @@ const QUICKMIRE_END = CHAPTER_ENDS[16];
 
 /** Where The Slowgrowth ends, for the seam either side of the eighteenth boundary. */
 const SLOWGROWTH_END = CHAPTER_ENDS[17];
+
+/** Where The Backcut ends, for the seam either side of the nineteenth boundary. */
+const BACKCUT_END = CHAPTER_ENDS[18];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1862,6 +1922,40 @@ describe('ladder balance', () => {
     // arithmetic that ran under chapters 13 through 17, one rung higher up.
     const walked = slowgrowthSweeps
       .slice(SLOWGROWTH_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 19 clear chapters 1 through 19', () => {
+    // The Commonage's seam, measured the same way as the fifteen above it. ⚠️ **The degenerate chain
+    // reaches three links, exactly as chapter 19 predicted it would.** Chapters 18, 19 and 20 all
+    // close above `mythic`'s cap of **340** and all clamp to it, so {@link SLOWGROWTH},
+    // {@link BACKCUT} and {@link INVESTED} are one set of five combatants. See {@link INVESTED} for
+    // why the rung stays put a second time, and for the finding that what will move it next is the
+    // **pool** rather than the arithmetic.
+    const unreliable = backcutSweeps
+      .slice(0, BACKCUT_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Commonage as well', () => {
+    // ⚠️ **Vacuous by construction for the sixth time**, for the reasons the five above it are:
+    // {@link MOMENTUM_CEILING} is a share of the whole ladder — 273 boards at 910 stages — where
+    // this slice is 60, and {@link BACKCUT} and {@link INVESTED} are the same party. Kept rather
+    // than deleted so the record of *why* survives. `docs/authoring.md` forbids widening it.
+    //
+    // ⚠️ **What the seam costs is real**: The Commonage's last board stands **a hundred and fifteen
+    // levels** above the cap this party is clamped at — ×10.98 — which is the sharpest gap the
+    // campaign has carried, and it is why its boards are authored at roughly a third of chapter
+    // 19's rather than the usual 0.595. **Thirty levels of squeeze rather than twenty-five is what a
+    // sixty-stage chapter costs.**
+    const walked = backcutSweeps
+      .slice(BACKCUT_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

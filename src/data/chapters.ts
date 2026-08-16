@@ -10,6 +10,7 @@ import { CHAPTER_17 } from './chapter-17';
 import { CHAPTER_18 } from './chapter-18';
 import { CHAPTER_19 } from './chapter-19';
 import { CHAPTER_2 } from './chapter-2';
+import { CHAPTER_20 } from './chapter-20';
 import { CHAPTER_3 } from './chapter-3';
 import { CHAPTER_4 } from './chapter-4';
 import { CHAPTER_5 } from './chapter-5';
@@ -46,33 +47,51 @@ export const AUTO_BATTLE_UNLOCK_CHAPTERS = 1;
 /**
  * How long a chapter is.
  *
- * | Chapter | Stages | Running total |
- * | ------- | ------ | ------------- |
- * | 1       | 10     | 10            |
- * | 2       | 20     | 30            |
- * | 3       | 30     | 60            |
- * | 4       | 40     | 100           |
- * | 5+      | 50 (cap) | 150, 200, … |
+ * | Chapter | Stages   | Running total |
+ * | ------- | -------- | ------------- |
+ * | 1       | 10       | 10            |
+ * | 2       | 20       | 30            |
+ * | 3       | 30       | 60            |
+ * | 4       | 40       | 100           |
+ * | 5–19    | 50 (cap) | 150, 200, …, 850 |
+ * | 20+     | 60 (raised cap) | 910, 970, … |
  *
- * A ramp and then a plateau: each chapter is ten stages longer than the last until fifty, and
- * fifty is the cap. The six-chapter re-cut chose this shape because a chapter should be finished
+ * A ramp, a plateau, one step, and a plateau again: each chapter is ten stages longer than the
+ * last until fifty, fifty holds for fifteen chapters, and the cap steps to sixty at chapter 20.
+ * The six-chapter re-cut chose the first half of that shape because a chapter should be finished
  * when its questions are — the opening chapter has three locks and a boss in it, not fifty
  * stages of anything — and because short early chapters put the first boss, the first
  * chapter-award and the auto-battle unlock inside a new player's first session.
  *
- * ⚠️ **Fifty is the permanent cap under this curve, and the long ladder is chapters rather than
- * longer chapters.** The pre-re-cut curve grew chapters by ten stages per band of ten toward a
- * cap of two hundred; that growth is gone, not deferred — a ladder reaching the level-1000
- * ceiling is now ~190 chapters of at most fifty rather than 160 of up to two hundred. Revisit
- * deliberately if a fifty-stage chapter ever starts reading as too short at the far end;
- * `chapters.spec.ts` holds the authored chapters equal to this formula, so the revisit is a
- * formula change and a retune, never a drift.
+ * ⚠️ **Fifty was called the permanent cap and chapter 20 is the deliberate revisit that note
+ * invited.** What it asked for was a formula change rather than a drift, and this is that: the
+ * cap is a **schedule** (`raisedMaxFromChapter` / `raisedMaxStages`) rather than a constant, so
+ * chapter 20 is sixty stages by the same formula that makes chapter 4 forty. `chapters.spec.ts`
+ * still holds every authored chapter equal to `chapterSize`, so nothing is exempted and nothing
+ * is hand-listed.
+ *
+ * ⚠️ **A raised cap can only ever apply from its own chapter on, and that is what makes it
+ * cheap.** `min(ramp, cap)` with the ramp already past both caps means chapters 1–19 are
+ * arithmetically untouched — no shipped stage id moves, no shipped stage changes its linear
+ * index, and `SAVE_VERSION` does not move, because a run's position is a chapter and a stage
+ * within it. ⚠️ **Lowering a cap would not have that property**: it would shorten a chapter that
+ * has already shipped and teleport every run standing past its new last stage. `chapterSize`
+ * refuses a lowering for that reason.
+ *
+ * ⚠️ **This is still not the pre-re-cut growth curve coming back.** That one grew every band of
+ * ten chapters toward a cap of two hundred; this steps **once**, and the long ladder is still
+ * chapters rather than longer chapters — a ladder reaching the level-1000 ceiling is ~180 of
+ * sixty rather than 160 of up to two hundred. A second step is another deliberate revisit, with
+ * its own argument, not a precedent this one grants.
  */
 export const CHAPTER_CURVE = {
   baseStages: 10,
   stepStages: 10,
   chaptersPerBand: 1,
   maxStages: 50,
+  /** Sixty from chapter 20 on. The step is argued in the block above; it is not a precedent. */
+  raisedMaxStages: 60,
+  raisedMaxFromChapter: 20,
   /**
    * Every tenth stage of a chapter is a mini-boss; the last one is a boss instead.
    *
@@ -270,4 +289,5 @@ export const CHAPTERS = [
   CHAPTER_17,
   CHAPTER_18,
   CHAPTER_19,
+  CHAPTER_20,
 ] as const;

@@ -63,6 +63,7 @@ previous skeleton without changing its shape.
 | 32      | Chapter 17 — The Quickmire                | **57.7% new blocks and not by choice** — the pool cannot supply a returning majority. The seam falls below **1.00**. A synthetic control is not a board                       |
 | 33      | Chapter 18 — The Slowgrowth               | The rung moves to `mythic`, **against** the log-space rule, because no chapter existed on the old one. Enemy health grades **0.00**; no scalar predicts a board               |
 | 34      | Chapter 19 — The Backcut                  | Staying on a rung argued as hard as moving one. **A reflect prices where the party aims** — 0.00 on a protected back rank, the mirror of chapter 16's debuffer                |
+| 35      | Chapter 20 — The Commonage                | **The first chapter longer than fifty** — the chapter-length cap becomes a schedule. A taunt measures **−0.65**, the first mechanic to price with the wrong sign              |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
@@ -71,7 +72,10 @@ the roster to **140**, on the same terms; chapters 12 and 13 take it to **550 st
 archetypes**, and chapter 14 to **600 stages** and **201** — still with no change in `ui/` or
 `core/`. Chapter 15 takes it to **650 stages** and **211**; chapters 16 through 19 take it to
 **850 stages** and **258 archetypes** — nineteen chapters, on the same terms, with no change in
-`ui/` or `core/` in any of them. ⚠️ **Recompute these rather than reading them**; this paragraph had
+`ui/` or `core/` in any of them. ⚠️ **Chapter 20 breaks that last clause**: The Commonage is
+**sixty** stages, which took the campaign to **910 stages** and **272 archetypes** and needed
+`chapterSize` in `core/ladder.ts` to learn a **cap schedule** — the first `core/` change a content
+session has made since the run began. ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 

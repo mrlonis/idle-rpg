@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 19 chapters, 850 stages, enemy levels 1–425 |
+| Campaign         | 20 chapters, 910 stages, enemy levels 1–455 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 258                                         |
+| Enemy archetypes | 272                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -45,24 +45,31 @@ routine.
 chapter spans 25 levels, so the whole line is `open + round(25 * (i - 1) / 49)` — steps of 0 or 1,
 each level standing for two stages. There is nothing to bisect and nothing to solve.
 
-| Chapter | Opens | Closes | Span |
-| ------- | ----- | ------ | ---- |
-| 4       | 30    | 50     | 20   |
-| 5       | 50    | 75     | 25   |
-| 6       | 75    | 100    | 25   |
-| 7       | 100   | 125    | 25   |
-| 8       | 125   | 150    | 25   |
-| 9       | 150   | 175    | 25   |
-| 10      | 175   | 200    | 25   |
-| 11      | 200   | 225    | 25   |
-| 12      | 225   | 250    | 25   |
-| 13      | 250   | 275    | 25   |
-| 14      | 275   | 300    | 25   |
-| 15      | 300   | 325    | 25   |
-| 16      | 325   | 350    | 25   |
-| 17      | 350   | 375    | 25   |
-| 18      | 375   | 400    | 25   |
-| 19      | 400   | 425    | 25   |
+⚠️ **The slope is the rule and the span is a consequence, which chapter 20 is the first to
+demonstrate.** The Commonage is sixty stages, so at the same half a level a stage it spans **thirty**
+levels — `open + round(30 * (i - 1) / 59)`. **A longer chapter is a longer climb against a party
+whose cap does not move**, and that is most of what the extra ten stages cost; see the chapter-20
+section below before assuming ten more boards is ten more boards.
+
+| Chapter | Opens | Closes | Span   |
+| ------- | ----- | ------ | ------ |
+| 4       | 30    | 50     | 20     |
+| 5       | 50    | 75     | 25     |
+| 6       | 75    | 100    | 25     |
+| 7       | 100   | 125    | 25     |
+| 8       | 125   | 150    | 25     |
+| 9       | 150   | 175    | 25     |
+| 10      | 175   | 200    | 25     |
+| 11      | 200   | 225    | 25     |
+| 12      | 225   | 250    | 25     |
+| 13      | 250   | 275    | 25     |
+| 14      | 275   | 300    | 25     |
+| 15      | 300   | 325    | 25     |
+| 16      | 325   | 350    | 25     |
+| 17      | 350   | 375    | 25     |
+| 18      | 375   | 400    | 25     |
+| 19      | 400   | 425    | 25     |
+| 20      | 425   | 455    | **30** |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -385,6 +392,101 @@ finding, reproduced exactly. What the diagnosis turned up generalises:
    found no scalar predicts a board; this chapter found the ordering can **invert**. Weight
    shortlists; only the probe ranks.
 
+### ⚠️ Chapter 20 is the first chapter longer than fifty, and the extra ten stages cost more than ten boards
+
+The Commonage is **sixty stages, 425 → 455**, which needed `CHAPTER_CURVE.maxStages` to stop being a
+constant. It is now a **schedule** — `raisedMaxFromChapter` 20, `raisedMaxStages` 60 — so the length
+stays derived and `chapters.spec.ts` still holds every authored chapter equal to `chapterSize`.
+⚠️ **A raised cap may only ever apply forward**; `chapterSize` refuses a lowering, because shortening
+a chapter that has shipped teleports every run standing past its new last stage.
+
+1. ⚠️ **The slope is the rule and the span is the consequence.** Sixty stages at half a level a stage
+   is **thirty** levels of climb against a party cap that does not move, where every chapter before
+   it climbed twenty-five. That is a further ×`perLevel.common ** 5` = **1.11** of squeeze on top of
+   the usual 0.595 a chapter, and it is what pulled the pool wall forward by two chapters.
+2. ⚠️ **The seam still says `mythic` and the pool nearly said otherwise.** Against chapter 19's
+   2.8677, `mythic` reads **1.5373** (|Δln| 0.6237) and `mythic-plus` 12.9700 (|Δln| 1.5099) —
+   `mythic` by 0.886 of a nat, and above 1.00, so this is a **stay** and not an override. But chapter
+   19 projected the rung buying about three chapters on the arithmetic and **on the pool it bought
+   about one and a half**. ⚠️ **Measure the pool before re-deriving the seam at chapter 21.**
+3. ⚠️ **The board budget is 2,145 → 1,328 common-equivalent**, against The Backcut's 3,745 → 5,875
+   one chapter below — roughly a third. At level 455 the lightest five _shipped_ commons that can
+   stand together, 2,320, read **3% and 0.03 survivors**.
+4. ⚠️ **The wall is a _faction_ squeeze rather than an absolute one, and that distinction is the
+   finding.** Twelve blocks sit under 150 health and **every one of them is a Monster** — The
+   Quickmire's seventeen are still the light tail of the whole pool. The four lightest Undead or
+   Human blocks total 790 before a boss, so The Commonage had to author two bodies at 150 and 170 to
+   have a closing band at all. **A chapter 21 leaning Monster does not hit this wall; every other
+   lean does.** Check the lean's own light tail, not the pool's.
+
+### ⚠️ What chapter 20 measured about aim, and the finding that inverted a whole chapter's premise
+
+Priced against one calibrated control — four bodies at 300/40 behind an anchor of 420/46 at level 455
+and Relic 100, **2,099 common-equivalent, reading 3.35 of five**, and it **moves** (3.95 at 2,018,
+2.60 at 2,180, 1.18 at 2,220). Zero timeouts on every row.
+
+| shape                                        | survivors | worth     |
+| -------------------------------------------- | --------- | --------- |
+| `OATHSHIELD` on the front anchor             | 4.00      | **−0.65** |
+| `enemy-lowest` / `enemy-highest` stat bait   | 3.98      | −0.63     |
+| `OATHSHIELD` on two carriers, front and back | 3.80      | −0.45     |
+| `OATHSHIELD` from the back rank              | 3.63      | −0.28     |
+| `ROOTBOUND` on the back three                | 3.17      | 0.18      |
+| `WEAKEN` on `enemy-all`, front carrier       | 2.40      | 0.95      |
+| `THORNMAIL` on the front two                 | 2.30      | 1.05      |
+| `SLOW` on `enemy-all`, front carrier         | 1.95      | 1.40      |
+| `CHAINBOND` cast on `ally-all`               | 1.57      | 1.78      |
+| `THORNMAIL` on all five                      | 1.07      | 2.28      |
+| `ROOTBOUND` on all five                      | 1.00      | **2.35**  |
+| `ROOTBOUND` on all five **plus** a taunt     | 1.63      | 1.72      |
+
+1. ⚠️ **A taunt is worth zero or _negative_ at this weight and never positive.** Confirmed off the
+   synthetic control too: bolted onto the shipped `c19-s50` it reads 3.25 bare against 3.30 in the
+   front rank and **3.63** from the back. The mechanism generalises — a taunt **concentrates** the
+   party's damage, and concentration is what a party wants, because one body dying drops a board's
+   throughput faster than five bodies being chipped. **It is the direct antidote to a link**: a
+   board-wide `ROOTBOUND` reads 1.00 of five and 1.63 with a taunt added.
+2. ⚠️ **This is the first measurement in the project to come back with the _wrong sign_ rather than
+   with zero.** The register check has now given seven answers: worth nothing at its register, worth
+   something at it, worth something only above it, worth something only below it, inert against a
+   saturated control, a cliff with no middle — and now **worth less than nothing**. A chapter whose
+   premise rests on a mechanic must price the mechanic _before_ the boards; The Commonage's premise
+   survived only because the question ("does the party choose where its damage goes") had a second,
+   opposite answer available.
+3. ⚠️ **Baiting the party's own selection rules is worth −0.63, by the same mechanism.**
+   Redistributing a board's health so one body is far below the rest (soaking `enemy-lowest`
+   finishers) or far above it (soaking `enemy-highest` turns) reads 3.98 against 3.35. **"Reach for
+   the stat block before the vocabulary" is a good rule and this is where it does not apply** — the
+   stat-block version of a concentration mechanic has the same sign as the status version.
+
+### ⚠️ Common-equivalent weight counts health, and the `ascended` premium is on every stat
+
+The longest diagnosis of the chapter-20 session, and the correction to a habit four chapters old.
+`ceq` normalises **health** to `perLevel.common`, so it says nothing about an `ascended` block's
+defence, resists or attack — all of which carry the same ×3.792 premium at level 455.
+
+- The final read **0% at every stat line from 230/56 down to 110/20**, with the fight lengthening at
+  every step. That is chapter 19's "a final that fails at every stat line is its escort" signature
+  **pointing at the boss itself**, and the escort was innocent: four escorts with no boss read 4.00.
+- What settled it was the **attack**, not the health: at 200 health, attack 30 reads 0%, 16 reads
+  13%, and 10 reads 73% at 64.0s. The lieutenant came down from **250/52 to 190/18** and the final
+  from **230/56 to 175/16**.
+- ⚠️ **So shortlist an anchor on common-equivalent weight and settle it on attack**, and expect an
+  `ascended` anchor's authored attack to keep falling much faster than its authored health as the
+  campaign climbs past its rung's cap.
+
+### ⚠️ Two board-shaping rules chapter 20 added
+
+1. ⚠️ **Make the board weight smooth in the stage index when the locks step at band boundaries.** A
+   per-band weight drop cancels against the new band's lock and reads as a step _backwards_ on the
+   probe: `c20-s53` measured **0.780** against the 0.85 bar for exactly that reason. Smooth weight
+   under stepped locks is what makes a boundary read as a step up.
+2. ⚠️ **A mini-boss is a peak and nothing covers the stages after it.** The boundary-skip in
+   `chapters.balance.ts` covers a chapter _boss_ only, so the samples following a mini-boss are a
+   chapter's thinnest probe margin — `c20-s13` read 0.860 before the three stages after each
+   mini-boss were lifted toward the peak. ⚠️ **Do not lift them in the closing band**, which has no
+   weight to spare: `c20-s51` reads 60% and 1.00 of five with the lift on.
+
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
 The campaign has reached the rule the towers' third hundreds established. Chapter 13's own final
@@ -700,6 +802,7 @@ The shipped nineteen, with the level range each closes over:
 | 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**         |
 | 18  | The Slowgrowth     | 50     | 375 → 400 | whether it **adds up**                          |
 | 19  | The Backcut        | 50     | 400 → 425 | whether the party can **afford** to spend it    |
+| 20  | The Commonage      | **60** | 425 → 455 | whether it gets to **choose where it goes**     |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -715,12 +818,13 @@ Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTE
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
-`SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
+`SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `BACKCUT` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
 and restarted at chapter 19**: `QUARRIED` through `QUICKMIRED` are five names for one set of five
 combatants on `legendary-plus`, and `SLOWGROWTH` and `INVESTED` are now two names for one set on
 `mythic`. **Expect a second identical link at chapter 20 and a third at 21** — the chain is a
 function of a cap the ladder has climbed past, so it re-forms every time a rung move stops being
-recent.
+recent. ⚠️ **Chapter 20 delivered the second exactly as predicted**: `SLOWGROWTH`, `BACKCUT` and
+`INVESTED` are one set of five on `mythic`'s cap of 340, three links deep.
 
 ⚠️ **The last _two_ links are now degenerate, and a chapter-16 session should expect a third.**
 Chapters 13, 14 and 15 all close above `legendary-plus`'s cap of 260, so `QUARRIED`, `SHUTGATED` and

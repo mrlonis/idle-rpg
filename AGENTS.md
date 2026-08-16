@@ -74,14 +74,24 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: nineteen chapters, eight hundred and fifty
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty chapters, nine hundred and ten
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven
-  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapter 19 stayed on it, and
-  that it is a derivation rather than an override is the point**: the log-space margin is the same
-  1.09 nats chapter 18 overrode, and what licensed that override was the seam below it being _wrong_
-  (0.9608, under 1.00) rather than the margin being large. The chain has re-formed one link deep and
-  `mythic` buys about three chapters — 1.7069, 1.0161, 0.6048 at chapters 20, 21 and 22.
+  chapters**, and it ended the five-link degenerate seam chain. ⚠️ **Chapters 19 and 20 both stayed
+  on it, and that a stay is a derivation rather than an override is the point**: what licenses an
+  override is the seam below it being _wrong_ (0.9608, under 1.00) rather than the margin being
+  large. The chain is three links deep and `mythic`'s arithmetic runs to about chapter 22.
+  ⚠️ **What actually binds is the pool rather than the seam, and chapter 20 is where they came
+  apart**: the arithmetic said three chapters and the enemy pool gave about one and a half. **Measure
+  the pool before re-deriving the seam.**
+- ⚠️ **A chapter is fifty stages up to chapter 19 and sixty from chapter 20, and the cap is a
+  _schedule_ rather than a constant** — `CHAPTER_CURVE.raisedMaxFromChapter` / `raisedMaxStages`, so
+  the length stays derived and `chapters.spec.ts` still holds every chapter equal to `chapterSize`.
+  ⚠️ **A raised cap may only ever apply forward and `chapterSize` refuses a lowering**: shortening a
+  chapter that has shipped teleports every run standing past its new last stage. ⚠️ **The slope is
+  the rule and the span is the consequence** — sixty stages at half a level a stage is **thirty**
+  levels of climb rather than twenty-five, which is a further ×1.11 of squeeze on a party whose cap
+  does not move. [ladder](docs/ladder.md)
 - **[docs/ascension.md](docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](docs/level-resonance.md)** — the level the whole roster shares. **Read
@@ -399,6 +409,36 @@ Asserted in `core/battle/simulate.spec.ts`.
   campaign. Held by `data/enemies.spec.ts`, the only spec that sees both.
 - ⚠️ **The status vocabulary is closed and does not renew.** Reach for the stat block before the
   vocabulary. [authoring](docs/authoring.md)
+- ⚠️ **A mechanic can price with the _wrong sign_, and a taunt is the one that does.** Measured at
+  chapter 20's control — 2,099 common-equivalent at level 455, reading 3.35 of five, and it moves —
+  `OATHSHIELD` reads **4.00 on the front anchor, 3.80 on two carriers and 3.63 from the back rank**:
+  worth **−0.65, −0.45 and −0.28**. Confirmed on the shipped `c19-s50` (3.25 bare, 3.63 with a
+  back-rank taunt). The mechanism generalises: **a taunt concentrates the party's damage and
+  concentration is what a party wants**, because one body dying drops a board's throughput faster
+  than five bodies being chipped — which also makes it the **direct antidote to a link** (board-wide
+  `ROOTBOUND` reads 1.00 of five and 1.63 with a taunt added). ⚠️ **Baiting the party's own
+  `enemy-lowest` / `enemy-highest` selections with a stat line is worth −0.63 by the same mechanism**,
+  so this is the one place "reach for the stat block first" does not help. **Price a chapter's
+  premise mechanic before authoring its boards.** [authoring](docs/authoring.md)
+- ⚠️ **Common-equivalent weight counts _health_ and the `ascended` premium is on every stat**, which
+  is what makes an ascended anchor mis-shortlist. At level 455 the premium is ×3.792 on defence and
+  attack as well, and chapter 20's final read **0% at every stat line from 230/56 down to 110/20**
+  with the fight lengthening at each step — chapter 19's escort signature pointing at the boss
+  itself, with an innocent escort (four escorts and no boss read 4.00). What settled it was the
+  **attack**: at 200 health, 30 reads 0%, 16 reads 13%, 10 reads 73%. Its lieutenant came down
+  250/52 → **190/18** and its final 230/56 → **175/16**. **Shortlist on weight; settle on attack.**
+  [authoring](docs/authoring.md)
+- ⚠️ **Make board weight smooth in the stage index when the locks step at band boundaries.** A
+  per-band weight drop cancels against the new band's lock and reads as a step _backwards_ on the
+  probe — `c20-s53` measured 0.780 against the 0.85 bar. ⚠️ **And a mini-boss is a peak nothing
+  covers**: the boundary-skip in `chapters.balance.ts` is for a chapter _boss_ only, so the samples
+  after a mini-boss are a chapter's thinnest margin (`c20-s13` read 0.860). Lift them — but **not in
+  the closing band**, which has no weight to spare. [authoring](docs/authoring.md)
+- ⚠️ **A pool wall can be a _faction_ wall, and chapter 20 is where that distinction mattered.**
+  Twelve blocks sit under 150 health and **every one is a Monster**, while the four lightest Undead
+  or Human blocks total 790 — so The Commonage had to author bodies at 150 and 170 to have a closing
+  band while the light bodies it needed already existed in a faction it could not field. **Check the
+  lean's own light tail, not the pool's.** [authoring](docs/authoring.md)
 - ⚠️ **A mechanic can be worth _only_ fight length, and that is the ninety-second clock rather than a
   difficulty.** Measured across chapter 14's whole refusal vocabulary — `def` past the register,
   `physicalResist` to 0.60, board-wide barriers, aegises, guards and weakens, and instance size at held

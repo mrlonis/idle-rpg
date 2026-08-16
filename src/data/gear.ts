@@ -363,7 +363,15 @@ export const GEAR_RULES = {
      * meant to do anything, so firing on schedule is the only thing that will eventually force the
      * fix. **Chapter 19 landed on it and wanted 425, exactly as this line predicted — the twelfth
      * landing, the twelfth time the answer was `stages / 2`, and the first time the prediction was
-     * written down a chapter in advance and then checked. Chapter 20 will want 450.**
+     * written down a chapter in advance and then checked.**
+     *
+     * ⚠️ **Chapter 20 landed on it and wanted 455, where this line had predicted 450 — the
+     * fourteenth landing, still `stages / 2`, and the first time the *prediction* was wrong.** It
+     * was wrong for one reason: the prediction assumed a fifty-stage chapter, and The Commonage is
+     * **sixty**, so the ladder went to 910 rather than 900. **The rule held and the arithmetic
+     * behind the guess did not.** Predict from `CHAPTER_CURVE` rather than from the last chapter's
+     * length; chapter 21 will want **485**, and will keep wanting `stages / 2` until the tilt
+     * saturates.
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -371,7 +379,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 425,
+    gradeSoftness: 455,
   },
 
   /**

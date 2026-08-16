@@ -25,9 +25,18 @@ the point. See [authoring](authoring.md).
 
 ## The shape
 
-`CHAPTER_CURVE` is a ramp to a permanent cap of fifty — base 10, step 10, band 1, max 50. **The long
-ladder is more chapters, not longer ones.** The old banded growth toward two-hundred-stage chapters
-is gone rather than deferred; revisit deliberately if fifty ever reads as too short at the far end.
+`CHAPTER_CURVE` is a ramp to a cap — base 10, step 10, band 1, max 50 — and since chapter 20 the
+**cap is a schedule rather than a constant**: `raisedMaxFromChapter` 20 and `raisedMaxStages` 60, so
+chapters 1–19 hold fifty and 20 onward hold sixty. **The long ladder is still more chapters, not
+longer ones**; this steps **once**, on the deliberate revisit the old "permanent cap of fifty" note
+invited, and a second step needs its own argument rather than this one as precedent.
+
+⚠️ **A raised cap only ever applies from its own chapter on, and `chapterSize` refuses a lowering.**
+That is what makes the step cheap: `min(ramp, cap)` with the ramp already past every cap means no
+chapter below the schedule changes length, no shipped stage id moves, and `SAVE_VERSION` does not
+move — a run's position is a chapter plus a stage within it. A _lowering_ would shorten a chapter
+that has shipped and teleport every run standing past its new last stage, which is why it is refused
+rather than honoured.
 
 **The chapter-size formula and the authored chapters are two statements of one fact.** `chapterSize`
 says how long a chapter should be and `LadderShape` says how long the authored ones are;
@@ -41,8 +50,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring and The Interest. A re-cut that moves a boundary owes the
-new final a unique body before it ships.
+Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring, The Interest and The
+Undivided. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -221,6 +230,30 @@ does.** That is the same countdown `legendary-plus` ran, and the next rung — `
 is not due yet. **Re-measure it at chapter 21 rather than carrying this projection forward**; the
 chapter-15 projection about `mythic` was correct when written, quoted unchanged for three chapters,
 and false by the time it mattered.
+
+## ⚠️ Chapter 20 stays on `mythic` a second time, and what nearly moved it was the pool
+
+The Commonage closes at **455** — the first chapter longer than fifty, so it climbs **thirty** levels
+rather than twenty-five — and asks for `mythic` again. Against chapter 19's seam of 2.8677, `mythic`
+reads **1.5373** (|Δln| **0.6237**) and `mythic-plus` **12.9700** (|Δln| **1.5099**): `mythic` by
+0.886 of a nat, and comfortably above 1.00, so this is a **stay** on the same terms chapter 19 set.
+
+⚠️ **The degenerate chain reaches three links, exactly as chapter 19 predicted.** Chapters 18, 19 and
+20 all clamp to `mythic`'s cap of 340, so `SLOWGROWTH`, `BACKCUT` and `INVESTED` are one set of five.
+The Commonage's last board stands **a hundred and fifteen levels** above the cap — ×10.98, the
+sharpest gap the campaign has carried.
+
+⚠️ **The projection that this rung buys about three chapters was right about the arithmetic and
+wrong about the pool, which bought about one and a half.** The board budget here is **2,145 → 1,328**
+common-equivalent against The Backcut's 3,745 → 5,875, and at level 455 the lightest five _shipped_
+commons that can stand together read **3% and 0.03 survivors**. The chapter needed two bodies at 150
+and 170 health authored before its closing bands could exist.
+
+⚠️ **And the wall is a _faction_ squeeze rather than an absolute one.** Twelve blocks sit under 150
+health and every one is a **Monster** — The Quickmire's seventeen are still the light tail of the
+whole game — while the four lightest Undead or Human blocks total 790 before a boss. **A chapter 21
+leaning Monster does not meet this wall; every other lean does.** Re-measure the lean's own light
+tail at chapter 21, not the pool's.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

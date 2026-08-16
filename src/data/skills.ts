@@ -7165,6 +7165,216 @@ export const NOTHING_HERE_IS_FREE = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Commonage — chapter 20's twelve turns
+//
+// ⚠️ **The chapter's lock is the same family of `opening` passives The Backcut used, and the
+// difference is which one is the spine and which way it walks.** The Backcut's spine is
+// {@link THORNMAIL} moving from the back rank to the front to the whole board; The Commonage's is
+// {@link ROOTBOUND} spreading **outward** from the back three to the front two to all five, with
+// the reflect arriving late as a second tax rather than as the first.
+//
+// ⚠️ **Chapter 20 measured the taunt and it is worth *less than nothing*, which is why no turn
+// below applies one.** Priced against a control of four bodies at 300/40 behind a 420/46 anchor at
+// level 455 and Relic 100 — 2,099 common-equivalent, reading **3.35 of five**, and it moves (3.95
+// at 2,018, 2.60 at 2,180, 1.18 at 2,220) — {@link OATHSHIELD} reads **4.00 on the front anchor**,
+// 3.80 on two carriers and 3.63 from the back rank: **−0.65, −0.45 and −0.28 of a survivor**. On
+// the shipped `c19-s50` the same bolt-on reads 3.25 bare against 3.30 and **3.63**. A taunt
+// *concentrates* the party's damage, and concentration is what a party wants — one body dying
+// drops the board's throughput faster than five bodies being chipped. **It is also the direct
+// antidote to this chapter's own lock**: a board-wide `ROOTBOUND` reads 1.00 of five and 1.63 with
+// a front-rank taunt added to it, so the taunt hands 0.63 straight back.
+//
+// ⚠️ **So the turns here are plain damage for the same reason The Backcut's were**, with two
+// exceptions that are the chapter's own: the cast link on {@link RING_THE_PASSBELL}, which is the
+// one lock in the chapter that lapses, and {@link NOBODY_HERE_IS_ONE_THING} on the final.
+// ---------------------------------------------------------------------------------------
+
+/** Turf closed over it a long time ago. It comes up through the turf rather than out of it. */
+export const UP_THROUGH_THE_TURF = {
+  id: 'up-through-the-turf',
+  name: 'Up Through the Turf',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 32,
+  priority: 3,
+} as const;
+
+/** A furrow is a straight line and it was walking it before anybody was buried under it. */
+export const ALONG_THE_FURROW = {
+  id: 'along-the-furrow',
+  name: 'Along the Furrow',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 36,
+  priority: 3,
+} as const;
+
+/** The hand that comes up first is the hand nobody put there. */
+export const WHOSE_HAND_IS_THAT = {
+  id: 'whose-hand-is-that',
+  name: 'Whose Hand Is That',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.25 }],
+  cooldown: 30,
+  priority: 2,
+} as const;
+
+/** A boundary marker with nobody left on either side of it to argue about. */
+export const THE_STONE_STANDS = {
+  id: 'the-stone-stands',
+  name: 'The Stone Stands',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.1 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's one reaching turn, and there is exactly one on any body that carries it.
+ *
+ * ⚠️ **Chapter 19 measured that two `enemy-back` turns on one body is the party's back rank
+ * deleted rather than a heavier body** — a 520/76 draft carrying two read 0% beside any second
+ * legendary where two others 4% heavier read 4.00. One turn, one carrier, and the chapter's
+ * reaching body is a `common` rather than a legendary for the same reason.
+ */
+export const CHAFF_IN_THE_THROAT = {
+  id: 'chaff-in-the-throat',
+  name: 'Chaff in the Throat',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.4 }],
+  cooldown: 40,
+  priority: 3,
+} as const;
+
+/** Stubble is what is left standing after everything worth taking has gone. It still runs. */
+export const OVER_THE_STUBBLE = {
+  id: 'over-the-stubble',
+  name: 'Over the Stubble',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 24,
+  priority: 2,
+} as const;
+
+/**
+ * The passing bell, rung for one and answered by all of them.
+ *
+ * ⚠️ **The chapter's only lock that lapses**, and the reason it is worth authoring beside a board
+ * full of permanent ones: {@link CHAINBOND} is *cast*, runs its lingering duration and goes, so the
+ * party gets its route back on a schedule. Measured at the chapter's control it is worth **1.78 of
+ * a survivor** against the permanent board-wide {@link ROOTBOUND}'s 2.35 — cheaper, and a window
+ * rather than a wall.
+ *
+ * The cooldown outlasts the status, which is the rule every applied status in this project follows.
+ */
+export const RING_THE_PASSBELL = {
+  id: 'ring-the-passbell',
+  name: 'Ring the Passbell',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * A fallow year, imposed on whoever is standing in the field.
+ *
+ * The chapter's board-wide turn, worth **1.40 of five** at the control — and **one board-wide turn
+ * per board** is the rule chapter 17 ended up with after pairing two and reading 48%. No board in
+ * The Commonage carries this beside {@link RING_THE_PASSBELL} or beside the final's.
+ */
+export const LIE_FALLOW = {
+  id: 'lie-fallow',
+  name: 'Lie Fallow',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
+/** A quickset hedge is a fence somebody grew. It has been growing for a very long time. */
+export const GROWN_THROUGH_IT = {
+  id: 'grown-through-it',
+  name: 'Grown Through It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** Gleaning is taking what is left. There is always something left. */
+export const WHAT_THE_FIELD_KEPT = {
+  id: 'what-the-field-kept',
+  name: 'What the Field Kept',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 4,
+} as const;
+
+/**
+ * The lieutenant's conditioned turn, and the condition is the chapter's question asked out loud.
+ *
+ * ⚠️ **A lieutenant's signature is better conditioned than opening**, so its five appearances are
+ * five different fights against one block. This one answers a party that has stopped spreading its
+ * damage: it fires only while four or more of the party are still standing, which is exactly the
+ * stretch in which the board's link is doing its work. Once the party is down to three it goes
+ * quiet and {@link NONE_OF_US_IS_THE_ONE} takes over.
+ */
+export const ANSWERED_TOGETHER = {
+  id: 'answered-together',
+  name: 'Answered Together',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 56,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's plain turn, for after the party has stopped asking the question. */
+export const NONE_OF_US_IS_THE_ONE = {
+  id: 'none-of-us-is-the-one',
+  name: 'None of Us Is the One',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn.
+ *
+ * `enemy-front` and no rider, on the same measurement six closing bodies have now produced: against
+ * a five the front rank is where a boss's damage is worth the most, and every aim that reaches past
+ * it leaves the board **easier** than saying nothing.
+ */
+export const ONE_GRAVE_BETWEEN_US = {
+  id: 'one-grave-between-us',
+  name: 'One Grave Between Us',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 54,
+  priority: 5,
+} as const;
+
+/**
+ * The chapter's argument finished, on the chapter's last board.
+ *
+ * {@link ROOTBOUND} is an `opening` everywhere else in The Commonage — true from the first tick and
+ * permanent. Here it is *given*, which is the only place in the chapter a body hands the lock to
+ * bodies that did not already have it, and it is why the final board is the only one where every
+ * slot is bound whatever it was authored as.
+ */
+export const NOBODY_HERE_IS_ONE_THING = {
+  id: 'nobody-here-is-one-thing',
+  name: 'Nobody Here Is One Thing',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: ROOTBOUND }],
+  cooldown: 90,
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -7522,4 +7732,18 @@ export const SKILLS = [
   PAID_EITHER_WAY,
   IT_ADDS_UP_EITHER_WAY,
   NOTHING_HERE_IS_FREE,
+  UP_THROUGH_THE_TURF,
+  ALONG_THE_FURROW,
+  WHOSE_HAND_IS_THAT,
+  THE_STONE_STANDS,
+  CHAFF_IN_THE_THROAT,
+  OVER_THE_STUBBLE,
+  RING_THE_PASSBELL,
+  LIE_FALLOW,
+  GROWN_THROUGH_IT,
+  WHAT_THE_FIELD_KEPT,
+  ANSWERED_TOGETHER,
+  NONE_OF_US_IS_THE_ONE,
+  ONE_GRAVE_BETWEEN_US,
+  NOBODY_HERE_IS_ONE_THING,
 ] as const;
