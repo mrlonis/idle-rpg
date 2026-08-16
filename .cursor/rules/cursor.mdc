@@ -80,9 +80,10 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: seventeen chapters, seven hundred and fifty
-  stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
-  were retired.
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: eighteen chapters, eight hundred stages, what
+  a stage authors, position versus clear count, the rung cadence, and the guards that were retired.
+  ⚠️ **Chapter 18 moved the ascension rung to `mythic`, the first rung move in seven chapters**, and
+  it ended the five-link degenerate seam chain.
 - **[docs/ascension.md](../../docs/ascension.md)** — the sixteen-rung ladder, the two paths, what a rung
   costs, and the three rungs that also hand over a skill.
 - **[docs/level-resonance.md](../../docs/level-resonance.md)** — the level the whole roster shares. **Read
@@ -94,15 +95,16 @@ them is how they get reversed by accident.
   ramp **0.05**. Read it before planning a chapter's difficulty around it. ⚠️ **The grade ladder is
   exhausted and chapter 17 is the first chapter that could not step it** — every board in The
   Quickmire carries Relic 100 flat, and a sixth grade is a `data/` rule change rather than a chapter.
-  ⚠️ **The campaign's gradient came back from a rarity cap instead**: chapters 11 through 17 all sit
-  on `legendary-plus`, whose cap of 260 the ladder passed at chapter 12, so a chapter now closes tens
-  of levels above the party it is tuned for and the seam ratio falls by exactly
-  `perLevel.common ** -25` = **1.680 a chapter, by construction** — 10.4858 → 7.6774 → 4.5665 →
-  2.7160 → 1.6154 → **0.9608**, which is the first below 1.00. ⚠️ **That has driven the board budget
-  below the shipped enemy pool's floor**: chapter 17's boards are half of chapter 16's, only **13** of
-  the 221 blocks that preceded it are light enough to field at all, and it had to be authored **57.7%
-  new**. Budget ~15 new ordinary blocks for the next chapter, not 8. See
-  [authoring](../../docs/authoring.md).
+  ⚠️ **The campaign's gradient came from a rarity cap for six chapters and chapter 18 ended it.**
+  Chapters 11 through 17 all sat on `legendary-plus`, whose cap of 260 the ladder passed at chapter
+  12, so every chapter's boards had to fall by exactly `perLevel.common ** -25` = **0.595 a chapter,
+  by construction** — the seam ran 10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154 → **0.9608**, below
+  1.00 for the first time, and the board budget fell through the floor of the shipped enemy pool
+  (chapter 17 had to be authored **57.7% new** because only 13 of 221 blocks were light enough).
+  ⚠️ **A chapter 18 on that rung was arithmetically impossible**: the budget would have been 129 → 91
+  common-equivalent per body, and of 238 shipped blocks **five** sit at or under 129 and **none**
+  at or under 91. **The move to `mythic` is what fixed it**, and it needed no `data/` rule change —
+  see below. See [authoring](../../docs/authoring.md).
 - **[docs/signature-items.md](../../docs/signature-items.md)** — the fourth axis: one item per
   ascended-tier character, unlocked at `mythic`, thirty levels bought with emblems.
 - **[docs/economy.md](../../docs/economy.md)** — the seven currencies, income rates, the level curve, pull
@@ -345,7 +347,7 @@ Asserted in `core/battle/simulate.spec.ts`.
   anything.**
 - ⚠️ **A scope, a reach and a selection are three different things, and the gap between the first
   and the third can be the whole mechanic.** Measured at chapter 17's weight, a `STUN` on
-  `enemy-highest` is worth **0.00** survivors at one caster *and* at two, while the identical status
+  `enemy-highest` is worth **0.00** survivors at one caster _and_ at two, while the identical status
   on `enemy-all` is worth **2.60**. Author the scope or do not author the mechanic — and say which of
   the three a prose claim is about, because conflating them has shipped a false claim four times.
   [authoring](../../docs/authoring.md)
@@ -377,6 +379,25 @@ Asserted in `core/battle/simulate.spec.ts`.
   of fight.** What moves a tuned party is the anchor slot, and its response there is a cliff. **Count
   the timeouts and check the control can move before believing either a positive or a negative.**
   [testing](../../docs/testing.md)
+- ⚠️ **Enemy _health_ is the sharpest instance of that rule and it grades 0.00.** Measured at chapter
+  18's weight against five walls at level 390 with attack held fixed, health from **×1.0 to ×2.8** —
+  absolute weight 14,043 to 39,321 — reads **4.00 survivors at every single row with zero timeouts**
+  and buys nothing but fight length, 25.7s to 62.6s. Held the other way, attack from ×1.0 to ×1.9
+  reads 4.00 → 4.00 → 3.92 → **0.00**. **A durability chapter's identity is its health and its
+  difficulty is the attack standing behind it**; pushing health alone walks the chapter into the
+  timer rather than making it hard. [authoring](../../docs/authoring.md)
+- ⚠️ **No scalar predicts a board, and three were tried at chapter 18.** Common-equivalent health,
+  attack-equivalent and a throughput product all mis-rank the shipped boards — a five-wall board at
+  12,673 absolute weight reads 4.00 survivors where a five-attacker board at 12,920 reads **0.97** —
+  because difficulty is throughput times fight length and fight length is set by the health. Use
+  common-equivalent weight to _shortlist_ and the **difficulty probe's own threshold** to budget a
+  spine; measure every authored board before believing any of it. [authoring](../../docs/authoring.md)
+- ⚠️ **Re-measure a projection before carrying it forward; chapter 18 is where one inverted.**
+  Chapter 15 measured that a `mythic` party would need boards past the Unmade's ceiling and chapters
+  16 and 17 both quoted it unchanged. Three further halvings happened underneath the claim, and by
+  chapter 18 it was false by a wide margin: the `mythic` budget is 1,088 → 766 common-equivalent per
+  body against a pool median of 1,295, and **116 of 238 blocks sit inside that band where 13 did a
+  chapter earlier**. A horizon is a claim about a curve, and the curves in this project move.
 - ⚠️ **A tower band's crew owes 23 more levels of margin for every rung it takes past the first**,
   because `ln(1.6) / ln(perLevel.common)` is 22.6. Reusing `ROOF_MARGIN` unchanged on a new hundred
   gives ×2.703 against the shipped ×1.689 — and **the failure is invisible in the sweep**, because a

@@ -12,12 +12,12 @@ Companion references: [attributes](attributes.md) for the stat block gear multip
 
 ---
 
-## ⚠️ The ladder is exhausted and chapter 17 is the first chapter that could not step it
+## ⚠️ The ladder is exhausted, and chapters 17 and 18 both carry it flat
 
 Chapter 16 closed on **Relic 100**, the top of the whole grade ladder. There is no grade 5 and no
-Relic 101, so **The Quickmire carries grade 4 / level 100 on all fifty of its boards, flat**. That
-is recorded as a finding rather than answered as scope, and the reason it costs nothing is that the
-axis has now been measured four times and never as difficulty:
+Relic 101, so **The Quickmire and The Slowgrowth both carry grade 4 / level 100 on all fifty of their
+boards, flat**. That is recorded as a finding rather than answered as scope, and the reason it costs
+nothing is that the axis has now been measured four times and never as difficulty:
 
 | measured                                    | worth                              |
 | ------------------------------------------- | ---------------------------------- |
@@ -26,6 +26,11 @@ axis has now been measured four times and never as difficulty:
 | chapter 13 — one whole grade step           | ×1.15                              |
 | chapter 16 — the whole Relic 59 → 100 ramp  | **0.08 of a survivor**, +25% fight |
 | chapter 17 — the same ramp at its weight    | **0.05 of a survivor**             |
+
+⚠️ **Chapter 18 is where it stopped mattering, and it is worth saying why.** The campaign's
+escalation problem was never gear's to solve: it was a rarity cap the ladder had climbed past, and
+what fixed it was moving the party's rung to `mythic`. A sixth grade would have been the wrong repair
+applied to the right symptom. See [ladder](ladder.md).
 
 ⚠️ **A sixth grade is a `data/` rule change rather than a chapter**, and a grade sized to carry the
 campaign's escalation would have to be roughly an order of magnitude larger than the five shipped

@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Seventeen chapters and seven hundred
-and fifty stages** — 10, 20, 30, 40 and then thirteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Eighteen chapters and eight hundred
+stages** — 10, 20, 30, 40 and then fourteen of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -16,7 +16,10 @@ shipped enemy pool** — its blocks are roughly two fifths of chapter 15's, its 
 is the last chapter that can step the gear ladder. Chapter 17 is **The Quickmire**, the first chapter
 whose gear does not ramp at all (Relic 100 on every board), the first that had to be **57.7% new
 blocks** because the pool cannot supply a returning majority at its weight, and the first whose seam
-ratio falls **below 1.00**. See [authoring](authoring.md).
+ratio falls **below 1.00**. Chapter 18 is **The Slowgrowth**, which is where that arithmetic ran out
+and the campaign moved a rung for the first time in seven chapters — to `mythic`, against the
+log-space rule rather than with it, because there is no chapter 18 on `legendary-plus` at all. See
+[authoring](authoring.md).
 
 ## The shape
 
@@ -153,9 +156,42 @@ The Quickmire closes at 375, **a hundred and fifteen levels** above the cap: `le
 it is tuned for**, and nothing the party gains changes that — what keeps the chapter winnable is that
 its boards are half the weight of the one below. A chapter 18 on this rung reads **0.5718**.
 
-⚠️ **The seam chain is now degenerate four links deep**: chapters 13 through 17 all clamp to 260, so
-`QUARRIED`, `SHUTGATED`, `UNDERROAD`, `SPOILED` and `INVESTED` are **five consecutive names for one
-set of five combatants**. Recorded rather than repaired, for the fourth chapter running.
+⚠️ **The seam chain went degenerate four links deep**: chapters 13 through 17 all clamp to 260, so
+`QUARRIED`, `SHUTGATED`, `UNDERROAD`, `SPOILED` and `QUICKMIRED` are **five consecutive names for one
+set of five combatants**. Recorded rather than repaired, for four chapters running — **and chapter 18
+ends it.**
+
+## ⚠️ Chapter 18 moves the rung to `mythic`, and it is an override rather than a derivation
+
+The Slowgrowth closes at 400 and asks for **`mythic`**, the first rung move since chapter 11. Against
+chapter 17's seam of 0.9608, `legendary-plus` reads **0.5715** (|Δln| 0.5195) and `mythic` reads
+**4.8214** (|Δln| 1.6131) — so **the log-space rule prefers staying put, by 1.09 of a nat, and the
+chapter overrides it.**
+
+⚠️ **The rule assumes the seam below it was correct, and below 1.00 it is not.** What it would have
+reproduced is a board budget of **645 → 454** common-equivalent, or **129 → 91 per body on a board of
+five**. Of the 238 blocks that existed before The Slowgrowth, **five** sit at or under 129 and
+**none** at or under 91; the lightest body ever shipped is 100. **There is no chapter 18 on
+`legendary-plus`** — not a hard one, not any.
+
+⚠️ **`mythic` was ruled out at chapter 15 on a measurement, and the measurement inverted.** The
+Underroad recorded that a `mythic` five needs boards scaled ×2.4 — an anchor near 3,550 health against
+the Unmade's ceiling of 1800 — and chapters 16 and 17 quoted it unchanged. Three further halvings
+happened underneath the claim. Measured at chapter 18: the budget is **5,442 → 3,830**
+common-equivalent, **1,088 → 766 per body**, against a pool median at level 400 of **1,295** and an
+Unmade of 5,820. **116 of 238 blocks sit inside the ordinary-slot band where 13 did for The
+Quickmire.** Nothing in `data/` had to change.
+
+⚠️ **What the move does not do is give the campaign a difficulty gradient of its own.** A chapter is
+×1.68 of party power and a rung ×1.60, so the two still nearly cancel; what the rarity cap was
+supplying was a gradient made of the party being unable to keep up, which is a defect wearing a
+gradient's clothes. The three guards milestone 24 widened stay where they are, and "still costs that
+party something at the top" still holds at 4.00 of five with zero timeouts.
+
+⚠️ **The move is also the event both mode anchor caps were written to wait for.**
+`DescentLevelData.anchorCap` and `ExpeditionRulesData.anchorCap` were conditioned on "a chapter asks
+for a rung above `legendary-plus`" rather than on a chapter shipping. This is the first time that
+condition has fired. See [descent](descent.md) and [expeditions](expeditions.md).
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

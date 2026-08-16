@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                       |
 | ---------------- | ------------------------------------------- |
-| Campaign         | 17 chapters, 750 stages, enemy levels 1–375 |
+| Campaign         | 18 chapters, 800 stages, enemy levels 1–400 |
 | Towers           | 7 × 300 floors, enemy levels 1–142          |
-| Enemy archetypes | 238                                         |
+| Enemy archetypes | 248                                         |
 | Characters       | 56, with 14 signature items                 |
 | The Descent      | 24 boards, 14 card families                 |
 | Expeditions      | 3 maps                                      |
@@ -61,6 +61,7 @@ each level standing for two stages. There is nothing to bisect and nothing to so
 | 15      | 300   | 325    | 25   |
 | 16      | 325   | 350    | 25   |
 | 17      | 350   | 375    | 25   |
+| 18      | 375   | 400    | 25   |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -232,6 +233,58 @@ Priced against one calibrated control — an anchor of 230/18 behind four bodies
    author by accident.** `c17-s30` paired two `SLOW` casters and read 48%; `c17-s40` and `c17-s50`
    each paired a `SLOW` or `STUN` with the board-wide `HASTE` and read 30% and 78%. **One board-wide
    turn per board** is the rule the chapter ended up with.
+
+### ⚠️ Chapter 18 is where the rarity-cap gradient ran out, and the answer was a rung
+
+The Slowgrowth closes at **400**. On `legendary-plus` its seam would read **0.5718** and its board
+budget **645 → 454** common-equivalent — **129 → 91 per body on a board of five**. ⚠️ **Of the 238
+blocks that existed before it, five sit at or under 129 and none at or under 91**, and the lightest
+body this game has ever shipped is 100. **There is no chapter 18 on that rung**, hard or otherwise.
+
+1. ⚠️ **The rung moved to `mythic`, against the log-space rule rather than with it.** Against chapter
+   17's seam of 0.9608, `legendary-plus` reads 0.5715 (|Δln| 0.5195) and `mythic` 4.8214 (|Δln|
+   1.6131) — the rule prefers staying put by 1.09 of a nat. **The rule assumes the seam below it was
+   correct and below 1.00 it is not.** Say which of the two a chapter is doing; this one is an
+   override and says so.
+2. ⚠️ **`mythic` was ruled out at chapter 15 on a measurement and the measurement inverted.** The
+   Underroad recorded boards scaled ×2.4 — an anchor near 3,550 against the Unmade's 1800 — and
+   chapters 16 and 17 quoted it unchanged while three further halvings happened underneath it.
+   Measured at chapter 18 the budget is **5,442 → 3,830** common-equivalent, **1,088 → 766 per
+   body**, against a pool median at level 400 of **1,295** and an Unmade of 5,820: **116 of 238
+   blocks sit inside the ordinary-slot band where 13 did a chapter earlier.** Nothing in `data/` had
+   to change. **Re-measure a projection before carrying it forward.**
+3. ⚠️ **The rung move fixes the pool as well as the seam, and the quota lands at the quota again.**
+   The Quickmire was 57.7% new and not by choice; The Slowgrowth is **25.8%** — eight new ordinary
+   blocks against twenty-three returning — because the whole roster is fieldable again. Budget the
+   normal **8 new ordinary blocks plus the lieutenant and the final**, not chapter 17's fifteen.
+4. ⚠️ **The move is what both mode anchor caps were waiting for, and only one of them moved.**
+   Expeditions passed unchanged at 322. The Descent's cap has **no working setting** — see
+   [descent](descent.md) — and its deepest depth is pinned in `RUNG_TROUGH` instead.
+
+### ⚠️ What chapter 18 measured about weight, and the two shapes that generalise
+
+Priced against a control of five walls at level 390 and Relic 100 against the `mythic` five.
+
+| held fixed | swept                                    | reading                                     |
+| ---------- | ---------------------------------------- | ------------------------------------------- |
+| attack     | health ×1.0 → ×2.8 (abs 14,043 → 39,321) | **4.00 survivors at every row**, 0 timeouts |
+| health     | attack ×1.0 → ×1.9 (abs held at 18,256)  | 4.00 → 4.00 → 3.92 → **0.00**               |
+
+1. ⚠️ **Enemy health grades 0.00 across a ×2.8 range and buys only fight length** — 25.7s to 62.6s,
+   which is walking toward the ninety-second clock rather than toward difficulty. It is the sharpest
+   instance of the rule chapter 14 found across its refusal vocabulary and chapter 16 found on gear.
+   **A durability chapter's identity is its health and its difficulty is the attack standing behind
+   it**; no board in The Slowgrowth is five hides.
+2. ⚠️ **No scalar predicts a board and three were tried.** Common-equivalent health,
+   attack-equivalent and a throughput product all mis-rank the shipped boards: a five-wall board at
+   12,673 absolute weight reads **4.00** where a five-attacker board at 12,920 reads **0.97**,
+   because difficulty is throughput times fight length and fight length is set by the health. Use
+   common-equivalent weight to **shortlist** and the **difficulty probe's own threshold** to budget a
+   spine. The Slowgrowth's spine runs 8,281 → 17,048 with a worst adjacent ratio of **0.931**.
+3. ⚠️ **4.00 survivors is a plateau on a `mythic` five, not a midpoint.** It loses one member to
+   almost any real board and the other four to almost nothing until the board cliffs — the shape the
+   Demon Tower's `critBlock` band records, arriving from the opposite direction. **Budget the
+   escalation on the probe threshold and use survivors only as a legality check.**
 
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
@@ -546,6 +599,7 @@ The shipped seventeen, with the level range each closes over:
 | 15  | The Underroad      | 50     | 300 → 325 | whether there is **an end to it**               |
 | 16  | The Spoilfield     | 50     | 325 → 350 | whether it is **the party's own damage at all** |
 | 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**         |
+| 18  | The Slowgrowth     | 50     | 375 → 400 | whether it **adds up**                          |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -561,7 +615,9 @@ Every chapter adds one to `chapters.balance.ts`: the previous chapter's `INVESTE
 party defined by the chapter it has just finished, with `INVESTED` re-pointed at the rung the new
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
-`SPOILED` → `INVESTED`.
+`SPOILED` → `QUICKMIRED` → `INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18**: `QUARRIED`
+through `QUICKMIRED` are five names for one set of five combatants, and `INVESTED` is the first party
+in six chapters that differs from the one below it.
 
 ⚠️ **The last _two_ links are now degenerate, and a chapter-16 session should expect a third.**
 Chapters 13, 14 and 15 all close above `legendary-plus`'s cap of 260, so `QUARRIED`, `SHUTGATED` and

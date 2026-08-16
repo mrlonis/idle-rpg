@@ -6823,6 +6823,174 @@ export const THE_RACE_WAS_DECIDED = {
   priority: 5,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Slowgrowth — chapter 18's ten.
+//
+// ⚠️ **The axis is a stat, so the skills are deliberately plain**, which is the rule the Seedfall
+// and the Closing both recorded: *when the axis is a stat, a skill carrying a rider measures the
+// rider instead.* Eight of the ten below are a single damage effect on a long cooldown, and the
+// two that are not belong to the lieutenant and the final.
+//
+// ⚠️ **Nothing here restores, drains, shields or wards.** A chapter whose whole question is
+// durability is the one most able to run the ninety seconds out, and enemy sustain on top of
+// enemy weight is the clock with a stat block attached rather than a difficulty. The measured
+// longest fight across all fifty boards is stated in `chapter-18.ts`; the sweep counts the
+// timeouts explicitly, because a wipe and a timeout are the same `defeat`.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not defending itself. It is only where it has been for a very long time.
+ *
+ * The opening band's filler. A plain hit on a long cooldown for the reason {@link CLOSE_OVER_IT}
+ * is one: this block's contribution is its own health bar, and a rider would be the thing the
+ * board measured.
+ */
+export const TAKE_ROOT = {
+  id: 'take-root',
+  name: 'Take Root',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 48,
+  priority: 1,
+} as const;
+
+/** The same turn one band further in, and the only difference is how much of it there is. */
+export const SETTLE_IN = {
+  id: 'settle-in',
+  name: 'Settle In',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 54,
+  priority: 2,
+} as const;
+
+/**
+ * A ring is a year and there are a great many of them.
+ *
+ * The second band's turn, on the blocks that carry the chapter's `def` and `physicalResist`. Sixty
+ * ticks because these are the slowest bodies on their boards and a shorter cooldown would quietly
+ * make a wall into a damage block — the Deepmast Heartwood's note, arriving on a second chapter.
+ */
+export const RING_BY_RING = {
+  id: 'ring-by-ring',
+  name: 'Ring by Ring',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/** Whatever year the water came up, it is still the year this one is living in. */
+export const THE_YEAR_IT_DROWNED = {
+  id: 'the-year-it-drowned',
+  name: 'The Year It Drowned',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * The canopy closes and the two in front of you stop being able to see out.
+ *
+ * ⚠️ **1.2 because it is wide, which is a rule rather than a choice** — `skills.spec.ts` caps every
+ * `enemy-all` and `enemy-row-*` skill there so a sweep can never out-earn a single target.
+ * `enemy-row-front` rather than `enemy-all`: the row is the two bodies a five cannot hide, and it
+ * is here for rhythm against the band's single-target turns rather than as an escalation.
+ */
+export const CLOSE_THE_CANOPY = {
+  id: 'close-the-canopy',
+  name: 'Close the Canopy',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 64,
+  priority: 2,
+} as const;
+
+/**
+ * What is under the water has further to reach than what is above it, and it does reach.
+ *
+ * ⚠️ **A *reach* (`enemy-back`), which is the third of the three words.** It is here because the
+ * chapter's weight all stands in front and a board that can only ever name the front rank hands
+ * the party a free back line for fifty stages. It carries no status for the reason the rest of
+ * this section carries none.
+ */
+export const UNDERBOUGH_SNARE = {
+  id: 'underbough-snare',
+  name: 'Underbough Snare',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * It has been standing here since before any of this was water, and it has only now noticed you.
+ *
+ * The lieutenant's signature, and a **conditioned** skill rather than an opening turn — which is
+ * the shape [authoring](../../docs/authoring.md) prefers, because it answers what the party is
+ * doing and so makes four appearances four different fights against one block.
+ *
+ * ⚠️ **The condition is on the caster's own wound and the effect is damage, which is the legal
+ * direction.** The banned shape is its defensive mirror — a body that *armours* itself as it is
+ * hurt — because that is the ninety-second clock with a narrative attached. Answering a wound with
+ * a bigger swing shortens the fight; answering it with a thicker hide lengthens one that was
+ * already going to end.
+ */
+export const COUNT_THE_RINGS = {
+  id: 'count-the-rings',
+  name: 'Count the Rings',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 58,
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's turn before the party has hurt it enough to be worth the other one. */
+export const WHAT_THE_WATER_LEFT = {
+  id: 'what-the-water-left',
+  name: 'What the Water Left',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * There is no hurrying it and there was never going to be.
+ *
+ * The final's headline turn. `enemy-front` and no rider, on the measurement four other closing
+ * bodies have produced: against a five the front rank is where a boss's damage is worth the most,
+ * and every aim that reaches past it leaves the board **easier** than saying nothing.
+ */
+export const NOTHING_HERE_HURRIES = {
+  id: 'nothing-here-hurries',
+  name: 'Nothing Here Hurries',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 56,
+  priority: 4,
+} as const;
+
+/**
+ * The final's second turn, and the chapter's whole question said once out loud.
+ *
+ * ⚠️ **`enemies-at-least` 4 rather than a status or a scope.** It asks whether the party is still
+ * whole, which on a board of this weight it will be for the first half of the fight and will not
+ * be for the second — so the final gets a heavy opening and a plain finish rather than an
+ * escalation that arrives exactly when the party can least answer it.
+ */
+export const ADD_IT_UP = {
+  id: 'add-it-up',
+  name: 'Add It Up',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 66,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 3,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
@@ -7158,4 +7326,14 @@ export const SKILLS = [
   NONE_OF_THEM_THE_ONE,
   NOT_YOUR_TURN,
   THE_RACE_WAS_DECIDED,
+  TAKE_ROOT,
+  SETTLE_IN,
+  RING_BY_RING,
+  THE_YEAR_IT_DROWNED,
+  CLOSE_THE_CANOPY,
+  UNDERBOUGH_SNARE,
+  COUNT_THE_RINGS,
+  WHAT_THE_WATER_LEFT,
+  NOTHING_HERE_HURRIES,
+  ADD_IT_UP,
 ] as const;

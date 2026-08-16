@@ -334,9 +334,11 @@ export const GEAR_RULES = {
      * hundred restored 18.7%. The Underroad took it to six hundred and fifty and it read **20.7%**;
      * three hundred and twenty-five restored 18.7%. The Spoilfield took it to seven hundred and it
      * read **20.5%**; three hundred and fifty restored 18.7%. The Quickmire took it to seven
-     * hundred and fifty and three hundred and seventy-five restored 18.7% for the twelfth time.
+     * hundred and fifty and three hundred and seventy-five restored 18.7% for the twelfth time. The
+     * Slowgrowth took it to eight hundred and it read **20.3%**; four hundred restored 18.7% for the
+     * thirteenth time — **the value the previous entry predicted in writing, a chapter early.**
      *
-     * ⚠️ **Twelve landings and every one of them is 18.7%, which is the whole finding.** The solution
+     * ⚠️ **Thirteen landings and every one of them is 18.7%, which is the whole finding.** The solution
      * is always `gradeSoftness = stages / 2` — that is the value at which the tilt equals 3.0, and
      * 3.0 is what produces 18.7% whatever the ladder's length is. So the constant is not a tuning
      * number at all; it is the ladder's length divided by two, written down by hand once a chapter.
@@ -359,7 +361,7 @@ export const GEAR_RULES = {
      * 21a *did* re-derive four chapters ahead: that quantity is **meant** to fall as the ladder
      * grows, so batching it costs only vigilance, and it was retired outright in 21d. This one is not
      * meant to do anything, so firing on schedule is the only thing that will eventually force the
-     * fix. **Chapter 18 lands on it again and will want 400.**
+     * fix. **Chapter 19 lands on it again and will want 425.**
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -367,7 +369,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 375,
+    gradeSoftness: 400,
   },
 
   /**

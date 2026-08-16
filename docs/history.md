@@ -370,9 +370,20 @@ a factor of three.** It added ~90 levels a chapter (80, 91, 94, 98 across chapte
 0.20 levels a stage or a `maxLevel` past 2,400 with `perLevel.common` retuned to match — a change to
 every balance figure in the project. **How long the campaign is meant to be is still open.**
 
+⚠️ **Chapter 18 moved the campaign's rung to `mythic`, which is the first rung move in seven
+chapters and closes one of the open questions above.** Chapters 11 through 17 all sat on
+`legendary-plus`, whose cap of 260 the ladder passed at chapter 12, so every chapter's boards had to
+fall by `perLevel.common ** -25` = 0.595 to stay winnable — six halvings that drove the seam below
+1.00 and the board budget through the floor of the shipped enemy pool. **A chapter 18 on that rung
+was arithmetically impossible**: 129 → 91 common-equivalent per body, against five shipped blocks at
+or under 129 and none at or under 91. The move needed no `data/` rule change, because three chapters
+of halving had quietly made the chapter-15 measurement that ruled `mythic` out false. ⚠️ **`mythic`
+is the signature-item unlock, so the campaign now reaches it** — the note below is superseded on
+that point. See [ladder](ladder.md).
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
-they ask for; every one runs inside a cap the party already holds, the campaign consumes 7 of 16
-rungs rather than 11, and `mythic` — the signature-item unlock — is deliberately outside it. The
+they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
+rungs rather than 11 until chapter 18 took the eighth. The
 trade is that the campaign has no difficulty gradient of its own: a chapter is ×1.68 of party power
 and a rung is ×1.60, so the two cancel. **The escalation is expected to arrive from enemy gear**,
 and three widened guards name that as the condition for restoring them — see

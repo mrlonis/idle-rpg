@@ -1,16 +1,18 @@
 import {
   ACID_WIND,
+  ADD_IT_UP,
+  AHEAD_OF_THE_ANSWER,
+  AHEAD_OF_THE_COLUMN,
   ALREADY_BEHIND_YOU,
   ANTIPHON,
   ASHPIT_RAKE,
-  AHEAD_OF_THE_COLUMN,
   AT_THE_HALT,
+  BANK_THE_WARD,
   BARROW_TITHE,
   BIND_THE_CONCORD,
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
   BROKEN_COVENANT,
-  BANK_THE_WARD,
   BULWARK,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
@@ -18,17 +20,22 @@ import {
   CINDER_STORM,
   CLEAVE_THE_LINE,
   CLOSE_OVER_IT,
+  CLOSE_THE_CANOPY,
   COUCHED_LANCE,
+  COUNT_IT_ALL_AGAIN,
+  COUNT_THE_RINGS,
   CULL_THE_EMBERS,
   CUTPURSE,
   CUT_BENEATH_IT,
+  CUT_THE_STRAPS,
   DOOMKNELL,
-  DRESS_THE_RANKS,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
+  DRESS_THE_RANKS,
   EMBERSEED,
   EVENSONG,
   EVERYTHING_COMES_BACK_BLUNT,
+  EVERYTHING_YOU_LEFT,
   FADE,
   FLATTEN_THE_EDGE,
   FLENSE,
@@ -46,6 +53,7 @@ import {
   KEEP_THE_STEP,
   KILN_LIGHT,
   LITANY,
+  LOAD_THE_CART,
   LOOSE_THE_PLATED_PACK,
   MARROW_CRUNCH,
   MASSED_LITANY,
@@ -56,12 +64,15 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NONE_OF_THEM_THE_ONE,
   NOTHING_GETS_A_GRIP,
+  NOTHING_HERE_HURRIES,
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES_HOLD,
+  NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_EDGE_FINDS_IT,
   ONE_VOICE,
@@ -71,20 +82,24 @@ import {
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
   PUT_IT_ON_THE_CART,
-  PUT_THE_EDGE_ON,
   PUT_OUT_THE_LAMPS,
+  PUT_THE_EDGE_ON,
   QUICKLIME_CUT,
   RAGGED_SWIPE,
   RAKE,
   RELIQUARY_SEAL,
   RIFTFALL,
   RIFTSTEP,
+  RING_BY_RING,
   ROOTWAKE,
+  ROPED_TOGETHER,
   RUINOUS_ARC,
   RUINOUS_STOOP,
   RUNEWARD,
+  RUN_THEM_DOWN,
   RUN_THE_SEED_DOWN,
   SEEDLIGHT,
+  SETTLE_IN,
   SET_THE_PITCH,
   SET_THE_STONE,
   SEVENFOLD_HEX,
@@ -97,17 +112,23 @@ import {
   SLAGHIDE_LUNGE,
   SLAG_SLAM,
   SLUNG_ANVIL,
+  SPINES_STILL_IN_IT,
+  STILL_COUNTING,
   STONE_FIST,
+  STRIP_THE_FALLEN,
   SUNFADE,
+  TAKE_IT_OFF_THE_COUNT,
+  TAKE_ROOT,
+  THERE_IS_NO_END_TO_IT,
   THE_ANVIL_FALLS,
-  THE_BAR_HOLDS,
   THE_BARROW_FORGETS,
+  THE_BAR_HOLDS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
-  THE_COURSE_HOLDS,
   THE_COUNTERSIGN,
   THE_COUNT_DOES_NOT_STOP,
+  THE_COURSE_HOLDS,
   THE_DEBT_CALLED,
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
@@ -125,9 +146,12 @@ import {
   THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
+  THE_MIRE_TAKES_A_STEP,
   THE_ORDER_STANDS,
   THE_PACK_ANSWERS,
+  THE_PACK_TURNS,
   THE_QUENCH,
+  THE_RACE_WAS_DECIDED,
   THE_RING_IS_SHUT,
   THE_RUST_HOLDS,
   THE_SEAL_BREAKS,
@@ -139,37 +163,23 @@ import {
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
-  THERE_IS_NO_END_TO_IT,
+  THE_YEAR_IT_DROWNED,
   THORNLASH,
   TYRANTS_CLAIM,
+  UNDERBOUGH_SNARE,
   UNDERMINE,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
   WHAT_FALLS_IS_SOWN,
+  WHAT_THE_DEAD_KEPT,
   WHAT_THE_FIELD_LEFT,
+  WHAT_THE_WATER_LEFT,
   WILDING_BLOOM,
   WITHERHEX,
   WITHERING_TOUCH,
   WRATH_UNBOUND,
-  ZENITHFALL,
-  COUNT_IT_ALL_AGAIN,
-  CUT_THE_STRAPS,
-  EVERYTHING_YOU_LEFT,
-  AHEAD_OF_THE_ANSWER,
-  NONE_OF_THEM_THE_ONE,
-  NOT_YOUR_TURN,
-  RUN_THEM_DOWN,
-  STILL_COUNTING,
-  THE_MIRE_TAKES_A_STEP,
-  THE_PACK_TURNS,
-  THE_RACE_WAS_DECIDED,
-  LOAD_THE_CART,
-  ROPED_TOGETHER,
-  SPINES_STILL_IN_IT,
-  STRIP_THE_FALLEN,
-  TAKE_IT_OFF_THE_COUNT,
-  WHAT_THE_DEAD_KEPT,
   WRITTEN_DOWN_BESIDE_IT,
+  ZENITHFALL,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -8561,6 +8571,337 @@ export const THE_LATECOMER = {
   skills: [NOT_YOUR_TURN, THE_RACE_WAS_DECIDED, RUN_THEM_DOWN],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 18 — The Slowgrowth. Eight ordinary blocks, a lieutenant and a final.
+//
+// ⚠️ **This is the first chapter in seven to move a rung, and every stat line below is a
+// consequence of that rather than of the chapter.** Chapters 11 through 17 all sat on
+// `legendary-plus`, whose cap of 260 the ladder passed at chapter 12, so each chapter's boards had
+// to fall by `perLevel.common ** -25` = **0.595** just to stay winnable — six consecutive halvings
+// that took a board from 2,715 common-equivalent to 763 and drove the seam ratio from 10.4858 to
+// **0.9608**, below 1.00 for the first time. Carried one chapter further, chapter 18's boards would
+// have had a budget of **645 → 454** common-equivalent, or **129 → 91 per body on a board of
+// five**. ⚠️ **Of the 238 blocks that existed before The Slowgrowth, five sit at or under 129 and
+// *none* at or under 91.** The lightest body this game has ever shipped is 100. The pool could not
+// have supplied a single board in the closing bands and no new block could have been authored for
+// them either — the arithmetic had run out, not the imagination.
+//
+// ⚠️ **`mythic` was ruled out at chapter 15 on a measurement, and the measurement has inverted.**
+// The Underroad recorded that a `mythic` five needs boards scaled ×2.4 — an anchor near 3,550
+// health against {@link UNMADE}'s ceiling of 1800 — and every chapter since repeated it. That was
+// true of chapter 15's boards. It is not true of chapter 18's, because three further chapters of
+// halving happened underneath the claim: the budget under `mythic` is **5,442 → 3,830**
+// common-equivalent, which is **1,088 → 766 per body**, and the pool's own median at level 400 is
+// **1,295**. ⚠️ **116 of 238 blocks now sit inside the ordinary-slot band where 13 did for The
+// Quickmire.** The Unmade is 5,820 there, so the ceiling is no longer binding and is not trivial
+// either. **Re-measure a projection before carrying it forward** — this one was correct when it was
+// written and wrong by the time it was quoted.
+//
+// ⚠️ **The lean is Elf and it takes the faction 33 → 43.** The seven ran angel 24, demon 25, elf
+// 33, dwarf 34, undead 35, human 36, monster 51 before this chapter, with both celestials barred
+// from leading because a celestial deals ×1.10 to every mortal and the matrix has no mortal →
+// celestial row. Elf was the thinnest legal lead. ⚠️ **It is a third Elf-led chapter after The
+// Sunless Weald and The Rustwood, and what a repeat costs is that it has to be a visibly different
+// place**: the Weald is the Elves at home, The Rustwood is the Elves out on somebody else's
+// battlefield picking it over, and The Slowgrowth is neither — it is what the wood did once nobody
+// was tending it, over centuries, in standing water. **Recompute the depths before the next lean.**
+//
+// ⚠️ **The axis is weight, and an Elf lean is the awkward faction to hang it on — deliberately.**
+// Dwarves own the tankiest blocks in the game, so a Dwarf durability chapter writes itself and is
+// the one most able to run the ninety-second clock out. The Elf idiom is precision and crit, so
+// weight here has to be *wood* rather than armour: the blocks below are slow, they carry `def` and
+// `physicalResist` rather than refusal stats, and **not one of them restores, drains, shields or
+// wards.** Enemy sustain on top of enemy weight is the clock with a stat block attached.
+//
+// ⚠️ **Two of the ten sit exactly *at* the shipped register and none steps past it**, which is the
+// side of the register this band landed on and is said here rather than left to be inferred.
+// {@link MIREMAST_TRUNK} is 940 health against a heaviest shipped `common` of 940
+// (the Thornback Grazer) and {@link RINGBARK_ELDER} is 1,220 against a heaviest shipped `legendary`
+// of 1,220 (the Overburden Hulk). What carries the chapter is not a heavier body than the game has
+// seen; it is that a board may now field **five** of them where chapter 17's budget could not
+// afford one.
+//
+// ⚠️ **The two `ascended` bodies come out lighter in raw health than the ordinary blocks standing
+// next to them, and that inversion is the rule about common-equivalent weight doing its work.** At
+// level 400 an `ascended` block is worth **×3.234** of a `common` one and **×1.799** of a
+// `legendary` one. {@link THE_LAST_RING} at 860 health is **2,781** in common-equivalent terms,
+// where the 1,220-health {@link RINGBARK_ELDER} beside it is 2,195. **Convert before comparing.**
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not defending anything. It is the part of the wood that the water did not take.
+ *
+ * The opening band's plain weight, and the lighter of the chapter's two `common` walls.
+ */
+export const SLOWGROWTH_BOLE = {
+  id: 'slowgrowth-bole',
+  name: 'Slowgrowth Bole',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 900,
+    atk: 44,
+    def: 34,
+    haste: 60,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.12,
+  },
+  skills: [TAKE_ROOT],
+} as const;
+
+/**
+ * A mast that never became one, because the year it would have been cut was the year it drowned.
+ *
+ * ⚠️ **940 health is exactly the heaviest `common` this game ships** — the Thornback Grazer — so
+ * this sits *at* the register rather than past it. Stated because a band built on a stat owes the
+ * reader which side of the register it landed on, and three of the five answers on record are
+ * "past it".
+ */
+export const MIREMAST_TRUNK = {
+  id: 'miremast-trunk',
+  name: 'Miremast Trunk',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 940,
+    atk: 46,
+    def: 36,
+    haste: 58,
+    critChance: 0.03,
+    critDamageAmp: 0.5,
+    critBlock: 0.1,
+    physicalResist: 0.14,
+  },
+  skills: [SETTLE_IN],
+} as const;
+
+/**
+ * A ring is a year. It has a great many and it is going to spend them one at a time.
+ *
+ * ⚠️ **1,220 health is exactly the heaviest `legendary` this game ships** — the Overburden Hulk —
+ * so this is the second of the chapter's two blocks *at* the register and the heaviest ordinary
+ * body it fields. It is a band 1 and band 2 body only; by band 4 the budget cannot carry it.
+ */
+export const RINGBARK_ELDER = {
+  id: 'ringbark-elder',
+  name: 'Ringbark Elder',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1220,
+    atk: 56,
+    def: 44,
+    haste: 60,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.14,
+    critDamageResist: 0.24,
+    tenacity: 0.45,
+    physicalResist: 0.16,
+  },
+  skills: [RING_BY_RING],
+} as const;
+
+/** Whatever was growing here finished the job underwater and did not stop to be surprised. */
+export const STILLWATER_ROOT = {
+  id: 'stillwater-root',
+  name: 'Stillwater Root',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1180,
+    atk: 54,
+    def: 46,
+    haste: 58,
+    critChance: 0.04,
+    critDamageAmp: 0.55,
+    critBlock: 0.12,
+    tenacity: 0.5,
+    physicalResist: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [THE_YEAR_IT_DROWNED],
+} as const;
+
+/** A hundred years of standing where it was put, and nobody left to say why it was put there. */
+export const CENTURYBOUGH_WARDEN = {
+  id: 'centurybough-warden',
+  name: 'Centurybough Warden',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1100,
+    atk: 58,
+    def: 42,
+    haste: 62,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    physicalResist: 0.14,
+  },
+  skills: [RING_BY_RING, SETTLE_IN],
+} as const;
+
+/** It came down a long time ago and it has not finished coming down. */
+export const DROWNED_MAST = {
+  id: 'drowned-mast',
+  name: 'Drowned Mast',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1000,
+    atk: 66,
+    def: 34,
+    haste: 68,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalResist: 0.1,
+  },
+  skills: [THE_YEAR_IT_DROWNED],
+} as const;
+
+/**
+ * The light goes, and it goes for the two in front first.
+ *
+ * ⚠️ **The chapter's only wide voice, and it is a *reach* rather than a scope** —
+ * `enemy-row-front`, capped at 1.2 by `skills.spec.ts` because it is wide. **One board-wide turn
+ * per board** is the rule chapter 17 ended up with after pairing two and reading 48%, and this
+ * chapter never stands this next to {@link UNDERBOUGH_CREEPER}.
+ */
+export const SILTCROWN_CANOPY = {
+  id: 'siltcrown-canopy',
+  name: 'Siltcrown Canopy',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 860,
+    atk: 70,
+    def: 30,
+    haste: 72,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    tenacity: 0.35,
+    magicResist: 0.12,
+  },
+  skills: [CLOSE_THE_CANOPY],
+} as const;
+
+/**
+ * What is under the water has further to reach than what is above it.
+ *
+ * The chapter's answer to a board that could otherwise only ever name the front rank. ⚠️ **This is
+ * a *reach* (`enemy-back`) and not a scope or a selection** — three different things, and saying
+ * which has now been got wrong four times in this project.
+ */
+export const UNDERBOUGH_CREEPER = {
+  id: 'underbough-creeper',
+  name: 'Underbough Creeper',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 740,
+    atk: 64,
+    def: 28,
+    haste: 76,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    accuracy: 1.1,
+    tenacity: 0.35,
+  },
+  skills: [UNDERBOUGH_SNARE],
+} as const;
+
+/**
+ * It was here before the water and it has not yet agreed that anything has changed.
+ *
+ * The lieutenant, anchoring `c18-s10`, `s20`, `s30` and `s40` at levels 380, 385, 390 and 395.
+ *
+ * ⚠️ **Its stat line was settled against its *fourth* appearance, not its first**, which is the
+ * lesson The Pacemaker cost chapter 17 a tuning pass to learn: an `ascended` block climbs at
+ * `perLevel.ascended` 1.024 against a party frozen at its rung's cap, so a recurring anchor that
+ * reads correctly on `s10` is unwinnable on `s40`. At 800 health it is **2,439** common-equivalent
+ * on its first board and **2,549** on its last — a rising share of a falling budget, which is the
+ * shape a recurring antagonist should have.
+ *
+ * ⚠️ **Its signature is {@link COUNT_THE_RINGS}, a conditioned skill rather than an `opening`
+ * turn**, so four appearances are four different fights against one block. The condition is on its
+ * own wound and the effect is damage — the legal direction. The banned shape is the defensive
+ * mirror, a body that armours itself as it is hurt, which is the ninety-second clock with a
+ * narrative attached.
+ */
+export const THE_UNHURRIED = {
+  id: 'the-unhurried',
+  name: 'The Unhurried',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 800,
+    atk: 68,
+    def: 50,
+    haste: 60,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    critBlock: 0.2,
+    critDamageResist: 0.3,
+    tenacity: 0.55,
+    physicalResist: 0.16,
+    magicResist: 0.1,
+  },
+  skills: [COUNT_THE_RINGS, WHAT_THE_WATER_LEFT],
+} as const;
+
+/**
+ * The outermost year, and the only one of them that is still being added to.
+ *
+ * The chapter's final, fielded nowhere else — the eighteenth body authored under that rule.
+ *
+ * ⚠️ **860 health and 78 attack, which is the first chapter final in six to go *up* rather than
+ * down.** The Doorstone was 1480/88, The Unnumbered 680/40, The Inheritor 250/24 and The Latecomer
+ * 112/13 — five chapters of shrinking stat lines, one for each halving the rarity cap forced. The
+ * rung move reverses about two of them at once. It is still well under {@link UNMADE} on both
+ * stats, which `enemies.spec.ts` enforces.
+ *
+ * ⚠️ **In common-equivalent terms it is 2,781 at level 400**, which is 43% of its own board's
+ * budget of 6,486 — the same share The Latecomer held of The Quickmire's final, at eight times the
+ * raw stat line. **The share is the quantity that carried across the rung move; the health did
+ * not.**
+ */
+export const THE_LAST_RING = {
+  id: 'the-last-ring',
+  name: 'The Last Ring',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 860,
+    atk: 78,
+    def: 54,
+    haste: 64,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.22,
+    critDamageResist: 0.32,
+    tenacity: 0.6,
+    physicalResist: 0.18,
+    magicResist: 0.12,
+  },
+  skills: [NOTHING_HERE_HURRIES, ADD_IT_UP, RING_BY_RING],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -8800,4 +9141,14 @@ export const ENEMIES = [
   SLACKWATER_WARDEN,
   THE_PACEMAKER,
   THE_LATECOMER,
+  SLOWGROWTH_BOLE,
+  MIREMAST_TRUNK,
+  RINGBARK_ELDER,
+  STILLWATER_ROOT,
+  CENTURYBOUGH_WARDEN,
+  DROWNED_MAST,
+  SILTCROWN_CANOPY,
+  UNDERBOUGH_CREEPER,
+  THE_UNHURRIED,
+  THE_LAST_RING,
 ] as const;

@@ -180,10 +180,58 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * ever fixes this, the assertion below fails and the list is deleted.** That is the same
  * self-deleting shape `towers.spec.ts` used for its pending towers.
  */
-const RUNG_TROUGH: readonly number[] = [chapterEnd(12), chapterEnd(13), chapterEnd(14)];
+/**
+ * ## ⚠️ Chapter 18 added a fourth, and it arrives from the opposite direction
+ *
+ * The three above are the ascension ladder's sawtooth: the *party* steps and the board does not.
+ * `chapterEnd(18)` is the reverse — **the board is clamped and the party steps** — and it is the
+ * first entry here that {@link DescentLevelData.anchorCap} was written to prevent.
+ *
+ * The Slowgrowth moved the campaign's rung to `mythic`, so its final is roughly ×8.4 the weight of
+ * The Quickmire's and the party this depth bisects to jumps with it. The cap holds the board at 316,
+ * where it was derived against a party of 242.7, and the depth reads **5.00 survivors of five**.
+ *
+ * ⚠️ **A cap has no working setting here and that was measured rather than argued.** At **420** —
+ * high enough not to bind at all — depth 800 passes and **depth 700 collapses to 0.00 finished with
+ * 2.8 of nine floors**, because chapter 16's final is one of the lightest ever authored and the party
+ * that depth implies is correspondingly weak. At **355** *both* fail at once. And any cap low enough
+ * to protect depth 700 hands depths 700 and 800 the **same board** while their parties differ by a
+ * rung and sixty levels, so a clamp can never separate them.
+ *
+ * ⚠️ **This is the fourth time this project has concluded that a dial has no setting that works at
+ * both ends of its range**, after `gradeSoftness`, the flat Descent offset and `anchorSlope` itself.
+ * The repair {@link DescentLevelData.anchorCap} already names is the same one: **a board level keyed
+ * off the calibrated party's own level rather than off the anchor.** That is a `core/` change and a
+ * content session may not take it, so it is written down here instead.
+ *
+ * ⚠️ **Do not "fix" this by raising the cap.** Depth 700 is the load-bearing reading and it is the
+ * one that breaks.
+ */
+const RUNG_TROUGH: readonly number[] = [
+  chapterEnd(12),
+  chapterEnd(13),
+  chapterEnd(14),
+  chapterEnd(18),
+];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */
 const TUNED_DEPTHS: readonly number[] = DEPTHS.filter((depth) => !RUNG_TROUGH.includes(depth));
+
+/**
+ * The depth the cards, the level dial and the run-shape assertions are measured at.
+ *
+ * ⚠️ **Named rather than indexed, which is a rule this file already carries and had broken again.**
+ * Five assertions below read `CONTROL_DEPTH` — "the deepest sample" — which is exactly
+ * the failure Expeditions recorded when its own derived sample silently re-pointed `DEPTHS[3]` from
+ * the deepest depth to chapter 6. Here it re-pointed to `chapterEnd(18)` the moment The Slowgrowth
+ * shipped, and that depth is a **known walkover** in {@link RUNG_TROUGH} — so a control measured
+ * there is saturated at 1.00 finished and every comparison against it is vacuous.
+ *
+ * ⚠️ **A control has to be a depth where the mode can still move.** This is the deepest depth that
+ * is not pinned, and it is stated as `chapterEnd(17)` rather than as "the last tuned depth" so that
+ * a later chapter cannot silently move it either. **Re-point it deliberately or not at all.**
+ */
+const CONTROL_DEPTH = chapterEnd(17);
 
 /** Stages through the end of chapter `chapter`. */
 function chapterEnd(chapter: number): number {
@@ -648,11 +696,11 @@ describe('a Descent run is a fight at every depth', () => {
       },
     };
     const runs = Array.from({ length: DAYS }, (_, day) =>
-      runDay(SEED, day, DEPTHS[DEPTHS.length - 1], true, harder),
+      runDay(SEED, day, CONTROL_DEPTH, true, harder),
     );
 
     expect(runs.filter((run) => run.finished).length / runs.length).toBeLessThan(
-      sweepDepth(DEPTHS[DEPTHS.length - 1]).finished,
+      sweepDepth(CONTROL_DEPTH).finished,
     );
   });
 
@@ -679,14 +727,14 @@ describe('the cards are worth taking', () => {
     // a comparison rather than as a threshold for the reason `signature.balance.ts` bisects for
     // reach: any fixed level is a walkover or a wipe, and only the *difference* between two runs of
     // the same nine boards says what the cards did.
-    const withCards = sweepDepth(DEPTHS[DEPTHS.length - 1], true);
-    const without = sweepDepth(DEPTHS[DEPTHS.length - 1], false);
+    const withCards = sweepDepth(CONTROL_DEPTH, true);
+    const without = sweepDepth(CONTROL_DEPTH, false);
 
     expect(withCards.meanCleared).toBeGreaterThan(without.meanCleared);
   });
 
   it('hands out a card after every win but the last', () => {
-    for (const run of sweepDepth(DEPTHS[DEPTHS.length - 1]).runs) {
+    for (const run of sweepDepth(CONTROL_DEPTH).runs) {
       expect(run.cards.length).toBe(Math.min(run.cleared, CHOICES));
     }
   });
@@ -695,7 +743,7 @@ describe('the cards are worth taking', () => {
     // ⚠️ The repeat rule, measured through the draw rather than trusted from the content. A family
     // coming back *lower* still reads as a reward on screen and is a downgrade the player pays a
     // choice for.
-    for (const run of sweepDepth(DEPTHS[DEPTHS.length - 1]).runs) {
+    for (const run of sweepDepth(CONTROL_DEPTH).runs) {
       const highest = new Map<string, number>();
       for (const card of run.cards) {
         const held = highest.get(card.family.id);
@@ -712,7 +760,7 @@ describe('the cards are worth taking', () => {
     // because a single run's eight draws are far too few to see a tilt in.
     const early: number[] = [];
     const late: number[] = [];
-    for (const run of sweepDepth(DEPTHS[DEPTHS.length - 1]).runs) {
+    for (const run of sweepDepth(CONTROL_DEPTH).runs) {
       run.cards.forEach((card, index) => {
         (index < CHOICES / 2 ? early : late).push(card.rank);
       });
