@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty-three chapters, one thousand and ninety
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty-four chapters, one thousand one hundred and fifty
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic` and chapter 22 moved it to
   `mythic-plus`; both are overrides against the log-space rule, and they are the only two the
@@ -97,6 +97,36 @@ them is how they get reversed by accident.
   chapter-22 attack and **every board read 0%** — the lieutenant at all five appearances and the final
   at every stat line — and halving the authored `atk` alone fixed all six bands. **Convert attack as
   well as weight when carrying a budget across a chapter boundary.** [authoring](../../docs/authoring.md)
+- ⚠️ **A filter is not a pool count, and chapter 24 is the correction to the rule above.** Screening
+  the shipped pool on common-equivalent weight _and_ attack — exactly as chapter 23 describes — leaves
+  **15 blocks at level 575, every one a Monster**, a reading that would have forced a third Monster
+  lead on pool grounds. **Fielding** the same 302 blocks beside four light escorts instead of
+  filtering them leaves **121**, spread across all seven factions. The attack finding is right; the
+  screen built from it is not a census. **Field the pool; do not screen it** — and this is what
+  licenses or refuses an override, so getting it wrong moves a rung.
+  [authoring](../../docs/authoring.md)
+- ⚠️ **`tenacity` is a six-step dial at chapter 24's weight and was measured _flat_ at chapter 21's,
+  which makes three inverted negatives in seven chapters.** Against a control of 1,809
+  common-equivalent at level 575 reading 3.94 of five it grades **0.80 / 1.53 / 2.43 / 3.21 / 3.61**
+  across 0.20 → 0.85 with zero timeouts, entirely **inside** its shipped register (133 of 302 blocks,
+  median 0.40, ceiling 0.85). The Longebb read 0.25 at 0.20 and 0.33 at 0.60 and declined it. ⚠️ **The
+  register on the _party's_ side is why**: four of the calibrated five carry a hostile status, against
+  the two of five that carried crit when chapter 23 priced crit denial at 0.88. **Check the register
+  on both sides, and re-price a declined mechanic rather than inheriting the refusal.**
+  [authoring](../../docs/authoring.md)
+- ⚠️ **A conditioned enemy skill is worth zero to _negative_, and it is the most tempting shape left.**
+  All six condition kinds — `ally-hurt`, `ally-afflicted`, `self-hurt`, `enemies-at-least`,
+  `status-absent`, `always` — land within **±0.08** of the control at one carrier and at all five. On
+  the payload axis a condition prices **−2.42**: at power 3.6 an always-on turn reads 1.46 of five
+  where the identical turn behind `enemies-at-least 5` reads **3.88**, because it stops firing the
+  moment the party loses anybody. **A condition is a restriction on the board and the party is the
+  beneficiary** — chapter 20's wrong-sign finding, in a new place. [authoring](../../docs/authoring.md)
+- ⚠️ **The difficulty probe reads throughput, so a lock that _slows_ a board reads as a step
+  backwards.** Chapter 24 let `atk` and `haste` fall as its `tenacity` lock rose; the real party read
+  4.00 of five on every board while the probe read the band-4 opener at **0.792** against the 0.85
+  bar. One fast, hot body carrying the lock took it to 0.993 and moved nothing on the sweep. **Weight
+  shortlists, the probe ranks — and a refusal stat is exactly the kind of lock the probe cannot see.**
+  [authoring](../../docs/authoring.md)
 - ⚠️ **A degenerate seam is the one time a chapter's measured price table transfers.** "Do not carry a
   table forward" is a rule about the _board under the mechanic_ changing; when the party is identical,
   equal absolute weight is equal difficulty and the chapter below's readings hold at 0.536× the
@@ -614,6 +644,14 @@ Asserted in `core/battle/simulate.spec.ts`.
   is the shield rule in both directions**: worth a real 0.75 of a survivor mid-band, and on the roof
   it takes the same board from 100% to **75%** at 45s mean. A _self_-shield is worth 0.00, because it
   prices against the wearer's own `atk` on a body already dying. [towers](../../docs/towers.md)
+- ⚠️ **Check both sides of a guard before calling it stale; the half that moves may not be the half
+  the guard is written in.** `gear.spec.ts` bounds the top gear grade's share of end-of-ladder drops
+  at `< 0.2` and that bound has **never moved in the project's history** — which reads exactly like a
+  guard nobody maintains. It is the opposite: `gradeSoftness` in `data/gear.ts` moves to meet it, by
+  hand, **once a chapter, seventeen times now**, always to `stages / 2`, always restoring 18.7%. It is
+  done by hand deliberately, so the saturating-tilt bug underneath stays visible. Chapter 24 nearly
+  retired the bound on a `git log -S` over the spec alone. **Adding a chapter owes this edit**; chapter
+  25 wants 605. [gear](../../docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in

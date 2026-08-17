@@ -152,6 +152,7 @@ export { CHAPTER_20 } from './chapter-20';
 export { CHAPTER_21 } from './chapter-21';
 export { CHAPTER_22 } from './chapter-22';
 export { CHAPTER_23 } from './chapter-23';
+export { CHAPTER_24 } from './chapter-24';
 export { AUTO_BATTLE_UNLOCK_CHAPTERS, CHAPTER_CURVE, CHAPTERS, STAGE_REWARDS } from './chapters';
 export { STATUSES } from './statuses';
 export { TOWER_ANGEL } from './tower-angel';

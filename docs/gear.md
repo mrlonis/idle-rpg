@@ -301,8 +301,22 @@ six hundred and fifty — **20.7%** — taking it to **325**; and The Spoilfield
 **20.5%** — taking it to **350**; The Quickmire at seven hundred and fifty, taking it to **375**;
 The Slowgrowth at eight hundred — **20.3%** — taking it to **400**; The Backcut at eight hundred and
 fifty, taking it to **425**; The Commonage at nine hundred and ten, taking it to **455**; and The
-Longebb at nine hundred and seventy — **20.3%** — taking it to **485**. Every one restores 18.7% over
-the ladder that actually ships. Same move, longer ladder, fifteen times now.
+Longebb at nine hundred and seventy — **20.3%** — taking it to **485**; The Downstroke at one
+thousand and thirty, taking it to **515**; The Evenfall at one thousand and ninety, taking it to
+**545**; and **The Nevermark at one thousand one hundred and fifty — 20.0% — taking it to 575**.
+Every one restores 18.7% over the ladder that actually ships. Same move, longer ladder, seventeen
+times now.
+
+⚠️ **A chapter-24 session nearly retired the guard instead of making the move, and the near-miss is
+the most useful thing that chapter learned about this file.** `git log -S` over `gear.spec.ts` shows
+the `< 0.2` bound has never moved in the whole history of the project — which reads exactly like a
+threshold nobody maintains, and the conclusion drawn from it was that both its arms were functions of
+ladder length and should be replaced with assertions about shape. **That is the wrong way round.**
+The bound has never moved _because it is not supposed to_; `gradeSoftness` moves to meet it, by hand,
+once a chapter, precisely so this bug stays visible. Retiring it would have deleted the only thing
+that has kept the saturating tilt on the record for seventeen chapters — and it would have looked
+like tidying up. ⚠️ **Check both sides of a guard before calling it stale: the half that moves may
+not be the half the guard is written in.**
 
 ⚠️ **Fifteen re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
@@ -311,7 +325,7 @@ chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will w
 prediction of 450 was the first _wrong_ one, and only because it assumed a fifty-stage chapter**: The
 Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
 arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
-length** — chapter 21's prediction of 485 was made that way and was right, and **chapter 22 will want 515.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545 and chapter 24 575; **chapter 25 will want 605.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
 grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a

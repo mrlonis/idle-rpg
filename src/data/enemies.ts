@@ -26,6 +26,7 @@ import {
   CLOSE_OVER_IT,
   CLOSE_THE_CANOPY,
   COUCHED_LANCE,
+  COUNT_IT_AGAIN,
   COUNT_IT_ALL_AGAIN,
   COUNT_THE_RINGS,
   COURSE_BY_COURSE,
@@ -49,6 +50,7 @@ import {
   FLATTEN_THE_EDGE,
   FLENSE,
   FULL_WEIGHT,
+  GAINSAY,
   GALLERY_SHOT,
   GATE_SLAM,
   GLACIAL_SLAM,
@@ -66,10 +68,12 @@ import {
   IT_IS_ALL_WORTH_LESS,
   IT_WAS_NEVER_GOING_TO,
   IT_WAS_WORTH_MORE_THIS_MORNING,
+  IT_WILL_NOT_BE_SAID,
   KEEP_NOTHING,
   KEEP_THE_SEED,
   KEEP_THE_STEP,
   KILN_LIGHT,
+  LEAVE_NO_MARK,
   LIE_FALLOW,
   LITANY,
   LOAD_THE_CART,
@@ -100,12 +104,14 @@ import {
   NOTHING_IS_SPARED,
   NOTHING_LANDS_BETTER,
   NOTHING_SMALL_MOVES_IT,
+  NOTHING_TAKES,
   NOTHING_TAKES_HOLD,
   NOTHING_TELLS,
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
+  NO_SUCH_THING,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
   OPEN_THE_VEIN,
@@ -134,12 +140,14 @@ import {
   RUNEWARD,
   RUN_THEM_DOWN,
   RUN_THE_SEED_DOWN,
+  SAID_AND_UNSAID,
   SAME_AS_THE_LAST,
   SEEDLIGHT,
   SETTLE_IN,
   SET_INTO_THE_COURSE,
   SET_THE_PITCH,
   SET_THE_STONE,
+  SET_YOUR_HAND,
   SEVENFOLD_HEX,
   SHARDLIGHT,
   SHATTERJAW,
@@ -177,8 +185,10 @@ import {
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
+  THE_GRAIN_HOLDS,
   THE_GREEN_TAKES_IT,
   THE_GROUND_GOES,
+  THE_HOLD_REMEMBERS,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
   THE_IRON_COMES_UP,
@@ -205,6 +215,7 @@ import {
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
+  THE_STONE_KEEPS_IT,
   THE_STONE_STANDS,
   THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
@@ -219,6 +230,7 @@ import {
   TYRANTS_CLAIM,
   UNDERBOUGH_SNARE,
   UNDERMINE,
+  UNMADE_AND_UNSAID,
   UP_THROUGH_THE_TURF,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
@@ -10556,6 +10568,240 @@ export const THE_EVENFALL = {
   skills: [THE_LIGHT_GOES_FLAT, NOTHING_LANDS_BETTER],
 } as const;
 
+/**
+ * The Nevermark's opening-band body, and the one new block that carries **no `tenacity` at all**.
+ *
+ * ⚠️ **Deliberate, and it is chapter 23's counts-not-absolutes rule forcing an authoring decision
+ * rather than a sentence.** `tenacity` sits on **133 of 302 blocks at a median of 0.40**, so a band
+ * table claiming "the refusal arrives in band 2" cannot be a claim about presence — and this body
+ * stands on more band-1 boards than anything else in the chapter, so it is the block that has to be
+ * clean for the count to mean what it says.
+ */
+export const HOLDFAST_HAND = {
+  id: 'holdfast-hand',
+  name: 'Holdfast Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 420,
+    atk: 31,
+    def: 22,
+    haste: 70,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+  },
+  skills: [SET_YOUR_HAND],
+} as const;
+
+/** The chapter's wall, and the first body on it to refuse anything. Bands 1 through 4. */
+export const SETSTONE_DRUDGE = {
+  id: 'setstone-drudge',
+  name: 'Setstone Drudge',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 600,
+    atk: 27,
+    def: 26,
+    haste: 64,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.2,
+  },
+  skills: [THE_GRAIN_HOLDS],
+} as const;
+
+/** The chapter's only reach outside the lieutenant. See {@link COUNT_IT_AGAIN}. */
+export const GAINSAY_PIKE = {
+  id: 'gainsay-pike',
+  name: 'Gainsay Pike',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 370,
+    atk: 35,
+    def: 18,
+    haste: 82,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.35,
+  },
+  skills: [COUNT_IT_AGAIN],
+} as const;
+
+export const OATHCUT_HEWER = {
+  id: 'oathcut-hewer',
+  name: 'Oathcut Hewer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 345,
+    atk: 38,
+    def: 16,
+    haste: 88,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.4,
+  },
+  skills: [NO_SUCH_THING],
+} as const;
+
+/** Band 3's identity: the median arrives, and it arrives on a body that has to be dug out. */
+export const UNMARKED_WARDEN = {
+  id: 'unmarked-warden',
+  name: 'Unmarked Warden',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 545,
+    atk: 30,
+    def: 28,
+    haste: 62,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.5,
+    physicalResist: 0.1,
+  },
+  skills: [SAID_AND_UNSAID],
+} as const;
+
+/**
+ * The chapter's one **fast** body, and it is the reason the closing bands read as a step up.
+ *
+ * ⚠️ **The difficulty probe reads throughput rather than weight, and this block exists because of
+ * it.** A first draft let `atk` and `haste` fall as `tenacity` rose — every late board came out
+ * slow and tanky — and the probe read the band-4 opener at **0.792 of the sample below it**, a step
+ * backwards, while the real party still read 4.00 of five everywhere. Giving the late bands one hot,
+ * fast body that also carries the lock took that sample to 0.993 and moved nothing on the sweep.
+ * **Weight shortlists; only the probe ranks.**
+ */
+export const STUBBORN_GRAIN = {
+  id: 'stubborn-grain',
+  name: 'Stubborn Grain',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 400,
+    atk: 38,
+    def: 20,
+    haste: 86,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.55,
+  },
+  skills: [THE_STONE_KEEPS_IT],
+} as const;
+
+/** Band 5's identity. Past the shipped median and into the twelve blocks above 0.55. */
+export const NEVERMARK_KEEPER = {
+  id: 'nevermark-keeper',
+  name: 'Nevermark Keeper',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 425,
+    atk: 30,
+    def: 26,
+    haste: 66,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.6,
+    magicResist: 0.12,
+  },
+  skills: [GAINSAY],
+} as const;
+
+/** Band 6's wall. The highest `tenacity` on any ordinary block in the chapter. */
+export const DEEPSET_ANVILWARD = {
+  id: 'deepset-anvilward',
+  name: 'Deepset Anvilward',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 495,
+    atk: 29,
+    def: 30,
+    haste: 60,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.65,
+    critBlock: 0.16,
+  },
+  skills: [NOTHING_TAKES],
+} as const;
+
+/**
+ * The lieutenant, anchoring all **five** mini-boss boards at rising levels.
+ *
+ * ⚠️ **Its stat line was settled by fielding all five appearances, not the first.** At 165/6 it
+ * graded 4.00 / 4.00 / 4.00 / 2.00 across s10 to s40 — chapter 17's trap exactly, an `ascended`
+ * block climbing at 1.024 against a party frozen at its rung's cap. At **120/5** it reads 5.00 /
+ * 4.00 / 4.00 / 4.00 / 4.00 across s10, s20, s30, s40 and s50, with the fight running 23.0s to
+ * 51.4s.
+ *
+ * ⚠️ **It does not stand on the final.** Beside {@link THE_NEVERMARK} it read **0% at every boss
+ * stat line tried**, where the same boss behind ordinary blocks reads 3.88 — a lieutenant is an
+ * anchor, and chapter 21's "a lieutenant's board may not carry a second one" applies to the chapter
+ * boss's board as much as to a mini-boss's.
+ */
+export const THE_UNGAINSAID = {
+  id: 'the-ungainsaid',
+  name: 'The Ungainsaid',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 120,
+    atk: 5,
+    def: 30,
+    haste: 66,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.6,
+    physicalResist: 0.14,
+    critBlock: 0.2,
+  },
+  skills: [IT_WILL_NOT_BE_SAID, THE_HOLD_REMEMBERS],
+} as const;
+
+/**
+ * The chapter boss. `tenacity` 0.75, inside the shipped ceiling of 0.85 and above every other
+ * block the campaign fields.
+ *
+ * ⚠️ **Its escort decided it, and the arrangement decided it twice over.** At 110/2 the same five
+ * bodies read **3.88 of five** with this body and {@link STUBBORN_GRAIN} in the front rank and
+ * **0.82** with {@link NEVERMARK_KEEPER} there instead — the identical board, only the ranks
+ * swapped. Well under the Unmade on both stats, as every chapter boss since chapter 6 has been.
+ */
+export const THE_NEVERMARK = {
+  id: 'the-nevermark',
+  name: 'The Nevermark',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 110,
+    atk: 2,
+    def: 32,
+    haste: 68,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    tenacity: 0.75,
+    physicalResist: 0.18,
+    magicResist: 0.16,
+    critBlock: 0.24,
+  },
+  skills: [UNMADE_AND_UNSAID, LEAVE_NO_MARK],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -10859,4 +11105,14 @@ export const ENEMIES = [
   EVENFERN_CREEPER,
   THE_UNBETTERED,
   THE_EVENFALL,
+  HOLDFAST_HAND,
+  SETSTONE_DRUDGE,
+  GAINSAY_PIKE,
+  OATHCUT_HEWER,
+  UNMARKED_WARDEN,
+  STUBBORN_GRAIN,
+  NEVERMARK_KEEPER,
+  DEEPSET_ANVILWARD,
+  THE_UNGAINSAID,
+  THE_NEVERMARK,
 ] as const;

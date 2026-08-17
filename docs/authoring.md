@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
-| Campaign         | 23 chapters, 1090 stages, enemy levels 1–545 |
+| Campaign         | 24 chapters, 1150 stages, enemy levels 1–575 |
 | Towers           | 7 × 300 floors, enemy levels 1–142           |
-| Enemy archetypes | 302                                          |
+| Enemy archetypes | 312                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -73,6 +73,7 @@ section below before assuming ten more boards is ten more boards.
 | 21      | 455   | 485    | 30     |
 | 22      | 485   | 515    | 30     |
 | 23      | 515   | 545    | 30     |
+| 24      | 545   | 575    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -1104,6 +1105,7 @@ The shipped twenty-one, with the level range each closes over:
 | 21  | The Longebb        | 60     | 455 → 485 | whether it **still holds its value**            |
 | 22  | The Downstroke     | 60     | 485 → 515 | whether it **arrives all at once**              |
 | 23  | The Evenfall       | 60     | 515 → 545 | whether it **ever lands well**                  |
+| 24  | The Nevermark      | 60     | 545 → 575 | whether anything it does **takes hold**         |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a

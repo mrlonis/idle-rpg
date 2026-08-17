@@ -395,13 +395,29 @@ export const GEAR_RULES = {
      * is learning anything** — the next session to touch `data/gear.ts` for any reason should write
      * the saturating tilt while it is already in the file.
      *
+     * ⚠️ **The Nevermark is the seventeenth landing, and the prediction rule held again.** The
+     * Evenfall took the ladder to 1,090 and 545 restored 18.7%; chapter 24 takes it to **1,150** and
+     * the answer is **575**, which is `stages / 2` for the seventeenth consecutive time. ⚠️ **It was
+     * predicted from `CHAPTER_CURVE` rather than from the last chapter's length**, which is the
+     * correction chapter 20 forced, and it was right. **Chapter 25 will want 605.**
+     *
+     * ⚠️ **A chapter-24 session very nearly retired the guard instead, and the near-miss is worth
+     * recording.** `git log -S` over `gear.spec.ts` shows the `< 0.2` bound has never once moved,
+     * which reads exactly like a guard nobody maintains — and the conclusion drawn from it was that
+     * both its arms were functions of ladder length and should be replaced by shape assertions. That
+     * is backwards: **the threshold has never moved because it is not supposed to; this constant
+     * moves to meet it, once a chapter, on purpose.** Retiring the bound would have deleted the only
+     * thing keeping the saturating-tilt bug visible after seventeen chapters of keeping it visible.
+     * **Check both sides of a guard before concluding it is stale** — the half that moves may not be
+     * the half the guard is written in.
+     *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
      * their way through the stage-7 lock is untouched — that test fields grade 0 at level 1
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 545,
+    gradeSoftness: 575,
   },
 
   /**

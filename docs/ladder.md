@@ -26,7 +26,12 @@ first chapters longer than fifty. Chapter 22 is **The Downstroke**, which moves 
 `mythic-plus`: the campaign's **second override**, licensed because at level 515 the five lightest
 bodies in the whole game read 0% against a `mythic` five. Chapter 23 is **The Evenfall**, which
 **stays** on `mythic-plus` — a derivation, and the first chapter whose binding pool constraint is the
-returning blocks' **attack** rather than their weight. See [authoring](authoring.md).
+returning blocks' **attack** rather than their weight. Chapter 24 is **The Nevermark**, which stays
+on it again, and which found that **a filter on weight and attack is not a pool count**: screening
+the 302 shipped blocks the way chapter 23 described leaves 15, all Monster, where _fielding_ them
+leaves 121 across all seven factions. It is also the chapter that inverted chapter 21's `tenacity`
+reading — declined there as flat, and the only six-step dial available here.
+See [authoring](authoring.md).
 
 ## The shape
 
@@ -332,10 +337,18 @@ seam assertions either side of that boundary say something for the first time si
 Downstroke's last board stands **ninety-five levels** above `mythic-plus`'s cap of 420.
 
 ⚠️ **Each further sixty-stage chapter on this rung divides the seam by `perLevel.common ** 30` =
-1.867**: chapter 23 reads **1.9981**, chapter 24 **1.0711**, chapter 25 **0.5742**. So the arithmetic
+1.867**: chapter 23 reads **1.9981**, chapter 24 **1.0711**, chapter 25 **0.5733**. So the arithmetic
 buys about two and a half chapters — and `mythic` was projected to buy three and the **pool** gave one
 and a half. **Measure the pool before re-deriving the seam.** The next rung, `ascended`, caps at 500
 and is the last the campaign can spend.
+
+⚠️ **Chapters 22, 23 and 24 all clamp to `mythic-plus`'s cap of 420, so the degenerate chain is two
+links deep and a third is due at chapter 25.** The Nevermark's last board stands **a hundred and
+fifty-five levels** above the cap — ×24.63 — and its seam of **1.0711** is the first this rung has
+produced within a tenth of 1.00. **Chapter 25 reads 0.5733, below 1.00, which is the first half of
+an override licence.** The second half is the pool, and chapter 21 declined an override on exactly
+that reading because its chapter was still authorable — so **measure the pool by fielding it, not by
+filtering it**, which is the mistake chapter 24 caught itself making.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

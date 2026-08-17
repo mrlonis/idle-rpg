@@ -1112,6 +1112,63 @@ const DOWNSTROKE: FormationData = mono(
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
  */
+const EVENFALL_RARITY = rarityIndex('mythic-plus');
+const EVENFALL_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[22] - 1].level,
+  LEVEL_CURVE.caps[EVENFALL_RARITY],
+);
+
+const EVENFALL: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(EVENFALL_LEVEL, EVENFALL_RARITY),
+  EVENFALL_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 24: the five that just took The Evenfall, unchanged.
+ *
+ * ⚠️ **This is The Evenfall's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung stays on `mythic-plus`, for the third chapter running
+ *
+ * Against chapter 23's seam of **1.9981** and The Nevermark's close of 575, `mythic` reads
+ * **0.1270** (|Δln| 2.7561), `mythic-plus` **1.0711** (|Δln| **0.6235**) and `ascended` **9.0371**
+ * (|Δln| 1.5091). **`mythic-plus` wins by 0.886 of a nat** — the same margin chapters 18 and 22
+ * overrode and chapters 19, 20, 21 and 23 stayed on. **Six chapters running have now had to say
+ * which of the two they are doing**; this one is a **stay**.
+ *
+ * ⚠️ **The alternative was fielded rather than quoted.** An `ascended` five takes chapter 23's own
+ * opening board and its final at level 575 at **100% with all five alive in 2.3s and 2.4s**. An
+ * override needs the seam below to be wrong *and* the pool to be unable to supply a board; chapter
+ * 23's seam is 1.9981, this chapter's own is 1.0711, and **121 of 302 shipped blocks stand as an
+ * ordinary body on a board at level 575** — monster 34, undead 21, elf 21, dwarf 17, human 14,
+ * angel 9, demon 5.
+ *
+ * ⚠️ **A filter is not a pool count, and this is where that mattered.** Screening the pool on
+ * common-equivalent weight *and* on the attack chapter 23's boards carried leaves **15 blocks, every
+ * one of them a Monster** — a reading that would have forced a third Monster lead on pool grounds.
+ * Simulating the same 302 blocks instead of filtering them gives 121, across all seven factions.
+ * Chapter 23 was right that the binding quantity at this depth is **attack** rather than weight; it
+ * does not follow that a filter on the two counts the pool. **Field the pool; do not screen it.**
+ *
+ * ⚠️ **This party, {@link EVENFALL} and {@link DOWNSTROKE} are one set of five combatants** —
+ * chapters 22, 23 and 24 all close above `mythic-plus`'s cap of 420 and all clamp to it, so the
+ * degenerate chain is **two links deep**, exactly as chapter 23 predicted. **Expect a third at
+ * chapter 25.**
+ *
+ * ⚠️ **What moves the rung next.** Each further sixty-stage chapter divides the seam by
+ * `perLevel.common ** 30` = **1.867**, so chapter 25 reads **0.5733** — **below 1.00, which is the
+ * first half of an override licence and has been since chapter 18**. The other half is the pool, and
+ * chapter 21 declined an override on exactly this reading because its chapter was still authorable.
+ * **Measure the pool by fielding it rather than by filtering it**, and note that `ascended` caps at
+ * 500 and is the last rung the campaign can spend.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
 const INVESTED_RARITY = rarityIndex('mythic-plus');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
@@ -1286,6 +1343,11 @@ const downstrokeSweeps = stages.map((stage) => ({
   stage,
   ...sweep(DOWNSTROKE, stage),
 }));
+const evenfallSweeps = stages.map((stage) => ({
+  label: 'evenfall',
+  stage,
+  ...sweep(EVENFALL, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1335,6 +1397,7 @@ const everySweep = [
   ...quickmiredSweeps,
   ...longebbSweeps,
   ...downstrokeSweeps,
+  ...evenfallSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1414,6 +1477,9 @@ const LONGEBB_END = CHAPTER_ENDS[20];
 
 /** Where The Downstroke ends, for {@link DOWNSTROKE}'s seam. */
 const DOWNSTROKE_END = CHAPTER_ENDS[21];
+
+/** Where The Evenfall ends, for {@link EVENFALL}'s seam. */
+const EVENFALL_END = CHAPTER_ENDS[22];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2185,6 +2251,39 @@ describe('ladder balance', () => {
     // heaviest and 3,017 at the final.
     const walked = downstrokeSweeps
       .slice(DOWNSTROKE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 23 clear chapters 1 through 23', () => {
+    // The Nevermark's seam, measured the same way as the nineteen above it.
+    const unreliable = evenfallSweeps
+      .slice(0, EVENFALL_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Nevermark as well', () => {
+    // ⚠️ **Vacuous by construction for the third chapter running, and chapter 23 predicted it.**
+    // Chapters 22, 23 and 24 all close above `mythic-plus`'s cap of 420 and all clamp to it, so
+    // {@link DOWNSTROKE}, {@link EVENFALL} and {@link INVESTED} are one set of five combatants and
+    // the degenerate chain is two links deep — the shape chapters 13 through 17 recorded five deep
+    // on `legendary-plus` and 18 through 21 four deep on `mythic`. {@link MOMENTUM_CEILING} is a
+    // share of the whole ladder against a slice of 60, so it could not bind on the count either.
+    // Kept rather than deleted so the record of *why* survives.
+    //
+    // ⚠️ **What the seam costs is real even though the assertion is vacuous.** The Nevermark's last
+    // board stands **a hundred and fifty-five levels** above the cap this party is clamped at —
+    // ×24.63 — and its seam ratio is **1.0711**, the first this rung has produced that is within a
+    // tenth of 1.00. Its boards are authored at **×0.536** of chapter 23's for exactly that reason:
+    // 1,310 common-equivalent at `c24-s1` to 2,718 at its heaviest, against The Evenfall's 2,185 to
+    // 3,999.
+    const walked = evenfallSweeps
+      .slice(EVENFALL_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

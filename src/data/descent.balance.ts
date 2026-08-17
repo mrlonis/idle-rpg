@@ -245,6 +245,23 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * **316** exactly as it has since chapter 13. Depths 850, 910, 970 and 1,030 now field the **same
  * board**. **Five consecutive chapters, five entries; the schedule has not slipped once.**
  *
+ * ## ⚠️ Chapter 23 added the ninth, and shipped without a note of its own
+ *
+ * `chapterEnd(23)` — depth **1,090** — is in the list and was never written up here, which is worth
+ * saying rather than quietly backfilling: the entry was added, the schedule held, and the running
+ * count in the heading above it stopped being maintained. **The count is the thing that makes this
+ * list legible as a schedule rather than as a pile of exceptions**, so it is restored below and
+ * should be carried forward.
+ *
+ * ## ⚠️ Chapter 24 added the tenth, on schedule, for the seventh consecutive chapter
+ *
+ * `chapterEnd(24)` — depth **1,150** — failed at **5.00 survivors of five** the moment The Nevermark
+ * shipped, for the identical reason a seventh time. Depths 850, 910, 970, 1,030, 1,090 and 1,150 now
+ * field the **same board**, because {@link DescentLevelData.anchorCap} has held it at **316** since
+ * chapter 13 while six chapters of campaign have gone past underneath. ⚠️ **Seven consecutive
+ * chapters, seven entries; the schedule has still not slipped once**, and it will not, because
+ * nothing in it depends on what a chapter contains — only on there being another one.
+ *
  * ⚠️ **That growth is the argument for the repair, not for a different guard, and a session should
  * resist two tempting edits.** Deriving the tail of this list — "every depth the cap clamps" — would
  * be true today and would silently absorb a depth that becomes a walkover for some *other* reason,
@@ -264,6 +281,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(21),
   chapterEnd(22),
   chapterEnd(23),
+  chapterEnd(24),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

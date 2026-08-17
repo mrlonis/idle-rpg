@@ -444,6 +444,42 @@ this depth, not the anchor.** The chapter also inverted chapter 14's refusal fin
 chapters later — `def` past its register and `physicalResist` were measured worth ≤0.08 of a survivor
 at The Shutgate's weight and are worth 1.65 and 2.30 here.
 
+⚠️ **Chapter 24 stayed on `mythic-plus` for the second chapter running, and what it found was about
+_method_ rather than about the campaign.** The Nevermark closes at 575, where `mythic-plus` reads
+1.0711 against `ascended`'s 9.0371 — the rule prefers staying put by 0.886 of a nat, both seams are
+above 1.00, and the chapter was authorable, so it is a **derivation**. Three things it recorded:
+
+1. ⚠️ **A filter on weight and attack is not a pool count.** Chapter 23's finding — that the binding
+   constraint at this depth is attack rather than weight — is right, and screening the 302 shipped
+   blocks that way leaves **15, every one a Monster**, which would have forced a third Monster lead
+   on pool grounds. **Fielding** the same 302 instead of filtering them leaves **121**, across all
+   seven factions. The chapter leaned Dwarf, the thinnest legal lead at 44. **Field the pool; do not
+   screen it.**
+2. ⚠️ **`tenacity` inverted, three chapters after The Longebb declined it.** Chapter 21 measured it as
+   the register check's eighth answer and **flat** — 0.25 at 0.20 and 0.33 at 0.60 — and declined it
+   on the measurement. Against chapter 24's own control it is a **six-step monotone dial with zero
+   timeouts**: 0.80 / 1.53 / 2.43 / 3.21 / 3.61 across 0.20 → 0.85, entirely inside its shipped
+   register. What changed is the board under it and the fight length above it. That is the third time
+   a recorded negative has inverted (chapter 18 on `mythic`, chapter 23 on chapter 14's refusal list),
+   and it is now the rule rather than the exception: **a negative result is a claim about a curve.**
+3. ⚠️ **The chapter's first premise priced at zero and was abandoned before any board was authored.**
+   Conditioned enemy kits — a board that answers what the party just did — read within ±0.08 of the
+   control on all six condition kinds, and **negative** on the payload axis: at power 3.6 an always-on
+   turn reads 1.46 of five where the identical turn behind `enemies-at-least 5` reads 3.88. A
+   condition is a restriction on the board and the party is the beneficiary, which is chapter 20's
+   wrong-sign finding in a new place. **Price a chapter's premise before authoring its boards** cost
+   one measurement here and would have cost sixty boards.
+
+⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
+bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
+0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads
+exactly like a guard nobody maintains, and the proposal was to replace both its arms with assertions
+about shape. That is backwards: the bound has never moved _because it is not supposed to_.
+`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **seventeen times now**,
+always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the saturating
+tilt it is papering over stays visible. Chapter 24's landing is **575**. ⚠️ **Check both sides of a
+guard before calling it stale; the half that moves may not be the half the guard is written in.**
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
 they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
 rungs rather than 11 until chapter 18 took the eighth. The

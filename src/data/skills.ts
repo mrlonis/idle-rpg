@@ -7867,6 +7867,131 @@ export const NOTHING_LANDS_BETTER = {
  * One list rather than `Object.values(module)`, because `data/` is plain data and that is a
  * function call.
  */
+/**
+ * Chapter 24 — The Nevermark. Twelve turns for a Dwarf hold that refuses to be marked.
+ *
+ * The chapter's premise is `tenacity` rather than a status, so these are plain turns: the blocks
+ * carrying them are what the chapter is about and the kit is texture. ⚠️ **Only one of the twelve
+ * names the party's back rank** ({@link COUNT_IT_AGAIN}), and {@link THE_HOLD_REMEMBERS} is the
+ * other — no board in the chapter fields both, which is chapter 19's "two `enemy-back` turns is the
+ * party's back rank deleted" applied at the board rather than at the stat line.
+ */
+export const SET_YOUR_HAND = {
+  id: 'set-your-hand',
+  name: 'Set Your Hand',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+export const THE_GRAIN_HOLDS = {
+  id: 'the-grain-holds',
+  name: 'The Grain Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's one reach, and the reason no board carries a second.
+ *
+ * ⚠️ **The five lieutenant boards field none of these**, because {@link THE_HOLD_REMEMBERS} is
+ * already an `enemy-back` turn and two on one board measured as the party's back rank deleted.
+ */
+export const COUNT_IT_AGAIN = {
+  id: 'count-it-again',
+  name: 'Count It Again',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+export const NO_SUCH_THING = {
+  id: 'no-such-thing',
+  name: 'No Such Thing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+export const SAID_AND_UNSAID = {
+  id: 'said-and-unsaid',
+  name: 'Said And Unsaid',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const THE_STONE_KEEPS_IT = {
+  id: 'the-stone-keeps-it',
+  name: 'The Stone Keeps It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.0 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+export const GAINSAY = {
+  id: 'gainsay',
+  name: 'Gainsay',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+export const NOTHING_TAKES = {
+  id: 'nothing-takes',
+  name: 'Nothing Takes',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.8 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The lieutenant's opening question, and the half of its kit that stays on the front rank. */
+export const IT_WILL_NOT_BE_SAID = {
+  id: 'it-will-not-be-said',
+  name: 'It Will Not Be Said',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.5 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** The lieutenant's reach. No board fielding it also fields {@link COUNT_IT_AGAIN}. */
+export const THE_HOLD_REMEMBERS = {
+  id: 'the-hold-remembers',
+  name: 'The Hold Remembers',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+export const UNMADE_AND_UNSAID = {
+  id: 'unmade-and-unsaid',
+  name: 'Unmade And Unsaid',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 3.0 }],
+  cooldown: 74,
+  priority: 3,
+} as const;
+
+export const LEAVE_NO_MARK = {
+  id: 'leave-no-mark',
+  name: 'Leave No Mark',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.4 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8261,4 +8386,16 @@ export const SKILLS = [
   SAME_AS_THE_LAST,
   THE_LIGHT_GOES_FLAT,
   NOTHING_LANDS_BETTER,
+  SET_YOUR_HAND,
+  THE_GRAIN_HOLDS,
+  COUNT_IT_AGAIN,
+  NO_SUCH_THING,
+  SAID_AND_UNSAID,
+  THE_STONE_KEEPS_IT,
+  GAINSAY,
+  NOTHING_TAKES,
+  IT_WILL_NOT_BE_SAID,
+  THE_HOLD_REMEMBERS,
+  UNMADE_AND_UNSAID,
+  LEAVE_NO_MARK,
 ] as const;
