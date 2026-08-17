@@ -262,6 +262,24 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * chapters, seven entries; the schedule has still not slipped once**, and it will not, because
  * nothing in it depends on what a chapter contains — only on there being another one.
  *
+ * ## ⚠️ Chapter 25 added the eleventh, on schedule, for the eighth consecutive chapter
+ *
+ * `chapterEnd(25)` — depth **1,210** — failed at **5.00 survivors of five** the moment The Thinground
+ * shipped, for the identical reason an eighth time. ⚠️ **This is the second entry to cross a *rung*
+ * as well as a chapter**, and the larger of the two: chapter 25 moved the campaign to `ascended`, so
+ * the party this depth implies gains a whole ×1.6 **and** the eighty levels between `mythic-plus`'s
+ * cap of 420 and `ascended`'s 500 — ×8.36 in all — while {@link DescentLevelData.anchorCap} holds its
+ * board at **316** exactly as it has since chapter 13. Depths 850, 910, 970, 1,030, 1,090, 1,150 and
+ * 1,210 now field the **same board**. **Eight consecutive chapters, eight entries; the schedule has
+ * still not slipped once.**
+ *
+ * ⚠️ **The rung ladder is the thing that runs out first, and that changes what the repair is worth.**
+ * `ascended` is the last rung whose cap the campaign has not already climbed past, so a chapter 26
+ * cannot buy the party another ×1.6 the way chapters 18, 22 and 25 did. **The gap between this
+ * clamped board and the party will keep widening on levels alone from here** — one chapter of levels
+ * rather than a rung — which makes the trough shallower per entry and the list no shorter. Do not
+ * read a smaller step as the schedule ending.
+ *
  * ⚠️ **That growth is the argument for the repair, not for a different guard, and a session should
  * resist two tempting edits.** Deriving the tail of this list — "every depth the cap clamps" — would
  * be true today and would silently absorb a depth that becomes a walkover for some *other* reason,
@@ -282,6 +300,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(22),
   chapterEnd(23),
   chapterEnd(24),
+  chapterEnd(25),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */
