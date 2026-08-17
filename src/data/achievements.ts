@@ -55,10 +55,16 @@
  * largest single payout in the game.
  *
  * ⚠️ **Its counter is `clearedChapters`, which is derived rather than stored, and it may not be
- * re-authored as `every: 50` over `clearedStages`.** Chapters are fifty stages through chapter 10
- * and sixty from chapter 11 — see `CHAPTER_CURVE` — so a fixed stage interval drifts off the
- * chapter boundary the moment the band steps, and pays a "chapter" award ten stages into the next
- * one. `core/achievements.ts` carries the argument in full.
+ * re-authored as `every: 50` over `clearedStages`.** A chapter is **ten, twenty, thirty and forty
+ * stages for chapters 1 to 4, fifty for chapters 5 through 19, and sixty from chapter 20** — see
+ * `CHAPTER_CURVE`, whose `maxStages` is a *schedule* rather than a constant — so a fixed stage
+ * interval drifts off the chapter boundary the moment either band steps, and pays a "chapter" award
+ * ten stages into the next one. `core/achievements.ts` carries the argument in full.
+ *
+ * ⚠️ **That sentence read "fifty through chapter 10 and sixty from chapter 11" until chapter 25's
+ * prose check, and it was wrong about both boundaries** — which is exactly the failure mode the
+ * check exists for: the argument it supports was always sound, so nothing was ever red and nothing
+ * ever looked wrong. **Check the claims a file already makes, not only the ones you are adding.**
  *
  * ## The two tower tracks, and why there are two per tower rather than two for all seven
  *

@@ -422,8 +422,8 @@ depth where the mode can still move.
 
 ### The trough is pinned rather than dropped
 
-`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 21, and asserts what is actually true of
-them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
+`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 25 — **eleven entries** — and asserts
+what is actually true of them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
 straight back in the place the derived `DEPTHS` was written to close; pinning them keeps the defect
 visible and stops it spreading or deepening.
 
@@ -442,6 +442,20 @@ exactly the stated reason: `anchorCap` holds the board at 316, so depths 850, 91
 the **same board** against three parties bisected against three progressively lighter chapter finals.
 **Four consecutive chapters have each added one entry and the schedule has not slipped once** — this
 is arithmetic rather than a forecast.
+
+⚠️ **Chapters 23, 24 and 25 added the ninth, tenth and eleventh, taking the run to eight consecutive
+chapters.** Depths **1,090**, **1,150** and **1,210** each failed at **5.00 of five** the day their
+chapter shipped. The last of those crosses a **rung** as well, and it is the larger of the two rung
+crossings this list has seen: chapter 25 moved the campaign to `ascended`, so the party that depth
+implies gains ×1.6 for the rung **and** the eighty levels between `mythic-plus`'s cap of 420 and
+`ascended`'s 500 — ×8.36 in all — against a board `anchorCap` has held at 316 since chapter 13.
+Depths 850 through 1,210 now field the **same board**.
+
+⚠️ **The rung ladder runs out here, and that changes the shape of the growth rather than ending it.**
+`ascended` is the last rung whose cap the campaign has not already climbed past, so no later chapter
+can hand a depth another ×1.6. From chapter 26 the gap widens on **levels alone** — one chapter at a
+time rather than a rung — so each new entry is a shallower trough and the list is no shorter. **Do
+not read a smaller step as the schedule ending.**
 
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than

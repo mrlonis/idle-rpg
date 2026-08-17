@@ -65,6 +65,13 @@ previous skeleton without changing its shape.
 | 34      | Chapter 19 — The Backcut                  | Staying on a rung argued as hard as moving one. **A reflect prices where the party aims** — 0.00 on a protected back rank, the mirror of chapter 16's debuffer                |
 | 35      | Chapter 20 — The Commonage                | **The first chapter longer than fifty** — the chapter-length cap becomes a schedule. A taunt measures **−0.65**, the first mechanic to price with the wrong sign              |
 
+⚠️ **The table stops at 35, and chapters 21 through 25 have no milestone number at all.** That is a
+fact rather than an omission to backfill: the numbered milestones were a build order for the systems,
+and once every system had shipped a chapter stopped being a milestone and became content. **Do not
+invent the next number** — a chapter-25 session wrote `milestone 40` into two source comments on the
+assumption that the sequence had kept running, and it had not. The prose sections below are where a
+chapter's findings go; refer to chapters by their number and their name.
+
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
 system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and

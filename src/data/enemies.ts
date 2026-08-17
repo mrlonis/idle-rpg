@@ -10815,7 +10815,7 @@ export const THE_NEVERMARK = {
 } as const;
 
 // ---------------------------------------------------------------------------------------
-// The Thinground — milestone 40, chapter 25
+// The Thinground — chapter 25
 //
 // Ten Undead blocks, and the chapter's axis is `physicalPierce`. Measured against a control of an
 // anchor at 2209/51 behind four bodies of 1250/40 at level 605 and Relic 100 — **17,996

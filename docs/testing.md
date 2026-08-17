@@ -471,6 +471,37 @@ fight length are three independent quantities, and only weight is what the probe
 that moves only the third is not difficulty, and on a faction whose idiom is armour it is the specific
 failure that faction is warned about.
 
+### ⚠️ Calibrate the control first, and run the claim check before the sweep, not after it
+
+Chapter 25 is the cleanest evidence the project has for both halves of that, because it is measurable
+against two chapters that did it in the other order.
+
+| chapter | first authored draft's failures | what fixed the rest                  |
+| ------- | ------------------------------- | ------------------------------------ |
+| 17      | **22 of 50** boards             | four anchors, retuned board by board |
+| 19      | **21 of 50** boards             | one escort slot, and two stat lines  |
+| 25      | **1 of 60** boards              | one escort swap                      |
+
+⚠️ **What chapter 25 did differently is only the order.** It calibrated a control to ~3.9 of five and
+confirmed it moved _before_ authoring anything, priced the whole vocabulary against it, and picked an
+axis on the measurement. Chapters 17 and 19 both tuned against synthetic controls and discovered the
+gap between a stand-in and a board afterwards. **The control still cannot tell you about a board** —
+that finding is unchanged and is why every one of the sixty was measured — but a calibrated one puts
+the draft close enough that the sweep is a check rather than a tuning pass.
+
+⚠️ **And the twelve boards that did have to move were moved by a _script_, not by the sweep.** Two
+`enemy-back` turns on one board and two board-wide turns on one board are both silent in the sweep —
+every one of those boards read 100% with four or five alive — and both are rules the project has
+shipped violations of. The check is a two-line predicate over the boards and runs in a second against
+the sweep's eleven minutes. **Run it before the sweep; it catches a different class of thing, and the
+sweep will never report it.**
+
+⚠️ **It also caught three false claims in the chapter's own header before they shipped**: `lifeLeech`
+stated at 0 of 60 boards where it is on 3, a health range quoted from common-equivalent weight rather
+than from the authored stat, and a lieutenant's _tuning_ readings quoted as if they were the shipped
+boards' (4.00 where the boards read 4.97). None of the three is visible by reading, all three are one
+line of script, and the fix in every case is the claim rather than the boards.
+
 ### ⚠️ An eighth trap, from chapter 15: a board's raw health total is not its weight
 
 The Underroad's boards are half the stat lines of The Shutgate's, and two of them differed by 4% of

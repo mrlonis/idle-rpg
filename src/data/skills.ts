@@ -7993,7 +7993,7 @@ export const LEAVE_NO_MARK = {
 } as const;
 
 // ---------------------------------------------------------------------------------------
-// The Thinground — milestone 40, chapter 25
+// The Thinground — chapter 25
 //
 // Ten turns for ten Undead blocks, and the chapter's axis is a **stat** rather than a status:
 // `physicalPierce` is the one reading at level 605 that grades in ten monotone steps *and* in

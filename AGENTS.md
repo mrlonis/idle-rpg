@@ -373,7 +373,12 @@ Asserted in `core/battle/simulate.spec.ts`.
   clamps the board at 316 from chapter 13 on, so depths 800 and 850 field the **identical** board
   while their parties are bisected against different finals — **one new entry per chapter, forever,
   until the board level is keyed off the calibrated party instead of the anchor.** Keep adding
-  literals; do not derive the tail and do not drop the depths. [descent](docs/descent.md)
+  literals; do not derive the tail and do not drop the depths. ⚠️ **Eight consecutive chapters have
+  each added one and the schedule has never slipped**: the list is eleven entries at chapter 25, whose
+  depth 1,210 read 5.00 of five the day it shipped. ⚠️ **The rung ladder runs out at `ascended`, which
+  changes the shape of the growth rather than ending it** — no later chapter can hand a depth another
+  ×1.6, so from chapter 26 the gap widens on levels alone and each new entry is a shallower trough.
+  **Do not read a smaller step as the schedule ending.** [descent](docs/descent.md)
 - ⚠️ **When every reading saturates, tune against the sweep's own control rather than its outcome.**
   Expeditions is one-time content meant to become a completion, so every depth above its unlock reads
   1.00 finished by design and no anchor cap can be chosen on a finish rate. **A cap that reads 5.00
