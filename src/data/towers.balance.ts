@@ -223,13 +223,7 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * deletes its own name; **the last one deletes this list and the branch below it.** Third time it has
  * been done this way.
  */
-const PENDING: readonly string[] = [
-  'tower-elf',
-  'tower-undead',
-  'tower-monster',
-  'tower-angel',
-  'tower-demon',
-];
+const PENDING: readonly string[] = ['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon'];
 
 /** How many bands a tower actually owes samples for: all of them, or one fewer while it waits. */
 const bandsOwed = (tower: TowerData): number => (PENDING.includes(tower.id) ? BANDS - 1 : BANDS);

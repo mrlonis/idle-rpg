@@ -1,12 +1,12 @@
 # Faction towers
 
 Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
-only the Human and Dwarf Towers are there yet. The system shipped in milestone 15b with a single tower,
+only the Human, Dwarf and Elf Towers are there yet. The system shipped in milestone 15b with a single tower,
 the other six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth
 is in flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The height is 400 and five of the seven towers are still authored at 300, so the `PENDING` list is
+⚠️ **The height is 400 and four of the seven towers are still authored at 300, so the `PENDING` list is
 back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
 floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
 waiting for its floors sits on a literal `PENDING` list in
@@ -440,6 +440,9 @@ choosing; do not copy the last session's shape.**
   rather than time.
 - **Elf, third hundred** — the first where the axis is a **defensive gap in the crew's own stat
   block** rather than anything about the board's shape. See below.
+- **Elf, fourth hundred** — the first where the honest finding is that **the whole vocabulary is inert
+  and only throughput is left**, so the axis is `atk` and the health standing under it, as a product.
+  See below.
 - **Undead, second hundred** — the first that is **structural rather than a matter of weight**. At the roof's level,
   controlled at one anchor plus two legendaries and two commons: `dodge` reads 95% / **65%** where
   burst reads 100% / 95%, a healer 98% / 90%, and slow, link and reach all 100% / 100%. `dodge` is
@@ -559,8 +562,9 @@ included (4.40 / 4.00). What collapses is the **board**: the shipped floor-300 b
 level reads 100% / 1.93 against **53% / 0.55**.
 
 ⚠️ **`THE_PANOPLY` is the _second_ lightest tower roof on both axes, and it shipped claiming to be the
-lightest.** The eight roofs read 1200/**52** (the Dwarf Tower's `THE_PROOF_HOUSE`), 1240/68 (this),
-1240/74, 1300/84, 1320/82, 1440/86, 1540/92, 1560/91 — the Dwarf fourth hundred took both records the
+lightest.** The nine roofs read 1200/**52** (the Dwarf Tower's `THE_PROOF_HOUSE`), 1240/**64** (the Elf
+Tower's `THE_PLATEWRIGHT`, the lightest on health), 1240/68 (this), 1240/74, 1300/84, 1320/82, 1440/86,
+1540/92, 1560/91 — the Dwarf fourth hundred took both records the
 session after this one landed, being geared too and spending its allowance on an axis as well as on the
 grade. **The weight a roof is allowed is what is left after the grade** — and ⚠️ **a superlative about
 seven towers goes stale the moment the next hundred lands, so state the list.** The hundred closes at
@@ -787,6 +791,85 @@ again, so `THE_EDGEWRIGHT` is lighter than `THE_WARDWRIGHT` (1300/84 against 156
   itself, which measured floor 298 at 2.85 reference survivors against the roof's 3.42. The band drops
   it after floor 294 and nothing but the Edgewright anchors the last six floors. **Check the previous
   hundred's anchors against the new roof, not only the previous hundred's roof board.**
+
+### The Elf Tower's fourth hundred: everything else is inert
+
+⚠️ **The Plating Floor is the first hundred in the project whose axis is plain `atk`, and it is there
+because the session measured the whole vocabulary and found nothing else.** Floors 301–400, levels
+142–189, gear ramp inherited free. Against a calibrated geared control at level 189 in Fine 60 — an
+anchor at 1000/58 behind four bodies at 520/36, reading **4.00 / 3.95**, and it moves — forty seeds,
+zero timeouts on every row:
+
+| four carriers at       | reference | alternate | worth to the alternate |
+| ---------------------- | --------- | --------- | ---------------------- |
+| 520 / 36 — the control | 4.00      | 3.95      | —                      |
+| 520 / 44               | 3.95      | 3.20      | 0.75                   |
+| 520 / 52               | 3.55      | 1.55      | 2.40                   |
+| 700 / 36               | 4.00      | 3.77      | 0.18                   |
+| 900 / 36               | 4.00      | 3.20      | 0.75                   |
+| **700 / 52**           | 3.17      | **0.33**  | **3.62**               |
+| **900 / 44**           | 3.50      | **0.85**  | **3.10**               |
+
+**Neither half is worth much alone and together they are the whole board** — the Dwarf third hundred's
+"weight and rate are a product" arriving on weight and _attack_. It grades in carrier counts as well:
+at 700/52, by how many of four carry it, 3.95 → 3.88 → 3.13 → 1.75 → **0.33**.
+
+⚠️ **The negative list is most of the finding and none of it is worth re-measuring.** Twelve hostile
+statuses riding the swing across all four bodies span **±0.22**, and four of them (`savaged`,
+`doombrand`, `ember-seed`, `bloodrisen`) leave the board _easier_. `tenacity` is **exactly flat** at
+0.20 / 0.40 / 0.60 / 0.85. `magicResist` is **exactly 0.00** at 0.30 and 0.60. `critBlock` is worth
+0.05, `accuracy` 0.05 and `physicalPierce` 0.10 — so the Demon Tower's lock, the Undead Tower's and
+the Dwarf Tower's all price at nothing here. Every scope, reach and selection leaves a board _easier_
+(`enemy-all` 4.05, `enemy-row-back` 4.38, `enemy-back` 4.45, `enemy-lowest` 4.38, `enemy-highest`
+4.47) — the **sixth** tower to find it — and board-wide voice count is flat at 3.98 / 3.98 / 3.98 /
+4.05, so the Monster Tower's axis is not this one's either.
+
+⚠️ **Enemy sustain is worth 0.07 of a survivor across the entire vocabulary, and this is the one tower
+where that could have been spent.** `lifeLeech` 0.45 on all four reads 3.92, `recovery` 30 reads 3.88,
+`healthRegen` 22 reads **3.95 — exactly the control**, a back-rank healer 4.00 and `REGENERATION` on
+`ally-all` 3.98. An Elf five clears its heaviest authorable board in ten seconds against a
+ninety-second timer, so no amount of enemy sustain outpaces it. **The hundred still authors none**: a
+hundred does not relax a termination argument because its own crew happens to be fast.
+
+⚠️ **"Is it ours" comes back negative and the header says so.** As a change on each crew's own
+calibrated control, the pair at ×1.44 attack and ×1.35 health: dwarf-ref −3.98, angel-ref −3.88,
+angel-alt −3.80, **elf-alt −3.70**, demon-alt −2.92, undead-alt −2.88, human-alt −2.60, dwarf-alt
+−2.60, human-ref −2.55, demon-ref −2.03, undead-ref −2.00, monster-ref −1.90, elf-ref −1.67,
+monster-alt −1.08. **Fourth of fourteen — the licence is margin rather than exclusivity**, which is the
+Angel third hundred's shape. The other half of the argument is the register on the party's side: an Elf
+five is the lowest health in the game (2,305 / 2,180) on the lowest authored `def` (Σ83 / Σ75) with
+**zero** `physicalResist`, `tenacity`, `critBlock`, `critDamageResist` and `lifeLeech`. There is no
+refusal stat on that crew for a board to have to get past, which is exactly why nothing but throughput
+reads.
+
+⚠️ **The first calibration said attack was the Elves' lock and it was wrong, on a saturated control.**
+A coarser weight ladder left ten of the fourteen crews reading 4.00 flat, which put elf-alt first of
+fourteen by a factor of 2.35. Re-calibrating to _the heaviest board each crew still reads ≥3.75 on_
+moved it to fourth. **Confirm every crew's control can fall before believing a cross-crew table** —
+the Demon Tower's saturation trap, arriving on the "is it ours" test rather than on an axis.
+
+⚠️ **Two of this tower's own roofs retired and the pair that went is not the heaviest.** Behind four
+low-`atk` commons at 189 in Fine 60, `THE_GRUDGEKEEPER` at 1520/89 reads **78% / 2.15** and the
+Adamant Colossus at 1250/88 reads **4.00 / 4.08**, while `THE_EDGEWRIGHT` at 1300/84 — the hundred
+below's own roof — reads **5% / 0.05**, `THE_WARDWRIGHT` at 1560/92 reads 20% / 0.38, `THE_DOORSTONE`
+at 1480/88 reads 0% and `THE_ANVIL_CROWNED` at 1750/97 reads 0%. The Edgewright fails on its
+`critChance` 0.22 at amp 1.15 — the _third_ hundred's own axis, against a crew with zero of either
+answering stat — and the Doorstone on its `def` 70 and `physicalResist` 0.30, which buy it 29 seconds
+of swinging where the Grudgekeeper gets 17. ⚠️ **The Colossus stands because its `haste` is 58, the
+lowest in the game**: attack only bills for as long as the body carrying it lives, and only as often as
+it swings.
+
+⚠️ **The lean overshoot was the worst of the four rounds.** Authored from the Dwarf bench the hundred
+came out at **85.2% Dwarf**, taking the whole tower to **65.34%** and over the ceiling. Converting one
+texture slot per affected board — spread across all five bands, never an axis carrier and never an
+anchor, substitutes drawn only from monster, angel and demon — took it to 75.6% and the tower to
+**62.99%**.
+
+⚠️ **`THE_PLATEWRIGHT` is the lightest of the nine tower roofs on health and the third lightest on
+attack** — 1240/64 against 1200/52, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92, 1560/91 —
+and it is **lighter than the Edgewright it succeeds on both stats.** The hundred closes at
+**100% / 3.88 / 13.3s against 85% / 2.33 / 20.3s**, zero timeouts anywhere, longest single attempt
+**32.0s** against the 67.5s bar.
 
 ### The Undead Tower's third hundred: the board that will not die
 

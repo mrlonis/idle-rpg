@@ -1,10 +1,13 @@
 import {
   ACOLYTE,
+  ANVILBACK_SMITH,
   ASHPIT_SCUTTLER,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
   BOAR,
+  BOLTFAST_IRONSIDE,
   BONECHAIN_WARDEN,
+  BRACEWORK_DELVER,
   BULWARK_ENEMY,
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
@@ -18,12 +21,14 @@ import {
   COLOSSUS,
   COVENANT_BREAKER,
   DEEPGALLERY_RUNNER,
+  DEEPLAMP_SEALER,
   DEEPROCK_MINER,
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
+  GATEFAST_WARDEN,
   GLADE_STALKER,
   GLASSCHOIR_ARBITER,
   GOLEM,
@@ -38,6 +43,7 @@ import {
   IRONSLING_WRIGHT,
   KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
+  KINSTONE_BEARER,
   KNELL_CHANTER,
   LUMEN_ACOLYTE,
   MARCHWARD_PIKEMAN,
@@ -47,7 +53,9 @@ import {
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
   OATHSTONE_BASTION,
+  PLATESHOD_HAMMERER,
   PLUMBLINE_HAND,
+  PROPGALLERY_HAND,
   PYRE,
   QUENCHPIT_IRONHIDE,
   QUENCHWRIGHT,
@@ -58,12 +66,15 @@ import {
   RIFTEDGE_CANTOR,
   RIFTSTEP_REAVER,
   RIMEPLATE,
+  RINGWALL_HAMMERER,
   RIVEN_MARCHWARDEN,
+  RIVETLINE_HAND,
   RUNEWARDEN,
   SCARBOUND_BELLOWER,
   SENTINEL,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
+  SETSTONE_DRUDGE,
   SHADE,
   SHARDLIGHT_ACOLYTE,
   SLAGBOUND_DRUDGE,
@@ -73,12 +84,15 @@ import {
   THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
   THE_GRUDGEKEEPER,
+  THE_PLATEWRIGHT,
   THE_WARDWRIGHT,
   THORNBACK_GRAZER,
   THORNWEALD_WARDEN,
+  UNMARKED_WARDEN,
   VAULTBOUND_GAOLER,
   VAULTLIGHT_CENSER,
   WARDEN,
+  WARDSTONE_KEEPER,
   WEALDSHADOW_STALKER,
   WISP,
   WRATHBORN,
@@ -86,19 +100,24 @@ import {
 } from './enemies';
 
 /**
- * The Elf Tower — three hundred floors, enemy levels 1 to 142.
+ * The Elf Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## Why the enemies are mostly Dwarven
  *
  * Dwarves beat Elves in the matchup cycle, so this is the tower that punishes the crew it admits.
- * Just under three fifths of the slots are Dwarven and the rest are spread across the other six
+ * Just under two thirds of the slots are Dwarven and the rest are spread across the other six
  * factions — [`towers.spec.ts`](./towers.spec.ts) measures the share rather than trusting this
  * paragraph.
  *
- * ⚠️ **The second hundred wanted to be far more Dwarven than that**, exactly as 21e's and 21f's did,
- * and the correction was made while authoring rather than afterwards: non-Dwarf bodies of comparable
+ * ⚠️ **Every hundred has wanted to be far more Dwarven than that**, exactly as 21e's and 21f's did,
+ * and the correction is made while authoring rather than afterwards: non-Dwarf bodies of comparable
  * weight fill the slots where composition is worth nothing anyway. That is a thing to do on purpose,
- * and it is now three sessions for three.
+ * and it is now four sessions for four. ⚠️ **The fourth hundred is the worst overshoot of the four**
+ * — authored from the Dwarf bench it came out at **85.2% Dwarf**, which took the whole tower to
+ * **65.34%** and over the ceiling. Converting one texture slot per affected board, spread across all
+ * five bands and never touching an axis carrier or an anchor, took the hundred to 75.6% and the tower
+ * to **62.99%**. ⚠️ **The substitutes are drawn only from factions that also counter Elves** —
+ * monster, angel and demon — because a swap to anything else turns the lean off on that board.
  *
  * ## What an Elf five is, and what this tower charges it for
  *
@@ -202,12 +221,122 @@ import {
  * below them. The Dwarf Tower's finding is that a third hundred's anchors get lighter, not that they
  * go away.
  *
- * ## What the third hundred measures at
+ * ## ⚠️ The fourth hundred — the Plating Floor — is attack and the health standing under it
  *
- * Floor 201 in two seconds with all five alive, 250 in four, 270 in five with 4.22, 280 in seven
- * with 4.00, 290 in eight with 3.67. The roof takes the reference five 8.2 seconds and costs it 1.58
- * of five; the alternate clears it at **88% with 2.02**. Floor 296 is the second Edgewright board and
- * the only other real fight, at 3.73 and 88%.
+ * Floors 301–400, levels 142–189, and the gear ramp arrives **free**: `TOWER_RULES.gear` is one rule
+ * for all seven towers, Worn 1 at floor 301 to Fine 60 at the roof with grades stepping at 301, 318
+ * and 351. So where the Human fourth hundred spent that ramp *as* its axis, this one had to find an
+ * axis on top of it — and the honest finding of the session is that **nothing else moves an Elf five
+ * at all.**
+ *
+ * Against a calibrated geared control at level 189 in Fine 60 — an anchor at 1000/58 behind four
+ * bodies at 520/36, reading **4.00 / 3.95**, and it moves — forty seeds, zero timeouts on every row:
+ *
+ * | four carriers at       | reference | alternate | worth to the alternate |
+ * | ---------------------- | --------- | --------- | ---------------------- |
+ * | 520 / 36 — the control | 4.00      | 3.95      | —                      |
+ * | 520 / 44               | 3.95      | 3.20      | 0.75                   |
+ * | 520 / 52               | 3.55      | 1.55      | 2.40                   |
+ * | 700 / 36               | 4.00      | 3.77      | 0.18                   |
+ * | 900 / 36               | 4.00      | 3.20      | 0.75                   |
+ * | **700 / 52**           | 3.17      | **0.33**  | **3.62**               |
+ * | **900 / 44**           | 3.50      | **0.85**  | **3.10**               |
+ *
+ * **Neither half is worth much alone and together they are the whole board.** ⚠️ **It grades in
+ * carrier counts as well as in value**, which is what five bands need: at 700/52, by how many of four
+ * carry it, 3.95 → 3.88 → 3.13 → 1.75 → **0.33**; at 900/62, 3.95 → 3.60 → 1.48 → 0.03 → 0.00.
+ *
+ * ⚠️ **The mechanism is that an Elf five kills anything soft before it swings twice**, so attack only
+ * bills for as long as the body carrying it lives. One body at `atk` 70 reads 3.98 of five on 340
+ * health, 3.80 on 520, 3.55 on 800 and **3.08** on 1100. Held the other way — the same 202 points of
+ * board attack, redistributed — 90 on one soft escort reads **4.88** and 118 on the anchor reads
+ * **2.75**: identical throughput, 2.13 of five apart. ⚠️ **{@link COLOSSUS} is the proof and the reason
+ * it can still be fielded here**: 1250/88 is the second heaviest Dwarf `ascended` line in the game and
+ * it reads 4.00 / 4.08 alone at the roof's level, because its `haste` is **58** — the lowest in the
+ * game — so a third of its attack never lands. What refuses the axis is time, and every stat that buys
+ * time buys difficulty with it.
+ *
+ * | Band | Floors  | Levels  | Grade             | Carriers per board | Raw health  |
+ * | ---- | ------- | ------- | ----------------- | ------------------ | ----------- |
+ * | 1    | 301–320 | 142–151 | Worn 1–Sturdy 4   | 1                  | 3,240–3,960 |
+ * | 2    | 321–345 | 152–163 | Sturdy 5–34       | 2–3                | 3,360–4,160 |
+ * | 3    | 346–365 | 164–173 | Sturdy 35–Fine 18 | 3–4                | 3,640–4,100 |
+ * | 4    | 366–385 | 173–182 | Fine 19–42        | 2–3                | 3,700–4,470 |
+ * | 5    | 386–400 | 182–189 | Fine 43–60        | 2                  | 3,500–4,020 |
+ *
+ * ⚠️ **A carrier is stated as a count of bodies at `atk` ≥ 62 on `hp` ≥ 640 rather than as an
+ * absolute, because both halves are *common* stats** — 109 of the 330 blocks that predate this hundred
+ * carry one, at a median `atk` of 76 — so "the hot bodies arrive in band 2" would be false the day it
+ * was written. That is chapter 23's counts-not-absolutes fix, on a tower. ⚠️ **The count falls in the
+ * closing bands and that is the ramp working**: a third carrier at level 188 is worth **3.15 of five**
+ * (floor 398's board reads 3.40 with two carriers and **0.25 with three**), so the last fifteen floors trade
+ * carriers for a grade worth +65.7% health on a `tank`, exactly as the Human and Dwarf fourth hundreds
+ * let their authored weight fall.
+ *
+ * ### ⚠️ Two of this tower's own roofs had to retire, and the pair that went is not the heaviest
+ *
+ * Behind four low-`atk` commons at level 189 in Fine 60, {@link THE_GRUDGEKEEPER} at 1520/89 reads
+ * **78% / 2.15** and {@link COLOSSUS} at 1250/88 reads **4.00 / 4.08**, while {@link THE_EDGEWRIGHT} at
+ * 1300/84 — the hundred below's own roof, and 220 health lighter than the Grudgekeeper — reads
+ * **5% / 0.05**, {@link THE_WARDWRIGHT} at 1560/92 reads 20% / 0.38, `THE_DOORSTONE` at 1480/88 reads
+ * 0% and `THE_ANVIL_CROWNED` at 1750/97 reads 0%. **Weight predicts none of it.** The Edgewright fails
+ * on its `critChance` 0.22 at `critDamageAmp` 1.15 — the *third* hundred's axis, against a crew with
+ * zero of either answering stat — and the Doorstone on its `def` 70 and `physicalResist` 0.30, which
+ * buy it 29 seconds of swinging where the Grudgekeeper gets 17. The Demon Tower's finding, sharpened:
+ * there one roof retired, here two do while an older and heavier block stands. **Field each candidate
+ * anchor alone before concluding anything from a column of stat lines.**
+ *
+ * ### ⚠️ What the boards found that the control did not
+ *
+ * - ⚠️ **The Splintering collapses.** The shipped floor-300 board fielded up the level line reads 100%
+ *   with all five alive at its own level 142, 100% / 4.72 at 170, and **3% with 0.03 against 0%** at
+ *   189 in Fine 60.
+ * - ⚠️ **The roof's escort is the whole question and its attack settled the boss.** With weight held at
+ *   1240 the roof reads 2.70 (95%) at `atk` 78, 3.45 at 70, **2.48 at 64** and 4.03 at 54; and behind
+ *   the same line, one {@link RIVETLINE_HAND} plus three low-`atk` commons closes at 93% / 2.48 where
+ *   swapping the Rivetline for {@link ANVILBACK_SMITH} reads **57% / 1.25**, a mid-weight escort reads
+ *   **63% / 1.30**, and a second carrier reads **0%**. Both halves of a roof, not one.
+ * - ⚠️ **The axis carries the last floor rather than riding along.** The roof board with the attack
+ *   stripped out of the boss and its escort reads 100% / 4.00 and 100% / 4.38 against 3.77 and 2.48 for
+ *   the same five bodies at their shipped lines — worth 0.23 and **1.90** of five on floor 400. (Both
+ *   figures are from the same synthetic pairing; the shipped floor itself sweeps at 3.88 and 2.33,
+ *   because a battle's seed is derived from the stage id.)
+ * - ⚠️ **A band-boundary dip is the one shape to watch here**, because band 5 is where the authored
+ *   weight *falls*. Floor 385 first read 2.65 against floor 386's 4.03, which is a step backwards on
+ *   the way into the closing band; lightening 385's escort and opening 386 heavier put the seam at
+ *   3.40 → 3.85.
+ *
+ * ## What the bands measure at
+ *
+ * Third hundred: floor 201 in two seconds with all five alive, 250 in four, 270 in five with 4.22, 280
+ * in seven with 4.00, 290 in eight with 3.67; the roof takes the reference five 8.2 seconds and costs
+ * it 1.58 of five, and the alternate clears it at **88% with 2.02**.
+ *
+ * Fourth hundred: floor 301 in two and a half seconds with all five alive, 320 in three and a half,
+ * 345 in four, 360 in six with 4.38, 380 in eleven with 3.67, 390 in thirteen with 3.45, 399 in twelve
+ * with 3.38, and the roof in **twenty seconds at 85% with 2.33 — 13.3s and 3.88 for the reference
+ * five.** ⚠️ **Zero timeouts anywhere in the hundred and the longest single attempt is 32.0 seconds**
+ * against the sweep's 67.5-second bar for a cleared fight, which is the whole of why an axis that other
+ * towers had to refuse for the clock is affordable here. The reference five loses nobody below floor
+ * 350 and the alternate below floor 346.
+ *
+ * ⚠️ **The sustain claim is stated in counts, because the absolute form has shipped wrong four times
+ * across the seven towers and always on one of five different words.** Over the 40 blocks the fourth
+ * hundred fields: **zero** carry a point of `lifeLeech`, **zero** carry a heal, drain or shield effect,
+ * and **zero** carry a `regen` status. What it does carry is `recovery` on five blocks standing on 23
+ * boards, `healthRegen` on two standing on 14, a ward status on one standing on seven, and a taunt on
+ * two standing on ten. ⚠️ **No board pairs a taunt with a body that refills** — the two boards that did
+ * were found by walking all four hundred floors with a script rather than by reading them, and the two
+ * that remain carry the `recovery` on the body that is *itself* the taunt, which is the tolerable form.
+ * ⚠️ **No board pairs two `ascended` blocks.**
+ *
+ * ⚠️ **This is the one tower where the ninety-second clock has never been the constraint, and it still
+ * authors no sustain.** Measured here, enemy sustain is worth **0.07 of a survivor** across the entire
+ * vocabulary — `lifeLeech` 0.45 on all four (3.92), `recovery` 30 (3.88), `healthRegen` 22 (**3.95,
+ * exactly the control**), a back-rank healer (4.00) and `REGENERATION` on `ally-all` (3.98). A hundred
+ * does not get to relax a termination argument because its own crew happens to clear in ten seconds.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 180, 270 or 385.
  */
 export const TOWER_ELF = {
   id: 'tower-elf',
@@ -2395,6 +2524,826 @@ export const TOWER_ELF = {
       enemies: {
         front: [THE_EDGEWRIGHT, SPLINTERYARD_HONER],
         back: [PLUMBLINE_HAND, RIFTEDGE_CANTOR, GLASSCHOIR_ARBITER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Rivet Line — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — the works have stopped making edges. One body a board now carries what the line was making, and it is wearing the works' own plate — the third geared hundred in the towers, after the Human and Dwarf fourth hundreds.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [ANVILBACK_SMITH, BRACEWORK_DELVER],
+        back: [ASHPIT_SCUTTLER, PROPGALLERY_HAND, MARCHWARD_PIKEMAN],
+      },
+    },
+    {
+      id: 't-elf-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [SENTINEL, GATEFAST_WARDEN],
+        back: [WARDSTONE_KEEPER, PLUMBLINE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [RIVETLINE_HAND, KINSTONE_BEARER],
+        back: [ASHPIT_SCUTTLER, SLAGBOUND_DRUDGE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, THORNBACK_GRAZER],
+        back: [BRACEWORK_DELVER, CINDERQUENCH_BEARER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [ANVILBACK_SMITH, EDGETURN_WARDEN],
+        back: [SHARDLIGHT_ACOLYTE, PROPGALLERY_HAND, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [DEEPLAMP_SEALER, THORNBACK_GRAZER],
+        back: [BRACEWORK_DELVER, MARCHWARD_PIKEMAN, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [RIVETLINE_HAND, GATEFAST_WARDEN],
+        back: [RENDFANG_JACKAL, KINSTONE_BEARER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [DEEPLAMP_SEALER, EDGETURN_WARDEN],
+        back: [WARDSTONE_KEEPER, SLAGBOUND_DRUDGE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [ANVILBACK_SMITH, KINSTONE_BEARER],
+        back: [ASHPIT_SCUTTLER, MARCHWARD_PIKEMAN, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f310',
+      name: 'Floor 310 — The Rivet Line',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIMEPLATE],
+        back: [BRACEWORK_DELVER, COLDFORGE_HAND, MARCHWARD_PIKEMAN],
+      },
+    },
+    {
+      id: 't-elf-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [ANVILBACK_SMITH, BRACEWORK_DELVER],
+        back: [ASHPIT_SCUTTLER, PROPGALLERY_HAND, MARCHWARD_PIKEMAN],
+      },
+    },
+    {
+      id: 't-elf-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [SENTINEL, GATEFAST_WARDEN],
+        back: [WARDSTONE_KEEPER, PLUMBLINE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [RIVETLINE_HAND, KINSTONE_BEARER],
+        back: [ASHPIT_SCUTTLER, SLAGBOUND_DRUDGE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, THORNBACK_GRAZER],
+        back: [BRACEWORK_DELVER, CINDERQUENCH_BEARER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [ANVILBACK_SMITH, EDGETURN_WARDEN],
+        back: [SHARDLIGHT_ACOLYTE, PROPGALLERY_HAND, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [DEEPLAMP_SEALER, THORNBACK_GRAZER],
+        back: [BRACEWORK_DELVER, MARCHWARD_PIKEMAN, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [RIVETLINE_HAND, GATEFAST_WARDEN],
+        back: [RENDFANG_JACKAL, KINSTONE_BEARER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [DEEPLAMP_SEALER, EDGETURN_WARDEN],
+        back: [WARDSTONE_KEEPER, SLAGBOUND_DRUDGE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [ANVILBACK_SMITH, KINSTONE_BEARER],
+        back: [ASHPIT_SCUTTLER, MARCHWARD_PIKEMAN, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f320',
+      name: 'Floor 320 — The Line Runs Cold',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIMEPLATE],
+        back: [BRACEWORK_DELVER, COLDFORGE_HAND, MARCHWARD_PIKEMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Plate Shop — Floors 321–345, levels 152–163, Sturdy 5–34 — two of them, and the grade steps to Sturdy underneath. Neither half is the point: a hot body the party removes in two swings is worth almost nothing, and the shop is where the health arrives to stop that happening.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIVETLINE_HAND],
+        back: [RENDFANG_JACKAL, MARCHWARD_PIKEMAN, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [SPLINTERYARD_HONER, SENTINEL],
+        back: [GRUDGEPLATE_SMITH, KINSTONE_BEARER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [RINGWALL_HAMMERER, RIVETLINE_HAND],
+        back: [DEEPLAMP_SEALER, CARRION_SWARM, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [ANVILBACK_SMITH, QUENCHWRIGHT],
+        back: [EDGETURN_WARDEN, COLDFORGE_HAND, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, RIMEPLATE],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [BOLTFAST_IRONSIDE, SENTINEL],
+        back: [SPLINTERYARD_HONER, BRACEWORK_DELVER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [ANVILBACK_SMITH, DEEPLAMP_SEALER],
+        back: [RIVETLINE_HAND, SHARDLIGHT_ACOLYTE, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [SPLINTERYARD_HONER, RIVETLINE_HAND],
+        back: [QUENCHWRIGHT, KINSTONE_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, ANVILBACK_SMITH],
+        back: [GRUDGEPLATE_SMITH, RENDFANG_JACKAL, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f330',
+      name: 'Floor 330 — The Plate Shop',
+      enemies: {
+        front: [ANVILBACK_SMITH, COLDHEARTH_IRONSWORN],
+        back: [RIVETLINE_HAND, EDGETURN_WARDEN, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [RIVEN_MARCHWARDEN, RIVETLINE_HAND],
+        back: [COLDHEARTH_IRONSWORN, SHARDLIGHT_ACOLYTE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIVETLINE_HAND],
+        back: [BRACEWORK_DELVER, MARCHWARD_PIKEMAN, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [SPLINTERYARD_HONER, SENTINEL],
+        back: [GRUDGEPLATE_SMITH, THORNBACK_GRAZER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [RINGWALL_HAMMERER, RIVETLINE_HAND],
+        back: [DEEPLAMP_SEALER, SLAGBOUND_DRUDGE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [ANVILBACK_SMITH, QUENCHWRIGHT],
+        back: [EDGETURN_WARDEN, ASHPIT_SCUTTLER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, RIMEPLATE],
+        back: [RIVETLINE_HAND, MARCHWARD_PIKEMAN, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [BOLTFAST_IRONSIDE, SENTINEL],
+        back: [SPLINTERYARD_HONER, RENDFANG_JACKAL, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [ANVILBACK_SMITH, DEEPLAMP_SEALER],
+        back: [RIVETLINE_HAND, WARDSTONE_KEEPER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [SPLINTERYARD_HONER, RIVETLINE_HAND],
+        back: [QUENCHWRIGHT, THORNBACK_GRAZER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f340',
+      name: 'Floor 340 — What the Shop Was For',
+      enemies: {
+        front: [ANVILBACK_SMITH, COLDHEARTH_IRONSWORN],
+        back: [RIVETLINE_HAND, EDGETURN_WARDEN, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, ANVILBACK_SMITH],
+        back: [GRUDGEPLATE_SMITH, RENDFANG_JACKAL, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [RIVEN_MARCHWARDEN, RIVETLINE_HAND],
+        back: [COLDHEARTH_IRONSWORN, WARDSTONE_KEEPER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIVETLINE_HAND],
+        back: [RENDFANG_JACKAL, MARCHWARD_PIKEMAN, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [SPLINTERYARD_HONER, SENTINEL],
+        back: [GRUDGEPLATE_SMITH, KINSTONE_BEARER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [RINGWALL_HAMMERER, RIVETLINE_HAND],
+        back: [DEEPLAMP_SEALER, CARRION_SWARM, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Weighing House — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three abreast, and Fine plate arrives on the boards carrying them. This is where the two halves stop being two halves.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, BRACEWORK_DELVER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [ANVILBACK_SMITH, SPLINTERYARD_HONER],
+        back: [RIVETLINE_HAND, DEEPLAMP_SEALER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RIVETLINE_HAND],
+        back: [QUENCHWRIGHT, KINSTONE_BEARER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, ANVILBACK_SMITH],
+        back: [DEEPLAMP_SEALER, RIVETLINE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f350',
+      name: 'Floor 350 — The Weighing House',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, SPLINTERYARD_HONER, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RINGWALL_HAMMERER],
+        back: [SPLINTERYARD_HONER, RENDFANG_JACKAL, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [ANVILBACK_SMITH, QUENCHWRIGHT],
+        back: [RIVETLINE_HAND, MARROWHUNT_ALPHA, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, PLATESHOD_HAMMERER],
+        back: [RIVETLINE_HAND, SHARDLIGHT_ACOLYTE, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SENTINEL],
+        back: [SPLINTERYARD_HONER, COLDFORGE_HAND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [ANVILBACK_SMITH, COLDHEARTH_IRONSWORN],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, BRACEWORK_DELVER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [ANVILBACK_SMITH, SPLINTERYARD_HONER],
+        back: [RIVETLINE_HAND, DEEPLAMP_SEALER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RIVETLINE_HAND],
+        back: [QUENCHWRIGHT, KINSTONE_BEARER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, ANVILBACK_SMITH],
+        back: [DEEPLAMP_SEALER, RIVETLINE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f360',
+      name: 'Floor 360 — Weighed and Kept',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, SPLINTERYARD_HONER, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RINGWALL_HAMMERER],
+        back: [SPLINTERYARD_HONER, RENDFANG_JACKAL, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [ANVILBACK_SMITH, QUENCHWRIGHT],
+        back: [RIVETLINE_HAND, MARROWHUNT_ALPHA, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-elf-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, PLATESHOD_HAMMERER],
+        back: [RIVETLINE_HAND, SHARDLIGHT_ACOLYTE, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SENTINEL],
+        back: [SPLINTERYARD_HONER, COLDFORGE_HAND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [ANVILBACK_SMITH, COLDHEARTH_IRONSWORN],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, PLUMBLINE_HAND],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Deadweight — Floors 366–385, levels 173–182, Fine 19–42 — the heaviest boards in the hundred, and the last of the works’ own old anchors. Everything above this is lighter, which is the ramp working rather than the band relenting.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, COLDFORGE_HAND, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [COLOSSUS, PLATESHOD_HAMMERER],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, COLDHEARTH_IRONSWORN],
+        back: [SPLINTERYARD_HONER, WARDSTONE_KEEPER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [ANVILBACK_SMITH, REDWATER_STALKER],
+        back: [PLATESHOD_HAMMERER, ASHPIT_SCUTTLER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f370',
+      name: 'Floor 370 — The Deadweight',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, ANVILBACK_SMITH],
+        back: [COLDFORGE_HAND, MARCHWARD_PIKEMAN, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RINGWALL_HAMMERER],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [COLOSSUS, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, BRACEWORK_DELVER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, IRONSLING_WRIGHT],
+        back: [ANVILBACK_SMITH, THORNBACK_GRAZER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [QUENCHWRIGHT, COLDFORGE_HAND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, ASHPIT_SCUTTLER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [COLOSSUS, PLATESHOD_HAMMERER],
+        back: [RIVETLINE_HAND, MARCHWARD_PIKEMAN, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, COLDHEARTH_IRONSWORN],
+        back: [SPLINTERYARD_HONER, SHARDLIGHT_ACOLYTE, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [ANVILBACK_SMITH, REDWATER_STALKER],
+        back: [PLATESHOD_HAMMERER, COLDFORGE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RINGWALL_HAMMERER],
+        back: [RIVETLINE_HAND, THORNBACK_GRAZER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f380',
+      name: 'Floor 380 — The Last Old Anchor',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, ANVILBACK_SMITH],
+        back: [COLDFORGE_HAND, MARCHWARD_PIKEMAN, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [COLOSSUS, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, RENDFANG_JACKAL, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, IRONSLING_WRIGHT],
+        back: [ANVILBACK_SMITH, MARCHWARD_PIKEMAN, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-elf-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [QUENCHWRIGHT, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-elf-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [RIVETLINE_HAND, COLDFORGE_HAND, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [COLOSSUS, PLATESHOD_HAMMERER],
+        back: [RIVETLINE_HAND, VAULTLIGHT_CENSER, VAULTLIGHT_CENSER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Plating — Floors 386–400, levels 182–189, Fine 43–60 — the boards go light and the bodies on them do not. The Edgewright is a hundred floors below and could not stand here at all; what can is the one that finally wore the thing the works were for.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [COLDFORGE_HAND, MARCHWARD_PIKEMAN, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, COLDHEARTH_IRONSWORN],
+        back: [ASHPIT_SCUTTLER, PROPGALLERY_HAND, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SPLINTERYARD_HONER],
+        back: [COLDFORGE_HAND, PLUMBLINE_HAND, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-elf-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [ANVILBACK_SMITH, PLATESHOD_HAMMERER],
+        back: [VAULTLIGHT_CENSER, COLDFORGE_HAND, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f390',
+      name: 'Floor 390 — The Plating',
+      enemies: {
+        front: [THE_GRUDGEKEEPER, RIVETLINE_HAND],
+        back: [COLDFORGE_HAND, PROPGALLERY_HAND, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [VAULTLIGHT_CENSER, PLUMBLINE_HAND, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RINGWALL_HAMMERER],
+        back: [COLDFORGE_HAND, PROPGALLERY_HAND, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [VAULTLIGHT_CENSER, FORGE_THRALL, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, COLDHEARTH_IRONSWORN],
+        back: [PROPGALLERY_HAND, SETSTONE_DRUDGE, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [FORGE_THRALL, VAULTLIGHT_CENSER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [ANVILBACK_SMITH, PLATESHOD_HAMMERER],
+        back: [FORGE_THRALL, SETSTONE_DRUDGE, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SPLINTERYARD_HONER],
+        back: [VAULTLIGHT_CENSER, UNMARKED_WARDEN, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, ANVILBACK_SMITH],
+        back: [SETSTONE_DRUDGE, FORGE_THRALL, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SPLINTERYARD_HONER],
+        back: [ASHPIT_SCUTTLER, PROPGALLERY_HAND, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f400',
+      name: 'Floor 400 — The Platewright',
+      enemies: {
+        front: [THE_PLATEWRIGHT, RIVETLINE_HAND],
+        back: [SETSTONE_DRUDGE, PROPGALLERY_HAND, UNMARKED_WARDEN],
       },
     },
   ],

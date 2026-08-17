@@ -89,7 +89,7 @@ running total carried by hand.
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 
-⚠️ **The height is 400 and the Human and Dwarf Towers are there**; the other five sit on a literal `PENDING`
+⚠️ **The height is 400 and the Human, Dwarf and Elf Towers are there**; the other four sit on a literal `PENDING`
 list, the third time that discipline has run. The Panoply is the first tower hundred whose escalation
 axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
 taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
@@ -134,10 +134,35 @@ lists. Three findings there are about method:
   reading that said otherwise had a third pierce body on the board, so moving one back put two carriers
   there — chapter 22's "carry a rank comparison on one body", caught before it shipped.
 
+The **Elf Tower's** fourth hundred is the third to land, and the first hundred anywhere whose axis is
+**plain throughput** — `atk` and the health standing under it, as a product. It needed no `core/` change
+either: four blocks, four skills, a hundred floors, four one-line `gearArchetype` edits, and a name off
+both `PENDING` lists. Three findings there are about method:
+
+- ⚠️ **"No mechanic is available" can be the honest answer, and then the negative list is the
+  deliverable.** Twelve hostile status riders span **±0.22** with four of them negative; `tenacity` is
+  exactly flat and `magicResist` exactly 0.00; the Demon Tower's `critBlock`, the Undead Tower's `dodge`
+  answer and the Dwarf Tower's `physicalPierce` all price at 0.05–0.10; every scope, reach and selection
+  leaves the board _easier_ (the sixth tower to find it); and the entire enemy-sustain vocabulary spans
+  **0.07 of a survivor**. An Elf five carries zero `physicalResist`, `tenacity`, `critBlock`,
+  `critDamageResist` and `lifeLeech` on the lowest health in the game — there is no refusal stat for a
+  board to have to get past, so nothing but throughput reads.
+- ⚠️ **A cross-crew "is it ours" table is only as good as the weakest crew's calibration.** The first
+  pass left ten of fourteen crews reading 4.00 flat and made attack look like the Elves' own lock by a
+  factor of 2.35 over the next crew. Re-calibrating to the heaviest board each crew still reads ≥3.75 on
+  moved elf-alt from **first of fourteen to fourth** — which changed the licence from exclusivity to
+  **margin**, and the header now says so. The saturated-control trap, arriving on the test rather than on
+  an axis.
+- ⚠️ **The anchor that retires can be the one whose kit was the previous hundred's axis.** Two of this
+  tower's own roofs had to go — `THE_EDGEWRIGHT` (1300/84) on the `critChance` the _third_ hundred was
+  built on, and `THE_WARDWRIGHT` (1560/92) — while the heavier, older `THE_GRUDGEKEEPER` (1520/89) and
+  the Adamant Colossus (1250/88) both stand. The Colossus stands on `haste` **58**, the lowest in the
+  game: attack bills only as often as it swings. **Weight predicts none of it.**
+
 Also worth recording because it is the failure the prose check exists for: the Panoply's own header
 claimed to be the lightest tower roof on attack and tied on health, and the Proof House took **both**
-records one session later at 1200/52. Both files now state the list of eight roofs rather than a
-superlative.
+records one session later at 1200/52. Both files now state the list of roofs rather than a
+superlative — and it is a list of **nine** now, which is the point.
 
 ### What the third hundreds established
 

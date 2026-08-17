@@ -1410,8 +1410,8 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 ×2 rather than ×5.
 
 **It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **five names left on the list** (Human and Dwarf have
-landed). Both completed rounds
+21l–21r for the third, and the fourth is open with **four names left on the list** (Human, Dwarf and Elf
+have landed). Both completed rounds
 ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
@@ -1529,8 +1529,8 @@ carries them all in full. What generalises is only the procedure:
      spine introduces gear, so the ramp is the tower's own — and it follows that a tower is not
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
    - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
-     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,300 shipped floors, 200 are
-     geared — the Human and Dwarf fourth hundreds.)
+     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,400 shipped floors, 300 are
+     geared — the Human, Dwarf and Elf fourth hundreds.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
@@ -1569,7 +1569,34 @@ carries them all in full. What generalises is only the procedure:
      one pierce carrier in the escort reads **3% / 5%**). **Shortlist on weight, settle on attack.**
    - ⚠️ **A superlative about seven towers goes stale the moment the next hundred lands.** The Panoply
      shipped as "the lightest tower roof on attack, tied on health"; the Proof House took both records one
-     session later at 1200/52. Both files now state the list of eight roofs instead.
+     session later at 1200/52. Both files now state the list of roofs instead — nine of them now.
+   - ⚠️ **A hundred can measure the whole vocabulary as inert, and then the axis is plain throughput.**
+     The Elf fourth hundred is the case: twelve hostile statuses ride the swing within **±0.22** (four
+     of them negative), `tenacity` is **exactly flat**, `magicResist` **exactly 0.00**, `critBlock`
+     0.05, `accuracy` 0.05, `physicalPierce` 0.10, every scope/reach/selection leaves the board
+     _easier_, board-wide voice count is flat, and the entire sustain vocabulary — leech 0.45,
+     `recovery` 30, `healthRegen` 22, a healer, a board-wide regeneration — spans **0.07 of a
+     survivor**. What is left is `atk` and the health standing under it, **as a product**: at level 189
+     in Fine 60, 520/52 is worth 2.40 and 900/36 is worth 0.75, while **700/52 is worth 3.62**. A body
+     only bills its attack for as long as it lives — one body at `atk` 70 reads 3.98 of five on 340
+     health and **3.08** on 1100 — and the same 202 points of board attack reads **4.88** on one soft
+     escort and **2.75** on the anchor. **Write the negative list down; it is the deliverable when the
+     axis is this plain.**
+   - ⚠️ **A cross-crew "is it ours" table needs every crew's control to be able to fall, and the coarse
+     version lies.** That hundred's first pass calibrated each crew to the ladder rung nearest 4.00 and
+     left ten of fourteen reading 4.00 flat, which made attack look like the Elves' own lock by a factor
+     of 2.35. Re-calibrating to **the heaviest board each crew still reads ≥3.75 on** moved elf-alt from
+     first of fourteen to **fourth** (dwarf-ref −3.98, angel-ref −3.88, angel-alt −3.80, elf-alt −3.70),
+     which changed the licence from exclusivity to **margin** — and the header now says which it is. The
+     Demon Tower's saturation trap, arriving on the test rather than on an axis.
+   - ⚠️ **A retiring anchor can be a block whose kit was the _previous hundred's axis_, and the pair
+     that goes is not the heaviest.** At the Elf Tower's new roof behind four low-`atk` commons,
+     `THE_GRUDGEKEEPER` (1520/89) reads 78% / 2.15 and the Adamant Colossus (1250/88) reads 4.00 / 4.08,
+     while `THE_EDGEWRIGHT` (1300/84 — the hundred below's own roof) reads **5% / 0.05** on its
+     `critChance` 0.22, `THE_WARDWRIGHT` (1560/92) 20% / 0.38 and `THE_DOORSTONE` (1480/88) **0%** on
+     `def` 70 plus `physicalResist` 0.30, which buy it 29 seconds of swinging against the Grudgekeeper's 17. ⚠️ **The Colossus survives the check on `haste` 58, the lowest in the game** — attack bills only
+     as often as it swings. **Two roofs retired while an older, heavier block stayed.**
+
 6. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's
    band openers.

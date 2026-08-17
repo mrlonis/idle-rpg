@@ -202,8 +202,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Human and Dwarf Towers there yet**. What a tower is for, the three fields a clear may never touch, the four
-  crews, and sixteen hundreds' worth of measured escalation findings.
+  Human, Dwarf and Elf Towers there yet**. What a tower is for, the three fields a clear may never touch, the
+  four crews, and seventeen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -700,8 +700,29 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with five names on it** — the Human
-  and Dwarf fourth hundreds have landed. [towers](../../docs/towers.md)
+  notices a tower nobody went back for. **The list is live right now with four names on it** — the Human,
+  Dwarf and Elf fourth hundreds have landed. [towers](../../docs/towers.md)
+- ⚠️ **A hundred can measure its whole vocabulary as inert, and then the axis is plain throughput —
+  `atk` and the health standing under it, as a _product_.** The Elf fourth hundred is that case: at level
+  189 in Fine 60 against a 3.95 control, twelve hostile status riders span **±0.22** (four negative),
+  `tenacity` is **exactly flat**, `magicResist` **exactly 0.00**, `critBlock` 0.05, `accuracy` 0.05,
+  `physicalPierce` 0.10, every scope/reach/selection leaves the board _easier_ (the sixth tower to find
+  it), voice count is flat, and the entire sustain vocabulary spans **0.07 of a survivor**. What is left
+  grades: 520/52 is worth 2.40 and 900/36 is worth 0.75, while **700/52 is worth 3.62**. ⚠️ **A body
+  bills its attack only for as long as it lives** — `atk` 70 reads 3.98 of five on 340 health and 3.08 on
+  1100, and the same 202 points of board attack reads 4.88 on a soft escort and 2.75 on the anchor.
+  [towers](../../docs/towers.md)
+- ⚠️ **A cross-crew "is it ours" table needs every crew's control able to fall, and a coarse calibration
+  lies.** Calibrating each crew to the ladder rung nearest 4.00 left ten of fourteen reading 4.00 flat and
+  made attack look like the Elves' own lock by a factor of 2.35; re-calibrating to **the heaviest board
+  each crew still reads ≥3.75 on** moved elf-alt from first of fourteen to **fourth**, changing the licence
+  from exclusivity to **margin**. Say which of the two you have. [towers](../../docs/towers.md)
+- ⚠️ **The anchor that has to retire can be the one whose kit was the _previous hundred's axis_, and two
+  can go while a heavier, older block stays.** At the Elf Tower's fourth-hundred roof, `THE_GRUDGEKEEPER`
+  (1520/89) reads 78% and the Adamant Colossus (1250/88) 100% / 4.08, while `THE_EDGEWRIGHT` (1300/84 —
+  the hundred below's own roof) reads **5%** on its `critChance`, and `THE_DOORSTONE` (1480/88) **0%** on
+  the `def` and `physicalResist` that buy it 29 seconds of swinging against the Grudgekeeper's 17. ⚠️ **The
+  Colossus survives on `haste` 58, the lowest in the game.** [towers](../../docs/towers.md)
 - ⚠️ **A tower's escalation axis can be the _gear its boards wear_, and the campaign's "gear is
   texture" figures do not transfer.** Every one of those was measured while the campaign's board budget
   fell 0.595 a chapter _underneath_ the ramp. Hold a tower board still and add the same gear: **Worn 1
@@ -740,7 +761,7 @@ Asserted in `core/battle/simulate.spec.ts`.
   reads **3% / 5%**. **Shortlist on weight, settle on attack** — chapter 20's rule, on a roof.
   ⚠️ **And a superlative about seven towers goes stale the moment the next hundred lands**: the Panoply
   shipped as "the lightest tower roof on attack, tied on health" and the Proof House took both records one
-  session later at 1200/52. Both files now state the list of eight. [towers](../../docs/towers.md)
+  session later at 1200/52. Both files now state the list, which is nine long now. [towers](../../docs/towers.md)
 - ⚠️ **A session's own new blocks move the register it is citing, so state the register you _measured
   against_.** The Dwarf fourth hundred built on `physicalPierce` at a pool of **105 of 326** blocks, median
   0.20, Human ceiling **0.30** — and shipping its own four carriers took the pool to **109 of 330** and the

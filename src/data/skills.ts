@@ -8387,6 +8387,116 @@ export const THE_PROOF_HOLDS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Plating Floor — the Elf Tower's fourth hundred, floors 301–400.
+//
+// ⚠️ **Four plain single-target swings, and the plainness is the measurement rather than a
+// shortage of ideas.** Against the calibrated geared control at level 189 in Fine 60 — an anchor at
+// 1000/58 behind four bodies at 520/36, reading **4.00 / 3.95** — the entire shape vocabulary is
+// inert on an Elf five. Twelve hostile statuses riding the swing across all four bodies span
+// **±0.22** and four of them (`savaged`, `doombrand`, `ember-seed`, `bloodrisen`) leave the board
+// *easier*; `enemy-all` at the wide cap reads **4.05**, `enemy-row-back` 4.38, `enemy-back` 4.45,
+// `enemy-lowest` 4.38 and `enemy-highest` 4.47 — the sixth tower to find that aiming past the front
+// rank is a gift; and board-wide voice **count** is flat at 3.98 / 3.98 / 3.98 / 4.05 across one to
+// four. So every turn here names `enemy-front` and carries at most a rider, and what escalates is the
+// `atk` of the body taking it and the health standing under that body.
+//
+// ⚠️ **Instance size is a real dial and deliberately not the axis, because it is the Angel Tower's.**
+// At held damage per second it reads 3.95 / 3.75 / 3.48 / **2.73** across power 1.35 / 2.10 / 2.80 /
+// 3.60 — worth 1.22 of the binding arrangement, against the attack-and-health product's 3.70. The
+// swings below therefore climb gently (1.45 → 1.60 → 1.75 → 2.20) and the block carrying them climbs
+// in the pair.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Rivet, set, strike, move along. The line does not stop because somebody is standing on it.
+ *
+ * The hundred's opening turn and the one every carrier keeps: fast, cheap, and single-target because
+ * every alternative measured as a gift. ⚠️ **It rides on {@link RIVETLINE_HAND}, which is the *light*
+ * end of the pair** — 720 health at 70 attack, which the party removes before the third swing. A
+ * carrier is worth almost nothing on its own (3.88 against a 3.95 control at four carriers' worth of
+ * weight), which is the point of an opening band.
+ */
+export const RIVET_LINE = {
+  id: 'rivet-line',
+  name: 'Rivet Line',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * The anvil does not swing. It waits, and everything that meets it is the thing that moved.
+ *
+ * The Sturdy band's turn, on {@link ANVILBACK_SMITH} — the `tank` of the three, so the grade it wears
+ * goes into the health that lets it keep taking this turn rather than into the turn itself. That is
+ * the hundred's whole thesis in one block: **attack is worth what the body carrying it survives to
+ * spend.** Measured, one body at `atk` 70 reads 3.98 of five on 340 health and **3.08** on 1100.
+ */
+export const SET_THE_PLATE = {
+  id: 'set-the-plate',
+  name: 'Set the Plate',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Plate is not worn. It is carried, and what carries it learns to swing it.
+ *
+ * The Fine band's lieutenant turn, on {@link PLATESHOD_HAMMERER}. ⚠️ **Heavier than the two above it
+ * and still single-target**, for the reason the section note gives: the step between bands here is
+ * the pair the block stands on rather than the size of its blow.
+ */
+export const DEADWEIGHT_FALL = {
+  id: 'deadweight-fall',
+  name: 'Deadweight Fall',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.75 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Three hundred floors of works, and the last thing standing in them is wearing what they made.
+ *
+ * The roof's own turn, and the `slow` rider is the one status in the vocabulary aimed at what an Elf
+ * five actually is — Σ580 and Σ620 of `haste` across the two swept arrangements, the highest in the
+ * game, against Σ0.00 of `tenacity` to refuse the debuff that takes it away. ⚠️ **It is a rider and
+ * not the axis**, because a rider is worth ±0.22 here and the attack under it is worth 3.70.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** The shipped roof board with the
+ * attack stripped out of {@link THE_PLATEWRIGHT} and its escort reads **100% / 4.00 and 100% / 4.08**
+ * where the shipped board reads 3.77 and 2.48 — worth 0.23 and **1.60** of five on floor 400.
+ *
+ * ⚠️ **No heal, no drain, no regeneration and no `lifeLeech` on this floor**, which is the rule 15c
+ * set on a tower roof. ⚠️ **It is also the one rule this tower could have broken and did not**: enemy
+ * sustain is worth **0.07 of a survivor** across the whole vocabulary here — `lifeLeech` 0.45 on all
+ * four, `recovery` 30, `healthRegen` 22, a back-rank healer and a board-wide regeneration all land
+ * between 3.88 and 4.00 against a 3.95 control — because an Elf five out-damages any of it. The rule
+ * stands anyway; a hundred does not get to relax a termination argument because its own crew happens
+ * to be fast.
+ */
+export const THE_PLATE_HOLDS = {
+  id: 'the-plate-holds',
+  name: 'The Plate Holds',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.2 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8813,4 +8923,8 @@ export const SKILLS = [
   PROOF_MARK,
   WARPICK_FALL,
   THE_PROOF_HOLDS,
+  RIVET_LINE,
+  SET_THE_PLATE,
+  DEADWEIGHT_FALL,
+  THE_PLATE_HOLDS,
 ] as const;

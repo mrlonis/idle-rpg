@@ -37,6 +37,7 @@ import {
   CUT_AND_COME_BACK,
   CUT_BENEATH_IT,
   CUT_THE_STRAPS,
+  DEADWEIGHT_FALL,
   DOOMKNELL,
   DRAWN_DOWN,
   DRAW_INTO_THE_ROOT,
@@ -145,6 +146,7 @@ import {
   RIFTSTEP,
   RING_BY_RING,
   RING_THE_PASSBELL,
+  RIVET_LINE,
   ROOTWAKE,
   ROPED_TOGETHER,
   RUINOUS_ARC,
@@ -158,6 +160,7 @@ import {
   SETTLE_IN,
   SET_INTO_THE_COURSE,
   SET_THE_PITCH,
+  SET_THE_PLATE,
   SET_THE_STONE,
   SET_YOUR_HAND,
   SEVENFOLD_HEX,
@@ -222,6 +225,7 @@ import {
   THE_PACK_ANSWERS,
   THE_PACK_TURNS,
   THE_PANOPLY_CLOSES,
+  THE_PLATE_HOLDS,
   THE_PROOF_HOLDS,
   THE_QUENCH,
   THE_RACE_WAS_DECIDED,
@@ -602,6 +606,7 @@ export const RIMEPLATE = {
   name: 'Rimeplate',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1100,
     atk: 60,
@@ -1799,6 +1804,7 @@ export const VAULTLIGHT_CENSER = {
   name: 'Vaultlight Censer',
   faction: 'angel',
   tier: 'common',
+  gearArchetype: 'support',
   stats: {
     hp: 500,
     atk: 44,
@@ -4377,6 +4383,7 @@ export const ZENITH_CHORISTER = {
   name: 'Zenith Chorister',
   faction: 'angel',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 480,
     atk: 46,
@@ -5677,6 +5684,7 @@ export const SHARDLIGHT_ACOLYTE = {
   name: 'Shardlight Acolyte',
   faction: 'angel',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 520,
     atk: 54,
@@ -11460,6 +11468,221 @@ export const THE_PROOF_HOUSE = {
   skills: [THE_PROOF_HOLDS, WARPICK_FALL, PROOF_MARK],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Plating Floor — the Elf Tower's fourth hundred, floors 301–400, levels 142–189.
+//
+// ⚠️ **The axis is `atk` and the health standing under it, as a product rather than two dials**, and
+// it was chosen because the honest finding of this session is that **nothing else moves an Elf five at
+// all.** Against a calibrated geared control at level 189 in Fine 60 — an anchor at 1000/58 behind four
+// bodies at 520/36, reading **4.00 / 3.95**, and it moves — forty seeds, zero timeouts anywhere:
+//
+// | four carriers at        | reference | alternate | worth to the alternate |
+// | ----------------------- | --------- | --------- | ---------------------- |
+// | 520 / 36 — the control  | 4.00      | 3.95      | —                      |
+// | 520 / 44                | 3.95      | 3.20      | 0.75                   |
+// | 520 / 52                | 3.55      | 1.55      | 2.40                   |
+// | 700 / 36                | 4.00      | 3.77      | 0.18                   |
+// | 900 / 36                | 4.00      | 3.20      | 0.75                   |
+// | **700 / 52**            | 3.17      | **0.33**  | **3.62**               |
+// | **900 / 44**            | 3.50      | **0.85**  | **3.10**               |
+//
+// **Neither half is worth much alone and together they are the whole board**, which is the Dwarf
+// Tower's "weight and rate are a product" arriving on weight and *attack*. ⚠️ **It grades in carrier
+// counts as well as in value**, which is what five bands need: at 700/52, by how many of four carry it,
+// 3.95 → 3.88 → 3.13 → 1.75 → **0.33**; at 900/62, 3.95 → 3.60 → 1.48 → 0.03 → 0.00.
+//
+// ⚠️ **The mechanism is that an Elf five kills anything soft before it swings twice.** One body at
+// `atk` 70 reads 3.98 of five on 340 health, 3.80 on 520, 3.55 on 800 and **3.08** on 1100. Held the
+// other way — the same 202 points of board attack, redistributed — 90 on one soft escort reads **4.88**
+// and 118 on the anchor reads **2.75**: identical throughput, 2.13 of five apart.
+//
+// ⚠️ **The licence is margin rather than exclusivity, and this file says so rather than claiming a
+// lock.** As a change on each crew's own calibrated control, the pair at ×1.44 attack and ×1.35 health:
+// dwarf-ref −3.98, angel-ref −3.88, angel-alt −3.80, **elf-alt −3.70**, demon-alt −2.92, undead-alt
+// −2.88, human-alt −2.60, dwarf-alt −2.60, human-ref −2.55, demon-ref −2.03, undead-ref −2.00,
+// monster-ref −1.90, elf-ref −1.67, monster-alt −1.08. Fourth of fourteen, not first — the Angel third
+// hundred's shape rather than the Closing's, and the other half of the argument is the register on the
+// party's side: an Elf five is the lowest health in the game (2,305 / 2,180) on the lowest authored
+// `def` (Σ83 / Σ75) with **zero** `physicalResist`, `tenacity`, `critBlock`, `critDamageResist` and
+// `lifeLeech`. There is no refusal stat on that crew for a board to have to get past.
+//
+// ⚠️ **What that same emptiness makes inert is most of this session's finding, and none of it is worth
+// re-measuring.** Twelve hostile statuses riding the swing across all four bodies span **±0.22**, four
+// of them negative; `tenacity` is **exactly flat** at 0.20 / 0.40 / 0.60 / 0.85; `magicResist` is
+// **exactly 0.00** at 0.30 and 0.60 (both arrangements are 100% physical); `critBlock` is worth 0.05,
+// `accuracy` 0.05 and `physicalPierce` 0.10 — so the Demon Tower's lock, the Undead Tower's and the
+// Dwarf Tower's all price at nothing here. Every scope, reach and selection leaves the board *easier*
+// (`enemy-all` 4.05, `enemy-row-back` 4.38, `enemy-back` 4.45, `enemy-lowest` 4.38, `enemy-highest`
+// 4.47), and board-wide voice **count** is flat at 3.98 / 3.98 / 3.98 / 4.05.
+//
+// ⚠️ **Enemy sustain is worth 0.07 of a survivor across the entire vocabulary** — `lifeLeech` 0.45 on
+// all four (3.92), `recovery` 30 (3.88), `healthRegen` 22 (**3.95, exactly the control**), a back-rank
+// healer (4.00) and `REGENERATION` on `ally-all` (3.98). This is the one tower where the ninety-second
+// clock has never been the constraint, and it still authors none of it: a hundred does not relax a
+// termination argument because its own crew happens to clear in ten seconds.
+//
+// ⚠️ **The shipped register, measured before these four blocks joined the pool.** Reading a carrier as
+// `atk` ≥ 62 on `hp` ≥ 640, **109 of 330** blocks carry one at a median `atk` of 76; across the 131
+// legendaries it is 62 carriers, median 76, `atk` ceiling **84**; across the 18 Dwarf legendaries it is
+// 11, median 70, ceiling **80** (the Ironsling Wright at 780/80). On the *pair* the Dwarf legendary
+// ceiling is the Riven Marchwarden's 1150 × 66 = 75,900 and the game's is the Shatterjaw Mauler's
+// 1120 × 76 = 85,120. The three legendaries below run **720/70, 900/76 and 1060/80 — every `atk` at or
+// inside the Dwarf ceiling** — and only the last steps past the Dwarf *pair* at 84,800, still inside
+// the game's. The roof steps past neither: it is an `ascended` block at 1240/64. **State the register
+// you measured against, not the one your own blocks created.**
+//
+// ⚠️ **Two anchors this tower has fielded since its second and third hundreds had to retire, and the
+// pair that had to go is not the heaviest.** Behind four light escorts at level 189 in Fine 60,
+// {@link THE_GRUDGEKEEPER} at 1520/89 reads **100% / 3.67** while {@link THE_EDGEWRIGHT} at 1300/84 —
+// two hundred and twenty health lighter — reads **13% / 0.20** and {@link THE_WARDWRIGHT} at 1560/92
+// reads 35% / 0.88. What retires is the block whose *kit* is the previous hundred's axis: the Edgewright
+// carries `critChance` 0.22 at `critDamageAmp` 1.15 against a crew with zero of either answering stat.
+// The Demon Tower's finding, sharpened — there one roof retired, here two do while a heavier and older
+// block stands.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A hand on the line, and the line is the only thing in the works that never stops.
+ *
+ * The opening band's carrier and the **light end of the pair** — 720 health at 70 attack, which is a
+ * carrier the party removes before the third swing. ⚠️ **One of these is worth almost nothing** (3.88
+ * against a 3.95 control), which is what an opening band is for: it teaches what a hot body costs
+ * before the hundred charges for three of them. `brawler` gear, so the grade it wears goes into the
+ * attack rather than into the health — the wrong half for this block on purpose, and the reason it
+ * stays affordable all the way to the roof's escort.
+ */
+export const RIVETLINE_HAND = {
+  id: 'rivetline-hand',
+  name: 'Rivetline Hand',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 720,
+    atk: 70,
+    def: 30,
+    haste: 94,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.14,
+    physicalResist: 0.06,
+  },
+  skills: [RIVET_LINE],
+} as const;
+
+/**
+ * The smith stopped making plate for somebody else and put it on.
+ *
+ * The Sturdy band's body and the middle of the pair: 900 at 76, which is the Dwarf legendary `atk`
+ * median plus six on half again the health. ⚠️ **`tank` gear deliberately**, where {@link
+ * RIVETLINE_HAND} wears `brawler` — the same attack on a body the grade is making harder to remove is
+ * the whole axis, and `GEAR_PROFILES` is what turns the choice into a real difference. Identical stat
+ * lines all-`tank` / `support` / `brawler` / `ranger` / `mage` read 4.08 / 4.13 / 3.95 / 3.88 / 3.95
+ * for the binding arrangement — a fifth of a survivor, which is texture rather than the axis, and half
+ * what the same measurement is worth on the Dwarf Tower.
+ */
+export const ANVILBACK_SMITH = {
+  id: 'anvilback-smith',
+  name: 'Anvilback Smith',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 900,
+    atk: 76,
+    def: 38,
+    haste: 88,
+    critChance: 0.11,
+    critDamageAmp: 0.75,
+    tenacity: 0.35,
+    physicalPierce: 0.16,
+    physicalResist: 0.08,
+  },
+  skills: [SET_THE_PLATE, RIVET_LINE],
+} as const;
+
+/**
+ * Plate is not worn so much as carried, and what can carry it can swing it.
+ *
+ * The Fine band's lieutenant and the heavy end of the pair — **1060 at 80, the Dwarf legendary `atk`
+ * ceiling on health no Dwarf legendary but the two Bastions has carried.** On the product that is
+ * 84,800 against the Dwarf ceiling's 75,900 and the game's 85,120, so it steps past its own faction's
+ * register and not the game's; the figure at the register is stated in the section note so a later
+ * session can see which shape this is.
+ *
+ * ⚠️ **It stands on boards across three bands at rising levels and its stat line was settled against
+ * the last of them**, which is chapter 17's rule: a recurring anchor correct on its first board is
+ * unwinnable on its ninth, because the board climbs `perLevel` and the grade climbs on top of it while
+ * the crew stands still.
+ */
+export const PLATESHOD_HAMMERER = {
+  id: 'plateshod-hammerer',
+  name: 'Plateshod Hammerer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1060,
+    atk: 80,
+    def: 42,
+    haste: 92,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    tenacity: 0.4,
+    physicalPierce: 0.18,
+    physicalResist: 0.08,
+  },
+  skills: [DEADWEIGHT_FALL, SET_THE_PLATE, RIVET_LINE],
+} as const;
+
+/**
+ * The Stonewright cut it, the Wardwright warded it, the Edgewright put the edge on it. This one
+ * finally wore it.
+ *
+ * The roof, and **lighter than {@link THE_EDGEWRIGHT} it succeeds on both stats — 1240/64 against
+ * 1300/84** — for the reason every fourth hundred has found: an `ascended` block climbs at
+ * `perLevel.ascended` 1.024 against a mostly-`common` Elf five's 1.021, and the gear ramp climbs on top
+ * of that. Measured, the shipped floor-300 board reads 100% with all five alive at its own level 142,
+ * 100% / 4.72 at 170, and **3% with 0.03 against 0% at 189 in Fine 60**.
+ *
+ * ⚠️ **Settled on attack with the weight held, which is chapter 20's rule on a roof.** Behind the same
+ * escort the roof reads 2.70 (95%) at `atk` 78, 3.45 at 70, **2.48 (93%) at 64 on 1240 health**, and
+ * 4.03 at 54 — and its escort is the other half rather than an afterthought: with one
+ * {@link RIVETLINE_HAND} and three low-`atk` commons it closes at 93% / 2.48, where swapping the
+ * Rivetline for {@link ANVILBACK_SMITH} reads **57% / 1.25** and adding a second carrier reads **0%**.
+ *
+ * ⚠️ **Among the nine tower roofs this is the lightest on health and the third lightest on attack** —
+ * 1240/64 against 1200/52, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92, 1560/91 — and a
+ * superlative about nine roofs goes stale the moment the next hundred lands, so the list is stated
+ * rather than the claim.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. ⚠️ **Nothing on
+ * it restores anything, it carries no taunt, and no board in the hundred carries a heal, a drain, a
+ * regeneration or a point of `lifeLeech`.**
+ */
+export const THE_PLATEWRIGHT = {
+  id: 'the-platewright',
+  name: 'The Platewright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1240,
+    atk: 64,
+    def: 46,
+    haste: 90,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.16,
+    critBlock: 0.1,
+    tenacity: 0.5,
+    physicalPierce: 0.2,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [THE_PLATE_HOLDS, SET_THE_PLATE, RIVET_LINE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -11791,4 +12014,8 @@ export const ENEMIES = [
   PROOFMARK_SERJEANT,
   WARPICK_LIEUTENANT,
   THE_PROOF_HOUSE,
+  RIVETLINE_HAND,
+  ANVILBACK_SMITH,
+  PLATESHOD_HAMMERER,
+  THE_PLATEWRIGHT,
 ] as const;

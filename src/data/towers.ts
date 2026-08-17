@@ -277,8 +277,8 @@ export const TOWER_RULES = {
  *
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
- * authored), again for the third, and it is happening again for the fourth — **the Human and Dwarf Towers
- * are the only two at four hundred floors today.** A tower that has not been extended simply ends at its last
+ * authored), again for the third, and it is happening again for the fourth — **the Human, Dwarf and Elf
+ * Towers are the only three at four hundred floors today.** A tower that has not been extended simply ends at its last
  * authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it topped
  * and nothing in `ui/` misreads it.
  *
@@ -292,8 +292,8 @@ export const TOWER_RULES = {
  * `towers.balance.ts` that each session shrinks and the last one deletes, along with the branches it
  * guards. ⚠️ **A filter — "the full height or three quarters of it" — would pass forever and never
  * notice a tower nobody went back for.** The list is literal for exactly that reason, and it is back
- * for the third time, and it is down to **five** names — the Human Tower's hundred opened the round and
- * the Dwarf Tower's is the second. **Do it the same way every time the height moves.**
+ * for the third time, and it is down to **four** names — the Human Tower's hundred opened the round and
+ * the Dwarf and Elf Towers followed. **Do it the same way every time the height moves.**
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change
