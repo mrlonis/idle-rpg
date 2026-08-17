@@ -1410,8 +1410,8 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 ×2 rather than ×5.
 
 **It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **four names left on the list** (Human, Dwarf and Elf
-have landed). Both completed rounds
+21l–21r for the third, and the fourth is open with **three names left on the list** (Human, Dwarf, Elf and
+Undead have landed). Both completed rounds
 ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
@@ -1464,7 +1464,7 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Sixteen hundreds gave sixteen answers, and no two towers escalate the same way. Read the
+⚠️ **Seventeen hundreds gave seventeen answers, and no two towers escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
@@ -1529,8 +1529,8 @@ carries them all in full. What generalises is only the procedure:
      spine introduces gear, so the ramp is the tower's own — and it follows that a tower is not
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
    - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
-     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,400 shipped floors, 300 are
-     geared — the Human, Dwarf and Elf fourth hundreds.)
+     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,500 shipped floors, 400 are
+     geared — the Human, Dwarf, Elf and Undead fourth hundreds.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
@@ -1569,7 +1569,7 @@ carries them all in full. What generalises is only the procedure:
      one pierce carrier in the escort reads **3% / 5%**). **Shortlist on weight, settle on attack.**
    - ⚠️ **A superlative about seven towers goes stale the moment the next hundred lands.** The Panoply
      shipped as "the lightest tower roof on attack, tied on health"; the Proof House took both records one
-     session later at 1200/52. Both files now state the list of roofs instead — nine of them now.
+     session later at 1200/52. Both files now state the list of roofs instead — ten of them now.
    - ⚠️ **A hundred can measure the whole vocabulary as inert, and then the axis is plain throughput.**
      The Elf fourth hundred is the case: twelve hostile statuses ride the swing within **±0.22** (four
      of them negative), `tenacity` is **exactly flat**, `magicResist` **exactly 0.00**, `critBlock`
@@ -1589,6 +1589,44 @@ carries them all in full. What generalises is only the procedure:
      first of fourteen to **fourth** (dwarf-ref −3.98, angel-ref −3.88, angel-alt −3.80, elf-alt −3.70),
      which changed the licence from exclusivity to **margin** — and the header now says which it is. The
      Demon Tower's saturation trap, arriving on the test rather than on an axis.
+   - ⚠️ **An axis can be a _product of two stats_ where neither half is worth much alone, and it can be
+     the one shape that makes fights _shorter_.** The Undead fourth hundred walks `atk` and `haste`
+     together on weight that falls: at level 189 in Fine 60, four carriers from 36/96 to 56/136 grade
+     **3.77 → 0.93** and **3.92 → 0.00** with zero timeouts, where `atk` 48 alone reads 2.52 / 2.58 and
+     `haste` 120 alone 3.00 / 2.63 against the pair's 2.00 / **0.97**. It grades in carrier counts as
+     well (3.85 → 2.00 and 4.00 → 0.95 across zero to four). **The longest fight in that hundred is
+     24.3s** against rivals at 32–34s, on a tower whose own binding case is a 51.2s floor 100 — chapter
+     25's rule and the Proof House's, on the crew they were written for.
+     - ⚠️ **It is distinct from the Plating Floor's `atk` × _health_, and the difference is measurable
+       rather than editorial.** Put health under it and it is worse on the binding crew and nine to
+       twelve seconds longer (700 hp / atk 48 reads 2.00 / 1.55 at 28.1s / 31.5s); all three at once is
+       past the edge. **A hundred whose crew loses to the clock has to escalate on rate and shed the
+       weight**, which is the exact inversion of that tower's own hundred below.
+   - ⚠️ **A mechanism argument is not a measurement.** `magicResist` looked like the sharpest "is it
+     ours" available — Undead deal 14 magical to 6 physical and sustain on `lifeLeech` off damage
+     _dealt_, so a magic wall taxes damage and healing at once — and it measured **within a second of
+     `def` and `hp`** (3.05 / 3.08 against 3.00 / 2.67 and 3.00 / 3.17), which is that tower's own
+     third-hundred axis wearing a different stat, and **0.00** to the binding arrangement cross-crew.
+     **Check whether a new stat lands on a curve the tower has already spent.**
+   - ⚠️ **An axis stops being a crew's own when the crew gains a rung and a kit, so re-run the test on
+     the band being authored.** At band 4 the Undead Tower's third-hundred axis (enemy `hp`) costs
+     dwarf-ref **−2.78** against its own crews' −1.25 / −1.00, and its second-hundred `dodge` costs
+     dwarf-ref −1.05 against undead-ref's −0.85. Neither was true a band lower.
+   - ⚠️ **A register check can be about a _pairing_, and then the pairing is what the header states.**
+     That hundred sits inside both shipped registers on each stat alone — `haste` median 94 / ceiling
+     152 and `atk` 56 / 100 over 334 blocks, the Elf pool 96 / 152 and 56 / 99 — and steps past only on
+     carrying them together: **5 of 334** blocks had `haste` ≥ 118 _and_ `atk` ≥ 70 beforehand.
+   - ⚠️ **Supply the missing `gearArchetype`s _before_ the anchor-retirement check, not after.** A block
+     with none fights naked on a board priced as though it were kitted, and that inverted a retirement:
+     `THE_WITHERED_CROWN` measured 3.10 / 3.63 — safe — and **3% / 18% at 41s** once given one. Nine of
+     the Undead Tower's blocks needed the edit and none stood on a geared campaign stage, so the bill
+     was free again — but that is three towers running where it was checked rather than assumed.
+   - ⚠️ **The stride is not the check on a closing band.** `towers.balance.ts` samples every fourth
+     floor plus the mini-bosses; its **every-floor** assertion is what caught a floor 399 reading
+     **60%** between neighbours at 100% and 98%, three full carriers standing at the roof's own level.
+     **Sweep every floor of the closing band before believing a band that samples cleanly.**
+   - ⚠️ **Aim past the front rank is inert or negative on all _seven_ towers now**, which closes the
+     question rather than extending it: `enemy-all` at the wide cap reads **−0.11 / −0.08** there.
    - ⚠️ **A retiring anchor can be a block whose kit was the _previous hundred's axis_, and the pair
      that goes is not the heaviest.** At the Elf Tower's new roof behind four low-`atk` commons,
      `THE_GRUDGEKEEPER` (1520/89) reads 78% / 2.15 and the Adamant Colossus (1250/88) reads 4.00 / 4.08,

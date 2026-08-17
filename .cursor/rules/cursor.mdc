@@ -202,7 +202,7 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Human, Dwarf and Elf Towers there yet**. What a tower is for, the three fields a clear may never touch, the
+  Human, Dwarf, Elf and Undead Towers there yet**. What a tower is for, the three fields a clear may never touch, the
   four crews, and seventeen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
@@ -700,8 +700,43 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with four names on it** — the Human,
-  Dwarf and Elf fourth hundreds have landed. [towers](../../docs/towers.md)
+  notices a tower nobody went back for. **The list is live right now with three names on it** — the Human,
+  Dwarf, Elf and Undead fourth hundreds have landed. [towers](../../docs/towers.md)
+- ⚠️ **An escalation axis can be a _product of two stats_ where neither half is worth much alone, and
+  the Undead fourth hundred is that case.** At level 189 in Fine 60, four carriers walked from
+  `atk` 36 / `haste` 96 to 56/136 grade **3.77 → 0.93** and **3.92 → 0.00** with zero timeouts, while
+  `atk` 48 alone reads 2.52 / 2.58 and `haste` 120 alone 3.00 / 2.63 against the pair's 2.00 / **0.97**.
+  ⚠️ **It is chosen on _fight length_ and it is the first axis that makes fights _shorter_** — the
+  longest fight in that hundred is **24.3s** where enemy `hp` costs 1.25 at 32.1s and `def` 110 costs
+  1.94 at 33.5s, against a tower whose own binding case is a 51.2s floor. **A crew that loses to the
+  clock wants the axis that converts budget into deaths rather than into pool.** [towers](../../docs/towers.md)
+- ⚠️ **A mechanism argument is not a measurement, and the sharpest-sounding one on that tower was
+  disqualified rather than merely weak.** `magicResist` taxes an Undead five twice on paper — 14
+  magical skills to 6, and sustain that is `lifeLeech` off damage _dealt_ — and measured it lands
+  **within a second of `def` and `hp`** (3.05 / 3.08 against 3.00 / 2.67 and 3.00 / 3.17), which makes
+  it that tower's own third-hundred axis wearing a new stat, and worth **0.00** to the binding
+  arrangement cross-crew. **Check whether a new stat lands on a curve the tower has already spent.**
+  [towers](../../docs/towers.md)
+- ⚠️ **An axis can stop being a crew's own when the crew gains a rung and a kit.** Re-measured at band
+  4, the Undead Tower's _third_-hundred axis (enemy `hp`) costs dwarf-ref **−2.78** against the Undead
+  crews' −1.25 / −1.00, and its _second_-hundred axis (`dodge`) costs dwarf-ref −1.05 against
+  undead-ref's −0.85. **Re-run "is it ours" on the band being authored, never on the band that
+  recorded it.** [towers](../../docs/towers.md)
+- ⚠️ **A register check can be about a _pairing_ rather than a stat, and then it is the pairing you
+  state.** The Undead fourth hundred sits inside both shipped registers on each stat alone (`haste`
+  median 94 / ceiling 152, `atk` 56 / 100 over 334 blocks) and steps past on carrying them together:
+  **5 of 334** blocks had `haste` ≥ 118 _and_ `atk` ≥ 70 before it. [authoring](../../docs/authoring.md)
+- ⚠️ **The missing-`gearArchetype` trap can invert the sign of an anchor-retirement check.** On a
+  geared floor a block with no archetype fights **naked** on a board priced as though it were kitted:
+  `THE_WITHERED_CROWN` measured 3.10 / 3.63 — safe — and reads **3% / 18%** once given one. **Supply
+  the archetypes before running the retirement check, not after.** [towers](../../docs/towers.md)
+- ⚠️ **The stride is not the check on a closing band.** `towers.balance.ts` samples every fourth floor
+  plus the mini-bosses, and its every-floor assertion is what caught an Undead floor 399 at **60%**
+  between neighbours reading 100% and 98%. **Sweep every floor of the closing band before believing a
+  band that samples cleanly.** [towers](../../docs/towers.md)
+- ⚠️ **Aim past the front rank is now inert or negative on all _seven_ towers**, which closes the
+  question rather than adding a data point: the Undead fourth hundred reads `enemy-all` at the wide
+  cap as **−0.11 / −0.08** against its controls. [towers](../../docs/towers.md)
 - ⚠️ **A hundred can measure its whole vocabulary as inert, and then the axis is plain throughput —
   `atk` and the health standing under it, as a _product_.** The Elf fourth hundred is that case: at level
   189 in Fine 60 against a 3.95 control, twelve hostile status riders span **±0.22** (four negative),

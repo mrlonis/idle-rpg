@@ -8497,6 +8497,116 @@ export const THE_PLATE_HOLDS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Coppice — the Undead Tower's fourth hundred.
+//
+// ⚠️ **Every one of these is `enemy-front` on a short cooldown, and both halves are the axis.**
+// Aim past the front rank measured *at or above* the control for the seventh time across the seven
+// towers (`enemy-all` at the wide cap reads −0.11 / −0.08), so there is nothing to buy by reaching;
+// and the hundred escalates on `atk` and `haste` **as a product**, which on the skill side means
+// the cooldowns come down as the attack goes up rather than the power going up.
+//
+// ⚠️ **The riders are {@link SUNDER} and {@link BLEED}, and the choice is a termination argument
+// rather than flavour.** An Undead five is the crew this project's clock rules were written for —
+// its own shipped floor 100 is the longest fight in the tower at 51.2s against a 67.5s bar. A
+// `WEAKEN` rider takes damage off the party and a `SLOW` rider takes turns off it, and **both make
+// every fight longer**: measured on this hundred's control, `SLOW` ×0.40 costs 0.72 / 0.84 of five
+// and adds 2.2 seconds, and board-wide `WEAKEN` adds six. `SUNDER` and `BLEED` are the two riders
+// in the vocabulary that make the party die *sooner*, which is the only direction this hundred may
+// spend seconds in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Cut a wood to the ground and what comes back is thinner, straighter and in a hurry.
+ *
+ * The opening band's turn, on {@link COPPICE_LASHER}. **Power 1.30 on a 38-tick cooldown** — under
+ * the shipped median power of 1.35 and well under the median cooldown, which is the hundred's whole
+ * thesis stated on one skill: nothing here hits harder than what came before, it hits *more often*,
+ * on a body carrying more `atk` to hit with.
+ *
+ * ⚠️ **The instance size is deliberately small, and that is measured rather than modest.** Holding
+ * damage per second constant and making each blow bigger and rarer — the Angel third hundred's axis
+ * — is worth **0.77 / 0.94 of five** here at power 3.10 on a 126-tick cooldown, against the
+ * pairing's 2.00 / 2.95 at the same weight. A crew that sustains on `lifeLeech` off damage *dealt*
+ * does not care how the damage arriving at it is packaged; it cares how fast it has to trade.
+ */
+export const COPPICE_LASH = {
+  id: 'coppice-lash',
+  name: 'Coppice Lash',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 38,
+  priority: 2,
+} as const;
+
+/**
+ * A withy is a shoot cut green and bent without breaking. It goes round you before it goes through.
+ *
+ * The Sapwood band's turn, on {@link WITHYBIND_RUNNER}, and the first of the three to carry a rider.
+ * {@link BLEED} rather than anything that slows the party down: a bleed is priced against the
+ * applier's `atk`, so it is the *same* stat the band is escalating rather than a second question,
+ * and it shortens the fight instead of stretching it.
+ */
+export const WITHY_SNAP = {
+  id: 'withy-snap',
+  name: 'Withy Snap',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.4 },
+    { kind: 'status', status: BLEED, chance: 0.55 },
+  ],
+  cooldown: 36,
+  priority: 3,
+} as const;
+
+/**
+ * Thin wood does not stop anything. It is not trying to.
+ *
+ * The closing bands' turn, on {@link THINWOOD_HARRIER} — **power 1.50 on a 34-tick cooldown**, the
+ * shortest in the hundred, on the lightest body carrying the highest `atk`. {@link SUNDER} is the
+ * rider for the same reason {@link WITHY_SNAP} takes a bleed: shredding the party's `def` makes
+ * everything already on the board land harder, which converts the hundred's own axis into deaths
+ * rather than into seconds.
+ *
+ * ⚠️ **`SUNDER` is worth 0.77 / 0.34 of five as a lone mechanic here and is not the axis.** It is
+ * on this block because of which direction it moves the clock, not because of its size.
+ */
+export const THINWOOD_RUSH = {
+  id: 'thinwood-rush',
+  name: 'Thinwood Rush',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 34,
+  priority: 3,
+} as const;
+
+/**
+ * Springwood is the fast growth — the wide, light, thin-walled ring a tree lays down in a hurry.
+ * Three hundred floors of wood that would not fall over, and the last of it weighs almost nothing.
+ *
+ * The roof's own turn, and the only skill in the hundred above power 1.5. ⚠️ **The cooldown is 40
+ * rather than the 55 a turn this size usually carries**, because the roof is the axis at its purest
+ * and a roof that hits hard and slowly is the Angel Tower's hammer rather than this one's.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 400 with the roof and its
+ * escort dropped back to the hundred's opening `atk` and `haste` reads a different fight entirely —
+ * see {@link THE_SPRINGWOOD}, where the figure is recorded.
+ */
+export const THE_YEAR_TURNS = {
+  id: 'the-year-turns',
+  name: 'The Year Turns',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: SUNDER, chance: 0.65 },
+  ],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8927,4 +9037,8 @@ export const SKILLS = [
   SET_THE_PLATE,
   DEADWEIGHT_FALL,
   THE_PLATE_HOLDS,
+  COPPICE_LASH,
+  WITHY_SNAP,
+  THINWOOD_RUSH,
+  THE_YEAR_TURNS,
 ] as const;

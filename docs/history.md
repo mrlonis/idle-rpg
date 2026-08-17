@@ -159,10 +159,47 @@ both `PENDING` lists. Three findings there are about method:
   the Adamant Colossus (1250/88) both stand. The Colossus stands on `haste` **58**, the lowest in the
   game: attack bills only as often as it swings. **Weight predicts none of it.**
 
+The **Undead Tower's** fourth hundred is the fourth to land, and its axis is `atk` and `haste` **as a
+product**, on authored weight that falls across the hundred. Same shape of session: four blocks, four
+skills, a hundred floors, nine one-line `gearArchetype` edits, and a name off both `PENDING` lists.
+The Coppice is the exact inversion of the tower's own third hundred — that one escalates through
+boards that will not die, on the argument that a crew sustaining on `lifeLeech` off damage dealt is
+starved by a board with no pool left; this one fields boards that **do not need to live**, so the
+fight ends before attrition can pay. Five findings there are about method:
+
+- ⚠️ **An axis can be a product where neither half is worth much alone.** `atk` 48 alone reads
+  2.52 / 2.58 and `haste` 120 alone 3.00 / 2.63; together 2.00 / **0.97**. The Dwarf third hundred's
+  "weight and rate are a product" and the Elf fourth's "attack and health are a product", arriving on
+  the two halves neither of them paired.
+- ⚠️ **It is the first axis chosen because it makes fights _shorter_.** This tower's binding case is
+  its own shipped floor 100 at **51.2 seconds against a 67.5s bar**, and every rival walks toward it
+  (enemy `hp` 1000 at 32.1s, `def` 110 at 33.5s, a board-wide `WEAKEN` at +6s). The longest fight in
+  the whole hundred is **24.3s**, and each of this tower's four hundreds has now closed faster than the
+  one below it.
+- ⚠️ **A mechanism argument is not a measurement.** `magicResist` had the sharpest "is it ours" story
+  available on paper — Undead deal 14 magical skills to 6, and their sustain is leech off damage
+  _dealt_, so a magic wall taxes both at once — and it measured **within a second of `def` and `hp`**,
+  which makes it that tower's own third-hundred axis wearing a different stat and worth **0.00** to the
+  binding arrangement cross-crew. It was disqualified rather than merely declined.
+- ⚠️ **An axis stops being a crew's own when the crew gains a rung and a kit.** Re-measured at band 4,
+  this tower's _third_-hundred axis costs dwarf-ref **−2.78** against its own crews' −1.25 / −1.00, and
+  its _second_-hundred `dodge` costs dwarf-ref −1.05 against undead-ref's −0.85. Re-run the test on the
+  band being authored.
+- ⚠️ **The missing-`gearArchetype` trap can invert the sign of an anchor-retirement check.**
+  `THE_WITHERED_CROWN` measured 3.10 / 3.63 — safe — while fighting **naked** on a board priced as
+  though it were kitted, and reads **3% / 18% at 41 seconds** once given one. Supply the archetypes
+  before the check, not after.
+
+Also worth recording: **the stride is not the check on a closing band.** `towers.balance.ts` samples
+every fourth floor plus the mini-bosses, and the every-floor assertion is what caught a floor 399 at
+**60%** between neighbours reading 100% and 98%. And ⚠️ **aim past the front rank is now inert or
+negative on all seven towers**, which closes that question rather than extending it.
+
 Also worth recording because it is the failure the prose check exists for: the Panoply's own header
 claimed to be the lightest tower roof on attack and tied on health, and the Proof House took **both**
-records one session later at 1200/52. Both files now state the list of roofs rather than a
-superlative — and it is a list of **nine** now, which is the point.
+records one session later at 1200/52 — and the Coppice's `THE_SPRINGWOOD` took the health record back
+at **1160**/72 one session after that. Every file now states the list of roofs rather than a
+superlative — and it is a list of **ten** now, which is the point.
 
 ### What the third hundreds established
 

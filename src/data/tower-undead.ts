@@ -13,6 +13,7 @@ import {
   CINDER_CULLER,
   COLOSSUS,
   CONCORD_CANTOR,
+  COPPICE_LASHER,
   COVENANT_BREAKER,
   CROWNBARK_BASTION,
   DEEPMAST_HEARTWOOD,
@@ -60,8 +61,10 @@ import {
   SUNMOTE_DANCER,
   THE_LONGSHADOW,
   THE_SEEDFATHER,
+  THE_SPRINGWOOD,
   THE_SUNBOUGH,
   THE_WITHERED_CROWN,
+  THINWOOD_HARRIER,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
@@ -71,12 +74,13 @@ import {
   WEALDSHADOW_STALKER,
   WHISPERLEAF_ARCHER,
   WISP,
+  WITHYBIND_RUNNER,
   WRATHBORN,
   WYRDROOT_ANCIENT,
 } from './enemies';
 
 /**
- * The Undead Tower — three hundred floors, enemy levels 1 to 142.
+ * The Undead Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## Why the enemies are mostly Elven
  *
@@ -218,7 +222,99 @@ import {
  * the Sunbough's is 284 and the Longshadow's is 281 — nothing but the Seedfather anchors the last
  * fifteen.
  *
+ * ## ⚠️ The fourth hundred escalates through `atk` and `haste` as a product, on weight that falls
+ *
+ * The Coppice, floors 301–400, and the gear ramp arrives **free** — `TOWER_RULES.gear` is one rule
+ * for all seven towers, Worn 1 to Fine 60 with the grades stepping at 301, 318 and 351 — so where
+ * the Human fourth hundred spent that ramp *as* its axis, this one had to find an axis on top of it.
+ * The full measurement, the negative list, the cross-crew table and the register check live beside
+ * {@link COPPICE_LASHER} in [`enemies.ts`](./enemies.ts); what belongs here is what it means for
+ * this tower.
+ *
+ * ⚠️ **It is the exact inversion of the hundred below.** The Seedfall escalates through boards that
+ * will not die, on the argument that a crew sustaining on `lifeLeech` off damage dealt is starved by
+ * a board with no pool left to take it from. The Coppice escalates through boards that **do not need
+ * to live**: every point of budget goes into `atk` and `haste`, the authored weight comes down across
+ * the hundred, and the fight ends before attrition can pay. Against calibrated controls at level 189
+ * in Fine 60, four carriers walked from 36/96 to 56/136 grade **3.77 → 0.93** for the reference five
+ * and **3.92 → 0.00** for the alternate, with zero timeouts on every row.
+ *
+ * ⚠️ **Two controls rather than one, and that is the calibration step.** A single board serving both
+ * arrangements left the alternate flat at 4.00 on 30 rows of 33 — the saturated control the Long Amen
+ * and the Plating Floor each had to correct for. The reference five is read on an anchor at 900/54
+ * behind four at 460/36 and the alternate on 1100/64 behind four at 520/40, each the heaviest board
+ * its own crew still reads ≥3.75 on.
+ *
+ * ⚠️ **It was chosen on fight length, which is the rule this tower needs more than any other.** Its
+ * own shipped floor 100 is the longest fight in the project's towers at **51.2 seconds against a
+ * 67.5-second bar**, and every rival axis measured here walks toward that bar — enemy `hp` 1000 costs
+ * 1.25 / 1.00 at 32.1s / 30.6s, `def` 110 costs 0.97 / 1.94 at 28.8s / 33.5s, a board-wide `WEAKEN`
+ * adds six seconds. **The longest fight in the whole of The Coppice is 24.3 seconds**, and the
+ * sharpest rows on the axis ladder are *faster* than the control.
+ *
+ * ⚠️ **The Quickening's ration is lifted, deliberately.** That band fields one fast body carrying real
+ * `atk` per board and never two, because two behind an anchor at *its* roof's level read **0%**. At
+ * band 4 — one rung and a third skill later — two carriers read 3.00 / 2.73 and the closing bands
+ * field three. The hundred below is not wrong; the crew that meets it is a different crew.
+ *
+ * ⚠️ **Both of this tower's earlier axes have stopped being its own, which is worth not re-deriving.**
+ * Re-measured at band 4's rung and kit against every crew's own calibrated control, the third
+ * hundred's enemy `hp` costs dwarf-ref **−2.78** against these crews' −1.25 / −1.00, and the second
+ * hundred's `dodge` costs dwarf-ref −1.05 against undead-ref's −0.85. **Re-run "is it ours" on the
+ * band being authored, not on the band that recorded it.**
+ *
+ * ## ⚠️ The Seedcrown is unwinnable at this hundred's roof, and one retirement nearly shipped inverted
+ *
+ * The shipped floor-300 board, fielded up its own level line against the band-4 crew, reads 100% with
+ * all five alive at its own level 142, 4.35 / 5.00 at 161, 2.23 / 3.77 at 175 and **0% / 0% at 189 in
+ * Fine 60** — the collapse every fourth hundred has found. So {@link THE_SPRINGWOOD} is **lighter
+ * than {@link THE_SEEDFATHER} it succeeds** on health, at 1160 against 1320.
+ *
+ * Behind four light escorts at 189 in Fine 60, the Seedfather still stands at 1.93 / 2.38 and {@link
+ * WYRDROOT_ANCIENT} at 4.00 / 4.00, while {@link THE_SUNBOUGH} reads **0% / 13%** and {@link
+ * THE_WITHERED_CROWN} **3% / 18% at 41 seconds**. Both were already retired at floors 284 and 265 and
+ * both stay retired. ⚠️ **The Withered Crown first measured 3.10 / 3.63 — comfortably safe — because
+ * it carried no `gearArchetype` and was therefore fighting *naked* on a board priced as though it
+ * were kitted.** The missing-archetype trap is documented as a silent difficulty error; this is the
+ * first time it has been caught **inverting the sign of an anchor-retirement check**. Nine of this
+ * tower's blocks needed the one-line edit and none of the nine stands on a geared campaign stage, so
+ * the bill was free — but that was checked rather than assumed.
+ *
+ * ⚠️ **The hundred fields no sustain at all, and {@link WYRDROOT_ANCIENT} is what that cost.** It
+ * passes the retirement check outright and is still not fielded, because it carries `recovery` and
+ * `healthRegen`. **Stated in counts, because the absolute form of this claim has shipped wrong four
+ * times across the towers**: of the 30 blocks the hundred fields, **zero** carry `recovery`,
+ * `lifeLeech` or `healthRegen`, **zero** carry a heal, a drain or a shield effect, and **zero** carry
+ * a `regen` status. {@link SEEDLIGHT_KEEPER}, whose board-wide ward the Seedfall measured as a clock
+ * at the top, is absent too.
+ *
+ * ⚠️ **What the hundred does carry is three self-taunts and one link, and both are deliberate and
+ * bounded.** {@link SCARBOUND_BELLOWER}, {@link QUENCHPIT_IRONHIDE} and {@link CROWNBARK_BASTION}
+ * carry `OATHSHIELD` on `self` and stand **only on floors 308–345** — a taunt prices at
+ * *−0.65 to −0.28* at depth because concentrating the party's damage is what the party wants, so it
+ * is opening texture rather than a lock, and nothing above floor 345 carries one. {@link
+ * GLOAMVINE_CREEPER} opens with a link and stands to floor 385, for the same reason and with the same
+ * sign. **No board in the hundred pairs two `ascended` blocks**, and only floor 400 fields one at all.
+ *
+ * ⚠️ **The anchors leave on a schedule and the boards are empty of them before the roof.** {@link
+ * THE_SEEDFATHER}'s last floor is 360 and {@link DEEPMAST_HEARTWOOD}'s is 369; from 370 the heaviest
+ * body on any board is a 940-health Grazer, and from 386 nothing on a board is heavier than 720. That
+ * is the axis rather than the band relenting — the level line and the grade climb into the space the
+ * weight vacates.
+ *
  * ## What the bands measure at
+ *
+ * Band 4 opens at floor 301 in 6.8 seconds with all five alive and **costs neither arrangement a
+ * member until floor 330**. From there: 4.15 / 4.88 at 330, 3.00 / 3.92 at 350, 2.63 / 3.52 at 360,
+ * 2.95 / 3.85 at 380, 1.98 / 2.70 at 390 and **1.38 / 2.48 at the roof**, both at 98% against bars of
+ * 90% and 75%. Every one of the hundred floors clears both bars, there are **no timeouts anywhere**,
+ * and the longest fight is **24.3 seconds**.
+ *
+ * ⚠️ **Floor 399 is why the stride is not the check.** `towers.balance.ts` samples every fourth floor
+ * plus the mini-bosses, and the first draft's floor 399 — three full carriers standing at the roof's
+ * own level 189 in Fine 60 — read **60%** while the floors either side of it read 100% and 98%. It is
+ * invisible to the stride and caught only by the every-floor assertion. **Sweep every floor of the
+ * closing band before believing a band that samples cleanly.**
  *
  * Band 3 opens at floor 201 in 6.1 seconds with all five alive and **costs neither arrangement a
  * member until floor 255**. From there: 22.0s / 4.00 at 260, 23.8s / 2.27 at 280, 24.1s / 3.05 at
@@ -232,11 +328,15 @@ import {
  * **26.7 at the roof** — 93% with 1.88 alive for the reference five and 93% with 2.30 for the
  * alternate, against bars of 90% and 75%. Neither arrangement loses a member below floor 160.
  *
- * ⚠️ **The tower's longest fight is not in the new hundred — it is the shipped floor 100, at 51.2
- * seconds.** The second hundred's longest is 39.6. Against the balance sweep's bound on a *cleared*
- * fight (0.75 × the ninety-second timer, so 67.5s) that shipped board is the binding case for this
- * tower, and it is the reason the Green Vigil's heal is the last one on the climb rather than the
- * shape the roof is built from.
+ * ⚠️ **The tower's longest fight is in none of the hundreds above its first — it is the shipped
+ * floor 100, at 51.2 seconds.** The second hundred's longest is 39.6, the third's 41.4 and the
+ * fourth's **24.3**. Against the balance sweep's bound on a *cleared* fight (0.75 × the ninety-second
+ * timer, so 67.5s) that shipped board is the binding case for this tower, and it is the reason the
+ * Green Vigil's heal is the last one on the climb rather than the shape any roof is built from.
+ *
+ * ⚠️ **A superlative about four hundreds goes stale the moment a fifth lands, so the list is stated
+ * rather than the claim** — and the direction is the finding: each hundred has closed *faster* than
+ * the one below it, because each has had to buy its difficulty further from the clock.
  */
 export const TOWER_UNDEAD = {
   id: 'tower-undead',
@@ -2571,6 +2671,826 @@ export const TOWER_UNDEAD = {
       enemies: {
         front: [THE_SEEDFATHER, DEEPMAST_HEARTWOOD],
         back: [SUNFADE_CHANTER, WHISPERLEAF_ARCHER, SUNMOTE_DANCER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Coppice — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — the crown came off three hundred floors ago and what grew back is thin, straight and in a hurry. One body a board carries it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [THE_SEEDFATHER, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, WHISPERLEAF_ARCHER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [THE_SEEDFATHER, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, SHARDLIGHT_ACOLYTE, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [THE_SEEDFATHER, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, LITANY_BEARER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [THE_SEEDFATHER, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, GILDED_SENTRY, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, LUMEN_ACOLYTE, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, WHISPERLEAF_ARCHER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, STILLNESS_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, WHISPERLEAF_ARCHER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f310',
+      name: 'Floor 310 — The Coppice',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WEALDSHADOW_STALKER, HOLLOWBARK_SENTRY, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, LITANY_BEARER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, GILDED_SENTRY, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, LUMEN_ACOLYTE, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [CROWNBARK_BASTION, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, WHISPERLEAF_ARCHER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [CROWNBARK_BASTION, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, STILLNESS_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [CROWNBARK_BASTION, THORNBACK_GRAZER],
+        back: [COPPICE_LASHER, WHISPERLEAF_ARCHER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, GLOAMVINE_CREEPER],
+        back: [COPPICE_LASHER, SHARDLIGHT_ACOLYTE, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-undead-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [COPPICE_LASHER, LITANY_BEARER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f320',
+      name: 'Floor 320 — The Coppice',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WEALDSHADOW_STALKER, THORNBACK_GRAZER, VAULTLIGHT_CENSER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Sapwood — Floors 321–345, levels 152–163, Sturdy 5–Sturdy 34 — two of them, and the old heartwood behind them starts to go. Neither half of the pair is the point; carrying both is.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [SERAPH_ADJUDICANT, STILLNESS_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [SERAPH_ADJUDICANT, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [SERAPH_ADJUDICANT, KNELL_CHANTER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [SERAPH_ADJUDICANT, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [SERAPH_ADJUDICANT, CONCORD_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, WHISPERLEAF_ARCHER, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, LITANY_BEARER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, STILLNESS_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f330',
+      name: 'Floor 330 — The Sapwood',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CONCORD_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, WHISPERLEAF_ARCHER, STILLNESS_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, LITANY_BEARER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, STILLNESS_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WEALDSHADOW_STALKER, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WEALDSHADOW_STALKER, KNELL_CHANTER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WEALDSHADOW_STALKER, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WEALDSHADOW_STALKER, CONCORD_CANTOR, LITANY_BEARER],
+      },
+    },
+    {
+      id: 't-undead-f340',
+      name: 'Floor 340 — The Sapwood',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, LITANY_BEARER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, STILLNESS_CANTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-undead-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, KNELL_CHANTER, CONCORD_CANTOR],
+      },
+    },
+    {
+      id: 't-undead-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, VAULTLIGHT_CENSER, WHISPERLEAF_ARCHER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Withy — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three abreast and the first of them standing where an Undead five has one ultimate to reach. Green wood bends round you before it goes through.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, COPPICE_LASHER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f350',
+      name: 'Floor 350 — The Withy',
+      enemies: {
+        front: [THE_SEEDFATHER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, COPPICE_LASHER],
+      },
+    },
+    {
+      id: 't-undead-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [THE_SEEDFATHER, COPPICE_LASHER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WITHYBIND_RUNNER, GLASSCHOIR_ARBITER, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-undead-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WITHYBIND_RUNNER, GLASSCHOIR_ARBITER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WITHYBIND_RUNNER, GLASSCHOIR_ARBITER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, CINDERSEED_COURSER],
+        back: [WITHYBIND_RUNNER, GLASSCHOIR_ARBITER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, COPPICE_LASHER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, COPPICE_LASHER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f360',
+      name: 'Floor 360 — The Withy',
+      enemies: {
+        front: [THE_SEEDFATHER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, COPPICE_LASHER],
+      },
+    },
+    {
+      id: 't-undead-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, COPPICE_LASHER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, CINDERSEED_COURSER, SUNMOTE_DANCER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Lashwood — Floors 366–385, levels 173–182, Fine 19–Fine 42 — the anchors are gone and two carriers stand behind. What the boards give up in weight is exactly what pays for the heat.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, WITHYBIND_RUNNER],
+        back: [CINDERSEED_COURSER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f370',
+      name: 'Floor 370 — The Lashwood',
+      enemies: {
+        front: [THORNBACK_GRAZER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [THORNBACK_GRAZER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, KILNSWORN_ADEPT, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-undead-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, KILNSWORN_ADEPT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, KILNSWORN_ADEPT, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [HOLLOWBARK_SENTRY, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, KILNSWORN_ADEPT, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f380',
+      name: 'Floor 380 — The Lashwood',
+      enemies: {
+        front: [THORNBACK_GRAZER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, SERAPH_ADJUDICANT, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, SERAPH_ADJUDICANT, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-undead-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, SERAPH_ADJUDICANT, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [GLOAMVINE_CREEPER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, SERAPH_ADJUDICANT, BRAMBLEWALK_SCOUT],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Springwood — Floors 386–400, levels 182–189, Fine 43–Fine 60 — the fast ring a tree lays down in a season that will not last. Nothing on these boards is heavy and nothing on them is slow.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [CINDER_CULLER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [CINDER_CULLER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [CINDER_CULLER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [CINDER_CULLER, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, SERAPH_ADJUDICANT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f390',
+      name: 'Floor 390 — The Springwood',
+      enemies: {
+        front: [CINDER_CULLER, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [BRAMBLEWALK_SCOUT, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [BRAMBLEWALK_SCOUT, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDERSEED_COURSER, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-undead-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [LUMEN_ACOLYTE, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [LUMEN_ACOLYTE, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [LUMEN_ACOLYTE, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [LUMEN_ACOLYTE, WITHYBIND_RUNNER],
+        back: [THINWOOD_HARRIER, GLASSCHOIR_ARBITER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [LUMEN_ACOLYTE, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDER_CULLER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [LUMEN_ACOLYTE, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDER_CULLER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [LUMEN_ACOLYTE, THINWOOD_HARRIER],
+        back: [WITHYBIND_RUNNER, CINDER_CULLER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f400',
+      name: 'Floor 400 — The Springwood',
+      enemies: {
+        front: [THE_SPRINGWOOD, LUMEN_ACOLYTE],
+        back: [BRAMBLEWALK_SCOUT, LUMEN_ACOLYTE, LUMEN_ACOLYTE],
       },
     },
   ],
