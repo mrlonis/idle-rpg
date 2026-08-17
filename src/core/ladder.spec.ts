@@ -157,6 +157,50 @@ describe('chapter size', () => {
     expect(stagesThroughChapter(CURVE, 160)).toBe(20_000);
   });
 
+  it('holds the old cap below the raised one and the raised cap from its own chapter on', () => {
+    // The shipped shape: a cap that steps once. What makes this cheap is that it can only ever
+    // apply forward — every chapter below `raisedMaxFromChapter` has to come out at exactly the
+    // length it came out at before the field existed, or raising the cap re-cuts the ladder
+    // underneath runs that have already climbed it.
+    const stepped: ChapterCurveData = { ...CURVE, raisedMaxStages: 230, raisedMaxFromChapter: 200 };
+
+    for (const chapter of [1, 11, 151, 199]) {
+      expect(chapterSize(stepped, chapter), `chapter ${chapter}`).toBe(chapterSize(CURVE, chapter));
+    }
+
+    expect(chapterSize(stepped, 200)).toBe(230);
+    expect(chapterSize(stepped, 5000)).toBe(230);
+  });
+
+  it('binds only where the ramp underneath has already passed the raised cap', () => {
+    // The whole mechanism is `min(ramp, cap)`, so a raised cap is a *ceiling* being lifted rather
+    // than a length being set. At chapter 200 this curve's ramp stands at 240, so a raise to 260
+    // buys nothing and the chapter is 240 — which is the shipped curve's situation inverted, where
+    // the ramp is at 200 by chapter 20 and every cap is far below it.
+    const generous: ChapterCurveData = {
+      ...CURVE,
+      raisedMaxStages: 260,
+      raisedMaxFromChapter: 200,
+    };
+
+    expect(chapterSize(generous, 200)).toBe(240);
+    expect(chapterSize(generous, 210)).toBe(250);
+    expect(chapterSize(generous, 220)).toBe(260);
+    expect(chapterSize(generous, 5000)).toBe(260);
+  });
+
+  it('ignores a schedule that would lower the cap, or that is only half authored', () => {
+    // A lowering shortens a chapter that has already shipped, which teleports every run standing
+    // past its new last stage — so it is refused rather than honoured. Half a schedule is the
+    // absent one, which is what keeps every curve authored before the field valid.
+    const lowered: ChapterCurveData = { ...CURVE, raisedMaxStages: 60, raisedMaxFromChapter: 1 };
+    const halfWritten: ChapterCurveData = { ...CURVE, raisedMaxStages: 260 };
+
+    expect(chapterSize(lowered, 500)).toBe(200);
+    expect(chapterSize(halfWritten, 500)).toBe(200);
+    expect(chapterSize({ ...CURVE, raisedMaxFromChapter: 200 }, 500)).toBe(200);
+  });
+
   it('never returns a chapter nobody can fight, whatever the curve says', () => {
     const nonsense: ChapterCurveData = {
       baseStages: 0,

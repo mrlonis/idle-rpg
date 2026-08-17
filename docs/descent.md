@@ -381,12 +381,75 @@ _party_ steps, and the party's rung is a fact about how each chapter final happe
 rather than anything the anchor knows. Milestone 27 tried the nearest available thing — deriving the
 rung from the anchor — and it weakened the party at three depths and broke two passing guards.
 
+### ⚠️ Chapter 18 added a fourth pinned depth, and it arrives from the opposite direction
+
+The three below are the ascension ladder's sawtooth: the **party** steps and the board does not.
+`chapterEnd(18)` is the reverse — **the board is clamped and the party steps** — and it is the first
+entry `anchorCap` was written to prevent rather than one it was written to tolerate.
+
+The Slowgrowth moved the campaign's rung to `mythic`, so its final is roughly **×8.4** the weight of
+The Quickmire's and the party that depth bisects to jumps with it. The cap holds the board at 316,
+where it was derived against a party of 242.7, and the depth reads **5.00 survivors of five**.
+
+⚠️ **A cap has no working setting here, and that was measured rather than argued:**
+
+| `anchorCap` | depth 700 (chapter 16)         | depth 800 (chapter 18)     |
+| ----------- | ------------------------------ | -------------------------- |
+| 316         | passes                         | **5.00 survivors** — walks |
+| 355         | **0.00 finished, 2.8 of nine** | **5.00 survivors** — walks |
+| 420         | **0.00 finished, 2.8 of nine** | passes                     |
+
+Chapter 16's final is one of the lightest ever authored, so the party depth 700 implies is
+correspondingly weak and any cap high enough to free depth 800 destroys it. And **any cap low enough
+to protect depth 700 hands both depths the same board** while their parties differ by a rung and
+sixty levels, so a clamp can never separate them.
+
+⚠️ **This is the fourth time this project has concluded that a dial has no setting that works at both
+ends of its range**, after `gradeSoftness`, the flat Descent offset and `anchorSlope` itself. The
+repair is the one `anchorCap`'s own comment already names — **a board level keyed off the calibrated
+party's own level rather than off the anchor** — which is a `core/` change and therefore a finding
+rather than scope. ⚠️ **Do not raise the cap: depth 700 is the reading that breaks.**
+
+### ⚠️ Five assertions were indexing the sample again, and the fix is a named depth
+
+`CONTROL_DEPTH` is now `chapterEnd(17)`, stated as a chapter rather than as "the deepest sample".
+Five assertions — the card comparison, the level dial, and three run-shape checks — read
+`DEPTHS[DEPTHS.length - 1]`, which **silently re-pointed onto the new walkover depth** the moment The
+Slowgrowth shipped, leaving every one of them measuring a control saturated at 1.00 finished. That is
+the identical failure Expeditions recorded when its own derived sample moved `DEPTHS[3]` from the
+deepest depth to chapter 6. **Name the depth; do not index the sample** — and a control has to be a
+depth where the mode can still move.
+
 ### The trough is pinned rather than dropped
 
-`RUNG_TROUGH` names chapters 12 to 14 and asserts what is actually true of them: **between 4.85 and
-5.00 survivors, all finishing 1.00.** Dropping them would put the hole straight back in the place the
-derived `DEPTHS` was written to close; pinning them keeps the defect visible and stops it spreading
-or deepening.
+`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 21, and asserts what is actually true of
+them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
+straight back in the place the derived `DEPTHS` was written to close; pinning them keeps the defect
+visible and stops it spreading or deepening.
+
+⚠️ **Chapter 19 turned the chapter-18 entry from an instance into a schedule, and that is the most
+important thing on this page for a session planning the next chapter.** `chapterEnd(19)` failed at
+**5.00 of five** the day The Backcut shipped, and it is the _same_ cause rather than a second one:
+`anchorCap` holds the board at **316** at depth 800 and at depth 850 alike, so the two depths field
+the **identical board** while the party at each is bisected against its own chapter's final. The
+deeper depth is therefore at least as strong against the same boards, by construction.
+
+⚠️ **Chapter 20 added the sixth and chapter 21 the seventh, both on schedule.** Depth 910 failed at
+**5.00 of five** the day The Commonage shipped, depth **970** the day The Longebb did and depth
+**1,030** the day The Downstroke did — the last of those also crossing a **rung**, because chapter 22
+moved the campaign to `mythic-plus` and the party a depth implies gains a whole ×1.6 at once. All for
+exactly the stated reason: `anchorCap` holds the board at 316, so depths 850, 910, 970 and 1,030 field
+the **same board** against three parties bisected against three progressively lighter chapter finals.
+**Four consecutive chapters have each added one entry and the schedule has not slipped once** — this
+is arithmetic rather than a forecast.
+
+⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
+chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than
+for a different guard, and two tempting edits are both wrong. **Deriving** the tail of the list
+("every depth the cap clamps") is true today and would silently absorb a depth that became a walkover
+for some other reason, which is exactly what the literal list prevents. **Dropping** the depths puts
+back the hole the derived `DEPTHS` closed. Keep adding literals, keep the count visible, and let the
+list's length be the pressure.
 
 ⚠️ **Both bounds matter, and the upper one is what makes it self-deleting.** If a retune ever fixes
 the trough the reading falls under 4.85, that assertion fails, and the right response is to delete the

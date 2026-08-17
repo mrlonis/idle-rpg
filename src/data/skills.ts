@@ -6596,12 +6596,1402 @@ export const EVERYTHING_YOU_LEFT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 17 — The Quickmire. Turns, and how few of them the party gets.
+//
+// ⚠️ **The whole band vocabulary was priced against one calibrated control** — an anchor of
+// 230/18 behind four bodies of 110/20 at enemy level 375 and Relic 100, totalling 1,131
+// common-equivalent and reading **3.83 of five**. The control **moves**: 4.00 at 931, 3.77 at
+// 1,131, 2.70 at 1,231, 0.65 at 1,331 and 0.00 at 1,431. Every figure below is against that row
+// and means nothing without it.
+//
+// | shape                                          | survivors | worth    |
+// | ---------------------------------------------- | --------- | -------- |
+// | control                                        | 3.83      | —        |
+// | {@link STUN} on a **selection** (`enemy-highest`), ×1 | 3.85 | **0.00** |
+// | the same, ×2 casters                           | 3.88      | **0.00** |
+// | board `haste` 100                              | 3.80      | 0.03     |
+// | an `opening` turn dealing `enemy-all` damage   | 3.48      | 0.35     |
+// | {@link SLOW} on `enemy-front` + damage, ×2     | 3.00      | 0.83     |
+// | {@link SLOW} on `enemy-all`, caster in the **front** rank | 2.00 | 1.83 |
+// | board `haste` 118                              | 1.88      | 1.95     |
+// | {@link HASTE} on `ally-all`, one caster        | 1.45      | 2.38     |
+// | {@link SLOW} on `enemy-all`, caster in the **back** rank | 1.43 | 2.40 |
+// | {@link STUN} on a **scope** (`enemy-all`), cd 75 | 1.23    | **2.60** |
+// | board `haste` 130                              | 0.42      | 3.41     |
+// | board `haste` 144 or 152                       | 0.00      | 3.83     |
+//
+// ⚠️ **Zero timeouts on every row**, longest fight 54.7 seconds against a ninety-second timer.
+//
+// Four findings the chapter is built on:
+//
+// 1. ⚠️ **A `STUN` on a selection is worth nothing and the same status on a scope is worth
+//    2.60.** Not a difference of degree — one caster and two casters both read 0.00. A *scope*
+//    (`enemy-all`), a *reach* (`enemy-back`) and a *selection* (`enemy-highest`) are three
+//    different things and the Angel Tower's roof shipped a false claim conflating them. **This
+//    chapter authors no stun on a selection anywhere**, because it measured as an empty square.
+// 2. ⚠️ **`SLOW` on `enemy-all` is worth 2.40 from the back rank and 1.83 from the front.** That
+//    is the sustain-behind-a-taunt failure wearing a debuff, the same shape chapter 16 measured
+//    at 3.90 on a `WEAKEN`. **Every board-wide slow in this chapter stands in the front rank**,
+//    where the party can aim at it.
+// 3. ⚠️ **The party carries zero `tenacity` and zero `dodge` across all five**, which is what
+//    licenses a status-led band at all — the same test the Elf Tower's `critChance` hundred
+//    passed and the Demon Tower's magic ward failed.
+// 4. ⚠️ **Haste is a cliff rather than a slope, and this chapter builds *below* its register.**
+//    See {@link RUN_THEM_DOWN} and the header of `chapter-17.ts`.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They do not chase you. They are simply already there.
+ *
+ * The opening band's plain turn, and the block it sits on is the chapter's whole thesis in one
+ * line: nothing here is a wall, everything here has already moved.
+ *
+ * ⚠️ **Named as the anchor for the haste finding.** The shipped `haste` register runs to a ceiling
+ * of **152** (the Sky-Shrike) over a median of **98**, and a session reading that register would
+ * reasonably build a tempo band at the top of it. Measured, that is unsurvivable: at the control's
+ * weight a board-wide `haste` of 144 reads **0.00 of five** and 130 reads 0.42, where 118 reads
+ * 1.88 and 100 reads 3.80. **The chapter's seventeen new blocks therefore run 106 to 126 and stop —
+ * below the register, deliberately, and stated here in writing** so a later session can see which
+ * of the two shapes it is looking at. ⚠️ **That is a claim about the new blocks and not about the
+ * chapter's boards**, which also field the returning Wisp at 148 and Slime at 78: what a *board*
+ * may not do is carry the top of that range across all five slots at once. Stated as the range
+ * measured rather than as the threshold meant — a claim phrased the other way has shipped false
+ * four times in this project. That is the opposite of the Monster Tower's `physicalResist` band, which had to
+ * step *past* its register to be worth anything, and it is the third distinct answer the register
+ * check has produced.
+ */
+export const RUN_THEM_DOWN = {
+  id: 'run-them-down',
+  name: 'Run Them Down',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * The pack does not decide to go. It notices that it has gone.
+ *
+ * The second band's turn and the chapter's first real lock: {@link HASTE} across the board, worth
+ * **2.38 of five** against the control — the largest single mechanic in the chapter that is not
+ * the final's. A board that buys its own tempo is asking the party's damage to arrive sooner than
+ * it can, which is the question the whole chapter is about.
+ *
+ * ⚠️ **On a fifty-five tick cadence against the status's own forty-five**, so a fifth of every
+ * cycle is a window in which the board is only what its stat blocks say — the same courtesy
+ * {@link LOAD_THE_CART} and {@link DRESS_THE_RANKS} extend, and for the same reason: a board-wide
+ * buff with no window is a wall rather than a rhythm.
+ */
+export const THE_PACK_TURNS = {
+  id: 'the-pack-turns',
+  name: 'The Pack Turns',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: HASTE }],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The ground gives, and then it holds, and the holding is the part that costs you.
+ *
+ * The third band's signature: {@link SLOW} across the party from a body standing in the **front
+ * rank**. Worth **1.83 of five** there against **2.40** from the back — and the difference is the
+ * whole reason the placement is a rule rather than a preference. A board-wide debuffer the party
+ * cannot select is the sustain-behind-a-taunt failure with a different stat on it: the status
+ * never lapses in practice, because nothing can reach the thing reapplying it.
+ *
+ * ⚠️ **Every carrier of this skill in chapter 17 stands in the front rank, on every board.**
+ */
+export const THE_MIRE_TAKES_A_STEP = {
+  id: 'the-mire-takes-a-step',
+  name: 'The Mire Takes a Step',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 55,
+  priority: 5,
+} as const;
+
+/**
+ * One blow, arriving before the blow you were answering.
+ *
+ * The fourth band's turn: a single large instance rather than a wide one. The Angel Tower's third
+ * hundred established that **the size of one instance of damage is an escalation axis in its own
+ * right** against a crew that heals on a cooldown — hold damage per second constant and make each
+ * blow bigger and rarer, and a choir that can out-heal a river cannot out-heal a hammer. This is
+ * that finding fielded on a campaign board, at ×1.5 into the front rank on a forty-tick cadence.
+ */
+export const AHEAD_OF_THE_ANSWER = {
+  id: 'ahead-of-the-answer',
+  name: 'Ahead of the Answer',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+/**
+ * It is counting how long you have been standing there.
+ *
+ * The lieutenant's signature, and ⚠️ **conditioned rather than an opening turn**, which is the
+ * ninth chapter running to take that shape. It switches off at **five** standing — so it is true
+ * for exactly as long as the party is whole and gone the moment it is not, which makes the block
+ * **smaller as the fight turns rather than larger**. The opposite direction is the one shape
+ * nobody may author.
+ *
+ * ⚠️ **Five is a tighter threshold than either shipped one** — chapter 14's three, chapter 15's
+ * five and chapter 16's four — and it is the tightest the vocabulary allows, because what it gates
+ * is a board-wide {@link SLOW} rather than a damage turn. Measured on the final's board at 960
+ * common-equivalent, the same scope stun reads **1.45 of five** conditioned this way against
+ * **0.93** conditioned at four: the tighter gate is worth half a survivor back to the party.
+ */
+export const STILL_COUNTING = {
+  id: 'still-counting',
+  name: 'Still Counting',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 60,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 5,
+} as const;
+
+/**
+ * Four of them move at once and none of them was the one you were watching.
+ *
+ * The lieutenant's second turn, at ×1.0 across five — the same figure {@link EVERYTHING_YOU_LEFT}
+ * and {@link THERE_IS_NO_END_TO_IT} take, and under the ×1.2 wide ceiling `data/skills.spec.ts`
+ * holds.
+ */
+export const NONE_OF_THEM_THE_ONE = {
+  id: 'none-of-them-the-one',
+  name: 'None of Them the One',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1 }],
+  cooldown: 65,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter final's turn, and the **only** board-wide {@link STUN} in the chapter.
+ *
+ * ⚠️ **A scope stun is worth 2.60 of five and a selection stun is worth 0.00.** That measurement
+ * is why this exists at all and why nothing else in the chapter carries one: the cheap version of
+ * the idea is an empty square, and the expensive version is large enough that a chapter may spend
+ * it exactly once. The Spoilfield spent its one board-wide {@link RALLY} the same way, on its
+ * final, for the same reason.
+ *
+ * ⚠️ **Conditioned on the party still being whole**, so it lapses at the party's first loss. On a
+ * board of the final's shape at 960 common-equivalent the readings are **3.15 of five with no stun
+ * at all**, **1.45** conditioned this way and **0.93** conditioned at four standing — so the gate is
+ * worth a real half survivor and the mechanic is worth 1.70 rather than the control's 2.60. The
+ * board is priced **against** this turn rather than around it: `c17-s50` totals **763**
+ * common-equivalent, the lightest board in the campaign, where `c17-s31` twenty stages above it
+ * carries 1,106.
+ *
+ * ⚠️ **Its board may not also carry the board-wide {@link HASTE}.** The final first stood behind a
+ * {@link THE_PACK_TURNS} caster and read 78%; the two board-wide turns together are the chapter's
+ * most expensive shape and no board in it carries both.
+ *
+ * ⚠️ **Seventy-five ticks against a status duration of sixteen.** A stun is deliberately the
+ * shortest status in the game — it costs its victim the turn it had already earned rather than
+ * removing it — so a fight can never deadlock behind one, and this cadence leaves four fifths of
+ * every cycle clear. The measured fight is **13.9 seconds, longest 15.0, with zero timeouts.**
+ */
+export const NOT_YOUR_TURN = {
+  id: 'not-your-turn',
+  name: 'Not Your Turn',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: STUN }],
+  cooldown: 75,
+  condition: { kind: 'enemies-at-least', count: 5 },
+  priority: 6,
+} as const;
+
+/**
+ * It was never going to be a fair race and it is not pretending otherwise.
+ *
+ * The final's damage turn. Single-target into whatever is furthest along, which is a **selection**
+ * rather than a scope or a reach — said explicitly, because four sessions running have shipped a
+ * claim that ran the three together.
+ */
+export const THE_RACE_WAS_DECIDED = {
+  id: 'the-race-was-decided',
+  name: 'The Race Was Decided',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 45,
+  priority: 5,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Slowgrowth — chapter 18's ten.
+//
+// ⚠️ **The axis is a stat, so the skills are deliberately plain**, which is the rule the Seedfall
+// and the Closing both recorded: *when the axis is a stat, a skill carrying a rider measures the
+// rider instead.* Eight of the ten below are a single damage effect on a long cooldown, and the
+// two that are not belong to the lieutenant and the final.
+//
+// ⚠️ **Nothing here restores, drains, shields or wards.** A chapter whose whole question is
+// durability is the one most able to run the ninety seconds out, and enemy sustain on top of
+// enemy weight is the clock with a stat block attached rather than a difficulty. The measured
+// longest fight across all fifty boards is stated in `chapter-18.ts`; the sweep counts the
+// timeouts explicitly, because a wipe and a timeout are the same `defeat`.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It is not defending itself. It is only where it has been for a very long time.
+ *
+ * The opening band's filler. A plain hit on a long cooldown for the reason {@link CLOSE_OVER_IT}
+ * is one: this block's contribution is its own health bar, and a rider would be the thing the
+ * board measured.
+ */
+export const TAKE_ROOT = {
+  id: 'take-root',
+  name: 'Take Root',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 48,
+  priority: 1,
+} as const;
+
+/** The same turn one band further in, and the only difference is how much of it there is. */
+export const SETTLE_IN = {
+  id: 'settle-in',
+  name: 'Settle In',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 54,
+  priority: 2,
+} as const;
+
+/**
+ * A ring is a year and there are a great many of them.
+ *
+ * The second band's turn, on the blocks that carry the chapter's `def` and `physicalResist`. Sixty
+ * ticks because these are the slowest bodies on their boards and a shorter cooldown would quietly
+ * make a wall into a damage block — the Deepmast Heartwood's note, arriving on a second chapter.
+ */
+export const RING_BY_RING = {
+  id: 'ring-by-ring',
+  name: 'Ring by Ring',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/** Whatever year the water came up, it is still the year this one is living in. */
+export const THE_YEAR_IT_DROWNED = {
+  id: 'the-year-it-drowned',
+  name: 'The Year It Drowned',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * The canopy closes and the two in front of you stop being able to see out.
+ *
+ * ⚠️ **1.2 because it is wide, which is a rule rather than a choice** — `skills.spec.ts` caps every
+ * `enemy-all` and `enemy-row-*` skill there so a sweep can never out-earn a single target.
+ * `enemy-row-front` rather than `enemy-all`: the row is the two bodies a five cannot hide, and it
+ * is here for rhythm against the band's single-target turns rather than as an escalation.
+ */
+export const CLOSE_THE_CANOPY = {
+  id: 'close-the-canopy',
+  name: 'Close the Canopy',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 64,
+  priority: 2,
+} as const;
+
+/**
+ * What is under the water has further to reach than what is above it, and it does reach.
+ *
+ * ⚠️ **A *reach* (`enemy-back`), which is the third of the three words.** It is here because the
+ * chapter's weight all stands in front and a board that can only ever name the front rank hands
+ * the party a free back line for fifty stages. It carries no status for the reason the rest of
+ * this section carries none.
+ */
+export const UNDERBOUGH_SNARE = {
+  id: 'underbough-snare',
+  name: 'Underbough Snare',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * It has been standing here since before any of this was water, and it has only now noticed you.
+ *
+ * The lieutenant's signature, and a **conditioned** skill rather than an opening turn — which is
+ * the shape [authoring](../../docs/authoring.md) prefers, because it answers what the party is
+ * doing and so makes four appearances four different fights against one block.
+ *
+ * ⚠️ **The condition is on the caster's own wound and the effect is damage, which is the legal
+ * direction.** The banned shape is its defensive mirror — a body that *armours* itself as it is
+ * hurt — because that is the ninety-second clock with a narrative attached. Answering a wound with
+ * a bigger swing shortens the fight; answering it with a thicker hide lengthens one that was
+ * already going to end.
+ */
+export const COUNT_THE_RINGS = {
+  id: 'count-the-rings',
+  name: 'Count the Rings',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 58,
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's turn before the party has hurt it enough to be worth the other one. */
+export const WHAT_THE_WATER_LEFT = {
+  id: 'what-the-water-left',
+  name: 'What the Water Left',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * There is no hurrying it and there was never going to be.
+ *
+ * The final's headline turn. `enemy-front` and no rider, on the measurement four other closing
+ * bodies have produced: against a five the front rank is where a boss's damage is worth the most,
+ * and every aim that reaches past it leaves the board **easier** than saying nothing.
+ */
+export const NOTHING_HERE_HURRIES = {
+  id: 'nothing-here-hurries',
+  name: 'Nothing Here Hurries',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 56,
+  priority: 4,
+} as const;
+
+/**
+ * The final's second turn, and the chapter's whole question said once out loud.
+ *
+ * ⚠️ **`enemies-at-least` 4 rather than a status or a scope.** It asks whether the party is still
+ * whole, which on a board of this weight it will be for the first half of the fight and will not
+ * be for the second — so the final gets a heavy opening and a plain finish rather than an
+ * escalation that arrives exactly when the party can least answer it.
+ */
+export const ADD_IT_UP = {
+  id: 'add-it-up',
+  name: 'Add It Up',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 66,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Backcut — chapter 19's ten turns
+//
+// ⚠️ **Not one of these applies the chapter's lock, and that is the whole design.** The Backcut's
+// axis is {@link THORNMAIL} and {@link ROOTBOUND} placed as `opening` passives, priced by *where*
+// on the board they sit rather than by how large they are — measured at the chapter's own weight,
+// a reflect is worth **0.00** on a protected back rank, 0.08 on the anchor alone, 0.38 on the
+// front two and 0.95 across all five. So the tax is a fact about the formation and these turns are
+// what the bodies carrying it do with the rest of their time.
+//
+// ⚠️ **Which is why every one of them is plain damage.** A chapter whose lock is placement cannot
+// also spend its boards on statuses: the same sweep prices `SUNDER` on `enemy-all` at 0.10 and
+// `GUARD` on `ally-all` at 0.15 here, so a status turn would be texture pretending to be a
+// mechanic. The one exception is the final's, below.
+// ---------------------------------------------------------------------------------------
+
+/** Swung into the seam, and the seam is what the swing comes back off. */
+export const CUT_AND_COME_BACK = {
+  id: 'cut-and-come-back',
+  name: 'Cut and Come Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 46,
+  priority: 1,
+} as const;
+
+/** What a prop is for. It has been doing it since before anyone here was born. */
+export const TAKE_THE_WEIGHT = {
+  id: 'take-the-weight',
+  name: 'Take the Weight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 52,
+  priority: 1,
+} as const;
+
+/** A measure short is a measure owed, and it is written down either way. */
+export const SHORT_MEASURE = {
+  id: 'short-measure',
+  name: 'Short Measure',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/** The lamp was lit to be spiteful about something and nobody remembers what. */
+export const SPITELIGHT = {
+  id: 'spitelight',
+  name: 'Spitelight',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * Stone set into stone, which is the fiction {@link ROOTBOUND} is wearing down here.
+ *
+ * The Elves grew their link; the Dwarves *built* theirs, and it is the same status because the
+ * status vocabulary is closed and this is exactly what it already says. The turn itself is plain
+ * damage — the link is the body's `opening`, not this.
+ */
+export const SET_INTO_THE_COURSE = {
+  id: 'set-into-the-course',
+  name: 'Set Into the Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 50,
+  priority: 1,
+} as const;
+
+/** Every course laid true, and every one of them laid to hold the next one down. */
+export const COURSE_BY_COURSE = {
+  id: 'course-by-course',
+  name: 'Course by Course',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/** The stroke that comes after yours, and it was always going to. */
+export const BACKSTROKE = {
+  id: 'backstroke',
+  name: 'Backstroke',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 56,
+  priority: 2,
+} as const;
+
+/** Loosed flat down a gallery that was cut straight for exactly this. */
+export const GALLERY_SHOT = {
+  id: 'gallery-shot',
+  name: 'Gallery Shot',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * The shape [authoring](../../docs/authoring.md) prefers, for the reason chapter 18's
+ * {@link COUNT_THE_RINGS} records: it answers what the party is doing, so four appearances are
+ * four different fights against one block rather than four readings of one stat line.
+ *
+ * ⚠️ **The condition is `enemies-at-least`, not a wound.** The Backswing is the chapter's argument
+ * about placement said as a turn: it hits hardest while the party is still whole and spreading its
+ * damage, and stops asking the question once the party has started finishing things. That is the
+ * legal direction — a body that answers a wound with a *bigger swing* shortens the fight, where
+ * the banned mirror answers one with a thicker hide and lengthens a fight that was going to end.
+ */
+export const WHAT_IT_COST_YOU = {
+  id: 'what-it-cost-you',
+  name: 'What It Cost You',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 58,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's plain turn, for after the party has stopped spreading it around. */
+export const PAID_EITHER_WAY = {
+  id: 'paid-either-way',
+  name: 'Paid Either Way',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn.
+ *
+ * `enemy-front` and no rider, on the measurement five closing bodies have now produced: against a
+ * five the front rank is where a boss's damage is worth the most, and every aim that reaches past
+ * it leaves the board **easier** than saying nothing.
+ */
+export const IT_ADDS_UP_EITHER_WAY = {
+  id: 'it-adds-up-either-way',
+  name: 'It Adds Up Either Way',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.15 }],
+  cooldown: 54,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter's **one** board-wide turn, on the one board that carries one.
+ *
+ * ⚠️ **It spreads the tax rather than adding a new one**, which is what makes the final the
+ * chapter's argument finished rather than a different chapter's boss. Everything The Backcut has
+ * charged for has been a fact about where a body stands; this puts the charge on everything at
+ * once, so on the last board of the chapter there is nowhere left to aim that is free.
+ *
+ * ⚠️ **A cast reflect and not a cast heal, a ward or a regeneration**, and the distinction is the
+ * termination argument rather than taste: {@link THORNMAIL} can only ever *shorten* a fight,
+ * because it is extra damage on a schedule the party controls and puts nothing back. The ninety
+ * seconds are still the binding constraint on this board — see `chapter-19.ts` for the measured
+ * fight lengths, which is why this is the only board-wide reflect in the chapter.
+ */
+export const NOTHING_HERE_IS_FREE = {
+  id: 'nothing-here-is-free',
+  name: 'Nothing Here Is Free',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: THORNMAIL }],
+  cooldown: 90,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Commonage — chapter 20's twelve turns
+//
+// ⚠️ **The chapter's lock is the same family of `opening` passives The Backcut used, and the
+// difference is which one is the spine and which way it walks.** The Backcut's spine is
+// {@link THORNMAIL} moving from the back rank to the front to the whole board; The Commonage's is
+// {@link ROOTBOUND} spreading **outward** from the back three to the front two to all five, with
+// the reflect arriving late as a second tax rather than as the first.
+//
+// ⚠️ **Chapter 20 measured the taunt and it is worth *less than nothing*, which is why no turn
+// below applies one.** Priced against a control of four bodies at 300/40 behind a 420/46 anchor at
+// level 455 and Relic 100 — 2,099 common-equivalent, reading **3.35 of five**, and it moves (3.95
+// at 2,018, 2.60 at 2,180, 1.18 at 2,220) — {@link OATHSHIELD} reads **4.00 on the front anchor**,
+// 3.80 on two carriers and 3.63 from the back rank: **−0.65, −0.45 and −0.28 of a survivor**. On
+// the shipped `c19-s50` the same bolt-on reads 3.25 bare against 3.30 and **3.63**. A taunt
+// *concentrates* the party's damage, and concentration is what a party wants — one body dying
+// drops the board's throughput faster than five bodies being chipped. **It is also the direct
+// antidote to this chapter's own lock**: a board-wide `ROOTBOUND` reads 1.00 of five and 1.63 with
+// a front-rank taunt added to it, so the taunt hands 0.63 straight back.
+//
+// ⚠️ **So the turns here are plain damage for the same reason The Backcut's were**, with two
+// exceptions that are the chapter's own: the cast link on {@link RING_THE_PASSBELL}, which is the
+// one lock in the chapter that lapses, and {@link NOBODY_HERE_IS_ONE_THING} on the final.
+// ---------------------------------------------------------------------------------------
+
+/** Turf closed over it a long time ago. It comes up through the turf rather than out of it. */
+export const UP_THROUGH_THE_TURF = {
+  id: 'up-through-the-turf',
+  name: 'Up Through the Turf',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 32,
+  priority: 3,
+} as const;
+
+/** A furrow is a straight line and it was walking it before anybody was buried under it. */
+export const ALONG_THE_FURROW = {
+  id: 'along-the-furrow',
+  name: 'Along the Furrow',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 36,
+  priority: 3,
+} as const;
+
+/** The hand that comes up first is the hand nobody put there. */
+export const WHOSE_HAND_IS_THAT = {
+  id: 'whose-hand-is-that',
+  name: 'Whose Hand Is That',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.25 }],
+  cooldown: 30,
+  priority: 2,
+} as const;
+
+/** A boundary marker with nobody left on either side of it to argue about. */
+export const THE_STONE_STANDS = {
+  id: 'the-stone-stands',
+  name: 'The Stone Stands',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.1 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's one reaching turn, and there is exactly one on any body that carries it.
+ *
+ * ⚠️ **Chapter 19 measured that two `enemy-back` turns on one body is the party's back rank
+ * deleted rather than a heavier body** — a 520/76 draft carrying two read 0% beside any second
+ * legendary where two others 4% heavier read 4.00. One turn, one carrier, and the chapter's
+ * reaching body is a `common` rather than a legendary for the same reason.
+ */
+export const CHAFF_IN_THE_THROAT = {
+  id: 'chaff-in-the-throat',
+  name: 'Chaff in the Throat',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.4 }],
+  cooldown: 40,
+  priority: 3,
+} as const;
+
+/** Stubble is what is left standing after everything worth taking has gone. It still runs. */
+export const OVER_THE_STUBBLE = {
+  id: 'over-the-stubble',
+  name: 'Over the Stubble',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 24,
+  priority: 2,
+} as const;
+
+/**
+ * The passing bell, rung for one and answered by all of them.
+ *
+ * ⚠️ **The chapter's only lock that lapses**, and the reason it is worth authoring beside a board
+ * full of permanent ones: {@link CHAINBOND} is *cast*, runs its lingering duration and goes, so the
+ * party gets its route back on a schedule. Measured at the chapter's control it is worth **1.78 of
+ * a survivor** against the permanent board-wide {@link ROOTBOUND}'s 2.35 — cheaper, and a window
+ * rather than a wall.
+ *
+ * The cooldown outlasts the status, which is the rule every applied status in this project follows.
+ */
+export const RING_THE_PASSBELL = {
+  id: 'ring-the-passbell',
+  name: 'Ring the Passbell',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: CHAINBOND }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/**
+ * A fallow year, imposed on whoever is standing in the field.
+ *
+ * The chapter's board-wide turn, worth **1.40 of five** at the control — and **one board-wide turn
+ * per board** is the rule chapter 17 ended up with after pairing two and reading 48%. No board in
+ * The Commonage carries this beside {@link RING_THE_PASSBELL} or beside the final's.
+ */
+export const LIE_FALLOW = {
+  id: 'lie-fallow',
+  name: 'Lie Fallow',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: SLOW }],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
+/** A quickset hedge is a fence somebody grew. It has been growing for a very long time. */
+export const GROWN_THROUGH_IT = {
+  id: 'grown-through-it',
+  name: 'Grown Through It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** Gleaning is taking what is left. There is always something left. */
+export const WHAT_THE_FIELD_KEPT = {
+  id: 'what-the-field-kept',
+  name: 'What the Field Kept',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 4,
+} as const;
+
+/**
+ * The lieutenant's conditioned turn, and the condition is the chapter's question asked out loud.
+ *
+ * ⚠️ **A lieutenant's signature is better conditioned than opening**, so its five appearances are
+ * five different fights against one block. This one answers a party that has stopped spreading its
+ * damage: it fires only while four or more of the party are still standing, which is exactly the
+ * stretch in which the board's link is doing its work. Once the party is down to three it goes
+ * quiet and {@link NONE_OF_US_IS_THE_ONE} takes over.
+ */
+export const ANSWERED_TOGETHER = {
+  id: 'answered-together',
+  name: 'Answered Together',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 56,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 5,
+} as const;
+
+/** The lieutenant's plain turn, for after the party has stopped asking the question. */
+export const NONE_OF_US_IS_THE_ONE = {
+  id: 'none-of-us-is-the-one',
+  name: 'None of Us Is the One',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn.
+ *
+ * `enemy-front` and no rider, on the same measurement six closing bodies have now produced: against
+ * a five the front rank is where a boss's damage is worth the most, and every aim that reaches past
+ * it leaves the board **easier** than saying nothing.
+ */
+export const ONE_GRAVE_BETWEEN_US = {
+  id: 'one-grave-between-us',
+  name: 'One Grave Between Us',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 54,
+  priority: 5,
+} as const;
+
+/**
+ * The chapter's argument finished, on the chapter's last board.
+ *
+ * {@link ROOTBOUND} is an `opening` everywhere else in The Commonage — true from the first tick and
+ * permanent. Here it is *given*, which is the only place in the chapter a body hands the lock to
+ * bodies that did not already have it, and it is why the final board is the only one where every
+ * slot is bound whatever it was authored as.
+ */
+export const NOBODY_HERE_IS_ONE_THING = {
+  id: 'nobody-here-is-one-thing',
+  name: 'Nobody Here Is One Thing',
+  target: 'ally-all',
+  effects: [{ kind: 'status', status: ROOTBOUND }],
+  cooldown: 90,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Chapter 21 — The Longebb
+//
+// The chapter asks whether the party's damage still holds its value, so every turn below moves
+// the exchange rate rather than the stat line: what the board takes back ({@link TAKE_IT_BACK}),
+// what stops closing ({@link NOTHING_CLOSES_HERE}), what a wound is worth to the thing carrying
+// it ({@link MARKED_BY_THE_WATER}), and what the party's own attack is worth by the end
+// ({@link IT_IS_ALL_WORTH_LESS}).
+//
+// ⚠️ **Every one of the four was priced before a board was written**, against a control of an
+// anchor at 255/29 behind four bodies at 148/23 at level 485 and Relic 100 — 847 common-equivalent,
+// reading 3.25 of five and moving (3.98 at 813, 2.70 at 860, 1.88 at 920). See `chapter-21.ts` for
+// the whole table; the four that matter are `lifeLeech` 0.05 → 0.40 at **0.17 → 0.85**,
+// {@link SAVAGED} on a scope at **1.27**, {@link BLOODRISEN} on `self` across five at **1.98**, and
+// {@link WEAKEN} on a scope at **3.25** — a total wipe from one carrier, which is why exactly one
+// body in the chapter casts it and why its board is the lightest in the chapter.
+// ---------------------------------------------------------------------------------------
+
+/** The first band's turn: what it takes off you it keeps. Its carrier drinks 12% of what it deals. */
+export const TAKE_IT_BACK = {
+  id: 'take-it-back',
+  name: 'Take It Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/** The same argument from the back rank, and a deeper draught for standing where it is safe. */
+export const DRAWN_DOWN = {
+  id: 'drawn-down',
+  name: 'Drawn Down',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/**
+ * The second band's turn: {@link SAVAGED} on the scope rather than on a selection.
+ *
+ * ⚠️ **Worth 1.27 of five on the scope, −0.48 on `enemy-back` and −0.63 on `enemy-lowest`** at the
+ * control above — one status carrying **three signs**, which is the sharpest version yet of the rule
+ * chapter 17 found on {@link STUN} and chapter 19 on {@link BLOODRISEN}. A wound spread across five
+ * is attrition; the same wound aimed is the party's damage being *concentrated for it*, which is
+ * what a party wants. Author the scope or do not author the mechanic.
+ */
+export const NOTHING_CLOSES_HERE = {
+  id: 'nothing-closes-here',
+  name: 'Nothing Closes Here',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.85 },
+    { kind: 'status', status: SAVAGED, chance: 1 },
+  ],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The third band's turn: a body that is worth more to the board once the party has hurt it.
+ *
+ * {@link BLOODRISEN} on `self`, conditioned on the caster being under three fifths — so it costs the
+ * party nothing if the party finishes what it starts, and arms the board for the rest of the fight
+ * if it does not.
+ *
+ * ⚠️ **Worth 1.98 of five across all five carriers at chapter 21's control, against the 0.15 chapter
+ * 19 measured for the identical shape.** Same status, same scope, two chapters apart, thirteen times
+ * the price — because the board underneath it is a third of the weight and a permanent multiplier on
+ * a light board is a larger share of it. **A figure quoted without the weight it was measured at
+ * means nothing.**
+ */
+export const MARKED_BY_THE_WATER = {
+  id: 'marked-by-the-water',
+  name: 'Marked By The Water',
+  target: 'self',
+  effects: [{ kind: 'status', status: BLOODRISEN, chance: 1 }],
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+/**
+ * The chapter's most expensive turn, and the only body that carries it.
+ *
+ * {@link WEAKEN} on `enemy-all` measured **3.25 of five — a total wipe from one carrier** — against
+ * the same control, where chapter 19 read 0.30 and chapter 20 read 0.95. Nothing about the status
+ * changed; the board did. On a board this light the party's throughput is the only thing keeping it
+ * alive, so a third off the party's attack is the whole fight.
+ *
+ * ⚠️ **No damage rider and a seventy-tick cooldown**, both deliberate, and even so its carrier is
+ * fielded in the **front** rank only up to level 480 — at 485 the front-rank version reads 1.32 of
+ * five at a 78% win rate against 3.15 from the back. That is a fact about **front-rank weight
+ * setting the fight length**, not about where a debuffer belongs; see `chapter-21.ts`.
+ */
+export const IT_IS_ALL_WORTH_LESS = {
+  id: 'it-is-all-worth-less',
+  name: 'It Is All Worth Less',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN, chance: 1 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The closing band's plain turn. Nothing clever left down here; there is nothing left to be clever with. */
+export const LOW_AND_LOWER = {
+  id: 'low-and-lower',
+  name: 'Low And Lower',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.25 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * It only spreads the wound while four of the party still stand, so the four boards it anchors are
+ * four different fights against one block: early, when the party is whole, it is the board's whole
+ * argument; late, after the party has lost two, it stops and {@link NOTHING_IS_COMING_BACK} is all
+ * it has. That is the shape `docs/authoring.md` prefers to an opening — the block answers what the
+ * party is doing rather than announcing itself.
+ */
+export const THE_TIDE_DOES_NOT_TURN = {
+  id: 'the-tide-does-not-turn',
+  name: 'The Tide Does Not Turn',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 0.8 },
+    { kind: 'status', status: SAVAGED, chance: 1 },
+  ],
+  condition: { kind: 'enemies-at-least', count: 4 },
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has left once the condition lapses. */
+export const NOTHING_IS_COMING_BACK = {
+  id: 'nothing-is-coming-back',
+  name: 'Nothing Is Coming Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 52,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, with nothing else on
+ * the board doing it.
+ *
+ * {@link WEAKEN} on `enemy-all` is worth 3.25 of five here, so this is the only stage in The Longebb
+ * where the party meets it beside a boss — and the board it stands on is the lightest the chapter
+ * authors for exactly that reason.
+ */
+export const IT_WAS_WORTH_MORE_THIS_MORNING = {
+  id: 'it-was-worth-more-this-morning',
+  name: 'It Was Worth More This Morning',
+  target: 'enemy-all',
+  effects: [{ kind: 'status', status: WEAKEN, chance: 1 }],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
+/** The finisher. `enemy-lowest`, because by the time it fires there is usually only one answer left. */
+export const THE_LAST_OF_THE_WATER = {
+  id: 'the-last-of-the-water',
+  name: 'The Last Of The Water',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The final's plain turn, and the name of the thing it is. */
+export const KEEP_NOTHING = {
+  id: 'keep-nothing',
+  name: 'Keep Nothing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.35 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+// --- Chapter 22, The Downstroke -------------------------------------------------------------
+//
+// The chapter's axis is the **size of one instance of damage**, held against the rate it arrives
+// at. Every turn below is deliberately slower and heavier than its band would otherwise carry, and
+// the stat blocks in `enemies.ts` do the same thing with `haste` and `atk`. See `chapter-22.ts`
+// for the measured grade; the short form is that this axis is a **dial** where almost everything
+// else at this weight is a cliff.
+
+/**
+ * Band 1's plain turn: the ordinary blow, already too big and too slow for the band it is in.
+ *
+ * Nothing clever — it is here so the party meets the chapter's habit before it meets the chapter's
+ * mechanic.
+ */
+export const LONG_HAUL = {
+  id: 'long-haul',
+  name: 'Long Haul',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/**
+ * Band 2's carrier, and the first turn in the chapter that is worth measuring on its own.
+ *
+ * ⚠️ **It is a single-target turn because the wide targets are capped at power 1.2**, and that cap
+ * is the whole reason this chapter's axis is shaped the way it is: `enemy-all`, `enemy-row-front`
+ * and `enemy-row-back` may not carry a big blow at all, so "bigger and rarer" has to be aimed.
+ * `skills.spec.ts` holds the cap; a first draft of this chapter measured the axis on
+ * `enemy-row-front` at power 1.55 to 3.10 and every one of those rows describes a skill the game
+ * will not let anybody author.
+ *
+ * Priced against chapter 22's control — an anchor of 3,200/295 behind four bodies of 1,800/250 at
+ * level 515, 10,400 common-equivalent, reading 3.08 of five — this shape on **one** front carrier
+ * grades **0.09 / 0.14 / 0.43 / 0.60 / 0.83 / 0.86 / 1.72** of a survivor at power 1.20 / 1.55 /
+ * 1.90 / 2.20 / 2.60 / 3.10 / 3.60 against cooldowns 25 / 35 / 42 / 50 / 60 / 70 / 80. **Monotone,
+ * with zero timeouts on every row**, which is what a six-band chapter needs and what nothing else
+ * at this weight offers.
+ */
+export const THE_CORD_DRAWS = {
+  id: 'the-cord-draws',
+  name: 'The Cord Draws',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 42,
+  priority: 3,
+} as const;
+
+/**
+ * Band 3's step: the same turn again, bigger and rarer by the same amount.
+ *
+ * Worth **0.83** of a survivor at chapter 22's control against {@link THE_CORD_DRAWS}'s 0.43 — one
+ * step up a grade that runs 0.09 to 1.72 across the whole range of instance size.
+ */
+export const FULL_WEIGHT = {
+  id: 'full-weight',
+  name: 'Full Weight',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * Band 5: the blow acquires a **reach**, which is the axis moving rather than growing.
+ *
+ * `enemy-back` rather than `enemy-row-back` — it falls through to the front once the back is empty,
+ * so it never has an empty selection.
+ */
+export const OVER_THE_LINE = {
+  id: 'over-the-line',
+  name: 'Over The Line',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * Band 6: the blow on the **scope**, and the chapter's most expensive shape.
+ *
+ * ⚠️ **A damage scope prices where the party cannot reach it, which is the aim rule arriving on a
+ * damage turn rather than on a debuff.** Measured with the *same* body carrying it in each rank at
+ * the wide cap of 1.2, it is worth **0.07 of a survivor from the front rank** and **0.42 to 0.64
+ * from the back** across cooldowns 70, 60 and 50. Chapter 16 measured that shape on a `WEAKEN` and
+ * chapter 19 on a reflect with the opposite sign; this is the first time it has been measured on
+ * plain damage, and it behaves like the debuff.
+ *
+ * ⚠️ **So this one is carried from the *back* rank, which is the opposite of what chapter 16's rule
+ * prescribes, and the difference is that a scope worth 0.07 is not a lock.** What chapter 16 forbids
+ * is an unreachable body applying a status that never lapses — it measured 4.00 against 0.10, a
+ * fortyfold swing, and the board was unanswerable. This is damage: it bills once and depletes
+ * nothing, the party can still reach the caster once the front rank falls, and the gap is 0.07
+ * against 0.64. **Take the measurement, not the precedent.**
+ *
+ * ⚠️ **The first draft of this measurement was confounded and read the reverse**, because the front
+ * arm happened to be carried by the board's anchor and the back arm by an escort — two variables,
+ * one row. **Carry a rank comparison on one body.**
+ */
+export const EVERYTHING_AT_ONCE = {
+  id: 'everything-at-once',
+  name: 'Everything At Once',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * It holds everything until it has been hurt, which is the block's whole fiction and what makes its
+ * four appearances four different fights: on the boards where the party kills it quickly the turn
+ * never comes, and on the boards where it does not, it arrives all at once.
+ *
+ * ⚠️ **A wound *condition* on a damage turn is not the forbidden wound-response.** What
+ * `docs/authoring.md` bars is a body that **armours itself** as it is hurt — the ninety-second clock
+ * with a narrative attached. This one spends rather than banks, and every fight it appears in still
+ * ends in a death.
+ */
+export const IT_HAS_NOT_LET_GO = {
+  id: 'it-has-not-let-go',
+  name: 'It Has Not Let Go',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  condition: { kind: 'self-hurt', fraction: 0.6 },
+  cooldown: 58,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has while it is still whole, and the reason its early boards are not free. */
+export const TAKE_UP_THE_SLACK = {
+  id: 'take-up-the-slack',
+  name: 'Take Up The Slack',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 48,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, by the only body on the
+ * board that can ask it.
+ *
+ * The scope is what makes it the chapter's peak rather than a bigger version of band 5, and the
+ * board underneath it is authored light for exactly that reason.
+ */
+export const THE_OVERSTRIKE_FALLS = {
+  id: 'the-overstrike-falls',
+  name: 'The Overstrike Falls',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 70,
+  priority: 4,
+} as const;
+
+/** The final's plain turn. It has been drawing back for the whole chapter; this is the rest of it. */
+export const NOTHING_HELD_BACK = {
+  id: 'nothing-held-back',
+  name: 'Nothing Held Back',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 52,
+  priority: 2,
+} as const;
+
+/**
+ * Chapter 23's texture turn, and the reason The Evenfall needs so few new skills.
+ *
+ * ⚠️ **The Evenfall's whole premise is a *stat*, so its skills are plain damage and nothing else.**
+ * `docs/authoring.md` says to reach for the stat block before the vocabulary; a chapter asking
+ * whether the party's damage ever lands *well* asks it with `critBlock`, `critDamageResist`,
+ * `physicalResist` and `magicResist`, none of which can be a status without a `core/` change. What
+ * the skills do here is carry the board's throughput, which at level 545 is the quantity that
+ * actually binds — see {@link NOTHING_TELLS}.
+ */
+export const EVEN_LIGHT = {
+  id: 'even-light',
+  name: 'Even Light',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.55 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+/** Band 2's turn: the same blow as band 1's, and no hour in this chapter is a better one. */
+export const NO_BETTER_HOUR = {
+  id: 'no-better-hour',
+  name: 'No Better Hour',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Bands 3 and 4: the first turn that names more than one body, and it is at the wide cap.
+ *
+ * ⚠️ **`skills.spec.ts` holds `enemy-row-front`, `enemy-row-back` and `enemy-all` to power 1.2**,
+ * which is the rule chapter 22 discovered by pricing a whole chapter on a skill the game refuses to
+ * let anybody author. This one is 1.15 and is inside it by construction.
+ */
+export const TURNED_ASIDE = {
+  id: 'turned-aside',
+  name: 'Turned Aside',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** Bands 4 and 5: the chapter's largest single-target blow outside its two unique bodies. */
+export const THE_GREEN_TAKES_IT = {
+  id: 'the-green-takes-it',
+  name: 'The Green Takes It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.25 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The reach: bands 4 through 6 name the party's back rank with it.
+ *
+ * ⚠️ **One `enemy-back` turn per body, which is chapter 19's rule on a stat line rather than on a
+ * board.** A 520/76 ranger carrying two of them read 0% beside any second legendary where two other
+ * legendaries 4% heavier read 4.00. No block in this chapter carries two.
+ */
+export const NOTHING_TELLS = {
+  id: 'nothing-tells',
+  name: 'Nothing Tells',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's signature, and a **conditioned** turn rather than an opening one.
+ *
+ * The shape `docs/authoring.md` prefers, for the reason chapter 22 recorded: it only fires once the
+ * block is under fifty-five hundredths, so the five boards it anchors are five different fights
+ * against one stat line rather than five copies of one.
+ *
+ * ⚠️ **A wound *condition* on a damage turn is not the forbidden wound-response.** What is barred is
+ * a body that **armours** itself as it is hurt — the ninety-second clock with a narrative attached.
+ * This spends rather than banks.
+ */
+export const IT_WAS_NEVER_GOING_TO = {
+  id: 'it-was-never-going-to',
+  name: 'It Was Never Going To',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.7 }],
+  condition: { kind: 'self-hurt', fraction: 0.55 },
+  cooldown: 60,
+  priority: 4,
+} as const;
+
+/** What the lieutenant has while it is still whole, and why its early boards are not free. */
+export const SAME_AS_THE_LAST = {
+  id: 'same-as-the-last',
+  name: 'Same As The Last',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 46,
+  priority: 2,
+} as const;
+
+/**
+ * The final's headline turn: the chapter's question asked once, at the top, on the scope.
+ *
+ * **Magic where the rest of the chapter is physical**, which is the closing band's own lock read
+ * from the other side — the boards spend six bands refusing physical damage and the body that
+ * closes them deals the kind they have taught the party not to expect.
+ */
+export const THE_LIGHT_GOES_FLAT = {
+  id: 'the-light-goes-flat',
+  name: 'The Light Goes Flat',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 68,
+  priority: 4,
+} as const;
+
+/**
+ * The final's plain turn.
+ *
+ * ⚠️ **Worth 2.00 of five on its own, which is more than the boss's whole stat line.** Measured at
+ * 250/20 behind the chapter's own escort: no skills at all reads 93% / 2.15, this turn alone reads
+ * 13% / 0.15, and both together 0%. That is chapter 21's finding reproduced — more than a third of a
+ * final's price can be one turn — and it is why this boss ships at 190/14 rather than at the weight
+ * a chapter-22 conversion would have predicted.
+ */
+export const NOTHING_LANDS_BETTER = {
+  id: 'nothing-lands-better',
+  name: 'Nothing Lands Better',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
 /**
  * Every skill, for the specs that check ids are unique and that every kit points at a real one.
  *
  * One list rather than `Object.values(module)`, because `data/` is plain data and that is a
  * function call.
  */
+/**
+ * Chapter 24 — The Nevermark. Twelve turns for a Dwarf hold that refuses to be marked.
+ *
+ * The chapter's premise is `tenacity` rather than a status, so these are plain turns: the blocks
+ * carrying them are what the chapter is about and the kit is texture. ⚠️ **Only one of the twelve
+ * names the party's back rank** ({@link COUNT_IT_AGAIN}), and {@link THE_HOLD_REMEMBERS} is the
+ * other — no board in the chapter fields both, which is chapter 19's "two `enemy-back` turns is the
+ * party's back rank deleted" applied at the board rather than at the stat line.
+ */
+export const SET_YOUR_HAND = {
+  id: 'set-your-hand',
+  name: 'Set Your Hand',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+export const THE_GRAIN_HOLDS = {
+  id: 'the-grain-holds',
+  name: 'The Grain Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 55,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's one reach, and the reason no board carries a second.
+ *
+ * ⚠️ **The five lieutenant boards field none of these**, because {@link THE_HOLD_REMEMBERS} is
+ * already an `enemy-back` turn and two on one board measured as the party's back rank deleted.
+ */
+export const COUNT_IT_AGAIN = {
+  id: 'count-it-again',
+  name: 'Count It Again',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+export const NO_SUCH_THING = {
+  id: 'no-such-thing',
+  name: 'No Such Thing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+export const SAID_AND_UNSAID = {
+  id: 'said-and-unsaid',
+  name: 'Said And Unsaid',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const THE_STONE_KEEPS_IT = {
+  id: 'the-stone-keeps-it',
+  name: 'The Stone Keeps It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.0 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+export const GAINSAY = {
+  id: 'gainsay',
+  name: 'Gainsay',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+export const NOTHING_TAKES = {
+  id: 'nothing-takes',
+  name: 'Nothing Takes',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.8 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The lieutenant's opening question, and the half of its kit that stays on the front rank. */
+export const IT_WILL_NOT_BE_SAID = {
+  id: 'it-will-not-be-said',
+  name: 'It Will Not Be Said',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.5 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** The lieutenant's reach. No board fielding it also fields {@link COUNT_IT_AGAIN}. */
+export const THE_HOLD_REMEMBERS = {
+  id: 'the-hold-remembers',
+  name: 'The Hold Remembers',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+export const UNMADE_AND_UNSAID = {
+  id: 'unmade-and-unsaid',
+  name: 'Unmade And Unsaid',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 3.0 }],
+  cooldown: 74,
+  priority: 3,
+} as const;
+
+export const LEAVE_NO_MARK = {
+  id: 'leave-no-mark',
+  name: 'Leave No Mark',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.4 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -6923,4 +8313,89 @@ export const SKILLS = [
   WRITTEN_DOWN_BESIDE_IT,
   COUNT_IT_ALL_AGAIN,
   EVERYTHING_YOU_LEFT,
+  RUN_THEM_DOWN,
+  THE_PACK_TURNS,
+  THE_MIRE_TAKES_A_STEP,
+  AHEAD_OF_THE_ANSWER,
+  STILL_COUNTING,
+  NONE_OF_THEM_THE_ONE,
+  NOT_YOUR_TURN,
+  THE_RACE_WAS_DECIDED,
+  TAKE_ROOT,
+  SETTLE_IN,
+  RING_BY_RING,
+  THE_YEAR_IT_DROWNED,
+  CLOSE_THE_CANOPY,
+  UNDERBOUGH_SNARE,
+  COUNT_THE_RINGS,
+  WHAT_THE_WATER_LEFT,
+  NOTHING_HERE_HURRIES,
+  ADD_IT_UP,
+  CUT_AND_COME_BACK,
+  TAKE_THE_WEIGHT,
+  SHORT_MEASURE,
+  SPITELIGHT,
+  SET_INTO_THE_COURSE,
+  COURSE_BY_COURSE,
+  BACKSTROKE,
+  GALLERY_SHOT,
+  WHAT_IT_COST_YOU,
+  PAID_EITHER_WAY,
+  IT_ADDS_UP_EITHER_WAY,
+  NOTHING_HERE_IS_FREE,
+  UP_THROUGH_THE_TURF,
+  ALONG_THE_FURROW,
+  WHOSE_HAND_IS_THAT,
+  THE_STONE_STANDS,
+  CHAFF_IN_THE_THROAT,
+  OVER_THE_STUBBLE,
+  RING_THE_PASSBELL,
+  LIE_FALLOW,
+  GROWN_THROUGH_IT,
+  WHAT_THE_FIELD_KEPT,
+  ANSWERED_TOGETHER,
+  NONE_OF_US_IS_THE_ONE,
+  ONE_GRAVE_BETWEEN_US,
+  NOBODY_HERE_IS_ONE_THING,
+  TAKE_IT_BACK,
+  DRAWN_DOWN,
+  NOTHING_CLOSES_HERE,
+  MARKED_BY_THE_WATER,
+  IT_IS_ALL_WORTH_LESS,
+  LOW_AND_LOWER,
+  THE_TIDE_DOES_NOT_TURN,
+  NOTHING_IS_COMING_BACK,
+  IT_WAS_WORTH_MORE_THIS_MORNING,
+  THE_LAST_OF_THE_WATER,
+  KEEP_NOTHING,
+  LONG_HAUL,
+  THE_CORD_DRAWS,
+  FULL_WEIGHT,
+  OVER_THE_LINE,
+  EVERYTHING_AT_ONCE,
+  IT_HAS_NOT_LET_GO,
+  TAKE_UP_THE_SLACK,
+  THE_OVERSTRIKE_FALLS,
+  NOTHING_HELD_BACK,
+  EVEN_LIGHT,
+  NO_BETTER_HOUR,
+  TURNED_ASIDE,
+  THE_GREEN_TAKES_IT,
+  NOTHING_TELLS,
+  IT_WAS_NEVER_GOING_TO,
+  SAME_AS_THE_LAST,
+  THE_LIGHT_GOES_FLAT,
+  NOTHING_LANDS_BETTER,
+  SET_YOUR_HAND,
+  THE_GRAIN_HOLDS,
+  COUNT_IT_AGAIN,
+  NO_SUCH_THING,
+  SAID_AND_UNSAID,
+  THE_STONE_KEEPS_IT,
+  GAINSAY,
+  NOTHING_TAKES,
+  IT_WILL_NOT_BE_SAID,
+  THE_HOLD_REMEMBERS,
+  UNMADE_AND_UNSAID,
+  LEAVE_NO_MARK,
 ] as const;

@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Sixteen chapters and seven hundred
-stages** — 10, 20, 30, 40 and then twelve of fifty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Twenty-three chapters and one thousand
+and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and four of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -13,13 +13,41 @@ gear, but from a rarity cap the ladder has now climbed past. Chapter 15 is **The
 priced that gradient: every block it fields is roughly **half** the weight of chapter 14's. Chapter
 16 is **The Spoilfield**, where the same arithmetic drove the board budget **through the floor of the
 shipped enemy pool** — its blocks are roughly two fifths of chapter 15's, its final is 250/24, and it
-is the last chapter that can step the gear ladder. See [authoring](authoring.md).
+is the last chapter that can step the gear ladder. Chapter 17 is **The Quickmire**, the first chapter
+whose gear does not ramp at all (Relic 100 on every board), the first that had to be **57.7% new
+blocks** because the pool cannot supply a returning majority at its weight, and the first whose seam
+ratio falls **below 1.00**. Chapter 18 is **The Slowgrowth**, which is where that arithmetic ran out
+and the campaign moved a rung for the first time in seven chapters — to `mythic`, against the
+log-space rule rather than with it, because there is no chapter 18 on `legendary-plus` at all.
+Chapter 19 is **The Backcut**, which **stays** on `mythic` — the rule and the pool agree for the
+first time in eight chapters, so it is a derivation rather than an override, and the distinction is
+the point. Chapters 20 and 21 — **The Commonage** and **The Longebb** — stay on it too and are the
+first chapters longer than fifty. Chapter 22 is **The Downstroke**, which moves the rung to
+`mythic-plus`: the campaign's **second override**, licensed because at level 515 the five lightest
+bodies in the whole game read 0% against a `mythic` five. Chapter 23 is **The Evenfall**, which
+**stays** on `mythic-plus` — a derivation, and the first chapter whose binding pool constraint is the
+returning blocks' **attack** rather than their weight. Chapter 24 is **The Nevermark**, which stays
+on it again, and which found that **a filter on weight and attack is not a pool count**: screening
+the 302 shipped blocks the way chapter 23 described leaves 15, all Monster, where _fielding_ them
+leaves 121 across all seven factions. It is also the chapter that inverted chapter 21's `tenacity`
+reading — declined there as flat, and the only six-step dial available here.
+See [authoring](authoring.md).
 
 ## The shape
 
-`CHAPTER_CURVE` is a ramp to a permanent cap of fifty — base 10, step 10, band 1, max 50. **The long
-ladder is more chapters, not longer ones.** The old banded growth toward two-hundred-stage chapters
-is gone rather than deferred; revisit deliberately if fifty ever reads as too short at the far end.
+`CHAPTER_CURVE` is a ramp to a cap — base 10, step 10, band 1, max 50 — and since chapter 20 the
+**cap is a schedule rather than a constant**: `raisedMaxFromChapter` 20 and `raisedMaxStages` 60, so
+chapters 1–19 hold fifty and 20 onward hold sixty. **The long ladder is still more chapters, not
+longer ones**; this steps **once**, on the deliberate revisit the old "permanent cap of fifty" note
+invited, and a second step needs its own argument rather than this one as precedent. Chapter 21 is
+the first chapter for which sixty is simply what the formula says, with nothing to decide.
+
+⚠️ **A raised cap only ever applies from its own chapter on, and `chapterSize` refuses a lowering.**
+That is what makes the step cheap: `min(ramp, cap)` with the ramp already past every cap means no
+chapter below the schedule changes length, no shipped stage id moves, and `SAVE_VERSION` does not
+move — a run's position is a chapter plus a stage within it. A _lowering_ would shorten a chapter
+that has shipped and teleport every run standing past its new last stage, which is why it is refused
+rather than honoured.
 
 **The chapter-size formula and the authored chapters are two statements of one fact.** `chapterSize`
 says how long a chapter should be and `LadderShape` says how long the authored ones are;
@@ -33,7 +61,8 @@ line-up worthy of the slot it lands in, and `chapters.spec.ts` checks it did.
 ⚠️ **Every chapter ends on a boss fielded nowhere else, as a rule** — the Fenlord, the Pale Warden,
 the First Cinder, the Ashfall Sovereign, the Chainsworn, the Hollow Seraph, The Cairn King, The
 Withered Crown, The Anvil Crowned, The Everwound, The Last Order, The Ironbloom, The Undercut, The
-Doorstone, The Unnumbered and The Inheritor. A re-cut that moves a boundary owes the new final a unique body before it ships.
+Doorstone, The Unnumbered, The Inheritor, The Latecomer, The Last Ring, The Interest, The Undivided
+and The Unreturned. A re-cut that moves a boundary owes the new final a unique body before it ships.
 
 ⚠️ **The rule is about the _headline_ body and nothing else.** A lieutenant may stand on its
 chapter's final as support and may not _be_ it. The Gravewright does on `c7-s50`; the Longshadow,
@@ -140,6 +169,186 @@ the rung it paid for is level with the next chapter rather than behind it, which
 has no difficulty gradient of its own and why the escalation is expected to arrive from enemy gear
 instead. [authoring](authoring.md) records the three guards widened to hold that trade in view and
 the condition that restores each.
+
+⚠️ **Chapter 17 makes it seven on one rung, and the seam has gone below 1.00 for the first time.**
+The Quickmire closes at 375, **a hundred and fifteen levels** above the cap: `legendary-plus` reads
+**0.9608** (|Δln| 0.5196 — the same figure again, because the factor is constant) against `mythic`'s
+8.1062 (1.6130). The six most recent seams run **10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154 →
+0.9608**. ⚠️ **Below 1.00 means the content at the top of the ladder is nominally ahead of the party
+it is tuned for**, and nothing the party gains changes that — what keeps the chapter winnable is that
+its boards are half the weight of the one below. A chapter 18 on this rung reads **0.5718**.
+
+⚠️ **The seam chain went degenerate four links deep**: chapters 13 through 17 all clamp to 260, so
+`QUARRIED`, `SHUTGATED`, `UNDERROAD`, `SPOILED` and `QUICKMIRED` are **five consecutive names for one
+set of five combatants**. Recorded rather than repaired, for four chapters running — **and chapter 18
+ends it.**
+
+## ⚠️ Chapter 18 moves the rung to `mythic`, and it is an override rather than a derivation
+
+The Slowgrowth closes at 400 and asks for **`mythic`**, the first rung move since chapter 11. Against
+chapter 17's seam of 0.9608, `legendary-plus` reads **0.5715** (|Δln| 0.5195) and `mythic` reads
+**4.8214** (|Δln| 1.6131) — so **the log-space rule prefers staying put, by 1.09 of a nat, and the
+chapter overrides it.**
+
+⚠️ **The rule assumes the seam below it was correct, and below 1.00 it is not.** What it would have
+reproduced is a board budget of **645 → 454** common-equivalent, or **129 → 91 per body on a board of
+five**. Of the 238 blocks that existed before The Slowgrowth, **five** sit at or under 129 and
+**none** at or under 91; the lightest body ever shipped is 100. **There is no chapter 18 on
+`legendary-plus`** — not a hard one, not any.
+
+⚠️ **`mythic` was ruled out at chapter 15 on a measurement, and the measurement inverted.** The
+Underroad recorded that a `mythic` five needs boards scaled ×2.4 — an anchor near 3,550 health against
+the Unmade's ceiling of 1800 — and chapters 16 and 17 quoted it unchanged. Three further halvings
+happened underneath the claim. Measured at chapter 18: the budget is **5,442 → 3,830**
+common-equivalent, **1,088 → 766 per body**, against a pool median at level 400 of **1,295** and an
+Unmade of 5,820. **116 of 238 blocks sit inside the ordinary-slot band where 13 did for The
+Quickmire.** Nothing in `data/` had to change.
+
+⚠️ **What the move does not do is give the campaign a difficulty gradient of its own.** A chapter is
+×1.68 of party power and a rung ×1.60, so the two still nearly cancel; what the rarity cap was
+supplying was a gradient made of the party being unable to keep up, which is a defect wearing a
+gradient's clothes. The three guards milestone 24 widened stay where they are, and "still costs that
+party something at the top" still holds at 4.00 of five with zero timeouts.
+
+⚠️ **The move is also the event both mode anchor caps were written to wait for.**
+`DescentLevelData.anchorCap` and `ExpeditionRulesData.anchorCap` were conditioned on "a chapter asks
+for a rung above `legendary-plus`" rather than on a chapter shipping. This is the first time that
+condition has fired. See [descent](descent.md) and [expeditions](expeditions.md).
+
+## ⚠️ Chapter 19 stays on `mythic`, and that it is _not_ an override is the point
+
+The Backcut closes at 425 and asks for **`mythic`** again. Against chapter 18's seam of 4.8214,
+`mythic` reads **2.8677** (|Δln| **0.5196**) and `mythic-plus` **24.1942** (|Δln| **1.6130**) — so
+the log-space rule prefers staying put by 1.09 of a nat, **numerically the same margin chapter 18
+overrode**, and this chapter does not override it.
+
+⚠️ **What licensed chapter 18's override was that the seam below it was wrong, and nothing of that
+kind holds here.** The Slowgrowth inherited a seam of 0.9608 — under 1.00, meaning the content was
+nominally ahead of the party it was tuned for — and a board budget of 129 common-equivalent per body
+against a pool whose lightest body is 100. At 2.8677 this seam is comfortably above 1.00, and **166 of 248 blocks sit inside the band
+its ordinary slots use**. **A rung move argues its own case
+every time; "the chapter below moved one" is not a case.**
+
+⚠️ **The degenerate seam chain restarts, one link deep, and it will deepen on schedule.** Chapters 18
+and 19 both close above `mythic`'s cap of **340** and both clamp to it, so `SLOWGROWTH` and
+`INVESTED` are the same five combatants — exactly the shape chapters 13 through 17 recorded four
+times, one rung higher. The Backcut's last board stands **eighty-five levels** above the cap, ×5.83,
+and every further chapter on this rung divides the seam by `perLevel.common ** 25` = 1.680 **by
+construction**: chapter 20 reads **1.7069**, chapter 21 **1.0161**, chapter 22 **0.6048**.
+
+⚠️ **So `mythic` buys about three chapters, and the board budget runs out before the arithmetic
+does.** That is the same countdown `legendary-plus` ran, and the next rung — `mythic-plus`, cap 420 —
+is not due yet. **Re-measure it at chapter 21 rather than carrying this projection forward**; the
+chapter-15 projection about `mythic` was correct when written, quoted unchanged for three chapters,
+and false by the time it mattered.
+
+## ⚠️ Chapter 20 stays on `mythic` a second time, and what nearly moved it was the pool
+
+The Commonage closes at **455** — the first chapter longer than fifty, so it climbs **thirty** levels
+rather than twenty-five — and asks for `mythic` again. Against chapter 19's seam of 2.8677, `mythic`
+reads **1.5373** (|Δln| **0.6237**) and `mythic-plus` **12.9700** (|Δln| **1.5099**): `mythic` by
+0.886 of a nat, and comfortably above 1.00, so this is a **stay** on the same terms chapter 19 set.
+
+⚠️ **The degenerate chain reaches three links, exactly as chapter 19 predicted.** Chapters 18, 19 and
+20 all clamp to `mythic`'s cap of 340, so `SLOWGROWTH`, `BACKCUT` and `INVESTED` are one set of five.
+The Commonage's last board stands **a hundred and fifteen levels** above the cap — ×10.98, the
+sharpest gap the campaign has carried.
+
+⚠️ **The projection that this rung buys about three chapters was right about the arithmetic and
+wrong about the pool, which bought about one and a half.** The board budget here is **2,145 → 1,328**
+common-equivalent against The Backcut's 3,745 → 5,875, and at level 455 the lightest five _shipped_
+commons that can stand together read **3% and 0.03 survivors**. The chapter needed two bodies at 150
+and 170 health authored before its closing bands could exist.
+
+⚠️ **And the wall is a _faction_ squeeze rather than an absolute one.** Twelve blocks sit under 150
+health and every one is a **Monster** — The Quickmire's seventeen are still the light tail of the
+whole game — while the four lightest Undead or Human blocks total 790 before a boss. **A chapter 21
+leaning Monster does not meet this wall; every other lean does.** Re-measure the lean's own light
+tail at chapter 21, not the pool's. ⚠️ **Chapter 21 leaned Monster and the prediction held exactly**
+— fifteen of the 272 blocks that preceded it sit at or under 200 common-equivalent at level 485, and
+**eleven are Monsters**.
+
+## ⚠️ Chapter 21 stays on `mythic` a third time, and its own seam is the first under 1.00 on it
+
+The Longebb closes at **485** — sixty stages again, and the first chapter for which sixty is the
+schedule rather than an exception. Against chapter 20's seam of 1.5373, `mythic` reads **0.8241**
+(|Δln| **0.6235**) and `mythic-plus` **6.9529** (|Δln| **1.5091**): `mythic` by 0.886 of a nat.
+
+⚠️ **The seam it lands on is 0.8241 — under 1.00, which is the reading that licensed chapter 18's
+override — and it still does not license one.** The Slowgrowth's move rested on the seam **below** it
+being wrong (0.9608) _and_ on a board budget of 129 common-equivalent per body against a pool whose
+lightest body was 100, so no chapter existed on the old rung. Here the seam below is 1.5373 and the
+chapter was authorable: sixty boards, all at 100%, zero timeouts, longest fight 29.1s against a 72s
+bar. **What licenses an override is the seam below being wrong, never this chapter's own seam being
+small.** Three chapters running have now had to say which of the two they are doing.
+
+⚠️ **`mythic-plus` was _fielded_ rather than reasoned about, which chapter 15 failed to do.** Chapter
+20's own final refielded at level 485 reads **100% with all five alive in 3.2 seconds** against a
+`mythic-plus` five and **0%** against the `mythic` one. The arithmetic and the measurement agree
+here; record that they were checked.
+
+⚠️ **The degenerate chain reaches four links.** Chapters 18 through 21 all clamp to `mythic`'s cap of
+340, so `SLOWGROWTH`, `BACKCUT`, `COMMONAGE` and `INVESTED` are one set of five. The Longebb's last
+board stands **a hundred and forty-five levels** above the cap — ×20.36.
+
+⚠️ **This is the half chapter 20's pool projection predicted, and the closing band is at the floor.**
+The budget runs **1,445 → 804** common-equivalent, and the whole shipped Monster mid-weight tier —
+Carrion Swarm through Driftmouth Choker — reads **1.45 to 4.00 survivors at level 475** and **0.00 to
+0.50 at 485**. What is left at 485 is the eleven light Monsters The Quickmire authored, which read
+**3.75 of five unaided**. **Chapter 22 closes at 515, where the same boards are worth ×1.86 more and
+nothing shipped can stand on one** — expect `mythic-plus` on the pool while the log-space rule still
+prefers staying put.
+
+## ⚠️ Chapter 22 moves the rung to `mythic-plus`, and it is the campaign's second override
+
+The Downstroke closes at **515** — sixty stages again — and asks for **`mythic-plus`**. Against
+chapter 21's seam of 0.8241, `mythic` reads **0.4418** (|Δln| **0.6235**) and `mythic-plus`
+**3.7273** (|Δln| **1.5091**): the log-space rule prefers staying put by 0.886 of a nat, **and this
+chapter overrides it.** It is the second override the campaign has, after chapter 18, and the two
+have the same shape.
+
+⚠️ **What licenses an override is the seam _below_ being wrong, and this time it is.** Chapter 21
+landed on 0.8241 — under 1.00 — and declined to override, correctly, because its own chapter was
+still authorable out of the pool. Thirty levels later that is no longer true. Measured at level 515
+against a `mythic` five:
+
+| board                                                                 | reading       |
+| --------------------------------------------------------------------- | ------------- |
+| the **five lightest bodies in the game** (100/104/106/122/126 health) | **0% / 0.00** |
+| the five heaviest of The Quickmire's light Monsters                   | **0% / 0.00** |
+| (the same five lightest bodies at level 485)                          | 100% / 4.00   |
+
+**There is no chapter 22 on `mythic`** — not a hard one, not any. Chapter 21 predicted exactly this
+in writing and the prediction held.
+
+⚠️ **The move re-opens the pool, which is the other half of what an override buys.** Against the
+`mythic-plus` five a board at 515 reads 4.00 of five at about 9,500 common-equivalent and 0.00 at
+11,900, and **181 of the 282 blocks that preceded The Downstroke sit inside the band its ordinary
+slots use** — against 116 of 238 after chapter 18's move. Nothing in `data/` had to change, and the
+chapter's boards are the **first authored heavier than the chapter below them since chapter 13**.
+
+⚠️ **The boundary is a walkover and that is the honest consequence of a rung move.** Chapter 21's own
+final refielded at level 515 reads **100% with all five alive in 3.1 seconds** against the new party.
+Chapter 18's boundary read the same way.
+
+⚠️ **The degenerate chain ended at four links and restarts at one.** Chapters 18 through 21 all
+clamped to `mythic`'s cap of 340; `LONGEBB` and `INVESTED` are now genuinely different fives, so the
+seam assertions either side of that boundary say something for the first time since chapter 17. The
+Downstroke's last board stands **ninety-five levels** above `mythic-plus`'s cap of 420.
+
+⚠️ **Each further sixty-stage chapter on this rung divides the seam by `perLevel.common ** 30` =
+1.867**: chapter 23 reads **1.9981**, chapter 24 **1.0711**, chapter 25 **0.5733**. So the arithmetic
+buys about two and a half chapters — and `mythic` was projected to buy three and the **pool** gave one
+and a half. **Measure the pool before re-deriving the seam.** The next rung, `ascended`, caps at 500
+and is the last the campaign can spend.
+
+⚠️ **Chapters 22, 23 and 24 all clamp to `mythic-plus`'s cap of 420, so the degenerate chain is two
+links deep and a third is due at chapter 25.** The Nevermark's last board stands **a hundred and
+fifty-five levels** above the cap — ×24.63 — and its seam of **1.0711** is the first this rung has
+produced within a tenth of 1.00. **Chapter 25 reads 0.5733, below 1.00, which is the first half of
+an override licence.** The second half is the pool, and chapter 21 declined an override on exactly
+that reading because its chapter was still authorable — so **measure the pool by fielding it, not by
+filtering it**, which is the mistake chapter 24 caught itself making.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

@@ -12,6 +12,31 @@ Companion references: [attributes](attributes.md) for the stat block gear multip
 
 ---
 
+## ⚠️ The ladder is exhausted, and chapters 17 and 18 both carry it flat
+
+Chapter 16 closed on **Relic 100**, the top of the whole grade ladder. There is no grade 5 and no
+Relic 101, so **The Quickmire and The Slowgrowth both carry grade 4 / level 100 on all fifty of their
+boards, flat**. That is recorded as a finding rather than answered as scope, and the reason it costs
+nothing is that the axis has now been measured four times and never as difficulty:
+
+| measured                                    | worth                              |
+| ------------------------------------------- | ---------------------------------- |
+| chapter 12 — a full Worn set                | +8.6% to +17.6% on one stat        |
+| chapter 12 — what escalation actually needs | **×3**                             |
+| chapter 13 — one whole grade step           | ×1.15                              |
+| chapter 16 — the whole Relic 59 → 100 ramp  | **0.08 of a survivor**, +25% fight |
+| chapter 17 — the same ramp at its weight    | **0.05 of a survivor**             |
+
+⚠️ **Chapter 18 is where it stopped mattering, and it is worth saying why.** The campaign's
+escalation problem was never gear's to solve: it was a rarity cap the ladder had climbed past, and
+what fixed it was moving the party's rung to `mythic`. A sixth grade would have been the wrong repair
+applied to the right symptom. See [ladder](ladder.md).
+
+⚠️ **A sixth grade is a `data/` rule change rather than a chapter**, and a grade sized to carry the
+campaign's escalation would have to be roughly an order of magnitude larger than the five shipped
+ones — which is a retune of the drop table, the shop, the enhancement curve and every figure in this
+file, not an extra row in `GEAR_GRADES`. **Do not add one as part of authoring a chapter.**
+
 ## The one rule everything else follows from
 
 ⚠️ **Every gear bonus is a percentage, never a flat quantity.**
@@ -273,15 +298,37 @@ Standing Line at four hundred and fifty — **21.7%** — taking it to **225**; 
 hundred — **21.3%** — taking it to **250**; The Quarry at five hundred and fifty — **21.1%** — taking
 it to **275**; The Shutgate at six hundred — **20.9%** — taking it to **300**; The Underroad at
 six hundred and fifty — **20.7%** — taking it to **325**; and The Spoilfield at seven hundred —
-**20.5%** — taking it to **350**. Every one restores 18.7% over the ladder that actually ships. Same
-move, longer ladder, eleven times now.
+**20.5%** — taking it to **350**; The Quickmire at seven hundred and fifty, taking it to **375**;
+The Slowgrowth at eight hundred — **20.3%** — taking it to **400**; The Backcut at eight hundred and
+fifty, taking it to **425**; The Commonage at nine hundred and ten, taking it to **455**; and The
+Longebb at nine hundred and seventy — **20.3%** — taking it to **485**; The Downstroke at one
+thousand and thirty, taking it to **515**; The Evenfall at one thousand and ninety, taking it to
+**545**; and **The Nevermark at one thousand one hundred and fifty — 20.0% — taking it to 575**.
+Every one restores 18.7% over the ladder that actually ships. Same move, longer ladder, seventeen
+times now.
 
-⚠️ **Eleven re-derivations landing on the same 18.7% is the tell that the number is being solved for
-and the shape is not.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+⚠️ **A chapter-24 session nearly retired the guard instead of making the move, and the near-miss is
+the most useful thing that chapter learned about this file.** `git log -S` over `gear.spec.ts` shows
+the `< 0.2` bound has never moved in the whole history of the project — which reads exactly like a
+threshold nobody maintains, and the conclusion drawn from it was that both its arms were functions of
+ladder length and should be replaced with assertions about shape. **That is the wrong way round.**
+The bound has never moved _because it is not supposed to_; `gradeSoftness` moves to meet it, by hand,
+once a chapter, precisely so this bug stays visible. Retiring it would have deleted the only thing
+that has kept the saturating tilt on the record for seventeen chapters — and it would have looked
+like tidying up. ⚠️ **Check both sides of a guard before calling it stale: the half that moves may
+not be the half the guard is written in.**
+
+⚠️ **Fifteen re-derivations landing on the same 18.7% is the tell that the number is being solved for
+and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
+chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will want 425" and it wanted
+425 — which retires the last reading under which this might have been noise. ⚠️ **Chapter 20's
+prediction of 450 was the first _wrong_ one, and only because it assumed a fifty-stage chapter**: The
+Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
+arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
+length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545 and chapter 24 575; **chapter 25 will want 605.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
-grade's share climbs without bound and no constant is right for more than one chapter; chapter 17
-will want 375. What this eventually wants is a tilt that **saturates** — a share that approaches a
+grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a
 ceiling instead of passing through it — and the thing to stop doing is picking another constant. It
 is recorded rather than fixed because milestone 21 forbids taking the scope; see
 [authoring](authoring.md), which now records **two more dials with the same diagnosis** — the

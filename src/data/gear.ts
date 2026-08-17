@@ -319,7 +319,7 @@ export const GEAR_RULES = {
      * is a **rate per stage** and the ladder's length is the other half of every number it produces.
      * Lower makes the ladder's bottom worthless faster; higher makes depth stop meaning anything.
      *
-     * ⚠️ **It has now been re-derived eleven times — by chapters 4, 7, 8, 9, 10, 11, 12, 13, 14, 15 and 16 —
+     * ⚠️ **It has now been re-derived twelve times — by chapters 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 —
      * and every time deliberately rather than by moving the threshold that caught it.** At ninety the top grade
      * was 14.8% of drops over a hundred and fifty stages and **21.3%** over two hundred, past the
      * `< 0.2` bound in `gear.spec.ts` that exists to keep a relic a find rather than a routine drop;
@@ -333,9 +333,12 @@ export const GEAR_RULES = {
      * seventy-five restored 18.7%. The Shutgate took it to six hundred and it read **20.9%**; three
      * hundred restored 18.7%. The Underroad took it to six hundred and fifty and it read **20.7%**;
      * three hundred and twenty-five restored 18.7%. The Spoilfield took it to seven hundred and it
-     * read **20.5%**; three hundred and fifty restored 18.7%.
+     * read **20.5%**; three hundred and fifty restored 18.7%. The Quickmire took it to seven
+     * hundred and fifty and three hundred and seventy-five restored 18.7% for the twelfth time. The
+     * Slowgrowth took it to eight hundred and it read **20.3%**; four hundred restored 18.7% for the
+     * thirteenth time — **the value the previous entry predicted in writing, a chapter early.**
      *
-     * ⚠️ **Eleven landings and every one of them is 18.7%, which is the whole finding.** The solution
+     * ⚠️ **Thirteen landings and every one of them is 18.7%, which is the whole finding.** The solution
      * is always `gradeSoftness = stages / 2` — that is the value at which the tilt equals 3.0, and
      * 3.0 is what produces 18.7% whatever the ladder's length is. So the constant is not a tuning
      * number at all; it is the ladder's length divided by two, written down by hand once a chapter.
@@ -358,7 +361,55 @@ export const GEAR_RULES = {
      * 21a *did* re-derive four chapters ahead: that quantity is **meant** to fall as the ladder
      * grows, so batching it costs only vigilance, and it was retired outright in 21d. This one is not
      * meant to do anything, so firing on schedule is the only thing that will eventually force the
-     * fix. **Chapter 17 lands on it again and will want 375.**
+     * fix. **Chapter 19 landed on it and wanted 425, exactly as this line predicted — the twelfth
+     * landing, the twelfth time the answer was `stages / 2`, and the first time the prediction was
+     * written down a chapter in advance and then checked.**
+     *
+     * ⚠️ **Chapter 20 landed on it and wanted 455, where this line had predicted 450 — the
+     * fourteenth landing, still `stages / 2`, and the first time the *prediction* was wrong.** It
+     * was wrong for one reason: the prediction assumed a fifty-stage chapter, and The Commonage is
+     * **sixty**, so the ladder went to 910 rather than 900. **The rule held and the arithmetic
+     * behind the guess did not.** Predict from `CHAPTER_CURVE` rather than from the last chapter's
+     * length; chapter 21 will want **485**, and will keep wanting `stages / 2` until the tilt
+     * saturates.
+     *
+     * ⚠️ **Chapter 21 landed on it and wanted 485, exactly as the line above predicted — the
+     * fifteenth landing, the fifteenth time the answer was `stages / 2`, and the second prediction
+     * checked a chapter in advance.** It read **20.3%** at 970 stages. Predicting from
+     * `CHAPTER_CURVE` rather than from the last chapter's length is what made it right this time;
+     * chapter 22 will want **515**.
+     *
+     * ⚠️ **Chapter 22 landed on it and wanted 515, exactly as predicted — the sixteenth landing, the
+     * sixteenth time the answer was `stages / 2`, and the third prediction checked a chapter in
+     * advance.** It read **20.2%** at 1,030 stages against a 20% bar. Sixteen landings on one figure
+     * with one solution is now the strongest evidence in the project that the **shape** is wrong
+     * rather than the number: what this dial wants is a saturating tilt, and a session that has the
+     * appetite should write one rather than re-deriving `stages / 2` a seventeenth time. Chapter 23
+     * will want **545**.
+     *
+     * ⚠️ **Chapter 23 landed on it and wanted 545, exactly as predicted — the seventeenth landing,
+     * the seventeenth time the answer was `stages / 2`, and the fourth prediction checked a chapter
+     * in advance.** It read **20.2%** at 1,090 stages. The prediction record is now three right out
+     * of four, and the one miss was an assumption about a chapter's *length* rather than about this
+     * rule. Chapter 24 will want **575**. ⚠️ **Seventeen landings is past the point where re-deriving
+     * is learning anything** — the next session to touch `data/gear.ts` for any reason should write
+     * the saturating tilt while it is already in the file.
+     *
+     * ⚠️ **The Nevermark is the seventeenth landing, and the prediction rule held again.** The
+     * Evenfall took the ladder to 1,090 and 545 restored 18.7%; chapter 24 takes it to **1,150** and
+     * the answer is **575**, which is `stages / 2` for the seventeenth consecutive time. ⚠️ **It was
+     * predicted from `CHAPTER_CURVE` rather than from the last chapter's length**, which is the
+     * correction chapter 20 forced, and it was right. **Chapter 25 will want 605.**
+     *
+     * ⚠️ **A chapter-24 session very nearly retired the guard instead, and the near-miss is worth
+     * recording.** `git log -S` over `gear.spec.ts` shows the `< 0.2` bound has never once moved,
+     * which reads exactly like a guard nobody maintains — and the conclusion drawn from it was that
+     * both its arms were functions of ladder length and should be replaced by shape assertions. That
+     * is backwards: **the threshold has never moved because it is not supposed to; this constant
+     * moves to meet it, once a chapter, on purpose.** Retiring the bound would have deleted the only
+     * thing keeping the saturating-tilt bug visible after seventeen chapters of keeping it visible.
+     * **Check both sides of a guard before concluding it is stale** — the half that moves may not be
+     * the half the guard is written in.
      *
      * ⚠️ **Raising this is safe for the starter wall and lowering it would not be.** `gradeWeights`
      * raises the *whole* distribution's tilt, so the guard that three level-1 starters cannot gear
@@ -366,7 +417,7 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 350,
+    gradeSoftness: 575,
   },
 
   /**

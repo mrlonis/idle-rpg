@@ -18,54 +18,66 @@ For the procedure a new chapter or tower follows, read [authoring](authoring.md)
 The ordering existed so there was **always something playable**: each milestone layered onto the
 previous skeleton without changing its shape.
 
-| #       | What shipped                              | The decision worth remembering                                                                                                                                               |
-| ------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1       | Tick loop, one resource, save/load        | The architecture end to end before any game: `core/` purity, sim/render split, saves                                                                                         |
-| 2       | Battles up a stage ladder                 | Combat resolves headlessly into an event log the UI animates — which is what makes 2x/4x/skip free                                                                           |
-| 3       | Gacha, roster, ascension, levelling       | Pity is global and always on screen; duplicates are the progression path, not a consolation                                                                                  |
-| 4       | Team composition affecting combat math    | Composition matters through **enemy design**, never flat synergy bonuses. No role-locked slots                                                                               |
-| 5       | Offline catch-up                          | Closed form only. The segmented solver, `timeToClear` and `dropCarry` were cancelled here                                                                                    |
-| 6       | Run on a physical iPhone                  | `padding: env(safe-area-inset-top)` put a 59px gutter on all four sides. Angular Material removed                                                                            |
-| 7       | Auto-battle, then doubling the ladder     | Foreground-only, which is what keeps every idle rate constant across an offline window. Prestige cancelled                                                                   |
-| 8a      | The stat block                            | One `atk`, one `def`; damage type moved onto the skill                                                                                                                       |
-| 8b      | Energy and ultimates                      | MP deleted — and with it a termination argument, replaced by an assertion in the sweep                                                                                       |
-| 8c      | How many skills a character gets          | 2/3/4 by tier, ultimate included. **A fight is ninety seconds and running the clock out is a defeat**                                                                        |
-| 8d      | Faction lineup bonuses                    | The one knowing override of the synergy ban: a mono-faction bonus creates seven optimal teams, not one                                                                       |
-| 8e      | Seven characters per faction              | 49 characters. Every faction owns sustain and a way past a front rank, in its own idiom                                                                                      |
-| 9       | Resonance                                 | One level the roster shares, **derived on read and stored nowhere**                                                                                                          |
-| 10      | Power that compounds                      | ×10⁹ levels, ×450 rungs. Both sides of the fight scale, or neither does                                                                                                      |
-| 11      | Chapters                                  | Income became a function of position. A position is a _place_; a clear count is a _quantity earned_                                                                          |
-| 12      | Gear                                      | Every bonus is a percentage — a flat one is an addition, which the rescale identity forbids                                                                                  |
-| 13      | Settings, and the save-safety gap         | Settings are a second storage key, not a field on the save. First `@angular/cdk` overlay                                                                                     |
-| 14a     | The ladder retune                         | **Closing pressure**: a timer is not a termination argument, it is what fires when one is missing                                                                            |
-| 14b     | Achievements, dailies and bounties        | Both systems store a ledger and derive everything else — no write into the battle path                                                                                       |
-| 15a     | Crews, and Home as the battle hub         | Eight live formations, not one live and seven templates                                                                                                                      |
-| 15b     | The tower system, and the Human Tower     | A floor is climbed once. Tower clears may never touch `clearedStages`                                                                                                        |
-| 15c     | The remaining six towers                  | Anchors are sized **per tower against its own crew**; a shared weight does not generalise                                                                                    |
-| 16      | Signature items                           | One integer per character, not an object. No signature item may multiply healing                                                                                             |
-| 17a     | Four statuses: taunt, reflect, link, bomb | All four ride the existing `status` effect, so `ui/` needed no change at all                                                                                                 |
-| 17b     | Chapter 3 — The Bound Marches             | **A chapter must out-climb the rung it asks for**, because the enemy side has no rungs                                                                                       |
-| 18      | Chapter 4 — The Sundered Vault            | A whole chapter with no new mechanic, built from **pairs** of known parts                                                                                                    |
-| 19      | The six-chapter re-cut                    | Same two hundred stages, boundaries moved to where a session ends. No stage retuned                                                                                          |
-| 20      | A second ascended-tier rank               | 56 characters, 14 signature items. The gacha dilution was accepted rather than compensated                                                                                   |
-| 21a–21d | Chapters 7 through 10                     | The margin **grows** each chapter. Every closed form was wrong: **bisect, do not solve**                                                                                     |
-| 21e–21k | Every tower to 200 floors                 | `topLevel` 120 is where the new slope meets the old, so the prescribed retune evaporated. Seven towers, seven escalations. **Now 95** — see the flattening below             |
-| 22      | The Descent                               | The difficulty dial is a level **offset**, never a share — a share is ×3.4 easier at depth                                                                                   |
-| 23      | Puzzle maps — Expeditions                 | The only content that is not a ladder. Solvability is a Dijkstra run on every test pass                                                                                      |
-| 24      | The level line flattened to 0.50 a stage  | Runway 14 chapters → 42. The margin rule retired; the campaign trades its own difficulty gradient for length                                                                 |
-| 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                                    |
-| 26      | Towers to 300 floors, all seven landed    | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. The `PENDING` lists are gone for the second time                        |
-| 27      | Chapter 12 — The Rustwood, and enemy gear | The escalation axis milestone 24 promised. Measured at **roughly a twentieth** of what it needs to be; none of the three widened guards came back                            |
-| 28      | Chapter 13 — The Quarry                   | The gear grade steps and it is worth **nothing**: a whole grade is +1.2s of fight and zero survivors. Two more dials found with the `gradeSoftness` diagnosis                |
-| 29      | Chapter 14 — The Shutgate                 | The difficulty gradient came back — from a **rarity cap**, not from gear. One of the three widened guards restored; a fourth guard retired                                   |
-| 30      | Chapter 15 — The Underroad                | The cap's gradient priced: every block comes down by **half**. `mythic` ruled out by measurement, and the **tier growth premium** found to be the quantity to author against |
+| #       | What shipped                              | The decision worth remembering                                                                                                                                                |
+| ------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | Tick loop, one resource, save/load        | The architecture end to end before any game: `core/` purity, sim/render split, saves                                                                                          |
+| 2       | Battles up a stage ladder                 | Combat resolves headlessly into an event log the UI animates — which is what makes 2x/4x/skip free                                                                            |
+| 3       | Gacha, roster, ascension, levelling       | Pity is global and always on screen; duplicates are the progression path, not a consolation                                                                                   |
+| 4       | Team composition affecting combat math    | Composition matters through **enemy design**, never flat synergy bonuses. No role-locked slots                                                                                |
+| 5       | Offline catch-up                          | Closed form only. The segmented solver, `timeToClear` and `dropCarry` were cancelled here                                                                                     |
+| 6       | Run on a physical iPhone                  | `padding: env(safe-area-inset-top)` put a 59px gutter on all four sides. Angular Material removed                                                                             |
+| 7       | Auto-battle, then doubling the ladder     | Foreground-only, which is what keeps every idle rate constant across an offline window. Prestige cancelled                                                                    |
+| 8a      | The stat block                            | One `atk`, one `def`; damage type moved onto the skill                                                                                                                        |
+| 8b      | Energy and ultimates                      | MP deleted — and with it a termination argument, replaced by an assertion in the sweep                                                                                        |
+| 8c      | How many skills a character gets          | 2/3/4 by tier, ultimate included. **A fight is ninety seconds and running the clock out is a defeat**                                                                         |
+| 8d      | Faction lineup bonuses                    | The one knowing override of the synergy ban: a mono-faction bonus creates seven optimal teams, not one                                                                        |
+| 8e      | Seven characters per faction              | 49 characters. Every faction owns sustain and a way past a front rank, in its own idiom                                                                                       |
+| 9       | Resonance                                 | One level the roster shares, **derived on read and stored nowhere**                                                                                                           |
+| 10      | Power that compounds                      | ×10⁹ levels, ×450 rungs. Both sides of the fight scale, or neither does                                                                                                       |
+| 11      | Chapters                                  | Income became a function of position. A position is a _place_; a clear count is a _quantity earned_                                                                           |
+| 12      | Gear                                      | Every bonus is a percentage — a flat one is an addition, which the rescale identity forbids                                                                                   |
+| 13      | Settings, and the save-safety gap         | Settings are a second storage key, not a field on the save. First `@angular/cdk` overlay                                                                                      |
+| 14a     | The ladder retune                         | **Closing pressure**: a timer is not a termination argument, it is what fires when one is missing                                                                             |
+| 14b     | Achievements, dailies and bounties        | Both systems store a ledger and derive everything else — no write into the battle path                                                                                        |
+| 15a     | Crews, and Home as the battle hub         | Eight live formations, not one live and seven templates                                                                                                                       |
+| 15b     | The tower system, and the Human Tower     | A floor is climbed once. Tower clears may never touch `clearedStages`                                                                                                         |
+| 15c     | The remaining six towers                  | Anchors are sized **per tower against its own crew**; a shared weight does not generalise                                                                                     |
+| 16      | Signature items                           | One integer per character, not an object. No signature item may multiply healing                                                                                              |
+| 17a     | Four statuses: taunt, reflect, link, bomb | All four ride the existing `status` effect, so `ui/` needed no change at all                                                                                                  |
+| 17b     | Chapter 3 — The Bound Marches             | **A chapter must out-climb the rung it asks for**, because the enemy side has no rungs                                                                                        |
+| 18      | Chapter 4 — The Sundered Vault            | A whole chapter with no new mechanic, built from **pairs** of known parts                                                                                                     |
+| 19      | The six-chapter re-cut                    | Same two hundred stages, boundaries moved to where a session ends. No stage retuned                                                                                           |
+| 20      | A second ascended-tier rank               | 56 characters, 14 signature items. The gacha dilution was accepted rather than compensated                                                                                    |
+| 21a–21d | Chapters 7 through 10                     | The margin **grows** each chapter. Every closed form was wrong: **bisect, do not solve**                                                                                      |
+| 21e–21k | Every tower to 200 floors                 | `topLevel` 120 is where the new slope meets the old, so the prescribed retune evaporated. Seven towers, seven escalations. **Now 95** — see the flattening below              |
+| 22      | The Descent                               | The difficulty dial is a level **offset**, never a share — a share is ×3.4 easier at depth                                                                                    |
+| 23      | Puzzle maps — Expeditions                 | The only content that is not a ladder. Solvability is a Dijkstra run on every test pass                                                                                       |
+| 24      | The level line flattened to 0.50 a stage  | Runway 14 chapters → 42. The margin rule retired; the campaign trades its own difficulty gradient for length                                                                  |
+| 25      | Chapter 11 — The Standing Line            | The first chapter authored on the flat line. Its lock is the **`condition` field** rather than a status, and it ships **no taunt at all**                                     |
+| 26      | Towers to 300 floors, all seven landed    | `topLevel` **142** is where the new slope meets the old; 17 of 200 shipped floors move by one level. The `PENDING` lists are gone for the second time                         |
+| 27      | Chapter 12 — The Rustwood, and enemy gear | The escalation axis milestone 24 promised. Measured at **roughly a twentieth** of what it needs to be; none of the three widened guards came back                             |
+| 28      | Chapter 13 — The Quarry                   | The gear grade steps and it is worth **nothing**: a whole grade is +1.2s of fight and zero survivors. Two more dials found with the `gradeSoftness` diagnosis                 |
+| 29      | Chapter 14 — The Shutgate                 | The difficulty gradient came back — from a **rarity cap**, not from gear. One of the three widened guards restored; a fourth guard retired                                    |
+| 30      | Chapter 15 — The Underroad                | The cap's gradient priced: every block comes down by **half**. `mythic` ruled out by measurement, and the **tier growth premium** found to be the quantity to author against  |
+| 31      | Chapter 16 — The Spoilfield               | The board budget falls **through the floor of the shipped enemy pool**. The gear ladder is exhausted at Relic 100; a mechanic's worth is a function of where its board stands |
+| 32      | Chapter 17 — The Quickmire                | **57.7% new blocks and not by choice** — the pool cannot supply a returning majority. The seam falls below **1.00**. A synthetic control is not a board                       |
+| 33      | Chapter 18 — The Slowgrowth               | The rung moves to `mythic`, **against** the log-space rule, because no chapter existed on the old one. Enemy health grades **0.00**; no scalar predicts a board               |
+| 34      | Chapter 19 — The Backcut                  | Staying on a rung argued as hard as moving one. **A reflect prices where the party aims** — 0.00 on a protected back rank, the mirror of chapter 16's debuffer                |
+| 35      | Chapter 20 — The Commonage                | **The first chapter longer than fifty** — the chapter-length cap becomes a schedule. A taunt measures **−0.65**, the first mechanic to price with the wrong sign              |
 
 **Two hundred stages became four hundred, seven hundred floors became fourteen hundred, and the
 enemy roster went from 62 archetypes to 130** across milestone 21 alone — eleven sessions, no new
 system, and nothing changed in `ui/` or `core/`. Chapter 11 took the campaign to **450 stages** and
 the roster to **140**, on the same terms; chapters 12 and 13 take it to **550 stages** and **191
 archetypes**, and chapter 14 to **600 stages** and **201** — still with no change in `ui/` or
-`core/`. Chapter 15 takes it to **650 stages** and **211**, on the same terms.
+`core/`. Chapter 15 takes it to **650 stages** and **211**; chapters 16 through 19 take it to
+**850 stages** and **258 archetypes** — nineteen chapters, on the same terms, with no change in
+`ui/` or `core/` in any of them. ⚠️ **Chapter 20 breaks that last clause**: The Commonage is
+**sixty** stages, which took the campaign to **910 stages** and **272 archetypes** and needed
+`chapterSize` in `core/ladder.ts` to learn a **cap schedule** — the first `core/` change a content
+session has made since the run began. ⚠️ **Recompute these rather than reading them**; this paragraph had
+gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
+running total carried by hand.
 
 ### What the third hundreds established
 
@@ -370,9 +382,107 @@ a factor of three.** It added ~90 levels a chapter (80, 91, 94, 98 across chapte
 0.20 levels a stage or a `maxLevel` past 2,400 with `perLevel.common` retuned to match — a change to
 every balance figure in the project. **How long the campaign is meant to be is still open.**
 
+⚠️ **Chapter 18 moved the campaign's rung to `mythic`, which is the first rung move in seven
+chapters and closes one of the open questions above.** Chapters 11 through 17 all sat on
+`legendary-plus`, whose cap of 260 the ladder passed at chapter 12, so every chapter's boards had to
+fall by `perLevel.common ** -25` = 0.595 to stay winnable — six halvings that drove the seam below
+1.00 and the board budget through the floor of the shipped enemy pool. **A chapter 18 on that rung
+was arithmetically impossible**: 129 → 91 common-equivalent per body, against five shipped blocks at
+or under 129 and none at or under 91. The move needed no `data/` rule change, because three chapters
+of halving had quietly made the chapter-15 measurement that ruled `mythic` out false. ⚠️ **`mythic`
+is the signature-item unlock, so the campaign now reaches it** — the note below is superseded on
+that point. See [ladder](ladder.md).
+
+⚠️ **Chapter 19 stayed on `mythic`, and it is worth recording that a chapter had to argue for
+_staying_ as hard as chapter 18 argued for moving.** The Backcut's close of 425 gives `mythic` a seam
+of 2.8677 against `mythic-plus`'s 24.1942 — the log-space rule prefers staying put by 1.09 of a nat,
+**numerically the same margin chapter 18 overrode**. What licensed that override was the seam below
+it being _wrong_ (0.9608, under 1.00, with a board budget under the lightest body the game ships);
+nothing of that kind holds here. **An override is licensed by the seam below it, not by the size of
+the margin**, and the two chapters are now on record from opposite sides. The degenerate seam chain
+has re-formed one link deep, and the countdown resumes: chapter 20 reads 1.7069, chapter 21 1.0161,
+chapter 22 0.6048, so **`mythic` buys about three chapters** exactly as `legendary-plus` bought
+seven.
+
+⚠️ **Chapter 20 stayed on `mythic` a second time and chapter 21 a third, and the countdown the entry
+above wrote down was right about the arithmetic and wrong about the pool.** The projection said the
+rung buys about three chapters; chapter 20 measured it buying about one and a half, and The Longebb
+is the half. Its seam is **0.8241** — the first reading under 1.00 on this rung, and the first time a
+chapter has stayed on a rung whose seam is under 1.00. **That is still a derivation rather than an
+override**, because what licenses an override is the seam _below_ being wrong and chapter 20's is
+1.5373: the chapter was authorable and its sixty boards all clear at 100% with zero timeouts.
+`mythic-plus` was fielded rather than assumed this time and takes chapter 20's own final at level 485
+with all five alive in 3.2 seconds — a walkover three chapters deep. **What moves the rung next is
+the pool**, and it is one chapter away: chapter 22 closes at 515, where the whole shipped Monster
+light tail is worth ×1.86 less than a board needs.
+
+⚠️ **Chapter 22 moved the rung to `mythic-plus`, and it is the campaign's second override — the
+prediction one entry above being checked and holding.** The Downstroke closes at 515, where `mythic`
+reads 0.4418 against `mythic-plus`'s 3.7273: the log-space rule prefers staying put by 0.886 of a nat
+and the chapter overrides it. **What licenses it is the pool, exactly as chapter 21 said it would
+be** — at level 515 the **five lightest bodies in the entire game** read 0% with 0.00 survivors
+against a `mythic` five, so there is no chapter 22 on that rung at all. The move re-opens the pool
+(181 of 282 blocks land inside the ordinary-slot band, against 116 of 238 after chapter 18's move),
+ends the four-link degenerate chain, and makes The Downstroke's boards the **first authored heavier
+than the chapter below them since chapter 13**. The countdown restarts: chapter 23 reads 1.9981,
+chapter 24 1.0711, chapter 25 0.5742, so the arithmetic buys about two and a half chapters and the
+pool will run out first — **as it has both times now.** `ascended` at cap 500 is the last rung the
+campaign can spend.
+
+⚠️ **Chapter 23 stayed on `mythic-plus`, and the pool wall it found is a different shape from the two
+before it.** The Evenfall closes at 545, where `mythic-plus` reads 1.9981 against `ascended`'s
+16.8578 — the rule prefers staying put by 0.886 of a nat, both seams are above 1.00, and the chapter
+was authorable, so it is a **derivation**. What it measured on the way is new: every previous pool
+wall was a **weight** wall, and this one is an **attack** wall. Because chapters 22 and 23 clamp to
+the same cap of 420, the party is literally unchanged while the boards climb thirty levels — so an
+authored `atk` is worth ×1.87 more than the identical number a chapter below. Filtering the 292
+shipped blocks on weight alone passes 117; adding attack leaves **55**, and none at all from either
+celestial. ⚠️ **It fired as an authoring error before it was understood as a rule**: the chapter's ten
+new blocks were first drafted with chapter-22 attack values and every board read 0%, including the
+lieutenant at all five appearances and the final at every stat line. **The escort is the constraint at
+this depth, not the anchor.** The chapter also inverted chapter 14's refusal finding outright, nine
+chapters later — `def` past its register and `physicalResist` were measured worth ≤0.08 of a survivor
+at The Shutgate's weight and are worth 1.65 and 2.30 here.
+
+⚠️ **Chapter 24 stayed on `mythic-plus` for the second chapter running, and what it found was about
+_method_ rather than about the campaign.** The Nevermark closes at 575, where `mythic-plus` reads
+1.0711 against `ascended`'s 9.0371 — the rule prefers staying put by 0.886 of a nat, both seams are
+above 1.00, and the chapter was authorable, so it is a **derivation**. Three things it recorded:
+
+1. ⚠️ **A filter on weight and attack is not a pool count.** Chapter 23's finding — that the binding
+   constraint at this depth is attack rather than weight — is right, and screening the 302 shipped
+   blocks that way leaves **15, every one a Monster**, which would have forced a third Monster lead
+   on pool grounds. **Fielding** the same 302 instead of filtering them leaves **121**, across all
+   seven factions. The chapter leaned Dwarf, the thinnest legal lead at 44. **Field the pool; do not
+   screen it.**
+2. ⚠️ **`tenacity` inverted, three chapters after The Longebb declined it.** Chapter 21 measured it as
+   the register check's eighth answer and **flat** — 0.25 at 0.20 and 0.33 at 0.60 — and declined it
+   on the measurement. Against chapter 24's own control it is a **six-step monotone dial with zero
+   timeouts**: 0.80 / 1.53 / 2.43 / 3.21 / 3.61 across 0.20 → 0.85, entirely inside its shipped
+   register. What changed is the board under it and the fight length above it. That is the third time
+   a recorded negative has inverted (chapter 18 on `mythic`, chapter 23 on chapter 14's refusal list),
+   and it is now the rule rather than the exception: **a negative result is a claim about a curve.**
+3. ⚠️ **The chapter's first premise priced at zero and was abandoned before any board was authored.**
+   Conditioned enemy kits — a board that answers what the party just did — read within ±0.08 of the
+   control on all six condition kinds, and **negative** on the payload axis: at power 3.6 an always-on
+   turn reads 1.46 of five where the identical turn behind `enemies-at-least 5` reads 3.88. A
+   condition is a restriction on the board and the party is the beneficiary, which is chapter 20's
+   wrong-sign finding in a new place. **Price a chapter's premise before authoring its boards** cost
+   one measurement here and would have cost sixty boards.
+
+⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
+bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
+0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads
+exactly like a guard nobody maintains, and the proposal was to replace both its arms with assertions
+about shape. That is backwards: the bound has never moved _because it is not supposed to_.
+`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **seventeen times now**,
+always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the saturating
+tilt it is papering over stays visible. Chapter 24's landing is **575**. ⚠️ **Check both sides of a
+guard before calling it stale; the half that moves may not be the half the guard is written in.**
+
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
-they ask for; every one runs inside a cap the party already holds, the campaign consumes 7 of 16
-rungs rather than 11, and `mythic` — the signature-item unlock — is deliberately outside it. The
+they ask for; every one runs inside a cap the party already holds, and the campaign consumed 7 of 16
+rungs rather than 11 until chapter 18 took the eighth. The
 trade is that the campaign has no difficulty gradient of its own: a chapter is ×1.68 of party power
 and a rung is ×1.60, so the two cancel. **The escalation is expected to arrive from enemy gear**,
 and three widened guards name that as the condition for restoring them — see

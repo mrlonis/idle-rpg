@@ -751,63 +751,425 @@ const UNDERROAD: FormationData = mono(
 );
 
 /**
- * The party that finishes the ladder: the same five, levelled as far as the rung The Spoilfield
- * asks for will carry them.
+ * The party that arrives in chapter 17: the five that just took The Inheritor, unchanged.
+ *
+ * ⚠️ **This is The Spoilfield's {@link INVESTED}, kept under a new name rather than re-derived** —
+ * the thirteenth time that has happened, for the thirteenth time for the same reason.
+ *
+ * ⚠️ **It is the fourth link running that is identical to the one above it, and the fifth party in
+ * the chain that is the same five combatants.** Chapters 11 through 17 all sit on `legendary-plus`,
+ * whose cap of **260** the campaign passed at chapter 12: The Quarry closes at 275, The Shutgate at
+ * 300, The Underroad at 325, The Spoilfield at 350 and The Quickmire at 375, so {@link QUARRIED},
+ * {@link SHUTGATED}, {@link UNDERROAD}, this and {@link INVESTED} all clamp to 260. Recorded rather
+ * than repaired, for the fourth chapter running; the repair is the share-of-the-slice one
+ * {@link MOMENTUM_CEILING} already names, and it re-derives every seam in this file at once.
+ *
+ * ⚠️ **The rate has now held four times and is arithmetic rather than tuning**: each further
+ * chapter on this rung divides the seam ratio by `perLevel.common ** 25` = **1.680** and adds one
+ * more identical link. **10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154 → 0.9608.**
+ *
+ * ⚠️ **The seam has gone below 1.00 for the first time**, which is worth naming rather than reading
+ * past: the content at the top of the ladder is now nominally *ahead* of the party the chapter is
+ * tuned for, and what keeps The Quickmire winnable is entirely that its boards are half the weight
+ * of The Spoilfield's. Measured, chapter 16's own final board refielded against this party at level
+ * 375 reads **0% with nobody standing** and has to be scaled to **×0.5** before it reads four
+ * survivors again. See `chapter-17.ts`.
+ */
+const SPOILED_RARITY = rarityIndex('legendary-plus');
+const SPOILED_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[15] - 1].level,
+  LEVEL_CURVE.caps[SPOILED_RARITY],
+);
+
+const SPOILED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(SPOILED_LEVEL, SPOILED_RARITY),
+  SPOILED_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 18: the five that just took The Latecomer, unchanged.
+ *
+ * ⚠️ **This is The Quickmire's {@link INVESTED}, kept under a new name rather than re-derived** —
+ * the fourteenth time that has happened, for the fourteenth time for the same reason.
+ *
+ * ⚠️ **It is the last link of the degenerate chain, and the chain ends here.** Chapters 13 through
+ * 17 all close above `legendary-plus`'s cap of **260** and all clamp to it, so {@link QUARRIED},
+ * {@link SHUTGATED}, {@link UNDERROAD}, {@link SPOILED} and this are **five consecutive names for
+ * one set of five combatants**. {@link INVESTED} is the first party in six chapters that is not:
+ * The Slowgrowth asks for `mythic`, and it clamps to **340**.
+ *
+ * ⚠️ **What this party is for is the seam below it, and that has not changed.** It must clear all
+ * seventeen chapters behind it and must not walk far into the eighteenth — and the second half of
+ * that is no longer vacuous, because for the first time in five chapters the party ahead of it is
+ * genuinely stronger. See {@link INVESTED} for why the rung moved and what it cost.
+ */
+const QUICKMIRED_RARITY = rarityIndex('legendary-plus');
+const QUICKMIRED_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[16] - 1].level,
+  LEVEL_CURVE.caps[QUICKMIRED_RARITY],
+);
+
+const QUICKMIRED: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(QUICKMIRED_LEVEL, QUICKMIRED_RARITY),
+  QUICKMIRED_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 19: the five that just took The Last Ring, unchanged.
+ *
+ * ⚠️ **This is The Slowgrowth's {@link INVESTED}, kept under a new name rather than re-derived** —
+ * the fifteenth time that has happened, for the fifteenth time for the same reason: re-aiming one
+ * "arrived" party at the newest chapter would silently stop checking that every chapter below it is
+ * still finishable by the party it was tuned for.
  *
  * Still common tier, and still no pull anyone had to be lucky for — the ladder asks for levels and
  * ascension rungs, which are bought with time and duplicates, and for nothing a player cannot earn.
  *
- * ## ⚠️ Picking the rung is no longer "the next one up", and this is the trap the flattening left
+ * ⚠️ **It carries the same rung as {@link INVESTED} does, which restarts the degenerate chain one
+ * chapter after chapter 18 ended one.** Chapters 18 and 19 both close above `mythic`'s cap of 340
+ * and both clamp to it, so this party and the one ahead of it are the same five combatants and the
+ * two assertions either side of the boundary are one claim. See {@link INVESTED}.
  *
- * Under the margin rule each chapter out-climbed a fresh cap, so the rung advanced every chapter and
- * "move it up one" was correct — `elite-plus` at 17, `legendary` at 18, `legendary-plus` at 21a,
- * `mythic` at 21b, `mythic-plus` at 21c, `ascended` at 21d. **On the flat line a new chapter often
- * asks for the same rung as the one below it**: chapters 4–5 share `elite`, 6–7 share `elite-plus`,
- * and 8, 9 and 10 all share `legendary`. Moving it up anyway hands the party a ×1.6 the content never
- * asked for, and the sweep answers with walkovers three chapters deep rather than with a failure at
- * the seam.
+ * ## ⚠️ Chapter 18 moved the rung to `mythic`, and it was the first move in seven chapters
  *
- * **The rung is the one that reproduces the power ratio the seam below it had**, which is
- * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)` evaluated for
- * every rung and taken closest in **log** space.
+ * **The rule that picks a rung is the one that reproduces the power ratio the seam below it had**,
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated for
+ * every rung and taken closest in **log** space. ⚠️ **This chapter overrides it, knowingly, and the
+ * override is stated rather than hidden inside a derivation.** Against chapter 17's own seam of
+ * 0.9608 and The Slowgrowth's close of 400, `legendary-plus` reads **0.5715** (|Δln| **0.5195**) and
+ * `mythic` reads **4.8214** (|Δln| **1.6131**). The rule prefers staying put, by 1.09 of a nat.
  *
- * ⚠️ **Chapter 16 stays on `legendary-plus`, which is the sixth chapter running on one rung.**
- * Chapter 15's seam reads **2.7160**; against The Spoilfield's close of 350, `legendary-plus` reads
- * **1.6154** (|Δln| **0.5196**) and `mythic` reads **13.6290** (|Δln| **1.6130**). So
- * `legendary-plus` wins by 1.09 of a nat — the widest margin of any seam since the flattening, and
- * widening every chapter, because `mythic`'s cap of 340 is now *below* the chapter's close as well.
+ * ⚠️ **The rule assumes the seam below it was itself correct, and it was not.** Chapters 11 through
+ * 17 all sat on `legendary-plus`, whose cap of **260** the ladder passed at chapter 12, so each
+ * chapter's boards had to fall by `perLevel.common ** -25` = 0.595 to stay winnable — six halvings
+ * that drove the seam **10.4858 → 7.6774 → 4.5665 → 2.7160 → 1.6154 → 0.9608**. Below 1.00 means the
+ * content is nominally *ahead* of the party it is tuned for. Reproducing that ratio one chapter
+ * further reads **0.5718**, and the arithmetic underneath it runs out: the board budget would be
+ * **645 → 454** common-equivalent, or **129 → 91 per body on a board of five**, and of the 238 blocks
+ * that existed before this chapter **five** sit at or under 129 and **none** at or under 91. The
+ * lightest body ever shipped is 100. **There is no chapter 18 on `legendary-plus`.**
  *
- * ⚠️ **`mythic` was ruled out by measurement at chapter 15 and the arithmetic has moved further
- * against it since.** Fielded at its cap of 340 a `mythic` five stands ×8.4 above this party, so the
- * boards would have to be scaled by that much — an anchor past 10,000 health against {@link UNMADE}'s
- * ceiling of 1800, which `enemies.spec.ts` enforces on every new `ascended` block. **The rung the
- * log-space comparison prefers is still the only one the enemy roster can legally be authored for.**
+ * ## ⚠️ `mythic` was ruled out on a measurement at chapter 15, and the measurement inverted
  *
- * ## ⚠️ The seam ratio falls by a constant factor a chapter, and it has now done so three times
+ * The Underroad recorded that a `mythic` five needs boards scaled ×2.4 — an anchor near 3,550 health
+ * against {@link UNMADE}'s ceiling of 1800, which `enemies.spec.ts` enforces — and chapters 16 and 17
+ * both carried the claim forward. **It was true of chapter 15's boards and false of chapter 18's**,
+ * because three further halvings happened underneath it. Measured against this party at its cap of
+ * **340**: the budget is **5,442 → 3,830** common-equivalent, **1,088 → 766 per body**, where the
+ * pool's median at level 400 is **1,295** and the Unmade is 5,820. ⚠️ **116 of 238 blocks now sit
+ * inside the ordinary-slot band where 13 did for The Quickmire.** The ceiling is no longer binding
+ * and is not trivial either.
  *
- * The five most recent seams read **10.4858**, **7.6774**, **4.5665**, **2.7160** and **1.6154** —
- * ×0.732 and then ×0.595 three times. ⚠️ **0.595 is exactly `perLevel.common ** -25`**, so once a
- * chapter closes entirely above its rung's cap the seam is divided by 1.680 per chapter by
- * construction. This party stands **ninety levels** under The Spoilfield's last board where The
- * Underroad's stood sixty-five under, The Shutgate's forty, The Quarry's fifteen, and every chapter
- * before that stood level with its own close.
+ * ⚠️ **Re-measure a projection before carrying it forward.** This one was correct when it was
+ * written, was quoted unchanged for three chapters, and was wrong by the time it mattered — the same
+ * method failure `docs/authoring.md` records for the gear kit-hours horizon, in a larger form.
  *
- * ⚠️ **This is the difficulty gradient milestone 24 traded away, arriving from somewhere nobody
- * planned it, and it is now the only escalation the campaign has.** The flattening's whole trade was
- * that a chapter is ×1.68 and a rung ×1.60 so the two cancel, with **enemy gear** named as the axis
- * that would restore the difference; gear was measured at a twentieth of what it needs in chapter 12,
- * at ×1.15 a grade in chapter 13, and at **0.08 of a survivor** across chapter 16's whole Relic ramp.
- * ⚠️ **And chapter 16 is the last chapter that can step that axis at all** — Relic 100 is the top of
- * the grade ladder and there is no sixth grade. The clamp here is `Math.min` rather than a written
- * number so a retune of either side moves it, and `legal` throws rather than quietly fielding an
- * over-levelled party.
+ * ## ⚠️ What the move ends, and what it costs
  *
- * **A rung roughly every hundred stages** is the cadence the flat line produces, where it was one per
- * fifty. What this rung costs a player over The Bleeding Wild's party is ten more duplicate copies of
- * each of the five — `MORTAL_LADDER` alternates cheap and expensive rungs, so **recompute it** rather
- * than adding a constant.
+ * **It ends the degenerate seam chain.** Chapters 13 through 17 all clamped to 260, so
+ * {@link QUARRIED}, {@link SHUTGATED}, {@link UNDERROAD}, {@link SPOILED} and {@link QUICKMIRED} are
+ * five consecutive names for one set of five combatants, and the eight assertions either side of
+ * those four boundaries were four claims. This party is the first in six chapters that differs from
+ * the one below it.
+ *
+ * **It also moves both mode anchor caps.** `DescentLevelData.anchorCap` and
+ * `ExpeditionRulesData.anchorCap` were written to move when a chapter asks for a rung above
+ * `legendary-plus` rather than when a chapter ships — this is that event, and it is the first time
+ * the condition has fired.
+ *
+ * ⚠️ **What it does not do is restore the campaign's own difficulty gradient.** A chapter is ×1.68 of
+ * party power and a rung ×1.60, so the two still very nearly cancel; what the cap was supplying was a
+ * gradient made of the party being unable to keep up, which is a defect wearing a gradient's clothes.
+ * The three guards milestone 24 widened stay where they are — `MOMENTUM_CEILING` at 0.30 and the
+ * longest-cleared-fight bar at 0.80 — and **"still costs that party something at the top" still
+ * holds** at 4.00 of five with zero timeouts. **Do not widen any of the three.**
+ *
+ * The clamp here is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party. **A rung roughly every hundred
+ * stages** is the cadence the flat line produces, where it was one per fifty; that one arrived after
+ * three hundred and fifty. What it costs a player over The Quickmire's party is more duplicate copies
+ * of each of the five — `MORTAL_LADDER` alternates cheap and expensive rungs, so **recompute it**
+ * rather than adding a constant.
  */
-const INVESTED_RARITY = rarityIndex('legendary-plus');
+const SLOWGROWTH_RARITY = rarityIndex('mythic');
+const SLOWGROWTH_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[17] - 1].level,
+  LEVEL_CURVE.caps[SLOWGROWTH_RARITY],
+);
+
+const SLOWGROWTH: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(SLOWGROWTH_LEVEL, SLOWGROWTH_RARITY),
+  SLOWGROWTH_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 20: the five that just took The Interest, unchanged.
+ *
+ * ⚠️ **This is The Backcut's `INVESTED`, kept under a new name rather than re-derived** — the
+ * sixteenth time, for the sixteenth time for the same reason.
+ *
+ * Still common tier, and still no pull anyone had to be lucky for.
+ *
+ * ## ⚠️ Chapter 19 stays on `mythic`, and this time the rule and the pool agree
+ *
+ * **The rule that picks a rung reproduces the power ratio the seam below it had**,
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated
+ * for every rung and taken closest in **log** space. Against chapter 18's seam of **4.8214** and
+ * The Backcut's close of 425, `mythic` reads **2.8677** (|Δln| **0.5196**) and `mythic-plus`
+ * **24.1942** (|Δln| **1.6130**). `mythic` wins by 1.09 of a nat.
+ *
+ * ⚠️ **That is numerically the same margin chapter 18 overrode, and this chapter does not override
+ * it.** {@link SLOWGROWTH}'s override rested on the seam below it being *wrong* — 0.9608, under
+ * 1.00, with a board budget of 129 common-equivalent per body against a pool whose lightest body
+ * is 100, so there was no chapter 18 on `legendary-plus` at all. None of that holds here: at
+ * 2.8677 the seam is comfortably above 1.00 and **166 of the 248 blocks that existed before it sit
+ * inside the band its ordinary slots use**. **A rung move needs its own argument every time; "the chapter below moved
+ * one" is not one.**
+ *
+ * ⚠️ **The seam chain goes degenerate again, one link deep, and it will deepen.** `mythic` caps at
+ * 340 and this chapter closes at 425, so this party and {@link SLOWGROWTH} clamp to the same level
+ * and are the **same five combatants** — the shape chapters 13 through 17 recorded four times.
+ * Every further chapter on this rung divides the seam by `perLevel.common ** 25` = 1.680, by
+ * construction rather than by tuning: chapter 20 reads **1.7069**, chapter 21 **1.0161** and
+ * chapter 22 **0.6048**. **This rung buys about three chapters**, and the board budget runs out
+ * before the arithmetic does. `mythic-plus` at cap 420 is the next one and it is not due yet.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const BACKCUT_RARITY = rarityIndex('mythic');
+const BACKCUT_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[18] - 1].level,
+  LEVEL_CURVE.caps[BACKCUT_RARITY],
+);
+
+const BACKCUT: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(BACKCUT_LEVEL, BACKCUT_RARITY),
+  BACKCUT_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 21: the five that just took The Unreturned's chapter, unchanged.
+ *
+ * ⚠️ **This is The Commonage's `INVESTED`, kept under a new name rather than re-derived** — the
+ * seventeenth time, for the seventeenth time for the same reason: re-aiming one "arrived" party at
+ * the newest chapter would silently stop checking that every chapter below it is still finishable by
+ * the party it was tuned for.
+ *
+ * ⚠️ **The degenerate chain reaches four links.** Chapters 18 through 21 all close above `mythic`'s
+ * cap of **340** and all clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT}, this party and
+ * {@link INVESTED} are one set of five combatants — one link deeper than the five-link stretch
+ * chapters 13 through 17 recorded, one rung down. See {@link INVESTED} for why the rung stays put a
+ * third time and for the measurement that finally settles it.
+ */
+const COMMONAGE_RARITY = rarityIndex('mythic');
+const COMMONAGE_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[19] - 1].level,
+  LEVEL_CURVE.caps[COMMONAGE_RARITY],
+);
+
+const COMMONAGE: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(COMMONAGE_LEVEL, COMMONAGE_RARITY),
+  COMMONAGE_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 22: the five that just took The Unreturned's chapter, unchanged.
+ *
+ * ⚠️ **This is The Longebb's `INVESTED`, kept under a new name rather than re-derived** — the
+ * eighteenth time, for the same reason every time: re-aiming one "arrived" party at the newest
+ * chapter would silently stop checking that every chapter below it is still finishable by the party
+ * it was tuned for.
+ *
+ * ⚠️ **This party is where the degenerate chain ends, at four links.** Chapters 18 through 21 all
+ * clamp to `mythic`'s cap of 340, so {@link SLOWGROWTH}, {@link BACKCUT}, {@link COMMONAGE} and this
+ * one are a single set of five combatants. {@link INVESTED} is the first party in five chapters that
+ * is not — see it for why the rung had to move, and note that the chain restarts at one link
+ * immediately, because The Downstroke closes ninety-five levels above `mythic-plus`'s own cap.
+ */
+const LONGEBB_RARITY = rarityIndex('mythic');
+const LONGEBB_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[20] - 1].level,
+  LEVEL_CURVE.caps[LONGEBB_RARITY],
+);
+
+const LONGEBB: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(LONGEBB_LEVEL, LONGEBB_RARITY),
+  LONGEBB_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 23: the five that just took The Downstroke, unchanged.
+ *
+ * ⚠️ **This is The Downstroke's `INVESTED`, kept under a new name rather than re-derived** — the
+ * nineteenth time, for the same reason every time: re-aiming one "arrived" party at the newest
+ * chapter would silently stop checking that every chapter below it is still finishable by the party
+ * it was tuned for.
+ *
+ * ## ⚠️ Chapter 22 moved the rung to `mythic-plus`, and it was an **override**
+ *
+ * **The rule that picks a rung reproduces the power ratio the seam below it had**,
+ * `pow(1.6, rung − rareIndex) * pow(perLevel.common, min(close, caps[rung]) − close)`, evaluated for
+ * every rung and taken closest in **log** space. Against chapter 21's seam of **0.8241** and The
+ * Downstroke's close of 515, `mythic` reads **0.4418** (|Δln| **0.6235**) and `mythic-plus`
+ * **3.7273** (|Δln| **1.5091**). **The rule prefers staying put by 0.886 of a nat and this chapter
+ * overrides it** — the second override in the campaign's history, after chapter 18.
+ *
+ * ⚠️ **What licenses an override is the seam *below* being wrong, and this time it is.**
+ * {@link LONGEBB} landed on **0.8241** — under 1.00, meaning the content is nominally ahead of the
+ * party it is tuned for — and chapter 21 declined to override on the argument that its own chapter
+ * was still authorable out of the pool. Thirty levels later that argument is gone: measured at level
+ * 515 against a `mythic` five, the **five lightest bodies in the entire game** (100, 104, 106, 122
+ * and 126 health) read **0% with 0.00 survivors**, and so do the five heaviest of The Quickmire's
+ * light Monsters. The same five lightest bodies read 100% / 4.00 at level 485. **There is no chapter
+ * 22 on `mythic`** — not a hard one, not any, which is precisely chapter 18's situation one rung up.
+ *
+ * ⚠️ **The move re-opens the pool, which is the other half of what an override buys.** Against this
+ * party a board at 515 reads 4.00 of five at about 9,500 common-equivalent and 0.00 at 11,900, and
+ * **181 of the 282 blocks that existed before The Downstroke sit inside the band its ordinary slots
+ * use**. Chapter 18 measured 116 of 238 after its own move. Nothing in `data/` had to change.
+ *
+ * ⚠️ **The consequence a reader should expect at the boundary is a walkover, and it is not a
+ * defect.** Chapter 21's own final refielded at level 515 reads **100% with all five alive in 3.1
+ * seconds** against this party. That is what a ×1.6 rung plus eighty levels buys, it is what chapter
+ * 18's boundary did too, and it is why The Downstroke's boards are the first authored **heavier**
+ * than the chapter below them since chapter 13.
+ *
+ * ⚠️ **What moves the rung next.** `mythic-plus` caps at 420 against a close of 515, so the seam is
+ * already ninety-five levels above the cap and each further sixty-stage chapter divides it by
+ * `perLevel.common ** 30` = **1.867**: chapter 23 reads **1.9981**, chapter 24 **1.0711**, chapter 25
+ * **0.5742**. The arithmetic buys about two and a half chapters and the **pool** will run out first,
+ * exactly as it did on `mythic`. **Measure the pool before re-deriving the seam.** The next rung,
+ * `ascended`, caps at 500 and is the last the campaign can spend.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const DOWNSTROKE_RARITY = rarityIndex('mythic-plus');
+const DOWNSTROKE_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[21] - 1].level,
+  LEVEL_CURVE.caps[DOWNSTROKE_RARITY],
+);
+
+const DOWNSTROKE: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(DOWNSTROKE_LEVEL, DOWNSTROKE_RARITY),
+  DOWNSTROKE_RARITY,
+);
+
+/**
+ * The party that finishes the ladder: the same five, levelled as far as the rung The Evenfall asks
+ * for will carry them.
+ *
+ * Still common tier, and still no pull anyone had to be lucky for.
+ *
+ * ## ⚠️ Chapter 23 stays on `mythic-plus`, and that is a **derivation** rather than an override
+ *
+ * Against chapter 22's seam of **3.7273** and The Evenfall's close of 545, `mythic` reads **0.2368**
+ * (|Δln| 2.7561), `mythic-plus` **1.9981** (|Δln| **0.6235**) and `ascended` **16.8578** (|Δln|
+ * 1.5091). **`mythic-plus` wins by 0.886 of a nat** — numerically the same margin chapters 18 and 22
+ * overrode and chapters 19, 20 and 21 stayed on.
+ *
+ * ⚠️ **What licenses an override is the seam *below* being wrong, and here it is not.**
+ * {@link DOWNSTROKE} landed on **3.7273**, comfortably above 1.00, and this chapter's own seam of
+ * **1.9981** is above it too. The pool agrees rather than merely permitting: **55 shipped blocks are
+ * both light enough and cool enough** for The Evenfall's boards — 15 Elf, 15 Undead, 10 Dwarf, 10
+ * Monster, 5 Human — where chapter 22's override was licensed by the five lightest bodies in the
+ * game reading 0%. **Five chapters running have now had to say which of the two they are doing.**
+ *
+ * ⚠️ **This party and {@link DOWNSTROKE} are the same five combatants**, because chapters 22 and 23
+ * both close above `mythic-plus`'s cap of 420 and both clamp to it. That restarts the degenerate
+ * chain one rung up, at one link — the shape chapters 13 through 17 recorded five deep and chapters
+ * 18 through 21 four deep. **Expect a second link at chapter 24.**
+ *
+ * ⚠️ **The practical consequence is an authoring trap rather than a testing one, and this chapter
+ * fell into it.** With the party frozen and the boards thirty levels higher, an authored stat is
+ * worth `perLevel ** 30` = ×1.87 more than the identical number one chapter below. The Evenfall's
+ * first ten blocks carried chapter-22 attack values and **every board fell off a cliff**; halving the
+ * authored `atk` and nothing else fixed all six bands. See [`chapter-23.ts`](./chapter-23.ts).
+ *
+ * ⚠️ **What moves the rung next.** Each further sixty-stage chapter divides the seam by
+ * `perLevel.common ** 30` = **1.867**: chapter 24 reads **1.0703**, chapter 25 **0.5733**. The
+ * arithmetic buys about one and a half more chapters and the **pool** will run out first, exactly as
+ * it did on `legendary-plus` and on `mythic`. **Measure the pool before re-deriving the seam** — at
+ * this chapter's own depth only 55 of 292 blocks are already fieldable, and the binding quantity is
+ * their **attack** rather than their weight. The next rung, `ascended`, caps at 500 and is the last
+ * the campaign can spend.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const EVENFALL_RARITY = rarityIndex('mythic-plus');
+const EVENFALL_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[22] - 1].level,
+  LEVEL_CURVE.caps[EVENFALL_RARITY],
+);
+
+const EVENFALL: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(EVENFALL_LEVEL, EVENFALL_RARITY),
+  EVENFALL_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 24: the five that just took The Evenfall, unchanged.
+ *
+ * ⚠️ **This is The Evenfall's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung stays on `mythic-plus`, for the third chapter running
+ *
+ * Against chapter 23's seam of **1.9981** and The Nevermark's close of 575, `mythic` reads
+ * **0.1270** (|Δln| 2.7561), `mythic-plus` **1.0711** (|Δln| **0.6235**) and `ascended` **9.0371**
+ * (|Δln| 1.5091). **`mythic-plus` wins by 0.886 of a nat** — the same margin chapters 18 and 22
+ * overrode and chapters 19, 20, 21 and 23 stayed on. **Six chapters running have now had to say
+ * which of the two they are doing**; this one is a **stay**.
+ *
+ * ⚠️ **The alternative was fielded rather than quoted.** An `ascended` five takes chapter 23's own
+ * opening board and its final at level 575 at **100% with all five alive in 2.3s and 2.4s**. An
+ * override needs the seam below to be wrong *and* the pool to be unable to supply a board; chapter
+ * 23's seam is 1.9981, this chapter's own is 1.0711, and **121 of 302 shipped blocks stand as an
+ * ordinary body on a board at level 575** — monster 34, undead 21, elf 21, dwarf 17, human 14,
+ * angel 9, demon 5.
+ *
+ * ⚠️ **A filter is not a pool count, and this is where that mattered.** Screening the pool on
+ * common-equivalent weight *and* on the attack chapter 23's boards carried leaves **15 blocks, every
+ * one of them a Monster** — a reading that would have forced a third Monster lead on pool grounds.
+ * Simulating the same 302 blocks instead of filtering them gives 121, across all seven factions.
+ * Chapter 23 was right that the binding quantity at this depth is **attack** rather than weight; it
+ * does not follow that a filter on the two counts the pool. **Field the pool; do not screen it.**
+ *
+ * ⚠️ **This party, {@link EVENFALL} and {@link DOWNSTROKE} are one set of five combatants** —
+ * chapters 22, 23 and 24 all close above `mythic-plus`'s cap of 420 and all clamp to it, so the
+ * degenerate chain is **two links deep**, exactly as chapter 23 predicted. **Expect a third at
+ * chapter 25.**
+ *
+ * ⚠️ **What moves the rung next.** Each further sixty-stage chapter divides the seam by
+ * `perLevel.common ** 30` = **1.867**, so chapter 25 reads **0.5733** — **below 1.00, which is the
+ * first half of an override licence and has been since chapter 18**. The other half is the pool, and
+ * chapter 21 declined an override on exactly this reading because its chapter was still authorable.
+ * **Measure the pool by fielding it rather than by filtering it**, and note that `ascended` caps at
+ * 500 and is the last rung the campaign can spend.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const INVESTED_RARITY = rarityIndex('mythic-plus');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -817,22 +1179,6 @@ const INVESTED: FormationData = mono(
   INVESTED_RARITY,
 );
 
-/**
- * The most heavily boosted party the lineup bonus permits.
- *
- * Five Demons, which since milestone 8e is buildable without a single lucky pull: three commons
- * and two legendaries. That is the top rung of the composition ladder *and* all five steps of the
- * Demon track underneath it, and nothing legal stacks higher.
- *
- * **This replaced three Demons and two Angels**, which was the maximum only while a mono-five was
- * unreachable — the Angels stood in as wildcards to fill the rung and paid nothing on the Demon
- * track, so it reached three of the five steps rather than all of them. Leaving it as it was would
- * have meant the guard below quietly stopped watching the worst case the moment 8e shipped.
- *
- * It is here as a **guard rather than a tuning target**. Nothing asserts this party should beat
- * anything; what it is watched for is the failure mode a bonus to health and defence makes more
- * likely, which is a party that survives a fight it cannot win until the clock ends it.
- */
 const BOOSTED: FormationData = mono(
   [THREX, VEXIS],
   [PYRA, NYXARA, SANGUINE],
@@ -962,6 +1308,46 @@ const underroadSweeps = stages.map((stage) => ({
   stage,
   ...sweep(UNDERROAD, stage),
 }));
+const spoiledSweeps = stages.map((stage) => ({
+  label: 'spoiled',
+  stage,
+  ...sweep(SPOILED, stage),
+}));
+const quickmiredSweeps = stages.map((stage) => ({
+  label: 'quickmired',
+  stage,
+  ...sweep(QUICKMIRED, stage),
+}));
+const slowgrowthSweeps = stages.map((stage) => ({
+  label: 'slowgrowth',
+  stage,
+  ...sweep(SLOWGROWTH, stage),
+}));
+const backcutSweeps = stages.map((stage) => ({
+  label: 'backcut',
+  stage,
+  ...sweep(BACKCUT, stage),
+}));
+const commonageSweeps = stages.map((stage) => ({
+  label: 'commonage',
+  stage,
+  ...sweep(COMMONAGE, stage),
+}));
+const longebbSweeps = stages.map((stage) => ({
+  label: 'longebb',
+  stage,
+  ...sweep(LONGEBB, stage),
+}));
+const downstrokeSweeps = stages.map((stage) => ({
+  label: 'downstroke',
+  stage,
+  ...sweep(DOWNSTROKE, stage),
+}));
+const evenfallSweeps = stages.map((stage) => ({
+  label: 'evenfall',
+  stage,
+  ...sweep(EVENFALL, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1008,6 +1394,10 @@ const everySweep = [
   ...quarriedSweeps,
   ...shutgatedSweeps,
   ...underroadSweeps,
+  ...quickmiredSweeps,
+  ...longebbSweeps,
+  ...downstrokeSweeps,
+  ...evenfallSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1066,6 +1456,30 @@ const SHUTGATE_END = CHAPTER_ENDS[13];
 
 /** The end of chapter 15 — The Underroad — where the road comes out onto The Spoilfield. */
 const UNDERROAD_END = CHAPTER_ENDS[14];
+
+/** The end of chapter 16 — The Spoilfield — where the open ground turns to The Quickmire. */
+const SPOILFIELD_END = CHAPTER_ENDS[15];
+
+/** Where The Quickmire ends. */
+const QUICKMIRE_END = CHAPTER_ENDS[16];
+
+/** Where The Slowgrowth ends, for the seam either side of the eighteenth boundary. */
+const SLOWGROWTH_END = CHAPTER_ENDS[17];
+
+/** Where The Backcut ends, for the seam either side of the nineteenth boundary. */
+const BACKCUT_END = CHAPTER_ENDS[18];
+
+/** Where The Commonage ends, for the seam either side of the twentieth boundary. */
+const COMMONAGE_END = CHAPTER_ENDS[19];
+
+/** Where The Longebb ends, for {@link LONGEBB}'s seam. */
+const LONGEBB_END = CHAPTER_ENDS[20];
+
+/** Where The Downstroke ends, for {@link DOWNSTROKE}'s seam. */
+const DOWNSTROKE_END = CHAPTER_ENDS[21];
+
+/** Where The Evenfall ends, for {@link EVENFALL}'s seam. */
+const EVENFALL_END = CHAPTER_ENDS[22];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -1593,6 +2007,283 @@ describe('ladder balance', () => {
     // chapter 15's.
     const walked = underroadSweeps
       .slice(UNDERROAD_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 16 clear chapters 1 through 16', () => {
+    // The Quickmire's seam, measured the same way as the twelve above it. ⚠️ **The fifth party in
+    // this chain that is the same combatants**: chapters 13 through 17 all close above
+    // `legendary-plus`'s cap of 260 and all clamp to it, so {@link QUARRIED}, {@link SHUTGATED},
+    // {@link UNDERROAD}, {@link SPOILED} and {@link INVESTED} are one set of five. The rate is
+    // `perLevel.common ** 25` = 1.680 a chapter and it has now held four times running.
+    const unreliable = spoiledSweeps
+      .slice(0, SPOILFIELD_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Quickmire as well', () => {
+    // ⚠️ **Vacuous by construction for the fourth chapter running**, and kept for the reason the
+    // three above it are kept. {@link MOMENTUM_CEILING} is a share of the *whole ladder* — 225
+    // boards at 750 stages — while this slice is 50, so it cannot bind here whatever it measures;
+    // and {@link SPOILED} and {@link INVESTED} are the same party, so "walks the chapter ahead" and
+    // "clears the chapter ahead" are asserted of one set of combatants with opposite required
+    // answers.
+    //
+    // ⚠️ **Do not widen it and do not delete it.** `docs/authoring.md` forbids widening; deleting
+    // would lose the record of *why* this stopped measuring anything.
+    //
+    // ⚠️ **What the seam costs is real and is measured two assertions down.** The Quickmire's last
+    // board stands **a hundred and fifteen levels** above the cap this party is clamped at —
+    // ×10.91, against The Spoilfield's ×6.49 — which is why chapter 17's boards are authored at
+    // roughly half chapter 16's, and why its seam ratio is the first to fall below 1.00.
+    const walked = spoiledSweeps
+      .slice(SPOILFIELD_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 17 clear chapters 1 through 17', () => {
+    // The Slowgrowth's seam, measured the same way as the thirteen above it. ⚠️ **This is the last
+    // link of the degenerate chain**: chapters 13 through 17 all close above `legendary-plus`'s cap
+    // of 260 and all clamp to it, so {@link QUARRIED}, {@link SHUTGATED}, {@link UNDERROAD},
+    // {@link SPOILED} and {@link QUICKMIRED} are one set of five combatants. {@link INVESTED} is the
+    // first party in six chapters that is not — see its comment for why the rung moved.
+    const unreliable = quickmiredSweeps
+      .slice(0, QUICKMIRE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Slowgrowth as well', () => {
+    // ⚠️ **This is the first seam in five where the assertion is not vacuous**, and the reason is the
+    // rung move. Chapters 14 through 17 compared a party against itself — {@link SPOILED} and the old
+    // {@link INVESTED} were the same combatants — so "clears the chapter behind it" and "does not walk
+    // the chapter ahead" were asserted of one set of five with opposite required answers. The
+    // Slowgrowth asks for `mythic`, so {@link QUICKMIRED} is genuinely the weaker party and this
+    // measures something again.
+    //
+    // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind here and that is still its denominator.** It is
+    // a share of the *whole ladder* — 240 boards at 800 stages — while this slice is 50. **Do not
+    // widen it and do not delete it**; the repair it names is a share of the slice, which re-derives
+    // every seam in this file at once.
+    const walked = quickmiredSweeps
+      .slice(QUICKMIRE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 18 clear chapters 1 through 18', () => {
+    // The Backcut's seam, measured the same way as the fourteen above it. ⚠️ **The degenerate chain
+    // restarts here, one link deep.** Chapter 18 ended a five-link stretch by moving the rung to
+    // `mythic`; chapters 18 and 19 both close above `mythic`'s cap of **340** and both clamp to it,
+    // so {@link SLOWGROWTH} and {@link INVESTED} are once again one set of five combatants. The rate
+    // that produced the last chain applies unchanged to this one — `perLevel.common ** 25` = 1.680 a
+    // chapter — so expect a second identical link at chapter 20 and a third at 21. See
+    // {@link INVESTED} for why the rung nonetheless stays put.
+    const unreliable = slowgrowthSweeps
+      .slice(0, SLOWGROWTH_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Backcut as well', () => {
+    // ⚠️ **Vacuous by construction again, for the reason the four above it are.**
+    // {@link MOMENTUM_CEILING} is a share of the *whole ladder* — 255 boards at 850 stages — while
+    // this slice is 50, so it cannot bind here whatever it measures; and {@link SLOWGROWTH} and
+    // {@link INVESTED} are the same party, so "walks the chapter ahead" and "clears the chapter
+    // ahead" are asserted of one set of combatants with opposite required answers.
+    //
+    // ⚠️ **Do not widen it and do not delete it.** `docs/authoring.md` forbids widening; deleting
+    // would lose the record of *why* this stopped measuring anything, which is that the guard's
+    // denominator is the ladder where the claim is about the slice.
+    //
+    // ⚠️ **What the seam costs is real and is measured two assertions down.** The Backcut's last
+    // board stands **eighty-five levels** above the cap this party is clamped at — ×5.83 — which is
+    // why chapter 19's boards are authored at roughly 0.595 of chapter 18's. That is the same
+    // arithmetic that ran under chapters 13 through 17, one rung higher up.
+    const walked = slowgrowthSweeps
+      .slice(SLOWGROWTH_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 19 clear chapters 1 through 19', () => {
+    // The Commonage's seam, measured the same way as the fifteen above it. ⚠️ **The degenerate chain
+    // reaches three links, exactly as chapter 19 predicted it would.** Chapters 18, 19 and 20 all
+    // close above `mythic`'s cap of **340** and all clamp to it, so {@link SLOWGROWTH},
+    // {@link BACKCUT} and {@link INVESTED} are one set of five combatants. See {@link INVESTED} for
+    // why the rung stays put a second time, and for the finding that what will move it next is the
+    // **pool** rather than the arithmetic.
+    const unreliable = backcutSweeps
+      .slice(0, BACKCUT_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Commonage as well', () => {
+    // ⚠️ **Vacuous by construction for the sixth time**, for the reasons the five above it are:
+    // {@link MOMENTUM_CEILING} is a share of the whole ladder — 273 boards at 910 stages — where
+    // this slice is 60, and {@link BACKCUT} and {@link INVESTED} are the same party. Kept rather
+    // than deleted so the record of *why* survives. `docs/authoring.md` forbids widening it.
+    //
+    // ⚠️ **What the seam costs is real**: The Commonage's last board stands **a hundred and fifteen
+    // levels** above the cap this party is clamped at — ×10.98 — which is the sharpest gap the
+    // campaign has carried, and it is why its boards are authored at roughly a third of chapter
+    // 19's rather than the usual 0.595. **Thirty levels of squeeze rather than twenty-five is what a
+    // sixty-stage chapter costs.**
+    const walked = backcutSweeps
+      .slice(BACKCUT_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 20 clear chapters 1 through 20', () => {
+    // The Longebb's seam, measured the same way as the sixteen above it. ⚠️ **The degenerate chain
+    // reaches four links.** Chapters 18 through 21 all close above `mythic`'s cap of **340** and all
+    // clamp to it, so {@link SLOWGROWTH}, {@link BACKCUT}, {@link COMMONAGE} and {@link INVESTED} are
+    // one set of five combatants. See {@link INVESTED} for why the rung stays put a third time, and
+    // for the `mythic-plus` walkover that was fielded rather than reasoned about this time.
+    const unreliable = commonageSweeps
+      .slice(0, COMMONAGE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Longebb as well', () => {
+    // ⚠️ **Vacuous by construction for the seventh time**, for the reasons the six above it are:
+    // {@link MOMENTUM_CEILING} is a share of the whole ladder — 291 boards at 970 stages — where this
+    // slice is 60, and {@link COMMONAGE} and {@link INVESTED} are the same party. Kept rather than
+    // deleted so the record of *why* survives. `docs/authoring.md` forbids widening it.
+    //
+    // ⚠️ **What the seam costs is real**: The Longebb's last board stands **a hundred and forty-five
+    // levels** above the cap this party is clamped at — ×20.36 — and its seam ratio is **0.8241**, the
+    // first reading under 1.00 on `mythic`. That is why its boards are authored at roughly half
+    // chapter 20's: the budget runs 1,445 common-equivalent at `c21-s1` down to **804** at the final.
+    const walked = commonageSweeps
+      .slice(COMMONAGE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 21 clear chapters 1 through 21', () => {
+    // The Downstroke's seam, measured the same way as the seventeen above it. ⚠️ **This is where the
+    // degenerate chain ends, at four links**: chapters 18 through 21 all clamp to `mythic`'s cap of
+    // 340, so {@link SLOWGROWTH}, {@link BACKCUT}, {@link COMMONAGE} and this party are one set of
+    // five combatants — and {@link INVESTED} is the first that is not, because chapter 22 moved the
+    // rung to `mythic-plus`. See {@link INVESTED} for what licensed the override.
+    const unreliable = longebbSweeps
+      .slice(0, LONGEBB_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Downstroke as well', () => {
+    // ⚠️ **This seam is the one place in the chain where the ceiling is not vacuous, and the reason
+    // is the rung move.** The six seams below it compare a party with {@link INVESTED} that is either
+    // the same set of combatants or one clamped to the same cap, so "does not walk the chapter ahead"
+    // and "clears the chapter ahead" were asserted of one party. Here {@link LONGEBB} is on `mythic`
+    // and {@link INVESTED} is on `mythic-plus` — genuinely different fives — so this assertion has
+    // something to say for the first time since chapter 17.
+    //
+    // ⚠️ **What it says is the override's whole case.** The `mythic` party cannot stand on a chapter
+    // 22 board at all: measured at level 515, the five lightest bodies in the game read 0% with 0.00
+    // survivors against it. {@link MOMENTUM_CEILING} is still a share of the whole ladder (309 boards
+    // at 1,030 stages) against a slice of 60, so it could not bind on the count either way —
+    // `docs/authoring.md` forbids widening it and the honest repair is a share of the *slice*.
+    const walked = longebbSweeps
+      .slice(LONGEBB_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 22 clear chapters 1 through 22', () => {
+    // The Evenfall's seam, measured the same way as the eighteen above it.
+    const unreliable = downstrokeSweeps
+      .slice(0, DOWNSTROKE_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Evenfall as well', () => {
+    // ⚠️ **Vacuous by construction again, and the reason is the degenerate chain restarting.**
+    // Chapters 22 and 23 both close above `mythic-plus`'s cap of 420 and both clamp to it, so
+    // {@link DOWNSTROKE} and {@link INVESTED} are the same five combatants — the assertion above and
+    // this one are therefore one claim, exactly as they were for chapters 13 through 17 on
+    // `legendary-plus` and 18 through 21 on `mythic`. {@link MOMENTUM_CEILING} is a share of the
+    // whole ladder (327 boards at 1,090 stages) against a slice of 60, so it could not bind on the
+    // count either. Kept rather than deleted so the record of *why* survives; `docs/authoring.md`
+    // forbids widening it and names the honest repair — a share of the *slice*.
+    //
+    // ⚠️ **What the seam costs is real even though the assertion is vacuous.** The Evenfall's last
+    // board stands **a hundred and twenty-five levels** above the cap this party is clamped at —
+    // ×13.44 — and its seam ratio is **1.9981**. That is why its boards are authored at roughly half
+    // chapter 22's: the budget runs about 2,200 common-equivalent at `c23-s1` to 4,000 at its
+    // heaviest and 3,017 at the final.
+    const walked = downstrokeSweeps
+      .slice(DOWNSTROKE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 23 clear chapters 1 through 23', () => {
+    // The Nevermark's seam, measured the same way as the nineteen above it.
+    const unreliable = evenfallSweeps
+      .slice(0, EVENFALL_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Nevermark as well', () => {
+    // ⚠️ **Vacuous by construction for the third chapter running, and chapter 23 predicted it.**
+    // Chapters 22, 23 and 24 all close above `mythic-plus`'s cap of 420 and all clamp to it, so
+    // {@link DOWNSTROKE}, {@link EVENFALL} and {@link INVESTED} are one set of five combatants and
+    // the degenerate chain is two links deep — the shape chapters 13 through 17 recorded five deep
+    // on `legendary-plus` and 18 through 21 four deep on `mythic`. {@link MOMENTUM_CEILING} is a
+    // share of the whole ladder against a slice of 60, so it could not bind on the count either.
+    // Kept rather than deleted so the record of *why* survives.
+    //
+    // ⚠️ **What the seam costs is real even though the assertion is vacuous.** The Nevermark's last
+    // board stands **a hundred and fifty-five levels** above the cap this party is clamped at —
+    // ×24.63 — and its seam ratio is **1.0711**, the first this rung has produced that is within a
+    // tenth of 1.00. Its boards are authored at **×0.536** of chapter 23's for exactly that reason:
+    // 1,310 common-equivalent at `c24-s1` to 2,718 at its heaviest, against The Evenfall's 2,185 to
+    // 3,999.
+    const walked = evenfallSweeps
+      .slice(EVENFALL_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
