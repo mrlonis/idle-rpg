@@ -30,8 +30,12 @@ returning blocks' **attack** rather than their weight. Chapter 24 is **The Never
 on it again, and which found that **a filter on weight and attack is not a pool count**: screening
 the 302 shipped blocks the way chapter 23 described leaves 15, all Monster, where _fielding_ them
 leaves 121 across all seven factions. It is also the chapter that inverted chapter 21's `tenacity`
-reading — declined there as flat, and the only six-step dial available here.
-See [authoring](authoring.md).
+reading — declined there as flat, and the only six-step dial available here. Chapter 25 is **The
+Thinground**, the campaign's **third override**, moving the rung to **`ascended`** — and the first
+where the two halves of the override licence disagreed: its seam _below_ is 1.0711, **above** 1.00,
+so what licenses it is the pool alone (4 of 312 blocks stand at level 605 against a `mythic-plus`
+five, 282 against an `ascended` one). It is also the first chapter to choose its axis on **fight
+length** rather than on survivors. See [authoring](authoring.md).
 
 ## The shape
 
@@ -342,13 +346,26 @@ buys about two and a half chapters — and `mythic` was projected to buy three a
 and a half. **Measure the pool before re-deriving the seam.** The next rung, `ascended`, caps at 500
 and is the last the campaign can spend.
 
-⚠️ **Chapters 22, 23 and 24 all clamp to `mythic-plus`'s cap of 420, so the degenerate chain is two
-links deep and a third is due at chapter 25.** The Nevermark's last board stands **a hundred and
-fifty-five levels** above the cap — ×24.63 — and its seam of **1.0711** is the first this rung has
-produced within a tenth of 1.00. **Chapter 25 reads 0.5733, below 1.00, which is the first half of
-an override licence.** The second half is the pool, and chapter 21 declined an override on exactly
-that reading because its chapter was still authorable — so **measure the pool by fielding it, not by
-filtering it**, which is the mistake chapter 24 caught itself making.
+⚠️ **Chapters 22, 23 and 24 all clamped to `mythic-plus`'s cap of 420, so the degenerate chain
+reached two links, and chapter 25's rung move ended it.** The Nevermark's last board stands **a
+hundred and fifty-five levels** above that cap — ×24.63 — and its seam of **1.0711** is the first
+this rung produced within a tenth of 1.00.
+
+⚠️ **Chapter 25 moved to `ascended`, and it is the case where the two halves of the override licence
+came apart.** Its own seam on `mythic-plus` reads **0.5740**, under 1.00 — but the seam _below_ it is
+**1.0711, above** 1.00, so the arithmetic half of the licence was **not** met, and chapter 21 declined
+an override on exactly that shape. What settles it is the pool, measured by **fielding** all 312
+shipped blocks beside four light escorts at level 605: **4 stand against a `mythic-plus` five, every
+one of them a Monster, and 282 against an `ascended` one**, across all seven factions. Chapter 24's
+own opening board, mid board and final all read **0%** refielded at 605. **There is no chapter 25 on
+`mythic-plus`, and the pool has now settled all three of the campaign's overrides.**
+
+⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past, so the rung
+question stops having a tuning answer here.** `ascended` caps at 500 against chapter 25's close of
+605; `ascended-1` caps at **600**, five levels under that close, and reads a seam of **61.94** — a
+walkover by two orders of magnitude, by construction rather than by tuning. Chapter 26 inherits
+**4.8443**, 27 reads **1.3901** and 28 **0.7446**. A chapter that cannot be authored on `ascended` is
+a `data/` question about `LEVEL_CURVE.caps` rather than a chapter.
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

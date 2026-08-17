@@ -1159,17 +1159,75 @@ const EVENFALL: FormationData = mono(
  * degenerate chain is **two links deep**, exactly as chapter 23 predicted. **Expect a third at
  * chapter 25.**
  *
- * ⚠️ **What moves the rung next.** Each further sixty-stage chapter divides the seam by
- * `perLevel.common ** 30` = **1.867**, so chapter 25 reads **0.5733** — **below 1.00, which is the
- * first half of an override licence and has been since chapter 18**. The other half is the pool, and
- * chapter 21 declined an override on exactly this reading because its chapter was still authorable.
- * **Measure the pool by fielding it rather than by filtering it**, and note that `ascended` caps at
- * 500 and is the last rung the campaign can spend.
+ * ⚠️ **What moved the rung next, and where this comment was wrong.** It read chapter 25's own seam of
+ * **0.5733** as "the first half of an override licence" — but that half is the seam **below** a
+ * chapter, never the chapter's own, which is what chapter 21 exists to record. Chapter 25's seam
+ * below is this party's, **1.0711, above 1.00**. It moved to `ascended` regardless, on the **pool**:
+ * at level 605 only **4 of 312** shipped blocks stand against a `mythic-plus` five, and The
+ * Nevermark's own opening board, mid board and final all read **0%** there. See {@link INVESTED}.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
  */
-const INVESTED_RARITY = rarityIndex('mythic-plus');
+const NEVERMARK_RARITY = rarityIndex('mythic-plus');
+const NEVERMARK_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[23] - 1].level,
+  LEVEL_CURVE.caps[NEVERMARK_RARITY],
+);
+
+const NEVERMARK: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(NEVERMARK_LEVEL, NEVERMARK_RARITY),
+  NEVERMARK_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 25: the five that just took The Nevermark, unchanged.
+ *
+ * ⚠️ **This is The Nevermark's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung moves to `ascended`, and this is the campaign's third override
+ *
+ * Against chapter 24's seam of **1.0711** and The Thinground's close of 605, `mythic-plus` reads
+ * **0.5740** (|Δln| **0.6238**) and `ascended` **4.8443** (|Δln| **1.5092**). **The rule prefers
+ * staying put by 0.885 of a nat** — numerically the same margin chapters 18 and 22 overrode and
+ * chapters 19, 20, 21, 23 and 24 stayed on. **Seven chapters running have now had to say which of
+ * the two they are doing**; this one is an **override**.
+ *
+ * ⚠️ **The licence is the pool, and it was measured by fielding rather than by filtering** — chapter
+ * 24's correction to chapter 23's rule, applied. Every one of the 312 shipped blocks was fielded as
+ * an ordinary body beside four light escorts at level 605: against the `mythic-plus` five **4 stand,
+ * every one of them a Monster**, and against an `ascended` five **282 stand, across all seven
+ * factions**. Chapter 24's own opening board, mid board and final all read **0%** at 605 against the
+ * rung it was fought on. **There is no chapter 25 on `mythic-plus`.**
+ *
+ * ⚠️ **Only half the standing licence is met, and saying so is the point.** The rule is that an
+ * override needs the seam *below* to be wrong **and** the pool to be unable to supply a board. The
+ * seam below is **1.0711 — above 1.00** — and only this chapter's own (0.5740) is under it, which is
+ * exactly the reading chapter 21 declined an override on. What separates them is that chapter 21's
+ * chapter was **authorable** and this one is not. **The pool is the binding half, and it has settled
+ * all three overrides the campaign has.**
+ *
+ * ⚠️ **This ends the degenerate chain at two links.** {@link DOWNSTROKE}, {@link EVENFALL} and
+ * {@link NEVERMARK} are one set of five combatants on `mythic-plus`'s cap of 420; this party is the
+ * first in four chapters that is not, and it stands eighty levels and a rung above them — ×8.36.
+ * **Expect the chain to re-form at chapter 26**, which is what it has done after every rung move.
+ *
+ * ⚠️ **What moves the rung next, and it is the last time this question has an answer.** Each further
+ * sixty-stage chapter divides the seam by `perLevel.common ** 30` = **1.867**: chapter 26 reads
+ * **2.5951**, chapter 27 **1.3901**, chapter 28 **0.7446**. `ascended-1` caps at 600, which the
+ * campaign passes at chapter 25 itself, so **`ascended` is the last rung whose cap the ladder has
+ * not already climbed past** — and every rung above it is a walkover by construction rather than by
+ * tuning. A chapter that cannot be authored on `ascended` is a `data/` question about
+ * `LEVEL_CURVE.caps`, not a chapter. **Measure the pool before re-deriving the seam.**
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const INVESTED_RARITY = rarityIndex('ascended');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
 const INVESTED: FormationData = mono(
@@ -1348,6 +1406,11 @@ const evenfallSweeps = stages.map((stage) => ({
   stage,
   ...sweep(EVENFALL, stage),
 }));
+const nevermarkSweeps = stages.map((stage) => ({
+  label: 'nevermark',
+  stage,
+  ...sweep(NEVERMARK, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1398,6 +1461,7 @@ const everySweep = [
   ...longebbSweeps,
   ...downstrokeSweeps,
   ...evenfallSweeps,
+  ...nevermarkSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1480,6 +1544,9 @@ const DOWNSTROKE_END = CHAPTER_ENDS[21];
 
 /** Where The Evenfall ends, for {@link EVENFALL}'s seam. */
 const EVENFALL_END = CHAPTER_ENDS[22];
+
+/** Where The Nevermark ends, for {@link NEVERMARK}'s seam. */
+const NEVERMARK_END = CHAPTER_ENDS[23];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2270,7 +2337,7 @@ describe('ladder balance', () => {
   it('does not let that party walk The Nevermark as well', () => {
     // ⚠️ **Vacuous by construction for the third chapter running, and chapter 23 predicted it.**
     // Chapters 22, 23 and 24 all close above `mythic-plus`'s cap of 420 and all clamp to it, so
-    // {@link DOWNSTROKE}, {@link EVENFALL} and {@link INVESTED} are one set of five combatants and
+    // {@link DOWNSTROKE}, {@link EVENFALL} and {@link NEVERMARK} are one set of five combatants and
     // the degenerate chain is two links deep — the shape chapters 13 through 17 recorded five deep
     // on `legendary-plus` and 18 through 21 four deep on `mythic`. {@link MOMENTUM_CEILING} is a
     // share of the whole ladder against a slice of 60, so it could not bind on the count either.
@@ -2284,6 +2351,37 @@ describe('ladder balance', () => {
     // 3,999.
     const walked = evenfallSweeps
       .slice(EVENFALL_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 24 clear chapters 1 through 24', () => {
+    // The Thinground's seam, measured the same way as the twenty above it.
+    const unreliable = nevermarkSweeps
+      .slice(0, NEVERMARK_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Thinground as well', () => {
+    // ⚠️ **This is the seam a rung move is supposed to produce, and for once the reading is not
+    // vacuous in spirit.** {@link INVESTED} moves to `ascended` where this party sits on
+    // `mythic-plus`, so the two are genuinely different fives for the first time in four chapters —
+    // and the gap is the whole case for the override. Measured directly rather than inferred:
+    // chapter 24's **own** opening board, mid board and final all read **0%** when refielded at
+    // level 605 against this party, where the `ascended` five takes all three at 100% with all five
+    // alive in 3.0s, 7.6s and 7.3s.
+    //
+    // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind on the count** — it is a share of the whole
+    // ladder (363 boards at 1,210 stages) against a slice of 60 — so what this assertion is worth is
+    // the record rather than the arithmetic. `docs/authoring.md` forbids widening it and the honest
+    // repair is a share of the *slice*; that repair is still not taken, and still recorded.
+    const walked = nevermarkSweeps
+      .slice(NEVERMARK_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

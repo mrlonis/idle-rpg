@@ -74,20 +74,45 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-four chapters, one thousand one hundred and fifty
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-five chapters, one thousand two hundred and ten
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
-  were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic` and chapter 22 moved it to
-  `mythic-plus`; both are overrides against the log-space rule, and they are the only two the
-  campaign has.** Chapters 19, 20, 21 and 23 all _stayed_ on the rung below them, and that a stay is
-  a derivation rather than an override is the point: what licenses an override is the seam _below_
-  being wrong (under 1.00) **and** the pool being unable to supply a board — never the margin being
-  large and never this chapter's own seam being small. ⚠️ **Chapter 21's own seam was 0.8241, under
-  1.00, and it still did not license an override, because its chapter was authorable.** Chapter 22's
-  is licensed because it is not: at level 515 the **five lightest bodies in the game read 0% against
-  a `mythic` five**. ⚠️ **What binds is the pool rather than the seam**, and the arithmetic has now
-  been right and early twice — `mythic` was projected to buy three chapters and bought one and a
-  half. **Measure the pool before re-deriving the seam.** The degenerate chain reached four links on
-  `mythic` and is at one on `mythic-plus`; expect a second at chapter 24.
+  were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, chapter 22 to `mythic-plus` and
+  chapter 25 to `ascended`; all three are overrides against the log-space rule, and they are the only
+  three the campaign has.** Chapters 19, 20, 21, 23 and 24 all _stayed_ on the rung below them, and
+  that a stay is a derivation rather than an override is the point: what licenses an override is the
+  seam _below_ being wrong (under 1.00) **and** the pool being unable to supply a board — never the
+  margin being large and never this chapter's own seam being small. ⚠️ **Chapter 21's own seam was
+  0.8241, under 1.00, and it still did not license an override, because its chapter was authorable.**
+  Chapter 22's is licensed because it is not: at level 515 the **five lightest bodies in the game read
+  0% against a `mythic` five**. ⚠️ **What binds is the pool rather than the seam, and chapter 25 is
+  the case where the two halves of the licence disagreed outright.** Its seam _below_ is **1.0711,
+  above 1.00** — only its own (0.5740) is under — so the arithmetic half was **not** met, and the
+  override is licensed by the pool alone: fielded at level 605, **4 of 312 shipped blocks stand
+  against a `mythic-plus` five and 282 against an `ascended` one**, and chapter 24's own opening
+  board, mid board and final all read 0%. **The pool has settled all three overrides; state which
+  half you have when they disagree.** The degenerate chain reached four links on `mythic`, two on
+  `mythic-plus`, and is at zero again; expect it to re-form at chapter 26.
+- ⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past**, so the rung
+  question stops having a tuning answer after chapter 25. `ascended-1` caps at 600 against chapter
+  25's close of 605 and reads a seam of **61.94** — a walkover by two orders of magnitude, by
+  construction rather than by tuning. A chapter that cannot be authored on `ascended` is a `data/`
+  question about `LEVEL_CURVE.caps`, not a chapter. [ladder](docs/ladder.md)
+- ⚠️ **An axis can be chosen on _fight length_ rather than on survivors, and chapter 25 is the first
+  to do it.** At level 605 against an `ascended` five, `physicalPierce` across five grades **0.20 /
+  0.41 / 0.51 / 0.58 / 0.93 / 1.13 / 1.35 / 1.67 / 2.06 / 2.33** over 0.08 → 0.45 — ten monotone
+  steps, zero timeouts, and it grades in **carrier counts** as well (1.27 → 1.96 at one through five
+  at 0.40). What chose it over every refusal stat is that it moves the control from 38.7s to only
+  43.9s, where `def` (50.9 → 58.5s), `physicalResist` (43.5 → 56.4s), `dodge` (41.0 → 54.3s) and
+  `tenacity` (40.8 → 49.4s) all walk toward the 72s bar that cost chapters 22 and 24 two boards each.
+  **A chapter about attrition wants the axis that converts weight into deaths rather than into
+  seconds** — the longest fight in the whole of chapter 25 is 29.0s. [authoring](docs/authoring.md)
+- ⚠️ **`def` is a cliff at chapter 25's weight and was a dial at chapter 23's, and `THORNMAIL` on a
+  back rank went from 0.00 to a total wipe.** `def` reads 1.78 at 20 and 3.65 at 40 where The
+  Evenfall graded 0.40 / 1.65 / 3.55 across 46 / 70 / 110; and the back-three reflect chapter 19
+  measured at exactly **0.00** and chapter 22 at less than nothing reads **4.00 of five** here. That
+  is the fourth and fifth chapters running to invert a recorded reading. **Re-price the whole
+  vocabulary against the new chapter's own control; the table never transfers except across a
+  degenerate seam.** [authoring](docs/authoring.md)
 - ⚠️ **A pool wall can be an _attack_ wall rather than a weight wall, and chapter 23 is where that
   happened.** When two chapters clamp to the same rung cap the party is **literally unchanged** while
   the boards climb, so an authored `atk` is worth `perLevel ** 30` = ×1.87 more than the identical
@@ -648,10 +673,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   the guard is written in.** `gear.spec.ts` bounds the top gear grade's share of end-of-ladder drops
   at `< 0.2` and that bound has **never moved in the project's history** — which reads exactly like a
   guard nobody maintains. It is the opposite: `gradeSoftness` in `data/gear.ts` moves to meet it, by
-  hand, **once a chapter, seventeen times now**, always to `stages / 2`, always restoring 18.7%. It is
+  hand, **once a chapter, nineteen times now**, always to `stages / 2`, always restoring 18.7%. It is
   done by hand deliberately, so the saturating-tilt bug underneath stays visible. Chapter 24 nearly
   retired the bound on a `git log -S` over the spec alone. **Adding a chapter owes this edit**; chapter
-  25 wants 605. [gear](docs/gear.md)
+  26 wants 635. [gear](docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in

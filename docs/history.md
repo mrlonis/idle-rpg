@@ -470,6 +470,49 @@ above 1.00, and the chapter was authorable, so it is a **derivation**. Three thi
    wrong-sign finding in a new place. **Price a chapter's premise before authoring its boards** cost
    one measurement here and would have cost sixty boards.
 
+⚠️ **Chapter 25 moved the rung to `ascended` — the campaign's third override, and the first where
+the two halves of the licence disagreed.** The Thinground closes at 605, where `mythic-plus` reads
+0.5740 against `ascended`'s 4.8443: the log-space rule prefers staying put by 0.885 of a nat and the
+chapter overrides it. The standing licence is that an override needs the seam **below** to be wrong
+_and_ the pool to be unable to supply a board — and here the seam below is **1.0711, above 1.00**, so
+only the pool half holds. That is precisely the shape chapter 21 declined an override on; what
+separates them is that chapter 21's chapter was **authorable** and this one is not. Measured by
+fielding all 312 shipped blocks beside four light escorts at level 605, **4 stand against a
+`mythic-plus` five — every one a Monster — and 282 against an `ascended` one**, and chapter 24's own
+opening board, mid board and final all read 0%. **The pool has now settled all three overrides; when
+the halves disagree, say which one you have.** Three further things:
+
+1. ⚠️ **It is the last chapter for which the rung question has a tuning answer.** `ascended` caps at
+   500; `ascended-1` caps at **600**, five levels under this chapter's own close, and reads a seam of
+   **61.94** — a walkover by two orders of magnitude, by construction. Chapter 26 inherits 4.8443, 27
+   reads 1.3901 and 28 0.7446. **A chapter that cannot be authored on `ascended` is a `data/`
+   question about `LEVEL_CURVE.caps` rather than a chapter**, and that question is now on the table
+   alongside "how long is the campaign meant to be".
+2. ⚠️ **The first axis ever chosen on _fight length_ rather than on survivors.** `physicalPierce`
+   grades in ten monotone steps (0.20 → 2.33 across 0.08 → 0.45) **and** in carrier counts (1.27 →
+   1.96 at one through five), with zero timeouts — but what chose it is that it moves the control
+   from 38.7s to only 43.9s, where `def`, `physicalResist`, `dodge` and `tenacity` all walk toward
+   the 72s bar that cost chapters 22 and 24 two boards each. The longest fight in the whole chapter
+   is **29.0s**. A chapter about attrition wants the axis that converts weight into deaths rather
+   than into seconds.
+3. ⚠️ **Two more recorded readings inverted, making five chapters running.** `def` is a **cliff**
+   here — 1.78 at 20, 3.65 at 40 — where chapter 23 graded it 0.40 / 1.65 / 3.55; and `THORNMAIL` on
+   the back three is a **total wipe** where chapter 19 measured that exact arrangement at 0.00 and
+   chapter 22 at less than nothing. Only `critBlock` reproduced chapter 23 exactly. **The table does
+   not transfer except across a degenerate seam.**
+
+⚠️ **Its lean was chosen against the depth ordering, for the second time and on a new argument.**
+Undead led at 49 blocks where Human was thinnest at 46 — because Human had led The Downstroke two
+chapters earlier, its third lead, and Undead had last led five chapters back. Chapter 21's overrule
+was the **budget**; this one is the **rotation**. The seven now run angel 24, demon 25, human 46, elf
+53, dwarf 54, undead 59, monster 61.
+
+⚠️ **Calibrating the control before authoring is what made the difference, measurably.** Chapter 17's
+first authored draft failed 22 of 50 boards and chapter 19's 21 of 50; chapter 25's failed **1 of
+60**. The twelve boards that did have to move were moved by a **mechanical claim check** — two
+`enemy-back` turns on one board, two board-wide turns on one board — run before the sweep rather than
+after it, which is seconds against minutes and catches a different class of thing.
+
 ⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
 bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
 0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads

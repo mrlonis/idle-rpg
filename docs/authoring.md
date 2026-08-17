@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
-| Campaign         | 24 chapters, 1150 stages, enemy levels 1–575 |
+| Campaign         | 25 chapters, 1210 stages, enemy levels 1–605 |
 | Towers           | 7 × 300 floors, enemy levels 1–142           |
-| Enemy archetypes | 312                                          |
+| Enemy archetypes | 322                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -74,6 +74,7 @@ section below before assuming ten more boards is ten more boards.
 | 22      | 485   | 515    | 30     |
 | 23      | 515   | 545    | 30     |
 | 24      | 545   | 575    | 30     |
+| 25      | 575   | 605    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -775,6 +776,114 @@ level 545 and Relic 100, **6,135 common-equivalent, reading 3.55 of five**, and 
    forced a shipped block to be re-authored: {@link GLASSBARK_SENTRY} carries **no `physicalResist` at
    all** because it stands on more opening-band boards than anything else.
 
+### ⚠️ Chapter 25 is the campaign's third override, and the two halves of the licence disagreed
+
+The Thinground closes at **605** and moves the rung to **`ascended`**. Against chapter 24's seam of
+1.0711, `mythic-plus` reads **0.5740** (|Δln| **0.6238**) and `ascended` **4.8443** (|Δln|
+**1.5092**) — the rule prefers staying put by 0.885 of a nat, numerically the same margin chapters
+18 and 22 overrode and chapters 19, 20, 21, 23 and 24 stayed on. **Seven chapters running have now
+had to say which of the two they are doing.**
+
+1. ⚠️ **The standing licence is "the seam below is wrong _and_ the pool cannot supply a board", and
+   here only the second half holds.** The seam below is **1.0711, above 1.00**; only this chapter's
+   own is under it, which is exactly the reading chapter 21 declined an override on. What separates
+   them is that chapter 21's chapter was **authorable**. **When the two halves disagree, the pool is
+   the half that decides — and say in writing which one you have.**
+2. ⚠️ **The pool was measured by _fielding_ it, which is chapter 24's correction applied.** Every one
+   of the 312 shipped blocks was fielded as an ordinary body beside four light escorts at level 605:
+
+   | party fielding the board at 605 | blocks that stand                         |
+   | ------------------------------- | ----------------------------------------- |
+   | the `mythic-plus` five, cap 420 | **4 of 312**, every one a Monster         |
+   | an `ascended` five, cap 500     | **282 of 312**, across all seven factions |
+
+   And chapter 24's **own** opening board, mid board and final all read **0%** refielded at 605
+   against the rung it was fought on, where the `ascended` five takes all three at 100% with all five
+   alive in 3.0s, 7.6s and 7.3s. **There is no chapter 25 on `mythic-plus`.**
+
+3. ⚠️ **This is the last chapter for which the rung question has a tuning answer.** `ascended` caps
+   at 500; `ascended-1` caps at **600**, five levels under this chapter's own close, and reads a seam
+   of **61.94**. Every rung above `ascended` is a walkover by construction rather than by tuning, so
+   a chapter that cannot be authored on `ascended` is a `data/` question about `LEVEL_CURVE.caps`
+   rather than a chapter. **Chapter 26 inherits 4.8443 and a fresh rung; 27 reads 1.3901 and 28
+   0.7446.**
+4. ⚠️ **A rung move re-opens the pool and the quota lands at the quota, for the sixth chapter
+   running** — 33 distinct fielded, ten new, **25.8%** of ordinary archetypes (8 of 31) and **30.3%**
+   counting the lieutenant and the boss inside the fraction. Budget the normal ten blocks.
+5. ⚠️ **The `gearArchetype` bill was zero for the sixth chapter running, and for a reason worth
+   distinguishing from the usual one.** Nine of the 49 Undead blocks carry none, so the lean had
+   **not** been paid for — none of the nine is fielded, because every one is either too heavy for a
+   board at this budget or carries a second `enemy-back` turn. **That is a fact about which blocks
+   the budget reached rather than about the faction**, and the bill is still owed the next time
+   Undead leads at a weight that can afford them.
+
+### ⚠️ What chapter 25 measured, and the first axis ever chosen on fight length
+
+Priced against one calibrated control — an anchor of 2,209/51 behind four bodies of 1,250/40, each
+carrying one ordinary turn, at level 605 and Relic 100: **17,996 common-equivalent, reading 3.91 of
+five at 38.7s**, and it **moves** (4.00 at 16,555, 3.25 at 18,714, 2.23 at 19,438; on attack alone at
+held weight, 3.38 at 54, 2.38 at 57, 0.63 at 60). Zero timeouts on every row.
+
+| shape                                                         | survivors           | worth              | mean fight   |
+| ------------------------------------------------------------- | ------------------- | ------------------ | ------------ |
+| `physicalPierce` 0.08 → 0.45 across five                      | 3.71 → 1.58         | 0.20 → **2.33**    | 38.7 → 43.9s |
+| `magicResist` 0.16 → 0.75 across five                         | 3.88 → 2.38         | 0.08 → 1.48        | 40.2 → 49.6s |
+| `physicalResist` 0.12 → 0.45 across five                      | 3.40 → 0.53         | 0.55 → 3.43        | 43.5 → 56.4s |
+| `dodge` 0.10 / 0.20 / 0.30                                    | 3.70/3.08/1.48      | 0.25/0.88/2.48     | 41.0 → 54.3s |
+| `tenacity` 0.20 → 0.85 across five                            | 3.10 → 0.00         | 0.85 → 3.95        | 40.8 → 49.4s |
+| `critChance` 0.15 / 0.30 / 0.45                               | 3.00/1.25/0.42      | 0.95/2.70/3.53     | 40.6 → 41.7s |
+| `critBlock` 0.16 / 0.28 / 0.45                                | 3.52/3.20/3.20      | 0.43/0.75/**0.75** | 43.6 → 45.8s |
+| `def` 20 / 40 / 70 / 110                                      | 2.17/0.30/0.00/0.00 | 1.78 → 3.95        | 50.9 → 58.5s |
+| `haste` 90 / 100 / 115                                        | 2.45/0.75/0.00      | 1.50/3.20/3.95     | 40.1 → 35.8s |
+| `THORNMAIL` on `ally-all`, one carrier                        | 0.80                | **3.15**           | 49.0s        |
+| `BLOODRISEN` on `ally-all`, one carrier                       | 2.45                | 1.50               | 41.8s        |
+| `HASTE` on `ally-all`, one carrier                            | 2.80                | 1.15               | 39.4s        |
+| `STUN` on `enemy-all`, one carrier                            | 2.98                | 0.98               | 53.2s        |
+| `SUNDER` / `GUARD` / `CHAINBOND` / `ROOTBOUND` / `OATHSHIELD` | 4.00                | **−0.05**          | 37–41s       |
+
+1. ⚠️ **`physicalPierce` is the cleanest axis on record: ten monotone steps in _value_ and five in
+   _count_.** By carrier count at 0.40 it reads 1.27 / 1.34 / 1.50 / 1.57 / 1.96 at one through five.
+   That two-dimensional grid is what six bands need, and it is entirely **inside** the shipped
+   register (94 of 312 blocks, median 0.20, p75 0.24, ceiling 0.45) — the Elf Tower's `critChance`
+   shape rather than the Monster Tower's `physicalResist` one. Chapter 21 found `lifeLeech` was the
+   one stat that graded and chapter 24 found `tenacity` was; **when everything else is a cliff, look
+   for the one stat that grades** keeps finding the chapter.
+2. ⚠️ **Fight length is what chose it, and no previous chapter has picked an axis that way.** Every
+   refusal stat that works walks the control toward the 72s bar; pierce moves it five seconds across
+   its whole range, because it kills rather than delays. Chapters 22 and 24 each brought two boards
+   down off the clock rather than off a survivor count. **The longest fight anywhere in The
+   Thinground is 29.0s.** Count the seconds when you _choose_ the axis, not only when you tune the
+   boards.
+3. ⚠️ **Two more recorded readings inverted, which makes five chapters running.** `def` is a **cliff**
+   here — 1.78 at 20, 3.65 at 40 — where chapter 23 graded it 0.40 / 1.65 / 3.55 across 46 / 70 /
+   110; and **`THORNMAIL` on the back three is a total wipe (4.00 of five)** where chapter 19
+   measured that exact arrangement at **0.00** and chapter 22 at less than nothing. `critBlock`
+   saturating at 0.75 by 0.28 is the one reading that reproduced chapter 23 exactly. **The table does
+   not transfer except across a degenerate seam.**
+4. ⚠️ **The whole "tempo half" of the vocabulary came back to life.** `HASTE` on `ally-all` from one
+   carrier is worth 1.15 and `STUN` on `enemy-all` 0.98, where chapter 22 read the entire tempo
+   vocabulary at 0.03 to 0.07 of five. Meanwhile `SUNDER`, `GUARD`, `CHAINBOND`, `ROOTBOUND` and
+   `OATHSHIELD` are all inside the noise at **−0.05** — the taunt reading is chapter 20's negative
+   sign, still there at a rung and eighty levels higher.
+
+### ⚠️ Three things chapter 25's boards found that its control did not
+
+1. ⚠️ **A final that fails at every stat line is its escort — chapter 19's signature, reproduced
+   exactly.** Behind `QUICKLIME_SERJEANT` (1000/52 at haste 144) the boss read **0% at every stat
+   line from 1000/26 down to 340/10**. Behind two `LASTFEW_WARDEN` the identical body grades 4.00 /
+   3.67 / 1.65 / 0.00 across 430/14, 540/18, 700/22 and 1000/26. **Check the control can move before
+   concluding anything from a boss sweep.**
+2. ⚠️ **The lieutenant was settled on all five appearances, not the first.** At 900/30 it graded 5.00
+   / 5.00 / 4.83 / 3.52 / **0.05** across s10 to s50 — chapter 17's trap, an `ascended` block
+   climbing at 1.024 against a party frozen at its rung's cap. At **420/18** it reads 5.00 / 5.00 /
+   5.00 / 4.00 / 4.00.
+3. ⚠️ **Calibrating the control first is what made the first authored draft nearly clean.** Chapter
+   17's first draft failed 22 of 50 boards and chapter 19's 21 of 50; this chapter's failed **1 of
+   60**, and the twelve boards that had to move were moved by the **mechanical claim check** (two
+   `enemy-back` turns on one board, two board-wide turns on one board) rather than by the sweep.
+   **Run the claim check before the sweep, not after it** — it is seconds against minutes, and it
+   catches a different class of thing.
+
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
 The campaign has reached the rule the towers' third hundreds established. Chapter 13's own final
@@ -950,9 +1059,18 @@ chapter yet**, so it is a fact about the lean rather than about the chapter.
 A chapter leans on one faction and its new blocks go there, which is what gives the chapter a
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
-- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, dwarf 44,
+- **Deepen a thin faction rather than a deep one.** The seven now run angel 24, demon 25, **human
+  46**, elf 53, dwarf 54, undead 59, monster 61 — chapter 25's ten Undead blocks took Undead from
+  third-thinnest to second-deepest, so **Human at 46 is the thinnest legal lead**, with Elf at 53 and
+  Dwarf at 54 behind it. ⚠️ **Chapter 25 is the second time the depth argument was overruled, and by
+  _recency_ rather than by the pool.** Human was thinnest at 46 and was passed over because it had
+  led The Downstroke two chapters earlier — its third lead — where Undead had last led five chapters
+  back. Chapter 21 was overruled by the budget; this one by the rotation. **Say which argument you
+  used, because the counts alone would have picked differently both times.** ⚠️ **A lean is worth ten
+  blocks and the mortal five are now spread 46 to 61**, so the ordering is one chapter away from
+  reversing again. The reading before it: angel 24, demon 25, dwarf 44,
   **human 46**, undead 49, elf 53, monster 61 — chapter 23's ten Elf blocks took Elf from thinnest
-  legal to second-deepest, so **Dwarf at 44 is the thinnest legal lead**, with Human at 46 and Undead
+  legal to second-deepest, so **Dwarf at 44 was the thinnest legal lead**, with Human at 46 and Undead
   at 49 behind it. ⚠️ **A lean is worth ten blocks and that is now enough to move a faction across
   the whole ordering in one session**, for the ninth time. The reading before it: angel 24, demon 25,
   elf 43, dwarf 44, **human 46**, undead 49, monster 61 — chapter 22's ten Human blocks took Human
@@ -1078,7 +1196,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped twenty-one, with the level range each closes over:
+The shipped twenty-five, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -1106,6 +1224,7 @@ The shipped twenty-one, with the level range each closes over:
 | 22  | The Downstroke     | 60     | 485 → 515 | whether it **arrives all at once**              |
 | 23  | The Evenfall       | 60     | 515 → 545 | whether it **ever lands well**                  |
 | 24  | The Nevermark      | 60     | 545 → 575 | whether anything it does **takes hold**         |
+| 25  | The Thinground     | 60     | 575 → 605 | whether there is **anyone left to spend it**    |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -1122,7 +1241,11 @@ party defined by the chapter it has just finished, with `INVESTED` re-pointed at
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
 `SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `BACKCUT` → `COMMONAGE` → `LONGEBB` → `DOWNSTROKE` →
-`INVESTED`. ⚠️ **The degenerate stretch ended at chapter 18
+`EVENFALL` → `NEVERMARK` → `INVESTED`. ⚠️ **Chapter 25's rung move ended the `mythic-plus` degenerate
+stretch at two links** — `DOWNSTROKE`, `EVENFALL` and `NEVERMARK` are one set of five on that rung's
+cap of 420, and `INVESTED` is the first party in four chapters that is genuinely different, eighty
+levels and a rung above them (×8.36). **Expect the chain to re-form at chapter 26**, as it has after
+every rung move. ⚠️ **The degenerate stretch ended at chapter 18
 and restarted at chapter 19**: `QUARRIED` through `QUICKMIRED` are five names for one set of five
 combatants on `legendary-plus`, and `SLOWGROWTH` and `INVESTED` are now two names for one set on
 `mythic`. **Expect a second identical link at chapter 20 and a third at 21** — the chain is a
@@ -1484,9 +1607,11 @@ wanted 515, exactly as predicted — the sixteenth landing and the third correct
 20.2% at 1,030 stages. Chapter 23 wants **545**; a session with the appetite should write the
 saturating tilt rather than re-derive `stages / 2` a seventeenth time. ⚠️ **Chapter 23 landed on it and wanted
 545, exactly as predicted — the seventeenth landing and the fourth prediction checked a chapter
-ahead.** It read 20.2% at 1,090 stages. Chapter 24 wants **575**. **Seventeen landings is past the
-point where re-deriving is learning anything**; the next session in `data/gear.ts` for any reason
-should write the saturating tilt while it is already there.
+ahead.** It read 20.2% at 1,090 stages. Chapter 24 wanted **575**. ⚠️ **Chapter 25 landed on it and wanted
+605, exactly as predicted — the nineteenth landing and the sixth prediction checked a chapter
+ahead.** Chapter 26 wants **635**. **Nineteen landings is well past the point where re-deriving is
+learning anything**; the next session in `data/gear.ts` for any reason should write the saturating
+tilt while it is already there.
 
 ### ⚠️ Chapter 16 retired the "charges real time" ceiling — the fourth guard retired rather than slid
 

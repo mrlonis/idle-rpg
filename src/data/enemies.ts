@@ -17,6 +17,7 @@ import {
   BLOOD_RISEN,
   BROKEN_COVENANT,
   BULWARK,
+  CALL_THE_ROLL,
   CHAFF_IN_THE_THROAT,
   CHALLENGE_BELLOW,
   CHOIR_OF_ASH,
@@ -28,6 +29,7 @@ import {
   COUCHED_LANCE,
   COUNT_IT_AGAIN,
   COUNT_IT_ALL_AGAIN,
+  COUNT_THE_HOLLOW,
   COUNT_THE_RINGS,
   COURSE_BY_COURSE,
   CULL_THE_EMBERS,
@@ -47,6 +49,7 @@ import {
   EVERYTHING_COMES_BACK_BLUNT,
   EVERYTHING_YOU_LEFT,
   FADE,
+  FEWER_EVERY_MILE,
   FLATTEN_THE_EDGE,
   FLENSE,
   FULL_WEIGHT,
@@ -57,6 +60,7 @@ import {
   GLASSLIGHT_VERDICT,
   GORE,
   GRIND_THE_SEAM,
+  GROUND_ALREADY_WALKED,
   GROWN_THROUGH_IT,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
@@ -90,7 +94,9 @@ import {
   MOTE_LANCE,
   NAME_THE_QUARRY,
   NIGHT_RIDE,
+  NOBODY_ANSWERS,
   NOBODY_HERE_IS_ONE_THING,
+  NONE_COME_BACK,
   NONE_OF_THEM_THE_ONE,
   NONE_OF_US_IS_THE_ONE,
   NOTHING_CLOSES_HERE,
@@ -111,6 +117,7 @@ import {
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
+  NO_NUMBER_HOLDS,
   NO_SUCH_THING,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
@@ -159,6 +166,7 @@ import {
   SLAGHIDE_LUNGE,
   SLAG_SLAM,
   SLUNG_ANVIL,
+  SPEND_THE_RANK,
   SPINES_STILL_IN_IT,
   SPITELIGHT,
   STILL_COUNTING,
@@ -211,6 +219,7 @@ import {
   THE_QUENCH,
   THE_RACE_WAS_DECIDED,
   THE_RING_IS_SHUT,
+  THE_ROAD_TAKES_ITS_SHARE,
   THE_RUST_HOLDS,
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
@@ -225,6 +234,7 @@ import {
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
   THE_YEAR_IT_DROWNED,
+  THIN_THE_RANK,
   THORNLASH,
   TURNED_ASIDE,
   TYRANTS_CLAIM,
@@ -234,7 +244,9 @@ import {
   UP_THROUGH_THE_TURF,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
+  WEAR_IT_THROUGH,
   WHAT_FALLS_IS_SOWN,
+  WHAT_FEW_REMAIN,
   WHAT_IT_COST_YOU,
   WHAT_THE_DEAD_KEPT,
   WHAT_THE_FIELD_KEPT,
@@ -10802,6 +10814,257 @@ export const THE_NEVERMARK = {
   skills: [UNMADE_AND_UNSAID, LEAVE_NO_MARK],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Thinground — milestone 40, chapter 25
+//
+// Ten Undead blocks, and the chapter's axis is `physicalPierce`. Measured against a control of an
+// anchor at 2209/51 behind four bodies of 1250/40 at level 605 and Relic 100 — **17,996
+// common-equivalent, reading 3.91 of five at 38.7s** — pierce across all five grades **0.20 / 0.41 /
+// 0.51 / 0.58 / 0.93 / 1.13 / 1.35 / 1.67 / 2.06 / 2.33** across 0.08 → 0.45 at 120 trials, with
+// **zero timeouts on every row**, and it grades in carrier counts as well (1.27 / 1.34 / 1.50 / 1.57
+// / 1.96 at one through five at 0.40).
+//
+// ⚠️ **The whole axis sits inside the shipped register.** Before this chapter `physicalPierce` sat
+// on **94 of 312 blocks at a median of 0.20, a p75 of 0.24 and a ceiling of 0.45**; the top of the
+// chapter is 0.40 and only the boss reaches it. That is the Elf Tower's `critChance` shape rather
+// than the Monster Tower's `physicalResist` one.
+//
+// ⚠️ **The property that chose it over every refusal stat is fight length.** Pierce moves the
+// control from 38.7s to 43.9s across its whole range where `def`, `physicalResist`, `dodge` and
+// `tenacity` all push it to 50–67s against a 72s bar. Chapter 24 lost two boards to that bar; this
+// axis converts weight into deaths rather than into seconds, which is what a chapter asking *whether
+// there is anyone left to spend it* actually needs.
+//
+// ⚠️ **These are the heaviest ordinary blocks the campaign has ever authored, and that is the rung
+// move.** The party moves from `mythic-plus` at cap 420 to `ascended` at cap 500 — a rung and eighty
+// levels, ×8.36 — against thirty levels of board, ×1.87. An authored number here is worth ×4.47 of
+// the identical number in The Nevermark, which is why these run **420 to 1,350 authored health**
+// where chapter 24's ran 110 to 600. ⚠️ **Read that as authored health rather than as weight**: the
+// two `ascended` bodies are the *lightest* numbers in the list and the heaviest bodies on the board,
+// because the tier premium at level 605 is ×5.883 on every stat.
+
+/**
+ * Band 1's habit, and the one new block in the chapter carrying **no `physicalPierce` at all**.
+ *
+ * ⚠️ **Deliberate, and it is chapter 23's counts-not-absolutes rule forcing an authoring decision
+ * rather than a sentence.** Pierce sits on 94 of 312 shipped blocks at a median of 0.20, so a band
+ * table claiming "the wearing arrives in band 2" cannot be a claim about *presence* — and this body
+ * stands on more band-1 boards than anything else here, so it is the block that has to be clean for
+ * the counts to mean what they say.
+ */
+export const WALKED_GROUND_DEAD = {
+  id: 'walked-ground-dead',
+  name: 'Walked Ground Dead',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 46,
+    def: 22,
+    haste: 88,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+  },
+  skills: [GROUND_ALREADY_WALKED],
+} as const;
+
+/** Band 1 into band 2: the first body here whose blows find anything. Well below the median. */
+export const SPENTRANK_HAND = {
+  id: 'spentrank-hand',
+  name: 'Spentrank Hand',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 780,
+    atk: 48,
+    def: 18,
+    haste: 96,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.1,
+  },
+  skills: [SPEND_THE_RANK],
+} as const;
+
+/** Band 2's identity, and the chapter's most-fielded body across bands 2 and 3. */
+export const WEARWAY_GAUNT = {
+  id: 'wearway-gaunt',
+  name: 'Wearway Gaunt',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1050,
+    atk: 44,
+    def: 24,
+    haste: 84,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.16,
+  },
+  skills: [WEAR_IT_THROUGH],
+} as const;
+
+/** Band 3's wall: the shipped median, on the body the party has to spend the longest on. */
+export const NUMBERLESS_DRUDGE = {
+  id: 'numberless-drudge',
+  name: 'Numberless Drudge',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1350,
+    atk: 40,
+    def: 30,
+    haste: 72,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.2,
+  },
+  skills: [NO_NUMBER_HOLDS],
+} as const;
+
+/**
+ * The chapter's one **fast, hot** body, and it exists for the probe rather than for the party.
+ *
+ * ⚠️ **A refusal stat is invisible to the difficulty probe and pierce is only half-visible to it.**
+ * The probe reads throughput, so a late band that pays for its lock by dropping `atk` and `haste`
+ * reads as a step *backwards* — chapter 24's `c24-s31` measured 0.792 against the 0.85 bar for
+ * exactly that reason. This body is the repair, and it carries the median pierce as well so the
+ * count claims stay true on the boards it stands on.
+ */
+export const THINRANK_LANCER = {
+  id: 'thinrank-lancer',
+  name: 'Thinrank Lancer',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 820,
+    atk: 58,
+    def: 18,
+    haste: 112,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.24,
+  },
+  skills: [THIN_THE_RANK],
+} as const;
+
+/** Band 4's identity, and one of the chapter's two `enemy-back` turns. See {@link COUNT_THE_HOLLOW}. */
+export const HOLLOWCOUNT_RIDER = {
+  id: 'hollowcount-rider',
+  name: 'Hollowcount Rider',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 560,
+    atk: 56,
+    def: 20,
+    haste: 104,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.28,
+  },
+  skills: [COUNT_THE_HOLLOW],
+} as const;
+
+/** The chapter's only board-wide turn, at the wide cap. Bands 5 and 6, one per board. */
+export const SPARSEWAY_HERALD = {
+  id: 'sparseway-herald',
+  name: 'Sparseway Herald',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 600,
+    atk: 50,
+    def: 22,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.32,
+  },
+  skills: [THE_ROAD_TAKES_ITS_SHARE],
+} as const;
+
+/** Band 6's ordinary wall. The pairing chapter 23 found: pierce past the p75, and a skin under it. */
+export const LASTFEW_WARDEN = {
+  id: 'lastfew-warden',
+  name: 'Lastfew Warden',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 720,
+    atk: 52,
+    def: 26,
+    haste: 80,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.36,
+    physicalResist: 0.14,
+  },
+  skills: [WHAT_FEW_REMAIN],
+} as const;
+
+/**
+ * The lieutenant, anchoring all five mini-boss boards at rising levels.
+ *
+ * ⚠️ **Settled by fielding all five appearances rather than the first**, which is chapter 17's trap:
+ * an `ascended` block climbs at `perLevel.ascended` 1.024 against a party frozen at its rung's cap,
+ * so a recurring anchor correct on `c25-s10` is unwinnable on `c25-s50`.
+ *
+ * ⚠️ **Its board carries no second anchor**, which is chapter 21's rule — a lieutenant *is* one.
+ */
+export const THE_THINNING = {
+  id: 'the-thinning',
+  name: 'The Thinning',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 420,
+    atk: 18,
+    def: 34,
+    haste: 84,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.28,
+    physicalResist: 0.1,
+  },
+  skills: [FEWER_EVERY_MILE, NONE_COME_BACK],
+} as const;
+
+/**
+ * The chapter boss. `physicalPierce` 0.40, under the shipped ceiling of 0.45 and above every other
+ * block the campaign fields.
+ *
+ * Well under the Unmade on both stats, as every chapter boss since chapter 6 has been.
+ */
+export const THE_SHORTFALL = {
+  id: 'the-shortfall',
+  name: 'The Shortfall',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 500,
+    atk: 16,
+    def: 36,
+    haste: 86,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.4,
+    physicalResist: 0.16,
+    magicResist: 0.12,
+  },
+  skills: [CALL_THE_ROLL, NOBODY_ANSWERS],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -11115,4 +11378,14 @@ export const ENEMIES = [
   DEEPSET_ANVILWARD,
   THE_UNGAINSAID,
   THE_NEVERMARK,
+  WALKED_GROUND_DEAD,
+  SPENTRANK_HAND,
+  WEARWAY_GAUNT,
+  NUMBERLESS_DRUDGE,
+  THINRANK_LANCER,
+  HOLLOWCOUNT_RIDER,
+  SPARSEWAY_HERALD,
+  LASTFEW_WARDEN,
+  THE_THINNING,
+  THE_SHORTFALL,
 ] as const;

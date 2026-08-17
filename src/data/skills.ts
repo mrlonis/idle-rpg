@@ -7992,6 +7992,163 @@ export const LEAVE_NO_MARK = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Thinground — milestone 40, chapter 25
+//
+// Ten turns for ten Undead blocks, and the chapter's axis is a **stat** rather than a status:
+// `physicalPierce` is the one reading at level 605 that grades in ten monotone steps *and* in
+// carrier counts, with the fight length flat across the whole range. So these turns are
+// deliberately plain — a scope, a reach, and eight single-target blows — and the escalation lives
+// in the stat line each one is attached to.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_ROAD_TAKES_ITS_SHARE}
+// is the chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses
+// anything heavier on `enemy-all` and chapter 22 priced a whole first pass on a skill the game does
+// not allow.
+//
+// ⚠️ **Exactly two `enemy-back` turns exist here** — {@link COUNT_THE_HOLLOW} and the lieutenant's
+// {@link NONE_COME_BACK} — and no board fields both, which is chapter 19's "two `enemy-back` turns
+// on one board is the party's back rank deleted" applied at the board rather than at the stat line.
+// ⚠️ Chapter 24 shipped that claim **false** because it checked only its own new blocks and missed a
+// returning body carrying one; the returning Undead blocks fielded here were screened for it.
+
+/** Band 1's habit. The one turn in the chapter attached to a body with no pierce at all. */
+export const GROUND_ALREADY_WALKED = {
+  id: 'ground-already-walked',
+  name: 'Ground Already Walked',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+export const SPEND_THE_RANK = {
+  id: 'spend-the-rank',
+  name: 'Spend The Rank',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+export const WEAR_IT_THROUGH = {
+  id: 'wear-it-through',
+  name: 'Wear It Through',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The wall's turn: slow, heavy, and the body carrying it is the one the party has to dig out. */
+export const NO_NUMBER_HOLDS = {
+  id: 'no-number-holds',
+  name: 'No Number Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the closing bands read as a step up on the probe.
+ *
+ * ⚠️ **The difficulty probe reads throughput and a refusal stat is invisible to it**, which is
+ * chapter 24's finding arriving on a different lock. A first draft of the late bands let `atk` and
+ * `haste` fall as `physicalPierce` rose; this turn and the body under it are what keep the spine
+ * climbing where the probe can see it.
+ */
+export const THIN_THE_RANK = {
+  id: 'thin-the-rank',
+  name: 'Thin The Rank',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** One of the chapter's two `enemy-back` turns. No board fields it beside {@link NONE_COME_BACK}. */
+export const COUNT_THE_HOLLOW = {
+  id: 'count-the-hollow',
+  name: 'Count The Hollow',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_ROAD_TAKES_ITS_SHARE = {
+  id: 'the-road-takes-its-share',
+  name: 'The Road Takes Its Share',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+export const WHAT_FEW_REMAIN = {
+  id: 'what-few-remain',
+  name: 'What Few Remain',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const FEWER_EVERY_MILE = {
+  id: 'fewer-every-mile',
+  name: 'Fewer Every Mile',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's reach, and the second of the chapter's two `enemy-back` turns.
+ *
+ * ⚠️ **Not conditioned, and that is a departure from the shape [authoring](../../docs/authoring.md)
+ * recommends for a lieutenant.** Chapter 24 measured all six condition kinds at **±0.08 of its
+ * control** and a condition on the payload axis at **−2.42** — a condition is a restriction on the
+ * board and the party is the beneficiary. Four appearances at rising levels are four different
+ * fights here because the *party* is thinner each time, not because the turn checks anything.
+ */
+export const NONE_COME_BACK = {
+  id: 'none-come-back',
+  name: 'None Come Back',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const CALL_THE_ROLL = {
+  id: 'call-the-roll',
+  name: 'Call The Roll',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.8 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The boss's second turn, aimed where the chapter's question is: at whoever is nearly gone. */
+export const NOBODY_ANSWERS = {
+  id: 'nobody-answers',
+  name: 'Nobody Answers',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.3 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8398,4 +8555,16 @@ export const SKILLS = [
   THE_HOLD_REMEMBERS,
   UNMADE_AND_UNSAID,
   LEAVE_NO_MARK,
+  GROUND_ALREADY_WALKED,
+  SPEND_THE_RANK,
+  WEAR_IT_THROUGH,
+  NO_NUMBER_HOLDS,
+  THIN_THE_RANK,
+  COUNT_THE_HOLLOW,
+  THE_ROAD_TAKES_ITS_SHARE,
+  WHAT_FEW_REMAIN,
+  FEWER_EVERY_MILE,
+  NONE_COME_BACK,
+  CALL_THE_ROLL,
+  NOBODY_ANSWERS,
 ] as const;

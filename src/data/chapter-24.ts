@@ -129,9 +129,17 @@ import {
  *
  * ⚠️ **The seam link is degenerate at two links, as chapter 23 predicted.** Chapters 22, 23 and 24
  * all close above `mythic-plus`'s cap of **420** and all clamp to it, so `DOWNSTROKE`, `EVENFALL`
- * and `INVESTED` are one set of five combatants. **Expect a third at chapter 25**, whose own seam
- * reads **0.5733** — below 1.00, which is the first half of an override licence. The other half is
- * the pool, and it should be **measured rather than projected**.
+ * and `NEVERMARK` are one set of five combatants.
+ *
+ * ⚠️ **This chapter predicted a third link at chapter 25 and predicted it wrongly, and the reason is
+ * worth keeping.** It read chapter 25's own seam of **0.5733** as "below 1.00, which is the first
+ * half of an override licence" — but the first half of that licence is the seam **below** a chapter,
+ * never the chapter's own, which is the distinction chapter 21 was written to record. Chapter 25's
+ * seam below is this one, **1.0711, above 1.00**, so on the arithmetic it should have stayed. It
+ * moved the rung to `ascended` anyway, licensed by the **pool** alone: at level 605 only **4 of 312**
+ * shipped blocks stand against a `mythic-plus` five, and this chapter's own opening board, mid board
+ * and final all read **0%** there. **Measure the pool rather than projecting it** was the right
+ * instruction; the sentence attached to it was not.
  *
  * ## ⚠️ The party is unchanged again, so the boards halve again
  *
