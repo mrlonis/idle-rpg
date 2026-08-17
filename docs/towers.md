@@ -1,12 +1,12 @@
 # Faction towers
 
 Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
-only the Human Tower is there yet. The system shipped in milestone 15b with a single tower, the other
-six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth is in
-flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them; [authoring](authoring.md)
-is the procedure for adding floors.
+only the Human and Dwarf Towers are there yet. The system shipped in milestone 15b with a single tower,
+the other six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth
+is in flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
+[authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The height is 400 and six of the seven towers are still authored at 300, so the `PENDING` list is
+⚠️ **The height is 400 and five of the seven towers are still authored at 300, so the `PENDING` list is
 back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
 floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
 waiting for its floors sits on a literal `PENDING` list in
@@ -340,7 +340,7 @@ characters from, so tuning against a fully geared five would tune for a party no
 can field.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
-**two thousand and one hundred** floors this build ships. A band-2 crew walks over floor 40.
+**two thousand three hundred** floors this build ships. A band-2 crew walks over floor 40.
 
 **A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
 there is no way around one, so a floor the crew cannot pass stops the tower outright — which makes
@@ -429,6 +429,10 @@ choosing; do not copy the last session's shape.**
   reference five from 100% to **10%**, because Dwarves carry the least reach in the game.
 - **Dwarf, third hundred** — the first where the escalation had to come from **the board's
   composition rather than from any body on it**, because the anchors run out of room. See below.
+- **Dwarf, fourth hundred** — the first whose axis is a stat aimed at **the stat the crew's whole
+  identity is**: `physicalPierce` against the deepest armour in the game. The gear ramp arrives free
+  here (it is one rule for all seven towers), so unlike the Human fourth hundred this one had to find an
+  axis on top of it. See below.
 - **Elf, second hundred** — can afford either (it takes the heaviest authorable board in eleven
   seconds against a ninety-second timer) but neither _threatens_ it: a shield support in the back rank
   leaves the weaker arrangement at 100% with 4.25 alive, while two anchors take it to 43%. It
@@ -554,9 +558,12 @@ stand as a roof anchor behind four light escorts at level 189 in Fine 60, the Ho
 included (4.40 / 4.00). What collapses is the **board**: the shipped floor-300 board at the new roof's
 level reads 100% / 1.93 against **53% / 0.55**.
 
-⚠️ **`THE_PANOPLY` is the lightest tower roof on _attack_ at 68 and tied for lightest on health at
-1240** — with the Dwarf Tower's Crown Wheel, against roofs running to 1520/91 — because it is the only
-one wearing gear. **The weight a roof is allowed is what is left after the grade.** The hundred closes at
+⚠️ **`THE_PANOPLY` is the _second_ lightest tower roof on both axes, and it shipped claiming to be the
+lightest.** The eight roofs read 1200/**52** (the Dwarf Tower's `THE_PROOF_HOUSE`), 1240/68 (this),
+1240/74, 1300/84, 1320/82, 1440/86, 1540/92, 1560/91 — the Dwarf fourth hundred took both records the
+session after this one landed, being geared too and spending its allowance on an axis as well as on the
+grade. **The weight a roof is allowed is what is left after the grade** — and ⚠️ **a superlative about
+seven towers goes stale the moment the next hundred lands, so state the list.** The hundred closes at
 **100% / 3.60 against 93% / 1.65**, zero timeouts, longest fight 28.6s.
 
 ⚠️ **The sustain claim is stated in counts, because the absolute version has shipped wrong four times.**
@@ -620,6 +627,116 @@ arrangements carry.
 3.98 / **3.02** at hp 1400 / def 45, the Sealward Custodian inversion. It arrives a band after the
 swing and never stands on the roof: with it on the last board the alternate reads **15%** against its
 own 75% bar, and 95% without it.
+
+### The Dwarf Tower's fourth hundred: the armour the hold made, turned around
+
+⚠️ **The Proof House is the first hundred whose axis attacks the stat the crew's whole identity is.**
+Floors 301–400, levels 142–189, and the gear ramp arrives **free** — `TOWER_RULES.gear` is one rule for
+all seven towers, Worn 1 to Fine 60 with grades stepping at 301, 318 and 351 — so where the Human fourth
+hundred spent that ramp _as_ its axis, this one had to find an axis on top of it.
+
+"Cannot close a fight; can refuse to lose one" is a sentence about armour. The two swept Dwarf
+arrangements carry authored `def` **Σ163 / Σ186** against Human Σ119 / Σ122, Elf Σ83 / Σ75, Monster Σ76
+and Undead Σ50 / Σ45; `core/battle/damage.ts` computes `def × (1 − pierce)`. Against a calibrated geared
+control — an anchor at 1100/64 behind four bodies at 580/40 at level 189 in Fine 60, reading
+**4.00 / 4.00**, and it moves — forty seeds, **zero timeouts on every row**:
+
+| four bodies at        | reference | alternate  | worth to the alternate |
+| --------------------- | --------- | ---------- | ---------------------- |
+| 0.00 — the control    | 4.00      | 3.95       | —                      |
+| `physicalPierce` 0.10 | 3.98      | 3.85       | 0.10                   |
+| `physicalPierce` 0.18 | 3.80      | 3.38       | 0.57                   |
+| `physicalPierce` 0.25 | 3.48      | 3.10       | 0.85                   |
+| `physicalPierce` 0.35 | 3.05      | 2.92       | **1.03**               |
+| `physicalPierce` 0.45 | 2.92      | 2.52       | **1.43**               |
+| `physicalPierce` 0.60 | 1.68      | 1.63 · 90% | **2.32**               |
+
+⚠️ **It grades in carrier _counts_ as well as in value**, which is what five bands need: at 0.35, by how
+many of four carry it, 3.95 → 3.98 → 3.73 → 3.33 → **3.10**. The bands walk the count first (bodies at or
+above `physicalPierce` 0.20 per board: 1–2, 2–3, 3–4, 3–4, 1–3) and the value second, and the closing band
+trades count for the roof's own 0.40.
+
+⚠️ **It was chosen on _fight length_, and on this tower nothing else could have chosen.** Three dials
+measured stronger and all three are the ninety-second clock. Against the same control at 31.6s: `def` 110
+is worth 1.33 at **58.2s**; enemy `hp` 1300 is worth 3.67 at **67.9s and a 20% win rate**; `haste` 143 is
+worth 2.00 at 44.1s and is the second hundred's axis anyway. Pierce at 0.45 is worth 1.43 at **41.1s**.
+This tower's third-hundred roof is the tightest cleared fight in the project at 62.5s against a 67.5s bar.
+
+⚠️ **"Is it ours" comes back first of fourteen, and the naive argument for it is _false_.** As a change on
+each crew's own control, calibrated per crew then given pierce 0.35: **dwarf-alt −1.08, dwarf-ref −1.00**,
+monster-ref −0.88, undead-ref −0.79, monster-alt −0.75, human-alt −0.50, human-ref −0.38, angel-ref −0.29,
+elf-alt −0.25, demon-ref −0.21, elf-ref −0.17, angel-alt −0.08, demon-alt −0.04, undead-alt −0.04.
+⚠️ **But "they have the most `def` to lose" does not survive the table**: both Angel arrangements carry
+_more_ authored `def` than the Dwarves (Σ195 and Σ174 against Σ186 and Σ163) and lose −0.08 and −0.29.
+What makes it this crew's is that `def` is the **only** mitigation it has — zero `magicResist`, zero
+`dodge`, Σ0.12 / Σ0.32 of `tenacity`, no `lifeLeech` — where an Angel five has armour _and_ a choir.
+**Take the measurement, not the register.**
+
+⚠️ **It is not the Monster Tower's lock under a new name, and the damage formula is why.** That tower's
+axis is enemy `physicalResist` — the board refusing the crew's damage — and its own argument is that
+pierce multiplies `def` while resist is applied afterwards untouched. This is the same sentence read from
+the other side of the board.
+
+⚠️ **The band is built inside the register and only the roof steps past** — the Splintering Yards' shape.
+Measured **as the register stood before this hundred's own four blocks joined the pool**, which is the
+only form of the figure that means anything: `physicalPierce` sat on **105 of 326** blocks at a median of
+0.20 and a ceiling of 0.45 (the Ravager), and across 46 Human blocks on **22** carriers, median 0.20,
+ceiling **0.30**. The three new legendaries run 0.20 / 0.25 / 0.30 and the roof alone reaches **0.40**,
+still under the game's 0.45. (The pool now reads 109 of 330 and the Human ceiling is the roof's own 0.40 —
+which is why the pre-authoring figure is the one stated.) At the register — 0.30 across four
+bodies — the axis is already worth 0.85 of the binding arrangement.
+
+Two negatives worth not re-measuring: **magical damage is worth 0.12** here where the third hundred read
+0.48 (the crews carry no `magicResist` but only Σ0.29 / Σ0.42 of `physicalResist` to bypass, so the swap
+is 6–8% of a hit), and **instance size at held damage per second is worth 0.05 / 0.33 / 0.70** across power
+1.35 / 2.20 / 3.10 — a third of what it is worth on the Angel Tower.
+
+⚠️ **The _gear archetype_ a body declares is a dial in its own right, and it is the one lever a geared
+hundred has that a naked one does not.** Identical stat lines all-`tank` / `support` / `brawler` /
+`ranger` / `mage` read 4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding arrangement, and the
+attack-and-haste profiles take **7.2 seconds off** the board as well. So the pierce carriers wear
+`brawler` and the walls wear `tank` — a way to add pressure without adding seconds. Texture rather than
+the axis, at a third of a survivor against pierce's 1.43.
+
+What the boards found that the control did not:
+
+- ⚠️ **The Crownworks collapse, again and harder.** The shipped floor-300 board reads 100% with all five
+  alive at its own level 142, **5% with 0.05 naked at 189**, and **0% in Fine 60** — the gear turning a
+  47-second loss into a 21-second one.
+- ⚠️ **No anchor had to retire — the fifth clean answer to that check.** Every heavy block above floor 200
+  stands as a lone anchor behind four light escorts at 189 in Fine 60 at 100%: `THE_BREACHLORD` at 1300/78
+  reads 4.00 / 3.95, `THE_CROWN_WHEEL` at 1240/74 reads 4.00 / 4.00. What collapses is the board.
+- ⚠️ **The roof failed at every escort and the fix was its _attack_, which inverts the Human roof
+  finding.** There the escort was the whole question and the boss's line was never touched; here, weight
+  held at 1200 hp, the roof reads **0% at `atk` 70**, 2.67 / 2.35 at **52**, 3.85 / 3.42 at 44, 4.00 / 3.95
+  at 38 — and one turn instead of three at `atk` 70 reads 100% / 1.20 and 90% / 1.55. **Shortlist on
+  weight; settle on attack**, on a roof. ⚠️ **The escort had to come down as well**: four low-`atk` commons
+  read 100% / 2.67 and 100% / 2.35, swapping one for a 900/**48** body reads 48% / 53%, and a single pierce
+  carrier in the escort reads **3% / 5%**. Both halves, not one.
+- ⚠️ **The axis carries the last floor rather than riding along**: floor 400 with the roof's pierce stripped
+  to zero reads 100% / 3.80 against 100% / 3.00 where the shipped board reads 2.67 and 2.35.
+- ⚠️ **The second hundred's "escalate in front, the back rank is a cliff" does _not_ transfer to this axis,
+  and a first pass nearly shipped the claim that it does.** On the shipped floor 398 moving a carrier
+  between ranks is worth **−0.37 to +0.33**. The earlier reading that said otherwise was taken on a five
+  whose third body also carried pierce, so moving one back put **two** carriers there — chapter 22's "a rank
+  comparison must be carried on one body", intact. **The rank rule is about output and pierce is not
+  output.**
+- ⚠️ **The closing floors fall in weight and rise in heat.** A second _heavy_ carrier (880–900 hp at 78–80
+  `atk`) in the back rank of floors 394–399 read **0% to 25%** at 68.8s; a light, hot skirmisher at 500–560
+  hp in the same slot took them to 100% with 3.3 to 4.0 alive.
+- ⚠️ **The lean overshoot had to be fixed on the _soft_ pool rather than the light one**, which is where it
+  differs from the third hundred: the shipped low-attack commons are nearly all Human, so the swap reached
+  for Monster tanks rather than light Monster texture. 77.6% on the first pass — which would have taken the
+  whole tower to 65.44% and failed the ceiling — down to **63.4%**, and the tower to **61.82%**.
+
+⚠️ **The sustain claim is stated in counts.** Of the 35 blocks the hundred fields, **zero** carry
+`lifeLeech`, `recovery` or `healthRegen`; **zero** carry a heal, drain or shield effect; **zero** carry a
+`regen`, ward or guard status; **zero** carry a taunt. No board pairs two `ascended` blocks — two in one
+front rank at the roof's level in Fine 60 reads **0% / 0%**.
+
+The hundred closes at **100% / 2.67 / 41.0s against 100% / 2.35 / 43.7s**, zero timeouts, longest cleared
+attempt **60.9s** against the 67.5s bar. ⚠️ **A roof at `atk` 54 measured 62.5s on the nose — tying the
+third hundred's record — and was declined for that alone**: it costs 0.22 of a survivor and buys nothing.
 
 ### The Elf Tower's third hundred: the crew's own missing stat
 

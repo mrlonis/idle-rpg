@@ -150,7 +150,6 @@ const TOWER_UNIT = 100;
  * those three hundred floors were tuned naked.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',
@@ -403,7 +402,8 @@ describe('tower content', () => {
     expect(ramp.fromFloor, 'the ramp starts inside the tower').toBeGreaterThan(0);
     expect(ramp.fromFloor, 'the ramp starts inside the tower').toBeLessThanOrEqual(rules.floors);
     // ⚠️ **Every floor below `fromFloor` stays naked**, which is what lets a geared hundred land
-    // without re-pricing the two thousand one hundred floors that were tuned without gear.
+    // without re-pricing the two thousand one hundred floors that were tuned without gear (2,300 shipped,
+    // 200 of them geared: the Human and Dwarf fourth hundreds).
     for (let floor = 1; floor < ramp.fromFloor; floor++) {
       expect(floorGear(rules, GEAR_RULES, floor), `floor ${floor}`).toBeUndefined();
     }

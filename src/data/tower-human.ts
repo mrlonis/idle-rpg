@@ -255,13 +255,16 @@ import {
  *    fields stand as a roof anchor behind four light escorts at level 189 in Fine 60, `THE_HOURLESS_MARCH`
  *    at 1660/76 included (4.40 / 4.00). What collapses is the **board**: the shipped floor-300 board at
  *    the new roof's level reads 100% / 1.93 against **53% / 0.55**.
- * 9. ⚠️ **`THE_PANOPLY` is the lightest tower roof this game ships _on attack_, at 68, and is tied for
- *    the lightest on health.** The seven roofs read 1240/68 (this), 1240/74 (the Dwarf Tower's Crown
- *    Wheel), 1300/76, 1300/84, 1320/82, 1440/86 and 1520/91 — so the honest claim is a **tie** on
- *    health and a clear lowest on attack, not "the lightest". It sits there because it is wearing a
- *    full Fine set the moment it is fielded, where the other six are naked, and against its own
- *    predecessor `THE_HOURLESS_MARCH` at 1660/76 it is lighter on both. **The weight a roof is allowed
- *    is what is left after the grade.**
+ * 9. ⚠️ **`THE_PANOPLY` is the _second_ lightest tower roof this game ships on both axes, and this claim
+ *    has already been overtaken once — which is the point of stating the whole list rather than a
+ *    superlative.** The roofs read 1200/**52** (the Dwarf Tower's `THE_PROOF_HOUSE`), 1240/68 (this),
+ *    1240/74, 1300/84, 1320/82, 1440/86, 1540/92 and 1560/91. It shipped as "lightest on attack, tied for
+ *    lightest on health" and the Dwarf fourth hundred took both records the next session — that hundred
+ *    is geared too, and it spends its allowance on `physicalPierce` where this one spends it on the
+ *    grade alone. This block still sits where it does because it is wearing a full Fine set the moment it
+ *    is fielded, and against its own predecessor `THE_HOURLESS_MARCH` at 1660/76 it is lighter on both.
+ *    **The weight a roof is allowed is what is left after the grade** — and a superlative about seven
+ *    towers goes stale the moment an eighth hundred lands.
  *
  * ⚠️ **The sustain claim is stated as counts, because the absolute version of it has shipped wrong
  * four times and always on one of these four words.** `recovery`, `healthRegen`, `lifeLeech`, a `regen`

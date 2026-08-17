@@ -196,8 +196,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Human Tower there yet**. What a tower is for, the three fields a clear may never touch, the four
-  crews, and fifteen hundreds' worth of measured escalation findings.
+  Human and Dwarf Towers there yet**. What a tower is for, the three fields a clear may never touch, the four
+  crews, and sixteen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -694,8 +694,8 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with six names on it.**
-  [towers](../docs/towers.md)
+  notices a tower nobody went back for. **The list is live right now with five names on it** — the Human
+  and Dwarf fourth hundreds have landed. [towers](../docs/towers.md)
 - ⚠️ **A tower's escalation axis can be the _gear its boards wear_, and the campaign's "gear is
   texture" figures do not transfer.** Every one of those was measured while the campaign's board budget
   fell 0.595 a chapter _underneath_ the ramp. Hold a tower board still and add the same gear: **Worn 1
@@ -704,6 +704,43 @@ Asserted in `core/battle/simulate.spec.ts`.
   figure was being lightened.** ⚠️ **Relic 100 is not an authorable ramp endpoint** (the control dies in
   7.1s), and ⚠️ **a tower cannot read its gear off the campaign at matched level** — that yields no gear
   anywhere, because `c12-s1` is level 225 and the tallest roof is 189. [towers](../docs/towers.md)
+- ⚠️ **The gear ramp is one rule for all seven towers, so only the _first_ geared hundred may spend it as
+  an axis. Every one after inherits it and owes an axis on top.** The Dwarf fourth hundred's is
+  `physicalPierce`, and it is the first axis aimed at the stat a crew's whole identity is:
+  `core/battle/damage.ts` computes `def × (1 − pierce)`, and the Dwarf fives carry authored `def`
+  **Σ163 / Σ186** against Undead's Σ50 / Σ45. It grades 0.10 / 0.57 / 0.85 / 1.03 / 1.43 / 2.32 across
+  0.10 → 0.60, **and in carrier counts as well** (3.95 → 3.10 across zero to four at 0.35), with zero
+  timeouts. ⚠️ **It was chosen on _fight length_** — `def` 110 is worth 1.33 at 58.2s, enemy `hp` 1300 is
+  worth 3.67 at 67.9s and a 20% win rate, `haste` 143 is worth 2.00 at 44.1s, and pierce 0.45 is worth
+  1.43 at **41.1s** against a 31.6s control. Chapter 25's rule, on a tower whose own third-hundred roof is
+  the tightest cleared fight in the project. [towers](../docs/towers.md)
+- ⚠️ **A party-side register can point at the right crew for the wrong reason, and only the measurement
+  settles it.** "The Dwarves have the most `def` to lose" is false: both **Angel** arrangements carry
+  _more_ authored `def` (Σ195 / Σ174 against Σ186 / Σ163) and lose **−0.08 and −0.29** to pierce 0.35 where
+  the Dwarves lose **−1.00 and −1.08**, first of fourteen crews. `def` is the Dwarves' _only_ mitigation —
+  no `magicResist`, no `dodge`, Σ0.12 / Σ0.32 of `tenacity`, no `lifeLeech` — where an Angel five has armour
+  **and** a choir. **State what a register is a share of, not just its size.** [towers](../docs/towers.md)
+- ⚠️ **An inherited board-shaping rule can fail to transfer to a new axis, and a confounded first pass can
+  make it look like it transferred.** The Dwarf Tower's own "escalate in front; the back rank is a cliff"
+  is a rule about **output**, and moving a pierce carrier between ranks is worth **−0.37 to +0.33**. The
+  first reading said 1.93 and 1.80 against 2.52 — because that five's _third_ body also carried pierce, so
+  moving one back put **two** carriers there. Chapter 22's "a rank comparison must be carried on one body",
+  caught before it shipped. [towers](../docs/towers.md)
+- ⚠️ **A roof can fail on its own _attack_ rather than on its escort, which inverts the Human roof
+  finding, and both halves may need to come down.** With weight held at 1200 hp the Dwarf fourth
+  hundred's roof reads **0% at `atk` 70**, 2.67 / 2.35 at **52**, 4.00 / 3.95 at 38 — and one turn instead
+  of three at `atk` 70 reads 100% / 1.20. Its escort had to come down too: four low-`atk` commons read
+  100% / 2.67, swapping one for a 900/**48** body reads 48% / 53%, and one pierce carrier in the escort
+  reads **3% / 5%**. **Shortlist on weight, settle on attack** — chapter 20's rule, on a roof.
+  ⚠️ **And a superlative about seven towers goes stale the moment the next hundred lands**: the Panoply
+  shipped as "the lightest tower roof on attack, tied on health" and the Proof House took both records one
+  session later at 1200/52. Both files now state the list of eight. [towers](../docs/towers.md)
+- ⚠️ **A session's own new blocks move the register it is citing, so state the register you _measured
+  against_.** The Dwarf fourth hundred built on `physicalPierce` at a pool of **105 of 326** blocks, median
+  0.20, Human ceiling **0.30** — and shipping its own four carriers took the pool to **109 of 330** and the
+  Human ceiling to the roof's own **0.40**. A header quoting the post-authoring figure would be claiming its
+  band was built at a register the band itself created. Same family as "a threshold claim has its range grow
+  underneath it", one step earlier. [towers](../docs/towers.md)
 - ⚠️ **The roof-above-the-rung's-cap guard stopped working at the fourth hundred and was restated
   rather than slid.** `legendary` caps at 200 against a roof of 189, so the top crew _could_ legally
   out-level its own roof while standing 66 levels under it — and band 3, unchanged since it shipped,

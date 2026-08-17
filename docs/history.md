@@ -89,7 +89,7 @@ running total carried by hand.
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 
-⚠️ **The height is 400 and only the Human Tower is there**; the other six sit on a literal `PENDING`
+⚠️ **The height is 400 and the Human and Dwarf Towers are there**; the other five sit on a literal `PENDING`
 list, the third time that discipline has run. The Panoply is the first tower hundred whose escalation
 axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
 taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
@@ -114,6 +114,30 @@ derives its level. Three findings are worth stating here because they are about 
   The reference five is plateaued at 4.00 across a wide band and cannot fall. **Re-measure a borrowed
   negative on the arrangement that binds.** (It changed nothing: `physicalResist` is still the Monster
   Tower's lock and the Panoply does not build on it.)
+
+The **Dwarf Tower's** fourth hundred is the second to land and the first to inherit the ramp rather than
+spend it, since `TOWER_RULES.gear` is one rule for all seven. It needed **no `core/` change at all** — four
+blocks, four skills, a hundred floors, four one-line `gearArchetype` edits, and a name off both `PENDING`
+lists. Three findings there are about method:
+
+- ⚠️ **A geared hundred after the first has to find an axis _on top of_ the ramp, and the ramp is not
+  available as one twice.** The Proof House's is `physicalPierce` — `def × (1 − pierce)` against the
+  deepest armour in the game (Dwarf `def` Σ163 / Σ186 against Undead's Σ50 / Σ45) — and it graded seven
+  monotone steps with zero timeouts where every stronger dial measured was the ninety-second clock.
+- ⚠️ **A party-side register can point at the right crew for the wrong reason, and the measurement is the
+  only arbiter.** Both **Angel** arrangements carry _more_ authored `def` than the Dwarves and lose −0.08
+  and −0.29 to the same wall where the Dwarves lose −1.00 and −1.08. `def` is the Dwarves' _only_
+  mitigation; the Angels have armour and a choir. **State what the register is a share of.**
+- ⚠️ **An inherited board-shaping rule can fail to transfer to a new axis, and a confounded first
+  measurement can make it look like it transferred.** This tower's "escalate in front; the back rank is a
+  cliff" is a rule about **output**, and moving a pierce carrier between ranks is worth −0.37 to +0.33. The
+  reading that said otherwise had a third pierce body on the board, so moving one back put two carriers
+  there — chapter 22's "carry a rank comparison on one body", caught before it shipped.
+
+Also worth recording because it is the failure the prose check exists for: the Panoply's own header
+claimed to be the lightest tower roof on attack and tied on health, and the Proof House took **both**
+records one session later at 1200/52. Both files now state the list of eight roofs rather than a
+superlative.
 
 ### What the third hundreds established
 

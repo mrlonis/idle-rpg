@@ -541,9 +541,20 @@ is still purely the stage's `level` against the archetype's tier.
 ⚠️ **The towers left that list at the Human Tower's fourth hundred, and it is the first geared content
 outside the campaign.** A tower does not author a set per floor — it authors a **ramp** in
 `TOWER_RULES.gear` (a first floor and two endpoints) and `floorGear` derives the pair, for the reason a
-floor's _level_ is derived. Floors 301–400 of the Human Tower run **Worn 1 → Fine 60**; every other
-floor of every tower is still naked, which is what the ramp being keyed to a **floor** rather than a
-level guarantees.
+floor's _level_ is derived. Floors 301–400 run **Worn 1 → Fine 60**; every other floor of every tower is
+still naked, which is what the ramp being keyed to a **floor** rather than a level guarantees.
+
+⚠️ **The ramp is one rule for all seven towers, and that has a consequence for authoring: only the
+_first_ geared hundred may spend it as its escalation axis.** Every hundred after inherits it for free and
+owes an axis of its own on top — the Dwarf Tower's fourth hundred is the second to land and its axis is
+`physicalPierce` against the deepest armour in the game, with the ramp as texture underneath. ⚠️ **What a
+geared hundred does get that a naked one does not is the _archetype allocation_**: `GEAR_PROFILES` splits
+each archetype's budget differently, so the same authored stat line in `mage` or `ranger` gear is a
+different board from one in `tank` gear once the grade prices it. Measured on a Dwarf board at the roof's
+level in Fine 60, identical stat lines all-`tank` / `support` / `brawler` / `ranger` / `mage` read
+4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding crew, and the attack-and-haste profiles take **7.2
+seconds** off the fight — worth a third of a survivor, so it is texture rather than an axis, but it is the
+one lever that lets a clock-bound crew be pressured without being slowed. See [towers](towers.md).
 
 ⚠️ **The "gear is texture" figures below do not transfer to a tower, and the reason is the board
 underneath them.** Every measurement in this section was taken while the campaign's board budget was

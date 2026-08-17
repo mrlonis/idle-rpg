@@ -132,10 +132,12 @@ import {
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
+  PROOF_MARK,
   PUT_IT_ON_THE_CART,
   PUT_OUT_THE_LAMPS,
   PUT_THE_EDGE_ON,
   QUICKLIME_CUT,
+  RACK_PICK,
   RAGGED_SWIPE,
   RAKE,
   RELIQUARY_SEAL,
@@ -220,6 +222,7 @@ import {
   THE_PACK_ANSWERS,
   THE_PACK_TURNS,
   THE_PANOPLY_CLOSES,
+  THE_PROOF_HOLDS,
   THE_QUENCH,
   THE_RACE_WAS_DECIDED,
   THE_RING_IS_SHUT,
@@ -248,6 +251,7 @@ import {
   UP_THROUGH_THE_TURF,
   WAKE_THE_BONE,
   WARD_THE_SEAL,
+  WARPICK_FALL,
   WEAR_IT_THROUGH,
   WHAT_FALLS_IS_SOWN,
   WHAT_FEW_REMAIN,
@@ -1571,6 +1575,7 @@ export const EMBERSEED_WARLOCK = {
   name: 'Emberseed Warlock',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 740,
     atk: 68,
@@ -1774,6 +1779,7 @@ export const ANTIPHON_ARCHON = {
   name: 'Antiphon Archon',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 720,
     atk: 56,
@@ -1818,6 +1824,7 @@ export const RIFTBORN_HARROWER = {
   name: 'Riftborn Harrower',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 780,
     atk: 70,
@@ -5470,6 +5477,7 @@ export const KILNSWORN_ADEPT = {
   name: 'Kilnsworn Adept',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 760,
     atk: 72,
@@ -11249,6 +11257,209 @@ export const THE_PANOPLY = {
   skills: [THE_PANOPLY_CLOSES, GRAVEPLATE_CRUSH, PANOPLY_WEIGHT],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fourth hundred floors — the Proof House
+//
+// ⚠️ **The axis is `physicalPierce`, and it is the first axis in the project aimed at the stat the
+// crew's whole identity is.** A Dwarf five's line is "cannot close a fight; can refuse to lose one",
+// and what it refuses with is armour: authored `def` **Σ163 / Σ186** across the two swept
+// arrangements, against Human Σ119 / Σ122, Elf Σ83 / Σ75, Monster Σ76 and Undead Σ50 / Σ45. In
+// `core/battle/damage.ts` pierce **multiplies** `def` — `def × (1 − pierce)` — so it is a discount on
+// the one thing standing between this crew and the board. Measured against a calibrated geared
+// control (an anchor at 1100/64 behind four bodies at 580/40 at level 189 wearing Fine 60, reading
+// **4.00 / 4.00**, and it moves), forty seeds, zero timeouts on every row:
+//
+// | four bodies at        | reference | alternate | worth to the alternate |
+// | --------------------- | --------- | --------- | ---------------------- |
+// | 0.00 — the control    | 4.00      | 3.95      | —                      |
+// | `physicalPierce` 0.10 | 3.98      | 3.85      | 0.10                   |
+// | `physicalPierce` 0.18 | 3.80      | 3.38      | 0.57                   |
+// | `physicalPierce` 0.25 | 3.48      | 3.10      | 0.85                   |
+// | `physicalPierce` 0.35 | 3.05      | 2.92      | **1.03**               |
+// | `physicalPierce` 0.45 | 2.92      | 2.52      | **1.43**               |
+// | `physicalPierce` 0.60 | 1.68      | 1.63 · 90%| **2.32**               |
+//
+// ⚠️ **It grades in carrier *counts* as well as in value**, which is what a hundred floors needs and
+// what almost nothing else on this crew has given: at 0.35, by how many of four carry it —
+// 3.95 → 3.98 → 3.73 → 3.33 → **3.10**. The bands walk the count first and the value second.
+//
+// ⚠️ **"Is it ours" comes back first of fourteen, and the naive version of the argument is _false_.**
+// As a change on each crew's own control, calibrated per crew to the heaviest geared board still
+// reading ~4.00 and then given pierce 0.35: **dwarf-alt −1.08, dwarf-ref −1.00**, monster-ref −0.88,
+// undead-ref −0.79, monster-alt −0.75, human-alt −0.50, human-ref −0.38, angel-ref −0.29, elf-alt
+// −0.25, demon-ref −0.21, elf-ref −0.17, angel-alt −0.08, demon-alt −0.04, undead-alt −0.04. ⚠️ **But
+// "they have the most `def` to lose" does not survive contact with the table**: the two **Angel**
+// arrangements carry *more* authored `def` than the Dwarves (Σ195 and Σ174 against Σ186 and Σ163) and
+// lose −0.08 and −0.29. What makes it this crew's is that `def` is the *only* mitigation it has —
+// zero `magicResist`, zero `dodge`, Σ0.12 / Σ0.32 of `tenacity`, no `lifeLeech` — where an Angel five
+// has armour *and* a choir. **Take the measurement, not the register.**
+//
+// ⚠️ **Three stronger dials were measured and all three are the ninety-second clock**, which is this
+// tower's own failure mode and the reason the axis was chosen on fight length rather than on
+// survivors — chapter 25's rule, arriving on a tower. Against the same control at 31.6s:
+// `def` 110 is worth 1.33 but runs **58.2s**; enemy `hp` 1300 is worth 3.67 but runs **67.9s at 20%
+// win**; `haste` 143 is worth 2.00 at 44.1s. Pierce at 0.45 is worth 1.43 at **41.1s**. The Dwarf
+// roof is already the tightest cleared fight in the project against a 67.5s bar, so an axis that buys
+// deaths per second of clock is the only kind this hundred could take.
+//
+// ⚠️ **Two negatives worth not re-measuring.** Magical damage is worth **0.12** here where the third
+// hundred read 0.48 (four magical bodies 3.40 against a physical board's 3.88) — the crews carry zero
+// `magicResist`, but only Σ0.29 / Σ0.42 of `physicalResist` to bypass, so the swap is worth 6–8% of a
+// hit and nothing else. And the **gear archetype** each body declares is a real if small dial in its
+// own right: identical stat lines all-`tank` / `support` / `brawler` / `ranger` / `mage` read
+// 4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding arrangement, and the atk-and-haste profiles
+// take **7.2 seconds off** the board as well. That is why the pierce carriers here wear `brawler` and
+// the walls wear `tank`: on a clock-bound crew the allocation is a way to add pressure without adding
+// seconds.
+//
+// ⚠️ **The shipped register, and which side of it each block lands on — measured before these four blocks
+// joined the pool, which is the only form of the figure that stays true.** `physicalPierce` sat on **105
+// of 326** blocks at a median of **0.20** and a ceiling of **0.45** (the Ravager); across the 46 Human
+// blocks it was **22** carriers, median 0.20, ceiling **0.30** — which the Standfast Lancer and the
+// Breachlord already hold, and the Crown Wheel closes the third hundred at 0.28. (With these four in, the
+// pool reads 109 of 330 and the Human ceiling is the roof's own 0.40. **State the register you measured
+// against, not the one your own blocks created.**) So the three
+// legendaries below run **0.20 / 0.25 / 0.30, all inside the Human register**, and only the roof steps
+// past it at **0.40** — still under the game's own 0.45. The Splintering Yards' shape rather than the
+// Closing's, and it is stated here so a later session can see which of the two it is looking at.
+//
+// ⚠️ **Nothing here restores anything, none of the four carries `lifeLeech`, and no board in the
+// hundred pairs two `ascended` blocks** — two in one front rank reads **0% / 0%** at the roof's level
+// in Fine 60.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The racks were still full. Whoever had been holding this floor was not the one using them.
+ *
+ * The Worn band's body and the hundred's opening statement: one war-pick off the hold's own wall, at
+ * **`physicalPierce` 0.20 — exactly the Human median** of the 22 blocks that carry any. ⚠️ **A single
+ * carrier is worth almost nothing** (3.98 against a 3.95 control at 0.35 across four), which is the
+ * point: the opening band has to teach what a pick does before the hundred can charge for four of
+ * them, the same argument {@link PLATEBOUND_HUSK} makes at the bottom of the Human ramp.
+ */
+export const RACKPICKED_LEVY = {
+  id: 'rackpicked-levy',
+  name: 'Rackpicked Levy',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 820,
+    atk: 50,
+    def: 40,
+    haste: 92,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    critBlock: 0.06,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+  },
+  skills: [RACK_PICK],
+} as const;
+
+/**
+ * The hold stamped its plate to say the plate had been tested. The host read the stamp as a promise.
+ *
+ * The Sturdy band's body, and the block the middle of the hundred is counted in: `physicalPierce`
+ * **0.25**, still inside the Human register's 0.30 ceiling. A `tank` archetype deliberately — it is
+ * the wall of the pair, so the grade it wears goes into health where {@link WARPICK_LIEUTENANT}'s goes
+ * into attack and speed.
+ */
+export const PROOFMARK_SERJEANT = {
+  id: 'proofmark-serjeant',
+  name: 'Proofmark Serjeant',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 960,
+    atk: 54,
+    def: 46,
+    haste: 90,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    critBlock: 0.08,
+    physicalPierce: 0.25,
+    physicalResist: 0.08,
+  },
+  skills: [PROOF_MARK, RACK_PICK],
+} as const;
+
+/**
+ * A pick is a poor weapon against a man and the only good one against a hold.
+ *
+ * The Fine band's lieutenant, at the **Human register's own ceiling of `physicalPierce` 0.30** — the
+ * value the Standfast Lancer and {@link THE_BREACHLORD} already hold, so the heaviest legendary in the
+ * hundred steps past nothing. ⚠️ **It stands on boards at rising levels through three bands and its
+ * stat line was settled against the last of them**, which is chapter 17's rule: a recurring anchor
+ * correct on its first board is unwinnable on its ninth, because the board climbs `perLevel` and the
+ * grade climbs on top of it while the crew stands still.
+ */
+export const WARPICK_LIEUTENANT = {
+  id: 'warpick-lieutenant',
+  name: 'Warpick Lieutenant',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1060,
+    atk: 58,
+    def: 48,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critBlock: 0.1,
+    physicalPierce: 0.3,
+    physicalResist: 0.08,
+  },
+  skills: [WARPICK_FALL, PROOF_MARK, RACK_PICK],
+} as const;
+
+/**
+ * The hold built the house that proves armour. The last thing standing in it is the proof.
+ *
+ * The roof, and **the only block in the hundred that steps past the Human register**: `physicalPierce`
+ * **0.40** against a Human ceiling of 0.30, still under the game's own 0.45. That is licensed by the
+ * measurement rather than by precedent — at 0.30 across four bodies the axis is already worth 0.85 of
+ * the binding arrangement, and the roof is one board.
+ *
+ * ⚠️ **Lighter on health than {@link THE_CROWN_WHEEL} it succeeds — 1200 against 1240 — and it is the
+ * *pierce* that pays for the difference**, which is the same trade {@link THE_PANOPLY} makes with its
+ * grade. An `ascended` block climbs at `perLevel.ascended` 1.024 against a mostly-`common` Dwarf five's
+ * 1.021, so across the 47 levels this hundred spans an anchor gains about ×1.15 on the crew before any
+ * of this is counted. Measured, the shipped floor-300 board reads 100% with all five alive at its own
+ * level 142, **5% with 0.05 naked at 189**, and **0% in Fine 60**.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds.
+ *
+ * ⚠️ **Nothing on it restores anything, it carries no taunt, and the board it stands on carries no
+ * heal, drain, regeneration or point of `lifeLeech`** — the rule 15c measured on this tower's own roof,
+ * where sustain behind a boss no Dwarf five could burst turned the last floor into the clock.
+ */
+export const THE_PROOF_HOUSE = {
+  id: 'the-proof-house',
+  name: 'The Proof House',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1200,
+    atk: 52,
+    def: 46,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.88,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.4,
+    magicPierce: 0.16,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [THE_PROOF_HOLDS, WARPICK_FALL, PROOF_MARK],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -11576,4 +11787,8 @@ export const ENEMIES = [
   PANOPLY_BEARER,
   GRAVEPLATE_MARSHAL,
   THE_PANOPLY,
+  RACKPICKED_LEVY,
+  PROOFMARK_SERJEANT,
+  WARPICK_LIEUTENANT,
+  THE_PROOF_HOUSE,
 ] as const;

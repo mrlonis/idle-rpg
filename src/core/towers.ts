@@ -26,7 +26,7 @@ import { type GameState } from './state';
  * **breadth**: seven of them is thirty-five invested characters against a campaign that has never
  * needed more than five.
  *
- * ⚠️ **The height is a rule for all seven and only the Human Tower is at it.** See `data/towers.ts`
+ * ⚠️ **The height is a rule for all seven and only the Human and Dwarf Towers are at it.** See `data/towers.ts`
  * for the `PENDING` discipline that keeps the other six honest while their floors are authored.
  *
  * ## The three ways it deliberately differs from the campaign

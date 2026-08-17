@@ -8256,6 +8256,137 @@ export const THE_PANOPLY_CLOSES = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fourth hundred floors — the Proof House
+//
+// Four skills for four blocks, and **every one of them is a single-target hit at the front rank**,
+// for a reason that is stronger on this tower than on any of the other six. The third hundred
+// measured every scope and every aim against a 4.38 / 4.00 control and found the whole set at or
+// *above* it — `enemy-row-back` 5.00 / 4.28, `enemy-back` 5.00 / 4.17, `enemy-highest` 5.00 / 4.25,
+// `enemy-all` 4.95 / 4.00, `enemy-lowest` 4.92 / 4.00 — because a Dwarf five heals, shields and
+// guards `ally-all`, so spreading damage across it is feeding the one thing it is built to do.
+// ⚠️ **Re-measured on the shipped roof board and the sign has not changed — it has sharpened.** With
+// {@link THE_PROOF_HOUSE} and its four escorts held exactly as floor 400 ships them, only the roof's
+// own turn varied, forty seeds, every row clearing at 100%:
+//
+// | the roof's turn                            | reference | alternate | worth to the alternate |
+// | ------------------------------------------ | --------- | --------- | ---------------------- |
+// | `enemy-front`, power 2.30 (shipped)        | 2.80      | 2.35      | —                      |
+// | `enemy-row-front`, power 1.20 — the cap    | 3.65      | 3.27      | **−0.92**              |
+// | `enemy-all`, power 1.20 — the cap          | 3.73      | 3.27      | **−0.92**              |
+// | `enemy-back`, power 1.20                   | 4.00      | 3.95      | **−1.60**              |
+// | `enemy-front` 2.30 behind `enemies-at-least 4` | 2.92  | 2.58      | −0.23                  |
+//
+// ⚠️ **`enemy-back` at −1.60 is the sharpest instance of the aim finding any tower has recorded**, and
+// this is the sixth tower to reproduce it. ⚠️ **`skills.spec.ts` caps a wide turn at power 1.2**, so
+// the middle two rows are the widest turns the game permits at all rather than an under-powered
+// version of the first — the comparison is the shipped turn against its only legal alternatives, which
+// is the check chapter 22 paid a whole pass to learn.
+//
+// ⚠️ **Instance size is a weak dial here and it is deliberately not the axis.** At damage per second
+// held constant on the geared control — power 1.35 / 2.20 / 3.10 at cooldowns 55 / 90 / 126 — the
+// binding arrangement reads 3.95 / 3.67 / 3.25 against a 4.00 / 4.00 control, worth 0.05, 0.33 and
+// 0.70. That is the **Angel Tower's** axis measured on this crew and found to be a third of what it
+// is worth there (−2.38). The turns therefore climb gently in power across the hundred and the block
+// carrying them climbs in `physicalPierce`.
+//
+// ⚠️ **A condition on the roof's turn was measured and declined.** `enemies-at-least 4` front-loads a
+// board's damage, which is what the Human Tower's roof spends it on — and on this crew it is worth
+// **−0.23 of five**: a restriction on the board that the party is the beneficiary of, which is chapter
+// 24's finding arriving on a roof. The mechanism is that a Dwarf five loses nobody until late, so the
+// condition is still true through the whole stretch that decides the fight and the only thing it can
+// do is switch off afterwards.
+//
+// The riders are texture and priced as texture: the status vocabulary measured inert on this crew at
+// the third hundred (a 50% stun 4.13 / 4.00, a poison 4.08 / 4.00, a bomb 4.08 / 4.00) and nothing
+// here re-opens it. See `data/towers.ts` for the gear ramp and `tower-dwarf.ts` for the floors.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The racks were still full. Nobody down here had been using them.
+ *
+ * The Worn band's turn and the plainest in the hundred, on the body that has taken one war-pick off
+ * the hold's own wall. ⚠️ **`enemy-front` rather than past it** — see the section note above; on this
+ * tower reaching past the front rank has measured *easier than saying nothing* twice, one hundred
+ * floors apart.
+ */
+export const RACK_PICK = {
+  id: 'rack-pick',
+  name: 'Rack Pick',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * The mark on the plate says the hold tested it. It does not say against what.
+ *
+ * The Sturdy band's turn, with a `SUNDER` rider that is **texture and priced as texture**. What is
+ * escalating underneath it is the `physicalPierce` on the block carrying it and the grade the whole
+ * board is wearing — not this power number, which is a fifth of a survivor at this weight.
+ */
+export const PROOF_MARK = {
+  id: 'proof-mark',
+  name: 'Proof Mark',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * A pick is a bad weapon against a man and the only good one against a hold.
+ *
+ * The Fine band's lieutenant turn. ⚠️ **Heavier than the two above it and still single-target**, for
+ * the reason the section note gives: at held damage per second an instance three times this size is
+ * worth 0.70 of five here against 2.38 on the Angel Tower, so the step up between bands is the
+ * block's pierce rather than its swing.
+ */
+export const WARPICK_FALL = {
+  id: 'warpick-fall',
+  name: 'Warpick Fall',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Four hundred floors of hold, and the last thing standing in it is wearing the hold.
+ *
+ * The roof's own turn. ⚠️ **Unconditioned, single-target, and both halves of that were measured on the
+ * shipped board** — see the section note. Either legal wide scope is worth **−0.92** of the binding
+ * arrangement and a condition **−0.23**, so the plainest turn available is also the hardest one. What
+ * makes this a roof rather than a large number is the `physicalPierce` on {@link THE_PROOF_HOUSE}
+ * standing behind it. ⚠️ **The axis carries the last floor rather than riding along**: the same five
+ * bodies with the roof's pierce stripped to zero read **100% / 3.80 against 100% / 3.00** where the
+ * shipped board reads 2.67 and 2.35, so the refusal is worth 1.13 and 0.65 of five on floor 400 — and
+ * six seconds of clock as well.
+ *
+ * ⚠️ **No heal, no drain, no regeneration and no `lifeLeech` on this floor or the fourteen under
+ * it** — the rule 15c set on this tower's own roof, where an `Oathbreaker + Warden` behind a Marsh
+ * Acolyte could not be closed inside ninety seconds by any Dwarf five while the identical board six
+ * levels lower cleared cleanly.
+ */
+export const THE_PROOF_HOLDS = {
+  id: 'the-proof-holds',
+  name: 'The Proof Holds',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.3 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8678,4 +8809,8 @@ export const SKILLS = [
   PANOPLY_WEIGHT,
   GRAVEPLATE_CRUSH,
   THE_PANOPLY_CLOSES,
+  RACK_PICK,
+  PROOF_MARK,
+  WARPICK_FALL,
+  THE_PROOF_HOLDS,
 ] as const;

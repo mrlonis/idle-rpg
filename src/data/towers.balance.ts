@@ -224,7 +224,6 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * been done this way.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',
@@ -250,7 +249,7 @@ const bandTopFloor = (band: number): number => Math.min(band * BAND_FLOORS, rule
  * `ROOF_MARGIN` does not apply to it. Every band above owes {@link ROOF_MARGIN} once, plus
  * {@link RUNG_LEVELS} for each *further* rung it has taken. The margins run 0, 20, 43, 66 and the
  * resulting crews are `rare-plus`/48, `elite`/75, `elite-plus`/99 and `legendary`/123 — the first three
- * exactly what the shipped twenty-one hundred floors were tuned against, which is the constraint this
+ * exactly what the shipped twenty-three hundred floors were tuned against, which is the constraint this
  * has to satisfy.
  *
  * ⚠️ **Band 4's rung is a `KIT_RULES.unlocks` rung and the two above it were not**, so that crew gains a

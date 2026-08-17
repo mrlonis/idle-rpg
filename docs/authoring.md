@@ -1317,10 +1317,13 @@ authors five bands each asking a different question, where a tower asks one ques
 times. A tower session deepens a faction exactly as a chapter session does, at four against ten.
 
 ⚠️ **"Roughly 25% new" is a count with a precedent behind it, not a fraction to solve for.** Four blocks
-over the Human fourth hundred's 24 distinct fielded archetypes is **16.7%**, and the four hundreds
-before it land in the same place. Restating the quota as a percentage of fielded-distinct is how a
-session talks itself into authoring twice as many; the blocks are what cost the time, and a hundred
-floors does not need eight new questions.
+over the Human fourth hundred's 24 distinct fielded archetypes is **16.7%**, four over the Dwarf fourth
+hundred's 35 is **11.4%**, and the hundreds before them land in the same place. Restating the quota as a
+percentage of fielded-distinct is how a session talks itself into authoring twice as many; the blocks are
+what cost the time, and a hundred floors does not need eight new questions. ⚠️ **The four are three
+legendaries and one `ascended` roof, and the mini-bosses are the same set arranged heavier** — a floor's
+kind is a rule (`floorKindAt`, every tenth floor) rather than a field, so a dedicated mini-boss body is a
+fifth block nobody has ever needed.
 
 ⚠️ **Budget for the lean overshoot rather than discovering it.** Authored from the lean's own bench
 a new hundred comes out at 66–86% against a 65% ceiling, every session, without exception — the
@@ -1328,6 +1331,15 @@ Human third hundred landed at 73.6%, taking the whole tower to 65.34%. Fix it **
 by substituting comparable-weight bodies through the filler slots — and ⚠️ **draw the substitutes
 only from factions that also counter the tower's**, or the swap quietly turns the lean off on that
 board.
+
+⚠️ **Which _pool_ the substitution comes out of depends on what the late bands are made of, and the
+answer changed at the Dwarf fourth hundred.** That hundred's closing bands are built from **low-attack**
+bodies rather than light skirmishers — the axis needed pressure without seconds — and the shipped
+low-attack commons are nearly all Human, so the swap had to reach for Monster _tanks_
+(`CHALKHIDE_BROWSER`, `THORNBACK_GRAZER`, `BOAR`) where the third hundred reached for light Monster
+texture. First pass **77.6%**, which would have taken the whole tower to 65.44% and failed the ceiling
+outright; corrected to 63.4%, and the tower to 61.82%. **Check the substitute pool against the shape the
+late bands actually want, not against the shape the last hundred wanted.**
 
 ⚠️ **Two ways of doing that substitution are not equivalent, and the obvious one is wrong.**
 Replacing every occurrence of a handful of filler blocks hits whichever band leans hardest on
@@ -1398,7 +1410,8 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 ×2 rather than ×5.
 
 **It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **six names on the list**. Both completed rounds
+21l–21r for the third, and the fourth is open with **five names left on the list** (Human and Dwarf have
+landed). Both completed rounds
 ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
@@ -1445,13 +1458,13 @@ fourteen hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the two
 No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
-**two thousand two hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
+**two thousand three hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
 whether it is possible — a floor is climbed once and there is no way around one, so a floor the crew
 cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Fifteen hundreds gave fifteen answers, and no two towers escalate the same way. Read the
+⚠️ **Sixteen hundreds gave sixteen answers, and no two towers escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
@@ -1515,14 +1528,48 @@ carries them all in full. What generalises is only the procedure:
      at level **225** and the tallest tower roof is 189. The whole tower system lives below where the
      spine introduces gear, so the ramp is the tower's own — and it follows that a tower is not
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
-   - ⚠️ **Key the ramp to a _floor_, never a level.** The 2,200 shipped floors were tuned naked and stay
-     naked; a ramp from floor 1 re-prices all of them.
+   - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
+     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,300 shipped floors, 200 are
+     geared — the Human and Dwarf fourth hundreds.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
-     `chapters.spec.ts` has. Nine of the Human Tower's blocks needed the one-line edit, and **none of
-     the nine stands on a geared campaign stage**, so the bill was free — check that before assuming it
-     is, exactly as chapter 22 had to.
+     `chapters.spec.ts` has. Nine of the Human Tower's blocks needed the one-line edit and four of the
+     Dwarf Tower's did, and **none of the thirteen stands on a geared campaign stage**, so the bill was
+     free both times — check that before assuming it is, exactly as chapter 22 had to.
+   - ⚠️ **The ramp is one rule for all seven towers, so only the _first_ geared hundred may spend it as an
+     axis.** Every one after it inherits the ramp for free and owes an axis of its own on top — the Dwarf
+     fourth hundred is the second to land and had to go and find one. ⚠️ **What a geared hundred does get
+     that a naked one does not is the _archetype allocation_**: `GEAR_PROFILES` splits each archetype's
+     budget differently, so the same stat line in `ranger` gear is a different board from one in `tank`
+     gear once the grade prices it. Identical lines all-`tank` / `support` / `brawler` / `ranger` / `mage`
+     read 4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding Dwarf crew, and the attack-and-haste
+     profiles take **7.2 seconds** off the board. Texture at a third of a survivor — but it is the one
+     lever that pressures a clock-bound crew without slowing it.
+   - ⚠️ **A hundred whose axis is a stat aimed at the crew's own defence is the sharpest form of "is it
+     ours", and the party-side register can still point at the wrong crew.** The Dwarf fourth hundred's
+     `physicalPierce` (`def × (1 − pierce)`, against authored `def` Σ163 / Σ186 versus Undead's Σ50 / Σ45)
+     costs dwarf-alt **−1.08** and dwarf-ref −1.00, first of fourteen crews — but both **Angel**
+     arrangements carry _more_ `def` (Σ195 / Σ174) and lose −0.08 and −0.29, because `def` is the Dwarves'
+     only mitigation and the Angels have armour _and_ a choir. **State what a register is a share of, not
+     just its size.**
+   - ⚠️ **Pick the axis on _fight length_ when the crew's failure mode is the clock.** Three dials measured
+     stronger for that crew and all three walk into the timer: `def` 110 worth 1.33 at 58.2s, enemy `hp`
+     1300 worth 3.67 at **67.9s and a 20% win rate**, `haste` 143 worth 2.00 at 44.1s — against pierce
+     0.45 worth 1.43 at **41.1s** on a 31.6s control. Chapter 25's rule, on a tower.
+   - ⚠️ **An inherited board-shaping rule may not transfer to a new axis, and a confounded first pass can
+     make it look like it did.** The Dwarf Tower's own "escalate in front; the back rank is a cliff" is a
+     rule about **output**, and moving a _pierce_ carrier between ranks is worth −0.37 to +0.33. The first
+     reading said otherwise because that five's third body also carried pierce, so moving one back put
+     **two** carriers there. Carry a rank comparison on one body.
+   - ⚠️ **A roof can fail on its own `atk` rather than on its escort, and both halves may have to come
+     down.** The Human roof needed nine escort shapes and never touched the boss's line; the Dwarf roof,
+     weight held at 1200 hp, reads **0% at `atk` 70** and 2.67 / 2.35 at **52** — and its escort had to
+     come down too (four low-`atk` commons read 100% / 2.67; one 900/48 body among them reads 48% / 53%;
+     one pierce carrier in the escort reads **3% / 5%**). **Shortlist on weight, settle on attack.**
+   - ⚠️ **A superlative about seven towers goes stale the moment the next hundred lands.** The Panoply
+     shipped as "the lightest tower roof on attack, tied on health"; the Proof House took both records one
+     session later at 1200/52. Both files now state the list of eight roofs instead.
 6. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's
    band openers.

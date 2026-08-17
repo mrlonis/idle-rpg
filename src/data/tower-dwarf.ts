@@ -9,12 +9,15 @@ import {
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
   CARRION_SWARM,
+  CHALKHIDE_BROWSER,
   CHARNEL_DRUDGE,
   CINDERLING,
   CINDER_CULLER,
+  CLEFTHORN_GORER,
   COLDFORGE_HAND,
   COLOSSUS,
   COUNTERSIGN_CAPTAIN,
+  COUNTERWEIGHT_BEARER,
   CROWNWORKS_STRIKER,
   DEEPGALLERY_RUNNER,
   DUSKFERN_SKIRMISHER,
@@ -22,6 +25,7 @@ import {
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
+  GANTRY_WARDEN,
   GLADE_STALKER,
   GLOAMVINE_CREEPER,
   GOLEM,
@@ -49,8 +53,11 @@ import {
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
   ORDER_SERJEANT,
+  PROOFMARK_SERJEANT,
   PYRE,
   QUENCHPIT_IRONHIDE,
+  RACKPICKED_LEVY,
+  RAMHEAD_SERJEANT,
   RAVAGER,
   REDWATER_STALKER,
   RENDFANG_JACKAL,
@@ -63,10 +70,13 @@ import {
   ROADWATCH_BOWMAN,
   RUNEWARDEN,
   SCARBOUND_BELLOWER,
+  SCARWEAVE_TRAMPLER,
+  SCREEBACK_DARTER,
   SENTINEL,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SIGHTLINE_CLERK,
   SIGNAL_RUNNER,
   SKYSHRIKE,
   SLAGBOUND_DRUDGE,
@@ -75,6 +85,7 @@ import {
   STORMCALLER,
   THE_BREACHLORD,
   THE_CROWN_WHEEL,
+  THE_PROOF_HOUSE,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
@@ -82,6 +93,7 @@ import {
   VANWARD_SPEAR,
   VAULTBOUND_GAOLER,
   WARDEN,
+  WARPICK_LIEUTENANT,
   WEALDSHADOW_STALKER,
   WHISPERLEAF_ARCHER,
   WISP,
@@ -90,24 +102,29 @@ import {
 } from './enemies';
 
 /**
- * The Dwarf Tower — three hundred floors, enemy levels 1 to 142.
+ * The Dwarf Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## Why the enemies are mostly Human
  *
  * Humans beat Dwarves in the matchup cycle, so this is the tower that punishes the crew it admits.
- * About three fifths of the slots are Human — **61.3%** across the whole tower — and the rest are
- * spread across the other six factions, which is the shape the matrix needs: a mono-Dwarf five meets
- * fights it is unfavoured in *and* fights it is favoured in, rather than a mirror match that would
- * switch the matrix off entirely. [`towers.spec.ts`](./towers.spec.ts) measures the share rather than
- * trusting this paragraph.
+ * About three fifths of the slots are Human — **61.82%** across the whole tower, over 1,959 slots and
+ * 100 distinct blocks — and the rest are spread across the other six factions, which is the shape the
+ * matrix needs: a mono-Dwarf five meets fights it is unfavoured in *and* fights it is favoured in,
+ * rather than a mirror match that would switch the matrix off entirely.
+ * [`towers.spec.ts`](./towers.spec.ts) measures the share rather than trusting this paragraph.
  *
  * ⚠️ **Every hundred so far has wanted to be far more Human than that** — authored from the lean's
  * own bench the second came out at 86%, exactly as 21e's did — and each is held down by substituting
  * non-Human bodies of comparable weight through the filler slots. That is a thing to do on purpose
- * rather than a thing that happens. The third hundred landed at **63.4%** by drawing its texture from
- * the other three factions that also counter Dwarves: Monsters and Humans at ×1.05, Demons and Angels
- * at ×1.10. ⚠️ **Drawing a substitute from anywhere else quietly switches the lean off on that
- * board.**
+ * rather than a thing that happens. The third and fourth hundreds both landed at **63.4%** by drawing
+ * their texture from the other three factions that also counter Dwarves: Monsters and Humans at ×1.05,
+ * Demons and Angels at ×1.10. ⚠️ **Drawing a substitute from anywhere else quietly switches the lean
+ * off on that board.** ⚠️ **The fourth hundred's overshoot was fixed on the _soft_ pool rather than the
+ * light one**, which is where it differs from the third: its late bands are made of low-attack bodies
+ * rather than skirmishers, and the shipped low-attack commons are nearly all Human — so the swap had to
+ * reach for Monster tanks (`CHALKHIDE_BROWSER`, `THORNBACK_GRAZER`, `BOAR`) rather than for the light
+ * Monster texture the bands below use. It closed at 63.4% from a first pass at **77.6%**, which would
+ * have taken the whole tower to 65.44% and failed the ceiling outright.
  *
  * ## What a Dwarf five is, and what this tower charges it for
  *
@@ -196,21 +213,176 @@ import {
  * [`QUENCHPIT_IRONHIDE`](./enemies.ts) — a taunt on the body that is *itself* the durability, at
  * 3.98 / **3.02**. It arrives a band after the swing does and it never stands on the roof.
  *
+ * ## ⚠️ The fourth hundred — the Proof House — is armour-piercing kit out of the hold's own armoury
+ *
+ * The Proof House, floors 301–400, levels 142–189: the host has got into the armoury and comes up the
+ * stair wearing what the hold forged and carrying what the hold forged to test it with. The gear is
+ * `TOWER_RULES.gear` and it is **one rule for all seven towers** — Worn 1 at floor 301 to Fine 60 at the
+ * roof, walked as one position on the concatenated grade ladder, grades stepping at floors 301, 318 and
+ * 351 — so unlike the Human Tower, which spent that ramp *as* its axis, this hundred gets it for free
+ * and had to find an axis of its own on top of it.
+ *
+ * ⚠️ **That axis is `physicalPierce`, and it is the first in the project aimed at the stat the crew's
+ * whole identity is.** "Cannot close a fight; can refuse to lose one" is a sentence about armour: the two
+ * swept arrangements carry authored `def` **Σ163 / Σ186** against Human Σ119 / Σ122, Elf Σ83 / Σ75,
+ * Monster Σ76 and Undead Σ50 / Σ45. `core/battle/damage.ts` computes `def × (1 − pierce)`, so pierce is a
+ * discount on the only thing standing between this crew and the board. Measured against a calibrated
+ * geared control — an anchor at 1100/64 behind four bodies at 580/40 at level 189 in Fine 60, reading
+ * **4.00 / 4.00**, and it moves — forty seeds, **zero timeouts on every row**:
+ *
+ * | four bodies at        | reference | alternate  | worth to the alternate |
+ * | --------------------- | --------- | ---------- | ---------------------- |
+ * | 0.00 — the control    | 4.00      | 3.95       | —                      |
+ * | `physicalPierce` 0.10 | 3.98      | 3.85       | 0.10                   |
+ * | `physicalPierce` 0.18 | 3.80      | 3.38       | 0.57                   |
+ * | `physicalPierce` 0.25 | 3.48      | 3.10       | 0.85                   |
+ * | `physicalPierce` 0.35 | 3.05      | 2.92       | **1.03**               |
+ * | `physicalPierce` 0.45 | 2.92      | 2.52       | **1.43**               |
+ * | `physicalPierce` 0.60 | 1.68      | 1.63 · 90% | **2.32**               |
+ *
+ * ⚠️ **It grades in carrier _counts_ as well as in value, which is what a hundred floors needs.** At 0.35,
+ * by how many of four carry it: 3.95 → 3.98 → 3.73 → 3.33 → **3.10**. So the bands walk the count first
+ * and the value second, which is what gives five bands something to be:
+ *
+ * | Band | Floors  | Levels  | Grade             | Bodies at `physicalPierce` ≥ 0.20 | Raw health  |
+ * | ---- | ------- | ------- | ----------------- | --------------------------------- | ----------- |
+ * | 1    | 301–320 | 142–151 | Worn 1–Sturdy 4   | 1–2                               | 3,360–3,850 |
+ * | 2    | 321–345 | 152–163 | Sturdy 5–34       | 2–3                               | 3,330–3,830 |
+ * | 3    | 346–365 | 164–173 | Sturdy 35–Fine 18 | 3–4                               | 3,640–4,300 |
+ * | 4    | 366–385 | 173–182 | Fine 19–42        | 3–4                               | 3,760–4,380 |
+ * | 5    | 386–400 | 182–189 | Fine 43–60        | 1–3                               | 3,320–4,340 |
+ *
+ * ⚠️ **Stated as bodies per board rather than as an absolute, because `physicalPierce` is a _common_
+ * stat** — 105 of the 326 blocks that predate this hundred carry some — so "the picks arrive in band 2"
+ * would be false the day it was
+ * written. That is chapter 23's counts-not-absolutes fix, on a tower. ⚠️ **The closing band's count
+ * _falls_, and that is the ramp working**: it trades carriers for the roof's own 0.40 and for a grade that
+ * is worth +65.7% health on a `tank`, exactly as the Human hundred's authored weight falls across its
+ * fourth hundred. The top of each band's range is its **tenth floors** — 310 and 320, 330 and 340, 350 and
+ * 360, 370 and 380, 390 — **and in band 3 its closing five floors as well** (361–365 also carry four),
+ * which is that band handing over to the next one rather than an exception.
+ *
+ * ⚠️ **It was chosen on _fight length_ rather than on survivors, which is chapter 25's rule arriving on a
+ * tower — and on this tower it is the only rule that could have chosen.** Three dials measured *stronger*
+ * and all three are the ninety-second clock. Against the same control at 31.6s: `def` 110 is worth 1.33
+ * but runs **58.2s**; enemy `hp` 1300 is worth 3.67 but runs **67.9s at a 20% win rate**; `haste` 143 is
+ * worth 2.00 at 44.1s and is the second hundred's axis anyway. Pierce at 0.45 is worth 1.43 at **41.1s**.
+ * This tower's own third-hundred roof is the tightest cleared fight in the project at 62.5 seconds against
+ * a 67.5-second bar, so an axis that buys deaths per second of clock is the only kind available.
+ *
+ * ⚠️ **"Is it ours" comes back first of fourteen, and the naive form of the argument is _false_.** As a
+ * change on each crew's own control — calibrated per crew to the heaviest geared board still reading ~4.00,
+ * then given pierce 0.35: **dwarf-alt −1.08, dwarf-ref −1.00**, monster-ref −0.88, undead-ref −0.79,
+ * monster-alt −0.75, human-alt −0.50, human-ref −0.38, angel-ref −0.29, elf-alt −0.25, demon-ref −0.21,
+ * elf-ref −0.17, angel-alt −0.08, demon-alt −0.04, undead-alt −0.04. ⚠️ **But "they have the most `def` to
+ * lose" does not survive the table**: both **Angel** arrangements carry *more* authored `def` than the
+ * Dwarves (Σ195 and Σ174 against Σ186 and Σ163) and lose −0.08 and −0.29. What makes it this crew's is that
+ * `def` is the *only* mitigation it has — zero `magicResist`, zero `dodge`, Σ0.12 / Σ0.32 of `tenacity`, no
+ * `lifeLeech` — where an Angel five has armour *and* a choir. **Take the measurement, not the register.**
+ *
+ * ⚠️ **It is not the Monster Tower's lock wearing a new name, and the damage formula is why.** That tower's
+ * third hundred is built on enemy `physicalResist` — the board refusing the crew's damage — and its own
+ * argument is that pierce multiplies `def` while resist is applied afterwards untouched by it. This is the
+ * same sentence read from the other side of the board: the enemies pierce, and what they pierce is the
+ * deepest armour in the game.
+ *
+ * ⚠️ **The register, and which side of it each block lands on — measured before this hundred's own four
+ * blocks joined the pool, which is the only form of the figure that stays true.** `physicalPierce` sat on
+ * **105 of 326** blocks at a median of **0.20** and a ceiling of **0.45** (the Ravager); across the 46 Human
+ * blocks it was **22** carriers, median 0.20, ceiling **0.30**, which the Standfast Lancer and the
+ * Breachlord already hold and which [`THE_CROWN_WHEEL`](./enemies.ts) closes the third hundred at 0.28.
+ * (The pool now reads 109 of 330 and the Human ceiling is this roof's own 0.40 — state the register you
+ * measured against, not the one your own blocks created.) The three new legendaries run
+ * **0.20 / 0.25 / 0.30, all inside the Human register**, and only the roof steps past it at **0.40** —
+ * still under the game's own 0.45. That is the Splintering Yards' shape rather than the Closing's, and the
+ * figure at the register is stated so a later session can tell which it is looking at: at 0.30 across four
+ * bodies the axis is already worth 0.85 of the binding arrangement.
+ *
+ * ⚠️ **Two negatives worth not re-measuring.** Magical damage is worth **0.12** here where the third
+ * hundred read 0.48 — the crews carry zero `magicResist`, but only Σ0.29 / Σ0.42 of `physicalResist` to
+ * bypass, so the swap is worth 6–8% of a hit and nothing else. And instance size at held damage per second
+ * is worth 0.05 / 0.33 / **0.70** across power 1.35 / 2.20 / 3.10 — a third of what the Angel Tower's own
+ * axis is worth there, so the turns climb gently and the block carrying them climbs in pierce.
+ *
+ * ⚠️ **The _gear archetype_ each body declares is a small dial in its own right, and it is the one lever
+ * this hundred has that the naked hundreds did not.** Identical stat lines all-`tank` / `support` /
+ * `brawler` / `ranger` / `mage` read 4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding arrangement, and
+ * the attack-and-haste profiles take **7.2 seconds off** the board as well. So the pierce carriers wear
+ * `brawler` and the walls wear `tank`: on a clock-bound crew the allocation is a way to add pressure
+ * without adding seconds. It is texture rather than the axis — a third of a survivor against pierce's 1.43.
+ *
+ * ### ⚠️ What the boards found that the control did not
+ *
+ * - ⚠️ **The Crownworks collapse, again and harder.** The shipped floor-300 board fielded up the level line
+ *   against the band-4 crew reads 100% with all five alive at its own level 142, **5% with 0.05 naked at
+ *   189**, and **0% in Fine 60** — the gear turning a 47-second loss into a 21-second one. **Check the
+ *   previous hundred's roof board at the new roof's level before authoring anything.**
+ * - ⚠️ **No anchor had to retire, and that is the fifth clean answer to that check.** Every heavy block this
+ *   tower fields above floor 200 stands as a lone anchor behind four light escorts at level 189 in Fine 60
+ *   at 100% — [`THE_BREACHLORD`](./enemies.ts) at 1300/78 reading 4.00 / 3.95 and
+ *   [`THE_CROWN_WHEEL`](./enemies.ts) at 1240/74 reading 4.00 / 4.00. What collapses is the **board**.
+ *   **Run the check anyway; a clean answer is a result.**
+ * - ⚠️ **The roof failed at every escort and the fix was its _attack_, which inverts the Human Tower's
+ *   roof finding.** There the escort was the whole question and the boss's stat line was never touched;
+ *   here, with weight held at 1200 hp and the escort held, the roof reads **0% at `atk` 70**, 2.67 / 2.35 at
+ *   **52**, 3.85 / 3.42 at 44 and 4.00 / 3.95 at 38. The third turn is most of it: one turn instead of three
+ *   at `atk` 70 reads 100% / 1.20 and 90% / 1.55. **Shortlist on weight; settle on attack** — chapter 20's
+ *   rule, on a roof, and it is why [`THE_PROOF_HOUSE`](./enemies.ts) carries the lowest `atk` of any tower
+ *   roof in the game at 52.
+ * - ⚠️ **The escort still had to come down as well, and only low-`atk` commons work.** Four of them read
+ *   100% / 2.67 against 100% / 2.35; swapping one for `MUSTER_PIKE` at 900/**48** reads **48% / 53%**, and
+ *   putting a single pierce carrier in the escort reads **3% / 5%**. Both halves of a roof, not one.
+ * - ⚠️ **The axis carries the last floor rather than riding along.** Floor 400 with the roof's pierce
+ *   stripped to zero reads 100% / **3.80** against 100% / **3.00** where the shipped board reads 2.67 and
+ *   2.35 — worth 1.13 and 0.65 of five, and six seconds of clock.
+ * - ⚠️ **The second hundred's "escalate in front, the back rank is a cliff" does _not_ transfer to this
+ *   axis, and a first pass nearly shipped the claim that it does.** On the shipped floor 398, moving a
+ *   carrier between ranks is worth **−0.37 to +0.33** and changes nothing on the clock: both in front reads
+ *   2.55 / 2.58, the Serjeant behind 2.92 / 2.83, the Lieutenant behind 2.63 / 2.25, both behind
+ *   3.20 / 2.60. The earlier reading that said otherwise (1.93 and 1.80 against 2.52) was taken on a five
+ *   whose *third* body also carried pierce, so moving one back put **two** carriers there — a different
+ *   experiment, which is chapter 22's "a rank comparison must be carried on one body" arriving intact.
+ *   ⚠️ **The rank rule is about _output_ and pierce is not output**: a discount on `def` bills wherever the
+ *   party is already aiming. The boards keep their carriers in front because that is where the weight
+ *   belongs, not because the axis prices differently by rank.
+ * - ⚠️ **The closing floors fall in weight and rise in heat, and reaching for a heavy carrier there is a
+ *   cliff.** A first pass put a second hot carrier (Redwater Stalker or Standfast Lancer, 880–900 hp at 78–80
+ *   `atk`) in the back rank of floors 394–399 and read **0% to 25%** with maxima at 68.8s. Replacing it with
+ *   a light, hot skirmisher at 500–560 hp took the same floors to 100% with 3.3 to 4.0 alive.
+ * - ⚠️ **No board pairs two `ascended` blocks**, which is not a habit here: two in one front rank at the
+ *   roof's level in Fine 60 reads **0% / 0%**.
+ * - ⚠️ **A mini-boss peak has to be checked in survivors as well as in seconds on this hundred, and
+ *   floor 380 is the case that shows why.** Eight of the nine tenth floors read longer than both their
+ *   neighbours; floor 380 reads **21.3s against 24.0s and 24.4s** and is still the peak, because it costs
+ *   **3.77 of five against their 4.00 and 4.50**. That is the hundred's own thesis arriving in its rhythm:
+ *   an axis chosen to convert weight into deaths rather than into seconds produces peaks that are *faster*
+ *   than the floors around them. ⚠️ **Two others (310 and 340) were genuinely flat on the first pass and
+ *   were lifted with heavier _texture_ rather than another carrier**, so the per-band carrier counts stayed
+ *   what the band table says they are.
+ *
  * ## What the bands measure at
  *
  * Band 1: floor 1 in one second, floor 50 in seven, floor 100 in forty-four with three of five
  * down. Band 2: floor 101 in five seconds, floor 160 in fourteen, floor 200 in thirty-six at 98%
  * with 2.3 alive, and the alternate five takes it at **88% with 1.5**. Band 3: floor 201 in eight
  * seconds, floor 250 in twelve, floor 290 in twenty at 4.03, floor 299 in twenty-eight at 3.00, and
- * the roof in **thirty-three seconds at 2.77 — 42.3s and 1.82 for the alternate five.** Win rate is
- * 100% almost the whole way, which is the intended shape — a floor is climbed once and there is no
- * way around one. What ramps is what it costs: the reference five loses nobody below floor 80 in
- * band 1, floor 185 in band 2 or **floor 280** in band 3, and the alternate first pays at **251**.
+ * the roof in **thirty-three seconds at 2.77 — 42.3s and 1.82 for the alternate five.** Band 4: floor
+ * 301 in six and a half seconds, floor 345 in thirteen, floor 365 in nineteen at 4.00, floor 385 in
+ * twenty-eight at 3.83, floor 399 in thirty-nine at 3.40, and the roof in **forty-one seconds at
+ * 2.67 — 43.7s and 2.35 for the alternate five**, with **zero timeouts anywhere in the hundred**. Win
+ * rate is 100% almost the whole way, which is the intended shape — a floor is climbed once and there is
+ * no way around one. What ramps is what it costs: the reference five loses nobody below floor 80 in
+ * band 1, floor 185 in band 2, **floor 280** in band 3 or **floor 362** in band 4, and the alternate
+ * first pays at **251** and then at **340**.
  *
- * ⚠️ **The roof is the tightest fight in the project against the timer and it is worth knowing.**
- * The alternate five's longest single attempt on floor 300 is **62.5 seconds** against the sweep's
- * 67.5-second bar for a cleared fight, and no other floor in the hundred passes 39.2. A heavier roof
- * was measured and rejected for exactly this reason rather than for its win rate.
+ * ⚠️ **The third hundred's roof is the tightest fight in the project against the timer and the fourth
+ * hundred deliberately did not tie it.** The alternate five's longest single attempt on floor 300 is
+ * **62.5 seconds** against the sweep's 67.5-second bar for a cleared fight, and no other floor in that
+ * hundred passes 39.2; a heavier roof was measured and rejected for exactly that reason rather than for
+ * its win rate. In the fourth hundred the longest cleared attempt is **60.9s** (the reference five on
+ * floor 398) and the alternate's worst on the roof itself is **57.9s** — a roof one step back from the
+ * one below it, chosen on the clock. ⚠️ **A roof at `atk` 54 rather than 52 measured 62.5s on the nose
+ * and was declined for that alone**: it costs 0.2 of a survivor and buys back nothing.
  *
  * ⚠️ **The roof is far lighter than the Human Tower's and that is 15c's rule rather than an
  * oversight**: anchors are sized against the tower's own crew, never to a shared weight. A roof at
@@ -219,8 +391,17 @@ import {
  * the Breachlord it succeeds, for the growth reason above.
  *
  * ⚠️ **No board pairs a taunt with a body that heals**, and **no board above floor 200 restores
- * anything at all** — checked by walking all three hundred floors with a script rather than by
+ * anything at all** — checked by walking all four hundred floors with a script rather than by
  * reading them, which is how the one board that broke it was found.
+ *
+ * ⚠️ **The fourth hundred's version of that claim is stated in counts, because the absolute form has
+ * shipped wrong four times across the seven towers and always on one of five different words.**
+ * `recovery`, `healthRegen`, `lifeLeech`, a `regen` **status** and a `heal` **effect** are five separate
+ * things. Measured over the hundred rather than read: of the **35 blocks** it fields, **zero** carry a
+ * point of `lifeLeech`, `recovery` or `healthRegen`; **zero** carry a heal, drain or shield effect; **zero**
+ * carry a `regen`, ward or guard status; and **zero** carry a taunt. That is the strictest sustain claim
+ * any hundred in this project makes, and it is the crew's own failure mode rather than fastidiousness —
+ * every point of enemy sustain is a second of clock a party that cannot burst does not have.
  *
  * ⚠️ **The stricter claim this file used to make about floor 180 was wrong, and the script is what
  * caught it.** Three boards above 180 do carry restoration: the Oathshield Vanguard's `recovery` 5 on
@@ -230,7 +411,7 @@ import {
  * the open is not sustain anyone has to outpace. **What is forbidden above floor 180 is a heal, a
  * drain or a regeneration**, and there is none.
  *
- * Re-run `npm run test:balance` after touching any band above floor 68, floor 180 or floor 270.
+ * Re-run `npm run test:balance` after touching any band above floor 68, 180, 270 or 385.
  */
 export const TOWER_DWARF = {
   id: 'tower-dwarf',
@@ -2394,6 +2575,826 @@ export const TOWER_DWARF = {
       enemies: {
         front: [THE_CROWN_WHEEL, CROWNWORKS_STRIKER],
         back: [STORMCALLER, KILNSWORN_ADEPT, ROADWATCH_BOWMAN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Rack Room — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — the armoury door is open and one of them has taken a pick off the wall.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [RACKPICKED_LEVY, SCARWEAVE_TRAMPLER],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [RACKPICKED_LEVY, GANTRY_WARDEN],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [RACKPICKED_LEVY, SIGHTLINE_CLERK],
+        back: [RIFTSTEP_REAVER, ROADWATCH_BOWMAN, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [RACKPICKED_LEVY, COUNTERWEIGHT_BEARER],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [RACKPICKED_LEVY, SCARWEAVE_TRAMPLER],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [RACKPICKED_LEVY, GANTRY_WARDEN],
+        back: [ANTIPHON_ARCHON, SCREEBACK_DARTER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [RACKPICKED_LEVY, SIGHTLINE_CLERK],
+        back: [STORMCALLER, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [RACKPICKED_LEVY, COUNTERWEIGHT_BEARER],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [RACKPICKED_LEVY, SCARWEAVE_TRAMPLER],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f310',
+      name: 'Floor 310 — The Rack Room',
+      enemies: {
+        front: [RACKPICKED_LEVY, STANDFAST_LANCER],
+        back: [STORMCALLER, RIFTSTEP_REAVER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [RACKPICKED_LEVY, SIGHTLINE_CLERK],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [RACKPICKED_LEVY, COUNTERWEIGHT_BEARER],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [RACKPICKED_LEVY, SCARWEAVE_TRAMPLER],
+        back: [ANTIPHON_ARCHON, SCREEBACK_DARTER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [RACKPICKED_LEVY, GANTRY_WARDEN],
+        back: [STORMCALLER, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [RACKPICKED_LEVY, SIGHTLINE_CLERK],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [RACKPICKED_LEVY, COUNTERWEIGHT_BEARER],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [RACKPICKED_LEVY, SCARWEAVE_TRAMPLER],
+        back: [RIFTSTEP_REAVER, ROADWATCH_BOWMAN, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [RACKPICKED_LEVY, GANTRY_WARDEN],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [RACKPICKED_LEVY, SIGHTLINE_CLERK],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f320',
+      name: 'Floor 320 — The Rack Room',
+      enemies: {
+        front: [RACKPICKED_LEVY, REDWATER_STALKER],
+        back: [ANTIPHON_ARCHON, SCREEBACK_DARTER, VANWARD_SPEAR],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Fitting Floor — Floors 321–345, levels 152–163, Sturdy 5–Sturdy 34 — two of them now, and the grade steps to Sturdy underneath.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [RACKPICKED_LEVY, REDWATER_STALKER],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [RIFTSTEP_REAVER, ROADWATCH_BOWMAN, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [RACKPICKED_LEVY, STANDFAST_LANCER],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [RACKPICKED_LEVY, RAMHEAD_SERJEANT],
+        back: [ANTIPHON_ARCHON, SCREEBACK_DARTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [STORMCALLER, CLEFTHORN_GORER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [RACKPICKED_LEVY, REDWATER_STALKER],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f330',
+      name: 'Floor 330 — The Fitting Floor',
+      enemies: {
+        front: [RACKPICKED_LEVY, STANDFAST_LANCER],
+        back: [CROWNWORKS_STRIKER, RIFTSTEP_REAVER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [RACKPICKED_LEVY, RAMHEAD_SERJEANT],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [ANTIPHON_ARCHON, SCREEBACK_DARTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [RACKPICKED_LEVY, REDWATER_STALKER],
+        back: [STORMCALLER, CLEFTHORN_GORER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [RACKPICKED_LEVY, STANDFAST_LANCER],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [RIFTSTEP_REAVER, ROADWATCH_BOWMAN, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [RACKPICKED_LEVY, RAMHEAD_SERJEANT],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [EMBERSEED_WARLOCK, FORLORN_LEVY, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f340',
+      name: 'Floor 340 — The Fitting Floor',
+      enemies: {
+        front: [RACKPICKED_LEVY, REDWATER_STALKER],
+        back: [CROWNWORKS_STRIKER, STORMCALLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [STORMCALLER, CLEFTHORN_GORER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [RACKPICKED_LEVY, STANDFAST_LANCER],
+        back: [KILNSWORN_ADEPT, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [SERAPH_ADJUDICANT, MIREWHELP, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [RACKPICKED_LEVY, RAMHEAD_SERJEANT],
+        back: [RIFTSTEP_REAVER, ROADWATCH_BOWMAN, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, RACKPICKED_LEVY],
+        back: [RIFTBORN_HARROWER, ASHPIT_SCUTTLER, CLEFTHORN_GORER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Proving Floor — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three, and Fine plate arrives on the boards carrying them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RENDFANG_JACKAL, VANWARD_SPEAR, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, REDWATER_STALKER],
+        back: [REDWATER_STALKER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [STANDFAST_LANCER, ROADWATCH_BOWMAN, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, STANDFAST_LANCER],
+        back: [KINGSWAY_LANCER, ASHPIT_SCUTTLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f350',
+      name: 'Floor 350 — The Proving Floor',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RACKPICKED_LEVY, RENDFANG_JACKAL, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RAMHEAD_SERJEANT],
+        back: [RENDFANG_JACKAL, SCREEBACK_DARTER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [REDWATER_STALKER, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, REDWATER_STALKER],
+        back: [STANDFAST_LANCER, VANWARD_SPEAR, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [KINGSWAY_LANCER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, STANDFAST_LANCER],
+        back: [CROWNWORKS_STRIKER, ROADWATCH_BOWMAN, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RENDFANG_JACKAL, ASHPIT_SCUTTLER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RAMHEAD_SERJEANT],
+        back: [REDWATER_STALKER, FORLORN_LEVY, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-dwarf-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [STANDFAST_LANCER, SCREEBACK_DARTER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, REDWATER_STALKER],
+        back: [KINGSWAY_LANCER, CLEFTHORN_GORER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f360',
+      name: 'Floor 360 — The Proving Floor',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RACKPICKED_LEVY, RENDFANG_JACKAL, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, STANDFAST_LANCER],
+        back: [RENDFANG_JACKAL, STANDFAST_LANCER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [REDWATER_STALKER, KINGSWAY_LANCER, ROADWATCH_BOWMAN],
+      },
+    },
+    {
+      id: 't-dwarf-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RAMHEAD_SERJEANT],
+        back: [STANDFAST_LANCER, CROWNWORKS_STRIKER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [KINGSWAY_LANCER, RENDFANG_JACKAL, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, REDWATER_STALKER],
+        back: [CROWNWORKS_STRIKER, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Pick Line — Floors 366–385, levels 173–182, Fine 19–Fine 42 — three abreast and four on the tenth floors, and the weight starts to ease as the grade climbs.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RENDFANG_JACKAL, FREE_BLADE, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [REDWATER_STALKER, BOAR, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, KINGSWAY_LANCER],
+        back: [STANDFAST_LANCER, BANDIT, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-dwarf-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [KINGSWAY_LANCER, CHALKHIDE_BROWSER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f370',
+      name: 'Floor 370 — The Pick Line',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [CROWNWORKS_STRIKER, RENDFANG_JACKAL, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, COUNTERSIGN_CAPTAIN],
+        back: [RENDFANG_JACKAL, THORNBACK_GRAZER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [REDWATER_STALKER, FREE_BLADE, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [STANDFAST_LANCER, BOAR, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, CROWNWORKS_STRIKER],
+        back: [KINGSWAY_LANCER, BANDIT, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-dwarf-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [CROWNWORKS_STRIKER, CHALKHIDE_BROWSER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [RENDFANG_JACKAL, MUSTER_PIKE, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RAMHEAD_SERJEANT],
+        back: [REDWATER_STALKER, THORNBACK_GRAZER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [STANDFAST_LANCER, FREE_BLADE, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [KINGSWAY_LANCER, BOAR, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f380',
+      name: 'Floor 380 — The Pick Line',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, KINGSWAY_LANCER],
+        back: [CROWNWORKS_STRIKER, RENDFANG_JACKAL, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RENDFANG_JACKAL, CHALKHIDE_BROWSER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [REDWATER_STALKER, MUSTER_PIKE, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, COUNTERSIGN_CAPTAIN],
+        back: [STANDFAST_LANCER, THORNBACK_GRAZER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [KINGSWAY_LANCER, FREE_BLADE, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [CROWNWORKS_STRIKER, BOAR, MUSTER_PIKE],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Proof House — Floors 386–400, levels 182–189, Fine 43–Fine 60 — the boards go light and the picks do not, and the thing the hold tested its plate against is at the top of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [FREE_BLADE, BANDIT, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [BOAR, CHALKHIDE_BROWSER, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-dwarf-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [BANDIT, MUSTER_PIKE, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [CHALKHIDE_BROWSER, THORNBACK_GRAZER, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f390',
+      name: 'Floor 390 — The Proof House',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [RACKPICKED_LEVY, MUSTER_PIKE, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [THORNBACK_GRAZER, BOAR, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [FREE_BLADE, BANDIT, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [BOAR, CHALKHIDE_BROWSER, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-dwarf-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [MIREWHELP, MUSTER_PIKE, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [ROADWATCH_BOWMAN, THORNBACK_GRAZER, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [ASHPIT_SCUTTLER, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [FORLORN_LEVY, BOAR, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-dwarf-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, PROOFMARK_SERJEANT],
+        back: [SCREEBACK_DARTER, BANDIT, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-dwarf-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, RACKPICKED_LEVY],
+        back: [CLEFTHORN_GORER, CHALKHIDE_BROWSER, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-dwarf-f400',
+      name: 'Floor 400 — The Proof House',
+      enemies: {
+        front: [THE_PROOF_HOUSE, FREE_BLADE],
+        back: [BANDIT, FREE_BLADE, BANDIT],
       },
     },
   ],
