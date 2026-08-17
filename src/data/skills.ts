@@ -8149,6 +8149,113 @@ export const NOBODY_ANSWERS = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fourth hundred floors — the Panoply
+//
+// Four skills for four blocks, and **every one of them is a plain hit at the front rank**, which is
+// the same finding the third hundred recorded and the fifth tower to reproduce it. Measured against
+// both Human arrangements at the band-4 crew, one carrier on the geared roof control (1150/64 behind
+// four 700/46 at level 189 wearing Fine 60, reading **4.00 / 3.33**, and it moves), forty seeds:
+//
+// - **Aim past the front rank is inert or negative, again.** A reach on `enemy-back` at power 1.2
+//   reads 4.00 / 3.38 and wide damage at the cap reads 3.98 / **3.52** from the back rank against
+//   3.98 / 3.20 from the front — so the widest, furthest-reaching turn available leaves the board
+//   *easier* than the control. This is now the fifth tower to find it and the second time on this one:
+//   `NIGHT_RIDE`'s doc claim was corrected for exactly this reason.
+// - **Instance size is a weak dial here**, unlike on the Angel Tower where it was the whole axis:
+//   single-target power 1.35 / 2.20 / 3.10 at cooldowns 40 / 60 / 80 reads 3.38 / 3.27 / 2.70 against
+//   3.33 — worth −0.05, 0.06 and 0.63.
+// - **A selection is worth 0.23** (`enemy-lowest` at power 2.2, 3.10) where a **scope** `STUN` is
+//   worth **1.31** (2.02) — the scope-versus-selection gap holding at this weight, and the one
+//   mechanic on the list big enough to be load-bearing. It is spent on peaks and nowhere else.
+//
+// ⚠️ **So the turns are deliberately plain and the *gear* is the mechanic.** A status riding one of
+// these is texture; nothing here may carry a band. See `data/towers.ts` for the ramp and
+// `tower-human.ts` for what the floors do with it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They were buried with their kit. Somebody has been going back for it.
+ *
+ * The Worn band's turn, and the plainest in the hundred. ⚠️ **`enemy-front` rather than past it**, the
+ * correction the third hundred was built on and this one re-measured: reaching for `enemy-back` here
+ * is worth **−0.05 of five** and a wide turn from the back rank **−0.19**, because the weaker Human
+ * arrangement fields no tank and damage taken off its front row is time it did not have to buy.
+ */
+export const HARNESS_DRILL = {
+  id: 'harness-drill',
+  name: 'Harness Drill',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 42,
+  priority: 2,
+} as const;
+
+/**
+ * The weight is the argument. Everything else it does is incidental to the weight.
+ *
+ * The Sturdy band's turn, with a `SUNDER` rider that is **texture and priced as texture** — the whole
+ * status vocabulary measured within 0.14 survivors on this tower one hundred floors ago and nothing
+ * here re-opens that. What is actually escalating underneath it is the grade the board is wearing.
+ */
+export const PANOPLY_WEIGHT = {
+  id: 'panoply-weight',
+  name: 'Panoply Weight',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * A marshal in plate is still a marshal. The plate is the part that lasted.
+ *
+ * The Fine band's lieutenant turn. ⚠️ **Heavier than the two above it and still single-target**,
+ * because instance size grades **0.63 of five at power 3.10** here against the Angel Tower's 2.38 —
+ * the burst axis belongs to that tower and is nearly inert on this crew. The step up is the block's
+ * `def` and the grade it is wearing, not the swing.
+ */
+export const GRAVEPLATE_CRUSH = {
+  id: 'graveplate-crush',
+  name: 'Graveplate Crush',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * The muster was called four hundred floors ago. This is everyone who came.
+ *
+ * The roof's own turn. ⚠️ **Conditioned on the party still being whole**, the shape
+ * {@link THE_HOUR_UNKEPT} uses one hundred floors below and for the identical reason — it front-loads
+ * the board's damage, and a fight decided early is a fight that *ends*. On a body wearing a full Fine
+ * set an unconditioned version is the ninety-second clock rather than a roof.
+ *
+ * ⚠️ **No healer, no regeneration and no drain on the roof**, the rule every roof in the game has kept
+ * since 15c measured what sustain on a last floor costs a party that cannot burst. The Reliquary
+ * Bearer's *shield* remains the deliberate exception on the floors below, because a pool banked once
+ * depletes where a heal refills.
+ */
+export const THE_PANOPLY_CLOSES = {
+  id: 'the-panoply-closes',
+  name: 'The Panoply Closes',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 55,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -8567,4 +8674,8 @@ export const SKILLS = [
   NONE_COME_BACK,
   CALL_THE_ROLL,
   NOBODY_ANSWERS,
+  HARNESS_DRILL,
+  PANOPLY_WEIGHT,
+  GRAVEPLATE_CRUSH,
+  THE_PANOPLY_CLOSES,
 ] as const;

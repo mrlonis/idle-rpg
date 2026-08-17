@@ -59,9 +59,11 @@ import {
   GLACIAL_SLAM,
   GLASSLIGHT_VERDICT,
   GORE,
+  GRAVEPLATE_CRUSH,
   GRIND_THE_SEAM,
   GROUND_ALREADY_WALKED,
   GROWN_THROUGH_IT,
+  HARNESS_DRILL,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
   HUSH_THE_MANY,
@@ -126,6 +128,7 @@ import {
   OVER_THE_STUBBLE,
   PAID_EITHER_WAY,
   PALL_OF_YEARS,
+  PANOPLY_WEIGHT,
   PASS_THE_WORD,
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
@@ -216,6 +219,7 @@ import {
   THE_OVERSTRIKE_FALLS,
   THE_PACK_ANSWERS,
   THE_PACK_TURNS,
+  THE_PANOPLY_CLOSES,
   THE_QUENCH,
   THE_RACE_WAS_DECIDED,
   THE_RING_IS_SHUT,
@@ -543,6 +547,7 @@ export const PYRE = {
   name: 'Pyre Caster',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 500,
     atk: 57,
@@ -687,6 +692,7 @@ export const REVENANT = {
   name: 'Ash Revenant',
   faction: 'undead',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 640,
     atk: 48,
@@ -1356,6 +1362,7 @@ export const SERAPH_ADJUDICANT = {
   name: 'Seraph Adjudicant',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 590,
     atk: 68,
@@ -1393,6 +1400,7 @@ export const BLOODPACT_FIEND = {
   name: 'Bloodpact Fiend',
   faction: 'demon',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 560,
     atk: 41,
@@ -1830,6 +1838,7 @@ export const UNSEALED_WRETCH = {
   name: 'Unsealed Wretch',
   faction: 'demon',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 480,
     atk: 46,
@@ -4530,6 +4539,7 @@ export const CINDER_CULLER = {
   name: 'Cinder Culler',
   faction: 'demon',
   tier: 'common',
+  gearArchetype: 'brawler',
   stats: {
     hp: 440,
     atk: 50,
@@ -4568,6 +4578,7 @@ export const RIFTSTEP_REAVER = {
   name: 'Riftstep Reaver',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 620,
     atk: 68,
@@ -4605,6 +4616,7 @@ export const COVENANT_EXECUTOR = {
   name: 'Covenant Executor',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 74,
@@ -4764,6 +4776,7 @@ export const KNELL_CHANTER = {
   name: 'Knell Chanter',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 660,
     atk: 58,
@@ -11065,6 +11078,177 @@ export const THE_SHORTFALL = {
   skills: [CALL_THE_ROLL, NOBODY_ANSWERS],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fourth hundred floors — the Panoply
+//
+// Four Undead blocks on one axis: **the dead are being armed, and the equipment is the escalation.**
+// Undead go 25 → 29 and stay the deepest faction in the game. The lean is forced rather than chosen,
+// since Undead are what counters Humans.
+//
+// ⚠️ **This is the first hundred in any tower whose axis is enemy _gear_, and the campaign's recorded
+// figure for that axis does not transfer.** `docs/gear.md` prices a whole grade step at about ×1.15
+// and chapter 16's entire Relic ramp at **0.08 of a survivor** — measured on campaign boards whose
+// authored budget was *falling* by 0.595 a chapter underneath the ramp. A tower's budget does not
+// fall, so the same ramp is not texture here: dropped onto the geared roof control, a full **Fine 60**
+// set reads **0% for both Human arrangements** and even **Sturdy 20** takes the weaker one to 93% with
+// 1.05 of five. **State whether the board under a gear figure was being lightened.**
+//
+// ⚠️ **Relic 100 was measured and declined.** It is +166% health on a `tank` against Fine 60's +66%,
+// and at that grade the roof control reads 0% in **7.1 seconds**. The shipped ramp stops at Fine.
+//
+// ⚠️ **So these four are lighter than the third hundred's**, which is the collapse rule generalising
+// for the fourth time: the shipped floor-300 board fielded at the new roof's level reads 100% / 1.93
+// for the reference five and **53% with 0.55** for the weaker arrangement. The heaviest block here is
+// 1240 hp against The Hourless March's 1660.
+//
+// ⚠️ **No anchor had to retire, and that is the fourth clean answer to that check.** Every one of the
+// 53 blocks this tower fields stands as a roof anchor behind four light escorts at level 189 wearing
+// Fine 60 — the Hourless March at 1660/76 included, at 4.40 / 4.00. What fails at the top of this
+// hundred is the **board total**, not any body on it: five shipped blocks summing 3,300 raw health read
+// 3.70 / 2.17 where 3,930 reads **0%**.
+//
+// ⚠️ **`def` is the texture rather than a resist, and that is a deliberate coherence.** `GEAR_STATS`
+// is `hp`, `atk`, `def`, `haste`, so the stat a kitted body should be showing off is the one gear
+// actually moves. Measured at the roof, `def` 70 is worth 0.33 of five and 110 worth 0.53 — a mild
+// dial, which is what texture should read as. ⚠️ **`physicalResist` is much stronger here** (0.18 /
+// 0.31 / 0.48 / **1.18** across 0.10 → 0.50, against `magicResist` 0.60 at **−0.17**, both Human fives
+// being 100% physical) **and it is not taken as the axis, because it is the Monster Tower's.** Two
+// towers with one lock is one tower shipped twice. It stays on these blocks at the shipped register
+// and no higher.
+//
+// ⚠️ **Nothing here restores anything and none of the four carries `lifeLeech`.** Against a party that
+// cannot burst, enemy sustain is the ninety-second clock rather than a lock — and a kitted body is
+// already the most durable thing this tower fields.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Somebody has been going back down the stair for the kit they were buried in.
+ *
+ * The Worn band's body and the hundred's opening statement: 880 hp behind **44 `def`**, which is the
+ * highest defence on any `legendary` this tower fields, on a body whose whole point is that it is
+ * wearing something. ⚠️ **A plain block at the bottom of the ramp is the lesson**, the same argument
+ * {@link CORTEGE_LANCER} makes one hundred floors below — the hundred has to teach what a kitted body
+ * is before it can charge for one, and at Worn 1 a full set is worth +8.6% health to a `tank`.
+ */
+export const PLATEBOUND_HUSK = {
+  id: 'platebound-husk',
+  name: 'Platebound Husk',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 880,
+    atk: 50,
+    def: 44,
+    haste: 92,
+    critChance: 0.08,
+    critDamageAmp: 0.65,
+    critBlock: 0.1,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [HARNESS_DRILL],
+} as const;
+
+/**
+ * It is carrying three men's harness and it has not noticed either fact.
+ *
+ * The Sturdy band's body: 1000 hp, 48 `def`, and the block the middle of the hundred is counted in.
+ * ⚠️ **Its `physicalResist` sits at 0.12 — inside this tower's shipped median of 0.06 and well under
+ * its 0.23 ceiling** — deliberately, because the stat grades far harder than the band wants: 0.50
+ * across four bodies is worth 1.18 of five where 0.10 is worth 0.18. The tower that steps *past* that
+ * register is the Monster Tower and it stays that way.
+ */
+export const PANOPLY_BEARER = {
+  id: 'panoply-bearer',
+  name: 'Panoply Bearer',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1000,
+    atk: 54,
+    def: 48,
+    haste: 90,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    critBlock: 0.12,
+    physicalResist: 0.12,
+    magicResist: 0.08,
+  },
+  skills: [PANOPLY_WEIGHT, HARNESS_DRILL],
+} as const;
+
+/**
+ * The Deathless Marshal's column halted. Its quartermaster kept working.
+ *
+ * The Fine band's lieutenant, and the heaviest `legendary` in the hundred at 1120 hp behind 52 `def`.
+ * ⚠️ **It stands on nine boards at rising levels and its stat line was settled against the last of
+ * them**, which is the rule chapter 17 paid a tuning pass to learn: a recurring anchor correct on its
+ * first board is unwinnable on its ninth, because the board climbs `perLevel` and the grade climbs
+ * with it while the crew stands still.
+ */
+export const GRAVEPLATE_MARSHAL = {
+  id: 'graveplate-marshal',
+  name: 'Graveplate Marshal',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1120,
+    atk: 60,
+    def: 52,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critBlock: 0.12,
+    physicalPierce: 0.14,
+    physicalResist: 0.1,
+    magicResist: 0.08,
+  },
+  skills: [GRAVEPLATE_CRUSH, PANOPLY_WEIGHT, HARNESS_DRILL],
+} as const;
+
+/**
+ * Four hundred floors of them, and every one still answering a muster nobody called.
+ *
+ * The roof. ⚠️ **1240 hp and 68 `atk` — the lightest tower roof this game ships, and by a wide
+ * margin.** The Hourless March closed the third hundred at 1660/76 and the Withered Crown the Undead
+ * Tower's second at 1740/98; this is lighter than both on purpose, because it is wearing a **full Fine
+ * set** the moment it is fielded. Measured, that set is worth about a survivor of the weaker
+ * arrangement on its own — so the weight the roof is *allowed* is what is left after the grade.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. The gear is
+ * where this block is different; the stat line is deliberately not.
+ *
+ * ⚠️ **Nothing on it restores anything and the board it stands on carries no taunt and no heal** —
+ * the rule every roof has kept since 15c measured that against a party which cannot burst, sustain on
+ * the last floor is the ninety-second clock rather than a lock.
+ */
+export const THE_PANOPLY = {
+  id: 'the-panoply',
+  name: 'The Panoply',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1240,
+    atk: 68,
+    def: 56,
+    haste: 100,
+    critChance: 0.15,
+    critDamageAmp: 0.9,
+    critDamageResist: 0.2,
+    critBlock: 0.12,
+    tenacity: 0.45,
+    physicalPierce: 0.22,
+    magicPierce: 0.16,
+    physicalResist: 0.12,
+    magicResist: 0.08,
+  },
+  skills: [THE_PANOPLY_CLOSES, GRAVEPLATE_CRUSH, PANOPLY_WEIGHT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -11388,4 +11572,8 @@ export const ENEMIES = [
   LASTFEW_WARDEN,
   THE_THINNING,
   THE_SHORTFALL,
+  PLATEBOUND_HUSK,
+  PANOPLY_BEARER,
+  GRAVEPLATE_MARSHAL,
+  THE_PANOPLY,
 ] as const;

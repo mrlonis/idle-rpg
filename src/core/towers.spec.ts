@@ -4,6 +4,7 @@
 // balance sweeps. Keep this on every core/ spec.
 import { describe, expect, it } from 'vitest';
 import { type EnemyFormationData, type StatBlockData } from './battle/types';
+import { enemyGearBonuses, gearLadderLength, gearLadderPosition } from './gear/stats';
 import { type GearRulesData, type GearSlot, type GearStatProfile } from './gear/types';
 import { num } from './numeric';
 import { type GameState, newGame } from './state';
@@ -11,6 +12,7 @@ import {
   applyTowerResult,
   clearedFloors,
   emptyTowers,
+  floorGear,
   floorKindAt,
   floorLevel,
   floorsClearedIn,
@@ -40,6 +42,75 @@ const RULES: TowerRulesData = {
   topLevel: 60,
   miniBossEvery: 10,
   floorSummons: { base: 100, miniBossMultiplier: 2, bossMultiplier: 5 },
+};
+
+/**
+ * A fixture grade ladder rather than the shipped one: `core/` may not see `data/`, and a spec that
+ * reached for the real grades would fail every time one was retuned.
+ *
+ * Two grades capped at 5 and 10, so the concatenated ladder `floorGear` walks is **15 positions
+ * long** — Plain 1–5 then Good 1–10. Deliberately uneven, because equal caps would let a bug that
+ * mixed up "position within the grade" and "position on the whole ladder" pass.
+ */
+const PROFILE: Readonly<Record<GearSlot, GearStatProfile>> = {
+  head: { hp: 0.1 },
+  arms: { atk: 0.1 },
+  chest: { hp: 0.2 },
+  legs: { def: 0.1 },
+  boots: { haste: 0.05 },
+};
+
+const GEAR: GearRulesData = {
+  grades: [
+    {
+      id: 'plain',
+      name: 'Plain',
+      multiplier: 1,
+      maxLevel: 5,
+      salvage: 10,
+      weight: 100,
+      priceSeconds: 10,
+      unlockIndex: 1,
+    },
+    {
+      id: 'good',
+      name: 'Good',
+      multiplier: 2,
+      maxLevel: 10,
+      salvage: 40,
+      weight: 20,
+      priceSeconds: 60,
+      unlockIndex: 4,
+    },
+  ],
+  profiles: {
+    tank: PROFILE,
+    brawler: PROFILE,
+    mage: PROFILE,
+    ranger: PROFILE,
+    support: PROFILE,
+  },
+  perLevel: 0.25,
+  alignmentBonus: 1.5,
+  unalignedChance: 0.5,
+  enhance: {
+    alloy: { coefficient: 10, exponent: 1 },
+    gold: { coefficient: 100, exponent: 2 },
+  },
+  drops: {
+    normal: { min: 1, max: 1 },
+    miniBoss: { min: 2, max: 2 },
+    boss: { min: 4, max: 4 },
+    gradeSoftness: 10,
+  },
+  shop: { offers: 3, refreshMs: 1000, minGoldPerSecond: 1 },
+  inventoryLimit: 200,
+};
+
+/** The same rules with a gear ramp over the top quarter, for the geared-floor cases. */
+const GEARED_RULES: TowerRulesData = {
+  ...RULES,
+  gear: { fromFloor: 76, from: { grade: 0, level: 1 }, to: { grade: 1, level: 10 } },
 };
 
 const BODY: StatBlockData = {
@@ -275,11 +346,68 @@ describe('matchedStageIndex', () => {
   });
 });
 
+describe('floorGear', () => {
+  it('leaves every floor naked when the rules author no ramp', () => {
+    // The state the first three hundred floors of all seven towers ship in, and the reason the field
+    // is optional: a tower with no ramp has to resolve byte-identically to one authored before the
+    // ramp existed.
+    for (const floor of [1, 50, 99, 100]) {
+      expect(floorGear(RULES, GEAR, floor), `floor ${floor}`).toBeUndefined();
+    }
+  });
+
+  it('leaves the floors below the ramp naked and starts it exactly on its first floor', () => {
+    // ⚠️ The whole point of keying the ramp to a floor: the floors below it were tuned naked and
+    // stay naked, so a new geared hundred cannot re-price the ones under it.
+    expect(floorGear(GEARED_RULES, GEAR, 75)).toBeUndefined();
+    expect(floorGear(GEARED_RULES, GEAR, 76)).toEqual({ grade: 0, level: 1 });
+  });
+
+  it('lands the roof on exactly the set the ramp names', () => {
+    expect(floorGear(GEARED_RULES, GEAR, 100)).toEqual({ grade: 1, level: 10 });
+  });
+
+  it('climbs one monotone ladder, so quality and level both only ever rise', () => {
+    // ⚠️ The property that makes this one axis rather than two. A ramp interpolating the grade and
+    // the level separately would step *down* in level at every grade boundary, so a floor could be
+    // worth less than the one below it while both authored numbers rose.
+    let previous = 0;
+    for (let floor = 76; floor <= 100; floor++) {
+      const gear = floorGear(GEARED_RULES, GEAR, floor);
+
+      expect(gear, `floor ${floor}`).toBeDefined();
+      const position = gearLadderPosition(GEAR, gear?.grade ?? 0, gear?.level ?? 1);
+
+      expect(position, `floor ${floor} position`).toBeGreaterThanOrEqual(previous);
+      previous = position;
+    }
+    // And it actually covered the whole authored ladder rather than sitting at one end of it.
+    expect(previous).toBe(gearLadderLength(GEAR));
+  });
+
+  it('steps the grade partway up rather than only at the roof', () => {
+    // "Increases in quality as the floors progress" is the authored intent, so a ramp that spent all
+    // twenty-five floors inside one grade and jumped at the last would satisfy the endpoints and
+    // miss the point.
+    const grades = new Set<number>();
+    for (let floor = 76; floor <= 100; floor++) {
+      grades.add(floorGear(GEARED_RULES, GEAR, floor)?.grade ?? -1);
+    }
+
+    expect([...grades].sort()).toEqual([0, 1]);
+  });
+
+  it('clamps a floor outside the tower rather than running off either end of the ramp', () => {
+    expect(floorGear(GEARED_RULES, GEAR, 5_000)).toEqual({ grade: 1, level: 10 });
+    expect(floorGear(GEARED_RULES, GEAR, 0)).toBeUndefined();
+  });
+});
+
 describe('resolveFloor', () => {
   const LUMP = { gold: 400, xp: 80 };
 
   it('derives the level and the kind, and keeps the authored line-up', () => {
-    const floor = resolveFloor(TOWER, RULES, 10, LUMP);
+    const floor = resolveFloor(TOWER, RULES, 10, LUMP, GEAR);
 
     expect(floor.id).toBe('t-human-f10');
     expect(floor.name).toBe('Floor 10');
@@ -293,22 +421,49 @@ describe('resolveFloor', () => {
     // ⚠️ Both fields exist only because `StageData` is one type for every fight in the game, and
     // populating them is how a tower would quietly acquire the two things it must not have: a
     // permanent income raise, and a crystal payout routed through the campaign path.
-    const floor = resolveFloor(TOWER, RULES, 40, LUMP);
+    const floor = resolveFloor(TOWER, RULES, 40, LUMP, GEAR);
 
     expect(floor.rates).toEqual({});
     expect(floor.firstClearSummons).toBe(0);
   });
 
+  it('carries neither gear key at all on an ungeared floor', () => {
+    // ⚠️ Absent rather than empty, because `toEnemyCombatant` reads the *absence* to decide a body
+    // fights naked. An `enemyGear` of `{}` would look the same on screen and price every archetype
+    // at nothing on a board tuned as though it were kitted.
+    const floor = resolveFloor(TOWER, RULES, 40, LUMP, GEAR);
+
+    expect(floor.gear).toBeUndefined();
+    expect(floor.enemyGear).toBeUndefined();
+  });
+
+  it('prices the ramp into every archetype on a geared floor', () => {
+    // ⚠️ All five priced rather than the ones this board fields, and priced through the same
+    // `setBonus` the player's bag goes through — so "an enemy's set is worth what a player's set is
+    // worth" is a fact about the code rather than two functions agreeing.
+    const floor = resolveFloor(TOWER, GEARED_RULES, 100, LUMP, GEAR);
+
+    expect(floor.gear).toEqual({ grade: 1, level: 10 });
+    expect(Object.keys(floor.enemyGear ?? {}).sort()).toEqual([
+      'brawler',
+      'mage',
+      'ranger',
+      'support',
+      'tank',
+    ]);
+    expect(floor.enemyGear?.['tank']).toEqual(enemyGearBonuses(GEAR, 1, 10)['tank']);
+  });
+
   it('clamps a floor outside the tower onto one that exists', () => {
-    expect(resolveFloor(TOWER, RULES, 5_000, LUMP).id).toBe('t-human-f100');
-    expect(resolveFloor(TOWER, RULES, 0, LUMP).id).toBe('t-human-f1');
+    expect(resolveFloor(TOWER, RULES, 5_000, LUMP, GEAR).id).toBe('t-human-f100');
+    expect(resolveFloor(TOWER, RULES, 0, LUMP, GEAR).id).toBe('t-human-f1');
   });
 });
 
 describe('resolveTower', () => {
   it('resolves every floor in climbing order, each at its own level', () => {
     const lumpForLevel = (level: number) => ({ gold: level * 10 });
-    const floors = resolveTower(tower(12), { ...RULES, floors: 12 }, lumpForLevel);
+    const floors = resolveTower(tower(12), { ...RULES, floors: 12 }, lumpForLevel, GEAR);
 
     expect(floors).toHaveLength(12);
     expect(floors.map((floor) => floor.id)).toEqual(
@@ -400,62 +555,13 @@ describe('applyTowerResult', () => {
 
   describe('drops', () => {
     /**
-     * A fixture ladder rather than the shipped one: `core/` may not see `data/`, and a spec that
-     * reached for the real grades would fail every time one was retuned.
+     * The module-scope {@link GEAR} fixture, under the name this block has always used for it.
+     *
+     * Hoisted when the tower gear ramp landed, because `resolveFloor` needs the identical ladder —
+     * two copies of one fixture is how a spec ends up proving something about a ladder no other test
+     * in the file is using.
      */
-    const profile: Readonly<Record<GearSlot, GearStatProfile>> = {
-      head: { hp: 0.1 },
-      arms: { atk: 0.1 },
-      chest: { hp: 0.2 },
-      legs: { def: 0.1 },
-      boots: { haste: 0.05 },
-    };
-    const gearRules: GearRulesData = {
-      grades: [
-        {
-          id: 'plain',
-          name: 'Plain',
-          multiplier: 1,
-          maxLevel: 5,
-          salvage: 10,
-          weight: 100,
-          priceSeconds: 10,
-          unlockIndex: 1,
-        },
-        {
-          id: 'good',
-          name: 'Good',
-          multiplier: 2,
-          maxLevel: 10,
-          salvage: 40,
-          weight: 20,
-          priceSeconds: 60,
-          unlockIndex: 4,
-        },
-      ],
-      profiles: {
-        tank: profile,
-        brawler: profile,
-        mage: profile,
-        ranger: profile,
-        support: profile,
-      },
-      perLevel: 0.25,
-      alignmentBonus: 1.5,
-      unalignedChance: 0.5,
-      enhance: {
-        alloy: { coefficient: 10, exponent: 1 },
-        gold: { coefficient: 100, exponent: 2 },
-      },
-      drops: {
-        normal: { min: 1, max: 1 },
-        miniBoss: { min: 2, max: 2 },
-        boss: { min: 4, max: 4 },
-        gradeSoftness: 10,
-      },
-      shop: { offers: 3, refreshMs: 1000, minGoldPerSecond: 1 },
-      inventoryLimit: 200,
-    };
+    const gearRules: GearRulesData = GEAR;
 
     // No `emblems`, so these keep asserting exactly what they asserted before milestone 16 —
     // against a state whose wallet the emblem path cannot have touched. `clearedChapters` is still

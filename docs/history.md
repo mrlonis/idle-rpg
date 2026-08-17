@@ -82,13 +82,42 @@ archetypes**, and chapter 14 to **600 stages** and **201** — still with no cha
 `ui/` or `core/` in any of them. ⚠️ **Chapter 20 breaks that last clause**: The Commonage is
 **sixty** stages, which took the campaign to **910 stages** and **272 archetypes** and needed
 `chapterSize` in `core/ladder.ts` to learn a **cap schedule** — the first `core/` change a content
-session has made since the run began. ⚠️ **Recompute these rather than reading them**; this paragraph had
+session had made since the run began, and the Human Tower's fourth hundred is the second (the tower gear
+ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
+### What the fourth hundred established, being the first geared content outside the campaign
+
+⚠️ **The height is 400 and only the Human Tower is there**; the other six sit on a literal `PENDING`
+list, the third time that discipline has run. The Panoply is the first tower hundred whose escalation
+axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
+taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
+`GearRulesData`, and `floorGear` derives what each floor wears from the ramp exactly as `floorLevel`
+derives its level. Three findings are worth stating here because they are about **method**:
+
+- ⚠️ **A measured figure is a claim about the board it was measured on, and "enemy gear is texture" was
+  a claim about a board that was being lightened.** Every campaign measurement of that axis was taken
+  while the chapter budget fell 0.595 a chapter _underneath_ the ramp. A tower's does not fall, and on a
+  board held still Worn 1 costs the binding crew **0.82 of five** and Fine 60 reads **0%** — where
+  chapter 16's whole Relic ramp measured 0.08 of a survivor. This is the "state the weight with the
+  figure" rule with a second variable attached: **state whether the board was moving too.**
+- ⚠️ **A guard can fire because a _count_ changed rather than because content did, and that is the
+  signal it is pointed at the wrong quantity.** Both cap comparisons standing for the tower margin rule
+  broke at the fourth band — one because `legendary`'s cap of 200 is above a roof of 189, the other
+  because band 3 lost a top-band exemption on boards that did not move a level. They were replaced by
+  the **power ratio** they had always been standing in for, not slid. Same call this project has now
+  made for five guards.
+- ⚠️ **A cross-tower negative can be an artefact of which arrangement it was read on.** The Monster
+  Tower recorded `physicalResist` 0.55 as worth **0.00** to the Human reference five; re-measured on the
+  Human _alternate_ — the binding arrangement — the same stat is a clean dial worth up to 1.18 of five.
+  The reference five is plateaued at 4.00 across a wide band and cannot fall. **Re-measure a borrowed
+  negative on the arrangement that binds.** (It changed nothing: `physicalResist` is still the Monster
+  Tower's lock and the Panoply does not build on it.)
+
 ### What the third hundreds established
 
-All seven towers now stand at 300 floors, one session each, and the findings that generalise
+All seven towers reached 300 floors, one session each, and the findings that generalise
 are in [towers](towers.md) and [authoring](authoring.md). Three are worth stating here because they
 are about **method** rather than about a tower:
 

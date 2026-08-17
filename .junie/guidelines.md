@@ -195,9 +195,9 @@ them is how they get reversed by accident.
 
 **Content modes**
 
-- **[docs/towers.md](../docs/towers.md)** — seven faction towers, three hundred floors each. What a
-  tower is for, the three fields a clear may never touch, the three crews, and seven towers' worth of
-  measured escalation findings.
+- **[docs/towers.md](../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
+  Human Tower there yet**. What a tower is for, the three fields a clear may never touch, the four
+  crews, and fifteen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -254,9 +254,16 @@ as a wrong number on a screen or a fight that never ends. Each names the doc car
   renders wrong. `chapters.spec.ts` asserts every body on a geared board declares one and
   `enemies.spec.ts` asserts every declared value is real. Same trap as a mistyped stat key.
   [gear](../docs/gear.md)
-- ⚠️ **`resolveStage` and `resolveLadder` take the gear rules, required and never defaulted.** A
-  caller that omitted them would resolve every geared stage as an ungeared one — every screen would
-  keep saying the right thing and only the balance sweep would notice. [ladder](../docs/ladder.md)
+- ⚠️ **`resolveStage`, `resolveLadder`, `resolveFloor` and `resolveTower` all take the gear rules,
+  required and never defaulted.** A caller that omitted them would resolve every geared stage or floor
+  as an ungeared one — every screen would keep saying the right thing and only the balance sweep would
+  notice. The tower pair is required even though most floors are ungeared, precisely so that adding a
+  ramp to a tower cannot silently miss a call site. [ladder](../docs/ladder.md), [towers](../docs/towers.md)
+- ⚠️ **A geared _tower floor_ owes every body on it a `gearArchetype` too, and `towers.spec.ts` is what
+  catches it.** Same silent failure as the campaign's: an absent archetype is looked up under
+  `undefined`, the body fights naked on a board tuned as though it were kitted, and nothing throws.
+  ⚠️ **A tower authors a gear _ramp_ in `TOWER_RULES.gear`, never a set per floor** — `floorGear`
+  derives the pair, for the reason a floor's level is derived. [towers](../docs/towers.md)
 - ⚠️ **`toBattleCombatant` does not carry `CombatantData.opening`.** A character authoring a passive
   has it silently dropped; the only player-side route to one is a signature rung. `toEnemyCombatant`
   does carry it. [combat](../docs/combat.md)
@@ -684,9 +691,37 @@ Asserted in `core/battle/simulate.spec.ts`.
   26 wants 635. [gear](../docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
-  `floorKindAt` reads the rules' height. Track them with a **literal `PENDING` list** in
-  `towers.spec.ts` and `towers.balance.ts`; a filter ("the full height or two thirds of it") passes
-  forever and never notices a tower nobody went back for. [towers](../docs/towers.md)
+  `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
+  height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
+  `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
+  notices a tower nobody went back for. **The list is live right now with six names on it.**
+  [towers](../docs/towers.md)
+- ⚠️ **A tower's escalation axis can be the _gear its boards wear_, and the campaign's "gear is
+  texture" figures do not transfer.** Every one of those was measured while the campaign's board budget
+  fell 0.595 a chapter _underneath_ the ramp. Hold a tower board still and add the same gear: **Worn 1
+  costs the binding crew 0.82 of five, Sturdy 20 takes it to 93%, and Fine 60 reads 0%** — where
+  chapter 16's whole Relic ramp measured 0.08 of a survivor. **State whether the board under a gear
+  figure was being lightened.** ⚠️ **Relic 100 is not an authorable ramp endpoint** (the control dies in
+  7.1s), and ⚠️ **a tower cannot read its gear off the campaign at matched level** — that yields no gear
+  anywhere, because `c12-s1` is level 225 and the tallest roof is 189. [towers](../docs/towers.md)
+- ⚠️ **The roof-above-the-rung's-cap guard stopped working at the fourth hundred and was restated
+  rather than slid.** `legendary` caps at 200 against a roof of 189, so the top crew _could_ legally
+  out-level its own roof while standing 66 levels under it — and band 3, unchanged since it shipped,
+  lost its top-band exemption the moment a fourth band existed. **Both fired because the band _count_
+  changed on boards that did not move a level.** What replaced them is the quantity they stood in for:
+  the **power ratio**, bounded 1.55–1.85, reading 1.600 / 1.689 / 1.676 / 1.663.
+  ⚠️ **Band 4's rung is the first that is also a _kit_ rung** — that crew gains a third skill, which the
+  ratio cannot see — so a fourth hundred is tuned on survivors and the ratio is a legality check.
+  [towers](../docs/towers.md)
+- ⚠️ **The payout bound is now the binding constraint on a tower's roof.** A floor's lump is read off
+  the campaign at matched level, and at four hundred floors a roof of **200 pays exactly** the
+  stage-400 lump of 16,000 — so the highest legal roof is 199 against a solved slope of 189, ten levels
+  apart where they were once tens. ⚠️ **A fifth hundred may not be solvable at all**, which is the case
+  that finally licenses making `floorLevel` piecewise. [towers](../docs/towers.md)
+- ⚠️ **Extending a tower moves shipped floors by a level, and the stale claims land in files the
+  session never opened.** 300 → 400 moved 18 of 300 floors and invalidated **fifteen band headers
+  across all seven tower files** — thirteen of them outside the tower being extended. Find them with a
+  script over `floorLevel`. [authoring](../docs/authoring.md)
 - ⚠️ **An escalation axis does not have to be a stat or a mechanic. The _size of one instance of
   damage_ is one, and on a crew that heals `ally-lowest` on a cooldown it is the only one.** Hold
   damage per second constant and make each blow bigger and rarer: against the Angel crews at the

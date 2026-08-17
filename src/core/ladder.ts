@@ -1,12 +1,11 @@
 import {
   type AuthoredCurrencies,
-  type GearBonus,
   type StageData,
   type StageEncounterData,
   type StageKind,
 } from './battle/types';
-import { setBonus } from './gear/stats';
-import { GEAR_ARCHETYPES, type GearRulesData } from './gear/types';
+import { enemyGearBonuses } from './gear/stats';
+import { type GearRulesData } from './gear/types';
 
 /**
  * The ladder, in chapters.
@@ -439,31 +438,6 @@ export function resolveStage(
       ? {}
       : { enemyGear: enemyGearBonuses(gearRules, encounter.gear.grade, encounter.gear.level) }),
   };
-}
-
-/**
- * What one authored grade and level is worth to each of the five archetypes.
- *
- * All five are priced rather than only the ones this board fields, because the map is built once
- * per stage at ladder-resolution time and read once per enemy per battle — so the saving would be
- * four object entries against a lookup that would otherwise have to know the formation.
- *
- * ⚠️ **Derived here rather than authored in `data/`, and that is the `docs/testing.md` rule
- * applied.** A chapter that wrote "+8.6% health" beside a Worn set would keep asserting 8.6%
- * forever while `GEAR_PROFILES` was retuned underneath it. What the chapter authors is the grade
- * and the level; what a grade is worth is `data/gear.ts`'s business, on both sides of the board.
- */
-function enemyGearBonuses(
-  rules: GearRulesData,
-  grade: number,
-  level: number,
-): Readonly<Record<string, GearBonus>> {
-  const bonuses: Record<string, GearBonus> = {};
-  for (const archetype of GEAR_ARCHETYPES) {
-    // Unaligned: an enemy's set carries no faction, so there is nothing for the 1.3× to match.
-    bonuses[archetype] = setBonus(rules, archetype, grade, level);
-  }
-  return bonuses;
 }
 
 /**

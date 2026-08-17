@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped four hundred and fifty stages and twenty-one hundred floors. `AGENTS.md` states the rules and the
+shipped twelve hundred and ten stages and twenty-two hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -14,8 +14,8 @@ boards, and a content session is mostly a conversation with it.
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
 | Campaign         | 25 chapters, 1210 stages, enemy levels 1–605 |
-| Towers           | 7 × 300 floors, enemy levels 1–142           |
-| Enemy archetypes | 322                                          |
+| Towers           | 1 × 400 + 6 × 300 floors, enemy levels 1–189 |
+| Enemy archetypes | 326                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -1316,6 +1316,12 @@ Recorded rather than taken.
 authors five bands each asking a different question, where a tower asks one question a hundred more
 times. A tower session deepens a faction exactly as a chapter session does, at four against ten.
 
+⚠️ **"Roughly 25% new" is a count with a precedent behind it, not a fraction to solve for.** Four blocks
+over the Human fourth hundred's 24 distinct fielded archetypes is **16.7%**, and the four hundreds
+before it land in the same place. Restating the quota as a percentage of fielded-distinct is how a
+session talks itself into authoring twice as many; the blocks are what cost the time, and a hundred
+floors does not need eight new questions.
+
 ⚠️ **Budget for the lean overshoot rather than discovering it.** Authored from the lean's own bench
 a new hundred comes out at 66–86% against a 65% ceiling, every session, without exception — the
 Human third hundred landed at 73.6%, taking the whole tower to 65.34%. Fix it **during** authoring
@@ -1340,14 +1346,26 @@ once (37 distinct blocks over that hundred, against 13 before).
 
 ⚠️ **Solve for the top level at which the new slope meets the old one.** `floorLevel` draws one line
 from floor 1, so raising `floors` re-draws it underneath content that already shipped — and solving
-the slope is what makes the expected retune evaporate. It has worked twice: 100 → 200 floors at
-`topLevel` 60 → 120 moved **10 of 700** shipped floors by one level, and 200 → 300 at 95 → **142**
-moved **17 of 200**. The neighbours are much worse and the penalty is not smooth (141 moves 84, 143
-moves 50), so solve rather than eyeball.
+the slope is what makes the expected retune evaporate. It has worked three times: 100 → 200 floors at
+`topLevel` 60 → 120 moved **10 of 700** shipped floors by one level, 200 → 300 at 95 → **142** moved
+**17 of 200**, and 300 → 400 at 142 → **189** moved **18 of 300**. The neighbours are much worse and
+the penalty is not smooth — at 400 floors, 188 moves 132 and 190 moves 94 against 189's 18 — so solve
+rather than eyeball.
 
-⚠️ **A round _slope_ is the trap.** Exactly 0.50 levels a floor wants a roof of 150 at 300 floors,
-which moves 172 shipped floors by up to 5 levels **and** lands its lump exactly on the campaign's
-stage-300 payout — the one bound a tower may never cross. Check the payout bound before the roof.
+⚠️ **A round _slope_ is the trap.** Exactly 0.50 levels a floor wants a roof of 150 at 300 floors and
+200 at 400, and both land the roof's lump **exactly** on the campaign's stage-of-the-same-number payout
+— the one bound a tower may never cross — while moving 172 and **273** shipped floors by up to 5 and 8
+levels. Check the payout bound before the roof.
+
+⚠️ **At four hundred floors that bound stopped being a comfortable margin.** The highest legal roof is
+**199** against a solved slope of 189, so the two are ten levels apart where they were once tens. **A
+fifth hundred has to check the payout first and may not be solvable at all** — that is the case
+[towers](towers.md) records as the one that finally licenses making `floorLevel` piecewise.
+
+⚠️ **The moved floors are a real edit and it lands in files the session never opened.** Eighteen floors
+shifting by one level invalidated **fifteen band headers across all seven tower files**, each stating
+the level range its floors span. Find them with a script over `floorLevel` and fix them mechanically;
+two of the fifteen were in the extended tower and thirteen were not.
 
 ⚠️ **A height bump also needs a new rung in `TOWER_BAND_RUNGS`**, one per hundred floors, or
 `towers.spec.ts` fails. See the crew table below for the margin that rung costs.
@@ -1361,6 +1379,16 @@ opposite of what makes a roof a fight. At `elite-plus` (three rungs, ×4.096) a 
 **the heaviest board this game can author** at 100% with all five alive in nine seconds, and no
 line-up fixes it.
 
+⚠️ **The fourth hundred is where "closes above the rung's cap" stopped being checkable as a cap
+comparison, and two guards were restated rather than slid.** Band 4's rung is `legendary`, capped at
+**200** against a roof of **189** — so the top crew _could_ legally out-level its own roof while
+standing 66 levels under it; and band 3, which closes at 142 against `elite-plus`'s 140, lost its
+top-band exemption the moment a fourth band existed. **Both fired because the band _count_ changed on
+boards that did not move by one level**, which is the test this file records for the guards it has
+retired. What replaced them is the quantity they stood in for — **the power ratio, bounded 1.55–1.85 in
+every band** — plus the weaker structural claims that a rung exists either side of the roof and that
+every band's crew can legally hold the level it is fielded at.
+
 ⚠️ **If the height moves in one session and the floors move in seven, use a self-deleting
 checklist.** `PENDING` was a literal list of names in both `towers.spec.ts` and
 `towers.balance.ts`; each session deleted its own and the last deleted both lists along with the
@@ -1369,13 +1397,21 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 **boss**: `floorKindAt` reads the rules' height, so its old top floor resolves as a mini-boss paying
 ×2 rather than ×5.
 
-**It has now run to completion twice** — 21e–21k for the second hundred and 21l–21r for the third —
-and both times the last session deleted the constant, the branches, and the prose describing them.
+**It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
+21l–21r for the third, and the fourth is open with **six names on the list**. Both completed rounds
+ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
 computed **per tower**. Both are no-ops while every tower is the full height and both are what stop
-the sweep reading an undefined stage the day the next bump lands. The comments in
-`towers.balance.ts` say so at each site.
+the sweep reading an undefined stage the day the next bump lands — and the fourth hundred is the bump
+that proved it, because both were already correct when it landed. The comments in `towers.balance.ts`
+say so at each site.
+
+⚠️ **A pending tower now loses a second thing besides its boss, and it is the right behaviour rather
+than a second bug.** `floorGear` measures the gear ramp against `rules.floors`, so a tower ending at 300
+never reaches a `fromFloor` of 301 and stays entirely naked. Those floors were tuned naked, so that is
+what they should be — but say it out loud, because "the ramp is keyed to the rules' height" and "the
+ramp is keyed to the authored height" differ by a whole hundred floors of difficulty on six towers.
 
 ### The two crews
 
@@ -1386,6 +1422,13 @@ the sweep reading an undefined stage the day the next bump lands. The comments i
 | 1    | 1–100   | `rare-plus`  | 48    | 0 — parity                        |
 | 2    | 101–200 | `elite`      | 75    | 20 (`ROOF_MARGIN`)                |
 | 3    | 201–300 | `elite-plus` | 99    | 43 (`ROOF_MARGIN` + 23)           |
+| 4    | 301–400 | `legendary`  | 123   | 66 (`ROOF_MARGIN` + 46)           |
+
+⚠️ **Band 4 is the first band whose rung is a _kit_ rung, and it is the largest step any boundary
+has.** `KIT_RULES.unlocks` is `elite` / `legendary` / `ascended`, so bands 2 and 4 hand over a skill and
+bands 1 and 3 do not — that crew arrives with a **third skill** on top of its ×1.6 and its 24 levels.
+**The power ratio counts the rung and cannot count the skill** (it still lands at ×1.663), so a fourth
+hundred is authored against measured survivors and the ratio is only a legality check.
 
 ⚠️ **Each further rung costs 23 more levels of margin**, because `ln(1.6) / ln(1.021)` is 22.6.
 Reusing `ROOF_MARGIN` unchanged on a new band gives ×2.703 against band 2's ×1.689 — a walkover, and
@@ -1402,13 +1445,13 @@ fourteen hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the two
 No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
-**two thousand and one hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
+**two thousand two hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
 whether it is possible — a floor is climbed once and there is no way around one, so a floor the crew
 cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Fourteen hundreds gave fourteen answers, and no two towers escalate the same way. Read the
+⚠️ **Fifteen hundreds gave fifteen answers, and no two towers escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
@@ -1453,13 +1496,40 @@ carries them all in full. What generalises is only the procedure:
      else), and pierce multiplies `def` while resist is applied afterwards untouched by it. The
      Elves are 100% physical too and lose **0.00** to the same wall. **Read the damage formula, not
      just the stat lines** — which stat answers which is not always what the names suggest.
-5. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
+5. ⚠️ **An escalation axis does not have to be a stat, a mechanic or a composition — the Human fourth
+   hundred's is the _gear its boards are wearing_, and it is the first geared content outside the
+   campaign.** A tower authors a **ramp** in `TOWER_RULES.gear` rather than a set per floor, walked as
+   one position on the concatenated grade ladder so quality and level both rise by construction.
+   - ⚠️ **The campaign's "gear is texture" figures do not transfer, and the reason is the board
+     underneath them.** [gear](gear.md) prices a whole grade step at ×1.15 and chapter 16's entire
+     Relic ramp at **0.08 of a survivor** — all measured while the campaign's budget fell 0.595 a
+     chapter _underneath_ the ramp. Hold a tower board still and add the same gear and it is enormous:
+     **Worn 1 costs the binding crew 0.82 of five, Sturdy 20 takes it to 93% with 1.05, and Fine 60 on
+     an unlightened board reads 0%.** **State whether the board under a gear figure was being
+     lightened, or the figure means nothing.**
+   - ⚠️ **Relic 100 is not authorable as a ramp endpoint.** +166% health on a `tank` against Fine 60's
+     +66%; the control dies in 7.1 seconds. A ramp ending at the top of the ladder leaves the authored
+     weight nothing to be, which is the reverse of the ninety-second clock and just as unauthorable.
+   - ⚠️ **A tower cannot read its gear off the campaign the way it reads its lump.** Matched by enemy
+     level that yields **no gear anywhere in any tower**: the campaign's first geared stage is `c12-s1`
+     at level **225** and the tallest tower roof is 189. The whole tower system lives below where the
+     spine introduces gear, so the ramp is the tower's own — and it follows that a tower is not
+     out-gearing the spine at equal level, because there is no grade there to be out-geared by.
+   - ⚠️ **Key the ramp to a _floor_, never a level.** The 2,200 shipped floors were tuned naked and stay
+     naked; a ramp from floor 1 re-prices all of them.
+   - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
+     the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
+     though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
+     `chapters.spec.ts` has. Nine of the Human Tower's blocks needed the one-line edit, and **none of
+     the nine stands on a geared campaign stage**, so the bill was free — check that before assuming it
+     is, exactly as chapter 22 had to.
+6. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's
    band openers.
-6. ⚠️ **Do not try to make the bottom of a band 2 hard**, but measure how much room there is on the
+7. ⚠️ **Do not try to make the bottom of a band 2 hard**, but measure how much room there is on the
    tower's own crew before deciding how little the opening bands may carry — the same measurement
    reads three tenths of a second of span against one crew and threefold against another.
-7. ⚠️ **Field the _previous_ hundred's roof board at the new roof's level before authoring anything.**
+8. ⚠️ **Field the _previous_ hundred's roof board at the new roof's level before authoring anything.**
    A heavy block climbs at `perLevel.ascended` 1.024 or `perLevel.legendary` 1.0225 while a
    mono-faction five is mostly `common` at 1.021, so across a hundred floors the anchors gain about
    ×1.15 on the crew. The Dwarf Tower's floor-200 board reads 100% with all five alive at its own
@@ -1488,7 +1558,7 @@ carries them all in full. What generalises is only the procedure:
      since its first hundred. **The Undead third hundred retired two**: at level 142 on a light board
      `THE_WITHERED_CROWN` reads 30% / 13% and `THE_SUNBOUGH` 13% / 10% against a roof of 100% / 93%,
      so their last floors are 265 and 284 and nothing but the new roof anchors the last fifteen.
-8. ⚠️ **A stat can be the axis where every mechanic is inert, and the negative list is the
+9. ⚠️ **A stat can be the axis where every mechanic is inert, and the negative list is the
    deliverable.** The Undead third hundred measured nineteen shapes and found the whole status
    vocabulary worth 0.10 to 0.63 survivors, aim and scope worth _less than nothing_, and question
    count flat — while plain enemy **durability** graded 3.85 → 1.30 across four bodies at hp 700 to
@@ -1501,11 +1571,11 @@ carries them all in full. What generalises is only the procedure:
      roof** takes it from 100% / 93% to **75% / 55%** at 45s mean and 56s worst — a clock, not a
      lock. A _self_-shield is worth 0.00: it prices against the wearer's own `atk` on a body that is
      already dying.
-9. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
-   shipped block uses, which makes it tempting when a tower's axis is tempo and the tower above has
-   already spent `haste`. Measured: `atk` 72 with `attackSpeed` 45 reads 3.77 / 2.63 against `haste`
-   143's 3.48 / 2.35 — the same number — and `effectiveSpeed` sums the two before applying the slow
-   multiplier, so it is not even proof against a `slow`. **Do not spend a session re-measuring it.**
+10. ⚠️ **`attackSpeed` is not the free novelty it looks like.** It is the one `StatBlockData` field no
+    shipped block uses, which makes it tempting when a tower's axis is tempo and the tower above has
+    already spent `haste`. Measured: `atk` 72 with `attackSpeed` 45 reads 3.77 / 2.63 against `haste`
+    143's 3.48 / 2.35 — the same number — and `effectiveSpeed` sums the two before applying the slow
+    multiplier, so it is not even proof against a `slow`. **Do not spend a session re-measuring it.**
 
 Two rules that bind everywhere:
 

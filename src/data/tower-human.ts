@@ -17,6 +17,7 @@ import {
   COVENANT_EXECUTOR,
   GOLEM,
   GRAVEMOURN_KEEPER,
+  GRAVEPLATE_MARSHAL,
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
   HAG,
@@ -27,6 +28,8 @@ import {
   MIREWHELP,
   NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
+  PANOPLY_BEARER,
+  PLATEBOUND_HUSK,
   PYRE,
   QUICKLIME_SERJEANT,
   RAVAGER,
@@ -46,6 +49,7 @@ import {
   THE_DEATHLESS_MARSHAL,
   THE_GRAVEWRIGHT,
   THE_HOURLESS_MARCH,
+  THE_PANOPLY,
   THORNBACK_GRAZER,
   TYRANT,
   UNSEALED_WRETCH,
@@ -55,18 +59,24 @@ import {
 } from './enemies';
 
 /**
- * The Human Tower — three hundred floors, enemy levels 1 to 142.
+ * The Human Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## What this file authors, and what it deliberately does not
  *
- * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 142 drawn by
- * `floorLevel` in `core/towers.ts`; whether it is a mini-boss is the campaign's every-tenth rule
- * reused; and what it pays is read off the campaign's own curves at the **matched enemy level**.
- * Typing three hundred levels that must follow a formula is the retyping
+ * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 189 drawn by
+ * `floorLevel` in `core/towers.ts`; **what it is wearing** is the ramp in `TOWER_RULES.gear` drawn by
+ * `floorGear`; whether it is a mini-boss is the campaign's every-tenth rule reused; and what it pays
+ * is read off the campaign's own curves at the **matched enemy level**. Typing four hundred levels —
+ * or a hundred grade-and-level pairs — that must follow a formula is the retyping
  * [testing](../../docs/testing.md) forbids, and a payout authored here would be a second mechanism
  * on a number the campaign already decides.
  *
  * A floor is therefore three fields, and two of them are its name.
+ *
+ * ⚠️ **This is the only tower at four hundred floors.** `TOWER_RULES` is one rule for all seven, so
+ * the height bump landed in one session and the floors move in seven; the other six sit on a literal
+ * `PENDING` list in `towers.spec.ts` and `towers.balance.ts` until theirs land, and each **loses its
+ * boss** while it waits. See `data/towers.ts` for the licence that rests on.
  *
  * ⚠️ **The band headers below are checked with a script, never by reading.** Every one of the eleven
  * covering floors 1–200 was wrong when the third hundred landed — they were written against a
@@ -91,26 +101,38 @@ import {
  * paragraph — it reads **62.94%** against a 65% ceiling.
  *
  * ⚠️ **The first hundred needed no new enemy blocks, and that is why this tower shipped first.**
- * Undead already had five archetypes where Elves and Angels had one each. The second hundred needed
- * four and the third needed four, which is the ratio worth reading: **a chapter gets ten because it
- * authors five bands each asking a different question, and a tower gets four because it asks one
- * question a hundred more times.** Undead go 17 → 21 → **25**, and are now the deepest faction in
- * the game.
+ * Undead already had five archetypes where Elves and Angels had one each. Every hundred since has
+ * needed four, which is the ratio worth reading: **a chapter gets ten because it authors five bands
+ * each asking a different question, and a tower gets four because it asks one question a hundred more
+ * times.** Undead go 17 → 21 → 25 → **29**, and stay the deepest faction in the game. ⚠️ **Four
+ * blocks is 16.7% of the 24 distinct archetypes the fourth hundred fields, not 25%** — the quota is a
+ * count with a precedent behind it rather than a fraction, and stating the fraction is how a session
+ * talks itself into authoring twice as many.
  *
- * ⚠️ **Budget for the lean overshoot rather than discovering it.** Authored from the Undead bench
- * alone this hundred came out at **73.6%**, taking the whole tower to 65.34% against its 65% ceiling —
- * inside the 66–86% band every previous session hit. It is fixed by substituting weight-matched bodies through the filler slots,
- * and **only from factions that also counter Humans** (monster, demon, angel), or the swap quietly
- * turns the lean off on that board.
+ * ⚠️ **Budget for the lean overshoot rather than discovering it.** The third hundred authored from the
+ * Undead bench alone came out at **73.6%**, taking the whole tower to 65.34% against its 65% ceiling.
+ * The fourth was budgeted first — at most **355 of its 500 slots** could be Undead for the tower to
+ * stay under the ceiling — and it came in at **280 (56.0%)**, taking the whole tower to **61.17%**.
+ * ⚠️ **The headroom fell out of the ramp rather than out of restraint**: the kitted anchors are all
+ * Undead and there are only ever one to three of them a board, so the escort slots were free to go
+ * elsewhere. Substitutions are still **only from factions that also counter Humans** (monster, demon,
+ * angel), or the swap quietly turns the lean off on that board.
  *
  * ## Where the difficulty sits
  *
- * Deliberately **inside** the campaign's range: the ladder first reaches level 142 at stage 284 of
- * 450. A tower is not where difficulty lives — what it asks for is five characters of one faction,
- * which is a demand on the *roster* rather than on investment. Three balance targets, one per band,
+ * Deliberately **inside** the campaign's range: the ladder first reaches level 189 at stage 378 of
+ * 1,210. A tower is not where difficulty lives — what it asks for is five characters of one faction,
+ * which is a demand on the *roster* rather than on investment. Four balance targets, one per band,
  * every level derived from the level line: `rare-plus`/48 over floors 1–100, `elite`/75 over
- * 101–200, and `elite-plus`/99 over 201–300, none of them wearing gear.
+ * 101–200, `elite-plus`/99 over 201–300 and `legendary`/123 over 301–400 — **none of the crews
+ * wearing gear, and the fourth hundred's boards being the first in any tower that do.**
  * [`towers.balance.ts`](./towers.balance.ts) is what holds them.
+ *
+ * ⚠️ **Band 4's crew is the largest step any band boundary has, and it is not the ×1.6.** `legendary`
+ * is a `KIT_RULES.unlocks` rung, so that five arrives with a **third skill** — where band 3's
+ * `elite-plus` handed over none. The power ratio (×1.663, against band 2's ×1.689 and band 3's
+ * ×1.676) counts the rung and cannot count the skill, so this hundred is authored against measured
+ * survivors and the ratio is only a legality check.
  *
  * ## ⚠️ The third hundred escalates through the stat block, because nothing else is available
  *
@@ -160,7 +182,102 @@ import {
  *
  * ⚠️ Difficulty is otherwise the **front rank's weight**, and it is sharply non-linear — two
  * `ascended` blocks in front is past the edge at every band, and **no board in this hundred carries
- * two**. Re-run `npm run test:balance` after touching any band above floor 68, 180 or 290.
+ * two**.
+ *
+ * ## ⚠️ The fourth hundred — the Panoply — escalates through the gear the boards are wearing
+ *
+ * The first hundred in any tower whose axis is **enemy equipment**, and the first geared boards
+ * outside the campaign. `TOWER_RULES.gear` ramps **Worn 1 → Fine 60** across floors 301–400, walked as
+ * one position on the concatenated grade ladder so quality and level both only ever rise; the grade
+ * steps at floors 301, 318 and 351. Priced against one calibrated control — an anchor of 1150/64
+ * behind four bodies of 700/46 at level 189 wearing Fine 60, reading **4.00 / 3.33 of five**, and it
+ * **moves** — forty seeds, zero timeouts on every row:
+ *
+ * | shape                                        | ref / alt   | worth to the alternate |
+ * | -------------------------------------------- | ----------- | ---------------------- |
+ * | `magicResist` 0.60 — the damage-type control | 4.00 / 3.50 | **−0.17**              |
+ * | reach on `enemy-back`, power 1.2             | 4.00 / 3.38 | −0.05                  |
+ * | wide damage at the cap, back rank            | 3.98 / 3.52 | **−0.19**              |
+ * | wide damage at the cap, front rank           | 3.98 / 3.20 | 0.13                   |
+ * | `physicalResist` 0.10                        | 3.92 / 3.15 | 0.18                   |
+ * | `selection` on `enemy-lowest`, power 2.2     | 4.00 / 3.10 | 0.23                   |
+ * | `physicalResist` 0.23 — the register         | 3.65 / 3.02 | 0.31                   |
+ * | `def` 70                                     | 3.67 / 3.00 | 0.33                   |
+ * | `physicalResist` 0.35                        | 3.48 / 2.85 | 0.48                   |
+ * | `def` 110                                    | 3.25 / 2.80 | 0.53                   |
+ * | `dodge` 0.30                                 | 3.73 / 2.77 | 0.56                   |
+ * | burst, single-target power 3.10 / cd 80      | 3.92 / 2.70 | 0.63                   |
+ * | `haste` 126                                  | 3.00 / 2.77 | 0.56                   |
+ * | `physicalResist` 0.50                        | 2.65 / 2.15 | **1.18**               |
+ * | `STUN` on `enemy-all`, front carrier         | 3.88 / 2.02 | **1.31**               |
+ * | pairing — two `ascended` anchors in front    | 2.27 / 1.43 | **1.90**               |
+ * | `haste` 144                                  | 2.65 / 0.88 | **2.45**               |
+ *
+ * 1. ⚠️ **A gear ramp is _escalation_ on a tower where the campaign measured it as texture, and the
+ *    difference is whether the boards underneath it are being lightened.** `docs/gear.md` prices a
+ *    whole grade step at about ×1.15 and chapter 16's entire Relic ramp at **0.08 of a survivor** —
+ *    measured while the campaign's board budget fell 0.595 a chapter underneath the ramp. Hold a board
+ *    still and add the same gear and it is enormous: the control above at **Worn 1** costs the weaker
+ *    arrangement **0.82 of five**, at **Sturdy 20** it reads 93% with 1.05, and at **Fine 60** — the
+ *    grade the roof wears — an *unlightened* board reads **0%**. **State whether the board under a
+ *    gear figure was being lightened, or the figure means nothing.**
+ * 2. ⚠️ **Relic 100 was measured and declined.** +166% health on a `tank` against Fine 60's +66%; the
+ *    control reads 0% in **7.1 seconds**. A ramp that ends at the top of the ladder is the ninety-second
+ *    clock's opposite failure — the board simply deletes the party — and it would leave the authored
+ *    weight nothing to be.
+ * 3. ⚠️ **So the authored board total _falls_ across this hundred, and that is the ramp working rather
+ *    than a mistake.** The budget runs about 2,700 raw health at floor 301 to **2,810 at the roof**,
+ *    peaking near 4,400 in the middle — where the third hundred's closing boards run 5,330. Holding a
+ *    single board constant across the whole hundred already grades **5.00 → 3.52 survivors** on the
+ *    level line and the ramp alone.
+ * 4. ⚠️ **`physicalResist` is the strongest stat dial available here and it is deliberately not the
+ *    axis, because it is the Monster Tower's.** It grades 0.18 / 0.31 / 0.48 / **1.18** across
+ *    0.10 → 0.50 while `magicResist` 0.60 is worth **−0.17** — both Human fives being 100% physical,
+ *    which is the mechanism control. **Two towers with one lock is one tower shipped twice**, so it
+ *    stays on these blocks at this tower's shipped median of 0.06 and never past its 0.23 ceiling.
+ *    ⚠️ **The Monster Tower's own "is it ours" table recorded `physicalResist` 0.55 as worth 0.00 to
+ *    `human-ref`, and that reading was taken on the arrangement that cannot fall** — the reference five
+ *    is plateaued at 4.00 here across a wide band while the alternate grades cleanly. Re-measure a
+ *    cross-tower negative on the binding arrangement before trusting it.
+ * 5. ⚠️ **`def` is the texture, and the coherence is deliberate.** `GEAR_STATS` is `hp`, `atk`, `def`,
+ *    `haste`, so the stat a kitted body should be showing off is one gear actually moves — and it reads
+ *    as texture should, 0.33 and 0.53 at 70 and 110.
+ * 6. ⚠️ **Aim past the front rank is inert or negative for the second time on this tower and the fifth
+ *    across the seven.** A reach is worth −0.05 and the widest turn available is worth **−0.19 from the
+ *    back rank** — leaving the board easier than saying nothing. Every skill this hundred authors is
+ *    `enemy-front`, which is the same conclusion the `NIGHT_RIDE` correction reached.
+ * 7. ⚠️ **The roof's escort is the whole question, and the boss needed no retune.** `THE_PANOPLY` at
+ *    its authored 1240/68 behind `PLATEBOUND_HUSK` reads **13% for the weaker arrangement**; behind
+ *    four light bodies it reads **98% with 1.73**. Nine escort shapes were fielded before one was
+ *    chosen and every one of them left the boss's stat line alone. **Check the escort before the boss,
+ *    which is chapter 19's rule arriving on a roof.**
+ * 8. ⚠️ **No anchor had to retire — the fourth clean answer to that check.** All 53 blocks this tower
+ *    fields stand as a roof anchor behind four light escorts at level 189 in Fine 60, `THE_HOURLESS_MARCH`
+ *    at 1660/76 included (4.40 / 4.00). What collapses is the **board**: the shipped floor-300 board at
+ *    the new roof's level reads 100% / 1.93 against **53% / 0.55**.
+ * 9. ⚠️ **`THE_PANOPLY` is the lightest tower roof this game ships _on attack_, at 68, and is tied for
+ *    the lightest on health.** The seven roofs read 1240/68 (this), 1240/74 (the Dwarf Tower's Crown
+ *    Wheel), 1300/76, 1300/84, 1320/82, 1440/86 and 1520/91 — so the honest claim is a **tie** on
+ *    health and a clear lowest on attack, not "the lightest". It sits there because it is wearing a
+ *    full Fine set the moment it is fielded, where the other six are naked, and against its own
+ *    predecessor `THE_HOURLESS_MARCH` at 1660/76 it is lighter on both. **The weight a roof is allowed
+ *    is what is left after the grade.**
+ *
+ * ⚠️ **The sustain claim is stated as counts, because the absolute version of it has shipped wrong
+ * four times and always on one of these four words.** `recovery`, `healthRegen`, `lifeLeech`, a `regen`
+ * **status** and a `heal` **effect** are five different things and no two of them are the same claim.
+ * Measured over the hundred rather than read: **no board carries a heal effect, a `regen` status, a
+ * shield or a point of `healthRegen` — zero of a hundred, and no block in the hundred carries any.**
+ * What it does carry is the Undead idiom: `lifeLeech` on **5 of its 24 blocks and 46 of its 100
+ * boards** (0.08 to 0.25), a `drain` effect on **4 blocks and 51 boards**, and `recovery` on exactly
+ * **one** block (the Revenant, at 5) standing on **3**. None of that is sustain the party has to
+ * outpace; a heal on a roof is, which is why the roof also carries **no taunt** and the Reliquary
+ * Bearer — this tower's shield — is **not fielded in the hundred at all**.
+ *
+ * The hundred closes at **100% / 3.60 for the reference five against 93% / 1.65 for the alternate**,
+ * zero timeouts anywhere, and the longest fight in it is 28.6s against a 90-second timer.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 68, 180, 290 or 385.
  */
 export const TOWER_HUMAN = {
   id: 'tower-human',
@@ -809,7 +926,7 @@ export const TOWER_HUMAN = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Reliquary — Floors 121–140, levels 58–67 — a board that has to be spent twice, and a wall that charges for being hit.
+    // The Reliquary — Floors 121–140, levels 58–66 — a board that has to be spent twice, and a wall that charges for being hit.
     // -------------------------------------------------------------------------------------
     {
       id: 't-human-f121',
@@ -1761,7 +1878,7 @@ export const TOWER_HUMAN = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Ironwake — Floors 246–270, levels 117–128 — the Vanguard sets the pace and the board keeps it. One, then two.
+    // The Ironwake — Floors 246–270, levels 116–128 — the Vanguard sets the pace and the board keeps it. One, then two.
     // -------------------------------------------------------------------------------------
     {
       id: 't-human-f246',
@@ -2207,6 +2324,821 @@ export const TOWER_HUMAN = {
       enemies: {
         front: [THE_HOURLESS_MARCH, IRONWAKE_VANGUARD],
         back: [RELIQUARY_BEARER, QUICKLIME_SERJEANT, CORTEGE_LANCER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Harness Line — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — one body that came up wearing what it was buried in.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [CINDER_CULLER, CARRION_SWARM, UNSEALED_WRETCH],
+      },
+    },
+    {
+      id: 't-human-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [CINDER_CULLER, UNSEALED_WRETCH, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-human-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [CINDER_CULLER, UNSEALED_WRETCH, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-human-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [UNSEALED_WRETCH, CINDER_CULLER, PYRE],
+      },
+    },
+    {
+      id: 't-human-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [UNSEALED_WRETCH, PYRE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [UNSEALED_WRETCH, PYRE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [PYRE, UNSEALED_WRETCH, MIREWHELP],
+      },
+    },
+    {
+      id: 't-human-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [PYRE, MIREWHELP, UNSEALED_WRETCH],
+      },
+    },
+    {
+      id: 't-human-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [MIREWHELP, PYRE, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f310',
+      name: 'Floor 310 — The Harness Line',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [BLOODPACT_FIEND, RENDFANG_JACKAL, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-human-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [PLATEBOUND_HUSK, BARROWMIST_KEENER],
+        back: [MIREWHELP, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [MIREWHELP, BLOODPACT_FIEND, PYRE],
+      },
+    },
+    {
+      id: 't-human-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [BLOODPACT_FIEND, MIREWHELP, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [BLOODPACT_FIEND, RENDFANG_JACKAL, MIREWHELP],
+      },
+    },
+    {
+      id: 't-human-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [BLOODPACT_FIEND, RENDFANG_JACKAL, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-human-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SEPULCHRE_HOUND],
+        back: [SERAPH_ADJUDICANT, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SHADE],
+        back: [SERAPH_ADJUDICANT, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SHADE],
+        back: [SERAPH_ADJUDICANT, BLOODPACT_FIEND, BOAR],
+      },
+    },
+    {
+      id: 't-human-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [PLATEBOUND_HUSK, SHADE],
+        back: [SERAPH_ADJUDICANT, BOAR, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f320',
+      name: 'Floor 320 — The Kit Issued',
+      enemies: {
+        front: [PLATEBOUND_HUSK, HAG],
+        back: [KNELL_CHANTER, BOAR, RIFTSTEP_REAVER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Kit Store — Floors 321–345, levels 152–163, Sturdy 5–Sturdy 34 — two of them, and the grade steps to Sturdy underneath.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [BARROWMIST_KEENER, PYRE, UNSEALED_WRETCH],
+      },
+    },
+    {
+      id: 't-human-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [BARROWMIST_KEENER, MIREWHELP, PYRE],
+      },
+    },
+    {
+      id: 't-human-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [BARROWMIST_KEENER, MIREWHELP, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [BARROWMIST_KEENER, BLOODPACT_FIEND, MIREWHELP],
+      },
+    },
+    {
+      id: 't-human-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SEPULCHRE_HOUND, MIREWHELP, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SEPULCHRE_HOUND, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SEPULCHRE_HOUND, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SEPULCHRE_HOUND, SERAPH_ADJUDICANT, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SHADE, SERAPH_ADJUDICANT, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f330',
+      name: 'Floor 330 — The Store Opened',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SHADE, BOAR, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-human-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [SHADE, BOAR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-human-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [REVENANT, BOAR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-human-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [REVENANT, BOAR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-human-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [REVENANT, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f340',
+      name: 'Floor 340 — The Weight Taken',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [CAIRNWARD_HUSK, COVENANT_EXECUTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-human-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Plated March — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — the Marshal takes the front, and the plate arrives.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f350',
+      name: 'Floor 350 — The Plate Arrives',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [HAG, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f360',
+      name: 'Floor 360 — The Marshal Kitted',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [GRAVEMOURN_KEEPER, COVENANT_EXECUTOR, KNELL_CHANTER],
+      },
+    },
+    {
+      id: 't-human-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    {
+      id: 't-human-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+        back: [CAIRNWARD_HUSK, KNELL_CHANTER, COVENANT_EXECUTOR],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Full Muster — Floors 366–385, levels 173–182, Fine 19–Fine 42 — three kitted bodies, and the weight eases as the grade climbs.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, SERAPH_ADJUDICANT, BOAR],
+      },
+    },
+    {
+      id: 't-human-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, SERAPH_ADJUDICANT, BOAR],
+      },
+    },
+    {
+      id: 't-human-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, SERAPH_ADJUDICANT, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, SERAPH_ADJUDICANT, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f370',
+      name: 'Floor 370 — The Muster Called',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, KNELL_CHANTER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, BLOODPACT_FIEND, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-human-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, BLOODPACT_FIEND, MIREWHELP],
+      },
+    },
+    {
+      id: 't-human-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, MIREWHELP, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, MIREWHELP, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, MIREWHELP, PYRE],
+      },
+    },
+    {
+      id: 't-human-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, MIREWHELP, PYRE],
+      },
+    },
+    {
+      id: 't-human-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, PYRE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-human-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, PYRE, UNSEALED_WRETCH],
+      },
+    },
+    {
+      id: 't-human-f380',
+      name: 'Floor 380 — The Column Armed',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, SERAPH_ADJUDICANT, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, UNSEALED_WRETCH, PYRE],
+      },
+    },
+    {
+      id: 't-human-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, UNSEALED_WRETCH, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, UNSEALED_WRETCH, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CINDER_CULLER, UNSEALED_WRETCH],
+      },
+    },
+    {
+      id: 't-human-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CINDER_CULLER, UNSEALED_WRETCH],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Panoply — Floors 386–400, levels 182–189, Fine 43–Fine 60 — the whole harness, and the muster nobody called.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f390',
+      name: 'Floor 390 — The Last Harness',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CINDER_CULLER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-human-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [PLATEBOUND_HUSK, PANOPLY_BEARER],
+        back: [GRAVEPLATE_MARSHAL, CARRION_SWARM, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f400',
+      name: 'Floor 400 — The Panoply',
+      enemies: {
+        front: [THE_PANOPLY, CARRION_SWARM],
+        back: [CINDER_CULLER, BARROWMIST_KEENER, WISP],
       },
     },
   ],

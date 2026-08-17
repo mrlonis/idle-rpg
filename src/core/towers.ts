@@ -1,6 +1,7 @@
 import {
   type AuthoredCurrencies,
   type EnemyFormationData,
+  type EnemyGearData,
   type StageData,
   type StageKind,
 } from './battle/types';
@@ -8,6 +9,7 @@ import { credit, type CurrencyAmounts } from './currency';
 import { type EmblemDropData, rollEmblems } from './emblems';
 import { addGear } from './gear/inventory';
 import { rollDrops } from './gear/roll';
+import { enemyGearBonuses, gearAtLadderPosition, gearLadderPosition } from './gear/stats';
 import { type GearRulesData } from './gear/types';
 import { num } from './numeric';
 import { derivedStream } from './rng';
@@ -18,11 +20,14 @@ import { type GameState } from './state';
  *
  * ## What a tower is, in one paragraph
  *
- * A hundred floors, climbed once each, crewed by five characters of a single faction. The enemy
- * level runs **1 to 60, linearly** — deliberately inside the campaign's own range, which reaches 85
- * by the end of chapter 2 — so a tower is not where difficulty lives. What a tower asks for is
+ * Four hundred floors, climbed once each, crewed by five characters of a single faction. The enemy
+ * level runs **1 to 189, linearly** — deliberately inside the campaign's own range, which reaches 605
+ * by the end of chapter 25 — so a tower is not where difficulty lives. What a tower asks for is
  * **breadth**: seven of them is thirty-five invested characters against a campaign that has never
  * needed more than five.
+ *
+ * ⚠️ **The height is a rule for all seven and only the Human Tower is at it.** See `data/towers.ts`
+ * for the `PENDING` discipline that keeps the other six honest while their floors are authored.
  *
  * ## The three ways it deliberately differs from the campaign
  *
@@ -34,14 +39,64 @@ import { type GameState } from './state';
  * - **A floor is climbed once.** There is no re-fighting a cleared floor, which is what keeps a
  *   tower a climb rather than a second farm. It also collapses the campaign's two payouts into
  *   one: "paid on every clear" and "paid on the first clear" describe the same event here.
- * - **The level is derived, not authored.** A campaign stage carries its own level because that
- *   curve has a tutorial ramp and a deliberate step at the healer lock. A tower's is a straight
- *   line by definition, so `data/` authors *who stands on each floor* and {@link floorLevel} says
- *   how big they are. Typing a hundred levels that must follow a formula is the retyping
+ * - **The level is derived, not authored — and since the fourth hundred, so is the gear.** A campaign
+ *   stage carries its own level and its own `{ grade, level }` because that curve has a tutorial ramp
+ *   and a deliberate step at the healer lock. A tower's are straight lines by definition, so `data/`
+ *   authors *who stands on each floor* while {@link floorLevel} says how big they are and
+ *   {@link floorGear} says what they are wearing. Typing four hundred levels, or a hundred
+ *   grade-and-level pairs, that must follow a formula is the retyping
  *   [testing](../../docs/testing.md) forbids.
  *
  * `core/` still cannot see `data/`: a tower arrives as {@link TowerData}, exactly as a chapter does.
  */
+
+/**
+ * The gear ramp a tower's upper floors climb, or absent for a tower whose bodies all fight naked.
+ *
+ * ## ⚠️ Derived from the floor index, exactly as the level is, and for the same reason
+ *
+ * A hundred authored `{ grade, level }` pairs that must follow a curve is the retyping
+ * [testing](../../docs/testing.md) forbids — the same argument that keeps a floor's *level* out of
+ * `data/`. What is authored here is where the ramp starts, where it ends, and the first floor it
+ * applies to; {@link floorGear} draws the line.
+ *
+ * ## ⚠️ It is one axis, not two, and `gearLadderPosition` is why
+ *
+ * The ramp is linear in the **concatenated** grade ladder — Worn 1 through Relic 100 as one run of
+ * 300 positions — rather than interpolating a grade and a level separately. A grade boundary is not
+ * a level reset: Worn 20 is worth 1.176 of a piece's profile and Sturdy 1 is worth 1.35, so a ramp
+ * that walked the grade up while restarting the level would be monotone only by luck. One position
+ * makes "quality and level both rise across the hundred" true by construction.
+ *
+ * ## ⚠️ Why a tower cannot match the campaign's gear the way it matches its lump
+ *
+ * A floor's lump is read off the campaign stage fighting at the same enemy level, and the obvious
+ * move is to read the gear the same way. **Measured, that yields no gear at all anywhere in any
+ * tower**: the campaign's first geared stage is `c12-s1` at enemy **level 225**, and the tower's
+ * roof is 189. The whole tower lives below the level the spine introduces gear at, so a tower's
+ * ramp has to be its own — there is nothing at its levels to match against.
+ *
+ * That is why this is a ramp on the *floors* and not a lookup, and it is also why the ramp may be
+ * generous about grade where the campaign is not: at a tower's levels the campaign has no grade to
+ * be out-geared *by*. What still binds is that gear is **texture rather than escalation** — see
+ * [gear](../../docs/gear.md), where a whole grade step measured about ×1.15 against the ×3 it would
+ * need to carry a band — so the authored boards, not this, are where a hundred gets harder.
+ */
+export interface TowerGearRampData {
+  /**
+   * The first floor whose bodies wear anything. Every floor below it is ungeared.
+   *
+   * ⚠️ **A floor, not a level.** The three hundred floors that shipped before this existed were
+   * tuned naked and are still tuned naked; keying the ramp to a floor is what lets a new hundred
+   * carry gear without re-tuning the ones below it. A ramp starting at floor 1 would silently
+   * re-price every floor of every tower — 2,200 of them.
+   */
+  readonly fromFloor: number;
+  /** The set {@link fromFloor} wears. */
+  readonly from: EnemyGearData;
+  /** The set the roof wears. Every floor between is linear on the concatenated grade ladder. */
+  readonly to: EnemyGearData;
+}
 
 /** How every tower is shaped. One rule for all seven; a tower authors its line-ups and nothing else. */
 export interface TowerRulesData {
@@ -53,6 +108,8 @@ export interface TowerRulesData {
   readonly topLevel: number;
   /** Every nth floor is a mini-boss. The last floor is a boss instead. */
   readonly miniBossEvery: number;
+  /** The gear ramp the upper floors climb, or absent while no tower fields a geared board. */
+  readonly gear?: TowerGearRampData;
   /**
    * Crystals paid the first — and only — time a floor falls.
    *
@@ -150,6 +207,41 @@ export function floorLevel(rules: TowerRulesData, floor: number): number {
 }
 
 /**
+ * What the bodies on `floor` are wearing, or `undefined` on an ungeared floor.
+ *
+ * A straight line on the concatenated grade ladder from `gear.from` at `gear.fromFloor` to
+ * `gear.to` at the roof — the level line's own shape, applied to the second axis. Rounded rather
+ * than floored for the reason {@link floorLevel} is: flooring spends an extra floor at every
+ * position and lands the roof short of the set it is meant to be wearing.
+ *
+ * ⚠️ **The roof is `rules.floors`, not the tower's authored height**, so a tower still waiting for
+ * its floors while a height bump is in flight gets the ramp its *own* last floor sits at rather than
+ * the one the rules' roof would imply. That is the same asymmetry {@link floorKindAt} has, and it
+ * costs a short tower a little gear exactly as that one costs it its boss.
+ */
+export function floorGear(
+  rules: TowerRulesData,
+  gearRules: GearRulesData,
+  floor: number,
+): EnemyGearData | undefined {
+  const ramp = rules.gear;
+  if (ramp === undefined) {
+    return undefined;
+  }
+  const floors = positiveInt(rules.floors, 1);
+  const index = Math.min(positiveInt(floor, 1), floors);
+  const first = Math.min(positiveInt(ramp.fromFloor, 1), floors);
+  if (index < first) {
+    return undefined;
+  }
+  const start = gearLadderPosition(gearRules, ramp.from.grade, ramp.from.level);
+  const end = gearLadderPosition(gearRules, ramp.to.grade, ramp.to.level);
+  const span = floors - first;
+  const position = span <= 0 ? end : start + ((end - start) * (index - first)) / span;
+  return gearAtLadderPosition(gearRules, position);
+}
+
+/**
  * Whether a floor is ordinary, a mini-boss, or the tower's boss.
  *
  * The campaign's rhythm, reused deliberately: a player who has learnt that every tenth fight is
@@ -213,15 +305,24 @@ export function matchedStageIndex(levels: readonly number[], level: number): num
  *
  * `lump` is handed in rather than computed, because matching the campaign's payout means reading
  * the resolved campaign ladder — which is content, and content reaches `core/` as an argument.
+ *
+ * ⚠️ **`gearRules` is required and never defaulted**, for the reason `resolveStage` and
+ * `resolveLadder` take theirs that way: a caller that omitted it would resolve every geared floor as
+ * an ungeared one. The boards would field naked bodies at levels tuned for kitted ones, every screen
+ * would keep saying the right thing, and only the balance sweep would ever notice. It is required
+ * even though most floors are ungeared, precisely so that adding a ramp to a tower cannot silently
+ * miss a call site.
  */
 export function resolveFloor(
   tower: TowerData,
   rules: TowerRulesData,
   floor: number,
   lump: AuthoredCurrencies,
+  gearRules: GearRulesData,
 ): StageData {
   const index = Math.min(positiveInt(floor, 1), tower.floors.length);
   const encounter = tower.floors[index - 1];
+  const gear = floorGear(rules, gearRules, index);
   return {
     ...encounter,
     level: floorLevel(rules, index),
@@ -229,6 +330,12 @@ export function resolveFloor(
     reward: lump,
     rates: {},
     firstClearSummons: 0,
+    // Spread rather than assigned, so an ungeared floor carries neither key at all — which is what
+    // `toEnemyCombatant` reads to decide a body fights naked, and what keeps the two thousand one
+    // hundred floors authored before the ramp existed byte-identical once resolved.
+    ...(gear === undefined
+      ? {}
+      : { gear, enemyGear: enemyGearBonuses(gearRules, gear.grade, gear.level) }),
   };
 }
 
@@ -237,9 +344,10 @@ export function resolveTower(
   tower: TowerData,
   rules: TowerRulesData,
   lumpForLevel: (level: number) => AuthoredCurrencies,
+  gearRules: GearRulesData,
 ): readonly StageData[] {
   return tower.floors.map((_, offset) =>
-    resolveFloor(tower, rules, offset + 1, lumpForLevel(floorLevel(rules, offset + 1))),
+    resolveFloor(tower, rules, offset + 1, lumpForLevel(floorLevel(rules, offset + 1)), gearRules),
   );
 }
 

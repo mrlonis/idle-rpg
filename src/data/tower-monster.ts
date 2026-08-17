@@ -1059,7 +1059,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Beaters' Line — Floors 121–140, levels 58–67 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
+    // The Beaters' Line — Floors 121–140, levels 58–66 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f121',
@@ -2044,7 +2044,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Shutfast Line — Floors 246–270, levels 117–128 — three a board, and every faction the tower fields has brought the half of itself that wears armour.
+    // The Shutfast Line — Floors 246–270, levels 116–128 — three a board, and every faction the tower fields has brought the half of itself that wears armour.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f246',

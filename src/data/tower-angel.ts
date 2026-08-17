@@ -947,7 +947,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Wounded First — Floors 121–140, levels 58–67 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
+    // The Wounded First — Floors 121–140, levels 58–66 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f121',
@@ -1962,7 +1962,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Gathering Hand — Floors 246–270, levels 117–128 — three, and the first boards that aim the blow at the body the choir has already committed a heal to.
+    // The Gathering Hand — Floors 246–270, levels 116–128 — three, and the first boards that aim the blow at the body the choir has already committed a heal to.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f246',

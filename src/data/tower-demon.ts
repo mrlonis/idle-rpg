@@ -1103,7 +1103,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Hush — Floors 121–140, levels 58–67 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
+    // The Hush — Floors 121–140, levels 58–66 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f121',
@@ -2239,7 +2239,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sealed Verse — Floors 261–280, levels 124–133 — the whole board refuses, and the Trampler brings the only physical damage in the hundred.
+    // The Sealed Verse — Floors 261–280, levels 124–132 — the whole board refuses, and the Trampler brings the only physical damage in the hundred.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f261',

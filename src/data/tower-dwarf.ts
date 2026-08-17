@@ -934,7 +934,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Undervault — Floors 121–140, levels 58–67 — somebody has found the seams, and armour stops being an answer.
+    // The Undervault — Floors 121–140, levels 58–66 — somebody has found the seams, and armour stops being an answer.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f121',
@@ -1946,7 +1946,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Quenchyard — Floors 246–270, levels 117–128 — a thing in the quench-pits has decided the door is its, and while it stands there it is the only body the party is allowed to answer.
+    // The Quenchyard — Floors 246–270, levels 116–128 — a thing in the quench-pits has decided the door is its, and while it stands there it is the only body the party is allowed to answer.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f246',

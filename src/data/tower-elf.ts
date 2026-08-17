@@ -926,7 +926,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sighting Gallery — Floors 121–140, levels 58–67 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
+    // The Sighting Gallery — Floors 121–140, levels 58–66 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f121',
@@ -1947,7 +1947,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Cantor's Line — Floors 246–270, levels 117–128 — a third voice, and it is the one that goes looking for whoever is already hurt.
+    // The Cantor's Line — Floors 246–270, levels 116–128 — a third voice, and it is the one that goes looking for whoever is already hurt.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f246',

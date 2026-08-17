@@ -15,8 +15,10 @@ import {
   type ChapterCurveData,
   type ChapterData,
   FRONT_ROW_SIZE,
+  floorGear,
   floorKindAt,
   floorLevel,
+  gearLadderPosition,
   matchedStageIndex,
   PARTY_SIZE,
   type RarityId,
@@ -37,7 +39,7 @@ import { CHARACTERS } from './characters';
 import { FACTION_MATCHUPS } from './combat';
 import { ENEMIES } from './enemies';
 import { GEAR_RULES } from './gear';
-import { LEVEL_CURVE } from './levels';
+import { GROWTH, LEVEL_CURVE } from './levels';
 import { TOWER_BAND_RUNGS, TOWER_BAND_UNIT, TOWER_RULES, TOWERS } from './towers';
 
 /**
@@ -125,6 +127,41 @@ function tracksFor(tower: TowerData): readonly AchievementTrackData[] {
  */
 const TOWER_UNIT = 100;
 
+/**
+ * The towers still authored at the previous height while the fourth hundred lands one tower at a time.
+ *
+ * ⚠️ **A literal list of names, and it has to stay literal.** `TOWER_RULES` is one rule for all seven,
+ * so a height bump lands in a single session while the floors move in seven — and a *filter* ("the
+ * full height, or three quarters of it") would pass forever and never notice a tower nobody went back
+ * for. Each session deletes its own name; **the last one deletes this list and every branch that reads
+ * it.** It has now been done this way three times: 21e–21k for the second hundred, again for the
+ * third, and this.
+ *
+ * ⚠️ **A tower on this list is not damaged, but it does lose its boss.** `clearedFloors` clamps to
+ * what the tower authors, so `nextFloor` reports it topped and every screen reads it right — but
+ * `floorKindAt` reads the *rules'* height, so its floor 300 resolves as a **mini-boss paying ×2 rather
+ * than ×5**. That is a real payout regression, and it is licensed by exactly one argument, the same
+ * one the save re-bases rest on: **no build carrying it has ever reached a player.** If that stops
+ * being true, extend all seven in one session or not at all.
+ *
+ * It also loses the top of the **gear ramp**, for the same reason and with the same shape:
+ * `floorGear` measures the ramp against `rules.floors`, so a tower ending at 300 never reaches
+ * `fromFloor` 301 and stays entirely naked. That is the correct behaviour rather than a second bug —
+ * those three hundred floors were tuned naked.
+ */
+const PENDING: readonly string[] = [
+  'tower-dwarf',
+  'tower-elf',
+  'tower-undead',
+  'tower-monster',
+  'tower-angel',
+  'tower-demon',
+];
+
+/** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
+const authoredHeight = (tower: TowerData): number =>
+  PENDING.includes(tower.id) ? rules.floors - TOWER_BAND_UNIT : rules.floors;
+
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
     // ⚠️ **Inside the campaign's range, deliberately.** A tower charges for roster breadth, not for
@@ -139,34 +176,76 @@ describe('tower rules', () => {
     expect(rules.topLevel).toBeLessThan(campaignTop);
   });
 
-  it('closes above the cap of the rung it asks for, by a margin', () => {
-    // ⚠️ **This replaced "`topLevel` is exactly a rarity cap" in 21e, and the older assertion looked
-    // stricter while measuring nothing.** Its argument was that a cap match makes the sweep's party
-    // derived rather than chosen — true, and still true here, since the rung below is just as
-    // derived as the rung on. What it missed is that **the enemy side has no ascension rungs at
-    // all.** A rung is worth ×1.6, so a party standing at parity with the content is only a fair
-    // test at the first rung above `rare`. At `elite-plus` — three rungs, ×4.096 — a level-140 five
-    // takes the heaviest board this game can author (five `ascended` blocks with an Unmade in front)
-    // at 100% with all five alive in nine seconds, and no line-up fixes that.
-    //
-    // So a tower closes above the cap of the rung it asks for, which is the campaign's own margin
-    // rule arriving here — see the level-line note in `docs/authoring.md` for chapters 5 onward.
-    // Both bounds are derived from the caps: there must be a rung below the roof for a crew to stand
-    // on, and the roof must not reach the rung above it, which would be content asking for an
-    // investment it never rewards.
+  it('leaves a rung below the roof to stand on and one above it to climb toward', () => {
+    // ⚠️ **This is what survives of "closes above the cap of the rung it asks for", and the fourth
+    // hundred is what narrowed it.** The margin half of that guard has moved to the power-ratio
+    // assertion below; see there for the whole argument. What is still worth holding here is the
+    // weaker, structural claim: the roof sits **somewhere inside** the caps ladder rather than at
+    // either end of it. A roof under the lowest cap would be content no rung is a fair test against,
+    // and a roof above the highest would be a tower asking for an investment the game cannot sell.
     const caps = LEVEL_CURVE.caps as readonly number[];
-    const below = caps.filter((cap) => cap < rules.topLevel);
-    const above = caps.filter((cap) => cap >= rules.topLevel);
 
-    expect(below.length, 'a rung for the top band to stand on').toBeGreaterThan(0);
-    expect(above.length, 'a rung the roof does not reach').toBeGreaterThan(0);
+    expect(
+      caps.filter((cap) => cap < rules.topLevel).length,
+      'a rung below the roof',
+    ).toBeGreaterThan(0);
+    expect(
+      caps.filter((cap) => cap >= rules.topLevel).length,
+      'a rung above the roof',
+    ).toBeGreaterThan(0);
+  });
 
-    const margin = rules.topLevel - below[below.length - 1];
+  it('crews every band at the same power ratio against its own top floor', () => {
+    // ⚠️ **This replaced two cap comparisons at the fourth hundred, and the replacement is the
+    // quantity both were standing in for.** What has to hold is that a band's crew is a *fair test*
+    // against the band's own closing floor: strong enough to clear it, not so strong that it walks it.
+    // `towers.balance.ts` measures that in survivors; this holds the arithmetic that makes the
+    // measurement mean the same thing in every band.
+    //
+    // ## Why the two cap comparisons had to go
+    //
+    // They were: "the roof closes above the top band's rung cap", and "every band below the top
+    // closes at or under its own crew's cap". Both are exact restatements of the margin rule **while
+    // a band's margin is smaller than the gap between its crew's level and its cap**, and the fourth
+    // hundred is where that stopped being true in both directions at once:
+    //
+    // - Band 4 is `legendary`, which caps at **200** against a roof of **189**. Its crew stands at
+    //   123 — 66 levels of margin, 77 levels of cap headroom — so the roof being *under* the cap says
+    //   nothing at all about parity. The old guard would have demanded a roof of 201, which the
+    //   campaign payout bound forbids outright (200 pays exactly the campaign's stage-400 lump) and
+    //   which would move 291 of the 300 shipped floors by up to 9 levels.
+    // - Band 3 closes at **142** against `elite-plus`'s cap of **140** and has done since the third
+    //   hundred shipped, exempt only because it was then the *top* band. Adding a fourth band revoked
+    //   that exemption on content that did not change by one level.
+    //
+    // ⚠️ **A guard that fires because the band *count* changed, on boards that are byte-identical, is
+    // pointed at the wrong quantity** — the test `docs/authoring.md` records for the three guards it
+    // has retired. So the ratio is asserted directly, and it is the same number the balance sweep's
+    // `ROOF_MARGIN` / `RUNG_LEVELS` derivation produces, restated where `data/` can check it.
+    //
+    // ⚠️ **The bounds are wide on purpose.** This is not a tuning dial — it is the "band 3 is a
+    // walkover and nobody could tell" failure, which measured ×2.703 against a correct ×1.676. Every
+    // shipped band lands between 1.60 and 1.69; a band outside 1.55–1.85 is a band nothing is a fair
+    // test against, and the sweep is where a band inside that window is actually tuned.
+    const caps = LEVEL_CURVE.caps as readonly number[];
+    const rungs: readonly RarityId[] = TOWER_BAND_RUNGS;
+    // The sweep's own two constants, derived here the same way rather than imported from a spec.
+    const roofMargin = 20;
+    const rungLevels = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.perLevel.common));
+    const power = (level: number, rungsHeld: number): number =>
+      GROWTH.perLevel.common ** level * GROWTH.perAscension ** rungsHeld;
 
-    expect(margin, `margin ${margin} over the crew's cap`).toBeGreaterThan(0);
-    expect(margin, `margin ${margin} over the crew's cap`).toBeLessThan(
-      above[0] - below[below.length - 1],
-    );
+    for (const [index, rung] of rungs.entries()) {
+      const closes = floorLevel(rules, Math.min((index + 1) * TOWER_BAND_UNIT, rules.floors));
+      const margin = index === 0 ? 0 : roofMargin + rungLevels * (index - 1);
+      const level = Math.min(Math.max(closes - margin, 1), caps[rarityIndex(rung)]);
+      // The crew holds `index + 1` rungs above `rare`; the board holds none, ever.
+      const ratio = power(level, index + 1) / power(closes, 0);
+      const note = `band ${index + 1} ${rung}/${level} against level ${closes}: ×${ratio.toFixed(3)}`;
+
+      expect(ratio, note).toBeGreaterThan(1.55);
+      expect(ratio, note).toBeLessThan(1.85);
+    }
   });
 
   it('divides into bands of a hundred, each with a crew that can legally hold its level', () => {
@@ -204,23 +283,29 @@ describe('tower rules', () => {
     expect(indices, indices.join(' < ')).toEqual([...indices].sort((a, b) => a - b));
     expect(new Set(indices).size).toBe(indices.length);
 
-    // ⚠️ **Every band below the top closes at or under its own crew's cap**, so that crew can stand
-    // at parity with the content it is asked to clear. Only the roof is allowed past its cap.
-    for (const [index, rung] of rungs.slice(0, -1).entries()) {
-      const top = floorLevel(rules, (index + 1) * TOWER_BAND_UNIT);
+    // ⚠️ **Every band's crew can legally hold the level it is fielded at**, which is the property the
+    // split actually needs and the one thing the two retired cap comparisons were right about.
+    // `towers.balance.ts` clamps a crew's level to its rung's cap, so a band whose derived level sits
+    // above its cap is a band swept by a party quietly weaker than the derivation says — invisible in
+    // the output, because a walkover and a correctly tuned band both read 100% with five alive.
+    //
+    // ⚠️ **This is deliberately *not* "the band closes under the crew's cap".** That version fired on
+    // band 3 the moment a fourth band existed, on boards that did not change by one level — see the
+    // power-ratio test above for why it was pointed at the wrong quantity. A band above the first is
+    // *meant* to close above where its crew stands; what it may not do is ask for a crew the ladder
+    // cannot legally field.
+    const roofMargin = 20;
+    const rungLevels = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.perLevel.common));
+    for (const [index, rung] of rungs.entries()) {
+      const closes = floorLevel(rules, Math.min((index + 1) * TOWER_BAND_UNIT, rules.floors));
+      const margin = index === 0 ? 0 : roofMargin + rungLevels * (index - 1);
       const cap = caps[rarityIndex(rung)];
 
       expect(
-        top,
-        `band ${index + 1} closes at ${top} against ${rung}'s cap ${cap}`,
+        Math.max(closes - margin, 1),
+        `band ${index + 1} crews at ${closes - margin} against ${rung}'s cap ${cap}`,
       ).toBeLessThanOrEqual(cap);
     }
-
-    // ⚠️ **The roof closes above the cap of the rung its own band asks for.** The margin rule
-    // restated where it actually bites: a roof at or below the top crew's cap is content that crew
-    // can out-level, and `elite-plus` at parity takes the heaviest board this game can author at
-    // 100% with all five alive. The abstract version of this is the caps-ladder test above.
-    expect(rules.topLevel).toBeGreaterThan(caps[rarityIndex(rungs[rungs.length - 1])]);
   });
 
   it('reuses the mini-boss interval the campaign already taught', () => {
@@ -259,16 +344,26 @@ describe('tower content', () => {
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
     //
-    // ⚠️ **This is a plain equality again, and getting it back is the point.** `TOWER_RULES` is one
-    // rule for all seven, so a height bump lands in a single session while the floors move in seven
-    // — and for the six sessions in between, a literal `PENDING` list of names carried the towers
-    // still on the old height. A filter — "the full height or two thirds of it" — would have passed
-    // forever and never noticed a tower nobody went back for. Each session deleted its own name and
-    // the last one deleted the list. It has now happened twice, 21e–21k and again for the third
-    // hundred; **do it exactly this way the next time the height moves.**
+    // ⚠️ **Read through {@link PENDING}, because the fourth hundred is in flight.** `TOWER_RULES` is
+    // one rule for all seven, so the height bump landed in a single session and the floors move in
+    // seven — so for the six sessions in between, that literal list of names carries the towers still
+    // on the old height. A filter — "the full height or three quarters of it" — would pass forever and
+    // never notice a tower nobody went back for. Each session deletes its own name and the last one
+    // deletes the list, restoring the plain equality. It has now happened three times: 21e–21k for the
+    // second hundred, again for the third, and this. **Do it exactly this way every time the height
+    // moves.**
     for (const tower of towers) {
-      expect(tower.floors.length, tower.id).toBe(rules.floors);
+      expect(tower.floors.length, tower.id).toBe(authoredHeight(tower));
     }
+    // The list may only ever name a tower this build actually ships, and may never name all of them —
+    // a `PENDING` list covering the whole set is a height bump nobody started.
+    for (const id of PENDING) {
+      expect(
+        towers.map((tower) => tower.id),
+        `pending ${id}`,
+      ).toContain(id);
+    }
+    expect(PENDING.length, 'a pending list covering every tower').toBeLessThan(towers.length);
   });
 
   it('gives every floor a unique id, a name, and somebody to fight', () => {
@@ -291,6 +386,75 @@ describe('tower content', () => {
     for (const tower of towers) {
       for (const floor of tower.floors) {
         expect(campaign.has(floor.id), floor.id).toBe(false);
+      }
+    }
+  });
+
+  it('draws a gear ramp that only ever rises, and only over floors it authors', () => {
+    // The tower-side mirror of the level line's monotonicity test. ⚠️ **Monotone on the *concatenated*
+    // grade ladder rather than on the grade and the level separately** — a grade boundary is not a
+    // level reset, so a ramp interpolating the two would step down in level at every boundary while
+    // both authored numbers rose. `gearLadderPosition` is the one number that cannot do that.
+    if (rules.gear === undefined) {
+      return;
+    }
+    const ramp = rules.gear;
+
+    expect(ramp.fromFloor, 'the ramp starts inside the tower').toBeGreaterThan(0);
+    expect(ramp.fromFloor, 'the ramp starts inside the tower').toBeLessThanOrEqual(rules.floors);
+    // ⚠️ **Every floor below `fromFloor` stays naked**, which is what lets a geared hundred land
+    // without re-pricing the two thousand one hundred floors that were tuned without gear.
+    for (let floor = 1; floor < ramp.fromFloor; floor++) {
+      expect(floorGear(rules, GEAR_RULES, floor), `floor ${floor}`).toBeUndefined();
+    }
+
+    let previous = 0;
+    for (let floor = ramp.fromFloor; floor <= rules.floors; floor++) {
+      const gear = floorGear(rules, GEAR_RULES, floor);
+
+      expect(gear, `floor ${floor}`).toBeDefined();
+      const position = gearLadderPosition(GEAR_RULES, gear?.grade ?? 0, gear?.level ?? 1);
+
+      expect(position, `floor ${floor} on the grade ladder`).toBeGreaterThanOrEqual(previous);
+      previous = position;
+    }
+
+    // The endpoints are what `data/` authored, exactly — a ramp that landed near its roof rather than
+    // on it would be a tower whose last floor wears something nobody chose.
+    expect(floorGear(rules, GEAR_RULES, ramp.fromFloor)).toEqual({
+      grade: ramp.from.grade,
+      level: ramp.from.level,
+    });
+    expect(floorGear(rules, GEAR_RULES, rules.floors)).toEqual({
+      grade: ramp.to.grade,
+      level: ramp.to.level,
+    });
+    // ⚠️ **The grade has to actually climb**, or "the enemies increase in quality" is a claim about a
+    // ramp that spends a whole hundred inside one grade.
+    expect(ramp.to.grade, 'the ramp climbs at least one grade').toBeGreaterThan(ramp.from.grade);
+  });
+
+  it('gives every body on a geared floor a gear archetype to look itself up under', () => {
+    // ⚠️ **The silent trap, and the tower-side twin of the guard `chapters.spec.ts` holds.** An
+    // enemy's `gearArchetype` is a bare string and an absent one is looked up under `undefined`: the
+    // body gets nothing, fights naked on a board tuned as though it were kitted, and **nothing throws
+    // and nothing renders wrong.** Only the balance sweep would ever notice, and only as a board that
+    // was mysteriously easy.
+    //
+    // A hundred and seventy-one shipped blocks predate enemy gear, so the field stays optional — this
+    // is what makes fielding one of them on a geared floor a failing test instead of a silent
+    // regression. `enemies.spec.ts` is what proves the declared values are real archetypes.
+    for (const tower of towers) {
+      for (const [offset, floor] of tower.floors.entries()) {
+        if (floorGear(rules, GEAR_RULES, offset + 1) === undefined) {
+          continue;
+        }
+        for (const enemy of [...floor.enemies.front, ...floor.enemies.back]) {
+          expect(
+            enemy.gearArchetype,
+            `${floor.id} fields ${enemy.id} on a geared floor with no archetype`,
+          ).toBeDefined();
+        }
       }
     }
   });
@@ -355,21 +519,36 @@ describe('tower content', () => {
       const height = tower.floors.length;
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
 
-      // ⚠️ **All seven have their boss back.** While the third hundred was in flight this branched
-      // on a `PENDING` list: a tower still on the previous height has no boss at all, because
-      // `floorKindAt` reads the *rules'* height and its last floor lands on the mini-boss interval,
-      // paying ×2 instead of ×5. That was asserted rather than skipped so the cost of leaving a
-      // tower on the list stayed on the record — reach for the same shape the next time the height
-      // moves, and delete it the same way when the last tower lands.
-      expect(kinds[height - 1], tower.id).toBe('boss');
-      expect(
-        kinds.filter((kind) => kind === 'boss'),
-        tower.id,
-      ).toHaveLength(1);
+      // ⚠️ **Branched on {@link PENDING} while the fourth hundred is in flight, and asserted rather
+      // than skipped so the cost of leaving a tower on that list stays on the record.** A tower still
+      // on the previous height has **no boss at all**: `floorKindAt` reads the *rules'* height, so its
+      // last floor lands on the mini-boss interval and pays ×2 instead of ×5. Skipping those six would
+      // hide a real payout regression; asserting the regression is what makes deleting a name from the
+      // list flip this from one branch to the other. **Delete both branches with the list.**
+      if (PENDING.includes(tower.id)) {
+        expect(
+          kinds[height - 1],
+          `${tower.id} (pending): no boss until its own hundred lands`,
+        ).toBe('mini-boss');
+        expect(
+          kinds.filter((kind) => kind === 'boss'),
+          tower.id,
+        ).toHaveLength(0);
+      } else {
+        expect(kinds[height - 1], tower.id).toBe('boss');
+        expect(
+          kinds.filter((kind) => kind === 'boss'),
+          tower.id,
+        ).toHaveLength(1);
+      }
       expect(
         kinds.filter((kind) => kind === 'mini-boss'),
         tower.id,
-      ).toHaveLength(Math.floor((rules.floors - 1) / rules.miniBossEvery));
+      ).toHaveLength(
+        PENDING.includes(tower.id)
+          ? height / rules.miniBossEvery
+          : Math.floor((rules.floors - 1) / rules.miniBossEvery),
+      );
     }
   });
 
@@ -501,7 +680,7 @@ describe('what a tower pays', () => {
     for (const tower of towers) {
       let previous = 0;
 
-      for (const floor of resolveTower(tower, rules, lumpAt)) {
+      for (const floor of resolveTower(tower, rules, lumpAt, GEAR_RULES)) {
         const gold = Number(floor.reward.gold ?? 0);
 
         expect(gold, floor.id).toBeGreaterThanOrEqual(previous);

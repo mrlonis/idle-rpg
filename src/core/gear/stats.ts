@@ -75,6 +75,91 @@ export function clampGearLevel(rules: GearRulesData, grade: number, level: numbe
   return Math.min(Math.max(Math.floor(level), 1), maxGearLevel(rules, grade));
 }
 
+/**
+ * The whole grade ladder read as **one** run of enhancement levels, laid end to end.
+ *
+ * Worn 1 is position 1, Worn 20 is 20, Sturdy 1 is 21, and Relic 100 is the last position — so the
+ * shipped ladder is 300 positions long. It exists so that content wanting *one monotone gear axis*
+ * can interpolate a single number instead of authoring a grade and a level separately and then
+ * having to keep the pair ordered by hand.
+ *
+ * ⚠️ **A grade boundary is not a level reset, and that is the whole reason this is not two dials.**
+ * `gradeScale` multiplies the grade's own multiplier by `1 + perLevel × (level − 1)`, so Worn 20 is
+ * worth 1.176 of a piece's profile and Sturdy 1 only 1.35 × 1.0 = 1.35 — the step up is real, but a
+ * ramp that restarted the *level* at every grade while walking the grade up would still be monotone
+ * only by luck. Walking one position keeps it monotone by construction, which is what
+ * `gear.spec.ts` asserts.
+ *
+ * ⚠️ **Positions are one-based and clamp rather than validate**, the posture every other authored
+ * index into content takes. Position 0 or a non-finite one is the bottom of the ladder.
+ */
+export function gearLadderLength(rules: GearRulesData): number {
+  let total = 0;
+  for (let grade = 0; grade < rules.grades.length; grade++) {
+    total += maxGearLevel(rules, grade);
+  }
+  return Math.max(total, 1);
+}
+
+/** The grade and level at `position` on the concatenated ladder. Clamped into the shipped ladder. */
+export function gearAtLadderPosition(
+  rules: GearRulesData,
+  position: number,
+): { readonly grade: number; readonly level: number } {
+  const top = gearLadderLength(rules);
+  let left = Number.isFinite(position) ? Math.min(Math.max(Math.round(position), 1), top) : 1;
+  for (let grade = 0; grade < rules.grades.length; grade++) {
+    const cap = maxGearLevel(rules, grade);
+    if (left <= cap) {
+      return { grade, level: left };
+    }
+    left -= cap;
+  }
+  const last = Math.max(rules.grades.length - 1, 0);
+  return { grade: last, level: maxGearLevel(rules, last) };
+}
+
+/** Where an authored grade and level sit on the concatenated ladder. The inverse of the above. */
+export function gearLadderPosition(rules: GearRulesData, grade: number, level: number): number {
+  const clamped = clampGradeIndex(rules, grade);
+  let position = clampGearLevel(rules, clamped, level);
+  for (let below = 0; below < clamped; below++) {
+    position += maxGearLevel(rules, below);
+  }
+  return position;
+}
+
+/**
+ * What one grade and level is worth to **each** of the five archetypes, as a stage carries it.
+ *
+ * All five are priced rather than only the ones a given board fields, because the map is built once
+ * at resolution time and read once per enemy per battle — so the saving would be four object
+ * entries against a lookup that would otherwise have to know the formation.
+ *
+ * ⚠️ **Derived here rather than authored in `data/`, and that is the `docs/testing.md` rule
+ * applied.** Content that wrote "+8.6% health" beside a Worn set would keep asserting 8.6% forever
+ * while `GEAR_PROFILES` was retuned underneath it. What content authors is the grade and the level;
+ * what a grade is worth is `data/gear.ts`'s business, on both sides of the board.
+ *
+ * ⚠️ **It lives here rather than in `ladder.ts` because it now has two callers.** It was private to
+ * the campaign's `resolveStage` until the Human Tower's fourth hundred; `resolveFloor` needs the
+ * identical pricing, and a second copy is how "an enemy's Worn set is worth what a player's Worn set
+ * is worth" stops being a fact about the code and becomes a claim two functions have to keep
+ * agreeing on.
+ */
+export function enemyGearBonuses(
+  rules: GearRulesData,
+  grade: number,
+  level: number,
+): Readonly<Record<string, GearBonus>> {
+  const bonuses: Record<string, GearBonus> = {};
+  for (const archetype of GEAR_ARCHETYPES) {
+    // Unaligned: an enemy's set carries no faction, so there is nothing for the 1.3× to match.
+    bonuses[archetype] = setBonus(rules, archetype, grade, level);
+  }
+  return bonuses;
+}
+
 /** `true` when this character's faction is the one the piece is aligned to. */
 export function isAligned(item: GearItem, wearerFaction: string | undefined): boolean {
   return item.alignment !== undefined && item.alignment === wearerFaction;

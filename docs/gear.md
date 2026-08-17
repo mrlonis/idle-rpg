@@ -535,8 +535,23 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 ## Enemies and gear
 
 **Enemies wore none until chapter 12, and from The Rustwood on a campaign stage may author a set.**
-Below chapter 12, and on every tower floor, every Descent board and every Expedition, difficulty on
-that side of the board is still purely the stage's `level` against the archetype's tier.
+Below chapter 12, and on every Descent board and every Expedition, difficulty on that side of the board
+is still purely the stage's `level` against the archetype's tier.
+
+⚠️ **The towers left that list at the Human Tower's fourth hundred, and it is the first geared content
+outside the campaign.** A tower does not author a set per floor — it authors a **ramp** in
+`TOWER_RULES.gear` (a first floor and two endpoints) and `floorGear` derives the pair, for the reason a
+floor's _level_ is derived. Floors 301–400 of the Human Tower run **Worn 1 → Fine 60**; every other
+floor of every tower is still naked, which is what the ramp being keyed to a **floor** rather than a
+level guarantees.
+
+⚠️ **The "gear is texture" figures below do not transfer to a tower, and the reason is the board
+underneath them.** Every measurement in this section was taken while the campaign's board budget was
+falling 0.595 a chapter _underneath_ the ramp. A tower's budget does not fall like that, and holding a
+board still while adding the same gear is enormous: at the Human Tower's roof level, Worn 1 costs the
+binding crew **0.82 of five**, Sturdy 20 takes it to 93% with 1.05, and Fine 60 on an unlightened board
+reads **0%**. **State whether the board under a gear figure was being lightened.** See
+[towers](towers.md).
 
 ⚠️ **A chapter picks up the grade ladder where the last one left it, and the level does not restart
 at 1.** The Rustwood closed on Worn 20, worth `1.00 × (1 + 0.055 × 19)` = **2.045**; Sturdy at level 1

@@ -1099,7 +1099,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sunward Reach — Floors 121–140, levels 58–67 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
+    // The Sunward Reach — Floors 121–140, levels 58–66 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f121',
@@ -2123,7 +2123,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Rootfast — Floors 246–265, levels 117–125 — the thing that must be killed is the thing that is hardest to kill, and it insists.
+    // The Rootfast — Floors 246–265, levels 116–125 — the thing that must be killed is the thing that is hardest to kill, and it insists.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f246',
@@ -2451,7 +2451,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Seedcrown — Floors 286–300, levels 136–142 — weight and rate together, and at the top the wood that has already outlived everything that climbed it.
+    // The Seedcrown — Floors 286–300, levels 135–142 — weight and rate together, and at the top the wood that has already outlived everything that climbed it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f286',

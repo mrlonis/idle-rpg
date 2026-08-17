@@ -1,19 +1,26 @@
 # Faction towers
 
-Seven towers, one per faction, **three hundred floors each at enemy levels 1 to 142**. The system
-shipped in milestone 15b with a single tower, the other six in 15c, the second hundred floors across
-21e–21k and the third across 21l–21r. Read [`core/towers.ts`](../src/core/towers.ts) before touching
-them; [authoring](authoring.md) is the procedure for adding floors.
+Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
+only the Human Tower is there yet. The system shipped in milestone 15b with a single tower, the other
+six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth is in
+flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them; [authoring](authoring.md)
+is the procedure for adding floors.
 
-**All seven are the full height and every tower has its boss back.** `TOWER_RULES` is one rule for
-all seven, so the height moved to 300 in a single session while the floors arrived one tower at a
-time — exactly as the second hundred did. While that was in flight, a tower waiting for its floors
-sat on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
-[`towers.balance.ts`](../src/data/towers.balance.ts), still authored 200 floors, and **had no boss
-until its own hundred landed**: `floorKindAt` reads the rules' height, so its floor 200 resolved as a
-mini-boss paying ×2 rather than ×5. That was licensed by one argument and one only — **no build
-carrying it has ever reached a player.** Both lists are gone; ⚠️ **bring them back exactly that way
-the next time a height bump lands ahead of the floors.**
+⚠️ **The height is 400 and six of the seven towers are still authored at 300, so the `PENDING` list is
+back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
+floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
+waiting for its floors sits on a literal `PENDING` list in
+[`towers.spec.ts`](../src/data/towers.spec.ts) and
+[`towers.balance.ts`](../src/data/towers.balance.ts), still authors 300 floors, and **has no boss
+until its own hundred lands**: `floorKindAt` reads the rules' height, so its floor 300 resolves as a
+mini-boss paying ×2 rather than ×5. It also stays entirely **naked**, because `floorGear` measures the
+ramp against the rules' height and a tower ending at 300 never reaches `fromFloor` 301 — which is
+correct rather than a second bug, since those floors were tuned without gear.
+
+That payout regression is licensed by one argument and one only — **no build carrying it has ever
+reached a player.** ⚠️ **Each session deletes its own name and the last one deletes both lists along
+with the branches they guard.** A filter — "the full height or three quarters of it" — would pass
+forever and never notice a tower nobody went back for. Third time it has been done this way.
 
 Adding a tower is a row in [`data/towers.ts`](../src/data/towers.ts), a matching row in
 [`data/activities.ts`](../src/data/activities.ts), two achievement tracks, and its floors.
@@ -47,9 +54,9 @@ feel free, the rarity-cap clause in level resonance is what has stopped working.
 ## ⚠️ The three things a tower clear may never touch
 
 **`clearedStages`, the ladder position, and any idle rate.** The clear count drives the idle crystal
-rate, and the shipped four hundred and fifty stages already take it to ×5.5 the base — seven towers of
-three hundred floors feeding it would reach ×24, and the roster-relative ceiling in `banners.spec.ts`
-would put the whole roster inside three weeks.
+rate, and the shipped one thousand two hundred and ten stages already take it beyond ×5.5 the base —
+seven towers of four hundred floors feeding it would add 2,800 more clears, and the roster-relative
+ceiling in `banners.spec.ts` would put the whole roster inside days.
 
 Progress is **one integer per tower** in `GameState.towers`, and `applyTowerResult` is a separate
 function from `applyBattleResult` rather than a branch inside it, precisely so the campaign fields
@@ -75,7 +82,7 @@ must follow a formula is the retyping [testing](testing.md) forbids.
 ⚠️ **A tower closes _above_ the cap of the rung it asks for** — the campaign's own margin rule — and
 `topLevel` being a rarity cap is the opposite of what makes a roof a fight. A rung is worth ×1.6 and
 **the enemy side has no rungs at all**, so a crew at parity with the content is only a fair test at
-the first rung above `rare`. The roof is **142 against an `elite-plus` crew capped at 140**.
+the first rung above `rare`.
 
 Milestone 21e measured what happens without the margin: at `elite-plus` (three rungs, ×4.096) a
 level-140 five takes **the heaviest board this game can author** — five `ascended` blocks with an
@@ -87,24 +94,55 @@ Unmade in front — at 100% with all five alive in nine seconds, and no line-up 
 | `elite`      | 2     | 100%, 4.30 survivors                                  |
 | `elite-plus` | 3     | 100%, 5.00 survivors, 9s                              |
 
+### ⚠️ The fourth hundred is where the margin rule stopped being expressible as a cap comparison
+
+For three hundred floors the rule was checked as two cap comparisons — "the roof closes above the top
+band's rung cap" and "every band below the top closes at or under its own crew's cap". **Both broke at
+the fourth hundred, in opposite directions, on content that did not change by one level:**
+
+- Band 4 is `legendary`, which caps at **200** against a roof of **189**. Its crew stands at 123 — 66
+  levels of margin and 77 levels of cap headroom — so the roof being _under_ the cap says nothing about
+  parity. The old guard would have demanded a roof of 201, which the payout bound forbids outright
+  (200 pays exactly the campaign's stage-400 lump) and which moves 291 of the 300 shipped floors by up
+  to 9 levels.
+- Band 3 closes at **142** against `elite-plus`'s cap of **140**, and has since the third hundred
+  shipped — exempt only because it was then the _top_ band. Adding a fourth band revoked the exemption.
+
+⚠️ **A guard that fires because the band _count_ changed is pointed at the wrong quantity**, which is
+the test [authoring](authoring.md) records for the three guards it has retired. Both were replaced by
+the thing they were standing in for: **the power ratio, held at 1.55–1.85 in every band**, plus the
+weaker structural claims that a rung exists below the roof and above it and that every band's crew can
+legally hold the level it is fielded at. The ratios read **1.600 / 1.689 / 1.676 / 1.663**.
+
 ### ⚠️ Extending a tower: solve for where the new slope meets the old one
 
 `floorLevel` draws **one line from floor 1**, so raising `floors` re-draws it underneath content that
 already shipped. Solving for the top level at which the new slope meets the old one is what makes the
 expected retune disappear, and it has now worked twice:
 
-| Extension | Floors    | topLevel | New slope | Old slope | Shipped floors that move |
-| --------- | --------- | -------- | --------- | --------- | ------------------------ |
-| 21e       | 100 → 200 | 60 → 120 | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
-| this one  | 200 → 300 | 95 → 142 | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
+| Extension | Floors    | topLevel  | New slope | Old slope | Shipped floors that move |
+| --------- | --------- | --------- | --------- | --------- | ------------------------ |
+| 21e       | 100 → 200 | 60 → 120  | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
+| the third | 200 → 300 | 95 → 142  | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
+| this one  | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
 
-**142 is where the two slopes meet**: 299 ≈ 1.5025 × 199 and 141 = 1.5 × 94.
+**189 is where the two slopes meet**: 1 + 0.4716 × 399 = 189.16.
 
-⚠️ **The neighbours are much worse and the penalty is not smooth**, so solve rather than eyeball —
-141 moves 84 floors and 143 moves 50, against 142's 17. ⚠️ **A round _slope_ is the trap**: exactly
-0.50 levels a floor wants a roof of 150, which moves 172 of the 200 shipped floors by up to 5 levels
-**and** lands its lump exactly on the campaign's stage-300 payout, failing the one bound that may
-never be crossed. The highest roof that clears it at 300 floors is 149.
+⚠️ **The neighbours are much worse and the penalty is not smooth**, so solve rather than eyeball.
+Measured over the 300 shipped floors: 188 moves **132**, 190 moves **94**, 187 moves 206 and 191 moves
+191, against 189's **18**. ⚠️ **A round _slope_ is the trap**: at 400 floors exactly 0.50 levels a
+floor wants a roof of 200, which moves **273 of 300 by up to 8 levels** and lands its lump exactly on
+the campaign's stage-400 payout of 16,000, failing the one bound that may never be crossed. The
+highest roof that clears it at 400 floors is 199 — **ten levels above the solved slope, so the payout
+bound is now the binding constraint rather than a comfortable margin.** Check it first at the fifth
+hundred.
+
+⚠️ **The 18 moved floors are a real edit and it lands in all seven files, not in the extended one.** A
+one-level shift invalidated **fifteen band headers** across the seven tower files (two of them in the
+Human Tower itself), each of which states the level range its floors span. They were found with a
+script over `floorLevel` and fixed mechanically. **Re-run that check after every extension** — the
+[prose check](authoring.md#the-prose-check) is the habit, and this is the case where the stale claims
+are in files the session never opened.
 
 ⚠️ **Making `floorLevel` piecewise would preserve every shipped floor exactly**, and it has been
 declined twice — it is a `core/` change and a content session may not take one. It stays the right
@@ -142,27 +180,35 @@ campaign's level curve is nearly flat through chapter 1's tail where the tower's
 
 Crystals are **100 a floor** (×2 mini-boss, ×5 roof), **500 per five floors**, and **10,000 per
 hundred floors** — see [achievements](achievements.md) for why the per-floor figure is deliberately
-not the campaign's 250. `Spire Conqueror` stays `every: 100`, so a three-hundred-floor tower pays it
-three times; the tie it holds with a chapter's completion award is stated **per hundred floors**.
+not the campaign's 250. `Spire Conqueror` stays `every: 100`, so a four-hundred-floor tower pays it
+**four** times; the tie it holds with a chapter's completion award is stated **per hundred floors**.
 
 ### ⚠️ The tower:campaign crystal ratio was asserted and has been retired
 
 It read `sum(crystalsPerTower) / campaignCrystals` against a floor of 1.3 and a ceiling of 4. **The
 floor is what killed it**: that quantity falls by construction every time a chapter ships and rises in
 one step every time the towers grow, so it had been moved 2 → 1.5 → 1.3 → 1.1 → 0.7 → 1.3 across five
-sessions and spent six of them parked at a placeholder watching nothing. The third hundred takes it
-from 1.40 to **2.09**, which would have been a sixth slide. Retiring it is the call recorded in
+sessions and spent six of them parked at a placeholder watching nothing. It read 1.40 at two hundred
+floors, 2.09 at three hundred and **2.475** now, which would have been a sixth and seventh slide.
+Retiring it is the call recorded in
 [authoring](authoring.md) for three earlier guards, on the test that applies here: **when the honest
 restatement of a guard is a number you would refuse to author, the guard is pointed at the wrong
 quantity.**
 
-⚠️ **The stable ceiling went with it, and what that gives up is real.** Nothing now fails if a future
-session ships an eighth ladder or a fourth hundred and the towers quietly become the run's main
-crystal income. The question both halves were asking — _is seven towers still the right amount of
-optional content beside the campaign of the day_ — is a design question a threshold was never going
-to answer. **Recompute both totals when extending either side**; the arithmetic is a dozen lines and
-nothing does it for you now. At three hundred floors: seven towers pay **653,100** (233,100 from
-floors, 420,000 from tracks) against an eleven-chapter campaign's **312,500**.
+⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
+fails now that the towers pay **two and a half times** what the spine's first clears do. Recomputed by
+hand at four hundred floors: seven towers pay **870,100** — 310,100 from floors and 560,000 from the two
+tracks — against the 25-chapter campaign's **351,500**.
+
+⚠️ **The direction is the finding, and it is the _ceiling_ that is under pressure rather than the
+floor.** The retired guard's floor was expected to fall as chapters shipped; instead the campaign nearly
+tripled in stage count between the third hundred and this one and its crystal total rose only about
+12%, because `firstClearSummons` is nearly flat per stage where a tower's per-floor payout is not. The
+question both halves were asking — _is seven towers still the right amount of optional content beside
+the campaign of the day_ — is a design question a threshold was never going to answer. It was asked
+here and left as it is, because a tower is gated behind roster depth the campaign never asks for.
+**Recompute both totals when extending either side**; the arithmetic is a dozen lines and nothing does
+it for you now.
 
 ## The lock, and when towers open
 
@@ -256,6 +302,7 @@ derived rather than chosen**:
 | 1    | 1–100   | `rare-plus`  | 48    | level 48          | ×1.600      |
 | 2    | 101–200 | `elite`      | 75    | level 95          | ×1.689      |
 | 3    | 201–300 | `elite-plus` | 99    | level 142         | ×1.676      |
+| 4    | 301–400 | `legendary`  | 123   | level 189         | ×1.663      |
 
 ⚠️ **The rungs are pinned and only the levels derive, and that is a correction.** They used to come
 off the caps ladder, which tied each crew's **rung** to its level — so when the campaign flattened and
@@ -280,8 +327,13 @@ The failure is **invisible in the output** — every floor reads 100% with five 
 what a correctly tuned low band reads — so confirm the ratio before concluding anything about boards.
 
 ⚠️ **`elite-plus` hands over no new skill.** `KIT_RULES.unlocks` is `elite` / `legendary` /
-`ascended`, so band 3's crew is band 2's kit at ×1.6 and twenty-four more levels. The next kit step is
-`legendary`, which caps at 200 and is a fourth hundred's business.
+`ascended`, so band 3's crew is band 2's kit at ×1.6 and twenty-four more levels.
+
+⚠️ **Band 4 is the opposite, and it is the largest step any band boundary has.** `legendary` _is_ a kit
+rung, so that crew arrives with a **third skill** on top of its ×1.6 and its twenty-four levels — which
+the three-hundred-floor doc predicted in as many words. **The power ratio counts the rung and cannot
+count the skill**, so a fourth hundred is authored against measured survivors and the ratio is only a
+legality check. The next kit step after this is `ascended`, which caps at 500 and is a long way off.
 
 **No gear on any of them** — a player crewing seven towers has one bag to equip thirty-five
 characters from, so tuning against a fully geared five would tune for a party nobody with seven crews
@@ -366,6 +418,8 @@ choosing; do not copy the last session's shape.**
     4.00 / 3.88 — **reaching past the front rank makes a Human board easier**, because the alternate
     fields no tank and damage taken off its front row is time it did not have to buy. The floors are
     fine; the reason written on them was not.
+- **Human, fourth hundred** — the first hundred in any tower whose axis is **the gear its boards are
+  wearing**, and the first geared boards outside the campaign. See below.
 - **Dwarf, second hundred** — cannot do that. A Dwarf five out-lasts bulk and loses to the
   ninety-second clock, so it escalates in **front** and forbids a heal, a drain or a regeneration
   above floor 180. Measured at the top floor's level: one anchor plus a _bulky_ legendary reads
@@ -416,6 +470,100 @@ choosing; do not copy the last session's shape.**
 - **Demon, third hundred** — the last hundred of the last tower, and the first where the axis is a
   stat that **denies the crew's own signature stat**: `critBlock` and `critDamageResist` against the
   crit-heaviest roster in the game. See below.
+
+### The Human Tower's fourth hundred: the equipment is the escalation
+
+⚠️ **The Panoply is the first tower hundred whose axis is enemy gear, and it needed the first
+`core/` change a tower content session has taken.** `TowerRulesData` gained a `gear` ramp,
+`resolveFloor` and `resolveTower` gained a required `GearRulesData` and price `enemyGear` through the
+same `setBonus` the player's bag goes through, and `floorGear` draws the ramp. The ramp runs **Worn 1 at
+floor 301 to Fine 60 at floor 400**, linear on the **concatenated** grade ladder — Worn 1 through Relic
+100 as one run of 300 positions — so quality and level both rise by construction rather than by luck.
+The grade steps at floors 301, 318 and 351.
+
+⚠️ **A tower cannot inherit the campaign's gear the way it inherits its lump.** Reading the gear off
+the campaign stage at the same enemy level is the obvious move and it yields **no gear anywhere in any
+tower**: the campaign's first geared stage is `c12-s1` at enemy **level 225** against a roof of 189. The
+whole tower lives below the level the spine introduces gear at, so the ramp has to be the tower's own —
+and it follows that a tower is _not_ out-gearing the campaign at equal level, because there is no grade
+there to be out-geared by.
+
+⚠️ **A gear ramp is _escalation_ on a tower where the campaign measured it as texture, and the
+difference is whether the boards underneath it are being lightened.** [gear](gear.md) prices a whole
+grade step at about ×1.15 and chapter 16's entire Relic ramp at **0.08 of a survivor** — measured while
+the campaign's board budget fell 0.595 a chapter underneath the ramp. Hold a board still and add the
+same gear and it is enormous. Against a calibrated control of an anchor at 1150/64 behind four bodies at
+700/46 at level 189, reading **4.00 / 3.33 of five** naked:
+
+| the same board wearing | reference | alternate      |
+| ---------------------- | --------- | -------------- |
+| nothing (control)      | 4.00      | 3.33           |
+| Worn 1                 | 3.35      | 2.35           |
+| Sturdy 20              | 2.38      | **1.05 · 93%** |
+| Fine 60                | **0%**    | **0%**         |
+| Relic 100              | 0% · 8.2s | 0% · 7.1s      |
+
+**State whether the board under a gear figure was being lightened, or the figure means nothing.**
+
+⚠️ **Relic 100 was measured and declined**, and it is the ramp's ceiling question rather than a tuning
+one: +166% health on a `tank` against Fine 60's +66%, deleting the party in seven seconds. A ramp
+ending at the top of the ladder leaves the authored weight nothing to be.
+
+⚠️ **So the authored board total falls across the hundred, and that is the ramp working.** The budget
+runs about 2,700 raw health at floor 301, peaks near 4,400 in the middle and closes at **2,810** —
+where the third hundred's closing boards run 5,330. Holding one board constant across the whole hundred
+already grades **5.00 → 3.52 survivors** on the level line and the ramp alone.
+
+What the crew actually answers to, one carrier on the geared roof control, forty seeds, zero timeouts:
+
+| shape                                        | ref / alt   | worth to the alternate        |
+| -------------------------------------------- | ----------- | ----------------------------- |
+| `magicResist` 0.60 — the damage-type control | 4.00 / 3.50 | **−0.17**                     |
+| wide damage at the cap, back rank            | 3.98 / 3.52 | **−0.19**                     |
+| reach on `enemy-back`, power 1.2             | 4.00 / 3.38 | −0.05                         |
+| `physicalResist` 0.10 / 0.23 / 0.35 / 0.50   | see below   | 0.18 / 0.31 / 0.48 / **1.18** |
+| `def` 70 / 110                               | —           | 0.33 / 0.53                   |
+| `dodge` 0.30                                 | 3.73 / 2.77 | 0.56                          |
+| burst, single-target power 3.10 / cd 80      | 3.92 / 2.70 | 0.63                          |
+| `STUN` on `enemy-all`, front carrier         | 3.88 / 2.02 | **1.31**                      |
+| pairing — two `ascended` anchors in front    | 2.27 / 1.43 | **1.90**                      |
+| `haste` 144                                  | 2.65 / 0.88 | **2.45**                      |
+
+- ⚠️ **`physicalResist` is the strongest stat dial here and it is deliberately not the axis, because it
+  is the Monster Tower's.** `magicResist` 0.60 is worth **−0.17** — both Human fives are 100% physical —
+  which is the mechanism control. **Two towers with one lock is one tower shipped twice**, so it stays at
+  this tower's shipped median of 0.06 and never past its 0.23 ceiling.
+- ⚠️ **The Monster Tower's own "is it ours" table recorded `physicalResist` 0.55 as worth 0.00 to
+  `human-ref`, and that reading was taken on the arrangement that cannot fall.** The Human reference five
+  is plateaued at 4.00 across a wide band here while the alternate grades cleanly. **Re-measure a
+  cross-tower negative on the _binding_ arrangement before trusting it** — the saturated-control trap,
+  arriving as a claim in another tower's file.
+- ⚠️ **`def` is the texture, and the coherence is deliberate.** `GEAR_STATS` is `hp`, `atk`, `def`,
+  `haste`, so the stat a kitted body shows off is one gear actually moves — and it reads as texture
+  should.
+- ⚠️ **Aim past the front rank is inert or negative for the fifth time across the seven towers**, and the
+  second on this one. Every skill the hundred authors is `enemy-front`.
+
+⚠️ **The roof's escort is the whole question and the boss needed no retune.** `THE_PANOPLY` at its
+authored 1240/68 behind `PLATEBOUND_HUSK` reads **13% for the alternate**; behind four light bodies it
+reads **98% with 1.73**. Nine escort shapes were fielded and every one left the boss's stat line alone —
+chapter 19's "a final that fails at every stat line is its escort", arriving on a roof.
+
+⚠️ **No anchor had to retire, the fourth clean answer to that check.** All 53 blocks this tower fields
+stand as a roof anchor behind four light escorts at level 189 in Fine 60, the Hourless March at 1660/76
+included (4.40 / 4.00). What collapses is the **board**: the shipped floor-300 board at the new roof's
+level reads 100% / 1.93 against **53% / 0.55**.
+
+⚠️ **`THE_PANOPLY` is the lightest tower roof on _attack_ at 68 and tied for lightest on health at
+1240** — with the Dwarf Tower's Crown Wheel, against roofs running to 1520/91 — because it is the only
+one wearing gear. **The weight a roof is allowed is what is left after the grade.** The hundred closes at
+**100% / 3.60 against 93% / 1.65**, zero timeouts, longest fight 28.6s.
+
+⚠️ **The sustain claim is stated in counts, because the absolute version has shipped wrong four times.**
+Zero of a hundred boards carry a heal effect, a `regen` status, a shield or a point of `healthRegen`.
+What they do carry is the Undead idiom: `lifeLeech` on 5 of 24 blocks and 46 boards, a `drain` on 4
+blocks and 51 boards, `recovery` on exactly one block standing on three. The roof carries no taunt and
+the Reliquary Bearer is not fielded in the hundred at all.
 
 ### The Dwarf Tower's third hundred: the anchors run out of room
 

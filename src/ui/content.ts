@@ -331,6 +331,7 @@ export const TOWER_FLOORS: ReadonlyMap<string, readonly TowerFloor[]> = new Map(
       tower,
       TOWER_SHAPE,
       (level) => stagePayout(STAGE_REWARD_CURVE, matchedStageIndex(CAMPAIGN_LEVELS, level)).reward,
+      GEAR,
     ).map((stage, offset) => ({
       tower,
       floor: offset + 1,
