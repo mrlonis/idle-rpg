@@ -113,6 +113,7 @@ import {
   NOTHING_HERE_IS_FREE,
   NOTHING_HOLDS_AN_EDGE,
   NOTHING_IS_COMING_BACK,
+  NOTHING_IS_HEARD,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NOTHING_LANDS,
@@ -127,6 +128,7 @@ import {
   NO_EDGE_FINDS_IT,
   NO_NUMBER_HOLDS,
   NO_SUCH_THING,
+  NO_WORD_REACHES_IT,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
   OPEN_THE_VEIN,
@@ -162,6 +164,7 @@ import {
   RUN_THE_SEED_DOWN,
   SAID_AND_UNSAID,
   SAME_AS_THE_LAST,
+  SAY_IT_AGAIN,
   SEEDLIGHT,
   SETTLE_IN,
   SET_INTO_THE_COURSE,
@@ -195,6 +198,7 @@ import {
   TAKE_THE_WEIGHT,
   TAKE_UP_THE_SLACK,
   THERE_IS_NO_END_TO_IT,
+  THE_ANSWER_WITHHELD,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
@@ -250,6 +254,7 @@ import {
   THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
   THE_TIDE_DOES_NOT_TURN,
+  THE_VAULT_HOLDS,
   THE_WARDS_HOLD,
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
@@ -12390,6 +12395,215 @@ export const THE_HAIRLINE = {
   skills: [IT_WAS_ALWAYS_THERE, WIDEN_IT],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's fourth hundred — milestone 21y's four Angel blocks
+//
+// The seventh tower's last hundred, and the last hundred of the tower system. Angels are the one
+// faction that hits a Demon back — `countersOf('demon')` is exactly `{angel, monster}` — and this
+// tower has leaned on them since floor 1.
+//
+// ## What the four are for
+//
+// ⚠️ **The hundred escalates through `magicResist`, and it is the mechanic two towers already
+// declined.** The Demon Tower's own second hundred measured a magic ward as worth **0.00** at the
+// shipped register and declined it; the Angel Tower's fourth measured it again on its own crew and
+// declined it again; the Undead Tower's fourth found it landed **within a second of `def` and `hp`**
+// and called it that tower's third-hundred axis wearing a new stat. Re-measured at band 4 against
+// this crew it is the sharpest cross-crew licence any hundred has recorded. **A recorded "X is inert"
+// is a claim about a curve, and the curves in this project move.**
+//
+// Measured at level 189 in Fine 60 against a control of one anchor (1100/76) plus four bodies
+// (580/64) reading **4.00 / 3.98**, four carriers, forty seeds — reference / alternate:
+//
+//     magicResist  0.10 0.18 0.26 0.34 0.42 0.50 0.58 0.66 0.74
+//     reference    4.00 4.00 4.00 3.98 4.00 4.00 4.00 3.95 3.92
+//     alternate    3.95 3.80 3.70 3.38 2.98 2.85 2.55 2.27 1.95
+//
+// **Nine monotone steps on the alternate with zero timeouts**, fights running 7.3s to 15.1s against a
+// ninety-second timer, so it is difficulty rather than the clock. ⚠️ **The reference five moves
+// 4.00 → 3.92 across the entire grade**, so every board in this hundred is sized against the
+// **alternate** — this tower's third hundred's answer, arriving again.
+//
+// ⚠️ **The band steps past the register and says so, which is the Monster third hundred's shape
+// rather than the Elf's.** Over the **346** blocks shipped beforehand `magicResist` sits on 112 at a
+// median of **0.10** and a ceiling of **0.26**, and the whole Angel bench this tower already fields
+// runs **0.00 to 0.15** — so at the register the ward is worth **0.03 of a survivor**, which is
+// exactly the refusal the two earlier sessions recorded. It only bites above it. The three
+// legendaries below carry 0.34, 0.44 and 0.52 and {@link THE_UNHEARING} 0.60.
+//
+// ⚠️ **It is ours by the damage formula rather than by the stat names, and that is the Monster
+// Tower's finding mirrored.** `core/battle/damage.ts` resolves a hit as `def × (1 − pierce)` and
+// *then* multiplies by `1 − resist`, so pierce never touches a resist. The two Demon arrangements
+// carry **nine and seven magical damage effects and zero physical** — every other crew's kit is
+// either wholly physical (Elf, Human, Dwarf, Monster: **zero** magical effects) or mixed — and they
+// carry the game's largest `magicPierce` at Σ0.30 and Σ0.25 against Σ0.15 everywhere else. **The
+// crew built to open armour has no answer at all to the wall that is not armour.**
+//
+// ⚠️ **Cross-crew at 0.45, each of the fourteen calibrated to the heaviest board it still reads at or
+// above 3.75 survivors: demon-alt **1.15**, undead-ref 0.82, undead-alt 0.52, demon-ref 0.38,
+// angel-alt 0.15, elf-ref 0.08, elf-alt 0.05, dwarf-alt 0.02, and **0.00 for every Human, Dwarf,
+// Monster and Angel-reference arrangement swept**. Nine of fourteen at or under 0.15 is the widest
+// gap between a tower's own crew and the field that any of the twenty-one hundreds has measured.
+//
+// ⚠️ **The pairing is *worse* than the half, which inverts chapter 23's finding.** Adding
+// `physicalResist` at the same size reads demon-alt 0.95 against magicResist-alone's 1.15 and lifts
+// every physical crew off 0.00 — monster-ref 0.85, dwarf-ref 0.73, elf-ref 0.68 — so the pair grades
+// harder in the abstract and **dilutes the licence**. No block below carries a point of
+// `physicalResist`.
+//
+// ⚠️ **A ward is a share of the board rather than a stat on a body.** Holding the total at 0.50,
+// spreading it over four soft bodies reads **3.00** for the alternate where concentrating it on the
+// anchor reads 3.75 and on two heavy front bodies 3.73 — the party has to chew through every body and
+// each one taxes the whole time it stands. And it prices where the party is aiming: one carrier in the
+// front rank is worth 0.31 of five and the same body in the back **0.00**.
+//
+// ⚠️ **Four anchors retired and the check was far harsher than the naked one a hundred below.** The
+// shipped floor-300 board carried to floor 400 reads **0% for both arrangements** where the same
+// board at its own floor reads 100% with all five alive. Behind four light bodies at floor 400 the
+// Unmade reads 70% / **0%**, {@link HOLLOW_SERAPH} 78% / **3%**, {@link THE_UNISON} **0% / 0%** and
+// {@link THE_UNFALTERING} — the hundred below's own roof — 100% / **5%**. {@link THE_UNBITTEN} sits
+// exactly on the alternate's bar at 100% / 75% and is fielded only below floor 360.
+//
+// ⚠️ **All four are under the Unmade on both stats**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Glass that has been sung at for long enough to stop answering.
+ *
+ * **The hundred's spine**, and the block that introduces the axis on the opening band's boards. It
+ * stands in the front rank of every floor from 301 to 400 bar none, which is why its ward is the
+ * shallowest of the four: 0.34 is a third above the shipped ceiling of 0.26 and is worth 0.60 of the
+ * binding arrangement on its own, where the register itself is worth 0.03.
+ *
+ * At 780 it is the middle of the three legendaries on weight, for the reason
+ * {@link CINDERFLAW_PROVER} is on the tower this one mirrors.
+ */
+export const HUSHGLASS_WARDEN = {
+  id: 'hushglass-warden',
+  name: 'Hushglass Warden',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 780,
+    atk: 64,
+    def: 34,
+    haste: 96,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    magicResist: 0.34,
+  },
+  skills: [NOTHING_IS_HEARD],
+} as const;
+
+/**
+ * A canon nobody will say aloud, carried by somebody quick enough not to have to.
+ *
+ * The light, fast one — 640 at 70, `haste` 108 — and the second voice, arriving with band 2. ⚠️ **108
+ * is deliberately ordinary and the figure to state is the register, not a threshold**: over the whole
+ * Demon Tower `haste` runs a median of 100 and a ceiling of 148, and over floors 301-400 a median of
+ * 102 and a ceiling of 128. Speed under a ward is a product this hundred does not author, so the
+ * fastest carrier is a notch over the median and nowhere near the tower's own top.
+ *
+ * Its 0.44 sits between the Warden's 0.34 and the Keeper's 0.52, which is what keeps the
+ * three-carrier bands from reading as three of the same body.
+ */
+export const UNSPOKEN_CANON = {
+  id: 'unspoken-canon',
+  name: 'Unspoken Canon',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 640,
+    atk: 70,
+    def: 26,
+    haste: 108,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    magicResist: 0.44,
+  },
+  skills: [SAY_IT_AGAIN],
+} as const;
+
+/**
+ * The door was sealed from the inside, and the seal is the whole of the argument.
+ *
+ * The heavy end of the three at 980, the lowest `atk` of them at 58, and **the deepest ward any
+ * legendary in the game carries** at 0.52 — twice the shipped ceiling. A ward is only worth what the
+ * body carrying it lives to spend, so the deepest of the three sits on the block that stands longest
+ * and swings softest. It anchors bands 3, 4 and 5.
+ *
+ * ⚠️ **It replaces an `ascended` anchor rather than joining one.** The second hundred's rule that no
+ * board carries two `ascended` blocks survived a whole rung of investment at the third hundred and
+ * survives another here; with the Unmade, the Unison, the Hollow Seraph and the Unfaltering all
+ * retired at this level, the Keeper is what a late board anchors on instead.
+ */
+export const SILENTVAULT_KEEPER = {
+  id: 'silentvault-keeper',
+  name: 'Silentvault Keeper',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 980,
+    atk: 58,
+    def: 42,
+    haste: 88,
+    critChance: 0.06,
+    critDamageAmp: 0.55,
+    magicResist: 0.52,
+  },
+  skills: [THE_VAULT_HOLDS],
+} as const;
+
+/**
+ * It is not refusing to answer. Nothing has arrived that it could answer.
+ *
+ * The roof of the Demon Tower, and **the last floor the tower system has**. 0.60 is the deepest ward
+ * in the game against a shipped ceiling of 0.26, and stripping it takes the roof from 83% with 1.90
+ * survivors to **100% with 3.63** for the arrangement the board is sized against — so the axis
+ * carries the last floor rather than riding along on it, worth 1.73 of five there.
+ *
+ * ⚠️ **It was settled on its attack rather than on its weight**, which is chapter 20's rule arriving
+ * on a roof for the third time. Held at 1340 hp behind one Warden and three light Angel commons, the
+ * alternate reads 33% at `atk` 88, 55% at 80, **83% at 74** and 98% at 64; held at `atk` 68 the same
+ * board reads 90% at 1500 hp and 95% at 1140 — a hundred and eighty points of health worth five
+ * points of win rate against fourteen points per six of attack.
+ *
+ * ⚠️ **Its escort may carry exactly one of the other three, and which one matters more than how
+ * heavy.** With the roof fixed, {@link HUSHGLASS_WARDEN} beside it reads 83% / 1.90,
+ * {@link UNSPOKEN_CANON} 75% / 1.95 — on the bar — and {@link SILENTVAULT_KEEPER} **73%**, under it;
+ * two of the three together read **18% with 0.23**.
+ *
+ * ⚠️ **It restores nothing, and the claim about the rest of the hundred is a count rather than an
+ * absolute** — the fifth time this tower family has had to make that correction. Over floors 301-400
+ * **no board carries a `heal` effect, a `drain`, a `regen` status, a point of `lifeLeech`, a point of
+ * `recovery` or a point of `healthRegen`**; the third hundred underneath carries `recovery` on 26
+ * boards and `lifeLeech` on 36. That is a stronger claim than this tower has made before and it is
+ * only true because the four retired anchors were where all of it sat.
+ *
+ * Fielded at 1340 and 74 against the Unmade's 1800 and 100, and under {@link THE_UNFALTERING}'s 1440
+ * and 86 — the hundred below's roof, retired on this hundred's own check.
+ */
+export const THE_UNHEARING = {
+  id: 'the-unhearing',
+  name: 'The Unhearing',
+  faction: 'angel',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1340,
+    atk: 74,
+    def: 46,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    magicResist: 0.6,
+  },
+  skills: [NO_WORD_REACHES_IT, THE_ANSWER_WITHHELD],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -12737,4 +12951,8 @@ export const ENEMIES = [
   SLAGSEAM_FLENSER,
   KILNCRACK_CANTOR,
   THE_HAIRLINE,
+  HUSHGLASS_WARDEN,
+  UNSPOKEN_CANON,
+  SILENTVAULT_KEEPER,
+  THE_UNHEARING,
 ] as const;

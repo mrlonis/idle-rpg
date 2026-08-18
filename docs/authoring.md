@@ -1409,10 +1409,11 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 **boss**: `floorKindAt` reads the rules' height, so its old top floor resolves as a mini-boss paying
 ×2 rather than ×5.
 
-**It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **one name left on the list** (Human, Dwarf, Elf,
-Undead, Monster and Angel have landed). Both completed rounds
-ended with the last session deleting the constant, the branches, and the prose describing them.
+**It has now run to completion three times** — 21e–21k for the second hundred, 21l–21r for the third,
+and 21s–21y for the fourth, the Demon Tower last. All three rounds ended with the last session deleting
+the constant, the branches, and the prose describing them. ⚠️ **Put the list back before the first tower
+of the next bump is authored, not after** — between the bump and the first name being added there is
+nothing at all holding the six short towers.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
 computed **per tower**. Both are no-ops while every tower is the full height and both are what stop
@@ -1458,13 +1459,14 @@ fourteen hundred floors were tuned at — 1.739 at floor 93 and 1.689 at the two
 No gear on either — a player crewing seven towers has one bag to equip thirty-five characters from.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
-**two thousand three hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
+**two thousand eight hundred** floors this build ships. What ramps across a climb is **what a floor costs**, not
 whether it is possible — a floor is climbed once and there is no way around one, so a floor the crew
 cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Eighteen hundreds gave eighteen answers, and no two towers escalate the same way. Read the
+⚠️ **Twenty-one hundreds gave twenty-one answers — every second, third and fourth hundred of all seven
+towers — and no two escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
@@ -1511,9 +1513,16 @@ constant. The overshoot arrives whichever way the faction is chosen.
    unanswerable is not the same as it being this tower's — **two towers with one lock is one tower
    shipped twice.**
 4. ⚠️ **Check a stat's shipped register before building a band on it.** A magic ward reads well on
-   paper and the highest `magicResist` on any shipped block is 0.14; at 0.15 the wall is worth
-   nothing, and it only bites at four times anything authored. ⚠️ **The check can also come back
-   positive, and that is the answer rather than a formality**: the Elf Tower's third hundred is built
+   paper and the highest `magicResist` on any shipped block was 0.14 when it was first checked; at 0.15
+   the wall was worth nothing, and it only bit at four times anything authored. ⚠️ **That refusal
+   expired, and the Demon fourth hundred is where.** Three further hundreds of blocks took the ceiling
+   to **0.26** and the crew gained a rung and a kit, and the same stat then graded **nine monotone
+   steps** and came back **first of fourteen cross-crew with nine arrangements at or under 0.15** — the
+   sharpest licence any hundred has measured. At the register it is still worth 0.03 of a survivor, so
+   both earlier refusals were right about what they measured. **A refusal on _size_ is a claim about a
+   curve; re-measure it rather than inheriting it, and record the register you measured against.** ⚠️
+   **The check can also come back positive, and that is the answer rather than a formality**: the Elf
+   Tower's third hundred is built
    on `critChance`, whose shipped ceiling is 0.18, and four bodies **at** that ceiling take the weaker
    arrangement from 93% to 80%. The difference between the two cases is whether the crew has any of
    the answering stat — every Elf in both arrangements carries **zero** `critDamageResist` and zero
@@ -1552,8 +1561,8 @@ constant. The overshoot arrives whichever way the faction is chosen.
      spine introduces gear, so the ramp is the tower's own — and it follows that a tower is not
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
    - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
-     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,500 shipped floors, 400 are
-     geared — the Human, Dwarf, Elf, Undead, Monster and Angel fourth hundreds.)
+     naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,800 shipped floors, 700 are
+     geared — every tower's fourth hundred.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
@@ -1658,6 +1667,35 @@ constant. The overshoot arrives whichever way the faction is chosen.
      `def` 70 plus `physicalResist` 0.30, which buy it 29 seconds of swinging against the Grudgekeeper's 17. ⚠️ **The Colossus survives the check on `haste` 58, the lowest in the game** — attack bills only
      as often as it swings. **Two roofs retired while an older, heavier block stayed.**
 
+   - ⚠️ **The last hundred's axis was a mechanic two towers had already declined, and the licence came
+     back the widest of the nineteen.** The Demon fourth hundred's `magicResist` costs demon-alt **1.15**
+     against a second place of 0.82, with **nine of fourteen arrangements at or under 0.15** and 0.00 for
+     every Human, Dwarf, Monster and Angel-reference five. What makes it theirs is the damage formula
+     rather than the stat names, for the second time: `def × (1 − pierce)` is computed and _then_
+     multiplied by `1 − resist`, so **a pierce never touches a resist** — and the Demon fives carry nine
+     and seven magical damage effects with **zero physical**, plus the game's largest `magicPierce`
+     (Σ0.30 / Σ0.25 against Σ0.15 everywhere else). The crew built to open armour has no answer to the
+     wall that is not armour, which is the Monster third hundred's finding mirrored onto the other damage
+     type.
+   - ⚠️ **A pairing can be _worse_ than the half, which is chapter 23's finding running backwards.**
+     Adding `physicalResist` at the same size read demon-alt 0.95 against `magicResist` alone's 1.15 **and
+     lifted every physical crew off 0.00** (monster-ref 0.85, dwarf-alt 0.97, dwarf-ref 0.73) — harder in
+     the abstract and **the licence diluted to nothing**. Chapter 23 found both resists at 0.20 worth 1.78
+     where `magicResist` alone at 0.30 read 0.32, on a mixed party. **Test the pairing and accept the
+     answer in whichever direction it comes.**
+   - ⚠️ **A stat carried by _zero_ shipped blocks can grade beautifully and still not be yours.**
+     `attackSpeed` sits on **0 of 346** blocks, grades six monotone steps on the Demon reference five
+     (4.00 → 2.10 across 0 → 130) and adds only **2.6 seconds** of fight — and cross-crew it costs
+     angel-alt **4.00**, dwarf-alt 3.88 and angel-ref 3.42, putting demon-alt **eighth of fourteen**. **A
+     speed tax belongs to whichever crew is slowest**, which is the Monster Tower's warning about weight
+     axes wearing a new stat. An empty register is a licence to measure, never a licence to author.
+   - ⚠️ **The strong sustain absolute is sayable exactly once and only after the anchors retire.** Five
+     towers have shipped a false sustain claim and the fix has always been the sentence; the Demon fourth
+     hundred is the first that could make the absolute — **no board over its hundred carries a heal, a
+     drain, a shield, a `regen`/`barrier`/`aegis` status, or a point of `lifeLeech`, `recovery` or
+     `healthRegen`** — and only because four retired anchors were where nearly all of it sat. It was still
+     false on the first pass: two Angel legendaries carrying `recovery` and an `aegis` stood on fourteen
+     boards, and the fix was **the boards**. **Run the check; expect to fix content.**
    - ⚠️ **A stat can be split into the half a crew answers and the half it does not, and only one of
      them is the axis.** The Angel fourth hundred is the case: `critDamageResist` is subtracted from
      an attacker's `critDamageAmp` and says nothing about how _often_ a crit lands, and the two Angel

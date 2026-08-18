@@ -2,17 +2,23 @@ import {
   ACOLYTE,
   ANTIPHON_ARCHON,
   ASHEN_CHOIR,
+  ASHPIT_SCUTTLER,
   BANDIT,
   BARROW_SOVEREIGN,
   BLOODGORGE_HOUND,
   BOAR,
   CINDERLING,
+  CLEFTHORN_GORER,
+  CLOSEWARD_SERAPH,
   COLDHEARTH_IRONSWORN,
   COLOSSUS,
   CONCORD_CANTOR,
   DEEPROCK_MINER,
+  DRIFTMOUTH_CHOKER,
+  DUSTPLATE_GRINDER,
   EVENSONG_WARDEN,
   FREE_BLADE,
+  GALLERY_SLIPFANG,
   GILDED_SENTRY,
   GLADE_STALKER,
   GLASSCHOIR_ARBITER,
@@ -22,32 +28,43 @@ import {
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOW_SERAPH,
+  HUSHGLASS_WARDEN,
   KNELL_CHANTER,
   LITANY_BEARER,
   LUMEN_ACOLYTE,
   MARROWHUNT_ALPHA,
+  MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTMARCH_OUTRIDER,
   OATHSHIELD_VANGUARD,
   PLAINSONG_PRECENTOR,
+  QUENCHPIT_IRONHIDE,
   RADIANT_HERALD,
+  RAVAGER,
+  REDWATER_STALKER,
+  RENDFANG_JACKAL,
   REVENANT,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
   SCARBOUND_BELLOWER,
   SCARWEAVE_TRAMPLER,
+  SCREEBACK_DARTER,
   SEALWARD_CUSTODIAN,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
   SHARDLIGHT_ACOLYTE,
   SHATTERJAW_MAULER,
+  SILENTVAULT_KEEPER,
   STILLNESS_CANTOR,
   STORMCALLER,
+  SUMPWATER_BROOD,
   THE_UNBITTEN,
   THE_UNFALTERING,
+  THE_UNHEARING,
   THE_UNISON,
   UNMADE,
+  UNSPOKEN_CANON,
   VAULTLIGHT_CENSER,
   WEALDSHADOW_STALKER,
   WISP,
@@ -57,11 +74,11 @@ import {
 } from './enemies';
 
 /**
- * The Demon Tower — three hundred floors, enemy levels 1 to 142.
+ * The Demon Tower — four hundred floors, enemy levels 1 to 189.
  *
- * **The seventh tower to reach the third hundred and the last one to get there**, which closes a
- * height bump that landed in one session and took seven to fill. The `PENDING` lists in
- * `towers.spec.ts` and `towers.balance.ts` went with it.
+ * **The seventh tower to reach the fourth hundred and the last one to get there**, which closes the
+ * bump for the third time and empties the `PENDING` lists in `towers.spec.ts` and
+ * `towers.balance.ts` along with the branches they guarded.
  *
  * ## Why the enemies are mostly Angels
  *
@@ -224,6 +241,147 @@ import {
  * narrower and it is the roof: **the last floor carries none of the four**, because a roof is where
  * sustain stops being a lock and becomes the clock. Three towers have now shipped the same false
  * absolute about sustain, always on the word "regeneration"; the counts above are the fix.
+ *
+ *
+ * ## ⚠️ The fourth hundred: the mechanic two towers declined, re-priced against the crew it was for
+ *
+ * **The last hundred of the last tower**, which closes a height bump that landed in one session and
+ * took seven to fill. The `PENDING` lists in `towers.spec.ts` and `towers.balance.ts` went with it,
+ * along with the branches they guarded — third time that checklist has run to completion.
+ *
+ * The axis is **`magicResist`**, and it is the only axis in twenty-one hundreds that a session reached
+ * for after two others had measured it and put it down. This tower's own **second** hundred measured a
+ * magic ward as worth **0.00** at the shipped register and declined it; the Angel Tower's fourth
+ * measured it again on its own crew and declined it again at 0.10 to 0.35 of five; the Undead Tower's
+ * fourth found it landed **within a second of `def` and `hp`** and called it that tower's own
+ * third-hundred axis wearing a new stat. All three are still right about what they measured. ⚠️ **A
+ * recorded "X is inert" is a claim about a curve, and the curves in this project move** — chapter 23's
+ * rule, arriving on a tower.
+ *
+ * Measured at level 189 in Fine 60 before a floor was authored, against a control of one anchor
+ * (1100/76) plus four bodies (580/64) reading **4.00 / 3.98**, forty seeds — reference / alternate:
+ *
+ * | Four carriers at   | reference | alternate |
+ * | ------------------ | --------- | --------- |
+ * | `magicResist` 0.10 | 4.00      | 3.95      |
+ * | 0.18               | 4.00      | 3.80      |
+ * | 0.26 — *the ceiling* | 4.00    | **3.70**  |
+ * | 0.34               | 3.98      | 3.38      |
+ * | 0.42               | 4.00      | 2.98      |
+ * | 0.50               | 4.00      | **2.85**  |
+ * | 0.58               | 4.00      | 2.55      |
+ * | 0.66               | 3.95      | 2.27      |
+ * | 0.74               | 3.92      | **1.95**  |
+ *
+ * **Nine monotone steps with zero timeouts on every row**, fights running 7.3s to 15.1s against a
+ * ninety-second timer, so it is difficulty rather than the clock.
+ *
+ * ⚠️ **The reference five moves 4.00 → 3.92 across the entire grade**, so every board in this hundred
+ * is sized against the **alternate** — the third hundred's answer, arriving again, on a tower whose two
+ * arrangements have failed on different axes since floor 1.
+ *
+ * ⚠️ **It is ours by the damage formula rather than by the stat names.** `core/battle/damage.ts`
+ * resolves a hit as `def × (1 − pierce)` and *then* multiplies by `1 − resist`, so **a pierce never
+ * touches a resist**. The two Demon arrangements carry **nine and seven magical damage effects and
+ * zero physical** — their only physical damage in the game is the basic attack — where the Elf, Human,
+ * Dwarf and Monster crews carry **zero magical effects at all**; and they carry the game's largest
+ * `magicPierce` at Σ0.30 and Σ0.25 against Σ0.15 everywhere else. **The crew built to open armour has
+ * no answer whatever to the wall that is not armour.** That is the Monster Tower's own third-hundred
+ * finding — the pierce crew meeting the resist it cannot pierce — mirrored onto the other damage type
+ * and the other faction, and it is the second time reading the formula rather than the stat lines is
+ * what chose an axis.
+ *
+ * ⚠️ **Cross-crew it is the widest licence any of the twenty-one hundreds has measured.** Each of the
+ * fourteen arrangements calibrated to the heaviest board it still reads at or above 3.75 survivors,
+ * then four carriers at 0.45: **demon-alt 1.15**, undead-ref 0.82, undead-alt 0.52, **demon-ref 0.38**,
+ * angel-alt 0.15, elf-ref 0.08, elf-alt 0.05, dwarf-alt 0.02, and **0.00 for every Human, Dwarf,
+ * Monster and Angel-reference arrangement swept**. Nine of fourteen at or under 0.15. ⚠️ **The licence
+ * is over the binding arrangement**: demon-alt is first by 40% over second place and demon-ref only
+ * fourth, which is the Angel Tower's shape rather than the Monster Tower's, and the difference matters
+ * because "first of fourteen" and "first and second of fourteen" are different claims.
+ *
+ * ⚠️ **The pairing is *worse* than the half, which inverts chapter 23's finding rather than repeating
+ * it.** Adding `physicalResist` at the same size reads demon-alt **0.95** against `magicResist`
+ * alone's 1.15 — and it lifts every physical crew off 0.00 (monster-ref 0.85, dwarf-ref 0.73, elf-ref
+ * 0.68, dwarf-alt 0.97). So the pair grades harder in the abstract and **dilutes the licence to
+ * nothing**. Chapter 23 found both resists at 0.20 worth 1.78 where `magicResist` alone at 0.30 read
+ * 0.32; here it runs the other way, because that chapter's party was mixed and this one is not. **Test
+ * the pairing, and accept the answer in whichever direction it comes.** No block authored below
+ * carries a point of `physicalResist`.
+ *
+ * ⚠️ **The band steps past the register and says so, which is the Monster third hundred's shape rather
+ * than the Elf's.** Over the **346** blocks shipped beforehand `magicResist` sits on 112 at a median of
+ * **0.10** and a ceiling of **0.26**, and the whole Angel bench this tower already fields runs **0.00
+ * to 0.15** — so at the register the ward is worth **0.03 of a survivor**, which is exactly the refusal
+ * the two earlier sessions recorded, and it only bites above it. The three new legendaries carry 0.34,
+ * 0.44 and 0.52 and {@link THE_UNHEARING} 0.60.
+ *
+ * ⚠️ **A ward is a share of the board rather than a stat on a body, and that is what sets the board
+ * shape.** Holding the total at 0.50, spreading it over four soft bodies reads **3.00** for the
+ * alternate where concentrating it on the anchor reads 3.75 and on two heavy front bodies 3.73 — the
+ * party has to chew through every body and each one taxes for the whole time it stands. ⚠️ **But a
+ * *lone* carrier prices where the party is aiming**: one body in the front rank is worth 0.31 of five
+ * and the identical body in the back **0.00**, carried on one body as chapter 22 demands. So the
+ * carriers stand in front and the escalation is how many of them there are.
+ *
+ * ⚠️ **The count is the weaker of the two dials here, which inverts this tower's own third-hundred
+ * thesis.** At 0.30, carrier counts read 3.98 / 3.90 / 3.83 / 3.80 / 3.63 across none to four — a span
+ * of 0.35 — where the *size* at four carriers spans 2.05. The third hundred found the opposite of its
+ * own axis ("the count matters more than the size until the register is reached"), so the bands here
+ * escalate in **which** voices are present rather than merely how many: the Warden alone, the Warden
+ * and the Canon, the Warden and the Keeper, all three, and all three with the weight shed under them.
+ *
+ * ⚠️ **Four anchors retired, and the geared check is far harsher than the naked one a hundred below.**
+ * The shipped floor-300 board carried to floor 400 reads **0% for both arrangements** where the same
+ * board at its own floor reads 100% with all five alive — the Angel Tower's finding, confirmed. Behind
+ * four light bodies at floor 400: {@link THE_UNISON} **0% / 0%**, the {@link UNMADE} 70% / **0%**,
+ * {@link HOLLOW_SERAPH} 78% / **3%**, and {@link THE_UNFALTERING} — the hundred below's own roof —
+ * 100% / **5%**. What survives is lighter and older: {@link WYRDROOT_ANCIENT} (1300/78) reads
+ * 100% / 4.38, {@link COLOSSUS} (1250/88) 100% / 4.15, {@link BARROW_SOVEREIGN} (1350/84) 100% / 98%,
+ * and {@link THE_UNBITTEN} (1300/76) sits **exactly on the alternate's bar** at 100% / 75%, so it is
+ * fielded only below floor 360. ⚠️ **The second hundred's "no board carries two `ascended` blocks"
+ * survives a second rung of investment and stays**; with four of the tower's five heavy anchors gone,
+ * {@link SILENTVAULT_KEEPER} is what a late board anchors on instead.
+ *
+ * ⚠️ **Two candidate axes were measured and rejected, and writing the negatives down is half the
+ * deliverable.** `attackSpeed` is carried by **0 of 346** shipped blocks and grades beautifully —
+ * 4.00 / 3.88 / 3.75 / 3.35 / 3.10 / 2.85 / 2.10 for the reference five across 0 → 130, with **2.6
+ * seconds** of added fight — but cross-crew it costs angel-alt **4.00**, dwarf-alt 3.88, angel-ref 3.42
+ * and undead-alt 3.25, putting demon-alt **eighth of fourteen** and demon-ref tenth. **A speed tax
+ * belongs to whichever crew is slowest**, which is the Monster Tower's warning about weight axes
+ * wearing a new stat. And `atk` at 100 — inside the shipped register — costs demon-ref **1.65,
+ * fourteenth and last of fourteen**, where it wipes five other crews outright. Against the same
+ * control `tenacity` is **flat** (3.85 / 3.92 / 3.95 across 0.30 → 0.85), `magicPierce` **0.00 to
+ * 0.08**, `energyRegen` **0.00**, `lifeLeech` 0.13, and `physicalResist` spans 0.06 to 0.46 over
+ * 0.15 → 0.60.
+ *
+ * ⚠️ **The gear ramp is inherited, not spent.** `TOWER_RULES.gear` is one rule for all seven towers, so
+ * only the Human Tower's fourth hundred could spend it as an axis; the six after it get Worn 1 → Fine
+ * 60 for free and owe an axis on top. This is the seventh and last to pay that bill.
+ *
+ * The roof is The Unhearing over a Hushglass Warden, a Zenith Chorister, a Shardlight Acolyte and a
+ * Vaultlight Censer: **100% / 3.85 survivors / 9.5s** for the reference five and **83% / 1.90 / 15.3s**
+ * for the alternate, against bars of 90% and 75%. ⚠️ **The axis carries the last floor rather than
+ * riding along** — the same five bodies with the roof's ward stripped read 100% / 4.00 and
+ * 100% / **3.63**, so the refusal is worth **1.73 of five** on the top floor of the tower system.
+ * ⚠️ **And the roof was settled on its attack rather than its weight**, chapter 20's rule for the third
+ * time on a roof: held at 1340 hp the alternate reads 33% at `atk` 88, 55% at 80, **83% at 74** and 98%
+ * at 64, while held at `atk` 68 it reads 90% at 1500 hp and 95% at 1140. Its escort may carry exactly
+ * one of the other three new blocks — the Warden 83%, the Canon 75% *on* the bar, the Keeper **73%**
+ * under it, and any two of them together **18% with 0.23**.
+ *
+ * Every floor of 301–400 was swept individually against both arrangements, not merely the stride: the
+ * worst reference reading is **100%**, the worst alternate **83%** at the roof, **no floor times out**,
+ * and the longest fight anywhere is **25.3s** against a 67.5s bar.
+ *
+ * ⚠️ **What this hundred restores is nothing at all, and for once that is an absolute rather than a
+ * count.** Over floors 301–400 **no board carries a `heal`, a `drain`, a `shield`, a `regen`, `barrier`
+ * or `aegis` status, or a point of `lifeLeech`, `recovery` or `healthRegen`** — against 26 boards
+ * carrying `recovery` and 36 carrying `lifeLeech` over floors 201–300. It is only sayable because the
+ * four retired anchors were where nearly all of it sat, and it was **not** true of the first pass:
+ * {@link SEALWARD_CUSTODIAN} and {@link SEEDLIGHT_KEEPER} stood on fourteen boards before the prose
+ * check said so, and the fix was the boards rather than the sentence. Five towers have now shipped a
+ * false sustain claim; this is the first hundred that could make the strong version and check it.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -2563,6 +2721,826 @@ export const TOWER_DEMON = {
       enemies: {
         front: [THE_UNFALTERING, EVENSONG_WARDEN],
         back: [SHATTERJAW_MAULER, SCARWEAVE_TRAMPLER, SCARBOUND_BELLOWER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Hushglass Gate — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — one voice in the front rank of every board, and the first ward the tower has ever asked a Demon five to get through.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HUSHGLASS_WARDEN],
+        back: [SERAPH_ADJUDICANT, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [KNELL_CHANTER, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [STILLNESS_CANTOR, MIREWHELP, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, HUSHGLASS_WARDEN],
+        back: [CONCORD_CANTOR, ZENITH_CHORISTER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, VAULTLIGHT_CENSER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HUSHGLASS_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SUMPWATER_BROOD, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [RADIANT_HERALD, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, CLEFTHORN_GORER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f310',
+      name: 'Floor 310 — The Hushglass Gate',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, SCARWEAVE_TRAMPLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HUSHGLASS_WARDEN],
+        back: [SERAPH_ADJUDICANT, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [KNELL_CHANTER, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [STILLNESS_CANTOR, MIREWHELP, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, HUSHGLASS_WARDEN],
+        back: [CONCORD_CANTOR, ZENITH_CHORISTER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, VAULTLIGHT_CENSER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, HUSHGLASS_WARDEN],
+        back: [PLAINSONG_PRECENTOR, SUMPWATER_BROOD, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [RADIANT_HERALD, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, CLEFTHORN_GORER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f320',
+      name: 'Floor 320 — The Hushglass Gate',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, SCARWEAVE_TRAMPLER, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Second Silence — Floors 321–340, levels 152–161, Sturdy 5–Sturdy 28 — a second voice joins it, quicker and deeper, and the two never stand in the same rank twice running.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [REDWATER_STALKER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [REDWATER_STALKER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f330',
+      name: 'Floor 330 — The Second Silence',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, RAVAGER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [REDWATER_STALKER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [EVENSONG_WARDEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [SCARWEAVE_TRAMPLER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [PLAINSONG_PRECENTOR, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f340',
+      name: 'Floor 340 — The Second Silence',
+      enemies: {
+        front: [THE_UNBITTEN, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, RAVAGER, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Sealed Vault — Floors 341–360, levels 161–170, Sturdy 29–Fine 12 — the deepest ward any legendary carries anchors the board, and the ascended blocks the tower climbed on are gone.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [SERAPH_ADJUDICANT, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [KNELL_CHANTER, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [CONCORD_CANTOR, ZENITH_CHORISTER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [PLAINSONG_PRECENTOR, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [RADIANT_HERALD, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f350',
+      name: 'Floor 350 — The Sealed Vault',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, GALLERY_SLIPFANG, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [SERAPH_ADJUDICANT, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [KNELL_CHANTER, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [CONCORD_CANTOR, ZENITH_CHORISTER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [PLAINSONG_PRECENTOR, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [STILLNESS_CANTOR, LITANY_BEARER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [RADIANT_HERALD, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [GLASSCHOIR_ARBITER, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f360',
+      name: 'Floor 360 — The Sealed Vault',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [ANTIPHON_ARCHON, GALLERY_SLIPFANG, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Vault Entire — Floors 361–380, levels 171–180, Fine 13–Fine 36 — three voices on every board, which is where the measured cliff was on the count.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, VAULTLIGHT_CENSER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f370',
+      name: 'Floor 370 — The Vault Entire',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, GALLERY_SLIPFANG, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SUMPWATER_BROOD, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, DRIFTMOUTH_CHOKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, VAULTLIGHT_CENSER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-demon-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f380',
+      name: 'Floor 380 — The Vault Entire',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, GALLERY_SLIPFANG, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Unhearing — Floors 381–400, levels 180–189, Fine 37–Fine 60 — the front rank entire, the boards shedding weight into the roof, and at the top the deepest ward in the game.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, VAULTLIGHT_CENSER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-demon-f390',
+      name: 'Floor 390 — The Unhearing',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LITANY_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, ZENITH_CHORISTER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, VAULTLIGHT_CENSER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, LUMEN_ACOLYTE, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, HUSHGLASS_WARDEN],
+        back: [UNSPOKEN_CANON, SHARDLIGHT_ACOLYTE, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-demon-f400',
+      name: 'Floor 400 — The Unhearing',
+      enemies: {
+        front: [THE_UNHEARING, HUSHGLASS_WARDEN],
+        back: [ZENITH_CHORISTER, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
       },
     },
   ],

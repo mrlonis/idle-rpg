@@ -89,8 +89,8 @@ running total carried by hand.
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 
-⚠️ **The height is 400 and only the Demon Tower is not there**; it sits alone on a literal `PENDING`
-list, the third time that discipline has run. The Panoply is the first tower hundred whose escalation
+⚠️ **The height is 400 and all seven towers are there**; the `PENDING` lists are gone, the third time
+that discipline has run end to end. The Panoply is the first tower hundred whose escalation
 axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
 taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
 `GearRulesData`, and `floorGear` derives what each floor wears from the ramp exactly as `floorLevel`
@@ -240,7 +240,7 @@ boards measure correctly — and both now state the pair and the range they were
 The **Angel Tower's** fourth hundred is the sixth to land, and its axis is `critChance` — how _often_
 a blow finds the seam, against the one crew in the game that answered crit with the wrong half of it.
 Same shape of session: four blocks, five skills, a hundred floors, and a name off both `PENDING`
-lists, which is down to one, the Demon Tower. The Hairline is the third hundred's question read from
+lists, leaving one — the Demon Tower. The Hairline is the third hundred's question read from
 the other side — that hundred escalated on how _large_ a single blow was — and the two are a product,
 so the roof's own turn is **1.80 where the hundred below's is 2.60**. Four findings there are about
 method:
@@ -278,6 +278,64 @@ check a hundred below read 73% / 50% on a naked board. **Four anchors retire** �
 `THE_LAST_MERCY` at 20% / 33%, and the Ashfall Sovereign at 95% / **45%**, which fails the alternate's
 bar — against the Elf and Undead pairs and the Monster and Angel clean answers a hundred below. **State
 whether the board under a retirement figure is wearing gear.**
+
+The **Demon Tower's** fourth hundred is the seventh and last to land, and it **closes the fourth-hundred
+round and the tower system with it**: all seven towers stand at 400 floors, and the last session deleted
+both `PENDING` lists along with every branch that read them — third time that discipline has run end to
+end. Same shape of session as the six before it: four blocks, five skills, a hundred floors, and no
+`core/` change. Its axis is **`magicResist`**, and it is the only one of the twenty-one hundreds whose
+axis is a mechanic two towers had already measured and put down. Five findings there are about **method**:
+
+- ⚠️ **A refusal on _size_ expires, and this is the case that proves it.** This tower's own second
+  hundred declined a magic ward because at the shipped ceiling of 0.14 it was worth 0.00 to the
+  reference five and 0.54 to the alternate; the Angel Tower's fourth declined it again on its own crew
+  at 0.10 to 0.35 across 0.15 → 0.70; the Undead Tower's fourth disqualified it as its own
+  third-hundred axis wearing a new stat. **All three were right about what they measured.** Three
+  further hundreds of blocks took the ceiling to **0.26** and the crew gained a rung and a kit, and
+  re-measured at band 4 the same stat grades **nine monotone steps** with zero timeouts (3.95 → 1.95
+  across 0.10 → 0.74) and comes back first of fourteen cross-crew. At the register it is _still_ worth
+  0.03, which reproduces the earlier refusal exactly. **A recorded negative is a claim about a curve;
+  re-measure rather than inherit, and record which register you measured against.**
+- ⚠️ **Reading the damage formula chose an axis for the second time.** `effectiveDefence` returns
+  `def × (1 − pierce)` and `resistedShare` multiplies by `1 − resist` **afterwards**, so a pierce never
+  touches a resist. The Demon fives carry **nine and seven magical damage effects and zero physical** —
+  their only physical damage is the basic attack, where the Elf, Human, Dwarf and Monster crews carry
+  **zero magical effects at all** — and they hold the game's largest `magicPierce` at Σ0.30 / Σ0.25
+  against Σ0.15 everywhere else. **The crew built to open armour has no answer to the wall that is not
+  armour**: the Monster third hundred's finding mirrored onto the other damage type. The licence is the
+  widest of the twenty-one — demon-alt **1.15** against a second place of 0.82, with **nine of fourteen
+  arrangements at or under 0.15** — and it is over the **binding** arrangement, demon-ref only fourth.
+- ⚠️ **A pairing can be _worse_ than the half, which runs chapter 23's finding backwards.** Adding
+  `physicalResist` at the same size read demon-alt **0.95** against `magicResist` alone's 1.15 **and
+  lifted every physical crew off 0.00** (dwarf-alt 0.97, monster-ref 0.85, dwarf-ref 0.73). Harder in
+  the abstract, and the licence diluted to nothing. The Monster fourth hundred had just established that
+  a pairing is what licenses building on a spent axis; this is the same test coming back the other way.
+  **Test the pairing and accept whichever direction the answer arrives from.**
+- ⚠️ **A stat carried by _zero_ shipped blocks can grade beautifully and still not be yours.**
+  `attackSpeed` sits on **0 of 346** blocks, grades six monotone steps on this tower's reference five
+  (4.00 → 2.10 across 0 → 130) and adds only **2.6 seconds** of fight — the shape chapter 25 and three
+  towers now select for. Cross-crew it costs angel-alt **4.00**, dwarf-alt 3.88 and angel-ref 3.42,
+  putting demon-alt **eighth of fourteen**. **A speed tax belongs to whichever crew is slowest**, which
+  is the Monster fourth hundred's warning about weight axes wearing a new stat. **An empty register is a
+  licence to measure, never a licence to author.**
+- ⚠️ **The strong sustain absolute is sayable once and only after the anchors retire — and it was still
+  false on the first pass.** Five towers have shipped a false sustain claim and every previous fix was
+  the sentence. This hundred can say the absolute — **no board over 301–400 carries a `heal`, a `drain`,
+  a `shield`, a `regen`/`barrier`/`aegis` status, or a point of `lifeLeech`, `recovery` or
+  `healthRegen`**, against 26 and 36 boards over 201–300 — but only because the four retired anchors were
+  where nearly all of it sat, and only after the prose check found the Sealward Custodian and the
+  Seedlight Keeper standing on **fourteen** boards. Fourth session running the check caught something
+  before it shipped, and the second time what it caught was **content**.
+
+⚠️ **Its retirement check is the harshest of the seven and confirms the Angel Tower's reading rather
+than merely repeating it.** The shipped floor-300 board carried to floor 400 reads **0% for both
+arrangements**, where that board at its own floor reads 100% with all five alive. **Four anchors
+retire** — The Unison 0% / 0%, the Unmade 70% / **0%**, the Hollow Seraph 78% / **3%**, and The
+Unfaltering, the hundred below's own roof, 100% / **5%** — leaving the tower with no ascended anchor it
+can field above floor 360, which is why a **legendary** carrying the deepest ward in the game anchors
+its closing bands instead. Two towers have now retired four each on a geared hundred against pairs and
+clean answers on the naked ones below. **State whether the board under a retirement figure is wearing
+gear.**
 
 ### What the third hundreds established
 

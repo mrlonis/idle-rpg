@@ -195,9 +195,9 @@ them is how they get reversed by accident.
 
 **Content modes**
 
-- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Demon Tower not there yet**. What a tower is for, the three fields a clear may never touch, the
-  four crews, and nineteen hundreds' worth of measured escalation findings.
+- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each, all seven
+  complete**. What a tower is for, the three fields a clear may never touch, the four crews, and
+  twenty-one hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -694,9 +694,57 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with one name on it** — the Human,
-  Dwarf, Elf, Undead, Monster and Angel fourth hundreds have landed, so the Demon session is the one
-  that deletes both lists. [towers](../../docs/towers.md)
+  notices a tower nobody went back for. ⚠️ **Both lists are empty right now and all seven towers stand
+  at 400** — the Demon fourth hundred closed the round, the third time it has run end to end. **The next
+  height bump owes the lists back in the same session as the bump, not in the session that authors the
+  first tower**: between the two there is nothing at all holding the six short towers. Leave the shapes
+  the list forced behind — `topFloors` reading the **authored** height and the roof-versus-band-opener
+  comparison computed **per tower**, both no-ops today and both what stop the sweep reading an undefined
+  stage the day the height moves. [towers](../../docs/towers.md)
+- ⚠️ **A refusal recorded on _size_ expires, and the Demon fourth hundred is the case that proves it.**
+  `magicResist` was declined twice — by that tower's own second hundred (worth **0.00 / 0.54** at the
+  then-ceiling of 0.14) and again by the Angel Tower's fourth (0.10 to 0.35 across 0.15 → 0.70) — and
+  disqualified once by the Undead Tower's fourth as its own third-hundred axis wearing a new stat. All
+  three were right about what they measured. Three further hundreds of blocks took the ceiling to **0.26**
+  and the crew gained a rung and a kit, and re-measured at band 4 it grades **nine monotone steps** with
+  zero timeouts (3.95 → 1.95 across 0.10 → 0.74) and reads **first of fourteen cross-crew with nine
+  arrangements at or under 0.15** — the widest licence of the twenty-one hundreds. At the register it is
+  still worth 0.03, reproducing the refusal exactly. **Re-measure a declined mechanic against the band
+  being authored and state the register you measured against.** [towers](../../docs/towers.md)
+- ⚠️ **Reading `damage.ts` rather than the stat names has now chosen an axis twice, and the second is the
+  mirror of the first.** `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare` multiplies by
+  `1 − resist` **afterwards**, so **a pierce never touches a resist**. Monsters carry the game's only real
+  `physicalPierce` and had no answer to the Monster Tower's `physicalResist`; the Demon fives carry the
+  game's largest `magicPierce` (Σ0.30 / Σ0.25 against Σ0.15 everywhere else) and **nine and seven magical
+  damage effects with zero physical**, so they have no answer to a magic ward — where the Elf, Human,
+  Dwarf and Monster crews carry **zero magical effects at all** and read 0.00. **The crew built to open
+  armour is the crew with no answer to the wall that is not armour.** [towers](../../docs/towers.md)
+- ⚠️ **A pairing can be _worse_ than the half, which is chapter 23's finding running backwards.** Adding
+  `physicalResist` beside the Demon fourth hundred's `magicResist` at the same size read demon-alt **0.95**
+  against the half's 1.15 **and lifted every physical crew off 0.00** (dwarf-alt 0.97, monster-ref 0.85,
+  dwarf-ref 0.73): harder in the abstract, and the licence diluted to nothing. Chapter 23 measured both
+  resists at 0.20 worth 1.78 where `magicResist` alone at 0.30 read 0.32, against a **mixed** party. **Test
+  the pairing and accept whichever direction the answer arrives from.** [authoring](../../docs/authoring.md)
+- ⚠️ **A stat carried by _zero_ shipped blocks can grade beautifully and still not be yours.**
+  `attackSpeed` sits on **0 of 346** blocks, grades six monotone steps on the Demon reference five
+  (4.00 → 2.10 across 0 → 130) and adds only **2.6 seconds** of fight — the shape chapter 25 and three
+  towers select for. Cross-crew it costs angel-alt **4.00**, dwarf-alt 3.88 and angel-ref 3.42, putting
+  demon-alt **eighth of fourteen**. **A speed tax belongs to whichever crew is slowest**, exactly as a
+  weight axis does. **An empty register is a licence to measure, never a licence to author.**
+  [towers](../../docs/towers.md)
+- ⚠️ **A ward is a share of the board rather than a stat on a body, and a _lone_ carrier is the opposite
+  case.** Holding a `magicResist` total at 0.50, spread over four soft bodies it costs the binding Demon
+  arrangement **1.00 of five** where concentrating it on the anchor costs 0.25 and on two heavy front
+  bodies 0.25 — the party chews through every body and each one taxes for as long as it stands. But one
+  carrier alone is worth 0.31 in the **front** rank and **0.00** in the back. Neither reading is a fact
+  about the status; carry the rank comparison on one body. [towers](../../docs/towers.md)
+- ⚠️ **The strong "this hundred restores nothing" claim is sayable only after the anchors retire, and it
+  was still false on the first pass.** Five towers have shipped a false sustain claim and every earlier
+  fix was the sentence; the Demon fourth hundred is the first that could make the absolute — no board over
+  its hundred carries a `heal`, `drain`, `shield`, `regen`/`barrier`/`aegis` status, or a point of
+  `lifeLeech`, `recovery` or `healthRegen`, against 26 and 36 boards a hundred below — and only after the
+  prose check found two Angel legendaries carrying `recovery` and an `aegis` on **fourteen** boards. **Run
+  the check; expect to fix content, not wording.** [authoring](../../docs/authoring.md)
 - ⚠️ **A stat can split into the half a crew answers and the half it does not, and only one of them is
   an axis.** The Angel fourth hundred is built on `critChance` because `critDamageResist` is subtracted
   from an attacker's `critDamageAmp` and says nothing about how _often_ a crit lands: the two Angel

@@ -1,26 +1,33 @@
 # Faction towers
 
-Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
-only the Demon Tower is not there yet. The system shipped in milestone 15b with a single tower,
-the other six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth
-is in flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
-[authoring](authoring.md) is the procedure for adding floors.
+Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189, all seven
+complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
+hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
+Tower last, which is what closed it. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+them; [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The height is 400 and one of the seven towers is still authored at 300, so the `PENDING` list is
-back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
-floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
-waiting for its floors sits on a literal `PENDING` list in
-[`towers.spec.ts`](../src/data/towers.spec.ts) and
-[`towers.balance.ts`](../src/data/towers.balance.ts), still authors 300 floors, and **has no boss
-until its own hundred lands**: `floorKindAt` reads the rules' height, so its floor 300 resolves as a
-mini-boss paying ×2 rather than ×5. It also stays entirely **naked**, because `floorGear` measures the
-ramp against the rules' height and a tower ending at 300 never reaches `fromFloor` 301 — which is
-correct rather than a second bug, since those floors were tuned without gear.
+⚠️ **The `PENDING` lists are gone and the next height bump has to put them back.** `TOWER_RULES` is one
+rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
+— which means for six sessions running, six towers are authored a hundred floors short. A tower in that
+state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
+[`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
+`nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
+reads the rules' height, so its last authored floor resolves as a mini-boss paying ×2 rather than ×5 —
+and since the fourth hundred it also stays entirely **naked**, because `floorGear` measures the gear
+ramp against the rules' height too and a tower ending at 300 never reaches `fromFloor` 301. That second
+one is correct rather than a bug, since those floors were tuned without gear; say it out loud anyway,
+because "the ramp is keyed to the rules' height" and "the ramp is keyed to the authored height" differ
+by a whole hundred floors of difficulty on six towers.
 
 That payout regression is licensed by one argument and one only — **no build carrying it has ever
 reached a player.** ⚠️ **Each session deletes its own name and the last one deletes both lists along
 with the branches they guard.** A filter — "the full height or three quarters of it" — would pass
-forever and never notice a tower nobody went back for. Third time it has been done this way.
+forever and never notice a tower nobody went back for. It has now run to completion **three times**,
+and each time the last session left behind the defensive shapes the list forced: `topFloors` reading the
+**authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison computed
+**per tower**. Both are no-ops while every tower is the full height and both are what stop the sweep
+reading an undefined stage the day the next bump lands. **Leave them; put the list back before the
+first tower of the next bump is authored, not after.**
 
 Adding a tower is a row in [`data/towers.ts`](../src/data/towers.ts), a matching row in
 [`data/activities.ts`](../src/data/activities.ts), two achievement tracks, and its floors.
@@ -340,7 +347,7 @@ characters from, so tuning against a fully geared five would tune for a party no
 can field.
 
 ⚠️ **A single upgraded crew would stop the sweep saying anything about the low bands**, on the
-**two thousand three hundred** floors this build ships. A band-2 crew walks over floor 40.
+**two thousand eight hundred** floors this build ships. A band-2 crew walks over floor 40.
 
 **A 100% win rate the whole way is the intended shape, not a miss.** A floor is climbed once and
 there is no way around one, so a floor the crew cannot pass stops the tower outright — which makes
@@ -480,9 +487,14 @@ choosing; do not copy the last session's shape.**
   of it. The sixth geared hundred, and the fifth to inherit the ramp rather than spend it. See below.
 - **Demon, second hundred** — the last of that round, and about **scope** rather than a mechanic. See
   below.
-- **Demon, third hundred** — the last hundred of the last tower, and the first where the axis is a
-  stat that **denies the crew's own signature stat**: `critBlock` and `critDamageResist` against the
-  crit-heaviest roster in the game. See below.
+- **Demon, third hundred** — the last of that round, and the first where the axis is a stat that
+  **denies the crew's own signature stat**: `critBlock` and `critDamageResist` against the crit-heaviest
+  roster in the game. See below.
+- **Demon, fourth hundred** — **the last hundred of the tower system**, and the only one whose axis is a
+  mechanic two towers had already measured and declined: `magicResist`, re-priced at band 4 against the
+  only crew in the game whose damage is entirely magical and whose sole armour answer — the game's
+  largest `magicPierce` — is the wrong stat by the damage formula. The seventh geared hundred and the
+  sixth to inherit the ramp rather than spend it. See below.
 
 ### The Human Tower's fourth hundred: the equipment is the escalation
 
@@ -1495,6 +1507,125 @@ The roof closes at **100% / 3.88 / 9.8s** against **90% / 1.60 / 18.7s**. ⚠️
 rather than riding along**: the same five bodies with both stats stripped to zero read 100% / 4.00
 and 100% / 3.65, so the refusal is worth 1.2 of five on the last floor.
 
+### The Demon Tower's fourth hundred: the wall a pierce cannot pierce
+
+**The last hundred of the tower system**, and it is built on the one mechanic two towers had already
+measured and put down. This tower's own second hundred declined a magic ward on **size** — at the
+shipped ceiling of 0.14 it was worth 0.00 to the reference five and 0.54 to the alternate — and the
+Angel Tower's fourth hundred measured it again on its own crew and declined it again, at 0.10 to 0.35
+of five across 0.15 → 0.70. The Undead Tower's fourth found it landed within a second of `def` and
+`hp` and called it that tower's own third-hundred axis wearing a new stat. ⚠️ **All three are still
+right about what they measured, and the refusal still expired.** Three further hundreds of blocks took
+the ceiling from 0.14 to **0.26** and the crew gained a rung and a kit, and at band 4 the same stat is
+the sharpest axis in the project. **A refusal on size is a claim about a curve, and the curves move.**
+
+Measured at level 189 in Fine 60 before a floor was authored, against a control of one anchor
+(1100/76) plus four bodies (580/64) reading **4.00 / 3.98**, forty seeds, four carriers:
+
+| `magicResist`        | reference | alternate |
+| -------------------- | --------- | --------- |
+| 0.10                 | 4.00      | 3.95      |
+| 0.18                 | 4.00      | 3.80      |
+| 0.26 — _the ceiling_ | 4.00      | **3.70**  |
+| 0.34                 | 3.98      | 3.38      |
+| 0.42                 | 4.00      | 2.98      |
+| 0.50                 | 4.00      | **2.85**  |
+| 0.58                 | 4.00      | 2.55      |
+| 0.66                 | 3.95      | 2.27      |
+| 0.74                 | 3.92      | **1.95**  |
+
+**Nine monotone steps, zero timeouts on every row**, fights 7.3s to 15.1s. ⚠️ **The reference five
+moves 4.00 → 3.92 across the whole grade**, so every board is sized against the **alternate** — the
+third hundred's answer again.
+
+⚠️ **It is ours by the damage formula rather than by the stat names, which is the second time reading
+`damage.ts` chose an axis.** `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare`
+multiplies by `1 − resist` **afterwards**, so a pierce never touches a resist. The two Demon
+arrangements carry **nine and seven magical damage effects and zero physical** — their only physical
+damage in the game is the basic attack, where the Elf, Human, Dwarf and Monster crews carry **zero
+magical effects at all** — and they hold the game's largest `magicPierce` at Σ0.30 and Σ0.25 against
+Σ0.15 everywhere else. **The crew built to open armour has no answer whatever to the wall that is not
+armour.** That is the Monster third hundred's finding — the pierce crew meeting the resist it cannot
+pierce — mirrored onto the other damage type and the other faction.
+
+⚠️ **The cross-crew licence is the widest of the twenty-one hundreds.** Each of the fourteen
+arrangements calibrated to the heaviest board it still reads at or above 3.75 survivors, then four
+carriers at 0.45: **demon-alt 1.15**, undead-ref 0.82, undead-alt 0.52, **demon-ref 0.38**, angel-alt
+0.15, elf-ref 0.08, elf-alt 0.05, dwarf-alt 0.02, and **0.00 for every Human, Dwarf, Monster and
+Angel-reference arrangement swept**. Nine of fourteen at or under 0.15. ⚠️ **The licence is over the
+_binding_ arrangement** — first by 40% over second place, with the tower's other five only fourth —
+which is the Angel Tower's shape rather than the Monster Tower's.
+
+⚠️ **The pairing is _worse_ than the half, which runs chapter 23's finding backwards.** Adding
+`physicalResist` at the same size reads demon-alt **0.95** against `magicResist` alone's 1.15, and it
+lifts every physical crew off 0.00 — monster-ref 0.85, dwarf-alt 0.97, dwarf-ref 0.73, elf-ref 0.68.
+So the pair grades harder in the abstract and **dilutes the licence to nothing**. Chapter 23 measured
+both resists at 0.20 worth 1.78 where `magicResist` alone at 0.30 read 0.32, against a mixed party;
+here the party is not mixed. **Test the pairing and accept the answer in whichever direction it
+comes.** No block authored here carries a point of `physicalResist`.
+
+⚠️ **A ward is a share of the board rather than a stat on a body, and that is what set the board
+shape.** Holding the total at 0.50: spread over four soft bodies it reads **3.00** for the alternate,
+concentrated on the anchor 3.75, and on two heavy front bodies 3.73 — the party has to chew through
+every body and each one taxes for the whole time it stands. ⚠️ **But a _lone_ carrier prices where the
+party is aiming** — one body in the front rank is worth 0.31 of five and the identical body in the back
+**0.00**, carried on one body as chapter 22 demands. So the carriers stand in front and the escalation
+is how many there are.
+
+⚠️ **The count is the weaker dial here, which inverts this tower's own third-hundred thesis.** At 0.30
+the carrier counts read 3.98 / 3.90 / 3.83 / 3.80 / 3.63 across none to four — a span of 0.35 — where
+the size at four carriers spans **2.05**. The third hundred found the opposite about its own axis, so
+the bands escalate in **which** voices are present rather than how many: the Warden alone (0.34), the
+Warden and the Canon (0.44), the Warden and the Keeper (0.52), all three, and all three with the weight
+shed under them.
+
+⚠️ **Two axes were measured and rejected, and the negatives are half the deliverable.**
+`attackSpeed` is carried by **0 of 346** shipped blocks and grades six monotone steps on the reference
+five — 4.00 / 3.88 / 3.75 / 3.35 / 3.10 / 2.85 / 2.10 across 0 → 130 — while adding only **2.6 seconds**
+of fight. Cross-crew it costs angel-alt **4.00**, dwarf-alt 3.88, angel-ref 3.42 and undead-alt 3.25,
+putting demon-alt **eighth of fourteen** and demon-ref tenth. **A speed tax belongs to whichever crew
+is slowest**, which is the Monster Tower's warning about weight axes wearing a new stat; **an empty
+register is a licence to measure, never a licence to author.** And `atk` at 100 — inside the shipped
+register — costs demon-ref **1.65, fourteenth and last of fourteen** while wiping five other crews
+outright. Against the same control `tenacity` is **flat** (3.85 / 3.92 / 3.95 across 0.30 → 0.85),
+`magicPierce` 0.00 to 0.08, `energyRegen` **0.00**, `lifeLeech` 0.13, and `physicalResist` spans 0.06 to
+0.46 over 0.15 → 0.60.
+
+⚠️ **Four anchors retired, and the geared check is far harsher than the naked one a hundred below.** The
+shipped floor-300 board carried to floor 400 reads **0% for both arrangements**, where that same board at
+its own floor reads 100% with all five alive — the Angel Tower's finding, confirmed on a second tower.
+Behind four light bodies at floor 400: The Unison **0% / 0%**, the Unmade 70% / **0%**, the Hollow Seraph
+78% / **3%**, and **The Unfaltering — the hundred below's own roof — 100% / 5%**. What survives is
+lighter and older: the Wyrdroot Ancient (1300/78) 100% / 4.38, the Colossus (1250/88) 100% / 4.15, the
+Barrow Sovereign (1350/84) 100% / 98%. The Unbitten (1300/76) sits **exactly on the alternate's bar** at
+100% / 75% and is fielded only below floor 360. ⚠️ **"No board carries two `ascended` blocks" survives a
+second rung of investment**; with four of the tower's five heavy anchors gone, the new Silentvault
+Keeper (980/58, `magicResist` 0.52 — the deepest ward any legendary in the game carries) is what a late
+board anchors on instead.
+
+The roof is The Unhearing (1340/74, ward 0.60) over a Hushglass Warden, a Zenith Chorister, a
+Shardlight Acolyte and a Vaultlight Censer: **100% / 3.85 / 9.5s** against **83% / 1.90 / 15.3s**.
+⚠️ **The axis carries the last floor rather than riding along** — the same five with the roof's ward
+stripped read 100% / 4.00 and 100% / **3.63**, so the refusal is worth **1.73 of five** on the top floor
+of the tower system. ⚠️ **And the roof was settled on its attack rather than its weight**, chapter 20's
+rule for the third time on a roof: held at 1340 hp the alternate reads 33% at `atk` 88, 55% at 80,
+**83% at 74** and 98% at 64, while held at `atk` 68 it reads 90% at 1500 hp and 95% at 1140. Its escort
+may carry exactly one of the other three new blocks — the Warden 83%, the Canon 75% _on_ the bar, the
+Keeper **73%** under it, and any two together **18% with 0.23**.
+
+Every floor of 301–400 was swept individually against both arrangements rather than only the stride:
+worst reference **100%**, worst alternate **83%** at the roof, **no floor times out**, longest fight
+**25.3s** against a 67.5s bar.
+
+⚠️ **The strong sustain absolute is sayable here and only here.** Over floors 301–400 **no board carries
+a `heal`, a `drain`, a `shield`, a `regen`/`barrier`/`aegis` status, or a point of `lifeLeech`,
+`recovery` or `healthRegen`** — against 26 boards carrying `recovery` and 36 carrying `lifeLeech` over
+floors 201–300. Five towers have shipped a false sustain claim and every previous fix was the sentence;
+this is the first hundred that could make the absolute, and only because the four retired anchors were
+where nearly all of it sat. ⚠️ **It was still false on the first pass** — the Sealward Custodian
+(`recovery` 5 plus an `aegis`) and the Seedlight Keeper (an `aegis`) stood on fourteen boards until the
+prose check said so, **and the fix was the boards.**
+
 ## What the measurements settled, tower by tower
 
 These are findings a later session should not have to re-derive.
@@ -1525,11 +1656,20 @@ These are findings a later session should not have to re-derive.
   made the board easier. Damage is `atk² / (atk + def)`, so at a roof's level the crew's `atk` swamps
   anything authorable. And `simulate.ts` takes leech off damage **dealt, shield included** — only
   thorns is measured against what reached HP.
-- ⚠️ **Check a stat's shipped register before building a band on it.** A magic ward was the obvious
-  Demon axis — Demons are the only faction with **zero physical damage skills** (19 magical / 0
-  physical; Undead are next at 14 / 6) and no stat counters `magicResist`. At 0.60 a wall reads 3.21 /
-  1.46 while leaving five of the seven crews within 0.25. It was declined on **size**: the highest
-  `magicResist` on any shipped block is **0.14**, and at 0.15 the same wall is worth 0.00 / 0.54.
+- ⚠️ **Check a stat's shipped register before building a band on it — and re-check it later, because
+  a refusal on _size_ expires as the register grows.** A magic ward was the obvious Demon axis from the
+  second hundred onward: Demons are the only faction with **zero physical damage skills** (nine magical
+  and zero physical on the alternate five, seven and zero on the reference; Undead next at six and
+  four) and **no stat counters `magicResist`** — a pierce reduces `def` and a resist is applied
+  afterwards untouched. It was declined **twice**, both times on size: at the shipped ceiling of 0.14 it
+  was worth 0.00 / 0.54 to the Demon crews at the second hundred, and the Angel Tower's fourth hundred
+  measured it again on its own five at 0.10 to 0.35 across 0.15 → 0.70 and declined it again. ⚠️ **The
+  Demon fourth hundred took it, and both refusals were right about what they measured.** Three further
+  hundreds of blocks moved the ceiling to **0.26** and the crew gained a rung and a kit; re-measured at
+  band 4 it grades **nine monotone steps** (3.95 → 1.95 across 0.10 → 0.74) and reads first of fourteen
+  cross-crew with **nine arrangements at or under 0.15**. At the register it is still worth 0.03, which
+  is the earlier refusal reproduced exactly. **A recorded "declined on size" is a claim about a curve,
+  and the curves move.**
 
 ## Where it sits on screen
 

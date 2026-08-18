@@ -213,21 +213,6 @@ const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.p
 const BAND_FLOORS = TOWER_BAND_UNIT;
 const BANDS = TOWER_BAND_RUNGS.length;
 
-/**
- * The towers still authored at the previous height while the fourth hundred lands one tower at a time.
- *
- * ⚠️ **A literal list, kept in step with the identical one in `towers.spec.ts` by hand.** `TOWER_RULES`
- * is one rule for all seven, so the height bump landed in one session and the floors move in seven. A
- * *filter* — "however many bands the tower actually authors" — would pass forever and never notice a
- * tower nobody went back for, which is precisely the failure this list exists to prevent. Each session
- * deletes its own name; **the last one deletes this list and the branch below it.** Third time it has
- * been done this way.
- */
-const PENDING: readonly string[] = ['tower-demon'];
-
-/** How many bands a tower actually owes samples for: all of them, or one fewer while it waits. */
-const bandsOwed = (tower: TowerData): number => (PENDING.includes(tower.id) ? BANDS - 1 : BANDS);
-
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;
 
@@ -243,8 +228,8 @@ const bandTopFloor = (band: number): number => Math.min(band * BAND_FLOORS, rule
  * `ROOF_MARGIN` does not apply to it. Every band above owes {@link ROOF_MARGIN} once, plus
  * {@link RUNG_LEVELS} for each *further* rung it has taken. The margins run 0, 20, 43, 66 and the
  * resulting crews are `rare-plus`/48, `elite`/75, `elite-plus`/99 and `legendary`/123 — the first three
- * exactly what the shipped twenty-three hundred floors were tuned against, which is the constraint this
- * has to satisfy.
+ * exactly what the **two thousand one hundred** floors below the gear ramp were tuned against, which is
+ * the constraint this has to satisfy.
  *
  * ⚠️ **Band 4's rung is a `KIT_RULES.unlocks` rung and the two above it were not**, so that crew gains a
  * **third skill** as well as its ×1.6 and its twenty-four levels. The derivation is unchanged and the
@@ -608,12 +593,13 @@ describe('tower balance', () => {
       entries.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(entries.length, 1);
 
     for (const tower of towers) {
-      // ⚠️ **Every tower owes every band the rules describe, less whatever {@link PENDING} says it is
-      // still waiting for — and this reads a literal list rather than the content.** Deriving the band
-      // count from `tower.floors.length` would make it a filter, and a filter would pass forever on a
-      // tower nobody went back for. The fourth hundred is in flight, so six names carry a band's
-      // exemption each; **delete the list and this argument together when the last tower lands.**
-      for (let band = 1; band <= bandsOwed(tower); band++) {
+      // ⚠️ **Every tower owes every band the rules describe, and this reads `BANDS` rather than the
+      // content.** Deriving the band count from `tower.floors.length` would make it a filter, and a
+      // filter would pass forever on a tower nobody went back for — which is why a literal `PENDING`
+      // list carried the exemptions while the fourth hundred landed one tower at a time, and why the
+      // last session deleted it along with this loop's second bound. Put the list back before the
+      // first tower of the next bump, not after.
+      for (let band = 1; band <= BANDS; band++) {
         const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
 
         // An empty band is a tower that lost its floors, which is a failure rather than a wait.

@@ -8768,6 +8768,90 @@ export const WIDEN_IT = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's fourth hundred — milestone 21y's five turns
+//
+// ⚠️ **The stat is the whole of the hundred and these five turns are deliberately ordinary.** The
+// hundred escalates through `magicResist` — a *defensive* stat on the bodies a Demon five has to get
+// through — so nothing a skill says is doing the work. Every turn below sits inside the shipped
+// magical power register, none carries a status, and none aims past the front rank.
+//
+// ⚠️ **Aim is inert or negative on all seven towers and it stays inert here**, which is why every one
+// of these names `enemy-front`. The reach the Angel bench already carries ({@link ZENITH_CHORISTER}'s
+// `enemy-row-back`, {@link LITANY_BEARER}'s `enemy-all`) is texture this hundred inherits rather than
+// escalation it authors.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A ward is not a shield. It is the choir deciding that the word does not arrive.
+ *
+ * {@link HUSHGLASS_WARDEN}'s turn, and the least of the five. Power 1.45 on a 50-tick cooldown is the
+ * shipped magical register's own middle — the block is priced on the ward it carries rather than on
+ * what it swings, which is the whole hundred in one body.
+ */
+export const NOTHING_IS_HEARD = {
+  id: 'nothing-is-heard',
+  name: 'Nothing Is Heard',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The vault does not argue. It outlasts the argument.
+ *
+ * {@link SILENTVAULT_KEEPER}'s turn, and the softest of the five at 1.3 on the longest cooldown. **A
+ * ward is only worth what the body carrying it lives to spend**, so the block that has to stand
+ * longest is the one that swings least — {@link EVENSONG}'s argument on this tower's second hundred,
+ * and {@link THE_SAME_NOTE_AGAIN}'s on the Angel Tower's fourth.
+ */
+export const THE_VAULT_HOLDS = {
+  id: 'the-vault-holds',
+  name: 'The Vault Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.3 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/** Nothing new is said. The same verse is said again, to somebody who has stopped hearing it. */
+export const SAY_IT_AGAIN = {
+  id: 'say-it-again',
+  name: 'Say It Again',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than the hundred below's roof carries**.
+ *
+ * {@link THE_LAST_AMEN} is 2.10 and {@link NO_EDGE_FINDS_IT} 1.90; this is 1.75. The Unhearing is the
+ * one body in the hundred carrying a ward past 0.52, and the roof was settled on its **attack**
+ * rather than on its weight — at 1340 hp the alternate arrangement reads 33% at `atk` 88, 55% at 80
+ * and **83% at 74**. A roof that reached for the blow as well as the ward would not be a roof.
+ */
+export const NO_WORD_REACHES_IT = {
+  id: 'no-word-reaches-it',
+  name: 'No Word Reaches It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.75 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** There is an answer. It is simply not going to be given. */
+export const THE_ANSWER_WITHHELD = {
+  id: 'the-answer-withheld',
+  name: 'The Answer Withheld',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.25 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9212,4 +9296,9 @@ export const SKILLS = [
   THE_SAME_NOTE_AGAIN,
   IT_WAS_ALWAYS_THERE,
   WIDEN_IT,
+  NOTHING_IS_HEARD,
+  THE_VAULT_HOLDS,
+  SAY_IT_AGAIN,
+  NO_WORD_REACHES_IT,
+  THE_ANSWER_WITHHELD,
 ] as const;

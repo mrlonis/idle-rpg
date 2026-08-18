@@ -277,25 +277,29 @@ export const TOWER_RULES = {
  *
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
- * authored), again for the third, and it is happening again for the fourth — **the Demon Tower is the
- * only one still at three hundred floors today.** A tower that has not been extended simply ends at its last
- * authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it topped
- * and nothing in `ui/` misreads it.
+ * authored), for the third (21l–21r), and for the fourth (21s–21y) — **all seven towers stand at four
+ * hundred floors today and no round is open.** A tower that has not been extended simply ends at its
+ * last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it
+ * topped and nothing in `ui/` misreads it.
  *
  * ⚠️ **What it loses while it waits is its boss.** `floorKindAt` reads the *rules'* height, so a
- * short tower's last floor resolves as a mini-boss and pays ×2 rather than ×5. That is a real payout
- * regression for every tower still on the old height, and it is licensed by exactly one argument —
- * the same one the save re-bases rest on: **no build carrying this has ever reached a player.** If
- * that ever stops being true, extend all seven in one session or not at all.
+ * short tower's last floor resolves as a mini-boss and pays ×2 rather than ×5. ⚠️ **Since the fourth
+ * hundred it also stays entirely naked**, because `floorGear` reads the rules' height too and a tower
+ * ending at 300 never reaches `fromFloor` 301 — which is *correct*, since those floors were tuned
+ * without gear, but it means "the ramp is keyed to the rules' height" and "keyed to the authored
+ * height" differ by a whole hundred floors of difficulty on six towers. The payout regression is a real
+ * one, and it is licensed by exactly one argument — the same one the save re-bases rest on: **no build
+ * carrying this has ever reached a player.** If that ever stops being true, extend all seven in one
+ * session or not at all.
  *
  * What keeps it honest is a hand-maintained `PENDING` list of names in `towers.spec.ts` and
  * `towers.balance.ts` that each session shrinks and the last one deletes, along with the branches it
  * guards. ⚠️ **A filter — "the full height or three quarters of it" — would pass forever and never
- * notice a tower nobody went back for.** The list is literal for exactly that reason, and it is back
- * for the third time, and it is down to **one** name — the Human Tower's hundred opened the round and
- * the Dwarf, Elf, Undead, Monster and Angel Towers followed, so the Demon Tower's session is the one
- * that deletes both lists and the branches they guard. **Do it the same way every time the height
- * moves.**
+ * notice a tower nobody went back for.** The list is literal for exactly that reason. It has now run
+ * to completion **three times** and both lists are empty; the Demon Tower's session closed the fourth
+ * round and deleted them. ⚠️ **The next bump owes the lists back in the same session as the bump**,
+ * rather than in the session that authors the first tower — in between, nothing at all holds the six
+ * short towers. **Do it the same way every time the height moves.**
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change
