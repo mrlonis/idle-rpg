@@ -149,7 +149,7 @@ const TOWER_UNIT = 100;
  * `fromFloor` 301 and stays entirely naked. That is the correct behaviour rather than a second bug —
  * those three hundred floors were tuned naked.
  */
-const PENDING: readonly string[] = ['tower-monster', 'tower-angel', 'tower-demon'];
+const PENDING: readonly string[] = ['tower-angel', 'tower-demon'];
 
 /** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
 const authoredHeight = (tower: TowerData): number =>

@@ -275,6 +275,11 @@ import {
   WRATH_UNBOUND,
   WRITTEN_DOWN_BESIDE_IT,
   ZENITHFALL,
+  ANGLED_FACE,
+  NOTHING_LANDS,
+  SLIP_THE_JAW,
+  SPRUNG_TURN,
+  THE_BLOW_TURNS,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -810,6 +815,7 @@ export const WRATHBORN = {
   name: 'Wrathborn',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 860,
     atk: 65,
@@ -862,6 +868,7 @@ export const HIEROPHANT = {
   name: 'Ashen Hierophant',
   faction: 'angel',
   tier: 'ascended',
+  gearArchetype: 'support',
   stats: {
     hp: 1050,
     atk: 56,
@@ -997,6 +1004,7 @@ export const UNMADE = {
   name: 'The Unmade',
   faction: 'demon',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1800,
     atk: 100,
@@ -1080,6 +1088,7 @@ export const BARROW_SOVEREIGN = {
   name: 'Barrow Sovereign',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1350,
     atk: 84,
@@ -1213,6 +1222,7 @@ export const THORNWEALD_WARDEN = {
   name: 'Thornweald Warden',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 720,
     atk: 50,
@@ -1266,6 +1276,7 @@ export const WYRDROOT_ANCIENT = {
   name: 'Wyrdroot Ancient',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1300,
     atk: 78,
@@ -1333,6 +1344,7 @@ export const RADIANT_HERALD = {
   name: 'Radiant Herald',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 660,
     atk: 52,
@@ -1358,6 +1370,7 @@ export const ASHEN_CHOIR = {
   name: 'Ashen Choir',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 700,
     atk: 48,
@@ -1397,6 +1410,7 @@ export const CINDERLING = {
   name: 'Cinderling',
   faction: 'demon',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 280,
     atk: 34,
@@ -1441,6 +1455,7 @@ export const HEXBOUND_TORMENTOR = {
   name: 'Hexbound Tormentor',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 680,
     atk: 58,
@@ -1534,6 +1549,7 @@ export const BRAMBLEHIDE_RAVENER = {
   name: 'Bramblehide Ravener',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 980,
     atk: 74,
@@ -1691,6 +1707,7 @@ export const CHAINSWORN = {
   name: 'The Chainsworn',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1700,
     atk: 98,
@@ -1762,6 +1779,7 @@ export const SEALWARD_CUSTODIAN = {
   name: 'Sealward Custodian',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1080,
     atk: 60,
@@ -1886,6 +1904,7 @@ export const COVENANT_BREAKER = {
   name: 'Covenant Breaker',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 900,
     atk: 68,
@@ -1953,6 +1972,7 @@ export const HOLLOW_SERAPH = {
   name: 'The Hollow Seraph',
   faction: 'angel',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1760,
     atk: 99,
@@ -2004,6 +2024,7 @@ export const FENLORD = {
   name: 'The Fenlord',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1250,
     atk: 62,
@@ -2034,6 +2055,7 @@ export const PALE_WARDEN = {
   name: 'The Pale Warden',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'tank',
   stats: {
     hp: 1150,
     atk: 58,
@@ -2065,6 +2087,7 @@ export const FIRST_CINDER = {
   name: 'The First Cinder',
   faction: 'demon',
   tier: 'ascended',
+  gearArchetype: 'mage',
   stats: {
     hp: 1350,
     atk: 72,
@@ -2098,6 +2121,7 @@ export const ASHFALL_SOVEREIGN = {
   name: 'The Ashfall Sovereign',
   faction: 'demon',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1740,
     atk: 97,
@@ -2272,6 +2296,7 @@ export const CAIRNBOUND_SENTINEL = {
   name: 'Cairnbound Sentinel',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1120,
     atk: 58,
@@ -2411,6 +2436,7 @@ export const THE_GRAVEWRIGHT = {
   name: 'The Gravewright',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1560,
     atk: 90,
@@ -2469,6 +2495,7 @@ export const THE_CAIRN_KING = {
   name: 'The Cairn King',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1780,
     atk: 99,
@@ -2717,6 +2744,7 @@ export const HEARTROOT_TENDER = {
   name: 'Heartroot Tender',
   faction: 'elf',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 800,
     atk: 62,
@@ -2835,6 +2863,7 @@ export const THE_WITHERED_CROWN = {
   name: 'The Withered Crown',
   faction: 'elf',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1740,
     atk: 98,
@@ -3487,6 +3516,7 @@ export const BLOODGORGE_HOUND = {
   name: 'Bloodgorge Hound',
   faction: 'monster',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 940,
     atk: 76,
@@ -3613,6 +3643,7 @@ export const THE_EVERWOUND = {
   name: 'The Everwound',
   faction: 'monster',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1720,
     atk: 98,
@@ -3750,6 +3781,7 @@ export const RELIQUARY_BEARER = {
   name: 'Reliquary Bearer',
   faction: 'undead',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 900,
     atk: 50,
@@ -3789,6 +3821,7 @@ export const THE_DEATHLESS_MARSHAL = {
   name: 'The Deathless Marshal',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1620,
     atk: 94,
@@ -3982,6 +4015,7 @@ export const THE_BREACHLORD = {
   name: 'The Breachlord',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1300,
     atk: 78,
@@ -4423,6 +4457,7 @@ export const RUINWING_DEVOURER = {
   name: 'Ruinwing Devourer',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 780,
     atk: 72,
@@ -4506,6 +4541,7 @@ export const THE_HORNCALLER = {
   name: 'The Horncaller',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1560,
     atk: 91,
@@ -4683,6 +4719,7 @@ export const THE_UNANSWERED = {
   name: 'The Unanswered',
   faction: 'demon',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1540,
     atk: 92,
@@ -4842,6 +4879,7 @@ export const THE_UNISON = {
   name: 'The Unison',
   faction: 'angel',
   tier: 'ascended',
+  gearArchetype: 'mage',
   stats: {
     hp: 1720,
     atk: 92,
@@ -5176,6 +5214,7 @@ export const THE_COLOUR_SERJEANT = {
   name: 'The Colour Serjeant',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'support',
   stats: {
     hp: 1500,
     atk: 88,
@@ -5220,6 +5259,7 @@ export const THE_LAST_ORDER = {
   name: 'The Last Order',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1740,
     atk: 96,
@@ -5366,6 +5406,7 @@ export const THE_HOURLESS_MARCH = {
   name: 'The Hourless March',
   faction: 'undead',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1660,
     atk: 76,
@@ -5555,6 +5596,7 @@ export const THE_CROWN_WHEEL = {
   name: 'The Crown Wheel',
   faction: 'human',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1240,
     atk: 74,
@@ -5834,6 +5876,7 @@ export const SEEDLIGHT_KEEPER = {
   name: 'Seedlight Keeper',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'support',
   stats: {
     hp: 1020,
     atk: 56,
@@ -5989,6 +6032,7 @@ export const EMBERSHELL_WHELP = {
   name: 'Embershell Whelp',
   faction: 'demon',
   tier: 'common',
+  gearArchetype: 'mage',
   stats: {
     hp: 440,
     atk: 48,
@@ -6018,6 +6062,7 @@ export const SLAGHIDE_PURSUER = {
   name: 'Slaghide Pursuer',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 62,
@@ -6045,6 +6090,7 @@ export const CINDERPLATE_HOUNDSMAN = {
   name: 'Cinderplate Houndsman',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 700,
     atk: 66,
@@ -6077,6 +6123,7 @@ export const CLOSEWARD_SERAPH = {
   name: 'Closeward Seraph',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'tank',
   stats: {
     hp: 1000,
     atk: 58,
@@ -6120,6 +6167,7 @@ export const THE_UNBITTEN = {
   name: 'The Unbitten',
   faction: 'angel',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1300,
     atk: 76,
@@ -6181,6 +6229,7 @@ export const KILNSTROKE_CELEBRANT = {
   name: 'Kilnstroke Celebrant',
   faction: 'demon',
   tier: 'legendary',
+  gearArchetype: 'ranger',
   stats: {
     hp: 880,
     atk: 74,
@@ -6286,6 +6335,7 @@ export const THE_LAST_MERCY = {
   name: 'The Last Mercy',
   faction: 'demon',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1520,
     atk: 91,
@@ -6339,6 +6389,7 @@ export const EVENSONG_WARDEN = {
   name: 'Evensong Warden',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'brawler',
   stats: {
     hp: 820,
     atk: 80,
@@ -6370,6 +6421,7 @@ export const PLAINSONG_PRECENTOR = {
   name: 'Plainsong Precentor',
   faction: 'angel',
   tier: 'legendary',
+  gearArchetype: 'mage',
   stats: {
     hp: 700,
     atk: 74,
@@ -6450,6 +6502,7 @@ export const THE_UNFALTERING = {
   name: 'The Unfaltering',
   faction: 'angel',
   tier: 'ascended',
+  gearArchetype: 'brawler',
   stats: {
     hp: 1440,
     atk: 86,
@@ -11933,6 +11986,220 @@ export const THE_SPRINGWOOD = {
   skills: [THE_YEAR_TURNS, THINWOOD_RUSH, COPPICE_LASH],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fourth hundred — the Turning, and its four blocks
+//
+// ⚠️ **Dwarf, all four, and the faction is a measurement rather than a theme.** This is the one
+// tower with no lean — every faction counters Monsters — so there is no counter-faction to author
+// into and the choice falls to the flat spread instead. Dwarf was the tower's thinnest row at
+// **11.12%** of 1,439 slots against a demon leader at 17.16%, and bounds of 5% and 25%. It leaves
+// here at **20.17%** of 1,939, which is the leader, over a floor of 12.22% — the spread is flatter
+// at the top and unchanged in shape.
+//
+// ⚠️ **Budget for the overshoot rather than discovering it, and this hundred discovered it anyway.**
+// Authored from the axis alone the first pass ran **55.6% dwarf over the hundred and 22.59% of the
+// tower** — legal, and 2.4 points off a ceiling that may never be crossed. The fix was the two the
+// procedure names: every non-new Dwarf texture block was swapped for a comparable body from another
+// faction (the Boltfast Ironside 1000/66 for {@link DROWNED_MAST} 1000/66, the Kinstone Bearer
+// 780/50 for {@link SPENTRANK_HAND} 780/48, and three more), and the **third carrier was rationed to
+// alternate floors** in the two middle bands rather than standing on all of them. 46.2% and 20.17%.
+//
+// ## The axis: evasion joining the armour, and the two are not the same curve
+//
+// The third hundred escalates through `physicalResist` — armour this crew's penetration does not
+// cut. That axis is spent, and the obvious reading of `dodge` is that it is the same curve wearing a
+// different stat: both reduce the damage this crew deals, and a crew that sustains on `lifeLeech`
+// off damage dealt is starved the same way by either. **That reading is wrong, and it is wrong by a
+// factor of three.** Measured at level 189 in Fine 60 against two calibrated controls — the
+// reference five on 1300/68 behind four at 580/42 and the alternate on 1060/58 behind four at
+// 480/37, each the heaviest board its own crew still reads ≥3.75 on, forty seeds, zero timeouts:
+//
+// ```
+//   physicalResist 0.45 alone   ref -0.98   alt -0.90
+//   dodge 0.35 alone            ref -1.00   alt -0.90
+//   both                        ref -2.58   alt -2.15
+//
+//   physicalResist 0.60 alone   ref -1.90   alt -1.90
+//   dodge 0.45 alone            ref -1.25   alt -1.15
+//   both                        ref -3.90   alt -3.87   (0% and 3% win)
+// ```
+//
+// ⚠️ **Sharpest on a single body, which is the cleanest statement of it.** One anchor at 950/64
+// behind four light escorts at the roof: bare it reads alt 2.08, with the plate alone 1.82, with the
+// evasion alone 1.82, and **with both 0.20 at a 20% win rate.** Each half costs a quarter of a
+// member and the pair costs nearly two. That is the third hundred's own `def`-plus-wall finding and
+// chapter 23's "a pairing beats either half pushed further", on the stat the crew has no answer to.
+//
+// ⚠️ **And it is theirs.** As a change on each crew's own calibrated control, on mirror boards so
+// the matrix is off, every arrangement re-calibrated to the heaviest board it still reads ≥3.75 on,
+// each candidate held to the magnitude that costs monster-ref about one member: `physicalResist`
+// ranks monster-ref **first of fourteen** and `dodge` **second**. Nothing else is close —
+// `hp` 4th, `physicalPierce` 5th, `def` and a board-wide `STUN` 7th, `haste` 9th, `atk` 12th, the
+// Coppice's `atk` × `haste` **11th**, and burst **13th**. Worth 0.00 at any value: `magicResist`,
+// `accuracy`, `energyRegen`. `THORNMAIL` is worth **+0.10** — it leaves the board easier.
+//
+// ⚠️ **A second `ascended` anchor was measured, graded cleanly over four steps, and was rejected on
+// the cross-crew table.** 3.90 → 3.00 → 2.30 → 2.05 → 1.77 across a second body from 700/46 to
+// 1300/68 is a real dial, and this tower has forbidden two anchors on a board since floor 160 — so
+// lifting the ration reads like the Coppice's. It costs dwarf-ref **−4.00** against monster-ref's
+// −1.98, eighth of fourteen. **It is the Dwarves' weakness rather than the Monsters', and a dial
+// that grades is not the same thing as an axis that is ours.**
+//
+// ## The register these were authored inside, and the shape that steps past it
+//
+// Measured before these four joined the pool. `dodge` sits on **25 of 338** blocks at a median of
+// 0.22 and a ceiling of 0.55; `physicalResist` on 157 at a median of 0.10 and a ceiling of 0.40.
+// Every value below is at or under the `dodge` median and inside the plate's upper half — **the band
+// does not step past either register on its own.**
+//
+// ⚠️ **What steps past is carrying them together: 0 of 338 shipped blocks carry `dodge` ≥ 0.15 and
+// `physicalResist` ≥ 0.15**, and **not one Dwarf block in the game carries `dodge` at all** while
+// the Dwarves own three of the twelve blocks at plate 0.20 or better. That is the Coppice's form of
+// the register check — a claim about a *pairing* rather than a stat — and it is also why these are
+// Dwarves rather than a faction that already evades: the hold's answer to a jaw is not thicker plate
+// but a face angled so nothing meets it square.
+//
+// ⚠️ **One board rule, and it is a cliff rather than a preference: the Turnaway never stands beside
+// the Slipfast.** The roof with those two together reads **35%** for the alternate and **90%** with
+// the Slipfast moved one rank back — the same board, one body, one rank. ⚠️ **Stated as the pair
+// rather than as "one to a front rank", which is what the first draft claimed and the prose check
+// caught**: the hundred authors exactly one front-rank pairing, the Turnaway beside
+// {@link GLANCEWORK_SMITH} on floors 393–400, and that is the arrangement the 90% was measured on.
+// "Difficulty is the front rank's weight and it is sharply non-linear" has a number on it here.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Sprung plate is bedded on leaf so the face can move when it is hit. It costs weight and it buys
+ * the only thing weight cannot.
+ *
+ * The opening band's carrier and the light end of the pairing — **560 health at 48 attack**, plate
+ * 0.16 and evasion 0.14, both under the shipped medians. ⚠️ **It is the lightest block the hundred
+ * fields that is not texture**, deliberately: an opening band prices the pairing once, on a body the
+ * party removes easily, before the hundred asks for two of them and then three.
+ *
+ * `tank` gear on all four, which is the one profile whose grade goes almost entirely into health and
+ * armour rather than into attack — the hundred wants its bodies to *last* through the misses they
+ * are causing, and a `ranger` grade spent on `haste` would be the Coppice's axis on a Dwarf.
+ */
+export const SPRUNGPLATE_HAND = {
+  id: 'sprungplate-hand',
+  name: 'Sprungplate Hand',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 560,
+    atk: 48,
+    def: 30,
+    haste: 82,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    physicalResist: 0.16,
+    dodge: 0.14,
+  },
+  skills: [SPRUNG_TURN],
+} as const;
+
+/**
+ * Glancework: a face angled so that nothing arrives square, and everything that does arrive leaves
+ * again along it.
+ *
+ * The middle of the pairing — **620 at 52**, plate 0.20 and evasion 0.18 — and the block the hundred
+ * leans on hardest, standing on the two-carrier band and in the front rank of every board from floor
+ * 371 up. ⚠️ **It is the front-rank body precisely because it is the *lighter* of the two
+ * legendaries that could hold that slot**: with the Slipfast there instead the roof reads 35% for the
+ * alternate against 90%. The heavier carrier goes behind it, never beside it.
+ */
+export const GLANCEWORK_SMITH = {
+  id: 'glancework-smith',
+  name: 'Glancework Smith',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 620,
+    atk: 52,
+    def: 34,
+    haste: 80,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    physicalResist: 0.2,
+    dodge: 0.18,
+  },
+  skills: [ANGLED_FACE],
+} as const;
+
+/**
+ * Not armour that survives a bite. A shoulder that is not there when it closes.
+ *
+ * The heavy end of the pairing on a legendary — **700 at 56**, plate 0.24 and evasion 0.22, the
+ * latter exactly the shipped `dodge` median. It carries the three-carrier band and the closing
+ * boards, always from the back rank once the Turnaway arrives.
+ */
+export const SLIPFAST_IRONSIDE = {
+  id: 'slipfast-ironside',
+  name: 'Slipfast Ironside',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 700,
+    atk: 56,
+    def: 36,
+    haste: 86,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+    physicalResist: 0.24,
+    dodge: 0.22,
+  },
+  skills: [SLIP_THE_JAW],
+} as const;
+
+/**
+ * The Unbitten could not be gripped. This one is simply not where the grip closes.
+ *
+ * The roof. ⚠️ **820 health against {@link THE_UNBITTEN}'s 1300 and 58 of `atk` against 76 — it is
+ * the lightest tower roof in the game by a wide margin, and the arithmetic is the pairing rather
+ * than the usual `perLevel` correction.** Fielded alone behind four light escorts at level 189 in
+ * Fine 60, the same body at 900/62 with the plate and the evasion stepped one notch each reads
+ * **18% for the alternate** where this line reads 83%; at 980/66 it reads 8%. The cliff between
+ * those two rows is the whole reason the roof is authored this light.
+ *
+ * ⚠️ **It restores nothing, and neither does anything else in the hundred.** Of the 58 blocks the
+ * Turning fields, **zero** carry `recovery`, `lifeLeech` or `healthRegen`, and **zero** carry a heal,
+ * drain or shield effect or a `regen` status. Counted as boards over floors 201–300 the hundred below
+ * reads **43 carrying `recovery`, 15 `healthRegen`, 13 `lifeLeech` and 7 fielding a drain**. The third
+ * hundred stripped sustain from its last ten floors; this one never has any to strip.
+ *
+ * ⚠️ **It carries no `physicalPierce`**, exactly as the Unbitten does not: the block that exists to
+ * punish this crew's armour-cutting does not do any of its own.
+ *
+ * The roof board reads **100% / 3.00 survivors / 27.7s** for the reference five and
+ * **88% / 1.45 / 32.7s** for the alternate, zero timeouts. ⚠️ **Three of five is a soft-looking roof
+ * and it is the alternate that authored it** — this tower has sized every board against the weaker
+ * arrangement since its third hundred, and the two are 1.55 survivors apart here.
+ *
+ * Under the Unmade on both stats, which `enemies.spec.ts` holds: 820 and 58 against 1800 and 100.
+ */
+export const THE_TURNAWAY = {
+  id: 'the-turnaway',
+  name: 'The Turnaway',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 820,
+    atk: 58,
+    def: 42,
+    haste: 90,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    physicalResist: 0.22,
+    dodge: 0.2,
+  },
+  skills: [NOTHING_LANDS, THE_BLOW_TURNS],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -12272,4 +12539,8 @@ export const ENEMIES = [
   WITHYBIND_RUNNER,
   THINWOOD_HARRIER,
   THE_SPRINGWOOD,
+  SPRUNGPLATE_HAND,
+  GLANCEWORK_SMITH,
+  SLIPFAST_IRONSIDE,
+  THE_TURNAWAY,
 ] as const;

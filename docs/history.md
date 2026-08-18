@@ -201,6 +201,42 @@ records one session later at 1200/52 — and the Coppice's `THE_SPRINGWOOD` took
 at **1160**/72 one session after that. Every file now states the list of roofs rather than a
 superlative — and it is a list of **ten** now, which is the point.
 
+The **Monster Tower's** fourth hundred is the fifth to land, and it is the first hundred anywhere that
+**builds on the axis below it** rather than replacing one. Same shape of session: four blocks, five
+skills, a hundred floors, and a name off both `PENDING` lists — which is down to two, Angel and Demon.
+The Turning escalates through `dodge` joining the `physicalResist` its own third hundred is built on:
+plate that is not there when the blow lands. Four findings there are about method:
+
+- ⚠️ **The mechanism argument gets it wrong in _both_ directions, and the test is super-additivity.**
+  The Coppice disqualified `magicResist` because it landed on a curve its tower had already spent, and
+  `dodge` has the identical story on paper — plate and evasion both cut the damage a `lifeLeech` crew
+  sustains on. Measured, the two are **not one curve**: at 0.60 and 0.45 they are worth 1.90 and 1.25
+  of five alone and **3.90 together**, and on a single anchor each half costs 0.26 of the binding
+  arrangement where the pair costs **1.88**. The mechanism said "spent"; the measurement said the
+  sharpest thing on the tower. **Test the pairing before believing either answer.**
+- ⚠️ **A dial that grades is not the same thing as an axis that is _ours_.** A second `ascended` anchor
+  grades 3.90 → 3.00 → 2.30 → 2.05 → **1.77** with zero timeouts, and lifting that ration is exactly
+  the Coppice's own licence — the hundred below is not wrong, the crew meeting it is a different crew.
+  It costs dwarf-ref **−4.00** against monster-ref's −1.98, **eighth of fourteen**, and was rejected on
+  that alone. Weight axes tend to belong to whichever crew is slowest.
+- ⚠️ **A tower with no lean still overshoots its faction share.** This is the one tower with no
+  counter-faction to author into, so its four blocks were chosen by the flat spread's **thinnest** row
+  (Dwarf, 11.12% of 1,439 slots) — and the first pass still landed at **22.59%** against a 25% bound
+  that may never be crossed. Both named fixes were needed, and the second one is new: swap that
+  faction's non-new texture out, **and ration the axis carriers to alternate floors** so the band claim
+  is a range rather than a constant.
+- ⚠️ **The missing-`gearArchetype` trap was never one tower's problem.** It fired again one session
+  later at **48 of 338** shipped blocks, sixteen of them on this tower's own third hundred, and it
+  again inverted the retirement check in the safe direction: `THE_UNBITTEN` read a comfortable
+  4.00 / 4.00 and reads **2.98 / 1.95** once given one. All 48 have one now; none stood on a geared
+  board, so the bill was zero — **checked rather than assumed**.
+
+Also worth recording because it is the second thing the prose check has caught before it shipped: the
+hundred's own header claimed "at most one of the four stands in a front rank" while eight boards put
+the roof beside a legendary, and quoted the tower's **161–300** sustain figures against a **201–300**
+range. Both were claims measured over one range attached to another. The fix was the claims — the
+boards measure correctly — and both now state the pair and the range they were taken over.
+
 ### What the third hundreds established
 
 All seven towers reached 300 floors, one session each, and the findings that generalise

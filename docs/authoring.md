@@ -1410,8 +1410,8 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 ×2 rather than ×5.
 
 **It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **three names left on the list** (Human, Dwarf, Elf and
-Undead have landed). Both completed rounds
+21l–21r for the third, and the fourth is open with **two names left on the list** (Human, Dwarf, Elf,
+Undead and Monster have landed). Both completed rounds
 ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
@@ -1464,9 +1464,32 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Seventeen hundreds gave seventeen answers, and no two towers escalate the same way. Read the
+⚠️ **Eighteen hundreds gave eighteen answers, and no two towers escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
+
+⚠️ **A hundred may build on the axis below it, and the licence is super-additivity rather than a
+mechanism argument.** The Monster fourth hundred is the one case: `dodge` reads on paper as the third
+hundred's `physicalResist` wearing a second stat — both cut the damage a `lifeLeech` crew sustains on
+— which is precisely the reasoning that disqualified `magicResist` on the Coppice. Measured, the two
+are **not one curve**: at 0.60 and 0.45 they are worth 1.90 and 1.25 of five alone and **3.90
+together**, and on one anchor each half costs 0.26 of the binding arrangement where the pair costs
+**1.88**. **Test the pairing before accepting or rejecting a second stat on a spent axis** — the
+mechanism argument gets it wrong in both directions.
+
+⚠️ **A dial that grades is not the same thing as an axis that is ours, and the cross-crew table is
+the only thing that tells them apart.** A second `ascended` anchor grades **3.90 → 3.00 → 2.30 → 2.05
+→ 1.77** on the Monster crews with zero timeouts — four monotone steps, and it lifts a ration that
+tower has held for two hundred floors, which is the Coppice's own "the crew meeting it is a different
+crew". It costs dwarf-ref **−4.00** against monster-ref's −1.98, **eighth of fourteen**. Weight axes
+tend to belong to whichever crew is slowest, not to the crew being authored for.
+
+⚠️ **A tower with no lean still overshoots, and the thing it overshoots is the flat-spread ceiling.**
+The Monster Tower has no counter-faction to author into, so its four new blocks were chosen by the
+spread's **thinnest row** — Dwarf at 11.12% — and the first pass still landed at **22.59%** against a
+25% bound that may never be crossed. Both named fixes were needed: swap the non-new texture blocks of
+that faction out, **and ration the axis carriers** so the band claim is a range rather than a
+constant. The overshoot arrives whichever way the faction is chosen.
 
 1. **Measure before authoring.** Field both arrangements at the roof's level against a controlled
    board — one anchor plus four bodies all asking the same question — and vary only the mechanic.
@@ -1530,7 +1553,7 @@ carries them all in full. What generalises is only the procedure:
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
    - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
      naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,500 shipped floors, 400 are
-     geared — the Human, Dwarf, Elf and Undead fourth hundreds.)
+     geared — the Human, Dwarf, Elf, Undead and Monster fourth hundreds.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard

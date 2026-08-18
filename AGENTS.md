@@ -196,8 +196,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Human, Dwarf, Elf and Undead Towers there yet**. What a tower is for, the three fields a clear may never touch, the
-  four crews, and seventeen hundreds' worth of measured escalation findings.
+  Human, Dwarf, Elf, Undead and Monster Towers there yet**. What a tower is for, the three fields a clear may never touch, the
+  four crews, and eighteen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -694,8 +694,8 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with three names on it** — the Human,
-  Dwarf, Elf and Undead fourth hundreds have landed. [towers](docs/towers.md)
+  notices a tower nobody went back for. **The list is live right now with two names on it** — the Human,
+  Dwarf, Elf, Undead and Monster fourth hundreds have landed. [towers](docs/towers.md)
 - ⚠️ **An escalation axis can be a _product of two stats_ where neither half is worth much alone, and
   the Undead fourth hundred is that case.** At level 189 in Fine 60, four carriers walked from
   `atk` 36 / `haste` 96 to 56/136 grade **3.77 → 0.93** and **3.92 → 0.00** with zero timeouts, while
@@ -711,6 +711,26 @@ Asserted in `core/battle/simulate.spec.ts`.
   it that tower's own third-hundred axis wearing a new stat, and worth **0.00** to the binding
   arrangement cross-crew. **Check whether a new stat lands on a curve the tower has already spent.**
   [towers](docs/towers.md)
+- ⚠️ **But the same argument gets it wrong in the other direction too, and the test is
+  super-additivity rather than the mechanism.** The Monster fourth hundred's `dodge` reads on paper as
+  its own third hundred's `physicalResist` wearing a second stat — both cut the damage a `lifeLeech`
+  crew sustains on — and measured the two are **not one curve**: 0.60 and 0.45 are worth 1.90 and 1.25
+  of five alone and **3.90 together**, and on a single anchor each half costs 0.26 of the binding
+  arrangement where the pair costs **1.88**. **Test the pairing before accepting or rejecting a second
+  stat on a spent axis**, and a hundred that builds on the one below it is licensed by that number.
+  [towers](docs/towers.md)
+- ⚠️ **A dial that grades is not the same thing as an axis that is _ours_, and only the cross-crew
+  table separates them.** A second `ascended` anchor grades 3.90 → 3.00 → 2.30 → 2.05 → **1.77** on the
+  Monster crews with zero timeouts, and it lifts a ration that tower has held for two hundred floors —
+  the Coppice's own licence. It costs dwarf-ref **−4.00** against monster-ref's −1.98, **eighth of
+  fourteen**. **Weight axes tend to belong to whichever crew is slowest**, not to the one being
+  authored for. [towers](docs/towers.md)
+- ⚠️ **A tower with no lean still overshoots its faction share, and what it overshoots is the
+  flat-spread ceiling.** The Monster Tower has no counter-faction to author into, so its four new
+  blocks were chosen by the spread's **thinnest** row (Dwarf, 11.12%) — and the first pass still landed
+  at **22.59%** against a 25% bound. Both named fixes were needed: swap that faction's non-new texture
+  out, **and ration the axis carriers** so the band claim is a range rather than a constant.
+  [authoring](docs/authoring.md)
 - ⚠️ **An axis can stop being a crew's own when the crew gains a rung and a kit.** Re-measured at band
   4, the Undead Tower's _third_-hundred axis (enemy `hp`) costs dwarf-ref **−2.78** against the Undead
   crews' −1.25 / −1.00, and its _second_-hundred axis (`dodge`) costs dwarf-ref −1.05 against
@@ -723,7 +743,13 @@ Asserted in `core/battle/simulate.spec.ts`.
 - ⚠️ **The missing-`gearArchetype` trap can invert the sign of an anchor-retirement check.** On a
   geared floor a block with no archetype fights **naked** on a board priced as though it were kitted:
   `THE_WITHERED_CROWN` measured 3.10 / 3.63 — safe — and reads **3% / 18%** once given one. **Supply
-  the archetypes before running the retirement check, not after.** [towers](docs/towers.md)
+  the archetypes before running the retirement check, not after.** ⚠️ **It fired a second time one
+  tower later and it was never one tower's problem**: **48 of 338** shipped blocks carried no
+  archetype, sixteen of them on the Monster Tower's own third hundred, and supplying them moved
+  `THE_UNBITTEN` from a comfortable 4.00 / 4.00 to **2.98 / 1.95** and `THE_HORNCALLER` from
+  5.00 / 4.00 to **3.83 / 2.00**. All 48 have one now and none stood on a geared board, so the bill was
+  zero — **checked rather than assumed**, which is the half of the fix that is not optional.
+  [towers](docs/towers.md)
 - ⚠️ **The stride is not the check on a closing band.** `towers.balance.ts` samples every fourth floor
   plus the mini-bosses, and its every-floor assertion is what caught an Undead floor 399 at **60%**
   between neighbours reading 100% and 98%. **Sweep every floor of the closing band before believing a

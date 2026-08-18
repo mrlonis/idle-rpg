@@ -8607,6 +8607,81 @@ export const THE_YEAR_TURNS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fourth hundred — the Turning, and its four turns
+//
+// ⚠️ **Every one of these is `enemy-front` or `enemy-row-front`, and that is measured rather than
+// stylistic.** Aim past a front rank is inert or negative on all seven towers, and this one has
+// found it twice already — `enemy-back` 4.08, `enemy-row-back` 4.42 and `enemy-highest` 4.25
+// against a 4.00 control at the third hundred, every one of them leaving the board *easier* than
+// saying nothing. The Turning spends its budget on the two stats and none of it on reach.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A plate that gives when it is struck has already taken the blow somewhere else.
+ *
+ * The opening band's turn. Power 1.45 on a 58-tick cooldown, which is deliberately the least
+ * interesting thing on the body — {@link SPRUNGPLATE_HAND} is priced on what it wears rather than on
+ * what it swings, and the band that fields one of these prices the pairing once before the hundred
+ * asks for two.
+ */
+export const SPRUNG_TURN = {
+  id: 'sprung-turn',
+  name: 'Sprung Turn',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/** Glancework is the trade's word for a face angled so nothing meets it square. */
+export const ANGLED_FACE = {
+  id: 'angled-face',
+  name: 'Angled Face',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/** The jaw closes on the place the shoulder was. */
+export const SLIP_THE_JAW = {
+  id: 'slip-the-jaw',
+  name: 'Slip the Jaw',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn.
+ *
+ * ⚠️ **Power 1.8 on a 62-tick cooldown, which is a *smaller* blow than the third hundred's roof
+ * carries** — {@link NOTHING_GETS_A_GRIP} is 1.95. Burst was measured on this crew at the fourth
+ * hundred's weight and came back **thirteenth of fourteen arrangements**: holding damage per second
+ * and making each blow bigger and rarer costs monster-ref 0.48 where it costs angel-ref 3.40. It is
+ * the Angel Tower's axis and it is not this one's, so the roof does not reach for it.
+ */
+export const NOTHING_LANDS = {
+  id: 'nothing-lands',
+  name: 'Nothing Lands',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/** What a hold means by a turn: the blow arrives, and goes somewhere that is not through you. */
+export const THE_BLOW_TURNS = {
+  id: 'the-blow-turns',
+  name: 'The Blow Turns',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 74,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9041,4 +9116,9 @@ export const SKILLS = [
   WITHY_SNAP,
   THINWOOD_RUSH,
   THE_YEAR_TURNS,
+  SPRUNG_TURN,
+  ANGLED_FACE,
+  SLIP_THE_JAW,
+  NOTHING_LANDS,
+  THE_BLOW_TURNS,
 ] as const;

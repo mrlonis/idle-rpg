@@ -15,10 +15,14 @@ import {
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
   CARRION_SWARM,
+  CENTURYBOUGH_WARDEN,
+  CHALKHIDE_BROWSER,
   CHARNEL_DRUDGE,
   CINDERLING,
   CINDERPLATE_HOUNDSMAN,
   CINDERQUENCH_BEARER,
+  CINDERSEED_COURSER,
+  CINDER_CULLER,
   CLOSEWARD_SERAPH,
   COLDFORGE_HAND,
   COLDHEARTH_IRONSWORN,
@@ -27,6 +31,7 @@ import {
   CROWNBARK_BASTION,
   DEEPGALLERY_RUNNER,
   DEEPROCK_MINER,
+  DROWNED_MAST,
   DUSKFERN_SKIRMISHER,
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
@@ -35,11 +40,14 @@ import {
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
+  GANTRY_WARDEN,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLANCEWORK_SMITH,
   GLOAMVINE_CREEPER,
   GOLEM,
   GOREHIDE_MATRIARCH,
+  GRAVEFURROW_WALKER,
   GRAVEMOURN_KEEPER,
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
@@ -58,6 +66,7 @@ import {
   LUMEN_ACOLYTE,
   MARCHWARD_PIKEMAN,
   MARROWHUNT_ALPHA,
+  MILEWORN_HUSK,
   MIREWHELP,
   MOONSONG_WEAVER,
   MUSTER_PIKE,
@@ -66,6 +75,9 @@ import {
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
   PALE_WARDEN,
+  PANOPLY_BEARER,
+  PASSBELL_RINGER,
+  PLATEBOUND_HUSK,
   PLUMBLINE_HAND,
   PYRE,
   QUENCHPIT_IRONHIDE,
@@ -82,6 +94,7 @@ import {
   ROADWATCH_BOWMAN,
   RUINWING_DEVOURER,
   RUNEWARDEN,
+  SCALEPLATE_BRAMBLE,
   SCARBOUND_BELLOWER,
   SEALWARD_CUSTODIAN,
   SENTINEL,
@@ -90,23 +103,40 @@ import {
   SHADE,
   SIGNAL_RUNNER,
   SKYSHRIKE,
+  SLAGBLOOM_THICKET,
   SLAGBOUND_DRUDGE,
   SLAGHIDE_PURSUER,
   SLIME,
+  SLIPFAST_IRONSIDE,
+  SLOWGROWTH_BOLE,
+  SPENTRANK_HAND,
+  SPRUNGPLATE_HAND,
   STILLNESS_CANTOR,
   STORMCALLER,
   SUNFADE_CHANTER,
   SUNMOTE_DANCER,
+  TALLOWLIGHT_RUNNER,
   THE_BREACHLORD,
   THE_CROWN_WHEEL,
+  THE_DEADBOLT,
+  THE_DEEPCUT,
+  THE_DOORSTONE,
   THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
   THE_HORNCALLER,
+  THE_LAST_MERCY,
+  THE_PANOPLY,
+  THE_PLATEWRIGHT,
+  THE_PROOF_HOUSE,
   THE_REDMAW,
   THE_SEEDFATHER,
+  THE_TURNAWAY,
+  THE_UNANSWERED,
   THE_UNBITTEN,
+  THE_UNFALTERING,
   THORNBACK_GRAZER,
   THORNLING,
+  THORNPLATE_WEARER,
   THORNWEALD_WARDEN,
   TYRANT,
   UNDERVAULT_SAPPER,
@@ -124,7 +154,7 @@ import {
 } from './enemies';
 
 /**
- * The Monster Tower — three hundred floors, enemy levels 1 to 142.
+ * The Monster Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## The one tower with no counter-faction lean, and why that *is* its lean
  *
@@ -255,6 +285,100 @@ import {
  * still stand down before the roof — the Gravewright's last floor is 276, the Horncaller's 279, the
  * Tyrant's 280 and the Redmaw's 282 — but that is rhythm for the closing band rather than the
  * arithmetic that forced the Grudgekeeper and the Withered Crown off their own towers.
+ *
+ * ## ⚠️ The fourth hundred escalates through evasion joining that armour, and the two are not one curve
+ *
+ * The obvious reading is that they are. Both reduce the damage this crew deals; a crew that sustains
+ * on `lifeLeech` off damage *dealt* is starved by either; so `dodge` looks like the third hundred's
+ * axis wearing a second stat, which is the disqualification the Coppice recorded for `magicResist`.
+ * **Measured, that reading is wrong by a factor of three.** At level 189 in Fine 60 against two
+ * calibrated controls — the reference five on an anchor at 1300/68 behind four at 580/42, the
+ * alternate on 1060/58 behind four at 480/37, each the heaviest board its own crew still reads ≥3.75
+ * on — forty seeds, zero timeouts anywhere:
+ *
+ * ```
+ *   physicalResist 0.45 alone   ref -0.98   alt -0.90
+ *   dodge 0.35 alone            ref -1.00   alt -0.90
+ *   both                        ref -2.58   alt -2.15
+ *
+ *   physicalResist 0.60 alone   ref -1.90   alt -1.90
+ *   dodge 0.45 alone            ref -1.25   alt -1.15
+ *   both                        ref -3.90   alt -3.87   (0% and 3% win)
+ * ```
+ *
+ * ⚠️ **It is sharpest on a single body, which is the cleanest form of the finding.** One anchor at
+ * 950/64 behind four light escorts at the roof reads alt **2.08** bare, **1.82** with the plate
+ * alone, **1.82** with the evasion alone and **0.20 at a 20% win rate with both**. Each half costs a
+ * quarter of a member; the pair costs nearly two. Same shape as this tower's own third-hundred
+ * `def`-plus-wall reading and chapter 23's "a pairing beats either half pushed further".
+ *
+ * ⚠️ **And it is still theirs, which the cross-crew table had to be re-run to say.** Each candidate
+ * held to the magnitude that costs monster-ref about one member, measured as a change on each crew's
+ * own calibrated control, mirror boards so the matrix is off, every arrangement re-calibrated to the
+ * heaviest board it still reads ≥3.75 on: `physicalResist` ranks monster-ref **first of fourteen**
+ * and `dodge` **second**. Nothing else is near — `hp` 4th, `physicalPierce` 5th, `def` and a
+ * board-wide `STUN` 7th, `haste` 9th, the Coppice's `atk` × `haste` **11th**, `atk` 12th, burst
+ * **13th**. Worth 0.00 at any value: `magicResist`, `accuracy`, `energyRegen`. `THORNMAIL` is worth
+ * **+0.10** — it leaves the board easier, which is the seventh reading of that kind on this tower.
+ *
+ * ⚠️ **A second `ascended` anchor grades cleanly and was rejected anyway, and the reason is the whole
+ * point of running the table.** Lifting this tower's own two-hundred-floor ration — one anchor a
+ * board and never two — grades **3.90 → 3.00 → 2.30 → 2.05 → 1.77** across a second body from 700/46
+ * to 1300/68, four monotone steps with zero timeouts, and it reads like the Coppice's "the hundred
+ * below is not wrong; the crew meeting it is a different crew". It costs dwarf-ref **−4.00** against
+ * monster-ref's −1.98, **eighth of fourteen**. It is the Dwarves' weakness rather than the Monsters'.
+ * **A dial that grades is not the same thing as an axis that is ours.**
+ *
+ * ⚠️ **The four new blocks are Dwarves, and the faction is a measurement rather than a theme.** With
+ * no counter-faction to author into, the choice falls to the flat spread: Dwarf was this tower's
+ * thinnest row at **11.12%** of 1,439 slots against a demon leader at 17.16%. It leaves at
+ * **20.17%** of 1,939 — the leader now, over a floor of 12.22%, against bounds of 5% and 25%.
+ * ⚠️ **The first pass ran 22.59% and that is too close to a ceiling that may never be crossed**; the
+ * fix was the two the procedure names, every non-new Dwarf texture block swapped for a comparable
+ * body from another faction and the **third carrier rationed to alternate floors** in the two middle
+ * bands.
+ *
+ * ⚠️ **The register check comes back as a pairing rather than a stat.** Measured before these four
+ * joined the pool: `dodge` on **25 of 338** blocks, median 0.22, ceiling 0.55; `physicalResist` on
+ * 157, median 0.10, ceiling 0.40. Every value the hundred authors is at or under the `dodge` median
+ * and inside the plate's upper half — **it steps past neither register alone.** What steps past is
+ * carrying them together: **0 of 338 blocks carry `dodge` ≥ 0.15 and `physicalResist` ≥ 0.15**, and
+ * **not one Dwarf block in the game carries `dodge` at all** while the Dwarves own three of the
+ * twelve blocks at plate 0.20 or better.
+ *
+ * ⚠️ **One board rule, and it is a cliff rather than a preference: the Turnaway never stands beside
+ * the Slipfast.** The roof with those two together reads **35%** for the alternate and **90%** with
+ * the Slipfast moved one rank back — same board, one body, one rank. ⚠️ **Stated as the pair rather
+ * than as "one to a front rank", which is what the first draft claimed and the prose check caught**:
+ * the hundred authors exactly one front-rank pairing, the Turnaway beside {@link GLANCEWORK_SMITH} on
+ * floors 393–400, and that is the arrangement the 90% was measured on. Carriers per board run
+ * **1 / 2 / 2–3 / 2–3 / 2–3** across the five bands — a range, not a constant.
+ *
+ * ⚠️ **The hundred carries no sustain at all**, where the third hundred stripped it only from its
+ * last ten floors. Of the 58 blocks the Turning fields, **zero** carry `recovery`, `lifeLeech` or
+ * `healthRegen`, and **zero** carry a heal, drain or shield effect or a `regen` status. Measured the
+ * same way one hundred below — boards, over floors 201–300 — that reads **43 carrying `recovery`, 15
+ * `healthRegen`, 13 `lifeLeech` and 7 fielding a drain**. ⚠️ **Stated as boards over a named range
+ * rather than as an absolute**, which is the fix three towers had to make to this claim — and the
+ * first draft of this paragraph quoted the tower's *161–300* figures against a 201–300 range, which
+ * is the same failure one step smaller.
+ *
+ * ⚠️ **The collapse check found the alternate again, and the anchor check found nothing.** The
+ * shipped floor-300 board fielded up its own line reads 100% / 5.00 for both crews at level 142,
+ * 100% / 4.00 against 100% / 3.23 at 175, and **100% / 1.93 against 15% with 0.15** at 189 in Fine
+ * 60 — so every board here is sized against the alternate, exactly as the third hundred's were. No
+ * anchor had to retire: the lowest of the sixteen `ascended` blocks the third hundred fields reads
+ * ref 2.98 / alt 1.95 behind four light escorts at the roof. ⚠️ **That check was run twice.** Sixteen
+ * of those blocks — forty-eight pool-wide — carried no `gearArchetype`, so the first pass fought them
+ * **naked** on boards priced as kitted and read {@link THE_UNBITTEN} at a comfortable 4.00 / 4.00
+ * against its true **2.98 / 1.95**. All forty-eight have one now; none stood on a geared board, so
+ * the bill was zero — checked rather than assumed.
+ *
+ * The hundred opens at floor 301 in 7.3 seconds with all five alive, costs the alternate a member
+ * from floor 330 and the reference from floor 350, and closes at **100% / 3.00 / 27.7s against
+ * 88% / 1.45 / 32.7s** — zero timeouts anywhere, longest fight 48.6s against a 67.5s bar. ⚠️ **Three
+ * of five is a soft-looking roof and the alternate is what authored it**; the two arrangements are
+ * 1.55 survivors apart on that board.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -2489,6 +2613,826 @@ export const TOWER_MONSTER = {
       enemies: {
         front: [THE_UNBITTEN, SLAGHIDE_PURSUER],
         back: [SLAGHIDE_PURSUER, CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Sprung Plate — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — the hold's answer to a jaw was never a thicker plate. One body a board wearing a face that does not meet a blow square.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [TYRANT, SPRUNGPLATE_HAND],
+        back: [GOLEM, SPENTRANK_HAND, GANTRY_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [THE_UNANSWERED, SPRUNGPLATE_HAND],
+        back: [DROWNED_MAST, GRAVEMOURN_KEEPER, CENTURYBOUGH_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [THE_LAST_MERCY, SPRUNGPLATE_HAND],
+        back: [CLOSEWARD_SERAPH, ANTIPHON_ARCHON, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-monster-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [THE_DEEPCUT, SPRUNGPLATE_HAND],
+        back: [GANTRY_WARDEN, SLAGBLOOM_THICKET, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [THE_REDMAW, SPRUNGPLATE_HAND],
+        back: [CENTURYBOUGH_WARDEN, UNDERVAULT_SAPPER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [THE_DOORSTONE, SPRUNGPLATE_HAND],
+        back: [THORNBACK_GRAZER, CINDERSEED_COURSER, GOLEM],
+      },
+    },
+    {
+      id: 't-monster-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [TYRANT, SPRUNGPLATE_HAND],
+        back: [PANOPLY_BEARER, NIGHTCANOPY_SINGER, DROWNED_MAST],
+      },
+    },
+    {
+      id: 't-monster-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [THE_UNANSWERED, SPRUNGPLATE_HAND],
+        back: [MUSTER_PIKE, SLAGHIDE_PURSUER, CLOSEWARD_SERAPH],
+      },
+    },
+    {
+      id: 't-monster-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [THE_LAST_MERCY, SPRUNGPLATE_HAND],
+        back: [GOLEM, SPENTRANK_HAND, GANTRY_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f310',
+      name: 'Floor 310 — The Sprung Plate',
+      enemies: {
+        front: [THE_DEEPCUT, SPRUNGPLATE_HAND],
+        back: [DROWNED_MAST, GRAVEMOURN_KEEPER, CENTURYBOUGH_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [THE_REDMAW, SPRUNGPLATE_HAND],
+        back: [CLOSEWARD_SERAPH, ANTIPHON_ARCHON, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-monster-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [THE_DOORSTONE, SPRUNGPLATE_HAND],
+        back: [GANTRY_WARDEN, SLAGBLOOM_THICKET, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [TYRANT, SPRUNGPLATE_HAND],
+        back: [CENTURYBOUGH_WARDEN, UNDERVAULT_SAPPER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [THE_UNANSWERED, SPRUNGPLATE_HAND],
+        back: [THORNBACK_GRAZER, CINDERSEED_COURSER, GOLEM],
+      },
+    },
+    {
+      id: 't-monster-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [THE_LAST_MERCY, SPRUNGPLATE_HAND],
+        back: [PANOPLY_BEARER, NIGHTCANOPY_SINGER, DROWNED_MAST],
+      },
+    },
+    {
+      id: 't-monster-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [THE_DEEPCUT, SPRUNGPLATE_HAND],
+        back: [MUSTER_PIKE, SLAGHIDE_PURSUER, CLOSEWARD_SERAPH],
+      },
+    },
+    {
+      id: 't-monster-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [THE_REDMAW, SPRUNGPLATE_HAND],
+        back: [GOLEM, SPENTRANK_HAND, GANTRY_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [THE_DOORSTONE, SPRUNGPLATE_HAND],
+        back: [DROWNED_MAST, GRAVEMOURN_KEEPER, CENTURYBOUGH_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [TYRANT, SPRUNGPLATE_HAND],
+        back: [CLOSEWARD_SERAPH, ANTIPHON_ARCHON, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-monster-f320',
+      name: 'Floor 320 — The Glancing Ranks',
+      enemies: {
+        front: [THE_UNANSWERED, SPRUNGPLATE_HAND],
+        back: [GANTRY_WARDEN, SLAGBLOOM_THICKET, PANOPLY_BEARER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Glancing Ranks — Floors 321–345, levels 152–163, Sturdy 5–Sturdy 34 — two, and the first boards where what is missed is missed twice.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [THE_SEEDFATHER, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, PLATEBOUND_HUSK, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-monster-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [THE_EDGEWRIGHT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SCALEPLATE_BRAMBLE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-monster-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [THE_BREACHLORD, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, THORNBACK_GRAZER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [THE_UNBITTEN, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SLAGHIDE_PURSUER, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [THE_UNFALTERING, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, DROWNED_MAST, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [THE_DEADBOLT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, CLOSEWARD_SERAPH, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-monster-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [THE_SEEDFATHER, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, GOLEM, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [THE_EDGEWRIGHT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SPENTRANK_HAND, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [THE_BREACHLORD, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, PLATEBOUND_HUSK, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-monster-f330',
+      name: 'Floor 330 — The Angled Face',
+      enemies: {
+        front: [THE_UNBITTEN, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SCALEPLATE_BRAMBLE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-monster-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [THE_UNFALTERING, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, THORNBACK_GRAZER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [THE_DEADBOLT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SLAGHIDE_PURSUER, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [THE_SEEDFATHER, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, DROWNED_MAST, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [THE_EDGEWRIGHT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, CLOSEWARD_SERAPH, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-monster-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [THE_BREACHLORD, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, GOLEM, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [THE_UNBITTEN, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SPENTRANK_HAND, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [THE_UNFALTERING, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, PLATEBOUND_HUSK, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-monster-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [THE_DEADBOLT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SCALEPLATE_BRAMBLE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-monster-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [THE_SEEDFATHER, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, THORNBACK_GRAZER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f340',
+      name: 'Floor 340 — The Slipfast Line',
+      enemies: {
+        front: [THE_EDGEWRIGHT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SLAGHIDE_PURSUER, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [THE_BREACHLORD, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, DROWNED_MAST, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [THE_UNBITTEN, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, CLOSEWARD_SERAPH, BRAMBLEWALK_SCOUT],
+      },
+    },
+    {
+      id: 't-monster-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [THE_UNFALTERING, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, GOLEM, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [THE_DEADBOLT, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, SPENTRANK_HAND, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-monster-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [THE_SEEDFATHER, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, PLATEBOUND_HUSK, FORLORN_LEVY],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Slipfast Line — Floors 346–370, levels 164–175, Sturdy 35–Fine 24 — two or three to a board, the third rationed to alternate floors. The plate steps and the evasion steps with it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [THE_PLATEWRIGHT, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [OATHBREAKER, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, FORLORN_LEVY, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [THE_PROOF_HOUSE, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [THE_BREACHLORD, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, MIREWHELP, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f350',
+      name: 'Floor 350 — The Slip',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [THE_PANOPLY, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, LITANY_BEARER, THORNPLATE_WEARER],
+      },
+    },
+    {
+      id: 't-monster-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [THE_PLATEWRIGHT, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [OATHBREAKER, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, FORLORN_LEVY, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [THE_PROOF_HOUSE, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [THE_BREACHLORD, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, MIREWHELP, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [THE_PANOPLY, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, LITANY_BEARER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [THE_PLATEWRIGHT, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [OATHBREAKER, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, FORLORN_LEVY, THORNPLATE_WEARER],
+      },
+    },
+    {
+      id: 't-monster-f360',
+      name: 'Floor 360 — The Turned Shoulder',
+      enemies: {
+        front: [THE_PROOF_HOUSE, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [THE_BREACHLORD, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, MIREWHELP, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [THE_PANOPLY, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, LITANY_BEARER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [THE_PLATEWRIGHT, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [OATHBREAKER, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, FORLORN_LEVY, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-monster-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [THE_PROOF_HOUSE, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [THE_BREACHLORD, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, MIREWHELP, THORNPLATE_WEARER],
+      },
+    },
+    {
+      id: 't-monster-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [THE_PANOPLY, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, LITANY_BEARER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f370',
+      name: 'Floor 370 — The Turned Jaw',
+      enemies: {
+        front: [THE_PLATEWRIGHT, SLIPFAST_IRONSIDE],
+        back: [GLANCEWORK_SMITH, SPRUNGPLATE_HAND, PASSBELL_RINGER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Turned Jaw — Floors 371–390, levels 175–184, Fine 25–Fine 48 — the anchors come down as the levels go up, and what is left on the board is almost all of it wearing both.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, FORLORN_LEVY, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [OATHBREAKER, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, MIREWHELP, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [THE_PANOPLY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [THE_PROOF_HOUSE, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, LITANY_BEARER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, FORLORN_LEVY, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [OATHBREAKER, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [THE_PANOPLY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, MIREWHELP, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f380',
+      name: 'Floor 380 — The Blow Goes Wide',
+      enemies: {
+        front: [THE_PROOF_HOUSE, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, LITANY_BEARER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [OATHBREAKER, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, FORLORN_LEVY, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [THE_PANOPLY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [THE_PROOF_HOUSE, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, MIREWHELP, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, LITANY_BEARER, TALLOWLIGHT_RUNNER],
+      },
+    },
+    {
+      id: 't-monster-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [OATHBREAKER, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [THE_PANOPLY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, LITANY_BEARER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f390',
+      name: 'Floor 390 — Nothing Lands',
+      enemies: {
+        front: [THE_PROOF_HOUSE, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SPRUNGPLATE_HAND, MIREWHELP],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Turning — Floors 391–400, levels 185–189, Fine 49–Fine 60 — the lightest roof in the game standing in front of the last eight floors. Two or three to a board, and the roof's own pair is the only time two of them share a front rank.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, CHALKHIDE_BROWSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [THE_CROWN_WHEEL, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SLOWGROWTH_BOLE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, THORNBACK_GRAZER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-monster-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, GOLEM, PASSBELL_RINGER],
+      },
+    },
+    {
+      id: 't-monster-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, CHALKHIDE_BROWSER, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SLIPFAST_IRONSIDE, SLOWGROWTH_BOLE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, THORNBACK_GRAZER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, GOLEM, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [SPRUNGPLATE_HAND, THORNLING, MIREWHELP],
+      },
+    },
+    {
+      id: 't-monster-f400',
+      name: 'Floor 400 — The Turnaway',
+      enemies: {
+        front: [THE_TURNAWAY, GLANCEWORK_SMITH],
+        back: [GOLEM, THORNLING, MIREWHELP],
       },
     },
   ],

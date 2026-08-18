@@ -1,12 +1,12 @@
 # Faction towers
 
 Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
-only the Human, Dwarf, Elf and Undead Towers are there yet. The system shipped in milestone 15b with a single tower,
+only the Human, Dwarf, Elf, Undead and Monster Towers are there yet. The system shipped in milestone 15b with a single tower,
 the other six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth
 is in flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The height is 400 and three of the seven towers are still authored at 300, so the `PENDING` list is
+⚠️ **The height is 400 and two of the seven towers are still authored at 300, so the `PENDING` list is
 back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
 floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
 waiting for its floors sits on a literal `PENDING` list in
@@ -1117,6 +1117,98 @@ The bands escalate by how many plated bodies stand on a board — one, two, thre
 rate joining the wall — and the plate rotates across all seven factions rather than sitting on the
 three blocks the session authored, which is what keeps the tower's flat spread flat: it closes at
 demon 17.16% to dwarf 11.12% over 1,439 slots, against bounds of 5% and 25%.
+
+### The Monster Tower's fourth hundred: the plate that is not there when the blow lands
+
+⚠️ **The Turning is the one hundred that builds on the axis below it rather than replacing it, and
+the licence is that the two are measurably not the same curve.** The obvious reading says they are:
+`physicalResist` and `dodge` both reduce the damage this crew deals, and a crew sustaining on
+`lifeLeech` off damage _dealt_ is starved by either — which is exactly the mechanism argument that
+disqualified `magicResist` on the Coppice. Measured at level 189 in Fine 60 against two calibrated
+controls (reference 1300/68 behind four at 580/42, alternate 1060/58 behind four at 480/37, each the
+heaviest board its own crew still reads ≥3.75 on), forty seeds, **zero timeouts on every row**:
+
+| four carriers at      | reference | alternate |
+| --------------------- | --------- | --------- |
+| control               | 3.90      | 3.90      |
+| `physicalResist` 0.45 | 2.92      | 3.00      |
+| `dodge` 0.35          | 2.90      | 3.00      |
+| **both**              | **1.32**  | **1.75**  |
+| `physicalResist` 0.60 | 2.00      | 2.00      |
+| `dodge` 0.45          | 2.65      | 2.75      |
+| **both**              | **0.00**  | **0.03**  |
+
+⚠️ **It is sharpest on a single body, which is the cleanest statement of it.** One anchor at 950/64
+behind four light escorts at the roof reads alt **2.08** bare, **1.82** with the plate alone,
+**1.82** with the evasion alone, and **0.20 at a 20% win rate with both**. Each half costs a quarter
+of a member and the pair costs nearly two — the third hundred's own `def`-plus-wall finding and
+chapter 23's "a pairing beats either half pushed further", one rung up.
+
+⚠️ **"Is it ours" had to be re-run and it came back first and second of fourteen.** Each candidate
+held to the magnitude that costs monster-ref about one member, as a change on each crew's own
+calibrated control, mirror boards so the matrix is off, every arrangement re-calibrated to the
+heaviest board it still reads ≥3.75 on: `physicalResist` **1st**, `dodge` **2nd**, `hp` 4th,
+`physicalPierce` 5th, `def` and a board-wide `STUN` 7th, `haste` 9th, the Coppice's `atk` × `haste`
+**11th**, `atk` 12th, burst **13th**. Worth 0.00 at any value: `magicResist`, `accuracy`,
+`energyRegen`. `THORNMAIL` is worth **+0.10** — it leaves the board easier, which is this tower's
+seventh reading of that kind.
+
+⚠️ **A second `ascended` anchor grades cleanly over four steps and was rejected on that table, which
+is the whole reason the table exists.** Lifting this tower's own two-hundred-floor ration — one
+anchor a board and never two — grades **3.90 → 3.00 → 2.30 → 2.05 → 1.77** across a second body from
+700/46 to 1300/68, monotone, zero timeouts, and it reads exactly like the Coppice's "the hundred
+below is not wrong; the crew meeting it is a different crew". It costs dwarf-ref **−4.00** against
+monster-ref's −1.98, **eighth of fourteen**. **A dial that grades is not the same thing as an axis
+that is ours**, and weight axes tend to belong to whoever is slowest.
+
+⚠️ **The four new blocks are Dwarves and the faction is a measurement, not a theme.** This is the one
+tower with no counter-faction to author into, so the choice falls to the flat spread instead: Dwarf
+was its thinnest row at **11.12%** of 1,439 slots against a demon leader at 17.16%. It leaves at
+**20.17%** of 1,939, the leader now, over a floor of 12.22%, against bounds of 5% and 25%. ⚠️ **The
+first pass ran 22.59%, which is 2.4 points off a ceiling that may never be crossed** — the overshoot
+the procedure says to budget for, arriving on a tower that has no lean to overshoot with. Both named
+fixes were needed: every non-new Dwarf texture block swapped for a comparable body from another
+faction, **and the third carrier rationed to alternate floors** in the two middle bands.
+
+⚠️ **The register check is about a pairing rather than a stat.** Measured before these four joined
+the pool: `dodge` sits on **25 of 338** blocks at a median of 0.22 and a ceiling of 0.55,
+`physicalResist` on 157 at a median of 0.10 and a ceiling of 0.40, and every value the hundred
+authors is at or under the `dodge` median and inside the plate's upper half — it steps past neither
+alone. What steps past is carrying them together: **0 of 338 blocks carry `dodge` ≥ 0.15 and
+`physicalResist` ≥ 0.15**, and **not one Dwarf block in the game carries `dodge` at all** while the
+Dwarves own three of the twelve blocks at plate 0.20 or better.
+
+⚠️ **One board rule, and it is a cliff: the Turnaway never stands beside the Slipfast.** The roof
+with those two together reads **35%** for the alternate and **90%** with the Slipfast moved one rank
+back — the same board, one body, one rank. ⚠️ **Stated as the pair rather than as "one to a front
+rank", which is what the first draft claimed and the mechanical prose check caught**: the hundred
+authors exactly one front-rank pairing, the Turnaway beside the Glancework Smith on floors 393–400,
+and that is the arrangement the 90% was measured on. Carriers per board run **1 / 2 / 2–3 / 2–3 /
+2–3** across the five bands.
+
+⚠️ **The anchor-retirement check was run twice and the first run was wrong in the safe direction.**
+Sixteen of the blocks the third hundred fields — **forty-eight pool-wide** — carried no
+`gearArchetype`, so they fought **naked** on boards priced as kitted: `THE_UNBITTEN` read a
+comfortable 4.00 / 4.00 and reads **2.98 / 1.95** once given one, and `THE_HORNCALLER` 5.00 / 4.00
+against **3.83 / 2.00**. All forty-eight have one now and none stood on a geared campaign stage or a
+geared tower floor, so the bill was zero — checked rather than assumed. **No anchor retired.**
+
+⚠️ **The roof is the lightest in the game and the alternate is what authored it.** `THE_TURNAWAY` is
+**820/58** against `THE_UNBITTEN`'s 1300/76 one hundred floors below, and the reason is the cliff
+rather than the usual `perLevel` correction: the same body at 900/62 with each stat stepped one notch
+reads **18%** for the alternate where this line reads 83%, and at 980/66 it reads 8%. The hundred
+carries **no sustain at all** — of the 58 blocks it fields, zero carry `recovery`, `lifeLeech` or
+`healthRegen`, and zero carry a heal, drain or shield effect or a `regen` status. Counted as boards
+over floors 201–300 the hundred below reads **43 carrying `recovery`, 15 `healthRegen`, 13
+`lifeLeech` and 7 fielding a drain**. ⚠️ **The first draft of that sentence quoted this tower's own
+161–300 figures against a 201–300 range** — a claim measured over one range attached to another, the
+same failure the "above floor 160" note records, one step smaller. The prose check caught it.
+
+The hundred opens at floor 301 in 7.3 seconds with all five alive, costs the alternate a member from
+floor 330 and the reference from floor 350, and closes at **100% / 3.00 / 27.7s against
+88% / 1.45 / 32.7s** — zero timeouts anywhere, longest fight 48.6s against a 67.5s bar. ⚠️ **Three of
+five is a soft-looking roof and it is the binding arrangement that set it**; the two are 1.55
+survivors apart on that board.
 
 ### The Angel Tower: tempo and aim, not mechanics
 
