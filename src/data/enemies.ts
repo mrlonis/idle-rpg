@@ -199,6 +199,10 @@ import {
   TAKE_UP_THE_SLACK,
   THERE_IS_NO_END_TO_IT,
   THE_ANSWER_WITHHELD,
+  IRONPACE_STEP,
+  GRAVESTRIDE_CADENCE,
+  THE_LEADEN_HOUR_FALLS,
+  NOTHING_BREAKS_STEP,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
@@ -12604,6 +12608,218 @@ export const THE_UNHEARING = {
   skills: [NO_WORD_REACHES_IT, THE_ANSWER_WITHHELD],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fifth hundred — floors 401–500, levels 189–236, Masterwork 1 → Relic 40.
+//
+// ⚠️ **Four blocks, which is 16.0% of the 25 distinct archetypes this hundred fields rather than a
+// quarter of it.** The quota is a count with four hundreds of precedent behind it; stating it as a
+// fraction is how a session talks itself into authoring twice as many. Undead go 29 → 33 and stay the
+// deepest faction in the game.
+//
+// ## ⚠️ The axis is two stats carried together, and neither half is this tower's alone
+//
+// Priced against a control of an `ascended` 1200/66 behind four 750/48 at level 236 wearing Relic 40,
+// reading **3.95 / 3.40 of five** and moving in both directions — forty seeds, zero timeouts on every
+// row quoted:
+//
+// | shape                        | ref / alt worth | mean fight |
+// | ---------------------------- | --------------- | ---------- |
+// | `tenacity` 0.60              | 0.78 / **0.23** | 20.8s      |
+// | `accuracy` 0.20              | **−1.05 / −1.60** | 17.1s    |
+// | `physicalPierce` 0.30        | 0.88 / 1.25     | 20.0s      |
+// | `critBlock` 0.30 and past it | 0.95 / 0.40 flat | 22.4s     |
+// | `haste` 125                  | 1.90 / 1.47     | 20.3s      |
+// | `def` 110                    | 2.95 / 2.25     | **36.9s**  |
+// | `dodge` 0.40                 | 3.10 / 2.75     | 35.6s      |
+// | `def` 60 **and** `haste` 116 | 2.33 / 2.02     | **26.1s**  |
+//
+// 1. ⚠️ **No stat lock on this tower is exclusively the Humans', and that is a result rather than a
+//    gap in the search.** Ten candidates and three pairings were measured across all fourteen shipped
+//    arrangements, each crew calibrated to the heaviest control it still reads ≥3.60 on: `def` 110
+//    costs undead-alt 4.00 and dwarf-ref 3.60 against human-ref's 3.05 and human-alt's **1.88**;
+//    `dodge` 0.30 tops out at dwarf-ref 3.40 against human-alt's 1.60; `attackSpeed` 55 costs
+//    angel-alt and both Dwarf fives 3.90–4.00 against human-alt's 2.15. **Every candidate ranks the
+//    binding Human arrangement between fifth and eleventh of fourteen.** The Humans are the balanced
+//    faction — mid-table on every defensive register — and the price of that is that no single stat is
+//    theirs. **The licence here is margin, not exclusivity; say which of the two you have.**
+// 2. ⚠️ **The pair is chosen on _fight length_, which is chapter 25's rule and the Undead fourth
+//    hundred's.** `def` 105 alone is worth 2.88 / 2.08 at **36.1s mean and 41.9s max**, walking toward
+//    the 72s bar that has cost other content whole boards; `haste` 134 alone is worth 2.18 / 2.22 at
+//    21.0s but is **this tower's own third-hundred axis**. Carried together the same difficulty reads
+//    **26.1s** — ten seconds shorter than the armour alone. A body that is hard to kill *and* spends
+//    the time it buys converts weight into deaths where armour alone converts it into seconds.
+// 3. ⚠️ **It grades in carrier counts as well as in size**, which is what a six-band hundred needs:
+//    at `def` 70 / `haste` 120, one through five carriers read **0.90 / 1.55 / 1.98 / 2.50 / 3.18**
+//    for the reference five and 0.48 / 0.82 / 1.45 / 2.20 / 2.67 for the alternate, monotone in both
+//    with zero timeouts anywhere. On size it reads 0.65 / 1.38 / 2.33 / 3.65 across `def` 30→75 with
+//    `haste` 104→122.
+// 4. ⚠️ **The register is a claim about the _pairing_, and each half stays inside its own.** Across
+//    the 350 shipped blocks `def` runs a median of 26 to a ceiling of **70** and `haste` a median of
+//    96 to a ceiling of **152**; nothing here passes either. What has no precedent is carrying them at
+//    once: **0 of 350 blocks sit at `def` ≥ 60 _and_ `haste` ≥ 116**, and **1 of 350** at `def` ≥ 50
+//    and `haste` ≥ 110. The Undead fourth hundred's register shape, on a different pair.
+// 5. ⚠️ **The gear is inherited rather than spent, and it owes an axis on top — that is what this
+//    is.** The ramp continues Fine 60 → Masterwork 1 → Relic 40 across this hundred, which is the
+//    Dwarf fourth hundred's rule: only the *first* geared hundred may spend the ramp as its axis.
+//    ⚠️ **The band boundary is a step _down_ in what a body is wearing**: floor 400 wears Fine 60 at
+//    +65.7% health on a `tank` and floor 401 wears Masterwork 1 at **+20.2%**, so the opening band is
+//    authored heavier than the one it follows. Same shape as the shipped dips at floors 318 and 351,
+//    three times the size.
+// 6. ⚠️ **Three anchors retired and the heaviest of them did not.** Fielded alone behind four light
+//    bodies at floor 500, `THE_HOURLESS_MARCH` (1660/76) reads 53% / **0%**, `THE_DEATHLESS_MARSHAL`
+//    (1620/94) 93% / **8%** and `THE_GRAVEWRIGHT` (1560/90) 100% / **10%** — while `TYRANT` at
+//    **1550/96**, heavier than two of them, reads 100% / 3.02 and stands. `BARROW_SOVEREIGN`
+//    (1350/84) reads 45% for the alternate and is fielded above floor 460 only. **Field each
+//    candidate anchor alone before concluding anything from a pair of stat lines** — the Demon
+//    Tower's finding, reproduced.
+//
+// ⚠️ **Nothing here restores anything.** No block below carries `lifeLeech`, `recovery`,
+// `healthRegen`, a heal, a drain or a shield, and the claim about the *boards* is stated as counts in
+// [`tower-human.ts`](./tower-human.ts) rather than as an absolute — the absolute version of it has
+// shipped wrong five times across this project and always on one of those six words.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The column re-formed while nobody was counting, and it is moving faster than it was.
+ *
+ * The opening band's carrier and the lightest of the four: 820 hp behind **48 `def` at `haste` 112**,
+ * which is the pairing at the size the band can afford while a body is wearing Masterwork 1 rather
+ * than the Fine 60 the floor below it wore. ⚠️ **A plain block at the bottom of a new axis is the
+ * lesson**, the same argument {@link PLATEBOUND_HUSK} makes one hundred floors below and
+ * {@link CORTEGE_LANCER} two hundred below that.
+ */
+export const IRONPACE_HARRIER = {
+  id: 'ironpace-harrier',
+  name: 'Ironpace Harrier',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 820,
+    atk: 52,
+    def: 48,
+    haste: 112,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    physicalResist: 0.06,
+    magicResist: 0.06,
+  },
+  skills: [IRONPACE_STEP],
+} as const;
+
+/**
+ * It is carrying more plate than the Marshal ever did and it is keeping better time.
+ *
+ * The middle band's carrier, and the block that steps past the joint register: **56 `def` at `haste`
+ * 120**, where 1 of the 350 shipped blocks carries `def` ≥ 50 with `haste` ≥ 110 and none at all
+ * carries 60 with 116. ⚠️ **Both halves stay inside their own shipped ceilings** — `def` 70 and
+ * `haste` 152 — which is what makes the claim a statement about the pairing rather than about either
+ * stat.
+ */
+export const GRAVESTRIDE_SERJEANT = {
+  id: 'gravestride-serjeant',
+  name: 'Gravestride Serjeant',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 960,
+    atk: 56,
+    def: 56,
+    haste: 120,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    tenacity: 0.2,
+    physicalResist: 0.08,
+    magicResist: 0.06,
+  },
+  skills: [GRAVESTRIDE_CADENCE],
+} as const;
+
+/**
+ * The hour it keeps is heavier than the hour you keep, and it arrives at the same time regardless.
+ *
+ * The hundred's lieutenant, standing on the mini-bosses of four bands. ⚠️ **Settled across all **twenty-seven**
+ * of its appearances rather than on the first four**, which is the rule an `ascended` block earns by
+ * climbing at 1.024 against a party frozen at its rung's cap — and the stride is what nearly hid it:
+ * sampling every fourth floor read this block clean while **seven floors between the samples failed**.
+ *
+ * ⚠️ **Its attack came down from 58 to 36 with the pair held at `def` 60 / `haste` 118, and the
+ * gradient is steep**: at 58 it fails 6 of its 27 boards, at 50 four, at 44 three, at 40 two, and at
+ * 38 none — with the worst binding-arrangement win rate landing exactly on the 75% bar, which is why
+ * it is authored two points under that rather than on it. **Shortlist on weight, settle on attack**,
+ * and the thing being settled is a lieutenant's whole career rather than one board.
+ */
+export const THE_LEADEN_HOUR = {
+  id: 'the-leaden-hour',
+  name: 'The Leaden Hour',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1080,
+    atk: 36,
+    def: 60,
+    haste: 118,
+    critChance: 0.14,
+    critDamageAmp: 0.8,
+    critBlock: 0.14,
+    tenacity: 0.3,
+    physicalPierce: 0.12,
+    physicalResist: 0.1,
+    magicResist: 0.06,
+  },
+  skills: [THE_LEADEN_HOUR_FALLS, GRAVESTRIDE_CADENCE],
+} as const;
+
+/**
+ * Five hundred floors, and it has not once been out of step with any of them.
+ *
+ * The roof. ⚠️ **It is the pairing at its authored ceiling and nothing else**: **62 `def` at `haste`
+ * 122** on 1160 health, which is *lighter on both raw axes* than the Panoply one hundred floors below
+ * it (1240/68) and harder, because it is wearing Relic 40 rather than Fine 60 and because the pair is
+ * worth more than either half.
+ *
+ * ⚠️ **Its `atk` is 44 and every one of the nine escorts tried above 52 read a failure, which is
+ * chapter 20's rule inverting the fourth hundred's roof finding on the same tower.** One hundred
+ * floors below, `THE_PANOPLY` needed no retune across nine escort shapes and the escort was the whole
+ * question. Here the escort is not: at 1160/60 the roof reads **8% for the binding arrangement behind
+ * every escort tried**, and the tell is that the fight gets *shorter* as the escort lightens rather
+ * than longer — the mirror of chapter 19's signature. Attack settled it: 60 reads 8%, 52 reads 70%,
+ * 46 reads 70% and **44 reads 83% with 2.00 of five**, escort untouched. **Shortlist on weight,
+ * settle on attack.**
+ *
+ * ⚠️ **The tower roofs now read 1160/44 (this), 1200/52, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86,
+ * 1540/92 and 1560/91 — the lightest on attack of the nine and second-lightest on health.** A list
+ * rather than a superlative, because the superlative has already gone stale once on this tower and
+ * will again. **The weight a roof is allowed is what is left after the grade**, and this one is
+ * wearing Relic 40.
+ */
+export const THE_IRONPACE = {
+  id: 'the-ironpace',
+  name: 'The Ironpace',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1160,
+    atk: 44,
+    def: 62,
+    haste: 122,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.14,
+    tenacity: 0.4,
+    physicalPierce: 0.18,
+    physicalResist: 0.12,
+    magicResist: 0.08,
+  },
+  skills: [NOTHING_BREAKS_STEP, THE_LEADEN_HOUR_FALLS, GRAVESTRIDE_CADENCE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -12955,4 +13171,8 @@ export const ENEMIES = [
   UNSPOKEN_CANON,
   SILENTVAULT_KEEPER,
   THE_UNHEARING,
+  IRONPACE_HARRIER,
+  GRAVESTRIDE_SERJEANT,
+  THE_LEADEN_HOUR,
+  THE_IRONPACE,
 ] as const;

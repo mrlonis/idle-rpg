@@ -31,19 +31,21 @@ import { TOWER_UNDEAD } from './tower-undead';
 /**
  * One rule for all seven towers.
  *
- * ## Four hundred floors, levels 1 to 189
+ * ## Five hundred floors, levels 1 to 236
  *
  * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 605 over 1,210
- * stages and first reaches 189 at stage 378, so a tower's top floor is a fight the campaign asks for
- * about a third of the way along it. That is the whole statement about where difficulty lives: a
+ * stages and first reaches 236 at stage 472, so a tower's top floor is a fight the campaign asks for
+ * about two fifths of the way along it. That is the whole statement about where difficulty lives: a
  * tower charges for roster *breadth*, and charging for investment as well would make it a second
  * campaign that a player behind on the first one cannot enter.
  *
  * ⚠️ **Watch that fraction rather than restating it.** The tower's level line is fixed between
  * extensions while the campaign's keeps growing, so the roof drifts back toward the *opening* of the
  * ladder with every chapter authored — it read 42% of the way along at the two-hundred-floor roof of
- * 95, 63% at the three-hundred-floor roof of 142 against a 450-stage ladder, and **31%** now, because
- * the campaign nearly tripled in length underneath it. It is the right direction for optional content
+ * 95, 63% at the three-hundred-floor roof of 142 against a 450-stage ladder, **31%** at the
+ * four-hundred-floor roof of 189, and **39%** now. ⚠️ **The fifth hundred is the first extension taken
+ * *because* of that drift rather than incidentally**: 31% was the signal this note describes, and the
+ * bump moved it back up without the campaign moving at all. It is the right direction for optional content
  * not to creep up the spine, but a roof landing in the first tenth of the campaign has stopped
  * charging for breadth at all, and that is the signal for the next extension.
  *
@@ -54,18 +56,22 @@ import { TOWER_UNDEAD } from './tower-undead';
  * the guard was restated rather than slid: `legendary` caps at **200** against a roof of 189, so for
  * the first time the top band's crew *could* legally out-level its own roof. What replaced it is the
  * quantity the cap comparison was standing in for — the **power ratio**, held at 1.60–1.80 across
- * every band. See `towers.spec.ts`.
+ * every band. See `towers.spec.ts`. ⚠️ **The fifth hundred is what the restatement bought**:
+ * `legendary-plus` caps at **260** against a roof of 236, the same shape a band higher, and the ratio
+ * reads **1.600 / 1.689 / 1.676 / 1.663 / 1.649** across the five bands without a line of the guard
+ * changing.
  *
  * ## ⚠️ The bound on the roof is the campaign's own payout curve
  *
  * A floor's lump is read off the campaign **at the stage fighting at the same level**, so a roof that
  * out-levels the campaign stage of the tower's own height pays more per floor than the campaign pays
  * per stage. That is optional content displacing the spine, which is the one thing tower payouts may
- * never do. At four hundred floors the ceiling is the campaign's stage-400 lump of 16,000, and a roof
- * of 189 pays **15,120**. ⚠️ **This is now the binding constraint on the roof rather than a
- * comfortable margin**: a roof of **200 pays exactly 16,000** and fails outright, so the highest
- * legal roof at four hundred floors is 199 — and the solved slope's 189 is only ten levels under it.
- * A fifth hundred has to check this before anything else.
+ * never do. At five hundred floors the ceiling is the campaign's stage-500 lump of 20,000, and a roof
+ * of 236 pays **18,880**. ⚠️ **This was checked before anything else and it cleared with room**, which
+ * the four-hundred-floor note doubted it would: the highest legal roof at five hundred floors is
+ * **249** (250 pays exactly 20,000 and fails outright) against a solved slope of 236, thirteen levels
+ * of margin where the fourth hundred had ten. **A sixth hundred has to check this before anything
+ * else, and it is the constraint most likely to be the one that finally bites.**
  *
  * ⚠️ **Do not "fix" a future extension by moving the roof up past that.** The bound is the campaign's
  * own level line and it moves whenever that does; `towers.spec.ts` checks the payout directly. The
@@ -90,22 +96,26 @@ import { TOWER_UNDEAD } from './tower-undead';
  * | 21e          | 100 → 200 | 60 → 120  | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
  * | the flatten  | 200       | 120 → 95  | 0.4724    | 0.5980    | all of them — see above  |
  * | the third    | 200 → 300 | 95 → 142  | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
- * | this one     | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
+ * | the fourth   | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
+ * | this one     | 400 → 500 | 189 → 236 | 0.4709    | 0.4712    | 20 of 400, by 1 level    |
  *
- * **189 is where the two slopes meet**, because 1 + 0.4716 × 399 = 189.16. Reach for that arithmetic
+ * **236 is where the two slopes meet**, because 1 + 0.4712 × 499 = 236.12, and the four band
+ * boundaries below it — floors 100, 200, 300 and 400 — close at 48, 95, 142 and 189 exactly as they
+ * did before, so **no band's crew moved by a level**. Reach for that arithmetic
  * first on any future extension, then ask whether the roof it implies is a fight and whether its lump
  * stays under the campaign's.
  *
  * ⚠️ **The neighbouring levels are much worse and the penalty is not smooth**, so solve rather than
- * eyeball. Measured over the 300 shipped floors: 188 moves **132**, 190 moves **94**, 187 moves 206
- * and 191 moves 191, against 189's **18**. A round *slope* is the trap here — at three hundred floors
+ * eyeball. Measured over the 400 shipped floors: 235 moves **179**, 237 moves **140**, 234 moves 282
+ * and 233 moves 319, against 236's **20**. (At the fourth hundred, over 300 floors: 188 moved 132,
+ * 190 moved 94, against 189's 18. The shape repeats at every extension.) A round *slope* is the trap here — at three hundred floors
  * exactly 0.50 levels a floor wanted a roof of 150, which moved 172 of 200 shipped floors by up to 5
  * levels and landed its lump exactly on the campaign's payout; at four hundred it wants 200, which
  * moves **273 of 300 by up to 8 levels** and again lands exactly on the campaign's stage-400 lump of
  * 16,000, failing the one bound that may never be crossed.
  *
  * ⚠️ **Making {@link floorLevel} piecewise would preserve every shipped floor exactly**, and it has
- * been declined twice — by 21e and again here — because it is a `core/` change and a content session
+ * been declined three times — by 21e, by the fourth hundred and again here — because it is a `core/` change and a content session
  * may not take one. It stays the right answer if a future extension ever cannot be solved this way;
  * record it as a finding rather than reaching for it.
  *
@@ -122,17 +132,19 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ## The crystals, and why the per-floor figure is not the campaign's
  *
- * 100 a floor against the campaign's 250, ×2 on a mini-boss and ×5 on the roof — so a four-hundred
- * floor tower pays **44,300** from floors alone, and **124,300** once its two achievement tracks are
- * counted. ⚠️ **At parity the seven towers would pay more than five times what the campaign's stage
- * clears do**, which makes the ladder's own rewards look pointless beside optional content. At 100 a
- * floor, seven towers of four hundred come to **310,100** from floors and **870,100** with both
- * tracks.
+ * 100 a floor against the campaign's 250, ×2 on a mini-boss and ×5 on the roof — so a five-hundred
+ * floor tower pays **55,300** from floors alone, and **155,300** once its two achievement tracks are
+ * counted, against a four-hundred floor tower's 44,300 and 124,300. ⚠️ **At parity the seven towers
+ * would pay more than five times what the campaign's stage clears do**, which makes the ladder's own
+ * rewards look pointless beside optional content.
  *
  * ⚠️ **The ratio between those two totals used to be asserted and no longer is**, and recomputing it
- * by hand is the thing that replaced it. Measured: seven towers of four hundred pay **870,100**
- * against the 25-chapter campaign's **351,500** of first clears, a ratio of **2.475** — up from 1.40
- * at two hundred floors and 2.09 at three hundred. ⚠️ **The direction is the finding.** The retired
+ * by hand is the thing that replaced it — which this extension owed and did. Measured: with the Human
+ * Tower at five hundred floors and the other six at four hundred, the seven pay **901,100** against
+ * the 25-chapter campaign's **351,500** of first clears, a ratio of **2.563** — up from 1.40 at two
+ * hundred floors, 2.09 at three hundred and 2.475 at four. ⚠️ **Seven towers of five hundred would
+ * read 1,087,100 and a ratio of 3.093**, which is the number this round closes on if it runs to
+ * completion and the one to weigh before a sixth hundred is proposed. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while
@@ -160,7 +172,9 @@ import { TOWER_UNDEAD } from './tower-undead';
  * `PULL_COST` forever, so anything scaling with how far a run has come pays most to the player who
  * needs it least. The two multipliers are the whole of the climb's rhythm.
  *
- * ⚠️ **`Spire Conqueror` stays `every: 100`**, so a four-hundred floor tower pays it **four times**.
+ * ⚠️ **`Spire Conqueror` stays `every: 100`**, so a five-hundred floor tower pays it **five times**,
+ * and it needed no edit for this bump — `towers.spec.ts` holds that the height is a whole number of
+ * the interval, and 500 is.
  * The tie it holds with a chapter's completion award is stated as *per hundred floors* — which is the
  * argument the tie always rested on, that a hundred floors and a fifty-stage chapter are comparable
  * events. Re-authoring it to match the tower's height would strip 210,000 crystals from the tower
@@ -203,12 +217,18 @@ export const TOWER_BAND_UNIT = 100;
  * it is the first band rung whose cap the roof does not reach. See {@link TOWER_RULES} and
  * `towers.spec.ts`; the ratio is what the comparison was standing in for.
  */
-export const TOWER_BAND_RUNGS = ['rare-plus', 'elite', 'elite-plus', 'legendary'] as const;
+export const TOWER_BAND_RUNGS = [
+  'rare-plus',
+  'elite',
+  'elite-plus',
+  'legendary',
+  'legendary-plus',
+] as const;
 
 export const TOWER_RULES = {
-  floors: 400,
+  floors: 500,
   baseLevel: 1,
-  topLevel: 189,
+  topLevel: 236,
   /** The campaign's interval, reused. See {@link CHAPTER_CURVE}. */
   miniBossEvery: 10,
   floorSummons: {
@@ -255,7 +275,7 @@ export const TOWER_RULES = {
   gear: {
     fromFloor: 301,
     from: { grade: 0, level: 1 },
-    to: { grade: 2, level: 60 },
+    to: { grade: 4, level: 40 },
   },
 } as const;
 
@@ -273,12 +293,14 @@ export const TOWER_RULES = {
  * tower biased toward a faction with one block is the same fight a hundred times. Every faction now
  * has at least fourteen. See [`enemies.ts`](./enemies.ts).
  *
- * ## ⚠️ The height is four hundred and the floors arrive one tower at a time
+ * ## ⚠️ The height is five hundred and the floors arrive one tower at a time
  *
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
- * authored), for the third (21l–21r), and for the fourth (21s–21y) — **all seven towers stand at four
- * hundred floors today and no round is open.** A tower that has not been extended simply ends at its
+ * authored), for the third (21l–21r), and for the fourth (21s–21y). ⚠️ **A fifth round is open: the
+ * Human Tower stands at five hundred floors and the other six at four**, carried on the `PENDING`
+ * lists in `towers.spec.ts` and `towers.balance.ts` — put back **in the same session as the bump**,
+ * which is what the fourth hundred's note asked for. A tower that has not been extended simply ends at its
  * last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it
  * topped and nothing in `ui/` misreads it.
  *
@@ -296,10 +318,11 @@ export const TOWER_RULES = {
  * `towers.balance.ts` that each session shrinks and the last one deletes, along with the branches it
  * guards. ⚠️ **A filter — "the full height or three quarters of it" — would pass forever and never
  * notice a tower nobody went back for.** The list is literal for exactly that reason. It has now run
- * to completion **three times** and both lists are empty; the Demon Tower's session closed the fourth
- * round and deleted them. ⚠️ **The next bump owes the lists back in the same session as the bump**,
- * rather than in the session that authors the first tower — in between, nothing at all holds the six
- * short towers. **Do it the same way every time the height moves.**
+ * to completion **three times**; the Demon Tower's session closed the fourth round and deleted the
+ * lists, and this bump put them straight back in the same session rather than leaving the six short
+ * towers unheld until the first one was authored. ⚠️ **That is the discipline**, and the fourth
+ * hundred's note asking for it is the reason it happened. **Do it the same way every time the height
+ * moves.**
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change

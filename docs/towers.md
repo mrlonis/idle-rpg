@@ -1,23 +1,28 @@
 # Faction towers
 
-Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189, all seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — one of seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
 hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
-Tower last, which is what closed it. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
+the Human Tower's floors 401–500 landed with it; the other six stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
 them; [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The `PENDING` lists are gone and the next height bump has to put them back.** `TOWER_RULES` is one
-rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
+⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
+the fourth hundred's note asked for, and the half of the discipline that had never actually been done
+before. `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
 — which means for six sessions running, six towers are authored a hundred floors short. A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
 `nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
 reads the rules' height, so its last authored floor resolves as a mini-boss paying ×2 rather than ×5 —
-and since the fourth hundred it also stays entirely **naked**, because `floorGear` measures the gear
-ramp against the rules' height too and a tower ending at 300 never reaches `fromFloor` 301. That second
-one is correct rather than a bug, since those floors were tuned without gear; say it out loud anyway,
-because "the ramp is keyed to the rules' height" and "the ramp is keyed to the authored height" differ
-by a whole hundred floors of difficulty on six towers.
+⚠️ **and this round it does _not_ also go naked, which is a property of the endpoint rather than of
+luck.** `floorGear` measures the ramp against the rules' height, so raising it re-draws the line under
+floors that already shipped — but the fifth hundred's endpoint was **solved to continue the shipped
+slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500), which leaves **90 of the 100 shipped
+geared floors byte-identical** and moves the other ten by a single gear level. The fourth hundred's round
+was far worse: a tower ending at 300 never reached `fromFloor` 301 and stayed entirely naked for six
+sessions. **Solve the gear endpoint the way you solve the level line, and the second regression
+disappears.**
 
 That payout regression is licensed by one argument and one only — **no build carrying it has ever
 reached a player.** ⚠️ **Each session deletes its own name and the last one deletes both lists along
@@ -133,20 +138,24 @@ expected retune disappear, and it has now worked twice:
 | the third | 200 → 300 | 95 → 142  | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
 | this one  | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
 
-**189 is where the two slopes meet**: 1 + 0.4716 × 399 = 189.16.
+**236 is where the two slopes meet**: 1 + 0.4712 × 499 = 236.12, and the four band boundaries below it
+— floors 100, 200, 300 and 400 — still close at 48, 95, 142 and 189, so **no band's crew moved by a
+level.**
 
 ⚠️ **The neighbours are much worse and the penalty is not smooth**, so solve rather than eyeball.
-Measured over the 300 shipped floors: 188 moves **132**, 190 moves **94**, 187 moves 206 and 191 moves
-191, against 189's **18**. ⚠️ **A round _slope_ is the trap**: at 400 floors exactly 0.50 levels a
-floor wants a roof of 200, which moves **273 of 300 by up to 8 levels** and lands its lump exactly on
-the campaign's stage-400 payout of 16,000, failing the one bound that may never be crossed. The
-highest roof that clears it at 400 floors is 199 — **ten levels above the solved slope, so the payout
-bound is now the binding constraint rather than a comfortable margin.** Check it first at the fifth
-hundred.
+Measured over the 400 shipped floors: 235 moves **179**, 237 moves **140**, 234 moves 282 and 233 moves
+319, against 236's **20**. ⚠️ **A round _slope_ is the trap**: at 500 floors exactly 0.47 levels a floor
+wants a roof of 235, which moves 179; at 400 floors 0.50 wanted 200, which moved **273 of 300 by up to 8
+levels** and landed its lump exactly on the campaign's stage-400 payout, failing the one bound that may
+never be crossed. ⚠️ **The payout bound was checked first at the fifth hundred, as the fourth hundred's
+note demanded, and it cleared**: the roof of 236 pays **18,880** against the campaign's stage-500 lump of
+20,000, and the highest legal roof is **249** — thirteen levels of margin where the fourth had ten.
+Check it first again at the sixth; it is the constraint most likely to be the one that finally bites.
 
-⚠️ **The 18 moved floors are a real edit and it lands in all seven files, not in the extended one.** A
-one-level shift invalidated **fifteen band headers** across the seven tower files (two of them in the
-Human Tower itself), each of which states the level range its floors span. They were found with a
+⚠️ **The moved floors are a real edit and it lands in all seven files, not in the extended one.** At
+300 → 400 an 18-floor shift invalidated **fifteen band headers** across the seven tower files; at
+400 → 500 a 20-floor shift invalidated **eight**, and **six of them were in files the session never
+opened**. Each states the level range its floors span. They were found with a
 script over `floorLevel` and fixed mechanically. **Re-run that check after every extension** — the
 [prose check](authoring.md#the-prose-check) is the habit, and this is the case where the stale claims
 are in files the session never opened.
@@ -196,7 +205,8 @@ It read `sum(crystalsPerTower) / campaignCrystals` against a floor of 1.3 and a 
 floor is what killed it**: that quantity falls by construction every time a chapter ships and rises in
 one step every time the towers grow, so it had been moved 2 → 1.5 → 1.3 → 1.1 → 0.7 → 1.3 across five
 sessions and spent six of them parked at a placeholder watching nothing. It read 1.40 at two hundred
-floors, 2.09 at three hundred and **2.475** now, which would have been a sixth and seventh slide.
+floors, 2.09 at three hundred, 2.475 at four and **2.563** now, which would have been a sixth, seventh
+and eighth slide.
 Retiring it is the call recorded in
 [authoring](authoring.md) for three earlier guards, on the test that applies here: **when the honest
 restatement of a guard is a number you would refuse to author, the guard is pointed at the wrong
@@ -204,8 +214,11 @@ quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
 fails now that the towers pay **two and a half times** what the spine's first clears do. Recomputed by
-hand at four hundred floors: seven towers pay **870,100** — 310,100 from floors and 560,000 from the two
-tracks — against the 25-chapter campaign's **351,500**.
+hand with the Human Tower at five hundred floors and the other six at four: the seven pay **901,100**
+against the 25-chapter campaign's **351,500**, a ratio of **2.563**. ⚠️ **Seven towers of five hundred
+would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
+weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
+155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
 
 ⚠️ **The direction is the finding, and it is the _ceiling_ that is under pressure rather than the
 floor.** The retired guard's floor was expected to fall as chapters shipped; instead the campaign nearly
@@ -1670,6 +1683,52 @@ These are findings a later session should not have to re-derive.
   cross-crew with **nine arrangements at or under 0.15**. At the register it is still worth 0.03, which
   is the earlier refusal reproduced exactly. **A recorded "declined on size" is a claim about a curve,
   and the curves move.**
+
+### The fifth hundred — the Human Tower's Ironpace
+
+- ⚠️ **"Is it ours" can come back _no_ for every candidate, and that is a finding rather than a failed
+  search.** Ten stat candidates and three pairings were priced at the Human Tower's fifth hundred across
+  all fourteen shipped arrangements, each crew calibrated to the heaviest control it still reads ≥3.60
+  on. **Every one ranks the binding Human arrangement between fifth and eleventh of fourteen**: `def`
+  110 costs undead-alt 4.00, dwarf-ref 3.60 and human-alt **1.88**; `dodge` 0.30 tops out at dwarf-ref
+  3.40 against human-alt 1.60; `attackSpeed` 55 costs angel-alt and both Dwarf fives 3.90–4.00 against
+  human-alt 2.15. **The Humans are the balanced faction — mid-table on every defensive register — and
+  the price of being balanced is that no lock is exclusively theirs.** The hundred took its axis on
+  **margin rather than exclusivity** and says so; that distinction is the Angel third hundred's, and
+  this is the first hundred to have to take the weaker half knowingly.
+- ⚠️ **An axis can be a _pairing whose halves each belong to somebody else_, chosen on fight length.**
+  `def` alone walks the control from 19.2s to **36.1s** for 2.88 survivors — the ninety-second clock's
+  direction — and `haste` alone is that tower's own third-hundred axis, already spent. Carried
+  **together** the same difficulty reads **26.1s**, and the pair grades in carrier counts as well as in
+  size: 0.90 / 1.55 / 1.98 / 2.50 / 3.18 across one to five carriers, zero timeouts. A body that is hard
+  to kill _and_ spends the time it buys converts weight into deaths where armour alone converts it into
+  seconds.
+- ⚠️ **A register claim can be about the _pairing_ while each half stays inside its own.** Across the
+  350 shipped blocks `def` runs a median of 26 to a ceiling of **70** and `haste` a median of 96 to a
+  ceiling of **152**, and nothing in the hundred passes either — but **0 of 350 blocks carry `def` ≥ 60
+  _and_ `haste` ≥ 116**, and 1 of 350 carries 50 with 110. The Undead fourth hundred's register shape,
+  on a different pair.
+- ⚠️ **A gear ramp that continues across an extension steps _down_ at each grade boundary, so the band
+  after one opens heavier.** Floor 400 wears Fine 60 at +65.7% health on a `tank` and floor 401 wears
+  Masterwork 1 at **+20.2%**; floor 467 wears Masterwork 80 at **+108%** and floor 468 wears Relic 1 at
+  **+25.8%**. Both bands are authored heavier than the band they follow — the campaign's "a band that
+  adds a lock opens heavier, not lighter" rule, with a grade boundary in place of the lock.
+- ⚠️ **"An anchor retires" needs the floors it retires _from_.** Four retire from this hundred's closing
+  bands — `THE_HOURLESS_MARCH` 53% / **0%**, `THE_DEATHLESS_MARSHAL` 93% / **8%**, `THE_GRAVEWRIGHT`
+  100% / **10%**, `BARROW_SOVEREIGN` 100% / **45%** at floor 500 — while `TYRANT` at 1550/96, heavier
+  than three of them, reads 100% / 3.02 and stands. But the Gravewright and the Sovereign **anchor
+  boards in the opening two bands** and read 100% with five alive there, twenty-five levels lower.
+  **Say which floors a retirement is about**, or the claim retires a block from content it is fine on.
+- ⚠️ **The stride nearly shipped seven broken floors, for the second time.** Sampling every fourth floor
+  plus the mini-bosses read the hundred clean while **f458, f462, f465, f466, f491, f494 and f495 failed
+  between the samples** — all the lieutenant's boards, and f466 the floor wearing the ramp's heaviest
+  set. The lieutenant then needed settling across **all twenty-seven** of its appearances, not four: its
+  attack came down 58 → 36 with the pair held, failing 6, 4, 3, 2 and 0 boards at 58, 50, 44, 40 and 38.
+- ⚠️ **A roof can fail on its own attack with the escort innocent, and the tell is the fight getting
+  _shorter_ as the escort lightens.** Nine escort shapes all failed at 1160/60; attack settled it at
+  **44** with the escort untouched (60 reads 8% for the binding arrangement, 52 reads 70%, 44 reads 83%
+  with 2.00 of five). ⚠️ **This inverts the same tower's fourth-hundred roof finding**, where the escort
+  was the whole question and the boss needed no retune. **Take the measurement, not the precedent.**
 
 ## Where it sits on screen
 

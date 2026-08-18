@@ -18,11 +18,13 @@ import {
   GOLEM,
   GRAVEMOURN_KEEPER,
   GRAVEPLATE_MARSHAL,
+  GRAVESTRIDE_SERJEANT,
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
   HAG,
   HEADSMAN,
   HIEROPHANT,
+  IRONPACE_HARRIER,
   IRONWAKE_VANGUARD,
   KNELL_CHANTER,
   MIREWHELP,
@@ -49,6 +51,8 @@ import {
   THE_DEATHLESS_MARSHAL,
   THE_GRAVEWRIGHT,
   THE_HOURLESS_MARCH,
+  THE_IRONPACE,
+  THE_LEADEN_HOUR,
   THE_PANOPLY,
   THORNBACK_GRAZER,
   TYRANT,
@@ -59,11 +63,11 @@ import {
 } from './enemies';
 
 /**
- * The Human Tower — four hundred floors, enemy levels 1 to 189.
+ * The Human Tower — five hundred floors, enemy levels 1 to 236.
  *
  * ## What this file authors, and what it deliberately does not
  *
- * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 189 drawn by
+ * **Line-ups, and nothing else.** A floor's level is a straight line from 1 to 236 drawn by
  * `floorLevel` in `core/towers.ts`; **what it is wearing** is the ramp in `TOWER_RULES.gear` drawn by
  * `floorGear`; whether it is a mini-boss is the campaign's every-tenth rule reused; and what it pays
  * is read off the campaign's own curves at the **matched enemy level**. Typing four hundred levels —
@@ -73,10 +77,12 @@ import {
  *
  * A floor is therefore three fields, and two of them are its name.
  *
- * ⚠️ **This is the only tower at four hundred floors.** `TOWER_RULES` is one rule for all seven, so
+ * ⚠️ **This is the only tower at five hundred floors.** `TOWER_RULES` is one rule for all seven, so
  * the height bump landed in one session and the floors move in seven; the other six sit on a literal
  * `PENDING` list in `towers.spec.ts` and `towers.balance.ts` until theirs land, and each **loses its
- * boss** while it waits. See `data/towers.ts` for the licence that rests on.
+ * boss** while it waits. ⚠️ **What they do not lose this round is their gear**, because the ramp's new
+ * endpoint was solved to continue the shipped slope — 90 of their 100 geared floors are byte-identical
+ * and the other ten moved by one gear level. See `data/towers.ts` for the licence that rests on.
  *
  * ⚠️ **The band headers below are checked with a script, never by reading.** Every one of the eleven
  * covering floors 1–200 was wrong when the third hundred landed — they were written against a
@@ -104,15 +110,20 @@ import {
  * Undead already had five archetypes where Elves and Angels had one each. Every hundred since has
  * needed four, which is the ratio worth reading: **a chapter gets ten because it authors five bands
  * each asking a different question, and a tower gets four because it asks one question a hundred more
- * times.** Undead go 17 → 21 → 25 → **29**, and stay the deepest faction in the game. ⚠️ **Four
- * blocks is 16.7% of the 24 distinct archetypes the fourth hundred fields, not 25%** — the quota is a
- * count with a precedent behind it rather than a fraction, and stating the fraction is how a session
- * talks itself into authoring twice as many.
+ * times.** Undead go 17 → 21 → 25 → 29 → **33**, and stay the deepest faction in the game. ⚠️ **Four
+ * blocks is 19.0% of the 21 distinct archetypes the fifth hundred fields, not 25%** — the quota is a
+ * count with four hundreds of precedent behind it rather than a fraction, and stating the fraction is
+ * how a session talks itself into authoring twice as many.
  *
  * ⚠️ **Budget for the lean overshoot rather than discovering it.** The third hundred authored from the
  * Undead bench alone came out at **73.6%**, taking the whole tower to 65.34% against its 65% ceiling.
  * The fourth was budgeted first — at most **355 of its 500 slots** could be Undead for the tower to
  * stay under the ceiling — and it came in at **280 (56.0%)**, taking the whole tower to **61.17%**.
+ * The fifth was budgeted the same way — at most **400 of its 500 slots** — and came in at **367
+ * (73.4%)**, taking the whole tower to **63.66%**. ⚠️ **The headroom is nearly gone, and a sixth
+ * hundred has to budget before it authors rather than after**: at 63.66% over 2,457 slots the tower
+ * may take only about **370 more Undead slots in its next 500**, which is fewer than this hundred
+ * spent.
  * ⚠️ **The headroom fell out of the ramp rather than out of restraint**: the kitted anchors are all
  * Undead and there are only ever one to three of them a board, so the escort slots were free to go
  * elsewhere. Substitutions are still **only from factions that also counter Humans** (monster, demon,
@@ -120,12 +131,13 @@ import {
  *
  * ## Where the difficulty sits
  *
- * Deliberately **inside** the campaign's range: the ladder first reaches level 189 at stage 378 of
+ * Deliberately **inside** the campaign's range: the ladder first reaches level 236 at stage 472 of
  * 1,210. A tower is not where difficulty lives — what it asks for is five characters of one faction,
- * which is a demand on the *roster* rather than on investment. Four balance targets, one per band,
+ * which is a demand on the *roster* rather than on investment. Five balance targets, one per band,
  * every level derived from the level line: `rare-plus`/48 over floors 1–100, `elite`/75 over
- * 101–200, `elite-plus`/99 over 201–300 and `legendary`/123 over 301–400 — **none of the crews
- * wearing gear, and the fourth hundred's boards being the first in any tower that do.**
+ * 101–200, `elite-plus`/99 over 201–300, `legendary`/123 over 301–400 and `legendary-plus`/147 over
+ * 401–500 — **none of the crews wearing gear, and the fourth hundred's boards being the first in any
+ * tower that do.**
  * [`towers.balance.ts`](./towers.balance.ts) is what holds them.
  *
  * ⚠️ **Band 4's crew is the largest step any band boundary has, and it is not the ×1.6.** `legendary`
@@ -280,7 +292,66 @@ import {
  * The hundred closes at **100% / 3.60 for the reference five against 93% / 1.65 for the alternate**,
  * zero timeouts anywhere, and the longest fight in it is 28.6s against a 90-second timer.
  *
- * Re-run `npm run test:balance` after touching any band above floor 68, 180, 290 or 385.
+ * ## ⚠️ The fifth hundred — the Ironpace — is built on two stats carried together
+ *
+ * The whole measurement lives in [`enemies.ts`](./enemies.ts) beside the four blocks that carry it;
+ * what belongs here is what the floors do with it and what the hundred is allowed to claim.
+ *
+ * 1. ⚠️ **No stat lock on this tower is exclusively the Humans', and that is a result rather than a
+ *    failed search.** Ten candidates and three pairings were priced across all fourteen shipped
+ *    arrangements, each crew calibrated to the heaviest control it still reads ≥3.60 on, and **every
+ *    one ranks the binding Human arrangement between fifth and eleventh of fourteen** — `def` 110
+ *    costs undead-alt 4.00 against human-alt's 1.88, `dodge` 0.30 tops out at dwarf-ref, `attackSpeed`
+ *    55 at angel-alt and both Dwarf fives. The Humans are the balanced faction, mid-table on every
+ *    defensive register, and the price of that is that no single stat is theirs. **The licence here is
+ *    margin rather than exclusivity — say which of the two you have**, which is the Angel third
+ *    hundred's distinction arriving on a tower that had to take the weaker half.
+ * 2. ⚠️ **What is authored instead is `def` _and_ `haste` on one body**, which is chosen on **fight
+ *    length**: armour alone walks the control from 19.2s to 36.1s for 2.88 survivors, and the same
+ *    difficulty carried as the pair reads **26.1s**. A body that is hard to kill *and* spends the time
+ *    it buys converts weight into deaths where armour alone converts it into seconds. **The bands are
+ *    a count of such bodies**: one, then two, then two with the lieutenant, then three, then three
+ *    with the weight easing, then the roof.
+ * 3. ⚠️ **The gear ramp is inherited rather than spent, and it steps _down_ twice inside the
+ *    hundred.** Floor 400 wears Fine 60 at +65.7% health on a `tank` and floor 401 wears Masterwork 1
+ *    at **+20.2%**; floor 467 wears Masterwork 80 at **+108%** and floor 468 wears Relic 1 at
+ *    **+25.8%**. Both bands therefore **open heavier than the band they follow**, which is the
+ *    "a band that adds a lock opens heavier, not lighter" rule with a grade boundary in place of the
+ *    lock. The authored weight otherwise falls across the hundred, from about 5,700 raw health at
+ *    floor 401 to **3,270 at the roof**, exactly as the fourth hundred's did.
+ * 4. ⚠️ **Four anchors retire from the closing bands and the heaviest of them does not.** Fielded
+ *    alone behind four light bodies at floor 500, `THE_HOURLESS_MARCH` (1660/76) reads 53% / **0%**,
+ *    `THE_DEATHLESS_MARSHAL` (1620/94) 93% / **8%**, `THE_GRAVEWRIGHT` (1560/90) 100% / **10%** and
+ *    `BARROW_SOVEREIGN` (1350/84) 100% / **45%** — while `TYRANT` at **1550/96**, heavier than three
+ *    of them, reads 100% / 3.02 and stands. ⚠️ **"Retires" means from the closing bands, not from the
+ *    hundred**: the Gravewright and the Sovereign anchor boards in the opening two bands, where the
+ *    levels are twenty-five lower, and read 100% with five alive there. **Say which floors a
+ *    retirement is about.**
+ * 5. ⚠️ **The stride nearly shipped seven broken floors.** Sampling every fourth floor plus the
+ *    mini-bosses read this hundred clean while **f458, f462, f465, f466, f491, f494 and f495 failed
+ *    between the samples** — all of them the lieutenant's boards, and f466 the floor wearing the
+ *    ramp's heaviest set. **Sweep every floor of the closing band**; the stride is not the check.
+ * 6. ⚠️ **The roof's _attack_ is the question and its escort is not, which inverts this tower's own
+ *    fourth-hundred finding.** `THE_PANOPLY` needed no retune across nine escort shapes; here nine
+ *    escorts all failed at 1160/60 and **the fight got shorter as the escort lightened** rather than
+ *    longer — the mirror of chapter 19's signature. Attack settled it at **44**, escort untouched.
+ *
+ * ⚠️ **The sustain claim is stated as counts, because the absolute version of it has shipped wrong
+ * five times across this project and always on one of six words.** Measured over the hundred rather
+ * than read: **no board carries a heal effect, a shield effect or a point of `healthRegen` — zero of a
+ * hundred, and none of the four new blocks carries any sustain at all.** What it does carry is the
+ * Undead idiom and one Angel import: `lifeLeech` and a `drain` on **2 blocks and 38 boards**,
+ * `recovery` at 5–6 on **5 blocks and 50 boards**, and an `aegis` status on **1 block and 25 boards**
+ * — the Sealward Custodian's, which is a pool banked once and depleted rather than a heal, and safe
+ * for exactly that reason. ⚠️ **That `recovery` count is up from the fourth hundred's 3 of 100 and it
+ * is the number to watch**, not because it failed — zero timeouts, longest fight 35.0s against an
+ * 85.5s bar — but because it is the direction the ninety-second clock lives in.
+ *
+ * The hundred closes at **100% / 3.52 for the reference five against 83% / 2.00 for the alternate**,
+ * zero timeouts anywhere, and the longest fight in it is 35.0s against a 90-second timer. It climbs
+ * 10.6s to 17.2s in mean fight length across its two halves.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 68, 180, 290, 385 or 480.
  */
 export const TOWER_HUMAN = {
   id: 'tower-human',
@@ -2696,7 +2767,7 @@ export const TOWER_HUMAN = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Plated March — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — the Marshal takes the front, and the plate arrives.
+    // The Plated March — Floors 346–365, levels 163–172, Sturdy 35–Fine 18 — the Marshal takes the front, and the plate arrives.
     // -------------------------------------------------------------------------------------
     {
       id: 't-human-f346',
@@ -3142,6 +3213,824 @@ export const TOWER_HUMAN = {
       enemies: {
         front: [THE_PANOPLY, CARRION_SWARM],
         back: [CINDER_CULLER, BARROWMIST_KEENER, WISP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Broken Step — Floors 401–420, levels 189–198, Masterwork 1–Masterwork 24 — the gear steps down from Fine 60 to Masterwork 1, so the band opens on the heaviest boards this tower allows. One carrier of the pair a board.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [TYRANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, SEALWARD_CUSTODIAN, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+      },
+    },
+    {
+      id: 't-human-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [GRAVEPLATE_MARSHAL, IRONPACE_HARRIER],
+        back: [RIMEPLATE, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [TYRANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, SEALWARD_CUSTODIAN, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+      },
+    },
+    {
+      id: 't-human-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [GRAVEPLATE_MARSHAL, IRONPACE_HARRIER],
+        back: [RIMEPLATE, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [TYRANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f410',
+      name: 'Floor 410 — The Broken Step',
+      enemies: {
+        front: [TYRANT, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, RIMEPLATE, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+      },
+    },
+    {
+      id: 't-human-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [GRAVEPLATE_MARSHAL, IRONPACE_HARRIER],
+        back: [RIMEPLATE, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [TYRANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, SEALWARD_CUSTODIAN, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+      },
+    },
+    {
+      id: 't-human-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [GRAVEPLATE_MARSHAL, IRONPACE_HARRIER],
+        back: [RIMEPLATE, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [TYRANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, CAIRNBOUND_SENTINEL],
+      },
+    },
+    {
+      id: 't-human-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, SEALWARD_CUSTODIAN, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, GRAVEPLATE_MARSHAL],
+      },
+    },
+    {
+      id: 't-human-f420',
+      name: 'Floor 420 — The Column Re-forms',
+      enemies: {
+        front: [TYRANT, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, RIMEPLATE, SEALWARD_CUSTODIAN],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Second Column — Floors 421–445, levels 199–210, Masterwork 25–Masterwork 54 — two carriers, and the grade climbs back through Masterwork underneath them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-human-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [THE_PANOPLY, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, QUICKLIME_SERJEANT],
+      },
+    },
+    {
+      id: 't-human-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-human-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [THE_PANOPLY, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f430',
+      name: 'Floor 430 — The Second Rank',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-human-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [THE_PANOPLY, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, QUICKLIME_SERJEANT],
+      },
+    },
+    {
+      id: 't-human-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-human-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [THE_PANOPLY, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f440',
+      name: 'Floor 440 — Nobody Called A Halt',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [THE_GRAVEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, RIMEPLATE],
+      },
+    },
+    {
+      id: 't-human-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [BARROW_SOVEREIGN, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL, SEALWARD_CUSTODIAN],
+      },
+    },
+    {
+      id: 't-human-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVEPLATE_MARSHAL],
+        back: [IRONPACE_HARRIER, RIMEPLATE, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-human-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [THE_PANOPLY, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, SEALWARD_CUSTODIAN, BONECHAIN_WARDEN],
+      },
+    },
+    {
+      id: 't-human-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, CAIRNBOUND_SENTINEL],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, QUICKLIME_SERJEANT],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Leaden Hour — Floors 446–465, levels 211–220, Masterwork 55–Masterwork 78 — the lieutenant arrives and the escorts come down to pay for it. Two carriers a board, three on the peak.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, PANOPLY_BEARER, HAG],
+      },
+    },
+    {
+      id: 't-human-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, BONECHAIN_WARDEN],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, BOAR],
+      },
+    },
+    {
+      id: 't-human-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [PLATEBOUND_HUSK, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f450',
+      name: 'Floor 450 — The Leaden Hour',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, BONECHAIN_WARDEN],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, BOAR],
+      },
+    },
+    {
+      id: 't-human-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [PLATEBOUND_HUSK, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, PANOPLY_BEARER, HAG],
+      },
+    },
+    {
+      id: 't-human-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, BONECHAIN_WARDEN],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, BOAR],
+      },
+    },
+    {
+      id: 't-human-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [PLATEBOUND_HUSK, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, PANOPLY_BEARER, HAG],
+      },
+    },
+    {
+      id: 't-human-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f460',
+      name: 'Floor 460 — The Hour Strikes Again',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [PLATEBOUND_HUSK, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVEPLATE_MARSHAL, PANOPLY_BEARER, HAG],
+      },
+    },
+    {
+      id: 't-human-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [SEALWARD_CUSTODIAN, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, BONECHAIN_WARDEN],
+        back: [IRONPACE_HARRIER, GRAVEPLATE_MARSHAL, BOAR],
+      },
+    },
+    {
+      id: 't-human-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [PLATEBOUND_HUSK, HAG, BLOODPACT_FIEND],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Relic March — Floors 466–480, levels 220–227, Masterwork 79–Relic 16 — the grade steps to Relic at 468 and resets to +25.8% from Masterwork 80’s +108%, so this band opens heavier than the one it follows — the second dip in the hundred. Three carriers, light escorts.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PLATEBOUND_HUSK, BOAR],
+      },
+    },
+    {
+      id: 't-human-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, HAG, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f470',
+      name: 'Floor 470 — The Relic March',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, HAG, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PLATEBOUND_HUSK, BOAR],
+      },
+    },
+    {
+      id: 't-human-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, HAG, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PLATEBOUND_HUSK, BOAR],
+      },
+    },
+    {
+      id: 't-human-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, HAG, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, BLOODPACT_FIEND],
+      },
+    },
+    {
+      id: 't-human-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PLATEBOUND_HUSK, BOAR],
+      },
+    },
+    {
+      id: 't-human-f480',
+      name: 'Floor 480 — Full Muster, Full Kit',
+      enemies: {
+        front: [THE_LEADEN_HOUR, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, PANOPLY_BEARER, BLOODPACT_FIEND],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Whole Column — Floors 481–495, levels 227–234, Relic 17–Relic 34 — three carriers still, and the authored weight eases as the grade climbs.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f490',
+      name: 'Floor 490 — The Whole Column',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, HAG, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, GRAVESTRIDE_SERJEANT],
+        back: [IRONPACE_HARRIER, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-human-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [THE_LEADEN_HOUR, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [GRAVESTRIDE_SERJEANT, BLOODPACT_FIEND, CINDER_CULLER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Ironpace — Floors 496–500, levels 234–236, Relic 35–Relic 40 — the roof. Its attack is the question and its escort is not, which inverts the fourth hundred’s finding on the same tower.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-human-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [IRONPACE_HARRIER, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [IRONPACE_HARRIER, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [IRONPACE_HARRIER, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [GRAVESTRIDE_SERJEANT, IRONPACE_HARRIER],
+        back: [IRONPACE_HARRIER, CINDER_CULLER, BOAR],
+      },
+    },
+    {
+      id: 't-human-f500',
+      name: 'Floor 500 — The Ironpace',
+      enemies: {
+        front: [THE_IRONPACE, CINDER_CULLER],
+        back: [BLOODPACT_FIEND, BOAR, MIREWHELP],
       },
     },
   ],

@@ -3043,7 +3043,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Withy — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three abreast and the first of them standing where an Undead five has one ultimate to reach. Green wood bends round you before it goes through.
+    // The Withy — Floors 346–365, levels 163–172, Sturdy 35–Fine 18 — three abreast and the first of them standing where an Undead five has one ultimate to reach. Green wood bends round you before it goes through.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f346',

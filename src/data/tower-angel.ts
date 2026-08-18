@@ -2855,7 +2855,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Told Seam — Floors 346–370, levels 164–175, Sturdy 35–Fine 24 — three to a board, the third rationed to alternate floors, and the anchors coming down as the levels go up.
+    // The Told Seam — Floors 346–370, levels 163–175, Sturdy 35–Fine 24 — three to a board, the third rationed to alternate floors, and the anchors coming down as the levels go up.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f346',

@@ -2397,7 +2397,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sealed Verse — Floors 261–280, levels 124–132 — the whole board refuses, and the Trampler brings the only physical damage in the hundred.
+    // The Sealed Verse — Floors 261–280, levels 123–132 — the whole board refuses, and the Trampler brings the only physical damage in the hundred.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f261',
@@ -3217,7 +3217,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Vault Entire — Floors 361–380, levels 171–180, Fine 13–Fine 36 — three voices on every board, which is where the measured cliff was on the count.
+    // The Vault Entire — Floors 361–380, levels 171–179, Fine 13–Fine 36 — three voices on every board, which is where the measured cliff was on the count.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f361',

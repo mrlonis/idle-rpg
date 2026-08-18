@@ -2896,7 +2896,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Weighing House — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three abreast, and Fine plate arrives on the boards carrying them. This is where the two halves stop being two halves.
+    // The Weighing House — Floors 346–365, levels 163–172, Sturdy 35–Fine 18 — three abreast, and Fine plate arrives on the boards carrying them. This is where the two halves stop being two halves.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f346',

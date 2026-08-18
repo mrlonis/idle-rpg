@@ -2985,7 +2985,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Slipfast Line — Floors 346–370, levels 164–175, Sturdy 35–Fine 24 — two or three to a board, the third rationed to alternate floors. The plate steps and the evasion steps with it.
+    // The Slipfast Line — Floors 346–370, levels 163–175, Sturdy 35–Fine 24 — two or three to a board, the third rationed to alternate floors. The plate steps and the evasion steps with it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f346',

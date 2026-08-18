@@ -201,9 +201,9 @@ them is how they get reversed by accident.
 
 **Content modes**
 
-- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each, all seven
-  complete**. What a tower is for, the three fields a clear may never touch, the four crews, and
-  twenty-one hundreds' worth of measured escalation findings.
+- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
+  to 236, one of seven complete**. What a tower is for, the three fields a clear may never touch, the
+  five crews, and twenty-two hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -700,13 +700,15 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. ⚠️ **Both lists are empty right now and all seven towers stand
-  at 400** — the Demon fourth hundred closed the round, the third time it has run end to end. **The next
-  height bump owes the lists back in the same session as the bump, not in the session that authors the
-  first tower**: between the two there is nothing at all holding the six short towers. Leave the shapes
-  the list forced behind — `topFloors` reading the **authored** height and the roof-versus-band-opener
-  comparison computed **per tower**, both no-ops today and both what stop the sweep reading an undefined
-  stage the day the height moves. [towers](../../docs/towers.md)
+  notices a tower nobody went back for. ⚠️ **Both lists are populated right now: the height is 500, the
+  Human Tower is there and the other six stand at 400.** They went back **in the same session as the
+  bump**, which is what the fourth hundred's note asked for and the half of the discipline that had never
+  actually been done before — between a bump and the first authored tower there is nothing at all holding
+  the six short ones. Keep the shapes the list forced — `topFloors` reading the **authored** height and
+  the roof-versus-band-opener comparison computed **per tower** — which stop the sweep reading an
+  undefined stage. ⚠️ **The "and it stays naked" half did _not_ fire this round**: solve the gear ramp's
+  new endpoint to **continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500) and 90 of the 100 shipped geared floors stay byte-identical. **Solve the gear endpoint the way you
+  solve the level line.** [towers](../../docs/towers.md)
 - ⚠️ **A refusal recorded on _size_ expires, and the Demon fourth hundred is the case that proves it.**
   `magicResist` was declined twice — by that tower's own second hundred (worth **0.00 / 0.54** at the
   then-ceiling of 0.14) and again by the Angel Tower's fourth (0.10 to 0.35 across 0.15 → 0.70) — and
@@ -909,13 +911,50 @@ Asserted in `core/battle/simulate.spec.ts`.
   ⚠️ **Band 4's rung is the first that is also a _kit_ rung** — that crew gains a third skill, which the
   ratio cannot see — so a fourth hundred is tuned on survivors and the ratio is a legality check.
   [towers](../../docs/towers.md)
-- ⚠️ **The payout bound is now the binding constraint on a tower's roof.** A floor's lump is read off
-  the campaign at matched level, and at four hundred floors a roof of **200 pays exactly** the
-  stage-400 lump of 16,000 — so the highest legal roof is 199 against a solved slope of 189, ten levels
-  apart where they were once tens. ⚠️ **A fifth hundred may not be solvable at all**, which is the case
-  that finally licenses making `floorLevel` piecewise. [towers](../../docs/towers.md)
+- ⚠️ **The payout bound is the binding constraint on a tower's roof, and it is the first thing an
+  extension checks.** A floor's lump is read off the campaign at matched level; at five hundred floors
+  the roof of 236 pays **18,880** against the stage-500 lump of 20,000, and the highest legal roof is
+  **249** (250 pays exactly 20,000 and fails outright) against a solved slope of 236. ⚠️ **The fourth
+  hundred doubted a fifth would be solvable and it was, with thirteen levels of margin where the fourth
+  had ten** — but the margin is the quantity to watch, and a sixth hundred is the case most likely to
+  finally license making `floorLevel` piecewise. [towers](../../docs/towers.md)
+- ⚠️ **"Is it ours" can come back _no_ for every candidate, and that is a finding rather than a failed
+  search.** At the Human Tower's fifth hundred, ten stat candidates and three pairings priced across all
+  fourteen shipped arrangements — each crew calibrated to the heaviest control it still reads ≥3.60 on —
+  rank the **binding** Human arrangement between fifth and eleventh of fourteen on every one: `def` 110
+  costs undead-alt 4.00 and human-alt **1.88**, `dodge` 0.30 tops out at dwarf-ref, `attackSpeed` 55 at
+  angel-alt and both Dwarf fives. **The Humans are the balanced faction — mid-table on every defensive
+  register — and the price of being balanced is that no lock is exclusively theirs.** Take the axis on
+  **margin rather than exclusivity** and say which of the two you have. [towers](../../docs/towers.md)
+- ⚠️ **An axis can be a _pairing whose halves each belong to somebody else_, chosen on fight length.**
+  `def` alone walks that hundred's control from 19.2s to **36.1s** for 2.88 survivors — the
+  ninety-second clock's direction — and `haste` alone is that tower's own third-hundred axis, spent.
+  Together the same difficulty reads **26.1s**, and the pair grades in carrier counts as well as in size
+  (0.90 / 1.55 / 1.98 / 2.50 / 3.18 across one to five, zero timeouts). ⚠️ **The register claim is then
+  about the _pairing_ while each half stays inside its own**: `def` ceiling 70 and `haste` ceiling 152
+  across 350 blocks, nothing past either, but **0 of 350 carry `def` ≥ 60 _and_ `haste` ≥ 116**.
+  [towers](../../docs/towers.md)
+- ⚠️ **A continuing gear ramp steps _down_ at every grade boundary, so the band after one opens
+  heavier.** Floor 400 wears Fine 60 at +65.7% health on a `tank` and floor 401 wears Masterwork 1 at
+  **+20.2%**; floor 467 wears Masterwork 80 at **+108%** and floor 468 wears Relic 1 at **+25.8%**. The
+  campaign's "a band that adds a lock opens heavier, not lighter" rule, with a grade boundary in place of
+  the lock. [towers](../../docs/towers.md)
+- ⚠️ **"An anchor retires" needs the floors it retires _from_.** Four retire from the Human fifth
+  hundred's closing bands at floor 500 — 53% / **0%**, 93% / **8%**, 100% / **10%**, 100% / **45%** —
+  while `TYRANT` at 1550/96, heavier than three of them, reads 100% / 3.02 and stands. Two of the four
+  **anchor boards in the opening two bands and read 100% with five alive there**, twenty-five levels
+  lower. A bare "it retired" retires a block from content it is fine on. [towers](../../docs/towers.md)
+- ⚠️ **A roof can fail on its own attack with the escort innocent, and the tell is the fight getting
+  _shorter_ as the escort lightens.** Nine escort shapes all failed at 1160/60 on the Human fifth
+  hundred's roof; attack settled it at **44** with the escort untouched (60 → 8%, 52 → 70%, 44 → 83%).
+  ⚠️ **That inverts the same tower's fourth-hundred roof finding**, where the escort was the whole
+  question and the boss needed no retune. **Take the measurement, not the precedent.** ⚠️ **And settle a
+  lieutenant across _every_ appearance**: its attack came down 58 → 36 with the pair held, failing 6, 4,
+  3, 2 and 0 of its **twenty-seven** boards at 58, 50, 44, 40 and 38 — and the stride hid seven of the
+  failures. [towers](../../docs/towers.md)
 - ⚠️ **Extending a tower moves shipped floors by a level, and the stale claims land in files the
-  session never opened.** 300 → 400 moved 18 of 300 floors and invalidated **fifteen band headers
+  session never opened.** 400 → 500 moved 20 of 400 floors and invalidated **eight band headers, six of
+  them in files the session never opened**; 300 → 400 moved 18 of 300 and invalidated **fifteen band headers
   across all seven tower files** — thirteen of them outside the tower being extended. Find them with a
   script over `floorLevel`. [authoring](../../docs/authoring.md)
 - ⚠️ **An escalation axis does not have to be a stat or a mechanic. The _size of one instance of

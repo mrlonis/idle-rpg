@@ -2947,7 +2947,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Proving Floor — Floors 346–365, levels 164–173, Sturdy 35–Fine 18 — three, and Fine plate arrives on the boards carrying them.
+    // The Proving Floor — Floors 346–365, levels 163–172, Sturdy 35–Fine 18 — three, and Fine plate arrives on the boards carrying them.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f346',

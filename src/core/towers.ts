@@ -20,13 +20,13 @@ import { type GameState } from './state';
  *
  * ## What a tower is, in one paragraph
  *
- * Four hundred floors, climbed once each, crewed by five characters of a single faction. The enemy
- * level runs **1 to 189, linearly** — deliberately inside the campaign's own range, which reaches 605
+ * Five hundred floors, climbed once each, crewed by five characters of a single faction. The enemy
+ * level runs **1 to 236, linearly** — deliberately inside the campaign's own range, which reaches 605
  * by the end of chapter 25 — so a tower is not where difficulty lives. What a tower asks for is
  * **breadth**: seven of them is thirty-five invested characters against a campaign that has never
  * needed more than five.
  *
- * ⚠️ **The height is a rule for all seven and only the Human and Dwarf Towers are at it.** See `data/towers.ts`
+ * ⚠️ **The height is a rule for all seven and only the Human Tower is at it.** See `data/towers.ts`
  * for the `PENDING` discipline that keeps the other six honest while their floors are authored.
  *
  * ## The three ways it deliberately differs from the campaign
@@ -43,7 +43,7 @@ import { type GameState } from './state';
  *   stage carries its own level and its own `{ grade, level }` because that curve has a tutorial ramp
  *   and a deliberate step at the healer lock. A tower's are straight lines by definition, so `data/`
  *   authors *who stands on each floor* while {@link floorLevel} says how big they are and
- *   {@link floorGear} says what they are wearing. Typing four hundred levels, or a hundred
+ *   {@link floorGear} says what they are wearing. Typing five hundred levels, or two hundred
  *   grade-and-level pairs, that must follow a formula is the retyping
  *   [testing](../../docs/testing.md) forbids.
  *
@@ -73,7 +73,8 @@ import { type GameState } from './state';
  * A floor's lump is read off the campaign stage fighting at the same enemy level, and the obvious
  * move is to read the gear the same way. **Measured, that yields no gear at all anywhere in any
  * tower**: the campaign's first geared stage is `c12-s1` at enemy **level 225**, and the tower's
- * roof is 189. The whole tower lives below the level the spine introduces gear at, so a tower's
+ * ramp starts at floor 301, which fights at level 142. The tower reaches 225 only at floor **476**,
+ * a hundred and seventy-five floors after it needs a grade, so a tower's
  * ramp has to be its own — there is nothing at its levels to match against.
  *
  * That is why this is a ramp on the *floors* and not a lookup, and it is also why the ramp may be

@@ -8852,6 +8852,99 @@ export const THE_ANSWER_WITHHELD = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fifth hundred — floors 401–500, levels 189–236, Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain for the second hundred running, and this time the measurement says so
+// twice.** Priced against a control of an `ascended` 1200/66 behind four 750/48 at level 236 wearing
+// Relic 40, reading **3.95 / 3.40 of five** and moving in both directions, forty seeds, zero timeouts
+// on every row: **no status, scope, reach or selection is this hundred's axis.** Enemy `accuracy` is
+// worth **−1.05 / −1.60** — the board is *easier* for being more accurate — and `tenacity` grades
+// 0.20 / 0.38 / 0.78 / 0.83 for the reference five against 0.20 / 0.25 / 0.23 / **0.38** for the
+// alternate, which is flat on the arrangement that binds.
+//
+// ⚠️ **What the hundred is built on is a *pair of stats*, and each half of it belongs to somebody
+// else.** See [`enemies.ts`](./enemies.ts) for the whole table; the short form is that `def` alone
+// walks the fight from 19.2s to **36.1s** for 2.88 survivors, and the same difficulty carried as
+// `def` **and** `haste` together reads **26.1s**. So the turns here do not have to be the mechanic —
+// the stat line is — and a status riding one of them is texture exactly as it was one hundred floors
+// below.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They have not stopped walking since the Marshal fell, and they are wearing his men's plate.
+ *
+ * The opening band's turn, and plain on purpose. ⚠️ **`enemy-front` for the third hundred running**,
+ * which is the aim correction this tower made twice and the seventh tower to reach it: a reach past
+ * the front rank is worth −0.05 of five here and the widest turn available **−0.19 from the back
+ * rank**, because the weaker Human arrangement fields no tank and damage taken off its front row is
+ * time it did not have to buy.
+ */
+export const IRONPACE_STEP = {
+  id: 'ironpace-step',
+  name: 'Ironpace Step',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 38,
+  priority: 2,
+} as const;
+
+/**
+ * The armour does not slow it down. That is the entire problem.
+ *
+ * The middle band's turn, with a `SUNDER` rider that is **texture and priced as texture** — this
+ * tower measured its whole status vocabulary within 0.14 survivors two hundred floors ago and
+ * re-measured the register at this weight rather than inheriting the refusal. What escalates
+ * underneath it is the `def` the body is standing behind and the `haste` it is spending.
+ */
+export const GRAVESTRIDE_CADENCE = {
+  id: 'gravestride-cadence',
+  name: 'Gravestride Cadence',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * An hour of it, and then another, at exactly the same weight and exactly the same pace.
+ *
+ * The lieutenant's turn. ⚠️ **A single-target selection rather than a scope**, because a scope is the
+ * one shape on this tower big enough to carry a band on its own (`STUN` on `enemy-all` measured 1.31
+ * at the fourth hundred against a selection's 0.23) and this hundred's axis is the stat line. Spending
+ * a scope here would make the pair unmeasurable underneath it.
+ */
+export const THE_LEADEN_HOUR_FALLS = {
+  id: 'the-leaden-hour-falls',
+  name: 'The Leaden Hour Falls',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.3 }],
+  cooldown: 52,
+  priority: 1,
+} as const;
+
+/**
+ * It has been keeping this pace since the tower was built and it has never once been out of step.
+ *
+ * The roof's turn. ⚠️ **Its escort is the question and this is not**, which is chapter 19's rule
+ * arriving on a roof for the second time on this tower: the fourth hundred's boss needed no retune
+ * across nine escort shapes, and this one was settled the same way.
+ */
+export const NOTHING_BREAKS_STEP = {
+  id: 'nothing-breaks-step',
+  name: 'Nothing Breaks Step',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.85 },
+    { kind: 'status', status: SLOW, chance: 0.55 },
+  ],
+  cooldown: 46,
+  priority: 1,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9301,4 +9394,8 @@ export const SKILLS = [
   SAY_IT_AGAIN,
   NO_WORD_REACHES_IT,
   THE_ANSWER_WITHHELD,
+  IRONPACE_STEP,
+  GRAVESTRIDE_CADENCE,
+  THE_LEADEN_HOUR_FALLS,
+  NOTHING_BREAKS_STEP,
 ] as const;

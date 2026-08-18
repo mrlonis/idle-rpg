@@ -87,10 +87,43 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
+### The fifth hundred: the height is 500 and one tower of seven is there
+
+⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
+same session** — which is what the fourth hundred's note asked for and the half of the discipline that
+had never actually been done before. The other six stand at 400 and each has lost its boss until its own
+hundred lands; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
+endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
+floor 500), leaving 90 of their 100 geared floors byte-identical.
+
+The level line was solved the same way it has been four times before — `topLevel` 189 → **236**, which
+moves 20 of the 400 shipped floors by one level and leaves all four band boundaries closing at exactly
+48, 95, 142 and 189, so **no band's crew moved**. ⚠️ **The payout bound was checked first, as the fourth
+hundred's note demanded, and it cleared with room**: the roof pays **18,880** against the campaign's
+stage-500 lump of 20,000, and the highest legal roof is 249. `TOWER_BAND_RUNGS` gained a fifth entry,
+`legendary-plus`/147, and the power ratio reads **1.600 / 1.689 / 1.676 / 1.663 / 1.649** across the five
+bands without a line of the guard changing — which is what the fourth hundred's restatement of that
+guard bought.
+
+⚠️ **The crystal ratio was recomputed by hand, which is what replaced the retired guard.** With one
+tower at 500 and six at 400 the seven pay **901,100** against the campaign's **351,500**, a ratio of
+**2.563**; seven towers of 500 would read 1,087,100 and **3.093**. That is the number to weigh before a
+sixth hundred is proposed, and it is left as a design question rather than answered by a threshold.
+
+⚠️ **The Ironpace is the first hundred anywhere whose "is it ours" table came back _no for every
+candidate_.** Ten stat candidates and three pairings across all fourteen shipped arrangements rank the
+binding Human arrangement between fifth and eleventh of fourteen — the Humans are the balanced faction,
+mid-table on every defensive register, and the price of being balanced is that no lock is theirs. The
+hundred took **`def` and `haste` carried together**, chosen on fight length (armour alone walks the
+control to 36.1s for 2.88 survivors; the pair reads 26.1s for the same difficulty) and licensed on
+**margin rather than exclusivity** — stated as such, which is the Angel third hundred's distinction and
+the first time a hundred has had to take the weaker half knowingly. Its full findings are in
+[towers](towers.md).
+
 ### What the fourth hundred established, being the first geared content outside the campaign
 
-⚠️ **The height is 400 and all seven towers are there**; the `PENDING` lists are gone, the third time
-that discipline has run end to end. The Panoply is the first tower hundred whose escalation
+⚠️ **The height was 400 and all seven towers reached it**; the `PENDING` lists were emptied, the third
+time that discipline ran end to end. The Panoply is the first tower hundred whose escalation
 axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
 taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
 `GearRulesData`, and `floorGear` derives what each floor wears from the ramp exactly as `floorLevel`
