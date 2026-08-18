@@ -89,7 +89,7 @@ running total carried by hand.
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 
-⚠️ **The height is 400 and the Human, Dwarf and Elf Towers are there**; the other four sit on a literal `PENDING`
+⚠️ **The height is 400 and only the Demon Tower is not there**; it sits alone on a literal `PENDING`
 list, the third time that discipline has run. The Panoply is the first tower hundred whose escalation
 axis is **the gear its boards wear**, and it needed the first `core/` change a tower content session has
 taken: `TowerRulesData` gained a gear **ramp**, `resolveFloor`/`resolveTower` gained a required
@@ -203,7 +203,7 @@ superlative — and it is a list of **ten** now, which is the point.
 
 The **Monster Tower's** fourth hundred is the fifth to land, and it is the first hundred anywhere that
 **builds on the axis below it** rather than replacing one. Same shape of session: four blocks, five
-skills, a hundred floors, and a name off both `PENDING` lists — which is down to two, Angel and Demon.
+skills, a hundred floors, and a name off both `PENDING` lists.
 The Turning escalates through `dodge` joining the `physicalResist` its own third hundred is built on:
 plate that is not there when the blow lands. Four findings there are about method:
 
@@ -236,6 +236,48 @@ hundred's own header claimed "at most one of the four stands in a front rank" wh
 the roof beside a legendary, and quoted the tower's **161–300** sustain figures against a **201–300**
 range. Both were claims measured over one range attached to another. The fix was the claims — the
 boards measure correctly — and both now state the pair and the range they were taken over.
+
+The **Angel Tower's** fourth hundred is the sixth to land, and its axis is `critChance` — how _often_
+a blow finds the seam, against the one crew in the game that answered crit with the wrong half of it.
+Same shape of session: four blocks, five skills, a hundred floors, and a name off both `PENDING`
+lists, which is down to one, the Demon Tower. The Hairline is the third hundred's question read from
+the other side — that hundred escalated on how _large_ a single blow was — and the two are a product,
+so the roof's own turn is **1.80 where the hundred below's is 2.60**. Four findings there are about
+method:
+
+- ⚠️ **A stat can split into the half a crew answers and the half it does not, and only one of them is
+  an axis.** `critDamageResist` is subtracted from an attacker's `critDamageAmp` and says nothing about
+  how often a crit lands. The two Angel arrangements are the **only two of fourteen carrying a point of
+  it** — 0.76 and 0.96 across five against **0.00** everywhere else — while `critBlock`, the half that
+  refuses frequency, sits at **0.06** across five there against the Dwarves' 0.23 and 0.28. Measured,
+  `critChance` grades **3.73 → 0.48** across 0.09 → 0.46 with zero timeouts, while `critDamageAmp` at
+  held chance is flat from 0.85 to 1.40 and needs 1.80 — past the shipped maximum of 1.15 — to be worth
+  what frequency is worth at 0.30. **Ask which half of a stat the answer covers before calling it
+  spent.**
+- ⚠️ **The same stat can be two towers' axes for opposite reasons, and it is the register that
+  separates them.** The Elf third hundred built on `critChance` because an Elf five carries **zero**
+  `critDamageResist` and **zero** `critBlock`; this one builds on it because the crew carries the most
+  `critDamageResist` in the game and none of the other. At band 4 the two Elf arrangements rank
+  **tenth and eleventh of fourteen** on the same axis (elf-alt then elf-ref) — the crew gained a rung
+  and a kit and the answer moved. "Two towers with one lock" is a question about the argument, not the stat name.
+- ⚠️ **A cross-crew licence can be exclusive on the _binding_ arrangement and inert on the other, which
+  no earlier hundred recorded.** Angel-alt reads **2.90** and angel-ref **0.79, eighth of fourteen**,
+  against a second place of 1.39. On a tower whose two arrangements already fail on opposite axes that
+  is the right answer rather than a weak one — but it has to be **said which arrangement the licence is
+  over**, because "first of fourteen" and "first and second of fourteen" are different claims.
+- ⚠️ **The prose check can be a _board_ bug rather than a wording bug.** The first pass fielded five
+  blocks carrying a `drain` or a point of `lifeLeech` above floor 300 — on a tower whose own rule
+  forbids enemy sustain above floor 160 — and the sweep was green, because the boards had been tuned
+  with them on. The script found them while checking a sentence. Third session running that the check
+  has caught something before it shipped, and the first time what it caught was content.
+
+⚠️ **It also gave the retirement check its harshest reading yet, and the gear ramp is most of why.**
+The shipped floor-300 board carried to floor 400 reads **0% for both arrangements**, where the same
+check a hundred below read 73% / 50% on a naked board. **Four anchors retire** — the Unmade at 3% /
+15% alone behind four soft bodies, `THE_UNANSWERED` at 8% / 3%, the third hundred's own roof
+`THE_LAST_MERCY` at 20% / 33%, and the Ashfall Sovereign at 95% / **45%**, which fails the alternate's
+bar — against the Elf and Undead pairs and the Monster and Angel clean answers a hundred below. **State
+whether the board under a retirement figure is wearing gear.**
 
 ### What the third hundreds established
 

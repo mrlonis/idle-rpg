@@ -8682,6 +8682,92 @@ export const THE_BLOW_TURNS = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fourth hundred — milestone 21x's four turns
+//
+// ⚠️ **The stat is the whole of the hundred and these four turns are deliberately ordinary.** The
+// Unmending escalated through the *size* of one blow; this hundred escalates through how often a
+// blow lands on the seam, which is `critChance` rather than anything a skill can say. Every turn
+// below sits inside the shipped power register and none of them carries a status.
+//
+// ⚠️ **The blow and the frequency are a product and the pair is past the edge**, exactly as the
+// third hundred found of the blow and the aim. Measured at level 189 in Fine 60 against a
+// 4.00 / 3.79 control, four carriers at `critChance` 0.30 read 3.93 / 2.49 and four swinging
+// 2.10 on a 45-tick cooldown read 3.94 / 1.73 — **together they read 3.38 / 0.13**. So no board
+// in this hundred pairs a register-topping crit load with a burst turn, and the roof's own blow
+// is 1.80 rather than the Unmending's 2.60.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A prover does not strike harder. It strikes until the plate says where it is thin.
+ *
+ * The opening band's turn, and the least of the four. Power 1.5 on a 50-tick cooldown is the
+ * shipped register's own middle — {@link CINDERFLAW_PROVER} is priced on how often it crits rather
+ * than on what it swings, which is the whole hundred in one body.
+ */
+export const PROVE_THE_PLATE = {
+  id: 'prove-the-plate',
+  name: 'Prove the Plate',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Flensing is not cutting. It is taking the seam apart along the line it was already going to open. */
+export const FLENSE_THE_SEAM = {
+  id: 'flense-the-seam',
+  name: 'Flense the Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The same note, held, until something in the kiln answers it.
+ *
+ * The heaviest of the three legendary turns at 1.55, on the body that stands longest — a frequency
+ * only counts for as long as the thing carrying it is alive, which is the argument
+ * {@link EVENSONG} makes on the Demon Tower and it holds here for the same reason.
+ */
+export const THE_SAME_NOTE_AGAIN = {
+  id: 'the-same-note-again',
+  name: 'The Same Note Again',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than the hundred below's roof carries**.
+ *
+ * {@link THE_SINGLE_STROKE} is 2.30 and the Unmending's closing turn 2.60; this is 1.80. The
+ * Hairline is the one body in the hundred carrying `critChance` past the shipped ceiling, and the
+ * pairing of a register-topping crit load with a burst turn measured **0.13 survivors of five** for
+ * the arrangement every board here is sized against. A roof that reached for both would not be a
+ * roof, it would be a wall.
+ */
+export const IT_WAS_ALWAYS_THERE = {
+  id: 'it-was-always-there',
+  name: 'It Was Always There',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** The crack does not have to be made. It has to be widened. */
+export const WIDEN_IT = {
+  id: 'widen-it',
+  name: 'Widen It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9121,4 +9207,9 @@ export const SKILLS = [
   SLIP_THE_JAW,
   NOTHING_LANDS,
   THE_BLOW_TURNS,
+  PROVE_THE_PLATE,
+  FLENSE_THE_SEAM,
+  THE_SAME_NOTE_AGAIN,
+  IT_WAS_ALWAYS_THERE,
+  WIDEN_IT,
 ] as const;

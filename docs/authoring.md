@@ -1410,8 +1410,8 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 ×2 rather than ×5.
 
 **It has now run to completion twice and is in flight a third time** — 21e–21k for the second hundred,
-21l–21r for the third, and the fourth is open with **two names left on the list** (Human, Dwarf, Elf,
-Undead and Monster have landed). Both completed rounds
+21l–21r for the third, and the fourth is open with **one name left on the list** (Human, Dwarf, Elf,
+Undead, Monster and Angel have landed). Both completed rounds
 ended with the last session deleting the constant, the branches, and the prose describing them.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison being
@@ -1553,7 +1553,7 @@ constant. The overshoot arrives whichever way the faction is chosen.
      out-gearing the spine at equal level, because there is no grade there to be out-geared by.
    - ⚠️ **Key the ramp to a _floor_, never a level.** The **2,100** floors below `fromFloor` were tuned
      naked and stay naked; a ramp from floor 1 re-prices all of them. (Of 2,500 shipped floors, 400 are
-     geared — the Human, Dwarf, Elf, Undead and Monster fourth hundreds.)
+     geared — the Human, Dwarf, Elf, Undead, Monster and Angel fourth hundreds.)
    - ⚠️ **A geared tower floor owes every body on it a `gearArchetype`, and an absent one is silent** —
      the body looks itself up under `undefined`, gets nothing, and fights naked on a board tuned as
      though it were kitted. `towers.spec.ts` now holds the tower-side twin of the guard
@@ -1657,6 +1657,44 @@ constant. The overshoot arrives whichever way the faction is chosen.
      `critChance` 0.22, `THE_WARDWRIGHT` (1560/92) 20% / 0.38 and `THE_DOORSTONE` (1480/88) **0%** on
      `def` 70 plus `physicalResist` 0.30, which buy it 29 seconds of swinging against the Grudgekeeper's 17. ⚠️ **The Colossus survives the check on `haste` 58, the lowest in the game** — attack bills only
      as often as it swings. **Two roofs retired while an older, heavier block stayed.**
+
+   - ⚠️ **A stat can be split into the half a crew answers and the half it does not, and only one of
+     them is the axis.** The Angel fourth hundred is the case: `critDamageResist` is subtracted from
+     an attacker's `critDamageAmp` and says nothing about how _often_ a crit lands, and the two Angel
+     arrangements are the **only two of fourteen carrying a point of it** (0.76 and 0.96 across five
+     against 0.00 everywhere else) while `critBlock` — the half that refuses frequency — sits at 0.06
+     across five there against the Dwarves' 0.23 and 0.28. Measured, `critChance` grades **3.73 →
+     0.48** across 0.09 → 0.46 while `critDamageAmp` at held chance is flat from 0.85 to 1.40 (four
+     steps inside 0.14 of a survivor) and needs 1.80, past the shipped maximum of 1.15, to be worth
+     what frequency is worth at 0.30. **Ask which half of a stat the crew's answer actually covers
+     before concluding the stat is spent or inert.**
+   - ⚠️ **The same stat can be two different towers' axes for opposite reasons, and the register check
+     is what separates them.** The Elf third hundred built on `critChance` because an Elf five carries
+     **zero** `critDamageResist` and **zero** `critBlock`; the Angel fourth built on it because that
+     crew carries the most `critDamageResist` in the game and none of the other. At band 4 the two Elf
+     arrangements rank **eleventh and tenth of fourteen** on the same axis — the crew gained a rung and
+     a kit and the answer moved. **"Two towers with one lock" is a question about the argument, not
+     about the stat name.**
+   - ⚠️ **A cross-crew table can come back exclusive on the _binding_ arrangement and inert on the
+     other one, which is a shape no earlier hundred recorded.** Angel-alt reads 2.90 and angel-ref
+     **0.79, eighth of fourteen**, against a second place of 1.39 — so the licence is exclusivity where
+     it matters and nothing where it does not, on a tower whose two arrangements fail on opposite axes
+     to begin with. **Say which arrangement the licence is over**, because "first of fourteen" and
+     "first and second of fourteen" are different claims.
+   - ⚠️ **A retirement check on a geared hundred is far harsher than the same check on a naked one, and
+     four anchors can go.** The Angel fourth hundred's floor-300 board carried to floor 400 reads
+     **0% for both arrangements** where the same check a hundred below read 73% / 50%; the Unmade
+     reads 3% / 15% alone behind four soft bodies, the previous hundred's own roof 20% / 33%, and the
+     Ashfall Sovereign 95% / **45%**, which fails the alternate's bar. That is the most any hundred has
+     retired, against the Elf and Undead pairs and the Monster and Angel clean answers. **State whether
+     the board under a retirement figure is wearing gear**, exactly as [gear](gear.md) demands of a
+     gear figure.
+   - ⚠️ **The prose check can be a _board_ bug rather than a wording bug, and that is the strongest
+     reason to run it as a script.** The Angel fourth hundred's first pass fielded five blocks carrying
+     a `drain` or a point of `lifeLeech` above floor 300 — on a tower whose own rule forbids enemy
+     sustain above floor 160 — and nothing in the sweep noticed, because the boards were tuned with
+     them on. The script found them while checking a sentence. **Check the claim; expect to fix the
+     content.**
 
 6. ⚠️ **Check which floors the stride samples.** `towers.balance.ts` reads every fourth floor plus
    the roof, so heavy boards on odd floors are invisible to the spine. Same trap as a chapter's

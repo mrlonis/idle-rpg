@@ -1,12 +1,12 @@
 # Faction towers
 
 Seven towers, one per faction, **four hundred floors each at enemy levels 1 to 189** — except that
-only the Human, Dwarf, Elf, Undead and Monster Towers are there yet. The system shipped in milestone 15b with a single tower,
+only the Demon Tower is not there yet. The system shipped in milestone 15b with a single tower,
 the other six in 15c, the second hundred floors across 21e–21k, the third across 21l–21r, and the fourth
 is in flight. Read [`core/towers.ts`](../src/core/towers.ts) before touching them;
 [authoring](authoring.md) is the procedure for adding floors.
 
-⚠️ **The height is 400 and two of the seven towers are still authored at 300, so the `PENDING` list is
+⚠️ **The height is 400 and one of the seven towers is still authored at 300, so the `PENDING` list is
 back.** `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the
 floors arrive one tower at a time — the third hundred did it and the fourth is doing it again. A tower
 waiting for its floors sits on a literal `PENDING` list in
@@ -475,6 +475,9 @@ choosing; do not copy the last session's shape.**
   and a cleanse, so the first question is free.
 - **Angel, third hundred** — the first where the axis is **not a stat and not a mechanic**, but how
   large a single instance of damage is. See below.
+- **Angel, fourth hundred** — the same question read the other way: how _often_ a blow finds the
+  seam, which is `critChance` against the one crew in the game that answered crit with the wrong half
+  of it. The sixth geared hundred, and the fifth to inherit the ramp rather than spend it. See below.
 - **Demon, second hundred** — the last of that round, and about **scope** rather than a mechanic. See
   below.
 - **Demon, third hundred** — the last hundred of the last tower, and the first where the axis is a
@@ -1306,6 +1309,94 @@ fields above floor 160 read 100% for both crews at 142 behind three soft bodies,
 1800/100 included at 4.33 / 4.38. What fails is the **pairing**: two ascended in one front rank. The
 new roof beside `THE_UNANSWERED` at level 142 reads **0%**. So no anchor retired — the second clean
 answer after the Closing — and no board in the hundred carries two.
+
+### The Angel Tower's fourth hundred: how often, not how large
+
+⚠️ **The Hairline is the third hundred's question read from the other side, and the two are a
+product rather than two dials.** The Unmending escalated on the size of one blow; this hundred
+escalates on `critChance`, and the roof's own turn is **1.80 where the hundred below's is 2.60**.
+Measured at level 189 in Fine 60 against a **4.00 / 3.79** control — an anchor at 1200/76 behind four
+bodies at 640/54, 120 trials — four carriers:
+
+| four carriers at  | reference | alternate | mean fight |
+| ----------------- | --------- | --------- | ---------- |
+| control           | 4.00      | 3.79      | 39.7s      |
+| `critChance` 0.15 | 3.99      | 3.55      | 40.6s      |
+| `critChance` 0.22 | 3.97      | 3.02      | 41.3s      |
+| `critChance` 0.30 | 3.92      | 2.27      | 43.1s      |
+| `critChance` 0.38 | 3.83      | 1.15      | 42.0s      |
+| `critChance` 0.46 | 3.76      | 0.48      | 40.4s      |
+
+**Six monotone steps, zero timeouts, and the whole walk costs half a second of fight.** That is what
+chose it: `def` 110 is worth 1.18 of the alternate at **54.7s**, `dodge` 0.50 is worth 2.54 at
+**51.5s**, enemy health 1100 is worth 1.58 at **55.2s**, and this crew's failure mode is the clock —
+chapter 25's rule and the Proof House's, on the arrangement they were written for. It grades in
+carrier counts as well: **3.78 / 3.76 / 3.54 / 2.84 / 2.47 / 1.10** across zero to five at 0.30.
+
+⚠️ **The size half is flat where the frequency half is not, and that is the whole "is it ours"
+argument.** Holding `critChance` at the shipped p90 of 0.15 and walking `critDamageAmp` 0.70 → 1.80
+reads **3.58 / 3.58 / 3.08 / 3.07 / 2.94 / 2.14** — four steps inside 0.14 of a survivor, and it
+takes 1.80, well past the shipped maximum of 1.15, to be worth what frequency is worth at 0.30.
+`critDamageResist` is subtracted from an attacker's `critDamageAmp` and says nothing at all about how
+often a crit lands, and **the two Angel arrangements are the only two of fourteen in the game
+carrying a point of it** — 0.76 and 0.96 summed across five, against **0.00** for the other twelve.
+The stat that would refuse the frequency, `critBlock`, sits at **0.06** across five here against the
+Dwarves' 0.23 and 0.28. **The crew answered the wrong half.** The Monster third hundred's
+"answered with the wrong stat", on the one crew that owns an answer at all.
+
+⚠️ **The licence is exclusivity on the _binding arrangement_ and nothing at all on the other one, and
+no earlier hundred has recorded that shape.** Cross-crew at 0.30 / 0.85, each of the fourteen
+calibrated to the heaviest board it still reads at or above 3.75 survivors: **angel-alt 2.90**,
+undead-alt 1.39, dwarf-alt 1.16, dwarf-ref 1.06, human-ref 0.84, undead-ref 0.83, monster-ref 0.79,
+**angel-ref 0.79**, human-alt 0.66, elf-alt 0.63, elf-ref 0.61, monster-alt 0.58, demon-alt 0.55,
+demon-ref 0.52. First by more than double over second — and **eighth for this tower's own other
+five**, which is the tower's opposite-axes split read from a third side. Every board here is sized
+against the alternate exactly as the third hundred's were.
+
+⚠️ **It is not the Elf Tower's lock repeated, and the register check is what separates them.** That
+hundred built on `critChance` because an Elf five carries **zero** `critDamageResist` and **zero**
+`critBlock`, so any crit works there; at band 4 elf-alt ranks **tenth of fourteen** on this axis and
+elf-ref **eleventh**. Same stat, opposite reason, and the answer changed because the crew gained a
+rung and a kit — "re-run 'is it ours' on the band being authored" arriving on a stat rather than on a
+mechanic.
+
+⚠️ **The band is built at the register and only the roof steps past.** Over the **342** blocks
+shipped before this hundred, `critChance` ran a median of 0.09, a p90 of 0.15 and a **maximum of
+0.22**; `critDamageAmp` 0.70 / 0.85 / 1.15. The three new legendaries carry 0.22, 0.22 and 0.20 at
+amps of 0.85, 0.80 and 0.85 — no number the game had not already fielded — and only `THE_HAIRLINE`
+carries 0.30. At the ceiling exactly the axis is **already worth 1.66 of five** to the binding
+arrangement, which is what licenses the step. ⚠️ **The register quoted is the one measured against,
+before the hundred's own four landed** — shipping them takes the pool's maximum to 0.30, so a header
+quoting the post-authoring figure would be claiming a band built at a ceiling the band itself created.
+
+⚠️ **The band claim is bodies per board rather than an absolute**, because `critChance` sits on all
+342 shipped blocks and "the crit arrives in band 3" would be false the day it was written. Bodies at
+0.15 or above run **1–2 / 2–3 / 2–4 / 3–4 / 2–3** across the five bands; the closing band is lower
+than the one below it because it trades voices for the roof's own 0.30.
+
+⚠️ **Four anchors retire, which is the most any hundred in this project has retired — and the gear
+ramp is most of why.** Fielded alone behind four soft bodies at level 189 in Fine 60, the Unmade
+reads **3% / 15%**, `THE_UNANSWERED` **8% / 3%**, `THE_LAST_MERCY` — the third hundred's own roof —
+**20% / 33%**, and the Ashfall Sovereign 95% / **45%**, which fails the alternate's bar. What survives
+reads 100% with 4.00 of five for both crews: the First Cinder at 1350/72, the Wyrdroot Ancient, the
+Adamant Colossus, the Oathbreaker and the Pale Warden. ⚠️ **The shipped floor-300 board carried to
+floor 400 reads 0% for both arrangements**, against the 73% / 50% the same check gave a hundred below
+on a naked board. **State whether the board under a retirement check is wearing gear.**
+
+⚠️ **The front rank is sharply non-linear here and the roof is one slot from unwinnable.** Moving the
+Cinderflaw Prover from the roof's back rank into the front beside the Hairline takes the alternate
+from **92% to 0%** with nothing else changed, and putting the Riftedge Cantor behind it instead of a
+light body reads **3%**. The shipped roof closes at **100% / 3.99 for the reference and 98% / 2.96 for
+the alternate**, zero timeouts.
+
+⚠️ **The prose check moved five blocks off the boards rather than only a sentence.** The first pass
+drew its light Demon texture from the Bloodpact Fiend and its heavy from the Covenant Executor, the
+Covenant Breaker, the Ruinwing Devourer and the Unsealed Wretch — every one of which carries a `drain`
+or a point of `lifeLeech`, which this tower forbids above floor 160 — and all five were fielded above
+floor 300 until the script said so. **A prose check can be a board bug, not a wording bug.** The
+hundred's own counts, stated as counts: no board over 301–400 carries a `heal`, a `drain`, a `regen`
+status or a point of `lifeLeech`; **51 carry `recovery` and 22 `healthRegen`**, against 111 and 29
+over floors 161–300, all on the four surviving anchors.
 
 ### The Demon Tower's second hundred: scope, not size
 

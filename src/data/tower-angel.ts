@@ -9,6 +9,7 @@ import {
   BOAR,
   BRAMBLEWALK_SCOUT,
   CARRION_SWARM,
+  CINDERFLAW_PROVER,
   CINDERLING,
   CINDERPLATE_HOUNDSMAN,
   CINDERQUENCH_BEARER,
@@ -22,6 +23,7 @@ import {
   DEEPROCK_MINER,
   DUSKFERN_SKIRMISHER,
   EMBERSEED_WARLOCK,
+  EMBERSHELL_WHELP,
   FIRST_CINDER,
   FORGE_THRALL,
   FORLORN_LEVY,
@@ -34,6 +36,7 @@ import {
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   IRONSLING_WRIGHT,
+  KILNCRACK_CANTOR,
   KILNSTROKE_CELEBRANT,
   KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
@@ -60,8 +63,10 @@ import {
   SHATTERJAW_MAULER,
   SKYSHRIKE,
   SLAGHIDE_PURSUER,
+  SLAGSEAM_FLENSER,
   STORMCALLER,
   SUNMOTE_DANCER,
+  THE_HAIRLINE,
   THE_LAST_MERCY,
   THE_UNANSWERED,
   THORNBACK_GRAZER,
@@ -80,7 +85,7 @@ import {
 } from './enemies';
 
 /**
- * The Angel Tower — three hundred floors, enemy levels 1 to 142.
+ * The Angel Tower — four hundred floors, enemy levels 1 to 189.
  *
  * ## Why the enemies are mostly Demons
  *
@@ -142,6 +147,16 @@ import {
  * fielded since its first hundred ({@link FIRST_CINDER} at 5, {@link ASHFALL_SOVEREIGN} at 7,
  * {@link UNMADE} at 8, {@link WYRDROOT_ANCIENT} at 9 and 0.2).
  *
+ * ⚠️ **The fourth hundred holds the same shape and its own counts are stated separately**, because
+ * the range grows underneath a claim like this every time a hundred lands — which is exactly how the
+ * old wording went wrong. Over floors 301–400: **no board carries a `heal` effect, a `drain`, a
+ * `regen` status or a point of `lifeLeech`**, and **51 boards carry `recovery`, 22 `healthRegen`**.
+ * ⚠️ **The script that checked it moved five blocks off the boards rather than only correcting a
+ * sentence** — {@link BLOODPACT_FIEND}, {@link COVENANT_EXECUTOR}, {@link COVENANT_BREAKER},
+ * {@link RUINWING_DEVOURER} and the Unsealed Wretch were all fielded above floor 300 in the
+ * first pass and every one of them carries a `drain` or a point of `lifeLeech`. **A prose check can
+ * be a board bug.**
+ *
  * The honest fix is the claim rather than the boards, exactly as the Crownworks found for
  * `tower-dwarf.ts` and the Closing for `tower-monster.ts` — this is the third tower to make the same
  * mistake. Restating it keeps every measured figure on those floors valid where retuning a hundred
@@ -197,6 +212,64 @@ import {
  * that it stands **two** of them in one front rank, and {@link THE_LAST_MERCY} beside
  * {@link THE_UNANSWERED} at the roof's level reads 0%. So no anchor retires — the second hundred of
  * four to find that — and no board in the third hundred carries two.
+ *
+ * ## ⚠️ The fourth hundred escalates through how *often* a blow finds the seam, not how large it is
+ *
+ * The Unmending's axis was the size of one instance of damage; this hundred's is `critChance`, and
+ * the two are a **product** rather than two dials, so the roof's own turn is 1.80 where the hundred
+ * below's is 2.60. Measured at level 189 in Fine 60 against a **4.00 / 3.79** control — an anchor at
+ * 1200/76 behind four bodies at 640/54, 120 trials — four carriers:
+ *
+ * ```
+ *   critChance    0.09  0.15  0.22  0.30  0.38  0.46   alt 3.73 3.55 3.02 2.27 1.15 0.48
+ *   critDamageAmp 0.70  0.85  1.00  1.15  1.40  1.80   alt 3.58 3.58 3.08 3.07 2.94 2.14
+ * ```
+ *
+ * ⚠️ **Six monotone steps on the frequency, zero timeouts, and the fight lengthens by half a
+ * second across the whole walk** — 39.7s to 40.4s, against `def` 110 at 54.7s, `dodge` 0.50 at
+ * 51.5s and enemy health 1100 at 55.2s. **Length is what breaks this arrangement**, so the axis was
+ * chosen on the clock exactly as chapter 25's and the Proof House's were. It grades in carrier
+ * counts too: **3.78 / 3.76 / 3.54 / 2.84 / 2.47 / 1.10** across zero to five at 0.30.
+ *
+ * ⚠️ **The size half is flat where the frequency half is not, and that is the whole "is it ours"
+ * argument.** `critDamageResist` is subtracted from an attacker's `critDamageAmp` and says nothing
+ * about how often a crit lands — and the two Angel arrangements are the **only two of fourteen in
+ * the game carrying a point of it**, 0.76 and 0.96 summed across five against **0.00** for the
+ * other twelve. The stat that would refuse the frequency, `critBlock`, sits at **0.06** across five
+ * here against the Dwarves' 0.23 and 0.28. **The crew answered the wrong half.**
+ *
+ * ⚠️ **The licence is exclusivity on the binding arrangement and nothing at all on the other one**,
+ * which no earlier hundred has recorded. Cross-crew at 0.30 / 0.85, each of the fourteen calibrated
+ * to the heaviest board it still reads at or above 3.75 survivors: **angel-alt 2.90**, undead-alt
+ * 1.39, dwarf-alt 1.16, dwarf-ref 1.06, human-ref 0.84, undead-ref 0.83, monster-ref 0.79,
+ * **angel-ref 0.79**, human-alt 0.66, elf-alt 0.63, elf-ref 0.61, monster-alt 0.58, demon-alt 0.55,
+ * demon-ref 0.52. That is this tower's own opposite-axes split read from a third side, and it is
+ * why every board here is sized against the alternate exactly as the third hundred's were.
+ *
+ * ⚠️ **It is not the Elf Tower's lock repeated.** That hundred built on `critChance` because an Elf
+ * five carries **zero** `critDamageResist` and **zero** `critBlock`, so any crit works there; the
+ * elf-alt ranks **tenth of fourteen** here and elf-ref **eleventh**. Same stat, opposite reason.
+ *
+ * ⚠️ **The band claim is bodies per board rather than an absolute**, because `critChance` sits on
+ * every shipped block. Bodies at 0.15 or above run **1–2 / 2–3 / 2–4 / 3–4 / 2–3** across the five
+ * bands; the closing band is lower than the one below it because it trades voices for the roof's own
+ * 0.30, which is the same trade the third hundred's last band made.
+ *
+ * ⚠️ **Four anchors retire here, which is the most any hundred in this project has retired.**
+ * Fielded alone behind four soft bodies at level 189 in Fine 60: {@link UNMADE} reads **3% / 15%**,
+ * {@link THE_UNANSWERED} **8% / 3%**, {@link THE_LAST_MERCY} — the third hundred's own roof —
+ * **20% / 33%**, and {@link ASHFALL_SOVEREIGN} 95% / **45%**, which fails the alternate's own bar.
+ * What survives reads 100% with 4.00 of five for both crews: {@link FIRST_CINDER} at 1350/72,
+ * {@link WYRDROOT_ANCIENT}, {@link COLOSSUS}, {@link OATHBREAKER} and {@link PALE_WARDEN}. ⚠️ **The
+ * shipped floor-300 board carried to floor 400 reads 0% for both**, against the 73% / 50% the same
+ * check gave a hundred below — **the gear ramp is most of the difference**, and it is why this is
+ * the retirement check's harshest reading yet.
+ *
+ * ⚠️ **The front rank is where this hundred is sharply non-linear, and the roof is one slot from
+ * unwinnable.** Moving {@link CINDERFLAW_PROVER} from the roof's back rank into the front beside
+ * {@link THE_HAIRLINE} takes the alternate from **92% to 0%** with nothing else changed; putting
+ * {@link RIFTEDGE_CANTOR} behind it instead of a light body reads **3%**. The shipped roof closes at
+ * **100% / 3.99 for the reference and 98% / 2.96 for the alternate**, zero timeouts.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -2410,6 +2483,826 @@ export const TOWER_ANGEL = {
       enemies: {
         front: [THE_LAST_MERCY, THORNBACK_GRAZER],
         back: [KILNSTROKE_CELEBRANT, SHATTERJAW_MAULER, SHATTERJAW_MAULER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Proving Wall — Floors 301–320, levels 142–151, Worn 1–Sturdy 4 — one hammer a board, walking a wall it has walked before, listening for the note that comes back thin.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f301',
+      name: 'Floor 301',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [CINDER_CULLER, BARROWMIST_KEENER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f302',
+      name: 'Floor 302',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERFLAW_PROVER],
+        back: [DUSKFERN_SKIRMISHER, RENDFANG_JACKAL, CINDERPLATE_HOUNDSMAN],
+      },
+    },
+    {
+      id: 't-angel-f303',
+      name: 'Floor 303',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [ASHPIT_SCUTTLER, RIFTSTEP_REAVER, PYRE],
+      },
+    },
+    {
+      id: 't-angel-f304',
+      name: 'Floor 304',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [HEXBOUND_TORMENTOR, EMBERSHELL_WHELP, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f305',
+      name: 'Floor 305',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [CINDER_CULLER, CINDERQUENCH_BEARER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f306',
+      name: 'Floor 306',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERFLAW_PROVER],
+        back: [RENDFANG_JACKAL, CINDERPLATE_HOUNDSMAN, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f307',
+      name: 'Floor 307',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [RIFTSTEP_REAVER, CINDER_CULLER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f308',
+      name: 'Floor 308',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [CINDERLING, BARROWMIST_KEENER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f309',
+      name: 'Floor 309',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [DUSKFERN_SKIRMISHER, RENDFANG_JACKAL, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f310',
+      name: 'Floor 310 — The Proving Wall',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERFLAW_PROVER],
+        back: [ASHPIT_SCUTTLER, EMBERSEED_WARLOCK, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f311',
+      name: 'Floor 311',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [PYRE, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f312',
+      name: 'Floor 312',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [MOONSONG_WEAVER, MIREWHELP, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-angel-f313',
+      name: 'Floor 313',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RENDFANG_JACKAL, KILNSWORN_ADEPT, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f314',
+      name: 'Floor 314',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERFLAW_PROVER],
+        back: [EMBERSEED_WARLOCK, CINDERLING, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f315',
+      name: 'Floor 315',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [PYRE, BARROWMIST_KEENER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f316',
+      name: 'Floor 316',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [MIREWHELP, HEXBOUND_TORMENTOR, CINDERLING],
+      },
+    },
+    {
+      id: 't-angel-f317',
+      name: 'Floor 317',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [KILNSWORN_ADEPT, PYRE, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f318',
+      name: 'Floor 318',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, CINDERFLAW_PROVER],
+        back: [EMBERSHELL_WHELP, VANWARD_SPEAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f319',
+      name: 'Floor 319',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [MOONSONG_WEAVER, MIREWHELP, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f320',
+      name: 'Floor 320 — The Note Comes Back Thin',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [RENDFANG_JACKAL, CINDERPLATE_HOUNDSMAN, CINDERLING],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Second Reading — Floors 321–345, levels 152–163, Sturdy 5–Sturdy 34 — two, and the first boards where the same seam is proved twice before the choir has finished answering once.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f321',
+      name: 'Floor 321',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, VANWARD_SPEAR, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f322',
+      name: 'Floor 322',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, CINDERPLATE_HOUNDSMAN, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f323',
+      name: 'Floor 323',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, ASHPIT_SCUTTLER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-angel-f324',
+      name: 'Floor 324',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, RIFTBORN_HARROWER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f325',
+      name: 'Floor 325',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, BARROWMIST_KEENER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f326',
+      name: 'Floor 326',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, EMBERSEED_WARLOCK, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f327',
+      name: 'Floor 327',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, MIREWHELP, WRATHBORN],
+      },
+    },
+    {
+      id: 't-angel-f328',
+      name: 'Floor 328',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, VANWARD_SPEAR, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-angel-f329',
+      name: 'Floor 329',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNSWORN_ADEPT, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f330',
+      name: 'Floor 330 — The Second Reading',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, ASHPIT_SCUTTLER, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f331',
+      name: 'Floor 331',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, WRATHBORN, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f332',
+      name: 'Floor 332',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, BARROWMIST_KEENER, CINDERPLATE_HOUNDSMAN],
+      },
+    },
+    {
+      id: 't-angel-f333',
+      name: 'Floor 333',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, RIFTSTEP_REAVER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f334',
+      name: 'Floor 334',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, KILNSTROKE_CELEBRANT, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f335',
+      name: 'Floor 335',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, VANWARD_SPEAR, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f336',
+      name: 'Floor 336',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, CINDERPLATE_HOUNDSMAN, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f337',
+      name: 'Floor 337',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, ASHPIT_SCUTTLER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-angel-f338',
+      name: 'Floor 338',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, RIFTBORN_HARROWER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f339',
+      name: 'Floor 339',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, BARROWMIST_KEENER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f340',
+      name: 'Floor 340 — The Seam Told Twice',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, RENDFANG_JACKAL, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-angel-f341',
+      name: 'Floor 341',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, SLAGHIDE_PURSUER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f342',
+      name: 'Floor 342',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, VANWARD_SPEAR, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-angel-f343',
+      name: 'Floor 343',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNSWORN_ADEPT, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f344',
+      name: 'Floor 344',
+      enemies: {
+        front: [FIRST_CINDER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, ASHPIT_SCUTTLER, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f345',
+      name: 'Floor 345',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, WRATHBORN, MOONSONG_WEAVER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Told Seam — Floors 346–370, levels 164–175, Sturdy 35–Fine 24 — three to a board, the third rationed to alternate floors, and the anchors coming down as the levels go up.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f346',
+      name: 'Floor 346',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f347',
+      name: 'Floor 347',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, CINDERPLATE_HOUNDSMAN, IRONSLING_WRIGHT],
+      },
+    },
+    {
+      id: 't-angel-f348',
+      name: 'Floor 348',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f349',
+      name: 'Floor 349',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, RIFTBORN_HARROWER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f350',
+      name: 'Floor 350 — The Told Seam',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f351',
+      name: 'Floor 351',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, EMBERSEED_WARLOCK, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f352',
+      name: 'Floor 352',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f353',
+      name: 'Floor 353',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, MIREWHELP, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-angel-f354',
+      name: 'Floor 354',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f355',
+      name: 'Floor 355',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KINGSWAY_LANCER, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f356',
+      name: 'Floor 356',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, WRATHBORN],
+      },
+    },
+    {
+      id: 't-angel-f357',
+      name: 'Floor 357',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, RENDFANG_JACKAL, CINDERPLATE_HOUNDSMAN],
+      },
+    },
+    {
+      id: 't-angel-f358',
+      name: 'Floor 358',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f359',
+      name: 'Floor 359',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, KILNSTROKE_CELEBRANT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f360',
+      name: 'Floor 360 — Three Hammers',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f361',
+      name: 'Floor 361',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, CINDERPLATE_HOUNDSMAN, IRONSLING_WRIGHT],
+      },
+    },
+    {
+      id: 't-angel-f362',
+      name: 'Floor 362',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f363',
+      name: 'Floor 363',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, RIFTBORN_HARROWER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f364',
+      name: 'Floor 364',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f365',
+      name: 'Floor 365',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, IRONSLING_WRIGHT, EMBERSEED_WARLOCK],
+      },
+    },
+    {
+      id: 't-angel-f366',
+      name: 'Floor 366',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-angel-f367',
+      name: 'Floor 367',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, MIREWHELP, HEXBOUND_TORMENTOR],
+      },
+    },
+    {
+      id: 't-angel-f368',
+      name: 'Floor 368',
+      enemies: {
+        front: [COLOSSUS, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f369',
+      name: 'Floor 369',
+      enemies: {
+        front: [OATHBREAKER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, KINGSWAY_LANCER, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f370',
+      name: 'Floor 370 — Nothing Mends Between',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, WRATHBORN],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Widening — Floors 371–390, levels 175–184, Fine 25–Fine 48 — four, and what is left standing is almost all of it listening for the same thing.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f371',
+      name: 'Floor 371',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f372',
+      name: 'Floor 372',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f373',
+      name: 'Floor 373',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f374',
+      name: 'Floor 374',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-angel-f375',
+      name: 'Floor 375',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f376',
+      name: 'Floor 376',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f377',
+      name: 'Floor 377',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f378',
+      name: 'Floor 378',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f379',
+      name: 'Floor 379',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f380',
+      name: 'Floor 380 — The Widening',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, WEALDSHADOW_STALKER],
+      },
+    },
+    {
+      id: 't-angel-f381',
+      name: 'Floor 381',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f382',
+      name: 'Floor 382',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f383',
+      name: 'Floor 383',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f384',
+      name: 'Floor 384',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, KILNSTROKE_CELEBRANT],
+      },
+    },
+    {
+      id: 't-angel-f385',
+      name: 'Floor 385',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f386',
+      name: 'Floor 386',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f387',
+      name: 'Floor 387',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f388',
+      name: 'Floor 388',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [RIFTEDGE_CANTOR, SLAGSEAM_FLENSER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f389',
+      name: 'Floor 389',
+      enemies: {
+        front: [PALE_WARDEN, CINDERFLAW_PROVER],
+        back: [SLAGSEAM_FLENSER, KILNCRACK_CANTOR, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f390',
+      name: 'Floor 390 — Faster Than the Verse',
+      enemies: {
+        front: [WARDEN, CINDERFLAW_PROVER],
+        back: [KILNCRACK_CANTOR, RIFTEDGE_CANTOR, CINDERSEED_COURSER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Hairline — Floors 391–400, levels 185–189, Fine 49–Fine 60 — one anchor and never two, and the only body in the tower that does not have to find the crack.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f391',
+      name: 'Floor 391',
+      enemies: {
+        front: [THE_HAIRLINE, SLAGSEAM_FLENSER],
+        back: [CINDERFLAW_PROVER, CINDER_CULLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f392',
+      name: 'Floor 392',
+      enemies: {
+        front: [THE_HAIRLINE, CINDER_CULLER],
+        back: [CINDERFLAW_PROVER, PYRE, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f393',
+      name: 'Floor 393',
+      enemies: {
+        front: [THE_HAIRLINE, SLAGSEAM_FLENSER],
+        back: [CINDERFLAW_PROVER, CINDER_CULLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f394',
+      name: 'Floor 394',
+      enemies: {
+        front: [THE_HAIRLINE, CINDER_CULLER],
+        back: [CINDERFLAW_PROVER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-angel-f395',
+      name: 'Floor 395',
+      enemies: {
+        front: [THE_HAIRLINE, SLAGSEAM_FLENSER],
+        back: [CINDERFLAW_PROVER, RENDFANG_JACKAL, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f396',
+      name: 'Floor 396',
+      enemies: {
+        front: [THE_HAIRLINE, CINDER_CULLER],
+        back: [CINDERFLAW_PROVER, PYRE, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f397',
+      name: 'Floor 397',
+      enemies: {
+        front: [THE_HAIRLINE, SLAGSEAM_FLENSER],
+        back: [CINDERFLAW_PROVER, CINDER_CULLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f398',
+      name: 'Floor 398',
+      enemies: {
+        front: [THE_HAIRLINE, CINDER_CULLER],
+        back: [CINDERFLAW_PROVER, PYRE, CINDERLING],
+      },
+    },
+    {
+      id: 't-angel-f399',
+      name: 'Floor 399',
+      enemies: {
+        front: [THE_HAIRLINE, SLAGSEAM_FLENSER],
+        back: [CINDERFLAW_PROVER, ASHPIT_SCUTTLER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f400',
+      name: 'Floor 400 — The Hairline',
+      enemies: {
+        front: [THE_HAIRLINE, CINDER_CULLER],
+        back: [CINDERFLAW_PROVER, MIREWHELP, ASHPIT_SCUTTLER],
       },
     },
   ],

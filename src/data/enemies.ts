@@ -5,6 +5,7 @@ import {
   AHEAD_OF_THE_COLUMN,
   ALONG_THE_FURROW,
   ALREADY_BEHIND_YOU,
+  ANGLED_FACE,
   ANSWERED_TOGETHER,
   ANTIPHON,
   ASHPIT_RAKE,
@@ -54,6 +55,7 @@ import {
   FEWER_EVERY_MILE,
   FLATTEN_THE_EDGE,
   FLENSE,
+  FLENSE_THE_SEAM,
   FULL_WEIGHT,
   GAINSAY,
   GALLERY_SHOT,
@@ -74,6 +76,7 @@ import {
   IT_ADDS_UP_EITHER_WAY,
   IT_HAS_NOT_LET_GO,
   IT_IS_ALL_WORTH_LESS,
+  IT_WAS_ALWAYS_THERE,
   IT_WAS_NEVER_GOING_TO,
   IT_WAS_WORTH_MORE_THIS_MORNING,
   IT_WILL_NOT_BE_SAID,
@@ -112,6 +115,7 @@ import {
   NOTHING_IS_COMING_BACK,
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
+  NOTHING_LANDS,
   NOTHING_LANDS_BETTER,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES,
@@ -135,6 +139,7 @@ import {
   PILLAR_OF_LIGHT,
   PROCESSION_STEP,
   PROOF_MARK,
+  PROVE_THE_PLATE,
   PUT_IT_ON_THE_CART,
   PUT_OUT_THE_LAMPS,
   PUT_THE_EDGE_ON,
@@ -174,10 +179,12 @@ import {
   SHUT_THE_RING,
   SLAGHIDE_LUNGE,
   SLAG_SLAM,
+  SLIP_THE_JAW,
   SLUNG_ANVIL,
   SPEND_THE_RANK,
   SPINES_STILL_IN_IT,
   SPITELIGHT,
+  SPRUNG_TURN,
   STILL_COUNTING,
   STONE_FIST,
   STRIP_THE_FALLEN,
@@ -191,6 +198,7 @@ import {
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
+  THE_BLOW_TURNS,
   THE_BREACH_GIVEN,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
@@ -233,6 +241,7 @@ import {
   THE_RING_IS_SHUT,
   THE_ROAD_TAKES_ITS_SHARE,
   THE_RUST_HOLDS,
+  THE_SAME_NOTE_AGAIN,
   THE_SEAL_BREAKS,
   THE_SINGLE_STROKE,
   THE_STANDING_ORDER,
@@ -268,18 +277,14 @@ import {
   WHAT_THE_FIELD_LEFT,
   WHAT_THE_WATER_LEFT,
   WHOSE_HAND_IS_THAT,
+  WIDEN_IT,
   WILDING_BLOOM,
   WITHERHEX,
-  WITHY_SNAP,
   WITHERING_TOUCH,
+  WITHY_SNAP,
   WRATH_UNBOUND,
   WRITTEN_DOWN_BESIDE_IT,
   ZENITHFALL,
-  ANGLED_FACE,
-  NOTHING_LANDS,
-  SLIP_THE_JAW,
-  SPRUNG_TURN,
-  THE_BLOW_TURNS,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -12200,6 +12205,191 @@ export const THE_TURNAWAY = {
   skills: [NOTHING_LANDS, THE_BLOW_TURNS],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fourth hundred — milestone 21x's four Demon blocks
+//
+// The sixth tower's last hundred, and the lean it already has deepened by four. Demons are the
+// faction that counters Angels — `countersOf('angel')` is exactly `{demon, monster}` — and this
+// tower has leaned on them since floor 1.
+//
+// ## What the four are for
+//
+// ⚠️ **The hundred escalates through `critChance`, against the one crew in the game that answered
+// crit with the wrong half of it.** The Angel arrangements are the **only two of fourteen** carrying
+// a point of `critDamageResist` — 0.76 and 0.96 summed across five, against **0.00** for the other
+// twelve — and `critDamageResist` is subtracted from an attacker's `critDamageAmp`. It says nothing
+// at all about how *often* a crit lands, and the stat that would (`critBlock`) sits at **0.06**
+// across five here, against the Dwarves' 0.23 and 0.28.
+//
+// Measured at level 189 in Fine 60 against a 4.00 / 3.79 control, four carriers:
+//
+//     critChance    0.09 0.15 0.22 0.30 0.38 0.46  ->  alt 3.73 3.55 3.02 2.27 1.15 0.48
+//     critDamageAmp 0.70 0.85 1.00 1.15 1.40 1.80  ->  alt 3.58 3.58 3.08 3.07 2.94 2.14
+//
+// Six monotone steps on the frequency, zero timeouts, and **the fight lengthens by half a second**
+// across the whole walk (39.7s to 40.4s). The size half is flat from 0.85 to 1.40 — four steps
+// inside 0.14 of a survivor — because the crew's own `critDamageResist` eats the bottom of that
+// range, and it takes 1.80, well past the shipped maximum of 1.15, to be worth what frequency is
+// worth at 0.30. **The crew answered the size and cannot answer the count.**
+//
+// ⚠️ **Three of the four sit at the shipped ceiling exactly and only the roof steps past** — the
+// Splintering Yards' shape rather than the Closing's. ⚠️ **The register quoted is the one this
+// hundred was measured against, which is the register *before* its own four landed** — a header
+// quoting the post-authoring figure would be claiming a band built at a ceiling the band itself
+// created. Over the **342** blocks shipped beforehand `critChance` runs a
+// median of 0.09, a p90 of 0.15 and a **maximum of 0.22** ({@link THE_EDGEWRIGHT}); `critDamageAmp`
+// a median of 0.70, a p90 of 0.85 and a maximum of 1.15. The three legendaries below carry 0.22,
+// 0.22 and 0.20 at amps of 0.85, 0.80 and 0.85, so the whole band asks for no number the game has
+// not already fielded. {@link THE_HAIRLINE} alone carries 0.30, and at the ceiling exactly the axis
+// is **already worth 1.66 of five** to the binding arrangement — which is what licenses the step, on
+// the measurement rather than on precedent.
+//
+// ⚠️ **The licence is exclusivity on the binding arrangement and nothing at all on the other one**,
+// which no earlier hundred has recorded. Cross-crew at 0.30 / 0.85, each of the fourteen calibrated
+// to the heaviest board it still reads at or above 3.75 survivors: **angel-alt 2.90**, undead-alt
+// 1.39, dwarf-alt 1.16, dwarf-ref 1.06, human-ref 0.84, undead-ref 0.83, monster-ref 0.79,
+// **angel-ref 0.79**, human-alt 0.66, elf-alt 0.63, elf-ref 0.61, monster-alt 0.58, demon-alt 0.55,
+// demon-ref 0.52. First by more than double over second — and eighth for this tower's *other* five.
+// That is the tower's own "weight breaks the reference, length breaks the alternate" split read from
+// a third side, and it is why every board here is sized against the alternate exactly as the third
+// hundred's were.
+//
+// ⚠️ **It is not the Elf Tower's lock repeated.** That hundred built on `critChance` because an Elf
+// five carries **zero** `critDamageResist` and **zero** `critBlock`, so any crit works; here the
+// crew carries the most `critDamageResist` in the game and the frequency half is what gets through.
+// At band 4 elf-alt ranks **tenth of fourteen** on this axis and elf-ref **eleventh**.
+//
+// ⚠️ **All four are under the Unmade on both stats**, which `enemies.spec.ts` holds.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A prover is sent along a wall with a hammer, and told to find where it is thin.
+ *
+ * **The hundred's spine**, and the block that introduces the axis on the opening band's boards.
+ * `critChance` 0.22 is the shipped ceiling exactly — {@link THE_EDGEWRIGHT}'s, held there for the
+ * mirror purpose of refusing an Elf five nothing — and `critDamageAmp` 0.85 is the shipped p90, so
+ * nothing in the first four bands asks for a number the game has not already fielded.
+ *
+ * At 780 it is the middle of the three legendaries on weight, because it is the one that stands in
+ * the front rank of the most boards.
+ */
+export const CINDERFLAW_PROVER = {
+  id: 'cinderflaw-prover',
+  name: 'Cinderflaw Prover',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 780,
+    atk: 66,
+    def: 34,
+    haste: 96,
+    critChance: 0.22,
+    critDamageAmp: 0.85,
+  },
+  skills: [PROVE_THE_PLATE],
+} as const;
+
+/**
+ * It does not open the seam. It arrives where the seam already was, more often than it should.
+ *
+ * The light, quick one — 620 at 70, `haste` 112. ⚠️ **112 is deliberately under this tower's own
+ * ceiling of 126.** The second hundred's axis was `haste` on a thin body and its closing band still
+ * forbids three bodies above 126; speed and frequency at once is the same product this hundred's
+ * skills refuse, so the fast carrier is fast enough to matter and no faster.
+ */
+export const SLAGSEAM_FLENSER = {
+  id: 'slagseam-flenser',
+  name: 'Slagseam Flenser',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 620,
+    atk: 70,
+    def: 26,
+    haste: 112,
+    critChance: 0.22,
+    critDamageAmp: 0.8,
+  },
+  skills: [FLENSE_THE_SEAM],
+} as const;
+
+/**
+ * One note, held against the kiln wall, for as long as it takes.
+ *
+ * The heavy end of the three at 900, and the lowest `atk` of them at 62. **A frequency is only worth
+ * what the body carrying it lives to spend**, so the block that has to survive longest is the one
+ * that swings softest — the argument {@link EVENSONG_WARDEN}'s 820 makes on the Demon Tower,
+ * arriving here on a hundred whose axis has the same shape.
+ *
+ * Its 0.20 is a notch under the other two, which is what keeps the three-carrier band from reading
+ * as three of the same body.
+ */
+export const KILNCRACK_CANTOR = {
+  id: 'kilncrack-cantor',
+  name: 'Kilncrack Cantor',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 62,
+    def: 40,
+    haste: 90,
+    critChance: 0.2,
+    critDamageAmp: 0.85,
+  },
+  skills: [THE_SAME_NOTE_AGAIN],
+} as const;
+
+/**
+ * Not a blow that breaks the plate. The place the plate was always going to go.
+ *
+ * The roof, and **the only body in the hundred carrying `critChance` past the shipped ceiling** —
+ * 0.30 against a maximum of 0.22 over 342 blocks. Its `critDamageAmp` of 0.90 is deliberately
+ * ordinary and well under the shipped 1.15: the half this crew answers is the half the roof does not
+ * reach for.
+ *
+ * ⚠️ **Its own turn is 1.80 where the hundred below's roof swings 2.60**, because the blow and the
+ * frequency are a product and the pair is past the edge — four carriers at 0.30 read 2.49 of five
+ * for the alternate and four swinging 2.10 read 1.73, where both together read **0.13**. See
+ * {@link IT_WAS_ALWAYS_THERE}.
+ *
+ * ⚠️ **It restores nothing, and the claim about the rest of the hundred is a count rather than an
+ * absolute** — the fourth time this tower family has had to make that correction, and the second
+ * time the prose check caught it before it shipped. Over floors 301-400 **no board carries a `heal`
+ * effect, a `drain`, a `regen` status or a point of `lifeLeech`**, which is the tower's own rule
+ * above floor 160; **51 boards carry `recovery` and 22 carry `healthRegen`**, against 111 and 29
+ * over floors 161-300. Both of those are a regeneration in the plain sense and both sit on the four
+ * surviving anchors ({@link FIRST_CINDER}, {@link WYRDROOT_ANCIENT}, {@link COLOSSUS} and
+ * {@link PALE_WARDEN}), exactly as they do on the hundred below.
+ *
+ * ⚠️ **The check moved two boards' worth of blocks rather than only the sentence.** The first pass
+ * drew its light Demon texture from {@link BLOODPACT_FIEND} and its heavy from
+ * {@link COVENANT_EXECUTOR}, {@link COVENANT_BREAKER}, {@link RUINWING_DEVOURER} and
+ * {@link UNSEALED_WRETCH} — every one of which carries a `drain` or a point of `lifeLeech`, and all
+ * five were fielded above floor 300 before the script said so. **A prose check can be a board bug.**
+ *
+ * Fielded at 1220 and 70 against the Unmade's 1800 and 100, which `enemies.spec.ts` holds.
+ */
+export const THE_HAIRLINE = {
+  id: 'the-hairline',
+  name: 'The Hairline',
+  faction: 'demon',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1220,
+    atk: 70,
+    def: 44,
+    haste: 98,
+    critChance: 0.3,
+    critDamageAmp: 0.9,
+  },
+  skills: [IT_WAS_ALWAYS_THERE, WIDEN_IT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -12543,4 +12733,8 @@ export const ENEMIES = [
   GLANCEWORK_SMITH,
   SLIPFAST_IRONSIDE,
   THE_TURNAWAY,
+  CINDERFLAW_PROVER,
+  SLAGSEAM_FLENSER,
+  KILNCRACK_CANTOR,
+  THE_HAIRLINE,
 ] as const;

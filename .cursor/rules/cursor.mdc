@@ -202,8 +202,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **four hundred floors each and only the
-  Human, Dwarf, Elf, Undead and Monster Towers there yet**. What a tower is for, the three fields a clear may never touch, the
-  four crews, and eighteen hundreds' worth of measured escalation findings.
+  Demon Tower not there yet**. What a tower is for, the three fields a clear may never touch, the
+  four crews, and nineteen hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -700,8 +700,31 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. **The list is live right now with two names on it** — the Human,
-  Dwarf, Elf, Undead and Monster fourth hundreds have landed. [towers](../../docs/towers.md)
+  notices a tower nobody went back for. **The list is live right now with one name on it** — the Human,
+  Dwarf, Elf, Undead, Monster and Angel fourth hundreds have landed, so the Demon session is the one
+  that deletes both lists. [towers](../../docs/towers.md)
+- ⚠️ **A stat can split into the half a crew answers and the half it does not, and only one of them is
+  an axis.** The Angel fourth hundred is built on `critChance` because `critDamageResist` is subtracted
+  from an attacker's `critDamageAmp` and says nothing about how _often_ a crit lands: the two Angel
+  arrangements are the **only two of fourteen carrying a point of it** (0.76 and 0.96 across five
+  against 0.00 everywhere else), while `critBlock` — the half that refuses frequency — sits at **0.06**
+  across five there against the Dwarves' 0.23 and 0.28. At level 189 in Fine 60 against a 4.00 / 3.79
+  control, four carriers grade `critChance` **3.73 / 3.55 / 3.02 / 2.27 / 1.15 / 0.48** across
+  0.09 → 0.46 with zero timeouts and **half a second of added fight**, where `critDamageAmp` at held
+  chance is flat from 0.85 to 1.40 and needs 1.80 — past the shipped max of 1.15 — to match. ⚠️ **The
+  same stat is the Elf third hundred's axis for the opposite reason** (an Elf five carries zero of
+  both), and at band 4 elf-alt ranks **tenth of fourteen** on it and elf-ref **eleventh**. "Two towers
+  with one lock" is a question about the argument, not the stat name. [towers](../../docs/towers.md)
+- ⚠️ **A cross-crew licence can be exclusive on the _binding_ arrangement and inert on the other**, which
+  is a shape no earlier hundred recorded: angel-alt 2.90 against angel-ref **0.79, eighth of fourteen**,
+  over a second place of 1.39. **Say which arrangement the licence is over.** ⚠️ **And a retirement check
+  on a geared hundred is far harsher than on a naked one** — the Angel floor-300 board carried to floor
+  400 reads **0% for both** where the same check a hundred below read 73% / 50%, and **four anchors
+  retire**, the most any hundred has. [towers](../../docs/towers.md)
+- ⚠️ **The prose check can be a _board_ bug rather than a wording bug.** The Angel fourth hundred's first
+  pass fielded five blocks carrying a `drain` or a point of `lifeLeech` above floor 300, on a tower whose
+  own rule forbids enemy sustain above floor 160 — and the sweep was green, because the boards had been
+  tuned with them on. **Check the claim; expect to fix the content.** [authoring](../../docs/authoring.md)
 - ⚠️ **An escalation axis can be a _product of two stats_ where neither half is worth much alone, and
   the Undead fourth hundred is that case.** At level 189 in Fine 60, four carriers walked from
   `atk` 36 / `haste` 96 to 56/136 grade **3.77 → 0.93** and **3.92 → 0.00** with zero timeouts, while
