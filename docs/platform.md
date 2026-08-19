@@ -103,26 +103,52 @@ disables the pinch recogniser natively on both platforms, and `touch-action: man
 double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real values
 instead of zero.
 
-⚠️ **`touch-action: manipulation` does not veto WKWebView's double-tap zoom, and the shell now
-disables that recogniser natively.** The CSS was tried at both scopes and failed on device both
-times: on `html` alone from milestone 6, then on every element via `*` — the second failure with
-`*{touch-action:manipulation}` verifiably in the synced bundle, so it was not inheritance (the
-property does not inherit) and not a stale build. Safari honours the veto; WKWebView's own
-double-tap recogniser fires without consulting it. The zoom it performs is a trap, because
-Capacitor implements `zoomEnabled: false` as `scrollViewWillBeginZooming` disabling the _pinch_
-recogniser (`WebViewDelegationHandler.swift`) — the way back out of a zoom, not the double-tap way
-in — so the player is stranded at the zoomed scale.
+⚠️ **`touch-action: manipulation` does not veto WKWebView's double-tap zoom, and no one-shot
+native disable survives either — the shell defeats the gesture structurally.** Four attempts
+stand behind that sentence. The CSS was tried at two scopes — `html` alone from milestone 6, then
+every element via `*` — and a double-tap on device still zoomed with the `*` rule verifiably in
+the synced bundle. Natively, `isEnabled = false` on the double-tap recognisers decayed within one
+frame: WebKit re-decides their enablement on essentially every rendered commit
+(`_didCommitLayerTree` → `_setDoubleTapGesturesEnabled:` in the WebKit source), and this app
+repaints continuously. A static `require(toFail:)` walk then missed the zoom recogniser outright,
+because WebKit attaches its recognisers on its own schedule and a one-shot walk sees only that
+moment's set — measured: the walk caught two of the three double-tap recognisers.
 
-The fix is `ios/App/App/BridgeViewController.swift`, the project's first and only
-`CAPBridgeViewController` subclass: it walks the scroll view's subviews and disables every
-one-finger double-tap recogniser, public API only. ⚠️ **It runs from `viewDidAppear`, and that is
-load-bearing**: `WKContentView` installs its recognisers when it joins a window, so a
-`viewDidLoad` or `capacitorDidLoad` hook walks an empty list and silently fixes nothing. The
-subclass passed the pod-source test above rather than violating it — the source was read, twice,
-and it covers pinch and never double-tap. The `*` CSS rule stays for the tap delay and for
-browsers that do honour the veto. Android needs neither: `zoomEnabled: false` there is
-`setBuiltInZoomControls(false)`, and Android's double-tap zoom exists only when the built-in zoom
-controls are on.
+Why the zoom happens at all: WebKit keeps double-tap zoom off only while the page sits exactly at
+its initial scale (`_allowsDoubleTapGestures` — measured `0` in a clean simulator, where this
+viewport meta does its job) and arms it **everywhere** the moment the scale drifts. Capacitor
+implements `zoomEnabled: false` as `scrollViewWillBeginZooming` disabling the _pinch_ recogniser
+(`WebViewDelegationHandler.swift`) — from _inside_ the first pinch — so the first pinch of a run
+can leak exactly that drift, and afterwards pinch is dead: double-tap zooms, nothing leads back
+out. That is the stranded state from the bug report, and it was reproduced in the simulator at
+1.8× through WebKit's own page-scale SPI.
+
+The fix is `ios/App/App/BridgeViewController.swift`, the project's only `CAPBridgeViewController`
+subclass, public API throughout. A blocker `UITapGestureRecognizer` on the web view recognises
+every one-finger double-tap, and its delegate answers `shouldBeRequiredToFailBy` so that every
+one-finger double-tap recogniser WebKit ever installs fires only if the blocker fails — a
+per-gesture rule, immune to both the enablement decay and the attachment timing. The blocker's
+action resets any drifted scale straight back to 1, which turns the player's reflex —
+double-tapping the stuck screen — into the way out. The pinch recogniser is re-disabled at every
+opportunity, but UIScrollView re-enables it as it manages zoom state, so that leg is best-effort
+on top of Capacitor's delegate; the reset is what guarantees the stranding ends. ⚠️ **The install
+runs from `viewDidAppear`, and that is load-bearing**: `WKContentView` joins the window between
+`viewDidLoad` and there. The subclass passed the pod-source test above rather than violating it —
+the source was read, twice, and it covers pinch and never double-tap. The `*` CSS rule stays for
+the tap delay and for browsers that do honour the veto. Android needs none of this:
+`zoomEnabled: false` there is `setBuiltInZoomControls(false)`, and Android's double-tap zoom
+exists only when the built-in zoom controls are on.
+
+⚠️ **The proof is a native UI test, not a unit test: `ios/App/AppUITests/ZoomTests.swift`.**
+XCUITest is the only harness that injects real double-taps through the system gesture graph —
+every synthetic route (two fast taps from automation, `touch-action` reasoning, recognizer
+inspection) either cannot make the 350ms window or proves the wrong layer. The test attaches to
+the running app, rescues from whatever state it finds, and asserts double-taps are a fixed point;
+it passed from a genuine 1.8× web-process zoom, rescuing to exactly 1 and moving nothing
+afterwards. Run it with the app installed on a booted simulator:
+`xcodebuild test -project ios/App/App.xcodeproj -scheme AppUITests -destination 'platform=iOS Simulator,id=<udid>'`.
+It is not part of `npm test` and needs a simulator, so it runs when the shell's zoom story
+changes, not on save.
 
 ⚠️ **When a fix and the accessibility suite disagree, the suite is usually telling you the fix was a
 reflex.** Look for the option that satisfies both before reaching to silence one — here the native

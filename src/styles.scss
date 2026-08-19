@@ -76,10 +76,10 @@ body {
 // declaration this file carried from milestone 6 reached nothing a finger actually lands on —
 // but in the shipped shell this rule is only half the story, and the lesser half: WKWebView's
 // own double-tap recogniser fires without consulting it, measured on device with this exact
-// `*` rule in the bundle. `ios/App/App/BridgeViewController.swift` disables that recogniser
-// natively — the mirror of what `zoomEnabled: false` already does to pinch — and carries the
-// full argument. This rule stays for the tap delay and for any WebView that does honour the
-// veto.
+// `*` rule in the bundle. `ios/App/App/BridgeViewController.swift` defeats that gesture
+// natively — a failure-requirement blocker plus a scale reset, proven by a real-gesture UI test
+// in `ios/App/AppUITests/` — and carries the full argument. This rule stays for the tap delay
+// and for any WebView that does honour the veto.
 * {
   touch-action: manipulation;
 }

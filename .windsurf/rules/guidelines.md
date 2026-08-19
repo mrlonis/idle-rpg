@@ -1280,15 +1280,19 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   for zoom in a shelled app and it is all cost here: AXE flags it under WCAG 1.4.4, and it buys
   nothing over the native `zoomEnabled: false` above plus `touch-action: manipulation` for
   double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real
-  values instead of zero. ⚠️ **`touch-action: manipulation` is necessary and not sufficient:
-  WKWebView's double-tap recogniser fires without consulting it.** It sits on every element (`*`
-  in `src/styles.scss` — the property does not inherit, so `html`-only reached nothing), and a
-  double-tap on device still zoomed with that exact bundle installed, stranding the player,
-  because `zoomEnabled: false` disables only the _pinch_ recogniser — the way back out of a zoom,
-  not the double-tap way in. `ios/App/App/BridgeViewController.swift` disables the double-tap
-  recogniser natively, from `viewDidAppear` and nowhere earlier: `WKContentView` installs its
-  recognisers when it joins a window, so an earlier hook walks an empty list and silently fixes
-  nothing. See [platform](../../docs/platform.md).
+  values instead of zero. ⚠️ **`touch-action: manipulation` cannot stop WKWebView's double-tap
+  zoom, and neither can any one-shot native disable — WebKit re-decides recogniser enablement on
+  every rendered commit and attaches recognisers on its own schedule.** The CSS stays (`*` in
+  `src/styles.scss`, for the tap delay; the property does not inherit, so `html`-only reached
+  nothing), but the shell defeats the gesture in `ios/App/App/BridgeViewController.swift`: a
+  blocker recogniser whose delegate answers `shouldBeRequiredToFailBy` for every one-finger
+  double-tap — per-gesture, so it survives both the decay and the timing — plus an action that
+  resets any drifted scale to 1. Both halves matter: WebKit arms double-tap zoom everywhere the
+  moment the page leaves its initial scale, and Capacitor's pinch block fires only _inside_ the
+  first pinch, which is exactly the leak that creates the drift and then strands the player at
+  the zoomed scale. Proof is `ios/App/AppUITests/ZoomTests.swift` — XCUITest, the only harness
+  that injects real double-taps; see [platform](../../docs/platform.md) for the full account and how
+  to run it.
 - **No webfonts.** The app is offline-only, so a `fonts.googleapis.com` stylesheet is a network
   call on the critical rendering path that fails exactly when the player has no signal.
   `src/styles.scss` uses the platform system stack.
