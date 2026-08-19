@@ -1278,7 +1278,12 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   for zoom in a shelled app and it is all cost here: AXE flags it under WCAG 1.4.4, and it buys
   nothing over the native `zoomEnabled: false` above plus `touch-action: manipulation` for
   double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real
-  values instead of zero.
+  values instead of zero. ⚠️ **`touch-action: manipulation` must sit on every element (`*` in
+  `src/styles.scss`), never on `html` alone.** The property does not inherit and WebKit judges a
+  double-tap by the element under the finger, so the html-only version shipped in milestone 6 and
+  double-tapping a button on device still zoomed — and stranded the player there, because
+  `zoomEnabled: false` disables only the _pinch_ recogniser (the way back out of a zoom, not the
+  double-tap way in).
 - **No webfonts.** The app is offline-only, so a `fonts.googleapis.com` stylesheet is a network
   call on the critical rendering path that fails exactly when the player has no signal.
   `src/styles.scss` uses the platform system stack.

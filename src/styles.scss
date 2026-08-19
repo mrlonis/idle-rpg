@@ -36,12 +36,6 @@ html {
   // sizes here are relative units that still follow the system text size.
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-
-  // Drops the legacy 300ms tap delay and, together with `zoomEnabled: false` in
-  // `capacitor.config.ts`, all of double-tap-to-zoom. Panning still reaches the page, so this is
-  // deliberately not `touch-action: none`. It is also what lets the viewport meta stay honest:
-  // zoom is off without `user-scalable=no`, which AXE flags under WCAG 1.4.4.
-  touch-action: manipulation;
 }
 
 body {
@@ -71,4 +65,21 @@ body {
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+// Drops the legacy 300ms tap delay and, together with `zoomEnabled: false` in
+// `capacitor.config.ts`, all of double-tap-to-zoom. Panning still reaches the page, so this is
+// deliberately not `touch-action: none`. It is also what lets the viewport meta stay honest:
+// zoom is off without `user-scalable=no`, which AXE flags under WCAG 1.4.4.
+//
+// The universal selector is load-bearing, and it is the one rule here that reaches past `html`
+// and `body` — it has to, because `touch-action` does not inherit and WebKit judges a double-tap
+// by the element under the finger. The declaration sat on `html` alone from milestone 6 and did
+// not work: double-tapping a button on a real phone still zoomed, and stranded the player at
+// that scale, because `zoomEnabled: false` disables only the *pinch* recogniser
+// (`scrollViewWillBeginZooming` in Capacitor's `WebViewDelegationHandler.swift`) — the way back
+// out of a zoom, not the double-tap way in. Suppressing the double-tap on every element is the
+// whole fix; no native change is needed.
+* {
+  touch-action: manipulation;
 }

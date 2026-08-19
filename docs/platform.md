@@ -103,6 +103,15 @@ disables the pinch recogniser natively on both platforms, and `touch-action: man
 double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real values
 instead of zero.
 
+⚠️ **`touch-action: manipulation` only works on the element under the finger.** The property does
+not inherit, and it sat on `html` alone from milestone 6 — on device, double-tapping a button still
+zoomed, and left the player stranded at that scale with no way back out, because the native half of
+the story (`scrollViewWillBeginZooming` in Capacitor's `WebViewDelegationHandler.swift`) disables
+only the _pinch_ recogniser: the way out of a zoom, not the double-tap way in. The declaration lives
+on the universal selector in `src/styles.scss` now, so it reaches every element. No Swift was
+needed, which is the pod-source discipline above paying out again — the temptation was a
+`WKWebView` gesture hack, and the actual fix was one CSS selector.
+
 ⚠️ **When a fix and the accessibility suite disagree, the suite is usually telling you the fix was a
 reflex.** Look for the option that satisfies both before reaching to silence one — here the native
 config option is also what let the viewport meta stay accessible, so the two were never independent
