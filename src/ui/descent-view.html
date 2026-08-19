@@ -39,7 +39,9 @@
     <section class="lock" aria-labelledby="lock-label">
       <h2 id="lock-label" class="section__heading">Today's road</h2>
       <p class="lock__factions">{{ lockNote() }}</p>
-      <a class="lock__link" [routerLink]="crewLink">Arrange your crew →</a>
+      <a class="lock__link" [routerLink]="crewLink" [queryParams]="{ from: crewFrom }">
+        Arrange your crew →
+      </a>
     </section>
 
     <section class="party" aria-labelledby="party-label">

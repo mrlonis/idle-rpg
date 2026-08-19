@@ -78,6 +78,18 @@ describe('ExpeditionMapView', () => {
     expect(labels.some((entry) => entry.startsWith('Boss camp'))).toBe(true);
   });
 
+  it('names its own map as the crew editor’s origin, so its back link returns here', async () => {
+    // Without `from` the link still works and the editor quietly falls back to the formations
+    // index — a screen this trip never visited. The parameter is the half that fails silently,
+    // and it has to carry the map id: every map shares one crew, but the player left from a
+    // particular map and goes back to it.
+    const { el } = await render(FORD.id);
+
+    expect(el.querySelector('.party__link')?.getAttribute('href')).toBe(
+      `/formations/expedition?from=expedition:${FORD.id}`,
+    );
+  });
+
   it('keeps the stamina budget on screen as a real progressbar while an attempt runs', async () => {
     const idle = await render(FORD.id);
     expect(idle.el.querySelector('.budget__bar')).toBeNull();
