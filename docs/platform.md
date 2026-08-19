@@ -103,14 +103,26 @@ disables the pinch recogniser natively on both platforms, and `touch-action: man
 double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real values
 instead of zero.
 
-⚠️ **`touch-action: manipulation` only works on the element under the finger.** The property does
-not inherit, and it sat on `html` alone from milestone 6 — on device, double-tapping a button still
-zoomed, and left the player stranded at that scale with no way back out, because the native half of
-the story (`scrollViewWillBeginZooming` in Capacitor's `WebViewDelegationHandler.swift`) disables
-only the _pinch_ recogniser: the way out of a zoom, not the double-tap way in. The declaration lives
-on the universal selector in `src/styles.scss` now, so it reaches every element. No Swift was
-needed, which is the pod-source discipline above paying out again — the temptation was a
-`WKWebView` gesture hack, and the actual fix was one CSS selector.
+⚠️ **`touch-action: manipulation` does not veto WKWebView's double-tap zoom, and the shell now
+disables that recogniser natively.** The CSS was tried at both scopes and failed on device both
+times: on `html` alone from milestone 6, then on every element via `*` — the second failure with
+`*{touch-action:manipulation}` verifiably in the synced bundle, so it was not inheritance (the
+property does not inherit) and not a stale build. Safari honours the veto; WKWebView's own
+double-tap recogniser fires without consulting it. The zoom it performs is a trap, because
+Capacitor implements `zoomEnabled: false` as `scrollViewWillBeginZooming` disabling the _pinch_
+recogniser (`WebViewDelegationHandler.swift`) — the way back out of a zoom, not the double-tap way
+in — so the player is stranded at the zoomed scale.
+
+The fix is `ios/App/App/BridgeViewController.swift`, the project's first and only
+`CAPBridgeViewController` subclass: it walks the scroll view's subviews and disables every
+one-finger double-tap recogniser, public API only. ⚠️ **It runs from `viewDidAppear`, and that is
+load-bearing**: `WKContentView` installs its recognisers when it joins a window, so a
+`viewDidLoad` or `capacitorDidLoad` hook walks an empty list and silently fixes nothing. The
+subclass passed the pod-source test above rather than violating it — the source was read, twice,
+and it covers pinch and never double-tap. The `*` CSS rule stays for the tap delay and for
+browsers that do honour the veto. Android needs neither: `zoomEnabled: false` there is
+`setBuiltInZoomControls(false)`, and Android's double-tap zoom exists only when the built-in zoom
+controls are on.
 
 ⚠️ **When a fix and the accessibility suite disagree, the suite is usually telling you the fix was a
 reflex.** Look for the option that satisfies both before reaching to silence one — here the native

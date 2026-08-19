@@ -1279,17 +1279,22 @@ predating the project is corruption, and pays zero exactly as a non-finite delta
   pinch-blocking scroll delegate on iOS and turns off `setBuiltInZoomControls` on Android) and
   already sets `scrollView.bounces = false`. **Do not subclass `CAPBridgeViewController` to do
   either** — read `node_modules/@capacitor/ios/Capacitor/Capacitor/CAPBridgeViewController.swift`
-  before believing a native fix is needed for WebView chrome.
+  before believing a native fix is needed for WebView chrome. The one shipped subclass
+  (`ios/App/App/BridgeViewController.swift`, double-tap zoom) passed that test rather than
+  skipping it: the pod source covers pinch and never double-tap.
 - **Do not put `maximum-scale=1, user-scalable=no` in the viewport meta.** It is the reflex fix
   for zoom in a shelled app and it is all cost here: AXE flags it under WCAG 1.4.4, and it buys
   nothing over the native `zoomEnabled: false` above plus `touch-action: manipulation` for
   double-tap. Keep `viewport-fit=cover` — that is what makes the safe-area insets report real
-  values instead of zero. ⚠️ **`touch-action: manipulation` must sit on every element (`*` in
-  `src/styles.scss`), never on `html` alone.** The property does not inherit and WebKit judges a
-  double-tap by the element under the finger, so the html-only version shipped in milestone 6 and
-  double-tapping a button on device still zoomed — and stranded the player there, because
-  `zoomEnabled: false` disables only the _pinch_ recogniser (the way back out of a zoom, not the
-  double-tap way in).
+  values instead of zero. ⚠️ **`touch-action: manipulation` is necessary and not sufficient:
+  WKWebView's double-tap recogniser fires without consulting it.** It sits on every element (`*`
+  in `src/styles.scss` — the property does not inherit, so `html`-only reached nothing), and a
+  double-tap on device still zoomed with that exact bundle installed, stranding the player,
+  because `zoomEnabled: false` disables only the _pinch_ recogniser — the way back out of a zoom,
+  not the double-tap way in. `ios/App/App/BridgeViewController.swift` disables the double-tap
+  recogniser natively, from `viewDidAppear` and nowhere earlier: `WKContentView` installs its
+  recognisers when it joins a window, so an earlier hook walks an empty list and silently fixes
+  nothing. See [platform](../../docs/platform.md).
 - **No webfonts.** The app is offline-only, so a `fonts.googleapis.com` stylesheet is a network
   call on the critical rendering path that fails exactly when the player has no signal.
   `src/styles.scss` uses the platform system stack.
