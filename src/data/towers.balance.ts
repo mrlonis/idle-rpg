@@ -230,7 +230,6 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * undefined stage without that.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

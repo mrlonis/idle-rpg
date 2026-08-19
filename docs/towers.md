@@ -1,16 +1,18 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — one of seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — two of seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
 hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
 Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
-the Human Tower's floors 401–500 landed with it; the other six stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+the Human Tower's floors 401–500 landed with it, the Dwarf Tower's followed, and the other five stand
+at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
 them; [authoring](authoring.md) is the procedure for adding floors.
 
 ⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
 the fourth hundred's note asked for, and the half of the discipline that had never actually been done
 before. `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
-— which means for six sessions running, six towers are authored a hundred floors short. A tower in that
+— which means for six sessions running, towers are authored a hundred floors short; **five names
+remain on the lists now that the Dwarf Tower's hundred has landed.** A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
 `nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
@@ -214,8 +216,9 @@ quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
 fails now that the towers pay **two and a half times** what the spine's first clears do. Recomputed by
-hand with the Human Tower at five hundred floors and the other six at four: the seven pay **901,100**
-against the 25-chapter campaign's **351,500**, a ratio of **2.563**. ⚠️ **Seven towers of five hundred
+hand with the Human and Dwarf Towers at five hundred floors and the other five at four: the seven pay
+**932,100** against the 25-chapter campaign's **351,500**, a ratio of **2.652** — it read 901,100 and
+2.563 with one tower extended. ⚠️ **Seven towers of five hundred
 would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
 weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
 155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
@@ -453,6 +456,11 @@ choosing; do not copy the last session's shape.**
   identity is**: `physicalPierce` against the deepest armour in the game. The gear ramp arrives free
   here (it is one rule for all seven towers), so unlike the Human fourth hundred this one had to find an
   axis on top of it. See below.
+- **Dwarf, fifth hundred** — the first hundred built on **a spent axis whose own licence had expired**:
+  pierce alone re-measured seventh of fourteen at band 5, and what is authored instead is
+  `physicalPierce` **and** `atk` carried together on light bodies — super-additive on this crew
+  (0.47 + 0.82 alone against **1.97** together), which is the Monster fourth hundred's licence for
+  building on the axis below, taken on margin exactly as the Human fifth hundred's was. See below.
 - **Elf, second hundred** — can afford either (it takes the heaviest authorable board in eleven
   seconds against a ninety-second timer) but neither _threatens_ it: a shield support in the back rank
   leaves the weaker arrangement at 100% with 4.25 alive, while two anchors take it to 43%. It
@@ -599,7 +607,10 @@ Tower's `THE_PLATEWRIGHT`), 1240/68 (this), 1240/74, 1300/84, 1320/82, 1440/86,
 1540/92, 1560/91 — the Dwarf fourth hundred took both records the
 session after this one landed, and the Undead fourth hundred took the health record back one session
 after that, all three being geared and spending their allowance on an axis as well as on the
-grade. **The weight a roof is allowed is what is left after the grade** — and ⚠️ **a superlative about
+grade. The fifth hundreds then took the attack record twice more — the Ironpace at 1160/**44** and the
+Masterstroke at 1140/**40**, the lightest roof _anchor_ any hundred has shipped on both axes, though
+the Monster Tower's Turnaway (820/58) remains the lightest roof _block_ on health. **The weight a roof
+is allowed is what is left after the grade** — and ⚠️ **a superlative about
 seven towers goes stale the moment the next hundred lands, so state the list.** The hundred closes at
 **100% / 3.60 against 93% / 1.65**, zero timeouts, longest fight 28.6s.
 
@@ -1729,6 +1740,63 @@ These are findings a later session should not have to re-derive.
   **44** with the escort untouched (60 reads 8% for the binding arrangement, 52 reads 70%, 44 reads 83%
   with 2.00 of five). ⚠️ **This inverts the same tower's fourth-hundred roof finding**, where the escort
   was the whole question and the boss needed no retune. **Take the measurement, not the precedent.**
+
+### The fifth hundred — the Dwarf Tower's Masterworks
+
+- ⚠️ **A tower's own spent axis expires like anyone else's, and the pair built on it is a different
+  curve.** Re-measured at band 5 across all fourteen arrangements — each calibrated to the heaviest
+  mirror control it still reads ≥3.75 on — `physicalPierce` 0.35 alone costs dwarf-ref **0.50, seventh
+  of fourteen**, and dwarf-alt 0.15, where the fourth hundred measured it first and second. What is
+  authored instead is the pierce **and** the attack behind it on one body: pierce 0.25 is worth 0.47
+  alone and `atk` 46 is worth 0.82 alone, and together they are worth **1.97** — ×1.53 over the sum,
+  the super-additivity licence the Monster fourth hundred established, on a pair the damage formula
+  explains (`atk² / (atk + def × (1 − pierce))` moves in both terms at once). It grades in value
+  (0.98 → 3.88 across six steps) and in carrier counts (3.98 / 3.98 / 3.50 / 2.70 / **1.50** across
+  zero to four at 0.25/48), zero timeouts anywhere on the grade.
+- ⚠️ **The licence is margin, and the two rows above the Dwarves are a caveat worth recording.** On
+  the same fourteen-way table the pair costs **angel-alt 3.72 and angel-ref 2.42** — a hammer is the
+  choir's tax (the Angel third hundred's own finding), and an all-Angel mirror is the hardest board
+  that crew has by construction, so its calibrated controls sit far heavier than anyone's and any
+  attack-shaped candidate tops out there. **Dwarf-ref reads 1.17, first of the twelve mortal
+  arrangements**, over elf-alt 1.10 and human-alt 1.03. The Human fifth hundred's shape: say which
+  half of the licence you have.
+- ⚠️ **Every dial stronger than the pair converts budget into seconds on this crew, which is the
+  fourth hundred's finding surviving a rung.** Enemy `hp` 1100 is worth 3.47 of five at 58.6s mean,
+  **72.0s max and a 38% win rate**; `dodge` 0.45 is worth 1.94 at **82.9s max** against a crew with
+  zero `accuracy`; `def` 110 is worth 1.29 at 51.8s; `physicalResist` 0.30 is worth 0.90 at 46.6s.
+  Worth-per-second is nearly constant (~0.17/s) across pierce, attack and their pairs, so what chose
+  the pair over plain attack was the cross-crew table (plain `atk` +30% wipes five other crews harder
+  than it taxes this one) and the counts grade the bands needed.
+- ⚠️ **Crit is dead last of fourteen on the crew with the game's deepest `critBlock`** — dwarf-ref
+  0.25 and dwarf-alt 0.05 at `critChance` 0.30 / amp 0.85, against monster-ref's 0.77 — which is the
+  Angel fourth hundred's "the crew answered the wrong half" mirrored: this crew answered the right
+  one, and the answer holds.
+- ⚠️ **The second-anchor ban survives a second rung of investment.** Beside a calibrated anchor at
+  band 5, a second `ascended` at 500/40 costs 3.00 of five and one at 650/44 reads **0% / 45%** — a
+  cliff on this crew where the Monster crews graded it as a dial, so no board in the hundred pairs
+  two. **A dial on one crew is a cliff on another; field the pairing on the crew being authored for.**
+- ⚠️ **The rank rule returns at half size when the axis is half output.** A pair carrier in the back
+  rank is worth **0.50 more** than the same body in front (3.48 against 3.98, carried on one body as
+  chapter 22 demands) — the second hundred's back-rank cliff at half size, where pierce alone measured
+  rank-neutral, because pierce is not output and the pair's attack half is. The Long Grain spends it
+  deliberately: one carrier stands in the back rank through band 5 while the authored weight eases.
+- ⚠️ **Which crew binds flipped between two hundreds of one tower**: the reference five reads lower
+  on nearly every row at band 5 where the fourth hundred's alternate bound. Check both, every time.
+- ⚠️ **The roof was settled on its attack — the fourth tower roof running** — at 50 it reads **0% for
+  both arrangements**, 73% for the binding one at 44 and 100% / 1.68 at the shipped 40; and **the
+  axis carries the last floor**: pierce stripped to zero reads 100% / 3.15 against the shipped 1.68,
+  worth 1.47 of five and ten seconds of clock. The hundred closes at **100% / 1.68 / 53.7s against
+  100% / 2.08 / 53.2s**, zero timeouts anywhere, longest fight **58.2s** against the 67.5s bar.
+- ⚠️ **Two retired anchors came back for the opening bands and the tower's own roof did not.** At
+  floor 500 behind light escorts the Proof House, the Breachlord and the Crown Wheel all read **0%**
+  — the Crownworks collapse a fourth time — while the Warpick Lieutenant, the Proofmark Serjeant and
+  the Quenchpit Ironhide stand at 100% / 4.00. The Breachlord anchors floor 410 and the Crown Wheel
+  floor 420, twenty-five levels down, exactly as the Ironpace re-fielded the Gravewright; the Proof
+  House itself stays retired. **Say which floors a retirement is about.**
+- ⚠️ **The lean's first pass came out legal for the first time in this tower's history — 67.6%,
+  shipped at 67.0% — and it is a property of the axis rather than of discipline**: hot, light
+  carriers want the Monster tank-and-texture pool from the first draft. The tower closes at
+  **62.87% Human over 2,459 slots**. Budget for the overshoot anyway.
 
 ## Where it sits on screen
 

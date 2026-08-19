@@ -87,11 +87,12 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and one tower of seven is there
+### The fifth hundred: the height is 500 and two towers of seven are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
-had never actually been done before. The other six stand at 400 and each has lost its boss until its own
+had never actually been done before. The Dwarf Tower's hundred followed; the other five stand at 400 and
+each has lost its boss until its own
 hundred lands; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
 endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
 floor 500), leaving 90 of their 100 geared floors byte-identical.
@@ -107,7 +108,8 @@ guard bought.
 
 ⚠️ **The crystal ratio was recomputed by hand, which is what replaced the retired guard.** With one
 tower at 500 and six at 400 the seven pay **901,100** against the campaign's **351,500**, a ratio of
-**2.563**; seven towers of 500 would read 1,087,100 and **3.093**. That is the number to weigh before a
+**2.563**; with the Dwarf Tower extended it reads **932,100** and **2.652**; seven towers of 500 would
+read 1,087,100 and **3.093**. That is the number to weigh before a
 sixth hundred is proposed, and it is left as a design question rather than answered by a threshold.
 
 ⚠️ **The Ironpace is the first hundred anywhere whose "is it ours" table came back _no for every
@@ -119,6 +121,18 @@ control to 36.1s for 2.88 survivors; the pair reads 26.1s for the same difficult
 **margin rather than exclusivity** — stated as such, which is the Angel third hundred's distinction and
 the first time a hundred has had to take the weaker half knowingly. Its full findings are in
 [towers](towers.md).
+
+⚠️ **The Masterworks — the Dwarf Tower's fifth hundred — is the first built on a spent axis whose own
+licence had expired.** Re-measured at band 5, this tower's own `physicalPierce` ranks **seventh of
+fourteen** where the fourth hundred measured it first and second; what is authored instead is the
+pierce **and** the attack behind it on one body, which is super-additive on this crew (0.47 and 0.82
+alone, **1.97** together) — the Monster fourth hundred's licence for building on the axis below, taken
+on the Ironpace's margin form (first of the twelve mortal arrangements, under the two Angel rows that
+top every attack-shaped candidate at that depth). Everything stronger measured as the clock: enemy
+`hp` at 72.0s max and a 38% win, `dodge` at 82.9s on a crew with zero `accuracy`. Crit came back dead
+last of fourteen on the crew with the game's deepest `critBlock`, the second-anchor ban survived a
+second rung of investment, and the roof was settled on its attack — the fourth tower roof running.
+Full findings in [towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

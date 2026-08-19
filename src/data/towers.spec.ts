@@ -157,7 +157,6 @@ const TOWER_UNIT = 100;
  * nearly the boards it was tuned with, where the fourth hundred's list left its towers entirely naked.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

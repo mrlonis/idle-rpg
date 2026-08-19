@@ -36,9 +36,11 @@ import {
   HAG,
   HEADSMAN,
   HEARTROOT_TENDER,
+  HEWSTROKE_PRENTICE,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
+  JOURNEYMAN_HEWER,
   KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
   KNELL_CHANTER,
@@ -85,7 +87,9 @@ import {
   STORMCALLER,
   THE_BREACHLORD,
   THE_CROWN_WHEEL,
+  THE_MASTERSTROKE,
   THE_PROOF_HOUSE,
+  THE_WORKMASTER,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
@@ -102,13 +106,13 @@ import {
 } from './enemies';
 
 /**
- * The Dwarf Tower — four hundred floors, enemy levels 1 to 189.
+ * The Dwarf Tower — five hundred floors, enemy levels 1 to 236.
  *
  * ## Why the enemies are mostly Human
  *
  * Humans beat Dwarves in the matchup cycle, so this is the tower that punishes the crew it admits.
- * About three fifths of the slots are Human — **61.82%** across the whole tower, over 1,959 slots and
- * 100 distinct blocks — and the rest are spread across the other six factions, which is the shape the
+ * About three fifths of the slots are Human — **62.87%** across the whole tower, over 2,459 slots and
+ * 104 distinct blocks — and the rest are spread across the other six factions, which is the shape the
  * matrix needs: a mono-Dwarf five meets fights it is unfavoured in *and* fights it is favoured in,
  * rather than a mirror match that would switch the matrix off entirely.
  * [`towers.spec.ts`](./towers.spec.ts) measures the share rather than trusting this paragraph.
@@ -124,7 +128,10 @@ import {
  * rather than skirmishers, and the shipped low-attack commons are nearly all Human — so the swap had to
  * reach for Monster tanks (`CHALKHIDE_BROWSER`, `THORNBACK_GRAZER`, `BOAR`) rather than for the light
  * Monster texture the bands below use. It closed at 63.4% from a first pass at **77.6%**, which would
- * have taken the whole tower to 65.44% and failed the ceiling outright.
+ * have taken the whole tower to 65.44% and failed the ceiling outright. ⚠️ **The fifth hundred is the
+ * first whose first pass came out legal — 67.6%, shipped at 67.0% — and it is not virtue**: its axis
+ * carriers are hot, light bodies, so the boards wanted the Monster tank-and-texture pool from the
+ * start rather than acquiring it in the substitution pass. Budget for the overshoot anyway.
  *
  * ## What a Dwarf five is, and what this tower charges it for
  *
@@ -327,8 +334,10 @@ import {
  *   here, with weight held at 1200 hp and the escort held, the roof reads **0% at `atk` 70**, 2.67 / 2.35 at
  *   **52**, 3.85 / 3.42 at 44 and 4.00 / 3.95 at 38. The third turn is most of it: one turn instead of three
  *   at `atk` 70 reads 100% / 1.20 and 90% / 1.55. **Shortlist on weight; settle on attack** — chapter 20's
- *   rule, on a roof, and it is why [`THE_PROOF_HOUSE`](./enemies.ts) carries the lowest `atk` of any tower
- *   roof in the game at 52.
+ *   rule, on a roof, and it is why [`THE_PROOF_HOUSE`](./enemies.ts) carried the lowest `atk` of any tower
+ *   roof in the game at 52 when it shipped — a record the Ironpace then took at 44 and this tower's own
+ *   fifth hundred at 40, because a superlative about the towers goes stale the moment the next hundred
+ *   lands.
  * - ⚠️ **The escort still had to come down as well, and only low-`atk` commons work.** Four of them read
  *   100% / 2.67 against 100% / 2.35; swapping one for `MUSTER_PIKE` at 900/**48** reads **48% / 53%**, and
  *   putting a single pierce carrier in the escort reads **3% / 5%**. Both halves of a roof, not one.
@@ -360,6 +369,78 @@ import {
  *   were lifted with heavier _texture_ rather than another carrier**, so the per-band carrier counts stayed
  *   what the band table says they are.
  *
+ * ## ⚠️ The fifth hundred — the Masterworks — is the pair the pick was always half of
+ *
+ * The Masterworks, floors 401–500, levels 189–236, Masterwork 1 to Relic 40: the host has stopped
+ * testing the hold's arms and apprenticed itself to the hold's craft — prentice, journeyman,
+ * workmaster, and at the top the one stroke the craft exists for. The whole measurement lives in
+ * [`enemies.ts`](./enemies.ts) beside the four blocks that carry it; what belongs here is what the
+ * floors do with it and what the hundred is allowed to claim.
+ *
+ * 1. ⚠️ **The axis is `physicalPierce` and `atk` carried together on light bodies, and the licence
+ *    has two halves.** The pair is **super-additive** on this crew — pierce 0.25 alone is worth 0.47,
+ *    `atk` 46 alone 0.82, and together **1.97** — which is the Monster fourth hundred's licence for
+ *    building on the axis below (this tower's own pierce, spent at the fourth hundred). And it is
+ *    taken on **margin rather than exclusivity**: cross-crew at band 5 the two Angel arrangements
+ *    read higher on every attack-shaped candidate (a hammer is the choir's tax, their own third
+ *    hundred's finding), and **dwarf-ref is first of the twelve mortal arrangements** at 1.17.
+ * 2. ⚠️ **The fourth hundred's own licence expired** — pierce 0.35 alone re-measured at band 5 costs
+ *    dwarf-ref 0.50, seventh of fourteen — which is the Undead Tower's "re-run 'is it ours' on the
+ *    band being authored" arriving on this one.
+ * 3. ⚠️ **Which crew binds flipped: the reference five reads lower on nearly every row**, where the
+ *    fourth hundred's alternate bound. Both were checked on every floor regardless.
+ * 4. ⚠️ **Everything stronger than the pair is the ninety-second clock**, re-measured one band up:
+ *    enemy `hp` 1100 is worth 3.47 of five at 58.6s mean, **72.0s max and a 38% win rate**; `dodge`
+ *    0.45 is worth 1.94 at **82.9s max** on a crew with zero `accuracy`; `def` 110 is worth 1.29 at
+ *    51.8s. Weight, armour and evasion all convert budget into seconds; the pair converts it into
+ *    deaths, and the longest cleared fight in the hundred is **58.2 seconds** against the 67.5s bar.
+ * 5. ⚠️ **Crit is dead last of fourteen** (dwarf-ref 0.25, dwarf-alt 0.05 at `critChance` 0.30):
+ *    the Dwarf arrangements carry the game's deepest `critBlock`, so this is the Angel fourth
+ *    hundred's "the crew answered the wrong half" mirrored — this crew answered the right one.
+ * 6. ⚠️ **A second `ascended` anchor is still a cliff at band 5** — a 650/44 second beside the
+ *    control's anchor reads **0% / 45%** — so the pairing ban survives a second rung of investment
+ *    and no board in the hundred pairs two.
+ *
+ * The bands walk the carrier count first and the pair's size second, counted as bodies at
+ * `physicalPierce` ≥ 0.20 per board — a *count*, because pierce is a common stat and an absolute
+ * claim would be false the day it was written:
+ *
+ * | Band | Floors  | Levels  | Grade              | Carriers | Raw health  |
+ * | ---- | ------- | ------- | ------------------ | -------- | ----------- |
+ * | 1    | 401–420 | 189–198 | Masterwork 1–24    | 0–2      | 3,420–3,980 |
+ * | 2    | 421–445 | 199–210 | Masterwork 25–54   | 1–3      | 3,340–4,100 |
+ * | 3    | 446–465 | 211–220 | Masterwork 55–78   | 2–3      | 3,460–4,080 |
+ * | 4    | 466–480 | 220–227 | Masterwork 79–R 16 | 2–3      | 3,480–4,060 |
+ * | 5    | 481–495 | 227–234 | Relic 17–34        | 2–3      | 3,360–3,880 |
+ * | 6    | 496–500 | 234–236 | Relic 35–40        | 1–2      | 3,080–3,540 |
+ *
+ * ⚠️ **The gear ramp is inherited rather than spent and it steps _down_ twice inside the hundred** —
+ * floor 400 wears Fine 60 and floor 401 wears Masterwork 1; floor 467 wears Masterwork 80 and floor
+ * 468 wears Relic 1 — so bands 1 and 4 open heavier than the floors they follow, exactly as the
+ * Human fifth hundred's do. The raw-health budget otherwise falls across the hundred while the pair
+ * rises through it.
+ *
+ * ⚠️ **A pair carrier in the back rank is worth half a member more than the same body in front**
+ * (3.48 against 3.98 on one carrier, carried on one body as chapter 22 demands), because the pair is
+ * half *output* and a body this crew cannot reach bills its attack for longer — the second hundred's
+ * rank cliff, returning at half size on an axis that is half output where pierce alone was none. The
+ * Long Grain spends it deliberately: one carrier stands in the back rank through band 5, and that is
+ * the band's escalation while its weight eases.
+ *
+ * ⚠️ **The roof was settled on its attack, which is now the fourth tower roof running.** Weight held
+ * at 1140, [`THE_MASTERSTROKE`](./enemies.ts) reads **0% for both arrangements at `atk` 50**, 73%
+ * for the binding one at 44, and **100% / 1.68 against 100% / 2.08 at the shipped 40** — and the
+ * axis carries the floor rather than riding along: pierce stripped to zero reads 100% / 3.15 and
+ * 100% / 2.95, so the pair is worth **1.47 of five** on the top floor of the tower.
+ *
+ * ⚠️ **Two retired anchors came back for the opening bands and two could not.** At floor 500 behind
+ * light escorts, `THE_PROOF_HOUSE`, `THE_BREACHLORD` and `THE_CROWN_WHEEL` all read **0%** — the
+ * Crownworks collapse, a fourth time — while the Warpick Lieutenant, the Proofmark Serjeant and the
+ * Quenchpit Ironhide stand at 100% with 4.00 alive. "Retires" means from the closing bands: the
+ * Breachlord anchors floor 410 and the Crown Wheel floor 420, twenty-five levels below the roof,
+ * exactly as the Human fifth hundred re-fielded the Gravewright. The Proof House itself is not
+ * re-fielded — the fourth hundred ended on it and the fiction did too.
+ *
  * ## What the bands measure at
  *
  * Band 1: floor 1 in one second, floor 50 in seven, floor 100 in forty-four with three of five
@@ -368,12 +449,17 @@ import {
  * seconds, floor 250 in twelve, floor 290 in twenty at 4.03, floor 299 in twenty-eight at 3.00, and
  * the roof in **thirty-three seconds at 2.77 — 42.3s and 1.82 for the alternate five.** Band 4: floor
  * 301 in six and a half seconds, floor 345 in thirteen, floor 365 in nineteen at 4.00, floor 385 in
- * twenty-eight at 3.83, floor 399 in thirty-nine at 3.40, and the roof in **forty-one seconds at
- * 2.67 — 43.7s and 2.35 for the alternate five**, with **zero timeouts anywhere in the hundred**. Win
- * rate is 100% almost the whole way, which is the intended shape — a floor is climbed once and there is
- * no way around one. What ramps is what it costs: the reference five loses nobody below floor 80 in
- * band 1, floor 185 in band 2, **floor 280** in band 3 or **floor 362** in band 4, and the alternate
- * first pays at **251** and then at **340**.
+ * twenty-eight at 3.83, floor 399 in thirty-nine at 3.40, and floor 400 in **forty-one seconds at
+ * 2.67 — 43.7s and 2.35 for the alternate five**. Band 5: floor 401 in eight seconds with all five
+ * alive, floor 450 in twenty-five, floor 460 in thirty-three at 4.00, floor 490 — the hundred's
+ * longest mini-boss — in thirty-seven at 3.83, floor 497 in thirty-six at 2.65, and the roof in
+ * **fifty-four
+ * seconds at 1.68 — 53.2s and 2.08 for the alternate five**, with **zero timeouts anywhere in the
+ * five hundred**. Win rate is 100% almost the whole way, which is the intended shape — a floor is
+ * climbed once and there is no way around one. What ramps is what it costs: the reference five loses
+ * nobody below floor 80 in band 1, floor 185 in band 2, **floor 280** in band 3, **floor 362** in
+ * band 4 or **floor 448** in the fifth hundred, and the alternate first pays at **251**, then at
+ * **340**, then at **445**.
  *
  * ⚠️ **The third hundred's roof is the tightest fight in the project against the timer and the fourth
  * hundred deliberately did not tie it.** The alternate five's longest single attempt on floor 300 is
@@ -382,7 +468,8 @@ import {
  * its win rate. In the fourth hundred the longest cleared attempt is **60.9s** (the reference five on
  * floor 398) and the alternate's worst on the roof itself is **57.9s** — a roof one step back from the
  * one below it, chosen on the clock. ⚠️ **A roof at `atk` 54 rather than 52 measured 62.5s on the nose
- * and was declined for that alone**: it costs 0.2 of a survivor and buys back nothing.
+ * and was declined for that alone**: it costs 0.2 of a survivor and buys back nothing. The fifth
+ * hundred stays inside all of that: its longest fight anywhere is **58.2s**, on the roof.
  *
  * ⚠️ **The roof is far lighter than the Human Tower's and that is 15c's rule rather than an
  * oversight**: anchors are sized against the tower's own crew, never to a shared weight. A roof at
@@ -411,7 +498,13 @@ import {
  * the open is not sustain anyone has to outpace. **What is forbidden above floor 180 is a heal, a
  * drain or a regeneration**, and there is none.
  *
- * Re-run `npm run test:balance` after touching any band above floor 68, 180, 270 or 385.
+ * ⚠️ **The fifth hundred keeps the fourth's strict form of the claim.** Of the **26 blocks** it
+ * fields, **zero** carry a point of `lifeLeech`, `recovery` or `healthRegen`; **zero** carry a heal,
+ * drain or shield effect; **zero** carry a `regen`, ward or guard status; and **zero** carry a
+ * taunt — the Scarbound Bellower, the Order Serjeant, the Gorehide Matriarch and the Signal Runner
+ * were each considered as texture and excluded for exactly one line of their kits.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 68, 180, 270, 385 or 490.
  */
 export const TOWER_DWARF = {
   id: 'tower-dwarf',
@@ -3394,6 +3487,824 @@ export const TOWER_DWARF = {
       name: 'Floor 400 — The Proof House',
       enemies: {
         front: [THE_PROOF_HOUSE, FREE_BLADE],
+        back: [BANDIT, FREE_BLADE, BANDIT],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Prentice Steps — Floors 401–420, levels 189–198, Masterwork 1–Masterwork 24 — the gear steps down from Fine 60 to Masterwork 1, so the band opens on the heaviest boards this hundred allows. One stroke a board, swung the way the hold taught.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [GANTRY_WARDEN, HEWSTROKE_PRENTICE],
+        back: [MUSTER_PIKE, BOAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, VANWARD_SPEAR],
+        back: [CHALKHIDE_BROWSER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [GANTRY_WARDEN, HEWSTROKE_PRENTICE],
+        back: [THORNBACK_GRAZER, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, RENDFANG_JACKAL],
+        back: [MUSTER_PIKE, ASHPIT_SCUTTLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, HEWSTROKE_PRENTICE],
+        back: [THORNBACK_GRAZER, FREE_BLADE, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [GANTRY_WARDEN, VANWARD_SPEAR],
+        back: [CHALKHIDE_BROWSER, MIREWHELP, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [MUSTER_PIKE, HEWSTROKE_PRENTICE],
+        back: [COUNTERWEIGHT_BEARER, FORLORN_LEVY, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, RENDFANG_JACKAL],
+        back: [GANTRY_WARDEN, ASHPIT_SCUTTLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [THORNBACK_GRAZER, HEWSTROKE_PRENTICE],
+        back: [MUSTER_PIKE, MIREWHELP, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f410',
+      name: 'Floor 410 — The Breach Reopened',
+      enemies: {
+        front: [THE_BREACHLORD, HEWSTROKE_PRENTICE],
+        back: [MUSTER_PIKE, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [MUSTER_PIKE, VANWARD_SPEAR],
+        back: [THORNBACK_GRAZER, BOAR, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [GANTRY_WARDEN, HEWSTROKE_PRENTICE],
+        back: [CHALKHIDE_BROWSER, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, RENDFANG_JACKAL],
+        back: [MUSTER_PIKE, MIREWHELP, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, HEWSTROKE_PRENTICE],
+        back: [THORNBACK_GRAZER, SCREEBACK_DARTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [GANTRY_WARDEN, VANWARD_SPEAR],
+        back: [MUSTER_PIKE, BOAR, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [THORNBACK_GRAZER, HEWSTROKE_PRENTICE],
+        back: [COUNTERWEIGHT_BEARER, ASHPIT_SCUTTLER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [MUSTER_PIKE, RENDFANG_JACKAL],
+        back: [CHALKHIDE_BROWSER, MIREWHELP, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [GANTRY_WARDEN, HEWSTROKE_PRENTICE],
+        back: [THORNBACK_GRAZER, FORLORN_LEVY, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, VANWARD_SPEAR],
+        back: [MUSTER_PIKE, SCREEBACK_DARTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f420',
+      name: 'Floor 420 — The Wheel Still Turns',
+      enemies: {
+        front: [THE_CROWN_WHEEL, HEWSTROKE_PRENTICE],
+        back: [THORNBACK_GRAZER, MIREWHELP, BANDIT],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Second Hand — Floors 421–445, levels 199–210, Masterwork 25–Masterwork 54 — the Journeyman arrives and there are two strokes a board, and the grade climbs back through Masterwork underneath them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, BOAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, ASHPIT_SCUTTLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, SCREEBACK_DARTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, BOAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, MIREWHELP, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, BANDIT, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, ASHPIT_SCUTTLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f430',
+      name: 'Floor 430 — The Second Hand',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CHALKHIDE_BROWSER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, MIREWHELP, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, SCREEBACK_DARTER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, BOAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, ASHPIT_SCUTTLER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, BOAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, SCREEBACK_DARTER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f440',
+      name: 'Floor 440 — Both Hands Now',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, THORNBACK_GRAZER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, ASHPIT_SCUTTLER, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, MIREWHELP, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, BOAR, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, CINDER_CULLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, SCREEBACK_DARTER, MIREWHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Workmaster's Round — Floors 446–465, levels 211–220, Masterwork 55–Masterwork 78 — the Workmaster keeps the tenth floors and the pair keeps every board between, three strokes wide in the handover.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, BOAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, ASHPIT_SCUTTLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CINDER_CULLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f450',
+      name: 'Floor 450 — The Workmaster',
+      enemies: {
+        front: [THE_WORKMASTER, JOURNEYMAN_HEWER],
+        back: [CHALKHIDE_BROWSER, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, SCREEBACK_DARTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, MIREWHELP, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, ASHPIT_SCUTTLER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, BANDIT, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, MIREWHELP, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, SCREEBACK_DARTER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, CINDER_CULLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, BOAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, ASHPIT_SCUTTLER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f460',
+      name: 'Floor 460 — The Measure Taken',
+      enemies: {
+        front: [THE_WORKMASTER, JOURNEYMAN_HEWER],
+        back: [THORNBACK_GRAZER, HEWSTROKE_PRENTICE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, VANWARD_SPEAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, HEWSTROKE_PRENTICE, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, RENDFANG_JACKAL, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, HEWSTROKE_PRENTICE, FREE_BLADE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Relic Racks — Floors 466–480, levels 220–227, Masterwork 79–Relic 16 — the grade steps to Relic at 468 and resets to +25.8% from Masterwork 80's +108%, so this band opens heavier than the one it follows. Three carriers a board.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, VANWARD_SPEAR, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, RENDFANG_JACKAL, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CROWNWORKS_STRIKER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f470',
+      name: 'Floor 470 — The Relic Racks',
+      enemies: {
+        front: [THE_WORKMASTER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CHALKHIDE_BROWSER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, RENDFANG_JACKAL, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, KINGSWAY_LANCER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, CROWNWORKS_STRIKER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [GANTRY_WARDEN, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, RENDFANG_JACKAL, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, VANWARD_SPEAR, BOAR],
+      },
+    },
+    {
+      id: 't-dwarf-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CROWNWORKS_STRIKER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, RENDFANG_JACKAL, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, VANWARD_SPEAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, HEWSTROKE_PRENTICE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f480',
+      name: 'Floor 480 — The Racks Run Empty',
+      enemies: {
+        front: [THE_WORKMASTER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, CHALKHIDE_BROWSER, FREE_BLADE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Long Grain — Floors 481–495, levels 227–234, Relic 17–Relic 34 — a carrier steps into the back rank, where the pair is worth half a member more, and the authored weight eases as the grade climbs.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, VANWARD_SPEAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [KINGSWAY_LANCER, RENDFANG_JACKAL, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [THORNBACK_GRAZER, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, CROWNWORKS_STRIKER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, KINGSWAY_LANCER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [MUSTER_PIKE, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, RENDFANG_JACKAL, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [CROWNWORKS_STRIKER, VANWARD_SPEAR, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, KINGSWAY_LANCER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, CROWNWORKS_STRIKER, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [THORNBACK_GRAZER, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f490',
+      name: 'Floor 490 — The Long Grain',
+      enemies: {
+        front: [THE_WORKMASTER, HEWSTROKE_PRENTICE],
+        back: [MUSTER_PIKE, RENDFANG_JACKAL, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [VANWARD_SPEAR, RENDFANG_JACKAL, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [MUSTER_PIKE, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, RENDFANG_JACKAL, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [THORNBACK_GRAZER, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, VANWARD_SPEAR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-dwarf-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, HEWSTROKE_PRENTICE],
+        back: [JOURNEYMAN_HEWER, ROADWATCH_BOWMAN, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [RENDFANG_JACKAL, ASHPIT_SCUTTLER, FREE_BLADE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Masterstroke — Floors 496–500, levels 234–236, Relic 35–Relic 40 — the roof band. The boards go light and hot, and the one stroke the craft exists for is at the top of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [JOURNEYMAN_HEWER, HEWSTROKE_PRENTICE],
+        back: [VANWARD_SPEAR, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, JOURNEYMAN_HEWER],
+        back: [HEWSTROKE_PRENTICE, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [JOURNEYMAN_HEWER, HEWSTROKE_PRENTICE],
+        back: [FREE_BLADE, CINDER_CULLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [MUSTER_PIKE, JOURNEYMAN_HEWER],
+        back: [MIREWHELP, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f500',
+      name: 'Floor 500 — The Masterstroke',
+      enemies: {
+        front: [THE_MASTERSTROKE, FREE_BLADE],
         back: [BANDIT, FREE_BLADE, BANDIT],
       },
     },

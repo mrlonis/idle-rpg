@@ -1465,10 +1465,20 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-one hundreds gave twenty-one answers — every second, third and fourth hundred of all seven
-towers — and no two escalate the same way. Read the
+⚠️ **Twenty-three hundreds gave twenty-three answers — every second, third and fourth hundred of all
+seven towers, and the two fifth hundreds so far — and no two escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
+
+⚠️ **A tower's own spent axis expires like any other crew's, and re-running "is it ours" can license
+the pair where it refuses the half.** At band 5 the Dwarf Tower's own `physicalPierce` re-measured
+**seventh of fourteen** (it was first and second when the fourth hundred took it), and the pierce
+carried _with_ the attack behind it came back super-additive (0.47 and 0.82 alone, **1.97**
+together) and first of the twelve mortal arrangements — the Monster fourth hundred's
+super-additivity licence and the Human fifth hundred's margin licence, needed together on one axis.
+⚠️ **The two Angel arrangements top every attack-shaped candidate at that depth** — a hammer is the
+choir's tax and their mirror control is the hardest board they have by construction — so a cross-crew
+table read at band 5 wants that caveat stated rather than silently absorbed.
 
 ⚠️ **A hundred may build on the axis below it, and the licence is super-additivity rather than a
 mechanism argument.** The Monster fourth hundred is the one case: `dodge` reads on paper as the third
@@ -1601,7 +1611,8 @@ constant. The overshoot arrives whichever way the faction is chosen.
      one pierce carrier in the escort reads **3% / 5%**). **Shortlist on weight, settle on attack.**
    - ⚠️ **A superlative about seven towers goes stale the moment the next hundred lands.** The Panoply
      shipped as "the lightest tower roof on attack, tied on health"; the Proof House took both records one
-     session later at 1200/52. Both files now state the list of roofs instead — ten of them now.
+     session later at 1200/52, the Ironpace at 1160/44 and the Masterstroke at 1140/40 took the attack
+     record twice more. Both files now state the list of roofs instead — twelve of them now.
    - ⚠️ **A hundred can measure the whole vocabulary as inert, and then the axis is plain throughput.**
      The Elf fourth hundred is the case: twelve hostile statuses ride the swing within **±0.22** (four
      of them negative), `tenacity` is **exactly flat**, `magicResist` **exactly 0.00**, `critBlock`

@@ -8945,6 +8945,95 @@ export const NOTHING_BREAKS_STEP = {
   priority: 1,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fifth hundred — the Masterworks, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain because the axis is the stat line: `physicalPierce` and `atk` carried
+// together on light bodies.** Measured against a control of an `ascended` 1060/58 behind four 560/40
+// at level 236 wearing Relic 40, reading **3.92 / 4.00 of five** and moving in both directions, forty
+// seeds, zero timeouts on every row quoted: the whole status vocabulary is texture here — `SUNDER`,
+// `SLOW` and `WEAKEN` riders across four bodies are worth 0.47–0.62 of five, a board-wide `STUN` from
+// one carrier 0.22, burst at held damage per second 0.25 / 0.52 across power 2.20 / 3.10 — where the
+// pair the bands are built on is worth 0.98 → 3.88 across its six authored steps. The `SUNDER` riders
+// below are priced as texture exactly as the Proof House's were one hundred floors down; what
+// escalates underneath them is the pierce the carrier swings with and the attack behind it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The stroke is not practised against plate any more. It is practised against you.
+ *
+ * The opening band's turn, and plain on purpose — `enemy-front` for the third Dwarf hundred running,
+ * on the tower family's own settled finding: aim past the front rank is inert or negative on all
+ * seven towers.
+ */
+export const HEWING_STROKE = {
+  id: 'hewing-stroke',
+  name: 'Hewing Stroke',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * A prentice cuts where the grain shows. A journeyman cuts where it will show.
+ *
+ * The middle bands' turn, with a `SUNDER` rider priced as texture — 0.62 of five across four
+ * carriers at this weight, against the pair's 2.48 at the same board. Its duration (45 ticks) stays
+ * under its cooldown, so the shred never becomes permanent.
+ */
+export const SPLIT_THE_GRAIN = {
+  id: 'split-the-grain',
+  name: 'Split the Grain',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * It does not check its work. It has not needed to for a long time.
+ *
+ * The lieutenant's turn. A single-target selection rather than a scope, for the reason the Leaden
+ * Hour's is: a wide turn is the one shape big enough to carry a band on its own, and this hundred's
+ * axis is the stat line — a scope would make the pair unmeasurable underneath it.
+ */
+export const THE_MASTERS_MEASURE = {
+  id: 'the-masters-measure',
+  name: "The Master's Measure",
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Every stroke on every floor below this one was a rehearsal.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its attack, not on this** — at `atk` 50 the board
+ * reads 0% for both arrangements, at 44 it reads 73% for the binding one, and at the shipped 40 it
+ * reads 100% / 1.68 — so the turn's power stays inside the shipped single-target register (ceiling
+ * 3.0, median 1.65) and the stat line is what was tuned.
+ */
+export const THE_MASTERSTROKE_FALLS = {
+  id: 'the-masterstroke-falls',
+  name: 'The Masterstroke Falls',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.1 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9398,4 +9487,8 @@ export const SKILLS = [
   GRAVESTRIDE_CADENCE,
   THE_LEADEN_HOUR_FALLS,
   NOTHING_BREAKS_STEP,
+  HEWING_STROKE,
+  SPLIT_THE_GRAIN,
+  THE_MASTERS_MEASURE,
+  THE_MASTERSTROKE_FALLS,
 ] as const;

@@ -139,10 +139,11 @@ import { TOWER_UNDEAD } from './tower-undead';
  * rewards look pointless beside optional content.
  *
  * ⚠️ **The ratio between those two totals used to be asserted and no longer is**, and recomputing it
- * by hand is the thing that replaced it — which this extension owed and did. Measured: with the Human
- * Tower at five hundred floors and the other six at four hundred, the seven pay **901,100** against
- * the 25-chapter campaign's **351,500** of first clears, a ratio of **2.563** — up from 1.40 at two
- * hundred floors, 2.09 at three hundred and 2.475 at four. ⚠️ **Seven towers of five hundred would
+ * by hand is the thing that replaced it — which every extension owes and does. Measured: with the
+ * Human and Dwarf Towers at five hundred floors and the other five at four hundred, the seven pay
+ * **932,100** against the 25-chapter campaign's **351,500** of first clears, a ratio of **2.652** —
+ * up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at four and 2.563 with one tower
+ * extended. ⚠️ **Seven towers of five hundred would
  * read 1,087,100 and a ratio of 3.093**, which is the number this round closes on if it runs to
  * completion and the one to weigh before a sixth hundred is proposed. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
@@ -298,7 +299,7 @@ export const TOWER_RULES = {
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
  * authored), for the third (21l–21r), and for the fourth (21s–21y). ⚠️ **A fifth round is open: the
- * Human Tower stands at five hundred floors and the other six at four**, carried on the `PENDING`
+ * Human and Dwarf Towers stand at five hundred floors and the other five at four**, carried on the `PENDING`
  * lists in `towers.spec.ts` and `towers.balance.ts` — put back **in the same session as the bump**,
  * which is what the fourth hundred's note asked for. A tower that has not been extended simply ends at its
  * last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it

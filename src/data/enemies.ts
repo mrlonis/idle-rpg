@@ -203,6 +203,10 @@ import {
   GRAVESTRIDE_CADENCE,
   THE_LEADEN_HOUR_FALLS,
   NOTHING_BREAKS_STEP,
+  HEWING_STROKE,
+  SPLIT_THE_GRAIN,
+  THE_MASTERS_MEASURE,
+  THE_MASTERSTROKE_FALLS,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
@@ -11308,8 +11312,10 @@ export const GRAVEPLATE_MARSHAL = {
 /**
  * Four hundred floors of them, and every one still answering a muster nobody called.
  *
- * The roof. ⚠️ **1240 hp and 68 `atk` — the lightest tower roof this game ships, and by a wide
- * margin.** The Hourless March closed the third hundred at 1660/76 and the Withered Crown the Undead
+ * The roof. ⚠️ **1240 hp and 68 `atk` — the lightest tower roof this game shipped at the time, and
+ * every geared hundred since has undercut it** (the Proof House at 1200/52, the Turnaway at 820/58,
+ * the Ironpace at 1160/44, the Masterstroke at 1140/40) — a superlative about the towers goes stale
+ * the moment the next hundred lands. The Hourless March closed the third hundred at 1660/76 and the Withered Crown the Undead
  * Tower's second at 1740/98; this is lighter than both on purpose, because it is wearing a **full Fine
  * set** the moment it is fielded. Measured, that set is worth about a survivor of the weaker
  * arrangement on its own — so the weight the roof is *allowed* is what is left after the grade.
@@ -12794,8 +12800,9 @@ export const THE_LEADEN_HOUR = {
  * ⚠️ **The tower roofs now read 1160/44 (this), 1200/52, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86,
  * 1540/92 and 1560/91 — the lightest on attack of the nine and second-lightest on health.** A list
  * rather than a superlative, because the superlative has already gone stale once on this tower and
- * will again. **The weight a roof is allowed is what is left after the grade**, and this one is
- * wearing Relic 40.
+ * will again. ⚠️ **And it did, one session later**: {@link THE_MASTERSTROKE} took the attack record
+ * at 1140/40 when the Dwarf Tower's fifth hundred landed. **The weight a roof is allowed is what is
+ * left after the grade**, and this one is wearing Relic 40.
  */
 export const THE_IRONPACE = {
   id: 'the-ironpace',
@@ -12818,6 +12825,221 @@ export const THE_IRONPACE = {
     magicResist: 0.08,
   },
   skills: [NOTHING_BREAKS_STEP, THE_LEADEN_HOUR_FALLS, GRAVESTRIDE_CADENCE],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fifth hundred — the Masterworks, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **Four blocks, which is 15.4% of the 26 distinct archetypes this hundred fields rather than a
+// quarter of it.** The quota is a count with five hundreds of precedent behind it. Humans go 50 → 54.
+//
+// ## ⚠️ The axis is `physicalPierce` and `atk` carried together, and the licence has two halves
+//
+// Priced against a control of an `ascended` 1060/58 behind four 560/40 at level 236 wearing Relic 40,
+// reading **3.92 / 4.00 of five** and moving in both directions — forty seeds, zero timeouts on every
+// row quoted:
+//
+// | four carriers at            | ref survivors | mean fight |
+// | --------------------------- | ------------- | ---------- |
+// | 560/40 — the control        | 3.92          | 32.8s      |
+// | `physicalPierce` 0.35 alone | 3.05          | 36.9s      |
+// | `atk` 46 alone              | 3.10          | 36.4s      |
+// | pierce 0.15 + atk 44        | 3.00          | 36.9s      |
+// | pierce 0.20 + atk 46        | 2.40          | 41.6s      |
+// | pierce 0.25 + atk 48        | 1.50          | 46.5s      |
+// | pierce 0.30 + atk 50        | 1.02 · 98%    | 50.4s      |
+//
+// 1. ⚠️ **The pair is super-additive on this crew, which is the Monster fourth hundred's licence for
+//    building on the axis below.** Pierce 0.25 alone is worth 0.47 and `atk` 46 alone 0.82; carried
+//    together they are worth **1.97** — ×1.53 over the sum of the halves. The mechanism is the damage
+//    formula: `atk² / (atk + def × (1 − pierce))` moves in both terms at once, so a discount on the
+//    armour makes every point of attack behind it go further. It grades in carrier counts as well:
+//    at 0.25/48, zero through four carriers read 3.98 / 3.98 / 3.50 / 2.70 / **1.50**.
+// 2. ⚠️ **The fourth hundred's own licence has expired, which is the Undead Tower's lesson arriving
+//    here.** Re-run at band 5 across all fourteen arrangements — each calibrated to the heaviest
+//    mirror control it still reads ≥3.75 on — `physicalPierce` 0.35 alone costs dwarf-ref **0.50,
+//    seventh of fourteen**, and dwarf-alt 0.15, against angel-alt's 1.65. **Re-run "is it ours" on
+//    the band being authored, never on the band that recorded it.**
+// 3. ⚠️ **The pair's licence is margin rather than exclusivity, and the header says which.** The same
+//    fourteen-way table at pierce 0.25 with atk +15%: **angel-alt 3.72 and angel-ref 2.42 first and
+//    second — a hammer is the choir's tax (their own third hundred's finding), and an all-Angel
+//    mirror is the hardest board that crew has by construction — then dwarf-ref 1.17, first of the
+//    twelve mortal arrangements**, over elf-alt 1.10 and human-alt 1.03, with dwarf-alt 0.80
+//    mid-table. The Human fifth hundred's shape: no lock is exclusively this crew's, and the axis is
+//    taken on margin, in writing.
+// 4. ⚠️ **Everything stronger is the ninety-second clock, which is this tower's own fourth-hundred
+//    rule re-measured one band up.** Enemy `hp` 1100 is worth 3.47 at **58.6s mean, 72.0s max and a
+//    38% win rate**; `def` 110 is worth 1.29 at **51.8s**; `dodge` 0.45 is worth 1.94 at **56.4s mean
+//    and 82.9s max** on a crew with zero `accuracy`; `physicalResist` 0.30 is worth 0.90 at 46.6s.
+//    Every weight, armour and evasion dial converts budget into seconds; the pair converts it into
+//    deaths — the longest cleared fight in the shipped hundred is **58.2s** against the 67.5s bar.
+// 5. ⚠️ **Crit is dead last of fourteen and the reason is the register on the party's side.** Four
+//    carriers at `critChance` 0.30 / amp 0.85 cost dwarf-ref **0.25 and dwarf-alt 0.05** — the two
+//    lowest rows of the table, against monster-ref's 0.77 — because the Dwarf arrangements carry the
+//    game's deepest `critBlock` (0.23 / 0.28 summed). The Angel fourth hundred's "the crew answered
+//    the wrong half", mirrored: this crew answered the right one.
+// 6. ⚠️ **Inert, measured and not worth re-measuring**: `magicResist` 0.30 is worth exactly 0.00;
+//    `tenacity` 0.40 / 0.85 reads 0.12 / 0.29; a magical damage swap 0.04; `SUNDER`, `SLOW` and
+//    `WEAKEN` riders across four bodies 0.47–0.62; a board-wide `STUN` from one front carrier 0.22;
+//    burst at held damage per second 0.25 / 0.52 across power 2.20 / 3.10.
+// 7. ⚠️ **A second `ascended` anchor is still a cliff at band 5, so the pairing ban survives a second
+//    rung of investment.** Beside the control's anchor, a 500/40 second reads 0.95 of five at 93% for
+//    the binding arrangement and a 650/44 reads **0% / 45%** — a wall, not a dial, and no board in
+//    the hundred pairs two.
+// 8. ⚠️ **Which crew binds flipped: the reference five reads lower on nearly every row at band 5**,
+//    where the fourth hundred's alternate bound. Check both on every candidate board regardless.
+//
+// ⚠️ **The register, measured before these four blocks joined the pool.** `physicalPierce` sat on
+// **119 of 354** blocks at a median of 0.20 and a ceiling of 0.45 (the Ravager); across the 50 Human
+// blocks, 26 carriers, median 0.20, ceiling **0.40** — the Proof House's own roof. The *pairing* has
+// per-block precedent (27 of 354 blocks carry pierce ≥ 0.25 with atk ≥ 50, 8 carry 0.30 with 56), so
+// unlike the Human fifth hundred's `def`+`haste` this is not an empty joint register — what has no
+// precedent is the count of such bodies per board at these levels, and the counts are what the bands
+// walk. The three blocks below the roof all sit inside the Human pierce register; the roof holds the
+// ceiling rather than stepping past it.
+//
+// ⚠️ **Nothing here restores anything.** No block below carries `lifeLeech`, `recovery`,
+// `healthRegen`, a heal, a drain, a shield or a taunt, and the claim about the *boards* is stated as
+// counts in [`tower-dwarf.ts`](./tower-dwarf.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It took the pick down from the rack the way it had watched the hold do it. Then it practised.
+ *
+ * The opening band's carrier: the pair at its entry size — **`physicalPierce` 0.20 at `atk` 56** on
+ * the lightest body of the four, exactly the Human pierce median on an attack inside the shipped
+ * joint register (54 of 354 blocks carry 0.20 with 46 or more). ⚠️ **A plain block at the bottom of a
+ * new axis is the lesson**, the same argument the Rackpicked Levy makes one hundred floors below: one
+ * carrier beside the control is worth almost nothing (3.98 against 3.92), and the opening band has to
+ * teach what the pair is before the hundred can charge for three of them.
+ */
+export const HEWSTROKE_PRENTICE = {
+  id: 'hewstroke-prentice',
+  name: 'Hewstroke Prentice',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 720,
+    atk: 56,
+    def: 36,
+    haste: 100,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    critBlock: 0.06,
+    physicalPierce: 0.2,
+    physicalResist: 0.06,
+  },
+  skills: [HEWING_STROKE],
+} as const;
+
+/**
+ * A prentice swings until the stroke is right. A journeyman swings once.
+ *
+ * The middle bands' carrier: **`physicalPierce` 0.25 at `atk` 60**, both halves inside their own
+ * shipped ceilings and the pairing inside the 27-block joint register. The `brawler` archetype is the
+ * Proof House's allocation finding re-spent: on a clock-bound crew, grade paid into attack and speed
+ * is pressure that costs no seconds.
+ */
+export const JOURNEYMAN_HEWER = {
+  id: 'journeyman-hewer',
+  name: 'Journeyman Hewer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 860,
+    atk: 60,
+    def: 40,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    physicalPierce: 0.25,
+    physicalResist: 0.06,
+  },
+  skills: [SPLIT_THE_GRAIN, HEWING_STROKE],
+} as const;
+
+/**
+ * It does not swing often. It has never needed a second stroke.
+ *
+ * The hundred's lieutenant, standing on the tenth floors of its upper half. ⚠️ **Its attack is 44 on
+ * an `ascended` chassis, and that is the Leaden Hour's arithmetic**: an ascended block climbs at
+ * 1.024 against a mostly-common five's 1.021, so at these levels its stat line is worth roughly
+ * double a common's — the pierce is authored high and the attack low, and the line was settled
+ * against all five of its appearances rather than its first. The pierce at 0.32 sits between the
+ * legendary carriers and the Proof House's 0.40 ceiling.
+ */
+export const THE_WORKMASTER = {
+  id: 'the-workmaster',
+  name: 'The Workmaster',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1040,
+    atk: 44,
+    def: 46,
+    haste: 100,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.16,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalPierce: 0.32,
+    physicalResist: 0.1,
+  },
+  skills: [THE_MASTERS_MEASURE, SPLIT_THE_GRAIN, HEWING_STROKE],
+} as const;
+
+/**
+ * The hold spent an age teaching stone what a pick is. The host was watching the whole time.
+ *
+ * The roof. ⚠️ **The pair at its authored ceiling: `physicalPierce` 0.40 at `atk` 40 on 1140
+ * health** — the pierce *holds* the Human ceiling the Proof House set rather than stepping past it
+ * (the game's 0.45 stands untouched), and the attack is where the roof was settled: at 50 the board
+ * reads **0% for both arrangements**, at 44 it reads 73% for the binding one, and at 40 it reads
+ * **100% / 1.68 against 100% / 2.08** at 53.7s. **Shortlist on weight, settle on attack** — the
+ * fourth tower roof running to be settled that way.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along**: the same board with the roof's
+ * pierce stripped to zero reads 100% / 3.15 and 100% / 2.95, so the pair is worth **1.47 of five** on
+ * the top floor, and ten seconds of clock.
+ *
+ * ⚠️ **At 1140/40 this is the lightest roof anchor any tower hundred has shipped on both axes** — the
+ * Ironpace holds 1160/44 one session older, and the only lighter roof *block* in the game is the
+ * Monster Tower's Turnaway at 820/58, which is lighter on health and nearly half again its attack.
+ * A list rather than a superlative, because the superlative has gone stale twice on this claim
+ * already. **The weight a roof is allowed is what is left after the grade**, and this one is wearing
+ * Relic 40 at enemy level 236.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
+ * restores anything, it carries no taunt, and the board it stands on carries no heal, drain,
+ * regeneration or point of `lifeLeech`.
+ */
+export const THE_MASTERSTROKE = {
+  id: 'the-masterstroke',
+  name: 'The Masterstroke',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1140,
+    atk: 40,
+    def: 44,
+    haste: 102,
+    critChance: 0.14,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalPierce: 0.4,
+    magicPierce: 0.14,
+    physicalResist: 0.1,
+  },
+  skills: [THE_MASTERSTROKE_FALLS, THE_MASTERS_MEASURE, SPLIT_THE_GRAIN],
 } as const;
 
 export const ENEMIES = [
@@ -13175,4 +13397,8 @@ export const ENEMIES = [
   GRAVESTRIDE_SERJEANT,
   THE_LEADEN_HOUR,
   THE_IRONPACE,
+  HEWSTROKE_PRENTICE,
+  JOURNEYMAN_HEWER,
+  THE_WORKMASTER,
+  THE_MASTERSTROKE,
 ] as const;

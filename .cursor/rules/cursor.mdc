@@ -701,7 +701,7 @@ Asserted in `core/battle/simulate.spec.ts`.
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
   notices a tower nobody went back for. ⚠️ **Both lists are populated right now: the height is 500, the
-  Human Tower is there and the other six stand at 400.** They went back **in the same session as the
+  Human and Dwarf Towers are there and the other five stand at 400.** They went back **in the same session as the
   bump**, which is what the fourth hundred's note asked for and the half of the discipline that had never
   actually been done before — between a bump and the first authored tower there is nothing at all holding
   the six short ones. Keep the shapes the list forced — `topFloors` reading the **authored** height and
