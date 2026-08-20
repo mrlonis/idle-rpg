@@ -196,8 +196,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
-  to 236, four of seven complete**. What a tower is for, the three fields a clear may never touch, the
-  five crews, and twenty-five hundreds' worth of measured escalation findings.
+  to 236, five of seven complete**. What a tower is for, the three fields a clear may never touch, the
+  five crews, and twenty-six hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322

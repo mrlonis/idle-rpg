@@ -16,8 +16,10 @@ import {
   CAIRNWARD_HUSK,
   CARRION_SWARM,
   CENTURYBOUGH_WARDEN,
+  CHAFFMOUTH_GAUNT,
   CHALKHIDE_BROWSER,
   CHARNEL_DRUDGE,
+  CINDERFLAW_PROVER,
   CINDERLING,
   CINDERPLATE_HOUNDSMAN,
   CINDERQUENCH_BEARER,
@@ -36,6 +38,7 @@ import {
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
   EMBERSHELL_WHELP,
+  EMBERVAULT_KEEPER,
   FENLORD,
   FORGE_THRALL,
   FORLORN_LEVY,
@@ -49,6 +52,7 @@ import {
   GOREHIDE_MATRIARCH,
   GRAVEFURROW_WALKER,
   GRAVEMOURN_KEEPER,
+  GRAVESTRIDE_SERJEANT,
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
   GRUDGEPLATE_SMITH,
@@ -61,6 +65,9 @@ import {
   IRONWAKE_VANGUARD,
   KINGSWAY_LANCER,
   KNELL_CHANTER,
+  LAMPLESS_PILGRIM,
+  LAMPOIL_SACRIST,
+  LASTFEW_WARDEN,
   LITANY_BEARER,
   LONGBOUGH_MARKSMAN,
   LUMEN_ACOLYTE,
@@ -101,7 +108,9 @@ import {
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHEAFLESS_SHADE,
   SIGNAL_RUNNER,
+  SILENTVAULT_KEEPER,
   SKYSHRIKE,
   SLAGBLOOM_THICKET,
   SLAGBOUND_DRUDGE,
@@ -111,6 +120,7 @@ import {
   SLOWGROWTH_BOLE,
   SPENTRANK_HAND,
   SPRUNGPLATE_HAND,
+  STEPFALL_STANDARD,
   STILLNESS_CANTOR,
   STORMCALLER,
   SUNFADE_CHANTER,
@@ -134,18 +144,23 @@ import {
   THE_UNANSWERED,
   THE_UNBITTEN,
   THE_UNFALTERING,
+  THE_UNQUENCHED,
   THORNBACK_GRAZER,
   THORNLING,
   THORNPLATE_WEARER,
   THORNWEALD_WARDEN,
+  THURIBLE_ORDINAL,
   TYRANT,
+  UNDERROAD_RANKER,
   UNDERVAULT_SAPPER,
   UNSEALED_WRETCH,
   VANWARD_SPEAR,
   VAULTBOUND_GAOLER,
   VAULTLIGHT_CENSER,
+  WALKED_GROUND_DEAD,
   WARDEN,
   WEALDSHADOW_STALKER,
+  WEARWAY_GAUNT,
   WHISPERLEAF_ARCHER,
   WISP,
   WRATHBORN,
@@ -154,7 +169,7 @@ import {
 } from './enemies';
 
 /**
- * The Monster Tower — four hundred floors, enemy levels 1 to 189.
+ * The Monster Tower — five hundred floors, enemy levels 1 to 236.
  *
  * ## The one tower with no counter-faction lean, and why that *is* its lean
  *
@@ -379,6 +394,123 @@ import {
  * 88% / 1.45 / 32.7s** — zero timeouts anywhere, longest fight 48.6s against a 67.5s bar. ⚠️ **Three
  * of five is a soft-looking roof and the alternate is what authored it**; the two arrangements are
  * 1.55 survivors apart on that board.
+ *
+ * ## ⚠️ The fifth hundred is where "is it ours" came back _no_ for everything but the plate
+ *
+ * Thirteen stats and five mechanics were priced across all fourteen shipped arrangements at band 5 —
+ * each crew calibrated to the heaviest **mirror** control it still reads ≥3.75 on, on a 5% ladder,
+ * because the coarse version put dwarf-alt and both Angel rows on a cliff and lied. **Every candidate
+ * ranks the Monster fives between eighth and fourteenth of fourteen**: `atk` ×1.6 and a crit ramp
+ * 13th/14th, a poison 12th/13th, `hp` ×2.8 14th, `haste` 190 and `attackSpeed` 120 12th, a second
+ * `ascended` anchor 12th, `WEAKEN` 11th, a board-wide `STUN` 10th, this tower's own `dodge` 12th.
+ * That is the Human fifth hundred's finding on a second tower, and it arrives for the **opposite**
+ * reason: the Humans are mid-table on every register, and this crew **has no support to lose** —
+ * five near-identical attackers with no interdependence, so pressure removes them one at a time and
+ * nothing cascades.
+ *
+ * ⚠️ **The one exception is the plate, and its licence has not expired.** `physicalResist` 0.45 on
+ * four bodies costs **monster-ref 0.95, second of fourteen, and monster-alt 0.92, third**, against a
+ * field where six arrangements read at or under 0.38 and undead-alt and demon-alt read *negative*.
+ * The mechanism is the third hundred's and it is in [`damage.ts`](../core/battle/damage.ts) rather
+ * than in the stat names: `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare`
+ * multiplies by `1 − resist` **afterwards**, so a pierce never touches a resist — and this crew is
+ * the only one built on pierce. **A hundred may build on the hundred below it; this is the third
+ * time this tower has, and the licence is measured rather than inherited.**
+ *
+ * ## ⚠️ The new half is a poison, and both halves are priced in _seconds_
+ *
+ * The tower's founding paragraph names two currencies a leech crew cannot pay in, and the third and
+ * fourth hundreds both bought the same one: armour and evasion each reduce *damage dealt*, which
+ * starves `lifeLeech` at its input. A `dot` is the other. `statusDamage` in `simulate.ts` never
+ * re-enters the attack path, so leech returns nothing from it; the amount is
+ * `scaled(applier.atk, power)`, which **bypasses `def` entirely** and answers only `resistedShare`;
+ * and these fives carry **Σ0.00 `magicResist`**. It is the one thing on this ladder that keeps
+ * billing after the body carrying it is dead.
+ *
+ * ⚠️ **Measured on the shipped floors, both halves are worth 0.00 at the bottom of the hundred and
+ * everything at the top, and that is one mechanism rather than two.** The plate buys seconds and the
+ * poison bills them:
+ *
+ * ```
+ *   floor   burn worth ref/alt   plate worth ref/alt   shipped ref / alt
+ *   f420        0.00 / 0.00          0.00 / 0.00        5.00 / 4.00   8.4s
+ *   f445        0.05 / 0.05          0.00 / 0.05        4.00 / 3.95  12.9s
+ *   f467        0.42 / 0.40          0.50 / 0.50        3.45 / 1.93  15.1s
+ *   f490        0.20 / 0.43          0.27 / 0.48        2.77 / 1.25  17.3s
+ *   f500        0.20 / 0.80          1.02 / 1.62        2.98 / 0.80  19.5s
+ * ```
+ *
+ * ⚠️ **A poison is worth nothing on a crew that clears in eight seconds, and the opening band is
+ * eight seconds long.** That is a finding about the mechanic rather than about this band: the
+ * hundred's first twenty floors run 6.6s to 8.4s and {@link BURN} lands once in them. Floor 500 with
+ * the plate stripped off the four axis blocks reads **4.00 / 2.42 at 14.4s / 19.3s** against the
+ * shipped 2.98 / 0.80 at 19.5s / 31.2s. **State the seconds beside the survivors**; the Elf fifth
+ * hundred's rule, arriving from the other side.
+ *
+ * ⚠️ **The licence is over the _alternate_, which is a shape the Angel fourth hundred recorded and
+ * this tower has now reproduced twice.** The poison is worth 0.20 to the reference five on the roof
+ * and **0.80** to the alternate; the two arrangements close 2.18 survivors apart. Every board here is
+ * sized against the alternate, as the third and fourth hundreds' were.
+ *
+ * ⚠️ **Inert or refused at band 5, measured against the hundred's own controls** (monster-ref
+ * 1150/62 behind four 540/40 reading 3.90; monster-alt 980/55 behind four 470/36 reading 3.85, both
+ * at floor 500 in Relic 40): `magicResist` 0.50 worth **0.00 / −0.07** — this crew deals no magical
+ * damage, so a magic wall has nothing to answer, which reproduces the third hundred's reading two
+ * bands up; `tenacity` 0.60 **0.00 / 0.02**; complete crit immunity — `critBlock` 0.30 with
+ * `critDamageResist` 0.90 — **0.02 / −0.02**, because Σ0.22 of chance over Σ3.10 of amp across five
+ * is an expected multiplier of 1.027; `physicalPierce` **flat from 0.40 to 1.00** at 0.90 / 0.85,
+ * because Σ76 of `def` across five is fourth-lowest of the fourteen shipped arrangements and there is
+ * nothing to open.
+ *
+ * ⚠️ **A stun is worth 0.00 at every scope but `enemy-all`, and then it is a cliff with nothing in
+ * the middle.** At two carriers on duration 25: `enemy-lowest` 0.27, `enemy-front` 0.85,
+ * `enemy-highest` 0.90, `enemy-row-front` 0.85 — every one of them exactly the plain damage the cast
+ * carries — against **1.90 / 2.45** on `enemy-all`. By duration at one carrier it reads 0.00 at 15,
+ * 0.00 at 25, 1.88 at 35 and a **wipe** at 50. **No band can be built on it.** ⚠️ **A dot's scope
+ * table is not a stun's**: the same {@link BURN} reads **−0.10** on `enemy-row-back` — the eighth
+ * reading on this tower of aim past the front rank leaving a board easier — 0.65 on `enemy-front`,
+ * 0.82 on `enemy-lowest`, 0.90 on `enemy-row-front` and 1.02 wide.
+ *
+ * ## ⚠️ The retirement check is the harshest any hundred has run, and it confirmed the axis
+ *
+ * **Thirteen of the fourth hundred's anchors retire**, against the Angel fourth hundred's four —
+ * and the claim has to name the floors, because all thirteen stand on floors 301–389 and are fine
+ * there. Fielded alone behind four 300/18 commons at floor 500 in Relic 40: The Last Mercy (1520/91),
+ * The Deepcut, The Doorstone, The Deadbolt and The Unanswered all read **0% for the alternate**, The
+ * Unbitten 5%, The Unfaltering 13%, The Seedfather 57%. ⚠️ **The block that stands is the
+ * heaviest in the hundred below**: the Bonefall Tyrant at **1550/96** reads 100% / 3.38 against
+ * 100% / 2.70 where The Last Mercy at 1520/91 reads 0.00 and 0.00. Thirty health and five attack
+ * apart, and what separates them is that three of the four blocks reading 0% carry a board-wide
+ * {@link BURN} at the shipped power. **The retirement check priced the hundred's own axis before a
+ * board was authored.**
+ *
+ * ⚠️ **The floor-400 board carried to floor 500 reads 100% / 1.75 against 0% / 0.00** — the
+ * Crownworks collapse a sixth time, and the alternate again.
+ *
+ * ## ⚠️ What the hundred carries, stated as counts
+ *
+ * Of the **42 distinct blocks** it fields over floors 401–500, **zero** carry `lifeLeech`,
+ * `recovery` or `healthRegen`, and zero field a heal, a drain, a shield, a `regen`, a taunt, a link
+ * or a reflect. ⚠️ **That absolute was false on the first pass and the fix was the boards**: the
+ * Ashen Choir carried `recovery` 4 and a barrier on four floors, the Ebbdrift Latcher `lifeLeech`
+ * 0.12 on two, and the Passbell Ringer applied a **link** on three — which this tower has forbidden
+ * above floor 100 since it measured one, and which nothing in the sweep would ever have noticed
+ * because the boards were tuned with them on. Nine slots, three swaps. **Run the check; expect to
+ * fix content.**
+ *
+ * Board-wide voices run a mean of **1.24 with a hard ceiling of two**, against this tower's own third
+ * and fourth hundreds' **1.69 and 1.05**; one ascended anchor a board and never two, which is this tower's
+ * rule since floor 160 and survives a second rung of investment. Burn carriers per board run
+ * **1 / 1–2 / 2 / 2–3 / 2** across the five bands — a range, not a constant.
+ *
+ * The hundred opens at floor 401 in 6.6 seconds with all five alive, costs the alternate a member
+ * from floor 409 and the reference from floor 426, and closes at **100% / 2.98 / 19.5s against
+ * 80% / 0.80 / 31.2s** — zero timeouts anywhere, longest single attempt **33.9s** against the 67.5s
+ * bar, slowest mean 31.2s against the 60s bar. ⚠️ **Its longest fight is nine seconds shorter than
+ * the fourth hundred's 47.8s**, which is the third consecutive hundred on this tower to close faster
+ * than the one below — and the mechanism, rather than the trend, is that the boards get *lighter* as
+ * the axis rises: floor 500 weighs **2,740** of health where floor 400 weighs 3,260 and floor 300
+ * weighs 4,080.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -3433,6 +3565,821 @@ export const TOWER_MONSTER = {
       enemies: {
         front: [THE_TURNAWAY, GLANCEWORK_SMITH],
         back: [GOLEM, THORNLING, MIREWHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Censing — Floors 401–420, levels 189–198, Masterwork 1–24 — the field stops trying to stop the jaws and starts making the ground cost them. One censer a board, on the narrowest scope this hundred authors.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, GOLEM, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [THE_CROWN_WHEEL, THURIBLE_ORDINAL],
+        back: [GRAVESTRIDE_SERJEANT, THORNBACK_GRAZER, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [OATHBREAKER, THURIBLE_ORDINAL],
+        back: [CLOSEWARD_SERAPH, CHALKHIDE_BROWSER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [SILENTVAULT_KEEPER, SLOWGROWTH_BOLE, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [CINDERFLAW_PROVER, MUSTER_PIKE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [THE_TURNAWAY, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, PANOPLY_BEARER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [THE_CROWN_WHEEL, THURIBLE_ORDINAL],
+        back: [SLAGHIDE_PURSUER, SCALEPLATE_BRAMBLE, LASTFEW_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [OATHBREAKER, THURIBLE_ORDINAL],
+        back: [GRAVESTRIDE_SERJEANT, PLATEBOUND_HUSK, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, CHALKHIDE_BROWSER, STEPFALL_STANDARD],
+      },
+    },
+    {
+      id: 't-monster-f410',
+      name: 'Floor 410 — The First Censer',
+      enemies: {
+        front: [TYRANT, THURIBLE_ORDINAL],
+        back: [CLOSEWARD_SERAPH, GILDED_SENTRY, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [GRAVESTRIDE_SERJEANT, SLOWGROWTH_BOLE, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [THE_CROWN_WHEEL, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, THORNBACK_GRAZER, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-monster-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [SILENTVAULT_KEEPER, MUSTER_PIKE, CINDERFLAW_PROVER],
+      },
+    },
+    {
+      id: 't-monster-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [OATHBREAKER, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, CHALKHIDE_BROWSER, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [THE_TURNAWAY, THURIBLE_ORDINAL],
+        back: [GRAVESTRIDE_SERJEANT, PANOPLY_BEARER, LASTFEW_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [CLOSEWARD_SERAPH, SCALEPLATE_BRAMBLE, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-monster-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [THE_CROWN_WHEEL, THURIBLE_ORDINAL],
+        back: [SILENTVAULT_KEEPER, SLOWGROWTH_BOLE, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-monster-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, PLATEBOUND_HUSK, CINDERFLAW_PROVER],
+      },
+    },
+    {
+      id: 't-monster-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [OATHBREAKER, THURIBLE_ORDINAL],
+        back: [GRAVESTRIDE_SERJEANT, THORNBACK_GRAZER, STEPFALL_STANDARD],
+      },
+    },
+    {
+      id: 't-monster-f420',
+      name: 'Floor 420 — The Smoke Goes First',
+      enemies: {
+        front: [TYRANT, THURIBLE_ORDINAL],
+        back: [PANOPLY_BEARER, GRAVESTRIDE_SERJEANT, LASTFEW_WARDEN],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Slow Lamps — Floors 421–445, levels 199–210, Masterwork 25–54 — the oil goes down. One board-wide voice a board and never two, because two read 0% for the alternate.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PANOPLY_BEARER, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [THE_CROWN_WHEEL, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, SLOWGROWTH_BOLE, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [OATHBREAKER, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, MUSTER_PIKE, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-monster-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [THE_PROOF_HOUSE, CLOSEWARD_SERAPH],
+        back: [LAMPOIL_SACRIST, MUSTER_PIKE, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [THE_TURNAWAY, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, WEARWAY_GAUNT, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-monster-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [THE_PLATEWRIGHT, PANOPLY_BEARER],
+        back: [LAMPOIL_SACRIST, THORNBACK_GRAZER, STEPFALL_STANDARD],
+      },
+    },
+    {
+      id: 't-monster-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PLATEBOUND_HUSK, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [OATHBREAKER, SILENTVAULT_KEEPER],
+        back: [LAMPOIL_SACRIST, SCALEPLATE_BRAMBLE, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-monster-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PANOPLY_BEARER, LASTFEW_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f430',
+      name: 'Floor 430 — The Oil Is Poured',
+      enemies: {
+        front: [TYRANT, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PANOPLY_BEARER, STEPFALL_STANDARD],
+      },
+    },
+    {
+      id: 't-monster-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GRAVESTRIDE_SERJEANT],
+        back: [LAMPOIL_SACRIST, SLOWGROWTH_BOLE, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [THE_CROWN_WHEEL, CLOSEWARD_SERAPH],
+        back: [LAMPOIL_SACRIST, WALKED_GROUND_DEAD, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, MUSTER_PIKE, CINDERFLAW_PROVER],
+      },
+    },
+    {
+      id: 't-monster-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [THE_PROOF_HOUSE, SILENTVAULT_KEEPER],
+        back: [LAMPOIL_SACRIST, THORNBACK_GRAZER, LASTFEW_WARDEN],
+      },
+    },
+    {
+      id: 't-monster-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [THE_TURNAWAY, PANOPLY_BEARER],
+        back: [LAMPOIL_SACRIST, SLOWGROWTH_BOLE, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-monster-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PLATEBOUND_HUSK, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-monster-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [THE_PROOF_HOUSE, GRAVESTRIDE_SERJEANT],
+        back: [LAMPOIL_SACRIST, SCALEPLATE_BRAMBLE, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-monster-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [OATHBREAKER, PANOPLY_BEARER],
+        back: [LAMPOIL_SACRIST, CAIRNWARD_HUSK, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, PANOPLY_BEARER, CINDERFLAW_PROVER],
+      },
+    },
+    {
+      id: 't-monster-f440',
+      name: 'Floor 440 — The Slow Lamps',
+      enemies: {
+        front: [TYRANT, CLOSEWARD_SERAPH],
+        back: [LAMPOIL_SACRIST, GRAVESTRIDE_SERJEANT, ANTIPHON_ARCHON],
+      },
+    },
+    {
+      id: 't-monster-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [THE_PLATEWRIGHT, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, SLOWGROWTH_BOLE, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-monster-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [THE_CROWN_WHEEL, SILENTVAULT_KEEPER],
+        back: [LAMPOIL_SACRIST, THORNBACK_GRAZER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-monster-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [OATHBREAKER, PANOPLY_BEARER],
+        back: [LAMPOIL_SACRIST, MUSTER_PIKE, STEPFALL_STANDARD],
+      },
+    },
+    {
+      id: 't-monster-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [THE_PROOF_HOUSE, THURIBLE_ORDINAL],
+        back: [LAMPOIL_SACRIST, THORNBACK_GRAZER, CINDERFLAW_PROVER],
+      },
+    },
+    {
+      id: 't-monster-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [THE_TURNAWAY, GRAVESTRIDE_SERJEANT],
+        back: [LAMPOIL_SACRIST, WEARWAY_GAUNT, LASTFEW_WARDEN],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Oiled Ground — Floors 446–467, levels 211–220, Masterwork 55–80 — two carriers, and the first boards where the plate and the fire stand on one body. The weight comes *down* as the axis rises; that is the escalation rather than a discount on it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, MILEWORN_HUSK, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, LAMPLESS_PILGRIM, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f450',
+      name: 'Floor 450 — The Ground Takes It',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, TYRANT],
+        back: [LAMPOIL_SACRIST, GRAVEFURROW_WALKER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, GILDED_SENTRY, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, CHAFFMOUTH_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, MILEWORN_HUSK, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, GILDED_SENTRY, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, LAMPLESS_PILGRIM, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f460',
+      name: 'Floor 460 — Nothing Here Is Wet',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, GILDED_SENTRY, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, MILEWORN_HUSK, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, CHAFFMOUTH_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, OATHBREAKER],
+        back: [LAMPOIL_SACRIST, GILDED_SENTRY, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Long Burn — Floors 468–490, levels 221–231, Relic 2–28 — aligned to the grade boundary, which steps the effective bonus down from +108% to +25.8%, so the band opens heavier and then falls further than any before it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-monster-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f470',
+      name: 'Floor 470 — It Has Not Gone Out',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-monster-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, MILEWORN_HUSK],
+      },
+    },
+    {
+      id: 't-monster-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, OATHBREAKER],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f480',
+      name: 'Floor 480 — The Long Burn',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, GRAVEFURROW_WALKER],
+      },
+    },
+    {
+      id: 't-monster-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, CHAFFMOUTH_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_CROWN_WHEEL],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PROOF_HOUSE],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-monster-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_PLATEWRIGHT],
+        back: [LAMPOIL_SACRIST, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-monster-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, THURIBLE_ORDINAL, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f490',
+      name: 'Floor 490 — Everything Is Oiled',
+      enemies: {
+        front: [EMBERVAULT_KEEPER, THE_TURNAWAY],
+        back: [LAMPOIL_SACRIST, UNDERROAD_RANKER, THORNLING],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Unquenched — Floors 491–500, levels 232–236, Relic 29–40 — the roof's own board-wide burn is the only one the last ten floors carry. The censer never stands beside it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [THE_UNQUENCHED, GILDED_SENTRY],
+        back: [THURIBLE_ORDINAL, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [VAULTLIGHT_CENSER, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [THE_UNQUENCHED, GILDED_SENTRY],
+        back: [THURIBLE_ORDINAL, VAULTLIGHT_CENSER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [LUMEN_ACOLYTE, THORNLING, SHEAFLESS_SHADE],
+      },
+    },
+    {
+      id: 't-monster-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [THE_UNQUENCHED, GILDED_SENTRY],
+        back: [THURIBLE_ORDINAL, GRAVEFURROW_WALKER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [VAULTLIGHT_CENSER, GRAVEFURROW_WALKER, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [VAULTLIGHT_CENSER, LUMEN_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-monster-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [VAULTLIGHT_CENSER, THORNLING, SHEAFLESS_SHADE],
+      },
+    },
+    {
+      id: 't-monster-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [LUMEN_ACOLYTE, THORNLING, SHEAFLESS_SHADE],
+      },
+    },
+    {
+      id: 't-monster-f500',
+      name: 'Floor 500 — The Unquenched',
+      enemies: {
+        front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
+        back: [VAULTLIGHT_CENSER, UNDERROAD_RANKER, THORNLING],
       },
     },
   ],

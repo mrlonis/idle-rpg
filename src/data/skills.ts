@@ -9233,6 +9233,133 @@ export const BLACKTHORN_CLOSE = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fifth hundred — the Censing, and its four turns
+//
+// ⚠️ **All four are magical and all four carry {@link BURN}, and both halves of that are the
+// axis.** A Monster five deals nine and ten physical damage effects out of nine and ten, carries the
+// game's only real `physicalPierce` (Σ0.56 / Σ0.70 against ≤0.15 everywhere else) — and carries
+// **Σ0.00 `magicResist`**. In [`damage.ts`](../core/battle/damage.ts) a pierce multiplies `def` and
+// `resistedShare` is applied *afterwards* with no pierce term in it, so the one defence this crew is
+// built to open is not the one these turns come through.
+//
+// ⚠️ **A `dot` is the half of this tower's founding sentence it had never spent.** The tower charges
+// a leech crew in "damage it cannot return"; its third hundred bought armour and its fourth evasion,
+// and both of those buy *less damage dealt*, which starves the leech at its input. `statusDamage` in
+// `simulate.ts` never re-enters the attack path, so `lifeLeech` — a share of damage **dealt** —
+// returns exactly nothing against a poison, and the amount is `scaled(applier.atk, power)`, which
+// **bypasses `def` entirely** and answers only `resistedShare`. It is the one thing on this ladder
+// that keeps billing after the body carrying it is dead.
+//
+// ⚠️ **The scope is measured rather than stylistic, and a dot's scope table is not a stun's.**
+// Carried by one anchor at the fifth hundred's control, {@link BURN} at its shipped 0.34 is worth
+// **−0.10 / 0.85** on `enemy-row-back`, 0.65 / 0.85 on `enemy-front`, 0.82 / 0.85 on `enemy-lowest`,
+// 0.90 / 1.18 on `enemy-row-front` and **1.02 / 1.90** on `enemy-all`. Aim past the front rank leaves
+// the board *easier* — the eighth reading of that kind on this tower — and the wide scope is worth
+// roughly twice the next best to the binding arrangement. ⚠️ **So the wide turn is rationed rather
+// than repeated**: two board-wide carriers read **0% for the alternate**, and one wide plus two
+// single-target burners reads 0% as well. See [`tower-monster.ts`](./tower-monster.ts) for the
+// per-band counts.
+//
+// ⚠️ **A cooldown above 45 is a rule rather than a preference here** — `skills.spec.ts` holds a
+// status-applying skill's cooldown above the status's own duration, and {@link BURN} runs 45.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A thurible is swung. That is the whole of the office: the vessel goes out on its chain, and the
+ * ground it passes over keeps the smoke after it has gone by.
+ *
+ * The opening band's turn, on {@link THURIBLE_ORDINAL}. ⚠️ **`enemy-lowest` deliberately, which is
+ * the *weakest* scope this hundred authors** — worth 0.82 of the reference five and 0.85 of the
+ * alternate against the wide turn's 1.02 and 1.90. An opening band has to teach that a burn is a
+ * thing that happens before the hundred charges for one that reaches everybody, and pricing it wide
+ * on floor 401 would spend the whole axis on the first twenty floors.
+ */
+export const SWING_THE_THURIBLE = {
+  id: 'swing-the-thurible',
+  name: 'Swing the Thurible',
+  target: 'enemy-lowest',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.55 },
+    { kind: 'status', status: BURN, chance: 0.7 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * Oil goes down before the fire does. By the time there is anything to see, the decision was made an
+ * hour ago.
+ *
+ * The hundred's wide turn, on {@link LAMPOIL_SACRIST}, and **the only shape in the hundred that is
+ * rationed by count rather than sized by weight**. At power 1.05 it sits under the 1.2 cap
+ * `skills.spec.ts` holds on `enemy-all`, and the damage is almost beside the point: what it is for is
+ * putting {@link BURN} on all five at once, which is worth 1.02 of the reference five and **1.90 of
+ * the alternate** where the same status single-target is worth 0.82 and 0.85.
+ *
+ * ⚠️ **Never two on a board, and never beside the roof's own.** Two carriers of this turn read
+ * **0% for the alternate** at the hundred's own control, and one beside two single-target burners
+ * reads 0% as well; the last ten floors carry {@link NOTHING_PUTS_IT_OUT} instead and the censer
+ * stands down. Across the hundred the board-wide voice count is a mean of **1.24 with a hard ceiling
+ * of two**, against this tower's own third and fourth hundreds' 1.69 and 1.05.
+ */
+export const OIL_THE_GROUND = {
+  id: 'oil-the-ground',
+  name: 'Oil the Ground',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.05 },
+    { kind: 'status', status: BURN, chance: 0.65 },
+  ],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/**
+ * A slow lamp is the one left burning when the room is empty, because somebody will want it lit at
+ * four in the morning and nobody will want to be the one who lights it.
+ *
+ * The lieutenant's turn, on {@link EMBERVAULT_KEEPER}, and the hardest single-target turn in the
+ * hundred at power 1.70. ⚠️ **`enemy-front`, which is where the plate that carries it stands** — the
+ * Keeper is the block that wears both halves of the axis at once, and a body that is being hit is a
+ * body whose burn keeps landing.
+ */
+export const LIGHT_THE_SLOW_LAMP = {
+  id: 'light-the-slow-lamp',
+  name: 'Light the Slow Lamp',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.7 },
+    { kind: 'status', status: BURN, chance: 0.75 },
+  ],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The jaws close. Something comes away in them. It is still burning.
+ *
+ * The roof's turn, at the wide cap of 1.2 and the highest {@link BURN} chance in the game at 0.80 —
+ * and on a 72-tick cooldown, which is what keeps it from being two board-wide voices in the time one
+ * ought to take.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 500 reads 100% / 2.98 / 19.5s
+ * against 80% / 0.80 / 31.2s as shipped, and with every {@link BURN} on the board stripped it reads
+ * 3.17 and **1.60** — worth 0.20 of the reference five and **0.80 of the alternate**, which is the
+ * arrangement this tower sizes every board against. See {@link THE_UNQUENCHED}.
+ */
+export const NOTHING_PUTS_IT_OUT = {
+  id: 'nothing-puts-it-out',
+  name: 'Nothing Puts It Out',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.2 },
+    { kind: 'status', status: BURN, chance: 0.8 },
+  ],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9698,4 +9825,8 @@ export const SKILLS = [
   BRAKE_FLAIL,
   COVERT_REAVE,
   BLACKTHORN_CLOSE,
+  SWING_THE_THURIBLE,
+  OIL_THE_GROUND,
+  LIGHT_THE_SLOW_LAMP,
+  NOTHING_PUTS_IT_OUT,
 ] as const;

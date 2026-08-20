@@ -92,6 +92,7 @@ import {
   KILN_LIGHT,
   LEAVE_NO_MARK,
   LIE_FALLOW,
+  LIGHT_THE_SLOW_LAMP,
   LITANY,
   LOAD_THE_CART,
   LONG_HAUL,
@@ -125,6 +126,7 @@ import {
   NOTHING_IS_SPARED,
   NOTHING_LANDS,
   NOTHING_LANDS_BETTER,
+  NOTHING_PUTS_IT_OUT,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES,
   NOTHING_TAKES_HOLD,
@@ -136,6 +138,7 @@ import {
   NO_NUMBER_HOLDS,
   NO_SUCH_THING,
   NO_WORD_REACHES_IT,
+  OIL_THE_GROUND,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
   OPEN_THE_VEIN,
@@ -201,6 +204,7 @@ import {
   STRIP_THE_FALLEN,
   SUCKER_LASH,
   SUNFADE,
+  SWING_THE_THURIBLE,
   TAKE_IT_BACK,
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
@@ -13470,6 +13474,238 @@ export const THE_BLACKTHORN = {
   skills: [BLACKTHORN_CLOSE, COVERT_REAVE],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fifth hundred — the Censing, and its four blocks
+//
+// ⚠️ **Angel, and the faction is a measurement rather than a theme.** This tower has no
+// counter-faction to author into — every faction counters Monsters — so the choice falls to the flat
+// spread's thinnest row, exactly as the fourth hundred's did. Angel was **12.22%** of 1,939 slots
+// against a Dwarf leader at 20.17%, and it is also the joint-shallowest bench the tower fields (16
+// distinct blocks against Undead's 28). The tower closes at **20.21% Angel over 2,439 slots**, which
+// makes Angel the leader and drops Dwarf back to 17.63%, against bounds of 5% and 25%. ⚠️ **The first
+// pass ran 63.2% Angel over the hundred and took the tower to 22.67%**, which is where the fourth
+// hundred's own first pass landed and too close to a ceiling that may never be crossed; the fix is the
+// one the procedure names — one texture slot at a time, spread across every band, never an axis block
+// or an anchor, and drawn from the two thinnest rows left (Undead and Demon).
+//
+// ## ⚠️ What the fifth hundred measured, and the finding that shaped it
+//
+// 1. ⚠️ **"Is it ours" came back _no_ for every candidate except the plate this tower already
+//    wears.** Thirteen stats and five mechanics priced across all fourteen shipped arrangements at
+//    band 5 — each crew calibrated to the heaviest **mirror** control it still reads ≥3.75 on — rank
+//    the Monster fives between **eighth and fourteenth of fourteen** on every one: `atk` ×1.6 and a
+//    crit ramp 13th/14th, a poison 12th/13th, `hp` ×2.8 14th, `haste` 190 and `attackSpeed` 120
+//    12th, a second `ascended` anchor 12th, `WEAKEN` 11th, a board-wide `STUN` 10th. The Human fifth
+//    hundred's finding on a second tower, and it arrives for the **opposite** reason: the Humans are
+//    mid-table on every register, and this crew has **no support to lose** — five near-identical
+//    attackers with no interdependence, so pressure removes them one at a time and nothing cascades.
+// 2. ⚠️ **`physicalResist` is the exception and its licence has not expired**, which is what
+//    licensed building on it a third time. At 0.45 on four bodies it costs **monster-ref 0.95 (2nd of
+//    fourteen) and monster-alt 0.92 (3rd)**, over a field where six arrangements read at or under
+//    0.38 and undead-alt and demon-alt read **negative**. The mechanism is the third hundred's,
+//    unchanged: `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare` multiplies by
+//    `1 − resist` **afterwards**, so a pierce never touches a resist — and this crew is the only one
+//    built on pierce.
+// 3. ⚠️ **The new half is {@link BURN} and it is taken on _margin_, which is the weaker licence and
+//    is said so on purpose.** Cross-crew a poison ranks monster-alt 13th; it is not theirs, it is
+//    *everyone's*, because a dot is a flat tax priced off the applier and **the deepest health pool
+//    pays it least** (Monster Σ3,650 / Σ3,540 against Elf Σ2,305 / Σ2,180). What chose it is three
+//    things the table cannot see — the mechanism above, the clock, and the grade.
+// 4. ⚠️ **It is the cheapest difficulty on the clock of anything measured.** Four carriers of a
+//    magical poison are worth 2.05 / 1.83 of five for **1.5 seconds** of added fight, where
+//    `physicalResist` 0.60 is worth 1.55 / 0.98 for 9.4 seconds, `dodge` 0.60 1.57 / 1.38 for 12.4
+//    and `hp` ×2.8 1.88 / 1.85 for 11.8. This tower has the room — floors 301–400 run 10.9s / 14.6s
+//    mean against a 67.5s bar — and spends it on deaths anyway.
+// 5. ⚠️ **The pair grades six monotone steps on both crews with zero timeouts**: 0.73 / 0.68 →
+//    0.88 / 0.85 → 0.92 / 0.88 → 1.65 / 1.02 → 1.90 / 1.60 → 2.52 / 2.30 across `physicalResist`
+//    0.12 → 0.42 carried with the poison.
+// 6. ⚠️ **Inert or refused at this band, measured**: `magicResist` **0.00 / −0.07** (this crew deals
+//    no magical damage, so there is nothing for a magic wall to answer — the third hundred's reading
+//    reproduced two bands up); `tenacity` 0.60 **0.00 / 0.02**; complete crit immunity —
+//    `critBlock` 0.30 with `critDamageResist` 0.90 — **0.02 / −0.02**, because Σ0.22 of chance over
+//    Σ3.10 of amp across five is an expected multiplier of 1.027; `physicalPierce` flat from 0.40 to
+//    **1.00** at 0.90 / 0.85, because Σ76 of `def` across five is fourth-lowest of the fourteen
+//    shipped arrangements and there is nothing to open. ⚠️ **And a stun is worth 0.00 at every scope but `enemy-all`** — 0.27 / 0.85 /
+//    0.90 / 0.85 on `enemy-lowest`, `enemy-front`, `enemy-highest` and `enemy-row-front` against
+//    1.90 / 2.45 wide — then cliffs from nothing at duration 25 to a wipe at 50, so no band can be
+//    built on it.
+//
+// ⚠️ **The register check is about the _pairing_, and each half stays inside its own.**
+// `physicalResist` runs a median of 0.10 to a ceiling of 0.40 over 174 of 366 shipped blocks and
+// nothing below passes it; {@link BURN} is authored at its shipped power on its shipped duration.
+// What steps outside is carrying them together: **1 of 366 blocks carries `physicalResist` ≥ 0.18
+// and any dot** (the Mileworn Husk, at 0.20, with a bleed), **0 of 366 carry it with {@link BURN}**,
+// and **0 of 366 carry any dot at `physicalResist` ≥ 0.24**. ⚠️ **A second register moves with it:
+// fire in this game is a Demon stat.** {@link BURN} sits on **9 of 366** blocks and eight of the
+// nine are Demons; **no Angel block carried a dot of any kind** before these four.
+//
+// ⚠️ **Nothing here restores anything, nothing taunts and nothing links.** No block below carries
+// `lifeLeech`, `recovery`, `healthRegen`, a heal, a drain, a shield, a `regen`, a taunt, a link or a
+// reflect; the claim about the *boards* is stated as counts in [`tower-monster.ts`](./tower-monster.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The censer goes ahead of everything. It is not a weapon and it is not trying to be one; it is a
+ * statement about what the ground is going to be like from here on.
+ *
+ * The opening band's carrier and the entry size of the axis — **{@link BURN} on the narrowest scope
+ * the hundred authors**, `enemy-lowest`, which is worth 0.82 of the reference five and 0.85 of the
+ * alternate against the wide turn's 1.02 and 1.90. One of these is what floors 401–420 ask, and
+ * nothing else.
+ *
+ * ⚠️ **`physicalResist` 0.14, which is the pool median plus a step and the lightest plate in the
+ * hundred.** The axis is a *pair* and both halves have to start small, or the hundred's first band
+ * spends what its fifth needs. `support` gear, which puts the grade where this body has least: it is
+ * the softest of the four and it is meant to be killed.
+ */
+export const THURIBLE_ORDINAL = {
+  id: 'thurible-ordinal',
+  name: 'Thurible Ordinal',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'support',
+  stats: {
+    hp: 520,
+    atk: 44,
+    def: 26,
+    haste: 88,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    physicalResist: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [SWING_THE_THURIBLE],
+} as const;
+
+/**
+ * A sacrist keeps the vessels, and the vessels are mostly oil. Nobody has ever thanked one.
+ *
+ * The hundred's wide carrier — the only block in it that puts {@link BURN} on all five at once —
+ * and **the one thing here rationed by count rather than sized by weight**. Two of these on one board
+ * read **0% for the alternate**; the boards field exactly one, and floors 446 upward pair it with a
+ * single-target burner instead of a second wide voice.
+ *
+ * ⚠️ **Its `atk` of 40 is well under the pool median of 56, and that is the axis rather than a
+ * discount.** A dot's amount is `scaled(applier.atk, power)`, so a burner bills its *own* attack — at
+ * the hundred's control the identical wide turn is worth 0.55 / 0.98 from a 380/30 body, 0.90 / 1.77
+ * from a 540/40 one and 1.10 / 1.85 from a 700/54 one. The escalation is therefore who carries the
+ * censer, not how hot the board is, which is why the boards get *lighter* as the hundred climbs.
+ *
+ * `mage` gear, which puts almost the whole grade into the attack — the half of the product this body
+ * has least of and the half a burn is priced against.
+ */
+export const LAMPOIL_SACRIST = {
+  id: 'lampoil-sacrist',
+  name: 'Lamp-Oil Sacrist',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 560,
+    atk: 40,
+    def: 24,
+    haste: 92,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    physicalResist: 0.18,
+    magicResist: 0.1,
+  },
+  skills: [OIL_THE_GROUND, SWING_THE_THURIBLE],
+} as const;
+
+/**
+ * An embervault is where you put fire you intend to still have tomorrow. The keeper's whole job is
+ * that it never goes all the way out.
+ *
+ * The lieutenant, and **the only block in the hundred wearing both halves of the axis at once** —
+ * `physicalResist` 0.26 with {@link LIGHT_THE_SLOW_LAMP} on top of it, which is the arrangement
+ * **0 of 366 shipped blocks** carry. It stands in the front rank on every board it is on, because a
+ * body that is being hit is a body whose burn keeps landing.
+ *
+ * ⚠️ **It stands on 46 of the hundred's 100 boards and was settled across all forty-six**, which is
+ * the Human fifth hundred's rule: at `atk` 50 one of them falls under bar and at 46, 44 and the
+ * shipped **42** none does. The stride samples eleven of the forty-six.
+ */
+export const EMBERVAULT_KEEPER = {
+  id: 'embervault-keeper',
+  name: 'Embervault Keeper',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 760,
+    atk: 42,
+    def: 34,
+    haste: 84,
+    critChance: 0.05,
+    critDamageAmp: 0.6,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalResist: 0.26,
+    magicResist: 0.12,
+  },
+  skills: [LIGHT_THE_SLOW_LAMP, SWING_THE_THURIBLE],
+} as const;
+
+/**
+ * The Horncaller called and the field came. The Unbitten held and the plate turned. The Turnaway
+ * gave the jaws nothing square to close on. This one lets them close, and burns anyway.
+ *
+ * The roof, at **900/38** — and both halves of that are the lightest this tower has authored bar its
+ * own. ⚠️ **It is the second-lightest roof on health in the game and the third-lightest on attack, and
+ * the block above it on health is {@link THE_TURNAWAY} at 820**: derived across all thirty-three
+ * shipped hundred-roofs the list runs 1180/24, 1180/34, **900/38**, 1140/40, 1160/44, 1200/52,
+ * 1050/56, 820/58, 1240/64 and on up to 1800/100 — a list rather than a superlative, because the
+ * superlative has gone stale twice. The five fifth-hundred roofs are the first five of it.
+ *
+ * ⚠️ **The attack settled it — the sixth tower roof running — and the tell is the fight getting
+ * shorter as it came down.** With the weight held at 900 behind the shipped escort, `atk` 44 reads
+ * 45% for the binding arrangement at 24.5s, 40 reads 93% at 26.8s and the shipped **38** reads
+ * 100% / 1.20 at 26.5s. ⚠️ **The health came down first and it was the bigger move**: at 1100 the same
+ * board reads **0% for the alternate at every attack from 44 down to 30**, because an `ascended` anchor
+ * is fight length and length is what a poison bills.
+ *
+ * ⚠️ **Both halves of the axis carry the last floor rather than riding along.** Floor 500 reads
+ * 100% / 2.98 / 19.5s against 80% / 0.80 / 31.2s as shipped; with every {@link BURN} on the board
+ * stripped it reads 3.17 / **1.60**, and with the `physicalResist` stripped off the four axis blocks
+ * **4.00 / 2.42 at 14.4s / 19.3s**. The plate is worth 1.02 of the reference five and **1.62** of the
+ * alternate there, the poison 0.20 and **0.80**, and the two together are the difference between a
+ * fourteen-second board and a thirty-one-second one.
+ *
+ * ⚠️ **Thirteen anchors retired to make room for it, the most any hundred has**, and the check has to
+ * name the floors: all thirteen stand on floors 301–389 and are fine there; what they cannot do is
+ * floors 401–500. ⚠️ **The one that stands is the heaviest block in the hundred below.** The Bonefall
+ * Tyrant at 1550/96 reads 100% / 3.38 against 100% / 2.70 at floor 500 behind four 300/18 commons
+ * while The Last Mercy at **1520/91** reads 0.00 and 0.00 — thirty health and five attack apart —
+ * because the Last Mercy carries a board-wide {@link BURN} and the Tyrant does not. The axis found its
+ * own confirmation in the retirement check.
+ *
+ * ⚠️ **It restores nothing, it carries no taunt, and it keeps no `physicalPierce`** — the block that
+ * exists to punish this crew's penetration does not carry any itself, exactly as {@link THE_UNBITTEN}
+ * does not. Well under {@link UNMADE}'s 1800 and 100, which `enemies.spec.ts` holds.
+ */
+export const THE_UNQUENCHED = {
+  id: 'the-unquenched',
+  name: 'The Unquenched',
+  faction: 'angel',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 900,
+    atk: 38,
+    def: 44,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    critDamageResist: 0.2,
+    tenacity: 0.45,
+    physicalResist: 0.34,
+    magicResist: 0.14,
+  },
+  skills: [NOTHING_PUTS_IT_OUT, LIGHT_THE_SLOW_LAMP],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -13837,4 +14073,8 @@ export const ENEMIES = [
   BRAKETHORN_FLAIL,
   COVERT_REAVER,
   THE_BLACKTHORN,
+  THURIBLE_ORDINAL,
+  LAMPOIL_SACRIST,
+  EMBERVAULT_KEEPER,
+  THE_UNQUENCHED,
 ] as const;

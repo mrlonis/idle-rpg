@@ -140,12 +140,15 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ⚠️ **The ratio between those two totals used to be asserted and no longer is**, and recomputing it
  * by hand is the thing that replaced it — which every extension owes and does. Measured: with the
- * Human, Dwarf, Elf and Undead Towers at five hundred floors and the other three at four hundred, the
- * seven pay **994,100** against the 25-chapter campaign's **351,500** of first clears, a ratio of **2.828**
- * — up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at four, and 2.563 / 2.652 / 2.740
- * with one, two and three towers extended. ⚠️ **Seven towers of five hundred would
- * read 1,087,100 and a ratio of 3.093**, which is the number this round closes on if it runs to
- * completion and the one to weigh before a sixth hundred is proposed. ⚠️ **The direction is the finding.** The retired
+ * Human, Dwarf, Elf, Undead and Monster Towers at five hundred floors and the other two at four
+ * hundred, the seven pay **1,024,500** against the 25-chapter campaign's **351,500** of first clears, a
+ * ratio of **2.915** — up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at four, and
+ * 2.563 / 2.652 / 2.740 / 2.828 with one, two, three and four towers extended. ⚠️ **Seven towers of
+ * five hundred would read 1,087,100 and a ratio of 3.093**, which is the number this round closes on
+ * if it runs to completion and the one to weigh before a sixth hundred is proposed. ⚠️ **A tower
+ * still waiting for its floors pays 124,000 rather than the 124,300 a four-hundred-floor tower would
+ * pay on its own rules**, because `floorKindAt` reads the *rules'* height and its floor 400 resolves
+ * as a mini-boss — the payout regression this file describes, in the arithmetic. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while

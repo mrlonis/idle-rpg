@@ -1465,8 +1465,8 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-five hundreds gave twenty-five answers — every second, third and fourth hundred of all
-seven towers, and the four fifth hundreds so far — and no two escalate the same way. Read the
+⚠️ **Twenty-six hundreds gave twenty-six answers — every second, third and fourth hundred of all
+seven towers, and the five fifth hundreds so far — and no two escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
@@ -1526,6 +1526,23 @@ spread's **thinnest row** — Dwarf at 11.12% — and the first pass still lande
 25% bound that may never be crossed. Both named fixes were needed: swap the non-new texture blocks of
 that faction out, **and ration the axis carriers** so the band claim is a range rather than a
 constant. The overshoot arrives whichever way the faction is chosen.
+
+⚠️ **"Is it ours" can come back _no_ twice for opposite reasons, and the second answer is to re-take
+the tower's own axis.** The Monster fifth hundred ranks its crews eighth to fourteenth of fourteen on
+thirteen stats and five mechanics — the Ironpace's finding, arriving because that crew **has no support
+to lose** rather than because it is balanced. Its own third-hundred `physicalResist` still reads second
+and third of fourteen, so the hundred re-took it and paired something new on top. **A recorded licence
+is a claim about a curve in both directions: re-measure before assuming it has gone stale.**
+
+⚠️ **A `dot` is priced in _seconds_, so it is worth 0.00 on a crew that clears in eight of them.**
+Measured on the Monster fifth hundred's shipped floors, `BURN` at its shipped power is worth 0.00 at
+floor 420 (8.4s fights), 0.42 / 0.40 at floor 467 (15.1s) and 0.20 / **0.80** at floor 500 (19.5s) —
+and the `physicalResist` beside it grades the same way, 0.00 → 0.50 → **1.02 / 1.62**, because the plate
+buys the seconds the poison bills. **That is one mechanism rather than two**, and it is why the boards
+get _lighter_ as the axis rises: 4,080 of health at floor 300, 3,260 at 400, 2,740 at 500. ⚠️ **A dot's
+scope table is not a stun's either** — the same `BURN` reads −0.10 on `enemy-row-back`, 0.65 front, 0.82
+on `enemy-lowest`, 0.90 on `enemy-row-front` and 1.02 wide, where a **stun is worth exactly 0.00 at every
+scope but `enemy-all`** and then cliffs from nothing at duration 25 to a wipe at 50.
 
 1. **Measure before authoring.** Field both arrangements at the roof's level against a controlled
    board — one anchor plus four bodies all asking the same question — and vary only the mechanic.

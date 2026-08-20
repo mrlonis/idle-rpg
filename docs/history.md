@@ -87,13 +87,14 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and four towers of seven are there
+### The fifth hundred: the height is 500 and five towers of seven are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
 had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's, then the
-Undead Tower's; the other three stand at 400 and each has lost its boss until its own
-hundred lands; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
+Undead Tower's, then the Monster Tower's; the other two stand at 400 and each has lost its boss until
+its own hundred lands — worth **300 crystals apiece**, since `floorKindAt` reads the rules' height and
+their floor 400 resolves as a mini-boss; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
 endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
 floor 500), leaving 90 of their 100 geared floors byte-identical.
 
@@ -168,6 +169,31 @@ standing on nearly every board, spoke for 244 of 500 slots before a texture body
 a four-hundred trend broke**: each of this tower's first four hundreds closed faster than the one
 below and the fifth closes 0.7 seconds slower, because the fourth had already spent its whole budget
 on rate and there was nothing left to take out. Full findings in [towers](towers.md).
+
+⚠️ **The Censing — the Monster Tower's fifth hundred — is the second hundred whose "is it ours" table
+came back _no_ for everything, and the first to answer that by re-taking its own axis a third time.**
+Thirteen stats and five mechanics priced across all fourteen shipped arrangements at band 5 rank the
+Monster fives **eighth to fourteenth of fourteen on every one** — attack, crit, a poison, weight,
+`haste`, `attackSpeed`, a second `ascended` anchor, `WEAKEN`, a board-wide `STUN`, and this tower's own
+fourth-hundred `dodge`. That is the Ironpace's finding arriving for the opposite reason: the Humans are
+mid-table on every register, and **this crew has no support to lose**, so pressure removes five
+near-identical attackers one at a time and nothing cascades. The one exception is the plate this tower
+built its third hundred on, whose licence has **not** expired — `physicalResist` costs monster-ref 0.95
+and monster-alt 0.92, second and third of fourteen, over a field where six read at or under 0.38 and two
+read negative — because a pierce never touches a resist and this is the only crew built on pierce.
+⚠️ **The new half is a `dot`, the half of that tower's founding sentence it had never spent**: a poison
+cannot be leeched back, bypasses `def` entirely, answers only `magicResist` — which a Monster five has
+none of — and keeps billing after the body carrying it is dead. ⚠️ **Both halves turned out to be priced
+in _seconds_, which is one mechanism rather than two**: measured on the shipped floors they are worth
+0.00 and 0.00 at floor 420 where fights run 8.4 seconds, and 0.20 / 0.80 and 1.02 / 1.62 at floor 500
+where they run 19.5. The plate buys the seconds and the poison bills them, and the boards get _lighter_
+as the axis rises — 4,080 of health at floor 300, 3,260 at 400, **2,740** at 500. ⚠️ **Its retirement
+check is the harshest any hundred has run — thirteen anchors — and it priced the axis before a board was
+authored**: the heaviest block in the hundred below stands at 100% / 3.38 while one thirty health lighter
+reads 0.00, and the difference is a board-wide burn. ⚠️ **And the prose check found a _board_ bug for the
+second time in the project** — a returning block applying a **link**, which this tower forbade above
+floor 100 two hundreds ago, on three floors the sweep was perfectly happy with. Full findings in
+[towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

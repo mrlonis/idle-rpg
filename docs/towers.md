@@ -1,11 +1,11 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — four of seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — five of seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
 hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
 Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
-the Human Tower's floors 401–500 landed with it, then the Dwarf Tower's, the Elf Tower's and the
-Undead Tower's, and the other three stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+the Human Tower's floors 401–500 landed with it, then the Dwarf Tower's, the Elf Tower's, the Undead
+Tower's and the Monster Tower's, and the other two stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
 them; [authoring](authoring.md) is the procedure for adding floors.
 
 ⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
@@ -216,9 +216,10 @@ quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
 fails now that the towers pay **nearly three times** what the spine's first clears do. Recomputed by
-hand with the Human, Dwarf, Elf and Undead Towers at five hundred floors and the other three at four:
-the seven pay **994,100** against the 25-chapter campaign's **351,500**, a ratio of **2.828** — it read
-901,100 / 2.563, 932,100 / 2.652 and 963,100 / 2.740 with one, two and three towers extended. ⚠️ **Seven towers of five hundred
+hand with the Human, Dwarf, Elf, Undead and Monster Towers at five hundred floors and the other two at
+four: the seven pay **1,024,500** against the 25-chapter campaign's **351,500**, a ratio of **2.915** — it
+read 901,100 / 2.563, 932,100 / 2.652, 963,100 / 2.740 and 994,100 / 2.828 with one, two, three and four
+towers extended. ⚠️ **Seven towers of five hundred
 would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
 weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
 155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
@@ -1945,6 +1946,113 @@ These are findings a later session should not have to re-derive.
   nothing left to take out. The claim worth keeping is the one underneath: this tower buys its
   difficulty as far from the clock as it can, and 25.0s against a 67.5s bar is what that looks like once
   the weight has gone.
+
+### The fifth hundred — the Monster Tower's Censing
+
+- ⚠️ **"Is it ours" came back _no_ for every candidate except the plate this tower already wears, and
+  the reason is structural rather than a failed search.** Thirteen stats and five mechanics were
+  priced across all fourteen shipped arrangements at band 5 — each crew calibrated to the heaviest
+  **mirror** control it still reads ≥3.75 on — and every one ranks the Monster fives between
+  **eighth and fourteenth of fourteen**: `atk` ×1.6 and a crit ramp 13th/14th, a poison 12th/13th,
+  `hp` ×2.8 14th, `haste` 190 and `attackSpeed` 120 12th, a second `ascended` anchor 12th, `WEAKEN`
+  11th, a board-wide `STUN` 10th, this tower's own fourth-hundred `dodge` 12th. That is the Human
+  fifth hundred's finding on a second tower, arriving for the **opposite** reason: the Humans are
+  mid-table on every register, and **this crew has no support to lose.** Five near-identical
+  attackers with no interdependence means pressure removes them one at a time and nothing cascades —
+  which is why its calibrated controls are the lightest in the game (975/68 behind four 488/44;
+  794/60 behind four 397/39) and it still loses less to every lock than anybody.
+- ⚠️ **A coarse calibration lies, and here it lied about three crews at once.** A ladder of ~10%
+  weight steps put dwarf-alt at 3.83 and both Angel rows one notch from collapse, so they topped
+  every row of the table by cliffing rather than by grading. Re-running on a **5% ladder** moved
+  eight of the fourteen rankings. The Elf fourth hundred's warning, on a fifth tower.
+- ⚠️ **The plate's licence has _not_ expired, which is what licensed building on it a third time.**
+  `physicalResist` 0.45 on four bodies costs **monster-ref 0.95 (2nd of fourteen) and monster-alt
+  0.92 (3rd)** against a field where six arrangements read at or under 0.38 and undead-alt (−0.02)
+  and demon-alt (−0.13) read _negative_. The mechanism is the third hundred's, unchanged and read off
+  `damage.ts` rather than off the stat names: `effectiveDefence` returns `def × (1 − pierce)` and
+  `resistedShare` multiplies by `1 − resist` **afterwards**, so a pierce never touches a resist — and
+  this is the only crew built on pierce (Σ0.56 / Σ0.70 against ≤0.15 everywhere else). **A recorded
+  licence is a claim about a curve; re-measure it rather than assuming it has gone stale, too.**
+- ⚠️ **The new half is a `dot`, and it is the half of the tower's founding sentence never spent.**
+  That paragraph names two currencies a leech crew cannot pay in; the third and fourth hundreds both
+  bought the same one, because armour and evasion each reduce _damage dealt_ and so starve
+  `lifeLeech` at its input. `statusDamage` never re-enters the attack path, so leech returns nothing
+  from a poison; the amount is `scaled(applier.atk, power)`, which **bypasses `def` entirely** and
+  answers only `resistedShare`; and a Monster five carries **Σ0.00 `magicResist`**. It keeps billing
+  after the body carrying it is dead.
+- ⚠️ **Both halves are priced in _seconds_, and that is one mechanism rather than two.** Measured on
+  the shipped floors by stripping each half in turn:
+
+  ```
+    floor   burn worth ref/alt   plate worth ref/alt   shipped ref / alt / mean
+    f420        0.00 / 0.00          0.00 / 0.00        5.00 / 4.00 /  8.4s
+    f445        0.05 / 0.05          0.00 / 0.05        4.00 / 3.95 / 12.9s
+    f467        0.42 / 0.40          0.50 / 0.50        3.45 / 1.93 / 15.1s
+    f490        0.20 / 0.43          0.27 / 0.48        2.77 / 1.25 / 17.3s
+    f500        0.20 / 0.80          1.02 / 1.62        2.98 / 0.80 / 19.5s
+  ```
+
+  ⚠️ **A poison is worth nothing on a crew that clears in eight seconds, and this tower's opening band
+  is eight seconds long.** `BURN` lands once in the first twenty floors. The plate buys the seconds
+  and the poison bills them: floor 500 with the plate stripped off the four axis blocks reads
+  **4.00 / 2.42 at 14.4s / 19.3s** against the shipped 2.98 / 0.80 at 19.5s / 31.2s. **State the
+  seconds beside the survivors** — the Elf fifth hundred's rule, arriving from the other side.
+
+- ⚠️ **The licence is over the _alternate_, and the poison cross-crew is not exclusive at all.** It
+  ranks monster-alt 13th of fourteen because a dot is a flat tax priced off the applier and **the
+  deepest health pool pays it least** (Monster Σ3,650 / Σ3,540 against Elf Σ2,305 / Σ2,180). What
+  makes it authorable here is the pairing and the arrangement: on the roof it is worth 0.20 to the
+  reference five and **0.80** to the alternate, which is the crew every board on this tower is sized
+  against. The Angel fourth hundred's shape — **say which arrangement the licence is over.**
+- ⚠️ **A stun is worth 0.00 at every scope but `enemy-all`, and then it is a cliff with nothing in the
+  middle.** At two carriers on duration 25: `enemy-lowest` 0.27, `enemy-front` 0.85, `enemy-highest`
+  0.90, `enemy-row-front` 0.85 — each of them exactly the plain damage the cast carries, so the stun
+  itself is worth nothing — against **1.90 / 2.45** on `enemy-all`. By duration at one carrier it
+  reads 0.00 at 15, 0.00 at 25, 1.88 at 35 and a **wipe** at 50. No band can be built on it.
+  ⚠️ **A dot's scope table is not a stun's**: the same `BURN` reads **−0.10** on `enemy-row-back`,
+  0.65 on `enemy-front`, 0.82 on `enemy-lowest`, 0.90 on `enemy-row-front` and 1.02 wide — so aim past
+  the front rank leaves the board easier for the eighth time on this tower, and the wide scope is
+  worth about twice the next best rather than everything.
+- ⚠️ **Inert or refused at band 5, measured**: `magicResist` 0.50 worth **0.00 / −0.07** (this crew
+  deals no magical damage, so a magic wall has nothing to answer — the third hundred's reading
+  reproduced two bands up); `tenacity` 0.60 **0.00 / 0.02**; complete crit immunity — `critBlock` 0.30
+  with `critDamageResist` 0.90 — **0.02 / −0.02**, because Σ0.22 of chance over Σ3.10 of amp across
+  five is an expected multiplier of **1.027**; `physicalPierce` **flat from 0.40 all the way to 1.00**
+  at 0.90 / 0.85, because Σ76 of `def` across five is fourth-lowest of the fourteen shipped
+  arrangements and there is nothing to open.
+- ⚠️ **The retirement check is the harshest any hundred has run — thirteen anchors — and it priced the
+  hundred's axis before a board was authored.** All thirteen stand on floors 301–389 and are fine
+  there; what they cannot do is 401–500. ⚠️ **The block that stands is the heaviest in the hundred
+  below**: the Bonefall Tyrant at **1550/96** reads 100% / 3.38 against 100% / 2.70 alone behind four
+  300/18 commons at floor 500, where The Last Mercy at **1520/91** reads 0.00 and 0.00. Thirty health
+  and five attack apart, and what separates them is that three of the four blocks reading 0% carry a
+  board-wide `BURN` at its shipped power. The floor-400 board carried to floor 500 reads 100% / 1.75
+  against **0% / 0.00** — the Crownworks collapse a sixth time, and the alternate again.
+- ⚠️ **The prose check found a board bug rather than a wording bug, for the second time in the
+  project.** The first pass fielded the Passbell Ringer on three floors — a block that applies a
+  **link**, which this tower has forbidden above floor 100 since it measured one — plus the Ashen
+  Choir (`recovery` 4 and a barrier, four floors) and the Ebbdrift Latcher (`lifeLeech` 0.12, two).
+  Nine slots, three swaps, and nothing in the sweep would ever have noticed because the boards were
+  tuned with them on. Of the **42 distinct blocks** the hundred now fields, zero carry any of it.
+- ⚠️ **The overshoot arrived exactly where the fourth hundred's did.** First pass 63.2% Angel over the
+  hundred and **22.67%** over the tower — the fourth hundred's own first pass was 22.59% — corrected
+  by converting one texture slot at a time across every band to the two thinnest rows left. Ships at
+  51.2% over the hundred and **20.21% over 2,439 slots**, which makes Angel the leader and drops Dwarf
+  from 20.17% to 17.63%. **Budget for it whichever way the faction is chosen.**
+- ⚠️ **The roof settled on its attack — the sixth running — but the _health_ came down first and it
+  was the bigger move.** At 1100 the roof board reads **0% for the alternate at every attack from 44
+  down to 30**, because an `ascended` anchor is fight length and length is what a poison bills; at 900
+  the same board grades 45% at `atk` 44, 93% at 40 and 100% / 1.20 at the shipped **38**. At 900/38 it
+  is the second-lightest tower roof on health in the game and the third-lightest on attack — behind
+  this tower's own Turnaway at 820/58 on the first count. Derived across all thirty-three shipped
+  hundred-roofs the list opens 1180/24, 1180/34, **900/38**, 1140/40, 1160/44, 1200/52, 1050/56,
+  820/58, 1240/64 and runs up to 1800/100.
+- ⚠️ **Three hundreds running on this tower have closed faster than the one below, and the mechanism
+  is the boards rather than the trend.** Longest single attempt 48.6s, 47.8s, **33.9s**; board weight
+  at floors 300, 400 and 500 is 4,080, 3,260 and **2,740**. The axis is bought by taking weight _out_,
+  which is what this tower's third hundred said it would have to be. The hundred opens at floor 401 in
+  6.6s with all five alive, costs the alternate a member from floor 409 and the reference from 426,
+  and closes at **100% / 2.98 / 19.5s against 80% / 0.80 / 31.2s**, zero timeouts anywhere.
 
 ## Where it sits on screen
 

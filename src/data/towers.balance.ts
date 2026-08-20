@@ -229,7 +229,7 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * comparison is computed **per tower** rather than against the rules' top band. Both would sweep an
  * undefined stage without that.
  */
-const PENDING: readonly string[] = ['tower-monster', 'tower-angel', 'tower-demon'];
+const PENDING: readonly string[] = ['tower-angel', 'tower-demon'];
 
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;
