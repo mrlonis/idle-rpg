@@ -4029,7 +4029,7 @@ export const TOWER_ELF = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Quickstroke — Floors 468–485, levels 221–228, Relic 2–21 — Relic plate arrives and steps the
+    // The Quickstroke — Floors 468–485, levels 221–229, Relic 2–21 — Relic plate arrives and steps the
     // grade *down*, so the band opens heavier than the one it follows. Two hammers on every board and
     // the returning weight back in front of them.
     // -------------------------------------------------------------------------------------
@@ -4178,7 +4178,7 @@ export const TOWER_ELF = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Racing Gear — Floors 486–495, levels 228–234, Relic 22–34 — the gearing runs away with
+    // The Racing Gear — Floors 486–495, levels 229–234, Relic 22–34 — the gearing runs away with
     // itself. The authored weight falls from here to the roof and the beat is what replaces it.
     // -------------------------------------------------------------------------------------
     {

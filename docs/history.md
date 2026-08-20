@@ -87,12 +87,12 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and three towers of seven are there
+### The fifth hundred: the height is 500 and four towers of seven are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
-had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's; the
-other four stand at 400 and each has lost its boss until its own
+had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's, then the
+Undead Tower's; the other three stand at 400 and each has lost its boss until its own
 hundred lands; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
 endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
 floor 500), leaving 90 of their 100 geared floors byte-identical.
@@ -109,7 +109,8 @@ guard bought.
 ⚠️ **The crystal ratio was recomputed by hand, which is what replaced the retired guard.** With one
 tower at 500 and six at 400 the seven pay **901,100** against the campaign's **351,500**, a ratio of
 **2.563**; with the Dwarf Tower extended it reads **932,100** and **2.652**; with the Elf Tower as well
-**963,100** and **2.740**; seven towers of 500 would read 1,087,100 and **3.093**. That is the number to weigh before a
+**963,100** and **2.740**, and with the Undead Tower **994,100** and **2.828**; seven towers of 500
+would read 1,087,100 and **3.093**. That is the number to weigh before a
 sixth hundred is proposed, and it is left as a design question rather than answered by a threshold.
 
 ⚠️ **The Ironpace is the first hundred anywhere whose "is it ours" table came back _no for every
@@ -149,6 +150,24 @@ them, because the same difficulty that takes an Elf five 16 seconds takes a Dwar
 anchor-retirement check came back completely clean, the first time any hundred's has**: a band boundary
 hands the crew a whole rung where the boards gain forty-seven levels, and ×1.6 outruns
 `perLevel.ascended`. Full findings in [towers](towers.md).
+
+⚠️ **The Thicket — the Undead Tower's fifth hundred — is the first content anywhere to field
+`attackSpeed`, and the first hundred whose "is it ours" table came back _yes for every candidate_.**
+Held at equal nominal damage, `attackSpeed` 130, `haste` 160–190, `atk` ×1.5 and enemy crit at ×1.88
+expected damage all read the **same** 2.00 / 0.00 against this hundred's two controls, and every one
+ranks the binding Undead arrangement first of the twelve non-Angel rows — because at band 5 that crew
+is simply the most fragile mortal arrangement in the game and has no answer to anything. That is the
+Ironpace's problem inverted, and it ends the same way: **the table cannot choose, so the axis is
+chosen on something else.** Here it was fight length — `attackSpeed` is the fastest spelling of the
+only curve left, adding 4.1 seconds where crit adds 4.5, `atk` adds 4.8 and `def` 110 adds **12.9** on
+the slowest crew in the game — plus an **empty register**: the stat sat on 0 of 362 shipped blocks,
+and because it accrues only after a basic attack, a hundred built on it runs 64–84-tick cooldowns
+where The Coppice below it runs 34–40. ⚠️ **Its lean overshot to 94.8% on the first pass**, the worst
+any tower has had and structural rather than sloppy: three new carriers and a roof, all Elven,
+standing on nearly every board, spoke for 244 of 500 slots before a texture body was chosen. ⚠️ **And
+a four-hundred trend broke**: each of this tower's first four hundreds closed faster than the one
+below and the fifth closes 0.7 seconds slower, because the fourth had already spent its whole budget
+on rate and there was nothing left to take out. Full findings in [towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

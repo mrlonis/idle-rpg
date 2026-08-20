@@ -1,18 +1,18 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — two of seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — four of seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
 hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
 Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
-the Human Tower's floors 401–500 landed with it, the Dwarf Tower's followed, and the other five stand
-at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+the Human Tower's floors 401–500 landed with it, then the Dwarf Tower's, the Elf Tower's and the
+Undead Tower's, and the other three stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
 them; [authoring](authoring.md) is the procedure for adding floors.
 
 ⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
 the fourth hundred's note asked for, and the half of the discipline that had never actually been done
 before. `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
-— which means for six sessions running, towers are authored a hundred floors short; **five names
-remain on the lists now that the Dwarf Tower's hundred has landed.** A tower in that
+— which means for six sessions running, towers are authored a hundred floors short; **three names
+remain on the lists now that the Undead Tower's hundred has landed.** A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
 `nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
@@ -215,10 +215,10 @@ restatement of a guard is a number you would refuse to author, the guard is poin
 quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
-fails now that the towers pay **two and a half times** what the spine's first clears do. Recomputed by
-hand with the Human and Dwarf Towers at five hundred floors and the other five at four: the seven pay
-**932,100** against the 25-chapter campaign's **351,500**, a ratio of **2.652** — it read 901,100 and
-2.563 with one tower extended. ⚠️ **Seven towers of five hundred
+fails now that the towers pay **nearly three times** what the spine's first clears do. Recomputed by
+hand with the Human, Dwarf, Elf and Undead Towers at five hundred floors and the other three at four:
+the seven pay **994,100** against the 25-chapter campaign's **351,500**, a ratio of **2.828** — it read
+901,100 / 2.563, 932,100 / 2.652 and 963,100 / 2.740 with one, two and three towers extended. ⚠️ **Seven towers of five hundred
 would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
 weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
 155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
@@ -320,12 +320,13 @@ The roof dropped the Acolyte; the mini-bosses below it kept theirs.
 The balance target is **one crew per hundred floors, rungs pinned in `data/towers.ts` and every level
 derived rather than chosen**:
 
-| Band | Floors  | Rung         | Level | Against top floor | Power ratio |
-| ---- | ------- | ------------ | ----- | ----------------- | ----------- |
-| 1    | 1–100   | `rare-plus`  | 48    | level 48          | ×1.600      |
-| 2    | 101–200 | `elite`      | 75    | level 95          | ×1.689      |
-| 3    | 201–300 | `elite-plus` | 99    | level 142         | ×1.676      |
-| 4    | 301–400 | `legendary`  | 123   | level 189         | ×1.663      |
+| Band | Floors  | Rung             | Level | Against top floor | Power ratio |
+| ---- | ------- | ---------------- | ----- | ----------------- | ----------- |
+| 1    | 1–100   | `rare-plus`      | 48    | level 48          | ×1.600      |
+| 2    | 101–200 | `elite`          | 75    | level 95          | ×1.689      |
+| 3    | 201–300 | `elite-plus`     | 99    | level 142         | ×1.676      |
+| 4    | 301–400 | `legendary`      | 123   | level 189         | ×1.663      |
+| 5    | 401–500 | `legendary-plus` | 147   | level 236         | ×1.649      |
 
 ⚠️ **The rungs are pinned and only the levels derive, and that is a correction.** They used to come
 off the caps ladder, which tied each crew's **rung** to its level — so when the campaign flattened and
@@ -1888,6 +1889,62 @@ These are findings a later session should not have to re-derive.
   1060/80 next to 720/70 and at these levels that reads as a saw. Measured one at a time so the
   alternate falls into the boss: 4.40 → 4.03 → 3.85 → 2.55 → 2.00. The tower closes at **63.60% Dwarf
   over 2,459 slots**, and the hundred's longest single attempt is **45.2s** against the 67.5s bar.
+
+### The fifth hundred — the Undead Tower's Thicket
+
+- ⚠️ **A crew's whole vocabulary can collapse to one curve, and then the cross-crew table cannot pick
+  the axis.** At band 5 an Undead five has no answer to anything: held at equal nominal damage,
+  `attackSpeed` 130, `haste` 160–190, `atk` ×1.5 and enemy crit at ×1.88 expected damage all read the
+  same **2.00 / 0.00** against the hundred's two controls, and every one of them ranks undead-alt
+  **first of the twelve non-Angel arrangements**. That ranking is a fact about the crew rather than
+  about any stat. It is the exact inverse of the Human fifth hundred's problem — there nothing was
+  theirs because that crew is balanced; here everything is, because that crew is the most fragile
+  mortal arrangement at this band. **Both cases end the same way: the axis is chosen on something the
+  table cannot see.**
+- ⚠️ **What chose it is fight length, and an empty register is what stops it being the hundred below
+  shipped twice.** `attackSpeed` sat on **0 of 362 shipped blocks** — the Demon fourth hundred and the
+  Elf fifth both priced it and declined it, correctly, because on those crews it belonged to the
+  Angels. Re-priced here it is the _fastest_ spelling of the only curve left: worth about 1.5 of five
+  it adds 4.1 seconds where crit adds 4.5 and `atk` adds 4.8, and `def` 110 — the one candidate with an
+  **exclusive** licence (undead-alt first of fourteen at 1.85) — adds **12.9** on the slowest crew in
+  the game. And because the stat accrues **only when a body's last action was a basic attack**, it is
+  `haste` a body has to pay a kit for: every turn in this hundred runs 64 to 84 ticks against a shipped
+  median of 55, where The Coppice's run 34 to 40. Same curve, opposite skill shape.
+- ⚠️ **It grades in size and in carrier counts.** Against calibrated controls at level 236 in Relic 40,
+  four carriers read **3.48 / 3.75 → 2.70 / 1.52 → 2.00 / 0.78 → 2.00 / 0.00** across `attackSpeed`
+  0 / 55 / 90 / 130, and by count at 130 read 3.20 / 3.00 / 2.00 / 2.00 and 3.42 / 2.17 / 0.95 / **0.00**
+  across one to four. Zero timeouts on every row.
+- ⚠️ **Which arrangement binds depends on what is being measured, and the two answers are opposite.**
+  On the isolated axis grade the **alternate** collapses (0.00 at four carriers where the reference
+  reads 2.00); on the shipped boards the **reference** binds on almost every floor, because those
+  boards carry real weight and the alternate does not fall to weight. Weight breaks one and the axis
+  breaks the other — the Angel Tower's split, on a fifth tower. **Check both on every board.**
+- ⚠️ **The attack halves and the rate replaces it.** Floor 500's board and floor 400's weigh **exactly
+  the same 2,610 health** and carry **188 attack against 238** — the weight barely moves across a
+  hundred floors and the attack comes down a fifth on the board and by nearly a half on the carriers
+  (74 / 78 / 82 in The Coppice against 44 / 42 / 40 here). Chapter 23's "convert the attack as well as
+  the weight" on a tower boundary.
+- ⚠️ **The anchor-retirement check came back almost entirely clean, which is what a rung boundary
+  should do.** Twelve of the fourteen blocks The Coppice fields at 700 health or more read 100% with
+  all five alive alone at floor 500 in Relic 40; only `THE_SEEDFATHER` (83% / 70% at **40 seconds**)
+  and `THE_SPRINGWOOD` (95% / 88%) read under bar. The Elf fifth hundred's finding reproduced: a band
+  boundary hands the crew a rung and twenty-four levels where the boards gain forty-seven, and ×1.6
+  outruns `perLevel.ascended`. **The floor-400 board itself still collapses** — 100% with five alive at
+  floor 401 and **0% / 8%** at floor 500 — which is the Crownworks collapse a fifth time on this tower.
+- ⚠️ **The lean's first pass came out at 94.8% Elf, the worst overshoot any tower has had, and it is
+  structural rather than sloppy.** Three of the four new blocks are carriers and the fourth is the
+  roof, all Elven, and they stand on nearly every board: **244 of 500 slots were spoken for before a
+  single texture body was chosen.** Corrected during authoring by converting one texture slot at a time
+  across every band to Angel, Demon and Monster bodies of matched weight _and attack_, the hundred
+  ships at 59.4% and the tower at **60.2%**. **When the axis blocks belong to the lean, the carriers
+  alone can spend the whole allowance** — budget for it before choosing how many carriers a board
+  carries.
+- ⚠️ **A run of four is a run, not a law.** Each of this tower's first four hundreds closed faster than
+  the one below — 51.2s, 39.6s, 41.4s, 24.3s — and the fifth closes at **25.0s**, 0.7 slower. The
+  fourth hundred had already spent its whole budget on rate and let the weight fall away, so there was
+  nothing left to take out. The claim worth keeping is the one underneath: this tower buys its
+  difficulty as far from the clock as it can, and 25.0s against a 67.5s bar is what that looks like once
+  the weight has gone.
 
 ## Where it sits on screen
 

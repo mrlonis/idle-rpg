@@ -156,7 +156,7 @@ const TOWER_UNIT = 100;
  * identical** and moves the other ten by a single gear level. A pending tower therefore keeps very
  * nearly the boards it was tuned with, where the fourth hundred's list left its towers entirely naked.
  */
-const PENDING: readonly string[] = ['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon'];
+const PENDING: readonly string[] = ['tower-monster', 'tower-angel', 'tower-demon'];
 
 /** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
 const authoredHeight = (tower: TowerData): number =>

@@ -9126,6 +9126,113 @@ export const THE_GREAT_HELVE_FALLS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's fifth hundred — the Thicket, and its four turns
+//
+// ⚠️ **Every cooldown here is long, and that is the axis rather than restraint.** `attackSpeed`
+// accrues **only when a combatant's last action was a basic attack** — a cast drops the body back to
+// plain `haste` for a turn — so a carrier with a short cooldown spends the stat it is built on. The
+// four turns below run 64 to 84 ticks against a shipped median of 55, which puts each carrier on
+// basics for most of the fight and is what makes the hundred's escalation land at all. The Coppice,
+// one hundred floors below, runs 34 to 40 for exactly the opposite reason.
+//
+// ⚠️ **`enemy-front` on all four, measured rather than stylistic.** Aim past a front rank is inert
+// or negative on all seven towers and this one closed that question: `enemy-all` at the wide cap
+// reads −0.11 / −0.08 against its own controls, and every selection this tower has priced —
+// `enemy-lowest`, `enemy-back`, `enemy-highest` — reads **at or above** the control.
+//
+// ⚠️ **The riders are {@link BLEED} and {@link SUNDER}, and the reason is the Coppice's.** This is
+// the crew the clock rules were written for. A `WEAKEN` rider takes damage off the party and a
+// `SLOW` rider takes turns off it, and both make every fight *longer*; a bleed prices against the
+// applier's own `atk` and a sunder makes everything already on the board land harder. Both convert
+// the hundred's budget into deaths rather than into seconds, which is the only direction this tower
+// may spend them in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A sucker is the shoot that comes up off a cut stool. Cut it again and you get six.
+ *
+ * The opening band's turn, on {@link SUCKERWOOD_WHIP}. **Power 1.50 on a 64-tick cooldown** — the
+ * shipped median power on nearly double the median cooldown, which is this hundred's thesis on one
+ * skill: the turn is ordinary and the *basic attacks between* it are not.
+ *
+ * ⚠️ **No rider, deliberately.** The opening band has to teach what the beat is before the hundred
+ * charges for two of them, and a rider on the first carrier would price the wrong thing — the same
+ * reason the Headrace Hand one tower over is authored plain.
+ */
+export const SUCKER_LASH = {
+  id: 'sucker-lash',
+  name: 'Sucker Lash',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 64,
+  priority: 2,
+} as const;
+
+/**
+ * A brake is a thicket you do not walk through. This is the part of it that walks at you.
+ *
+ * The Suckerwood band's turn, on {@link BRAKETHORN_FLAIL}, and the first of the four to carry a
+ * rider. {@link BLEED} for the Coppice's reason: a bleed is priced against the applier's `atk`, so
+ * it asks the same question the board is already asking rather than a second one, and it shortens
+ * the fight instead of stretching it.
+ */
+export const BRAKE_FLAIL = {
+  id: 'brake-flail',
+  name: 'Brake Flail',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: BLEED, chance: 0.55 },
+  ],
+  cooldown: 72,
+  priority: 3,
+} as const;
+
+/**
+ * Covert is the old word for a thicket that hides something. Nothing is hiding in this one.
+ *
+ * The closing bands' turn, on {@link COVERT_REAVER} — **power 1.70 on a 78-tick cooldown**, the
+ * longest of the three carriers, on the lightest body carrying the most `attackSpeed`. {@link
+ * SUNDER} rather than a bleed: shredding the party's `def` makes every swing already on the board
+ * land harder, which is what a hundred built on swing *rate* wants from its one cast.
+ */
+export const COVERT_REAVE = {
+  id: 'covert-reave',
+  name: 'Covert Reave',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 78,
+  priority: 3,
+} as const;
+
+/**
+ * Blackthorn is what grows where a wood was. It fruits once, it is all edge, and nothing gets past
+ * it.
+ *
+ * The roof's own turn, and the only skill in the hundred above power 1.7 — **1.90 on an 84-tick
+ * cooldown**, which is inside the shipped ceiling of 90 and among the twelve longest in the game.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 500 with the roof's and its
+ * escort's `attackSpeed` stripped to zero reads 100% with 2.25 of five against the shipped 95% with
+ * 1.20 — worth **1.05 of the reference five and 1.77 of the alternate** on the top floor. See
+ * {@link THE_BLACKTHORN}.
+ */
+export const BLACKTHORN_CLOSE = {
+  id: 'blackthorn-close',
+  name: 'Blackthorn Close',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: SUNDER, chance: 0.65 },
+  ],
+  cooldown: 84,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9587,4 +9694,8 @@ export const SKILLS = [
   THE_HELVE_FALLS,
   THE_CAM_COMES_ROUND,
   THE_GREAT_HELVE_FALLS,
+  SUCKER_LASH,
+  BRAKE_FLAIL,
+  COVERT_REAVE,
+  BLACKTHORN_CLOSE,
 ] as const;

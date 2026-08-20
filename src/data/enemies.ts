@@ -14,8 +14,10 @@ import {
   BANK_THE_WARD,
   BARROW_TITHE,
   BIND_THE_CONCORD,
+  BLACKTHORN_CLOSE,
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
+  BRAKE_FLAIL,
   BROKEN_COVENANT,
   BULWARK,
   CALL_THE_ROLL,
@@ -34,6 +36,7 @@ import {
   COUNT_THE_HOLLOW,
   COUNT_THE_RINGS,
   COURSE_BY_COURSE,
+  COVERT_REAVE,
   CULL_THE_EMBERS,
   CUTPURSE,
   CUT_AND_COME_BACK,
@@ -64,13 +67,16 @@ import {
   GLASSLIGHT_VERDICT,
   GORE,
   GRAVEPLATE_CRUSH,
+  GRAVESTRIDE_CADENCE,
   GRIND_THE_SEAM,
   GROUND_ALREADY_WALKED,
   GROWN_THROUGH_IT,
   HARNESS_DRILL,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
+  HEWING_STROKE,
   HUSH_THE_MANY,
+  IRONPACE_STEP,
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
   IT_ADDS_UP_EITHER_WAY,
@@ -106,6 +112,7 @@ import {
   NONE_COME_BACK,
   NONE_OF_THEM_THE_ONE,
   NONE_OF_US_IS_THE_ONE,
+  NOTHING_BREAKS_STEP,
   NOTHING_CLOSES_HERE,
   NOTHING_GETS_A_GRIP,
   NOTHING_HELD_BACK,
@@ -187,35 +194,27 @@ import {
   SPEND_THE_RANK,
   SPINES_STILL_IN_IT,
   SPITELIGHT,
+  SPLIT_THE_GRAIN,
   SPRUNG_TURN,
   STILL_COUNTING,
   STONE_FIST,
   STRIP_THE_FALLEN,
+  SUCKER_LASH,
   SUNFADE,
   TAKE_IT_BACK,
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
   TAKE_THE_WEIGHT,
   TAKE_UP_THE_SLACK,
+  TAP_THE_RACE,
   THERE_IS_NO_END_TO_IT,
   THE_ANSWER_WITHHELD,
-  IRONPACE_STEP,
-  GRAVESTRIDE_CADENCE,
-  THE_LEADEN_HOUR_FALLS,
-  NOTHING_BREAKS_STEP,
-  HEWING_STROKE,
-  SPLIT_THE_GRAIN,
-  THE_MASTERS_MEASURE,
-  THE_MASTERSTROKE_FALLS,
-  TAP_THE_RACE,
-  THE_HELVE_FALLS,
-  THE_CAM_COMES_ROUND,
-  THE_GREAT_HELVE_FALLS,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
   THE_BLOW_TURNS,
   THE_BREACH_GIVEN,
+  THE_CAM_COMES_ROUND,
   THE_CANOPY_PARTS,
   THE_COLOURS_STAND,
   THE_CORD_DRAWS,
@@ -227,8 +226,10 @@ import {
   THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
   THE_GRAIN_HOLDS,
+  THE_GREAT_HELVE_FALLS,
   THE_GREEN_TAKES_IT,
   THE_GROUND_GOES,
+  THE_HELVE_FALLS,
   THE_HOLD_REMEMBERS,
   THE_HORN_SOUNDS,
   THE_HOUR_UNKEPT,
@@ -239,11 +240,14 @@ import {
   THE_LAST_MUSTER,
   THE_LAST_OF_THE_WATER,
   THE_LAST_VERSE,
+  THE_LEADEN_HOUR_FALLS,
   THE_LIGHT_GOES_FLAT,
   THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
   THE_LONG_LOOSE,
+  THE_MASTERSTROKE_FALLS,
+  THE_MASTERS_MEASURE,
   THE_MIRE_TAKES_A_STEP,
   THE_ORDER_STANDS,
   THE_OVERSTRIKE_FALLS,
@@ -13247,6 +13251,225 @@ export const THE_GREAT_HELVE = {
   skills: [THE_GREAT_HELVE_FALLS, THE_CAM_COMES_ROUND, THE_HELVE_FALLS],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's fifth hundred — the Thicket, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **Four blocks, which is 10.5% of the 38 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with six hundreds of precedent behind it, not a fraction to
+// solve for. Elves go 57 → 61.
+//
+// ## ⚠️ The axis is `attackSpeed`, and it is the first time any content has fielded the stat
+//
+// Measured **before these four joined the pool**: `attackSpeed` sat on **0 of 362 shipped blocks**.
+// The Demon fourth hundred and the Elf fifth both priced it and both declined it on the same
+// ground — *an empty register is a licence to measure, never a licence to author* — because on
+// their crews it belonged to the Angels. Re-priced here it comes back the other way, and this
+// hundred is what an empty register looks like when the measurement says yes.
+//
+// Against two calibrated controls at the roof's own floor — level 236 in Relic 40 — an anchor at
+// 810/49 behind four at 414/32 reading 3.48 for the reference five and 1010/59 behind four at
+// 476/37 reading 3.75 for the alternate, each the heaviest board its own crew still read ≥3.75 on
+// before the carriers' turn was added — forty seeds, **zero timeouts on every row**:
+//
+// | four carriers at | reference | alternate  |
+// | ---------------- | --------- | ---------- |
+// | 0 — the control  | 3.48      | 3.75       |
+// | `attackSpeed` 55 | 2.70      | 1.52       |
+// | `attackSpeed` 90 | 2.00      | 0.78 · 78% |
+// | `attackSpeed` 130| 2.00      | 0.00       |
+//
+// and in carrier counts at 130: 3.20 / 3.00 / 2.00 / 2.00 for the reference five and
+// 3.42 / 2.17 / 0.95 / **0.00** for the alternate, across one to four.
+//
+// 1. ⚠️ **It is throughput, and saying so is half the finding.** Held at equal nominal damage,
+//    `attackSpeed` 130 reads what `haste` 160–190 reads and what `atk` ×1.5 reads (2.00 / 0.00
+//    against 2.00 / 0.03); enemy crit at ×1.88 expected damage reads the same again. **At band 5
+//    this crew has no answer to anything, so every throughput candidate grades and every one ranks
+//    undead-alt first of the twelve non-Angel arrangements** — which means the cross-crew table
+//    cannot choose between them and the choice has to be made on something else.
+// 2. ⚠️ **What chose it is fight length, which is this tower's own rule.** At matched difficulty
+//    `attackSpeed` is the *fastest* spelling of the curve: worth ~1.5 of five it adds 4.1 seconds
+//    where crit adds 4.5 and `atk` adds 4.8, and `def` 110 — the one candidate with an exclusive
+//    licence (undead-alt first of **fourteen** at 1.85) — adds **12.9**. This is the crew the clock
+//    rules were written for; its own shipped floor 100 is still the longest fight in the project's
+//    towers at 51.2 seconds.
+// 3. ⚠️ **And that the register is empty is what stops it being the Coppice shipped twice.**
+//    `attackSpeed` accrues only after a basic attack, so it is `haste` that a body **pays a kit
+//    for** — which is why every turn in this hundred runs 64 to 84 ticks against a shipped median of
+//    55. The Coppice's own turns run 34 to 40. Same curve, opposite skill shape, and the boards can
+//    tell them apart.
+// 4. ⚠️ **The licence is margin rather than exclusivity, and the margin is the widest of the
+//    candidates.** On the fourteen-way table — each crew calibrated to the heaviest **mirror**
+//    control it still reads ≥3.75 on — `attackSpeed` 90 costs undead-alt **2.35, first of the twelve
+//    non-Angel arrangements**, over elf-alt 1.98 and human-ref 1.58. Both Angel rows sit above it
+//    (4.00 and 3.68) and are set aside for the Dwarf fifth hundred's reason: an all-Angel mirror is
+//    the hardest board that crew has *by construction*, so every attack-shaped candidate tops out
+//    there. **Say which arrangement the licence is over** — it is the alternate's.
+// 5. ⚠️ **Both of this tower's own earlier axes have expired again.** Re-measured at band 5, the
+//    Coppice's `atk` × `haste` pair costs **undead-ref last of fourteen** (1.38) against dwarf-ref
+//    3.73 and elf-alt 3.60. The rule holds for the third time on this tower: **re-run "is it ours"
+//    on the band being authored, never on the band that recorded it.**
+// 6. ⚠️ **Inert or refused at this band, measured**: `tenacity` 0.60 worth 0.00 / 0.40;
+//    `physicalPierce` 0.60 worth 0.70 / 0.80 — small **because** this crew has the game's lowest
+//    `def` (Σ11,731 / Σ9,978 against a field of 16k–42k), so there is nothing for a pierce to open;
+//    `SUNDER` 0.38 / 0.65, `WEAKEN` 0.57 / 0.75, `SLOW` 0.57 / 0.85, a full stun 0.65 / 0.90, a
+//    permanent {@link SAVAGED} 0.45 / 0.53, {@link POISON} and {@link BLEED} 0.6–0.7; a bomb rider
+//    0.68 / 0.85 single-target and 1.37 / 2.80 across the board — but worth **0.00** to undead-ref
+//    cross-crew, so not this crew's. Burst at power 3.10 on a 126-tick cooldown is worth 0.72 / 1.57.
+//
+// ⚠️ **The `haste` these bodies carry is ordinary on purpose.** Each of the four sits at 96–104
+// against a pool median of 96 and an Elf median of 102, well inside the shipped register — because a
+// hundred that pushed `haste` as well would be the Coppice with a second name on it. The stat that
+// steps outside is the one nothing has ever carried.
+//
+// ⚠️ **Nothing here restores anything, nothing taunts and nothing links.** No block below carries
+// `lifeLeech`, `recovery`, `healthRegen`, a heal, a drain, a shield, a taunt, a link or a reflect;
+// the claim about the *boards* is stated as counts in [`tower-undead.ts`](./tower-undead.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Cut a stool and it sends up six shoots. This is one of the six, and it has been growing three
+ * hundred floors.
+ *
+ * The opening band's carrier and the entry size of the axis — **`attackSpeed` 55 on `haste` 96**,
+ * which is the pool median exactly. ⚠️ **One of these is worth about 0.8 of five** against the
+ * hundred's control, which is what an opening band is for: it prices the beat once before the
+ * hundred asks for two of them, then three, then four.
+ *
+ * ⚠️ **Its `atk` of 44 is well under the pool median of 56, and that is the hundred's shape rather
+ * than a discount.** Floor 500's board and floor 400's weigh **exactly the same 2,610 health** and
+ * carry **188 attack against 238** — the weight barely moves across a hundred floors and the attack
+ * comes down a fifth on the board and by nearly a half on the carriers (74 / 78 / 82 in The Coppice
+ * against 44 / 42 / 40 here), which is what the axis is bought with. `brawler` gear, the most
+ * balanced of the five profiles.
+ */
+export const SUCKERWOOD_WHIP = {
+  id: 'suckerwood-whip',
+  name: 'Suckerwood Whip',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 560,
+    atk: 44,
+    def: 16,
+    haste: 96,
+    attackSpeed: 55,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.16,
+  },
+  skills: [SUCKER_LASH],
+} as const;
+
+/**
+ * A brake is a thicket nobody walks through. Half of it is thorn and the other half is momentum.
+ *
+ * The middle of the axis — **`attackSpeed` 80 on 500 health** — and the block that carries the
+ * hundred's two-carrier bands. ⚠️ **`ranger` gear deliberately, where {@link SUCKERWOOD_WHIP} wears
+ * `brawler`**: `GEAR_PROFILES` gives `ranger` the highest `haste` allocation in the game, and
+ * `attackSpeed` is extra gauge *on top of* `haste` rather than a replacement for it — so the grade
+ * this body wears compounds with the axis instead of sitting beside it. A hundred-floor climb from
+ * Masterwork 25 to Relic 40 is worth real rate on a `ranger` and almost none on a `tank`.
+ */
+export const BRAKETHORN_FLAIL = {
+  id: 'brakethorn-flail',
+  name: 'Brakethorn Flail',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 500,
+    atk: 42,
+    def: 14,
+    haste: 100,
+    attackSpeed: 80,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.16,
+  },
+  skills: [BRAKE_FLAIL, SUCKER_LASH],
+} as const;
+
+/**
+ * There is nothing in the covert. There is only the covert.
+ *
+ * The closing bands' carrier and the top of the axis — **`attackSpeed` 110 on 440 health**, the
+ * lightest thing in the hundred and the fastest. ⚠️ **The softness is the mechanic's price rather
+ * than a discount on it**, which is the Human third hundred's rule holding on a fifth tower: a body
+ * that swings this often is one the party removes in three hits, and the closing bands field four of
+ * them because no one of them survives long enough to matter alone.
+ *
+ * `mage` gear, which puts the grade almost entirely into the attack — the half of the product this
+ * body has least of.
+ */
+export const COVERT_REAVER = {
+  id: 'covert-reaver',
+  name: 'Covert Reaver',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 440,
+    atk: 40,
+    def: 12,
+    haste: 104,
+    attackSpeed: 110,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.16,
+  },
+  skills: [COVERT_REAVE, SUCKER_LASH],
+} as const;
+
+/**
+ * The Sunbough reached, the Withered Crown held, the Seedfather sowed, the Springwood grew in a
+ * hurry. Blackthorn is what is left when a wood stops being a wood: no crown, no heartwood, all
+ * edge, and it does not stop.
+ *
+ * The roof, and **lighter than {@link THE_SPRINGWOOD} it succeeds on both stats — 1180/34 against
+ * 1160/72** on health that has barely moved and attack that has halved, for the reason every fifth
+ * hundred has found: an `ascended` block climbs at `perLevel.ascended` 1.024 against a mostly-`common`
+ * Undead five's 1.021 and the gear ramp climbs on top of that. Measured, the shipped floor-400 board
+ * reads 100% with all five alive at floor 401 and **0% / 8% at floor 500 in Relic 40** — the
+ * Crownworks collapse a fifth time on this tower.
+ *
+ * ⚠️ **On attack it is the lightest roof any tower hundred has shipped bar one.** The roofs now read
+ * 1180/24, **1180/34**, 1140/40, 1160/44, 1200/52, 820/58, 1240/68, 1240/74, 1300/84, 1320/82,
+ * 1440/86, 1540/92 and 1560/91 — a list rather than a superlative, because the superlative has gone
+ * stale twice.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** With its own and its escort's
+ * `attackSpeed` stripped to zero the same board reads 100% / 2.25 against the shipped 95% / 1.20 —
+ * worth **1.05 of the reference five and 1.77 of the alternate** on the top floor.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. ⚠️ **Nothing
+ * on it restores anything, it carries no taunt, and no board in the hundred carries a heal, a drain,
+ * a regeneration, a shield, a link or a point of `lifeLeech`.**
+ */
+export const THE_BLACKTHORN = {
+  id: 'the-blackthorn',
+  name: 'The Blackthorn',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 1180,
+    atk: 34,
+    def: 30,
+    haste: 104,
+    attackSpeed: 70,
+    critChance: 0.13,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.14,
+    tenacity: 0.4,
+    physicalPierce: 0.16,
+    physicalResist: 0.1,
+  },
+  skills: [BLACKTHORN_CLOSE, COVERT_REAVE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -13610,4 +13833,8 @@ export const ENEMIES = [
   HELVESTRUCK_SMITH,
   THE_CAMWRIGHT,
   THE_GREAT_HELVE,
+  SUCKERWOOD_WHIP,
+  BRAKETHORN_FLAIL,
+  COVERT_REAVER,
+  THE_BLACKTHORN,
 ] as const;

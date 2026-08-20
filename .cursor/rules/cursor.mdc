@@ -202,8 +202,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
-  to 236, one of seven complete**. What a tower is for, the three fields a clear may never touch, the
-  five crews, and twenty-two hundreds' worth of measured escalation findings.
+  to 236, four of seven complete**. What a tower is for, the three fields a clear may never touch, the
+  five crews, and twenty-five hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -701,7 +701,7 @@ Asserted in `core/battle/simulate.spec.ts`.
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
   notices a tower nobody went back for. ⚠️ **Both lists are populated right now: the height is 500, the
-  Human, Dwarf and Elf Towers are there and the other four stand at 400.** They went back **in the same session as the
+  Human, Dwarf, Elf and Undead Towers are there and the other three stand at 400.** They went back **in the same session as the
   bump**, which is what the fourth hundred's note asked for and the half of the discipline that had never
   actually been done before — between a bump and the first authored tower there is nothing at all holding
   the six short ones. Keep the shapes the list forced — `topFloors` reading the **authored** height and
@@ -709,6 +709,28 @@ Asserted in `core/battle/simulate.spec.ts`.
   undefined stage. ⚠️ **The "and it stays naked" half did _not_ fire this round**: solve the gear ramp's
   new endpoint to **continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500) and 90 of the 100 shipped geared floors stay byte-identical. **Solve the gear endpoint the way you
   solve the level line.** [towers](../../docs/towers.md)
+- ⚠️ **A crew's whole vocabulary can collapse to one curve, and then the cross-crew table cannot choose
+  the axis.** At the Undead Tower's fifth hundred, `attackSpeed` 130, `haste` 160–190, `atk` ×1.5 and
+  enemy crit at ×1.88 expected damage read the **same** 2.00 / 0.00 held at equal nominal damage, and
+  every one ranks the binding Undead arrangement **first of the twelve non-Angel rows** — because that
+  crew is the most fragile mortal arrangement at that band and has no answer to anything. That is the
+  Human fifth hundred's problem inverted (nothing theirs because balanced; everything theirs because
+  fragile) and **both end the same way: the axis is chosen on something the table cannot see.** There it
+  was fight length — `attackSpeed` adds 4.1 seconds where crit adds 4.5, `atk` 4.8 and `def` 110
+  **12.9** — plus an **empty register**: 0 of 362 shipped blocks carried the stat, and because it
+  accrues only after a basic attack, a hundred built on it runs 64–84-tick cooldowns where the hundred
+  below runs 34–40. **An empty register is a licence to measure; what turns it into a licence to author
+  is the measurement plus a reason the boards can tell it apart from the curve it shares.**
+  [towers](../../docs/towers.md)
+- ⚠️ **When the axis blocks belong to the lean, the carriers alone can spend the whole faction
+  allowance.** Three new carriers and a roof, all of the lean's faction and standing on nearly every
+  board, spoke for **244 of 500 slots** before a texture body was chosen — a first pass of 94.8% against
+  a 65% ceiling, the worst overshoot any tower has had, and structural rather than sloppy. **Decide the
+  carrier density and the substitution budget together.** [authoring](../../docs/authoring.md)
+- ⚠️ **A run of four is a run, not a law.** Four consecutive Undead hundreds each closed faster than the
+  one below (51.2s, 39.6s, 41.4s, **24.3s**) and the fifth closes 0.7 seconds slower at 25.0s, because
+  the fourth had already spent its whole budget on rate and let the weight fall away. **State the
+  mechanism a trend rests on, not the trend.** [towers](../../docs/towers.md)
 - ⚠️ **A refusal recorded on _size_ expires, and the Demon fourth hundred is the case that proves it.**
   `magicResist` was declined twice — by that tower's own second hundred (worth **0.00 / 0.54** at the
   then-ceiling of 0.14) and again by the Angel Tower's fourth (0.10 to 0.35 across 0.15 → 0.70) — and

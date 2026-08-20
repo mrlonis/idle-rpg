@@ -1465,10 +1465,34 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-three hundreds gave twenty-three answers — every second, third and fourth hundred of all
-seven towers, and the two fifth hundreds so far — and no two escalate the same way. Read the
+⚠️ **Twenty-five hundreds gave twenty-five answers — every second, third and fourth hundred of all
+seven towers, and the four fifth hundreds so far — and no two escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
 carries them all in full. What generalises is only the procedure:
+
+⚠️ **A crew's whole vocabulary can collapse to one curve, and then the cross-crew table cannot choose
+the axis.** At the Undead Tower's fifth hundred, `attackSpeed` 130, `haste` 160–190, `atk` ×1.5 and
+enemy crit at ×1.88 expected damage all read the **same** 2.00 / 0.00 held at equal nominal damage,
+and every one of them ranks the binding Undead arrangement first of the twelve non-Angel rows —
+because that crew is simply the most fragile mortal arrangement at that band. That is the Human fifth
+hundred's problem inverted (nothing was theirs because they are balanced; everything is theirs because
+they are fragile), and **both end the same way: the axis has to be chosen on something the table
+cannot see.** There it was fight length, and an **empty register** as the thing that stops one
+spelling of a curve from being the hundred below shipped twice. `attackSpeed` accrues only after a
+basic attack, so a hundred built on it runs 64–84-tick cooldowns against a median of 55 where the
+hundred below it runs 34–40.
+
+⚠️ **When the axis blocks belong to the lean, the carriers alone can spend the whole faction
+allowance.** Three new carriers and a roof, all of the lean's faction, standing on nearly every board,
+put **244 of 500 slots** beyond reach before a single texture body was chosen — a first pass of 94.8%
+against a 65% ceiling, the worst overshoot any tower has had. It is structural rather than sloppy.
+**Decide the carrier density and the substitution budget together**, and convert one texture slot at a
+time across every band rather than replacing a filler block wholesale.
+
+⚠️ **A run of four is a run, not a law.** Four consecutive Undead hundreds each closed faster than the
+one below (51.2s, 39.6s, 41.4s, 24.3s) and the fifth closes 0.7 seconds slower at 25.0s — because the
+fourth had already spent its whole budget on rate and let the weight fall away, so there was nothing
+left to take out. **State the mechanism a trend rests on, not the trend.**
 
 ⚠️ **A tower's own spent axis expires like any other crew's, and re-running "is it ours" can license
 the pair where it refuses the half.** At band 5 the Dwarf Tower's own `physicalPierce` re-measured

@@ -140,16 +140,16 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ⚠️ **The ratio between those two totals used to be asserted and no longer is**, and recomputing it
  * by hand is the thing that replaced it — which every extension owes and does. Measured: with the
- * Human, Dwarf and Elf Towers at five hundred floors and the other four at four hundred, the seven
- * pay **963,100** against the 25-chapter campaign's **351,500** of first clears, a ratio of **2.740**
- * — up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at four, 2.563 with one tower
- * extended and 2.652 with two. ⚠️ **Seven towers of five hundred would
+ * Human, Dwarf, Elf and Undead Towers at five hundred floors and the other three at four hundred, the
+ * seven pay **994,100** against the 25-chapter campaign's **351,500** of first clears, a ratio of **2.828**
+ * — up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at four, and 2.563 / 2.652 / 2.740
+ * with one, two and three towers extended. ⚠️ **Seven towers of five hundred would
  * read 1,087,100 and a ratio of 3.093**, which is the number this round closes on if it runs to
  * completion and the one to weigh before a sixth hundred is proposed. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while
- * a tower's per-floor payout is not. **Optional content is now paying two and a half times the
+ * a tower's per-floor payout is not. **Optional content is now paying nearly three times the
  * spine**, which is the design question the retirement note said would have to be asked here rather
  * than answered by a threshold — asked, and left as it is, because a tower is gated behind roster
  * depth the campaign never asks for. The guard was a floor, and a floor on that
@@ -238,7 +238,7 @@ export const TOWER_RULES = {
     bossMultiplier: 5,
   },
   /**
-   * The gear ramp, over the fourth hundred only.
+   * The gear ramp, over the fourth hundred and the fifth.
    *
    * ## ⚠️ Why the ramp starts at a floor rather than at floor 1
    *
@@ -265,13 +265,23 @@ export const TOWER_RULES = {
    *
    * ## The endpoints, and what they are worth
    *
-   * Worn 1 to Fine 60, walked as one position on the concatenated ladder — see
-   * {@link TowerGearRampData}. Three grades across the hundred, stepping at floors 301, 318 and 351,
-   * and worth **+8.6% health on a `tank` at the bottom and +65.7% at the roof**: a swing of ×1.53,
-   * which the authored boards absorb. ⚠️ **Relic 100 was measured and declined**: it is +166.3%, a
-   * ×2.45 swing, which is not texture — it would *be* the hundred's escalation axis and would force
-   * the authored weight to fall across the band, which is the shape chapter 16 had to author around
-   * and the opposite of how a tower hundred escalates.
+   * Worn 1 to Relic 40, walked as one position on the concatenated ladder — see
+   * {@link TowerGearRampData}. Five grades across two hundred floors, stepping at 301, 318, 351, 401
+   * and 468, and worth **+8.6% health on a `tank` at the bottom, +65.7% at floor 400 and +81.1% at
+   * the roof**. ⚠️ **The endpoint was solved to continue the shipped slope rather than chosen**, which
+   * is what kept 90 of the 100 floors the fourth hundred authored byte-identical when the height moved
+   * to 500 and moved the other ten by a single gear level. **Solve the gear endpoint the way you solve
+   * the level line.** ⚠️ **Relic 100 was measured and declined**: it is +166.3%, which is not texture —
+   * it would *be* the hundred's escalation axis and would force the authored weight to fall across the
+   * band, which is the shape chapter 16 had to author around and the opposite of how a tower hundred
+   * escalates.
+   *
+   * ⚠️ **A continuing ramp steps *down* in effective bonus at every grade boundary, so the band after
+   * one opens heavier.** Floor 400 wears Fine 60 at +65.7% on a `tank` and floor 401 wears Masterwork
+   * 1 at **+20.2%**; floor 467 wears Masterwork 80 and floor 468 wears Relic 2 at **+25.8%**. The
+   * campaign's "a band that adds a lock opens heavier, not lighter" rule, with a grade boundary in
+   * place of the lock — and the Undead fifth hundred's fourth band is aligned to floor 468 for exactly
+   * that reason.
    */
   gear: {
     fromFloor: 301,
@@ -299,7 +309,7 @@ export const TOWER_RULES = {
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
  * authored), for the third (21l–21r), and for the fourth (21s–21y). ⚠️ **A fifth round is open: the
- * Human, Dwarf and Elf Towers stand at five hundred floors and the other four at four**, carried on the `PENDING`
+ * Human, Dwarf, Elf and Undead Towers stand at five hundred floors and the other three at four**, carried on the `PENDING`
  * lists in `towers.spec.ts` and `towers.balance.ts` — put back **in the same session as the bump**,
  * which is what the fourth hundred's note asked for. A tower that has not been extended simply ends at its
  * last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it

@@ -2,23 +2,34 @@ import {
   ACOLYTE,
   ANTIPHON_ARCHON,
   ASHEN_CHOIR,
+  ASHPIT_SCUTTLER,
   BANDIT,
+  BAREMARK_GNAWER,
   BOAR,
+  BRAKETHORN_FLAIL,
   BRAMBLEHIDE_RAVENER,
   BRAMBLEWALK_SCOUT,
   BULWARK_ENEMY,
   CARRION_SWARM,
+  CHALKHIDE_BROWSER,
   CINDERLING,
   CINDERSEED_COURSER,
   CINDER_CULLER,
+  CLOSEWARD_SERAPH,
   COLOSSUS,
   CONCORD_CANTOR,
   COPPICE_LASHER,
   COVENANT_BREAKER,
+  COVERT_REAVER,
   CROWNBARK_BASTION,
   DEEPMAST_HEARTWOOD,
+  DROWNED_MAST,
   DUSKFERN_SKIRMISHER,
+  DUSTPLATE_GRINDER,
   EMBERSEED_WARLOCK,
+  EMBERSHELL_WHELP,
+  EVENSONG_WARDEN,
+  GALLERY_SLIPFANG,
   GILDED_SENTRY,
   GLADE_STALKER,
   GLASSCHOIR_ARBITER,
@@ -35,9 +46,11 @@ import {
   LITANY_BEARER,
   LONGBOUGH_MARKSMAN,
   LUMEN_ACOLYTE,
+  MIREMAST_TRUNK,
   MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTCANOPY_SINGER,
+  OVERBURDEN_HULK,
   PYRE,
   QUENCHPIT_IRONHIDE,
   RADIANT_HERALD,
@@ -46,29 +59,41 @@ import {
   RENDFANG_JACKAL,
   RIFTBORN_HARROWER,
   RIFTEDGE_CANTOR,
+  RIFTSTEP_REAVER,
   RIMEPLATE,
+  SCALEPLATE_BRAMBLE,
   SCARBOUND_BELLOWER,
+  SCREEBACK_DARTER,
   SEEDLIGHT_KEEPER,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
   SHARDLIGHT_ACOLYTE,
+  SILTCROWN_CANOPY,
   SKYSHRIKE,
+  SLAGSEAM_FLENSER,
   SLIME,
   STILLNESS_CANTOR,
+  STILLWATER_ROOT,
   STORMCALLER,
+  SUCKERWOOD_WHIP,
   SUNFADE_CHANTER,
   SUNMOTE_DANCER,
+  THE_BLACKTHORN,
+  THE_HAIRLINE,
+  THE_LAST_RING,
   THE_LONGSHADOW,
   THE_SEEDFATHER,
   THE_SPRINGWOOD,
   THE_SUNBOUGH,
+  THE_UNHURRIED,
   THE_WITHERED_CROWN,
   THINWOOD_HARRIER,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
   UNSEALED_WRETCH,
+  UNSPOKEN_CANON,
   VAULTLIGHT_CENSER,
   WARDEN,
   WEALDSHADOW_STALKER,
@@ -302,7 +327,99 @@ import {
  * is the axis rather than the band relenting — the level line and the grade climb into the space the
  * weight vacates.
  *
+ * ## ⚠️ The fifth hundred escalates through `attackSpeed`, which nothing in this game had ever fielded
+ *
+ * The Thicket, floors 401–500, levels 189–236, and the gear ramp continues rather than arriving —
+ * Masterwork 1 at floor 401 to **Relic 40** at the roof, one rule for all seven towers — so this
+ * hundred owed an axis on top of it exactly as The Coppice did. The full measurement, the negative
+ * list, the cross-crew table and the register check live beside {@link SUCKERWOOD_WHIP} in
+ * [`enemies.ts`](./enemies.ts); what belongs here is what it means for this tower.
+ *
+ * ⚠️ **The vocabulary has collapsed to one curve, and saying so is half the finding.** At band 5 this
+ * crew has no answer to anything: held at equal nominal damage, `attackSpeed` 130, `haste` 160–190,
+ * `atk` ×1.5 and enemy crit at ×1.88 expected damage all read the same 2.00 / 0.00 against the
+ * hundred's two controls, and **every throughput candidate ranks undead-alt first of the twelve
+ * non-Angel arrangements**. That ranking is a fact about the crew rather than about any one stat, so
+ * the cross-crew table cannot choose between the spellings — which is the inverse of the Human fifth
+ * hundred's problem, where nothing was exclusively theirs because that crew is balanced.
+ *
+ * ⚠️ **What chose `attackSpeed` is fight length, and the register being empty is what stops it being
+ * The Coppice shipped twice.** At matched difficulty it is the fastest spelling of the curve — worth
+ * about 1.5 of five it adds 4.1 seconds where crit adds 4.5 and `atk` adds 4.8, and `def` 110, the one
+ * candidate with an *exclusive* licence (undead-alt first of fourteen at 1.85), adds **12.9**. And
+ * because `attackSpeed` accrues **only when a body's last action was a basic attack**, it is `haste`
+ * a body has to pay a kit for: every turn in this hundred runs 64 to 84 ticks against a shipped median
+ * of 55, where The Coppice's run 34 to 40. Same curve, opposite skill shape.
+ *
+ * ⚠️ **The attack halves and the rate replaces it.** Floor 500's board and floor 400's weigh
+ * **exactly the same 2,610 health** and carry **188 attack against 238** — the weight barely moves
+ * across a hundred floors and the attack comes down a fifth on the board and by nearly a half on the
+ * carriers (74 / 78 / 82 in The Coppice against 44 / 42 / 40 here). **Convert the attack as well as
+ * the weight when carrying a budget across a boundary**, which is chapter 23's rule on a tower.
+ *
+ * ⚠️ **Both of this tower's earlier axes have expired again, which makes it three for three.**
+ * Re-measured at band 5 against every crew's own calibrated control, The Coppice's `atk` × `haste`
+ * pair costs **undead-ref last of fourteen** (1.38) against dwarf-ref 3.73 and elf-alt 3.60. **Re-run
+ * "is it ours" on the band being authored, never on the band that recorded it.**
+ *
+ * ⚠️ **Which crew binds depends on what is being measured, and the two answers are opposite.** On the
+ * isolated axis grade the **alternate** is far the weaker — four carriers at `attackSpeed` 130 read
+ * 2.00 for the reference five and **0.00** for the alternate. On the shipped boards the **reference**
+ * five binds on almost every floor, because those boards carry real weight and the alternate does not
+ * fall to weight. Weight breaks one arrangement and the axis breaks the other, which is the Angel
+ * Tower's split arriving here. **Check both on every board.**
+ *
+ * ## ⚠️ The Springwood is unwinnable at this hundred's roof, and the anchor check came back clean
+ *
+ * The shipped floor-400 board reads 100% with all five alive at floor 401 and **0% / 8% at floor 500
+ * in Relic 40** — the Crownworks collapse a fifth time on this tower. So {@link THE_BLACKTHORN} is
+ * lighter than {@link THE_SPRINGWOOD} it succeeds on both stats, 1180/34 against 1160/72.
+ *
+ * ⚠️ **The retirement check itself came back almost entirely clean, which is what a rung boundary
+ * should do.** Fielded alone behind four light escorts at floor 500 in Relic 40, **twelve of the
+ * fourteen blocks The Coppice fields at 700 health or more read 100% with all five alive** — the
+ * Scarbound Bellower at 1180/70 and the Deepmast Heartwood at 1160/56 included. Only
+ * {@link THE_SEEDFATHER} (83% / 70% at **40 seconds**) and {@link THE_SPRINGWOOD} (95% / 88%) read
+ * under bar, and both stay retired from the closing bands. A band boundary hands the crew a rung
+ * (×1.6) and twenty-four levels where the boards gain forty-seven, and ×1.6 outruns
+ * `perLevel.ascended`.
+ *
+ * ⚠️ **The hundred fields no sustain at all, and it carries no taunt, link or reflect either** — which
+ * is stricter than The Coppice, whose opening bands spend three self-taunts and a link. Stated in
+ * counts, because the absolute form of this claim has shipped wrong five times across the towers: of
+ * the **38** blocks the hundred fields, **zero** carry `recovery`, `lifeLeech` or `healthRegen`,
+ * **zero** carry a heal, a drain or a shield effect, **zero** carry a `regen` status, and **zero**
+ * carry a taunt, a link or a reflect. That cost it {@link SCARBOUND_BELLOWER},
+ * {@link QUENCHPIT_IRONHIDE}, {@link CROWNBARK_BASTION} and {@link GLOAMVINE_CREEPER}, all four
+ * fielded freely one hundred floors below and all four still fielded there.
+ *
+ * ⚠️ **One board-wide turn per board, held mechanically.** The draft came out with fifteen boards
+ * carrying two, all from substituted texture; the shipped hundred runs a **mean of 0.58 and a maximum
+ * of one**, against this tower's own third and fourth hundreds at **1.08 with a peak of three** and
+ * **0.86 with a peak of four**. **Count the voices per board with a script; nobody reads a hundred
+ * boards and notices.**
+ *
+ * ⚠️ **The lean's first pass came out at 94.8% Elf**, the worst overshoot this tower has had, because
+ * the three new carriers and the roof are Elven and stand on nearly every board — 244 of 500 slots
+ * before a single texture body was chosen. Corrected during authoring by converting one texture slot
+ * at a time across every band to Angel, Demon and Monster bodies of matched weight and attack — all
+ * three counter Undead — the hundred ships at **59.4% Elf** and takes the tower to **60.2%**.
+ * **Budget for it: when the axis blocks are the lean's, the carriers alone can spend the whole
+ * allowance.**
+ *
  * ## What the bands measure at
+ *
+ * Band 5 opens at floor 401 in 5.6 seconds with all five alive and **costs the reference five its
+ * first member at floor 430 and the alternate at 439**. From there: 4.67 / 5.00 at 440, 4.00 / 4.00
+ * at 450, 3.00 / 4.00 at 460, 2.15 / 3.65 at 470, 2.02 / 3.17 at 480, 1.80 / 2.48 at 490 and
+ * **1.20 / 2.23 at the roof** — 95% for the reference five and 100% for the alternate, against bars
+ * of 90% and 75%. Every one of the
+ * hundred floors clears both bars, there are **no timeouts anywhere**, and the longest single attempt
+ * is **25.0 seconds**.
+ *
+ * ⚠️ **The axis carries the last floor.** Floor 500 with the roof's and its escort's `attackSpeed`
+ * stripped to zero reads 100% with 2.25 of five against the shipped 95% with 1.20 — worth **1.05 of
+ * the reference five and 1.77 of the alternate** on the top floor.
  *
  * Band 4 opens at floor 301 in 6.8 seconds with all five alive and **costs neither arrangement a
  * member until floor 330**. From there: 4.15 / 4.88 at 330, 3.00 / 3.92 at 350, 2.63 / 3.52 at 360,
@@ -329,14 +446,18 @@ import {
  * alternate, against bars of 90% and 75%. Neither arrangement loses a member below floor 160.
  *
  * ⚠️ **The tower's longest fight is in none of the hundreds above its first — it is the shipped
- * floor 100, at 51.2 seconds.** The second hundred's longest is 39.6, the third's 41.4 and the
- * fourth's **24.3**. Against the balance sweep's bound on a *cleared* fight (0.75 × the ninety-second
- * timer, so 67.5s) that shipped board is the binding case for this tower, and it is the reason the
- * Green Vigil's heal is the last one on the climb rather than the shape any roof is built from.
+ * floor 100, at 51.2 seconds.** The five hundreds' longest fights run **51.2, 39.6, 41.4, 24.3 and
+ * 25.0**. Against the balance sweep's bound on a *cleared* fight (0.75 × the ninety-second timer, so
+ * 67.5s) that shipped board is still the binding case for this tower, and it is the reason the Green
+ * Vigil's heal is the last one on the climb rather than the shape any roof is built from.
  *
- * ⚠️ **A superlative about four hundreds goes stale the moment a fifth lands, so the list is stated
- * rather than the claim** — and the direction is the finding: each hundred has closed *faster* than
- * the one below it, because each has had to buy its difficulty further from the clock.
+ * ⚠️ **A superlative goes stale the moment the next hundred lands, so the list is stated rather than
+ * the claim — and the fifth hundred is where the direction it recorded stopped holding.** Four
+ * hundreds running had each closed *faster* than the one below; the fifth closes 0.7 seconds slower
+ * than the fourth. **A run of four is a run, not a law**: the fourth hundred spent its whole budget on
+ * rate and let the weight fall away, and there was nothing left to take out. The claim to keep is the
+ * one underneath it — every hundred on this tower has to buy its difficulty as far from the clock as
+ * it can — and 25.0s against a 67.5s bar is what that looks like once the weight has already gone.
  */
 export const TOWER_UNDEAD = {
   id: 'tower-undead',
@@ -3491,6 +3612,821 @@ export const TOWER_UNDEAD = {
       enemies: {
         front: [THE_SPRINGWOOD, LUMEN_ACOLYTE],
         back: [BRAMBLEWALK_SCOUT, LUMEN_ACOLYTE, LUMEN_ACOLYTE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Thicket — Floors 401–420, levels 189–198, Masterwork 1–24 — a coppice left uncut for three hundred floors is not a wood, it is a wall of shoots. One of them a board, and behind it everything that was still standing.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [HOLLOWBARK_SENTRY, EMBERSHELL_WHELP, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [HOLLOWBARK_SENTRY, EMBERSHELL_WHELP, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [HOLLOWBARK_SENTRY, EMBERSHELL_WHELP, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [HOLLOWBARK_SENTRY, EMBERSHELL_WHELP, LUMEN_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [OVERBURDEN_HULK, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [OVERBURDEN_HULK, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [OVERBURDEN_HULK, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [OVERBURDEN_HULK, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [OVERBURDEN_HULK, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f410',
+      name: 'Floor 410 — The Thicket',
+      enemies: {
+        front: [THE_SEEDFATHER, SUCKERWOOD_WHIP],
+        back: [SCALEPLATE_BRAMBLE, CINDER_CULLER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-undead-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [CHALKHIDE_BROWSER, EMBERSHELL_WHELP, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [CHALKHIDE_BROWSER, EMBERSHELL_WHELP, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [CHALKHIDE_BROWSER, EMBERSHELL_WHELP, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [CHALKHIDE_BROWSER, EMBERSHELL_WHELP, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [CHALKHIDE_BROWSER, EMBERSHELL_WHELP, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, SHARDLIGHT_ACOLYTE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, SHARDLIGHT_ACOLYTE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, SHARDLIGHT_ACOLYTE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, SUCKERWOOD_WHIP],
+        back: [MIREMAST_TRUNK, SHARDLIGHT_ACOLYTE, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f420',
+      name: 'Floor 420 — The Thicket',
+      enemies: {
+        front: [THE_SPRINGWOOD, SUCKERWOOD_WHIP],
+        back: [SCALEPLATE_BRAMBLE, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Suckerwood — Floors 421–445, levels 199–210, Masterwork 25–54 — sucker growth off the old stools, two abreast. Neither is heavy and neither stops swinging.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, CHALKHIDE_BROWSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, CHALKHIDE_BROWSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, CHALKHIDE_BROWSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, CHALKHIDE_BROWSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, CHALKHIDE_BROWSER, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f430',
+      name: 'Floor 430 — The Suckerwood',
+      enemies: {
+        front: [THE_SEEDFATHER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, MIREMAST_TRUNK, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-undead-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [OVERBURDEN_HULK, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [OVERBURDEN_HULK, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [OVERBURDEN_HULK, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [OVERBURDEN_HULK, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [OVERBURDEN_HULK, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, SLAGSEAM_FLENSER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f440',
+      name: 'Floor 440 — The Suckerwood',
+      enemies: {
+        front: [DROWNED_MAST, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, EVENSONG_WARDEN, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-undead-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, REDWATER_STALKER, SCREEBACK_DARTER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Brake — Floors 446–467, levels 211–220, Masterwork 55–80 — three, and the last of the heartwood goes with them. What the boards give up in attack they take back in the beat.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f450',
+      name: 'Floor 450 — The Brake',
+      enemies: {
+        front: [REDWATER_STALKER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, EVENSONG_WARDEN],
+      },
+    },
+    {
+      id: 't-undead-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [EVENSONG_WARDEN, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [EVENSONG_WARDEN, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [EVENSONG_WARDEN, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [EVENSONG_WARDEN, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [EVENSONG_WARDEN, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [DROWNED_MAST, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [DROWNED_MAST, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [DROWNED_MAST, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [DROWNED_MAST, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f460',
+      name: 'Floor 460 — The Brake',
+      enemies: {
+        front: [THORNBACK_GRAZER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [GILDED_SENTRY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [GILDED_SENTRY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [GILDED_SENTRY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [GILDED_SENTRY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [GILDED_SENTRY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Covert — Floors 468–485, levels 221–229, Relic 2–22 — the grade steps down at the boundary, so the band opens heavier than the one it follows. The wood closes over and nothing here is slow.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [THE_HAIRLINE, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, THINWOOD_HARRIER],
+      },
+    },
+    {
+      id: 't-undead-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [THE_HAIRLINE, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, THINWOOD_HARRIER],
+      },
+    },
+    {
+      id: 't-undead-f470',
+      name: 'Floor 470 — The Covert',
+      enemies: {
+        front: [THE_SPRINGWOOD, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [THE_LAST_RING, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, UNSPOKEN_CANON],
+      },
+    },
+    {
+      id: 't-undead-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [THE_LAST_RING, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, UNSPOKEN_CANON],
+      },
+    },
+    {
+      id: 't-undead-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [THE_LAST_RING, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, UNSPOKEN_CANON],
+      },
+    },
+    {
+      id: 't-undead-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [THE_LAST_RING, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, UNSPOKEN_CANON],
+      },
+    },
+    {
+      id: 't-undead-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [THE_LAST_RING, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, UNSPOKEN_CANON],
+      },
+    },
+    {
+      id: 't-undead-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [THE_UNHURRIED, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [THE_UNHURRIED, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [THE_UNHURRIED, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [THE_UNHURRIED, BRAKETHORN_FLAIL],
+        back: [SUCKERWOOD_WHIP, COVERT_REAVER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-undead-f480',
+      name: 'Floor 480 — The Covert',
+      enemies: {
+        front: [STILLWATER_ROOT, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-undead-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, SLAGSEAM_FLENSER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Blackthorn — Floors 486–500, levels 229–236, Relic 23–40 — four, and no heartwood left at all. Blackthorn is the last thing to grow where a wood was, and it is all edge.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f490',
+      name: 'Floor 490 — The Blackthorn',
+      enemies: {
+        front: [GALLERY_SLIPFANG, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, BRAKETHORN_FLAIL, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [SILTCROWN_CANOPY, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, COVERT_REAVER],
+      },
+    },
+    {
+      id: 't-undead-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [RIFTSTEP_REAVER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [RIFTSTEP_REAVER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [RIFTSTEP_REAVER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [RIFTSTEP_REAVER, SUCKERWOOD_WHIP],
+        back: [BRAKETHORN_FLAIL, COVERT_REAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-undead-f500',
+      name: 'Floor 500 — The Blackthorn',
+      enemies: {
+        front: [THE_BLACKTHORN, LUMEN_ACOLYTE],
+        back: [COVERT_REAVER, LUMEN_ACOLYTE, LUMEN_ACOLYTE],
       },
     },
   ],
