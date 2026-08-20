@@ -1798,6 +1798,97 @@ These are findings a later session should not have to re-derive.
   carriers want the Monster tank-and-texture pool from the first draft. The tower closes at
   **62.87% Human over 2,459 slots**. Budget for the overshoot anyway.
 
+### The fifth hundred — the Elf Tower's Trip-Hammers
+
+- ⚠️ **A tower's own axis can be re-authored from the other end, and that is what "building on the
+  hundred below" looks like when the mechanism is understood rather than merely measured.** The
+  fourth hundred found that nothing but throughput moves an Elf five, and said why: _attack only
+  bills for as long as the body carrying it lives_, proved on a Colossus that reads 4.00 of five
+  alone at 1250/88 because its `haste` is 58. The fifth authors the same attack **arriving earlier**.
+  Priced at level 236 in Relic 40 against the roof's own escort shape, forty seeds, zero timeouts:
+  `atk` 38 alone is worth 0.00 / **1.03** of five, `haste` 108 alone 0.00 / **0.03**, and the two
+  together **0.20 / 2.03** — ×1.93 over the sum of the halves. It grades in size (alt 3.98 / 3.50 /
+  2.00 / 0.72 across 30/h96 → 42/h112) and in carrier counts (4.90 / 4.65 / 3.67 / 0.55 across zero
+  to three).
+- ⚠️ **`haste` alone being worth 0.03 is the whole shape of the axis.** A body that swings often and
+  cannot hurt anybody is a body this crew ignores; a body that hits hard and slowly is one it removes
+  before the second swing. Neither half is a lock and the product is.
+- ⚠️ **The axis this session set out to build measured inert, and the negative is the more useful
+  result.** Crit denial looked certain on the register: both swept Elf arrangements carry crit on
+  **all five members** (Σ1.03 / Σ3.67 and Σ1.08 / Σ3.80 of chance and amp), the deepest such stake any
+  party in this game has, against chapter 23's rule that a lock is worth what the party staked on what
+  it denies. Measured, **complete immunity — `critBlock` 0.36 with `critDamageResist` 0.90 — is worth
+  0.05 of five to the binding arrangement and 0.00 to the reference**, and buys one second of fight.
+  **Chapter 23's rule is about a mechanism, and crit here is a 13% throughput bonus.** Expected damage
+  is `1 + chance × amp` = 1.153, so denying all of it is a 13% cut on a control clearing in ten
+  seconds. **Check whether what the party staked is a mechanism or a margin before pricing its
+  denial.**
+- ⚠️ **A refusal recorded on size expires on this tower too, and it expires into the one tower that
+  can afford it.** At band 5 `def` 110 is worth 0.38 / **2.85**, `physicalResist` 0.40 0.38 / **2.70**
+  and `dodge` 0.50 0.77 / **3.25** — the fourth hundred measured all three inert. What makes them
+  _unauthorable everywhere else and merely expensive here_ is the clock: the same `def` 110 costs
+  dwarf-alt 3.90 at **66 seconds** and elf-alt 2.85 at 27. **State the seconds beside the survivors;
+  a refusal stat is a different mechanic on a crew that clears in ten seconds.**
+- ⚠️ **The licence is margin rather than exclusivity and the margin is thin.** On the fourteen-way
+  table — each crew calibrated to the heaviest mirror control it still reads ≥3.75 on — the pair puts
+  **elf-alt fourth of fourteen** (3.95) behind angel-alt 4.00, dwarf-alt 3.98 and angel-ref 3.98, with
+  elf-ref eleventh. The fourth hundred's own pair (`atk` × `hp`) re-measured at band 5 puts elf-alt
+  fifth and elf-ref **thirteenth of fourteen** — the Undead Tower's "re-run 'is it ours' on the band
+  being authored" firing again.
+- ⚠️ **`attackSpeed` grades hard here and still is not this crew's**, which reproduces the Demon
+  fourth hundred's finding exactly: 80 points is worth 1.13 / 3.88 and costs **angel-ref and angel-alt
+  4.00 apiece**. An empty register is a licence to measure, never a licence to author.
+- ⚠️ **The anchor-retirement check came back completely clean, which no hundred's had before.**
+  Fielded alone behind four 300/18 commons at floor 500 in Relic 40, **every one of the fourth
+  hundred's blocks stands**: the Grudgekeeper at 1520/89 reads 98% / 2.63 against 90% / 2.58, the
+  Colossus 100% / 4.00, the Platewright 100% / 3.90 — where two of this tower's own roofs retired one
+  hundred floors below. **A band boundary hands the crew a rung (×1.6) and twenty-four levels where
+  the boards gain forty-seven, and ×1.6 outruns `perLevel.ascended`.** Expect the check to come back
+  clean at a boundary that is also a rung, and run it anyway.
+- ⚠️ **The board budget still falls, and what bounds a board is its hot bodies rather than its
+  weight.** Floor 400's shipped board carried to floor 500 reads 100% / 2.40 against **3% / 0.05** —
+  past the alternate's bar — and floor 350's reads **0% for both**, because floor 350 carries four
+  bodies at `atk` ≥ 62 and floor 400 carries two. Floor 350 is 375 health _heavier_ and the gap
+  between them is composition.
+- ⚠️ **`SLOW` is a lock on this crew rather than texture, which is the second hundred's Cairn Sentinel
+  note priced at depth.** The status multiplies `haste` by 0.7 and an Elf five carries the highest
+  `haste` in the game (Σ580 / Σ620), so three carriers applying it took the binding arrangement to
+  **0% at every roof attack from 28 down to 12**, where the identical board without it clears at 83%.
+  None of the four new blocks carries it but the roof, and the boards carry it on **30 of 100** with
+  one fielding two, against the fourth hundred's **62 of 100** with 18 fielding two and a peak of
+  three. ⚠️ **The absolute form of that claim — "one floor, the roof" — was written first and was
+  false**, because eight returning blocks apply it; the prose check is what caught it. **A status
+  whose stat is the crew's identity is never texture, and the claim about it is a count.**
+- ⚠️ **The roof was settled on its attack — the fifth tower roof running.** At `atk` 28 it reads 3%
+  for the binding arrangement and at the shipped **24** it reads 100% / 3.80 against **83% / 2.00**;
+  and the axis carries the floor rather than riding along — the same board with its carriers' `haste`
+  dropped to 90 reads 4.00 and 4.03, so the beat is worth **0.20 of five to the reference and 2.03 to
+  the alternate** on the top floor. At **1180/24** the Great Helve is the lightest roof anchor on
+  attack any tower hundred has shipped; the roofs now read 1180/24, 1140/40, 1160/44, 1200/52, 820/58,
+  1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92 and 1560/91 — a list, because the superlative
+  has gone stale twice.
+- ⚠️ **A substitution pool has a second constraint when the band table is counted in a stat, and the
+  first pass missed it.** The lean overshoot (88.8% Dwarf, taking the tower to 68.24% against a 65%
+  ceiling) is corrected by swapping texture for monster, angel and demon bodies — and the light
+  commons of those three factions are **fast** (104 to 126). Fielded as texture they count as carriers
+  and **flattened the band table to three on every board of every band**. Drawing the substitutes from
+  the slow tail of the same three factions restored 1 / 1–2 / 2 / 2 / 3 / 2–3. **Check a substitute
+  against the stat the band table is counted in, not only against its faction and its weight.**
+- ⚠️ **The same pass broke the one-board-wide-turn rule, and a generated hundred will break it every
+  time.** The draft came out at a mean of 1.46 bodies a board carrying an `enemy-all` or row turn,
+  with 45 boards over one and a peak of **four** — which is exactly the arrangement this tower's third
+  hundred measured at 0% — against the shipped third and fourth hundreds' 0.62 and 1.03. Capped at two.
+  **Count the voices per board mechanically; nobody reads a hundred boards and notices.**
+- ⚠️ **The hundred makes the strict sustain claim and it cost four blocks.** Of the 43 blocks it
+  fields, **zero** carry `lifeLeech`, `recovery` or `healthRegen`, a heal, drain or shield effect, a
+  `regen`, ward or guard status, or a taunt. The Colossus and the Rimeplate went for `recovery`, the
+  Riven Marchwarden for both, and the Edgeturn Warden for its taunt — all four fielded freely one
+  hundred floors below, and all four still fielded there.
+- ⚠️ **The closing five floors are pinned rather than composed**, because the returning pool puts
+  1060/80 next to 720/70 and at these levels that reads as a saw. Measured one at a time so the
+  alternate falls into the boss: 4.40 → 4.03 → 3.85 → 2.55 → 2.00. The tower closes at **63.60% Dwarf
+  over 2,459 slots**, and the hundred's longest single attempt is **45.2s** against the 67.5s bar.
+
 ## Where it sits on screen
 
 **Home draws a row per tower and it has three states**, only one of which is a link: `climbing` goes

@@ -9034,6 +9034,98 @@ export const THE_MASTERSTROKE_FALLS = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's fifth hundred — the Trip-Hammers, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain because the axis is the stat line: `atk` and `haste` carried together on
+// light bodies.** Measured against the hundred's own control at level 236 in Relic 40 — the roof's
+// escort shape with the carrier's two halves knocked out one at a time, forty seeds, zero timeouts on
+// every row — `atk` alone is worth 0.00 / 1.03 of five, `haste` alone 0.00 / **0.03**, and the two
+// together **0.20 / 2.03** against a sum of halves of 0.00 / 1.05. A rider big enough to be read
+// would make that pair unmeasurable underneath it.
+//
+// ⚠️ **`SLOW` was measured here and pulled back to the roof alone, which is the sharpest thing this
+// hundred found about its own crew.** {@link SLOW} multiplies `haste` by 0.7, and an Elf five carries
+// the highest `haste` in the game (Σ580 / Σ620 across the two swept arrangements) — so a board with
+// three carriers applying it took the binding arrangement to **0% at every roof attack from 28 down
+// to 12**, where the identical board with the rider removed clears at 83%. It is the second hundred's
+// Cairn Sentinel note — "a Cairn Sentinel slows exactly the stat an Elf five is built out of" — priced
+// at fifth-hundred weight and found to be a lock rather than texture. One carrier applies it, on the
+// last floor of the tower.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The gate comes up and the water does the rest.
+ *
+ * The opening band's turn, and plain on purpose — `enemy-front` for the fourth Dwarf-leaning hundred
+ * running, on the tower family's settled finding that aim past the front rank is inert or negative on
+ * all seven towers.
+ */
+export const TAP_THE_RACE = {
+  id: 'tap-the-race',
+  name: 'Tap the Race',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * A smith swings when he decides to. This does not decide.
+ *
+ * The middle bands' turn. Deliberately plain: the carrier it sits on is the axis, and everything the
+ * hundred charges for is in how early the blow arrives rather than in what rides on it.
+ */
+export const THE_HELVE_FALLS = {
+  id: 'the-helve-falls',
+  name: 'The Helve Falls',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * The cam is what remembers. The hammer only obeys it.
+ *
+ * The lieutenant's turn, with a {@link SUNDER} rider priced as texture rather than as the axis. A
+ * single-target selection rather than a scope, for the reason the Master's Measure is: a wide turn is
+ * the one shape big enough to carry a band on its own, and this hundred's band table is counts of
+ * carriers. Its duration stays under its cooldown, so the shred never becomes permanent.
+ */
+export const THE_CAM_COMES_ROUND = {
+  id: 'the-cam-comes-round',
+  name: 'The Cam Comes Round',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Four hundred floors of works, to make one thing that never gets tired.
+ *
+ * The roof's turn, and the **only** place in the hundred a {@link SLOW} is applied — see the note
+ * above for what three of them measured. The roof was settled on its **attack** rather than on this:
+ * at `atk` 28 the board reads 3% for the binding arrangement, at 24 it reads **83% with 2.00 of
+ * five**, and the turn's power stays inside the shipped single-target register.
+ */
+export const THE_GREAT_HELVE_FALLS = {
+  id: 'the-great-helve-falls',
+  name: 'The Great Helve Falls',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.05 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9491,4 +9583,8 @@ export const SKILLS = [
   SPLIT_THE_GRAIN,
   THE_MASTERS_MEASURE,
   THE_MASTERSTROKE_FALLS,
+  TAP_THE_RACE,
+  THE_HELVE_FALLS,
+  THE_CAM_COMES_ROUND,
+  THE_GREAT_HELVE_FALLS,
 ] as const;

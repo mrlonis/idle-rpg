@@ -14,8 +14,8 @@ boards, and a content session is mostly a conversation with it.
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
 | Campaign         | 25 chapters, 1210 stages, enemy levels 1–605 |
-| Towers           | 1 × 400 + 6 × 300 floors, enemy levels 1–189 |
-| Enemy archetypes | 326                                          |
+| Towers           | 3 × 500 + 4 × 400 floors, enemy levels 1–236 |
+| Enemy archetypes | 362                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |

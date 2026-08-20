@@ -87,12 +87,12 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and two towers of seven are there
+### The fifth hundred: the height is 500 and three towers of seven are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
-had never actually been done before. The Dwarf Tower's hundred followed; the other five stand at 400 and
-each has lost its boss until its own
+had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's; the
+other four stand at 400 and each has lost its boss until its own
 hundred lands; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
 endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
 floor 500), leaving 90 of their 100 geared floors byte-identical.
@@ -108,8 +108,8 @@ guard bought.
 
 ⚠️ **The crystal ratio was recomputed by hand, which is what replaced the retired guard.** With one
 tower at 500 and six at 400 the seven pay **901,100** against the campaign's **351,500**, a ratio of
-**2.563**; with the Dwarf Tower extended it reads **932,100** and **2.652**; seven towers of 500 would
-read 1,087,100 and **3.093**. That is the number to weigh before a
+**2.563**; with the Dwarf Tower extended it reads **932,100** and **2.652**; with the Elf Tower as well
+**963,100** and **2.740**; seven towers of 500 would read 1,087,100 and **3.093**. That is the number to weigh before a
 sixth hundred is proposed, and it is left as a design question rather than answered by a threshold.
 
 ⚠️ **The Ironpace is the first hundred anywhere whose "is it ours" table came back _no for every
@@ -133,6 +133,22 @@ top every attack-shaped candidate at that depth). Everything stronger measured a
 last of fourteen on the crew with the game's deepest `critBlock`, the second-anchor ban survived a
 second rung of investment, and the roof was settled on its attack — the fourth tower roof running.
 Full findings in [towers](towers.md).
+
+⚠️ **The Trip-Hammers — the Elf Tower's fifth hundred — is the first hundred whose axis is one this
+tower already owned, read backwards.** The fourth hundred found that nothing but throughput moves an
+Elf five and named the mechanism — attack bills only for as long as the body carrying it lives, proved
+on a Colossus that survives at 1250/88 because its `haste` is 58. The fifth authors the same attack
+**arriving earlier**: `atk` and `haste` on one light body, worth 1.03 and **0.03** of five apart and
+**2.03** together. ⚠️ **The axis this session set out to build measured inert and the measurement is the
+finding.** Crit denial looked certain — every member of both swept Elf arrangements carries crit, the
+deepest such register any party in the game has — and **complete immunity to both halves is worth 0.05
+of a survivor**, because crit on that crew is a 13% throughput bonus rather than a mechanism. ⚠️ **A
+refusal recorded on size expired here too**: `def`, `physicalResist` and `dodge`, all measured inert by
+the fourth hundred, are worth 2.85, 2.70 and 3.25 at band 5 — and this is the one tower that can spend
+them, because the same difficulty that takes an Elf five 16 seconds takes a Dwarf five 46. ⚠️ **Its
+anchor-retirement check came back completely clean, the first time any hundred's has**: a band boundary
+hands the crew a whole rung where the boards gain forty-seven levels, and ×1.6 outruns
+`perLevel.ascended`. Full findings in [towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

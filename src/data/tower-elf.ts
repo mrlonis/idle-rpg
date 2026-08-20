@@ -12,10 +12,13 @@ import {
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
   CARRION_SWARM,
+  CHALKHIDE_BROWSER,
   CHARNEL_DRUDGE,
+  CINDERFLAW_PROVER,
   CINDERLING,
   CINDERQUENCH_BEARER,
   CINDER_CULLER,
+  CLEFTHORN_GORER,
   COLDFORGE_HAND,
   COLDHEARTH_IRONSWORN,
   COLOSSUS,
@@ -23,12 +26,15 @@ import {
   DEEPGALLERY_RUNNER,
   DEEPLAMP_SEALER,
   DEEPROCK_MINER,
+  DRIFTMOUTH_CHOKER,
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
+  EMBERSHELL_WHELP,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
   GATEFAST_WARDEN,
+  GILDED_SENTRY,
   GLADE_STALKER,
   GLASSCHOIR_ARBITER,
   GOLEM,
@@ -37,10 +43,15 @@ import {
   GRAVEWAKE_THRALL,
   GRUDGEPLATE_SMITH,
   HAG,
+  HEADRACE_HAND,
   HEADSMAN,
+  HELVESTRUCK_SMITH,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
+  HUSHGLASS_WARDEN,
   IRONSLING_WRIGHT,
+  KILNCRACK_CANTOR,
+  KILNSTROKE_CELEBRANT,
   KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
   KINSTONE_BEARER,
@@ -59,6 +70,7 @@ import {
   PYRE,
   QUENCHPIT_IRONHIDE,
   QUENCHWRIGHT,
+  RADIANT_HERALD,
   REDWATER_STALKER,
   RENDFANG_JACKAL,
   REVENANT,
@@ -78,11 +90,15 @@ import {
   SHADE,
   SHARDLIGHT_ACOLYTE,
   SLAGBOUND_DRUDGE,
+  SLAGHIDE_PURSUER,
   SLIME,
   SPLINTERYARD_HONER,
   STORMCALLER,
+  THE_CAMWRIGHT,
+  THE_DEADBOLT,
   THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
+  THE_GREAT_HELVE,
   THE_GRUDGEKEEPER,
   THE_PLATEWRIGHT,
   THE_WARDWRIGHT,
@@ -100,7 +116,7 @@ import {
 } from './enemies';
 
 /**
- * The Elf Tower — four hundred floors, enemy levels 1 to 189.
+ * The Elf Tower — five hundred floors, enemy levels 1 to 236.
  *
  * ## Why the enemies are mostly Dwarven
  *
@@ -336,7 +352,128 @@ import {
  * exactly the control**), a back-rank healer (4.00) and `REGENERATION` on `ally-all` (3.98). A hundred
  * does not get to relax a termination argument because its own crew happens to clear in ten seconds.
  *
- * Re-run `npm run test:balance` after touching any band above floor 180, 270 or 385.
+ * ## ⚠️ The fifth hundred — the Trip-Hammers — is the fourth hundred's sentence read backwards
+ *
+ * Floors 401–500, levels 189–236, Masterwork 1 to Relic 40: the works have stopped being swung by
+ * hand. Water is let into the head race, a cam barrel turns, and the helve comes down on a beat
+ * nothing in the hold sets any more. The whole measurement lives in [`enemies.ts`](./enemies.ts)
+ * beside the four blocks that carry it; what belongs here is what the floors do with it and what the
+ * hundred is allowed to claim.
+ *
+ * 1. ⚠️ **The axis is `atk` and `haste` carried together on light bodies, and it is this tower's own
+ *    fourth-hundred mechanism arriving from the other end.** The Plating Floor found that attack
+ *    only bills for as long as the body carrying it lives, and proved it on {@link COLOSSUS} —
+ *    1250/88 reading 4.00 of five alone because its `haste` is 58 and a third of its attack never
+ *    lands. This hundred authors the same attack **arriving earlier**. Priced against the hundred's
+ *    own control at level 236 in Relic 40, forty seeds, zero timeouts: `atk` alone is worth
+ *    0.00 / 1.03 of five, `haste` alone **0.00 / 0.03**, and the two together **0.20 / 2.03** against
+ *    a sum of halves of 1.05 — ×1.93 super-additive, which is the Monster fourth hundred's licence
+ *    for building on the axis below.
+ * 2. ⚠️ **The licence is margin rather than exclusivity, and what makes it authorable is the clock.**
+ *    Across all fourteen shipped arrangements — each calibrated to the heaviest mirror control it
+ *    still reads ≥3.75 on — the pair puts **elf-alt fourth of fourteen** and elf-ref eleventh. The
+ *    same difficulty takes elf-alt **16 seconds** and dwarf-alt **46**. ⚠️ **This is the one tower
+ *    that can spend the refusal vocabulary at all** — at band 5 `def` 110 is worth 0.38 / 2.85,
+ *    `physicalResist` 0.40 0.38 / 2.70 and `dodge` 0.50 0.77 / 3.25, all of which the fourth hundred
+ *    measured inert, so **a refusal recorded on size expires here too** — and it spends the half that
+ *    converts budget into deaths rather than into seconds. `def` 110 costs dwarf-alt 3.90 at **66
+ *    seconds**, which is not a board anybody may author.
+ * 3. ⚠️ **Crit denial was the axis this session set out to build and it measured inert.** Four
+ *    carriers at `critBlock` 0.36 with `critDamageResist` 0.90 — complete immunity against the
+ *    deepest crit register any party in this game carries (Σ1.03 / Σ3.67 and Σ1.08 / Σ3.80 of chance
+ *    and amp, all five members) — is worth **0.05 of five to the alternate and 0.00 to the
+ *    reference**, and buys a second of fight. Chapter 23's "a lock is worth what the party has staked
+ *    on the thing it denies" is a claim about a *mechanism*; crit on this crew is a 13% throughput
+ *    bonus. **The third hundred already spent this tower's crit conversation and the mirror direction
+ *    is not there.**
+ * 4. ⚠️ **The anchor-retirement check comes back completely clean, which is a first for this tower
+ *    and the opposite of the hundred below.** Fielded alone behind four 300/18 commons at floor 500
+ *    in Relic 40, **every one of the fourth hundred's blocks stands** — the Grudgekeeper at 1520/89
+ *    reads 98% / 2.63 against 90% / 2.58, the Colossus 100% / 4.00, the Platewright 100% / 3.90 —
+ *    where two of this tower's own roofs had to retire a hundred floors below. The reason is the band
+ *    boundary: band 5's crew gains a whole rung and twenty-four levels where the boards gain
+ *    forty-seven, and ×1.6 outruns `perLevel.ascended`. **Run the check regardless; a clean answer is
+ *    a result.**
+ * 5. ⚠️ **The board budget still falls, and the fourth hundred's own boards are the proof.** Floor
+ *    400's shipped board carried up to floor 500 reads **100% / 2.40 against 3% / 0.05** — past the
+ *    alternate's bar — and floor 350's reads **0% for both**, because that board carries **four**
+ *    bodies at `atk` ≥ 62 where floor 400's carries two. **What bounds a board here is how many hot
+ *    bodies stand on it rather than what it weighs**: floor 350 at 4,100 raw health is unauthorable
+ *    at 500 while floor 400, 375 health lighter, is merely too hard.
+ *
+ * The bands walk the carrier count, counted as bodies at `atk` ≥ 34 with `haste` ≥ 100 per board — a
+ * **count**, because both halves are common stats and an absolute claim would be false the day it was
+ * written:
+ *
+ * | Band | Floors  | Levels  | Grade              | Carriers | Raw health  |
+ * | ---- | ------- | ------- | ------------------ | -------- | ----------- |
+ * | 1    | 401–420 | 189–198 | Masterwork 1–24    | 1        | 2,930–3,920 |
+ * | 2    | 421–445 | 199–210 | Masterwork 25–54   | 1–2      | 2,890–3,840 |
+ * | 3    | 446–467 | 211–220 | Masterwork 55–80   | 2        | 2,690–3,700 |
+ * | 4    | 468–485 | 221–229 | Relic 2–22         | 2        | 3,110–3,800 |
+ * | 5    | 486–495 | 229–234 | Relic 23–34        | 3        | 3,020–3,360 |
+ * | 6    | 496–500 | 234–236 | Relic 35–40        | 2–3      | 3,060–3,640 |
+ *
+ * ⚠️ **Every substitute in the hundred carries `haste` under 100, and that is a constraint the first
+ * pass missed rather than a coincidence.** The lean overshoot is corrected by converting texture slots
+ * to monster, angel and demon bodies — and the light commons of those three factions are *fast*
+ * (Vaultlight Censer 104, Zenith Chorister 106, Shardlight Acolyte and Cinderling 108, Carrion Swarm
+ * 124, Cinder Culler 126). Fielded as texture they silently count as carriers and **flattened the
+ * table to three on every board of every band**, which is a band table that says nothing. The
+ * substitute pools are drawn from the slow tail of the same three factions instead.
+ *
+ * ⚠️ **The gear ramp is inherited rather than spent and it steps _down_ inside the hundred** — floor
+ * 400 wears Fine 60 at +65.7% health on a `tank` and floor 401 wears Masterwork 1 at **+20.2%**; floor
+ * 467 wears Masterwork 80 at +108.0% and floor 468 wears Relic 2 at **+27.2%** — so bands 1 and 4 open
+ * heavier in authored weight than the floors they follow, exactly as the Human and Dwarf fifth
+ * hundreds' do.
+ *
+ * ⚠️ **`SLOW` is a lock on this crew rather than texture, and the claim is stated in counts because
+ * the absolute form is false — the prose check is what caught it.** The status multiplies `haste` by
+ * 0.7 and an Elf five carries the highest `haste` in the game (Σ580 / Σ620), so a draft in which the
+ * three axis carriers each applied it took the binding arrangement to **0% at every roof attack from
+ * 28 down to 12**, where the identical board without the rider clears at 83%. It is the second
+ * hundred's Cairn Sentinel note — "a Cairn Sentinel slows exactly the stat an Elf five is built out
+ * of" — priced at fifth-hundred weight. So the four new blocks do not carry it and **the roof is the
+ * only new block that does**; what the *boards* carry is eight returning bodies spread over **30 of
+ * the hundred's 100 boards, one of which fields two**, against the fourth hundred's **62 boards, 18
+ * of them with two and a peak of three**. **Halved rather than banned, and counted rather than
+ * asserted.**
+ *
+ * ⚠️ **The roof was settled on its attack, which is the fifth tower roof running.** With weight held
+ * at 1180, [`THE_GREAT_HELVE`](./enemies.ts) reads **3% for the binding arrangement at `atk` 28** and
+ * **100% / 3.80 against 83% / 2.00 at the shipped 24** — and the axis carries the floor rather than
+ * riding along: the same board with its carriers' `haste` dropped to 90 reads 4.00 and 4.03, so the
+ * beat is worth **0.20 of five to the reference and 2.03 to the alternate** on the top floor.
+ *
+ * ⚠️ **The closing five floors are pinned rather than composed from the pools**, because the returning
+ * pool puts 1060/80 next to 720/70 and at these levels that reads as a saw rather than an approach.
+ * Each was measured on its own so the alternate's survivors fall into the boss: 4.40 → 4.03 → 3.85 →
+ * 2.55 → 2.00.
+ *
+ * ## What the bands measure at
+ *
+ * Fifth hundred: floor 401 in two and a half seconds with all five alive, 420 in four and a half at
+ * 4.85, 445 in five, 460 in ten at 4.00, 480 in ten at 4.00, 490 in twelve, 499 in ten with the
+ * alternate at **90% and 2.55**, and the roof in **seventeen seconds at 100% / 3.80 — 27.3s and 83% /
+ * 2.00 for the alternate five**. ⚠️ **Zero timeouts anywhere in the hundred; the longest single
+ * attempt is 45.2 seconds** against the sweep's 67.5-second bar, and the longest the reference five
+ * ever spends is 18.0. The reference five loses nobody below floor 420 and the alternate below floor
+ * 440.
+ *
+ * ⚠️ **The sustain claim is stated in counts, and this hundred can make the strict form.** Of the
+ * **43 blocks** it fields: **zero** carry a point of `lifeLeech`, `recovery` or `healthRegen`;
+ * **zero** carry a heal, drain or shield effect; **zero** carry a `regen`, ward or guard status; and
+ * **zero** carry a taunt. That took four blocks out of the draft — the Colossus and the Rimeplate on
+ * `recovery`, the Riven Marchwarden on both, and the Edgeturn Warden on its taunt — all of which the
+ * fourth hundred fields freely, and all of which stay fielded there. One block carries a reflect
+ * (the Grudgeplate Smith's `THORNMAIL`), which is neither sustain nor a taunt. ⚠️ **No board pairs
+ * two `ascended` blocks**, and ⚠️ **no board carries more than two bodies with a board-wide turn** —
+ * the generated draft came out at a mean of 1.46 a board with a peak of **four**, which is exactly
+ * the shape this tower's third hundred measured at 0%. Capped, the hundred ships at a mean of **0.75
+ * with 17 boards over one**, against the third and fourth hundreds' 0.62 and 1.03.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 180, 270, 385 or 485.
  */
 export const TOWER_ELF = {
   id: 'tower-elf',
@@ -3344,6 +3481,828 @@ export const TOWER_ELF = {
       enemies: {
         front: [THE_PLATEWRIGHT, RIVETLINE_HAND],
         back: [SETSTONE_DRUDGE, PROPGALLERY_HAND, UNMARKED_WARDEN],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Head Race — Floors 401–420, levels 189–198, Masterwork 1–24 — the works have stopped being
+    // swung by hand. Water is let into the channel, and one body a board is already keeping the new
+    // time.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, DEEPROCK_MINER, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [ANVILBACK_SMITH, WRATHBORN],
+        back: [HEADRACE_HAND, GILDED_SENTRY, GATEFAST_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [SPLINTERYARD_HONER, HUSHGLASS_WARDEN],
+        back: [HEADRACE_HAND, PYRE, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, GILDED_SENTRY, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [RINGWALL_HAMMERER, WRATHBORN],
+        back: [HEADRACE_HAND, EMBERSHELL_WHELP, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [QUENCHWRIGHT, HUSHGLASS_WARDEN],
+        back: [HEADRACE_HAND, SLIME, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-elf-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [IRONSLING_WRIGHT, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, DRIFTMOUTH_CHOKER, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [RIVETLINE_HAND, WRATHBORN],
+        back: [HEADRACE_HAND, CLEFTHORN_GORER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, HUSHGLASS_WARDEN],
+        back: [HEADRACE_HAND, GILDED_SENTRY, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f410',
+      name: 'Floor 410 — The Sluice Gate',
+      enemies: {
+        front: [THE_PLATEWRIGHT, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, CLEFTHORN_GORER, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [SPLINTERYARD_HONER, WRATHBORN],
+        back: [HEADRACE_HAND, RADIANT_HERALD, GATEFAST_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, HUSHGLASS_WARDEN],
+        back: [HEADRACE_HAND, CLEFTHORN_GORER, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [RINGWALL_HAMMERER, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, SLIME, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f414',
+      name: 'Floor 414',
+      enemies: { front: [QUENCHWRIGHT, WRATHBORN], back: [HEADRACE_HAND, PYRE, COLDFORGE_HAND] },
+    },
+    {
+      id: 't-elf-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [IRONSLING_WRIGHT, HUSHGLASS_WARDEN],
+        back: [HEADRACE_HAND, RADIANT_HERALD, FORGE_THRALL],
+      },
+    },
+    {
+      id: 't-elf-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [RIVETLINE_HAND, CHALKHIDE_BROWSER],
+        back: [HEADRACE_HAND, RADIANT_HERALD, GATEFAST_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GATEFAST_WARDEN],
+        back: [HEADRACE_HAND, EMBERSHELL_WHELP, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [ANVILBACK_SMITH, BRACEWORK_DELVER],
+        back: [HEADRACE_HAND, SLIME, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [SPLINTERYARD_HONER, BOLTFAST_IRONSIDE],
+        back: [HEADRACE_HAND, EMBERSHELL_WHELP, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f420',
+      name: 'Floor 420 — The Wheelpit',
+      enemies: {
+        front: [THE_EDGEWRIGHT, GRUDGEPLATE_SMITH],
+        back: [HEADRACE_HAND, RADIANT_HERALD, DEEPROCK_MINER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Cam Shaft — Floors 421–445, levels 199–210, Masterwork 25–54 — a second body on the beat.
+    // Neither is heavy; what they are is early, and an Elf five that kills a soft body in two swings
+    // has stopped getting the second swing in first.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [RINGWALL_HAMMERER, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, PYRE, SETSTONE_DRUDGE],
+      },
+    },
+    {
+      id: 't-elf-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [QUENCHWRIGHT, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, PYRE, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [IRONSLING_WRIGHT, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, EMBERSHELL_WHELP, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [RIVETLINE_HAND, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, SLIME, DEEPROCK_MINER],
+      },
+    },
+    {
+      id: 't-elf-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, BOAR, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [ANVILBACK_SMITH, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, CLEFTHORN_GORER, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [SPLINTERYARD_HONER, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, GILDED_SENTRY, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, GILDED_SENTRY, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [RINGWALL_HAMMERER, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, CLEFTHORN_GORER, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f430',
+      name: 'Floor 430 — The Cam Barrel',
+      enemies: {
+        front: [THE_DEADBOLT, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [IRONSLING_WRIGHT, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, DRIFTMOUTH_CHOKER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [RIVETLINE_HAND, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, DRIFTMOUTH_CHOKER, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [ANVILBACK_SMITH, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [SPLINTERYARD_HONER, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, DEEPLAMP_SEALER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [RINGWALL_HAMMERER, GATEFAST_WARDEN],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [QUENCHWRIGHT, BRACEWORK_DELVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [IRONSLING_WRIGHT, BOLTFAST_IRONSIDE],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f440',
+      name: 'Floor 440 — The Trip Rack',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GRUDGEPLATE_SMITH],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, DEEPLAMP_SEALER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [ANVILBACK_SMITH, GATEFAST_WARDEN],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [SPLINTERYARD_HONER, BRACEWORK_DELVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, BOLTFAST_IRONSIDE],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [RINGWALL_HAMMERER, GRUDGEPLATE_SMITH],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Falling Rack — Floors 446–467, levels 211–220, Masterwork 55–80 — the Camwright cuts the
+    // rhythm the rest of the hundred keeps. The heavier of the two hammers moves behind the rank the
+    // party cannot aim past.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [QUENCHWRIGHT, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [IRONSLING_WRIGHT, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [RIVETLINE_HAND, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f450',
+      name: 'Floor 450 — The Camwright',
+      enemies: {
+        front: [THE_CAMWRIGHT, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [SPLINTERYARD_HONER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [RINGWALL_HAMMERER, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [QUENCHWRIGHT, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [IRONSLING_WRIGHT, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-elf-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [RIVETLINE_HAND, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [ANVILBACK_SMITH, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [SPLINTERYARD_HONER, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-elf-f460',
+      name: 'Floor 460 — The Second Cam',
+      enemies: {
+        front: [THE_CAMWRIGHT, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [RINGWALL_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [QUENCHWRIGHT, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f463',
+      name: 'Floor 463',
+      enemies: { front: [IRONSLING_WRIGHT, SLIME], back: [HEADRACE_HAND, HEADRACE_HAND, PYRE] },
+    },
+    {
+      id: 't-elf-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [RIVETLINE_HAND, KILNSTROKE_CELEBRANT],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-elf-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [SPLINTERYARD_HONER, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Quickstroke — Floors 468–485, levels 221–228, Relic 2–21 — Relic plate arrives and steps the
+    // grade *down*, so the band opens heavier than the one it follows. Two hammers on every board and
+    // the returning weight back in front of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, KILNSTROKE_CELEBRANT],
+        back: [HEADRACE_HAND, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [RINGWALL_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f470',
+      name: 'Floor 470 — The Quickstroke',
+      enemies: {
+        front: [THE_CAMWRIGHT, SLAGHIDE_PURSUER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [IRONSLING_WRIGHT, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [RIVETLINE_HAND, KILNSTROKE_CELEBRANT],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CINDERFLAW_PROVER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLAGHIDE_PURSUER],
+        back: [HEADRACE_HAND, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [SPLINTERYARD_HONER, KILNCRACK_CANTOR],
+        back: [HEADRACE_HAND, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, KILNSTROKE_CELEBRANT],
+        back: [HEADRACE_HAND, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [RINGWALL_HAMMERER, CINDERFLAW_PROVER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [QUENCHWRIGHT, SLAGHIDE_PURSUER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [IRONSLING_WRIGHT, KILNCRACK_CANTOR],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-elf-f480',
+      name: 'Floor 480 — The Racing Gear',
+      enemies: {
+        front: [THE_CAMWRIGHT, KILNSTROKE_CELEBRANT],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CINDERFLAW_PROVER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLAGHIDE_PURSUER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [SPLINTERYARD_HONER, KILNCRACK_CANTOR],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, SLIME],
+      },
+    },
+    {
+      id: 't-elf-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [COLDHEARTH_IRONSWORN, RIVETLINE_HAND],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [RINGWALL_HAMMERER, PLATESHOD_HAMMERER],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, SLIME],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Racing Gear — Floors 486–495, levels 228–234, Relic 22–34 — the gearing runs away with
+    // itself. The authored weight falls from here to the roof and the beat is what replaces it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [DEEPLAMP_SEALER, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [QUENCHWRIGHT, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [RIVETLINE_HAND, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, PYRE],
+      },
+    },
+    {
+      id: 't-elf-f490',
+      name: 'Floor 490 — The Last Cam',
+      enemies: {
+        front: [THE_CAMWRIGHT, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [DEEPLAMP_SEALER, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-elf-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [QUENCHWRIGHT, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, BOAR],
+      },
+    },
+    {
+      id: 't-elf-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [RIVETLINE_HAND, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, RADIANT_HERALD],
+      },
+    },
+    {
+      id: 't-elf-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [GRUDGEPLATE_SMITH, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [DEEPLAMP_SEALER, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, HEADRACE_HAND, GILDED_SENTRY],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Great Helve — Floors 496–500, levels 234–236, Relic 35–40 — five floors, each measured on
+    // its own, and the helve at the top of them. Nothing here is heavy; everything here is early.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [RIVETLINE_HAND, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [DEEPLAMP_SEALER, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [ANVILBACK_SMITH, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [SPLINTERYARD_HONER, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, PROPGALLERY_HAND],
+      },
+    },
+    {
+      id: 't-elf-f500',
+      name: 'Floor 500 — The Great Helve',
+      enemies: {
+        front: [THE_GREAT_HELVE, HELVESTRUCK_SMITH],
+        back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, PROPGALLERY_HAND],
       },
     },
   ],

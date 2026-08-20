@@ -207,6 +207,10 @@ import {
   SPLIT_THE_GRAIN,
   THE_MASTERS_MEASURE,
   THE_MASTERSTROKE_FALLS,
+  TAP_THE_RACE,
+  THE_HELVE_FALLS,
+  THE_CAM_COMES_ROUND,
+  THE_GREAT_HELVE_FALLS,
   THE_ANVIL_FALLS,
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
@@ -13042,6 +13046,207 @@ export const THE_MASTERSTROKE = {
   skills: [THE_MASTERSTROKE_FALLS, THE_MASTERS_MEASURE, SPLIT_THE_GRAIN],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's fifth hundred — the Trip-Hammers, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **Four blocks, which is 9.3% of the 43 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with five hundreds of precedent behind it, not a fraction to
+// solve for. Dwarves go 62 → 66.
+//
+// ## ⚠️ The axis is `atk` and `haste` carried together on light bodies
+//
+// The fourth hundred — the Plating Floor — found that **nothing but throughput moves an Elf five**,
+// and named the mechanism: *an Elf five kills anything soft before it swings twice, so attack only
+// bills for as long as the body carrying it lives.* Its own proof was {@link COLOSSUS}, which is
+// fielded at 1250/88 and reads 4.00 of five alone because its `haste` is 58 and a third of its attack
+// never lands. This hundred is that sentence read from the other end: the same attack, arriving
+// **earlier**.
+//
+// Priced against the hundred's own control at level 236 in Relic 40 — the roof's escort shape with the
+// carrier's two halves knocked out one at a time, forty seeds, zero timeouts on every row:
+//
+// | four bodies at             | ref survivors | alt survivors | worth to the alternate |
+// | -------------------------- | ------------- | ------------- | ---------------------- |
+// | `atk` 26 / `haste` 90      | 4.00          | 4.03          | — (the control)        |
+// | `atk` 38 / `haste` 90      | 4.00          | 3.00          | 1.03                   |
+// | `atk` 26 / `haste` 108     | 4.00          | 4.00          | **0.03**               |
+// | **`atk` 38 / `haste` 108** | 3.80          | **2.00**      | **2.03**               |
+//
+// 1. ⚠️ **The pair is super-additive and the halves are nearly worthless apart** — 2.03 against a sum
+//    of 1.05, ×1.93 — which is the Monster fourth hundred's licence for building on the axis below.
+//    `haste` **alone is worth 0.03 of a survivor**: a body that swings often and cannot hurt anybody
+//    is a body this crew ignores.
+// 2. ⚠️ **It grades in size and in carrier counts, which is what six bands need.** By size, the
+//    alternate reads 3.98 / 3.50 / 2.00 / 0.72 across 30/h96, 34/h100, 38/h108 and 42/h112; by count
+//    at 38/h108, 4.90 / 4.65 / 3.67 / 0.55 across zero to three carriers. Zero timeouts on every row.
+// 3. ⚠️ **The licence is margin rather than exclusivity, and it is chosen on fight length.** Across
+//    all fourteen shipped arrangements — each calibrated to the heaviest mirror control it still reads
+//    ≥3.75 on — the pair puts **elf-alt fourth of fourteen** (3.95) behind angel-alt 4.00, dwarf-alt
+//    3.98 and angel-ref 3.98, with elf-ref eleventh. What makes it *authorable here* is the clock: the
+//    same difficulty takes elf-alt **16 seconds** and dwarf-alt **46**. The Elf Tower is the one tower
+//    that can spend the refusal vocabulary at all — `def` 110 costs dwarf-alt 3.90 at 66s, which is
+//    not a board anybody may author — and this hundred spends the half of it that converts budget into
+//    deaths rather than into seconds.
+// 4. ⚠️ **The fourth hundred's own pair has expired**, which is the Undead Tower's lesson arriving
+//    here: re-run at band 5, `atk` × `hp` puts elf-alt fifth and elf-ref **thirteenth of fourteen**.
+//    **Re-run "is it ours" on the band being authored, never on the band that recorded it.**
+// 5. ⚠️ **Crit denial was the first axis proposed and it measured inert.** Four carriers at
+//    `critBlock` 0.36 with `critDamageResist` 0.90 — **complete immunity to a crew that stakes
+//    Σ1.03 / Σ3.67 and Σ1.08 / Σ3.80 of chance and amp on crit, the deepest crit register of any party
+//    in the game — is worth 0.05 of five to the alternate and 0.00 to the reference**, and buys only a
+//    second of fight. Chapter 23's "a lock is worth what the party has staked on the thing it denies"
+//    is a claim about a *mechanism*, and crit here is a 13% throughput bonus rather than one. The
+//    third hundred already spent this tower's crit conversation from the other side; this is the
+//    measurement that says the mirror direction is not there.
+// 6. ⚠️ **Inert or negative, measured and not worth re-measuring at this band**: `magicResist` 0.30 is
+//    worth exactly 0.00 / 0.00; `tenacity` 0.60 reads 0.00 / 0.03; `accuracy` 1.25 reads 0.00 / 0.05
+//    against a crew carrying Σ3.27 / Σ3.30 of its own; `physicalPierce` 0.40 reads 0.00 / 0.25;
+//    `attackSpeed` 80 grades hard (1.13 / 3.88) but costs **angel-ref and angel-alt 4.00 apiece** and
+//    is theirs, not this crew's — an empty register is a licence to measure, never a licence to author.
+//
+// ⚠️ **The register, measured before these four blocks joined the pool.** `haste` sat on all 358 blocks
+// at a median of 96 and a ceiling of 152, so each half of the pair stays well inside the game-wide
+// register. What steps past is the **Dwarf** one: of 62 Dwarf blocks, **exactly one** carries `haste`
+// ≥ 100 (the Deepgallery Runner at 118) against a Dwarf median of **80**, and **no Dwarf `ascended`
+// block exceeds 96**. That is the register claim this hundred is built on, and it is about the lean's
+// own bench rather than the pool's — the Dwarves hit hard and slow, which is exactly why an Elf five
+// has been able to walk through four hundred floors of them.
+//
+// ⚠️ **Nothing here restores anything and nothing here taunts.** No block below carries `lifeLeech`,
+// `recovery`, `healthRegen`, a heal, a drain, a shield or a taunt; the claim about the *boards* is
+// stated as counts in [`tower-elf.ts`](./tower-elf.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It stands in the channel all day and it is not the one doing the work.
+ *
+ * The opening band's carrier: the pair at its entry size — **`haste` 102 on `atk` 34**, on the
+ * lightest body of the four. ⚠️ **A plain block at the bottom of a new axis is the lesson** the
+ * Hewstroke Prentice records one tower over: one carrier beside the control is worth 0.15 of five,
+ * and the opening band has to teach what the beat is before the hundred can charge for three of them.
+ * Its `atk` is **below the pool median of 56 on purpose** — the half that is worth 0.03 alone is the
+ * `haste`, and a hot body here would be measuring the wrong thing.
+ */
+export const HEADRACE_HAND = {
+  id: 'headrace-hand',
+  name: 'Headrace Hand',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 560,
+    atk: 34,
+    def: 30,
+    haste: 102,
+    critChance: 0.1,
+    critDamageAmp: 0.72,
+    critBlock: 0.06,
+    physicalResist: 0.08,
+  },
+  skills: [TAP_THE_RACE],
+} as const;
+
+/**
+ * The smith who used to swing it now only feeds it.
+ *
+ * The middle and closing bands' carrier: **`haste` 108 on `atk` 38**, which is the pair at the size
+ * the whole band table is counted in — bodies at `atk` ≥ 34 with `haste` ≥ 100 per board. Both halves
+ * sit inside the game-wide register (median 56 and 96, ceilings 100 and 152) and the pairing steps
+ * past the Dwarf one, where exactly one of 62 blocks carries `haste` ≥ 100.
+ */
+export const HELVESTRUCK_SMITH = {
+  id: 'helvestruck-smith',
+  name: 'Helvestruck Smith',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 620,
+    atk: 38,
+    def: 34,
+    haste: 108,
+    critChance: 0.11,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    physicalResist: 0.1,
+  },
+  skills: [THE_HELVE_FALLS, TAP_THE_RACE],
+} as const;
+
+/**
+ * It cuts the cam. Everything above it is only keeping the time the cam was cut to.
+ *
+ * The hundred's lieutenant, standing on the tenth floors from 450 up. ⚠️ **Its attack is 30 on an
+ * `ascended` chassis, and that is the Workmaster's arithmetic**: an ascended block climbs at 1.024
+ * against a mostly-`common` five's 1.021, so at these levels its stat line is worth roughly double a
+ * common's — the `haste` is authored high and the attack low, and the line was settled against all
+ * five of its appearances rather than its first. At `haste` 112 it is faster than **every** `ascended`
+ * Dwarf block in the game, the closest of which is the Edgewright at 96.
+ */
+export const THE_CAMWRIGHT = {
+  id: 'the-camwright',
+  name: 'The Camwright',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1120,
+    atk: 30,
+    def: 46,
+    haste: 112,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.16,
+    critBlock: 0.1,
+    tenacity: 0.4,
+    physicalResist: 0.12,
+  },
+  skills: [THE_CAM_COMES_ROUND, THE_HELVE_FALLS, TAP_THE_RACE],
+} as const;
+
+/**
+ * The hold spent four hundred floors learning to swing. Then it built something that never stops.
+ *
+ * The roof. ⚠️ **The pair at its authored ceiling: `haste` 120 on `atk` 24 and 1180 health** — and the
+ * attack is where the roof was settled, which is the fifth tower roof running to be settled that way.
+ * At `atk` 28 the board reads **3% for the binding arrangement**, at 24 it reads **100% / 3.80 against
+ * 83% / 2.00**. ⚠️ **The axis carries the last floor rather than riding along**: the identical board
+ * with its carriers' `haste` dropped to 90 reads 4.00 and 4.03, so the beat is worth **0.20 of five to
+ * the reference and 2.03 to the alternate** on the top floor of the tower.
+ *
+ * ⚠️ **At 1180/24 this is the lightest roof anchor on attack any tower hundred has shipped**, and the
+ * list rather than the superlative, because the superlative has gone stale twice already: the tower
+ * roofs now read 1180/24 (this), 1140/40, 1160/44, 1200/52, 820/58, 1240/68, 1240/74, 1300/84,
+ * 1320/82, 1440/86, 1540/92 and 1560/91. **The weight a roof is allowed is what is left after the
+ * grade**, and this one is wearing Relic 40 at enemy level 236 — but what it is really left with is
+ * what is affordable beside two carriers keeping its time.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
+ * restores anything, it carries no taunt, and the board it stands on carries no heal, drain, shield or
+ * regeneration.
+ */
+export const THE_GREAT_HELVE = {
+  id: 'the-great-helve',
+  name: 'The Great Helve',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1180,
+    atk: 24,
+    def: 50,
+    haste: 120,
+    critChance: 0.12,
+    critDamageAmp: 0.82,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalResist: 0.12,
+  },
+  skills: [THE_GREAT_HELVE_FALLS, THE_CAM_COMES_ROUND, THE_HELVE_FALLS],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -13401,4 +13606,8 @@ export const ENEMIES = [
   JOURNEYMAN_HEWER,
   THE_WORKMASTER,
   THE_MASTERSTROKE,
+  HEADRACE_HAND,
+  HELVESTRUCK_SMITH,
+  THE_CAMWRIGHT,
+  THE_GREAT_HELVE,
 ] as const;
