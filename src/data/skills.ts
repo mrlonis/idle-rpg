@@ -9360,6 +9360,79 @@ export const NOTHING_PUTS_IT_OUT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fifth hundred — milestone 21z's four turns
+//
+// ⚠️ **The stat is the whole of the hundred and these four turns are deliberately ordinary**, for
+// the third hundred running on this tower. The Hairline escalated through how *often* a blow found
+// the seam; this hundred escalates through what the plate is worth once it is found, which is
+// `physicalPierce` and not anything a skill can say.
+//
+// ⚠️ **Every one of them is physical, and that is load-bearing rather than flavour.**
+// `effectiveDefence` returns `def × (1 − physicalPierce)`, so a magical turn on a pierce carrier
+// spends the stat the body was authored for. The fourth hundred's four are physical too and for a
+// different reason — a crit is a crit either way — so this is the first band on this tower where
+// the damage type is the mechanic.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A lace is not cut. It is found, and then it is followed.
+ *
+ * The opening band's turn and the least of the four. Power 1.45 on a 50-tick cooldown is the
+ * shipped register's own middle, exactly as {@link PROVE_THE_PLATE} was a hundred below —
+ * {@link EMBERLACE_AWL} is priced on what it takes off the plate rather than on what it swings.
+ */
+export const FIND_THE_LACE = {
+  id: 'find-the-lace',
+  name: 'Find the Lace',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** A harrow does not dig. It opens what was already parted and leaves it open. */
+export const WORK_IT_WIDER = {
+  id: 'work-it-wider',
+  name: 'Work It Wider',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The heaviest of the three legendary turns, on the body that stands longest.
+ *
+ * A pierce only counts for as long as the thing carrying it is alive — the argument
+ * {@link THE_SAME_NOTE_AGAIN} makes about a frequency, and it holds unchanged for an armour tax.
+ */
+export const TAKE_THE_SEAM = {
+  id: 'take-the-seam',
+  name: 'Take the Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than either of the two roofs below it**.
+ *
+ * {@link THE_SINGLE_STROKE} is 2.30, {@link IT_WAS_ALWAYS_THERE} 1.80, and this is 1.70. Three
+ * hundreds running, this tower's roof has swung less than the one under it, because each of the
+ * three axes multiplies the blow rather than adding to it — and {@link THE_UNLACING} carries the
+ * largest `physicalPierce` in the game against the two arrangements holding its largest `def`.
+ */
+export const IT_WAS_NEVER_SHUT = {
+  id: 'it-was-never-shut',
+  name: 'It Was Never Shut',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9829,4 +9902,8 @@ export const SKILLS = [
   OIL_THE_GROUND,
   LIGHT_THE_SLOW_LAMP,
   NOTHING_PUTS_IT_OUT,
+  FIND_THE_LACE,
+  WORK_IT_WIDER,
+  TAKE_THE_SEAM,
+  IT_WAS_NEVER_SHUT,
 ] as const;

@@ -196,8 +196,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
-  to 236, five of seven complete**. What a tower is for, the three fields a clear may never touch, the
-  five crews, and twenty-six hundreds' worth of measured escalation findings.
+  to 236, six of seven complete**. What a tower is for, the three fields a clear may never touch, the
+  five crews, and twenty-seven hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -694,8 +694,8 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. ⚠️ **Both lists are populated right now: the height is 500, the
-  Human, Dwarf, Elf and Undead Towers are there and the other three stand at 400.** They went back **in the same session as the
+  notices a tower nobody went back for. ⚠️ **Both lists are down to one name: the height is 500,
+  six towers are there and only the Demon Tower stands at 400.** They went back **in the same session as the
   bump**, which is what the fourth hundred's note asked for and the half of the discipline that had never
   actually been done before — between a bump and the first authored tower there is nothing at all holding
   the six short ones. Keep the shapes the list forced — `topFloors` reading the **authored** height and
@@ -703,6 +703,36 @@ Asserted in `core/battle/simulate.spec.ts`.
   undefined stage. ⚠️ **The "and it stays naked" half did _not_ fire this round**: solve the gear ramp's
   new endpoint to **continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500) and 90 of the 100 shipped geared floors stay byte-identical. **Solve the gear endpoint the way you
   solve the level line.** [towers](../../docs/towers.md)
+- ⚠️ **A first-place cross-crew ranking is not a licence when the crew is the one furthest up its own
+  ladder, and that is the third fifth hundred running where the table could not choose the axis.** The
+  Humans ranked mid-table on everything because that crew is balanced and the Undead ranked first on
+  everything because that crew is fragile; the **Angels rank first-and-second on nearly everything
+  because they are the _strongest_ arrangement at band 5** — calibrated in 2.5% steps they take a
+  control 10% heavier than any other crew (×1.10 / ×1.025 against a field of 0.625–0.975), so they
+  stand on the steepest part of every curve: `critChance` 2.35 / 1.72, `attackSpeed` 3.17 / 2.59,
+  `dodge` 2.72 / 2.42, `physicalPierce` 2.42 / 1.96. ⚠️ **What separates a lock from a steep curve is
+  whether the axis is aimed at a _register_, and the test is a correlation rather than a ranking**:
+  pierce's cost correlates **0.834** with each arrangement's authored `def` where `critChance`'s
+  correlates **0.645**. [towers](../../docs/towers.md)
+- ⚠️ **A mechanism argument is not a measurement, and a `bomb` is the cleanest instance the project
+  has.** It bills its whole payload at expiry through `statusDamage`, which bypasses `def` entirely —
+  an Angel five's largest register — it cannot be stopped by killing the caster, and every Angel
+  cleanse sits behind a cooldown. Against the crew whose recorded failure is "a body removed between
+  two heal ticks", measured at all five carriers, power 1.0 → 2.5 reads **4.00 survivors at every
+  single row**. A `dot` reads 4.00 / 3.99 / 3.91 for the same reason: a stream of chip is what a choir
+  is built for. **Price the shape before believing the story about it.** [towers](../../docs/towers.md)
+- ⚠️ **An axis a neighbouring tower measured as _not_ this crew's can invert one band later.** The
+  Dwarf fourth hundred read `physicalPierce` 0.35 costing dwarf-ref/alt −1.00 / −1.08 against
+  angel-ref/alt **−0.08 / −0.29**, on the argument that "`def` is the Dwarves' only mitigation where an
+  Angel five has armour **and** a choir". At band 5 the choir is out-scaled and the armour is what is
+  left, and the Angels take first and second. **Both readings are right about what they measured;
+  re-run "is it ours" on the band being authored.** [towers](../../docs/towers.md)
+- ⚠️ **A closing band can be two percent of common-equivalent weight wide, and raw health calls the two
+  rows identical.** Holding four of five bodies on the Angel Tower's floor 499 fixed: a `common` at
+  **4,432** common-equivalent reads 100% / 95% and a `legendary` at **4,688** reads 88% / **0%** —
+  both boards weighing **3,320 raw**, because at level 236 a `legendary` block is worth ×1.41 of a
+  `common` one and an `ascended` ×1.99. ⚠️ **The stride swept clean while floors 497, 498 and 499 read
+  23%, 0% and 30%** — the Undead fifth hundred's rule, on a sixth tower. [towers](../../docs/towers.md)
 - ⚠️ **A crew's whole vocabulary can collapse to one curve, and then the cross-crew table cannot choose
   the axis.** At the Undead Tower's fifth hundred, `attackSpeed` 130, `haste` 160–190, `atk` ×1.5 and
   enemy crit at ×1.88 expected damage read the **same** 2.00 / 0.00 held at equal nominal damage, and

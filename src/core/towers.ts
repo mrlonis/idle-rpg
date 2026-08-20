@@ -26,9 +26,9 @@ import { type GameState } from './state';
  * **breadth**: seven of them is thirty-five invested characters against a campaign that has never
  * needed more than five.
  *
- * ⚠️ **The height is a rule for all seven and only the Human and Dwarf Towers are at it.** See
- * `data/towers.ts` for the `PENDING` discipline that keeps the other five honest while their floors
- * are authored.
+ * ⚠️ **The height is a rule for all seven and six of them are at it.** Only the Demon Tower still
+ * stands at four hundred floors. See `data/towers.ts` for the `PENDING` discipline that keeps a
+ * short tower honest while its floors are authored.
  *
  * ## The three ways it deliberately differs from the campaign
  *

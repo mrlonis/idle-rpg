@@ -22,6 +22,7 @@ import {
   DEEPGALLERY_RUNNER,
   DEEPROCK_MINER,
   DUSKFERN_SKIRMISHER,
+  EMBERLACE_AWL,
   EMBERSEED_WARLOCK,
   EMBERSHELL_WHELP,
   FIRST_CINDER,
@@ -37,6 +38,7 @@ import {
   HIEROPHANT,
   IRONSLING_WRIGHT,
   KILNCRACK_CANTOR,
+  KILNSEAM_UNLACER,
   KILNSTROKE_CELEBRANT,
   KILNSWORN_ADEPT,
   KINGSWAY_LANCER,
@@ -62,6 +64,7 @@ import {
   SHADE,
   SHATTERJAW_MAULER,
   SKYSHRIKE,
+  SLAGBORE_HARROW,
   SLAGHIDE_PURSUER,
   SLAGSEAM_FLENSER,
   STORMCALLER,
@@ -69,6 +72,7 @@ import {
   THE_HAIRLINE,
   THE_LAST_MERCY,
   THE_UNANSWERED,
+  THE_UNLACING,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
@@ -85,7 +89,7 @@ import {
 } from './enemies';
 
 /**
- * The Angel Tower — four hundred floors, enemy levels 1 to 189.
+ * The Angel Tower — five hundred floors, enemy levels 1 to 236.
  *
  * ## Why the enemies are mostly Demons
  *
@@ -147,10 +151,13 @@ import {
  * fielded since its first hundred ({@link FIRST_CINDER} at 5, {@link ASHFALL_SOVEREIGN} at 7,
  * {@link UNMADE} at 8, {@link WYRDROOT_ANCIENT} at 9 and 0.2).
  *
- * ⚠️ **The fourth hundred holds the same shape and its own counts are stated separately**, because
- * the range grows underneath a claim like this every time a hundred lands — which is exactly how the
- * old wording went wrong. Over floors 301–400: **no board carries a `heal` effect, a `drain`, a
- * `regen` status or a point of `lifeLeech`**, and **51 boards carry `recovery`, 22 `healthRegen`**.
+ * ⚠️ **Each hundred since states its own counts separately**, because the range grows underneath a
+ * claim like this every time a hundred lands — which is exactly how the old wording went wrong. Over
+ * floors 301–400: **no board carries a `heal` effect, a `drain`, a `regen` status or a point of
+ * `lifeLeech`**, and **51 boards carry `recovery`, 22 `healthRegen`**. Over floors 401–500 the same
+ * four are again zero — and so are a `shield` status, a `link` and a `taunt` — against **14 boards
+ * carrying `recovery` and 2 `healthRegen`**, on four blocks: {@link RIMEPLATE} on eleven and
+ * {@link PALE_WARDEN}, {@link COLOSSUS} and {@link WYRDROOT_ANCIENT} on one apiece.
  * ⚠️ **The script that checked it moved five blocks off the boards rather than only correcting a
  * sentence** — {@link BLOODPACT_FIEND}, {@link COVENANT_EXECUTOR}, {@link COVENANT_BREAKER},
  * {@link RUINWING_DEVOURER} and the Unsealed Wretch were all fielded above floor 300 in the
@@ -270,6 +277,104 @@ import {
  * {@link THE_HAIRLINE} takes the alternate from **92% to 0%** with nothing else changed; putting
  * {@link RIFTEDGE_CANTOR} behind it instead of a light body reads **3%**. The shipped roof closes at
  * **100% / 3.99 for the reference and 98% / 2.96 for the alternate**, zero timeouts.
+ *
+ * ## ⚠️ The fifth hundred escalates through the *plate under the choir*, which is the first axis
+ * this tower has taken that is not aimed at a heal
+ *
+ * The second hundred arrives before the wards, the third swings too large to heal, the fourth finds
+ * the seam too often. All three are about out-running a choir. This one is about the only other
+ * thing keeping an Angel five alive: **an Angel five carries the largest authored `def` in the game
+ * and among the least of everything else** — Σ195 (alternate) and Σ174 (reference) against a field
+ * median of Σ90, with Σ0.15 and Σ0.21 of `physicalResist` + `magicResist` + `dodge` combined and
+ * **zero** `dodge` on either. `effectiveDefence` returns `def × (1 − physicalPierce)`, so a pierce
+ * prices exactly what the party put into armour and nothing else.
+ *
+ * ⚠️ **The Panoply measured this axis as *not* the Angels', correctly, one band lower.** The Dwarf
+ * fourth hundred read pierce 0.35 costing dwarf-ref/alt −1.00 / −1.08 against angel-ref/alt
+ * −0.08 / −0.29, and reasoned that "`def` is the Dwarves' only mitigation where an Angel five has
+ * armour **and** a choir." At band 5 the choir has been out-scaled and the armour is what is left.
+ * Measured at level 236 in Relic 40 against a **4.00 / 3.84** control — an anchor at 1040/66 behind
+ * four bodies at 540/47, eighty seeds — all five carrying:
+ *
+ * ```
+ *   physicalPierce  0.10 0.18 0.26 0.34 0.42 0.50 0.58
+ *   reference       4.00 4.00 3.91 3.75 3.56 3.00 2.13
+ *   alternate       3.60 2.79 1.91 0.96 0.10 0.03 0.00
+ *   mean fight       43s  46s  46s  43s  37s  33s  30s
+ * ```
+ *
+ * ⚠️ **Seven monotone steps with zero timeouts, and the fight gets *shorter* as it grades.** That is
+ * what chose it: this tower's alternate five is **the slowest arrangement in the game**, taking 46s
+ * on a control every other crew clears in 9 to 31, so an axis that buys seconds walks it into the
+ * bar. `dodge` 0.45 is worth 1.38 at **54.5s**, enemy `hp` ×1.5 worth 0.85 at **52.8s** and
+ * `physicalResist` 0.34 worth 1.69 at **53.0s**. It grades in carrier counts too — at 0.34,
+ * **3.98 / 3.61 / 3.66 / 3.05 / 2.14 / 1.01** across zero to five.
+ *
+ * ⚠️ **The cross-crew table could not choose this axis, which is the third hundred running to find
+ * that and the third distinct reason.** Calibrated in 2.5% steps to the heaviest mirror control each
+ * of the fourteen still reads ≥3.70 on, the Angel fives sit at **×1.10 and ×1.025 against a field of
+ * 0.625 to 0.975** — they are the *strongest* arrangement at this band, so they stand on the
+ * steepest part of every curve and rank first-and-second on nearly everything (`critChance`
+ * 2.35 / 1.72, `attackSpeed` 3.17 / 2.59, `dodge` 2.72 / 2.42). The Humans had nothing because they
+ * are balanced and the Undead had everything because they are fragile; **this crew has everything
+ * because it is the strongest, and the table cannot tell that from a lock.** What separates pierce is
+ * that its cost correlates **0.834** with each arrangement's authored `def` where `critChance`'s
+ * correlates 0.645 — it is aimed at a register rather than at a weakness.
+ *
+ * ⚠️ **`attackSpeed` was declined and it is the closest call this tower has made** — angel-alt first
+ * of fourteen at 3.17, above pierce — because it is this tower's own *second* hundred wearing a new
+ * stat. Held at equal survivor cost the two rate spellings are one curve: `haste` 145 reads 0.00 at
+ * 31.2s and `attackSpeed` 55 reads 0.00 at 30.3s.
+ *
+ * ⚠️ **Nothing else moved, and a `bomb` is the sharpest of the negatives.** At all five carriers a
+ * bomb at power 1.0 → 2.5 reads **4.00 at every row**, and a `dot` 0.34 → 0.80 reads 4.00 / 3.99 /
+ * 3.91 — the third hundred's finding standing, that a stream of chip is what a choir is built for,
+ * and the mechanism argument for the bomb (it bypasses `def`, it cannot be stopped by killing the
+ * caster, the cleanse is on a cooldown) was simply wrong. `magicResist` 0.20 → 0.65 reads
+ * 3.71 / 3.66 / 3.25 / 3.17, **declined for the third time on this crew**; `energyRegen` 12 → 40 is
+ * exactly flat; `magicPierce` 0.30 and 0.50 both read 3.81 against a 3.84 control; a board-wide
+ * `STUN` is a cliff with nothing in the middle (3.83 / 2.14 / 0.00 across zero, one and two
+ * carriers); `SLOW`, `SUNDER` and a `STUN` on `enemy-lowest` are worth 0.00 or less.
+ *
+ * ⚠️ **The pairing dilutes the licence rather than sharpening it**, the Demon fourth hundred's
+ * direction rather than chapter 23's: pierce with `physicalResist` at 0.6× its size is worth 2.97 to
+ * angel-alt but lifts dwarf-ref to 2.55 and dwarf-alt to 2.50, and it costs seconds.
+ *
+ * ⚠️ **The band is built inside the shipped register and only the roof steps past.** Over the 370
+ * blocks shipped before this hundred, `physicalPierce` sat on **127** at a median of 0.20, a p90 of
+ * 0.30 and a maximum of 0.45; the *Demon* ceiling is 0.30 ({@link UNMADE}). {@link EMBERLACE_AWL},
+ * {@link SLAGBORE_HARROW} and {@link KILNSEAM_UNLACER} carry 0.22, 0.26 and 0.30 and
+ * {@link THE_UNLACING} alone carries 0.40. Bodies at 0.20 or above run **1–2 / 2–3 / 3–4 / 4–5 /
+ * 3–4** across the five bands, stated as counts because pierce sits on more than a third of every
+ * block the game ships.
+ *
+ * ⚠️ **The retirement check came back entirely clean, which is the opposite of the hundred below.**
+ * The fourth hundred retired four anchors, the most any hundred in this project has; here all six
+ * that survived it stand at floor 500 in Relic 40 — {@link FIRST_CINDER}, {@link WYRDROOT_ANCIENT},
+ * {@link COLOSSUS}, {@link OATHBREAKER}, {@link PALE_WARDEN} and {@link THE_HAIRLINE}, the hundred
+ * below's own roof, all reading 100% with 4.00 of five for both crews behind four 300/18 commons and
+ * 93–100% behind a 520/44 escort. ⚠️ **The four the fourth hundred retired stay retired, and stating
+ * the escort is what makes that checkable**: behind four 300/18 commons {@link UNMADE} reads
+ * 0% / 57%, {@link THE_UNANSWERED} 5% / 0% and {@link THE_LAST_MERCY} 3% / 40% while
+ * {@link ASHFALL_SOVEREIGN} reads 100% / 80% and looks safe — and behind four 520/44 legendaries all
+ * four fail, the first three at **0% for both crews** and the Sovereign at 57% / 8%. ⚠️ **The
+ * floor-400 board carried to floor 500 still collapses** — 80% / 1.85 for the reference and
+ * **0% / 0.00** for the alternate.
+ *
+ * ⚠️ **The closing band is two percent of common-equivalent weight wide, and raw health calls the two
+ * rows identical.** Holding four of the five bodies on floor 499 fixed and walking the fifth:
+ * {@link CLEFTHORN_GORER} at **4,432** common-equivalent reads 100% / 3.98 and 95% / 3.25, and
+ * {@link RIFTSTEP_REAVER} at **4,688** reads 88% / 2.98 and **0%** — where both boards weigh 3,320
+ * raw. Every body that passes is a `common` and every body that fails is a `legendary`, because at
+ * level 236 a `legendary` block is worth ×1.41 of a `common` one and an `ascended` ×1.99. **Convert
+ * to common-equivalent weight before comparing two boards on this tower.**
+ *
+ * ⚠️ **The lean overshot at 78.2% and it was structural rather than sloppy**: all three new carriers
+ * are Demon and they stand on every board in the hundred, spending 203 of 500 slots before a texture
+ * body was chosen. Corrected during authoring by converting one *texture* slot at a time in floor
+ * order across every band — never an axis block and never an anchor — the hundred ships at **60.4%
+ * Demon over 500 slots and the tower at 56.77% over 2,459**, with Monster, the other faction
+ * `countersOf('angel')` names, at 24.0% and 15.09%. **45 distinct blocks stand over the hundred.**
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -3303,6 +3408,826 @@ export const TOWER_ANGEL = {
       enemies: {
         front: [THE_HAIRLINE, CINDER_CULLER],
         back: [CINDERFLAW_PROVER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Lacehouse — Floors 401–420, levels 189–198, Masterwork 1–Masterwork 24 — one lace a board and two on a mini-boss, and the first floors where the plate is worth less than it reads.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [VANWARD_SPEAR, CINDERQUENCH_BEARER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, EMBERLACE_AWL],
+        back: [MOONSONG_WEAVER, RIFTEDGE_CANTOR, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-angel-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [NIGHTMARCH_OUTRIDER, EMBERSHELL_WHELP, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [SHATTERJAW_MAULER, RENDFANG_JACKAL],
+        back: [MIREWHELP, SUNMOTE_DANCER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [CINDER_CULLER, MOONSONG_WEAVER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-angel-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
+        back: [PYRE, SLAGSEAM_FLENSER, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-angel-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [CINDERQUENCH_BEARER, MIREWHELP, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [RIMEPLATE, EMBERLACE_AWL],
+        back: [KILNSWORN_ADEPT, CINDER_CULLER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-angel-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [ASHPIT_SCUTTLER, WHISPERLEAF_ARCHER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f410',
+      name: 'Floor 410 — The First Lace',
+      enemies: {
+        front: [THE_HAIRLINE, RENDFANG_JACKAL],
+        back: [SUNMOTE_DANCER, MOONSONG_WEAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, KILNSEAM_UNLACER],
+        back: [SKYSHRIKE, KILNSWORN_ADEPT, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [KILNCRACK_CANTOR, RENDFANG_JACKAL],
+        back: [CINDERQUENCH_BEARER, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [SHATTERJAW_MAULER, EMBERLACE_AWL],
+        back: [RIFTEDGE_CANTOR, BARROWMIST_KEENER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, EMBERLACE_AWL],
+        back: [CLEFTHORN_GORER, SKYSHRIKE, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-angel-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [THORNBACK_GRAZER, SLAGBORE_HARROW],
+        back: [CLEFTHORN_GORER, CINDERQUENCH_BEARER, RIFTBORN_HARROWER],
+      },
+    },
+    {
+      id: 't-angel-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [WRATHBORN, RENDFANG_JACKAL],
+        back: [MOONSONG_WEAVER, RIFTEDGE_CANTOR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [RIMEPLATE, KILNSEAM_UNLACER],
+        back: [SLAGSEAM_FLENSER, EMBERSHELL_WHELP, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-angel-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL],
+        back: [MIREWHELP, CLEFTHORN_GORER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [BARROWMIST_KEENER, MOONSONG_WEAVER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f420',
+      name: 'Floor 420 — The Lacehouse Closes',
+      enemies: {
+        front: [PALE_WARDEN, EMBERLACE_AWL],
+        back: [WHISPERLEAF_ARCHER, CINDERQUENCH_BEARER, EMBERSHELL_WHELP],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Working — Floors 421–445, levels 199–210, Masterwork 25–Masterwork 54 — two to three, and the seam opened twice over before anything strikes it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, MOONSONG_WEAVER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [SHATTERJAW_MAULER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSWORN_ADEPT, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-angel-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, CLEFTHORN_GORER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-angel-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, DUSKFERN_SKIRMISHER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-angel-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, PYRE, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-angel-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [RIMEPLATE, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, CINDERQUENCH_BEARER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, RIFTEDGE_CANTOR, CINDER_CULLER],
+      },
+    },
+    {
+      id: 't-angel-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [CINDERFLAW_PROVER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, CLEFTHORN_GORER, PYRE],
+      },
+    },
+    {
+      id: 't-angel-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, CLEFTHORN_GORER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f430',
+      name: 'Floor 430 — The Second Course',
+      enemies: {
+        front: [OATHBREAKER, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, SKYSHRIKE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [SHATTERJAW_MAULER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, CINDERQUENCH_BEARER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, MIREWHELP, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [THORNBACK_GRAZER, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, BARROWMIST_KEENER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-angel-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [WRATHBORN, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, CLEFTHORN_GORER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-angel-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [RIMEPLATE, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, MOONSONG_WEAVER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-angel-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, NIGHTMARCH_OUTRIDER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, RIFTBORN_HARROWER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, DUSKFERN_SKIRMISHER, SERAPH_ADJUDICANT],
+      },
+    },
+    {
+      id: 't-angel-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, PYRE, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-angel-f440',
+      name: 'Floor 440 — Two Hands on It',
+      enemies: {
+        front: [THE_HAIRLINE, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, CINDERQUENCH_BEARER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-angel-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, KILNSWORN_ADEPT, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-angel-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, CLEFTHORN_GORER, PYRE],
+      },
+    },
+    {
+      id: 't-angel-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, DUSKFERN_SKIRMISHER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [RIMEPLATE, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SKYSHRIKE, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, SLAGSEAM_FLENSER, CLEFTHORN_GORER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Widening Lace — Floors 446–467, levels 211–220, Masterwork 55–Masterwork 80 — three to four, and the anchors coming down as the levels go up.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [CINDERFLAW_PROVER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-angel-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [KILNCRACK_CANTOR, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [SHATTERJAW_MAULER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, MOONSONG_WEAVER],
+      },
+    },
+    {
+      id: 't-angel-f450',
+      name: 'Floor 450 — The Third Pass',
+      enemies: {
+        front: [COLOSSUS, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, SLAGSEAM_FLENSER],
+      },
+    },
+    {
+      id: 't-angel-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [THORNBACK_GRAZER, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, RIFTBORN_HARROWER],
+      },
+    },
+    {
+      id: 't-angel-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [WRATHBORN, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, BARROWMIST_KEENER],
+      },
+    },
+    {
+      id: 't-angel-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [RIMEPLATE, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, WHISPERLEAF_ARCHER],
+      },
+    },
+    {
+      id: 't-angel-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, KILNSWORN_ADEPT],
+      },
+    },
+    {
+      id: 't-angel-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [SHATTERJAW_MAULER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, PYRE],
+      },
+    },
+    {
+      id: 't-angel-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, RIFTSTEP_REAVER],
+      },
+    },
+    {
+      id: 't-angel-f460',
+      name: 'Floor 460 — The Widening Lace',
+      enemies: {
+        front: [WYRDROOT_ANCIENT, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, RIFTEDGE_CANTOR],
+      },
+    },
+    {
+      id: 't-angel-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [RIMEPLATE, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, CINDERSEED_COURSER],
+      },
+    },
+    {
+      id: 't-angel-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [CINDERFLAW_PROVER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-angel-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [KILNCRACK_CANTOR, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [SHATTERJAW_MAULER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, MOONSONG_WEAVER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Open Seam — Floors 468–490, levels 221–231, Relic 2–Relic 28 — four to five, opening on the Relic boundary and so opening heavier than the band below closes.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [THORNBACK_GRAZER, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f470',
+      name: 'Floor 470 — The Open Seam',
+      enemies: {
+        front: [RIMEPLATE, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [RIMEPLATE, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [SHATTERJAW_MAULER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f480',
+      name: 'Floor 480 — The Fourth Hand',
+      enemies: {
+        front: [KILNCRACK_CANTOR, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [CINDERFLAW_PROVER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [KILNCRACK_CANTOR, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [SHATTERJAW_MAULER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [THORNBACK_GRAZER, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-angel-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [WRATHBORN, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, KINGSWAY_LANCER],
+      },
+    },
+    {
+      id: 't-angel-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [RIMEPLATE, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-angel-f490',
+      name: 'Floor 490 — Nothing Holds',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SHATTERJAW_MAULER],
+      },
+    },
+
+    // -------------------------------------------------------------------------------------
+    // The Unlacing — Floors 491–500, levels 232–236, Relic 29–Relic 40 — three to four, a voice traded for the roof's own 0.40, and nothing left standing that is not carrying weight.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-angel-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [CINDERFLAW_PROVER, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, IRONSLING_WRIGHT],
+      },
+    },
+    {
+      id: 't-angel-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [MARROWHUNT_ALPHA, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, DUSKFERN_SKIRMISHER],
+      },
+    },
+    {
+      id: 't-angel-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [KILNCRACK_CANTOR, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-angel-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [SHATTERJAW_MAULER, RENDFANG_JACKAL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, NIGHTMARCH_OUTRIDER],
+      },
+    },
+    {
+      id: 't-angel-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [SLAGHIDE_PURSUER, KILNSEAM_UNLACER],
+        back: [EMBERLACE_AWL, SLAGBORE_HARROW, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-angel-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [THORNBACK_GRAZER, RENDFANG_JACKAL],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SKYSHRIKE],
+      },
+    },
+    {
+      id: 't-angel-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [WRATHBORN, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, CINDERQUENCH_BEARER],
+      },
+    },
+    {
+      id: 't-angel-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [RIMEPLATE, EMBERLACE_AWL],
+        back: [KILNSEAM_UNLACER, SLAGBORE_HARROW, ZENITH_CHORISTER],
+      },
+    },
+    {
+      id: 't-angel-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [KILNSTROKE_CELEBRANT, SLAGBORE_HARROW],
+        back: [EMBERLACE_AWL, KILNSEAM_UNLACER, SUNMOTE_DANCER],
+      },
+    },
+    {
+      id: 't-angel-f500',
+      name: 'Floor 500 — The Unlacing',
+      enemies: {
+        front: [THE_UNLACING, EMBERLACE_AWL],
+        back: [SLAGBORE_HARROW, KILNSEAM_UNLACER, CINDERLING],
       },
     },
   ],

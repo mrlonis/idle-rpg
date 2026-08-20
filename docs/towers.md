@@ -1,18 +1,18 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — five of seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — six of seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
 hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
 Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
 the Human Tower's floors 401–500 landed with it, then the Dwarf Tower's, the Elf Tower's, the Undead
-Tower's and the Monster Tower's, and the other two stand at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
+Tower's, the Monster Tower's and the Angel Tower's, and only the Demon Tower stands at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
 them; [authoring](authoring.md) is the procedure for adding floors.
 
 ⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
 the fourth hundred's note asked for, and the half of the discipline that had never actually been done
 before. `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
-— which means for six sessions running, towers are authored a hundred floors short; **three names
-remain on the lists now that the Undead Tower's hundred has landed.** A tower in that
+— which means for six sessions running, towers are authored a hundred floors short; **one name
+remains on the lists now that the Angel Tower's hundred has landed.** A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
 `nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
@@ -216,10 +216,10 @@ quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
 fails now that the towers pay **nearly three times** what the spine's first clears do. Recomputed by
-hand with the Human, Dwarf, Elf, Undead and Monster Towers at five hundred floors and the other two at
-four: the seven pay **1,024,500** against the 25-chapter campaign's **351,500**, a ratio of **2.915** — it
-read 901,100 / 2.563, 932,100 / 2.652, 963,100 / 2.740 and 994,100 / 2.828 with one, two, three and four
-towers extended. ⚠️ **Seven towers of five hundred
+hand with six towers at five hundred floors and only the Demon Tower at four: the seven pay
+**1,055,800** against the 25-chapter campaign's **351,500**, a ratio of **3.004** — it read
+901,100 / 2.563, 932,100 / 2.652, 963,100 / 2.740, 994,100 / 2.828 and 1,024,500 / 2.915 with one
+through five towers extended. ⚠️ **Seven towers of five hundred
 would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
 weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
 155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
@@ -2053,6 +2053,112 @@ These are findings a later session should not have to re-derive.
   which is what this tower's third hundred said it would have to be. The hundred opens at floor 401 in
   6.6s with all five alive, costs the alternate a member from floor 409 and the reference from 426,
   and closes at **100% / 2.98 / 19.5s against 80% / 0.80 / 31.2s**, zero timeouts anywhere.
+
+### The fifth hundred — the Angel Tower's Unlacing
+
+- ⚠️ **The first axis this tower has taken that is not aimed at a heal.** Its second hundred arrives
+  before the wards, its third swings too large to heal, its fourth finds the seam too often — all
+  three about out-running a choir. This one is about the only other thing keeping an Angel five
+  alive: **an Angel five carries the largest authored `def` in the game and among the least of
+  everything else**, Σ195 (alternate) and Σ174 (reference) against a field median of Σ90, with
+  Σ0.15 and Σ0.21 of `physicalResist` + `magicResist` + `dodge` combined and **zero** `dodge` on
+  either. `effectiveDefence` returns `def × (1 − physicalPierce)`, so a pierce prices exactly what
+  the party put into armour and nothing else — reading `damage.ts` rather than the stat names, for
+  the third time.
+- ⚠️ **The Panoply measured this axis as _not_ the Angels', correctly, one band lower, and the
+  reading inverts outright at band 5.** The Dwarf fourth hundred read pierce 0.35 costing
+  dwarf-ref/alt **−1.00 / −1.08** against angel-ref/alt **−0.08 / −0.29**, and reasoned that "`def`
+  is the Dwarves' only mitigation where an Angel five has armour **and** a choir." At band 5 the
+  choir has been out-scaled and the armour is what is left. Measured at level 236 in Relic 40
+  against a 4.00 / 3.84 control — an anchor at 1040/66 behind four bodies at 540/47, eighty seeds —
+  all five carrying:
+
+  ```
+    physicalPierce  0.10 0.18 0.26 0.34 0.42 0.50 0.58
+    reference       4.00 4.00 3.91 3.75 3.56 3.00 2.13
+    alternate       3.60 2.79 1.91 0.96 0.10 0.03 0.00
+    mean fight       43s  46s  46s  43s  37s  33s  30s
+  ```
+
+  **Seven monotone steps, zero timeouts, and the fight gets _shorter_ as it grades.** It grades in
+  carrier counts as well — at 0.34, **3.98 / 3.61 / 3.66 / 3.05 / 2.14 / 1.01** across zero to five.
+
+- ⚠️ **It was chosen on fight length, which is the fourth hundred running to be.** This tower's
+  alternate five is **the slowest arrangement in the game**, taking 46s on a control every other
+  crew clears in 9 to 31, so an axis that buys seconds walks it into the 60s bar: `dodge` 0.45 is
+  worth 1.38 at **54.5s**, enemy `hp` ×1.5 worth 0.85 at **52.8s**, `physicalResist` 0.34 worth 1.69
+  at **53.0s**.
+- ⚠️ **The cross-crew table could not choose it, and that is three hundreds running for three
+  distinct reasons.** Calibrated in 2.5% steps to the heaviest mirror control each of the fourteen
+  still reads ≥3.70 on, the Angel fives sit at **×1.10 and ×1.025 against a field of 0.625 to
+  0.975** — they are the _strongest_ arrangement at this band, so they stand on the steepest part of
+  every curve and rank first-and-second on nearly everything: `critChance` 2.35 / 1.72, `attackSpeed`
+  3.17 / 2.59, `dodge` 2.72 / 2.42, pierce 2.42 / 1.96. The Humans had nothing because they are
+  balanced; the Undead had everything because they are fragile; **this crew has everything because it
+  is the strongest, and the table cannot tell that from a lock.**
+- ⚠️ **What separates a lock from a steep curve is whether it is aimed at a _register_, and a
+  correlation is what shows it.** Across the fourteen, pierce's cost correlates **0.834** with each
+  arrangement's authored `def` and `critChance`'s only **0.645**: the four heaviest-armoured
+  arrangements are the four costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96,
+  dwarf-alt Σ186 → 1.17, dwarf-ref Σ163 → 0.74) where crit's ordering breaks at the bottom
+  (undead-alt at Σ45 of `def` reads 1.17). **Correlate the cost against the register before calling a
+  first-place ranking a licence.**
+- ⚠️ **`attackSpeed` was declined and it is the closest call this tower has made** — angel-alt first
+  of fourteen at **3.17**, above pierce — because it is this tower's own _second_ hundred wearing a
+  new stat. Held at equal survivor cost the two rate spellings are one curve: `haste` 145 reads 0.00
+  at 31.2s and `attackSpeed` 55 reads 0.00 at 30.3s. The Undead fourth hundred's disqualification, on
+  a stat rather than on a ward.
+- ⚠️ **A `bomb` is worth exactly nothing, and it is the sharpest negative here because the mechanism
+  argument was so good.** A bomb bills its whole payload at expiry through `statusDamage`, which
+  bypasses `def` entirely — this crew's largest register — it cannot be stopped by killing the
+  caster, and every Angel cleanse is behind a cooldown. Measured at all five carriers, power 1.0 →
+  2.5 reads **4.00 at every row**. A `dot` 0.34 → 0.80 reads 4.00 / 3.99 / 3.91, which is the third
+  hundred's finding standing: a stream of chip is what a choir is built for. **A mechanism argument
+  is not a measurement**, and this is the cleanest instance the project has.
+- ⚠️ **Also inert or refused at band 5, measured at all five carriers**: `magicResist` 0.20 → 0.65
+  reads 3.71 / 3.66 / 3.25 / 3.17, **declined for the third time on this crew** and non-monotone;
+  `energyRegen` 12 → 40 exactly flat; `magicPierce` 0.30 and 0.50 both **3.81** against a 3.84
+  control; `tenacity` 0.60 reads 3.79; complete crit immunity reads 3.88; a board-wide `STUN` at
+  duration 25 is a cliff with nothing in the middle (3.83 / 2.14 / 0.00 across zero, one and two
+  carriers); `SLOW`, `SUNDER` and a `STUN` on `enemy-lowest` are worth 0.00 or less.
+- ⚠️ **The pairing dilutes the licence rather than sharpening it**, the Demon fourth hundred's
+  direction rather than chapter 23's: pierce with `physicalResist` at 0.6× its size is worth 2.97 to
+  angel-alt but lifts dwarf-ref to 2.55 and dwarf-alt to 2.50, and it costs seconds. **Take the half
+  whose licence is exclusive.**
+- ⚠️ **The retirement check came back entirely clean, which is the exact opposite of the hundred
+  below.** The fourth hundred retired four anchors, the most any hundred in this project has; here
+  all six that survived it stand at floor 500 in Relic 40 — the First Cinder, the Wyrdroot Ancient,
+  the Adamant Colossus, the Oathbreaker, the Pale Warden and `THE_HAIRLINE`, the hundred below's own
+  roof — reading 100% with 4.00 of five for both crews behind four 300/18 commons and 93–100% behind
+  a 520/44 escort. ⚠️ **The four already retired stay retired, and stating the escort is what makes
+  that checkable**: behind four 300/18 commons the Unmade reads 0% / 57%, `THE_UNANSWERED` 5% / 0%
+  and `THE_LAST_MERCY` 3% / 40% while the Ashfall Sovereign reads 100% / 80% and looks safe — behind
+  four 520/44 legendaries all four fail, the first three at **0% for both crews** and the Sovereign
+  at 57% / 8%. ⚠️ **The floor-400 board carried to floor 500 still collapses**, 80% / 1.85 against
+  **0% / 0.00**: the Crownworks collapse a seventh time, and on the alternate again.
+- ⚠️ **The closing band is two percent of common-equivalent weight wide, and raw health calls the two
+  rows identical.** Holding four of the five bodies on floor 499 fixed and walking the fifth: the
+  Clefthorn Gorer at **4,432** common-equivalent reads 100% / 3.98 and 95% / 3.25, the Pyre at
+  **4,518** reads 98% and **18%**, and the Riftstep Reaver at **4,688** reads 88% / 2.98 and **0%** —
+  where the Gorer board and the Reaver board both weigh **3,320 raw**. Every body that passes is a
+  `common` and every body that fails is a `legendary`, because at level 236 a `legendary` block is
+  worth ×1.41 of a `common` one and an `ascended` ×1.99. **Convert to common-equivalent weight before
+  comparing two boards** — the campaign's rule, and it is what the first draft of this hundred got
+  wrong: the stride swept clean and floors 497, 498 and 499 read 23%, 0% and 30%.
+- ⚠️ **The lean overshot at 78.2% and it was structural**, the Undead fifth hundred's finding on a
+  sixth tower: all three new carriers are Demon and they stand on every board in the hundred,
+  spending 203 of 500 slots before a texture body was chosen. Corrected during authoring by
+  converting one _texture_ slot at a time in floor order across every band — never an axis block and
+  never an anchor — the hundred ships at **60.4% Demon over 500 slots and the tower at 56.77% over
+  2,459**, with Monster, the other faction `countersOf('angel')` names, at 24.0% and 15.09%. **45
+  distinct blocks stand over the hundred.**
+- ⚠️ **The roof swings less than either roof below it, for the third hundred running.** The Single
+  Stroke is power 2.30, It Was Always There 1.80, and `IT_WAS_NEVER_SHUT` is **1.70** — each of the
+  three axes _multiplies_ the blow rather than adding to it, so a roof reaching for both halves is a
+  wall. `THE_UNLACING` ships at 950/48 carrying `physicalPierce` **0.40**, past the Demon ceiling of
+  0.30 and inside the game-wide maximum of 0.45 over the 370 blocks shipped beforehand. The hundred
+  opens at floor 401 in 3.4s with all five alive and closes at **100% / 3.98 / 22.3s against
+  98% / 3.15 / 42.8s**, zero timeouts anywhere, longest single attempt 57.8s against a 67.5s bar.
 
 ## Where it sits on screen
 

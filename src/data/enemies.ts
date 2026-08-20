@@ -56,6 +56,7 @@ import {
   EVERYTHING_YOU_LEFT,
   FADE,
   FEWER_EVERY_MILE,
+  FIND_THE_LACE,
   FLATTEN_THE_EDGE,
   FLENSE,
   FLENSE_THE_SEAM,
@@ -84,6 +85,7 @@ import {
   IT_IS_ALL_WORTH_LESS,
   IT_WAS_ALWAYS_THERE,
   IT_WAS_NEVER_GOING_TO,
+  IT_WAS_NEVER_SHUT,
   IT_WAS_WORTH_MORE_THIS_MORNING,
   IT_WILL_NOT_BE_SAID,
   KEEP_NOTHING,
@@ -208,6 +210,7 @@ import {
   TAKE_IT_BACK,
   TAKE_IT_OFF_THE_COUNT,
   TAKE_ROOT,
+  TAKE_THE_SEAM,
   TAKE_THE_WEIGHT,
   TAKE_UP_THE_SLACK,
   TAP_THE_RACE,
@@ -307,6 +310,7 @@ import {
   WITHERHEX,
   WITHERING_TOUCH,
   WITHY_SNAP,
+  WORK_IT_WIDER,
   WRATH_UNBOUND,
   WRITTEN_DOWN_BESIDE_IT,
   ZENITHFALL,
@@ -13706,6 +13710,206 @@ export const THE_UNQUENCHED = {
   skills: [NOTHING_PUTS_IT_OUT, LIGHT_THE_SLOW_LAMP],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fifth hundred — milestone 21z's four Demon blocks
+//
+// The lean this tower has carried since floor 1, deepened by four. `countersOf('angel')` is exactly
+// `{demon, monster}`, and Demons are the half that trades evenly rather than merely surviving.
+//
+// ## What the four are for
+//
+// ⚠️ **The hundred escalates through `physicalPierce`, and it is the plate under the choir rather
+// than the choir.** All four of this tower's earlier hundreds attack the same thing from a different
+// side — the second arrives before the wards, the third swings too large to heal, the fourth finds
+// the seam too often — and every one of them is about out-running a heal. This one is about the only
+// other thing keeping an Angel five alive. **An Angel five carries the largest authored `def` in the
+// game and among the least of everything else**: Σ195 (alternate) and Σ174 (reference) against a
+// field whose median is Σ90, with Σ0.15 and Σ0.21 of `physicalResist` + `magicResist` + `dodge`
+// combined and **zero** `dodge` on either.
+//
+// ⚠️ **This is the Panoply's axis and the Panoply measured it as *not* the Angels', correctly, one
+// band lower.** That hundred read pierce 0.35 costing dwarf-ref/alt −1.00 / −1.08 against
+// angel-ref/alt −0.08 / −0.29, and reasoned that "`def` is the Dwarves' only mitigation where an
+// Angel five has armour **and** a choir". At band 5 the choir has been out-scaled and the armour is
+// what is left, and the reading inverts outright. **Re-run "is it ours" on the band being authored.**
+//
+// Measured at level 236 in Relic 40 against a **4.00 / 3.84** control — an anchor at 1040/66 behind
+// four bodies at 540/47, eighty seeds — all five carrying:
+//
+//     physicalPierce  0.10 0.18 0.26 0.34 0.42 0.50 0.58
+//     reference       4.00 4.00 3.91 3.75 3.56 3.00 2.13
+//     alternate       3.60 2.79 1.91 0.96 0.10 0.03 0.00
+//     mean fight       43s  46s  46s  43s  37s  33s  30s
+//
+// **Seven monotone steps with zero timeouts, and the fight gets *shorter* as it grades** — 30s at
+// the top against a 42.5s control. That is what chose it over everything else that moved this crew:
+// `dodge` 0.45 is worth 1.38 at **54.5s**, enemy `hp` ×1.5 worth 0.85 at **52.8s** and
+// `physicalResist` 0.34 worth 1.69 at **53.0s**, all walking toward a bar this tower is already
+// closer to than any other — its alternate five is **the slowest arrangement in the game**, taking
+// 46s on the control every other crew clears in 9 to 31.
+//
+// It grades in carrier counts as well: at 0.34, **3.98 / 3.61 / 3.66 / 3.05 / 2.14 / 1.01** across
+// zero to five, and at 0.45, 3.94 / 3.86 / 3.25 / 2.52 / 1.26 / 0.01.
+//
+// ⚠️ **The cross-crew table could not choose this axis and says so, which is the third hundred
+// running to find it and the third distinct reason.** Calibrated in 2.5% steps to the heaviest
+// mirror control each of the fourteen still reads ≥3.70 on, the Angel fives sit at **×1.10 and
+// ×1.025 against a field of 0.625 to 0.975** — they are the *strongest* arrangement at this band, so
+// they stand on the steepest part of every curve and rank first-and-second on nearly everything:
+// `critChance` 2.35 / 1.72, `attackSpeed` 3.17 / 2.59, `dodge` 2.72 / 2.42. The Humans had nothing
+// because they are balanced and the Undead had everything because they are fragile; **this crew has
+// everything because it is the strongest, and the table cannot tell that from a lock.**
+//
+// ⚠️ **What separates pierce from the rest is that it is aimed at a register rather than at a
+// weakness, and the correlation is what shows it.** Across the fourteen, pierce's cost correlates
+// **0.834** with each arrangement's authored `def` and `critChance`'s only 0.645 — the four
+// heaviest-armoured arrangements are the four costliest rows on pierce (angel-alt Σ195 → 2.42,
+// angel-ref Σ174 → 1.96, dwarf-alt Σ186 → 1.17, dwarf-ref Σ163 → 0.74) where crit's ordering breaks
+// at the bottom (undead-alt at Σ45 of `def` reads 1.17). **Read `damage.ts` rather than the stat
+// names**: `effectiveDefence` returns `def × (1 − pierce)`, so a pierce prices exactly what the party
+// put into armour and nothing else.
+//
+// ⚠️ **`attackSpeed` was declined and it is the closest call this tower has made.** It ranks
+// angel-alt **first of fourteen at 3.17**, above pierce — and it is this tower's own *second*
+// hundred wearing a new stat. Held at equal survivor cost the two rate spellings are the same curve:
+// `haste` 145 reads 0.00 at 31.2s and `attackSpeed` 55 reads 0.00 at 30.3s. The Undead Tower's
+// fourth-hundred disqualification, on a stat rather than on a ward.
+//
+// ⚠️ **Nothing else moved.** At all five carriers: `magicResist` 0.20 → 0.65 reads 3.71 / 3.66 /
+// 3.25 / 3.17 — **declined for the third time on this crew** and non-monotone; `energyRegen` 12 → 40
+// exactly flat at 3.90 / 3.74 / 3.81; `magicPierce` 0.30 and 0.50 both **3.81** against a 3.84
+// control; `tenacity` 0.60 reads 3.79; complete crit immunity (`critBlock` 0.30 with
+// `critDamageResist` 0.90) reads 3.88; a `bomb` at power 1.0 → 2.5 reads **4.00 at every row**, and a
+// `dot` 0.34 → 0.80 reads 4.00 / 3.99 / 3.91 — the third hundred's finding standing, that a stream of
+// chip is what a choir is built for. A board-wide `STUN` at duration 25 is a cliff with nothing in
+// the middle (3.83 / 2.14 / 0.00 across zero, one and two carriers) and `SLOW`, `SUNDER` and a
+// `STUN` on `enemy-lowest` are all worth 0.00 or less.
+//
+// ⚠️ **The pairing dilutes the licence rather than sharpening it**, which is the Demon fourth
+// hundred's direction rather than chapter 23's. `physicalPierce` with `physicalResist` at 0.6× its
+// size is worth more in the abstract — angel-alt 2.97 — but it lifts dwarf-ref to 2.55 and dwarf-alt
+// to 2.50, and it costs seconds. **Take the half whose licence is exclusive.**
+//
+// ⚠️ **The band is built inside the shipped register and only the roof steps past.** Over the **370**
+// blocks shipped before these four, `physicalPierce` sits on **127** at a median of 0.20, a p90 of
+// 0.30 and a maximum of **0.45**; the *Demon* ceiling is 0.30 ({@link UNMADE}). The three legendaries
+// below carry 0.22, 0.26 and 0.30, so the whole band asks for no number the game has already refused
+// and none past the lean's own ceiling. {@link THE_UNLACING} alone carries 0.40. ⚠️ **The register
+// quoted is the one measured against, before these four landed** — a header quoting the
+// post-authoring figure would be claiming a band built at a ceiling the band itself created.
+//
+// ⚠️ **The band claim is bodies per board rather than an absolute**, because pierce sits on more than
+// a third of every block shipped and "the pierce arrives in band 3" would be false the day it was
+// written. Bodies at 0.20 or above run **1 / 2 / 3 / 4 / 3–4** across the five bands.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * An awl does not make the hole. It finds the one the lace already goes through.
+ *
+ * The opening band's carrier, and the lightest of the four. `physicalPierce` 0.22 is a shipped
+ * median-plus figure and well under the lean's own 0.30 ceiling; what makes it the opening band's
+ * body is that it is the fastest of the three at `haste` 108 and the thinnest at 520 health, so a
+ * board carrying one is still a board the crew can answer by killing it.
+ */
+export const EMBERLACE_AWL = {
+  id: 'emberlace-awl',
+  name: 'Emberlace Awl',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 520,
+    atk: 52,
+    def: 24,
+    haste: 108,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    physicalPierce: 0.22,
+  },
+  skills: [FIND_THE_LACE],
+} as const;
+
+/** Middle of the three, and the only one that is neither the fastest nor the one that stands. */
+export const SLAGBORE_HARROW = {
+  id: 'slagbore-harrow',
+  name: 'Slagbore Harrow',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 620,
+    atk: 58,
+    def: 30,
+    haste: 98,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.26,
+  },
+  skills: [WORK_IT_WIDER],
+} as const;
+
+/**
+ * The heaviest of the three, at the lean's own ceiling exactly.
+ *
+ * `physicalPierce` 0.30 is {@link UNMADE}'s figure and the largest any Demon has ever carried, on the
+ * body authored to stand longest — 740 health at `haste` 92 against the Awl's 520 at 108. **An armour
+ * tax bills for as long as the thing carrying it is alive**, which is why the largest of the three
+ * sits on the slowest body rather than on the fastest.
+ */
+export const KILNSEAM_UNLACER = {
+  id: 'kilnseam-unlacer',
+  name: 'Kilnseam Unlacer',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 740,
+    atk: 56,
+    def: 38,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.3,
+  },
+  skills: [TAKE_THE_SEAM],
+} as const;
+
+/**
+ * The plate was never what was holding. It was what was being trusted.
+ *
+ * The roof, and **the only Demon carrying `physicalPierce` past 0.30** — 0.40 here against a Demon
+ * ceiling of 0.30 ({@link UNMADE}) and inside the game-wide maximum of 0.45 over the 370 blocks
+ * shipped before this hundred, which is a Monster's. Its swing of 1.70
+ * is deliberately the smallest of this tower's three roofs ({@link THE_SINGLE_STROKE} 2.30,
+ * {@link IT_WAS_ALWAYS_THERE} 1.80): every one of the three axes **multiplies** the blow, so a roof
+ * reaching for both halves is a wall rather than a roof.
+ *
+ * ⚠️ **It restores nothing, and the claim about the rest of the hundred is a count rather than an
+ * absolute** — the fifth time this tower family has had to make that correction. Over floors
+ * 401–500 **no board carries a `heal` effect, a `drain`, a `regen` status or a point of
+ * `lifeLeech`**, which is this tower's own rule above floor 160; the boards carrying `recovery` and
+ * `healthRegen` are counted in [`tower-angel.ts`](./tower-angel.ts) beside the band table.
+ *
+ * Fielded at 950 and 48 against the Unmade's 1800 and 100, which `enemies.spec.ts` holds.
+ */
+export const THE_UNLACING = {
+  id: 'the-unlacing',
+  name: 'The Unlacing',
+  faction: 'demon',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 950,
+    atk: 48,
+    def: 46,
+    haste: 96,
+    critChance: 0.12,
+    critDamageAmp: 0.85,
+    physicalPierce: 0.4,
+  },
+  skills: [IT_WAS_NEVER_SHUT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -14077,4 +14281,8 @@ export const ENEMIES = [
   LAMPOIL_SACRIST,
   EMBERVAULT_KEEPER,
   THE_UNQUENCHED,
+  EMBERLACE_AWL,
+  SLAGBORE_HARROW,
+  KILNSEAM_UNLACER,
+  THE_UNLACING,
 ] as const;

@@ -87,13 +87,13 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and five towers of seven are there
+### The fifth hundred: the height is 500 and six towers of seven are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
 had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's, then the
-Undead Tower's, then the Monster Tower's; the other two stand at 400 and each has lost its boss until
-its own hundred lands — worth **300 crystals apiece**, since `floorKindAt` reads the rules' height and
+Undead Tower's, then the Monster Tower's, then the Angel Tower's; only the Demon Tower stands at 400,
+and it has lost its boss until its own hundred lands — worth **300 crystals apiece**, since `floorKindAt` reads the rules' height and
 their floor 400 resolves as a mini-boss; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
 endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
 floor 500), leaving 90 of their 100 geared floors byte-identical.
@@ -194,6 +194,41 @@ reads 0.00, and the difference is a board-wide burn. ⚠️ **And the prose chec
 second time in the project** — a returning block applying a **link**, which this tower forbade above
 floor 100 two hundreds ago, on three floors the sweep was perfectly happy with. Full findings in
 [towers](towers.md).
+
+⚠️ **The Unlacing — the Angel Tower's fifth hundred — is the first axis that tower has taken that is
+not aimed at a heal, and the third fifth hundred running whose "is it ours" table could not choose
+it.** Its second hundred arrives before the wards, its third swings too large to heal, its fourth
+finds the seam too often; this one goes after the only other thing keeping an Angel five alive.
+**That crew carries the largest authored `def` in the game and among the least of everything else** —
+Σ195 and Σ174 against a field median of Σ90, with Σ0.15 and Σ0.21 of `physicalResist` +
+`magicResist` + `dodge` combined and zero `dodge` on either — and `effectiveDefence` returns
+`def × (1 − physicalPierce)`, so a pierce prices exactly what the party put into armour. Seven
+monotone steps at all five carriers, zero timeouts, and **the fight gets shorter as it grades**
+(43s down to 30s against a 42.5s control), which is what chose it: this tower's alternate five is the
+**slowest arrangement in the game** and every candidate that buys seconds walks it into the bar.
+
+⚠️ **The Dwarf fourth hundred measured this exact axis as _not_ the Angels' — correctly — and the
+reading inverts one band later.** It read pierce 0.35 costing dwarf-ref/alt −1.00 / −1.08 against
+angel-ref/alt −0.08 / −0.29, reasoning that "`def` is the Dwarves' only mitigation where an Angel five
+has armour **and** a choir"; at band 5 the choir has been out-scaled and the armour is what is left.
+⚠️ **The table failed for a third distinct reason, and it is the one that generalises**: the Humans
+ranked mid-table because that crew is balanced and the Undead ranked first on everything because that
+crew is fragile, but the **Angels rank first-and-second on nearly everything because they are the
+strongest arrangement at band 5** — calibrated in 2.5% steps they take a control 10% heavier than any
+other crew, so they stand on the steepest part of every curve. What separated the lock from the steep
+curve was a **correlation rather than a ranking**: pierce's cost correlates 0.834 with each
+arrangement's authored `def` where `critChance`'s correlates 0.645.
+
+⚠️ **A `bomb` is the project's cleanest instance of a mechanism argument being wrong.** It bypasses
+`def` through `statusDamage`, cannot be stopped by killing the caster, and the Angel cleanse is on a
+cooldown — every clause true of the crew whose recorded failure is "a body removed between two heal
+ticks" — and at all five carriers, power 1.0 through 2.5, it reads **4.00 survivors at every row**.
+⚠️ **Its retirement check came back entirely clean where the hundred below retired four anchors**, the
+most any hundred has, and `THE_HAIRLINE` — the fourth hundred's own roof — stands at floor 500.
+⚠️ **And the closing band is two percent of common-equivalent weight wide**: on floor 499 the
+Clefthorn Gorer at 4,432 reads 100% / 95% and the Riftstep Reaver at 4,688 reads 88% / **0%**, where
+both boards weigh **3,320 raw** — which is what the first draft got wrong, sweeping clean on the
+stride while floors 497, 498 and 499 read 23%, 0% and 30%. Full findings in [towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

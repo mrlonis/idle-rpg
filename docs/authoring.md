@@ -1431,12 +1431,13 @@ ramp is keyed to the authored height" differ by a whole hundred floors of diffic
 
 `towers.balance.ts` fields one per band, both derived:
 
-| Band | Floors  | Rung         | Level | Margin under its band's top floor |
-| ---- | ------- | ------------ | ----- | --------------------------------- |
-| 1    | 1–100   | `rare-plus`  | 48    | 0 — parity                        |
-| 2    | 101–200 | `elite`      | 75    | 20 (`ROOF_MARGIN`)                |
-| 3    | 201–300 | `elite-plus` | 99    | 43 (`ROOF_MARGIN` + 23)           |
-| 4    | 301–400 | `legendary`  | 123   | 66 (`ROOF_MARGIN` + 46)           |
+| Band | Floors  | Rung             | Level | Margin under its band's top floor |
+| ---- | ------- | ---------------- | ----- | --------------------------------- |
+| 1    | 1–100   | `rare-plus`      | 48    | 0 — parity                        |
+| 2    | 101–200 | `elite`          | 75    | 20 (`ROOF_MARGIN`)                |
+| 3    | 201–300 | `elite-plus`     | 99    | 43 (`ROOF_MARGIN` + 23)           |
+| 4    | 301–400 | `legendary`      | 123   | 66 (`ROOF_MARGIN` + 46)           |
+| 5    | 401–500 | `legendary-plus` | 147   | 89 (`ROOF_MARGIN` + 69)           |
 
 ⚠️ **Band 4 is the first band whose rung is a _kit_ rung, and it is the largest step any boundary
 has.** `KIT_RULES.unlocks` is `elite` / `legendary` / `ascended`, so bands 2 and 4 hand over a skill and
@@ -1465,9 +1466,43 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-six hundreds gave twenty-six answers — every second, third and fourth hundred of all
-seven towers, and the five fifth hundreds so far — and no two escalate the same way. Read the
+⚠️ **Twenty-seven hundreds gave twenty-seven answers — every second, third and fourth hundred of all
+seven towers, and the six fifth hundreds so far — and no two escalate the same way. Read the
 crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
+
+⚠️ **The cross-crew table has now failed to choose the axis three fifth hundreds running, for three
+different reasons, and the third is the one that generalises.** The Humans ranked mid-table on
+everything because that crew is balanced; the Undead ranked first on everything because that crew is
+fragile; the **Angels** rank first-and-second on nearly everything because that crew is the
+**strongest** at band 5 — calibrated in 2.5% steps they take a control 10% heavier than any other
+arrangement (×1.10 and ×1.025 against a field of 0.625 to 0.975), so they stand on the steepest part
+of every curve. `critChance` 2.35 / 1.72, `attackSpeed` 3.17 / 2.59, `dodge` 2.72 / 2.42,
+`physicalPierce` 2.42 / 1.96 — four first places for one crew. **A first-place ranking is not a
+licence when the crew is the one furthest up its own ladder.**
+
+⚠️ **What separates a lock from a steep curve is whether the axis is aimed at a _register_, and the
+test is a correlation rather than a ranking.** Across the fourteen shipped arrangements, the Angel
+fifth hundred's `physicalPierce` cost correlates **0.834** with each arrangement's authored `def`
+where `critChance`'s correlates **0.645**: the four heaviest-armoured arrangements are the four
+costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96, dwarf-alt Σ186 → 1.17,
+dwarf-ref Σ163 → 0.74), where crit's ordering breaks at the bottom (undead-alt reads 1.17 on Σ45 of
+`def`). **Correlate the cost against the register the axis is pointed at.** [towers](towers.md)
+
+⚠️ **A mechanism argument is not a measurement, and the Angel fifth hundred is the cleanest instance
+the project has.** A `bomb` bills its whole payload at expiry through `statusDamage`, which bypasses
+`def` entirely — an Angel five's largest register by far — it cannot be stopped by killing the
+caster, and every Angel cleanse sits behind a cooldown. Against a crew whose recorded failure is
+exactly "a body removed between two heal ticks", every one of those is true, and measured at all five
+carriers a bomb at power 1.0 → 2.5 reads **4.00 survivors at every single row**. **Price the shape
+before believing the story about it.** [towers](towers.md)
+
+⚠️ **An axis a neighbouring tower measured as _not_ this crew's can invert one band later, and the
+Angel fifth hundred is the third instance.** The Dwarf fourth hundred read `physicalPierce` 0.35
+costing dwarf-ref/alt −1.00 / −1.08 against angel-ref/alt **−0.08 / −0.29**, and reasoned that "`def`
+is the Dwarves' only mitigation where an Angel five has armour **and** a choir". At band 5 the choir
+has been out-scaled and the armour is what is left, and the Angels take first and second. **Both
+readings are right about what they measured; re-run "is it ours" on the band being authored.**
+[towers](towers.md)
 carries them all in full. What generalises is only the procedure:
 
 ⚠️ **A crew's whole vocabulary can collapse to one curve, and then the cross-crew table cannot choose
