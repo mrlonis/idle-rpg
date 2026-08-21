@@ -10,6 +10,7 @@ import {
   ANTIPHON,
   ASHPIT_RAKE,
   AT_THE_HALT,
+  A_PACE_AHEAD,
   BACKSTROKE,
   BANK_THE_WARD,
   BARROW_TITHE,
@@ -26,6 +27,7 @@ import {
   CHOIR_OF_ASH,
   CHOKE_THE_DRIFT,
   CINDER_STORM,
+  CLEAR_THE_AISLE,
   CLEAVE_THE_LINE,
   CLOSE_OVER_IT,
   CLOSE_THE_CANOPY,
@@ -127,6 +129,7 @@ import {
   NOTHING_IS_MENDED,
   NOTHING_IS_SPARED,
   NOTHING_LANDS,
+  NOTHING_LANDS_AT_ALL,
   NOTHING_LANDS_BETTER,
   NOTHING_PUTS_IT_OUT,
   NOTHING_SMALL_MOVES_IT,
@@ -220,6 +223,7 @@ import {
   THE_BARROW_FORGETS,
   THE_BAR_HOLDS,
   THE_BLOW_TURNS,
+  THE_BLOW_UNMET,
   THE_BREACH_GIVEN,
   THE_CAM_COMES_ROUND,
   THE_CANOPY_PARTS,
@@ -249,6 +253,7 @@ import {
   THE_LAST_VERSE,
   THE_LEADEN_HOUR_FALLS,
   THE_LIGHT_GOES_FLAT,
+  THE_LIGHT_GUTTERS,
   THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
@@ -13910,6 +13915,132 @@ export const THE_UNLACING = {
   skills: [IT_WAS_NEVER_SHUT],
 } as const;
 
+/**
+ * The censer swings a pace ahead of the hand reaching for it.
+ *
+ * The fifth hundred's opening voice and the lightest of its three legendaries, standing in the front
+ * rank of every board from floor 401 to 420 and beside the other two from there to the roof.
+ *
+ * ⚠️ **0.16 of `dodge` is inside the shipped register and deliberately below its middle.** Measured
+ * over the **374** blocks that existed before this hundred, `dodge` sits on **29** at a median of
+ * **0.20**, a p90 of 0.30 and a ceiling of 0.55 ({@link SHADE}) — and on **0 of 32 Angel blocks**,
+ * which is the register that licensed the axis. See [`tower-demon.ts`](./tower-demon.ts).
+ */
+export const CENSERSTEP_ACOLYTE = {
+  id: 'censerstep-acolyte',
+  name: 'Censerstep Acolyte',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 560,
+    atk: 58,
+    def: 24,
+    haste: 112,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    dodge: 0.16,
+  },
+  skills: [A_PACE_AHEAD],
+} as const;
+
+/**
+ * The verger walks ahead of the procession, and the aisle is empty by the time it arrives.
+ *
+ * The second voice, joining from floor 421 and standing beside the Acolyte for the rest of the
+ * climb. 0.22 of `dodge` is the median of the shipped register plus two points.
+ *
+ * ⚠️ **The carriers stand in the front rank as a rule, and it was measured on one body rather than
+ * inferred.** The same 460/45 body at 0.40 of `dodge` costs the binding arrangement **0.75 of five
+ * in the front rank and 0.28 in the back**, so putting a carrier behind the anchor spends most of
+ * what it was authored for — chapter 22's rule, on a tower.
+ */
+export const AISLEWARD_VERGER = {
+  id: 'aisleward-verger',
+  name: 'Aisleward Verger',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 680,
+    atk: 62,
+    def: 28,
+    haste: 104,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    dodge: 0.22,
+  },
+  skills: [CLEAR_THE_AISLE],
+} as const;
+
+/**
+ * The wick turned down. What is left of the light will not hold still to be aimed at.
+ *
+ * The hundred's lieutenant, anchoring every board from floor 446 to 499 — fifty-four appearances,
+ * the most of any body in the hundred — and the heaviest of the three legendaries at 0.28 of
+ * `dodge`, which ties {@link GALLERY_SLIPFANG} for the highest a legendary carries.
+ *
+ * ⚠️ **Settled across every one of those appearances rather than on its first board**, because an
+ * anchor correct in the band it arrives in is unwinnable in the band it closes: the party is frozen
+ * at `legendary-plus` 147 while the floors climb from level 211 to 236.
+ */
+export const GUTTERLIGHT_SEXTON = {
+  id: 'gutterlight-sexton',
+  name: 'Gutterlight Sexton',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 820,
+    atk: 66,
+    def: 32,
+    haste: 100,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    dodge: 0.28,
+  },
+  skills: [THE_LIGHT_GUTTERS],
+} as const;
+
+/**
+ * The last floor of the last tower. The blow is not turned and it is not caught.
+ *
+ * ⚠️ **The one block in the hundred that steps past the register**, at 0.40 against a shipped p90 of
+ * 0.30 — and still under {@link SHADE}'s ceiling of 0.55, so the roof steps past the *band* rather
+ * than past the game. That is the tower's own third-hundred shape (*built at the register, only the
+ * roof beyond it*) rather than the Monster Tower's.
+ *
+ * ⚠️ **44 `atk` on an `ascended` body is not a typo, and the roof was settled on it.** Held at 1250
+ * hp and 0.40 `dodge` the binding arrangement reads 15% at `atk` 68, 22% at 62, 42% at 56, 67% at 50
+ * and **85% at 44**; held at `atk` 56 it reads 25% at 1440 hp and 63% at 1050. Attack is the dial and
+ * weight is not — chapter 20's rule, and the fourth roof to be settled by it.
+ *
+ * ⚠️ **Its escort may carry exactly one other carrier and it must be the lightest.** Behind the same
+ * three commons: {@link CENSERSTEP_ACOLYTE} 85%, {@link AISLEWARD_VERGER} 23%,
+ * {@link GUTTERLIGHT_SEXTON} 8%, and the Acolyte and the Verger together **2%**. Four commons and no
+ * carrier at `atk` 56 also reads 85%, and was declined so that the roof is not the only body on the
+ * board the axis is true of.
+ *
+ * Well under the {@link UNMADE} on both stats, which every new `ascended` block owes.
+ */
+export const THE_UNSTRUCK = {
+  id: 'the-unstruck',
+  name: 'The Unstruck',
+  faction: 'angel',
+  tier: 'ascended',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 1250,
+    atk: 44,
+    def: 40,
+    haste: 104,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    dodge: 0.4,
+  },
+  skills: [NOTHING_LANDS_AT_ALL, THE_BLOW_UNMET],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -14285,4 +14416,8 @@ export const ENEMIES = [
   SLAGBORE_HARROW,
   KILNSEAM_UNLACER,
   THE_UNLACING,
+  CENSERSTEP_ACOLYTE,
+  AISLEWARD_VERGER,
+  GUTTERLIGHT_SEXTON,
+  THE_UNSTRUCK,
 ] as const;

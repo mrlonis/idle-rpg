@@ -87,16 +87,20 @@ ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
-### The fifth hundred: the height is 500 and six towers of seven are there
+### The fifth hundred: the height is 500 and all seven towers are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
 same session** — which is what the fourth hundred's note asked for and the half of the discipline that
 had never actually been done before. The Dwarf Tower's hundred followed, then the Elf Tower's, then the
-Undead Tower's, then the Monster Tower's, then the Angel Tower's; only the Demon Tower stands at 400,
-and it has lost its boss until its own hundred lands — worth **300 crystals apiece**, since `floorKindAt` reads the rules' height and
-their floor 400 resolves as a mini-boss; ⚠️ **unlike the fourth round, none of them went naked**, because the gear ramp's new
-endpoint was **solved to continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at
-floor 500), leaving 90 of their 100 geared floors byte-identical.
+Undead Tower's, then the Monster Tower's, then the Angel Tower's, and the **Demon Tower's closed the
+round** — deleting the `PENDING` lists and the branches they guarded for the fourth time. While the
+round was in flight a tower still at 400 lost its boss — worth **300 crystals apiece**, since
+`floorKindAt` reads the rules' height and its floor 400 resolves as a mini-boss; ⚠️ **unlike the fourth
+round, none of them went naked**, because the gear ramp's new endpoint was **solved to continue the
+shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500), leaving 90 of their 100
+geared floors byte-identical. All seven now pay **1,087,100** crystals against the campaign's 351,500
+of first clears, a ratio of **3.093** — exactly the figure the fourth hundred predicted a completed
+round would reach.
 
 The level line was solved the same way it has been four times before — `topLevel` 189 → **236**, which
 moves 20 of the 400 shipped floors by one level and leaves all four band boundaries closing at exactly
@@ -229,6 +233,47 @@ most any hundred has, and `THE_HAIRLINE` — the fourth hundred's own roof — s
 Clefthorn Gorer at 4,432 reads 100% / 95% and the Riftstep Reaver at 4,688 reads 88% / **0%**, where
 both boards weigh **3,320 raw** — which is what the first draft got wrong, sweeping clean on the
 stride while floors 497, 498 and 499 read 23%, 0% and 30%. Full findings in [towers](towers.md).
+
+⚠️ **The Processional — the Demon Tower's fifth hundred — closes the round, and its axis is the first
+taken on _affordability_ rather than on exclusivity or margin.** `dodge` grades eight monotone steps on
+**both** Demon arrangements with zero timeouts (3.98 → 1.71 and 3.64 → 0.14 across 0.08 → 0.50), and it
+is the first axis in five hundred floors the reference five feels at all — the third hundred's crit
+denial moved it 4.00 → 3.98 and the fourth hundred's ward 4.00 → 3.92.
+
+⚠️ **The cross-crew table ranks it sixth of fourteen, and that is the finding rather than a refusal.**
+`dodge`'s cost correlates **0.772** with how long a crew's fights already are — it is mostly a tax on
+slow crews, and the four arrangements clearly above demon-alt are the four slowest in the game
+(angel-alt 41.6s, dwarf-ref 28.1s, dwarf-alt 28.0s, angel-ref 27.4s). **Fit that trend and rank the
+residual and demon-alt is first of fourteen at +0.76**, 55% clear of second. ⚠️ **A cross-crew ranking
+on a stat whose cost is dominated by a confound must be read as a residual, not as a rank** — a new
+shape, and the fourth distinct way that table has failed to choose an axis outright.
+
+⚠️ **The Angel Tower's fifth hundred measured this exact stat one tower earlier and declined it,
+correctly**, at 1.38 of five for 54.5s against a 67.5s bar. The Demon fives clear their control in
+8.7s and 9.9s, the shortest in the game, so eighteen seconds is affordable here and nowhere else.
+**Every earlier "chosen on fight length" finding picked the axis that made fights shorter because the
+crew was walking into the bar; this is the first that could pick one for making them longer.**
+
+⚠️ **And the mechanism that looked obvious was measured and was wrong.** The Demon arrangements are the
+only two of fourteen carrying a point of `lifeLeech` (Σ0.22 against Σ0.00) and all their sustain is a
+share of damage _dealt_, so a miss ought to cost them twice — stripping it moves the grade from 1.82 to
+**1.84**. ⚠️ **Its retirement check came back entirely clean**, and `THE_UNSTRUCK` ships at 1250/**44**
+— settled on attack, chapter 20's rule for the fourth time on a roof — with floor 500 reading
+100% / 3.83 against 85% / 1.95.
+
+⚠️ **What the hundred exists to record, though, is a guard nobody had seen bite: on a _celestial_ tower
+the counter-faction inversion binds the lean far harder than the 65% ceiling does.** Authored the
+obvious way — all three new carriers Angel, on 234 of 500 slots — the hundred came out at 81.8% Angel
+and the tower at 65.84%, over the ceiling; but what actually went red was `towers.balance.ts`'s
+requirement that a celestial tower cost its crew _fewer_ members than a mirror of its own faction, which
+the Demon Tower had been carrying by only **1.1 members across four hundred floors**. Against a Demon
+five an Angel board is ×1.05 out **and** ×1.05 in where the mirror is neutral, so a glassy five loses
+more to the incoming edge than it saves on the outgoing: varying faction alone, all-Angel costs **58.1**
+members, the mirror 55.7, all-Monster **54.5**. ⚠️ **It is invisible until a band is hard enough to kill
+somebody** — bands 1–3 are all favourably biased. The band was **not** lightened (its 57.9 losses sit
+mid-range across the seven towers); instead the two returning **Monster** carriers took half the carrier
+slots, leaving the hundred at 67.4% Monster and the tower at 55.84% Angel, and the inversion back at
+84.2 against 84.9. Full findings in [towers](towers.md).
 
 ### What the fourth hundred established, being the first geared content outside the campaign
 

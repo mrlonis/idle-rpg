@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped twelve hundred and ten stages and twenty-two hundred floors. `AGENTS.md` states the rules and the
+shipped twelve hundred and ten stages and thirty-five hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -14,8 +14,8 @@ boards, and a content session is mostly a conversation with it.
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
 | Campaign         | 25 chapters, 1210 stages, enemy levels 1–605 |
-| Towers           | 3 × 500 + 4 × 400 floors, enemy levels 1–236 |
-| Enemy archetypes | 362                                          |
+| Towers           | 7 × 500 floors, enemy levels 1–236           |
+| Enemy archetypes | 378                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -1466,12 +1466,12 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-seven hundreds gave twenty-seven answers — every second, third and fourth hundred of all
-seven towers, and the six fifth hundreds so far — and no two escalate the same way. Read the
-crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
+⚠️ **Twenty-eight hundreds gave twenty-eight answers — every second, third, fourth and fifth hundred
+of all seven towers — and no two escalate the same way. Read the crew's failure mode before choosing;
+do not copy the last session's shape.** [towers](towers.md)
 
-⚠️ **The cross-crew table has now failed to choose the axis three fifth hundreds running, for three
-different reasons, and the third is the one that generalises.** The Humans ranked mid-table on
+⚠️ **The cross-crew table has now failed to choose the axis four fifth hundreds running, for four
+different reasons, and the fourth is below.** The Humans ranked mid-table on
 everything because that crew is balanced; the Undead ranked first on everything because that crew is
 fragile; the **Angels** rank first-and-second on nearly everything because that crew is the
 **strongest** at band 5 — calibrated in 2.5% steps they take a control 10% heavier than any other
@@ -1488,13 +1488,75 @@ costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96, dw
 dwarf-ref Σ163 → 0.74), where crit's ordering breaks at the bottom (undead-alt reads 1.17 on Σ45 of
 `def`). **Correlate the cost against the register the axis is pointed at.** [towers](towers.md)
 
+⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat, and the
+Demon fifth hundred is where that arrived.** Ranked on raw mean cost its `dodge` axis puts the binding
+Demon arrangement **sixth of fourteen** — which by the usual test is a refusal. But `dodge`'s cost
+correlates **0.772** with how long a crew's fights already are: it is mostly a tax on slow crews, and
+the four arrangements clearly above demon-alt are the **four slowest of the fourteen** (angel-alt
+41.6s, dwarf-ref 28.1s, dwarf-alt 28.0s, angel-ref 27.4s on their own controls, against demon-alt's
+9.9s). Fit the trend and rank the residual and demon-alt is **first of fourteen at +0.76**, 55% clear
+of second. **Ask what else the ranking could be measuring before reading it as a verdict** — this is
+the Angel fifth hundred's correlation test used to _rescue_ an axis rather than to disqualify one.
+[towers](towers.md)
+
+⚠️ **An axis can be taken on _affordability_, which is the reverse of every previous fight-length
+finding and the fourth distinct licence a hundred has used.** The Dwarf fourth, Undead fourth, Angel
+fifth and chapter 25 all chose the axis that made fights **shorter**, because their crews were already
+walking into the 67.5s bar. The Demon fives clear their control in 8.7s and 9.9s — **the shortest in
+the game** — so an axis costing eighteen seconds is affordable there and nowhere else, and the Angel
+Tower measured that same stat one hundred earlier and declined it at 1.38 of five for **54.5s**. **Fight
+length can license an axis as well as veto one; check which side of it the crew is on.**
+[towers](towers.md)
+
+⚠️ **On a _celestial_ tower the counter-faction inversion guard binds the lean far harder than the 65%
+ceiling does, and it only bites on a band hard enough to cost members.** The Demon fifth hundred
+authored the obvious way — all three new carriers of the lean's faction, on 234 of 500 slots — came out
+at 81.8% and took the whole tower to 65.84%, over the ceiling. **But the ceiling is not what failed.**
+`towers.balance.ts` requires a celestial tower to cost its crew _fewer_ members than a mirror board of
+the crew's own faction, and the Demon Tower had been carrying that inversion by **1.1 members across
+four hundred floors**; the new hundred took it to 93.7 against 92.7 and the tower went red. Against a
+Demon five an Angel board is ×1.05 out **and** ×1.05 in where the all-Demon mirror is neutral both ways,
+so a glassy five loses more to the incoming five percent than it saves on the outgoing — varying faction
+alone, all-Angel costs **58.1** members, the mirror **55.7**, all-Monster **54.5**. ⚠️ **The guard's
+premise — "its own mirror is the hardest board it has" — holds for the Angel Tower by construction and
+for the Demon Tower only empirically**, which is why it took five hundred floors to bite. ⚠️ **And it is
+invisible in the low bands**: floors 1–300 lose 4.3, 6.3 and 8.1 members and each is _favourably_
+biased, because there the outgoing edge only shortens fights the party was never losing. **Check the
+inversion, not just the share, whenever a celestial tower gains a band that kills anybody.**
+[towers](towers.md)
+
+⚠️ **The fix for that is _who carries the axis_, not a lighter band — and which one you reach for is
+checkable.** The Demon fifth hundred's 57.9 members lost sat mid-range across the seven towers (Undead
+141.0, Monster 88.1, Human 68.8, **Demon 57.9**, Dwarf 48.2, Elf 38.3, Angel 36.7), so lightening it
+would have been tuning content to a guard. What moved instead were the carriers: the two **returning**
+carriers of the other counter-faction took roughly half the carrier slots, and the anchors and texture
+came from that half of the lean — leaving the hundred at 67.4% Monster and 32.6% Angel, the tower at
+55.84%, and the inversion at 84.2 against 84.9. ⚠️ **Check the band's losses against the other towers'
+before you soften anything**; the honest fix is usually composition rather than weight, and it makes the
+axis a property of the tower rather than of three new bodies. [towers](towers.md)
+
+⚠️ **Once a carrier count is fixed, the _rank_ each carrier takes is most of the remaining tuning.**
+The Demon fifth hundred measured one body at `dodge` 0.40 worth **0.75 of five in the front rank and
+0.28 in the back** — and then spent that spread deliberately: every one of its hundred boards has a
+carrier in front, its lieutenant stands nowhere else across fifty-four appearances, and yet **134 of
+its 261 carrier slots are in front and 127 behind**, because four carriers all standing forward is not
+a board that crew clears. **A back-rank placement is a priced discount, not an oversight** — say which
+you mean, because chapter 22's rule that a rank comparison must be carried on one body is about
+_measuring_ the spread, not about refusing to use it. [towers](towers.md)
+
 ⚠️ **A mechanism argument is not a measurement, and the Angel fifth hundred is the cleanest instance
 the project has.** A `bomb` bills its whole payload at expiry through `statusDamage`, which bypasses
 `def` entirely — an Angel five's largest register by far — it cannot be stopped by killing the
 caster, and every Angel cleanse sits behind a cooldown. Against a crew whose recorded failure is
 exactly "a body removed between two heal ticks", every one of those is true, and measured at all five
 carriers a bomb at power 1.0 → 2.5 reads **4.00 survivors at every single row**. **Price the shape
-before believing the story about it.** [towers](towers.md)
+before believing the story about it.** ⚠️ **The Demon fifth hundred repeated it on a register rather
+than a status**: the Demon arrangements are the **only two of fourteen carrying a point of
+`lifeLeech`** (Σ0.22 against Σ0.00 everywhere else) and all their sustain is a share of damage
+_dealt_, so a missed swing ought to cost them the damage **and** the healing. Stripping `lifeLeech` to
+zero and re-running the whole grade moves the cost from **1.82 to 1.84** — Σ0.22 across five is simply
+too small to be the mechanism, and the axis was right for an entirely different reason.
+[towers](towers.md)
 
 ⚠️ **An axis a neighbouring tower measured as _not_ this crew's can invert one band later, and the
 Angel fifth hundred is the third instance.** The Dwarf fourth hundred read `physicalPierce` 0.35

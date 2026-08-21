@@ -202,8 +202,8 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
-  to 236, six of seven complete**. What a tower is for, the three fields a clear may never touch, the
-  five crews, and twenty-seven hundreds' worth of measured escalation findings.
+  to 236, all seven complete**. What a tower is for, the three fields a clear may never touch, the
+  five crews, and twenty-eight hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -700,15 +700,54 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. ⚠️ **Both lists are down to one name: the height is 500,
-  six towers are there and only the Demon Tower stands at 400.** They went back **in the same session as the
-  bump**, which is what the fourth hundred's note asked for and the half of the discipline that had never
-  actually been done before — between a bump and the first authored tower there is nothing at all holding
-  the six short ones. Keep the shapes the list forced — `topFloors` reading the **authored** height and
-  the roof-versus-band-opener comparison computed **per tower** — which stop the sweep reading an
+  notices a tower nobody went back for. ⚠️ **Both lists are gone and the round is closed: the height
+  is 500 and all seven towers are there**, the Demon Tower's fifth hundred deleting the lists and the
+  branches they guarded for the fourth time. They went back **in the same session as the bump**, which
+  is what the fourth hundred's note asked for and the half of the discipline that had never actually
+  been done before — between a bump and the first authored tower there is nothing at all holding the
+  six short ones. **Put the lists back with the next bump, not with the first authored tower**, and
+  restore the shapes they forced — `topFloors` reading the **authored** height and the
+  roof-versus-band-opener comparison computed **per tower** — which stop the sweep reading an
   undefined stage. ⚠️ **The "and it stays naked" half did _not_ fire this round**: solve the gear ramp's
   new endpoint to **continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500) and 90 of the 100 shipped geared floors stay byte-identical. **Solve the gear endpoint the way you
   solve the level line.** [towers](../../docs/towers.md)
+- ⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat.** The
+  Demon fifth hundred's `dodge` ranks the binding arrangement **sixth of fourteen**, which by the usual
+  test is a refusal — but `dodge`'s cost correlates **0.772** with how long a crew's fights already
+  are, and the four arrangements clearly above it are the **four slowest in the game** (27.4s to 41.6s
+  on their own controls against demon-alt's 9.9s). Fit that trend and rank the residual and demon-alt
+  is **first of fourteen at +0.76**, 55% clear of second. **Ask what else a ranking could be measuring
+  before reading it as a verdict.** ⚠️ **And an axis can be taken on _affordability_, which reverses
+  every earlier fight-length finding**: the Dwarf fourth, Undead fourth, Angel fifth and chapter 25 all
+  chose the axis that made fights **shorter** because their crews were walking into the 67.5s bar,
+  where the Demon fives clear their control in 8.7s and 9.9s and can afford eighteen seconds nobody
+  else can — the Angel Tower measured that same stat one hundred earlier and declined it at 1.38 of
+  five for **54.5s**. **Fight length licenses an axis as well as vetoing one; check which side of it
+  the crew is on.** [towers](../../docs/towers.md)
+- ⚠️ **Once a carrier count is fixed, the _rank_ each carrier takes is most of the remaining tuning.**
+  The Demon fifth hundred measured one body at `dodge` 0.40 worth **0.75 of five in front and 0.28 in
+  the back**, then spent that spread: every one of its hundred boards has a carrier in front, yet
+  **134 of its 245 carrier slots are in front and 111 behind**, because four carriers all standing
+  forward is not a board that crew clears. **A back-rank placement is a priced discount, not an
+  oversight** — chapter 22's rule is about *measuring* the spread on one body, not about refusing to
+  use it. [towers](../../docs/towers.md)
+- ⚠️ **On a _celestial_ tower the counter-faction inversion guard binds the lean far harder than the
+  65% ceiling does, and it only bites on a band hard enough to cost members.** The Demon fifth hundred
+  authored the obvious way — all three new carriers of the lean's faction on 234 of 500 slots — came
+  out at 81.8% and took the tower to 65.84%, over the ceiling; **but the ceiling is not what failed.**
+  `towers.balance.ts` requires a celestial tower to cost its crew *fewer* members than a mirror board
+  of the crew's own faction, and the Demon Tower had carried that inversion by **1.1 members across
+  four hundred floors** before the new hundred took it to 93.7 against 92.7. Against a Demon five an
+  Angel board is ×1.05 out **and** ×1.05 in where the mirror is neutral both ways, so a glassy five
+  loses more to the incoming edge than it saves on the outgoing: varying faction alone, all-Angel costs
+  **58.1** members, the mirror **55.7**, all-Monster **54.5**. ⚠️ **The premise holds for the Angel
+  Tower by construction and for this one only empirically**, and it is invisible in the low bands —
+  floors 1–300 lose 4.3, 6.3 and 8.1 members and each is *favourably* biased. ⚠️ **The fix is who
+  carries the axis, not a lighter band, and that is checkable**: 57.9 members lost sat mid-range across
+  the seven towers (Undead 141.0 … Angel 36.7), so the two **returning** carriers of the other
+  counter-faction took half the carrier slots instead — hundred at 67.4% Monster, tower at 55.84%
+  Angel, inversion back at 84.2 against 84.9. **Check the band's losses against the other towers'
+  before softening anything.** [towers](../../docs/towers.md)
 - ⚠️ **A first-place cross-crew ranking is not a licence when the crew is the one furthest up its own
   ladder, and that is the third fifth hundred running where the table could not choose the axis.** The
   Humans ranked mid-table on everything because that crew is balanced and the Undead ranked first on
@@ -726,7 +765,13 @@ Asserted in `core/battle/simulate.spec.ts`.
   cleanse sits behind a cooldown. Against the crew whose recorded failure is "a body removed between
   two heal ticks", measured at all five carriers, power 1.0 → 2.5 reads **4.00 survivors at every
   single row**. A `dot` reads 4.00 / 3.99 / 3.91 for the same reason: a stream of chip is what a choir
-  is built for. **Price the shape before believing the story about it.** [towers](../../docs/towers.md)
+  is built for. **Price the shape before believing the story about it.** ⚠️ **The Demon fifth hundred
+  repeated it on a _register_ rather than a status**: the Demon arrangements are the only two of
+  fourteen carrying a point of `lifeLeech` (Σ0.22 against Σ0.00 everywhere else) and all their sustain
+  is a share of damage *dealt*, so a missed swing ought to cost them the damage **and** the healing —
+  stripping `lifeLeech` to zero and re-running the whole grade moves the cost from **1.82 to 1.84**.
+  Σ0.22 across five is too small to be the mechanism, and the axis was right for a different reason.
+  [towers](../../docs/towers.md)
 - ⚠️ **An axis a neighbouring tower measured as _not_ this crew's can invert one band later.** The
   Dwarf fourth hundred read `physicalPierce` 0.35 costing dwarf-ref/alt −1.00 / −1.08 against
   angel-ref/alt **−0.08 / −0.29**, on the argument that "`def` is the Dwarves' only mitigation where an

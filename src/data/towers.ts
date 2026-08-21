@@ -140,15 +140,16 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ⚠️ **The ratio between those two totals used to be asserted and no longer is**, and recomputing it
  * by hand is the thing that replaced it — which every extension owes and does. Measured: with the
- * Human, Dwarf, Elf, Undead, Monster and Angel Towers at five hundred floors and the Demon Tower at
- * four hundred, the seven pay **1,055,800** against the 25-chapter campaign's **351,500** of first
- * clears, a ratio of **3.004** — up from 1.40 at two hundred floors, 2.09 at three hundred, 2.475 at
- * four, and 2.563 / 2.652 / 2.740 / 2.828 / 2.915 with one through five towers extended. ⚠️ **Seven towers of
- * five hundred would read 1,087,100 and a ratio of 3.093**, which is the number this round closes on
- * if it runs to completion and the one to weigh before a sixth hundred is proposed. ⚠️ **A tower
- * still waiting for its floors pays 124,000 rather than the 124,300 a four-hundred-floor tower would
- * pay on its own rules**, because `floorKindAt` reads the *rules'* height and its floor 400 resolves
- * as a mini-boss — the payout regression this file describes, in the arithmetic. ⚠️ **The direction is the finding.** The retired
+ * **all seven at five hundred floors**, they pay **1,087,100** against the 25-chapter campaign's
+ * **351,500** of first clears, a ratio of **3.093** — up from 1.40 at two hundred floors, 2.09 at
+ * three hundred, 2.475 at four, and 2.563 / 2.652 / 2.740 / 2.828 / 2.915 / 3.004 with one through
+ * six towers extended. ⚠️ **The fourth hundred's note predicted exactly this number for a completed
+ * round and the Demon Tower's fifth hundred landed on it**, which is the whole point of recomputing
+ * by hand: the prediction was checkable and it was checked. It is the figure to weigh before a sixth
+ * hundred is proposed. ⚠️ **While the round was in flight a tower still waiting for its floors paid
+ * 124,000 rather than the 124,300 a four-hundred-floor tower would pay on its own rules**, because
+ * `floorKindAt` reads the *rules'* height and its floor 400 resolved as a mini-boss — the payout
+ * regression this file describes, in the arithmetic. Nothing is on that footing today. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while
@@ -311,12 +312,13 @@ export const TOWER_RULES = {
  *
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
- * authored), for the third (21l–21r), and for the fourth (21s–21y). ⚠️ **A fifth round is open and
- * one tower short of closing: six stand at five hundred floors and the Demon Tower at four**, carried on the `PENDING`
- * lists in `towers.spec.ts` and `towers.balance.ts` — put back **in the same session as the bump**,
- * which is what the fourth hundred's note asked for. A tower that has not been extended simply ends at its
- * last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor` reports it
- * topped and nothing in `ui/` misreads it.
+ * authored), for the third (21l–21r), for the fourth (21s–21y), and for the fifth. ⚠️ **All seven
+ * stand at five hundred floors and the round is closed**: the Demon Tower's fifth hundred was the
+ * last in and deleted the `PENDING` lists in `towers.spec.ts` and `towers.balance.ts` along with the
+ * branches they guarded — the fourth time that checklist has run to completion. While a round is in
+ * flight a tower that has not been extended simply ends at its last authored floor — `clearedFloors`
+ * clamps to what the tower authors, so `nextFloor` reports it topped and nothing in `ui/` misreads
+ * it.
  *
  * ⚠️ **What it loses while it waits is its boss.** `floorKindAt` reads the *rules'* height, so a
  * short tower's last floor resolves as a mini-boss and pays ×2 rather than ×5. ⚠️ **Since the fourth
@@ -332,11 +334,11 @@ export const TOWER_RULES = {
  * `towers.balance.ts` that each session shrinks and the last one deletes, along with the branches it
  * guards. ⚠️ **A filter — "the full height or three quarters of it" — would pass forever and never
  * notice a tower nobody went back for.** The list is literal for exactly that reason. It has now run
- * to completion **three times**; the Demon Tower's session closed the fourth round and deleted the
- * lists, and this bump put them straight back in the same session rather than leaving the six short
- * towers unheld until the first one was authored. ⚠️ **That is the discipline**, and the fourth
- * hundred's note asking for it is the reason it happened. **Do it the same way every time the height
- * moves.**
+ * to completion **four times**, the Demon Tower closing the third round and the fourth alike, and
+ * this bump put the lists straight back in the same session rather than leaving the six short towers
+ * unheld until the first one was authored. ⚠️ **That is the discipline**, and the fourth hundred's
+ * note asking for it is the reason it happened. **Do it the same way every time the height moves** —
+ * put the list back with the bump, not with the first authored tower.
  *
  * ⚠️ **A tower's `id` is a save key twice over** — it is what `GameState.towers` files the climb
  * under *and* what `GameState.formations` files the crew under. Renaming one strands both. Change

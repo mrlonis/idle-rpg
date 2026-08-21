@@ -1,12 +1,19 @@
 import {
   ACOLYTE,
+  AISLEWARD_VERGER,
   ANTIPHON_ARCHON,
   ASHEN_CHOIR,
   ASHPIT_SCUTTLER,
   BANDIT,
+  BAREMARK_GNAWER,
   BARROW_SOVEREIGN,
+  BENCHLINE_LURKER,
   BLOODGORGE_HOUND,
   BOAR,
+  CARRION_SWARM,
+  CENSERSTEP_ACOLYTE,
+  CHALKHIDE_BROWSER,
+  CHANNELBED_STALKER,
   CINDERLING,
   CLEFTHORN_GORER,
   CLOSEWARD_SERAPH,
@@ -23,7 +30,9 @@ import {
   GLADE_STALKER,
   GLASSCHOIR_ARBITER,
   GOLEM,
+  GOREHIDE_MATRIARCH,
   GRAVETIDE_HERALD,
+  GUTTERLIGHT_SEXTON,
   HEADSMAN,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
@@ -31,12 +40,15 @@ import {
   HUSHGLASS_WARDEN,
   KNELL_CHANTER,
   LITANY_BEARER,
+  LONGEBB_RENDER,
   LUMEN_ACOLYTE,
   MARROWHUNT_ALPHA,
+  MIREFOOT_RUNNER,
   MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTMARCH_OUTRIDER,
   OATHSHIELD_VANGUARD,
+  OVERBURDEN_HULK,
   PLAINSONG_PRECENTOR,
   QUENCHPIT_IRONHIDE,
   RADIANT_HERALD,
@@ -46,6 +58,7 @@ import {
   REVENANT,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
+  SALTBLEACH_CRIER,
   SCARBOUND_BELLOWER,
   SCARWEAVE_TRAMPLER,
   SCREEBACK_DARTER,
@@ -56,6 +69,7 @@ import {
   SHARDLIGHT_ACOLYTE,
   SHATTERJAW_MAULER,
   SILENTVAULT_KEEPER,
+  SLIME,
   STILLNESS_CANTOR,
   STORMCALLER,
   SUMPWATER_BROOD,
@@ -63,6 +77,8 @@ import {
   THE_UNFALTERING,
   THE_UNHEARING,
   THE_UNISON,
+  THE_UNSTRUCK,
+  THORNBACK_GRAZER,
   UNMADE,
   UNSPOKEN_CANON,
   VAULTLIGHT_CENSER,
@@ -74,11 +90,13 @@ import {
 } from './enemies';
 
 /**
- * The Demon Tower — four hundred floors, enemy levels 1 to 189.
+ * The Demon Tower — five hundred floors, enemy levels 1 to 236.
  *
- * **The seventh tower to reach the fourth hundred and the last one to get there**, which closes the
- * bump for the third time and empties the `PENDING` lists in `towers.spec.ts` and
- * `towers.balance.ts` along with the branches they guarded.
+ * **The seventh tower to reach the fifth hundred and the last one to get there**, which closes the
+ * bump for the fourth time and empties the `PENDING` lists in `towers.spec.ts` and
+ * `towers.balance.ts` along with the branches they guarded. The same sentence was true of this
+ * tower's fourth hundred, and it is true for the same reason: `TOWER_RULES` is one rule for all
+ * seven, so a height bump lands in one session and the floors land in seven.
  *
  * ## Why the enemies are mostly Angels
  *
@@ -382,6 +400,206 @@ import {
  * {@link SEALWARD_CUSTODIAN} and {@link SEEDLIGHT_KEEPER} stood on fourteen boards before the prose
  * check said so, and the fix was the boards rather than the sentence. Five towers have now shipped a
  * false sustain claim; this is the first hundred that could make the strong version and check it.
+ *
+ *
+ *
+ * ## ⚠️ The fifth hundred: the axis a neighbouring tower declined for costing seconds, taken here
+ * because this is the one crew with seconds to spend
+ *
+ * **The last hundred of the last tower**, which closes a height bump that landed in one session and
+ * took seven to fill — fourth time that checklist has run to completion, and the `PENDING` lists went
+ * with it again.
+ *
+ * The axis is **`dodge`**, and the honest statement of the licence is that it is **not exclusively
+ * this crew's**. Ten hundreds have been able to say "first of fourteen"; this one cannot, and the
+ * Human Tower's fifth hundred already recorded that *"is it ours" can come back no for every
+ * candidate, and that is a finding rather than a failed search.* Seven candidates were priced across
+ * all fourteen shipped arrangements and the binding Demon five ranks **2nd, 2nd, 4th, 6th, 6th, 7th
+ * and 11th**. What chose `dodge` out of that is below, and it is the clock.
+ *
+ * Measured at level 236 in Relic 40 before a floor was authored, against a control of one anchor
+ * (860/62) plus four bodies (460/45) reading **3.98 / 3.64**, eighty seeds — all five carrying:
+ *
+ * ```
+ *   dodge        0.08 0.14 0.20 0.26 0.32 0.38 0.44 0.50
+ *   reference    3.90 3.71 3.39 3.15 2.84 2.70 2.16 1.71
+ *   alternate    3.17 2.76 1.76 1.45 0.97 0.55 0.19 0.14
+ *   alt fight     11s  13s  17s  19s  21s  19s  18s  18s
+ * ```
+ *
+ * **Eight monotone steps on both arrangements with zero timeouts on every row**, the longest single
+ * fight anywhere in the grade 45.3s against a ninety-second timer. ⚠️ **It is the first axis in five
+ * hundred floors that the _reference_ five feels** — that arrangement moves 3.98 → 1.71 here, where
+ * the third hundred's crit denial moved it 4.00 → 3.98 and the fourth hundred's ward 4.00 → 3.92
+ * across their entire grades. Every board below is still sized against the alternate, because that is
+ * still where the cliff is.
+ *
+ * ⚠️ **The control was shown to move before any of that was believed**, which is this tower's own
+ * third-hundred trap: 880/62 reads 3.35 and 820/58 reads 3.91 either side of it. A Demon five loses
+ * its glass cannon to anything and its other four to almost nothing, so ~4.00 here is a **plateau**
+ * rather than a midpoint and a flat row proves nothing.
+ *
+ * ### ⚠️ The cross-crew table has to be read as a *residual*, because one confound dominates the stat
+ *
+ * Each of the fourteen arrangements calibrated to the heaviest mirror control it still reads ≥3.60
+ * on, then graded over `dodge` 0.10 → 0.42. Ranked on raw mean cost the binding Demon arrangement is
+ * **sixth**: dwarf-ref 2.49, angel-alt 2.28, dwarf-alt 2.10, angel-ref 1.98, undead-alt 1.98,
+ * **demon-alt 1.96**, elf-alt 1.27, demon-ref 1.25, undead-ref 1.19, monster-ref 1.19, human-alt
+ * 1.17, human-ref 1.15, monster-alt 0.99, elf-ref 0.69.
+ *
+ * ⚠️ **But `dodge`'s cost correlates 0.772 with how long a crew's fights already are** — it is
+ * mostly a tax on slow crews, and the four arrangements clearly above demon-alt are the four slowest
+ * of the fourteen (angel-alt **41.6s**, dwarf-ref 28.1s, dwarf-alt 28.0s, angel-ref 27.4s on their
+ * own controls). Fit the trend and rank the **residual** and demon-alt is **first of fourteen at
+ * +0.76**, 55% clear of second place (dwarf-ref +0.49, undead-alt +0.39, dwarf-alt +0.11, demon-ref
+ * +0.10, everything else at or under +0.03). It pays a slow crew's price at **9.9s**, the third
+ * fastest control in the game.
+ *
+ * **That is the licence, and it is a different one from every hundred before it**: not exclusivity
+ * and not margin, but **affordability**. ⚠️ **The Angel Tower's fifth hundred measured this exact
+ * stat one tower earlier and declined it** — `dodge` 0.45 worth 1.38 of five at **54.5s** against a
+ * 67.5s bar — and it was right to. This tower's alternate five clears its control in 9.9s and its
+ * reference in 8.7s, the shortest in the game, so an axis that buys eighteen seconds is affordable
+ * here and nowhere else. Every previous "chosen on fight length" finding in this project picked the
+ * axis that made fights *shorter* because the crew was walking into the bar; this is the first that
+ * could pick one for making them longer.
+ *
+ * ### ⚠️ The mechanism that looked obvious was measured and it was wrong
+ *
+ * The Demon arrangements are the **only two of the fourteen carrying a point of `lifeLeech`** —
+ * Σ0.22 against Σ0.00 everywhere else — and their other sustain is two `drain` siphons, so all of it
+ * is a share of damage *dealt*. A miss therefore looks like it should cost this crew twice: no
+ * damage and no healing. Measured, it costs nothing at all. Stripping `lifeLeech` to zero and
+ * re-running the whole grade moves the alternate's mean cost from **1.82 to 1.84** and the reference's
+ * from 0.74 to 0.75. Σ0.22 across five is simply too small to be the mechanism. ⚠️ **A mechanism
+ * argument is not a measurement**, and this one is in the doc because it was believed for an hour.
+ *
+ * ### ⚠️ What was measured and refused
+ *
+ * All against the same control, mean cost across a five-step grade, with demon-alt's rank of the
+ * fourteen in brackets: enemy **`hp`** ×1.15 → ×1.75 is 2.59 **[2nd]**, **`def`** 50 → 170 is 2.66
+ * **[4th]**, **`attackSpeed`** 30 → 110 is 2.94 **[6th]**, **`physicalPierce`** 0.20 → 0.80 is 0.97
+ * **[7th]**, **`physicalResist`** 0.15 → 0.63 is 1.17 **[11th]**. Dwarf-ref tops four of those six
+ * outright — **weight and armour axes belong to whichever crew is slowest**, which is the Monster
+ * Tower's warning arriving again. On the status side, {@link THORNMAIL} graded by carrier count
+ * (none to five) costs demon-alt 1.50 **[2nd, behind elf-alt's 1.83]**, board-wide `ROOTBOUND` 0.99
+ * and `CHAINBOND` 0.64 — all real and all smaller than the stat. `energyRegen` and `accuracy` on the
+ * board are worth **0.00 to 0.12**.
+ *
+ * ⚠️ **`critBlock` and `magicResist` were not re-measured and were not eligible**: they are this
+ * tower's own third- and fourth-hundred axes, and a fifth hundred that spent one of them again would
+ * be the hundred below wearing a new size.
+ *
+ * ### The register, and which side of it the band landed on
+ *
+ * ⚠️ **Stated as the register this hundred was *measured against*, because its own four blocks move
+ * it.** Over the **374** blocks shipped beforehand, `dodge` sat on **29** at a median of **0.20**, a
+ * p90 of 0.30 and a ceiling of **0.55** ({@link SHADE}) — and on **0 of 32 Angel blocks**, which is
+ * the lean this tower fields on every board above floor 300. So the axis is empty on the faction
+ * that has to carry it and ordinary in the game at large: a licence to author rather than only to
+ * measure. {@link CENSERSTEP_ACOLYTE}, {@link AISLEWARD_VERGER} and {@link GUTTERLIGHT_SEXTON} carry
+ * **0.16 / 0.22 / 0.28**, all inside it, and only {@link THE_UNSTRUCK} steps past the p90 at
+ * **0.40** — still under the Shade's ceiling, so the roof steps past the *band* rather than past the
+ * game. That is this tower's own third-hundred shape rather than the Monster Tower's. Shipping the
+ * four takes the pool to 33 of 378 and the **Angel** ceiling from 0.00 to the roof's own 0.40.
+ *
+ * ### How the bands escalate
+ *
+ * ⚠️ **Size is the strong dial and the count saturates at four**, which is the fourth hundred's
+ * finding rather than the third's. At `dodge` 0.30 by how many of the five carry it, the alternate
+ * reads **3.58 / 2.41 / 1.96 / 1.46 / 1.27 / 1.29** across none to five — a span of 2.29 that is
+ * spent by the fourth carrier — where the *size* at all five spans 3.03. So the bands walk the count
+ * to four and then stop, and the last two bands escalate in which voices are present and what they
+ * carry.
+ *
+ * ⚠️ **Rank is worth more than two thirds of the stat, measured on one body rather than inferred.**
+ * The same 460/45 escort at 0.40 costs the alternate **0.75 of five in the front rank and 0.28 in
+ * the back** — chapter 22's rule, that a rank comparison must be carried on one body.
+ *
+ * ⚠️ **So the back rank is a _discount_ this hundred spends deliberately, and the boards say so.**
+ * Every one of the hundred boards has a carrier in its front rank — but of the 245 carrier slots in
+ * the hundred, **134 are in front and 111 behind**: {@link GUTTERLIGHT_SEXTON} leads on 35 of its 52
+ * boards, {@link AISLEWARD_VERGER} on 22 of 36, and {@link CENSERSTEP_ACOLYTE}, the lightest, stands
+ * behind the anchor on 32 of its 49. Four carriers all standing in front is not a board this crew
+ * clears at these levels; **once the count is fixed, the rank each carrier takes is most of the
+ * remaining tuning.**
+ *
+ * Bodies at or above 0.16 run **1 / 2 / 3 / 3 / 2–4** across the five bands, stated as counts
+ * because `dodge` is on the board rather than absent from it. ⚠️ **Half of those carriers are not
+ * new and not Angel**: {@link GALLERY_SLIPFANG} at 0.28 and {@link SCREEBACK_DARTER} at 0.30 already
+ * stand on this tower's fourth hundred, and they carry the axis from **floor 401** beside the three
+ * new blocks rather than joining it late. That is a decision the counter-faction guard forced — see
+ * the lean note below — and it is the better content for it: the refusal is a property of the
+ * *tower* rather than of three bodies.
+ *
+ * ### The retirement check came back entirely clean
+ *
+ * ⚠️ **Which is the Angel Tower's fifth-hundred outcome rather than this tower's fourth**, where four
+ * anchors retired at once. Fielded alone at floor 500 in Relic 40 behind four 330/20 commons, all
+ * fifteen candidates read **100%** for both arrangements. Behind a 520/44 escort the pressure shows
+ * and only one body is under it: {@link THE_UNBITTEN} at **20% / 0.31**, which the fourth hundred had
+ * already stopped fielding above floor 340 and which this hundred does not field at all.
+ * {@link THE_UNHEARING} — the hundred below's own roof — holds at 76% / 1.35 and anchors the opening
+ * and the Relic boundary here. ⚠️ **The floor-400 board carried up to floor 500 still collapses**:
+ * 100% / 2.30 for the reference and **1% / 0.03** for the alternate.
+ *
+ * ### The roof, and the lean
+ *
+ * The roof is {@link THE_UNSTRUCK} over a Censerstep Acolyte, a Shardlight Acolyte, a Zenith
+ * Chorister and a Lumen Acolyte — the one board in the hundred that is Angel end to end, which is
+ * what a celestial capstone ought to be: **100% / 3.83 survivors / 15.4s** for the reference five
+ * and **85% / 1.95 / 15.4s** for the alternate, against bars of 90% and 75%. ⚠️ **The axis carries the
+ * last floor rather than riding along** — the same five bodies with the roof's own `dodge` stripped
+ * read 100% / 3.95 and **100% / 2.68**, so the refusal is worth 0.73 of the reference five and
+ * **1.96 of the alternate** on the top floor of the tower system. It was settled on its **attack**;
+ * see {@link THE_UNSTRUCK} for the sweep and for what its escort may carry.
+ *
+ * ### ⚠️ The counter-faction guard binds the lean far harder than the 65% ceiling does, and it only
+ * bites on a band that costs members
+ *
+ * The first pass authored all three new carriers as Angel and stood them on 234 of 500 slots, which
+ * put the hundred at **81.8% Angel and the whole tower at 65.84%** — over the 65% ceiling, the same
+ * structural overshoot the Angel and Undead fifth hundreds recorded. **But the ceiling was not what
+ * failed.** `towers.balance.ts` holds that a **celestial** tower costs its crew *fewer* members than
+ * a mirror board of the crew's own faction, and the Demon Tower carried that inversion by only
+ * **1.1 members across its whole first four hundred floors**. A fifth hundred at 81.8% Angel pushed
+ * it to **93.7 against 92.7** and the tower went red.
+ *
+ * ⚠️ **The mechanism is the matchup matrix and it is worth stating exactly.** Against a Demon five an
+ * Angel board is ×1.05 out **and** ×1.05 in, where the all-Demon mirror is neutral both ways and a
+ * Monster board is ×1.10 out against ×1.05 in. Measured over floors 401–500 with faction the only
+ * thing varied: all-Angel **58.1** members lost, mirror **55.7**, all-Monster **54.5**. So a glassy
+ * five loses more to the incoming five percent than it saves on the outgoing — **an Angel board is
+ * strictly worse for a Demon five than its own mirror**, and the guard's premise ("its own mirror is
+ * the hardest board it has") holds for the Angel Tower by construction and for this one only
+ * empirically.
+ *
+ * ⚠️ **And it is invisible until a band is hard enough to kill somebody.** Bands 1–3 lose 4.3, 6.3
+ * and 8.1 members and each is *favourably* biased, because there the outgoing five percent shortens
+ * fights the party was never losing. The inversion appears exactly where losses do.
+ *
+ * ⚠️ **The band was not lightened to fix it, and that was checked rather than assumed.** Its 57.9
+ * members lost sat mid-range across the seven towers — Undead 141.0, Monster 88.1, Human 68.8,
+ * **Demon 57.9**, Dwarf 48.2, Elf 38.3, Angel 36.7 — so softening it would have been tuning content
+ * to a guard. What changed instead is *who carries the axis*: {@link GALLERY_SLIPFANG} and
+ * {@link SCREEBACK_DARTER} take roughly half the carrier slots, and the anchors and texture are drawn
+ * from the Monster half of the lean. The hundred ships at **67.4% Monster and 32.6% Angel over 500
+ * slots, the tower at 55.84% Angel over 2,459** — still the leader, still inside 35–65%, and with far
+ * more headroom than the 64.25% the first pass would have left. The tower reads **84.2 against 84.9**,
+ * and band 5's own gap falls from +2.2 to **+0.4**. **40 distinct blocks stand over the hundred**,
+ * four of them new.
+ *
+ * Every floor of 401–500 was swept individually against both arrangements, not merely the stride: the
+ * worst reference reading is **100%**, the worst alternate **80%**, **no floor times out**, and the
+ * longest fight anywhere is **31.4s** against a 67.5s bar. The hundred opens at floor 401 in 1.8s
+ * with all five alive and its bands close at **5.00 / 4.60 / 3.55 / 3.27 / 1.95** for the alternate.
+ *
+ * ⚠️ **What this hundred restores is nothing at all, checked rather than claimed.** Over floors
+ * 401–500 no board carries a `heal`, a `drain`, a `shield`, a `regen`, `barrier` or `aegis` status,
+ * or a point of `lifeLeech`, `recovery` or `healthRegen` — the same absolute the fourth hundred was
+ * the first in the project able to make, held for a second hundred. It is only sayable because the
+ * blocks that carry sustain are the heavy Angel supports this tower stopped fielding at floor 340,
+ * and it was verified with a script over the authored boards rather than asserted from memory.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -3541,6 +3759,821 @@ export const TOWER_DEMON = {
       enemies: {
         front: [THE_UNHEARING, HUSHGLASS_WARDEN],
         back: [ZENITH_CHORISTER, SHARDLIGHT_ACOLYTE, VAULTLIGHT_CENSER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Processional — Floors 401–420, levels 189–198, Masterwork 1–Masterwork 24 — one voice a board, in the front rank of every one, and the first floors in five hundred where a swing simply does not land. The voice is as often Monster as Angel, which is what keeps the choir off the whole hundred.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f401',
+      name: 'Floor 401',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, CENSERSTEP_ACOLYTE],
+        back: [RENDFANG_JACKAL, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f402',
+      name: 'Floor 402',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, CENSERSTEP_ACOLYTE],
+        back: [MARROWHUNT_ALPHA, CLEFTHORN_GORER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f403',
+      name: 'Floor 403',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [RAVAGER, DRIFTMOUTH_CHOKER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f404',
+      name: 'Floor 404',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CENSERSTEP_ACOLYTE],
+        back: [REDWATER_STALKER, SUMPWATER_BROOD, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f405',
+      name: 'Floor 405',
+      enemies: {
+        front: [OVERBURDEN_HULK, SCREEBACK_DARTER],
+        back: [SCARWEAVE_TRAMPLER, RENDFANG_JACKAL, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f406',
+      name: 'Floor 406',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, CENSERSTEP_ACOLYTE],
+        back: [BENCHLINE_LURKER, ASHPIT_SCUTTLER, CARRION_SWARM],
+      },
+    },
+    {
+      id: 't-demon-f407',
+      name: 'Floor 407',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, GALLERY_SLIPFANG],
+        back: [CLEFTHORN_GORER, MIREWHELP, LONGEBB_RENDER],
+      },
+    },
+    {
+      id: 't-demon-f408',
+      name: 'Floor 408',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, CENSERSTEP_ACOLYTE],
+        back: [DRIFTMOUTH_CHOKER, CHALKHIDE_BROWSER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f409',
+      name: 'Floor 409',
+      enemies: {
+        front: [SHATTERJAW_MAULER, SCREEBACK_DARTER],
+        back: [SUMPWATER_BROOD, THORNBACK_GRAZER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f410',
+      name: 'Floor 410 — A Pace Ahead',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, CENSERSTEP_ACOLYTE],
+        back: [RENDFANG_JACKAL, CARRION_SWARM, SALTBLEACH_CRIER],
+      },
+    },
+    {
+      id: 't-demon-f411',
+      name: 'Floor 411',
+      enemies: {
+        front: [EVENSONG_WARDEN, GALLERY_SLIPFANG],
+        back: [ASHPIT_SCUTTLER, LONGEBB_RENDER, MIREFOOT_RUNNER],
+      },
+    },
+    {
+      id: 't-demon-f412',
+      name: 'Floor 412',
+      enemies: {
+        front: [THE_UNHEARING, CENSERSTEP_ACOLYTE],
+        back: [MIREWHELP, CHANNELBED_STALKER, SLIME],
+      },
+    },
+    {
+      id: 't-demon-f413',
+      name: 'Floor 413',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SCREEBACK_DARTER],
+        back: [CHALKHIDE_BROWSER, BAREMARK_GNAWER, SHATTERJAW_MAULER],
+      },
+    },
+    {
+      id: 't-demon-f414',
+      name: 'Floor 414',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, CENSERSTEP_ACOLYTE],
+        back: [THORNBACK_GRAZER, SALTBLEACH_CRIER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f415',
+      name: 'Floor 415',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, GALLERY_SLIPFANG],
+        back: [CARRION_SWARM, MIREFOOT_RUNNER, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f416',
+      name: 'Floor 416',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENSERSTEP_ACOLYTE],
+        back: [LONGEBB_RENDER, SLIME, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f417',
+      name: 'Floor 417',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, SCREEBACK_DARTER],
+        back: [CHANNELBED_STALKER, SHATTERJAW_MAULER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f418',
+      name: 'Floor 418',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, CENSERSTEP_ACOLYTE],
+        back: [BAREMARK_GNAWER, MARROWHUNT_ALPHA, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f419',
+      name: 'Floor 419',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, GALLERY_SLIPFANG],
+        back: [SALTBLEACH_CRIER, RAVAGER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f420',
+      name: 'Floor 420 — The Censer Swung',
+      enemies: {
+        front: [SHATTERJAW_MAULER, CENSERSTEP_ACOLYTE],
+        back: [MIREFOOT_RUNNER, REDWATER_STALKER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Cleared Aisle — Floors 421–445, levels 199–210, Masterwork 25–Masterwork 54 — two, drawn from both factions that counter a Demon five, and the anchor is still the tower's own weight.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f421',
+      name: 'Floor 421',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f422',
+      name: 'Floor 422',
+      enemies: {
+        front: [OVERBURDEN_HULK, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f423',
+      name: 'Floor 423',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f424',
+      name: 'Floor 424',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f425',
+      name: 'Floor 425',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f426',
+      name: 'Floor 426',
+      enemies: {
+        front: [SHATTERJAW_MAULER, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, MARROWHUNT_ALPHA, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f427',
+      name: 'Floor 427',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f428',
+      name: 'Floor 428',
+      enemies: {
+        front: [EVENSONG_WARDEN, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f429',
+      name: 'Floor 429',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f430',
+      name: "Floor 430 — The Verger's Round",
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f431',
+      name: 'Floor 431',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f432',
+      name: 'Floor 432',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f433',
+      name: 'Floor 433',
+      enemies: {
+        front: [OVERBURDEN_HULK, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f434',
+      name: 'Floor 434',
+      enemies: {
+        front: [SILENTVAULT_KEEPER, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, LONGEBB_RENDER],
+      },
+    },
+    {
+      id: 't-demon-f435',
+      name: 'Floor 435',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f436',
+      name: 'Floor 436',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f437',
+      name: 'Floor 437',
+      enemies: {
+        front: [SHATTERJAW_MAULER, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, RAVAGER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f438',
+      name: 'Floor 438',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, SUMPWATER_BROOD],
+      },
+    },
+    {
+      id: 't-demon-f439',
+      name: 'Floor 439',
+      enemies: {
+        front: [EVENSONG_WARDEN, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f440',
+      name: 'Floor 440 — The Aisle Kept',
+      enemies: {
+        front: [THE_UNHEARING, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f441',
+      name: 'Floor 441',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f442',
+      name: 'Floor 442',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f443',
+      name: 'Floor 443',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, GALLERY_SLIPFANG],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f444',
+      name: 'Floor 444',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENSERSTEP_ACOLYTE],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f445',
+      name: 'Floor 445',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GALLERY_SLIPFANG],
+        back: [AISLEWARD_VERGER, SHATTERJAW_MAULER, MIREFOOT_RUNNER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Guttering — Floors 446–467, levels 211–220, Masterwork 55–Masterwork 80 — three, the Sexton anchoring in place of the weight, and the returning pair joining from the Monster half of the lean.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f446',
+      name: 'Floor 446',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f447',
+      name: 'Floor 447',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, BENCHLINE_LURKER],
+      },
+    },
+    {
+      id: 't-demon-f448',
+      name: 'Floor 448',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, SUMPWATER_BROOD],
+      },
+    },
+    {
+      id: 't-demon-f449',
+      name: 'Floor 449',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, REDWATER_STALKER, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f450',
+      name: 'Floor 450 — The Wick Turned Down',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SHATTERJAW_MAULER, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f451',
+      name: 'Floor 451',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, RAVAGER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f452',
+      name: 'Floor 452',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f453',
+      name: 'Floor 453',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, RAVAGER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f454',
+      name: 'Floor 454',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, MARROWHUNT_ALPHA, SUMPWATER_BROOD],
+      },
+    },
+    {
+      id: 't-demon-f455',
+      name: 'Floor 455',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f456',
+      name: 'Floor 456',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, MIREFOOT_RUNNER],
+      },
+    },
+    {
+      id: 't-demon-f457',
+      name: 'Floor 457',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f458',
+      name: 'Floor 458',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, MARROWHUNT_ALPHA, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f459',
+      name: 'Floor 459',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f460',
+      name: 'Floor 460 — The Low Flame',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f461',
+      name: 'Floor 461',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f462',
+      name: 'Floor 462',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, MARROWHUNT_ALPHA, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f463',
+      name: 'Floor 463',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f464',
+      name: 'Floor 464',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [SCREEBACK_DARTER, MARROWHUNT_ALPHA, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f465',
+      name: 'Floor 465',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-demon-f466',
+      name: 'Floor 466',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCARWEAVE_TRAMPLER, MIREFOOT_RUNNER],
+      },
+    },
+    {
+      id: 't-demon-f467',
+      name: 'Floor 467',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [SCREEBACK_DARTER, SHATTERJAW_MAULER, CLEFTHORN_GORER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Passing Light — Floors 468–488, levels 221–230, Relic 2–Relic 26 — opens on the Relic boundary, where the effective bonus steps from +108% to +25.8%, so it opens heavier than the band below closes and sheds its anchor a rank at a time.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f468',
+      name: 'Floor 468',
+      enemies: {
+        front: [CLOSEWARD_SERAPH, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f469',
+      name: 'Floor 469',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f470',
+      name: 'Floor 470 — The Light Carried Out',
+      enemies: {
+        front: [SHATTERJAW_MAULER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f471',
+      name: 'Floor 471',
+      enemies: {
+        front: [THE_UNHEARING, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f472',
+      name: 'Floor 472',
+      enemies: {
+        front: [EVENSONG_WARDEN, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f473',
+      name: 'Floor 473',
+      enemies: {
+        front: [THE_UNHEARING, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f474',
+      name: 'Floor 474',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f475',
+      name: 'Floor 475',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, CENSERSTEP_ACOLYTE, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f476',
+      name: 'Floor 476',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f477',
+      name: 'Floor 477',
+      enemies: {
+        front: [OVERBURDEN_HULK, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, REDWATER_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f478',
+      name: 'Floor 478',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f479',
+      name: 'Floor 479',
+      enemies: {
+        front: [SHATTERJAW_MAULER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f480',
+      name: 'Floor 480 — The Last Taper',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f481',
+      name: 'Floor 481',
+      enemies: {
+        front: [SHATTERJAW_MAULER, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, RAVAGER],
+      },
+    },
+    {
+      id: 't-demon-f482',
+      name: 'Floor 482',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f483',
+      name: 'Floor 483',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, CENSERSTEP_ACOLYTE, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f484',
+      name: 'Floor 484',
+      enemies: {
+        front: [THE_UNHEARING, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f485',
+      name: 'Floor 485',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, MARROWHUNT_ALPHA],
+      },
+    },
+    {
+      id: 't-demon-f486',
+      name: 'Floor 486',
+      enemies: {
+        front: [QUENCHPIT_IRONHIDE, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-demon-f487',
+      name: 'Floor 487',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, CENSERSTEP_ACOLYTE, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f488',
+      name: 'Floor 488',
+      enemies: {
+        front: [OVERBURDEN_HULK, GALLERY_SLIPFANG],
+        back: [GUTTERLIGHT_SEXTON, SCREEBACK_DARTER, ASHPIT_SCUTTLER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Unstruck — Floors 489–500, levels 231–236, Relic 27–Relic 40 — four voices, the weight shed into the roof, and at the top the only body in the hundred past the register.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f489',
+      name: 'Floor 489',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f490',
+      name: 'Floor 490 — The Blow Unmet',
+      enemies: {
+        front: [GALLERY_SLIPFANG, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-demon-f491',
+      name: 'Floor 491',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [AISLEWARD_VERGER, SCREEBACK_DARTER, MIREFOOT_RUNNER],
+      },
+    },
+    {
+      id: 't-demon-f492',
+      name: 'Floor 492',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [AISLEWARD_VERGER, SCREEBACK_DARTER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-demon-f493',
+      name: 'Floor 493',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f494',
+      name: 'Floor 494',
+      enemies: {
+        front: [GALLERY_SLIPFANG, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f495',
+      name: 'Floor 495',
+      enemies: {
+        front: [GALLERY_SLIPFANG, GUTTERLIGHT_SEXTON],
+        back: [AISLEWARD_VERGER, SCREEBACK_DARTER, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f496',
+      name: 'Floor 496',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, SALTBLEACH_CRIER],
+      },
+    },
+    {
+      id: 't-demon-f497',
+      name: 'Floor 497',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-demon-f498',
+      name: 'Floor 498',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, SUMPWATER_BROOD],
+      },
+    },
+    {
+      id: 't-demon-f499',
+      name: 'Floor 499',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, AISLEWARD_VERGER],
+        back: [CENSERSTEP_ACOLYTE, SCREEBACK_DARTER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f500',
+      name: 'Floor 500 — The Unstruck',
+      enemies: {
+        front: [THE_UNSTRUCK, CENSERSTEP_ACOLYTE],
+        back: [SHARDLIGHT_ACOLYTE, ZENITH_CHORISTER, LUMEN_ACOLYTE],
       },
     },
   ],

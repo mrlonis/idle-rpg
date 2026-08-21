@@ -127,41 +127,6 @@ function tracksFor(tower: TowerData): readonly AchievementTrackData[] {
  */
 const TOWER_UNIT = 100;
 
-/**
- * The towers still authored at the previous height while the fifth hundred lands one tower at a time.
- *
- * ⚠️ **A literal list of names, and it has to stay literal.** `TOWER_RULES` is one rule for all seven,
- * so a height bump lands in a single session while the floors move in seven — and a *filter* ("the
- * full height, or four fifths of it") would pass forever and never notice a tower nobody went back
- * for. Each session deletes its own name; **the last one deletes this list and every branch that reads
- * it.** It has now been done this way four times: 21e–21k for the second hundred, again for the third,
- * again for the fourth, and this.
- *
- * ⚠️ **The list is owed in the same session as the bump, not in the session that authors the first
- * tower.** Between the two there is nothing at all holding the six short towers, which is why the
- * fourth hundred's own note says to put it back first and this one does.
- *
- * ⚠️ **A tower on this list is not damaged, but it does lose its boss.** `clearedFloors` clamps to
- * what the tower authors, so `nextFloor` reports it topped and every screen reads it right — but
- * `floorKindAt` reads the *rules'* height, so its floor 400 resolves as a **mini-boss paying ×2 rather
- * than ×5**. That is a real payout regression, and it is licensed by exactly one argument, the same
- * one the save re-bases rest on: **no build carrying it has ever reached a player.** If that stops
- * being true, extend all seven in one session or not at all.
- *
- * ⚠️ **Unlike the fourth hundred, the gear is very nearly *not* a second cost this time, and that is
- * a property of the endpoint rather than luck.** `floorGear` measures the ramp against `rules.floors`,
- * so extending the height re-draws it under the hundred that already shipped — but the ramp was
- * extended by **solving for the endpoint that continues the shipped slope** (Fine 60 at floor 400
- * carries on to Relic 40 at floor 500), which leaves **90 of the 100 shipped geared floors byte
- * identical** and moves the other ten by a single gear level. A pending tower therefore keeps very
- * nearly the boards it was tuned with, where the fourth hundred's list left its towers entirely naked.
- */
-const PENDING: readonly string[] = ['tower-demon'];
-
-/** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
-const authoredHeight = (tower: TowerData): number =>
-  PENDING.includes(tower.id) ? rules.floors - TOWER_BAND_UNIT : rules.floors;
-
 describe('tower rules', () => {
   it('ships a ladder of floors climbing to a level the campaign also reaches', () => {
     // ⚠️ **Inside the campaign's range, deliberately.** A tower charges for roster breadth, not for
@@ -344,27 +309,18 @@ describe('tower content', () => {
     // floors is a failing test rather than a boss that quietly lands on the wrong floor and a
     // completion award nothing ever reaches.
     //
-    // ⚠️ **Read through {@link PENDING}, because the fifth hundred is in flight.** `TOWER_RULES` is
-    // one rule for all seven, so the height bump landed in a single session and the floors move in
-    // seven — so for the six sessions in between, that literal list of names carries the towers still
-    // on the old height. A filter — "the full height or four fifths of it" — would pass forever and
-    // never notice a tower nobody went back for. Each session deletes its own name and the last one
-    // deletes the list, restoring the plain equality. It has now run to completion three times —
-    // 21e–21k for the second hundred, 21l–21r for the third, 21s–21y for the fourth — and this is the
-    // fourth round. **Do it exactly this way every time the height moves**, and put the list back in
-    // the same session as the bump rather than in the session that authors the first tower.
+    // ⚠️ **This is a plain equality again, and it is the fourth time it has come back.** `TOWER_RULES`
+    // is one rule for all seven, so a height bump lands in a single session and the floors move in
+    // seven — and for the sessions in between, a literal `PENDING` list of names carried the towers
+    // still on the old height, branching this assertion and three others. A *filter* — "the full
+    // height or four fifths of it" — would have passed forever and never noticed a tower nobody went
+    // back for, which is why the list was literal. The Demon Tower's fifth hundred deleted the last
+    // name and the list with it. **Put the list back in the same session as the next bump**, not in
+    // the session that authors the first tower: between the two there is nothing at all holding the
+    // six short towers.
     for (const tower of towers) {
-      expect(tower.floors.length, tower.id).toBe(authoredHeight(tower));
+      expect(tower.floors.length, tower.id).toBe(rules.floors);
     }
-    // The list may only ever name a tower this build actually ships, and may never name all of them —
-    // a `PENDING` list covering the whole set is a height bump nobody started.
-    for (const id of PENDING) {
-      expect(
-        towers.map((tower) => tower.id),
-        `pending ${id}`,
-      ).toContain(id);
-    }
-    expect(PENDING.length, 'a pending list covering every tower').toBeLessThan(towers.length);
   });
 
   it('gives every floor a unique id, a name, and somebody to fight', () => {
@@ -521,36 +477,21 @@ describe('tower content', () => {
       const height = tower.floors.length;
       const kinds = tower.floors.map((_, offset) => floorKindAt(rules, offset + 1));
 
-      // ⚠️ **Branched on {@link PENDING} while the fifth hundred is in flight, and asserted rather
-      // than skipped so the cost of leaving a tower on that list stays on the record.** A tower still
-      // on the previous height has **no boss at all**: `floorKindAt` reads the *rules'* height, so its
-      // last floor lands on the mini-boss interval and pays ×2 instead of ×5. Skipping those six would
-      // hide a real payout regression; asserting the regression is what makes deleting a name from the
-      // list flip this from one branch to the other. **Delete both branches with the list.**
-      if (PENDING.includes(tower.id)) {
-        expect(
-          kinds[height - 1],
-          `${tower.id} (pending): no boss until its own hundred lands`,
-        ).toBe('mini-boss');
-        expect(
-          kinds.filter((kind) => kind === 'boss'),
-          tower.id,
-        ).toHaveLength(0);
-      } else {
-        expect(kinds[height - 1], tower.id).toBe('boss');
-        expect(
-          kinds.filter((kind) => kind === 'boss'),
-          tower.id,
-        ).toHaveLength(1);
-      }
+      // ⚠️ **This was branched on a `PENDING` list for six sessions and the branch is gone with it.**
+      // A tower still on the previous height had **no boss at all**: `floorKindAt` reads the *rules'*
+      // height, so its last floor landed on the mini-boss interval and paid ×2 instead of ×5. That
+      // regression was *asserted* rather than skipped, so the cost of leaving a tower on the list
+      // stayed on the record and deleting a name flipped the branch. **Restore both branches with the
+      // list at the next bump.**
+      expect(kinds[height - 1], tower.id).toBe('boss');
+      expect(
+        kinds.filter((kind) => kind === 'boss'),
+        tower.id,
+      ).toHaveLength(1);
       expect(
         kinds.filter((kind) => kind === 'mini-boss'),
         tower.id,
-      ).toHaveLength(
-        PENDING.includes(tower.id)
-          ? height / rules.miniBossEvery
-          : Math.floor((rules.floors - 1) / rules.miniBossEvery),
-      );
+      ).toHaveLength(Math.floor((rules.floors - 1) / rules.miniBossEvery));
     }
   });
 

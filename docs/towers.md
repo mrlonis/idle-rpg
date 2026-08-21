@@ -1,24 +1,23 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — six of seven
+Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — all seven
 complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
-hundred floors across 21e–21k, the third across 21l–21r, and the fourth across 21s–21y — the Demon
-Tower last, which is what closed that round. ⚠️ **A fifth round is open**: the height moved to 500 and
-the Human Tower's floors 401–500 landed with it, then the Dwarf Tower's, the Elf Tower's, the Undead
-Tower's, the Monster Tower's and the Angel Tower's, and only the Demon Tower stands at 400. Read [`core/towers.ts`](../src/core/towers.ts) before touching
-them; [authoring](authoring.md) is the procedure for adding floors.
+hundred floors across 21e–21k, the third across 21l–21r, the fourth across 21s–21y and the fifth
+across 21z and after — the Demon Tower last in both of the last two rounds, which is what closed
+them. Read [`core/towers.ts`](../src/core/towers.ts) before touching them; [authoring](authoring.md)
+is the procedure for adding floors.
 
-⚠️ **The `PENDING` lists are back, and they went back in the same session as the bump** — which is what
-the fourth hundred's note asked for, and the half of the discipline that had never actually been done
-before. `TOWER_RULES` is one rule for all seven, so the height moves in a single session while the floors arrive one tower at a time
-— which means for six sessions running, towers are authored a hundred floors short; **one name
-remains on the lists now that the Angel Tower's hundred has landed.** A tower in that
+⚠️ **The `PENDING` lists went back in the same session as the bump and came out with the last tower**
+— which is what the fourth hundred's note asked for, and the half of the discipline that had never
+actually been done before. `TOWER_RULES` is one rule for all seven, so the height moves in a single
+session while the floors arrive one tower at a time — which means that for six sessions running,
+towers are authored a hundred floors short. A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
 [`towers.balance.ts`](../src/data/towers.balance.ts); it is **not damaged** (`clearedFloors` clamps, so
 `nextFloor` reports it topped and every screen reads it right) but it **has no boss** — `floorKindAt`
 reads the rules' height, so its last authored floor resolves as a mini-boss paying ×2 rather than ×5 —
-⚠️ **and this round it does _not_ also go naked, which is a property of the endpoint rather than of
-luck.** `floorGear` measures the ramp against the rules' height, so raising it re-draws the line under
+⚠️ **and in the fifth round it did _not_ also go naked, which is a property of the endpoint rather
+than of luck.** `floorGear` measures the ramp against the rules' height, so raising it re-draws the line under
 floors that already shipped — but the fifth hundred's endpoint was **solved to continue the shipped
 slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500), which leaves **90 of the 100 shipped
 geared floors byte-identical** and moves the other ten by a single gear level. The fourth hundred's round
@@ -29,7 +28,7 @@ disappears.**
 That payout regression is licensed by one argument and one only — **no build carrying it has ever
 reached a player.** ⚠️ **Each session deletes its own name and the last one deletes both lists along
 with the branches they guard.** A filter — "the full height or three quarters of it" — would pass
-forever and never notice a tower nobody went back for. It has now run to completion **three times**,
+forever and never notice a tower nobody went back for. It has now run to completion **four times**,
 and each time the last session left behind the defensive shapes the list forced: `topFloors` reading the
 **authored** height rather than `rules.floors`, and the roof-versus-band-opener comparison computed
 **per tower**. Both are no-ops while every tower is the full height and both are what stop the sweep
@@ -69,7 +68,7 @@ feel free, the rarity-cap clause in level resonance is what has stopped working.
 
 **`clearedStages`, the ladder position, and any idle rate.** The clear count drives the idle crystal
 rate, and the shipped one thousand two hundred and ten stages already take it beyond ×5.5 the base —
-seven towers of four hundred floors feeding it would add 2,800 more clears, and the roster-relative
+seven towers of five hundred floors feeding it would add 3,500 more clears, and the roster-relative
 ceiling in `banners.spec.ts` would put the whole roster inside days.
 
 Progress is **one integer per tower** in `GameState.towers`, and `applyTowerResult` is a separate
@@ -215,14 +214,15 @@ restatement of a guard is a number you would refuse to author, the guard is poin
 quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
-fails now that the towers pay **nearly three times** what the spine's first clears do. Recomputed by
-hand with six towers at five hundred floors and only the Demon Tower at four: the seven pay
-**1,055,800** against the 25-chapter campaign's **351,500**, a ratio of **3.004** — it read
-901,100 / 2.563, 932,100 / 2.652, 963,100 / 2.740, 994,100 / 2.828 and 1,024,500 / 2.915 with one
-through five towers extended. ⚠️ **Seven towers of five hundred
-would read 1,087,100 and 3.093**, which is the number this round closes on if it runs to completion —
-weigh it before proposing a sixth hundred. A five-hundred floor tower pays 55,300 from floors and
-155,300 with both tracks, against a four-hundred floor tower's 44,300 and 124,300.
+fails now that the towers pay **more than three times** what the spine's first clears do. Recomputed by
+hand with **all seven at five hundred floors**: the seven pay **1,087,100** against the 25-chapter
+campaign's **351,500**, a ratio of **3.093** — it read 901,100 / 2.563, 932,100 / 2.652,
+963,100 / 2.740, 994,100 / 2.828, 1,024,500 / 2.915 and 1,055,800 / 3.004 with one through six towers
+extended. ⚠️ **The fourth hundred predicted 1,087,100 and 3.093 for a completed round and the round
+landed on it exactly**, which is what makes recomputing by hand worth doing: the prediction was
+checkable and it was checked. Weigh it before proposing a sixth hundred. A five-hundred floor tower
+pays 55,300 from floors and 155,300 with both tracks, against a four-hundred floor tower's 44,300 and
+124,300.
 
 ⚠️ **The direction is the finding, and it is the _ceiling_ that is under pressure rather than the
 floor.** The retired guard's floor was expected to fall as chapters shipped; instead the campaign nearly
@@ -2159,6 +2159,124 @@ These are findings a later session should not have to re-derive.
   0.30 and inside the game-wide maximum of 0.45 over the 370 blocks shipped beforehand. The hundred
   opens at floor 401 in 3.4s with all five alive and closes at **100% / 3.98 / 22.3s against
   98% / 3.15 / 42.8s**, zero timeouts anywhere, longest single attempt 57.8s against a 67.5s bar.
+
+### The fifth hundred — the Demon Tower's Processional
+
+**The last hundred of the last tower.** It closes the fifth round, deletes the `PENDING` lists in
+`towers.spec.ts` and `towers.balance.ts` along with the branches they guarded — fourth time that
+checklist has run to completion — and takes all seven towers to five hundred floors. Control: one
+anchor at 860/62 plus four bodies at 460/45 at level 236 in Relic 40, reading **3.98 / 3.64** at
+eighty seeds, shown to move (880/62 reads 3.35, 820/58 reads 3.91) before anything was believed.
+
+- ⚠️ **The axis is `dodge`, and it is the first taken on _affordability_ rather than on exclusivity
+  or margin.** All five carrying, reference / alternate: 0.08 **3.90 / 3.17**, 0.14 3.71 / 2.76, 0.20
+  3.39 / 1.76, 0.26 3.15 / 1.45, 0.32 2.84 / 0.97, 0.38 2.70 / 0.55, 0.44 2.16 / 0.19, 0.50
+  **1.71 / 0.14** — eight monotone steps on **both** arrangements, zero timeouts on every row,
+  longest single fight in the grade 45.3s.
+- ⚠️ **It is the first axis in five hundred floors the _reference_ five feels.** That arrangement
+  moves 3.98 → 1.71 here where the third hundred's crit denial moved it 4.00 → 3.98 and the fourth
+  hundred's ward 4.00 → 3.92 across their whole grades. Boards are still sized against the alternate,
+  because that is still where the cliff is.
+- ⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat, and
+  this is the first hundred where that mattered.** On raw mean cost demon-alt is **sixth of
+  fourteen** (dwarf-ref 2.49, angel-alt 2.28, dwarf-alt 2.10, angel-ref 1.98, undead-alt 1.98,
+  demon-alt 1.96, … elf-ref 0.69) — not this crew's lock by the usual test. But `dodge`'s cost
+  correlates **0.772** with how long a crew's fights already are, and the four arrangements clearly
+  above demon-alt are **the four slowest of the fourteen** (angel-alt 41.6s, dwarf-ref 28.1s,
+  dwarf-alt 28.0s, angel-ref 27.4s on their own controls). Fit that trend and rank the residual and
+  demon-alt is **first of fourteen at +0.76**, 55% clear of second (dwarf-ref +0.49, undead-alt
+  +0.39, everything else at or under +0.11). It pays a slow crew's price at **9.9s**.
+- ⚠️ **The Angel Tower's fifth hundred measured this exact stat one tower earlier and declined it,
+  correctly** — `dodge` 0.45 worth 1.38 of five at **54.5s** against a 67.5s bar, on the slowest
+  arrangement in the game. The Demon fives clear their control in 8.7s and 9.9s, the shortest in the
+  game, so an axis that buys eighteen seconds is affordable here and nowhere else. **Every earlier
+  "chosen on fight length" finding picked the axis that made fights _shorter_ because the crew was
+  walking into the bar; this is the first that could pick one for making them longer.**
+- ⚠️ **The mechanism that looked obvious was measured and it was wrong.** The Demon arrangements are
+  the **only two of fourteen carrying a point of `lifeLeech`** (Σ0.22 against Σ0.00 everywhere else)
+  and their other sustain is two `drain` siphons, so all of it is a share of damage _dealt_ — a miss
+  ought to cost them twice. Stripping `lifeLeech` to zero and re-running the whole grade moves the
+  alternate's mean cost from **1.82 to 1.84**. Σ0.22 across five is too small to be the mechanism.
+  **A mechanism argument is not a measurement**, and this one was believed for an hour.
+- ⚠️ **Refused, all against the same control, with demon-alt's rank of fourteen:** enemy `hp`
+  ×1.15 → ×1.75 **2.59 [2nd]**, `def` 50 → 170 **2.66 [4th]**, `attackSpeed` 30 → 110 **2.94 [6th]**,
+  `physicalPierce` 0.20 → 0.80 **0.97 [7th]**, `physicalResist` 0.15 → 0.63 **1.17 [11th]** — dwarf-ref
+  tops four of those six outright, which is the Monster Tower's _weight axes belong to whichever crew
+  is slowest_ arriving again. On the status side `THORNMAIL` by carrier count costs demon-alt 1.50
+  **[2nd, behind elf-alt 1.83]**, board-wide `ROOTBOUND` 0.99 and `CHAINBOND` 0.64; `energyRegen` and
+  `accuracy` are worth 0.00 to 0.12. `critBlock` and `magicResist` were not eligible — they are this
+  tower's own third- and fourth-hundred axes.
+- ⚠️ **Register, stated as the one measured against because the hundred's own blocks move it.** Over
+  the **374** blocks shipped beforehand `dodge` sat on **29** at a median of 0.20, a p90 of 0.30 and a
+  ceiling of **0.55** (`SHADE`) — and on **0 of 32 Angel blocks**, the lean this tower fields on every
+  board above floor 300. Empty on the faction that has to carry it and ordinary in the game at large:
+  a licence to author rather than only to measure. The three new legendaries carry 0.16 / 0.22 / 0.28,
+  all inside it, and only `THE_UNSTRUCK` steps past the p90 at **0.40** — still under the Shade — so
+  the roof steps past the _band_ rather than past the game. Shipping the four takes the pool to 33 of
+  378 and the Angel ceiling from 0.00 to 0.40.
+- ⚠️ **Size is the dial and the count saturates at four.** At 0.30 by carriers the alternate reads
+  **3.58 / 2.41 / 1.96 / 1.46 / 1.27 / 1.29** across none to five — the span is spent by the fourth —
+  where size at all five spans 3.03. So the bands walk the count to four and then stop: bodies at or
+  above 0.16 run **1 / 2 / 3 / 3 / 2–4** across the five bands. ⚠️ **Half the carriers are neither new
+  nor Angel** — `GALLERY_SLIPFANG` (0.28) and `SCREEBACK_DARTER` (0.30) already stood on this tower's
+  fourth hundred and carry the axis from **floor 401**, which the guard below forced and which is the
+  better content for it: the refusal belongs to the tower rather than to three bodies.
+- ⚠️ **Rank is worth more than two thirds of the stat, and the back rank is a discount this hundred
+  spends on purpose.** The same 460/45 body at 0.40 costs the alternate **0.75 in the front rank and
+  0.28 in the back**, carried on one body. Every one of the hundred boards has a carrier in front —
+  but of 245 carrier slots, **134 are in front and 111 behind**: the Sexton leads on 35 of its 52
+  boards, the Verger on 22 of 36, and the Acolyte, the lightest, stands behind the anchor on 32 of
+  its 49. Four carriers all standing in front is not a board this crew clears at these levels;
+  **once the count is fixed, the rank each carrier takes is most of the tuning.**
+- ⚠️ **The retirement check came back entirely clean**, the Angel fifth hundred's outcome rather than
+  this tower's fourth, which retired four at once. Alone at floor 500 in Relic 40 behind four 330/20
+  commons all fifteen candidates read **100%** for both arrangements; behind a 520/44 escort only
+  `THE_UNBITTEN` is under bar at **20% / 0.31** — already restricted to below floor 340 a hundred
+  earlier and not fielded here — while `THE_UNHEARING` holds at 76% / 1.35 and anchors both the
+  opening band and the Relic boundary. The floor-400 board carried to floor 500 still collapses:
+  100% / 2.30 and **1% / 0.03**.
+- ⚠️ **The roof was settled on its attack, the fourth roof in the project to be.** Held at 1250 hp and
+  0.40 `dodge` the alternate reads 15% at `atk` 68, 22% at 62, 42% at 56, 67% at 50 and **85% at 44**;
+  held at `atk` 56 it reads 25% at 1440 hp and 63% at 1050. **Its escort may carry exactly one other
+  carrier and it must be the lightest**: behind the same three commons the Acolyte reads 85%, the
+  Verger 23%, the Sexton 8%, and the Acolyte and Verger together **2%**. `THE_UNSTRUCK` ships at
+  1250/44 with `dodge` 0.40 and floor 500 reads **100% / 3.83 / 15.4s against 85% / 1.95 / 15.4s** —
+  the one board in the hundred that is Angel end to end, which is what a celestial capstone ought to be.
+  ⚠️ **The axis carries the last floor** — with the roof's own `dodge` stripped the same five read
+  100% / 3.95 and **100% / 2.68**, worth 0.73 of the reference and **1.96 of the alternate**.
+- ⚠️ **The counter-faction guard binds a celestial tower's lean far harder than the 65% ceiling does,
+  and it only bites on a band that costs members. This is the finding the hundred exists to record.**
+  The first pass authored all three new carriers as Angel on 234 of 500 slots — **81.8% Angel, and the
+  whole tower at 65.84%** against a 65% ceiling. But the ceiling is not what failed: `towers.balance.ts`
+  holds that a **celestial** tower costs its crew fewer members than a mirror board of the crew's own
+  faction, and the Demon Tower carried that inversion by only **1.1 members across its whole first four
+  hundred floors**. A fifth hundred at 81.8% Angel took it to **93.7 against 92.7** and the tower went
+  red.
+- ⚠️ **The mechanism is the matrix, and it is worth stating exactly.** Against a Demon five an Angel
+  board is ×1.05 out **and** ×1.05 in, the all-Demon mirror is neutral both ways, and a Monster board
+  is ×1.10 out against ×1.05 in. Varying faction alone over floors 401–500: all-Angel **58.1** members
+  lost, mirror **55.7**, all-Monster **54.5** — a glassy five loses more to the incoming five percent
+  than it saves on the outgoing, so **an Angel board is strictly worse for a Demon five than its own
+  mirror.** The guard's premise holds for the Angel Tower _by construction_ and for this one only
+  empirically. ⚠️ **And it is invisible until a band kills somebody**: bands 1–3 lose 4.3, 6.3 and 8.1
+  members and each is favourably biased, because there the outgoing edge only shortens fights the party
+  was never losing.
+- ⚠️ **The band was not lightened, and that was checked rather than assumed.** Its 57.9 members lost sat
+  mid-range across the seven — Undead 141.0, Monster 88.1, Human 68.8, **Demon 57.9**, Dwarf 48.2, Elf
+  38.3, Angel 36.7 — so softening it would have been tuning content to a guard. What changed is **who
+  carries the axis**: the two returning Monster carriers take roughly half the carrier slots and the
+  anchors and texture come from the Monster half of the lean. The hundred ships at **67.4% Monster and
+  32.6% Angel over 500 slots, the tower at 55.84% Angel over 2,459** — still the leader, still inside
+  35–65%, with far more headroom than the 64.25% the first pass would have left. The tower reads
+  **84.2 against 84.9** and band 5's own gap falls from +2.2 to **+0.4**. **40 distinct blocks stand
+  over the hundred**, four of them new.
+- Every floor of 401–500 was swept individually against both arrangements rather than on the stride:
+  worst reference **100%**, worst alternate **80%**, **no floor times out**, longest fight **31.4s**
+  against a 67.5s bar. The hundred opens at floor 401 in 1.8s with all five alive and its bands close
+  at **5.00 / 4.60 / 3.55 / 3.27 / 1.95** for the alternate. ⚠️ **No board over
+  401–500 carries a `heal`, `drain`, `shield`, `regen`/`barrier`/`aegis` status, or a point of
+  `lifeLeech`, `recovery` or `healthRegen`** — the strong absolute the fourth hundred was the first
+  able to make, held for a second hundred and verified with a script over the authored boards.
 
 ## Where it sits on screen
 

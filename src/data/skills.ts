@@ -9433,6 +9433,104 @@ export const IT_WAS_NEVER_SHUT = {
   priority: 2,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's fifth hundred — five turns behind a stat that decides whether they land
+//
+// ⚠️ **The stat is the whole of the hundred and these five turns are deliberately ordinary**, which
+// is the fourth hundred running on this tower and the same call the Angel Tower's fifth made. The
+// escalation is `dodge` — how often a Demon five's swing connects at all — and nothing a skill can
+// say changes that.
+//
+// ⚠️ **Every one is magical and on `enemy-front`, exactly as the fourth hundred's four are.** A
+// tower whose enemies are a choir has dealt magical damage since floor 1, and *aim past the front
+// rank is inert or negative on all seven towers* — this hundred had no reason to be the exception
+// and did not test for one.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The censer is already a pace further on than the hand that reaches for it.
+ *
+ * The opening band's turn and the least of the five. Power 1.5 on a 45-tick cooldown is the shipped
+ * register's own middle and deliberately so: {@link CENSERSTEP_ACOLYTE} is priced on the 0.16 of
+ * `dodge` it carries rather than on what it swings.
+ */
+export const A_PACE_AHEAD = {
+  id: 'a-pace-ahead',
+  name: 'A Pace Ahead',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * A verger walks ahead of the procession and the aisle is empty by the time it arrives.
+ *
+ * The second band's, and slower than the first's for the reason {@link AISLEWARD_VERGER} is heavier:
+ * the pair stand together from floor 421 and two turns on one cooldown would be two voices in the
+ * time one ought to take.
+ */
+export const CLEAR_THE_AISLE = {
+  id: 'clear-the-aisle',
+  name: 'Clear the Aisle',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The wick is turned down rather than put out, and what is left will not hold still to be aimed at.
+ *
+ * The lieutenant's, and the least powerful of the five on the heaviest of the three legendaries —
+ * {@link GUTTERLIGHT_SEXTON} anchors every board from floor 446 and carries 0.28 of `dodge`, which
+ * is where the whole of its price sits.
+ */
+export const THE_LIGHT_GUTTERS = {
+  id: 'the-light-gutters',
+  name: 'The Light Gutters',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.4 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The blow is not turned and it is not caught. It simply finds nothing where the body was.
+ *
+ * The roof's first turn. ⚠️ **{@link THE_UNSTRUCK} is authored at 44 `atk` and the pair of turns is
+ * what makes that legible** — the last floor of the tower system was settled on its attack rather
+ * than on its weight, chapter 20's rule for the fourth time on a roof: held at 1250 hp and 0.40
+ * `dodge` the alternate arrangement reads 15% at `atk` 68, 42% at 56 and **85% at 44**, where held
+ * at `atk` 56 it reads 25% at 1440 hp and 63% at 1050.
+ */
+export const NOTHING_LANDS_AT_ALL = {
+  id: 'nothing-lands-at-all',
+  name: 'Nothing Lands At All',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.7 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * There is no answer to a blow that was never met.
+ *
+ * The roof's second, on a 60-tick cooldown so the pair cannot fire together twice in a fight. ⚠️
+ * **The axis carries the last floor rather than riding along**: floor 500 reads 100% / 3.83 and
+ * 85% / 1.95 as shipped, and with the roof's own `dodge` stripped to zero it reads 100% / 3.95 and
+ * **100% / 2.68** — worth 0.73 of the reference five and **1.96 of the alternate**, which is the
+ * arrangement this tower has sized every board against since its third hundred.
+ */
+export const THE_BLOW_UNMET = {
+  id: 'the-blow-unmet',
+  name: 'The Blow Unmet',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -9906,4 +10004,9 @@ export const SKILLS = [
   WORK_IT_WIDER,
   TAKE_THE_SEAM,
   IT_WAS_NEVER_SHUT,
+  A_PACE_AHEAD,
+  CLEAR_THE_AISLE,
+  THE_LIGHT_GUTTERS,
+  NOTHING_LANDS_AT_ALL,
+  THE_BLOW_UNMET,
 ] as const;
