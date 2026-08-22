@@ -959,14 +959,66 @@ first authored draft failed 22 of 50 boards and chapter 19's 21 of 50; chapter 2
 `enemy-back` turns on one board, two board-wide turns on one board — run before the sweep rather than
 after it, which is seconds against minutes and catches a different class of thing.
 
+⚠️ **Chapter 26 — The Roughcast — is the first chapter with no rung question left, and the first
+whose degenerate seam can never be broken.** It closes at 635 and stays on `ascended`: 2.5971 against
+`ascended-1`'s 33.2031, a preference for staying put of **1.30 nats**, the widest margin any chapter
+has had. `ascended` caps at 500 and the ladder passed `ascended-1`'s cap of 600 at chapter 25, so
+there is nothing to override toward. **From here every chapter is pure squeeze** — thirty levels of
+board against a party frozen at cap 500, ×1.8654 a chapter — and the seam chain deepens a link a
+chapter forever, because the four degenerate stretches before this one were each closed by a rung
+move and nothing can close this one. **Do not read a fifth or sixth identical link as a bug.** Five
+things:
+
+1. ⚠️ **The pool was not a wall and there was nothing to argue about.** Fielded as ordinary bodies
+   beside four light escorts at level 635, **246 of 378 shipped blocks stand**, across all seven
+   factions and 47 of them Monster. The quota landed at the quota for the seventh chapter running.
+2. ⚠️ **The board budget falls while the levels climb, which is the squeeze made concrete.** Chapter
+   25's own final reads 100% with 3.95 of five at 605 and **0% at 615**; its mid board reads
+   100% / 5.00 at 605 and **40% / 0.82** at 635. So The Roughcast's boards run **3,174 to 5,089
+   common-equivalent** against The Thinground's 3,180 to 8,616, on new blocks of 300 to 1,100 health
+   and 13 to 34 attack against 420 to 1,350 and 16 to 58. **Both weight and attack convert by the
+   same 0.536 at a degenerate seam**, which is the one case a measured price table transfers at all.
+3. ⚠️ **Its axis is the same stat as chapter 23's, read from the other side of the board.** Chapter
+   23 priced complete crit _denial_ at 0.88 of one member because only two of the calibrated five
+   carry crit worth denying; the same five carry `critBlock` **Σ0.05**, `critDamageResist` **Σ0.15**
+   and `tenacity` **Σ0.00**, so enemy `critChance` grades where refusing it saturated — 0.20 → 3.23
+   across 0.12 → 0.45 and 0.02 → 1.78 across zero to five carriers, zero timeouts. **Two chapters may
+   share a stat name without sharing the argument; say which side you measured.**
+4. ⚠️ **Reading `damage.ts` rather than the stat names disqualified two candidates outright.**
+   `insight` is not a crit stat at all — `statusChance` computes `authored + insight − tenacity`, so
+   it is chapter 24's axis wearing an offensive coat and is worth 0.10 on a board carrying no hostile
+   status. `magicPierce` is worth **exactly 0.00**, because a pierce only opens the defence its own
+   damage type is checked against and these boards deal physical damage.
+5. ⚠️ **The 25% quota failed on the _denominator_ while every block was right, which is a new
+   shape.** The first authored pass fielded **47** distinct archetypes against chapter 25's 33, which
+   put eight new blocks at **17.8%**. No board had to move: trimming the returning roster to sixteen
+   Monster and six Dwarf took it to **26.7%**. **The quota constrains how many _different_ things a
+   chapter fields, not how much of it is new** — decide the returning roster size before authoring
+   boards.
+
+⚠️ **Two board findings and a stale table.** Two heavy bodies in one front rank is chapter 19's
+failure and now has a campaign instance — `c26-s51` read 95% / 3.15 and `c26-s54` **8% / 0.20**, with
+**removing any single body fixing either**, and moving the second-heaviest body back fixing both; but
+applying that swap to all sixty broke two other boards, so **the rank each body takes is per-board
+tuning** and was settled by measuring every arrangement. And the boss grades 4.00 / 4.00 / 4.00 /
+4.00 / 3.95 / **0.42** across 240/9 → 560/22 — four rows the survivor metric cannot tell apart and
+then a cliff — so **fight length is the only thing separating the final from an ordinary board**
+(37.2s against a next-longest of 29.1s). ⚠️ **Its lean was chosen against the depth ordering for the
+third time and by recency for the second running**: Monster led at 61 where Human was thinnest at 54,
+because Human had led The Downstroke four chapters earlier and Monster had last led five back. ⚠️
+**And `authoring.md`'s depth table was four tower hundreds out of date when the chapter read it** —
+still saying angel 24 / demon 25 where the pool held 36 and 33. The seven now run demon 33, angel 36,
+human 54, elf 61, dwarf 66, undead 67, monster 71.
+
 ⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
 bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
 0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads
 exactly like a guard nobody maintains, and the proposal was to replace both its arms with assertions
 about shape. That is backwards: the bound has never moved _because it is not supposed to_.
-`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **seventeen times now**,
+`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty times now**,
 always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the saturating
-tilt it is papering over stays visible. Chapter 24's landing is **575**. ⚠️ **Check both sides of a
+tilt it is papering over stays visible. Chapter 24's landing was **575**, chapter 25's **605** and
+chapter 26's **635**; chapter 27 wants **665**. ⚠️ **Check both sides of a
 guard before calling it stale; the half that moves may not be the half the guard is written in.**
 
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung

@@ -8150,6 +8150,171 @@ export const NOBODY_ANSWERS = {
 } as const;
 
 // ---------------------------------------------------------------------------------------
+// The Roughcast — chapter 26
+//
+// Twelve turns for ten Monster blocks — one each for the eight ordinary blocks and two apiece for
+// the lieutenant and the boss — and the chapter's axis is a **stat** again: enemy `critChance` is
+// the one reading at level 620 that grades in nine monotone steps *and* in carrier counts, with zero
+// timeouts on every row. So these turns are deliberately plain — one scope, two reaches, one
+// selection and eight single-target blows — and the escalation lives in the stat line each one is
+// attached to.
+//
+// ⚠️ **The chapter is authored on the enemy's crit rather than on refusing the party's, and the
+// register check on _both_ sides is what licensed it.** Chapter 23 priced crit *denial* at 0.88 of
+// one member because only two of the calibrated five carry crit worth denying. Read from the other
+// side the same party carries `critBlock` **Σ0.05** and `critDamageResist` **Σ0.15** across five,
+// and `tenacity` **Σ0.00** — it has staked essentially nothing on refusing a crit, which is why the
+// identical stat that saturated as a lock grades as a threat.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_WAY_IT_FALLS} is the
+// chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses anything
+// heavier on `enemy-all`.
+//
+// ⚠️ **Exactly two `enemy-back` turns exist here** — {@link FROM_WHERE_IT_FELL} and the lieutenant's
+// {@link NOTHING_TO_PLAN_FOR} — and no board fields both. Chapter 24 shipped that claim false by
+// checking only its own new blocks; the check here was run over the **fielded** bodies, which is
+// what catches a returning body carrying one.
+
+/** Band 1's habit. The one turn in the chapter attached to a body at the shipped crit median. */
+export const GROUND_THAT_GIVES = {
+  id: 'ground-that-gives',
+  name: 'Ground That Gives',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/** The wall's turn: slow and heavy, on the body the party has to dig out of the scree. */
+export const NOTHING_SETS_TRUE = {
+  id: 'nothing-sets-true',
+  name: 'Nothing Sets True',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const ILL_MET_AND_ILL_FALLEN = {
+  id: 'ill-met-and-ill-fallen',
+  name: 'Ill Met And Ill Fallen',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+export const THE_STONE_TURNS = {
+  id: 'the-stone-turns',
+  name: 'The Stone Turns',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the closing bands read as a step up on the probe.
+ *
+ * ⚠️ **The difficulty probe reads throughput**, so a late band that pays for its lock by dropping
+ * `atk` and `haste` reads as a step *backwards* — chapter 24's `c24-s31` measured 0.792 against the
+ * 0.85 bar for exactly that reason. Enemy crit is the rare axis the probe **can** see, because it is
+ * throughput rather than refusal; this body is the margin on top of that rather than the whole
+ * repair, and it is what keeps the band openers clear of the bar.
+ */
+export const SHARP_AND_SUDDEN = {
+  id: 'sharp-and-sudden',
+  name: 'Sharp And Sudden',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** One of the chapter's two `enemy-back` turns. No board fields it beside {@link NOTHING_TO_PLAN_FOR}. */
+export const FROM_WHERE_IT_FELL = {
+  id: 'from-where-it-fell',
+  name: 'From Where It Fell',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_WAY_IT_FALLS = {
+  id: 'the-way-it-falls',
+  name: 'The Way It Falls',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+export const BREAK_WHERE_IT_WILL = {
+  id: 'break-where-it-will',
+  name: 'Break Where It Will',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const NO_TWO_THE_SAME = {
+  id: 'no-two-the-same',
+  name: 'No Two The Same',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's reach, and the second of the chapter's two `enemy-back` turns.
+ *
+ * ⚠️ **Not conditioned, which is a deliberate departure from the shape
+ * [authoring](../../docs/authoring.md) recommends for a lieutenant.** Chapter 24 measured all six
+ * condition kinds at **±0.08 of its control** and a condition on the payload axis at **−2.42** — a
+ * condition is a restriction on the board and the party is the beneficiary. Five appearances at
+ * rising levels are five different fights here because the board around it changes, not because the
+ * turn checks anything.
+ */
+export const NOTHING_TO_PLAN_FOR = {
+  id: 'nothing-to-plan-for',
+  name: 'Nothing To Plan For',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const COUNT_ON_NOTHING = {
+  id: 'count-on-nothing',
+  name: 'Count On Nothing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.7 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second turn, aimed where the chapter's question is: at whatever the party leaned on. */
+export const THE_WAY_IT_LANDS = {
+  id: 'the-way-it-lands',
+  name: 'The Way It Lands',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.2 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
 // The Human Tower's fourth hundred floors — the Panoply
 //
 // Four skills for four blocks, and **every one of them is a plain hit at the front rank**, which is
@@ -10009,4 +10174,16 @@ export const SKILLS = [
   THE_LIGHT_GUTTERS,
   NOTHING_LANDS_AT_ALL,
   THE_BLOW_UNMET,
+  GROUND_THAT_GIVES,
+  NOTHING_SETS_TRUE,
+  ILL_MET_AND_ILL_FALLEN,
+  THE_STONE_TURNS,
+  SHARP_AND_SUDDEN,
+  FROM_WHERE_IT_FELL,
+  THE_WAY_IT_FALLS,
+  BREAK_WHERE_IT_WILL,
+  NO_TWO_THE_SAME,
+  NOTHING_TO_PLAN_FOR,
+  COUNT_ON_NOTHING,
+  THE_WAY_IT_LANDS,
 ] as const;

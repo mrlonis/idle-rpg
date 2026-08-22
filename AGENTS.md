@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-five chapters, one thousand two hundred and ten
+- **[docs/ladder.md](docs/ladder.md)** — the campaign: twenty-six chapters, one thousand two hundred and seventy
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, chapter 22 to `mythic-plus` and
   chapter 25 to `ascended`; all three are overrides against the log-space rule, and they are the only
@@ -91,12 +91,59 @@ them is how they get reversed by accident.
   against a `mythic-plus` five and 282 against an `ascended` one**, and chapter 24's own opening
   board, mid board and final all read 0%. **The pool has settled all three overrides; state which
   half you have when they disagree.** The degenerate chain reached four links on `mythic`, two on
-  `mythic-plus`, and is at zero again; expect it to re-form at chapter 26.
+  `mythic-plus`, and re-formed at chapter 26 exactly as predicted. ⚠️ **That fifth stretch is the
+  first that can never end**, because the four before it were each closed by a rung move and there is
+  no rung left to move to: expect the chain to deepen a link a chapter forever, and do not read a
+  fifth or sixth identical link as a bug.
 - ⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past**, so the rung
   question stops having a tuning answer after chapter 25. `ascended-1` caps at 600 against chapter
   25's close of 605 and reads a seam of **61.94** — a walkover by two orders of magnitude, by
   construction rather than by tuning. A chapter that cannot be authored on `ascended` is a `data/`
-  question about `LEVEL_CURVE.caps`, not a chapter. [ladder](docs/ladder.md)
+  question about `LEVEL_CURVE.caps`, not a chapter. ⚠️ **Chapter 26 is the first chapter to live in
+  that, and what it means in practice is that every chapter from here is pure squeeze**: thirty
+  levels of board against a party frozen at cap 500, ×1.8654 a chapter. The Roughcast reads 2.5971
+  against `ascended-1`'s 33.2031 — a preference for staying put of **1.30 nats**, the widest any
+  chapter has had, and there is nothing to override toward. [ladder](docs/ladder.md)
+- ⚠️ **A degenerate seam is where a measured price table transfers, and chapter 26 is the first to
+  spend that deliberately.** The party is literally unchanged, so equal absolute weight is equal
+  difficulty and chapter 25's table holds at **0.536×** the common-equivalent figure — **and the
+  attack converts by the same factor**, which is chapter 23's rule at a seam where both halves move
+  together. Spot-check rather than assume. Chapter 26's boards run 3,174 to 5,089 common-equivalent
+  against chapter 25's 3,180 to 8,616, on new blocks of 300–1,100 health and 13–34 attack against
+  420–1,350 and 16–58. [authoring](docs/authoring.md)
+- ⚠️ **Two chapters may build on the same stat without sharing an argument, and the register on the
+  _party's_ side is what separates them.** Chapter 23 priced complete crit **denial** at 0.88 of one
+  member because only two of the calibrated five carry crit worth denying. Chapter 26 builds on enemy
+  `critChance` — the same stat from the other side — and it grades **0.20 → 3.23 across 0.12 → 0.45
+  and 0.02 → 1.78 across zero to five carriers**, zero timeouts, because that same five carries
+  `critBlock` **Σ0.05**, `critDamageResist` **Σ0.15** and `tenacity` **Σ0.00**. **Say which side of
+  the board you measured.** ⚠️ **And a band claim about a stat every block carries cannot be about
+  presence at all** — `critChance` sits on 378 of 378 — so state bodies per board at a threshold, and
+  state the register you measured _against_: shipping ten blocks took the pool to 388 and the Monster
+  ceiling from 0.18 to 0.28. [authoring](docs/authoring.md)
+- ⚠️ **Reading `damage.ts` rather than the stat names has now disqualified two candidates outright.**
+  `insight` is **not** a crit stat — `statusChance` computes `authored + insight − tenacity`, so it is
+  chapter 24's `tenacity` axis wearing an offensive coat, and on a board carrying no hostile status it
+  is worth 0.10. `magicPierce` is worth **exactly 0.00** against physical boards, because a pierce
+  only opens the defence its own damage type is checked against. **Price the shortlist from the
+  formula, not from the vocabulary.** [authoring](docs/authoring.md)
+- ⚠️ **The 25% quota can fail on the _denominator_ while every block is right.** Chapter 26's first
+  authored pass fielded **47** distinct archetypes against chapter 25's 33, which put eight new blocks
+  at **17.8%**; no board had to move, and trimming the returning roster to sixteen Monster and six
+  Dwarf took it to **26.7%**. **The quota constrains how many _different_ things a chapter fields,
+  not how much of it is new — decide the returning roster size before authoring boards.**
+  [authoring](docs/authoring.md)
+- ⚠️ **Two heavy bodies in one front rank is chapter 19's failure and it has a campaign instance
+  now, but the fix is per-board rather than a rule.** Chapter 26's `c26-s51` read 95% / 3.15 and
+  `c26-s54` **8% / 0.20** with the heaviest two in front — and **removing any single body fixed
+  either**, which is the tell that the arrangement is the fault. Moving the second-heaviest body back
+  fixed both; applying that swap to all sixty broke two other boards, the final at **0%**. **The rank
+  each body takes is tuning, settled by measuring every arrangement.** [authoring](docs/authoring.md)
+- ⚠️ **When the survivor metric saturates, fight length is the only thing separating a final from an
+  ordinary board.** Chapter 26's boss grades 4.00 / 4.00 / 4.00 / 4.00 / 3.95 / **0.42** across
+  240/9 → 560/22 — four rows the metric cannot tell apart, then a cliff — and ships at 37.2s against a
+  next-longest of 29.1s. **Quote the seconds, and check the escort moves it**: held at its shipped
+  stat line, a heavier escort reads **0%** and four light bodies read 4.03. [authoring](docs/authoring.md)
 - ⚠️ **An axis can be chosen on _fight length_ rather than on survivors, and chapter 25 is the first
   to do it.** At level 605 against an `ascended` five, `physicalPierce` across five grades **0.20 /
   0.41 / 0.51 / 0.58 / 0.93 / 1.13 / 1.35 / 1.67 / 2.06 / 2.33** over 0.08 → 0.45 — ten monotone
@@ -380,9 +427,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   clamps the board at 316 from chapter 13 on, so depths 800 and 850 field the **identical** board
   while their parties are bisected against different finals — **one new entry per chapter, forever,
   until the board level is keyed off the calibrated party instead of the anchor.** Keep adding
-  literals; do not derive the tail and do not drop the depths. ⚠️ **Eight consecutive chapters have
-  each added one and the schedule has never slipped**: the list is eleven entries at chapter 25, whose
-  depth 1,210 read 5.00 of five the day it shipped. ⚠️ **The rung ladder runs out at `ascended`, which
+  literals; do not derive the tail and do not drop the depths. ⚠️ **Nine consecutive chapters have
+  each added one and the schedule has never slipped**: the list is twelve entries at chapter 26, whose
+  depth 1,270 is the first entry with **no rung behind it** — the party a depth implies now gains only
+  the thirty levels between chapter finals, where depth 1,210's entry carried a whole ×8.36. ⚠️ **The rung ladder runs out at `ascended`, which
   changes the shape of the growth rather than ending it** — no later chapter can hand a depth another
   ×1.6, so from chapter 26 the gap widens on levels alone and each new entry is a shallower trough.
   **Do not read a smaller step as the schedule ending.** [descent](docs/descent.md)
@@ -685,10 +733,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   the guard is written in.** `gear.spec.ts` bounds the top gear grade's share of end-of-ladder drops
   at `< 0.2` and that bound has **never moved in the project's history** — which reads exactly like a
   guard nobody maintains. It is the opposite: `gradeSoftness` in `data/gear.ts` moves to meet it, by
-  hand, **once a chapter, nineteen times now**, always to `stages / 2`, always restoring 18.7%. It is
+  hand, **once a chapter, twenty times now**, always to `stages / 2`, always restoring 18.7%. It is
   done by hand deliberately, so the saturating-tilt bug underneath stays visible. Chapter 24 nearly
   retired the bound on a `git log -S` over the spec alone. **Adding a chapter owes this edit**; chapter
-  26 wants 635. [gear](docs/gear.md)
+  27 wants 665. [gear](docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'

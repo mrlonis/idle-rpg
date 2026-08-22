@@ -1189,40 +1189,75 @@ const NEVERMARK: FormationData = mono(
  * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
  * ahead" stays checkable at both boundaries at once.
  *
- * ## ⚠️ The rung moves to `ascended`, and this is the campaign's third override
+ * ## ⚠️ The rung moved to `ascended` here, and it is the campaign's third override
  *
  * Against chapter 24's seam of **1.0711** and The Thinground's close of 605, `mythic-plus` reads
- * **0.5740** (|Δln| **0.6238**) and `ascended` **4.8443** (|Δln| **1.5092**). **The rule prefers
+ * **0.5740** (|Δln| **0.6238**) and `ascended` **4.8443** (|Δln| **1.5092**). **The rule preferred
  * staying put by 0.885 of a nat** — numerically the same margin chapters 18 and 22 overrode and
- * chapters 19, 20, 21, 23 and 24 stayed on. **Seven chapters running have now had to say which of
- * the two they are doing**; this one is an **override**.
+ * chapters 19, 20, 21, 23 and 24 stayed on.
  *
- * ⚠️ **The licence is the pool, and it was measured by fielding rather than by filtering** — chapter
- * 24's correction to chapter 23's rule, applied. Every one of the 312 shipped blocks was fielded as
- * an ordinary body beside four light escorts at level 605: against the `mythic-plus` five **4 stand,
- * every one of them a Monster**, and against an `ascended` five **282 stand, across all seven
- * factions**. Chapter 24's own opening board, mid board and final all read **0%** at 605 against the
- * rung it was fought on. **There is no chapter 25 on `mythic-plus`.**
+ * ⚠️ **The licence was the pool, measured by fielding rather than by filtering** — chapter 24's
+ * correction to chapter 23's rule, applied. Every one of the 312 blocks shipped before chapter 25
+ * was fielded as an ordinary body beside four light escorts at level 605: against the `mythic-plus`
+ * five **4 stand, every one of them a Monster**, and against an `ascended` five **282 stand, across
+ * all seven factions**. Chapter 24's own opening board, mid board and final all read **0%** at 605
+ * against the rung it was fought on. **There was no chapter 25 on `mythic-plus`.**
  *
- * ⚠️ **Only half the standing licence is met, and saying so is the point.** The rule is that an
+ * ⚠️ **Only half the standing licence was met, and saying so is the point.** The rule is that an
  * override needs the seam *below* to be wrong **and** the pool to be unable to supply a board. The
- * seam below is **1.0711 — above 1.00** — and only this chapter's own (0.5740) is under it, which is
- * exactly the reading chapter 21 declined an override on. What separates them is that chapter 21's
- * chapter was **authorable** and this one is not. **The pool is the binding half, and it has settled
- * all three overrides the campaign has.**
+ * seam below was **1.0711 — above 1.00** — and only chapter 25's own (0.5740) was under it, which is
+ * exactly the reading chapter 21 declined an override on. What separated them is that chapter 21's
+ * chapter was **authorable** and that one was not. **The pool is the binding half, and it has
+ * settled all three overrides the campaign has.**
  *
- * ⚠️ **This ends the degenerate chain at two links.** {@link DOWNSTROKE}, {@link EVENFALL} and
- * {@link NEVERMARK} are one set of five combatants on `mythic-plus`'s cap of 420; this party is the
- * first in four chapters that is not, and it stands eighty levels and a rung above them — ×8.36.
- * **Expect the chain to re-form at chapter 26**, which is what it has done after every rung move.
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const THINGROUND_RARITY = rarityIndex('ascended');
+const THINGROUND_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[24] - 1].level,
+  LEVEL_CURVE.caps[THINGROUND_RARITY],
+);
+
+const THINGROUND: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(THINGROUND_LEVEL, THINGROUND_RARITY),
+  THINGROUND_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 26: the five that just took The Thinground, unchanged.
  *
- * ⚠️ **What moves the rung next, and it is the last time this question has an answer.** Each further
- * sixty-stage chapter divides the seam by `perLevel.common ** 30` = **1.867**: chapter 26 reads
- * **2.5951**, chapter 27 **1.3901**, chapter 28 **0.7446**. `ascended-1` caps at 600, which the
- * campaign passes at chapter 25 itself, so **`ascended` is the last rung whose cap the ladder has
- * not already climbed past** — and every rung above it is a walkover by construction rather than by
- * tuning. A chapter that cannot be authored on `ascended` is a `data/` question about
- * `LEVEL_CURVE.caps`, not a chapter. **Measure the pool before re-deriving the seam.**
+ * ⚠️ **This is The Thinground's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung stays on `ascended`, and the rung question is now closed
+ *
+ * Against chapter 25's seam of **4.8443** and The Roughcast's close of 635, `ascended` reads
+ * **2.5971** (|Δln| **0.6234**) and `ascended-1` **33.2031** (|Δln| **1.9248**). **The rule prefers
+ * staying put by 1.30 nats** — the widest margin any chapter has had, and there is nothing to
+ * override toward. `ascended` caps at 500 and `ascended-1` at 600, which the ladder passed at
+ * chapter 25 itself, so every rung above this one is a walkover by construction rather than by
+ * tuning.
+ *
+ * ⚠️ **From here a chapter that cannot be authored on `ascended` is a `data/` question about
+ * `LEVEL_CURVE.caps`, not a chapter.** This one can be: fielded as an ordinary body beside four
+ * light escorts at level 635, **246 of 378 shipped blocks stand**, across all seven factions and 47
+ * of them Monster. **Measure the pool before re-deriving the seam.**
+ *
+ * ⚠️ **This party and {@link THINGROUND} are one set of five combatants**, which restarts the
+ * degenerate chain exactly where chapter 25 predicted it would — both chapters close above
+ * `ascended`'s cap of 500, so the two assertions either side of the boundary are one claim. **Unlike
+ * every previous degenerate stretch, no rung move can end this one**, so expect the chain to deepen
+ * a link a chapter from here rather than to reset. The repair is the share-of-the-slice one
+ * {@link MOMENTUM_CEILING} already names, and it re-derives every seam in the file at once.
+ *
+ * ⚠️ **What a degenerate seam buys, and it is the only thing that transfers:** the party is
+ * literally unchanged, so equal *absolute* weight is equal difficulty and chapter 25's measured
+ * price table holds here at **0.536×** the common-equivalent figure. Spot-check rather than assume,
+ * and nothing priced against a different party transfers at all.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
@@ -1411,6 +1446,11 @@ const nevermarkSweeps = stages.map((stage) => ({
   stage,
   ...sweep(NEVERMARK, stage),
 }));
+const thingroundSweeps = stages.map((stage) => ({
+  label: 'thinground',
+  stage,
+  ...sweep(THINGROUND, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1547,6 +1587,9 @@ const EVENFALL_END = CHAPTER_ENDS[22];
 
 /** Where The Nevermark ends, for {@link NEVERMARK}'s seam. */
 const NEVERMARK_END = CHAPTER_ENDS[23];
+
+/** Where The Thinground ends, for {@link THINGROUND}'s seam. */
+const THINGROUND_END = CHAPTER_ENDS[24];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2382,6 +2425,40 @@ describe('ladder balance', () => {
     // repair is a share of the *slice*; that repair is still not taken, and still recorded.
     const walked = nevermarkSweeps
       .slice(NEVERMARK_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 25 clear chapters 1 through 25', () => {
+    // The Roughcast's seam, measured the same way as the twenty-one above it.
+    const unreliable = thingroundSweeps
+      .slice(0, THINGROUND_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Roughcast as well', () => {
+    // ⚠️ **This is the first seam in the campaign's history whose two parties can never diverge,
+    // and the reading is vacuous by construction rather than by accident.** {@link THINGROUND} and
+    // {@link INVESTED} both clamp to `ascended`'s cap of 500, so they are the same five combatants —
+    // and unlike the four degenerate stretches before it, no later chapter can end this one, because
+    // `ascended` is the last rung whose cap the ladder has not already climbed past.
+    //
+    // What holds the boundary instead is the boards: chapter 25's own final reads 100% with 3.95 of
+    // five at level 605 and **0%** at 615, and its mid board reads 100% / 5.00 at 605 and
+    // **40% / 0.82** at 635. The chapter is thirty levels of squeeze against a party that cannot
+    // move, which is what the assertion below is actually measuring.
+    //
+    // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind on the count** — it is a share of the whole
+    // ladder (381 boards at 1,270 stages) against a slice of 60 — so what this assertion is worth is
+    // the record rather than the arithmetic. `docs/authoring.md` forbids widening it and the honest
+    // repair is a share of the *slice*; that repair is still not taken, and still recorded.
+    const walked = thingroundSweeps
+      .slice(THINGROUND_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

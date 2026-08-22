@@ -19,6 +19,7 @@ import {
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
   BRAKE_FLAIL,
+  BREAK_WHERE_IT_WILL,
   BROKEN_COVENANT,
   BULWARK,
   CALL_THE_ROLL,
@@ -35,6 +36,7 @@ import {
   COUCHED_LANCE,
   COUNT_IT_AGAIN,
   COUNT_IT_ALL_AGAIN,
+  COUNT_ON_NOTHING,
   COUNT_THE_HOLLOW,
   COUNT_THE_RINGS,
   COURSE_BY_COURSE,
@@ -62,6 +64,7 @@ import {
   FLATTEN_THE_EDGE,
   FLENSE,
   FLENSE_THE_SEAM,
+  FROM_WHERE_IT_FELL,
   FULL_WEIGHT,
   GAINSAY,
   GALLERY_SHOT,
@@ -73,12 +76,14 @@ import {
   GRAVESTRIDE_CADENCE,
   GRIND_THE_SEAM,
   GROUND_ALREADY_WALKED,
+  GROUND_THAT_GIVES,
   GROWN_THROUGH_IT,
   HARNESS_DRILL,
   HEADSMANS_ARC,
   HERALDS_ANTHEM,
   HEWING_STROKE,
   HUSH_THE_MANY,
+  ILL_MET_AND_ILL_FALLEN,
   IRONPACE_STEP,
   IRONWAKE_CHARGE,
   IRON_FOR_IRON,
@@ -132,16 +137,19 @@ import {
   NOTHING_LANDS_AT_ALL,
   NOTHING_LANDS_BETTER,
   NOTHING_PUTS_IT_OUT,
+  NOTHING_SETS_TRUE,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES,
   NOTHING_TAKES_HOLD,
   NOTHING_TELLS,
+  NOTHING_TO_PLAN_FOR,
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
   NO_NUMBER_HOLDS,
   NO_SUCH_THING,
+  NO_TWO_THE_SAME,
   NO_WORD_REACHES_IT,
   OIL_THE_GROUND,
   ONE_GRAVE_BETWEEN_US,
@@ -189,6 +197,7 @@ import {
   SET_YOUR_HAND,
   SEVENFOLD_HEX,
   SHARDLIGHT,
+  SHARP_AND_SUDDEN,
   SHATTERJAW,
   SHELLED_RUSH,
   SHIELD_BASH,
@@ -279,11 +288,14 @@ import {
   THE_STANDING_ORDER,
   THE_STONE_KEEPS_IT,
   THE_STONE_STANDS,
+  THE_STONE_TURNS,
   THE_STRIKE_FALLS,
   THE_SUN_AT_NOON,
   THE_TIDE_DOES_NOT_TURN,
   THE_VAULT_HOLDS,
   THE_WARDS_HOLD,
+  THE_WAY_IT_FALLS,
+  THE_WAY_IT_LANDS,
   THE_WHEEL_TURNS,
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
@@ -11200,6 +11212,260 @@ export const THE_SHORTFALL = {
 } as const;
 
 // ---------------------------------------------------------------------------------------
+// The Roughcast — chapter 26
+//
+// Ten Monster blocks, and the chapter's axis is enemy **`critChance`**. Measured against a control
+// of an ascended anchor at 300/14 behind four bodies of 620/34 at level 620 and Relic 100 —
+// **4,335 common-equivalent, reading 4.28 of five** — crit across all five grades **0.20 / 0.60 /
+// 0.88 / 1.13 / 1.80 / 1.95 / 2.45 / 2.65 / 3.23** across 0.12 → 0.45 at 40 trials, with **zero
+// timeouts on every row**, and it grades in carrier counts as well (0.08 / 0.25 / 0.65 / 1.18 /
+// 1.78 at one through five at 0.28).
+//
+// ⚠️ **The licence is the register read from _both_ sides, which is chapter 23's rule inverted.**
+// That chapter priced crit *denial* at 0.88 of one member because only two of the calibrated five
+// carry crit worth denying. Read the other way the same five carry `critBlock` **Σ0.05**,
+// `critDamageResist` **Σ0.15** and `tenacity` **Σ0.00** — the party has staked essentially nothing
+// on refusing a crit, so the identical stat that saturated as a lock grades as a threat. **Two
+// chapters may share a stat name when they do not share the argument.**
+//
+// ⚠️ **The axis runs _past_ the lean's own register and that is stated rather than smoothed.**
+// Before this chapter `critChance` sat on **378 of 378 blocks** at a median of 0.10, a p75 of 0.12
+// and a p90 of 0.15, with a ceiling of **0.30 on a single Demon block** — 11 blocks at or above 0.18
+// and 5 at or above 0.20. **Monster carries 16 of the 44 blocks at or above 0.15, more than any
+// other faction, at a faction ceiling of 0.18.** So the opening bands sit inside the Monster
+// register and bands 4 to 6 step past it: the Monster Tower's `physicalResist` shape rather than the
+// Elf Tower's `critChance` one, and the two are distinguishable because this one says which.
+//
+// ⚠️ **A band claim about a stat every block carries cannot be about presence**, which is chapter
+// 23's counts-not-absolutes fix for the fourth chapter running. The band table states **bodies per
+// board at or above a threshold**, and it forced {@link ROUGHCAST_GNAWER} to be authored at the
+// shipped **median** rather than above it, because it stands on more opening-band boards than
+// anything else here.
+//
+// ⚠️ **These are authored far lighter than The Thinground's, and it is the seam going degenerate.**
+// Chapter 25 moved the party to `ascended` and its cap of 500; chapter 26 closes at 635 against the
+// same cap, so the party is **literally the same five combatants** and thirty levels of board climb
+// is a straight ×1.8654 of squeeze. An authored number here is worth ×1.87 of the identical number
+// in The Thinground, which is why these run **300 to 1,100 authored health** where chapter 25's ran
+// 420 to 1,350. ⚠️ **And the attack comes down with it**: chapter 23's finding is that an authored
+// `atk` is worth `perLevel ** 30` more a chapter later, so these run **13 to 34** against chapter
+// 25's 16 to 58.
+
+/**
+ * Band 1's habit, and the one new block in the chapter carrying `critChance` **at the shipped
+ * median** rather than above it.
+ *
+ * ⚠️ **Deliberate, and it is chapter 23's counts-not-absolutes rule forcing an authoring decision
+ * rather than a sentence.** `critChance` sits on **378 of 378** shipped blocks at a median of 0.10,
+ * so a band table claiming "the ill throw arrives in band 2" cannot be a claim about *presence* —
+ * and this body stands on more band-1 boards than anything else here, so it is the block that has to
+ * sit at the median for the counts to mean what they say.
+ */
+export const ROUGHCAST_GNAWER = {
+  id: 'roughcast-gnawer',
+  name: 'Roughcast Gnawer',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 900,
+    atk: 26,
+    def: 24,
+    haste: 90,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+  },
+  skills: [GROUND_THAT_GIVES],
+} as const;
+
+/** Band 1 into band 2: the wall the party has to dig out, at the shipped p75 and no higher. */
+export const SHALEBED_CRAWLER = {
+  id: 'shalebed-crawler',
+  name: 'Shalebed Crawler',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1100,
+    atk: 24,
+    def: 30,
+    haste: 74,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+  },
+  skills: [NOTHING_SETS_TRUE],
+} as const;
+
+/** Band 2's identity: the shipped p90, and the chapter's most-fielded body across bands 2 and 3. */
+export const ILLFALL_SKULKER = {
+  id: 'illfall-skulker',
+  name: 'Illfall Skulker',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 820,
+    atk: 30,
+    def: 20,
+    haste: 104,
+    critChance: 0.15,
+    critDamageAmp: 0.75,
+  },
+  skills: [ILL_MET_AND_ILL_FALLEN],
+} as const;
+
+/** Band 3's identity: the **Monster faction ceiling** of 0.18, reached from below. */
+export const SCATTERSTONE_HOWLER = {
+  id: 'scatterstone-howler',
+  name: 'Scatterstone Howler',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 1000,
+    atk: 28,
+    def: 26,
+    haste: 88,
+    critChance: 0.16,
+    critDamageAmp: 0.8,
+  },
+  skills: [THE_STONE_TURNS],
+} as const;
+
+/**
+ * The chapter's one **fast, hot** body, and it exists for the difficulty probe's band openers.
+ *
+ * ⚠️ **Enemy crit is the rare axis the probe can see**, because it is throughput rather than
+ * refusal — chapter 24's `tenacity` lock was invisible to it and cost that chapter a band opener at
+ * 0.792 against the 0.85 bar. This body is the margin on top of that: it carries the Monster ceiling
+ * so the count claims stay true on the boards it stands on, and its `haste` is what keeps a band
+ * that adds a lock from opening lighter than the band below it closed.
+ */
+export const SHARPSTONE_COURSER = {
+  id: 'sharpstone-courser',
+  name: 'Sharpstone Courser',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 740,
+    atk: 34,
+    def: 16,
+    haste: 120,
+    critChance: 0.18,
+    critDamageAmp: 0.8,
+  },
+  skills: [SHARP_AND_SUDDEN],
+} as const;
+
+/** Band 4's identity, and the chapter's one ordinary `enemy-back` turn. See {@link FROM_WHERE_IT_FELL}. */
+export const LOOSEGROUND_RAVENER = {
+  id: 'looseground-ravener',
+  name: 'Looseground Ravener',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 400,
+    atk: 30,
+    def: 20,
+    haste: 108,
+    critChance: 0.2,
+    critDamageAmp: 0.85,
+  },
+  skills: [FROM_WHERE_IT_FELL],
+} as const;
+
+/** The chapter's only board-wide turn, at the wide cap. Bands 5 and 6, one per board. */
+export const ODDSTONE_HERALD = {
+  id: 'oddstone-herald',
+  name: 'Oddstone Herald',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 420,
+    atk: 28,
+    def: 22,
+    haste: 96,
+    critChance: 0.22,
+    critDamageAmp: 0.85,
+  },
+  skills: [THE_WAY_IT_FALLS],
+} as const;
+
+/** Band 6's ordinary wall. The pairing chapter 23 found: the axis past the register, a skin under it. */
+export const BREAKSTONE_WARDEN = {
+  id: 'breakstone-warden',
+  name: 'Breakstone Warden',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 520,
+    atk: 30,
+    def: 28,
+    haste: 78,
+    critChance: 0.24,
+    critDamageAmp: 0.9,
+    physicalResist: 0.12,
+  },
+  skills: [BREAK_WHERE_IT_WILL],
+} as const;
+
+/**
+ * The lieutenant, anchoring all five mini-boss boards at rising levels.
+ *
+ * ⚠️ **Settled by fielding all five appearances rather than the first**, which is chapter 17's trap:
+ * an `ascended` block climbs at `perLevel.ascended` 1.024 against a party frozen at its rung's cap,
+ * so a recurring anchor correct on `c26-s10` is unwinnable on `c26-s50`.
+ *
+ * ⚠️ **Its board carries no second anchor**, which is chapter 21's rule — a lieutenant *is* one.
+ */
+export const THE_ILLMET = {
+  id: 'the-illmet',
+  name: 'The Illmet',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 300,
+    atk: 14,
+    def: 34,
+    haste: 88,
+    critChance: 0.2,
+    critDamageAmp: 0.85,
+    physicalResist: 0.1,
+  },
+  skills: [NO_TWO_THE_SAME, NOTHING_TO_PLAN_FOR],
+} as const;
+
+/**
+ * The chapter boss. `critChance` 0.28, under the shipped ceiling of 0.30 and above every other block
+ * the campaign fields.
+ *
+ * Well under the {@link UNMADE} on both stats, as every chapter boss since chapter 6 has been.
+ */
+export const THE_MISCHANCE = {
+  id: 'the-mischance',
+  name: 'The Mischance',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 340,
+    atk: 13,
+    def: 36,
+    haste: 86,
+    critChance: 0.28,
+    critDamageAmp: 1.0,
+    physicalResist: 0.14,
+    magicResist: 0.1,
+  },
+  skills: [COUNT_ON_NOTHING, THE_WAY_IT_LANDS],
+} as const;
+
+// ---------------------------------------------------------------------------------------
 // The Human Tower's fourth hundred floors — the Panoply
 //
 // Four Undead blocks on one axis: **the dead are being armed, and the equipment is the escalation.**
@@ -14420,4 +14686,14 @@ export const ENEMIES = [
   AISLEWARD_VERGER,
   GUTTERLIGHT_SEXTON,
   THE_UNSTRUCK,
+  ROUGHCAST_GNAWER,
+  SHALEBED_CRAWLER,
+  ILLFALL_SKULKER,
+  SCATTERSTONE_HOWLER,
+  SHARPSTONE_COURSER,
+  LOOSEGROUND_RAVENER,
+  ODDSTONE_HERALD,
+  BREAKSTONE_WARDEN,
+  THE_ILLMET,
+  THE_MISCHANCE,
 ] as const;

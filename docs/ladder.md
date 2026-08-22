@@ -1,7 +1,9 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-three chapters and one thousand
-and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and four of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Twenty-six chapters and one thousand
+two hundred and seventy stages** — 10, 20, 30, 40, then fifteen of fifty and seven of sixty. ⚠️ **That
+count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
+recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -35,7 +37,12 @@ Thinground**, the campaign's **third override**, moving the rung to **`ascended`
 where the two halves of the override licence disagreed: its seam _below_ is 1.0711, **above** 1.00,
 so what licenses it is the pool alone (4 of 312 blocks stand at level 605 against a `mythic-plus`
 five, 282 against an `ascended` one). It is also the first chapter to choose its axis on **fight
-length** rather than on survivors. See [authoring](authoring.md).
+length** rather than on survivors. Chapter 26 is **The Roughcast**, which **stays** on `ascended` —
+and is the first chapter for which the rung question has no tuning answer left at all, because
+`ascended` is the last rung whose cap the ladder has not already climbed past. Its axis is enemy
+`critChance`: the same stat chapter 23 built a chapter on, measured from the **other side of the
+board**, and licensed by the party's own register (`critBlock` Σ0.05, `critDamageResist` Σ0.15,
+`tenacity` Σ0.00 across five) rather than by the enemy pool's. See [authoring](authoring.md).
 
 ## The shape
 
@@ -361,7 +368,12 @@ own opening board, mid board and final all read **0%** refielded at 605. **There
 `mythic-plus`, and the pool has now settled all three of the campaign's overrides.**
 
 ⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past, so the rung
-question stops having a tuning answer here.** `ascended` caps at 500 against chapter 25's close of
+question stops having a tuning answer here.** ⚠️ **Chapter 26 is the first chapter to live in that,
+and what it means in practice is that every chapter from here is pure squeeze** — thirty levels of
+board against a party frozen at cap 500, ×1.8654 a chapter, with the seam degenerate and **no rung
+move able to end it**, unlike the four degenerate stretches before it. The Roughcast reads 2.5971
+against `ascended-1`'s 33.2031, a preference for staying put of **1.30 nats**, the widest any chapter
+has had. `ascended` caps at 500 against chapter 25's close of
 605; `ascended-1` caps at **600**, five levels under that close, and reads a seam of **61.94** — a
 walkover by two orders of magnitude, by construction rather than by tuning. Chapter 26 inherits
 **4.8443**, 27 reads **1.3901** and 28 **0.7446**. A chapter that cannot be authored on `ascended` is

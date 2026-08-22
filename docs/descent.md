@@ -422,7 +422,7 @@ depth where the mode can still move.
 
 ### The trough is pinned rather than dropped
 
-`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 25 — **eleven entries** — and asserts
+`RUNG_TROUGH` names chapters 12 to 14 and chapters 18 through 26 — **twelve entries** — and asserts
 what is actually true of them: **between 4.85 and 5.00 survivors, all finishing 1.00.** Dropping them would put the hole
 straight back in the place the derived `DEPTHS` was written to close; pinning them keeps the defect
 visible and stops it spreading or deepening.
@@ -456,6 +456,12 @@ Depths 850 through 1,210 now field the **same board**.
 can hand a depth another ×1.6. From chapter 26 the gap widens on **levels alone** — one chapter at a
 time rather than a rung — so each new entry is a shallower trough and the list is no shorter. **Do
 not read a smaller step as the schedule ending.**
+
+⚠️ **Chapter 26 added the twelfth and is the first entry with no rung behind it, exactly as the note
+above predicted.** Depth **1,270** joins the list, and the party a depth implies now gains nothing
+but the thirty levels between chapter finals — where depth 1,210's entry carried a whole ×8.36. The
+run is **nine consecutive chapters** and the schedule has still never slipped. **Keep adding
+literals; do not derive the tail and do not drop the depths.**
 
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than

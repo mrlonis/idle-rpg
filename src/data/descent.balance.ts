@@ -301,6 +301,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(23),
   chapterEnd(24),
   chapterEnd(25),
+  chapterEnd(26),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */
