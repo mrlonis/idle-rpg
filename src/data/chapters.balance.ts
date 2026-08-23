@@ -1262,6 +1262,47 @@ const THINGROUND: FormationData = mono(
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
  */
+const ROUGHCAST_RARITY = rarityIndex('ascended');
+const ROUGHCAST_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[25] - 1].level,
+  LEVEL_CURVE.caps[ROUGHCAST_RARITY],
+);
+
+const ROUGHCAST: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(ROUGHCAST_LEVEL, ROUGHCAST_RARITY),
+  ROUGHCAST_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 27: the five that just took The Roughcast, unchanged.
+ *
+ * ⚠️ **This is The Roughcast's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung stays on `ascended`, and there is nothing left to argue about
+ *
+ * Against chapter 26's seam of **2.5971** and The Looseline's close of 665, `ascended` reads
+ * **1.3922** (|Δln| **0.6235**) and `ascended-1` **17.7995** (|Δln| **1.9248**). **The rule prefers
+ * staying put by 1.30 nats** — the same margin chapter 26 read, and for the same reason: `ascended`
+ * caps at 500 and every rung above it is a walkover by construction rather than by tuning.
+ *
+ * ⚠️ **This party, {@link ROUGHCAST} and {@link THINGROUND} are one set of five combatants** — the
+ * third link of a degenerate stretch, and the first stretch in the campaign's history that no rung
+ * move can end. The four before it reached four links on `mythic` and two on `mythic-plus` and were
+ * each closed by a rung move; this one deepens a link a chapter forever. **Expect a fourth at
+ * chapter 28 and do not read it as a bug.**
+ *
+ * ⚠️ **The pool is still not a wall, measured by fielding rather than by filtering.** Beside four
+ * light escorts, **284 of 388 shipped blocks stand at level 635 and 150 at 665**, across all seven
+ * factions. What binds instead is common-equivalent **attack**: every board that failed in tuning
+ * failed at 172 to 212 and every fix was an attack cut.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
 const INVESTED_RARITY = rarityIndex('ascended');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
 
@@ -1451,6 +1492,11 @@ const thingroundSweeps = stages.map((stage) => ({
   stage,
   ...sweep(THINGROUND, stage),
 }));
+const roughcastSweeps = stages.map((stage) => ({
+  label: 'roughcast',
+  stage,
+  ...sweep(ROUGHCAST, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1502,6 +1548,8 @@ const everySweep = [
   ...downstrokeSweeps,
   ...evenfallSweeps,
   ...nevermarkSweeps,
+  ...thingroundSweeps,
+  ...roughcastSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1590,6 +1638,9 @@ const NEVERMARK_END = CHAPTER_ENDS[23];
 
 /** Where The Thinground ends, for {@link THINGROUND}'s seam. */
 const THINGROUND_END = CHAPTER_ENDS[24];
+
+/** Where The Roughcast ends, for {@link ROUGHCAST}'s seam. */
+const ROUGHCAST_END = CHAPTER_ENDS[25];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2444,7 +2495,7 @@ describe('ladder balance', () => {
   it('does not let that party walk The Roughcast as well', () => {
     // ⚠️ **This is the first seam in the campaign's history whose two parties can never diverge,
     // and the reading is vacuous by construction rather than by accident.** {@link THINGROUND} and
-    // {@link INVESTED} both clamp to `ascended`'s cap of 500, so they are the same five combatants —
+    // {@link ROUGHCAST} both clamp to `ascended`'s cap of 500, so they are the same five combatants —
     // and unlike the four degenerate stretches before it, no later chapter can end this one, because
     // `ascended` is the last rung whose cap the ladder has not already climbed past.
     //
@@ -2454,11 +2505,45 @@ describe('ladder balance', () => {
     // move, which is what the assertion below is actually measuring.
     //
     // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind on the count** — it is a share of the whole
-    // ladder (381 boards at 1,270 stages) against a slice of 60 — so what this assertion is worth is
+    // ladder (399 boards at 1,330 stages) against a slice of 60 — so what this assertion is worth is
     // the record rather than the arithmetic. `docs/authoring.md` forbids widening it and the honest
     // repair is a share of the *slice*; that repair is still not taken, and still recorded.
     const walked = thingroundSweeps
       .slice(THINGROUND_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 26 clear chapters 1 through 26', () => {
+    // The Looseline's seam, measured the same way as the twenty-two above it.
+    const unreliable = roughcastSweeps
+      .slice(0, ROUGHCAST_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Looseline as well', () => {
+    // ⚠️ **The second seam whose two parties can never diverge, and the third link of the stretch.**
+    // {@link THINGROUND}, {@link ROUGHCAST} and {@link INVESTED} all clamp to `ascended`'s cap of
+    // 500, so all three are the same five combatants. The four degenerate stretches before this one
+    // were each closed by a rung move; nothing can close this one, so **expect a fourth link at
+    // chapter 28** rather than reading it as a bug.
+    //
+    // What holds the boundary is the boards, not the parties: chapter 26's own mid board reads 100%
+    // with 4.00 of five at level 635 and **0%** at 650, and its final reads 100% / 4.00 at 635 and
+    // **33% / 1.07** at 645. The chapter is thirty levels of squeeze against a party that cannot
+    // move.
+    //
+    // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind on the count** — it is a share of the whole
+    // ladder against a slice of 60 — so what this assertion is worth is the record rather than the
+    // arithmetic. `docs/authoring.md` forbids widening it and the honest repair is a share of the
+    // *slice*; that repair is still not taken, and still recorded.
+    const walked = roughcastSweeps
+      .slice(ROUGHCAST_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

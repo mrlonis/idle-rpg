@@ -11,6 +11,7 @@ import {
   ASHPIT_RAKE,
   AT_THE_HALT,
   A_PACE_AHEAD,
+  A_STEP_ALREADY_TAKEN,
   BACKSTROKE,
   BANK_THE_WARD,
   BARROW_TITHE,
@@ -19,6 +20,7 @@ import {
   BLOOD_CALLS_BLOOD,
   BLOOD_RISEN,
   BRAKE_FLAIL,
+  BREAK_AND_GO,
   BREAK_WHERE_IT_WILL,
   BROKEN_COVENANT,
   BULWARK,
@@ -76,10 +78,13 @@ import {
   GRAVESTRIDE_CADENCE,
   GRIND_THE_SEAM,
   GROUND_ALREADY_WALKED,
+  GROUND_GIVEN,
   GROUND_THAT_GIVES,
   GROWN_THROUGH_IT,
+  HALF_A_TURN,
   HARNESS_DRILL,
   HEADSMANS_ARC,
+  HELD_BY_HALVES,
   HERALDS_ANTHEM,
   HEWING_STROKE,
   HUSH_THE_MANY,
@@ -105,6 +110,7 @@ import {
   LITANY,
   LOAD_THE_CART,
   LONG_HAUL,
+  LOOSE_AT_THE_REIN,
   LOOSE_THE_PLATED_PACK,
   LOW_AND_LOWER,
   MARKED_BY_THE_WATER,
@@ -116,6 +122,7 @@ import {
   MOONSONG,
   MOTE_LANCE,
   NAME_THE_QUARRY,
+  NEVER_CLOSING,
   NIGHT_RIDE,
   NOBODY_ANSWERS,
   NOBODY_HERE_IS_ONE_THING,
@@ -142,11 +149,13 @@ import {
   NOTHING_TAKES,
   NOTHING_TAKES_HOLD,
   NOTHING_TELLS,
+  NOTHING_TO_MEET_IT,
   NOTHING_TO_PLAN_FOR,
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
+  NO_LINE_TO_BREAK,
   NO_NUMBER_HOLDS,
   NO_SUCH_THING,
   NO_TWO_THE_SAME,
@@ -154,6 +163,7 @@ import {
   OIL_THE_GROUND,
   ONE_GRAVE_BETWEEN_US,
   ONE_VOICE,
+  OPEN_ORDER,
   OPEN_THE_VEIN,
   OVER_THE_LINE,
   OVER_THE_STUBBLE,
@@ -263,6 +273,7 @@ import {
   THE_LEADEN_HOUR_FALLS,
   THE_LIGHT_GOES_FLAT,
   THE_LIGHT_GUTTERS,
+  THE_LINE_OPENS,
   THE_LINE_REFORMS,
   THE_LINE_TRUE,
   THE_LONG_BLEED,
@@ -321,6 +332,7 @@ import {
   WHAT_THE_FIELD_KEPT,
   WHAT_THE_FIELD_LEFT,
   WHAT_THE_WATER_LEFT,
+  WHERE_IT_WAS_STANDING,
   WHOSE_HAND_IS_THAT,
   WIDEN_IT,
   WILDING_BLOOM,
@@ -14307,6 +14319,259 @@ export const THE_UNSTRUCK = {
   skills: [NOTHING_LANDS_AT_ALL, THE_BLOW_UNMET],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 27 — The Looseline
+//
+// Ten Human blocks on one axis: **the line has stopped being a line.** Human goes 54 → 64 and off
+// the thinnest-legal slot it has held for two chapters.
+//
+// ⚠️ **The lean's own register for the axis is empty, which is a first for a chapter.** `dodge` sat
+// on **33 of the 388 blocks shipped before this chapter** at a median of 0.22, a p90 of 0.30 and a
+// ceiling of 0.55 — and **0 of the 54 Human blocks carried a point of it.** Elves carry 16 of the 33
+// at a faction ceiling of 0.34; the other six factions carry seventeen between them. So every figure
+// below is the register this chapter was measured **against**, not the one it leaves behind: these
+// ten take the pool to 398, the Human count to ten, and the Human ceiling from nothing to 0.34.
+//
+// ⚠️ **An empty register is a licence to measure and not a licence to author** — the Demon fifth
+// hundred's rule. What turns it into one here is the measurement: against a control of 3,563
+// common-equivalent at level 650 in Relic 100, reading **3.80 of five at 30.1s** and moving (4.00 at
+// escort attack 14, 0.80 at 18), board-wide `dodge` grades **0.00 / 0.20 / 0.32 / 1.00 / 1.05 / 1.97
+// / 2.52 / 3.17 / 3.50** across 0.04 → 0.30 with zero timeouts, and it grades in carrier counts as
+// well — 3.80 / 3.05 / 2.75 / 2.27 / 1.98 / 0.38 at zero through five carriers at 0.30.
+//
+// ⚠️ **And the reason it is *this* party's lock is in `damage.ts` rather than in the stat names.**
+// `hitChance` is `clamp(attacker.accuracy - defender.dodge, minHitChance, 1)`, and the five that
+// arrive here carry `dodge` **Σ0.00** and `accuracy` **1.10 on one member with the other four at the
+// default 1.00**. Chapter 8 fought this stat on 49 of its 50 boards; it did so against a party the
+// chapter itself taught to buy accuracy. **Two chapters may share a stat without sharing the
+// argument** — chapter 26's rule, and this is the second chapter running to need it.
+
+/** Band 1's weight: the part of the line still trying to hold, and the one new block under the median. */
+export const GIVEGROUND_LEVY = {
+  id: 'giveground-levy',
+  name: 'Giveground Levy',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 620,
+    atk: 15,
+    def: 26,
+    haste: 76,
+    critChance: 0.08,
+    critDamageAmp: 0.6,
+    dodge: 0.1,
+  },
+  skills: [GROUND_GIVEN],
+} as const;
+
+/**
+ * The chapter's one **fast, hot** body, and it exists for the difficulty probe's band openers.
+ *
+ * ⚠️ **`dodge` is refusal, and a refusal stat is exactly the kind of lock the probe cannot see** —
+ * chapter 24's `c24-s31` measured 0.792 against the 0.85 bar because its lock was invisible to a
+ * probe that reads throughput. This body is the margin on top of that: it stands on every band
+ * opener, and its `haste` is what keeps a band that adds a carrier from opening lighter than the
+ * band below it closed.
+ */
+export const BREAKSTEP_SKIRMISHER = {
+  id: 'breakstep-skirmisher',
+  name: 'Breakstep Skirmisher',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 400,
+    atk: 19,
+    def: 12,
+    haste: 122,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    dodge: 0.14,
+  },
+  skills: [BREAK_AND_GO],
+} as const;
+
+/** Band 3's identity: the shipped **median** of 0.22, reached from below. */
+export const HALFTURN_HARRIER = {
+  id: 'halfturn-harrier',
+  name: 'Halfturn Harrier',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 440,
+    atk: 17,
+    def: 14,
+    haste: 114,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    dodge: 0.2,
+  },
+  skills: [HALF_A_TURN],
+} as const;
+
+/** The screen: the body the party has to aim through, carrying enough of the axis to be worth it. */
+export const OPENORDER_SPEAR = {
+  id: 'openorder-spear',
+  name: 'Openorder Spear',
+  faction: 'human',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 560,
+    atk: 16,
+    def: 24,
+    haste: 82,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    dodge: 0.16,
+  },
+  skills: [OPEN_ORDER],
+} as const;
+
+/** Band 4's identity, at the Elf faction median and above every Human body that ever stood in a line. */
+export const LOOSEREIN_LANCER = {
+  id: 'looserein-lancer',
+  name: 'Looserein Lancer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 200,
+    atk: 16,
+    def: 14,
+    haste: 110,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    dodge: 0.24,
+  },
+  skills: [LOOSE_AT_THE_REIN],
+} as const;
+
+/** Band 5's identity: the shipped **p90** of 0.30, on the chapter's fastest legendary. */
+export const NEVERCLOSE_RIDER = {
+  id: 'neverclose-rider',
+  name: 'Neverclose Rider',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 175,
+    atk: 17,
+    def: 12,
+    haste: 124,
+    critChance: 0.11,
+    critDamageAmp: 0.8,
+    dodge: 0.3,
+  },
+  skills: [NEVER_CLOSING],
+} as const;
+
+/** The chapter's only board-wide turn, at the wide cap. Bands 5 and 6, one per board. */
+export const WIDEORDER_HERALD = {
+  id: 'wideorder-herald',
+  name: 'Wideorder Herald',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 190,
+    atk: 15,
+    def: 14,
+    haste: 96,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    dodge: 0.26,
+  },
+  skills: [THE_LINE_OPENS],
+} as const;
+
+/** Band 6's ordinary wall. Chapter 23's pairing: the axis under the register, a skin over it. */
+export const HALFHELD_SERJEANT = {
+  id: 'halfheld-serjeant',
+  name: 'Halfheld Serjeant',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 240,
+    atk: 16,
+    def: 22,
+    haste: 84,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    physicalResist: 0.1,
+    dodge: 0.22,
+  },
+  skills: [HELD_BY_HALVES],
+} as const;
+
+/**
+ * The lieutenant, anchoring all five mini-boss boards at rising levels.
+ *
+ * ⚠️ **Settled by fielding all five appearances rather than the first**, which is chapter 17's trap:
+ * an `ascended` block climbs at `perLevel.ascended` 1.024 against a party frozen at its rung's cap,
+ * so a recurring anchor correct on `c27-s10` is unwinnable on `c27-s50`.
+ *
+ * ⚠️ **Its board carries no second anchor**, which is chapter 21's rule — a lieutenant *is* one.
+ */
+export const THE_HALFSTEP = {
+  id: 'the-halfstep',
+  name: 'The Halfstep',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 85,
+    atk: 4,
+    def: 30,
+    haste: 88,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalResist: 0.08,
+    dodge: 0.28,
+  },
+  skills: [A_STEP_ALREADY_TAKEN, NOTHING_TO_MEET_IT],
+} as const;
+
+/**
+ * The chapter boss. `dodge` **0.34** — level with the Elf faction ceiling
+ * ({@link WEALDSHADOW_STALKER}) and under the only two blocks in the game above it,
+ * {@link THE_UNSTRUCK}'s 0.40 and {@link SHADE}'s 0.55.
+ *
+ * ⚠️ **It drafted at 0.42 and came down on the clock rather than on survivors, and the `dodge` is
+ * not what the clock was reading.** Behind the escort it ships with, this body grades **4.00 / 4.00 /
+ * 4.00 / 4.00 / 4.00 / 3.70 / 3.58 / 0.70** across 85/4 → 175/7, and its `dodge` at 0.26, 0.30, 0.34
+ * and 0.40 all read 100% with 4.00 of five — buying 34.7s, 35.6s, 36.6s and 38.5s of fight and
+ * nothing else. What settles the stat line is the **weight**: at 150/6 the board reads 100% with a
+ * longest single fight of **81.4s**, past the 72s bar `chapters.balance.ts` holds cleared fights to,
+ * and a draft at 135/6 behind a heavier escort put Vurn Runewright at a maxed signature item on a
+ * victory at **exactly tick 900** in `signature.balance.ts`. Lowering the `dodge` moved that reading
+ * not at all; lightening the board did.
+ *
+ * Well under the {@link UNMADE} on both stats, as every chapter boss since chapter 6 has been.
+ */
+export const THE_LOOSELINE = {
+  id: 'the-looseline',
+  name: 'The Looseline',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 115,
+    atk: 5,
+    def: 32,
+    haste: 92,
+    critChance: 0.11,
+    critDamageAmp: 0.9,
+    physicalResist: 0.1,
+    magicResist: 0.08,
+    dodge: 0.34,
+  },
+  skills: [NO_LINE_TO_BREAK, WHERE_IT_WAS_STANDING],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -14696,4 +14961,14 @@ export const ENEMIES = [
   BREAKSTONE_WARDEN,
   THE_ILLMET,
   THE_MISCHANCE,
+  GIVEGROUND_LEVY,
+  BREAKSTEP_SKIRMISHER,
+  HALFTURN_HARRIER,
+  OPENORDER_SPEAR,
+  LOOSEREIN_LANCER,
+  NEVERCLOSE_RIDER,
+  WIDEORDER_HERALD,
+  HALFHELD_SERJEANT,
+  THE_HALFSTEP,
+  THE_LOOSELINE,
 ] as const;

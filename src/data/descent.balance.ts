@@ -288,6 +288,15 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * count visible.** The repair is still the one {@link DescentLevelData.anchorCap} names — a board
  * level keyed off the calibrated party's own level rather than off the anchor — and it is still a
  * `core/` change a content session may not take.
+ *
+ * ## ⚠️ Chapter 27 added the thirteenth, on schedule, for the tenth consecutive chapter
+ *
+ * `chapterEnd(27)` — depth **1,330** — failed at **5.00 survivors of five** the moment The Looseline
+ * shipped, for the identical reason a tenth time. It is the **second** entry with no rung behind it,
+ * so the party the depth implies gains only the thirty levels between chapter finals where depth
+ * 1,210's carried a whole ×8.36. Depths 850 through 1,330 now field the **same board**. ⚠️ **Ten
+ * consecutive chapters, ten entries; the schedule has still not slipped once**, and the shallower
+ * step is what the entry above predicted rather than the list ending.
  */
 const RUNG_TROUGH: readonly number[] = [
   chapterEnd(12),
@@ -302,6 +311,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(24),
   chapterEnd(25),
   chapterEnd(26),
+  chapterEnd(27),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

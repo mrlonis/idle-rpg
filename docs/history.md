@@ -83,7 +83,9 @@ archetypes**, and chapter 14 to **600 stages** and **201** — still with no cha
 **sixty** stages, which took the campaign to **910 stages** and **272 archetypes** and needed
 `chapterSize` in `core/ladder.ts` to learn a **cap schedule** — the first `core/` change a content
 session had made since the run began, and the Human Tower's fourth hundred is the second (the tower gear
-ramp). ⚠️ **Recompute these rather than reading them**; this paragraph had
+ramp). Chapters 21 through 27 take it to **1,330 stages** and **398 archetypes**, all seven of them
+sixty stages and none of them touching `ui/` or `core/`. ⚠️ **Recompute these rather than reading
+them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
@@ -1010,15 +1012,73 @@ because Human had led The Downstroke four chapters earlier and Monster had last 
 still saying angel 24 / demon 25 where the pool held 36 and 33. The seven now run demon 33, angel 36,
 human 54, elf 61, dwarf 66, undead 67, monster 71.
 
+⚠️ **Chapter 27 — The Looseline — is the second chapter with no rung question, and the first whose
+lean carries none of its own axis.** It closes at 665 and stays on `ascended`: **1.3922** against
+`ascended-1`'s **17.7995**, a preference for staying put of **1.30 nats** — numerically the same
+margin chapter 26 read, which is what "no tuning answer left" looks like once it settles into a
+constant. `THINGROUND`, `ROUGHCAST` and `INVESTED` are one set of five, so the degenerate stretch is
+**three links** deep and deepening on schedule. Its axis is enemy `dodge`, and five things came out
+of it:
+
+1. ⚠️ **A stat's shipped register does not transfer up the ladder.** `dodge` ships to a ceiling of
+   **0.55** — `SHADE`, authored for chapter 3 at enemy levels 15 to 30 — over a median of 0.22 and a
+   p90 of 0.30, and board-wide **0.40 is a total wipe** at this chapter's weight. So the whole chapter
+   is authored between 0.10 and 0.30 with its boss at 0.34 and **never approaches its own ceiling**:
+   chapter 17's "a stat that works only _below_ its register", as a chapter rather than a band. **Say
+   what level a register was set at, not just its size.**
+2. ⚠️ **The lean carried none of it, which is a first.** `dodge` sat on 33 of 388 shipped blocks and
+   **0 of the 54 Human blocks** carried a point; Elves carry 16 of the 33. So the six returning Elf
+   blocks supply the **shipped** register (0.14, 0.18, 0.20, 0.24, 0.26, 0.30) and the ten new Human
+   blocks interleave with it from 0.10 to 0.34 — the humans learning it a step at a time, which is
+   also the fiction. **An empty register is a licence to measure, never to author**; what turns it
+   into one is the measurement plus a structure the boards can carry.
+3. ⚠️ **The licence is `damage.ts`, for the fifth time.** `hitChance` is
+   `clamp(accuracy − dodge, minHitChance, 1)`, and the five that arrive carry `dodge` **Σ0.00** and
+   `accuracy` **1.10 on one member with the other four at the default 1.00**. The mirror proves it:
+   enemy `accuracy` at the pool ceiling of 1.25 is worth **0.03**. `magicResist` was disqualified the
+   same way — one of the five deals magical damage. ⚠️ **Chapter 8 built the Sunless Weald on this
+   stat and that is the argument rather than an objection**: same stat, five hundred levels later,
+   against a party that never bought the answer.
+4. ⚠️ **A dodge bills what is _aimed at_**, so the rank a carrier stands in is a priced dial — one
+   body is worth **3.25 in front against 3.70 behind** at 0.22 and **2.17 against 3.17** at 0.40.
+   That is `THORNMAIL`'s "only bills what is struck" wearing the party's aim instead of its damage,
+   and the opposite sign to chapter 16's unreachable debuffer.
+5. ⚠️ **`signature.balance.ts` is a stricter clock guard than `chapters.balance.ts`, and a refusal
+   chapter is what finds it.** It bisects a five-of-one-character party to its own **edge**, where a
+   fight is longest: a draft of the final put Vurn Runewright at a maxed item on a victory at
+   **exactly tick 900**, and chapter 26's own final already reads **897** there — the headroom was
+   gone before this chapter touched it. ⚠️ **Lowering the boss's `dodge` moved it not at all** (0.34,
+   0.30 and 0.28 all read 900) and **lightening the board did**. **Run that one file before the full
+   sweep when a chapter's axis is refusal**; it is two minutes against half an hour.
+
+⚠️ **Two more things the boards found.** A non-lean texture that does not thin monotonically can be a
+**budget** rather than a fiction: the Elf slots run 5, 7, 8, 7, 3, 2 against chapter 26's monotone 9,
+7, 5, 4, 3, 2, because a shipped `dodge` carrier is a light body with a hot attack — 40 to 58
+common-equivalent attack where the chapter's own new commons run 15 to 19 — and every board that
+failed in tuning failed at 172 to 212 and was fixed by an attack cut, never a weight cut. And **a
+chapter's own axis can be worth nothing on its boss**: the final at 115/5 reads 100% with 4.00 of five
+at `dodge` 0.26, 0.30, 0.34 **and** 0.40, buying 34.7s → 38.5s of fight and nothing else, while its
+weight grades 4.00 / 4.00 / 4.00 / 4.00 / 4.00 / 3.70 / 3.58 / **0.70** across 85/4 → 175/7. **Expect
+a boss's axis to be its identity and its weight to be its difficulty.**
+
+⚠️ **Its lean is the first in three chapters where the depth argument and the rotation agree.** Human
+was thinnest legal at 54 **and** next in the five-cycle the leads have run since chapter 20 — undead,
+monster, human, elf, dwarf, undead, monster, human. It is Human's fourth lead, which costs the chapter
+having to be a visibly different place: The Standing Line is the Humans holding a line, The Spoilfield
+is what lives off the ground after the armies have gone, The Downstroke is the blow that arrives all
+at once, and this is the line that has stopped being one. The seven now run demon 33, angel 36, **elf
+61**, human 64, dwarf 66, undead 67, monster 71 — four mortal factions within six of each other, so
+the depth argument has stopped discriminating and chapter 28 is Elf on both readings.
+
 ⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
 bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
 0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads
 exactly like a guard nobody maintains, and the proposal was to replace both its arms with assertions
 about shape. That is backwards: the bound has never moved _because it is not supposed to_.
-`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty times now**,
-always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the saturating
-tilt it is papering over stays visible. Chapter 24's landing was **575**, chapter 25's **605** and
-chapter 26's **635**; chapter 27 wants **665**. ⚠️ **Check both sides of a
+`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty-one times
+now**, always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the
+saturating tilt it is papering over stays visible. Chapter 25's landing was **605**, chapter 26's
+**635** and chapter 27's **665**; chapter 28 wants **695**. ⚠️ **Check both sides of a
 guard before calling it stale; the half that moves may not be the half the guard is written in.**
 
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung

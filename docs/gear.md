@@ -320,15 +320,15 @@ that has kept the saturating tilt on the record for twenty chapters — and it w
 like tidying up. ⚠️ **Check both sides of a guard before calling it stale: the half that moves may
 not be the half the guard is written in.**
 
-⚠️ **Fifteen re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Twenty-one re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
 chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will want 425" and it wanted
 425 — which retires the last reading under which this might have been noise. ⚠️ **Chapter 20's
 prediction of 450 was the first _wrong_ one, and only because it assumed a fifty-stage chapter**: The
 Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
 arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
-length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545, chapter 24 575, chapter 25 605 and chapter 26 635 — **six correct predictions
-running since chapter 20's miss, each checked a chapter ahead; chapter 27 will want 665.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545, chapter 24 575, chapter 25 605, chapter 26 635 and chapter 27 665 — **seven correct predictions
+running since chapter 20's miss, each checked a chapter ahead; chapter 28 will want 695.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
 grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a

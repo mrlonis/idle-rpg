@@ -9696,6 +9696,175 @@ export const THE_BLOW_UNMET = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Chapter 27 — The Looseline
+//
+// Ten turns for ten blocks, and **every one of them is a plain hit**. The chapter is authored on
+// enemy `dodge` and nothing else, so the vocabulary the boards spend is the stat block rather than
+// the status list — chapter 19's rule, which four chapters running have now reproduced.
+//
+// ⚠️ **The licence is the register read from the *party's* side.** `hitChance` in
+// `core/battle/damage.ts` is `clamp(attacker.accuracy - defender.dodge, minHitChance, 1)`, and the
+// five that arrive here carry `dodge` **Σ0.00** and `accuracy` **1.10 on one member and the default
+// 1.00 on the other four** — a party that has staked nothing at all on connecting. Chapter 8 built
+// the Sunless Weald on the same stat against a party that had answers; this is that stat with the
+// answer gone, which is the "same name, different argument" case chapter 26 recorded.
+//
+// ⚠️ **A dodge bills what is *aimed at*, which makes the rank each carrier stands in a dial rather
+// than a detail.** Measured on **one** body at chapter 27's control — chapter 22's rule, because a
+// rank comparison carried on two bodies measures the pair — a single carrier is worth 3.25 in the
+// front rank against 3.70 in the back at 0.22, 3.15 against 3.80 at 0.30 and **2.17 against 3.17 at
+// 0.40**: a spread that grows with the value, from 0.45 to 1.00 of a survivor. That is
+// {@link THORNMAIL}'s "only bills what is struck" finding wearing the party's aim instead of its
+// damage.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_LINE_OPENS} is the
+// chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses anything
+// heavier on `enemy-all`.
+//
+// ⚠️ **None of these ten reaches past the front rank.** Every `enemy-back` turn the chapter fields
+// comes from a returning body, and no board fields two — checked over the **fielded** bodies rather
+// than the new ones, which is the check chapter 24 shipped false.
+
+/** Band 1's habit: the heavy body that is still trying to hold, and the one turn under the median. */
+export const GROUND_GIVEN = {
+  id: 'ground-given',
+  name: 'Ground Given',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the band openers clear the difficulty probe's bar.
+ *
+ * ⚠️ **The probe reads throughput, and a refusal stat is exactly the kind of lock it cannot see** —
+ * chapter 24 lost a band opener at 0.792 against the 0.85 bar to a `tenacity` lock the probe was
+ * blind to, and `dodge` is refusal in the same sense. This body is the margin: it is the chapter's
+ * hottest common and it stands on every band opener for that reason.
+ */
+export const BREAK_AND_GO = {
+  id: 'break-and-go',
+  name: 'Break And Go',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** Band 3's identity, on the body that carries the shipped median of 0.22. */
+export const HALF_A_TURN = {
+  id: 'half-a-turn',
+  name: 'Half A Turn',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The screening wall's turn: slow, heavy, and standing where the party has to aim through it. */
+export const OPEN_ORDER = {
+  id: 'open-order',
+  name: 'Open Order',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+export const LOOSE_AT_THE_REIN = {
+  id: 'loose-at-the-rein',
+  name: 'Loose At The Rein',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/** Band 5's identity, at the shipped p90 of 0.30 and on the chapter's fastest legendary. */
+export const NEVER_CLOSING = {
+  id: 'never-closing',
+  name: 'Never Closing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 40,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_LINE_OPENS = {
+  id: 'the-line-opens',
+  name: 'The Line Opens',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** Band 6's ordinary wall. The pairing chapter 23 found: the axis under the register, a skin over it. */
+export const HELD_BY_HALVES = {
+  id: 'held-by-halves',
+  name: 'Held By Halves',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const A_STEP_ALREADY_TAKEN = {
+  id: 'a-step-already-taken',
+  name: 'A Step Already Taken',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.35 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second.
+ *
+ * ⚠️ **Not conditioned**, which is the same deliberate departure chapter 26 made and for the reason
+ * chapter 24 measured: all six condition kinds land within ±0.08 of a control at one carrier and at
+ * five, and a condition on the payload axis prices **−2.42**, because it is a restriction on the
+ * board and the party is the beneficiary. Five appearances at rising levels are five different
+ * fights because the board around it changes.
+ */
+export const NOTHING_TO_MEET_IT = {
+  id: 'nothing-to-meet-it',
+  name: 'Nothing To Meet It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+export const NO_LINE_TO_BREAK = {
+  id: 'no-line-to-break',
+  name: 'No Line To Break',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second, aimed where the chapter's question is: at whatever the party leaned on. */
+export const WHERE_IT_WAS_STANDING = {
+  id: 'where-it-was-standing',
+  name: 'Where It Was Standing',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.15 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10186,4 +10355,16 @@ export const SKILLS = [
   NOTHING_TO_PLAN_FOR,
   COUNT_ON_NOTHING,
   THE_WAY_IT_LANDS,
+  GROUND_GIVEN,
+  BREAK_AND_GO,
+  HALF_A_TURN,
+  OPEN_ORDER,
+  LOOSE_AT_THE_REIN,
+  NEVER_CLOSING,
+  THE_LINE_OPENS,
+  HELD_BY_HALVES,
+  A_STEP_ALREADY_TAKEN,
+  NOTHING_TO_MEET_IT,
+  NO_LINE_TO_BREAK,
+  WHERE_IT_WAS_STANDING,
 ] as const;

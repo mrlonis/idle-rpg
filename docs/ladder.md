@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-six chapters and one thousand
-two hundred and seventy stages** — 10, 20, 30, 40, then fifteen of fifty and seven of sixty. ⚠️ **That
+The campaign, and how a run's position in it is expressed. **Twenty-seven chapters and one thousand
+three hundred and thirty stages** — 10, 20, 30, 40, then fifteen of fifty and eight of sixty. ⚠️ **That
 count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
 recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
@@ -42,7 +42,14 @@ and is the first chapter for which the rung question has no tuning answer left a
 `ascended` is the last rung whose cap the ladder has not already climbed past. Its axis is enemy
 `critChance`: the same stat chapter 23 built a chapter on, measured from the **other side of the
 board**, and licensed by the party's own register (`critBlock` Σ0.05, `critDamageResist` Σ0.15,
-`tenacity` Σ0.00 across five) rather than by the enemy pool's. See [authoring](authoring.md).
+`tenacity` Σ0.00 across five) rather than by the enemy pool's. Chapter 27 is **The Looseline**, which
+stays on `ascended` for the same reason and takes the degenerate stretch to **three links** — the
+first stretch in the campaign's history that no rung move can end, because there is no rung left to
+move to. Its axis is enemy `dodge`, and it is the first chapter whose **lean carries none of its own
+axis**: 0 of the 54 shipped Human blocks carried a point of it. It is also the first chapter that has
+to author a stat **below** its shipped ceiling — `dodge` runs to 0.55 in the pool and to 0.34 here —
+because that ceiling was set at enemy levels 15 to 236 against parties that could still buy accuracy.
+See [authoring](authoring.md).
 
 ## The shape
 

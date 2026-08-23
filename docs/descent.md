@@ -463,6 +463,13 @@ but the thirty levels between chapter finals — where depth 1,210's entry carri
 run is **nine consecutive chapters** and the schedule has still never slipped. **Keep adding
 literals; do not derive the tail and do not drop the depths.**
 
+⚠️ **Chapter 27 added the thirteenth, the second with no rung behind it, and the run is ten
+consecutive chapters.** Depth **1,330** joins the list on the same arithmetic: `anchorCap` holds the
+board at 316 while the campaign closes thirty levels higher, so the party the depth implies gains only
+those thirty levels. Depths 850 through 1,330 now field the **same board**. **The schedule has still
+never slipped, and the smaller step is the shape the note above predicted rather than the list
+ending.**
+
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than
 for a different guard, and two tempting edits are both wrong. **Deriving** the tail of the list
