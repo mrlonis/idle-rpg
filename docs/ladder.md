@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-seven chapters and one thousand
-three hundred and thirty stages** — 10, 20, 30, 40, then fifteen of fifty and eight of sixty. ⚠️ **That
+The campaign, and how a run's position in it is expressed. **Twenty-eight chapters and one thousand
+three hundred and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and nine of sixty. ⚠️ **That
 count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
 recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
@@ -49,7 +49,14 @@ move to. Its axis is enemy `dodge`, and it is the first chapter whose **lean car
 axis**: 0 of the 54 shipped Human blocks carried a point of it. It is also the first chapter that has
 to author a stat **below** its shipped ceiling — `dodge` runs to 0.55 in the pool and to 0.34 here —
 because that ceiling was set at enemy levels 15 to 236 against parties that could still buy accuracy.
-See [authoring](authoring.md).
+Chapter 28 is **The Windthrow**, which stays on `ascended` for the third chapter running and takes the
+degenerate stretch to **four links**, level with the deepest the campaign has ever had. Its axis is
+enemy `attackSpeed` — swing speed rather than casting frequency, because it accrues only after a basic
+attack — and it is the **first axis in the campaign to grade in both value and carrier count**, which
+is what a six-band chapter wants. ⚠️ **It is also the exact inverse of The Looseline's register
+finding**: all four shipped `attackSpeed` carriers are Elf, the chapter leans Elf, and **not one of
+them is light enough to stand on a single board in it** — owning a register and being able to field
+it are different things. See [authoring](authoring.md).
 
 ## The shape
 
@@ -383,8 +390,21 @@ against `ascended-1`'s 33.2031, a preference for staying put of **1.30 nats**, t
 has had. `ascended` caps at 500 against chapter 25's close of
 605; `ascended-1` caps at **600**, five levels under that close, and reads a seam of **61.94** — a
 walkover by two orders of magnitude, by construction rather than by tuning. Chapter 26 inherits
-**4.8443**, 27 reads **1.3901** and 28 **0.7446**. A chapter that cannot be authored on `ascended` is
-a `data/` question about `LEVEL_CURVE.caps` rather than a chapter.
+**4.8443**, 27 reads **1.3922** and 28 **0.7463** — both landed as projected. A chapter that cannot be
+authored on `ascended` is a `data/` question about `LEVEL_CURVE.caps` rather than a chapter.
+
+⚠️ **Three chapters have now read the same 1.30-nat preference for staying put, so it has stopped
+being a finding and become a constant.** Chapter 26 read 2.5971 against `ascended-1`'s 33.2031,
+chapter 27 1.3922 against 17.7995 and chapter 28 **0.7463 against 9.5419** — the ratio is exactly
+`1.6 / perLevel.common ** 100`, fixed by the hundred levels between `ascended`'s cap and
+`ascended-1`'s, so it will read 1.30 for every chapter from here. **Compute it once and quote it;
+re-deriving it a fourth time is not learning anything.** The seam itself keeps halving on the old
+arithmetic: chapter 29 projects **0.4001** and chapter 30 **0.2145**.
+
+⚠️ **The degenerate stretch reached four links at chapter 28** — `THINGROUND`, `ROUGHCAST`,
+`LOOSELINE` and `INVESTED` are one set of five — level with the deepest the campaign has ever had, on
+`mythic` at chapters 18 through 21. The difference is that that one was closed by a rung move and this
+one cannot be. **Expect a fifth link at chapter 29 and one more every chapter after that.**
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

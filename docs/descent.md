@@ -470,6 +470,12 @@ those thirty levels. Depths 850 through 1,330 now field the **same board**. **Th
 never slipped, and the smaller step is the shape the note above predicted rather than the list
 ending.**
 
+⚠️ **Chapter 28 added the fourteenth, the third with no rung behind it, and the run is eleven
+consecutive chapters.** Depth **1,390** joins the list on the same arithmetic. Depths 850 through
+**1,390** now field the **same board**, which is nine entries reading one board at this point — the
+clearest statement the list can make that the anchor stopped standing for how strong the party is.
+**The schedule has still never slipped.**
+
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than
 for a different guard, and two tempting edits are both wrong. **Deriving** the tail of the list

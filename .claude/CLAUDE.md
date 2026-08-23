@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twenty-seven chapters, one thousand three hundred and thirty
+- **[docs/ladder.md](../docs/ladder.md)** — the campaign: twenty-eight chapters, one thousand three hundred and ninety
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, chapter 22 to `mythic-plus` and
   chapter 25 to `ascended`; all three are overrides against the log-space rule, and they are the only
@@ -93,8 +93,9 @@ them is how they get reversed by accident.
   half you have when they disagree.** The degenerate chain reached four links on `mythic`, two on
   `mythic-plus`, and re-formed at chapter 26 exactly as predicted. ⚠️ **That fifth stretch is the
   first that can never end**, because the four before it were each closed by a rung move and there is
-  no rung left to move to: chapter 27 took it to **three links** on schedule, so expect the chain to
-  deepen a link a chapter forever, and do not read a fourth or fifth identical link as a bug.
+  no rung left to move to: chapter 27 took it to **three links** and chapter 28 to **four**, both on
+  schedule, so expect the chain to deepen a link a chapter forever and do not read a fifth or sixth
+  identical link as a bug.
 - ⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past**, so the rung
   question stops having a tuning answer after chapter 25. `ascended-1` caps at 600 against chapter
   25's close of 605 and reads a seam of **61.94** — a walkover by two orders of magnitude, by
@@ -103,9 +104,11 @@ them is how they get reversed by accident.
   that, and what it means in practice is that every chapter from here is pure squeeze**: thirty
   levels of board against a party frozen at cap 500, ×1.8654 a chapter. The Roughcast reads 2.5971
   against `ascended-1`'s 33.2031 — a preference for staying put of **1.30 nats**, the widest any
-  chapter has had, and there is nothing to override toward. Chapter 27 reads 1.3922 against 17.7995 —
-  the identical 1.30-nat margin, which is what "no tuning answer" looks like once it is a constant.
-  [ladder](../docs/ladder.md)
+  chapter has had, and there is nothing to override toward. Chapter 27 reads 1.3922 against 17.7995
+  and chapter 28 **0.7463 against 9.5419** — the identical 1.30-nat margin three chapters running,
+  because the ratio is exactly `1.6 / perLevel.common ** 100`, fixed by the hundred levels between the
+  two caps. ⚠️ **It will read 1.30 for every chapter from here: compute it once and quote it rather
+  than re-deriving it a fourth time.** [ladder](../docs/ladder.md)
 - ⚠️ **A degenerate seam is where a measured price table transfers, and chapter 26 is the first to
   spend that deliberately.** The party is literally unchanged, so equal absolute weight is equal
   difficulty and chapter 25's table holds at **0.536×** the common-equivalent figure — **and the
@@ -151,6 +154,52 @@ them is how they get reversed by accident.
   a closing band already carrying three of the chapter's legendaries has no attack budget for one.
   **The carriers a chapter most wants at the top are the ones it can least afford.**
   [authoring](../docs/authoring.md)
+- ⚠️ **Owning a stat's whole shipped register is not the same as being able to field it, and chapter
+  28 is the inverse of chapter 27.** `attackSpeed` sat on **4 of 398** blocks at 55, 70, 80 and 110
+  and **all four are Elf** — the faction leading the chapter — and **not one is light enough to stand
+  on a single board in it**: the lightest is 1,166 common-equivalent at level 665 against a board
+  budget of about 2,000, and board-wide the stat is a total wipe at **40**, under its own shipped
+  floor of 55. So the chapter runs 5 to 18 with its boss at 20. Chapter 27's lean carried none of its
+  axis and its texture supplied the register; this one owns all of it and fields none.
+  [authoring](../docs/authoring.md)
+- ⚠️ **Common-equivalent attack is blind to the gear archetype, and at Relic 100 that is worth a
+  factor of 1.5.** `GEAR_PROFILES` pays `tank` **+46%** attack, `brawler` **+89%**, `ranger` **+112%**
+  and `mage` **+120%**, so an authored 26 in a `mage` set bills **57** where an authored 24 in a
+  `tank` set bills **35**. Weighted that way every chapter-28 board that failed in tuning failed
+  between **246 and 364**; unweighted the same boards do not separate at all. **Weight the attack
+  budget by archetype before comparing two boards** — and it is still a shortlist rather than a
+  predictor. [authoring](../docs/authoring.md)
+- ⚠️ **A chapter can afford its own premise and not an ordinary hot body.** `c28-s57` carries **five**
+  `attackSpeed` carriers summing 56 points of the stat at 127 gear-weighted attack and reads 4.00 of
+  five; a draft at three carriers summing 41 at **173** read 0.63. **Measure which of the axis and the
+  raw attack is binding rather than assuming it is the axis.** [authoring](../docs/authoring.md)
+- ⚠️ **`battleSeed` hashes `stage.id`, so a probe that renames a board measures a different forty
+  fights.** Chapter 28's tuning pass ran under prefixed ids and read every board at 100% with a
+  longest fight of **55.9s**; the identical boards under their shipped ids read the final at **95%
+  and 73.6s**, past the 72s bar, and one other board at 93%. **Name a probe's stages exactly as they
+  ship, and re-sweep the resolved ladder before believing a tuning pass.**
+  [authoring](../docs/authoring.md)
+- ⚠️ **The rank of a lone carrier is a priced dial whose _sign_ does not carry between chapters.**
+  Chapter 27's `dodge` carrier is worth 3.25 in front against 3.70 behind; chapter 28's `attackSpeed`
+  carrier at 40 is worth **0.00 in front and 0.77 behind**, because a body the party cannot aim at
+  keeps swinging. A dodge bills what is _aimed at_ and this bills what is _left alive_. **Two
+  consecutive chapters priced the same thing and got opposite answers — carry the measurement, never
+  the precedent.** [authoring](../docs/authoring.md)
+- ⚠️ **`attackSpeed` is the first campaign axis to grade in _both_ value and carrier count, and the
+  cooldown is half the mechanic.** Against chapter 28's control it reads 0.23 → 3.90 across values
+  4 → 36 **and** 3.92 / 3.88 / 3.02 / 2.10 / 1.38 across zero to five carriers at 20, zero timeouts.
+  It accrues **only when a combatant's last action was a basic attack**, so every carrier is authored
+  on a cooldown of 58 to 68 — **a short cooldown switches its own axis off**, which is what separates
+  it from chapter 17's `haste` even though the two grade alike. **It was also chosen on the clock**:
+  `def`, `physicalResist` and `magicResist` all grade and each buys nineteen to twenty-one seconds of
+  fight where this buys five. [authoring](../docs/authoring.md)
+- ⚠️ **No enemy carries an `ultimate` and that is a decision rather than an omission.** `docs/combat.md`
+  records it — energy is a character system, and an encounter's pacing is authored in cooldowns. It
+  measures as a real axis (0.50 / 1.27 / 2.53 / 3.75 across power 1.2 → 1.9), so it will keep looking
+  tempting; **taking it is a design reversal, not a content session's call.** ⚠️ **Three shipped blocks
+  carry `energyRegen` with no ultimate to spend it on** — `DRUMMING_SHOAL`, `PACKCALL_WHISTLER`,
+  `SALTBLEACH_CRIER` — and they are left in place deliberately, because deleting one changes a shipped
+  block nobody measured without it. [combat](../docs/combat.md)
 - ⚠️ **Two chapters may build on the same stat without sharing an argument, and the register on the
   _party's_ side is what separates them.** Chapter 23 priced complete crit **denial** at 0.88 of one
   member because only two of the calibrated five carry crit worth denying. Chapter 26 builds on enemy
@@ -467,9 +516,9 @@ Asserted in `core/battle/simulate.spec.ts`.
   clamps the board at 316 from chapter 13 on, so depths 800 and 850 field the **identical** board
   while their parties are bisected against different finals — **one new entry per chapter, forever,
   until the board level is keyed off the calibrated party instead of the anchor.** Keep adding
-  literals; do not derive the tail and do not drop the depths. ⚠️ **Nine consecutive chapters have
-  each added one and the schedule has never slipped**: the list is twelve entries at chapter 26, whose
-  depth 1,270 is the first entry with **no rung behind it** — the party a depth implies now gains only
+  literals; do not derive the tail and do not drop the depths. ⚠️ **Eleven consecutive chapters have
+  each added one and the schedule has never slipped**: the list is fourteen entries at chapter 28, and
+  chapter 26's depth 1,270 is the first entry with **no rung behind it** — the party a depth implies now gains only
   the thirty levels between chapter finals, where depth 1,210's entry carried a whole ×8.36. ⚠️ **The rung ladder runs out at `ascended`, which
   changes the shape of the growth rather than ending it** — no later chapter can hand a depth another
   ×1.6, so from chapter 26 the gap widens on levels alone and each new entry is a shallower trough.
@@ -773,10 +822,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   the guard is written in.** `gear.spec.ts` bounds the top gear grade's share of end-of-ladder drops
   at `< 0.2` and that bound has **never moved in the project's history** — which reads exactly like a
   guard nobody maintains. It is the opposite: `gradeSoftness` in `data/gear.ts` moves to meet it, by
-  hand, **once a chapter, twenty-one times now**, always to `stages / 2`, always restoring 18.7%. It is
+  hand, **once a chapter, twenty-two times now**, always to `stages / 2`, always restoring 18.7%. It is
   done by hand deliberately, so the saturating-tilt bug underneath stays visible. Chapter 24 nearly
   retired the bound on a `git log -S` over the spec alone. **Adding a chapter owes this edit**; chapter
-  28 wants 695. [gear](../docs/gear.md)
+  29 wants 725. [gear](../docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'

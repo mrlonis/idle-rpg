@@ -50,6 +50,7 @@ import {
   CUT_THE_STRAPS,
   DEADWEIGHT_FALL,
   DOOMKNELL,
+  DOWN_THE_GALEWAY,
   DRAWN_DOWN,
   DRAW_INTO_THE_ROOT,
   DRAW_THE_OATH,
@@ -76,6 +77,7 @@ import {
   GORE,
   GRAVEPLATE_CRUSH,
   GRAVESTRIDE_CADENCE,
+  GREEN_TIMBER_SNAPPING,
   GRIND_THE_SEAM,
   GROUND_ALREADY_WALKED,
   GROUND_GIVEN,
@@ -144,6 +146,7 @@ import {
   NOTHING_LANDS_AT_ALL,
   NOTHING_LANDS_BETTER,
   NOTHING_PUTS_IT_OUT,
+  NOTHING_SETS,
   NOTHING_SETS_TRUE,
   NOTHING_SMALL_MOVES_IT,
   NOTHING_TAKES,
@@ -155,6 +158,7 @@ import {
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
   NO_EDGE_FINDS_IT,
+  NO_GAP_IN_IT,
   NO_LINE_TO_BREAK,
   NO_NUMBER_HOLDS,
   NO_SUCH_THING,
@@ -165,6 +169,8 @@ import {
   ONE_VOICE,
   OPEN_ORDER,
   OPEN_THE_VEIN,
+  OUT_OF_THE_CROWN,
+  OUT_OF_THE_WIND,
   OVER_THE_LINE,
   OVER_THE_STUBBLE,
   PAID_EITHER_WAY,
@@ -252,12 +258,14 @@ import {
   THE_COUNT_DOES_NOT_STOP,
   THE_COURSE_HOLDS,
   THE_DEBT_CALLED,
+  THE_DISC_OF_ROOTS,
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
   THE_GRAIN_HOLDS,
   THE_GREAT_HELVE_FALLS,
   THE_GREEN_TAKES_IT,
+  THE_GROUND_COMES_UP,
   THE_GROUND_GOES,
   THE_HELVE_FALLS,
   THE_HOLD_REMEMBERS,
@@ -308,6 +316,8 @@ import {
   THE_WAY_IT_FALLS,
   THE_WAY_IT_LANDS,
   THE_WHEEL_TURNS,
+  THE_WHOLE_STAND_GOES,
+  THE_WHOLE_WOOD_AT_ONCE,
   THE_WOOD_DOES_NOT_END,
   THE_WORKS_RUN_ON,
   THE_YEAR_IT_DROWNED,
@@ -315,6 +325,7 @@ import {
   THINWOOD_RUSH,
   THIN_THE_RANK,
   THORNLASH,
+  THROUGH_THE_BLOWDOWN,
   TURNED_ASIDE,
   TYRANTS_CLAIM,
   UNDERBOUGH_SNARE,
@@ -332,6 +343,7 @@ import {
   WHAT_THE_FIELD_KEPT,
   WHAT_THE_FIELD_LEFT,
   WHAT_THE_WATER_LEFT,
+  WHAT_THE_WIND_LIFTED,
   WHERE_IT_WAS_STANDING,
   WHOSE_HAND_IS_THAT,
   WIDEN_IT,
@@ -14572,6 +14584,254 @@ export const THE_LOOSELINE = {
   skills: [NO_LINE_TO_BREAK, WHERE_IT_WAS_STANDING],
 } as const;
 
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 28 — The Windthrow. Ten Elf blocks authored on `attackSpeed`.
+ *
+ * ⚠️ **The lean owns the whole shipped register of this stat and can field none of it.** Before
+ * these ten, `attackSpeed` sat on **4 of 398** blocks — {@link BRAKETHORN_FLAIL} 80,
+ * {@link COVERT_REAVER} 110, {@link SUCKERWOOD_WHIP} 55 and {@link THE_BLACKTHORN} 70 — and all
+ * four are Elf. At chapter 28's weight none of them stands: the lightest is 1,166 common-equivalent
+ * at level 665 against a whole board's budget of about 2,000, and a board-wide 40 is a total wipe
+ * where 55 is the shipped floor. So every value here is **below** the register the chapter was
+ * measured against, which is chapter 17's `haste` shape and chapter 27's `dodge` one, arriving on a
+ * stat whose entire shipped register belongs to the faction leading the chapter.
+ *
+ * ⚠️ **Every one of these carries a long cooldown deliberately.** `attackSpeed` accrues only when a
+ * combatant's last action was a basic attack, so a body that casts rarely is a body that swings
+ * often — the cooldown is half of what the stat is worth, not a separate dial.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the chapter's heaviest new body and the coldest thing on the ladder at 0.031. */
+export const ROOTPLATE_CLIMBER = {
+  id: 'rootplate-climber',
+  name: 'Rootplate Climber',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 480,
+    atk: 15,
+    def: 20,
+    haste: 92,
+    critChance: 0.09,
+    critDamageAmp: 0.65,
+    attackSpeed: 7,
+  },
+  skills: [THE_DISC_OF_ROOTS],
+} as const;
+
+/** The chapter's floor on the axis, and the body it opens on. */
+export const LEEWARD_SCOUT = {
+  id: 'leeward-scout',
+  name: 'Leeward Scout',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 420,
+    atk: 13,
+    def: 16,
+    haste: 104,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    attackSpeed: 5,
+  },
+  skills: [OUT_OF_THE_WIND],
+} as const;
+
+/** Band 2's identity, and the most-fielded body in the chapter at 39 of 300 slots. */
+export const SNAPWOOD_HARRIER = {
+  id: 'snapwood-harrier',
+  name: 'Snapwood Harrier',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 360,
+    atk: 13,
+    def: 13,
+    haste: 112,
+    critChance: 0.11,
+    critDamageAmp: 0.72,
+    attackSpeed: 9,
+  },
+  skills: [GREEN_TIMBER_SNAPPING],
+} as const;
+
+/** The chapter's cheapest reach past a front rank. No board fields two `enemy-back` turns. */
+export const CROWNFALL_DARTER = {
+  id: 'crownfall-darter',
+  name: 'Crownfall Darter',
+  faction: 'elf',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 300,
+    atk: 12,
+    def: 11,
+    haste: 118,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    attackSpeed: 12,
+  },
+  skills: [OUT_OF_THE_CROWN],
+} as const;
+
+/** The chapter's only board-wide turn, at the wide cap. Bands 4 to 6, one per board. */
+export const TIMBERFALL_HERALD = {
+  id: 'timberfall-herald',
+  name: 'Timberfall Herald',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 165,
+    atk: 5,
+    def: 14,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    attackSpeed: 10,
+  },
+  skills: [THE_WHOLE_STAND_GOES],
+} as const;
+
+/** Band 3's identity: the first body fielded above the chapter's opening register. */
+export const GALEWAY_OUTRIDER = {
+  id: 'galeway-outrider',
+  name: 'Galeway Outrider',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 150,
+    atk: 5,
+    def: 12,
+    haste: 108,
+    critChance: 0.11,
+    critDamageAmp: 0.78,
+    attackSpeed: 13,
+  },
+  skills: [DOWN_THE_GALEWAY],
+} as const;
+
+/** Band 4's identity, and the block the two closing bands are built around at 23 slots. */
+export const SHAKEWOOD_LANCER = {
+  id: 'shakewood-lancer',
+  name: 'Shakewood Lancer',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 135,
+    atk: 5,
+    def: 11,
+    haste: 114,
+    critChance: 0.11,
+    critDamageAmp: 0.8,
+    attackSpeed: 15,
+  },
+  skills: [NOTHING_SETS],
+} as const;
+
+/** Band 5's identity: the chapter's highest ordinary `attackSpeed`, on its longest cooldown. */
+export const BLOWDOWN_STALKER = {
+  id: 'blowdown-stalker',
+  name: 'Blowdown Stalker',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 120,
+    atk: 4,
+    def: 10,
+    haste: 118,
+    critChance: 0.12,
+    critDamageAmp: 0.82,
+    attackSpeed: 18,
+  },
+  skills: [THROUGH_THE_BLOWDOWN],
+} as const;
+
+/**
+ * The lieutenant, anchoring all five mini-boss boards at rising levels.
+ *
+ * ⚠️ **Settled by fielding all five appearances rather than the first**, which is chapter 17's
+ * trap: an `ascended` block climbs at `perLevel.ascended` 1.024 against a party frozen at its
+ * rung's cap, so a recurring anchor correct on `c28-s10` is unwinnable on `c28-s50`. It grades
+ * **4.05 / 4.00 / 4.00 / 4.00 / 3.98** across the five, with the fight walking 27.7s to 42.8s.
+ *
+ * ⚠️ **What settled its stat line was the authored `atk`, not the weight**: on `c28-s50`, 62/2 reads
+ * 100% with 3.98 of five and **62/3 reads 55% with 1.02**, while 70/2 reads 3.77 and 54/2 reads 4.00.
+ * Its own `attackSpeed` at 8, 14 and 20 reads 3.95, 3.98 and 4.00 — noise. Chapter 20's rule on a
+ * lieutenant, with the chapter's own axis worth nothing on a body that carries it.
+ *
+ * ⚠️ **Its board carries no second anchor**, which is chapter 21's rule — a lieutenant *is* one.
+ */
+export const THE_ROOTPLATE = {
+  id: 'the-rootplate',
+  name: 'The Rootplate',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 62,
+    atk: 2,
+    def: 26,
+    haste: 100,
+    critChance: 0.1,
+    critDamageAmp: 0.8,
+    physicalResist: 0.08,
+    attackSpeed: 14,
+  },
+  skills: [WHAT_THE_WIND_LIFTED, THE_GROUND_COMES_UP],
+} as const;
+
+/**
+ * The chapter boss. `attackSpeed` **20** — under a shipped ceiling of 110 it never approaches, on
+ * the longest pair of cooldowns in the chapter.
+ *
+ * ⚠️ **Its escort is what settles it, and swapping which escort body stands in front flips the
+ * board.** Held at 58/2, the shipped arrangement reads 100% with **3.85 of five at 48.9s**; putting
+ * {@link ROOTPLATE_CLIMBER} in the front rank and {@link SNAPWOOD_HARRIER} behind reads **0%**, a
+ * heavier escort reads **0%**, a *cooler* one reads 3.58 with a longest fight of **74.5s**, and an
+ * escort carrying no axis at all reads **57%**. Its own attack is the other half: 58/2 reads 3.85
+ * where **58/3 reads 0%**, and the weight is a dial capped by the clock (50/2 → 4.00, 58/2 → 3.85,
+ * 66/2 → 3.48, 74/2 → 83% with a longest fight of 74.5s).
+ *
+ * ⚠️ **Its own axis buys clock rather than difficulty, which is chapter 27's finding again.**
+ * `attackSpeed` 8, 14, 20, 26 and 34 read 3.75 / 3.60 / **3.85** / 3.48 / 3.40 — no order at all in
+ * survivors — while the longest fight runs 73.6s, 67.5s, **57.2s**, 73.6s and 74.5s. **The shipped
+ * value is the one inside the bar, not the hardest.**
+ *
+ * ⚠️ **58 is also the weight `signature.balance.ts` allows, and that guard is chaotic rather than
+ * monotone in it.** This board is the ladder's highest level, so it is the board that file bisects a
+ * five-of-one-character party against — and at 62 it puts Vurn Runewright at a maxed item on a
+ * victory at **exactly tick 900**, while 58 reads the standing 897 that chapter 26's final already
+ * set. 54 reads 900 again, 50 reads 900 and 46 reads 897: **the reading does not vary smoothly with
+ * the weight, so check the value you are shipping rather than interpolating.**
+ *
+ * Well under the {@link UNMADE} on both stats, as every chapter boss since chapter 6 has been.
+ */
+export const THE_WINDTHROW = {
+  id: 'the-windthrow',
+  name: 'The Windthrow',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 58,
+    atk: 2,
+    def: 28,
+    haste: 104,
+    critChance: 0.11,
+    critDamageAmp: 0.88,
+    physicalResist: 0.1,
+    attackSpeed: 20,
+  },
+  skills: [THE_WHOLE_WOOD_AT_ONCE, NO_GAP_IN_IT],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -14971,4 +15231,14 @@ export const ENEMIES = [
   HALFHELD_SERJEANT,
   THE_HALFSTEP,
   THE_LOOSELINE,
+  ROOTPLATE_CLIMBER,
+  LEEWARD_SCOUT,
+  SNAPWOOD_HARRIER,
+  CROWNFALL_DARTER,
+  TIMBERFALL_HERALD,
+  GALEWAY_OUTRIDER,
+  SHAKEWOOD_LANCER,
+  BLOWDOWN_STALKER,
+  THE_ROOTPLATE,
+  THE_WINDTHROW,
 ] as const;

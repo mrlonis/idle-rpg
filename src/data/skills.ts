@@ -9865,6 +9865,148 @@ export const WHERE_IT_WAS_STANDING = {
   priority: 3,
 } as const;
 
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 28 — The Windthrow.
+ *
+ * The chapter is authored on enemy `attackSpeed`, which accrues **only when a combatant's last
+ * action was a basic attack**. Every one of these carries a long cooldown for that reason: a body
+ * that casts rarely spends its turns swinging, and swinging is what the axis pays for. A short
+ * cooldown would hand the same body a bigger nominal turn and quietly switch its own axis off.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the slowest turn in the chapter, on the body that stands where the roots lifted. */
+export const THE_DISC_OF_ROOTS = {
+  id: 'the-disc-of-roots',
+  name: 'The Disc Of Roots',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** The chapter's coldest body, and the one that teaches the axis exists at all. */
+export const OUT_OF_THE_WIND = {
+  id: 'out-of-the-wind',
+  name: 'Out Of The Wind',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/** Band 2's identity, on the chapter's most-fielded body. */
+export const GREEN_TIMBER_SNAPPING = {
+  id: 'green-timber-snapping',
+  name: 'Green Timber Snapping',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/** The chapter's cheapest reach past a front rank. No board fields two. */
+export const OUT_OF_THE_CROWN = {
+  id: 'out-of-the-crown',
+  name: 'Out Of The Crown',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_WHOLE_STAND_GOES = {
+  id: 'the-whole-stand-goes',
+  name: 'The Whole Stand Goes',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/** Band 3's identity: the first body fielded above the chapter's own opening register. */
+export const DOWN_THE_GALEWAY = {
+  id: 'down-the-galeway',
+  name: 'Down The Galeway',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/** Band 4's identity, and the block the closing bands are built around. */
+export const NOTHING_SETS = {
+  id: 'nothing-sets',
+  name: 'Nothing Sets',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/** Band 5's identity: the chapter's highest ordinary `attackSpeed`, on its longest cooldown. */
+export const THROUGH_THE_BLOWDOWN = {
+  id: 'through-the-blowdown',
+  name: 'Through The Blowdown',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const WHAT_THE_WIND_LIFTED = {
+  id: 'what-the-wind-lifted',
+  name: 'What The Wind Lifted',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second.
+ *
+ * ⚠️ **Not conditioned**, for the reason chapter 24 measured and chapters 26 and 27 both followed:
+ * all six condition kinds land within ±0.08 of a control at one carrier and at five, and a
+ * condition on the payload axis prices **−2.42**, because it is a restriction on the board and the
+ * party is the beneficiary.
+ */
+export const THE_GROUND_COMES_UP = {
+  id: 'the-ground-comes-up',
+  name: 'The Ground Comes Up',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/** The boss's blow, on the longest cooldown in the chapter. */
+export const THE_WHOLE_WOOD_AT_ONCE = {
+  id: 'the-whole-wood-at-once',
+  name: 'The Whole Wood At Once',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second, aimed where the chapter's question is: at whatever the party is leaning on. */
+export const NO_GAP_IN_IT = {
+  id: 'no-gap-in-it',
+  name: 'No Gap In It',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10367,4 +10509,16 @@ export const SKILLS = [
   NOTHING_TO_MEET_IT,
   NO_LINE_TO_BREAK,
   WHERE_IT_WAS_STANDING,
+  THE_DISC_OF_ROOTS,
+  OUT_OF_THE_WIND,
+  GREEN_TIMBER_SNAPPING,
+  OUT_OF_THE_CROWN,
+  THE_WHOLE_STAND_GOES,
+  DOWN_THE_GALEWAY,
+  NOTHING_SETS,
+  THROUGH_THE_BLOWDOWN,
+  WHAT_THE_WIND_LIFTED,
+  THE_GROUND_COMES_UP,
+  THE_WHOLE_WOOD_AT_ONCE,
+  NO_GAP_IN_IT,
 ] as const;

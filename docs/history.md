@@ -83,7 +83,7 @@ archetypes**, and chapter 14 to **600 stages** and **201** — still with no cha
 **sixty** stages, which took the campaign to **910 stages** and **272 archetypes** and needed
 `chapterSize` in `core/ladder.ts` to learn a **cap schedule** — the first `core/` change a content
 session had made since the run began, and the Human Tower's fourth hundred is the second (the tower gear
-ramp). Chapters 21 through 27 take it to **1,330 stages** and **398 archetypes**, all seven of them
+ramp). Chapters 21 through 28 take it to **1,390 stages** and **408 archetypes**, all eight of them
 sixty stages and none of them touching `ui/` or `core/`. ⚠️ **Recompute these rather than reading
 them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
@@ -1070,15 +1070,86 @@ at once, and this is the line that has stopped being one. The seven now run demo
 61**, human 64, dwarf 66, undead 67, monster 71 — four mortal factions within six of each other, so
 the depth argument has stopped discriminating and chapter 28 is Elf on both readings.
 
+⚠️ **Chapter 28 — The Windthrow — is the third chapter with no rung question, and the first whose
+lean owns its whole axis and can field none of it.** It closes at 695 and stays on `ascended`:
+**0.7463** against `ascended-1`'s **9.5419**, a preference for staying put of **1.30 nats** — the
+identical margin chapters 26 and 27 read, and it is a constant rather than a coincidence, fixed by the
+hundred levels between the two caps. `THINGROUND`, `ROUGHCAST`, `LOOSELINE` and `INVESTED` are one set
+of five, so the degenerate stretch is **four links** deep, level with the deepest the campaign has ever
+had. Its axis is enemy `attackSpeed`, and six things came out of it:
+
+1. ⚠️ **Owning a register is not the same as being able to use it, which is the exact inverse of
+   chapter 27.** `attackSpeed` sat on **4 of 398** blocks at 55, 70, 80 and 110 and **all four are
+   Elf** — the faction leading this chapter. Not one stands on any board in it: the lightest is 1,166
+   common-equivalent at level 665 against a whole board's budget of about 2,000, and board-wide the
+   stat is a total wipe at **40**, well under its own shipped floor. So the chapter runs 5 to 18 with
+   its boss at 20 and never comes within a factor of five of the ceiling its own faction set. The
+   Looseline's lean carried none of its axis and its texture supplied the register; this one owns all
+   of it and fields none.
+2. ⚠️ **It is the first axis in the campaign to grade in _both_ value and carrier count.** Against a
+   control at level 680 reading 3.98 of five, it reads 0.23 / 0.40 / 0.90 / 1.15 / 2.13 / 2.88 / 3.42 /
+   3.58 / 3.90 across values 4 → 36, **and** 3.92 / 3.88 / 3.02 / 2.10 / 1.38 across zero to five
+   carriers at 20. Zero timeouts anywhere. A six-band chapter wants two dials and every earlier one had
+   to ration a single one.
+3. ⚠️ **The cooldown is half the mechanic, and the licence is `simulate.ts` rather than the stat
+   names.** `attackSpeed` accrues **only when a combatant's last action was a basic attack**, so a body
+   that casts rarely swings often — every new block here carries a cooldown of 58 to 68 deliberately,
+   and a short one would switch its own axis off. That is what makes it swing speed rather than
+   chapter 17's casting frequency even though `haste` grades alike against the same control. `def`,
+   `physicalResist` and `magicResist` all grade too and were declined on the **clock**: each buys
+   nineteen to twenty-one seconds of fight where this buys five, and chapter 27 shipped with
+   `signature.balance.ts` reading 897 of 900 ticks.
+4. ⚠️ **Common-equivalent attack is blind to the gear archetype, and at Relic 100 that is a factor of
+   1.5.** `GEAR_PROFILES` pays `tank` +46% attack, `brawler` +89%, `ranger` +112% and `mage` +120%, so
+   an authored 26 in a `mage` set bills **57** where an authored 24 in a `tank` set bills 35. Weighted
+   that way every board that failed in tuning failed between **246 and 364**; unweighted they do not
+   separate at all. ⚠️ **And the axis turned out to be the cheap half**: `c28-s57` carries five
+   carriers summing 56 points of the stat at 127 gear-weighted attack and reads 4.00 of five, where a
+   draft at three carriers summing 41 at **173** read 0.63. **The chapter can afford its own premise
+   and cannot afford an ordinary hot body.**
+5. ⚠️ **`signature.balance.ts` binds the chapter's final and is chaotic rather than monotone in the
+   boss's weight.** That file bisects a five-of-one-character party against the ladder's
+   highest-level board, which is always the newest chapter's final: at boss weight 62 it put Vurn
+   Runewright at a maxed item on a victory at **exactly tick 900**, where 58 reads the standing 897
+   chapter 26's final already set — and 54, 50 and 46 read 900, 900 and 897. **Check the weight you
+   ship rather than interpolating.** ⚠️ **And the campaign sweep found the same board a different
+   way**: the first tuning pass ran under prefixed stage ids, and since `battleSeed` hashes
+   `stage.id` it measured a different forty fights — every board 100% with a longest fight of 55.9s,
+   against 95% and **73.6s** under the ids that ship. **Name a probe's stages as they will ship, and
+   re-sweep the resolved ladder before believing a tuning pass.**
+6. ⚠️ **A carrier is worth more in the _back_ rank than in front — the opposite sign to chapter 27's
+   dodge, on the same measurement one chapter later.** A lone carrier at 40 is worth **0.00 of five in
+   front and 0.77 behind**, because a body the party cannot aim at keeps swinging. A dodge bills what
+   is _aimed at_; this bills what is _left alive_. **Two consecutive chapters priced the rank of a lone
+   carrier and got opposite answers.**
+
+⚠️ **One thing it measured and did not take.** An enemy `ultimate` is a real axis — 0.50 / 1.27 / 2.53 /
+3.75 across power 1.2 → 1.9, and 3.92 / 3.23 / 1.50 / 0.15 across one to four carriers at power 2.2 —
+and **0 of 398** blocks carries one. But `docs/combat.md` records "no enemy has one" as a decision
+rather than an omission, so it is a design reversal and not a content session's call. The search also
+turned up three dead keys: `energyRegen` on `DRUMMING_SHOAL`, `PACKCALL_WHISTLER` and
+`SALTBLEACH_CRIER`, none of which has an ultimate, so all three fill a bar nothing can spend. **Left in
+place and recorded**, because deleting one changes the behaviour of a shipped block nobody measured
+without it.
+
+⚠️ **Its lean is the second in a row where the depth argument and the rotation agree.** Elf was
+thinnest legal at 61 **and** next in the five-cycle. It is Elf's fourth lead, and the overlap with its
+first is nearly nothing — at this weight only the coldest bodies in the faction stand, so the chapter
+fields boles, brambles and sentries rather than the archers the Sunless Weald was built on. Its
+non-lean texture is **Monster, chosen on the pool rather than the fiction**: at level 695 Monster
+supplies 18 of the 52 blocks that stand against Elf's 5. The seven now run demon 33, angel 36, **human
+64**, dwarf 66, undead 67, monster 71, elf 71 — so chapter 29 is Human on the counts and Dwarf on the
+rotation, and they disagree for the first time in three chapters.
+
 ⚠️ **It also nearly retired a working guard, which is worth more than the chapter.** `gear.spec.ts`
 bounds the top grade's share of end-of-ladder drops at `< 0.2`, and adding sixty stages pushed it to
 0.2003. `git log -S` showed the bound had **never moved in the project's history** — which reads
 exactly like a guard nobody maintains, and the proposal was to replace both its arms with assertions
 about shape. That is backwards: the bound has never moved _because it is not supposed to_.
-`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty-one times
+`gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty-two times
 now**, always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the
 saturating tilt it is papering over stays visible. Chapter 25's landing was **605**, chapter 26's
-**635** and chapter 27's **665**; chapter 28 wants **695**. ⚠️ **Check both sides of a
+**635**, chapter 27's **665** and chapter 28's **695**; chapter 29 wants **725**. ⚠️ **Check both sides of a
 guard before calling it stale; the half that moves may not be the half the guard is written in.**
 
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung
