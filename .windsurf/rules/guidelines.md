@@ -74,7 +74,7 @@ them is how they get reversed by accident.
 
 **Progression**
 
-- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty-eight chapters, one thousand three hundred and ninety
+- **[docs/ladder.md](../../docs/ladder.md)** — the campaign: twenty-nine chapters, one thousand four hundred and fifty
   stages, what a stage authors, position versus clear count, the rung cadence, and the guards that
   were retired. ⚠️ **Chapter 18 moved the ascension rung to `mythic`, chapter 22 to `mythic-plus` and
   chapter 25 to `ascended`; all three are overrides against the log-space rule, and they are the only
@@ -93,9 +93,9 @@ them is how they get reversed by accident.
   half you have when they disagree.** The degenerate chain reached four links on `mythic`, two on
   `mythic-plus`, and re-formed at chapter 26 exactly as predicted. ⚠️ **That fifth stretch is the
   first that can never end**, because the four before it were each closed by a rung move and there is
-  no rung left to move to: chapter 27 took it to **three links** and chapter 28 to **four**, both on
-  schedule, so expect the chain to deepen a link a chapter forever and do not read a fifth or sixth
-  identical link as a bug.
+  no rung left to move to: chapter 27 took it to **three links**, chapter 28 to **four** and chapter
+  29 to **five**, all on schedule, so expect the chain to deepen a link a chapter forever and do not
+  read a sixth or seventh identical link as a bug.
 - ⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past**, so the rung
   question stops having a tuning answer after chapter 25. `ascended-1` caps at 600 against chapter
   25's close of 605 and reads a seam of **61.94** — a walkover by two orders of magnitude, by
@@ -105,10 +105,72 @@ them is how they get reversed by accident.
   levels of board against a party frozen at cap 500, ×1.8654 a chapter. The Roughcast reads 2.5971
   against `ascended-1`'s 33.2031 — a preference for staying put of **1.30 nats**, the widest any
   chapter has had, and there is nothing to override toward. Chapter 27 reads 1.3922 against 17.7995
-  and chapter 28 **0.7463 against 9.5419** — the identical 1.30-nat margin three chapters running,
-  because the ratio is exactly `1.6 / perLevel.common ** 100`, fixed by the hundred levels between the
-  two caps. ⚠️ **It will read 1.30 for every chapter from here: compute it once and quote it rather
-  than re-deriving it a fourth time.** [ladder](../../docs/ladder.md)
+  chapter 28 **0.7463 against 9.5419** and chapter 29 **0.4001 against 5.1152** — the identical
+  1.30-nat margin four chapters running, because the ratio is exactly `1.6 / perLevel.common ** 100`,
+  fixed by the hundred levels between the two caps. ⚠️ **It is a constant, not a reading: quote it
+  rather than re-deriving it a fifth time.** [ladder](../../docs/ladder.md)
+- ⚠️ **Chapter 29 is where the stat vocabulary ran out, and `def` was the last unspent stat.**
+  Chapter 23 took all four mitigation stats at once and 24 through 28 took `tenacity`,
+  `physicalPierce`, `critChance`, `dodge` and `attackSpeed`; what was left reads 0.00 against the
+  calibrated five (`accuracy`, because they carry `dodge` Σ0.00; `magicPierce`, because a pierce
+  never touches a resist), is disqualified by the formula (`insight`), is a forbidden shape
+  (sustain) or is a design reversal (an enemy `ultimate`). **A chapter 30 has no unspent stat**: the
+  options are a **pairing** taken on super-additivity or a spent axis re-taken from the other side of
+  the board. Measured at chapter 29's control, `critChance` 0.28 × `critDamageAmp` 1.15 reads 1.40
+  and 0.05 alone and **3.90 together** at eight seconds of added fight, against `def`'s twenty-two.
+  [authoring](../../docs/authoring.md)
+- ⚠️ **`chapters.balance.ts` holds every sweep entry to a _mean_ fight under 60s, and that is a
+  tighter bar than the 72s longest-cleared one.** A fight-lengthening chapter meets the mean first:
+  chapter 29's first authored pass read 60.2s and 64.3s means on two boards while every max sat
+  comfortably inside 72s. **Tune a refusal chapter against the mean.** [authoring](../../docs/authoring.md)
+- ⚠️ **A refusal chapter's first authored pass is too _cold_, and only the difficulty probe says so.**
+  Chapter 29's read every board at 100% inside both clock bars and still failed the probe twice — band
+  4 opened at **0.680** of band 3's close, and the closing third read lighter than the opening third —
+  because **the probe reads throughput and `def` is invisible to it**. The repair was one move: re-cut
+  every new block **hotter and lighter**, which raised the probe and shortened the fights together.
+  **On a refusal axis weight and heat move in opposite directions.** [authoring](../../docs/authoring.md)
+- ⚠️ **A defensive stat grades in _value_ and an offensive one grades in _carrier count_**, which is
+  what lets one chapter have a two-dimensional dial and refuses it to the next. `def` reads nine
+  monotone steps across 17 → 28 and **0.00 / 0.06 / 0.10 / 0.10 / 1.70 / 2.96** across zero to five
+  carriers — flat through the middle and a cliff at the end, which is the survivors metric
+  saturating. Chapter 28's `attackSpeed` graded in both. **Check which dimension your axis has before
+  planning six bands on it.** [authoring](../../docs/authoring.md)
+- ⚠️ **Armour on a heavy body is the ninety-second clock, so a chapter about armour authors it on the
+  light bodies.** Four light escorts at `def` 34 are worth **3.01 of five**, one heavy anchor at `def`
+  80 is worth 2.74 at a 68.3s longest fight, and an anchor carrying both weight and armour runs
+  **88.5s** — a timeout, which is a defeat. **That is the inverse of the Dwarven idiom**: the faction
+  that owns the tankiest blocks in the game is the one whose chapter may not stack them.
+  [authoring](../../docs/authoring.md)
+- ⚠️ **`def` carries the tier premium, so a band table stated in authored `def` is not monotone.** At
+  level 710 a `legendary` block is worth ×2.835 of a `common` one and an `ascended` ×8.03, so an
+  authored 32 on a common and an authored 30 on a legendary are 32 and **86** on a board. **Convert
+  `def` before comparing two bodies, exactly as with weight** — chapter 29 is the first where the
+  conversion applies to the axis rather than to the budget. [authoring](../../docs/authoring.md)
+- ⚠️ **The rank of a lone carrier has now been priced three chapters running and got three different
+  answers, the third being none at all.** Chapter 27's `dodge` reads 3.25 in front against 3.70
+  behind, chapter 28's `attackSpeed` **0.00 against 0.77**, and chapter 29's `def` **0.00 against
+  0.01** at every value from 22 to 55. A dodge bills what is _aimed at_, an `attackSpeed` bills what
+  is _left alive_, and `def` bills every blow that reaches the body whenever it arrives. **Rank is a
+  priced dial in some chapters and not a dial at all in others; measure, never carry the precedent.**
+  [authoring](../../docs/authoring.md)
+- ⚠️ **`signature.balance.ts` can bind a chapter's final on an assertion that is _not_ the clock, and
+  the two balance files can disagree about which escort body matters.** Chapter 29's final passed the
+  ninety-second guard at 898 of 900 and failed _"never makes a character reach meaningfully less far
+  as the item is levelled"_ on Seraphine, whose capstone unconditions an `ally-all` heal and trades
+  damage threshold for sustain at exactly the edge that file measures (556 → 551, a ratio of 0.9910
+  against a 0.995 tolerance). Every legal escort arrangement reads 4.00 of five at 62–68s on
+  `chapters.balance.ts`; the same swaps read 0.9892 to 0.9964 there, and exactly one passes. **Run
+  that file on the candidate final before the full sweep, and do not assume the assertion that binds
+  is the timer.** [authoring](../../docs/authoring.md)
+- ⚠️ **`levels.spec.ts`'s "leaves rungs unspent above everything the ladder asks for" fired at chapter
+  29 and was retired rather than slid — the fifth guard retired this way.** It is the one guard in
+  that file that genuinely could not decay, which is exactly why it was retired: it was measuring
+  **how long the campaign is** rather than drift, and its own comment said the answer is a roadmap
+  decision. **The answer, recorded in its place: 30 levels a chapter against a caps ladder topping out
+  at 1000 gives the campaign a hard ceiling at chapter 38.** Each +100-level rung appended **above**
+  `ascended-5` buys ~3.3 more chapters, and appending at the top of `RARITIES` is the one insertion
+  that is not a save migration. ⚠️ **What the retirement costs: content whose level demands run away is
+  now unguarded.** [history](../../docs/history.md)
 - ⚠️ **A degenerate seam is where a measured price table transfers, and chapter 26 is the first to
   spend that deliberately.** The party is literally unchanged, so equal absolute weight is equal
   difficulty and chapter 25's table holds at **0.536×** the common-equivalent figure — **and the
@@ -822,10 +884,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   the guard is written in.** `gear.spec.ts` bounds the top gear grade's share of end-of-ladder drops
   at `< 0.2` and that bound has **never moved in the project's history** — which reads exactly like a
   guard nobody maintains. It is the opposite: `gradeSoftness` in `data/gear.ts` moves to meet it, by
-  hand, **once a chapter, twenty-two times now**, always to `stages / 2`, always restoring 18.7%. It is
+  hand, **once a chapter, twenty-three times now**, always to `stages / 2`, always restoring 18.7%. It is
   done by hand deliberately, so the saturating-tilt bug underneath stays visible. Chapter 24 nearly
   retired the bound on a `git log -S` over the spec alone. **Adding a chapter owes this edit**; chapter
-  29 wants 725. [gear](../../docs/gear.md)
+  30 wants 755. [gear](../../docs/gear.md)
 - ⚠️ **A tower's height is one rule for all seven, so a bump strands six of them.** A tower that has
   not been extended is not damaged — `clearedFloors` clamps — but it **loses its boss**, because
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'

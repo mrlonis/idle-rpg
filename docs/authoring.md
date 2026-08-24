@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped thirteen hundred and ninety stages and thirty-five hundred floors. `AGENTS.md` states the rules and the
+shipped fourteen hundred and fifty stages and thirty-five hundred floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
-| Campaign         | 28 chapters, 1390 stages, enemy levels 1–695 |
+| Campaign         | 29 chapters, 1450 stages, enemy levels 1–725 |
 | Towers           | 7 × 500 floors, enemy levels 1–236           |
-| Enemy archetypes | 408                                          |
+| Enemy archetypes | 418                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -78,6 +78,7 @@ section below before assuming ten more boards is ten more boards.
 | 26      | 605   | 635    | 30     |
 | 27      | 635   | 665    | 30     |
 | 28      | 665   | 695    | 30     |
+| 29      | 695   | 725    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -1212,6 +1213,107 @@ Zero timeouts on every row.
    resolved ladder before believing any of it — `resolveLadder(CHAPTERS, CHAPTER_CURVE, …)` and the
    real ids, not a synthetic encounter.
 
+### ⚠️ Chapter 29 is the chapter where the stat vocabulary ran out, and the last unspent stat is `def`
+
+The Overburden closes at **725** and stays on **`ascended`**. Against chapter 28's seam of 0.7463,
+`ascended` reads **0.4001** (|Δln| **0.6235**) and `ascended-1` **5.1152** (|Δln| **1.9248**) — the
+rule prefers staying put by **1.30 nats**, the identical margin chapters 26, 27 and 28 all read.
+**Four chapters on one figure. It is `1.6 / perLevel.common ** 100` and it will not move; quote it.**
+
+1. ⚠️ **The stat block is spent, and this is the chapter that says so.** Chapter 23 took all four
+   mitigation stats at once — `critBlock`, `critDamageResist`, `physicalResist`, `magicResist` —
+   then 24 `tenacity`, 25 `physicalPierce`, 26 enemy `critChance`, 27 `dodge`, 28 `attackSpeed`.
+   What was left that both grades and belongs to nobody is **`def`**, which has been measured five
+   times across fifteen chapters and never been a premise. Everything else reads **0.00**
+   (`accuracy`, `magicPierce`), is disqualified by the formula (`insight`), is a forbidden shape
+   (`recovery`, `healthRegen`, `receivedHealing`), or is a design reversal (an enemy `ultimate`).
+   **A chapter 30 has no unspent stat at all**; see the note below on what is actually left.
+2. ⚠️ **`def` grades in _value_ and not in carrier count, which is the exact inverse of chapter 28
+   and generalises.** Against a control of an `ascended` 26/1.4 behind four `legendary` 44/4.0 at
+   level 710 and Relic 100, reading 3.98 of five at 36.4s: by value it reads **0.02 / 0.10 / 0.58 /
+   0.73 / 1.20 / 1.73 / 2.23 / 3.13 / 3.60** across 17 → 28, nine monotone steps with zero timeouts;
+   by carrier count at 26 it reads **0.00 / 0.06 / 0.10 / 0.10 / 1.70 / 2.96**, flat through the
+   middle and a cliff at the end. That is the survivors metric saturating, and the rule it yields is
+   **a defensive stat grades in value and an offensive one grades in carrier count** — which is why
+   `attackSpeed` could be a dial in two dimensions and this cannot. A six-band chapter on a defensive
+   axis moves value and count together and lets the board weight carry the rest.
+3. ⚠️ **Armour on a heavy body is the ninety-second clock, which inverts the lean's own idiom.**
+   Four light escorts at `def` 34 are worth **3.01 of five**; one heavy anchor at `def` 80 is worth
+   2.74 at a 68.3s longest fight; and an anchor carrying both weight and armour (hp 78, `def` 44)
+   runs **88.5s** — a timeout, scored a defeat. **The faction that owns the tankiest blocks in the
+   game is the one whose chapter may not stack them.** Every board here keeps the axis on the light
+   bodies, and the chapter's longest fight is 66.6s.
+4. ⚠️ **A lone `def` carrier is rank-neutral, which is the third answer in three chapters and the
+   first that is _no answer at all_.** Carried on **one** body and moved between ranks it reads
+   **0.00 of five in front and 0.01 in the back** at 22, 30, 40 _and_ 55, where chapter 27's `dodge`
+   read 3.25 against 3.70 and chapter 28's `attackSpeed` 0.00 against 0.77. A dodge bills what is
+   _aimed at_, an `attackSpeed` bills what is _left alive_, and `def` bills every blow that reaches
+   the body whenever it arrives. **Rank was most of the remaining tuning in the last two chapters and
+   is not a dial here at all — check, do not assume it is one.**
+5. ⚠️ **`def` carries the tier premium, so the band table has to be stated in common-equivalent
+   terms or it is not monotone.** At level 710 a `legendary` block is worth ×2.835 of a `common` one
+   and an `ascended` ×8.03, so an authored 32 on a common and an authored 30 on a legendary are 32
+   and **86** on a board. Reading the authored column alone says the closing band steps _down_ from
+   band 3. **Convert `def` before comparing two bodies, exactly as with weight** — this is the first
+   chapter where the conversion applies to the axis itself rather than to the budget.
+6. ⚠️ **The two balance files disagreed about which escort body matters, and only running both
+   found it.** Every legal escort arrangement of the final reads **4.00 of five at 62–68s** on
+   `chapters.balance.ts`; `signature.balance.ts` reads the same swaps as 0.9892 to **0.9964** on
+   Seraphine's rung-20-to-30 step against a 0.995 tolerance, and exactly one arrangement passes.
+   ⚠️ **And the assertion that bound was not the clock.** The ninety-second guard passed on the first
+   draft at 898 of 900; what failed was _"never makes a character reach meaningfully less far as the
+   item is levelled"_, because Seraphine's capstone unconditions an `ally-all` heal and trades damage
+   threshold for sustain at exactly the edge that file measures. **Run that file on the candidate
+   final, and do not assume the assertion that binds is the timer.**
+7. ⚠️ **The pool wall is on _attack_ and the lean's own cold tail is five blocks wide.** Fielded
+   beside four light escorts, **154 of 408 shipped blocks stand at level 695, 110 at 710 and 53 at
+   725**. Of the Dwarf blocks that stand at 725, exactly **five** are cold enough for an ordinary
+   board — 39 to 45 gear-weighted common-equivalent attack — and every other affordable Dwarf block
+   sits at **62 or above** and can only ever anchor a board alone. That is what set the fielded
+   roster at 27 against chapter 28's 32 and the quota at 32.0% rather than 26.7%. **Chapter 17's
+   situation, one rung and twelve chapters later.**
+8. ⚠️ **The refield cliff is ten levels wide, down from chapter 28's fifteen.** `c28-s60` reads
+   100% with 3.85 of five at **695** and **0% at 705**; `c28-s1` and `c28-s30` read 0% at 695. **The
+   whole chapter below refields as a cliff inside this chapter's first ten stages**, and the cliff
+   narrows by five levels a chapter.
+9. ⚠️ **A refusal chapter's first authored pass is too _cold_, and only the difficulty probe says
+   so.** Chapter 29's first pass read every board at 100% inside the max bar and still failed the
+   probe twice: band 4 opened at **0.680** of band 3's close and the closing third read lighter than
+   the opening third. **The probe reads throughput and `def` is invisible to it** — chapter 24's
+   finding — so the repair was to re-cut all ten new blocks **hotter and lighter**: health ×0.86 and
+   attack ×1.14 on the bodies that stand beside a returning anchor, ×0.76 and ×1.6 on the late-band
+   legendaries that stand alone. That raised the probe **and** shortened every fight. **On a refusal
+   axis weight and heat move in opposite directions, and the probe is the only instrument that sees
+   which one is short.**
+
+### ⚠️ What chapter 29 leaves for chapter 30, and it is not a stat
+
+Three things a chapter-30 session should read before shortlisting anything.
+
+- ⚠️ **There is no unspent stat left.** The honest options are a **pairing** taken on
+  super-additivity (the Human-Tower-fifth-hundred and Monster-Tower-fourth-hundred shape), or a
+  spent axis re-taken **from the other side of the board** (chapter 26 did this to chapter 23's
+  crit). Measured at chapter 29's control, the strongest pairing available is `critChance` 0.28 ×
+  `critDamageAmp` 1.15 — **1.40 and 0.05 alone, 3.90 together**, and the cheapest thing left on the
+  clock at eight seconds against `def`'s twenty-two — but half of it is chapter 26's whole axis.
+  `def` 20 + `physicalResist` 0.14 reads **2.38** against 0.73 + 0.48 for the halves.
+- ⚠️ **The clock has stopped being a filter and become the budget, and the bar that binds is the
+  _mean_ rather than the max.** `chapters.balance.ts` holds every sweep entry to a mean under **60s**
+  as well as the longest cleared fight to 0.80 of the timer, and chapter 29's first authored pass met
+  the mean bar first — two boards at 60.2s and 64.3s while every max sat comfortably inside 72s. It
+  ships at a worst mean of **58.6s** and a worst max of 61.5s, and `signature.balance.ts` sits at
+  **897 of 900**. Every remaining defensive candidate buys eleven to twenty-two seconds. **A chapter
+  30 on another fight-lengthening axis has nowhere to put it**; the axis has to be chosen on seconds
+  first and survivors second, which is chapter 28's rule now binding rather than advising.
+- ⚠️ **The level guard is gone and the campaign's ceiling is chapter 38.** `levels.spec.ts`'s
+  "leaves rungs unspent above everything the ladder asks for" fired here and was **retired rather
+  than slid** — the fifth guard retired this way. The line adds 30 levels a chapter and the caps
+  ladder tops out at 1000, so the campaign closes at 995 in chapter 38. Reaching further is a
+  `data/` decision about `LEVEL_CURVE.caps` and the ascension ladder behind it, and each +100-level
+  rung appended **above** `ascended-5` buys roughly 3.3 chapters. ⚠️ **Appending at the top of
+  `RARITIES` is the one insertion that is not a save migration.** What the retirement costs is
+  stated in the spec: content whose level demands run away is now unguarded.
+
 ### ⚠️ Field the previous chapter's final at the new roof before authoring, exactly as a tower does
 
 The campaign has reached the rule the towers' third hundreds established. Chapter 13's own final
@@ -1397,6 +1499,16 @@ A chapter leans on one faction and its new blocks go there, which is what gives 
 place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
 
 - **Deepen a thin faction rather than a deep one.** The seven now run demon 33, angel 36, **human 64**,
+  undead 67, monster 71, elf 71, **dwarf 76** — chapter 29's ten Dwarf blocks took Dwarf from
+  third-thinnest legal to deepest of all seven, so **Human at 64 is the thinnest legal lead** for the
+  third chapter running, with Undead at 67 behind it. ⚠️ **Chapter 29 was decided by the rotation
+  against the counts, which is the fourth time the depth argument has been overruled**: Human was
+  thinnest by two blocks and was passed over because it led chapter 27, and the leads have run
+  undead, monster, human, elf, dwarf since chapter 20 in a clean five-cycle that puts Dwarf at 29.
+  ⚠️ **The axis was the tiebreak and it should be**: Dwarf owns the shipped `def` ceiling at 70
+  against Undead's 62, Demon's 58 and 54 for the remaining four. ⚠️ **Dwarf's leads are perfectly
+  periodic — chapters 9, 14, 19, 24, 29** — which is worth knowing because it makes the rotation
+  checkable rather than remembered. The reading before chapter 29: demon 33, angel 36, **human 64**,
   dwarf 66, undead 67, monster 71, elf 71 — chapter 28's ten Elf blocks took Elf from thinnest legal
   to joint-deepest, so **Human at 64 is the thinnest legal lead**, with Dwarf at 66 and Undead at 67
   behind it. ⚠️ **The leads have run undead, monster, human, elf, dwarf, undead, monster, human, elf
@@ -1475,6 +1587,13 @@ place and what keeps sessions touching non-overlapping slices of `enemies.ts`.
   legal because four chapters after the Sunless Weald, Elf was still the thinnest legal lead at 23.
   What a repeat costs is that the chapter has to be a visibly different **place**: the Weald is the
   Elves at home and The Rustwood is the Elves out on somebody else's battlefield, picking it over.
+- **The Overburden is 89.7%**, counted after the boards landed — in family, between The Windthrow's
+  89.3% and The Roughcast's 90.0%. Its 31 non-Dwarf slots are all Monster
+  and thin monotonically across the bands — **8, 7, 6, 5, 3, 2** — chosen on the **pool** rather
+  than the fiction: at level 725 Monster supplies 18 of the 53 blocks that stand against Dwarf's 6.
+  ⚠️ **It is Dwarf's fourth lead in a row of five-chapter periods and the overlap with The Nevermark
+  is deliberate**: six of that chapter's blocks return, because they are among the five coldest
+  Dwarf blocks in the game and nothing else stands at this weight.
 - **The Windthrow is 89.3%**, counted after the boards landed — level with The Looseline and between
   The Underroad's 86.4% and The Roughcast's 90.0%. Its 32 non-Elf slots are all Monster and thin
   monotonically across the bands — **9, 7, 6, 5, 3, 2** — which is The Roughcast's shape rather than
@@ -1574,7 +1693,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped twenty-eight, with the level range each closes over:
+The shipped twenty-nine, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -1606,6 +1725,7 @@ The shipped twenty-eight, with the level range each closes over:
 | 26  | The Roughcast      | 60     | 605 → 635 | whether any of it **can be counted on**         |
 | 27  | The Looseline      | 60     | 635 → 665 | whether it can be **made to connect**           |
 | 28  | The Windthrow      | 60     | 665 → 695 | whether it ever gets **a gap to land in**       |
+| 29  | The Overburden     | 60     | 695 → 725 | whether it **counts for what it costs**         |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -2398,15 +2518,15 @@ chapter regardless" — **sort every failure into those two before touching anyt
 way — one of them because its previous entry was still describing the pre-flattening income curve.
 Measure, do not copy this table forward.
 
-| Fires at      | Guard                                                          | Reads now  | The answer                                                                                         |
-| ------------- | -------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| every chapter | `descent.balance.ts` — per-depth finish rate                   | 0.50 deep  | `anchorSlope`, re-derived. **The shape is wrong**; see below                                       |
-| every chapter | `gear.spec.ts` — top grade's share of drops                    | 18.7%      | `gradeSoftness` → 725 at chapter 29. It is always `stages / 2`; what it wants is a saturating tilt |
-| every chapter | `descent.balance.ts` / `expedition.balance.ts` — deepest depth | **red**    | Re-anchor both modes. `anchorSlope` has no working setting; see below                              |
-| chapter 17    | `gear.spec.ts` — the grade ladder is exhausted                 | Relic 100  | Nothing. There is no sixth grade; write it down                                                    |
-| chapter 30    | `levels.spec.ts` — rungs unspent above the ladder              | 300 < 700  | Was chapter 12 before the flattening. **How long is the campaign meant to be**                     |
-| ~chapter 42   | The level curve is consumed entirely                           | 300 / 1000 | A roadmap decision, not a threshold. Was ~chapter 15                                               |
-| ~chapter 180  | `gear.spec.ts` — "roughly doubles what gold is for"            | —          | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`                     |
+| Fires at       | Guard                                                          | Reads now   | The answer                                                                                            |
+| -------------- | -------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
+| every chapter  | `descent.balance.ts` — per-depth finish rate                   | 0.50 deep   | `anchorSlope`, re-derived. **The shape is wrong**; see below                                          |
+| every chapter  | `gear.spec.ts` — top grade's share of drops                    | 18.7%       | `gradeSoftness` → 755 at chapter 30. It is always `stages / 2`; what it wants is a saturating tilt    |
+| every chapter  | `descent.balance.ts` / `expedition.balance.ts` — deepest depth | **red**     | Re-anchor both modes. `anchorSlope` has no working setting; see below                                 |
+| chapter 17     | `gear.spec.ts` — the grade ladder is exhausted                 | Relic 100   | Nothing. There is no sixth grade; write it down                                                       |
+| ~~chapter 29~~ | `levels.spec.ts` — rungs unspent above the ladder              | **retired** | Fired at 29 (725 against 700) and was **retired rather than slid** — the fifth guard retired this way |
+| chapter 38     | The level curve is consumed entirely                           | 725 / 1000  | 30 levels a chapter against a cap of 1000. Append rungs above `ascended-5`, or the campaign closes    |
+| ~chapter 180   | `gear.spec.ts` — "roughly doubles what gold is for"            | —           | Gear costs that scale with content, a milestone-sized retune of `data/gear.ts`                        |
 
 ⚠️ **`gradeSoftness` fired again at chapter 21 and read 20.3% at nine hundred and seventy stages;
 `stages / 2` = 485 restored 18.7% for the fifteenth time.** That is fifteen landings on one figure
@@ -2424,7 +2544,9 @@ ahead.** ⚠️ **Chapter 26 landed on it and wanted 635, exactly as predicted �
 and the seventh prediction checked a chapter ahead.** ⚠️ **Chapter 27 landed on it and wanted 665,
 exactly as predicted — the twenty-first landing and the eighth prediction checked a chapter ahead.**
 ⚠️ **Chapter 28 landed on it and wanted 695, exactly as predicted — the twenty-second landing and the
-ninth prediction checked a chapter ahead.** Chapter 29 wants **725**. **Twenty-one landings is well past the point where re-deriving is
+ninth prediction checked a chapter ahead.** ⚠️ **Chapter 29 landed on it and wanted 725, exactly as
+predicted — the twenty-third landing and the tenth prediction checked a chapter ahead.** Chapter 30
+wants **755**. **Twenty-one landings is well past the point where re-deriving is
 learning anything**; the next session in `data/gear.ts` for any reason should write the saturating
 tilt while it is already there.
 

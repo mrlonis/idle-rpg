@@ -43,12 +43,14 @@ import {
   COUNT_THE_RINGS,
   COURSE_BY_COURSE,
   COVERT_REAVE,
+  CROWN_COURSE,
   CULL_THE_EMBERS,
   CUTPURSE,
   CUT_AND_COME_BACK,
   CUT_BENEATH_IT,
   CUT_THE_STRAPS,
   DEADWEIGHT_FALL,
+  DEAD_MEASURE,
   DOOMKNELL,
   DOWN_THE_GALEWAY,
   DRAWN_DOWN,
@@ -154,6 +156,7 @@ import {
   NOTHING_TELLS,
   NOTHING_TO_MEET_IT,
   NOTHING_TO_PLAN_FOR,
+  NOTHING_TO_SHIFT,
   NOT_YOUR_TURN,
   NO_ANSWER_COMES,
   NO_BETTER_HOUR,
@@ -206,6 +209,7 @@ import {
   SAY_IT_AGAIN,
   SEEDLIGHT,
   SETTLE_IN,
+  SET_AND_LEFT,
   SET_INTO_THE_COURSE,
   SET_THE_PITCH,
   SET_THE_PLATE,
@@ -217,6 +221,7 @@ import {
   SHATTERJAW,
   SHELLED_RUSH,
   SHIELD_BASH,
+  SHORED_AGAINST_IT,
   SHORT_MEASURE,
   SHRIKE_DIVE,
   SHUT_THE_RING,
@@ -232,6 +237,7 @@ import {
   STILL_COUNTING,
   STONE_FIST,
   STRIP_THE_FALLEN,
+  STULL_AND_STAY,
   SUCKER_LASH,
   SUNFADE,
   SWING_THE_THURIBLE,
@@ -262,6 +268,8 @@ import {
   THE_EDGE_IS_MADE,
   THE_FACE_COMES_DOWN,
   THE_FIELD_CLOSES,
+  THE_FIRST_COURSE,
+  THE_GOB_WALL,
   THE_GRAIN_HOLDS,
   THE_GREAT_HELVE_FALLS,
   THE_GREEN_TAKES_IT,
@@ -315,7 +323,9 @@ import {
   THE_WARDS_HOLD,
   THE_WAY_IT_FALLS,
   THE_WAY_IT_LANDS,
+  THE_WEIGHT_ABOVE,
   THE_WHEEL_TURNS,
+  THE_WHOLE_MEASURE,
   THE_WHOLE_STAND_GOES,
   THE_WHOLE_WOOD_AT_ONCE,
   THE_WOOD_DOES_NOT_END,
@@ -342,8 +352,10 @@ import {
   WHAT_THE_DEAD_KEPT,
   WHAT_THE_FIELD_KEPT,
   WHAT_THE_FIELD_LEFT,
+  WHAT_THE_ROOF_KEEPS,
   WHAT_THE_WATER_LEFT,
   WHAT_THE_WIND_LIFTED,
+  WHERE_IT_LEANS,
   WHERE_IT_WAS_STANDING,
   WHOSE_HAND_IS_THAT,
   WIDEN_IT,
@@ -14832,6 +14844,237 @@ export const THE_WINDTHROW = {
   skills: [THE_WHOLE_WOOD_AT_ONCE, NO_GAP_IN_IT],
 } as const;
 
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 29 — The Overburden. Ten Dwarf blocks authored on `def`.
+ *
+ * ⚠️ **`def` sits on 408 of 408 shipped blocks, so nothing here is a claim about presence.** The
+ * register these were measured against is a median of **26**, a p90 of **46** and a ceiling of
+ * **70** — {@link THE_DOORSTONE}'s. **Dwarf owns that ceiling outright**: 70 against Undead's 62,
+ * Demon's 58 and 54 for the remaining four, and three of the four shipped blocks at 62 or above are
+ * Dwarf. That is the whole reason a Dwarf chapter is the one that can be built on it. Every band claim about this stat is a
+ * count of bodies **at or above a threshold**, which is chapter 23's fix applied for the seventh
+ * chapter running.
+ *
+ * ⚠️ **Armour on a heavy body is the ninety-second clock, so it is authored on the light ones.**
+ * Measured at this chapter's control, four light escorts at `def` 34 are worth **3.01 of five**
+ * where one heavy anchor at `def` 80 is worth 2.74 at a 68.3s longest fight, and an anchor carrying
+ * both weight and armour runs **88.5s** — a timeout, which is scored a defeat. That is the exact
+ * inverse of the Dwarven idiom, which is what makes it worth writing down: the faction that owns
+ * the tankiest blocks in the game is the one whose chapter may not stack them.
+ *
+ * ⚠️ **A lone `def` carrier is rank-neutral, which is the third answer in three chapters.** Moved
+ * between ranks on one body it reads **0.00 in front and 0.01 in the back** at every value from 22
+ * to 55, where chapter 27's `dodge` read 3.25 against 3.70 and chapter 28's `attackSpeed` 0.00
+ * against 0.77. A dodge bills what is *aimed at*, an `attackSpeed` bills what is *left alive*, and
+ * `def` bills every blow that reaches the body whenever it arrives. **Rank is not a dial here.**
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the chapter's heaviest new body, and the floor of its axis. */
+export const SPOILROOF_HAND = {
+  id: 'spoilroof-hand',
+  name: 'Spoilroof Hand',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 225,
+    atk: 10,
+    def: 16,
+    haste: 74,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+  },
+  skills: [WHAT_THE_ROOF_KEEPS],
+} as const;
+
+/** The chapter's most-fielded ordinary body, and the one that teaches the axis exists. */
+export const DEADROCK_BEARER = {
+  id: 'deadrock-bearer',
+  name: 'Deadrock Bearer',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 195,
+    atk: 9,
+    def: 20,
+    haste: 78,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+  },
+  skills: [DEAD_MEASURE],
+} as const;
+
+/** Band 2's identity: the first body on the ladder standing at the shipped median. */
+export const CAPSTONE_DRUDGE = {
+  id: 'capstone-drudge',
+  name: 'Capstone Drudge',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 150,
+    atk: 8,
+    def: 26,
+    haste: 70,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+  },
+  skills: [THE_FIRST_COURSE],
+} as const;
+
+/** Band 3's identity, and the heaviest authored `def` on any `common` body in the chapter. */
+export const LIDSTONE_WARDEN = {
+  id: 'lidstone-warden',
+  name: 'Lidstone Warden',
+  faction: 'dwarf',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 125,
+    atk: 7,
+    def: 32,
+    haste: 66,
+    critChance: 0.04,
+    critDamageAmp: 0.5,
+    physicalResist: 0.08,
+  },
+  skills: [SET_AND_LEFT],
+} as const;
+
+/** The chapter's coldest legendary on the axis, and the first of its two `enemy-back` turns. */
+export const STULLSET_PROPPER = {
+  id: 'stullset-propper',
+  name: 'Stullset Propper',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 68,
+    atk: 4,
+    def: 12,
+    haste: 76,
+    critChance: 0.06,
+    critDamageAmp: 0.6,
+  },
+  skills: [STULL_AND_STAY],
+} as const;
+
+/** Band 4's identity, and the carrier of one of the chapter's two wide turns. */
+export const GOBWALL_MASON = {
+  id: 'gobwall-mason',
+  name: 'Gobwall Mason',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 52,
+    atk: 4.5,
+    def: 22,
+    haste: 72,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+  },
+  skills: [THE_GOB_WALL],
+} as const;
+
+/** Band 5's identity, and the only new body on a `brawler` archetype. */
+export const CROWNCOURSE_KEEPER = {
+  id: 'crowncourse-keeper',
+  name: 'Crowncourse Keeper',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 44,
+    atk: 3.5,
+    def: 28,
+    haste: 80,
+    critChance: 0.07,
+    critDamageAmp: 0.65,
+  },
+  skills: [CROWN_COURSE],
+} as const;
+
+/**
+ * The closing band's ordinary body, and the chapter's ceiling on the axis short of its boss.
+ *
+ * Authored 30 is **86 common-equivalent** at level 720 against {@link LIDSTONE_WARDEN}'s authored 32
+ * being 32 — the tier premium applies to `def` like every other stat, which is why this chapter's
+ * band table is stated in common-equivalent terms.
+ */
+export const DEEPBENCH_SHORER = {
+  id: 'deepbench-shorer',
+  name: 'Deepbench Shorer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 38,
+    atk: 3.2,
+    def: 30,
+    haste: 68,
+    critChance: 0.05,
+    critDamageAmp: 0.55,
+    physicalResist: 0.1,
+  },
+  skills: [SHORED_AGAINST_IT],
+} as const;
+
+/**
+ * The lieutenant, anchoring all five mini-boss boards at rising levels.
+ *
+ * ⚠️ **Settled by fielding all five appearances rather than the first** — an `ascended` block
+ * climbs at `perLevel.ascended` 1.024 against a party frozen at `ascended`'s cap of 500, so a stat
+ * line correct on `c29-s10` is unwinnable on `c29-s50`.
+ *
+ * Sized under {@link UNMADE} on both stats, as every `ascended` block since the Vault has been.
+ */
+export const THE_DEADROCK = {
+  id: 'the-deadrock',
+  name: 'The Deadrock',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 20,
+    atk: 1.3,
+    def: 20,
+    haste: 72,
+    critChance: 0.08,
+    critDamageAmp: 0.7,
+    physicalResist: 0.1,
+  },
+  skills: [THE_WEIGHT_ABOVE, WHERE_IT_LEANS],
+} as const;
+
+/**
+ * The chapter boss, fielded nowhere else.
+ *
+ * ⚠️ **Its axis is its identity and its escort is its difficulty**, which is chapter 27's finding
+ * with chapter 28's correction attached: a final's `def` buys clock rather than survivors, and the
+ * board is settled by which escort body stands in front of it.
+ *
+ * Sized under {@link UNMADE} on both stats.
+ */
+export const THE_OVERBURDEN = {
+  id: 'the-overburden',
+  name: 'The Overburden',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 12,
+    atk: 1.2,
+    def: 34,
+    haste: 76,
+    critChance: 0.09,
+    critDamageAmp: 0.75,
+    physicalResist: 0.14,
+  },
+  skills: [NOTHING_TO_SHIFT, THE_WHOLE_MEASURE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -15241,4 +15484,14 @@ export const ENEMIES = [
   BLOWDOWN_STALKER,
   THE_ROOTPLATE,
   THE_WINDTHROW,
+  SPOILROOF_HAND,
+  DEADROCK_BEARER,
+  CAPSTONE_DRUDGE,
+  LIDSTONE_WARDEN,
+  STULLSET_PROPPER,
+  GOBWALL_MASON,
+  CROWNCOURSE_KEEPER,
+  DEEPBENCH_SHORER,
+  THE_DEADROCK,
+  THE_OVERBURDEN,
 ] as const;

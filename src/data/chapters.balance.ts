@@ -1317,9 +1317,9 @@ const LOOSELINE: FormationData = mono(
 );
 
 /**
- * The party that arrives in chapter 28: the five that just took The Looseline, unchanged.
+ * The party that arrives in chapter 29: the five that just took The Windthrow, unchanged.
  *
- * ⚠️ **This is The Looseline's `INVESTED`, kept under a new name rather than re-derived** — the
+ * ⚠️ **This is The Windthrow's `INVESTED`, kept under a new name rather than re-derived** — the
  * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
  * ahead" stays checkable at both boundaries at once.
  *
@@ -1341,6 +1341,50 @@ const LOOSELINE: FormationData = mono(
  * all seven factions. What binds is common-equivalent **attack weighted by gear archetype** — at
  * Relic 100 a `ranger` bills ×2.12 of its authored attack against a `tank`'s ×1.46 — and every board
  * that failed in tuning failed between 246 and 364 on that figure.
+ *
+ * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
+ * `legal` throws rather than quietly fielding an over-levelled party.
+ */
+const WINDTHROW_RARITY = rarityIndex('ascended');
+const WINDTHROW_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[27] - 1].level,
+  LEVEL_CURVE.caps[WINDTHROW_RARITY],
+);
+
+const WINDTHROW: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(WINDTHROW_LEVEL, WINDTHROW_RARITY),
+  WINDTHROW_RARITY,
+);
+
+/**
+ * The party that arrives in chapter 29: the five that just took The Windthrow, unchanged.
+ *
+ * ⚠️ **This is The Windthrow's `INVESTED`, kept under a new name rather than re-derived** — the
+ * chain accumulates so that "clears the chapter behind it, walks only a little way into the one
+ * ahead" stays checkable at both boundaries at once.
+ *
+ * ## ⚠️ The rung stays on `ascended`, and 1.30 nats is now a constant rather than a reading
+ *
+ * Against chapter 28's seam of **0.7463** and The Overburden's close of 725, `ascended` reads
+ * **0.4001** (|Δln| **0.6235**) and `ascended-1` **5.1152** (|Δln| **1.9248**). **The rule prefers
+ * staying put by 1.30 nats** — the identical margin chapters 26, 27 and 28 all read, because the
+ * ratio is exactly `1.6 / perLevel.common ** 100`, fixed by the hundred levels between `ascended`'s
+ * cap of 500 and `ascended-1`'s of 600. **Four chapters on one figure: quote it, do not re-derive
+ * it.**
+ *
+ * ⚠️ **This party, {@link WINDTHROW}, {@link LOOSELINE}, {@link ROUGHCAST} and {@link THINGROUND}
+ * are one set of five combatants** — the fifth link of a degenerate stretch, deeper than any the
+ * campaign has had and the first that no rung move can close. **Expect a sixth at chapter 30 and do
+ * not read it as a bug.**
+ *
+ * ⚠️ **The pool is a wall on attack and the lean's own cold tail is five blocks wide.** Fielded
+ * beside four light escorts, **154 of 408 shipped blocks stand at level 695, 110 at 710 and 53 at
+ * 725**, across all seven factions. Of the Dwarf blocks that stand, exactly **five** are cold enough
+ * for an ordinary board — 39 to 45 gear-weighted common-equivalent attack — and every other one sits
+ * at 62 or above and can only anchor a board alone. That is what sets chapter 29's fielded roster at
+ * 26 against chapter 28's 32.
  *
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
@@ -1544,6 +1588,11 @@ const looselineSweeps = stages.map((stage) => ({
   stage,
   ...sweep(LOOSELINE, stage),
 }));
+const windthrowSweeps = stages.map((stage) => ({
+  label: 'windthrow',
+  stage,
+  ...sweep(WINDTHROW, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1598,6 +1647,7 @@ const everySweep = [
   ...thingroundSweeps,
   ...roughcastSweeps,
   ...looselineSweeps,
+  ...windthrowSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1692,6 +1742,9 @@ const ROUGHCAST_END = CHAPTER_ENDS[25];
 
 /** Where The Looseline ends, for {@link LOOSELINE}'s seam. */
 const LOOSELINE_END = CHAPTER_ENDS[26];
+
+/** Where The Windthrow ends, for {@link WINDTHROW}'s seam. */
+const WINDTHROW_END = CHAPTER_ENDS[27];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2629,6 +2682,40 @@ describe('ladder balance', () => {
     // *slice*; that repair is still not taken, and still recorded.
     const walked = looselineSweeps
       .slice(LOOSELINE_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
+
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 28 clear chapters 1 through 28', () => {
+    // The Overburden's seam, measured the same way as the twenty-four above it.
+    const unreliable = windthrowSweeps
+      .slice(0, WINDTHROW_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => `${entry.stage.id} ${(entry.winRate * 100).toFixed(0)}%`);
+
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Overburden as well', () => {
+    // ⚠️ **The fourth seam whose two parties can never diverge, and the fifth link of the stretch.**
+    // {@link THINGROUND}, {@link ROUGHCAST}, {@link LOOSELINE}, {@link WINDTHROW} and
+    // {@link INVESTED} all clamp to `ascended`'s cap of 500, so all five are the same five
+    // combatants — deeper than any stretch the campaign has had. The four earlier stretches were
+    // each closed by a rung move; nothing can close this one, so **expect a sixth link at chapter
+    // 30** rather than reading it as a bug.
+    //
+    // What holds the boundary is the boards, not the parties: chapter 28's own final reads 100% with
+    // 3.85 of five at level 695 and **0% at 705**, and its opening and mid boards read 0% at 695.
+    // The whole chapter below refields as a cliff inside this chapter's first ten stages.
+    //
+    // ⚠️ **{@link MOMENTUM_CEILING} still cannot bind on the count** — it is a share of the whole
+    // ladder against a slice of 60 — so what this assertion is worth is the record rather than the
+    // arithmetic. `docs/authoring.md` forbids widening it and the honest repair is a share of the
+    // *slice*; that repair is still not taken, and still recorded.
+    const walked = windthrowSweeps
+      .slice(WINDTHROW_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 

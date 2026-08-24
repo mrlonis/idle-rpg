@@ -10007,6 +10007,155 @@ export const NO_GAP_IN_IT = {
   priority: 3,
 } as const;
 
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 29 — The Overburden.
+ *
+ * The chapter is authored on enemy `def`, the last stat in the block that has never been a
+ * chapter's premise. `def` **diminishes and can never reach zero** — it is a toll paid on every
+ * blow that reaches a body rather than a wall in front of one — so these turns are ordinary in
+ * shape and the escalation lives entirely in the stat behind them.
+ *
+ * ⚠️ **Cooldowns run 48 to 62 deliberately, and shorter than chapter 28's.** That chapter needed
+ * long cooldowns because `attackSpeed` accrues only after a basic attack; nothing here does, and a
+ * board authored on a stat that lengthens every fight cannot also spend its budget on rare, heavy
+ * turns. See {@link THE_WHOLE_MEASURE} for the chapter's only wide turn.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the chapter's coldest turn, on the body that stands where the roof was stripped. */
+export const WHAT_THE_ROOF_KEEPS = {
+  id: 'what-the-roof-keeps',
+  name: 'What The Roof Keeps',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/** The chapter's most-fielded ordinary turn. */
+export const DEAD_MEASURE = {
+  id: 'dead-measure',
+  name: 'Dead Measure',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/** Band 2's identity: the first course laid over the working. */
+export const THE_FIRST_COURSE = {
+  id: 'the-first-course',
+  name: 'The First Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** Band 3's identity, on the chapter's heaviest ordinary armour. */
+export const SET_AND_LEFT = {
+  id: 'set-and-left',
+  name: 'Set And Left',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** One of the chapter's three `enemy-back` turns; never two on a board. */
+export const STULL_AND_STAY = {
+  id: 'stull-and-stay',
+  name: 'Stull And Stay',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** Band 4's identity, and the reach the closing bands are built around. */
+export const THE_GOB_WALL = {
+  id: 'the-gob-wall',
+  name: 'The Gob Wall',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/** Band 5's identity: the course that carries the crown of the working. */
+export const CROWN_COURSE = {
+  id: 'crown-course',
+  name: 'Crown Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/** The second of the chapter's `enemy-back` turns, on its coldest legendary. */
+export const SHORED_AGAINST_IT = {
+  id: 'shored-against-it',
+  name: 'Shored Against It',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const THE_WEIGHT_ABOVE = {
+  id: 'the-weight-above',
+  name: 'The Weight Above',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second, and the reason five appearances are five different fights.
+ *
+ * ⚠️ **A conditioned turn is worth zero to negative as an axis** — chapter 24 priced all six
+ * condition kinds within ±0.08 of its control, and a condition on a payload prices **−2.42**. It is
+ * authored here for the reason the procedure gives a lieutenant one at all: it answers what the
+ * party is already doing, so a recurring block reads as an antagonist rather than as four copies of
+ * one stat line. It is **not** part of the chapter's difficulty.
+ */
+export const WHERE_IT_LEANS = {
+  id: 'where-it-leans',
+  name: 'Where It Leans',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 2,
+  condition: { kind: 'ally-hurt', fraction: 0.6 },
+} as const;
+
+/** The boss's blow. */
+export const NOTHING_TO_SHIFT = {
+  id: 'nothing-to-shift',
+  name: 'Nothing To Shift',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's only turn on the scope, at the wide cap.
+ *
+ * ⚠️ **`skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to power 1.2**,
+ * and chapter 22 priced a whole premise on a target that refuses it. This and {@link THE_GOB_WALL}
+ * are the chapter's only two wide turns and no board fields both.
+ */
+export const THE_WHOLE_MEASURE = {
+  id: 'the-whole-measure',
+  name: 'The Whole Measure',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 70,
+  priority: 2,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10521,4 +10670,16 @@ export const SKILLS = [
   THE_GROUND_COMES_UP,
   THE_WHOLE_WOOD_AT_ONCE,
   NO_GAP_IN_IT,
+  WHAT_THE_ROOF_KEEPS,
+  DEAD_MEASURE,
+  THE_FIRST_COURSE,
+  SET_AND_LEFT,
+  STULL_AND_STAY,
+  THE_GOB_WALL,
+  CROWN_COURSE,
+  SHORED_AGAINST_IT,
+  THE_WEIGHT_ABOVE,
+  WHERE_IT_LEANS,
+  NOTHING_TO_SHIFT,
+  THE_WHOLE_MEASURE,
 ] as const;

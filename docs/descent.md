@@ -476,6 +476,13 @@ consecutive chapters.** Depth **1,390** joins the list on the same arithmetic. D
 clearest statement the list can make that the anchor stopped standing for how strong the party is.
 **The schedule has still never slipped.**
 
+⚠️ **Chapter 29 added the fifteenth, the fourth with no rung behind it, and the run is twelve
+consecutive chapters.** Depth **1,450** joins the list on the same arithmetic. Depths 850 through
+**1,450** now field the **same board** — **sixteen chapters of campaign gone past underneath one
+board level**, held at `anchorCap` = 316 since chapter 13. ⚠️ **The rung ladder cannot supply another
+step**: `ascended` is the last rung whose cap the campaign has not climbed past, so every entry from
+here gains only the thirty levels between chapter finals. **The schedule has still never slipped.**
+
 ⚠️ **The cap binds at every depth past chapter 13, so every chapter from here adds an entry — one per
 chapter, forever, until the repair lands.** That growth is the argument _for_ the repair rather than
 for a different guard, and two tempting edits are both wrong. **Deriving** the tail of the list

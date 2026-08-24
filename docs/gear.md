@@ -328,8 +328,8 @@ prediction of 450 was the first _wrong_ one, and only because it assumed a fifty
 Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
 arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
 length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545, chapter 24 575, chapter 25 605, chapter 26 635, chapter 27 665
-and chapter 28 695 — **eight correct predictions
-running since chapter 20's miss, each checked a chapter ahead; chapter 29 will want 725.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+and chapter 28 695 and chapter 29 725 — **nine correct predictions
+running since chapter 20's miss, each checked a chapter ahead; chapter 30 will want 755.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
 grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a

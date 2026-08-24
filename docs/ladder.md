@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-eight chapters and one thousand
-three hundred and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and nine of sixty. ⚠️ **That
+The campaign, and how a run's position in it is expressed. **Twenty-nine chapters and one thousand
+four hundred and fifty stages** — 10, 20, 30, 40, then fifteen of fifty and ten of sixty. ⚠️ **That
 count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
 recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
@@ -56,7 +56,22 @@ attack — and it is the **first axis in the campaign to grade in both value and
 is what a six-band chapter wants. ⚠️ **It is also the exact inverse of The Looseline's register
 finding**: all four shipped `attackSpeed` carriers are Elf, the chapter leans Elf, and **not one of
 them is light enough to stand on a single board in it** — owning a register and being able to field
-it are different things. See [authoring](authoring.md).
+it are different things.
+
+Chapter 29 is **The Overburden**, which stays on `ascended` for the fourth chapter running and takes
+the degenerate stretch to **five links**. ⚠️ **It is the chapter where the stat vocabulary ran out.**
+Its axis is enemy `def` — the last stat in the block that had never been a chapter's premise, after
+chapter 23 took all four mitigation stats at once and 24 through 28 took `tenacity`,
+`physicalPierce`, `critChance`, `dodge` and `attackSpeed`. Everything else either belongs to a
+shipped chapter, reads 0.00 against the calibrated five (`accuracy`, `magicPierce`), is a forbidden
+shape (sustain) or is a design reversal (an enemy `ultimate`). What it found: **a defensive stat
+grades in value and an offensive one grades in carrier count**, so this cannot be the two-dimensional
+dial chapter 28 had; **armour on a heavy body is the ninety-second clock**, so a Dwarven chapter
+about armour has to put it on the light bodies; and **a lone `def` carrier is rank-neutral** — the
+third chapter running to price a lone carrier's rank and the first to get no answer at all. ⚠️ **It
+is also the chapter that retired `levels.spec.ts`'s rung-headroom guard and answered the roadmap
+question behind it: the campaign's ceiling is chapter 38**, unless the ascension ladder grows.
+See [authoring](authoring.md).
 
 ## The shape
 

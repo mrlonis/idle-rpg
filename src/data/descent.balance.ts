@@ -297,6 +297,18 @@ const DEPTHS: readonly number[] = CHAPTERS.map((_, index) => index + 1)
  * 1,210's carried a whole ×8.36. Depths 850 through 1,330 now field the **same board**. ⚠️ **Ten
  * consecutive chapters, ten entries; the schedule has still not slipped once**, and the shallower
  * step is what the entry above predicted rather than the list ending.
+ *
+ * ## ⚠️ Chapter 29 added the fifteenth, on schedule, for the twelfth consecutive chapter
+ *
+ * `chapterEnd(29)` — depth **1,450** — failed at **5.00 survivors of five** the moment The Overburden
+ * shipped, for the identical reason a twelfth time. It is the **fourth** entry with no rung behind
+ * it, and the rung ladder cannot supply another: `ascended` is the last rung whose cap the campaign
+ * has not already climbed past, so this depth's party gains only the thirty levels between chapter
+ * finals. Depths 850 through 1,450 now field the **same board**, held at
+ * {@link DescentLevelData.anchorCap} = 316 since chapter 13 — **sixteen chapters of campaign gone
+ * past underneath one board level.** ⚠️ **Twelve consecutive chapters, twelve entries; the schedule
+ * has still not slipped once**, and it will not, because nothing in it depends on what a chapter
+ * contains — only on there being another one.
  */
 const RUNG_TROUGH: readonly number[] = [
   chapterEnd(12),
@@ -313,6 +325,7 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(26),
   chapterEnd(27),
   chapterEnd(28),
+  chapterEnd(29),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */
