@@ -1315,7 +1315,7 @@ export const TOWER_MONSTER = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Beaters' Line — Floors 121–140, levels 58–66 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
+    // The Beaters' Line — Floors 121–140, levels 57–66 — three questions to a board, and the first boards that cannot be answered by picking the one you like first.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f121',
@@ -3934,7 +3934,7 @@ export const TOWER_MONSTER = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Oiled Ground — Floors 446–467, levels 211–220, Masterwork 55–80 — two carriers, and the first boards where the plate and the fire stand on one body. The weight comes *down* as the axis rises; that is the escalation rather than a discount on it.
+    // The Oiled Ground — Floors 446–467, levels 210–220, Masterwork 55–80 — two carriers, and the first boards where the plate and the fire stand on one body. The weight comes *down* as the axis rises; that is the escalation rather than a discount on it.
     // -------------------------------------------------------------------------------------
     {
       id: 't-monster-f446',

@@ -213,6 +213,36 @@ const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.p
 const BAND_FLOORS = TOWER_BAND_UNIT;
 const BANDS = TOWER_BAND_RUNGS.length;
 
+/**
+ * The towers still authored at the previous height while the sixth hundred lands one tower at a time.
+ *
+ * ⚠️ **The literal twin of the list in [`towers.spec.ts`](./towers.spec.ts), and it has to stay
+ * literal for the same reason.** `TOWER_RULES` is one rule for all seven, so the height bump landed in
+ * a single session while the floors move in seven — and a *filter* ("every band the tower has floors
+ * for") would pass forever on a tower nobody went back for. Each session deletes its own name; **the
+ * last one deletes this list and the branch below it.** Fifth round: 21e–21k, then the third hundred,
+ * then the fourth, then the fifth, then this.
+ *
+ * ⚠️ **Two shapes here already read the authored height and need no exemption**, and they were left
+ * that way by the fifth hundred precisely so this bump could not miss them: {@link topFloors} takes
+ * each tower's **last authored floor** rather than `rules.floors`, and the roof-versus-band-opener
+ * comparison is computed **per tower** rather than against the rules' top band. Both would sweep an
+ * undefined stage without that. **Leave them that way when this list is deleted.**
+ *
+ * ⚠️ **A pending tower's boards are unchanged this round, which is new.** The fourth hundred's list
+ * left its towers entirely naked and the fifth's moved ten geared floors by a level; the piecewise
+ * ramp pins floor 500 to the Relic 40 it already wore, so every pending tower sweeps the boards it was
+ * tuned with. Only its level line moves, and only on 21 of 500 floors by a single level.
+ */
+const PENDING: readonly string[] = [
+  'tower-dwarf',
+  'tower-elf',
+  'tower-undead',
+  'tower-monster',
+  'tower-angel',
+  'tower-demon',
+];
+
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;
 
@@ -595,11 +625,12 @@ describe('tower balance', () => {
     for (const tower of towers) {
       // ⚠️ **Every tower owes every band the rules describe, and this reads `BANDS` rather than the
       // content.** Deriving the band count from `tower.floors.length` would make it a filter, and a
-      // filter would pass forever on a tower nobody went back for — which is why the exemption was a
-      // literal `PENDING` list while the fifth hundred landed one tower at a time, and why that list
-      // was deleted rather than left to rot once the Demon Tower's floors landed. **Put it and this
-      // bound back in the same session as the next bump.**
-      for (let band = 1; band <= BANDS; band++) {
+      // filter would pass forever on a tower nobody went back for — which is why the exemption is a
+      // literal {@link PENDING} list while the sixth hundred lands one tower at a time. A pending
+      // tower owes every band **but the top one**; deleting its name is what makes it owe all six.
+      // **Delete this bound with the list.**
+      const owed = PENDING.includes(tower.id) ? BANDS - 1 : BANDS;
+      for (let band = 1; band <= owed; band++) {
         const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
 
         // An empty band is a tower that lost its floors, which is a failure rather than a wait.

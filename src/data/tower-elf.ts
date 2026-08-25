@@ -1192,7 +1192,7 @@ export const TOWER_ELF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sighting Gallery — Floors 121–140, levels 58–66 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
+    // The Sighting Gallery — Floors 121–140, levels 57–66 — the surveyors' works, where everything on the board already has a line on the rank the party has been hiding behind.
     // -------------------------------------------------------------------------------------
     {
       id: 't-elf-f121',
@@ -3851,7 +3851,7 @@ export const TOWER_ELF = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Falling Rack — Floors 446–467, levels 211–220, Masterwork 55–80 — the Camwright cuts the
+    // The Falling Rack — Floors 446–467, levels 210–220, Masterwork 55–80 — the Camwright cuts the
     // rhythm the rest of the hundred keeps. The heavier of the two hammers moves behind the rank the
     // party cannot aim past.
     // -------------------------------------------------------------------------------------

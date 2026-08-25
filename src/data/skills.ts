@@ -10156,6 +10156,83 @@ export const THE_WHOLE_MEASURE = {
   priority: 2,
 } as const;
 
+/**
+ * The Human Tower's sixth hundred — the Headlong, floors 501–600, levels 236–283, Relic 41 → 100.
+ *
+ * ⚠️ **Every one of these is authored on a long cooldown, and that is half the mechanic rather than
+ * a flavour choice.** `attackSpeed` accrues **only when a combatant's last action was a basic
+ * attack**, so a body that casts constantly never banks any of the stat its whole band is about.
+ * Measured at this hundred's control, one carrier at `attackSpeed` 45 is worth **1.08 of five behind
+ * a 20-tick cooldown, 1.40 behind a 50 and 1.66 behind an 80** — read as the *marginal* worth over
+ * the same board with the stat stripped, because the skill itself is worth more at a short cooldown
+ * and the absolute column hides the trend entirely. **Take the margin, not the column.**
+ *
+ * The Ironpace column has broken into a run. Nothing about it is faster than the hundred below in
+ * `haste` — that stat is the third hundred's and it is spent — what changed is that the step stopped
+ * being a decision.
+ */
+export const HEADLONG_RUSH = {
+  id: 'headlong-rush',
+  name: 'Headlong Rush',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * Somewhere behind them a serjeant is still calling the time. Nobody is counting it any more.
+ *
+ * The middle bands' turn. ⚠️ **`enemy-front` for the fourth hundred running on this tower**, which is
+ * the aim correction it made twice and has not had to revisit: a reach past the front rank has
+ * measured inert or negative on all seven towers, and the weaker Human arrangement fields no tank, so
+ * damage taken off its front row is time it did not have to buy.
+ */
+export const THE_STEP_RUNS_AWAY = {
+  id: 'the-step-runs-away',
+  name: 'The Step Runs Away',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 68,
+  priority: 2,
+} as const;
+
+/**
+ * There was never an order to halt. There was never an order to do any of this.
+ *
+ * The lieutenant's turn, and a single-target **selection** rather than a scope, for the reason the
+ * hundred below spent none either: a scope is the one shape on this tower big enough to carry a band
+ * by itself, and this hundred's axis is a stat. Spending a scope here would make the axis
+ * unmeasurable underneath it.
+ */
+export const NO_ORDER_TO_HALT = {
+  id: 'no-order-to-halt',
+  name: 'No Order To Halt',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 74,
+  priority: 1,
+} as const;
+
+/**
+ * It could have stopped at the wall. It did not stop at the wall.
+ *
+ * The roof's turn. ⚠️ **The longest cooldown on the tower and the point of the whole hundred**: this
+ * body spends most of the fight taking basic swings, which is the only thing that banks the stat it
+ * is built on. A boss authored on a 30-tick cooldown would be a boss that switched off its own axis.
+ */
+export const IT_CANNOT_STOP = {
+  id: 'it-cannot-stop',
+  name: 'It Cannot Stop',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.95 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 78,
+  priority: 1,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10682,4 +10759,8 @@ export const SKILLS = [
   WHERE_IT_LEANS,
   NOTHING_TO_SHIFT,
   THE_WHOLE_MEASURE,
+  HEADLONG_RUSH,
+  THE_STEP_RUNS_AWAY,
+  NO_ORDER_TO_HALT,
+  IT_CANNOT_STOP,
 ] as const;

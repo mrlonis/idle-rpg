@@ -1125,7 +1125,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Wounded First — Floors 121–140, levels 58–66 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
+    // The Wounded First — Floors 121–140, levels 57–66 — the aim arrives at weight: every board names the one body the choir has just committed to, and one of them collects the heal as it lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f121',
@@ -3780,7 +3780,7 @@ export const TOWER_ANGEL = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Widening Lace — Floors 446–467, levels 211–220, Masterwork 55–Masterwork 80 — three to four, and the anchors coming down as the levels go up.
+    // The Widening Lace — Floors 446–467, levels 210–220, Masterwork 55–Masterwork 80 — three to four, and the anchors coming down as the levels go up.
     // -------------------------------------------------------------------------------------
     {
       id: 't-angel-f446',

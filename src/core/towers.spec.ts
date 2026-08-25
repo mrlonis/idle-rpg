@@ -401,6 +401,116 @@ describe('floorGear', () => {
     expect(floorGear(GEARED_RULES, GEAR, 5_000)).toEqual({ grade: 1, level: 10 });
     expect(floorGear(GEARED_RULES, GEAR, 0)).toBeUndefined();
   });
+
+  // ## The piecewise form, which arrived with the sixth hundred
+  //
+  // ⚠️ **The grade ladder is finite and a tower is not**, which is the whole reason `via` exists:
+  // at 600 floors the shipped slope of 1.2010 positions a floor wants position 360 of a 300-position
+  // ladder, so no single line both preserves floors 301–500 and reaches the roof. See
+  // `TowerGearRampData` for why re-solving the line instead was refused.
+
+  it('is the two-point line exactly when a ramp names no waypoint', () => {
+    // ⚠️ **The load-bearing one.** 2,100 shipped tower floors were tuned against the two-point form
+    // and the piecewise rewrite may not move any of them by a single gear level. Asserted across
+    // every floor of the ramp rather than at the endpoints, because a rewrite that got the ends
+    // right and the interior wrong is exactly the silent failure this guard is for.
+    const twoPoint = (floor: number): number | undefined => {
+      const first = 76;
+      if (floor < first) {
+        return undefined;
+      }
+      const span = GEARED_RULES.floors - first;
+      // Position 1 (Plain 1) to position 15 (Good 10) on the fixture's concatenated ladder.
+      return Math.round(1 + (14 * (Math.min(floor, GEARED_RULES.floors) - first)) / span);
+    };
+    const position = (gear: { grade: number; level: number } | undefined): number | undefined =>
+      gear === undefined ? undefined : gear.grade === 0 ? gear.level : 5 + gear.level;
+
+    for (let floor = 1; floor <= GEARED_RULES.floors; floor++) {
+      expect(position(floorGear(GEARED_RULES, GEAR, floor)), `floor ${floor}`).toBe(
+        twoPoint(floor),
+      );
+    }
+  });
+
+  it('pins a waypoint to its own floor exactly and holds every floor below it still', () => {
+    // The shape the sixth hundred uses: the shipped run keeps its endpoint as an interior stop, and
+    // the extension is a *new* segment past it rather than a redraw of the floors underneath.
+    const extended: TowerRulesData = {
+      ...GEARED_RULES,
+      floors: 150,
+      gear: {
+        fromFloor: 76,
+        from: { grade: 0, level: 1 },
+        via: [{ atFloor: 100, gear: { grade: 1, level: 4 } }],
+        to: { grade: 1, level: 10 },
+      },
+    };
+    const pinned: TowerRulesData = {
+      ...GEARED_RULES,
+      gear: { fromFloor: 76, from: { grade: 0, level: 1 }, to: { grade: 1, level: 4 } },
+    };
+
+    expect(floorGear(extended, GEAR, 100)).toEqual({ grade: 1, level: 4 });
+    expect(floorGear(extended, GEAR, 150)).toEqual({ grade: 1, level: 10 });
+    for (let floor = 76; floor <= 100; floor++) {
+      expect(floorGear(extended, GEAR, floor), `floor ${floor}`).toEqual(
+        floorGear(pinned, GEAR, floor),
+      );
+    }
+  });
+
+  it('stays monotone across a waypoint, so a segment can never run backwards', () => {
+    // The one property a chain of lines could lose that a single line could not. A ramp is one axis
+    // — see the monotonicity case above — and a kink is the only way `via` could break that.
+    const extended: TowerRulesData = {
+      ...GEARED_RULES,
+      floors: 150,
+      gear: {
+        fromFloor: 76,
+        from: { grade: 0, level: 1 },
+        via: [{ atFloor: 100, gear: { grade: 1, level: 4 } }],
+        to: { grade: 1, level: 10 },
+      },
+    };
+    let previous = 0;
+    for (let floor = 76; floor <= 150; floor++) {
+      const gear = floorGear(extended, GEAR, floor);
+      const position = gear === undefined ? 0 : gear.grade === 0 ? gear.level : 5 + gear.level;
+
+      expect(position, `floor ${floor}`).toBeGreaterThanOrEqual(previous);
+      previous = position;
+    }
+  });
+
+  it('drops a waypoint that is out of order or outside the run rather than kinking the line', () => {
+    // ⚠️ `core/` does not throw on content it dislikes — `towers.spec.ts` is what makes a bad
+    // waypoint a failing test. What has to hold here is only that a damaged rule cannot produce a
+    // ramp that runs backwards, so a stop at or before the one before it, or past the roof, is
+    // ignored and the line closes over it.
+    const straight: TowerRulesData = {
+      ...GEARED_RULES,
+      gear: { fromFloor: 76, from: { grade: 0, level: 1 }, to: { grade: 1, level: 10 } },
+    };
+    const damaged: TowerRulesData = {
+      ...GEARED_RULES,
+      gear: {
+        fromFloor: 76,
+        from: { grade: 0, level: 1 },
+        via: [
+          { atFloor: 60, gear: { grade: 1, level: 9 } },
+          { atFloor: 500, gear: { grade: 0, level: 2 } },
+        ],
+        to: { grade: 1, level: 10 },
+      },
+    };
+
+    for (let floor = 76; floor <= 100; floor++) {
+      expect(floorGear(damaged, GEAR, floor), `floor ${floor}`).toEqual(
+        floorGear(straight, GEAR, floor),
+      );
+    }
+  });
 });
 
 describe('resolveFloor', () => {

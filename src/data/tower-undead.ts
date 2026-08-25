@@ -1320,7 +1320,7 @@ export const TOWER_UNDEAD = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Sunward Reach — Floors 121–140, levels 58–66 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
+    // The Sunward Reach — Floors 121–140, levels 57–66 — evasion is the board rather than a body on it, and the Chanters take the weight out of whatever still lands.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f121',
@@ -3981,7 +3981,7 @@ export const TOWER_UNDEAD = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Brake — Floors 446–467, levels 211–220, Masterwork 55–80 — three, and the last of the heartwood goes with them. What the boards give up in attack they take back in the beat.
+    // The Brake — Floors 446–467, levels 210–220, Masterwork 55–80 — three, and the last of the heartwood goes with them. What the boards give up in attack they take back in the beat.
     // -------------------------------------------------------------------------------------
     {
       id: 't-undead-f446',

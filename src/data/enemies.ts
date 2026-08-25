@@ -367,6 +367,10 @@ import {
   WRATH_UNBOUND,
   WRITTEN_DOWN_BESIDE_IT,
   ZENITHFALL,
+  HEADLONG_RUSH,
+  THE_STEP_RUNS_AWAY,
+  NO_ORDER_TO_HALT,
+  IT_CANNOT_STOP,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -15075,6 +15079,190 @@ export const THE_OVERBURDEN = {
   skills: [NOTHING_TO_SHIFT, THE_WHOLE_MEASURE],
 } as const;
 
+// The Human Tower's sixth hundred — the Headlong, floors 501–600, levels 236–283, Relic 41 → 100.
+//
+// ⚠️ **Four blocks, which is 17.4% of the 23 distinct archetypes this hundred fields rather than a
+// quarter of it.** The quota is a count with five hundreds of precedent behind it; stating it as a
+// fraction is how a session talks itself into authoring twice as many. ⚠️ **The denominator is the
+// thing to watch and it nearly ran away here**: a first combinatorial pass drew texture from an open
+// pool, fielded **33** distinct archetypes and put the same four blocks at 12.1%. **Decide the
+// returning roster before the boards** — six texture blocks and ten returning Undead, fixed.
+//
+// ## ⚠️ The axis is `attackSpeed`, and no lock on this tower is exclusively the Humans'
+//
+// That second half is a **result rather than a failed search, and it is the same result the fifth
+// hundred got one band lower** — which is what makes it a property of the faction rather than of a
+// band. Eight candidates and three pairings priced across all fourteen shipped arrangements, each
+// crew calibrated to the heaviest control it still reads ≥3.60 on, rank the binding Human
+// arrangement **between fifth and tenth of fourteen on every single one**: `attackSpeed` 55 costs
+// angel-ref 3.90 and dwarf-ref 3.88 against human-ref's 2.35; `physicalResist` 0.35 tops out at
+// dwarf-ref 3.88; `def` 90 at dwarf-alt 3.98. **The Humans are the balanced faction — mid-table on
+// every defensive register — and the price of being balanced is that no stat is theirs.** The licence
+// here is **margin rather than exclusivity**; say which of the two you have.
+//
+// ## ⚠️ What chose it is the clock, measured against a control that moves in both directions
+//
+// An `ascended` 920/41 behind four 570/30 at level 283 wearing Relic 100, reading **3.95 / 2.92 of
+// five** — forty seeds, zero timeouts on every row quoted. Across five carriers:
+//
+// | axis                 | ref / alt worth | mean fight |
+// | -------------------- | --------------- | ---------- |
+// | `attackSpeed` 85     | 3.05 / 2.83     | **20.6s**  |
+// | `physicalResist` 0.5 | 3.92 / 3.02     | 38.7s      |
+// | `def` 110            | 2.45 / 3.00     | 33.6s      |
+// | `dodge` 0.40         | 2.52 / 2.67     | 30.5s      |
+// | `magicResist` 0.60   | **0.02 / 0.07** | 18.1s      |
+//
+// The control is 17.9s. ⚠️ **`attackSpeed` grades nine monotone steps — 0.13 / 0.23 / 0.88 / 0.95 /
+// 1.35 / 1.70 / 1.95 / 2.75 / 3.05 across 5 → 85, zero timeouts — and buys 2.7 seconds doing it**,
+// where everything else that grades comparably costs twelve to twenty-one. This tower's own bar is
+// 67.5s on a cleared fight and the fifth hundred already reads 35.0s, so an axis that converts weight
+// into seconds is the one thing this hundred could not afford.
+//
+// ⚠️ **`magicResist` is worth 0.00 and that is the formula rather than the size.** `resistedShare`
+// multiplies after `effectiveDefence`, and the Human fives deal essentially no magical damage — the
+// same reading the Elf crews give it, and the reason it is declined here at every value to 0.60
+// rather than at a register.
+//
+// ## ⚠️ The register is entirely Elf, so this hundred creates it on the Undead side from nothing
+//
+// `attackSpeed` sits on **14 of 418 shipped blocks and every one is Elf** — the Undead Tower's own
+// lean, since `elf → undead → human` is the counter cycle — median 15, ceiling 110. **Zero Undead
+// blocks and zero Human blocks carry a point of it.** This tower fields Undead, so the four below
+// create that register where there was none, which is chapter 27's shape rather than chapter 28's:
+// the lean carries none of the axis and the boards have to supply it. Authored 14 → 55, the band
+// lands **inside** the shipped register and nowhere near its ceiling.
+//
+// ⚠️ **A lone carrier is worth almost nothing here, so the bands are a count rather than a body.**
+// Carried on **one** body moved between ranks at this hundred's control, a carrier is worth −0.05 to
+// 0.02 in the front rank and 0.00 to 0.33 behind, growing with the value — chapter 28's sign
+// (0.00 in front, 0.77 behind) at half the size. ⚠️ **The first reading of that table said the
+// opposite** because it put the stat on the anchor in the front case and on three commons in the back
+// case; a rank comparison must be carried on one body, and this is the second time that trap has been
+// caught rather than shipped.
+//
+// ⚠️ **Five anchors retire from the closing bands and the one that stands is the lightest on
+// attack.** Fielded alone behind four 300/20 bodies at floor 600 — level 283, Relic 100 —
+// `THE_GRAVEWRIGHT` (1560/90), `TYRANT` (1550/96), `BARROW_SOVEREIGN` (1350/84), `THE_PANOPLY`
+// (1240/68) and `THE_IRONPACE` (1160/44) all read **0% / 0.00**, while `THE_LEADEN_HOUR` at
+// **1080/36** reads 100% / 3.88. It is lighter than only one of them and its attack is lower than all
+// five. **Shortlist on weight, settle on attack** — chapter 20's rule, on a retirement check.
+// ⚠️ **"Retires" means from the closing bands, not from the hundred**: every one of the five anchors
+// the opening bands, where the levels are up to forty-seven lower, and reads 100% there.
+
+/**
+ * They were the Ironpace. Something in the column let go, and now they are only going forwards.
+ *
+ * The light carrier, and the one the closing bands are built out of. ⚠️ **`attackSpeed` 14 sits at the
+ * shipped median of 15**, which is the low end of a register this tower is creating rather than
+ * entering.
+ */
+export const HEADLONG_RUNNER = {
+  id: 'headlong-runner',
+  name: 'Headlong Runner',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 230,
+    atk: 23,
+    def: 20,
+    haste: 112,
+    critChance: 0.1,
+    critDamageAmp: 0.6,
+    attackSpeed: 14,
+  },
+  skills: [HEADLONG_RUSH],
+} as const;
+
+/**
+ * Still dressed as a serjeant. Still at the head of them. No longer in front by choice.
+ *
+ * The middle bands' carrier. Its cooldown of 68 is what lets its own stat accrue — see
+ * [`skills.ts`](./skills.ts) for the measurement that fixes every cooldown in this hundred.
+ */
+export const QUICKSTEP_SERJEANT = {
+  id: 'quickstep-serjeant',
+  name: 'Quickstep Serjeant',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 620,
+    atk: 44,
+    def: 34,
+    haste: 116,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    critBlock: 0.1,
+    physicalResist: 0.08,
+    attackSpeed: 26,
+  },
+  skills: [THE_STEP_RUNS_AWAY],
+} as const;
+
+/**
+ * It has outrun the column it was meant to be dressing. It has not noticed.
+ *
+ * The lieutenant, and the heaviest carrier the hundred fields. Settled across **every** appearance
+ * rather than its first, which is this tower's own fourth-hundred rule: an `attackSpeed` body climbs
+ * the level line against a crew frozen at `mythic`/171, so a lieutenant correct on its opening board
+ * is unwinnable on its last.
+ */
+export const THE_BREAKNECK = {
+  id: 'the-breakneck',
+  name: 'The Breakneck',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 880,
+    atk: 50,
+    def: 40,
+    haste: 118,
+    critChance: 0.13,
+    critDamageAmp: 0.75,
+    critBlock: 0.12,
+    tenacity: 0.3,
+    physicalResist: 0.1,
+    attackSpeed: 40,
+  },
+  skills: [NO_ORDER_TO_HALT],
+} as const;
+
+/**
+ * The head of the column reached the top of the tower some time ago and kept going.
+ *
+ * The roof. ⚠️ **Under the Unmade on both stats**, as every new `ascended` block must be — 1050/25
+ * against 1800/100 — and deliberately the **lightest roof on attack** any tower ships, taking that
+ * record from this tower's own `THE_IRONPACE` at 1160/44. That is not a flourish: `THE_IRONPACE`
+ * carried to floor 600 reads **0% / 0.00**, and what separates the one ascended block that survives
+ * the carry is its attack rather than its weight.
+ */
+export const THE_HEADLONG = {
+  id: 'the-headlong',
+  name: 'The Headlong',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 1050,
+    atk: 25,
+    def: 60,
+    haste: 120,
+    critChance: 0.16,
+    critDamageAmp: 0.85,
+    critDamageResist: 0.2,
+    critBlock: 0.14,
+    tenacity: 0.4,
+    physicalPierce: 0.2,
+    physicalResist: 0.12,
+    magicResist: 0.08,
+    attackSpeed: 55,
+  },
+  skills: [IT_CANNOT_STOP, NO_ORDER_TO_HALT, THE_STEP_RUNS_AWAY],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -15494,4 +15682,8 @@ export const ENEMIES = [
   DEEPBENCH_SHORER,
   THE_DEADROCK,
   THE_OVERBURDEN,
+  HEADLONG_RUNNER,
+  QUICKSTEP_SERJEANT,
+  THE_BREAKNECK,
+  THE_HEADLONG,
 ] as const;

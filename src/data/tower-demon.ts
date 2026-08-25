@@ -1479,7 +1479,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Hush — Floors 121–140, levels 58–66 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
+    // The Hush — Floors 121–140, levels 57–66 — the board-wide turn starts carrying a rider, and the rider is the one the party can still play around.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f121',
@@ -3435,7 +3435,7 @@ export const TOWER_DEMON = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Vault Entire — Floors 361–380, levels 171–179, Fine 13–Fine 36 — three voices on every board, which is where the measured cliff was on the count.
+    // The Vault Entire — Floors 361–380, levels 170–179, Fine 13–Fine 36 — three voices on every board, which is where the measured cliff was on the count.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f361',
@@ -4128,7 +4128,7 @@ export const TOWER_DEMON = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Guttering — Floors 446–467, levels 211–220, Masterwork 55–Masterwork 80 — three, the Sexton anchoring in place of the weight, and the returning pair joining from the Monster half of the lean.
+    // The Guttering — Floors 446–467, levels 210–220, Masterwork 55–Masterwork 80 — three, the Sexton anchoring in place of the weight, and the returning pair joining from the Monster half of the lean.
     // -------------------------------------------------------------------------------------
     {
       id: 't-demon-f446',

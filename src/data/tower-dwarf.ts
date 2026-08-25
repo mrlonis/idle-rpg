@@ -1208,7 +1208,7 @@ export const TOWER_DWARF = {
     },
 
     // -------------------------------------------------------------------------------------
-    // The Undervault — Floors 121–140, levels 58–66 — somebody has found the seams, and armour stops being an answer.
+    // The Undervault — Floors 121–140, levels 57–66 — somebody has found the seams, and armour stops being an answer.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f121',
@@ -3857,7 +3857,7 @@ export const TOWER_DWARF = {
       },
     },
     // -------------------------------------------------------------------------------------
-    // The Workmaster's Round — Floors 446–465, levels 211–220, Masterwork 55–Masterwork 78 — the Workmaster keeps the tenth floors and the pair keeps every board between, three strokes wide in the handover.
+    // The Workmaster's Round — Floors 446–465, levels 210–219, Masterwork 55–Masterwork 78 — the Workmaster keeps the tenth floors and the pair keeps every board between, three strokes wide in the handover.
     // -------------------------------------------------------------------------------------
     {
       id: 't-dwarf-f446',

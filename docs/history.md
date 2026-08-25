@@ -236,6 +236,45 @@ Clefthorn Gorer at 4,432 reads 100% / 95% and the Riftstep Reaver at 4,688 reads
 both boards weigh **3,320 raw** — which is what the first draft got wrong, sweeping clean on the
 stride while floors 497, 498 and 499 read 23%, 0% and 30%. Full findings in [towers](towers.md).
 
+⚠️ **The Headlong — the Human Tower's sixth hundred — opens a fifth round, and it is the extension the
+_gear_ ladder could not absorb.** Four earlier sessions each declined to make a tower ramp piecewise and
+each recorded that it "stays the right answer if a future extension ever cannot be solved this way";
+this is where that condition was met, and it was met by the **gear** axis rather than the level axis.
+A level is unbounded and the concatenated grade ladder is exactly **300 positions**, so the shipped
+slope of 1.2010 a floor wants **360** of them at floor 600. The level line is still one solved line —
+`topLevel` 236 → **283**, moving 21 of 500 shipped floors by a level, with all five band boundaries
+closing exactly where they did.
+
+⚠️ **Re-solving the gear ramp as a single line instead was refused because its failure is silent.**
+Landing Relic 100 on the roof moves **197 of the 200 shipped geared floors, every one of them lighter**
+— and a lighter board reads as _more_ survivors, so the sweep stays green while the fourth and fifth
+hundreds of all seven towers quietly become walkovers. `TOWER_RULES.gear.via` pins floor 500 to the
+Relic 40 it already wore, and **all 200 are byte-identical on every tower, pending or not** — where the
+fourth hundred's bump left six towers naked and the fifth's moved ten floors by a gear level.
+
+⚠️ **The payout bound cleared, and only because the campaign moved.** The roof of 283 pays **22,640**
+against the stage-600 lump of 24,000, and the highest legal roof is 297 — fourteen levels of margin
+against the fifth hundred's thirteen. What bought it is chapters 26–29 shipping after the tower round
+closed. ⚠️ **Recomputing the tower:campaign crystal ratio by hand also found the fifth hundred's
+reading stale**: it recorded 3.093 against a 25-chapter campaign of 351,500, and the same seven
+five-hundred-floor towers were really at **2.585** by the time this session opened. It reads 2.655 now
+and a completed round is 3.101. **A ratio between two moving ladders decays without anybody touching
+it.**
+
+⚠️ **Its axis is `attackSpeed`, chosen on the clock, and no lock on that tower is exclusively the
+Humans' for the second hundred running** — eight candidates and three pairings rank the binding Human
+arrangement fifth to tenth of fourteen, which is the fifth hundred's result at a different rung and so
+a property of the faction rather than of a band. `attackSpeed` grades nine steps to 3.05 of five and
+adds **2.7 seconds** where `physicalResist` adds 20.6 and `def` 15.5. Its register is **entirely Elf**
+— 14 of 418 blocks, zero Undead, zero Human — so the tower's Undead lean creates it from nothing.
+
+⚠️ **A throughput axis nearly failed "gets harder as it is climbed", which is measured in seconds.**
+The first authored pass read 12.2s in the lower half against 10.5s in the upper — backwards — and the
+repair was cold heavy **Monster** anchors, which buy fight length without throughput _and_ buy the
+faction budget the four Undead axis blocks had spent (91.4% Undead on the first pass against a 65%
+tower ceiling; 68.0% shipped, tower at 64.39%). **When the axis blocks all belong to the lean, the
+anchor is where the budget is.** Full findings in [towers](towers.md).
+
 ⚠️ **The Processional — the Demon Tower's fifth hundred — closes the round, and its axis is the first
 taken on _affordability_ rather than on exclusivity or margin.** `dodge` grades eight monotone steps on
 **both** Demon arrangements with zero timeouts (3.98 → 1.71 and 3.64 → 0.14 across 0.08 → 0.50), and it

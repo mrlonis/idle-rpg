@@ -393,9 +393,10 @@ them is how they get reversed by accident.
 
 **Content modes**
 
-- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **five hundred floors each at levels 1
-  to 236, all seven complete**. What a tower is for, the three fields a clear may never touch, the
-  five crews, and twenty-eight hundreds' worth of measured escalation findings.
+- **[docs/towers.md](../../docs/towers.md)** — seven faction towers, **six hundred floors each at levels 1
+  to 283 — the Human Tower complete and the other six at five hundred while a fifth round is in
+  flight**. What a tower is for, the three fields a clear may never touch, the six crews, and
+  twenty-nine hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -893,17 +894,50 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. ⚠️ **Both lists are gone and the round is closed: the height
-  is 500 and all seven towers are there**, the Demon Tower's fifth hundred deleting the lists and the
-  branches they guarded for the fourth time. They went back **in the same session as the bump**, which
-  is what the fourth hundred's note asked for and the half of the discipline that had never actually
-  been done before — between a bump and the first authored tower there is nothing at all holding the
-  six short ones. **Put the lists back with the next bump, not with the first authored tower**, and
-  restore the shapes they forced — `topFloors` reading the **authored** height and the
-  roof-versus-band-opener comparison computed **per tower** — which stop the sweep reading an
-  undefined stage. ⚠️ **The "and it stays naked" half did _not_ fire this round**: solve the gear ramp's
-  new endpoint to **continue the shipped slope** (Fine 60 at floor 400 carries on to Relic 40 at floor 500) and 90 of the 100 shipped geared floors stay byte-identical. **Solve the gear endpoint the way you
-  solve the level line.** [towers](../../docs/towers.md)
+  notices a tower nobody went back for. ⚠️ **Both lists are back and a fifth round is in flight: the
+  height is 600, the Human Tower is there and the other six are at 500**, and they went back **in the
+  same session as the bump** for the second round running — between a bump and the first authored tower
+  there is nothing at all holding the six short ones. **Put the lists back with every bump, not with
+  the first authored tower**, and keep the shapes they force — `topFloors` reading the **authored**
+  height and the roof-versus-band-opener comparison computed **per tower** — which stop the sweep
+  reading an undefined stage. ⚠️ **The "and it stays naked" half has not fired for two rounds and it
+  is now structurally gone**: `TOWER_RULES.gear.via` pins floor 500 to the set it already wore, so
+  **all 200 shipped geared floors are byte-identical** on every tower, pending or not.
+  [towers](../../docs/towers.md)
+- ⚠️ **The gear ladder is finite where the level line is not, and the sixth hundred is where that
+  bit.** Five extensions running solved a single straight line; the concatenated grade ladder is
+  exactly **300 positions** and the shipped ramp slope of 1.2010 a floor wants **360** at floor 600, so
+  no `to` both preserves floors 301–500 and reaches the roof. ⚠️ **Re-solving the line anyway moves 197
+  of the 200 shipped geared floors, every one of them _lighter_ — which the sweep cannot see**, because
+  a lighter board reads as more survivors: the "band 3 is a walkover and nobody could tell" failure at
+  1,400 boards. That is the condition four separate sessions' "piecewise stays the right answer if an
+  extension ever cannot be solved this way" notes were written for. **The level line is still one
+  solved line and should stay one; check which axis has actually run out.**
+  [towers](../../docs/towers.md)
+- ⚠️ **A refusal recorded on a _size_ expires, and Relic 100 is the case where the same endpoint was
+  rightly refused and rightly taken.** The fifth hundred declined it at **+166.3%** — as the endpoint of
+  the **301 → 500** ramp, where it is ×2.44 in effective tank health from Worn 1 and the ramp becomes
+  the escalation. As the endpoint of a **501 → 600** segment starting at Relic 40 it is **×1.470**,
+  against the shipped fourth hundred's ×1.526 and fifth's ×1.507 — gentler than either. **State the
+  span a gear figure was measured over.** [towers](../../docs/towers.md)
+- ⚠️ **A throughput axis can fail "gets harder as it is climbed" while every board is right**, because
+  that guard is measured in mean fight **seconds** and `attackSpeed` adds 2.7 of them across its whole
+  range. The Human sixth hundred's first authored pass held the survivor line by thinning its boards and
+  read **12.2s in the lower half against 10.5s in the upper** — backwards. The repair was the **anchor**:
+  cold heavy bodies in the closing bands (1100/24, 900/26) buy length without buying throughput, taking
+  it to 12.4s → 17.0s. **On a throughput axis weight and difficulty come apart — put the seconds in the
+  anchor.** [towers](../../docs/towers.md)
+- ⚠️ **When the axis blocks all belong to the lean, the _anchor_ is where the faction budget is.** All
+  four of the Human sixth hundred's `attackSpeed` blocks are Undead and stand on nearly every closing
+  board, so a first pass came out at **91.4% Undead** and would have taken the tower to 68.3% against its
+  own 65% ceiling — and every cold heavy body in the Undead pool spends budget the tower has not got.
+  Cold **Monster** anchors solved the fight length and the budget with one choice: 68.0% shipped, tower
+  at 64.39%. The Demon fifth hundred's finding, from the other end. [towers](../../docs/towers.md)
+- ⚠️ **The tower:campaign crystal ratio decays without anybody touching it, so recompute _both_ totals
+  rather than carrying either.** The fifth hundred recorded 3.093 against "the 25-chapter campaign's
+  351,500"; chapters 26–29 shipped, the campaign now pays **420,500**, and the same seven
+  five-hundred-floor towers were really at **2.585**. It reads **2.655** now and a completed round is
+  **3.101**. [towers](../../docs/towers.md)
 - ⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat.** The
   Demon fifth hundred's `dodge` ranks the binding arrangement **sixth of fourteen**, which by the usual
   test is a refusal — but `dodge`'s cost correlates **0.772** with how long a crew's fights already

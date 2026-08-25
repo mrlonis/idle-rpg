@@ -1,15 +1,24 @@
 # Faction towers
 
-Seven towers, one per faction, **five hundred floors each at enemy levels 1 to 236 — all seven
-complete.** The system shipped in milestone 15b with a single tower, the other six in 15c, the second
-hundred floors across 21e–21k, the third across 21l–21r, the fourth across 21s–21y and the fifth
-across 21z and after — the Demon Tower last in both of the last two rounds, which is what closed
-them. Read [`core/towers.ts`](../src/core/towers.ts) before touching them; [authoring](authoring.md)
-is the procedure for adding floors.
+Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human Tower
+complete and the other six at five hundred while a fifth round is in flight.** The system shipped in
+milestone 15b with a single tower, the other six in 15c, the second hundred floors across 21e–21k, the
+third across 21l–21r, the fourth across 21s–21y and the fifth across 21z and after — the Demon Tower
+last in both of the last two rounds, which is what closed them. Read
+[`core/towers.ts`](../src/core/towers.ts) before touching them; [authoring](authoring.md) is the
+procedure for adding floors.
 
-⚠️ **The `PENDING` lists went back in the same session as the bump and came out with the last tower**
+⚠️ **The sixth hundred is the first extension the _gear_ ladder could not absorb, and it is where
+`floorGear` went piecewise.** The concatenated grade ladder is 300 positions and the shipped slope of
+1.2010 a floor wants 360 at floor 600, so no single line both preserves floors 301–500 and reaches the
+roof; re-solving the line instead moves **197 of the 200 shipped geared floors, all of them lighter**,
+which the sweep cannot see. `TOWER_RULES.gear.via` pins floor 500 to the Relic 40 it already wore.
+**The level line is still a single solved line and should stay one** — the two axes ran out at
+different times, and only one of them ran out.
+
+⚠️ **The `PENDING` lists went back in the same session as the bump, for the second round running**
 — which is what the fourth hundred's note asked for, and the half of the discipline that had never
-actually been done before. `TOWER_RULES` is one rule for all seven, so the height moves in a single
+actually been done before that. `TOWER_RULES` is one rule for all seven, so the height moves in a single
 session while the floors arrive one tower at a time — which means that for six sessions running,
 towers are authored a hundred floors short. A tower in that
 state sits on a literal `PENDING` list in [`towers.spec.ts`](../src/data/towers.spec.ts) and
@@ -131,27 +140,39 @@ legally hold the level it is fielded at. The ratios read **1.600 / 1.689 / 1.676
 
 `floorLevel` draws **one line from floor 1**, so raising `floors` re-draws it underneath content that
 already shipped. Solving for the top level at which the new slope meets the old one is what makes the
-expected retune disappear, and it has now worked twice:
+expected retune disappear, and it has now worked **five times**:
 
-| Extension | Floors    | topLevel  | New slope | Old slope | Shipped floors that move |
-| --------- | --------- | --------- | --------- | --------- | ------------------------ |
-| 21e       | 100 → 200 | 60 → 120  | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
-| the third | 200 → 300 | 95 → 142  | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
-| this one  | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
+| Extension  | Floors    | topLevel  | New slope | Old slope | Shipped floors that move |
+| ---------- | --------- | --------- | --------- | --------- | ------------------------ |
+| 21e        | 100 → 200 | 60 → 120  | 0.5980    | 0.5960    | 10 of 700, by 1 level    |
+| the third  | 200 → 300 | 95 → 142  | 0.4716    | 0.4724    | 17 of 200, by 1 level    |
+| the fourth | 300 → 400 | 142 → 189 | 0.4712    | 0.4716    | 18 of 300, by 1 level    |
+| the fifth  | 400 → 500 | 189 → 236 | 0.4709    | 0.4712    | 20 of 400, by 1 level    |
+| this one   | 500 → 600 | 236 → 283 | 0.4708    | 0.4709    | 21 of 500, by 1 level    |
 
-**236 is where the two slopes meet**: 1 + 0.4712 × 499 = 236.12, and the four band boundaries below it
-— floors 100, 200, 300 and 400 — still close at 48, 95, 142 and 189, so **no band's crew moved by a
-level.**
+**283 is where the two slopes meet**: 1 + 0.4709 × 599 = 283.09, and the five band boundaries below it
+— floors 100, 200, 300, 400 and 500 — still close at 48, 95, 142, 189 and 236, so **no band's crew moved
+by a level.**
 
 ⚠️ **The neighbours are much worse and the penalty is not smooth**, so solve rather than eyeball.
-Measured over the 400 shipped floors: 235 moves **179**, 237 moves **140**, 234 moves 282 and 233 moves
-319, against 236's **20**. ⚠️ **A round _slope_ is the trap**: at 500 floors exactly 0.47 levels a floor
-wants a roof of 235, which moves 179; at 400 floors 0.50 wanted 200, which moved **273 of 300 by up to 8
-levels** and landed its lump exactly on the campaign's stage-400 payout, failing the one bound that may
-never be crossed. ⚠️ **The payout bound was checked first at the fifth hundred, as the fourth hundred's
-note demanded, and it cleared**: the roof of 236 pays **18,880** against the campaign's stage-500 lump of
-20,000, and the highest legal roof is **249** — thirteen levels of margin where the fourth had ten.
-Check it first again at the sixth; it is the constraint most likely to be the one that finally bites.
+Measured over the 500 shipped floors: 282 moves **228**, 284 moves **188**, 281 moves 356 and 285 moves
+341, against 283's **21**. ⚠️ **A round _slope_ is the trap**: at 400 floors 0.50 wanted 200, which moved
+**273 of 300 by up to 8 levels** and landed its lump exactly on the campaign's stage-400 payout, failing
+the one bound that may never be crossed.
+
+⚠️ **The payout bound was checked first again at the sixth hundred and it cleared — but only because
+the campaign moved.** The roof of 283 matches campaign stage 566 and pays **22,640** against the
+stage-600 lump of 24,000, and the highest legal roof is **297**: fourteen levels of margin, up from
+thirteen. What bought that is chapters 26–29 shipping after the tower round closed, taking the ladder
+from 1,210 stages to 1,450. **Read it as a warning rather than a reprieve** — this bound is a race
+between two ladders, and the tower won this round only because the campaign happened to be growing.
+
+⚠️ **What actually bit at six hundred was the _gear_ ladder rather than the level line.** A level is
+unbounded; the concatenated grade ladder is exactly 300 positions, and the shipped ramp slope wants
+360 of them at floor 600. That is the condition four separate "piecewise stays the right answer if an
+extension ever cannot be solved this way" notes were written for, and it was met by the gear axis and
+**not** by the level axis. See [`core/towers.ts`](../src/core/towers.ts) for the interface and
+[`data/towers.ts`](../src/data/towers.ts) for why re-solving the single line was refused.
 
 ⚠️ **The moved floors are a real edit and it lands in all seven files, not in the extended one.** At
 300 → 400 an 18-floor shift invalidated **fifteen band headers** across the seven tower files; at
@@ -214,15 +235,20 @@ restatement of a guard is a number you would refuse to author, the guard is poin
 quantity.**
 
 ⚠️ **The stable ceiling went with it, and the fourth hundred is where that started to matter.** Nothing
-fails now that the towers pay **more than three times** what the spine's first clears do. Recomputed by
-hand with **all seven at five hundred floors**: the seven pay **1,087,100** against the 25-chapter
-campaign's **351,500**, a ratio of **3.093** — it read 901,100 / 2.563, 932,100 / 2.652,
-963,100 / 2.740, 994,100 / 2.828, 1,024,500 / 2.915 and 1,055,800 / 3.004 with one through six towers
-extended. ⚠️ **The fourth hundred predicted 1,087,100 and 3.093 for a completed round and the round
-landed on it exactly**, which is what makes recomputing by hand worth doing: the prediction was
-checkable and it was checked. Weigh it before proposing a sixth hundred. A five-hundred floor tower
-pays 55,300 from floors and 155,300 with both tracks, against a four-hundred floor tower's 44,300 and
-124,300.
+fails now that the towers pay **more than two and a half times** what the spine's first clears do.
+
+⚠️ **Recomputing by hand at the sixth hundred found the fifth hundred's reading had gone stale, which
+is the argument for the discipline rather than against it.** The fifth recorded **1,087,100 / 351,500 =
+3.093** and predicted it; chapters 26–29 have shipped since, the campaign now pays **420,500** over
+1,450 stages, and those same seven five-hundred-floor towers were really at **2.585** by the time the
+sixth hundred opened. **A ratio between two moving ladders decays without anybody touching it — do not
+carry either total forward.**
+
+Measured now: seven towers with the Human at six hundred and six pending pay **1,116,300** against
+420,500, a ratio of **2.655**. A completed round is **1,304,100** and **3.101** — the figure to weigh
+before a seventh hundred. A six-hundred floor tower pays 66,300 from floors and 186,300 with both
+tracks, against a five-hundred floor tower's 55,300 and 155,300; a pending tower pays 155,000, because
+its floor 500 resolves as a mini-boss.
 
 ⚠️ **The direction is the finding, and it is the _ceiling_ that is under pressure rather than the
 floor.** The retired guard's floor was expected to fall as chapters shipped; instead the campaign nearly
@@ -513,11 +539,117 @@ choosing; do not copy the last session's shape.**
 - **Demon, third hundred** — the last of that round, and the first where the axis is a stat that
   **denies the crew's own signature stat**: `critBlock` and `critDamageResist` against the crit-heaviest
   roster in the game. See below.
-- **Demon, fourth hundred** — **the last hundred of the tower system**, and the only one whose axis is a
+- **Human, sixth hundred** — the Headlong. `attackSpeed`, chosen on **fight length** against a crew
+  whose own tower bar is 67.5s: it grades nine steps to 3.05 of five and adds **2.7 seconds** where
+  every comparable axis adds twelve to twenty-one. No lock is exclusively the Humans' for the second
+  hundred running, so the licence is margin. Its register is **entirely Elf**, so the Undead lean
+  creates it from nothing. **The first extension the gear ladder could not absorb.** See below.
+- **Demon, fourth hundred** — the axis is a
   mechanic two towers had already measured and declined: `magicResist`, re-priced at band 4 against the
   only crew in the game whose damage is entirely magical and whose sole armour answer — the game's
   largest `magicPierce` — is the wrong stat by the damage formula. The seventh geared hundred and the
   sixth to inherit the ramp rather than spend it. See below.
+
+### The Human Tower's sixth hundred: the Headlong, and the extension the gear ladder could not absorb
+
+⚠️ **This is the second `core/` change a tower content session has taken, and the first that four
+earlier sessions had explicitly pre-authorised.** `TowerGearRampData` gained an optional `via` list of
+waypoints and `floorGear` walks a chain of segments instead of one line. Every one of 21e, the fourth
+hundred, the fifth and this one had recorded that piecewise "stays the right answer if a future
+extension ever cannot be solved this way" — **and it was the gear axis rather than the level axis that
+actually ran out.** A level is unbounded; the concatenated grade ladder is exactly 300 positions, and
+the shipped slope of 1.2010 a floor wants **360** of them at floor 600. See
+[`core/towers.ts`](../src/core/towers.ts).
+
+⚠️ **Re-solving the single line instead was measured and refused, and the reason is that its failure is
+silent.** Landing Relic 100 on the roof moves **197 of the 200 shipped geared floors** by up to 40
+positions, **every one of them lighter** — floor 500 drops Relic 40 → Masterwork 80. A lighter board
+reads as _more_ survivors, so the sweep stays green while the fourth and fifth hundreds of all seven
+towers quietly become walkovers: the "band 3 is a walkover and nobody could tell" failure at 1,400
+boards. With `via` pinning floor 500 to the Relic 40 it already wore, **all 200 are byte-identical**.
+
+⚠️ **Relic 100 was declined at the fifth hundred and taken at the sixth, and that is not a reversal.**
+The refusal was about it terminating the **301 → 500** ramp, where it is ×2.44 in effective tank health
+from Worn 1 and the ramp becomes the escalation. As the endpoint of a **501 → 600** segment starting at
+Relic 40 it is **×1.470**, against the shipped fourth hundred's ×1.526 and fifth's ×1.507 — gentler than
+either. **A refusal recorded on a size expires; state the span the figure was measured over.**
+
+#### The axis is `attackSpeed`, and no lock on this tower is exclusively the Humans' — twice now
+
+Eight candidates and three pairings priced across all fourteen shipped arrangements at band 6, each
+crew calibrated to the heaviest control it still reads ≥3.60 on, rank the binding Human arrangement
+**between fifth and tenth of fourteen on every one**. That is the fifth hundred's finding at a
+different rung against a different control, which is what turns it from a result into a property of the
+faction: **the Humans are the balanced faction, and the price of being balanced is that no stat is
+theirs.** The licence is **margin rather than exclusivity**, for the second hundred running.
+
+⚠️ **What chose `attackSpeed` is the clock.** Against a control of an `ascended` 920/41 behind four
+570/30 at level 283 wearing Relic 100 — reading 3.95 / 2.92 and moving in both directions, forty seeds,
+zero timeouts:
+
+| axis                 | ref / alt worth | mean fight |
+| -------------------- | --------------- | ---------- |
+| `attackSpeed` 85     | 3.05 / 2.83     | **20.6s**  |
+| `physicalResist` 0.5 | 3.92 / 3.02     | 38.7s      |
+| `def` 110            | 2.45 / 3.00     | 33.6s      |
+| `dodge` 0.40         | 2.52 / 2.67     | 30.5s      |
+| `magicResist` 0.60   | **0.02 / 0.07** | 18.1s      |
+
+The control is 17.9s, so `attackSpeed` grades nine monotone steps and **buys 2.7 seconds doing it**
+where everything comparable costs twelve to twenty-one. This tower's bar is 67.5s on a cleared fight
+and the hundred below already reads 35.0s.
+
+⚠️ **The register is entirely Elf, so this hundred creates it on the Undead side from nothing.**
+`attackSpeed` sits on **14 of 418 shipped blocks and every one is Elf** — the Undead Tower's own lean,
+since the counter cycle is `elf → undead → human` — median 15, ceiling 110, and **zero Undead and zero
+Human blocks carry a point of it**. That is chapter 27's shape rather than chapter 28's: the lean
+carries none of the axis and the boards have to supply it. Authored 14 → 55, inside the register.
+
+⚠️ **`magicResist` is worth 0.00 here and that is the formula rather than the size** — `resistedShare`
+multiplies after `effectiveDefence`, and a Human five deals essentially no magical damage.
+
+#### The three findings a throughput axis produced that a weight axis would not
+
+- ⚠️ **A throughput axis nearly failed "gets harder as it is climbed", which is measured in _seconds_.**
+  The first authored pass held the survivor line by thinning the boards and read **12.2s in the lower
+  half against 10.5s in the upper** — backwards. The repair was the **anchor**: cold heavy bodies in the
+  closing bands (`SHALEBED_CRAWLER` 1100/24, `ROUGHCAST_GNAWER` 900/26) buy fight length without buying
+  throughput, and the hundred now reads **12.4s → 17.0s**. **On a throughput axis, weight and difficulty
+  come apart — put the seconds in the anchor.**
+- ⚠️ **Those cold anchors are Monster, and that is the faction budget rather than a flourish.** All four
+  axis blocks are Undead and stand on nearly every closing board, so a first pass came out at **91.4%
+  Undead** and would have taken the tower to 68.3% against its own 65% ceiling. Every cold heavy body in
+  the _Undead_ pool spends budget the tower has not got. It ships at **68.0%** and the tower at
+  **64.39%**. **When the axis blocks all belong to the lean, the anchor is where the budget is** — the
+  Demon fifth hundred's finding, solved from the other end.
+- ⚠️ **A lone carrier is worth almost nothing, and the first table said the opposite because it was
+  confounded.** Carried on **one** body moved between ranks, a carrier is worth −0.05 to 0.02 in front
+  and 0.00 to 0.33 behind — chapter 28's sign at half the size. The first reading put the stat on the
+  anchor in the front case and on three commons in the back case and read the reverse. **A rank
+  comparison must be carried on one body**; this is the second time that trap was caught rather than
+  shipped.
+
+⚠️ **Every carrier is authored on a cooldown of 62 to 78, and that is half the mechanic.** The stat
+accrues only after a **basic attack**, so its marginal worth rises with the cooldown — **1.08 of five
+behind a 20-tick skill, 1.40 behind a 50, 1.66 behind an 80**. Read as the _marginal_ worth over the
+same board with the stat stripped: the absolute column falls with the cooldown, because the skill itself
+is worth more when it fires often, and it hides the trend completely.
+
+⚠️ **The roof's attack is the question and its escort is very nearly as much of one.** A first draft at
+1050/38 read **0% on every escort shape and at every weight from 1200 down to 660**, with the fight
+getting _longer_ as the boss shrank — chapter 19's signature. Weight moved it not at all; **attack
+settled it at 25**, and the escort came down from four 300/30 bodies to four 230/23 ones on top of that.
+It ships at 100% / 3.80 against 90% / 1.38, at 27.9s.
+
+⚠️ **Five anchors retire from the closing bands and the survivor is the lightest on attack.** Fielded
+alone behind four 300/20 bodies at floor 600, `THE_GRAVEWRIGHT` (1560/90), `TYRANT` (1550/96),
+`BARROW_SOVEREIGN` (1350/84), `THE_PANOPLY` (1240/68) and `THE_IRONPACE` (1160/44) all read **0% /
+0.00**, while `THE_LEADEN_HOUR` at **1080/36** reads 100% / 3.88. **Shortlist on weight, settle on
+attack** — chapter 20's rule, on a retirement check. **"Retires" means from the closing bands**: every
+one of the five anchors the opening bands and reads 100% there.
+
+⚠️ **It is the first hundred in any tower with no grade boundary inside it**, because Relic is the last
+grade — so the "a band after a boundary opens heavier" rule does not apply to it at all.
 
 ### The Human Tower's fourth hundred: the equipment is the escalation
 
